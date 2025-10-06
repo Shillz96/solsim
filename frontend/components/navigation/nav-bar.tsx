@@ -55,6 +55,14 @@ export function NavBar() {
               </SheetTrigger>
               <SheetContent side="left" className="w-64 bg-background border-border">
                 <div className="flex flex-col gap-4 mt-8">
+                  {/* SOL Balance Display for Mobile */}
+                  {isAuthenticated && (
+                    <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-card border border-border shadow-sm mb-4">
+                      <div className="h-2 w-2 rounded-full bg-accent animate-pulse" />
+                      <span className="text-sm font-semibold text-foreground font-mono">{balanceNumber.toFixed(2)} SOL</span>
+                    </div>
+                  )}
+                  
                   {navLinks.map((link) => (
                     <Link
                       key={link.href}

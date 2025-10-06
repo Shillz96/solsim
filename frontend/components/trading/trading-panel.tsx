@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { TrendingUp, TrendingDown, Wallet, Settings, AlertCircle, CheckCircle } from "lucide-react"
+import { TrendingUp, TrendingDown, Wallet, Settings, AlertCircle, CheckCircle, Loader2, RefreshCw } from "lucide-react"
 import { useAuth, useTrading, usePortfolio } from "@/lib/api-hooks-v2"
 import { useToast } from "@/hooks/use-toast"
 import marketService from "@/lib/market-service"
@@ -26,7 +26,7 @@ export function TradingPanel({ tokenAddress: propTokenAddress }: TradingPanelPro
 
   // Hooks
   const { user } = useAuth()
-  const { data: portfolio, refetch: refreshPortfolio } = usePortfolio()
+  const { data: portfolio, refetch: refreshPortfolio, isLoading: portfolioLoading, error: portfolioError } = usePortfolio()
   const { isTrading, tradeError, executeBuy, executeSell, clearError } = useTrading()
   const { toast } = useToast()
 
@@ -34,6 +34,7 @@ export function TradingPanel({ tokenAddress: propTokenAddress }: TradingPanelPro
   const [tokenDetails, setTokenDetails] = useState<TokenDetails | null>(null)
   const [tokenHolding, setTokenHolding] = useState<PortfolioPosition | null>(null)
   const [loadingToken, setLoadingToken] = useState(true)
+  const [isRefreshing, setIsRefreshing] = useState(false)
   const [customSolAmount, setCustomSolAmount] = useState("")
   const [selectedSolAmount, setSelectedSolAmount] = useState<number | null>(null)
   const [selectedPercentage, setSelectedPercentage] = useState<number | null>(null)
@@ -44,10 +45,16 @@ export function TradingPanel({ tokenAddress: propTokenAddress }: TradingPanelPro
   const sellPercentages = [25, 50, 75, 100]
 
   // Load token details and user holding
-  const loadTokenData = useCallback(async () => {
+  const loadTokenData = useCallback(async (isRefresh = false) => {
     if (!tokenAddress) return
 
-    setLoadingToken(true)
+    // Only show loading skeleton on initial load, not on refresh
+    if (!isRefresh) {
+      setLoadingToken(true)
+    } else {
+      setIsRefreshing(true)
+    }
+    
     try {
       const [details] = await Promise.all([
         marketService.getTokenDetails(tokenAddress)
@@ -55,11 +62,40 @@ export function TradingPanel({ tokenAddress: propTokenAddress }: TradingPanelPro
       
       setTokenDetails(details)
 
-      // Find user's holding for this token
-      if (portfolio?.positions) {
-        const holding = portfolio.positions.find(p => p.tokenAddress === tokenAddress)
-        setTokenHolding(holding || null)
+      // Enhanced holding detection with better validation
+      let holding: PortfolioPosition | null = null
+      
+      if (portfolio?.positions && Array.isArray(portfolio.positions)) {
+        // Look for exact token address match with valid quantity
+        holding = portfolio.positions.find(p => 
+          p?.tokenAddress === tokenAddress && 
+          p?.quantity && 
+          parseFloat(p.quantity) > 0
+        ) || null
+        
+        console.log('Portfolio positions for token search:', {
+          tokenAddress: tokenAddress.substring(0, 8) + '...',
+          totalPositions: portfolio.positions.length,
+          foundHolding: !!holding,
+          holdingQuantity: holding?.quantity || 'none'
+        })
+      } else {
+        console.log('No portfolio positions available:', {
+          portfolioLoaded: !!portfolio,
+          hasPositions: !!portfolio?.positions,
+          positionsType: typeof portfolio?.positions,
+          portfolioLoading,
+          portfolioError: !!portfolioError
+        })
+        
+        // Auto-refresh portfolio if we don't have positions but should
+        if (portfolio && !portfolioLoading && !portfolioError) {
+          console.log('Auto-refreshing portfolio due to missing positions')
+          refreshPortfolio()
+        }
       }
+      
+      setTokenHolding(holding)
     } catch (error) {
       console.error('Failed to load token data:', error)
       toast({
@@ -69,8 +105,9 @@ export function TradingPanel({ tokenAddress: propTokenAddress }: TradingPanelPro
       })
     } finally {
       setLoadingToken(false)
+      setIsRefreshing(false)
     }
-  }, [tokenAddress, portfolio, toast])
+  }, [tokenAddress, portfolio, toast, portfolioLoading, portfolioError, refreshPortfolio])
 
   useEffect(() => {
     loadTokenData()
@@ -112,18 +149,45 @@ export function TradingPanel({ tokenAddress: propTokenAddress }: TradingPanelPro
         return
       }
     } else {
-      // Sell
-      if (!selectedPercentage || !tokenHolding) {
+      // Sell validation with enhanced error messages
+      if (!tokenHolding) {
         toast({
-          title: "Invalid Selection",
-          description: "Please select a percentage to sell",
+          title: "No Token Holdings",
+          description: `You don't have any ${tokenDetails?.name || 'tokens'} to sell. Make sure you've purchased some first.`,
+          variant: "destructive"
+        })
+        return
+      }
+      
+      if (!selectedPercentage) {
+        toast({
+          title: "Select Amount",
+          description: "Please select a percentage of your holdings to sell",
           variant: "destructive"
         })
         return
       }
 
-      const sellQuantity = (parseFloat(tokenHolding.quantity) * selectedPercentage) / 100
+      const holdingQuantity = parseFloat(tokenHolding.quantity)
+      if (isNaN(holdingQuantity) || holdingQuantity <= 0) {
+        toast({
+          title: "Invalid Holdings",
+          description: "Your token balance appears to be invalid. Try refreshing your portfolio.",
+          variant: "destructive"
+        })
+        return
+      }
+
+      const sellQuantity = (holdingQuantity * selectedPercentage) / 100
       amountSol = sellQuantity * parseFloat(tokenDetails.price.toString()) / 1e9 // Convert to SOL
+      
+      console.log('Sell calculation:', {
+        holdingQuantity,
+        selectedPercentage,
+        sellQuantity,
+        tokenPrice: tokenDetails.price,
+        amountSol
+      })
     }
 
     try {
@@ -146,10 +210,10 @@ export function TradingPanel({ tokenAddress: propTokenAddress }: TradingPanelPro
       setCustomSolAmount("")
       setLastTradeSuccess(true)
 
-      // Refresh data
+      // Refresh data without showing loading skeleton
       await Promise.all([
         refreshPortfolio(),
-        loadTokenData()
+        loadTokenData(true) // Pass true to indicate this is a refresh
       ])
 
       // Clear success indicator after 3 seconds
@@ -224,7 +288,12 @@ export function TradingPanel({ tokenAddress: propTokenAddress }: TradingPanelPro
 
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <h3 className="font-semibold text-lg">Trade {tokenDetails.tokenSymbol || 'Token'}</h3>
+          <div className="flex items-center gap-2">
+            <h3 className="font-semibold text-lg">Trade {tokenDetails.tokenSymbol || 'Token'}</h3>
+            {isRefreshing && (
+              <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+            )}
+          </div>
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <Wallet className="h-4 w-4" />
             <span className="font-mono">{balance.toFixed(2)} SOL</span>
@@ -348,10 +417,12 @@ export function TradingPanel({ tokenAddress: propTokenAddress }: TradingPanelPro
           </div>
 
           <Button 
-            className="w-full bg-accent text-accent-foreground hover:bg-accent/90" 
+            className={`w-full bg-accent text-accent-foreground hover:bg-accent/90 transition-opacity ${
+              isRefreshing ? 'opacity-70' : 'opacity-100'
+            }`} 
             size="lg"
             onClick={() => handleTrade('buy')}
-            disabled={isTrading || (!selectedSolAmount && !customSolAmount)}
+            disabled={isTrading || isRefreshing || (!selectedSolAmount && !customSolAmount)}
           >
             <TrendingUp className="mr-2 h-4 w-4" />
             {isTrading ? 'Processing...' : `Buy ${tokenDetails.tokenSymbol}`}
@@ -359,15 +430,59 @@ export function TradingPanel({ tokenAddress: propTokenAddress }: TradingPanelPro
         </TabsContent>
 
         <TabsContent value="sell" className="space-y-4 mt-4">
-          {!tokenHolding || tokenBalance <= 0 ? (
-            <Alert>
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription>
-                You don't own any {tokenDetails.tokenSymbol || 'tokens'} to sell.
-              </AlertDescription>
-            </Alert>
+          {!tokenHolding || parseFloat(tokenHolding.quantity || '0') <= 0 ? (
+            <div className="space-y-3">
+              <Alert>
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>
+                  You don't own any {tokenDetails?.tokenSymbol || 'tokens'} to sell.
+                  {portfolioLoading ? " Loading your holdings..." : " Purchase some tokens first to enable selling."}
+                </AlertDescription>
+              </Alert>
+              
+              {portfolioError && (
+                <Alert variant="destructive">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription>
+                    Error loading portfolio. 
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      onClick={refreshPortfolio}
+                      className="ml-2"
+                    >
+                      Try again
+                    </Button>
+                  </AlertDescription>
+                </Alert>
+              )}
+            </div>
           ) : (
             <>
+              {/* Show current holdings */}
+              <div className="bg-muted/50 rounded-lg p-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">Your Holdings</span>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={() => loadTokenData(true)}
+                    disabled={isRefreshing}
+                    className="h-6 px-2"
+                  >
+                    <RefreshCw className={`h-3 w-3 ${isRefreshing ? 'animate-spin' : ''}`} />
+                  </Button>
+                </div>
+                <div className="font-mono text-lg font-semibold">
+                  {parseFloat(tokenHolding.quantity).toLocaleString(undefined, { maximumFractionDigits: 6 })} {tokenDetails?.tokenSymbol || 'tokens'}
+                </div>
+                {tokenHolding.pnl && (
+                  <div className={`text-sm ${parseFloat(tokenHolding.pnl.sol.absolute) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    {parseFloat(tokenHolding.pnl.sol.absolute) >= 0 ? '+' : ''}{parseFloat(tokenHolding.pnl.sol.absolute).toFixed(4)} SOL 
+                    ({tokenHolding.pnl.sol.percent >= 0 ? '+' : ''}{tokenHolding.pnl.sol.percent.toFixed(2)}%)
+                  </div>
+                )}
+              </div>
               <div className="space-y-2">
                 <Label>Amount (% of holdings)</Label>
                 <div className="grid grid-cols-2 gap-2">
@@ -428,10 +543,12 @@ export function TradingPanel({ tokenAddress: propTokenAddress }: TradingPanelPro
               </div>
 
               <Button 
-                className="w-full bg-destructive text-destructive-foreground hover:bg-destructive/90" 
+                className={`w-full bg-destructive text-destructive-foreground hover:bg-destructive/90 transition-opacity ${
+                  isRefreshing ? 'opacity-70' : 'opacity-100'
+                }`} 
                 size="lg"
                 onClick={() => handleTrade('sell')}
-                disabled={isTrading || !selectedPercentage}
+                disabled={isTrading || isRefreshing || !selectedPercentage}
               >
                 <TrendingDown className="mr-2 h-4 w-4" />
                 {isTrading ? 'Processing...' : `Sell ${tokenDetails.tokenSymbol}`}

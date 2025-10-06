@@ -1,5 +1,6 @@
 "use client"
 
+import { useState } from "react"
 import { TrendingUp, TrendingDown, Loader2, AlertCircle } from "lucide-react"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -11,8 +12,15 @@ import type { TrendingToken } from "@/lib/types/api-types"
 
 export function EnhancedTrendingList() {
   const { data: trendingTokens, isLoading: loading, error, refetch: refresh } = useTrendingTokens(5) // Limit to 5 for sidebar
+  const [isRefreshing, setIsRefreshing] = useState(false)
+  
+  const handleRefresh = async () => {
+    setIsRefreshing(true)
+    await refresh()
+    setIsRefreshing(false)
+  }
 
-  if (loading) {
+  if (loading && !trendingTokens) {
     return (
       <Card className="p-4">
         <div className="flex items-center justify-center h-32">
@@ -30,7 +38,7 @@ export function EnhancedTrendingList() {
           <AlertCircle className="h-4 w-4" />
           <AlertDescription className="text-xs">
             Failed to load trending tokens
-            <Button variant="outline" size="sm" className="ml-2 h-6 text-xs" onClick={() => refresh()}>
+            <Button variant="outline" size="sm" className="ml-2 h-6 text-xs" onClick={handleRefresh}>
               Retry
             </Button>
           </AlertDescription>
@@ -48,7 +56,8 @@ export function EnhancedTrendingList() {
         </Badge>
       </div>
 
-      {trendingTokens?.map((token) => (
+      <div className={`space-y-2 transition-opacity ${isRefreshing ? 'opacity-70' : 'opacity-100'}`}>
+        {trendingTokens?.map((token) => (
         <Card
           key={token.tokenAddress}
           className="p-3 cursor-pointer transition-all hover:border-primary/50 hover:glow-primary"
@@ -87,7 +96,8 @@ export function EnhancedTrendingList() {
             </div>
           </div>
         </Card>
-      ))}
+        ))}
+      </div>
     </div>
   )
 }

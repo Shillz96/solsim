@@ -191,38 +191,83 @@ router.post('/execute', tradeLimiter, async (req: Request, res: Response, next: 
       return;
     }
 
-    // Get token metadata with timeout
+    // Get token price and metadata concurrently
     let tokenData;
+    let tokenMetadata;
+    
     try {
-      tokenData = await Promise.race([
-        priceService.getPrice(tokenAddress),
-        new Promise((_, reject) =>
-          setTimeout(() => reject(new Error('Token info timeout')), 5000)
-        ),
+      // Fetch price and metadata in parallel with proper timeout handling
+      const [priceResult, metadataResult] = await Promise.allSettled([
+        Promise.race([
+          priceService.getPrice(tokenAddress),
+          new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('Price timeout')), 5000)
+          ),
+        ]),
+        Promise.race([
+          req.app.locals.services.metadataService.getMetadata(tokenAddress),
+          new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('Metadata timeout')), 3000)
+          ),
+        ])
       ]);
+
+      // Handle price result
+      if (priceResult.status === 'fulfilled') {
+        tokenData = priceResult.value;
+      } else {
+        logger.warn(`Price fetch failed for ${tokenAddress}:`, priceResult.reason);
+        tokenData = {
+          address: tokenAddress,
+          price: 0,
+          timestamp: Date.now(),
+          source: 'fallback' as const
+        };
+      }
+
+      // Handle metadata result
+      if (metadataResult.status === 'fulfilled') {
+        tokenMetadata = metadataResult.value;
+      } else {
+        logger.warn(`Metadata fetch failed for ${tokenAddress}:`, metadataResult.reason);
+        tokenMetadata = {
+          symbol: tokenAddress.substring(0, 8).toUpperCase(),
+          name: `Token ${tokenAddress.substring(0, 8)}`,
+          logoUri: null
+        };
+      }
+
     } catch (error) {
-      logger.warn(`Token info fetch failed for ${tokenAddress}:`, error);
-      // Continue with trade using fallback data
+      logger.error(`Unexpected error fetching token data for ${tokenAddress}:`, error);
+      // Fallback for both price and metadata
       tokenData = {
         address: tokenAddress,
         price: 0,
         timestamp: Date.now(),
         source: 'fallback' as const
       };
+      tokenMetadata = {
+        symbol: tokenAddress.substring(0, 8).toUpperCase(),
+        name: `Token ${tokenAddress.substring(0, 8)}`,
+        logoUri: null
+      };
     }
 
-    // Execute trade
+    // Execute trade with enhanced metadata
     let result;
+    const tradeRequest = { 
+      tokenAddress, 
+      amountSol,
+      // Include metadata for trade service
+      tokenSymbol: tokenMetadata.symbol,
+      tokenName: tokenMetadata.name,
+      tokenImageUrl: tokenMetadata.logoUri
+    };
+
     if (action === 'buy') {
-      result = await tradeService.executeBuy(
-        userId,
-        { tokenAddress, amountSol }
-      );
+      result = await tradeService.executeBuy(userId, tradeRequest);
     } else {
-      result = await tradeService.executeSell(
-        userId,
-        { tokenAddress, amountSol }
-      );
+      result = await tradeService.executeSell(userId, tradeRequest);
     }
 
     // Emit WebSocket notification

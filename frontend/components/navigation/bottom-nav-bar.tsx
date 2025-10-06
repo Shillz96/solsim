@@ -39,36 +39,8 @@ export function BottomNavBar() {
     <>
       {/* Mobile Bottom Nav */}
       <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-card/95 backdrop-blur-xl md:hidden">
-        <div className="flex items-center justify-around h-16 relative">
-          {navItems.slice(0, 2).map((item) => {
-            const Icon = item.icon
-            const isActive = pathname === item.href
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={cn(
-                  "flex flex-col items-center justify-center gap-1 px-4 py-2 transition-colors",
-                  isActive ? "text-primary" : "text-muted-foreground hover:text-foreground",
-                )}
-              >
-                <Icon className={cn("h-5 w-5", isActive && "glow-primary")} />
-                <span className="text-xs font-medium">{item.label}</span>
-              </Link>
-            )
-          })}
-
-          <Link
-            href="/create"
-            className="flex flex-col items-center justify-center -mt-8 transition-transform hover:scale-105 active:scale-95"
-          >
-            <div className="flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-br from-primary to-primary/80 shadow-lg shadow-primary/50 glow-primary">
-              <Plus className="h-7 w-7 text-primary-foreground" strokeWidth={2.5} />
-            </div>
-            <span className="text-xs font-medium text-primary mt-1">Create</span>
-          </Link>
-
-          {navItems.slice(2).map((item) => {
+        <div className="flex items-center justify-around h-16">
+          {navItems.map((item) => {
             const Icon = item.icon
             const isActive = pathname === item.href
             return (

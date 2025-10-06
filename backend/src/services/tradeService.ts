@@ -39,6 +39,10 @@ import prisma from '../lib/prisma.js';
 export interface TradeRequest {
   tokenAddress: string;
   amountSol: number; // Amount in SOL (for both buy and sell)
+  // Optional metadata fields
+  tokenSymbol?: string;
+  tokenName?: string;
+  tokenImageUrl?: string;
 }
 
 export interface InternalTradeRequest {
@@ -137,6 +141,9 @@ export class TradeService {
       const result = await this.executeTradeTransaction({
         userId,
         tokenAddress: request.tokenAddress,
+        tokenSymbol: request.tokenSymbol,
+        tokenName: request.tokenName,
+        tokenImageUrl: request.tokenImageUrl,
         action: 'BUY',
         quantity: quantity.toString(),
         price: tokenPrice.price.toString(),
@@ -229,6 +236,9 @@ export class TradeService {
       const result = await this.executeTradeTransaction({
         userId,
         tokenAddress: request.tokenAddress,
+        tokenSymbol: request.tokenSymbol || holding.tokenSymbol,
+        tokenName: request.tokenName || holding.tokenName,
+        tokenImageUrl: request.tokenImageUrl || holding.tokenImageUrl,
         action: 'SELL',
         quantity: quantity.toString(),
         price: tokenPrice.price.toString(),

@@ -1,11 +1,13 @@
 "use client"
 
 import { Card } from "@/components/ui/card"
-import { TrendingUp, Wallet, Activity } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { TrendingUp, Wallet, Activity, AlertCircle, RefreshCw } from "lucide-react"
 import { motion } from "framer-motion"
 import { SharePnLDialog } from "@/components/modals/share-pnl-dialog"
 import { usePortfolio, useBalance, useRecentTrades } from "@/lib/api-hooks-v2"
-import { memo } from "react"
+import { memo, useState, useCallback } from "react"
 
 const AnimatedBackground = memo(({ isPositive }: { isPositive: boolean }) => {
   return (
@@ -37,22 +39,56 @@ const AnimatedBackground = memo(({ isPositive }: { isPositive: boolean }) => {
 AnimatedBackground.displayName = "AnimatedBackground"
 
 export function PnLCard() {
-  const { data: portfolio, isLoading: portfolioLoading } = usePortfolio()
-  const { data: balance, isLoading: balanceLoading } = useBalance()
-  const { data: trades, isLoading: tradesLoading } = useRecentTrades()
+  const { data: portfolio, isLoading: portfolioLoading, error: portfolioError, refetch: refetchPortfolio } = usePortfolio()
+  const { data: balance, isLoading: balanceLoading, error: balanceError, refetch: refetchBalance } = useBalance()
+  const { data: trades, isLoading: tradesLoading, error: tradesError, refetch: refetchTrades } = useRecentTrades()
+  const [isRefreshing, setIsRefreshing] = useState(false)
 
-  // Extract real data from API responses
+  // Enhanced data extraction with proper validation and fallbacks
   const totalPnLStr = portfolio?.totalPnL?.sol ?? "0"
-  const totalPnL = parseFloat(totalPnLStr)
-  const totalPnLPercent = portfolio?.totalPnL?.percent ?? 0
+  const totalPnL = isNaN(parseFloat(totalPnLStr)) ? 0 : parseFloat(totalPnLStr)
+  const totalPnLPercent = isNaN(portfolio?.totalPnL?.percent) ? 0 : portfolio?.totalPnL?.percent ?? 0
+  
   const currentValueStr = portfolio?.totalValue?.sol ?? "0" 
-  const currentValue = parseFloat(currentValueStr)
+  const currentValue = isNaN(parseFloat(currentValueStr)) ? 0 : parseFloat(currentValueStr)
+  
+  const totalInvestedStr = portfolio?.totalInvested?.sol ?? "0"
+  const totalInvested = isNaN(parseFloat(totalInvestedStr)) ? 0 : parseFloat(totalInvestedStr)
+  
   const initialBalanceStr = balance ?? "0"
-  const initialBalance = parseFloat(initialBalanceStr)
+  const initialBalance = isNaN(parseFloat(initialBalanceStr)) ? 0 : parseFloat(initialBalanceStr)
+  
   const tradesCount = trades?.length ?? 0
+  
+  const hasError = portfolioError || balanceError || tradesError
+  const isLoading = portfolioLoading || balanceLoading || tradesLoading
+  
+  // Handle manual refresh
+  const handleRefresh = useCallback(async () => {
+    setIsRefreshing(true)
+    await Promise.all([
+      refetchPortfolio(),
+      refetchBalance(),
+      refetchTrades()
+    ])
+    setIsRefreshing(false)
+  }, [refetchPortfolio, refetchBalance, refetchTrades])
 
-  // Show loading state if any data is still loading
-  if (portfolioLoading || balanceLoading || tradesLoading) {
+  // Debug logging for development
+  if (process.env.NODE_ENV === 'development') {
+    console.log('PnLCard data:', {
+      portfolio,
+      totalPnL,
+      totalPnLPercent,
+      currentValue,
+      totalInvested,
+      hasError,
+      errors: { portfolioError, balanceError, tradesError }
+    })
+  }
+
+  // Show loading state only on initial load
+  if (isLoading && !portfolio && !balance && !trades) {
     return (
       <Card className="p-6 relative overflow-hidden">
         <div className="space-y-6 relative">
@@ -72,19 +108,62 @@ export function PnLCard() {
     )
   }
 
+  // Show error state if any data failed to load
+  if (hasError) {
+    return (
+      <Card className="p-6 relative overflow-hidden">
+        <div className="space-y-4 relative">
+          <div className="flex items-center justify-between">
+            <p className="text-sm text-muted-foreground">Total P&L</p>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => {
+                refetchPortfolio()
+                refetchBalance()
+                refetchTrades()
+              }}
+              className="text-muted-foreground hover:text-foreground"
+            >
+              <RefreshCw className="h-4 w-4 mr-2" />
+              Retry
+            </Button>
+          </div>
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>
+              Failed to load P&L data. Please try refreshing.
+            </AlertDescription>
+          </Alert>
+        </div>
+      </Card>
+    )
+  }
+
   return (
     <Card className="p-6 relative overflow-hidden">
       <AnimatedBackground isPositive={totalPnL > 0} />
 
-      <div className="space-y-6 relative">
+      <div className={`space-y-6 relative transition-opacity ${isRefreshing ? 'opacity-70' : 'opacity-100'}`}>
         <div className="flex items-center justify-between">
           <p className="text-sm text-muted-foreground">Total P&L</p>
-          <SharePnLDialog
-            totalPnL={totalPnL}
-            totalPnLPercent={totalPnLPercent}
-            currentValue={currentValue}
-            initialBalance={initialBalance}
-          />
+          <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8"
+              onClick={handleRefresh}
+              disabled={isRefreshing}
+            >
+              <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+            </Button>
+            <SharePnLDialog
+              totalPnL={totalPnL}
+              totalPnLPercent={totalPnLPercent}
+              currentValue={currentValue}
+              initialBalance={initialBalance}
+            />
+          </div>
         </div>
 
         <div>
@@ -100,21 +179,29 @@ export function PnLCard() {
           </div>
         </div>
 
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-4 gap-3">
           <div className="space-y-1">
             <div className="flex items-center gap-1 text-muted-foreground">
               <Wallet className="h-3 w-3" />
               <span className="text-xs">Balance</span>
             </div>
-            <p className="font-mono text-sm font-semibold">{initialBalance.toFixed(2)} SOL</p>
+            <p className="font-mono text-sm font-semibold">{initialBalance.toFixed(4)} SOL</p>
+          </div>
+
+          <div className="space-y-1">
+            <div className="flex items-center gap-1 text-muted-foreground">
+              <span className="text-xs">💰</span>
+              <span className="text-xs">Invested</span>
+            </div>
+            <p className="font-mono text-sm font-semibold">{totalInvested.toFixed(4)} SOL</p>
           </div>
 
           <div className="space-y-1">
             <div className="flex items-center gap-1 text-muted-foreground">
               <TrendingUp className="h-3 w-3" />
-              <span className="text-xs">Total Value</span>
+              <span className="text-xs">Value</span>
             </div>
-            <p className="font-mono text-sm font-semibold">{currentValue.toFixed(2)} SOL</p>
+            <p className="font-mono text-sm font-semibold">{currentValue.toFixed(4)} SOL</p>
           </div>
 
           <div className="space-y-1">

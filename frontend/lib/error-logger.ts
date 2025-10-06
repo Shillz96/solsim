@@ -41,6 +41,7 @@ export class ErrorLogger {
   private batchSize: number = 50
   private flushInterval: number = 30000 // 30 seconds
   private flushTimer?: NodeJS.Timeout
+  private monitoringEndpointAvailable: boolean = true
   // Throttling for development logging
   private logThrottle: Map<string, number> = new Map()
   private throttleInterval = 2000 // 2 seconds
@@ -332,8 +333,8 @@ export class ErrorLogger {
     
     // Send to monitoring endpoint if available
     try {
-      if (typeof window !== 'undefined' && navigator.onLine) {
-        await fetch('/api/v1/monitoring/logs', {
+      if (typeof window !== 'undefined' && navigator.onLine && this.monitoringEndpointAvailable) {
+        const response = await fetch('/api/v1/monitoring/logs', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
@@ -344,11 +345,39 @@ export class ErrorLogger {
             timestamp: Date.now()
           })
         })
+        
+        // Handle 405 Method Not Allowed - endpoint doesn't exist
+        if (response.status === 405) {
+          console.debug('Monitoring logs endpoint not available (405), disabling log flushing')
+          this.monitoringEndpointAvailable = false
+          // Clear any existing logs and stop trying
+          this.logs = []
+          this.destroy()
+          return
+        }
+        
+        // Handle other non-success responses
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`)
+        }
       }
     } catch (error) {
-      // Re-add logs if flush failed
-      this.logs.unshift(...logsToFlush)
-      console.error('Failed to flush logs:', error)
+      // Check if this is a 405 error or network error
+      if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
+        // Network error - re-add logs for retry
+        this.logs.unshift(...logsToFlush)
+        console.debug('Network error flushing logs, will retry later')
+      } else if (error.message.includes('405')) {
+        // 405 Method Not Allowed - disable logging
+        console.debug('Monitoring logs endpoint not supported, disabling error logging')
+        this.monitoringEndpointAvailable = false
+        this.logs = []
+        this.destroy()
+      } else {
+        // Other errors - re-add logs for retry but log the error
+        this.logs.unshift(...logsToFlush)
+        console.warn('Failed to flush logs:', error.message)
+      }
     }
   }
 
