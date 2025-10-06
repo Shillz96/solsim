@@ -1,7 +1,7 @@
 {
   "name": "solsim-backend",
   "version": "1.0.0",
-  "description": "SolSim Trading Simulator Backend API",
+  "description": "SolSim Trading Simulator Backend API - v2",
   "type": "module",
   "main": "dist/index.js",
   "scripts": {
