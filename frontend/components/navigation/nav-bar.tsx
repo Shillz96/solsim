@@ -11,7 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { TrendingUp, Menu, User, Settings, LogOut, Bell, Search } from "lucide-react"
+import { Menu, User, Settings, LogOut, Bell, Search } from "lucide-react"
 import { useState } from "react"
 import { AuthModal } from "@/components/modals/auth-modal"
 import { cn } from "@/lib/utils"
@@ -74,11 +74,10 @@ export function NavBar() {
               </SheetContent>
             </Sheet>
 
-            <Link href="/" className="flex items-center gap-2 group">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-accent shadow-lg group-hover:shadow-xl transition-shadow">
-                <TrendingUp className="h-5 w-5 text-white" />
-              </div>
-              <span className="font-heading text-xl font-bold gradient-text">Sol Sim</span>
+            <Link href="/" className="flex items-center group">
+              <span className="font-heading text-2xl font-bold gradient-text tracking-tight group-hover:scale-105 transition-transform duration-200">
+                Sol Sim
+              </span>
             </Link>
           </div>
 

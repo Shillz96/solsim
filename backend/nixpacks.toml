@@ -2,10 +2,12 @@
 nixPkgs = ["nodejs_20", "openssl", "postgresql"]
 
 [phases.install]
-cmds = ["npm ci"]
+cmds = ["npm ci --prefer-offline --no-audit --no-fund --loglevel=error"]
+cacheDirectories = []
 
 [phases.build]
 cmds = ["npm run build"]
+cacheDirectories = []
 
 [start]
 cmd = "node dist/index.js"

@@ -1,5 +1,4 @@
 import Link from "next/link"
-import { TrendingUp } from "lucide-react"
 
 export function Footer() {
   return (
@@ -7,11 +6,10 @@ export function Footer() {
       <div className="container mx-auto px-4 py-12">
         <div className="grid gap-8 md:grid-cols-4">
           <div className="space-y-4">
-            <Link href="/" className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-secondary">
-                <TrendingUp className="h-5 w-5 text-white" />
-              </div>
-              <span className="font-space-grotesk text-xl font-bold gradient-text">Sol Sim</span>
+            <Link href="/" className="flex items-center group">
+              <span className="font-heading text-2xl font-bold gradient-text tracking-tight group-hover:scale-105 transition-transform duration-200">
+                Sol Sim
+              </span>
             </Link>
             <p className="text-sm text-muted-foreground">
               Practice Solana trading with real market data. No financial risk involved.
