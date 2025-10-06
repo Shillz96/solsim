@@ -26,7 +26,14 @@ export class GlobalErrorBoundary extends Component<
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error('Error Boundary caught an error:', error, errorInfo)
+    import('@/lib/error-logger').then(({ errorLogger }) => {
+      errorLogger.error('Enhanced Error Boundary caught an error', {
+        error,
+        errorInfo,
+        action: 'enhanced_error_boundary_triggered',
+        metadata: { componentStack: errorInfo.componentStack }
+      })
+    })
     
     // Log to error reporting service if available
     if (process.env.NODE_ENV === 'production') {
@@ -96,7 +103,13 @@ export class GlobalErrorBoundary extends Component<
 // Hook for handling async errors in function components
 export function useErrorHandler() {
   return (error: Error, errorInfo?: string) => {
-    console.error('Async error occurred:', error, errorInfo)
+    import('@/lib/error-logger').then(({ errorLogger }) => {
+      errorLogger.error('Async error occurred', {
+        error,
+        action: 'async_error_handler',
+        metadata: { errorInfo }
+      })
+    })
     
     // Trigger error boundary by throwing in useEffect
     throw error

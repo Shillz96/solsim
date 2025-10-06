@@ -21,7 +21,7 @@ const DexScreenerChart = dynamic(
 export function HeroSection() {
   return (
     <section className="relative overflow-hidden py-20 md:py-32">
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-background to-accent/10" />
+      <div className="absolute inset-0 gradient-mesh" />
       <motion.div
         className="absolute inset-0 opacity-30"
         animate={{
@@ -32,6 +32,23 @@ export function HeroSection() {
           ],
         }}
         transition={{ duration: 10, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
+      />
+      
+      {/* Floating elements */}
+      <motion.div
+        className="absolute top-20 left-1/4 w-2 h-2 bg-primary/30 rounded-full float"
+        animate={{ y: [0, -20, 0] }}
+        transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+      />
+      <motion.div
+        className="absolute top-1/3 right-1/4 w-1 h-1 bg-accent/40 rounded-full float"
+        animate={{ y: [0, -15, 0], x: [0, 10, 0] }}
+        transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+      />
+      <motion.div
+        className="absolute bottom-1/4 left-1/3 w-1.5 h-1.5 bg-chart-3/30 rounded-full float"
+        animate={{ y: [0, -25, 0], rotate: [0, 180, 360] }}
+        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut", delay: 1 }}
       />
 
       <div className="container relative mx-auto px-4">
@@ -116,9 +133,11 @@ export function HeroSection() {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.3, duration: 0.6 }}
           >
-            <div className="absolute -inset-4 bg-gradient-to-r from-primary/20 via-accent/20 to-primary/20 opacity-50 blur-3xl rounded-full" />
-            <div className="relative rounded-2xl overflow-hidden border border-border bg-card/50 backdrop-blur-sm shadow-2xl">
+            <div className="absolute -inset-4 gradient-trading opacity-30 blur-3xl rounded-full" />
+            <div className="relative rounded-2xl overflow-hidden glass shadow-2xl glow-primary">
               <DexScreenerChart tokenAddress="DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263" />
+              {/* Overlay gradient for better chart integration */}
+              <div className="absolute inset-0 bg-gradient-to-t from-card/20 via-transparent to-transparent pointer-events-none" />
             </div>
           </motion.div>
         </div>

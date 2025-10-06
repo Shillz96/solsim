@@ -44,15 +44,19 @@ export function DexScreenerChart({
         </div>
       )}
       
-      {/* DexScreener iframe */}
+      {/* DexScreener iframe with optimized parameters to reduce console warnings */}
       <iframe
         ref={iframeRef}
-        src={`https://dexscreener.com/solana/${currentToken}?embed=1&theme=dark&trades=0&info=0`}
+        src={`https://dexscreener.com/solana/${currentToken}?embed=1&theme=dark&trades=0&info=0&timezone=UTC`}
         className="h-full w-full"
-        style={{ minHeight: "700px" }}
+        style={{ 
+          minHeight: "700px",
+          touchAction: "pan-x pan-y", // Improve touch handling
+        }}
         title={`DexScreener chart for ${currentToken}`}
         aria-label="Token price chart"
         onLoad={handleIframeLoad}
+        sandbox="allow-scripts allow-same-origin allow-forms"
       />
     </Card>
   )

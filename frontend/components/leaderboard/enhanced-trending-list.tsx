@@ -2,12 +2,14 @@
 
 import { useState } from "react"
 import { TrendingUp, TrendingDown, Loader2, AlertCircle } from "lucide-react"
+import { motion } from "framer-motion"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
+import { AnimatedNumber, Sparkline } from "@/components/ui/animated-number"
 import Image from "next/image"
-import { useTrendingTokens } from "@/lib/api-hooks-v2"
+import { useTrendingTokens } from "@/lib/api-hooks"
 import type { TrendingToken } from "@/lib/types/api-types"
 
 export function EnhancedTrendingList() {
@@ -57,11 +59,18 @@ export function EnhancedTrendingList() {
       </div>
 
       <div className={`space-y-2 transition-opacity ${isRefreshing ? 'opacity-70' : 'opacity-100'}`}>
-        {trendingTokens?.map((token) => (
-        <Card
+        {trendingTokens?.map((token, index) => (
+        <motion.div
           key={token.tokenAddress}
-          className="p-3 cursor-pointer transition-all hover:border-primary/50 hover:glow-primary"
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.3, delay: index * 0.1 }}
+          whileHover={{ scale: 1.02, x: 4 }}
+          whileTap={{ scale: 0.98 }}
         >
+          <Card
+            className="p-3 cursor-pointer bento-card"
+          >
           <div className="flex items-start gap-3">
             <div className="relative h-10 w-10 flex-shrink-0 rounded-full overflow-hidden bg-muted">
               <Image 
@@ -85,17 +94,37 @@ export function EnhancedTrendingList() {
               <p className="text-xs text-muted-foreground truncate">{token.tokenName || 'Unknown Token'}</p>
             </div>
 
-            <div className="text-right flex-shrink-0">
-              <p className="font-mono text-sm font-semibold text-foreground">
-                ${token.price < 0.001 ? token.price.toExponential(2) : token.price.toFixed(4)}
-              </p>
-              <p className={`text-xs font-medium ${token.priceChangePercent24h > 0 ? "text-green-600" : "text-red-600"}`}>
-                {token.priceChangePercent24h > 0 ? "+" : ""}
-                {token.priceChangePercent24h.toFixed(2)}%
-              </p>
+            <div className="text-right flex-shrink-0 space-y-1">
+              <AnimatedNumber
+                value={token.price}
+                prefix="$"
+                decimals={token.price < 0.001 ? 6 : 4}
+                className="font-mono text-sm font-semibold text-foreground"
+                formatLarge={false}
+                glowOnChange={true}
+              />
+              <div className="flex items-center gap-1">
+                <AnimatedNumber
+                  value={token.priceChangePercent24h}
+                  suffix="%"
+                  prefix={token.priceChangePercent24h > 0 ? "+" : ""}
+                  decimals={2}
+                  className="text-xs font-medium"
+                  colorize={true}
+                  glowOnChange={true}
+                />
+                {/* Mini sparkline placeholder - could add real price history data */}
+                <Sparkline
+                  data={[...Array(7)].map(() => Math.random() * 100 + 50)}
+                  width={30}
+                  height={12}
+                  color={token.priceChangePercent24h > 0 ? "var(--chart-3)" : "var(--destructive)"}
+                />
+              </div>
             </div>
           </div>
         </Card>
+        </motion.div>
         ))}
       </div>
     </div>

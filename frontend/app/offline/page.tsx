@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import { WifiOff, RefreshCw, TrendingUp, Wallet } from "lucide-react"
 import { useEffect, useState } from "react"
 import { motion } from "framer-motion"
-import { useBalance, usePortfolio } from "@/lib/api-hooks-v2"
+import { useBalance, usePortfolio } from "@/lib/api-hooks"
 
 export default function OfflinePage() {
   const [isOnline, setIsOnline] = useState(true)

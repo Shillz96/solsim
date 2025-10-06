@@ -1,7 +1,17 @@
-// React Hooks for API Data Management
-// Provides easy-to-use hooks with loading states, error handling, and caching
+// Enhanced API Hooks with TanStack Query
+// Provides sophisticated caching, background refetching, optimistic updates, and error handling
 
-import { useState, useEffect, useCallback } from 'react'
+import { 
+  useQuery, 
+  useMutation, 
+  useQueryClient,
+  useInfiniteQuery,
+  type UseQueryOptions,
+  type UseMutationOptions 
+} from '@tanstack/react-query'
+import { useCallback, useMemo } from 'react'
+
+// Services
 import authService from './auth-service'
 import userService from './user-service'
 import portfolioService, { PortfolioSummary, PerformanceData as PortfolioPerformanceData } from './portfolio-service'
@@ -9,7 +19,8 @@ import tradingService from './trading-service'
 import leaderboardService from './leaderboard-service'
 import marketService from './market-service'
 import monitoringService from './monitoring-service'
-import { ApiError } from './api-client'
+
+// Types
 import type { 
   User, 
   UserProfile, 
@@ -30,613 +41,451 @@ import type {
   TokenCategory
 } from './types/api-types'
 
-// Hook state interface
-interface UseApiState<T> {
-  data: T | null
-  loading: boolean
-  error: string | null
-  refresh: () => Promise<void>
-}
+import { STALE_TIMES, CACHE_TIMES } from './query-provider'
+import { ApiError } from './api-client'
 
-// Authentication hooks
+// ============================================================================
+// QUERY KEYS - Centralized key management for cache invalidation
+// ============================================================================
+
+export const queryKeys = {
+  // Authentication
+  auth: ['auth'] as const,
+  authUser: () => [...queryKeys.auth, 'user'] as const,
+  
+  // Portfolio
+  portfolio: ['portfolio'] as const,
+  portfolioSummary: () => [...queryKeys.portfolio, 'summary'] as const,
+  portfolioPerformance: (period: TimePeriod) => [...queryKeys.portfolio, 'performance', period] as const,
+  portfolioBalance: () => [...queryKeys.portfolio, 'balance'] as const,
+  
+  // Trading
+  trading: ['trading'] as const,
+  tradeHistory: (limit: number) => [...queryKeys.trading, 'history', limit] as const,
+  tradeStats: () => [...queryKeys.trading, 'stats'] as const,
+  recentTrades: (limit: number) => [...queryKeys.trading, 'recent', limit] as const,
+  
+  // Market Data
+  market: ['market'] as const,
+  trendingTokens: (limit: number, category?: TokenCategory) => [...queryKeys.market, 'trending', limit, category] as const,
+  tokenPrice: (address: string) => [...queryKeys.market, 'price', address] as const,
+  tokenDetails: (address: string) => [...queryKeys.market, 'details', address] as const,
+  marketStats: () => [...queryKeys.market, 'stats'] as const,
+  
+  // User
+  user: ['user'] as const,
+  userProfile: (userId?: string) => [...queryKeys.user, 'profile', userId || 'me'] as const,
+  userSettings: () => [...queryKeys.user, 'settings'] as const,
+  
+  // Leaderboard
+  leaderboard: ['leaderboard'] as const,
+  leaderboardEntries: () => [...queryKeys.leaderboard, 'entries'] as const,
+  
+  // System
+  system: ['system'] as const,
+  systemHealth: () => [...queryKeys.system, 'health'] as const,
+} as const
+
+// ============================================================================
+// AUTHENTICATION HOOKS
+// ============================================================================
+
 export function useAuth() {
-  const [user, setUser] = useState<User | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const queryClient = useQueryClient()
 
-  useEffect(() => {
-    const checkAuth = async () => {
+  // Query for current user authentication state
+  const { 
+    data: user, 
+    isLoading: loading, 
+    error: queryError, 
+    refetch 
+  } = useQuery({
+    queryKey: queryKeys.authUser(),
+    queryFn: async () => {
       const isDevelopment = process.env.NEXT_PUBLIC_ENV === 'development'
       
       if (isDevelopment) {
-        // In development mode, immediately set mock user (only log once)
-        if (!user) {
-          console.log('🔓 Development mode: Setting mock user')
-          setUser(authService.getDevUser())
-        }
-        setLoading(false)
-        return
+        // In development mode, return mock user
+        return authService.getDevUser()
       }
       
       // Production mode authentication check
       if (authService.isAuthenticated()) {
-        try {
-          const userProfile = await authService.getProfile()
-          setUser(userProfile)
-        } catch (err) {
-          console.error('Auth check failed:', err)
-          authService.logout()
-        }
+        return await authService.getProfile()
       }
-      setLoading(false)
-    }
+      
+      return null
+    },
+    staleTime: STALE_TIMES.moderate,
+    gcTime: CACHE_TIMES.medium,
+    retry: 1, // Don't retry auth failures aggressively
+    networkMode: 'online',
+  })
 
-    checkAuth()
-  }, [])
+  // Login mutation
+  const loginMutation = useMutation({
+    mutationFn: async ({ email, password }: { email: string; password: string }) => {
+      return authService.login({ email, password })
+    },
+    onSuccess: (response) => {
+      // Update auth cache with new user data
+      queryClient.setQueryData(queryKeys.authUser(), response.user)
+      // Invalidate all user-related queries
+      queryClient.invalidateQueries({ queryKey: queryKeys.portfolio })
+      queryClient.invalidateQueries({ queryKey: queryKeys.user })
+      queryClient.invalidateQueries({ queryKey: queryKeys.trading })
+    },
+    // Error handling now managed by global error handler
+  })
 
-  const login = async (email: string, password: string) => {
-    setLoading(true)
-    setError(null)
-    try {
-      const response = await authService.login({ email, password })
-      setUser(response.user)
-      return response
-    } catch (err) {
-      const error = err as ApiError
-      setError(error.message)
-      throw err
-    } finally {
-      setLoading(false)
-    }
-  }
+  // Register mutation
+  const registerMutation = useMutation({
+    mutationFn: async ({ email, password, username }: { email: string; password: string; username?: string }) => {
+      return authService.register({ email, password, username })
+    },
+    onSuccess: (response) => {
+      // Update auth cache with new user data
+      queryClient.setQueryData(queryKeys.authUser(), response.user)
+      // Invalidate all user-related queries
+      queryClient.invalidateQueries({ queryKey: queryKeys.portfolio })
+      queryClient.invalidateQueries({ queryKey: queryKeys.user })
+      queryClient.invalidateQueries({ queryKey: queryKeys.trading })
+    },
+    // Error handling now managed by global error handler
+  })
 
-  const register = async (email: string, password: string, username?: string) => {
-    setLoading(true)
-    setError(null)
-    try {
-      const response = await authService.register({ email, password, username })
-      setUser(response.user)
-      return response
-    } catch (err) {
-      const error = err as ApiError
-      setError(error.message)
-      throw err
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const logout = () => {
+  // Logout function
+  const logout = useCallback(() => {
     authService.logout()
-    setUser(null)
-  }
+    // Clear all cached data
+    queryClient.clear()
+    // Set auth state to null
+    queryClient.setQueryData(queryKeys.authUser(), null)
+  }, [queryClient])
 
-  const refresh = async () => {
-    if (authService.isAuthenticated()) {
-      try {
-        const userProfile = await authService.getProfile()
-        setUser(userProfile)
-      } catch (err) {
-        console.error('Auth refresh failed:', err)
-        authService.logout()
-        setUser(null)
-      }
-    }
-  }
+  // Refresh function
+  const refresh = useCallback(async () => {
+    await refetch()
+  }, [refetch])
+
+  const error = queryError?.message || loginMutation.error?.message || registerMutation.error?.message || null
 
   return {
     user,
-    loading,
+    loading: loading || loginMutation.isPending || registerMutation.isPending,
     error,
-    login,
-    register,
+    login: loginMutation.mutateAsync,
+    register: registerMutation.mutateAsync,
     logout,
     refresh,
     isAuthenticated: !!user
   }
 }
 
-// Portfolio hooks
-export function usePortfolio(): UseApiState<PortfolioSummary> {
-  const [data, setData] = useState<PortfolioSummary | null>(null)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+// ============================================================================
+// PORTFOLIO HOOKS
+// ============================================================================
+
+export function usePortfolio() {
   const { user } = useAuth()
 
-  const refresh = useCallback(async () => {
-    if (!user) {
-      setData(null)
-      setLoading(false)
-      setError(null)
-      return
-    }
-
-    try {
-      setLoading(true)
-      setError(null)
-      const portfolio = await portfolioService.getPortfolio()
-      setData(portfolio)
-    } catch (err) {
-      const error = err as ApiError
-      setError(error.message)
-    } finally {
-      setLoading(false)
-    }
-  }, [user])
-
-  useEffect(() => {
-    refresh()
-  }, [refresh])
-
-  return { data, loading, error, refresh }
+  return useQuery({
+    queryKey: queryKeys.portfolioSummary(),
+    queryFn: () => portfolioService.getPortfolio(),
+    enabled: !!user, // Only run when user is authenticated
+    staleTime: STALE_TIMES.moderate,
+    gcTime: CACHE_TIMES.medium,
+    refetchInterval: 5 * 60 * 1000, // Reduced to 5 minutes to prevent rate limiting
+    refetchIntervalInBackground: false, // Disable background refetching to reduce load
+  })
 }
 
-export function usePortfolioPerformance(period: TimePeriod = '30d'): UseApiState<PortfolioPerformanceData> {
-  const [data, setData] = useState<PortfolioPerformanceData | null>(null)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+export function usePortfolioPerformance(period: TimePeriod = '30d') {
   const { user } = useAuth()
 
-  const refresh = useCallback(async () => {
-    if (!user) {
-      setData(null)
-      setLoading(false)
-      setError(null)
-      return
-    }
-
-    try {
-      setLoading(true)
-      setError(null)
-      const performance = await portfolioService.getPerformance(period)
-      setData(performance)
-    } catch (err) {
-      const error = err as ApiError
-      setError(error.message)
-    } finally {
-      setLoading(false)
-    }
-  }, [period, user])
-
-  useEffect(() => {
-    refresh()
-  }, [refresh])
-
-  return { data, loading, error, refresh }
+  return useQuery({
+    queryKey: queryKeys.portfolioPerformance(period),
+    queryFn: () => portfolioService.getPerformance(period),
+    enabled: !!user,
+    staleTime: STALE_TIMES.moderate,
+    gcTime: CACHE_TIMES.medium,
+  })
 }
 
-// Trading hooks
-export function useTradeHistory(limit: number = 50): UseApiState<TradeHistory> {
-  const [data, setData] = useState<TradeHistory | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+export function useBalance() {
+  const { user } = useAuth()
 
-  const refresh = useCallback(async () => {
-    try {
-      setLoading(true)
-      setError(null)
-      const history = await tradingService.getTradeHistory({ limit })
-      setData(history)
-    } catch (err) {
-      const error = err as ApiError
-      setError(error.message)
-    } finally {
-      setLoading(false)
-    }
-  }, [limit])
-
-  useEffect(() => {
-    refresh()
-  }, [refresh])
-
-  return { data, loading, error, refresh }
+  return useQuery({
+    queryKey: queryKeys.portfolioBalance(),
+    queryFn: async () => {
+      const balanceData = await portfolioService.getBalance()
+      return balanceData.balance
+    },
+    enabled: !!user,
+    staleTime: STALE_TIMES.fast, // Balance changes frequently
+    gcTime: CACHE_TIMES.short,
+    refetchInterval: 2 * 60 * 1000, // Reduced to 2 minutes to prevent rate limiting
+    refetchIntervalInBackground: false, // Disable background refetching
+  })
 }
 
-// Enhanced trading hook for real-time trading functionality
+// ============================================================================
+// TRADING HOOKS
+// ============================================================================
+
+export function useTradeHistory(limit: number = 50) {
+  const { user } = useAuth()
+
+  return useQuery({
+    queryKey: queryKeys.tradeHistory(limit),
+    queryFn: () => tradingService.getTradeHistory({ limit }),
+    enabled: !!user,
+    staleTime: STALE_TIMES.moderate,
+    gcTime: CACHE_TIMES.medium,
+  })
+}
+
+export function useTradeStats() {
+  const { user } = useAuth()
+
+  return useQuery({
+    queryKey: queryKeys.tradeStats(),
+    queryFn: () => tradingService.getTradeStats(),
+    enabled: !!user,
+    staleTime: STALE_TIMES.moderate,
+    gcTime: CACHE_TIMES.medium,
+  })
+}
+
+export function useRecentTrades(limit: number = 20) {
+  return useQuery({
+    queryKey: queryKeys.recentTrades(limit),
+    queryFn: () => tradingService.getRecentTrades(limit),
+    staleTime: STALE_TIMES.fast,
+    gcTime: CACHE_TIMES.short,
+    refetchInterval: 30000, // Recent trades update frequently
+  })
+}
+
+// Enhanced trading hook with optimistic updates
 export function useTrading() {
-  const [isTrading, setIsTrading] = useState(false)
-  const [tradeError, setTradeError] = useState<string | null>(null)
-  const { user, refresh: refreshAuth } = useAuth()
+  const queryClient = useQueryClient()
+  const { user } = useAuth()
 
-  const executeTrade = useCallback(async (tradeRequest: TradeRequest): Promise<TradeResult> => {
-    if (!user) {
-      throw new Error('User not authenticated')
+  const tradeMutation = useMutation({
+    mutationFn: (tradeRequest: TradeRequest) => tradingService.executeTrade(tradeRequest),
+    onMutate: async (tradeRequest) => {
+      // Cancel outgoing refetches for optimistic updates
+      await queryClient.cancelQueries({ queryKey: queryKeys.portfolioBalance() })
+      await queryClient.cancelQueries({ queryKey: queryKeys.portfolioSummary() })
+
+      // Snapshot previous values
+      const previousBalance = queryClient.getQueryData(queryKeys.portfolioBalance())
+      const previousPortfolio = queryClient.getQueryData(queryKeys.portfolioSummary())
+
+      // Optimistically update balance (rough estimation)
+      if (previousBalance && typeof previousBalance === 'string') {
+        const currentBalance = parseFloat(previousBalance)
+        if (tradeRequest.action === 'buy') {
+          // Estimate balance decrease for buy orders
+          const estimatedNewBalance = Math.max(0, currentBalance - tradeRequest.amountSol)
+          queryClient.setQueryData(queryKeys.portfolioBalance(), estimatedNewBalance.toFixed(8))
+        }
+      }
+
+      return { previousBalance, previousPortfolio }
+    },
+    onError: (err, tradeRequest, context) => {
+      // Rollback optimistic updates on error
+      if (context?.previousBalance) {
+        queryClient.setQueryData(queryKeys.portfolioBalance(), context.previousBalance)
+      }
+      if (context?.previousPortfolio) {
+        queryClient.setQueryData(queryKeys.portfolioSummary(), context.previousPortfolio)
+      }
+    },
+    onSuccess: () => {
+      // Invalidate related data to fetch fresh values
+      queryClient.invalidateQueries({ queryKey: queryKeys.portfolioBalance() })
+      queryClient.invalidateQueries({ queryKey: queryKeys.portfolioSummary() })
+      queryClient.invalidateQueries({ queryKey: queryKeys.trading }) // Invalidate all trading queries
+      queryClient.invalidateQueries({ queryKey: queryKeys.tradeStats() })
+      queryClient.invalidateQueries({ queryKey: queryKeys.authUser() }) // Refresh user balance
     }
+  })
 
-    setIsTrading(true)
-    setTradeError(null)
-
-    try {
-      const result = await tradingService.executeTrade(tradeRequest)
-      
-      // Refresh user auth to update balance
-      await refreshAuth()
-      
-      return result
-    } catch (err) {
-      const error = err as ApiError
-      setTradeError(error.message)
-      throw error
-    } finally {
-      setIsTrading(false)
-    }
-  }, [user, refreshAuth])
-
-  const executeBuy = useCallback(async (tokenAddress: string, amountSol: number): Promise<TradeResult> => {
-    return executeTrade({
+  const executeBuy = useCallback(async (tokenAddress: string, amountSol: number) => {
+    return tradeMutation.mutateAsync({
       action: 'buy',
       tokenAddress,
       amountSol
     })
-  }, [executeTrade])
+  }, [tradeMutation])
 
-  const executeSell = useCallback(async (tokenAddress: string, amountSol: number): Promise<TradeResult> => {
-    return executeTrade({
+  const executeSell = useCallback(async (tokenAddress: string, amountSol: number) => {
+    return tradeMutation.mutateAsync({
       action: 'sell',
       tokenAddress,
       amountSol
     })
-  }, [executeTrade])
+  }, [tradeMutation])
 
   return {
-    isTrading,
-    tradeError,
-    executeTrade,
+    isTrading: tradeMutation.isPending,
+    tradeError: tradeMutation.error?.message || null,
+    executeTrade: tradeMutation.mutateAsync,
     executeBuy,
     executeSell,
-    clearError: () => setTradeError(null)
+    clearError: () => tradeMutation.reset()
   }
 }
 
-// Leaderboard hooks
-export function useLeaderboard(): UseApiState<LeaderboardEntry[]> {
-  const [data, setData] = useState<LeaderboardEntry[] | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+// ============================================================================
+// MARKET DATA HOOKS
+// ============================================================================
 
-  const refresh = useCallback(async () => {
-    try {
-      setLoading(true)
-      setError(null)
-      const leaderboard = await leaderboardService.getLeaderboard()
-      setData(leaderboard)
-    } catch (err) {
-      const error = err as ApiError
-      setError(error.message)
-    } finally {
-      setLoading(false)
-    }
-  }, [])
-
-  useEffect(() => {
-    refresh()
-  }, [refresh])
-
-  return { data, loading, error, refresh }
+export function useTrendingTokens(limit: number = 20, category?: TokenCategory) {
+  return useQuery({
+    queryKey: queryKeys.trendingTokens(limit, category),
+    queryFn: () => marketService.getTrendingTokens(limit, category),
+    staleTime: STALE_TIMES.moderate,
+    gcTime: CACHE_TIMES.medium,
+    refetchInterval: 60000, // Refetch every minute
+    refetchIntervalInBackground: true,
+  })
 }
 
-// Market data hooks
-export function useTrendingTokens(
-  limit: number = 20, 
-  category?: TokenCategory
-): UseApiState<TrendingToken[]> {
-  const [data, setData] = useState<TrendingToken[] | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-
-  const refresh = useCallback(async () => {
-    try {
-      setLoading(true)
-      setError(null)
-      const trending = await marketService.getTrendingTokens(limit, category)
-      setData(trending)
-    } catch (err) {
-      const error = err as ApiError
-      setError(error.message)
-    } finally {
-      setLoading(false)
-    }
-  }, [limit, category])
-
-  useEffect(() => {
-    refresh()
-  }, [refresh])
-
-  return { data, loading, error, refresh }
+export function useTokenPrice(tokenAddress: string) {
+  return useQuery({
+    queryKey: queryKeys.tokenPrice(tokenAddress),
+    queryFn: () => marketService.getTokenPrice(tokenAddress),
+    enabled: !!tokenAddress,
+    staleTime: STALE_TIMES.fast, // Prices change frequently
+    gcTime: CACHE_TIMES.short,
+    refetchInterval: 60000, // Reduced to 1 minute to prevent rate limiting
+    refetchIntervalInBackground: false, // Disable background refetching
+  })
 }
 
-// Token price hook
-export function useTokenPrice(tokenAddress: string): UseApiState<TokenPrice> {
-  const [data, setData] = useState<TokenPrice | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-
-  const refresh = useCallback(async () => {
-    if (!tokenAddress) {
-      setData(null)
-      setLoading(false)
-      setError(null)
-      return
-    }
-
-    try {
-      setLoading(true)
-      setError(null)
-      const price = await marketService.getTokenPrice(tokenAddress)
-      setData(price)
-    } catch (err) {
-      const error = err as ApiError
-      setError(error.message)
-    } finally {
-      setLoading(false)
-    }
-  }, [tokenAddress])
-
-  useEffect(() => {
-    refresh()
-  }, [refresh])
-
-  return { data, loading, error, refresh }
+export function useTokenDetails(tokenAddress: string) {
+  return useQuery({
+    queryKey: queryKeys.tokenDetails(tokenAddress),
+    queryFn: () => marketService.getTokenDetails(tokenAddress),
+    enabled: !!tokenAddress,
+    staleTime: STALE_TIMES.slow, // Token details change less frequently
+    gcTime: CACHE_TIMES.long,
+  })
 }
 
-// Token details hook
-export function useTokenDetails(tokenAddress: string): UseApiState<TokenDetails> {
-  const [data, setData] = useState<TokenDetails | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-
-  const refresh = useCallback(async () => {
-    if (!tokenAddress) {
-      setData(null)
-      setLoading(false)
-      setError(null)
-      return
-    }
-
-    try {
-      setLoading(true)
-      setError(null)
-      const details = await marketService.getTokenDetails(tokenAddress)
-      setData(details)
-    } catch (err) {
-      const error = err as ApiError
-      setError(error.message)
-    } finally {
-      setLoading(false)
-    }
-  }, [tokenAddress])
-
-  useEffect(() => {
-    refresh()
-  }, [refresh])
-
-  return { data, loading, error, refresh }
+export function useMarketStats() {
+  return useQuery({
+    queryKey: queryKeys.marketStats(),
+    queryFn: () => marketService.getMarketStats(),
+    staleTime: STALE_TIMES.static,
+    gcTime: CACHE_TIMES.long,
+    refetchInterval: 5 * 60 * 1000, // Refetch every 5 minutes
+  })
 }
 
-// Market stats hook
-export function useMarketStats(): UseApiState<MarketStats> {
-  const [data, setData] = useState<MarketStats | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+// ============================================================================
+// USER HOOKS
+// ============================================================================
 
-  const refresh = useCallback(async () => {
-    try {
-      setLoading(true)
-      setError(null)
-      const stats = await marketService.getMarketStats()
-      setData(stats)
-    } catch (err) {
-      const error = err as ApiError
-      setError(error.message)
-    } finally {
-      setLoading(false)
-    }
-  }, [])
-
-  useEffect(() => {
-    refresh()
-  }, [refresh])
-
-  return { data, loading, error, refresh }
+export function useUserProfile(userId?: string) {
+  return useQuery({
+    queryKey: queryKeys.userProfile(userId),
+    queryFn: () => userService.getProfile(userId),
+    staleTime: STALE_TIMES.slow,
+    gcTime: CACHE_TIMES.medium,
+  })
 }
 
-// User profile hooks
-export function useUserProfile(userId?: string): UseApiState<UserProfile> {
-  const [data, setData] = useState<UserProfile | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-
-  const refresh = useCallback(async () => {
-    try {
-      setLoading(true)
-      setError(null)
-      const profile = await userService.getProfile(userId)
-      setData(profile)
-    } catch (err) {
-      const error = err as ApiError
-      setError(error.message)
-    } finally {
-      setLoading(false)
-    }
-  }, [userId])
-
-  useEffect(() => {
-    refresh()
-  }, [refresh])
-
-  return { data, loading, error, refresh }
-}
-
-// User settings hook
-export function useUserSettings(): UseApiState<UserSettings> {
-  const [data, setData] = useState<UserSettings | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+export function useUserSettings() {
   const { user } = useAuth()
 
-  const refresh = useCallback(async () => {
-    if (!user) {
-      setData(null)
-      setLoading(false)
-      setError(null)
-      return
-    }
-
-    try {
-      setLoading(true)
-      setError(null)
-      const settings = await userService.getSettings()
-      setData(settings)
-    } catch (err) {
-      const error = err as ApiError
-      setError(error.message)
-    } finally {
-      setLoading(false)
-    }
-  }, [user])
-
-  useEffect(() => {
-    refresh()
-  }, [refresh])
-
-  return { data, loading, error, refresh }
+  return useQuery({
+    queryKey: queryKeys.userSettings(),
+    queryFn: () => userService.getSettings(),
+    enabled: !!user,
+    staleTime: STALE_TIMES.slow,
+    gcTime: CACHE_TIMES.medium,
+  })
 }
 
-// Trade stats hook
-export function useTradeStats(): UseApiState<TradeStats> {
-  const [data, setData] = useState<TradeStats | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const { user } = useAuth()
+// ============================================================================
+// LEADERBOARD HOOKS
+// ============================================================================
 
-  const refresh = useCallback(async () => {
-    if (!user) {
-      setData(null)
-      setLoading(false)
-      setError(null)
-      return
-    }
-
-    try {
-      setLoading(true)
-      setError(null)
-      const stats = await tradingService.getTradeStats()
-      setData(stats)
-    } catch (err) {
-      const error = err as ApiError
-      setError(error.message)
-    } finally {
-      setLoading(false)
-    }
-  }, [user])
-
-  useEffect(() => {
-    refresh()
-  }, [refresh])
-
-  return { data, loading, error, refresh }
+export function useLeaderboard() {
+  return useQuery({
+    queryKey: queryKeys.leaderboardEntries(),
+    queryFn: () => leaderboardService.getLeaderboard(),
+    staleTime: STALE_TIMES.static,
+    gcTime: CACHE_TIMES.long,
+    refetchInterval: 2 * 60 * 1000, // Refetch every 2 minutes
+  })
 }
 
-// Recent trades hook
-export function useRecentTrades(limit: number = 20): UseApiState<any[]> {
-  const [data, setData] = useState<any[] | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+// ============================================================================
+// SYSTEM MONITORING HOOKS
+// ============================================================================
 
-  const refresh = useCallback(async () => {
-    try {
-      setLoading(true)
-      setError(null)
-      const trades = await tradingService.getRecentTrades(limit)
-      setData(trades)
-    } catch (err) {
-      const error = err as ApiError
-      setError(error.message)
-    } finally {
-      setLoading(false)
-    }
-  }, [limit])
-
-  useEffect(() => {
-    refresh()
-  }, [refresh])
-
-  return { data, loading, error, refresh }
+export function useSystemHealth() {
+  return useQuery({
+    queryKey: queryKeys.systemHealth(),
+    queryFn: () => monitoringService.getHealth(),
+    staleTime: STALE_TIMES.fast,
+    gcTime: CACHE_TIMES.short,
+    refetchInterval: 5 * 60 * 1000, // Reduced to 5 minutes to prevent rate limiting
+    refetchIntervalInBackground: false,
+    retry: 1, // Don't retry health checks aggressively
+  })
 }
 
-// System health hook
-export function useSystemHealth(): UseApiState<HealthCheck> {
-  const [data, setData] = useState<HealthCheck | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+// ============================================================================
+// UTILITY HOOKS
+// ============================================================================
 
-  const refresh = useCallback(async () => {
-    try {
-      setLoading(true)
-      setError(null)
-      const health = await monitoringService.getHealth()
-      setData(health)
-    } catch (err) {
-      const error = err as ApiError
-      setError(error.message)
-    } finally {
-      setLoading(false)
-    }
-  }, [])
+// Hook to manually trigger cache invalidation
+export function useCacheInvalidation() {
+  const queryClient = useQueryClient()
 
-  useEffect(() => {
-    refresh()
-    
-    // Auto-refresh every 30 seconds
-    const interval = setInterval(refresh, 30000)
-    return () => clearInterval(interval)
-  }, [refresh])
-
-  return { data, loading, error, refresh }
+  return useMemo(() => ({
+    invalidateAuth: () => queryClient.invalidateQueries({ queryKey: queryKeys.auth }),
+    invalidatePortfolio: () => queryClient.invalidateQueries({ queryKey: queryKeys.portfolio }),
+    invalidateTrading: () => queryClient.invalidateQueries({ queryKey: queryKeys.trading }),
+    invalidateMarket: () => queryClient.invalidateQueries({ queryKey: queryKeys.market }),
+    invalidateUser: () => queryClient.invalidateQueries({ queryKey: queryKeys.user }),
+    invalidateAll: () => queryClient.invalidateQueries(),
+    clearCache: () => queryClient.clear(),
+  }), [queryClient])
 }
 
-// Balance hook with caching
-export function useBalance() {
-  const [balance, setBalance] = useState<string | null>(null)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [lastFetch, setLastFetch] = useState<number>(0)
-  const { user } = useAuth()
+// Hook for prefetching data
+export function usePrefetch() {
+  const queryClient = useQueryClient()
 
-  // Cache balance for 5 seconds to prevent excessive API calls
-  const CACHE_DURATION = 5000 
-
-  const refresh = useCallback(async (force = false) => {
-    if (!user) {
-      setBalance(null)
-      setLoading(false)
-      setError(null)
-      return
+  return useMemo(() => ({
+    prefetchTrendingTokens: (limit = 20, category?: TokenCategory) => {
+      return queryClient.prefetchQuery({
+        queryKey: queryKeys.trendingTokens(limit, category),
+        queryFn: () => marketService.getTrendingTokens(limit, category),
+        staleTime: STALE_TIMES.moderate,
+      })
+    },
+    prefetchTokenDetails: (tokenAddress: string) => {
+      return queryClient.prefetchQuery({
+        queryKey: queryKeys.tokenDetails(tokenAddress),
+        queryFn: () => marketService.getTokenDetails(tokenAddress),
+        staleTime: STALE_TIMES.slow,
+      })
+    },
+    prefetchLeaderboard: () => {
+      return queryClient.prefetchQuery({
+        queryKey: queryKeys.leaderboardEntries(),
+        queryFn: () => leaderboardService.getLeaderboard(),
+        staleTime: STALE_TIMES.static,
+      })
     }
-
-    // Check cache unless forced refresh
-    const now = Date.now()
-    if (!force && now - lastFetch < CACHE_DURATION && balance !== null) {
-      return
-    }
-
-    try {
-      setLoading(true)
-      setError(null)
-      const balanceData = await portfolioService.getBalance()
-      setBalance(balanceData.balance)
-      setLastFetch(now)
-    } catch (err) {
-      const error = err as ApiError
-      setError(error.message)
-    } finally {
-      setLoading(false)
-    }
-  }, [user, balance, lastFetch])
-
-  useEffect(() => {
-    refresh()
-  }, [refresh])
-
-  return { balance, loading, error, refresh: () => refresh(true) }
+  }), [queryClient])
 }

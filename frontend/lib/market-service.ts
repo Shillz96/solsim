@@ -3,6 +3,7 @@
 
 import apiClient from './api-client'
 import { InputSanitizer } from './security-utils'
+import { errorLogger } from './error-logger'
 import type { 
   TokenPrice, 
   TrendingToken, 
@@ -47,19 +48,21 @@ class MarketService {
     
     try {
       // Use enhanced Solana Tracker API for better diversity
-      console.log('[Market Service] Fetching trending tokens from enhanced Solana Tracker API')
+      // Fetching trending tokens from enhanced Solana Tracker API
       const response = await apiClient.get<{ tokens: TrendingToken[] }>(`/api/solana-tracker/trending?${params.toString()}`)
       
       if (response.tokens && Array.isArray(response.tokens)) {
-        console.log(`[Market Service] Successfully fetched ${response.tokens.length} trending tokens`)
+        // Successfully fetched trending tokens
         return response.tokens
       }
       
-      console.log('[Market Service] API returned invalid data')
+      errorLogger.generalError('Market API returned invalid data', new Error('Invalid trending tokens response'), { endpoint: 'trending' })
       return []
       
     } catch (error) {
-      console.error('[Market Service] Trending API failed:', error)
+      errorLogger.apiError('trending', error instanceof Error ? error : new Error(String(error)), {
+        metadata: { service: 'market' }
+      })
       return []
     }
   }

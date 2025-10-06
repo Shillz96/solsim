@@ -6,6 +6,7 @@ import { Home, TrendingUp, Wallet, Trophy, Twitter, Github, Plus, Moon, Sun } fr
 import { cn } from "@/lib/utils"
 import { useState, useEffect } from "react"
 import { useTheme } from "next-themes"
+import { motion, AnimatePresence } from "framer-motion"
 
 interface MarketPrice {
   symbol: string
@@ -38,30 +39,63 @@ export function BottomNavBar() {
   return (
     <>
       {/* Mobile Bottom Nav */}
-      <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-card/95 backdrop-blur-xl md:hidden">
+      <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-border glass md:hidden">
         <div className="flex items-center justify-around h-16">
-          {navItems.map((item) => {
+          {navItems.map((item, index) => {
             const Icon = item.icon
             const isActive = pathname === item.href
             return (
-              <Link
+              <motion.div
                 key={item.href}
-                href={item.href}
-                className={cn(
-                  "flex flex-col items-center justify-center gap-1 px-4 py-2 transition-colors",
-                  isActive ? "text-primary" : "text-muted-foreground hover:text-foreground",
-                )}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: index * 0.1 }}
+                className="relative"
               >
-                <Icon className={cn("h-5 w-5", isActive && "glow-primary")} />
-                <span className="text-xs font-medium">{item.label}</span>
-              </Link>
+                <Link
+                  href={item.href}
+                  className={cn(
+                    "flex flex-col items-center justify-center gap-1 px-4 py-2 transition-all duration-300 relative z-10",
+                    isActive ? "text-primary" : "text-muted-foreground hover:text-foreground",
+                  )}
+                >
+                  <motion.div
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="relative"
+                  >
+                    <Icon className={cn(
+                      "h-5 w-5 transition-all duration-300",
+                      isActive && "glow-primary icon-morph"
+                    )} />
+                    <AnimatePresence>
+                      {isActive && (
+                        <motion.div
+                          layoutId="bottomNavIndicator"
+                          className="absolute -inset-2 rounded-full bg-primary/10 border border-primary/20"
+                          initial={{ opacity: 0, scale: 0.8 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          exit={{ opacity: 0, scale: 0.8 }}
+                          transition={{ duration: 0.2 }}
+                        />
+                      )}
+                    </AnimatePresence>
+                  </motion.div>
+                  <span className={cn(
+                    "text-xs font-medium transition-all duration-300",
+                    isActive && "font-semibold"
+                  )}>
+                    {item.label}
+                  </span>
+                </Link>
+              </motion.div>
             )
           })}
         </div>
       </nav>
 
       {/* Desktop/Tablet Bottom Info Bar */}
-      <div className="hidden md:block fixed bottom-0 left-0 right-0 z-40 border-t border-border bg-card/95 backdrop-blur-xl">
+      <div className="hidden md:block fixed bottom-0 left-0 right-0 z-40 border-t border-border glass">
         <div className="mx-auto flex h-12 items-center justify-between px-4 max-w-[2400px]">
           {/* Left: Social Links */}
           <div className="flex items-center gap-4">

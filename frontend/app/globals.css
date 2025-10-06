@@ -20,9 +20,9 @@
   --popover-foreground: #1a1a1a;
   --popover-foreground-oklch: oklch(0.145 0 0);
 
-  /* Updated primary to vibrant blue for trading theme */
-  --primary: #2563eb;
-  --primary-oklch: oklch(0.55 0.22 250);
+  /* Updated primary to warm brown for Economic Earth Tones theme */
+  --primary: #8d6e63;
+  --primary-oklch: oklch(0.5 0.1 30);
   --primary-foreground: #fcfcfc;
   --primary-foreground-oklch: oklch(0.99 0 0);
 
@@ -35,9 +35,9 @@
   --muted-foreground: #737373;
   --muted-foreground-oklch: oklch(0.556 0 0);
 
-  /* Updated accent to vibrant teal/cyan */
-  --accent: #06b6d4;
-  --accent-oklch: oklch(0.65 0.18 190);
+  /* Updated accent to muted taupe for sophistication */
+  --accent: #a1887f;
+  --accent-oklch: oklch(0.55 0.05 30);
   --accent-foreground: #fcfcfc;
   --accent-foreground-oklch: oklch(0.99 0 0);
 
@@ -49,28 +49,28 @@
   --border-oklch: oklch(0.92 0 0);
   --input: #e5e5e5;
   --input-oklch: oklch(0.92 0 0);
-  --ring: #2563eb;
-  --ring-oklch: oklch(0.55 0.22 250);
+  --ring: #8d6e63;
+  --ring-oklch: oklch(0.5 0.1 30);
 
-  /* Updated chart colors for better visual appeal */
-  --chart-1: #2563eb;
-  --chart-1-oklch: oklch(0.55 0.22 250);
-  --chart-2: #06b6d4;
-  --chart-2-oklch: oklch(0.65 0.18 190);
-  --chart-3: #10b981;
-  --chart-3-oklch: oklch(0.7 0.2 140);
-  --chart-4: #f59e0b;
-  --chart-4-oklch: oklch(0.65 0.24 30);
-  --chart-5: #8b5cf6;
-  --chart-5-oklch: oklch(0.6 0.2 320);
+  /* Economic Earth Tones chart colors - neutrals with blue/green/red pops */
+  --chart-1: #d7ccc8;
+  --chart-1-oklch: oklch(0.8 0.02 30);
+  --chart-2: #003366;
+  --chart-2-oklch: oklch(0.3 0.2 250);
+  --chart-3: #007a33;
+  --chart-3-oklch: oklch(0.45 0.25 140);
+  --chart-4: #ff5722;
+  --chart-4-oklch: oklch(0.65 0.25 25);
+  --chart-5: #f5f5f5;
+  --chart-5-oklch: oklch(0.96 0 0);
 
   --radius: 0.75rem;
   --sidebar: #fafafa;
   --sidebar-oklch: oklch(0.985 0 0);
   --sidebar-foreground: #1a1a1a;
   --sidebar-foreground-oklch: oklch(0.145 0 0);
-  --sidebar-primary: #2563eb;
-  --sidebar-primary-oklch: oklch(0.55 0.22 250);
+  --sidebar-primary: #8d6e63;
+  --sidebar-primary-oklch: oklch(0.5 0.1 30);
   --sidebar-primary-foreground: #fafafa;
   --sidebar-primary-foreground-oklch: oklch(0.985 0 0);
   --sidebar-accent: #f7f7f7;
@@ -99,9 +99,9 @@
   --popover-foreground: #fafafa;
   --popover-foreground-oklch: oklch(0.98 0 0);
 
-  /* Brighter primary for dark mode visibility */
-  --primary: #3b82f6;
-  --primary-oklch: oklch(0.65 0.25 250);
+  /* Brightened warm brown for dark mode visibility (Economic Earth Tones) */
+  --primary: #b5958c;
+  --primary-oklch: oklch(0.65 0.1 30);
   --primary-foreground: #fafafa;
   --primary-foreground-oklch: oklch(0.98 0 0);
 
@@ -114,9 +114,9 @@
   --muted-foreground: #a3a3a3;
   --muted-foreground-oklch: oklch(0.65 0 0);
 
-  /* Vibrant accent for dark mode */
-  --accent: #22d3ee;
-  --accent-oklch: oklch(0.7 0.2 180);
+  /* Brightened taupe for dark mode sophistication */
+  --accent: #c9b5ad;
+  --accent-oklch: oklch(0.7 0.05 30);
   --accent-foreground: #fafafa;
   --accent-foreground-oklch: oklch(0.98 0 0);
 
@@ -128,27 +128,27 @@
   --border-oklch: oklch(0.24 0 0);
   --input: #2a2a2a;
   --input-oklch: oklch(0.24 0 0);
-  --ring: #3b82f6;
-  --ring-oklch: oklch(0.65 0.25 250);
+  --ring: #b5958c;
+  --ring-oklch: oklch(0.65 0.1 30);
 
-  /* Enhanced chart colors for dark mode */
-  --chart-1: #3b82f6;
-  --chart-1-oklch: oklch(0.65 0.25 250);
-  --chart-2: #22d3ee;
-  --chart-2-oklch: oklch(0.7 0.2 180);
-  --chart-3: #34d399;
-  --chart-3-oklch: oklch(0.75 0.22 140);
-  --chart-4: #fbbf24;
-  --chart-4-oklch: oklch(0.7 0.26 30);
-  --chart-5: #a78bfa;
-  --chart-5-oklch: oklch(0.65 0.22 320);
+  /* Economic Earth Tones chart colors for dark mode */
+  --chart-1: #e5d9d5;
+  --chart-1-oklch: oklch(0.85 0.02 30);
+  --chart-2: #4d88cc;
+  --chart-2-oklch: oklch(0.55 0.2 250);
+  --chart-3: #3da85f;
+  --chart-3-oklch: oklch(0.65 0.25 140);
+  --chart-4: #ff7a5c;
+  --chart-4-oklch: oklch(0.7 0.25 25);
+  --chart-5: #3a3a3a;
+  --chart-5-oklch: oklch(0.3 0 0);
 
   --sidebar: #171717;
   --sidebar-oklch: oklch(0.16 0 0);
   --sidebar-foreground: #fafafa;
   --sidebar-foreground-oklch: oklch(0.98 0 0);
-  --sidebar-primary: #3b82f6;
-  --sidebar-primary-oklch: oklch(0.65 0.25 250);
+  --sidebar-primary: #b5958c;
+  --sidebar-primary-oklch: oklch(0.65 0.1 30);
   --sidebar-primary-foreground: #fafafa;
   --sidebar-primary-foreground-oklch: oklch(0.98 0 0);
   --sidebar-accent: #262626;
@@ -161,7 +161,8 @@
   --sidebar-ring-oklch: oklch(0.45 0 0);
 }
 
-@theme inline {
+/* Tailwind theme extensions */
+:root {
   /* Added font variables to match layout.tsx */
   --font-sans: var(--font-radnika-next);
   --font-heading: var(--font-ibm-plex-sans);
@@ -211,11 +212,15 @@
 --------------------------- */
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    border-color: hsl(var(--border));
+    outline-color: hsl(var(--ring) / 0.5);
   }
 
   body {
-    @apply bg-background text-foreground antialiased;
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
     font-family: var(--font-sans);
     position: relative;
   }
@@ -250,33 +255,6 @@
     z-index: 1;
   }
 
-  /* ---------------------------
-     BUTTON STYLES
-  --------------------------- */
-  .btn-primary {
-    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-oklch, var(--primary)) 100%);
-    color: var(--primary-foreground);
-    box-shadow: 0 4px 16px color-mix(in srgb, var(--primary) 30%, transparent);
-    border-radius: var(--radius);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  .btn-primary:hover {
-    box-shadow: 0 8px 24px color-mix(in srgb, var(--primary) 50%, transparent);
-    transform: translateY(-2px);
-  }
-
-  .btn-accent {
-    background-color: var(--accent);
-    color: var(--accent-foreground);
-    border-radius: var(--radius);
-  }
-
-  .btn-destructive {
-    background-color: var(--destructive);
-    color: var(--destructive-foreground);
-    border-radius: var(--radius);
-  }
 
   /* ---------------------------
      TEXT & HIGHLIGHTS
@@ -341,25 +319,111 @@
   }
 
   /* ---------------------------
-     ENHANCED EFFECTS
+     ENHANCED EFFECTS & ANIMATIONS
   --------------------------- */
-  /* Updated glow effects with new color palette */
+  
+  /* Advanced glow effects with multiple layers */
   .glow-primary {
-    box-shadow: 0 0 24px color-mix(in srgb, var(--primary) 40%, transparent);
+    box-shadow: 
+      0 0 20px color-mix(in srgb, var(--primary) 30%, transparent),
+      0 0 40px color-mix(in srgb, var(--primary) 15%, transparent),
+      0 0 60px color-mix(in srgb, var(--primary) 8%, transparent);
+    transition: box-shadow 0.3s ease;
+  }
+
+  .glow-primary:hover {
+    box-shadow: 
+      0 0 30px color-mix(in srgb, var(--primary) 50%, transparent),
+      0 0 60px color-mix(in srgb, var(--primary) 25%, transparent),
+      0 0 90px color-mix(in srgb, var(--primary) 12%, transparent);
   }
 
   .glow-accent {
-    box-shadow: 0 0 24px color-mix(in srgb, var(--accent) 40%, transparent);
+    box-shadow: 
+      0 0 20px color-mix(in srgb, var(--accent) 30%, transparent),
+      0 0 40px color-mix(in srgb, var(--accent) 15%, transparent);
+    transition: box-shadow 0.3s ease;
   }
 
-  /* Removed backdrop-filter from .glass for better performance */
+  .glow-accent:hover {
+    box-shadow: 
+      0 0 30px color-mix(in srgb, var(--accent) 50%, transparent),
+      0 0 60px color-mix(in srgb, var(--accent) 25%, transparent);
+  }
+
+  /* Enhanced glassmorphism with improved backdrop blur */
   .glass {
-    background: color-mix(in srgb, var(--card) 60%, transparent);
-    border: 1px solid color-mix(in srgb, var(--border) 50%, transparent);
+    background: color-mix(in srgb, var(--card) 70%, transparent);
+    border: 1px solid color-mix(in srgb, var(--border) 30%, transparent);
+    backdrop-filter: blur(12px) saturate(180%);
+    -webkit-backdrop-filter: blur(12px) saturate(180%);
+    position: relative;
   }
 
+  .glass::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(135deg, 
+      color-mix(in srgb, var(--primary) 20%, transparent),
+      color-mix(in srgb, var(--accent) 15%, transparent),
+      color-mix(in srgb, var(--primary) 10%, transparent)
+    );
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    z-index: -1;
+  }
+
+  /* Enhanced gradient backgrounds */
   .gradient-trading {
-    background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 50%, var(--chart-4) 100%);
+    background: linear-gradient(135deg, 
+      var(--primary) 0%, 
+      var(--accent) 30%, 
+      var(--chart-3) 60%, 
+      var(--chart-4) 100%);
+  }
+
+  .gradient-mesh {
+    background: 
+      radial-gradient(circle at 25% 25%, var(--primary) 0%, transparent 50%),
+      radial-gradient(circle at 75% 75%, var(--accent) 0%, transparent 50%),
+      radial-gradient(circle at 50% 50%, var(--chart-3) 0%, transparent 50%);
+    background-size: 300% 300%;
+    animation: gradientShift 8s ease infinite;
+  }
+
+  @keyframes gradientShift {
+    0%, 100% { background-position: 0% 0%, 100% 100%, 50% 50%; }
+    50% { background-position: 100% 100%, 0% 0%, 100% 0%; }
+  }
+
+  /* Floating elements animation */
+  .float {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0px) rotate(0deg); }
+    33% { transform: translateY(-10px) rotate(1deg); }
+    66% { transform: translateY(-5px) rotate(-1deg); }
+  }
+
+  /* Pulse animation for indicators */
+  .pulse-glow {
+    animation: pulseGlow 2s ease-in-out infinite;
+  }
+
+  @keyframes pulseGlow {
+    0%, 100% { 
+      box-shadow: 0 0 5px color-mix(in srgb, var(--accent) 50%, transparent);
+    }
+    50% { 
+      box-shadow: 0 0 20px color-mix(in srgb, var(--accent) 80%, transparent);
+    }
   }
 
   /* Added shimmer animation for loading states */
@@ -382,5 +446,181 @@
       var(--muted) 100%
     );
     background-size: 1000px 100%;
+  }
+
+  /* ---------------------------
+     MODERN CARD SYSTEM
+  --------------------------- */
+  
+  /* Enhanced card with sophisticated depth */
+  .card-enhanced {
+    background: color-mix(in srgb, var(--card) 95%, transparent);
+    border: 1px solid color-mix(in srgb, var(--border) 50%, transparent);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    box-shadow: 
+      0 1px 3px color-mix(in srgb, black 10%, transparent),
+      0 4px 12px color-mix(in srgb, black 5%, transparent);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card-enhanced::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      color-mix(in srgb, var(--primary) 5%, transparent),
+      transparent
+    );
+    transition: left 0.5s ease;
+    z-index: 1;
+  }
+
+  .card-enhanced:hover::before {
+    left: 100%;
+  }
+
+  .card-enhanced:hover {
+    transform: translateY(-2px);
+    box-shadow: 
+      0 4px 12px color-mix(in srgb, black 15%, transparent),
+      0 8px 32px color-mix(in srgb, black 8%, transparent),
+      0 0 0 1px color-mix(in srgb, var(--primary) 20%, transparent);
+    border-color: color-mix(in srgb, var(--primary) 30%, transparent);
+  }
+
+  /* Bento-style grid cards */
+  .bento-card {
+    background: color-mix(in srgb, var(--card) 90%, transparent);
+    border: 1px solid color-mix(in srgb, var(--border) 40%, transparent);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .bento-card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+      circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+      color-mix(in srgb, var(--accent) 8%, transparent) 0%,
+      transparent 40%
+    );
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 1;
+  }
+
+  .bento-card:hover::after {
+    opacity: 1;
+  }
+
+  .bento-card:hover {
+    transform: scale(1.02);
+    border-color: color-mix(in srgb, var(--accent) 40%, transparent);
+  }
+
+  /* Trading-specific card styles */
+  .trading-card {
+    background: linear-gradient(145deg, 
+      color-mix(in srgb, var(--card) 95%, transparent) 0%,
+      color-mix(in srgb, var(--card) 90%, transparent) 100%
+    );
+    border: 1px solid color-mix(in srgb, var(--border) 60%, transparent);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .trading-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg,
+      transparent 0%,
+      var(--accent) 50%,
+      transparent 100%
+    );
+    opacity: 0.6;
+  }
+
+  /* ---------------------------
+     INTERACTIVE ELEMENTS
+  --------------------------- */
+
+  /* Enhanced button hover effects */
+  .btn-enhanced {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .btn-enhanced::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: -1;
+  }
+
+  .btn-enhanced:hover::before {
+    opacity: 1;
+  }
+
+  .btn-enhanced:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 25px color-mix(in srgb, var(--primary) 40%, transparent);
+  }
+
+  /* Morphing icons */
+  .icon-morph {
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .icon-morph:hover {
+    transform: scale(1.1) rotate(5deg);
+  }
+
+  /* Number counters */
+  .number-display {
+    font-variant-numeric: tabular-nums;
+    transition: all 0.3s ease;
+  }
+
+  .number-positive {
+    color: var(--chart-3);
+    text-shadow: 0 0 8px color-mix(in srgb, var(--chart-3) 30%, transparent);
+  }
+
+  .number-negative {
+    color: var(--destructive);
+    text-shadow: 0 0 8px color-mix(in srgb, var(--destructive) 30%, transparent);
+  }
+
+  /* Progress indicators */
+  .progress-glow {
+    background: linear-gradient(90deg, var(--primary), var(--accent));
+    box-shadow: 0 0 12px color-mix(in srgb, var(--primary) 50%, transparent);
+    animation: progressPulse 2s ease-in-out infinite;
+  }
+
+  @keyframes progressPulse {
+    0%, 100% { opacity: 0.8; }
+    50% { opacity: 1; }
   }
 }

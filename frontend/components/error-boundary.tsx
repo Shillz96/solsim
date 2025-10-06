@@ -38,7 +38,6 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error('Error caught by boundary:', error, errorInfo)
     this.setState({
       error,
       errorInfo
@@ -62,7 +61,13 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
           detail: { error, errorInfo, component: 'ErrorBoundary' }
         }))
       } catch (logError) {
-        console.error('Failed to log error:', logError)
+        import('@/lib/error-logger').then(({ errorLogger }) => {
+          errorLogger.error('Failed to log error boundary error', {
+            error: logError as Error,
+            action: 'error_boundary_log_failed',
+            metadata: { originalError: error.message }
+          })
+        })
       }
     }
   }

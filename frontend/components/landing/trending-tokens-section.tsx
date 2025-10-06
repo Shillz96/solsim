@@ -6,7 +6,7 @@ import { TrendingUp, ArrowRight, TrendingDown, Loader2 } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 import { motion } from "framer-motion"
-import { useTrendingTokens } from "@/lib/api-hooks-v2"
+import { useTrendingTokens } from "@/lib/api-hooks"
 import type { TrendingToken } from "@/lib/types/api-types"
 
 export function TrendingTokensSection() {

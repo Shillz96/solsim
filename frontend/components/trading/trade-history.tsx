@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { ArrowUpRight, ArrowDownRight, ChevronDown, Loader2, AlertCircle } from "lucide-react"
-import { useTradeHistory } from "@/lib/api-hooks-v2"
+import { useTradeHistory } from "@/lib/api-hooks"
 import type { Trade } from "@/lib/types/api-types"
 
 interface TradeHistoryProps {

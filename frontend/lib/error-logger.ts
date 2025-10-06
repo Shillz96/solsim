@@ -16,11 +16,13 @@ export interface LogContext {
   error?: Error
   errorInfo?: any
   message?: string
+  endpoint?: string
   filename?: string
   lineno?: number
   colno?: number
   stack?: string
   fingerprint?: string
+  state?: string
   metadata?: Record<string, any>
 }
 
@@ -239,6 +241,30 @@ export class ErrorLogger {
     })
   }
 
+  // General error logging method
+  public generalError(message: string, error: Error, context: Partial<LogContext> = {}) {
+    this.error(message, {
+      ...context,
+      error,
+      metadata: {
+        type: 'general_error',
+        ...context.metadata
+      }
+    })
+  }
+
+  // Authentication error logging method
+  public authError(message: string, error: Error, context: Partial<LogContext> = {}) {
+    this.error(message, {
+      ...context,
+      error,
+      metadata: {
+        type: 'auth_error',
+        ...context.metadata
+      }
+    })
+  }
+
   // User action logging
   public userAction(action: string, context: Partial<LogContext> = {}) {
     this.info(`User Action: ${action}`, {
@@ -367,7 +393,7 @@ export class ErrorLogger {
         // Network error - re-add logs for retry
         this.logs.unshift(...logsToFlush)
         console.debug('Network error flushing logs, will retry later')
-      } else if (error.message.includes('405')) {
+      } else if (error instanceof Error && error.message.includes('405')) {
         // 405 Method Not Allowed - disable logging
         console.debug('Monitoring logs endpoint not supported, disabling error logging')
         this.monitoringEndpointAvailable = false
@@ -376,7 +402,7 @@ export class ErrorLogger {
       } else {
         // Other errors - re-add logs for retry but log the error
         this.logs.unshift(...logsToFlush)
-        console.warn('Failed to flush logs:', error.message)
+        console.warn('Failed to flush logs:', error instanceof Error ? error.message : String(error))
       }
     }
   }

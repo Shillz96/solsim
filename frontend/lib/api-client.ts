@@ -3,6 +3,9 @@
 
 import type { ApiResponse, ApiError as IApiError } from './types/api-types'
 import { errorLogger } from './error-logger'
+import { circuitBreaker } from './circuit-breaker'
+import { performanceMonitor } from './performance-monitor'
+import { apiOptimizer } from './api-optimizer'
 
 export class ApiError extends Error implements IApiError {
   public status: number
@@ -51,6 +54,16 @@ class ApiClient {
     endpoint: string,
     options: RequestInit = {}
   ): Promise<T> {
+    // Check circuit breaker before making request
+    if (!circuitBreaker.isRequestAllowed(endpoint)) {
+      const state = circuitBreaker.getState(endpoint)
+      throw new ApiError(
+        `Circuit breaker open for ${endpoint}. Too many rate limit errors. Please try again later.`,
+        429,
+        'CIRCUIT_BREAKER_OPEN'
+      )
+    }
+
     const url = `${this.baseURL}${endpoint}`
     
     const headers = new Headers({
@@ -131,20 +144,43 @@ class ApiClient {
       const data: ApiResponse<T> = await response.json()
 
       if (!response.ok) {
+        // Special handling for 429 errors - extract retry information
+        const retryAfter = response.headers.get('Retry-After') || 
+                          response.headers.get('RateLimit-Reset') ||
+                          (data as any).retryAfter?.toString();
+        
         const apiError = new ApiError(
           data.error || `HTTP ${response.status}`,
           response.status,
           data.error
-        )
+        );
         
-        // Log API error
+        // Attach retry information for 429 errors
+        if (response.status === 429 && retryAfter) {
+          (apiError as any).retryAfter = retryAfter;
+        }
+        
+        // Log API error with rate limit context
         errorLogger.apiError(endpoint, apiError, {
           metadata: { 
             statusCode: response.status,
-            method: options.method || 'GET'
+            method: options.method || 'GET',
+            retryAfter: retryAfter,
+            rateLimit: response.status === 429 ? {
+              limit: response.headers.get('RateLimit-Limit'),
+              remaining: response.headers.get('RateLimit-Remaining'),
+              reset: response.headers.get('RateLimit-Reset')
+            } : undefined
           }
         })
         
+        // Record failure in circuit breaker and metrics
+        const errorDuration = Date.now() - startTime;
+        performanceMonitor.recordApiCall(endpoint, errorDuration, false, response.status);
+        if (response.status === 429) {
+          performanceMonitor.recordError('circuit-breaker');
+        }
+        circuitBreaker.onFailure(endpoint, apiError);
         throw apiError
       }
 
@@ -162,17 +198,25 @@ class ApiClient {
           }
         })
         
+        // Record failure in circuit breaker and metrics
+        const failureDuration = Date.now() - startTime;
+        performanceMonitor.recordApiCall(endpoint, failureDuration, false, response.status);
+        circuitBreaker.onFailure(endpoint, apiError);
         throw apiError
       }
 
-      // Log successful API call
-      errorLogger.apiSuccess(endpoint, Date.now() - startTime, {
+      // Log successful API call and reset circuit breaker
+      const successDuration = Date.now() - startTime;
+      errorLogger.apiSuccess(endpoint, successDuration, {
         metadata: {
           statusCode: response.status,
           method: options.method || 'GET'
         }
       })
 
+      // Record metrics and reset circuit breaker
+      performanceMonitor.recordApiCall(endpoint, successDuration, true, response.status);
+      circuitBreaker.onSuccess(endpoint);
       return data.data as T
     } catch (error) {
       if (error instanceof ApiError) {
@@ -192,6 +236,10 @@ class ApiClient {
         }
       })
       
+      // Record network failure in circuit breaker and metrics
+      performanceMonitor.recordApiCall(endpoint, 0, false, 0);
+      performanceMonitor.recordError('network');
+      circuitBreaker.onFailure(endpoint, networkError);
       throw networkError
     }
   }

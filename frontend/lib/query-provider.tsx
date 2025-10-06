@@ -5,7 +5,8 @@
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
-import { useState, type ReactNode } from 'react'
+import { useState, useEffect, type ReactNode } from 'react'
+import { globalErrorHandler } from './global-error-handler'
 
 const DEFAULT_STALE_TIME = 5 * 60 * 1000 // 5 minutes
 const DEFAULT_CACHE_TIME = 10 * 60 * 1000 // 10 minutes
@@ -17,27 +18,62 @@ export function QueryProvider({ children }: { children: ReactNode }) {
       new QueryClient({
         defaultOptions: {
           queries: {
-            // Global query configuration
+            // Global query configuration optimized for rate limiting
             staleTime: DEFAULT_STALE_TIME, // Data is fresh for 5 minutes
-            gcTime: DEFAULT_CACHE_TIME, // Keep in cache for 10 minutes (renamed from cacheTime)
-            refetchOnWindowFocus: true, // Refetch when user returns to tab
-            refetchOnMount: true, // Refetch when component mounts
+            gcTime: DEFAULT_CACHE_TIME, // Keep in cache for 10 minutes
+            refetchOnWindowFocus: false, // Disable aggressive window focus refetching
+            refetchOnMount: false, // Only refetch if data is stale
             refetchOnReconnect: true, // Refetch when network reconnects
-            retry: 3, // Retry failed requests 3 times
-            retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000), // Exponential backoff
-            networkMode: 'online', // Only run queries when online
+            retry: (failureCount, error: any) => {
+              // Don't retry 429 (rate limit) errors aggressively
+              if (error?.status === 429) {
+                return failureCount < 1; // Only retry once for 429 errors
+              }
+              // Don't retry 4xx client errors except 429
+              if (error?.status >= 400 && error?.status < 500 && error?.status !== 429) {
+                return false;
+              }
+              // Retry server errors up to 2 times
+              return failureCount < 2;
+            },
+            retryDelay: (attemptIndex, error: any) => {
+              // Special handling for 429 errors with longer delays
+              if (error?.status === 429) {
+                // Use Retry-After header if available, otherwise exponential backoff starting at 60s
+                const retryAfter = error?.retryAfter ? parseInt(error.retryAfter) * 1000 : 60000;
+                return Math.min(retryAfter * Math.pow(2, attemptIndex), 300000); // Max 5 minutes
+              }
+              // Standard exponential backoff for other errors
+              return Math.min(1000 * Math.pow(2, attemptIndex), 30000);
+            },
+            networkMode: 'online',
           },
           mutations: {
             // Global mutation configuration
-            retry: 1, // Retry mutations once
+            retry: (failureCount, error: any) => {
+              // Don't retry 429 errors or 4xx client errors
+              if (error?.status === 429 || (error?.status >= 400 && error?.status < 500)) {
+                return false;
+              }
+              return failureCount < 1;
+            },
             networkMode: 'online',
-            onError: (error) => {
-              console.error('Mutation error:', error)
+            onError: (error, variables, context) => {
+              // Use global error handler for consistent error management
+              globalErrorHandler.handleApiError(error, 'mutation');
             },
           },
         },
       })
   )
+
+  // Set up global error handler
+  useEffect(() => {
+    globalErrorHandler.setQueryClient(queryClient)
+    
+    // Global error handling is now managed through the QueryClient constructor
+    // and individual hook error handlers, not through defaultOptions.onError
+  }, [queryClient])
 
   return (
     <QueryClientProvider client={queryClient}>

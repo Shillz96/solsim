@@ -28,7 +28,7 @@ import {
   Bell,
   DollarSign
 } from 'lucide-react'
-import { useAuth, useUserSettings } from '@/lib/api-hooks-v2'
+import { useAuth, useUserSettings } from '@/lib/api-hooks'
 import authService from '@/lib/auth-service'
 import userService from '@/lib/user-service'
 import { useToast } from '@/hooks/use-toast'

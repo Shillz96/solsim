@@ -70,7 +70,13 @@ export class ApiCache {
         }
       }
     } catch (error) {
-      console.warn('Failed to load persistent cache:', error)
+      import('./error-logger').then(({ errorLogger }) => {
+        errorLogger.warn('Failed to load persistent cache', {
+          error: error as Error,
+          action: 'persistent_cache_load_failed',
+          metadata: { component: 'ApiCache' }
+        })
+      })
     }
   }
 
@@ -81,7 +87,13 @@ export class ApiCache {
       const cacheObj = Object.fromEntries(this.cache.entries())
       localStorage.setItem('solsim-api-cache', JSON.stringify(cacheObj))
     } catch (error) {
-      console.warn('Failed to save persistent cache:', error)
+      import('./error-logger').then(({ errorLogger }) => {
+        errorLogger.warn('Failed to save persistent cache', {
+          error: error as Error,
+          action: 'persistent_cache_save_failed',
+          metadata: { component: 'ApiCache' }
+        })
+      })
     }
   }
 
@@ -109,7 +121,12 @@ export class ApiCache {
     }
 
     if (removedCount > 0) {
-      console.log(`API Cache: Cleaned ${removedCount} expired/excess entries`)
+      import('./error-logger').then(({ errorLogger }) => {
+        errorLogger.info('API Cache cleaned expired entries', {
+          action: 'cache_cleanup',
+          metadata: { removedCount, component: 'ApiCache' }
+        })
+      })
       this.savePersistentCache()
     }
   }
@@ -166,7 +183,13 @@ export class ApiCache {
 
       return btoa(String.fromCharCode(...compressed))
     } catch (error) {
-      console.warn('Compression failed, using uncompressed data:', error)
+      import('./error-logger').then(({ errorLogger }) => {
+        errorLogger.warn('Compression failed, using uncompressed data', {
+          error: error as Error,
+          action: 'cache_compression_failed',
+          metadata: { component: 'ApiCache' }
+        })
+      })
       return JSON.stringify(data)
     }
   }
@@ -206,7 +229,13 @@ export class ApiCache {
       const jsonString = new TextDecoder().decode(decompressed)
       return JSON.parse(jsonString)
     } catch (error) {
-      console.warn('Decompression failed, treating as uncompressed:', error)
+      import('./error-logger').then(({ errorLogger }) => {
+        errorLogger.warn('Decompression failed, treating as uncompressed', {
+          error: error as Error,
+          action: 'cache_decompression_failed',
+          metadata: { component: 'ApiCache' }
+        })
+      })
       return JSON.parse(compressedData)
     }
   }
@@ -228,7 +257,13 @@ export class ApiCache {
       const data = await this.decompressData(entry.data)
       return data as T
     } catch (error) {
-      console.error('Failed to decompress cached data:', error)
+      import('./error-logger').then(({ errorLogger }) => {
+        errorLogger.error('Failed to decompress cached data', {
+          error: error as Error,
+          action: 'cache_decompression_error',
+          metadata: { key, component: 'ApiCache' }
+        })
+      })
       this.cache.delete(key)
       return null
     }
@@ -260,7 +295,13 @@ export class ApiCache {
       this.cache.set(key, entry)
       this.savePersistentCache()
     } catch (error) {
-      console.error('Failed to cache data:', error)
+      import('./error-logger').then(({ errorLogger }) => {
+        errorLogger.error('Failed to cache data', {
+          error: error as Error,
+          action: 'cache_set_failed',
+          metadata: { key, component: 'ApiCache' }
+        })
+      })
     }
   }
 
@@ -281,7 +322,12 @@ export class ApiCache {
     }
     
     if (removedCount > 0) {
-      console.log(`API Cache: Invalidated ${removedCount} entries with tag "${tag}"`)
+      import('./error-logger').then(({ errorLogger }) => {
+        errorLogger.info('API Cache invalidated entries by tag', {
+          action: 'cache_invalidated_by_tag',
+          metadata: { tag, removedCount, component: 'ApiCache' }
+        })
+      })
       this.savePersistentCache()
     }
   }
@@ -296,7 +342,12 @@ export class ApiCache {
     }
     
     if (removedCount > 0) {
-      console.log(`API Cache: Invalidated ${removedCount} entries matching pattern`)
+      import('./error-logger').then(({ errorLogger }) => {
+        errorLogger.info('API Cache invalidated entries by pattern', {
+          action: 'cache_invalidated_by_pattern',
+          metadata: { pattern: pattern.toString(), removedCount, component: 'ApiCache' }
+        })
+      })
       this.savePersistentCache()
     }
   }
@@ -332,191 +383,8 @@ export class ApiCache {
   }
 }
 
-// Enhanced API Client with caching
-export class CachedApiClient {
-  private cache = ApiCache.getInstance()
-  private baseURL: string
+// Note: CachedApiClient and useCachedApi removed - React Query now handles all caching needs
+// with superior performance, deduplication, background updates, and error handling
 
-  constructor(baseURL: string = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4002') {
-    this.baseURL = baseURL
-  }
-
-  async cachedRequest<T>(
-    endpoint: string,
-    options: RequestInit & {
-      cacheOptions?: {
-        ttl?: number
-        tags?: string[]
-        strategy?: 'cache-first' | 'network-first' | 'cache-only' | 'network-only'
-      }
-    } = {}
-  ): Promise<T> {
-    const url = `${this.baseURL}${endpoint}`
-    const { cacheOptions, ...requestOptions } = options
-    const strategy = cacheOptions?.strategy || 'cache-first'
-
-    // Cache-only strategy
-    if (strategy === 'cache-only') {
-      const cached = await this.cache.get<T>(url, requestOptions)
-      if (!cached) {
-        throw new Error('Data not available in cache')
-      }
-      return cached
-    }
-
-    // Network-only strategy
-    if (strategy === 'network-only') {
-      const response = await fetch(url, requestOptions)
-      const data = await response.json()
-      
-      if (response.ok && cacheOptions) {
-        await this.cache.set(url, data, {
-          ttl: cacheOptions.ttl,
-          tags: cacheOptions.tags,
-          requestOptions
-        })
-      }
-      
-      return data
-    }
-
-    // Cache-first strategy
-    if (strategy === 'cache-first') {
-      const cached = await this.cache.get<T>(url, requestOptions)
-      if (cached) {
-        // Update cache in background
-        this.backgroundRefresh(url, requestOptions, cacheOptions)
-        return cached
-      }
-    }
-
-    // Network-first strategy (or fallback for cache-first miss)
-    try {
-      const response = await fetch(url, requestOptions)
-      const data = await response.json()
-      
-      if (response.ok && cacheOptions) {
-        await this.cache.set(url, data, {
-          ttl: cacheOptions.ttl,
-          tags: cacheOptions.tags,
-          requestOptions
-        })
-      }
-      
-      return data
-    } catch (error) {
-      // Fallback to cache for network-first
-      if (strategy === 'network-first') {
-        const cached = await this.cache.get<T>(url, requestOptions)
-        if (cached) {
-          return cached
-        }
-      }
-      throw error
-    }
-  }
-
-  private async backgroundRefresh(
-    url: string, 
-    requestOptions: RequestInit,
-    cacheOptions?: { ttl?: number; tags?: string[] }
-  ): Promise<void> {
-    try {
-      const response = await fetch(url, requestOptions)
-      if (response.ok) {
-        const data = await response.json()
-        await this.cache.set(url, data, {
-          ttl: cacheOptions?.ttl,
-          tags: cacheOptions?.tags,
-          requestOptions
-        })
-      }
-    } catch (error) {
-      // Silent fail for background refresh
-      console.debug('Background refresh failed:', error)
-    }
-  }
-
-  // Invalidation helpers
-  public invalidateUserData(userId?: string): void {
-    this.cache.invalidateByTag('user')
-    if (userId) {
-      this.cache.invalidateByTag(`user:${userId}`)
-    }
-  }
-
-  public invalidateTradeData(): void {
-    this.cache.invalidateByTag('trades')
-    this.cache.invalidateByTag('portfolio')
-  }
-
-  public invalidateMarketData(): void {
-    this.cache.invalidateByTag('market')
-    this.cache.invalidateByPattern(/\/api\/v1\/market\//)
-  }
-
-  public invalidateLeaderboard(): void {
-    this.cache.invalidateByTag('leaderboard')
-  }
-}
-
-// React hook for cached API calls
-import { useState, useEffect, useCallback } from 'react'
-
-export function useCachedApi<T>(
-  endpoint: string,
-  options?: {
-    enabled?: boolean
-    cache?: {
-      ttl?: number
-      tags?: string[]
-      strategy?: 'cache-first' | 'network-first' | 'cache-only'
-    }
-    refetchInterval?: number
-  }
-) {
-  const [data, setData] = useState<T | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-
-  const client = new CachedApiClient()
-
-  const fetchData = useCallback(async () => {
-    if (options?.enabled === false) return
-
-    try {
-      setLoading(true)
-      setError(null)
-      const result = await client.cachedRequest<T>(endpoint, {
-        method: 'GET',
-        ...(options?.cache && { cacheOptions: options.cache })
-      })
-      setData(result)
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unknown error')
-    } finally {
-      setLoading(false)
-    }
-  }, [endpoint, options?.enabled, options?.cache])
-
-  useEffect(() => {
-    fetchData()
-
-    // Setup refetch interval if specified
-    if (options?.refetchInterval && options.refetchInterval > 0) {
-      const interval = setInterval(fetchData, options.refetchInterval)
-      return () => clearInterval(interval)
-    }
-  }, [fetchData, options?.refetchInterval])
-
-  return {
-    data,
-    loading,
-    error,
-    refetch: fetchData
-  }
-}
-
-// Export instances
+// Export singleton instance for basic caching needs
 export const apiCache = ApiCache.getInstance()
-export const cachedApiClient = new CachedApiClient()

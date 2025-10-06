@@ -9,11 +9,12 @@ import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { TrendingUp, TrendingDown, Wallet, Settings, AlertCircle, CheckCircle, Loader2, RefreshCw } from "lucide-react"
-import { useAuth, useTrading, usePortfolio } from "@/lib/api-hooks-v2"
+import { useAuth, useTrading, usePortfolio } from "@/lib/api-hooks"
 import { useToast } from "@/hooks/use-toast"
 import marketService from "@/lib/market-service"
 import type { TokenDetails } from "@/lib/types/api-types"
 import type { PortfolioPosition } from "@/lib/portfolio-service"
+import { AnimatedNumber } from "@/components/ui/animated-number"
 
 interface TradingPanelProps {
   tokenAddress?: string
@@ -73,31 +74,57 @@ export function TradingPanel({ tokenAddress: propTokenAddress }: TradingPanelPro
           parseFloat(p.quantity) > 0
         ) || null
         
-        console.log('Portfolio positions for token search:', {
-          tokenAddress: tokenAddress.substring(0, 8) + '...',
-          totalPositions: portfolio.positions.length,
-          foundHolding: !!holding,
-          holdingQuantity: holding?.quantity || 'none'
+        import('@/lib/error-logger').then(({ errorLogger }) => {
+          errorLogger.info('Portfolio positions analyzed', {
+            action: 'token_position_search',
+            metadata: {
+              tokenAddress: tokenAddress.substring(0, 8) + '...',
+              totalPositions: portfolio.positions.length,
+              foundHolding: !!holding,
+              holdingQuantity: holding?.quantity || 'none',
+              component: 'TradingPanel'
+            }
+          })
         })
       } else {
-        console.log('No portfolio positions available:', {
-          portfolioLoaded: !!portfolio,
-          hasPositions: !!portfolio?.positions,
-          positionsType: typeof portfolio?.positions,
-          portfolioLoading,
-          portfolioError: !!portfolioError
+        import('@/lib/error-logger').then(({ errorLogger }) => {
+          errorLogger.warn('No portfolio positions available', {
+            action: 'portfolio_positions_missing',
+            metadata: {
+              portfolioLoaded: !!portfolio,
+              hasPositions: !!portfolio?.positions,
+              positionsType: typeof portfolio?.positions,
+              portfolioLoading,
+              portfolioError: !!portfolioError,
+              component: 'TradingPanel'
+            }
+          })
         })
         
         // Auto-refresh portfolio if we don't have positions but should
         if (portfolio && !portfolioLoading && !portfolioError) {
-          console.log('Auto-refreshing portfolio due to missing positions')
+          import('@/lib/error-logger').then(({ errorLogger }) => {
+            errorLogger.info('Auto-refreshing portfolio due to missing positions', {
+              action: 'portfolio_auto_refresh',
+              metadata: { component: 'TradingPanel' }
+            })
+          })
           refreshPortfolio()
         }
       }
       
       setTokenHolding(holding)
     } catch (error) {
-      console.error('Failed to load token data:', error)
+      import('@/lib/error-logger').then(({ errorLogger }) => {
+        errorLogger.error('Failed to load token data', {
+          error: error as Error,
+          action: 'token_data_load_failed',
+          metadata: { 
+            tokenAddress: tokenAddress?.substring(0, 8) + '...',
+            component: 'TradingPanel'
+          }
+        })
+      })
       toast({
         title: "Error",
         description: "Failed to load token information",
@@ -107,7 +134,7 @@ export function TradingPanel({ tokenAddress: propTokenAddress }: TradingPanelPro
       setLoadingToken(false)
       setIsRefreshing(false)
     }
-  }, [tokenAddress, portfolio, toast, portfolioLoading, portfolioError, refreshPortfolio])
+  }, [tokenAddress, portfolio?.positions, portfolio, toast, portfolioLoading, portfolioError, refreshPortfolio])
 
   useEffect(() => {
     loadTokenData()
@@ -153,7 +180,7 @@ export function TradingPanel({ tokenAddress: propTokenAddress }: TradingPanelPro
       if (!tokenHolding) {
         toast({
           title: "No Token Holdings",
-          description: `You don't have any ${tokenDetails?.name || 'tokens'} to sell. Make sure you've purchased some first.`,
+          description: `You don't have any ${tokenDetails?.tokenName || 'tokens'} to sell. Make sure you've purchased some first.`,
           variant: "destructive"
         })
         return
@@ -181,12 +208,18 @@ export function TradingPanel({ tokenAddress: propTokenAddress }: TradingPanelPro
       const sellQuantity = (holdingQuantity * selectedPercentage) / 100
       amountSol = sellQuantity * parseFloat(tokenDetails.price.toString()) / 1e9 // Convert to SOL
       
-      console.log('Sell calculation:', {
-        holdingQuantity,
-        selectedPercentage,
-        sellQuantity,
-        tokenPrice: tokenDetails.price,
-        amountSol
+      import('@/lib/error-logger').then(({ errorLogger }) => {
+        errorLogger.info('Sell calculation performed', {
+          action: 'sell_calculation',
+          metadata: {
+            holdingQuantity,
+            selectedPercentage,
+            sellQuantity,
+            tokenPrice: tokenDetails.price,
+            amountSol,
+            component: 'TradingPanel'
+          }
+        })
       })
     }
 
@@ -220,7 +253,16 @@ export function TradingPanel({ tokenAddress: propTokenAddress }: TradingPanelPro
       setTimeout(() => setLastTradeSuccess(false), 3000)
 
     } catch (error) {
-      console.error('Trade execution failed:', error)
+      import('@/lib/error-logger').then(({ errorLogger }) => {
+        errorLogger.error('Trade execution failed', {
+          error: error as Error,
+          action: 'trade_execution_failed',
+          metadata: { 
+            tokenAddress: tokenAddress?.substring(0, 8) + '...',
+            component: 'TradingPanel'
+          }
+        })
+      })
       // Error is already handled by useTrading hook and displayed via tradeError
     }
   }, [
@@ -270,7 +312,7 @@ export function TradingPanel({ tokenAddress: propTokenAddress }: TradingPanelPro
   const tokenBalance = tokenHolding ? parseFloat(tokenHolding.quantity) : 0
 
   return (
-    <Card className="p-6 space-y-6">
+    <Card className="trading-card p-6 space-y-6">
       {/* Trade Status */}
       {tradeError && (
         <Alert variant="destructive">
@@ -300,15 +342,24 @@ export function TradingPanel({ tokenAddress: propTokenAddress }: TradingPanelPro
           </div>
         </div>
         <div className="flex items-baseline gap-2">
-          <span className="font-mono text-2xl font-bold text-foreground">
-            ${currentPrice.toFixed(8)}
-          </span>
+          <AnimatedNumber
+            value={currentPrice}
+            prefix="$"
+            decimals={8}
+            className="font-mono text-2xl font-bold text-foreground"
+            colorize={false}
+            glowOnChange={true}
+          />
           {tokenDetails.priceChange24h && (
-            <span className={`text-sm font-medium ${
-              tokenDetails.priceChange24h >= 0 ? 'text-green-600' : 'text-red-600'
-            }`}>
-              {tokenDetails.priceChange24h >= 0 ? '+' : ''}{tokenDetails.priceChange24h.toFixed(2)}%
-            </span>
+            <AnimatedNumber
+              value={tokenDetails.priceChange24h}
+              suffix="%"
+              prefix={tokenDetails.priceChange24h >= 0 ? '+' : ''}
+              decimals={2}
+              className="text-sm font-medium"
+              colorize={true}
+              glowOnChange={true}
+            />
           )}
         </div>
         {tokenHolding && (
@@ -448,7 +499,7 @@ export function TradingPanel({ tokenAddress: propTokenAddress }: TradingPanelPro
                     <Button 
                       variant="ghost" 
                       size="sm" 
-                      onClick={refreshPortfolio}
+                      onClick={() => refreshPortfolio()}
                       className="ml-2"
                     >
                       Try again

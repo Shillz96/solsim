@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Mail, Lock, User, TrendingUp, AlertCircle, CheckCircle, ArrowLeft } from "lucide-react"
-import { useAuth } from "@/lib/api-hooks-v2"
+import { useAuth } from "@/lib/api-hooks"
 import authService from "@/lib/auth-service"
 import { ApiError } from "@/lib/api-client"
 

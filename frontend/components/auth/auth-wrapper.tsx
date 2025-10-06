@@ -5,7 +5,7 @@
 
 import { useEffect, useState, createContext, useContext } from 'react'
 import { useRouter } from 'next/navigation'
-import { useAuth } from '@/lib/api-hooks-v2'
+import { useAuth } from '@/lib/api-hooks'
 import authService from '@/lib/auth-service'
 import { AuthModal } from '@/components/modals/auth-modal'
 import { Card } from '@/components/ui/card'
@@ -50,7 +50,12 @@ export function AuthWrapper({
         setTokenRefreshError(null)
         await authService.ensureValidToken()
       } catch (error) {
-        console.error('Token refresh failed:', error)
+        import('@/lib/error-logger').then(({ errorLogger }) => {
+          errorLogger.authError('Token refresh failed', error as Error, {
+            action: 'token_refresh_failed',
+            metadata: { component: 'AuthWrapper' }
+          })
+        })
         setTokenRefreshError('Session expired. Please sign in again.')
         // Auto-logout on refresh failure
         setTimeout(() => {
@@ -75,6 +80,7 @@ export function AuthWrapper({
   useEffect(() => {
     if (!loading && requireAuth && !isAuthenticated && !tokenRefreshError) {
       // Don't redirect immediately, show auth modal instead
+      // Could implement auth modal showing logic here if needed
     }
   }, [loading, isAuthenticated, requireAuth, tokenRefreshError])
 

@@ -38,7 +38,13 @@ export function SharePnLDialog({ totalPnL, totalPnLPercent, currentValue, initia
       link.href = canvas.toDataURL()
       link.click()
     } catch (error) {
-      console.error("Failed to download image:", error)
+      import('@/lib/error-logger').then(({ errorLogger }) => {
+        errorLogger.error('Failed to download PnL image', {
+          error: error as Error,
+          action: 'pnl_image_download_failed',
+          metadata: { component: 'SharePnLDialog' }
+        })
+      })
     } finally {
       setIsGenerating(false)
     }
@@ -70,7 +76,13 @@ export function SharePnLDialog({ totalPnL, totalPnLPercent, currentValue, initia
         }
       })
     } catch (error) {
-      console.error("Failed to copy image:", error)
+      import('@/lib/error-logger').then(({ errorLogger }) => {
+        errorLogger.error('Failed to copy PnL image', {
+          error: error as Error,
+          action: 'pnl_image_copy_failed',
+          metadata: { component: 'SharePnLDialog' }
+        })
+      })
     } finally {
       setIsGenerating(false)
     }

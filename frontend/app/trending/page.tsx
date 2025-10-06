@@ -9,7 +9,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Search, TrendingUp, Filter, Loader2, AlertCircle } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
-import { useTrendingTokens } from "@/lib/api-hooks-v2"
+import { useTrendingTokens } from "@/lib/api-hooks"
 import type { TrendingToken, TokenCategory } from "@/lib/types/api-types"
 
 type TimeRange = "5m" | "1h" | "6h" | "24h"

@@ -33,7 +33,7 @@ export default function PortfolioPage() {
             <ActivePositions />
 
             {/* Portfolio Performance Chart */}
-            <Card className="p-6">
+            <Card className="bento-card p-6">
               <h3 className="font-semibold text-lg mb-4">Portfolio Performance</h3>
               <PortfolioChart />
             </Card>
@@ -46,7 +46,7 @@ export default function PortfolioPage() {
           <aside className="lg:col-span-3 space-y-4">
             <div className="lg:sticky lg:top-6 space-y-4">
               {/* Alerts */}
-              <Card className="p-4">
+              <Card className="trading-card p-4">
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
                     <Bell className="h-4 w-4 text-primary" />

@@ -5,6 +5,8 @@ import type React from "react"
 import { useState, useEffect } from "react"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { AnimatedNumber } from "@/components/ui/animated-number"
+import { motion } from "framer-motion"
 import { Trophy, TrendingUp, TrendingDown, Minus, Sparkles, Loader2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import type { LeaderboardEntry as APILeaderboardEntry } from "@/lib/leaderboard-service"
@@ -117,7 +119,7 @@ export function ResponsiveLeaderboard({
   }
 
   return (
-    <Card className="overflow-hidden">
+    <Card className="card-enhanced overflow-hidden">
       {/* Desktop View */}
       <div className="hidden md:block overflow-x-auto">
         <table className="w-full">
@@ -165,9 +167,15 @@ export function ResponsiveLeaderboard({
                     </div>
                   </td>
                   <td className="px-6 py-4 text-right">
-                    <span className={`font-bold ${entry.totalPnL >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                      {entry.totalPnL >= 0 ? '+' : ''}{entry.totalPnL.toFixed(2)} SOL
-                    </span>
+                    <AnimatedNumber
+                      value={entry.totalPnL}
+                      suffix=" SOL"
+                      prefix={entry.totalPnL >= 0 ? '+' : ''}
+                      decimals={2}
+                      className="font-bold"
+                      colorize={true}
+                      glowOnChange={true}
+                    />
                   </td>
                   <td className="px-6 py-4 text-right">
                     <span className="text-muted-foreground">{entry.totalTrades}</span>
@@ -208,9 +216,15 @@ export function ResponsiveLeaderboard({
                   {getRankChange(entry.rank, entry.previousRank)}
                 </div>
                 <div className="text-right">
-                  <p className={`font-bold text-lg ${entry.totalPnL >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                    {entry.totalPnL >= 0 ? '+' : ''}{entry.totalPnL.toFixed(2)} SOL
-                  </p>
+                  <AnimatedNumber
+                    value={entry.totalPnL}
+                    suffix=" SOL"
+                    prefix={entry.totalPnL >= 0 ? '+' : ''}
+                    decimals={2}
+                    className="font-bold text-lg"
+                    colorize={true}
+                    glowOnChange={true}
+                  />
                   <p className="text-xs text-muted-foreground">{entry.totalTrades} trades</p>
                 </div>
               </div>

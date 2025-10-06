@@ -2,13 +2,13 @@ import type React from "react"
 import type { Metadata } from "next"
 import { IBM_Plex_Sans, JetBrains_Mono } from "next/font/google"
 import localFont from "next/font/local"
-import "@/styles/globals.css"
 import { NavBar } from "@/components/navigation/nav-bar"
 import { BottomNavBar } from "@/components/navigation/bottom-nav-bar"
 import { ThemeProvider } from "@/components/theme-provider"
 import { GlobalErrorBoundary } from "@/components/error-boundary-enhanced"
 import { QueryProvider } from "@/lib/query-provider"
 import { PWAProvider, PWAInstallPrompt, PWAUpdatePrompt } from "@/lib/pwa-utils"
+import "./globals.css"
 
 const radnikaNext = localFont({
   src: "./fonts/Radnika-Medium.otf",

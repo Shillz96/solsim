@@ -16,7 +16,7 @@ import { useState, useCallback, useEffect, useRef } from "react"
 import { AuthModal } from "@/components/modals/auth-modal"
 import { cn } from "@/lib/utils"
 import { motion, AnimatePresence } from "framer-motion"
-import { useAuth, useBalance } from "@/lib/api-hooks-v2"
+import { useAuth, useBalance } from "@/lib/api-hooks"
 import { useRouter } from "next/navigation"
 import { useDebounce } from "@/hooks/use-debounce"
 import marketService from "@/lib/market-service"
@@ -58,7 +58,13 @@ export function NavBar() {
       setSearchResults(results)
       setShowResults(true)
     } catch (error) {
-      console.error('Search failed:', error)
+      import('@/lib/error-logger').then(({ errorLogger }) => {
+        errorLogger.error('Token search failed', {
+          error: error as Error,
+          action: 'token_search_failed',
+          metadata: { query, component: 'NavBar' }
+        })
+      })
       setSearchResults([])
       setShowResults(false)
     } finally {
@@ -93,7 +99,9 @@ export function NavBar() {
 
   // Perform search when debounced query changes
   useEffect(() => {
-    performSearch(debouncedQuery)
+    if (debouncedQuery) {
+      performSearch(debouncedQuery)
+    }
   }, [debouncedQuery, performSearch])
 
   const navLinks = [

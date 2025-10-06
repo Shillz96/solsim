@@ -3,10 +3,11 @@
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import { AnimatedNumber } from "@/components/ui/animated-number"
 import { TrendingUp, Wallet, Activity, AlertCircle, RefreshCw } from "lucide-react"
 import { motion } from "framer-motion"
 import { SharePnLDialog } from "@/components/modals/share-pnl-dialog"
-import { usePortfolio, useBalance, useRecentTrades } from "@/lib/api-hooks-v2"
+import { usePortfolio, useBalance, useRecentTrades } from "@/lib/api-hooks"
 import { memo, useState, useCallback } from "react"
 
 const AnimatedBackground = memo(({ isPositive }: { isPositive: boolean }) => {
@@ -47,7 +48,7 @@ export function PnLCard() {
   // Enhanced data extraction with proper validation and fallbacks
   const totalPnLStr = portfolio?.totalPnL?.sol ?? "0"
   const totalPnL = isNaN(parseFloat(totalPnLStr)) ? 0 : parseFloat(totalPnLStr)
-  const totalPnLPercent = isNaN(portfolio?.totalPnL?.percent) ? 0 : portfolio?.totalPnL?.percent ?? 0
+  const totalPnLPercent = isNaN(portfolio?.totalPnL?.percent ?? 0) ? 0 : portfolio?.totalPnL?.percent ?? 0
   
   const currentValueStr = portfolio?.totalValue?.sol ?? "0" 
   const currentValue = isNaN(parseFloat(currentValueStr)) ? 0 : parseFloat(currentValueStr)
@@ -76,14 +77,19 @@ export function PnLCard() {
 
   // Debug logging for development
   if (process.env.NODE_ENV === 'development') {
-    console.log('PnLCard data:', {
-      portfolio,
-      totalPnL,
-      totalPnLPercent,
-      currentValue,
-      totalInvested,
-      hasError,
-      errors: { portfolioError, balanceError, tradesError }
+    import('@/lib/error-logger').then(({ errorLogger }) => {
+      errorLogger.info('PnLCard data loaded', {
+        action: 'pnl_card_data_debug',
+        metadata: {
+          hasPortfolio: !!portfolio,
+          totalPnL,
+          totalPnLPercent,
+          currentValue,
+          totalInvested,
+          hasError,
+          component: 'PnLCard'
+        }
+      })
     })
   }
 
@@ -141,7 +147,7 @@ export function PnLCard() {
   }
 
   return (
-    <Card className="p-6 relative overflow-hidden">
+    <Card className="trading-card p-6 relative overflow-hidden">
       <AnimatedBackground isPositive={totalPnL > 0} />
 
       <div className={`space-y-6 relative transition-opacity ${isRefreshing ? 'opacity-70' : 'opacity-100'}`}>
@@ -168,13 +174,27 @@ export function PnLCard() {
 
         <div>
           <div className="flex items-baseline gap-2">
-            <span className={`font-mono text-3xl font-bold ${totalPnL > 0 ? "text-accent" : "text-destructive"}`}>
-              {totalPnL > 0 ? "+" : ""}
-              {totalPnL.toFixed(2)} SOL
-            </span>
-            <span className={`text-lg font-medium font-mono ${totalPnL > 0 ? "text-accent" : "text-destructive"}`}>
-              ({totalPnL > 0 ? "+" : ""}
-              {totalPnLPercent.toFixed(2)}%)
+            <AnimatedNumber
+              value={totalPnL}
+              suffix=" SOL"
+              prefix={totalPnL > 0 ? "+" : ""}
+              decimals={2}
+              className="font-mono text-3xl font-bold"
+              colorize={true}
+              glowOnChange={true}
+            />
+            <span className="text-lg font-medium font-mono">
+              (
+              <AnimatedNumber
+                value={totalPnLPercent}
+                suffix="%"
+                prefix={totalPnLPercent > 0 ? "+" : ""}
+                decimals={2}
+                className="font-mono"
+                colorize={true}
+                glowOnChange={true}
+              />
+              )
             </span>
           </div>
         </div>
@@ -182,10 +202,16 @@ export function PnLCard() {
         <div className="grid grid-cols-4 gap-3">
           <div className="space-y-1">
             <div className="flex items-center gap-1 text-muted-foreground">
-              <Wallet className="h-3 w-3" />
+              <Wallet className="h-3 w-3 icon-morph" />
               <span className="text-xs">Balance</span>
             </div>
-            <p className="font-mono text-sm font-semibold">{initialBalance.toFixed(4)} SOL</p>
+            <AnimatedNumber
+              value={initialBalance}
+              suffix=" SOL"
+              decimals={4}
+              className="font-mono text-sm font-semibold number-display"
+              glowOnChange={false}
+            />
           </div>
 
           <div className="space-y-1">
@@ -193,23 +219,41 @@ export function PnLCard() {
               <span className="text-xs">💰</span>
               <span className="text-xs">Invested</span>
             </div>
-            <p className="font-mono text-sm font-semibold">{totalInvested.toFixed(4)} SOL</p>
+            <AnimatedNumber
+              value={totalInvested}
+              suffix=" SOL"
+              decimals={4}
+              className="font-mono text-sm font-semibold number-display"
+              glowOnChange={false}
+            />
           </div>
 
           <div className="space-y-1">
             <div className="flex items-center gap-1 text-muted-foreground">
-              <TrendingUp className="h-3 w-3" />
+              <TrendingUp className="h-3 w-3 icon-morph" />
               <span className="text-xs">Value</span>
             </div>
-            <p className="font-mono text-sm font-semibold">{currentValue.toFixed(4)} SOL</p>
+            <AnimatedNumber
+              value={currentValue}
+              suffix=" SOL"
+              decimals={4}
+              className="font-mono text-sm font-semibold number-display"
+              colorize={true}
+              glowOnChange={true}
+            />
           </div>
 
           <div className="space-y-1">
             <div className="flex items-center gap-1 text-muted-foreground">
-              <Activity className="h-3 w-3" />
+              <Activity className="h-3 w-3 icon-morph" />
               <span className="text-xs">Trades</span>
             </div>
-            <p className="font-mono text-sm font-semibold">{tradesCount}</p>
+            <AnimatedNumber
+              value={tradesCount}
+              decimals={0}
+              className="font-mono text-sm font-semibold number-display"
+              glowOnChange={false}
+            />
           </div>
         </div>
       </div>

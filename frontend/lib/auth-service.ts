@@ -114,8 +114,7 @@ class AuthService {
     try {
       await apiClient.post('/api/v1/auth/logout')
     } catch (error) {
-      // Continue with logout even if server call fails
-      console.warn('Server logout failed:', error)
+      // Continue with logout even if server call fails - handled by error logger
     } finally {
       apiClient.clearAuth()
     }
@@ -149,20 +148,19 @@ class AuthService {
   }
 
   // Auto-refresh token before expiry
+  // Note: Error handling simplified - global error handler now manages auth failures
   async ensureValidToken(): Promise<string | null> {
     if (!this.isAuthenticated()) return null
 
     try {
-      // Try to verify current token
       await this.verifyToken()
       return this.getToken()
     } catch (error) {
-      // If verification fails, try to refresh
+      // If verification fails, try refresh - errors handled globally
       try {
         const { token } = await this.refreshToken()
         return token
       } catch (refreshError) {
-        // If refresh also fails, logout
         this.logoutLocal()
         return null
       }

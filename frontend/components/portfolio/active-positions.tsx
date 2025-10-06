@@ -4,9 +4,10 @@ import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import { AnimatedNumber } from "@/components/ui/animated-number"
 import { TrendingUp, TrendingDown, X, Loader2, AlertCircle, RefreshCw } from "lucide-react"
 import { motion } from "framer-motion"
-import { usePortfolio } from "@/lib/api-hooks-v2"
+import { usePortfolio } from "@/lib/api-hooks"
 import { useCallback, useState } from "react"
 import type { PortfolioPosition } from "@/lib/portfolio-service"
 
@@ -98,7 +99,7 @@ export function ActivePositions() {
   }
 
   return (
-    <Card className="p-6">
+    <Card className="card-enhanced p-6">
       <div className="mb-4 flex items-center justify-between">
         <h3 className="font-semibold text-lg">Active Positions</h3>
         <div className="flex items-center gap-2">
@@ -129,7 +130,8 @@ export function ActivePositions() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3 }}
-              className="flex items-center justify-between rounded-lg border border-border bg-card p-4 transition-all hover:border-primary/50 hover:shadow-lg hover:shadow-primary/5"
+              whileHover={{ scale: 1.01, y: -2 }}
+              className="flex items-center justify-between rounded-lg border border-border bento-card p-4"
             >
               <div className="flex items-center gap-4">
                 <div>
@@ -168,14 +170,24 @@ export function ActivePositions() {
 
               <div className="flex items-center gap-4">
                 <div className="text-right">
-                  <p className={`font-mono text-lg font-bold ${pnlAmount > 0 ? "text-accent" : "text-destructive"}`}>
-                    {pnlAmount > 0 ? "+" : ""}
-                    {pnlAmount.toFixed(4)} SOL
-                  </p>
-                  <p className={`text-sm font-medium font-mono ${pnlAmount > 0 ? "text-accent" : "text-destructive"}`}>
-                    {pnlPercent > 0 ? "+" : ""}
-                    {pnlPercent.toFixed(2)}%
-                  </p>
+                  <AnimatedNumber
+                    value={pnlAmount}
+                    suffix=" SOL"
+                    prefix={pnlAmount > 0 ? "+" : ""}
+                    decimals={4}
+                    className="font-mono text-lg font-bold"
+                    colorize={true}
+                    glowOnChange={true}
+                  />
+                  <AnimatedNumber
+                    value={pnlPercent}
+                    suffix="%"
+                    prefix={pnlPercent > 0 ? "+" : ""}
+                    decimals={2}
+                    className="text-sm font-medium font-mono"
+                    colorize={true}
+                    glowOnChange={true}
+                  />
                 </div>
 
                 <Button 
@@ -184,7 +196,15 @@ export function ActivePositions() {
                   className="h-8 w-8 hover:bg-destructive/10 hover:text-destructive opacity-50 hover:opacity-100"
                   onClick={() => {
                     // TODO: Implement position closing functionality
-                    console.log('Close position:', position.tokenAddress)
+                    import('@/lib/error-logger').then(({ errorLogger }) => {
+                      errorLogger.info('Position close requested', {
+                        action: 'position_close_requested',
+                        metadata: { 
+                          tokenAddress: position.tokenAddress.substring(0, 8) + '...',
+                          component: 'ActivePositions'
+                        }
+                      })
+                    })
                   }}
                 >
                   <X className="h-4 w-4" />

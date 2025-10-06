@@ -34,7 +34,13 @@ export default function LeaderboardPage() {
       const data = await leaderboardService.getLeaderboard()
       setLeaderboardData(data)
     } catch (err) {
-      console.error('Failed to fetch leaderboard:', err)
+      import('@/lib/error-logger').then(({ errorLogger }) => {
+        errorLogger.error('Failed to fetch leaderboard', {
+          error: err as Error,
+          action: 'leaderboard_fetch_failed',
+          metadata: { component: 'LeaderboardPage' }
+        })
+      })
       setError('Failed to load leaderboard data')
     } finally {
       setLoading(false)
@@ -50,7 +56,13 @@ export default function LeaderboardPage() {
           const profile = await authService.getProfile()
           setCurrentUserId(profile.id)
         } catch (err) {
-          console.error('Failed to fetch user profile:', err)
+          import('@/lib/error-logger').then(({ errorLogger }) => {
+            errorLogger.error('Failed to fetch user profile', {
+              error: err as Error,
+              action: 'user_profile_fetch_failed',
+              metadata: { component: 'LeaderboardPage' }
+            })
+          })
         }
       }
     }
@@ -61,7 +73,7 @@ export default function LeaderboardPage() {
   // Initial fetch
   useEffect(() => {
     fetchLeaderboard()
-  }, [timeRange])
+  }, [fetchLeaderboard, timeRange])
 
   // Auto-refresh every 30 seconds
   useEffect(() => {
@@ -70,7 +82,7 @@ export default function LeaderboardPage() {
     }, 30000)
 
     return () => clearInterval(interval)
-  }, [])
+  }, [fetchLeaderboard])
 
   const handleRefresh = async () => {
     setRefreshing(true)
@@ -120,7 +132,7 @@ export default function LeaderboardPage() {
 
         {/* Error Message */}
         {error && (
-          <Card className="p-4 mb-6 bg-destructive/10 border-destructive/20">
+          <Card className="card-enhanced p-4 mb-6 bg-destructive/10 border-destructive/20">
             <p className="text-destructive">{String(error)}</p>
           </Card>
         )}
@@ -168,7 +180,7 @@ export default function LeaderboardPage() {
             <div className={`space-y-6 ${!showStats && "hidden lg:block"}`}>
               {/* Current User Rank */}
               {currentUser && (
-                <Card className="p-6 bg-gradient-to-br from-primary/10 to-secondary/10 border-primary/20">
+                <Card className="bento-card p-6 bg-gradient-to-br from-primary/10 to-secondary/10 border-primary/20">
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
                       <h3 className="font-semibold text-lg">Your Rank</h3>
@@ -224,7 +236,7 @@ export default function LeaderboardPage() {
 
               {/* Top Performers */}
               {topPerformers.length > 0 && (
-                <Card className="p-6">
+                <Card className="trading-card p-6">
                   <h3 className="font-semibold text-lg mb-4 flex items-center gap-2">
                     <Trophy className="h-5 w-5 text-yellow-500" />
                     Top Performers
@@ -257,7 +269,7 @@ export default function LeaderboardPage() {
               )}
 
               {/* Quick Stats */}
-              <Card className="p-6">
+              <Card className="card-enhanced p-6">
                 <h3 className="font-semibold text-lg mb-4">Competition Stats</h3>
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
