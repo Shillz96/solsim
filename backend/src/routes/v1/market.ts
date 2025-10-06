@@ -57,7 +57,7 @@ router.get('/trending', apiLimiter, async (req: Request, res: Response): Promise
     let tokens;
     if (category) {
       tokens = await trendingService.getTrendingByCategory(
-        category as 'gainers' | 'losers' | 'volume' | 'new',
+        category as 'gainers' | 'losers' | 'volume',
         limit
       );
     } else {
@@ -380,12 +380,12 @@ router.get('/tokens/:tokenId', apiLimiter, async (req: Request, res: Response): 
       res.json({
         success: true,
         data: {
-          ...tokenInfo,
-          currentPrice: price.toString(),
-          price: price.toString(),
-          marketCap: tokenInfo.marketCap,
-          volume24h: tokenInfo.volume24h,
-          change24h: tokenInfo.change24h,
+          address: tokenId,
+          currentPrice: tokenData.price.toString(),
+          price: tokenData.price.toString(),
+          marketCap: tokenData.marketCap || '0',
+          volume24h: tokenData.volume24h || '0',
+          change24h: tokenData.change24h || 0,
           timestamp: Date.now()
         }
       });

@@ -2,6 +2,20 @@ import rateLimit from 'express-rate-limit';
 import { Request, Response } from 'express';
 import { logger } from '../utils/logger';
 
+// Extend Express Request type to include rateLimit
+declare global {
+  namespace Express {
+    interface Request {
+      rateLimit?: {
+        limit: number;
+        current: number;
+        remaining: number;
+        resetTime?: number;
+      };
+    }
+  }
+}
+
 /**
  * Rate Limiter Middleware
  * 

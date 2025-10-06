@@ -77,7 +77,10 @@ router.get('/history', async (req: Request, res: Response, next: NextFunction): 
     const { tokenAddress, limit: limitQuery, offset: offsetQuery } = req.query;
 
     // Validate pagination parameters
-    const { limit, offset, errors } = validatePagination(limitQuery, offsetQuery);
+    const { limit, offset, errors } = validatePagination(
+      limitQuery as string | undefined, 
+      offsetQuery as string | undefined
+    );
     if (errors.length > 0) {
       res.status(400).json({
         success: false,
@@ -284,7 +287,10 @@ router.get('/history/:userId', async (req: Request, res: Response, next: NextFun
     }
 
     // Validate pagination
-    const { limit, offset, errors } = validatePagination(limitQuery, offsetQuery);
+    const { limit, offset, errors } = validatePagination(
+      limitQuery as string | undefined, 
+      offsetQuery as string | undefined
+    );
     if (errors.length > 0) {
       res.status(400).json({
         success: false,
@@ -417,7 +423,10 @@ router.get('/recent', async (req: Request, res: Response, next: NextFunction): P
     const { limit: limitQuery } = req.query;
 
     // Validate pagination
-    const { limit, errors } = validatePagination(limitQuery, 0);
+    const { limit, errors } = validatePagination(
+      limitQuery as string | undefined, 
+      '0'
+    );
     if (errors.length > 0) {
       res.status(400).json({
         success: false,

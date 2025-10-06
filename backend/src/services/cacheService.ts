@@ -44,7 +44,6 @@ export class CacheService {
       url: config.redis.url,
       socket: {
         connectTimeout: 5000,
-        lazyConnect: true,
         reconnectStrategy: (retries) => {
           if (retries >= this.maxReconnectAttempts) {
             logger.error('Redis max reconnection attempts reached');
@@ -143,7 +142,7 @@ export class CacheService {
 
       this.stats.hits++;
       
-      if (options.serialize !== false) {
+      if (options.serialize !== false && typeof value === 'string') {
         return JSON.parse(value) as T;
       }
       
@@ -218,7 +217,7 @@ export class CacheService {
         const value = values[i];
         if (value !== null) {
           this.stats.hits++;
-          const parsedValue = options.serialize !== false 
+          const parsedValue = options.serialize !== false && typeof value === 'string'
             ? JSON.parse(value) as T 
             : value as T;
           results.set(keys[i], parsedValue);
@@ -245,12 +244,12 @@ export class CacheService {
     }
 
     try {
-      const serializedEntries = entries.map(([key, value]) => [
+      const serializedEntries: [string, string][] = entries.map(([key, value]) => [
         key,
-        options.serialize !== false ? JSON.stringify(value) : value
+        options.serialize !== false ? JSON.stringify(value) : String(value)
       ]);
 
-      await this.client.mSet(serializedEntries);
+      await this.client.mSet(serializedEntries as any);
       
       // Set TTL for each key if specified
       if (options.ttl) {

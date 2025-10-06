@@ -92,7 +92,7 @@ const validateAndCleanHandle = (handle: string): string | null => {
  */
 router.get('/profile/:userId?', optionalAuthenticate, apiLimiter, async (req: Request, res: Response): Promise<void> => {
   try {
-    const authReq = req as AuthenticatedRequest;
+    const authReq = req as unknown as AuthenticatedRequest;
     const targetUserId = req.params.userId;
     const requestingUserId = authReq.user?.id;
 
@@ -813,7 +813,7 @@ router.get('/search', apiLimiter, async (req: Request, res: Response): Promise<v
  */
 router.get('/stats/:userId?', apiLimiter, async (req: Request, res: Response): Promise<void> => {
   try {
-    const authReq = req as AuthenticatedRequest;
+    const authReq = req as unknown as AuthenticatedRequest;
     const targetUserId = req.params.userId;
     const requestingUserId = authReq.user?.id;
 

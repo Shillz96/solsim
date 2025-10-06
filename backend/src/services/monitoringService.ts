@@ -23,7 +23,6 @@ import { dbPoolMonitor } from './dbPoolMonitor.js';
 // Enable default metrics (CPU, memory, etc.)
 collectDefaultMetrics({
   prefix: 'solsim_',
-  timeout: 5000,
   gcDurationBuckets: [0.001, 0.01, 0.1, 1, 2, 5],
 });
 
@@ -414,10 +413,10 @@ export class MonitoringService {
       const metrics = {
         connections: {
           database: dbHealth.pool?.active_connections || 0,
-          websocket: wsConnectionsActive.get(),
+          websocket: (wsConnectionsActive as any).get ? (wsConnectionsActive as any).get() : 0,
         },
         cache: {
-          hitRate: cacheHitRate.get(),
+          hitRate: (cacheHitRate as any).get ? (cacheHitRate as any).get() : 0,
           connected: checks.cache.status === 'healthy',
         },
         performance: {
