@@ -11,17 +11,30 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { Menu, User, Settings, LogOut, Bell, Search } from "lucide-react"
-import { useState } from "react"
+import { Menu, User, Settings, LogOut, Bell, Search, Loader2 } from "lucide-react"
+import { useState, useCallback, useEffect, useRef } from "react"
 import { AuthModal } from "@/components/modals/auth-modal"
 import { cn } from "@/lib/utils"
-import { motion } from "framer-motion"
+import { motion, AnimatePresence } from "framer-motion"
 import { useAuth, useBalance } from "@/lib/api-hooks-v2"
+import { useRouter } from "next/navigation"
+import { useDebounce } from "@/hooks/use-debounce"
+import marketService from "@/lib/market-service"
+import type { TokenSearchResult } from "@/lib/types/api-types"
 
 export function NavBar() {
   const [authModalOpen, setAuthModalOpen] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const pathname = usePathname()
+  const router = useRouter()
+  
+  // Search functionality state
+  const [searchQuery, setSearchQuery] = useState("")
+  const [searchResults, setSearchResults] = useState<TokenSearchResult[]>([])
+  const [isSearching, setIsSearching] = useState(false)
+  const [showResults, setShowResults] = useState(false)
+  const searchRef = useRef<HTMLDivElement>(null)
+  const debouncedQuery = useDebounce(searchQuery, 300)
   
   // Use real authentication and balance data
   const { user, isAuthenticated, logout } = useAuth()
@@ -30,6 +43,58 @@ export function NavBar() {
   // Parse balance for display
   const balanceNumber = balance ? parseFloat(balance) : 0
   const hasNotifications = true // TODO: Implement real notifications
+
+  // Search functionality
+  const performSearch = useCallback(async (query: string) => {
+    if (!query.trim()) {
+      setSearchResults([])
+      setShowResults(false)
+      return
+    }
+
+    setIsSearching(true)
+    try {
+      const results = await marketService.searchTokens(query.trim(), 8) // Limit to 8 results for navbar
+      setSearchResults(results)
+      setShowResults(true)
+    } catch (error) {
+      console.error('Search failed:', error)
+      setSearchResults([])
+      setShowResults(false)
+    } finally {
+      setIsSearching(false)
+    }
+  }, [])
+
+  // Handle token selection
+  const handleTokenSelect = useCallback((tokenAddress: string) => {
+    router.push(`/trade?token=${tokenAddress}`)
+    setSearchQuery("")
+    setShowResults(false)
+    setSearchResults([])
+  }, [router])
+
+  // Handle search input changes
+  const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value)
+  }, [])
+
+  // Hide results when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+        setShowResults(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  // Perform search when debounced query changes
+  useEffect(() => {
+    performSearch(debouncedQuery)
+  }, [debouncedQuery, performSearch])
 
   const navLinks = [
     { href: "/", label: "Dashboard" },
@@ -43,7 +108,7 @@ export function NavBar() {
 
   return (
     <>
-      <nav className="sticky top-0 z-50 border-b border-border bg-card/95 backdrop-blur-md shadow-lg">
+      <nav className="sticky top-0 z-50 border-b border-border glass shadow-lg">
         <div className="mx-auto flex h-16 items-center justify-between px-4 max-w-[2400px] gap-4">
           <div className="flex items-center gap-4">
             {/* Mobile Hamburger */}
@@ -57,10 +122,17 @@ export function NavBar() {
                 <div className="flex flex-col gap-4 mt-8">
                   {/* SOL Balance Display for Mobile */}
                   {isAuthenticated && (
-                    <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-card border border-border shadow-sm mb-4">
-                      <div className="h-2 w-2 rounded-full bg-accent animate-pulse" />
-                      <span className="text-sm font-semibold text-foreground font-mono">{balanceNumber.toFixed(2)} SOL</span>
-                    </div>
+                    <motion.div 
+                      className="flex items-center gap-2 px-3 py-2 rounded-lg trading-card shadow-sm mb-4"
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      <div className="h-2 w-2 rounded-full bg-accent pulse-glow" />
+                      <span className="text-sm font-semibold text-foreground font-mono number-display">
+                        {balanceNumber.toFixed(2)} SOL
+                      </span>
+                    </motion.div>
                   )}
                   
                   {navLinks.map((link) => (
@@ -111,40 +183,156 @@ export function NavBar() {
           </div>
 
           <div className="hidden md:flex flex-1 max-w-xs ml-4">
-            <div className="relative w-full">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <motion.div 
+              ref={searchRef}
+              className="relative w-full"
+              initial={{ opacity: 0, width: 0 }}
+              animate={{ opacity: 1, width: "100%" }}
+              transition={{ duration: 0.5, delay: 0.3 }}
+            >
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground icon-morph" />
+              {isSearching && (
+                <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground animate-spin" />
+              )}
               <input
                 type="text"
-                placeholder="Search tokens..."
-                className="w-full h-9 pl-9 pr-4 rounded-lg bg-background border border-border text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
+                placeholder="Search tokens or paste CA..."
+                value={searchQuery}
+                onChange={handleSearchChange}
+                className="w-full h-9 pl-9 pr-10 rounded-lg glass border border-border text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:glow-primary transition-all duration-300"
               />
-            </div>
+              
+              {/* Search Results Dropdown */}
+              <AnimatePresence>
+                {showResults && searchResults.length > 0 && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.2 }}
+                    className="absolute top-full left-0 right-0 mt-1 bg-card border border-border rounded-lg shadow-lg z-50 max-h-80 overflow-y-auto"
+                  >
+                    {searchResults.map((token, index) => (
+                      <motion.button
+                        key={token.address}
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.2, delay: index * 0.05 }}
+                        onClick={() => handleTokenSelect(token.address)}
+                        className="w-full px-3 py-2 text-left hover:bg-muted transition-colors flex items-center gap-3 first:rounded-t-lg last:rounded-b-lg"
+                      >
+                        {token.imageUrl && (
+                          <img 
+                            src={token.imageUrl} 
+                            alt={token.symbol || ''} 
+                            className="w-6 h-6 rounded-full flex-shrink-0"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).style.display = 'none'
+                            }}
+                          />
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium text-foreground text-sm">
+                              {token.symbol || token.address.substring(0, 8)}
+                            </span>
+                            {token.trending && (
+                              <span className="text-xs bg-accent/20 text-accent px-1.5 py-0.5 rounded">
+                                🔥 Trending
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-xs text-muted-foreground truncate">
+                            {token.name || `${token.address.substring(0, 8)}...${token.address.substring(-8)}`}
+                          </p>
+                        </div>
+                        {token.price && (
+                          <div className="text-right">
+                            <p className="text-sm font-mono text-foreground">
+                              ${parseFloat(token.price).toLocaleString(undefined, { maximumFractionDigits: 6 })}
+                            </p>
+                            {token.priceChange24h && (
+                              <p className={`text-xs ${token.priceChange24h >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                {token.priceChange24h >= 0 ? '+' : ''}{token.priceChange24h.toFixed(2)}%
+                              </p>
+                            )}
+                          </div>
+                        )}
+                      </motion.button>
+                    ))}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+              
+              {/* No Results Message */}
+              <AnimatePresence>
+                {showResults && searchResults.length === 0 && searchQuery.trim() && !isSearching && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.2 }}
+                    className="absolute top-full left-0 right-0 mt-1 bg-card border border-border rounded-lg shadow-lg z-50 p-3"
+                  >
+                    <p className="text-sm text-muted-foreground text-center">
+                      No tokens found for "{searchQuery}"
+                    </p>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.div>
           </div>
 
           <div className="flex items-center gap-3">
             {isAuthenticated ? (
               <>
-                <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-card border border-border shadow-sm">
-                  <div className="h-2 w-2 rounded-full bg-accent animate-pulse" />
-                  <span className="text-sm font-semibold text-foreground font-mono">{balanceNumber.toFixed(2)} SOL</span>
-                </div>
+                <motion.div 
+                  className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg trading-card shadow-sm"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.4, delay: 0.2 }}
+                  whileHover={{ scale: 1.02 }}
+                >
+                  <div className="h-2 w-2 rounded-full bg-accent pulse-glow" />
+                  <span className="text-sm font-semibold text-foreground font-mono number-display">
+                    {balanceNumber.toFixed(2)} SOL
+                  </span>
+                </motion.div>
 
                 {/* Notifications */}
-                <Button variant="ghost" size="icon" className="relative hidden md:flex">
-                  <Bell className="h-5 w-5" />
-                  {hasNotifications && (
-                    <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-accent animate-pulse" />
-                  )}
-                </Button>
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.3, delay: 0.4 }}
+                >
+                  <Button variant="ghost" size="icon" className="relative hidden md:flex btn-enhanced">
+                    <Bell className="h-5 w-5 icon-morph" />
+                    {hasNotifications && (
+                      <motion.span 
+                        className="absolute top-1 right-1 h-2 w-2 rounded-full bg-accent"
+                        animate={{ scale: [1, 1.2, 1] }}
+                        transition={{ duration: 2, repeat: Infinity }}
+                      />
+                    )}
+                  </Button>
+                </motion.div>
 
                 {/* Profile Dropdown */}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="rounded-full">
-                      <div className="h-8 w-8 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg">
-                        <User className="h-4 w-4 text-white" />
-                      </div>
-                    </Button>
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ duration: 0.3, delay: 0.5 }}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      <Button variant="ghost" size="icon" className="rounded-full btn-enhanced">
+                        <div className="h-8 w-8 rounded-full gradient-trading flex items-center justify-center shadow-lg glow-primary">
+                          <User className="h-4 w-4 text-white" />
+                        </div>
+                      </Button>
+                    </motion.div>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-48 bg-card border-border">
                     <DropdownMenuItem asChild>
@@ -169,12 +357,35 @@ export function NavBar() {
               </>
             ) : (
               <>
-                <Button variant="ghost" size="sm" className="hidden md:flex" onClick={() => setAuthModalOpen(true)}>
-                  Login
-                </Button>
-                <Button size="sm" className="btn-primary shadow-lg" onClick={() => setAuthModalOpen(true)}>
-                  Start Trading
-                </Button>
+                <motion.div
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.4, delay: 0.3 }}
+                >
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="hidden md:flex btn-enhanced" 
+                    onClick={() => setAuthModalOpen(true)}
+                  >
+                    Login
+                  </Button>
+                </motion.div>
+                <motion.div
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.4, delay: 0.4 }}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <Button 
+                    size="sm" 
+                    className="gradient-trading text-white shadow-lg glow-primary btn-enhanced" 
+                    onClick={() => setAuthModalOpen(true)}
+                  >
+                    Start Trading
+                  </Button>
+                </motion.div>
               </>
             )}
           </div>
