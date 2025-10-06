@@ -49,7 +49,7 @@ router.get('/trending', apiLimiter, async (req: Request, res: Response): Promise
     });
 
     // Validate category if provided
-    const validCategories = ['gainers', 'losers', 'volume', 'new'];
+    const validCategories = ['gainers', 'losers', 'volume'];
     if (category && !validCategories.includes(category)) {
       throw new ValidationError(`Category must be one of: ${validCategories.join(', ')}`);
     }
@@ -317,26 +317,55 @@ router.get('/token/:address', apiLimiter, async (req: Request, res: Response): P
       throw new ValidationError(ERROR_MESSAGES.INVALID_ADDRESS);
     }
 
-    // Get token info and price in parallel with timeout
-    const [tokenData] = await Promise.race([
-      Promise.all([
-        priceService.getPrice(address)
-      ]),
-      new Promise<[null]>((_, reject) =>
-        setTimeout(() => reject(new Error('Request timeout')), TIMEOUTS.TOKEN_INFO)
-      )
-    ]);
-
-    if (!tokenData) {
-      throw new NotFoundError(ERROR_MESSAGES.TOKEN_NOT_FOUND);
+    // Get token info and price with timeout protection
+    let tokenData;
+    try {
+      [tokenData] = await Promise.race([
+        Promise.all([
+          priceService.getPrice(address)
+        ]),
+        // 10 second timeout
+        new Promise<[null]>((resolve) =>
+          setTimeout(() => resolve([null]), TIMEOUTS.TOKEN_INFO)
+        )
+      ]);
+    } catch (error) {
+      logger.warn(`Failed to fetch token data for ${address}:`, error);
+      tokenData = null;
     }
 
+    // If we got token data, return it
+    if (tokenData) {
+      res.json({
+        success: true,
+        data: {
+          address,
+          price: tokenData.price || tokenData.toString(),
+          priceData: tokenData,
+          timestamp: Date.now()
+        }
+      });
+      return;
+    }
+
+    // Fallback: Return basic token data for unknown tokens
+    logger.info(`Token ${address} not found in price service, returning fallback data`);
+    
     res.json({
       success: true,
       data: {
         address,
-        price: tokenData.price || tokenData.toString(),
-        priceData: tokenData,
+        symbol: address.substring(0, 6).toUpperCase(),
+        name: `Token ${address.substring(0, 8)}`,
+        source: 'fallback',
+        price: '0',
+        priceData: {
+          price: '0',
+          marketCap: 0,
+          volume24h: 0,
+          priceChange24h: 0,
+          source: 'fallback'
+        },
         timestamp: Date.now()
       }
     });

@@ -143,7 +143,7 @@ export class CacheService {
       this.stats.hits++;
       
       if (options.serialize !== false && typeof value === 'string') {
-        return JSON.parse(value) as T;
+        return JSON.parse(value as string) as T;
       }
       
       return value as T;
@@ -218,7 +218,7 @@ export class CacheService {
         if (value !== null) {
           this.stats.hits++;
           const parsedValue = options.serialize !== false && typeof value === 'string'
-            ? JSON.parse(value) as T 
+            ? JSON.parse(value as string) as T 
             : value as T;
           results.set(keys[i], parsedValue);
         } else {
@@ -296,7 +296,7 @@ export class CacheService {
 
     try {
       const result = await this.client.expire(key, seconds);
-      return result === 1;
+      return Boolean(result);
     } catch (error) {
       logger.error(`Cache expire error for key ${key}:`, error);
       this.stats.errors++;

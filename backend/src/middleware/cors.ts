@@ -6,10 +6,8 @@ const allowedOrigins = config.frontendOrigin.includes(',')
   ? config.frontendOrigin.split(',').map(o => o.trim())
   : [config.frontendOrigin];
 
-// Add Vercel deployment URLs for testing
-allowedOrigins.push(
-  'https://frontend-hceyamb4j-shillz96s-projects.vercel.app'
-);
+// Add Vercel deployment URLs dynamically
+// Production URL should be added via FRONTEND_ORIGIN environment variable
 
 export const corsMiddleware = cors({
   origin: (origin, callback) => {

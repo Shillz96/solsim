@@ -78,8 +78,8 @@ router.get('/history', async (req: Request, res: Response, next: NextFunction): 
 
     // Validate pagination parameters
     const { limit, offset, errors } = validatePagination(
-      limitQuery as string | undefined, 
-      offsetQuery as string | undefined
+      typeof limitQuery === 'string' ? limitQuery : undefined, 
+      typeof offsetQuery === 'string' ? offsetQuery : undefined
     );
     if (errors.length > 0) {
       res.status(400).json({
@@ -287,8 +287,8 @@ router.get('/history/:userId', async (req: Request, res: Response, next: NextFun
 
     // Validate pagination
     const { limit, offset, errors } = validatePagination(
-      limitQuery as string | undefined, 
-      offsetQuery as string | undefined
+      typeof limitQuery === 'string' ? limitQuery : undefined, 
+      typeof offsetQuery === 'string' ? offsetQuery : undefined
     );
     if (errors.length > 0) {
       res.status(400).json({
@@ -422,7 +422,7 @@ router.get('/recent', async (req: Request, res: Response, next: NextFunction): P
 
     // Validate pagination
     const { limit, errors } = validatePagination(
-      limitQuery as string | undefined, 
+      typeof limitQuery === 'string' ? limitQuery : undefined, 
       '0'
     );
     if (errors.length > 0) {

@@ -22,8 +22,7 @@ import { dbPoolMonitor } from './dbPoolMonitor.js';
 
 // Enable default metrics (CPU, memory, etc.)
 collectDefaultMetrics({
-  prefix: 'solsim_',
-  gcDurationBuckets: [0.001, 0.01, 0.1, 1, 2, 5],
+  prefix: 'solsim_'
 });
 
 // HTTP Metrics
