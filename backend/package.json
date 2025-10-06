@@ -4,6 +4,10 @@
   "description": "SolSim Trading Simulator Backend API - v2",
   "type": "module",
   "main": "dist/index.js",
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
+  },
   "scripts": {
     "build": "tsc --skipLibCheck",
     "start": "node dist/index.js",

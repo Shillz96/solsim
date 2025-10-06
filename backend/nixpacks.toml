@@ -1,5 +1,5 @@
 [phases.setup]
-nixPkgs = ["nodejs-18_x", "openssl", "postgresql"]
+nixPkgs = ["nodejs-20_x", "openssl", "postgresql"]
 
 [phases.install]
 cmds = ["npm ci"]

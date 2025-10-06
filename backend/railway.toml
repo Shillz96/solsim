@@ -3,7 +3,7 @@ builder = "nixpacks"
 buildCommand = "npm ci && npm run build"
 
 [build.nixpacksPlan.phases.setup]
-nixPkgs = ["openssl", "postgresql", "nodejs-18_x"]
+nixPkgs = ["openssl", "postgresql", "nodejs-20_x"]
 
 [deploy]
 startCommand = "node dist/index.js"
