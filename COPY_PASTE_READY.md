@@ -27,7 +27,7 @@ HELIUS_BASE_URL=https://mainnet.helius-rpc.com
 Go to Vercel Dashboard → Your Project → Settings → Environment Variables
 
 ```
-NEXT_PUBLIC_API_URL=https://solsim-production.up.railway.app
+NEXT_PUBLIC_API_URL=https://lovely-nature-production.up.railway.app
 NEXT_PUBLIC_APP_URL=https://solsim.fun
 NEXT_PUBLIC_ENV=production
 ```
