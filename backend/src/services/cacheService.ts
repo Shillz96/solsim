@@ -296,7 +296,7 @@ export class CacheService {
 
     try {
       const result = await this.client.expire(key, seconds);
-      return result;
+      return result === 1;
     } catch (error) {
       logger.error(`Cache expire error for key ${key}:`, error);
       this.stats.errors++;

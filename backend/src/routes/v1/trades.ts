@@ -91,7 +91,6 @@ router.get('/history', async (req: Request, res: Response, next: NextFunction): 
 
     const trades = await tradeService.getTradeHistory(
       userId,
-      tokenAddress as string | undefined,
       limit,
       offset
     );
@@ -301,7 +300,6 @@ router.get('/history/:userId', async (req: Request, res: Response, next: NextFun
 
     const trades = await tradeService.getTradeHistory(
       userId,
-      tokenAddress as string | undefined,
       limit,
       offset
     );

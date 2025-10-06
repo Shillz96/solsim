@@ -848,7 +848,7 @@ router.get('/stats/:userId?', apiLimiter, async (req: Request, res: Response): P
       where: { userId },
       select: {
         action: true,
-        amountSol: true,
+        totalCost: true,
         realizedPnL: true,
         timestamp: true
       },
@@ -867,7 +867,7 @@ router.get('/stats/:userId?', apiLimiter, async (req: Request, res: Response): P
     }, 0);
 
     const totalTradeVolume = trades.reduce((sum, trade) => {
-      return sum + parseFloat(trade.amountSol.toString());
+      return sum + parseFloat(trade.totalCost.toString());
     }, 0);
     const avgTradeSize = totalTrades > 0 ? totalTradeVolume / totalTrades : 0;
 

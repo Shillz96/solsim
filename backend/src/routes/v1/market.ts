@@ -385,7 +385,7 @@ router.get('/tokens/:tokenId', apiLimiter, async (req: Request, res: Response): 
           price: tokenData.price.toString(),
           marketCap: tokenData.marketCap || '0',
           volume24h: tokenData.volume24h || '0',
-          change24h: tokenData.change24h || 0,
+          change24h: tokenData.priceChange24h || 0,
           timestamp: Date.now()
         }
       });
