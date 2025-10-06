@@ -1,0 +1,124 @@
+{
+  "name": "SolSim - Solana Trading Simulator",
+  "short_name": "SolSim",
+  "description": "Advanced Solana paper trading with real-time data, offline capabilities, and professional portfolio tracking.",
+  "start_url": "/",
+  "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
+  "orientation": "portrait-primary",
+  "background_color": "#0a0a0a",
+  "theme_color": "#3b82f6",
+  "scope": "/",
+  "id": "com.solsim.app",
+  "categories": ["finance", "productivity", "education", "business"],
+  "lang": "en-US",
+  "edge_side_panel": {
+    "preferred_width": 400
+  },
+  "launch_handler": {
+    "client_mode": "navigate-existing"
+  },
+  "icons": [
+    {
+      "src": "/android-chrome-192x192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/android-chrome-512x512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/apple-touch-icon.svg",
+      "sizes": "180x180",
+      "type": "image/svg+xml",
+      "purpose": "apple-touch-icon"
+    },
+    {
+      "src": "/favicon-32x32.svg",
+      "sizes": "32x32",
+      "type": "image/svg+xml",
+      "purpose": "favicon"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Trade",
+      "description": "Start trading tokens",
+      "url": "/trade",
+      "icons": [
+        {
+          "src": "/favicon-32x32.svg",
+          "sizes": "32x32"
+        }
+      ]
+    },
+    {
+      "name": "Portfolio", 
+      "description": "View your portfolio",
+      "url": "/portfolio",
+      "icons": [
+        {
+          "src": "/favicon-32x32.svg",
+          "sizes": "32x32"
+        }
+      ]
+    },
+    {
+      "name": "Trending",
+      "description": "Browse trending tokens",
+      "url": "/trending",
+      "icons": [
+        {
+          "src": "/favicon-32x32.svg",
+          "sizes": "32x32"
+        }
+      ]
+    },
+    {
+      "name": "Leaderboard",
+      "description": "View top traders",
+      "url": "/leaderboard",
+      "icons": [
+        {
+          "src": "/favicon-32x32.svg",
+          "sizes": "32x32"
+        }
+      ]
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/og-image.svg",
+      "sizes": "1280x720",
+      "type": "image/svg+xml",
+      "form_factor": "wide",
+      "label": "SolSim Dashboard"
+    },
+    {
+      "src": "/og-image.svg", 
+      "sizes": "750x1334",
+      "type": "image/svg+xml",
+      "form_factor": "narrow",
+      "label": "SolSim Mobile View"
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false,
+  "features": [
+    "offline-trading",
+    "background-sync", 
+    "push-notifications",
+    "portfolio-tracking",
+    "real-time-data"
+  ],
+  "offline_enabled": true,
+  "serviceworker": {
+    "src": "/sw.js",
+    "scope": "/",
+    "update_via_cache": "none"
+  }
+}

@@ -1,0 +1,123 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id                 String   @id @default(uuid())
+  email              String   @unique
+  username           String
+  passwordHash       String
+  
+  // Profile information
+  displayName        String?
+  bio                String?
+  avatar             String?
+  avatarUrl          String?  // For uploaded avatars
+  
+  // Social media links
+  twitter            String?
+  discord            String?
+  telegram           String?
+  website            String?
+  
+  // Trading preferences
+  virtualSolBalance  Decimal  @default("100")  // Virtual SOL balance (in SOL units, not USD)
+  isProfilePublic    Boolean  @default(true)
+  
+  // Creator rewards
+  solanaWallet       String?  // Solana wallet for creator rewards (backend only)
+  
+  // Timestamps
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+  
+  // Relations
+  trades             Trade[]
+  holdings           Holding[]
+}
+
+model Trade {
+  id            String   @id @default(uuid())
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId        String
+  tokenAddress  String
+  tokenSymbol   String?
+  tokenName     String?
+  action        String   // 'buy' or 'sell'
+  quantity      Decimal  // Number of tokens traded
+  price         Decimal  // Price per token in USD (from DexScreener/external API)
+  totalCost     Decimal  // Total cost in SOL (amount of SOL spent/received)
+  realizedPnL   Decimal? // Realized profit/loss in SOL (for sell trades only)
+  marketCapUsd  Decimal? // Market cap in USD at time of trade (for market cap analysis)
+  timestamp     DateTime @default(now())
+  
+  // Optimized indexes for common query patterns
+  @@index([userId, timestamp(sort: Desc)], name: "user_trades_recent")
+  @@index([tokenAddress, timestamp(sort: Desc)], name: "token_trades_recent")
+  @@index([userId, tokenAddress, timestamp(sort: Desc)], name: "user_token_history")
+  @@index([userId, action, timestamp(sort: Desc)], name: "user_trade_type")
+  @@index([timestamp(sort: Desc)], name: "trades_chronological")
+}
+
+model Holding {
+  id              String  @id @default(uuid())
+  user            User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId          String
+  tokenAddress    String
+  tokenSymbol     String?
+  tokenName       String?
+  tokenImageUrl   String?
+  entryPrice      Decimal  // Entry price in USD per token (legacy format - calculated from USD price at purchase)
+  quantity        Decimal  @default("0") // Number of tokens held
+  avgBuyMarketCap Decimal? // Weighted average market cap at which user bought tokens (in USD)
+  updatedAt       DateTime @updatedAt
+  
+  // Optimized indexes for common query patterns
+  @@unique([userId, tokenAddress], name: "user_token_position")
+  @@index([userId, quantity(sort: Desc)], name: "user_holdings_by_size")
+  @@index([tokenAddress, quantity(sort: Desc)], name: "token_holders_by_size")
+  @@index([userId, updatedAt(sort: Desc)], name: "user_recent_holdings")
+}
+
+model Token {
+  address         String    @id
+  symbol          String?
+  name            String?
+  imageUrl        String?
+  lastPrice       Decimal?  // Last known price in USD per token
+  lastTs          DateTime?
+  
+  // Short-term metrics for DexScreener-style trending (all in USD)
+  volume5m        Decimal?  @default("0")  // Trading volume in USD
+  volume1h        Decimal?  @default("0")  // Trading volume in USD
+  volume24h       Decimal?  @default("0")  // Trading volume in USD
+  priceChange5m   Decimal?  @default("0")  // Price change percentage
+  priceChange1h   Decimal?  @default("0")  // Price change percentage
+  priceChange24h  Decimal?  @default("0")  // Price change percentage
+  liquidityUsd    Decimal?  @default("0")  // Liquidity in USD
+  marketCapUsd    Decimal?  @default("0")  // Market cap in USD
+  holderCount     BigInt?   @default(0)    // Number of token holders
+  
+  // Discovery and trending flags
+  isNew           Boolean   @default(false)
+  isTrending      Boolean   @default(false)
+  momentumScore   Decimal?  @default("0")
+  
+  // Social and metadata (JSON strings for SQLite compatibility)
+  websites        String?   @default("[]")
+  socials         String?   @default("[]")
+  
+  // Timestamps for tracking
+  firstSeenAt     DateTime? @default(now())
+  lastUpdatedAt   DateTime? @default(now())
+  
+  @@index([lastTs])
+  @@index([isTrending, momentumScore])
+  @@index([symbol])
+  @@index([isNew])
+}
