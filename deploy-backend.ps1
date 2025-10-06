@@ -62,21 +62,31 @@ try {
 }
 Write-Host ""
 
-# Generate and set JWT_SECRET
+# Generate JWT_SECRET
 Write-Host "🔐 Generating JWT Secret..." -ForegroundColor Blue
 $bytes = New-Object byte[] 48
 [System.Security.Cryptography.RandomNumberGenerator]::Create().GetBytes($bytes)
 $JWT_SECRET = [Convert]::ToBase64String($bytes)
-railway variables set JWT_SECRET="$JWT_SECRET"
-Write-Host "✅ JWT Secret generated and set" -ForegroundColor Green
+Write-Host "✅ JWT Secret generated: (saved for manual entry)" -ForegroundColor Green
 Write-Host ""
 
-# Set environment variables
+# Note about environment variables
 Write-Host "⚙️  Setting environment variables..." -ForegroundColor Blue
-railway variables set NODE_ENV=production
-railway variables set PORT=4002
-railway variables set DEV_AUTH_BYPASS=false
-railway variables set DEXSCREENER_BASE_URL=https://api.dexscreener.com/latest
+Write-Host "📝 Railway CLI v4+ requires setting variables through the dashboard." -ForegroundColor Yellow
+Write-Host "   Opening Railway dashboard to set variables..." -ForegroundColor Yellow
+Write-Host ""
+Write-Host "   Please set these variables in the Railway dashboard:" -ForegroundColor Cyan
+Write-Host "   - JWT_SECRET=$JWT_SECRET" -ForegroundColor White
+Write-Host "   - NODE_ENV=production" -ForegroundColor White
+Write-Host "   - PORT=4002" -ForegroundColor White
+Write-Host "   - DEV_AUTH_BYPASS=false" -ForegroundColor White
+Write-Host "   - DEXSCREENER_BASE_URL=https://api.dexscreener.com/latest" -ForegroundColor White
+Write-Host ""
+Write-Host "   DATABASE_URL and REDIS_URL will be set automatically by Railway" -ForegroundColor Green
+Write-Host ""
+
+# Open Railway dashboard
+Start-Process "https://railway.app/dashboard"
 
 # Prompt for API keys if needed
 Write-Host ""
