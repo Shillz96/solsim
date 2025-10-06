@@ -1,8 +1,8 @@
-import { PriceService } from '../services/priceService';
-import { MetadataService } from '../services/metadataService';
-import { PortfolioService } from '../services/portfolioService';
-import { TradeService } from '../services/tradeService';
-import { TrendingService } from '../services/trendingService';
+import { PriceService } from '../services/priceService.js';
+import { MetadataService } from '../services/metadataService.js';
+import { PortfolioService } from '../services/portfolioService.js';
+import { TradeService } from '../services/tradeService.js';
+import { TrendingService } from '../services/trendingService.js';
 
 /**
  * Service Factory for proper dependency injection

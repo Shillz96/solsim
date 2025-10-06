@@ -5,7 +5,7 @@ import { config } from './config/environment.js';
 import { corsMiddleware } from './middleware/cors.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import { setupSecurityMiddleware } from './middleware/security.js';
-import { logger, logRequest } from './utils/logger';
+import { logger, logRequest } from './utils/logger.js';
 import v1Routes from './routes/v1/index.js';
 import solanaTrackerRoutes from './routes/solana-tracker.js';
 import { ServiceFactory } from './lib/serviceFactory.js';
