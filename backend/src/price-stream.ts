@@ -237,7 +237,7 @@ export class PriceStreamService extends EventEmitter {
     const { ws, id } = client;
 
     // Heartbeat setup
-    ws.isAlive = true;
+      (ws as any).isAlive = true;
     ws.on('pong', () => {
       client.isAlive = true;
       client.lastActivity = Date.now();
