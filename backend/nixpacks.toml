@@ -2,7 +2,7 @@
 nixPkgs = ["nodejs_20", "openssl", "postgresql"]
 
 [phases.install]
-cmds = ["rm -rf node_modules/.cache && npm ci --cache /tmp/.npm"]
+cmds = ["npm ci --prefer-offline --no-audit --no-fund --loglevel=error"]
 
 [phases.build]
 cmds = ["npm run build"]

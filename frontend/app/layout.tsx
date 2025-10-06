@@ -11,7 +11,7 @@ import { QueryProvider } from "@/lib/query-provider"
 import { PWAProvider, PWAInstallPrompt, PWAUpdatePrompt } from "@/lib/pwa-utils"
 
 const radnikaNext = localFont({
-  src: "./fonts/Radnika.woff2",
+  src: "./fonts/Radnika-Medium.otf",
   variable: "--font-radnika-next",
 })
 const ibmPlexSans = IBM_Plex_Sans({
