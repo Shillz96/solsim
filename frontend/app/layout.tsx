@@ -1,6 +1,7 @@
 import type React from "react"
 import type { Metadata } from "next"
-import { Inter, IBM_Plex_Sans, JetBrains_Mono } from "next/font/google"
+import { IBM_Plex_Sans, JetBrains_Mono } from "next/font/google"
+import localFont from "next/font/local"
 import "@/styles/globals.css"
 import { NavBar } from "@/components/navigation/nav-bar"
 import { BottomNavBar } from "@/components/navigation/bottom-nav-bar"
@@ -9,10 +10,9 @@ import { GlobalErrorBoundary } from "@/components/error-boundary-enhanced"
 import { QueryProvider } from "@/lib/query-provider"
 import { PWAProvider, PWAInstallPrompt, PWAUpdatePrompt } from "@/lib/pwa-utils"
 
-const inter = Inter({
-  subsets: ["latin"],
-  weight: ["400", "500"],
-  variable: "--font-inter",
+const radnikaNext = localFont({
+  src: "./fonts/Radnika.woff2",
+  variable: "--font-radnika-next",
 })
 const ibmPlexSans = IBM_Plex_Sans({
   subsets: ["latin"],
@@ -41,7 +41,7 @@ export const viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning className="dark">
-      <body className={`${inter.variable} ${ibmPlexSans.variable} ${jetBrainsMono.variable} font-sans`}>
+      <body className={`${radnikaNext.variable} ${ibmPlexSans.variable} ${jetBrainsMono.variable} font-sans`}>
         <GlobalErrorBoundary>
           <QueryProvider>
             <PWAProvider>

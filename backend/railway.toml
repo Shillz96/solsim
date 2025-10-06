@@ -5,7 +5,7 @@ builder = "nixpacks"
 nixPkgs = ["openssl", "postgresql"]
 
 [deploy]
-startCommand = "node dist/start.js"
+startCommand = "node dist/index.js"
 restartPolicyType = "ON_FAILURE"
 restartPolicyMaxRetries = 10
 

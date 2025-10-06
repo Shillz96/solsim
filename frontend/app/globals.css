@@ -7,8 +7,8 @@
 :root {
   /* Light Mode Colors - Vibrant Trading Theme */
   /* Added hex fallbacks for oklch() colors for better browser support */
-  --background: #ffffff;
-  --background-oklch: oklch(1 0 0);
+  --background: #f6f4f0;
+  --background-oklch: oklch(0.96 0.01 50);
   --foreground: #1a1a1a;
   --foreground-oklch: oklch(0.145 0 0);
   --card: #fcfcfc;
@@ -163,7 +163,7 @@
 
 @theme inline {
   /* Added font variables to match layout.tsx */
-  --font-sans: var(--font-inter);
+  --font-sans: var(--font-radnika-next);
   --font-heading: var(--font-ibm-plex-sans);
   --font-mono: var(--font-jetbrains-mono);
 
