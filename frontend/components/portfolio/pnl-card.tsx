@@ -63,7 +63,7 @@ export function PnLCard() {
         })
       }
     }
-  }, [portfolio?.positions, wsConnected, subscribe, unsubscribe])
+  }, [portfolio?.positions, wsConnected]) // Remove subscribe/unsubscribe to prevent loops
 
   // Enhanced data extraction with live price integration
   const getLivePrice = (tokenAddress: string, fallbackPrice: number) => {

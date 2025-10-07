@@ -152,7 +152,9 @@ export function PWAProvider({ children }: { children: React.ReactNode }) {
       return
     }
     
-    // Enable periodic background sync if supported
+    // Disable periodic background sync for now to prevent re-render issues
+    // TODO: Re-enable when browser support is more stable
+    /* 
     if ('serviceWorker' in navigator && 'periodicSync' in (window as any).ServiceWorkerRegistration.prototype) {
       navigator.serviceWorker.ready.then((registration) => {
         return (registration as any).periodicSync.register('portfolio-sync', {
@@ -162,6 +164,7 @@ export function PWAProvider({ children }: { children: React.ReactNode }) {
         console.warn('Periodic background sync not supported:', error)
       })
     }
+    */
   }, [])
 
   if (!mounted) return null

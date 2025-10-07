@@ -59,7 +59,7 @@ export function ActivePositions() {
         })
       }
     }
-  }, [positions, wsConnected, subscribe, unsubscribe])
+  }, [positions, wsConnected]) // Remove subscribe/unsubscribe to prevent loops
 
   // Helper to get live price or fallback to stored price
   const getCurrentPrice = (tokenAddress: string, fallbackPrice: number) => {

@@ -47,11 +47,10 @@ export function TradingPanel({ tokenAddress: propTokenAddress }: TradingPanelPro
   const presetSolAmounts = [1, 5, 10, 20]
   const sellPercentages = [25, 50, 75, 100]
 
-  // Load token details and user holding
-  const loadTokenData = useCallback(async (isRefresh = false) => {
+  // Load token details - separate from portfolio handling to prevent loops
+  const loadTokenDetails = useCallback(async (isRefresh = false) => {
     if (!tokenAddress) return
 
-    // Only show loading skeleton on initial load, not on refresh
     if (!isRefresh) {
       setLoadingToken(true)
     } else {
@@ -59,73 +58,8 @@ export function TradingPanel({ tokenAddress: propTokenAddress }: TradingPanelPro
     }
     
     try {
-      const [details] = await Promise.all([
-        marketService.getTokenDetails(tokenAddress)
-      ])
-      
-      // Log token details for debugging
-      console.log('Token details loaded:', {
-        tokenAddress: tokenAddress.substring(0, 8) + '...',
-        hasDetails: !!details,
-        tokenSymbol: details?.tokenSymbol,
-        tokenName: details?.tokenName,
-        price: details?.price,
-        hasPrice: !!details?.price
-      })
-      
+      const details = await marketService.getTokenDetails(tokenAddress)
       setTokenDetails(details)
-
-      // Enhanced holding detection with better validation
-      let holding: PortfolioPosition | null = null
-      
-      if (portfolio?.positions && Array.isArray(portfolio.positions)) {
-        // Look for exact token address match with valid quantity
-        holding = portfolio.positions.find(p => 
-          p?.tokenAddress === tokenAddress && 
-          p?.quantity && 
-          parseFloat(p.quantity) > 0
-        ) || null
-        
-        import('@/lib/error-logger').then(({ errorLogger }) => {
-          errorLogger.info('Portfolio positions analyzed', {
-            action: 'token_position_search',
-            metadata: {
-              tokenAddress: tokenAddress.substring(0, 8) + '...',
-              totalPositions: portfolio.positions.length,
-              foundHolding: !!holding,
-              holdingQuantity: holding?.quantity || 'none',
-              component: 'TradingPanel'
-            }
-          })
-        })
-      } else {
-        import('@/lib/error-logger').then(({ errorLogger }) => {
-          errorLogger.warn('No portfolio positions available', {
-            action: 'portfolio_positions_missing',
-            metadata: {
-              portfolioLoaded: !!portfolio,
-              hasPositions: !!portfolio?.positions,
-              positionsType: typeof portfolio?.positions,
-              portfolioLoading,
-              portfolioError: !!portfolioError,
-              component: 'TradingPanel'
-            }
-          })
-        })
-        
-        // Auto-refresh portfolio if we don't have positions but should
-        if (portfolio && !portfolioLoading && !portfolioError) {
-          import('@/lib/error-logger').then(({ errorLogger }) => {
-            errorLogger.info('Auto-refreshing portfolio due to missing positions', {
-              action: 'portfolio_auto_refresh',
-              metadata: { component: 'TradingPanel' }
-            })
-          })
-          refreshPortfolio()
-        }
-      }
-      
-      setTokenHolding(holding)
     } catch (error) {
       import('@/lib/error-logger').then(({ errorLogger }) => {
         errorLogger.error('Failed to load token data', {
@@ -146,11 +80,26 @@ export function TradingPanel({ tokenAddress: propTokenAddress }: TradingPanelPro
       setLoadingToken(false)
       setIsRefreshing(false)
     }
-  }, [tokenAddress, portfolio?.positions, portfolio, toast, portfolioLoading, portfolioError, refreshPortfolio])
+  }, [tokenAddress, toast])
+
+  // Handle portfolio position finding - separate effect
+  useEffect(() => {
+    if (portfolio?.positions && Array.isArray(portfolio.positions)) {
+      const holding = portfolio.positions.find(p => 
+        p?.tokenAddress === tokenAddress && 
+        p?.quantity && 
+        parseFloat(p.quantity) > 0
+      ) || null
+      
+      setTokenHolding(holding)
+    } else {
+      setTokenHolding(null)
+    }
+  }, [portfolio?.positions, tokenAddress])
 
   useEffect(() => {
-    loadTokenData()
-  }, [loadTokenData])
+    loadTokenDetails()
+  }, [loadTokenDetails])
 
   // Subscribe to real-time price updates for this token
   useEffect(() => {
@@ -160,7 +109,7 @@ export function TradingPanel({ tokenAddress: propTokenAddress }: TradingPanelPro
         unsubscribe(tokenAddress)
       }
     }
-  }, [tokenAddress, wsConnected, subscribe, unsubscribe])
+  }, [tokenAddress, wsConnected]) // Remove subscribe/unsubscribe to prevent loops
 
   // Handle trade execution
   const handleTrade = useCallback(async (action: 'buy' | 'sell') => {
@@ -265,11 +214,8 @@ export function TradingPanel({ tokenAddress: propTokenAddress }: TradingPanelPro
       setCustomSolAmount("")
       setLastTradeSuccess(true)
 
-      // Refresh data without showing loading skeleton
-      await Promise.all([
-        refreshPortfolio(),
-        loadTokenData(true) // Pass true to indicate this is a refresh
-      ])
+      // Refresh portfolio data (token details will update via WebSocket)
+      await refreshPortfolio()
 
       // Clear success indicator after 3 seconds
       setTimeout(() => setLastTradeSuccess(false), 3000)
@@ -300,7 +246,7 @@ export function TradingPanel({ tokenAddress: propTokenAddress }: TradingPanelPro
     clearError, 
     toast,
     refreshPortfolio,
-    loadTokenData
+    loadTokenDetails
   ])
 
   // Loading state
@@ -541,7 +487,7 @@ export function TradingPanel({ tokenAddress: propTokenAddress }: TradingPanelPro
                   <Button 
                     variant="ghost" 
                     size="sm" 
-                    onClick={() => loadTokenData(true)}
+                    onClick={() => loadTokenDetails(true)}
                     disabled={isRefreshing}
                     className="h-6 px-2"
                   >
