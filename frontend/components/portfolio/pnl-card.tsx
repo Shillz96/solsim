@@ -8,7 +8,7 @@ import { TrendingUp, Wallet, Activity, AlertCircle, RefreshCw } from "lucide-rea
 import { motion } from "framer-motion"
 import { SharePnLDialog } from "@/components/modals/share-pnl-dialog"
 import { usePortfolio, useBalance, useRecentTrades } from "@/lib/api-hooks"
-import { usePriceStream } from "@/lib/use-price-stream"
+import { usePriceStreamContext } from "@/lib/price-stream-provider"
 import { memo, useState, useCallback, useEffect } from "react"
 
 const AnimatedBackground = memo(({ isPositive }: { isPositive: boolean }) => {
@@ -47,7 +47,7 @@ export function PnLCard() {
   const [isRefreshing, setIsRefreshing] = useState(false)
 
   // Real-time price stream integration
-  const { connected: wsConnected, prices: livePrices, subscribe, unsubscribe } = usePriceStream()
+  const { connected: wsConnected, prices: livePrices, subscribe, unsubscribe } = usePriceStreamContext()
 
   // Subscribe to price updates for all holdings
   useEffect(() => {

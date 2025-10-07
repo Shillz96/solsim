@@ -7,6 +7,7 @@ import { BottomNavBar } from "@/components/navigation/bottom-nav-bar"
 import { ThemeProvider } from "@/components/theme-provider"
 import { GlobalErrorBoundary } from "@/components/error-boundary-enhanced"
 import { QueryProvider } from "@/lib/query-provider"
+import { PriceStreamProvider } from "@/lib/price-stream-provider"
 import { PWAProvider, PWAInstallPrompt, PWAUpdatePrompt } from "@/lib/pwa-utils"
 import "./globals.css"
 
@@ -44,15 +45,17 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className={`${radnikaNext.variable} ${ibmPlexSans.variable} ${jetBrainsMono.variable} font-sans`}>
         <GlobalErrorBoundary>
           <QueryProvider>
-            <PWAProvider>
-              <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
-                <NavBar />
-                <main className="min-h-screen pt-16 pb-20 md:pb-12">{children}</main>
-                <BottomNavBar />
-                <PWAInstallPrompt />
-                <PWAUpdatePrompt />
-              </ThemeProvider>
-            </PWAProvider>
+            <PriceStreamProvider>
+              <PWAProvider>
+                <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
+                  <NavBar />
+                  <main className="min-h-screen pt-16 pb-20 md:pb-12">{children}</main>
+                  <BottomNavBar />
+                  <PWAInstallPrompt />
+                  <PWAUpdatePrompt />
+                </ThemeProvider>
+              </PWAProvider>
+            </PriceStreamProvider>
           </QueryProvider>
         </GlobalErrorBoundary>
       </body>

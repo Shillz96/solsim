@@ -8,7 +8,7 @@ import { AnimatedNumber } from "@/components/ui/animated-number"
 import { TrendingUp, TrendingDown, X, Loader2, AlertCircle, RefreshCw } from "lucide-react"
 import { motion } from "framer-motion"
 import { usePortfolio } from "@/lib/api-hooks"
-import { usePriceStream } from "@/lib/use-price-stream"
+import { usePriceStreamContext } from "@/lib/price-stream-provider"
 import { useCallback, useState, useEffect } from "react"
 import type { PortfolioPosition } from "@/lib/portfolio-service"
 
@@ -33,7 +33,7 @@ export function ActivePositions() {
   const [isRefreshing, setIsRefreshing] = useState(false)
   
   // Real-time price stream integration
-  const { connected: wsConnected, prices: livePrices, subscribe, unsubscribe } = usePriceStream()
+  const { connected: wsConnected, prices: livePrices, subscribe, unsubscribe } = usePriceStreamContext()
   
   // Handle manual refresh
   const handleRefresh = useCallback(async () => {

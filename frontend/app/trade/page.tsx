@@ -3,6 +3,7 @@
 import { Suspense } from "react"
 import dynamic from "next/dynamic"
 import { useSearchParams } from "next/navigation"
+import { AuthWrapper } from "@/components/auth/auth-wrapper"
 import { TokenSearch } from "@/components/trading/token-search"
 import { EnhancedTrendingList } from "@/components/leaderboard/enhanced-trending-list"
 import { TradingPanel } from "@/components/trading/trading-panel"
@@ -60,8 +61,10 @@ function TradePageContent() {
 
 export default function TradePage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-background" />}>
-      <TradePageContent />
-    </Suspense>
+    <AuthWrapper requireAuth={true}>
+      <Suspense fallback={<div className="min-h-screen bg-background" />}>
+        <TradePageContent />
+      </Suspense>
+    </AuthWrapper>
   )
 }

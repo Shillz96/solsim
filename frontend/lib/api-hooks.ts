@@ -89,9 +89,9 @@ export function useAuth() {
   } = useQuery({
     queryKey: queryKeys.authUser(),
     queryFn: async () => {
-      const isDevelopment = process.env.NEXT_PUBLIC_ENV === 'development'
+      const isDevBypass = process.env.NEXT_PUBLIC_DEV_BYPASS === 'true'
       
-      if (isDevelopment) {
+      if (isDevBypass) {
         return authService.getDevUser()
       }
       

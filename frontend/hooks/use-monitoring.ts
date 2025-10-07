@@ -31,7 +31,7 @@ export function useHealthCheck(refreshInterval: number = 30000) {
       const interval = setInterval(fetchHealth, refreshInterval)
       return () => clearInterval(interval)
     }
-  }, [fetchHealth, refreshInterval])
+  }, [refreshInterval]) // Remove fetchHealth dependency to prevent loops
 
   return { 
     data, 
@@ -67,7 +67,7 @@ export function useSystemMetrics(refreshInterval: number = 15000) {
       const interval = setInterval(fetchMetrics, refreshInterval)
       return () => clearInterval(interval)
     }
-  }, [fetchMetrics, refreshInterval])
+  }, [refreshInterval]) // Remove fetchMetrics dependency to prevent loops
 
   return { 
     data, 
@@ -109,7 +109,7 @@ export function useSystemAlerts(refreshInterval: number = 10000) {
       const interval = setInterval(fetchAlerts, refreshInterval)
       return () => clearInterval(interval)
     }
-  }, [fetchAlerts, refreshInterval])
+  }, [refreshInterval]) // Remove fetchAlerts dependency to prevent loops
 
   return { 
     data, 
@@ -155,7 +155,7 @@ export function useSystemStatus(refreshInterval: number = 20000) {
       const interval = setInterval(fetchStatus, refreshInterval)
       return () => clearInterval(interval)
     }
-  }, [fetchStatus, refreshInterval])
+  }, [refreshInterval]) // Remove fetchStatus dependency to prevent loops
 
   return { 
     data, 

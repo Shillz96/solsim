@@ -15,8 +15,8 @@ import type {
 class AuthService {
   // Check if user is authenticated (in dev mode, always return true)
   isAuthenticated(): boolean {
-    const isDevelopment = process.env.NEXT_PUBLIC_ENV === 'development'
-    if (isDevelopment) {
+    const isDevBypass = process.env.NEXT_PUBLIC_DEV_BYPASS === 'true'
+    if (isDevBypass) {
       return true // Always authenticated in development mode
     }
     
@@ -72,8 +72,8 @@ class AuthService {
 
   // Verify token and get current user
   async verifyToken(): Promise<{ user: User; valid: boolean }> {
-    const isDevelopment = process.env.NEXT_PUBLIC_ENV === 'development'
-    if (isDevelopment) {
+    const isDevBypass = process.env.NEXT_PUBLIC_DEV_BYPASS === 'true'
+    if (isDevBypass) {
       // In development mode, return mock user data
       return {
         user: this.getDevUser(),
@@ -122,8 +122,8 @@ class AuthService {
 
   // Get current user profile
   async getProfile(): Promise<User> {
-    const isDevelopment = process.env.NEXT_PUBLIC_ENV === 'development'
-    if (isDevelopment) {
+    const isDevBypass = process.env.NEXT_PUBLIC_DEV_BYPASS === 'true'
+    if (isDevBypass) {
       // In development mode, return mock user data
       return this.getDevUser()
     }

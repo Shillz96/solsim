@@ -82,7 +82,7 @@ export default function LeaderboardPage() {
     }, 30000)
 
     return () => clearInterval(interval)
-  }, [fetchLeaderboard])
+  }, []) // Remove fetchLeaderboard dependency to prevent loops
 
   const handleRefresh = async () => {
     setRefreshing(true)

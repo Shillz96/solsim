@@ -1,5 +1,6 @@
 "use client"
 
+import { AuthWrapper } from "@/components/auth/auth-wrapper"
 import { PnLCard } from "@/components/portfolio/pnl-card"
 import { ActivePositions } from "@/components/portfolio/active-positions"
 import { TokenSearch } from "@/components/trading/token-search"
@@ -13,8 +14,9 @@ import { Badge } from "@/components/ui/badge"
 
 export default function PortfolioPage() {
   return (
-    <div className="min-h-screen bg-background">
-      <main className="w-full px-2 py-6">
+    <AuthWrapper requireAuth={true}>
+      <div className="min-h-screen bg-background">
+        <main className="w-full px-2 py-6">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
           {/* Left Sidebar - Search & Filters */}
           <aside className="lg:col-span-2 space-y-4">
@@ -78,5 +80,6 @@ export default function PortfolioPage() {
         </div>
       </main>
     </div>
+    </AuthWrapper>
   )
 }

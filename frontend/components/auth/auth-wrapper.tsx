@@ -40,7 +40,7 @@ export function AuthWrapper({
   const [tokenRefreshError, setTokenRefreshError] = useState<string | null>(null)
   const [isRefreshing, setIsRefreshing] = useState(false)
 
-  // Auto-refresh token before expiration
+  // Auto-refresh token before expiration (only in production with real auth)
   useEffect(() => {
     if (!isAuthenticated) return
 
@@ -67,11 +67,17 @@ export function AuthWrapper({
       }
     }
 
+    // Only do token refresh for production authentication
+    // Skip for dev bypass or if no actual auth token exists
+    const hasRealAuth = authService.isAuthenticated() && typeof window !== 'undefined' && localStorage.getItem('auth_token')
+    
+    if (!hasRealAuth) return
+
     // Initial token check
     refreshToken()
 
-    // Set up interval to refresh token every 10 minutes
-    const tokenRefreshInterval = setInterval(refreshToken, 10 * 60 * 1000)
+    // Set up interval to refresh token every 15 minutes (less aggressive)
+    const tokenRefreshInterval = setInterval(refreshToken, 15 * 60 * 1000)
 
     return () => clearInterval(tokenRefreshInterval)
   }, [isAuthenticated, router])

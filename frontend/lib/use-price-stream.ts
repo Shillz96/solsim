@@ -47,7 +47,7 @@ export function usePriceStream(options: UsePriceStreamOptions = {}): PriceStream
   const {
     enabled = true,
     autoReconnect = true,
-    maxReconnectAttempts = 5
+    maxReconnectAttempts = 3 // Reduced from 5 to 3
   } = options
 
   const [connected, setConnected] = useState(false)
@@ -61,7 +61,8 @@ export function usePriceStream(options: UsePriceStreamOptions = {}): PriceStream
   const subscriptionsRef = useRef<Set<string>>(new Set())
 
   const connect = useCallback(() => {
-    if (!enabled || connecting || connected) return
+    // Prevent multiple connection attempts
+    if (!enabled || connecting || connected || wsRef.current) return
 
     setConnecting(true)
     setError(null)
@@ -71,7 +72,6 @@ export function usePriceStream(options: UsePriceStreamOptions = {}): PriceStream
       wsRef.current = ws
 
       ws.onopen = () => {
-        console.log('Price stream connected')
         setConnected(true)
         setConnecting(false)
         setError(null)
@@ -109,10 +109,10 @@ export function usePriceStream(options: UsePriceStreamOptions = {}): PriceStream
             })
           }
           else if (message.type === 'welcome') {
-            console.log('WebSocket welcome:', message)
+            // Connection established successfully
           }
           else if (message.type === 'subscribed') {
-            console.log('Subscribed to:', message.tokenAddress)
+            // Subscription confirmed for token
           }
           else if (message.type === 'error') {
             console.error('WebSocket server error:', message.message)
@@ -124,19 +124,20 @@ export function usePriceStream(options: UsePriceStreamOptions = {}): PriceStream
       }
 
       ws.onclose = (event) => {
-        console.log('Price stream disconnected:', event.code, event.reason)
         setConnected(false)
         setConnecting(false)
         wsRef.current = null
 
-        // Auto-reconnect if enabled and not a clean close
+        // Auto-reconnect if enabled and not a clean close - with more conservative logic
         if (autoReconnect && event.code !== 1000 && reconnectAttempts.current < maxReconnectAttempts) {
-          const delay = Math.min(1000 * Math.pow(2, reconnectAttempts.current), 30000) // Exponential backoff, max 30s
+          const delay = Math.min(2000 * Math.pow(2, reconnectAttempts.current), 30000) // Slower exponential backoff, min 2s
           reconnectAttempts.current++
           
           reconnectTimeoutRef.current = setTimeout(() => {
-            console.log(`Reconnecting to price stream (attempt ${reconnectAttempts.current}/${maxReconnectAttempts})`)
-            connect()
+            // Double-check we're still disconnected before reconnecting
+            if (!wsRef.current && !connecting && enabled) {
+              connect()
+            }
           }, delay)
         }
       }
@@ -152,7 +153,7 @@ export function usePriceStream(options: UsePriceStreamOptions = {}): PriceStream
       setError('Failed to connect to price stream')
       setConnecting(false)
     }
-  }, [enabled, connecting, connected, autoReconnect, maxReconnectAttempts])
+  }, [enabled]) // Remove problematic dependencies
 
   const disconnect = useCallback(() => {
     if (reconnectTimeoutRef.current) {
@@ -203,7 +204,7 @@ export function usePriceStream(options: UsePriceStreamOptions = {}): PriceStream
     setTimeout(connect, 100)
   }, [disconnect, connect])
 
-  // Auto-connect when enabled
+  // Auto-connect when enabled and cleanup on unmount
   useEffect(() => {
     if (enabled) {
       connect()
@@ -215,13 +216,6 @@ export function usePriceStream(options: UsePriceStreamOptions = {}): PriceStream
       disconnect()
     }
   }, [enabled, connect, disconnect])
-
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      disconnect()
-    }
-  }, [disconnect])
 
   return {
     connected,

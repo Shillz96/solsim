@@ -70,8 +70,8 @@ class ApiClient {
     })
 
     // Development mode: Add dev headers instead of auth token
-    const isDevelopment = process.env.NEXT_PUBLIC_ENV === 'development'
-    if (isDevelopment) {
+    const isDevBypass = process.env.NEXT_PUBLIC_DEV_BYPASS === 'true'
+    if (isDevBypass) {
       headers.set('x-dev-user-id', 'dev-user-1')
       headers.set('x-dev-email', 'dev-user-1@dev.local')
     } else if (this.authToken) {
@@ -89,7 +89,7 @@ class ApiClient {
       const duration = Date.now() - startTime
 
       // Handle 401 Unauthorized - attempt token refresh (only in production)
-      if (response.status === 401 && !isDevelopment && this.authToken && endpoint !== '/api/v1/auth/refresh') {
+      if (response.status === 401 && !isDevBypass && this.authToken && endpoint !== '/api/v1/auth/refresh') {
         try {
           if (!this.refreshPromise) {
             this.refreshPromise = this.refreshToken()
