@@ -22,11 +22,14 @@ declare global {
 
 declare const self: ServiceWorkerGlobalScope
 
+// Cache version - increment this to force cache refresh
+const CACHE_VERSION = 'v1.0.1'
+
 // Initialize Serwist with precaching and default runtime caching
 const serwist = new Serwist({
   precacheEntries: self.__SW_MANIFEST,
-  skipWaiting: true,
-  clientsClaim: true,
+  skipWaiting: true, // Immediately activate new service worker
+  clientsClaim: true, // Take control of all pages immediately
   navigationPreload: true,
   runtimeCaching: defaultCache,
 })
