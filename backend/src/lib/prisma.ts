@@ -55,11 +55,11 @@ const prismaOptions: Prisma.PrismaClientOptions = {
   datasources: {
     db: {
       url: process.env.DATABASE_URL + (isProduction
-        // PRODUCTION: Optimized for Railway multi-instance deployment
-        // Railway Starter: 20 connections total across ALL instances
-        // With 2-3 instances: use 8 connections per instance max
-        ? '?connection_limit=8' +            // Max 8 concurrent connections per instance
-          '&pool_timeout=20' +                // Wait 20s for available connection
+        // PRODUCTION: Optimized for Railway single-instance deployment
+        // Railway Starter: 20 connections total, using conservative limit
+        // Single instance: use 3 connections to prevent pool exhaustion
+        ? '?connection_limit=3' +            // Max 3 concurrent connections (conservative)
+          '&pool_timeout=30' +                // Wait 30s for available connection
           '&connect_timeout=60' +             // 60s to establish new connection
           '&statement_cache_size=0' +         // Disable for pgBouncer compatibility
           '&pgbouncer=true'                   // pgBouncer mode (if using)
