@@ -532,10 +532,15 @@
 
   /* Trading-specific card styles */
   .trading-card {
+    /* Fallback for browsers that don't support color-mix */
+    background: var(--card);
+    /* Modern gradient with color-mix for supporting browsers */
     background: linear-gradient(145deg, 
       color-mix(in srgb, var(--card) 95%, transparent) 0%,
       color-mix(in srgb, var(--card) 90%, transparent) 100%
     );
+    border: 1px solid var(--border);
+    /* Enhanced border for supporting browsers */
     border: 1px solid color-mix(in srgb, var(--border) 60%, transparent);
     position: relative;
     overflow: hidden;

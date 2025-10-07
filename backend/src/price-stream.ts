@@ -790,6 +790,34 @@ export class PriceStreamService extends EventEmitter {
   // PUBLIC API
   // ============================================================================
 
+  /**
+   * Attach WebSocket server to existing HTTP server (for Railway compatibility)
+   */
+  public attachToServer(httpServer: Server): Promise<void> {
+    return new Promise((resolve, reject) => {
+      try {
+        // Use the existing HTTP server instead of creating a new one
+        this.server = httpServer;
+        this.setupWebSocketServer();
+        this.startPriceUpdates();
+        this.startHeartbeat();
+        this.startCleanup();
+        
+        logger.info(`🚀 Price Stream WebSocket Server attached to main HTTP server`);
+        logger.info(`📊 Service configuration:`, {
+          maxConnections: CONFIG.MAX_CONNECTIONS,
+          maxSubscriptionsPerClient: CONFIG.MAX_SUBSCRIPTIONS_PER_CLIENT,
+          updateInterval: `${CONFIG.PRICE_UPDATE_INTERVAL}ms`,
+          compressionEnabled: CONFIG.COMPRESSION_ENABLED,
+        });
+        resolve();
+      } catch (error) {
+        logger.error('WebSocket server attachment error:', error);
+        reject(error);
+      }
+    });
+  }
+
   public start(port: number = config.priceStreamPort): Promise<void> {
     return new Promise((resolve, reject) => {
       try {

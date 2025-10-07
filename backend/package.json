@@ -1,13 +1,9 @@
 {
   "name": "solsim-backend",
   "version": "1.0.0",
-  "description": "SolSim Trading Simulator Backend API - v2",
+  "description": "SolSim Trading Simulator Backend API",
   "type": "module",
   "main": "dist/index.js",
-  "engines": {
-    "node": ">=20.0.0",
-    "npm": ">=10.0.0"
-  },
   "scripts": {
     "build": "tsc --skipLibCheck",
     "start": "node dist/index.js",
@@ -21,7 +17,6 @@
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate dev",
-    "db:migrate:prod": "prisma migrate deploy",
     "db:studio": "prisma studio",
     "clean": "rimraf dist",
     "prestart": "npm run build"
@@ -49,7 +44,6 @@
     "node-cache": "^5.1.2",
     "pg": "^8.16.3",
     "prom-client": "^13.2.0",
-    "rate-limit-redis": "^4.2.2",
     "redis": "^5.8.3",
     "sharp": "^0.34.4",
     "socket.io": "^4.7.4",
@@ -81,6 +75,10 @@
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
   },
   "keywords": [
     "solana",

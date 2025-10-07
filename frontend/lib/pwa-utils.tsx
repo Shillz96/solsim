@@ -64,12 +64,7 @@ export function usePWA(): PWAHookReturn {
   const registerServiceWorker = async () => {
     // Skip service worker registration in development
     if (process.env.NODE_ENV === 'development') {
-      import('./error-logger').then(({ errorLogger }) => {
-        errorLogger.info('Service Worker skipped in development mode', {
-          action: 'sw_dev_skip',
-          metadata: { component: 'PWAUtils' }
-        })
-      })
+      console.log('🔧 Service Worker skipped in development mode')
       return
     }
 
@@ -101,20 +96,9 @@ export function usePWA(): PWAHookReturn {
         }
       })
 
-      import('./error-logger').then(({ errorLogger }) => {
-        errorLogger.info('Service Worker registered successfully', {
-          action: 'sw_registered',
-          metadata: { component: 'PWAUtils' }
-        })
-      })
+      console.log('🔧 Service Worker registered successfully')
     } catch (error) {
-      import('./error-logger').then(({ errorLogger }) => {
-        errorLogger.error('Service Worker registration failed', {
-          error: error as Error,
-          action: 'sw_registration_failed',
-          metadata: { component: 'PWAUtils' }
-        })
-      })
+      console.error('❌ Service Worker registration failed:', error)
     }
   }
 
@@ -128,23 +112,12 @@ export function usePWA(): PWAHookReturn {
       if (outcome === 'accepted') {
         setIsInstalled(true)
         setIsInstallable(false)
-        import('./error-logger').then(({ errorLogger }) => {
-          errorLogger.info('PWA installed successfully', {
-            action: 'pwa_installed',
-            metadata: { component: 'PWAUtils' }
-          })
-        })
+        console.log('📱 PWA installed successfully')
       }
       
       setDeferredPrompt(null)
     } catch (error) {
-      import('./error-logger').then(({ errorLogger }) => {
-        errorLogger.error('PWA installation failed', {
-          error: error as Error,
-          action: 'pwa_installation_failed',
-          metadata: { component: 'PWAUtils' }
-        })
-      })
+      console.error('❌ PWA installation failed:', error)
     }
   }
 
@@ -186,13 +159,7 @@ export function PWAProvider({ children }: { children: React.ReactNode }) {
           minInterval: 5 * 60 * 1000, // 5 minutes
         })
       }).catch((error) => {
-        import('./error-logger').then(({ errorLogger }) => {
-          errorLogger.warn('Periodic background sync not supported', {
-            error: error as Error,
-            action: 'periodic_sync_not_supported',
-            metadata: { component: 'PWAUtils' }
-          })
-        })
+        console.warn('Periodic background sync not supported:', error)
       })
     }
   }, [])

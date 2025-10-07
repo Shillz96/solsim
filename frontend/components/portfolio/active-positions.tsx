@@ -8,7 +8,8 @@ import { AnimatedNumber } from "@/components/ui/animated-number"
 import { TrendingUp, TrendingDown, X, Loader2, AlertCircle, RefreshCw } from "lucide-react"
 import { motion } from "framer-motion"
 import { usePortfolio } from "@/lib/api-hooks"
-import { useCallback, useState } from "react"
+import { usePriceStream } from "@/lib/use-price-stream"
+import { useCallback, useState, useEffect } from "react"
 import type { PortfolioPosition } from "@/lib/portfolio-service"
 
 // Helper function to format large numbers
@@ -31,6 +32,9 @@ export function ActivePositions() {
   const { data: portfolio, isLoading, error, refetch } = usePortfolio()
   const [isRefreshing, setIsRefreshing] = useState(false)
   
+  // Real-time price stream integration
+  const { connected: wsConnected, prices: livePrices, subscribe, unsubscribe } = usePriceStream()
+  
   // Handle manual refresh
   const handleRefresh = useCallback(async () => {
     setIsRefreshing(true)
@@ -40,6 +44,42 @@ export function ActivePositions() {
 
   // Extract positions from portfolio data
   const positions = portfolio?.positions?.filter(pos => parseFloat(pos.quantity) > 0) || []
+
+  // Subscribe to price updates for all positions
+  useEffect(() => {
+    if (positions.length > 0 && wsConnected) {
+      positions.forEach(position => {
+        subscribe(position.tokenAddress)
+      })
+
+      // Cleanup subscriptions on unmount or change
+      return () => {
+        positions.forEach(position => {
+          unsubscribe(position.tokenAddress)
+        })
+      }
+    }
+  }, [positions, wsConnected, subscribe, unsubscribe])
+
+  // Helper to get live price or fallback to stored price
+  const getCurrentPrice = (tokenAddress: string, fallbackPrice: number) => {
+    const livePrice = livePrices.get(tokenAddress)
+    return livePrice ? livePrice.price : fallbackPrice
+  }
+
+  // Calculate real-time PnL for a position
+  const calculateLivePnL = (position: any) => {
+    const currentPrice = getCurrentPrice(position.tokenAddress, position.currentPrice)
+    const quantity = parseFloat(position.quantity)
+    const entryPrice = parseFloat(position.entryPrice)
+    
+    const invested = quantity * entryPrice
+    const currentValue = quantity * currentPrice
+    const pnlAmount = currentValue - invested
+    const pnlPercent = invested > 0 ? (pnlAmount / invested) * 100 : 0
+
+    return { pnlAmount, pnlPercent, currentPrice }
+  }
   // Loading state - only show skeleton on initial load
   if (isLoading && !portfolio) {
     return (
@@ -120,8 +160,15 @@ export function ActivePositions() {
 
       <div className={`space-y-3 transition-opacity ${isRefreshing ? 'opacity-70' : 'opacity-100'}`}>
         {positions.map((position) => {
-          const pnlAmount = parseFloat(position.pnl.sol.absolute)
-          const pnlPercent = position.pnl.sol.percent
+          // Use live PnL calculation if WebSocket is connected
+          const { pnlAmount, pnlPercent, currentPrice } = wsConnected 
+            ? calculateLivePnL(position)
+            : {
+                pnlAmount: parseFloat(position.pnl?.sol?.absolute || '0'),
+                pnlPercent: position.pnl?.sol?.percent || 0,
+                currentPrice: position.currentPrice
+              }
+          
           const entryPrice = parseFloat(position.entryPrice)
           
           return (
@@ -131,7 +178,9 @@ export function ActivePositions() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3 }}
               whileHover={{ scale: 1.01, y: -2 }}
-              className="flex items-center justify-between rounded-lg border border-border bento-card p-4"
+              className={`flex items-center justify-between rounded-lg border border-border bento-card p-4 ${
+                wsConnected ? 'ring-1 ring-green-500/20 border-green-500/30' : ''
+              }`}
             >
               <div className="flex items-center gap-4">
                 <div>
@@ -143,6 +192,9 @@ export function ActivePositions() {
                       <TrendingUp className="h-3 w-3 text-accent" />
                     ) : (
                       <TrendingDown className="h-3 w-3 text-destructive" />
+                    )}
+                    {wsConnected && (
+                      <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" title="Live updates" />
                     )}
                   </div>
                   <p className="text-xs text-muted-foreground">
@@ -164,7 +216,7 @@ export function ActivePositions() {
 
                 <div className="text-sm">
                   <p className="text-muted-foreground">Current</p>
-                  <p className="font-mono">{formatPrice(position.currentPrice)}</p>
+                  <p className="font-mono">{formatPrice(currentPrice)}</p>
                 </div>
               </div>
 

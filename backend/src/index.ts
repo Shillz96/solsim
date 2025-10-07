@@ -15,6 +15,7 @@ import { initializeTradesRoutes } from './routes/v1/trades.js';
 import { cacheService } from './services/cacheService.js';
 import { dbPoolMonitor } from './services/dbPoolMonitor.js';
 import { monitoringService } from './services/monitoringService.js';
+import PriceStreamService from './price-stream.js';
 
 /**
  * SolSim Backend Server
@@ -259,6 +260,13 @@ const startServer = async () => {
     // Start metrics collection
     logger.info('Starting monitoring service...');
     monitoringService.startCollection();
+    
+    // Initialize and start price streaming service on the same server
+    logger.info('Starting price streaming service...');
+    const priceService = ServiceFactory.getInstance().priceService;
+    const priceStreamService = new PriceStreamService(priceService);
+    // Use the same HTTP server instead of a separate port for Railway compatibility
+    await priceStreamService.attachToServer(httpServer);
     
     // Start HTTP server
     httpServer.listen(config.port, () => {

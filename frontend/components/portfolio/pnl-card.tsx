@@ -8,6 +8,7 @@ import { TrendingUp, Wallet, Activity, AlertCircle, RefreshCw } from "lucide-rea
 import { motion } from "framer-motion"
 import { SharePnLDialog } from "@/components/modals/share-pnl-dialog"
 import { usePortfolio, useBalance, useRecentTrades } from "@/lib/api-hooks"
+import { usePriceStream } from "@/lib/use-price-stream"
 import { memo, useState, useCallback, useEffect } from "react"
 
 const AnimatedBackground = memo(({ isPositive }: { isPositive: boolean }) => {
@@ -42,13 +43,65 @@ AnimatedBackground.displayName = "AnimatedBackground"
 export function PnLCard() {
   const { data: portfolio, isLoading: portfolioLoading, error: portfolioError, refetch: refetchPortfolio } = usePortfolio()
   const { data: balance, isLoading: balanceLoading, error: balanceError, refetch: refetchBalance } = useBalance()
-  const { data: trades, isLoading: tradesLoading, error: tradesError, refetch: refetchTrades } = useRecentTrades(10) // Limit trades to reduce API load
+  const { data: trades, isLoading: tradesLoading, error: tradesError, refetch: refetchTrades } = useRecentTrades(10)
   const [isRefreshing, setIsRefreshing] = useState(false)
 
-  // Enhanced data extraction with proper validation and fallbacks
+  // Real-time price stream integration
+  const { connected: wsConnected, prices: livePrices, subscribe, unsubscribe } = usePriceStream()
+
+  // Subscribe to price updates for all holdings
+  useEffect(() => {
+    if (portfolio?.positions && wsConnected) {
+      portfolio.positions.forEach(position => {
+        subscribe(position.tokenAddress)
+      })
+
+      // Cleanup subscriptions on unmount or change
+      return () => {
+        portfolio.positions.forEach(position => {
+          unsubscribe(position.tokenAddress)
+        })
+      }
+    }
+  }, [portfolio?.positions, wsConnected, subscribe, unsubscribe])
+
+  // Enhanced data extraction with live price integration
+  const getLivePrice = (tokenAddress: string, fallbackPrice: number) => {
+    const livePrice = livePrices.get(tokenAddress)
+    return livePrice ? livePrice.price : fallbackPrice
+  }
+
+  // Calculate real-time PnL with live prices
+  const calculateLivePnL = () => {
+    if (!portfolio?.positions) return { totalPnL: 0, totalPnLPercent: 0 }
+
+    let totalCurrentValue = 0
+    let totalInvested = 0
+
+    portfolio.positions.forEach(position => {
+      const currentPrice = getLivePrice(position.tokenAddress, position.currentPrice)
+      const quantity = parseFloat(position.quantity)
+      const entryPrice = parseFloat(position.entryPrice)
+      
+      const invested = quantity * entryPrice
+      const currentValue = quantity * currentPrice
+      
+      totalInvested += invested
+      totalCurrentValue += currentValue
+    })
+
+    const totalPnL = totalCurrentValue - totalInvested
+    const totalPnLPercent = totalInvested > 0 ? (totalPnL / totalInvested) * 100 : 0
+
+    return { totalPnL, totalPnLPercent }
+  }
+
+  const { totalPnL: livePnL, totalPnLPercent: livePnLPercent } = calculateLivePnL()
+
+  // Use live PnL if available and connected, otherwise fall back to API data
   const totalPnLStr = portfolio?.totalPnL?.sol ?? "0"
-  const totalPnL = isNaN(parseFloat(totalPnLStr)) ? 0 : parseFloat(totalPnLStr)
-  const totalPnLPercent = isNaN(portfolio?.totalPnL?.percent ?? 0) ? 0 : portfolio?.totalPnL?.percent ?? 0
+  const totalPnL = wsConnected && portfolio?.positions?.length ? livePnL : (isNaN(parseFloat(totalPnLStr)) ? 0 : parseFloat(totalPnLStr))
+  const totalPnLPercent = wsConnected && portfolio?.positions?.length ? livePnLPercent : (isNaN(portfolio?.totalPnL?.percent ?? 0) ? 0 : portfolio?.totalPnL?.percent ?? 0)
   
   const currentValueStr = portfolio?.totalValue?.sol ?? "0" 
   const currentValue = isNaN(parseFloat(currentValueStr)) ? 0 : parseFloat(currentValueStr)

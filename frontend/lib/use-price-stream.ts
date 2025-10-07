@@ -1,0 +1,235 @@
+import { useState, useEffect, useRef, useCallback } from 'react'
+import { PriceUpdateMessage } from './types/api-types'
+
+interface UsePriceStreamOptions {
+  enabled?: boolean
+  autoReconnect?: boolean
+  maxReconnectAttempts?: number
+}
+
+interface PriceStreamHook {
+  connected: boolean
+  connecting: boolean
+  error: string | null
+  subscribe: (tokenAddress: string) => void
+  unsubscribe: (tokenAddress: string) => void
+  prices: Map<string, { price: number; change24h: number; timestamp: number }>
+  reconnect: () => void
+}
+
+// Construct WebSocket URL properly for all deployment environments
+const getWebSocketURL = () => {
+  // Use explicit WebSocket URL if provided (for production)
+  if (process.env.NEXT_PUBLIC_WS_URL) {
+    const wsUrl = process.env.NEXT_PUBLIC_WS_URL
+    return wsUrl.endsWith('/price-stream') ? wsUrl : `${wsUrl}/price-stream`
+  }
+  
+  // Fallback to constructing from API URL
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4002'
+  
+  // For local development, use dedicated WebSocket port
+  if (baseUrl.includes('localhost')) {
+    return 'ws://localhost:4001/price-stream'
+  }
+  
+  // For production deployments (Railway, etc.), use same domain with WS protocol
+  const wsBaseUrl = baseUrl.replace(/^https?:\/\//, (match) => 
+    match === 'https://' ? 'wss://' : 'ws://'
+  )
+  
+  return `${wsBaseUrl}/price-stream`
+}
+
+const WEBSOCKET_URL = getWebSocketURL()
+
+export function usePriceStream(options: UsePriceStreamOptions = {}): PriceStreamHook {
+  const {
+    enabled = true,
+    autoReconnect = true,
+    maxReconnectAttempts = 5
+  } = options
+
+  const [connected, setConnected] = useState(false)
+  const [connecting, setConnecting] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [prices, setPrices] = useState<Map<string, { price: number; change24h: number; timestamp: number }>>(new Map())
+
+  const wsRef = useRef<WebSocket | null>(null)
+  const reconnectAttempts = useRef(0)
+  const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const subscriptionsRef = useRef<Set<string>>(new Set())
+
+  const connect = useCallback(() => {
+    if (!enabled || connecting || connected) return
+
+    setConnecting(true)
+    setError(null)
+
+    try {
+      const ws = new WebSocket(WEBSOCKET_URL)
+      wsRef.current = ws
+
+      ws.onopen = () => {
+        console.log('Price stream connected')
+        setConnected(true)
+        setConnecting(false)
+        setError(null)
+        reconnectAttempts.current = 0
+
+        // Resubscribe to previous subscriptions
+        subscriptionsRef.current.forEach(tokenAddress => {
+          ws.send(JSON.stringify({
+            type: 'subscribe',
+            tokenAddress
+          }))
+        })
+      }
+
+      ws.onmessage = (event) => {
+        try {
+          const message = JSON.parse(event.data)
+          
+          if (message.type === 'price_update') {
+            const { tokenAddress, price, change24h, timestamp } = message
+            setPrices(prev => new Map(prev.set(tokenAddress, { price, change24h, timestamp })))
+          }
+          else if (message.type === 'price_batch') {
+            const updates = message.updates
+            setPrices(prev => {
+              const newPrices = new Map(prev)
+              updates.forEach((update: any) => {
+                newPrices.set(update.tokenAddress, {
+                  price: update.price,
+                  change24h: update.change24h,
+                  timestamp: update.timestamp
+                })
+              })
+              return newPrices
+            })
+          }
+          else if (message.type === 'welcome') {
+            console.log('WebSocket welcome:', message)
+          }
+          else if (message.type === 'subscribed') {
+            console.log('Subscribed to:', message.tokenAddress)
+          }
+          else if (message.type === 'error') {
+            console.error('WebSocket server error:', message.message)
+            setError(message.message)
+          }
+        } catch (err) {
+          console.error('Error parsing WebSocket message:', err)
+        }
+      }
+
+      ws.onclose = (event) => {
+        console.log('Price stream disconnected:', event.code, event.reason)
+        setConnected(false)
+        setConnecting(false)
+        wsRef.current = null
+
+        // Auto-reconnect if enabled and not a clean close
+        if (autoReconnect && event.code !== 1000 && reconnectAttempts.current < maxReconnectAttempts) {
+          const delay = Math.min(1000 * Math.pow(2, reconnectAttempts.current), 30000) // Exponential backoff, max 30s
+          reconnectAttempts.current++
+          
+          reconnectTimeoutRef.current = setTimeout(() => {
+            console.log(`Reconnecting to price stream (attempt ${reconnectAttempts.current}/${maxReconnectAttempts})`)
+            connect()
+          }, delay)
+        }
+      }
+
+      ws.onerror = (error) => {
+        console.error('Price stream error:', error)
+        setError('WebSocket connection error')
+        setConnecting(false)
+      }
+
+    } catch (err) {
+      console.error('Failed to create WebSocket connection:', err)
+      setError('Failed to connect to price stream')
+      setConnecting(false)
+    }
+  }, [enabled, connecting, connected, autoReconnect, maxReconnectAttempts])
+
+  const disconnect = useCallback(() => {
+    if (reconnectTimeoutRef.current) {
+      clearTimeout(reconnectTimeoutRef.current)
+      reconnectTimeoutRef.current = null
+    }
+
+    if (wsRef.current) {
+      wsRef.current.close(1000, 'Manual disconnect')
+      wsRef.current = null
+    }
+
+    setConnected(false)
+    setConnecting(false)
+  }, [])
+
+  const subscribe = useCallback((tokenAddress: string) => {
+    subscriptionsRef.current.add(tokenAddress)
+    
+    if (wsRef.current?.readyState === WebSocket.OPEN) {
+      wsRef.current.send(JSON.stringify({
+        type: 'subscribe',
+        tokenAddress
+      }))
+    }
+  }, [])
+
+  const unsubscribe = useCallback((tokenAddress: string) => {
+    subscriptionsRef.current.delete(tokenAddress)
+    
+    if (wsRef.current?.readyState === WebSocket.OPEN) {
+      wsRef.current.send(JSON.stringify({
+        type: 'unsubscribe',
+        tokenAddress
+      }))
+    }
+
+    // Remove price from local state
+    setPrices(prev => {
+      const newPrices = new Map(prev)
+      newPrices.delete(tokenAddress)
+      return newPrices
+    })
+  }, [])
+
+  const reconnect = useCallback(() => {
+    disconnect()
+    setTimeout(connect, 100)
+  }, [disconnect, connect])
+
+  // Auto-connect when enabled
+  useEffect(() => {
+    if (enabled) {
+      connect()
+    } else {
+      disconnect()
+    }
+
+    return () => {
+      disconnect()
+    }
+  }, [enabled, connect, disconnect])
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      disconnect()
+    }
+  }, [disconnect])
+
+  return {
+    connected,
+    connecting,
+    error,
+    subscribe,
+    unsubscribe,
+    prices,
+    reconnect
+  }
+}
