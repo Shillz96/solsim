@@ -30,16 +30,25 @@ import { monitoringService, trackPriceUpdate, trackCacheOperation } from './moni
 export interface TokenPrice {
   address: string;
   price: number; // USD per token
+  priceSol?: number; // SOL per token (new: native SOL pricing)
   priceChange24h?: number;
   volume24h?: number;
   liquidity?: number;
   marketCap?: number;
   timestamp: number;
   source: 'dexscreener' | 'birdeye' | 'coingecko' | 'database';
+  pairInfo?: {
+    dexId: string;
+    pairAddress: string;
+    baseToken: string;
+    quoteToken: string;
+    liquidityScore: number; // Combined liquidity/volume score for pair selection
+  };
 }
 
 export interface PriceCache {
   price: number;
+  priceSol?: number; // Cache SOL price too
   timestamp: number;
   source: string;
 }
@@ -85,6 +94,28 @@ export class PriceService {
   // Batch request coalescing: track in-flight batch requests
   // Key is sorted comma-separated addresses to match identical batch requests
   private inflightBatchRequests: Map<string, Promise<Map<string, TokenPrice>>> = new Map();
+
+  /**
+   * Get current price for a single token in SOL
+   * Returns price in SOL units for native Solana trading
+   */
+  async getPriceSol(tokenAddress: string): Promise<number | null> {
+    const tokenPrice = await this.getPrice(tokenAddress);
+    if (!tokenPrice) return null;
+    
+    // Return native SOL price if available
+    if (tokenPrice.priceSol !== undefined) {
+      return tokenPrice.priceSol;
+    }
+    
+    // Convert USD to SOL if needed
+    const solPrice = await this.getSolPrice();
+    if (solPrice > 0 && tokenPrice.price > 0) {
+      return tokenPrice.price / solPrice;
+    }
+    
+    return null;
+  }
 
   /**
    * Get current price for a single token
@@ -418,7 +449,14 @@ export class PriceService {
   }
 
   /**
-   * Fetch price from DexScreener API
+   * Fetch price from DexScreener API with SOL-native pricing priority
+   * 
+   * Priority:
+   * 1. Direct SOL pairs (most accurate for Solana ecosystem)
+   * 2. USDC/USDT pairs with SOL conversion
+   * 3. Any other pairs
+   * 
+   * Pairs are scored by liquidity, volume, and recent activity
    */
   private async fetchDexScreenerPrice(tokenAddress: string): Promise<TokenPrice | null> {
     try {
@@ -442,24 +480,102 @@ export class PriceService {
 
       const data = await response.json();
       
-      // Find SOL pair with highest liquidity
-      const solPair = data.pairs
-        ?.filter((p: any) => p.chainId === 'solana')
-        ?.sort((a: any, b: any) => (b.liquidity?.usd || 0) - (a.liquidity?.usd || 0))[0];
-
-      if (!solPair?.priceUsd) {
+      if (!data.pairs || data.pairs.length === 0) {
         return null;
+      }
+
+      // Filter Solana pairs only
+      const solanaPairs = data.pairs.filter((p: any) => p.chainId === 'solana');
+      if (solanaPairs.length === 0) {
+        return null;
+      }
+
+      // Categorize pairs by quote token
+      const solPairs = solanaPairs.filter((p: any) => 
+        p.quoteToken?.symbol === 'SOL' || 
+        p.quoteToken?.address === SOL_ADDRESSES.WRAPPED
+      );
+      
+      const stablePairs = solanaPairs.filter((p: any) => 
+        ['USDC', 'USDT', 'UST'].includes(p.quoteToken?.symbol)
+      );
+
+      // Score and select best pair
+      const scorePair = (pair: any) => {
+        const liquidity = pair.liquidity?.usd || 0;
+        const volume24h = pair.volume?.h24 || 0;
+        const volume5m = pair.volume?.m5 || 0;
+        const txCount = (pair.txns?.h24?.buys || 0) + (pair.txns?.h24?.sells || 0);
+        
+        // Weighted score: 50% liquidity, 30% 24h volume, 10% recent volume, 10% tx count
+        return liquidity * 0.5 + volume24h * 0.3 + volume5m * 100 * 0.1 + txCount * 10 * 0.1;
+      };
+
+      // Prefer SOL pairs for native pricing
+      let selectedPair = null;
+      let priceSol = null;
+      let priceUsd = null;
+
+      if (solPairs.length > 0) {
+        // Use best SOL pair
+        selectedPair = solPairs.sort((a: any, b: any) => scorePair(b) - scorePair(a))[0];
+        priceSol = parseFloat(selectedPair.priceNative || '0');
+        priceUsd = parseFloat(selectedPair.priceUsd || '0');
+        
+        logger.debug(`Using SOL pair for ${tokenAddress}: ${priceSol} SOL`);
+      } else if (stablePairs.length > 0) {
+        // Use best stable pair
+        selectedPair = stablePairs.sort((a: any, b: any) => scorePair(b) - scorePair(a))[0];
+        priceUsd = parseFloat(selectedPair.priceUsd || '0');
+        
+        // Convert USD to SOL if we have SOL price
+        const solPrice = await this.getSolPrice();
+        if (solPrice > 0) {
+          priceSol = priceUsd / solPrice;
+        }
+        
+        logger.debug(`Using stable pair for ${tokenAddress}: $${priceUsd}`);
+      } else {
+        // Use any pair with highest score
+        selectedPair = solanaPairs.sort((a: any, b: any) => scorePair(b) - scorePair(a))[0];
+        priceUsd = parseFloat(selectedPair.priceUsd || '0');
+        
+        logger.debug(`Using fallback pair for ${tokenAddress}`);
+      }
+
+      if (!selectedPair || (!priceUsd && !priceSol)) {
+        return null;
+      }
+
+      // Ensure we have both prices
+      if (!priceUsd && priceSol) {
+        const solPrice = await this.getSolPrice();
+        priceUsd = priceSol * solPrice;
+      }
+      if (!priceSol && priceUsd) {
+        const solPrice = await this.getSolPrice();
+        if (solPrice > 0) {
+          priceSol = priceUsd / solPrice;
+        }
       }
 
       return {
         address: tokenAddress,
-        price: parseFloat(solPair.priceUsd),
-        priceChange24h: solPair.priceChange?.h24 ? parseFloat(solPair.priceChange.h24) : undefined,
-        volume24h: solPair.volume?.h24 ? parseFloat(solPair.volume.h24) : undefined,
-        liquidity: solPair.liquidity?.usd ? parseFloat(solPair.liquidity.usd) : undefined,
-        marketCap: solPair.marketCap ? parseFloat(solPair.marketCap) : undefined,
+        price: priceUsd || 0,
+        priceSol: priceSol || undefined,
+        priceChange24h: selectedPair.priceChange?.h24 ? parseFloat(selectedPair.priceChange.h24) : undefined,
+        volume24h: selectedPair.volume?.h24 ? parseFloat(selectedPair.volume.h24) : undefined,
+        liquidity: selectedPair.liquidity?.usd ? parseFloat(selectedPair.liquidity.usd) : undefined,
+        marketCap: selectedPair.marketCap ? parseFloat(selectedPair.marketCap) : undefined,
         timestamp: Date.now(),
         source: 'dexscreener',
+        pairInfo: {
+          dexId: selectedPair.dexId,
+          pairAddress: selectedPair.pairAddress,
+          baseToken: selectedPair.baseToken?.symbol,
+          quoteToken: selectedPair.quoteToken?.symbol,
+          liquidityScore: scorePair(selectedPair),
+        },
       };
     } catch (error) {
       if ((error as any).name !== 'AbortError') {
@@ -638,6 +754,7 @@ export class PriceService {
     // Cache in memory as fallback
     this.priceCache.set(tokenAddress, {
       price: tokenPrice.price,
+      priceSol: tokenPrice.priceSol, // Cache SOL price too
       timestamp: tokenPrice.timestamp,
       source: tokenPrice.source,
     });

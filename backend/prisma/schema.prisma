@@ -39,6 +39,7 @@ model User {
   // Relations
   trades             Trade[]
   holdings           Holding[]
+  transactions       TransactionHistory[]
 }
 
 model Trade {
@@ -55,6 +56,9 @@ model Trade {
   realizedPnL   Decimal? // Realized profit/loss in SOL (for sell trades only)
   marketCapUsd  Decimal? // Market cap in USD at time of trade (for market cap analysis)
   timestamp     DateTime @default(now())
+  
+  // Relations
+  transactions  TransactionHistory[]
   
   // Optimized indexes for common query patterns
   @@index([userId, timestamp(sort: Desc)], name: "user_trades_recent")
@@ -82,6 +86,45 @@ model Holding {
   @@index([userId, quantity(sort: Desc)], name: "user_holdings_by_size")
   @@index([tokenAddress, quantity(sort: Desc)], name: "token_holders_by_size")
   @@index([userId, updatedAt(sort: Desc)], name: "user_recent_holdings")
+}
+
+// Transaction History for FIFO cost basis tracking
+model TransactionHistory {
+  id                String   @id @default(uuid())
+  userId            String
+  tokenAddress      String
+  tokenSymbol       String?
+  tokenName         String?
+  
+  // Transaction details
+  action            String   // 'BUY', 'SELL', 'MIGRATED' (for initial holdings)
+  quantity          Decimal  // Number of tokens in this transaction
+  pricePerTokenSol  Decimal  // Price per token in SOL (not USD)
+  totalCostSol      Decimal  // Total cost in SOL
+  feesSol           Decimal  @default("0") // Transaction fees in SOL
+  
+  // FIFO tracking
+  remainingQuantity Decimal  // For BUY transactions: amount not yet sold (for FIFO)
+  costBasisSol      Decimal  // For BUY: total SOL invested; For SELL: SOL received
+  realizedPnLSol    Decimal? // For SELL: realized profit/loss in SOL
+  
+  // Reference to original trade (if applicable)
+  tradeId           String?
+  trade             Trade?   @relation(fields: [tradeId], references: [id], onDelete: SetNull)
+  
+  // Timestamps
+  executedAt        DateTime @default(now())
+  createdAt         DateTime @default(now())
+  
+  // User relation
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Indexes for efficient FIFO queries
+  @@index([userId, tokenAddress, executedAt], name: "user_token_fifo")
+  @@index([userId, executedAt(sort: Desc)], name: "user_transactions_recent")
+  @@index([tokenAddress, executedAt(sort: Desc)], name: "token_transactions")
+  @@index([action, executedAt(sort: Desc)], name: "transaction_type")
+  @@index([remainingQuantity], name: "available_lots")
 }
 
 model Token {
