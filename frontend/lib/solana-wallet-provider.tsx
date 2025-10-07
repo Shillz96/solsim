@@ -5,7 +5,6 @@ import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react
 import { WalletAdapterNetwork } from '@solana/wallet-adapter-base';
 import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
 import {
-  PhantomWalletAdapter,
   SolflareWalletAdapter,
   TorusWalletAdapter,
   LedgerWalletAdapter,
@@ -25,6 +24,7 @@ interface SolanaWalletProviderProps {
  * Solana Wallet Provider
  * Provides wallet connection functionality to the entire app
  * Supports multiple wallet types with devnet configuration for development
+ * Note: PhantomWalletAdapter removed as Phantom now uses Standard Wallet API
  */
 export function SolanaWalletProvider({ children }: SolanaWalletProviderProps) {
   // Configure Solana network (devnet for development)
@@ -35,20 +35,27 @@ export function SolanaWalletProvider({ children }: SolanaWalletProviderProps) {
 
   // Initialize wallet adapters
   const wallets = useMemo(
-    () => [
-      new PhantomWalletAdapter(),
-      new SolflareWalletAdapter({ network }),
-      new TorusWalletAdapter(),
-      new LedgerWalletAdapter(),
-      new MathWalletAdapter(),
-      new Coin98WalletAdapter(),
-    ],
+    () => {
+      try {
+        return [
+          // Removed PhantomWalletAdapter as it's now a Standard Wallet
+          new SolflareWalletAdapter({ network }),
+          new TorusWalletAdapter(),
+          new LedgerWalletAdapter(),
+          new MathWalletAdapter(),
+          new Coin98WalletAdapter(),
+        ];
+      } catch (error) {
+        console.warn('Error initializing wallet adapters:', error);
+        return [];
+      }
+    },
     [network]
   );
 
   return (
     <ConnectionProvider endpoint={endpoint}>
-      <WalletProvider wallets={wallets} autoConnect>
+      <WalletProvider wallets={wallets} autoConnect={false}>
         <WalletModalProvider>
           {children}
         </WalletModalProvider>
