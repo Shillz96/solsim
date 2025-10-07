@@ -10,6 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { TrendingUp, TrendingDown, Wallet, Settings, AlertCircle, CheckCircle, Loader2, RefreshCw } from "lucide-react"
 import { useAuth, useTrading, usePortfolio } from "@/lib/api-hooks"
+import { usePriceStreamContext } from "@/lib/price-stream-provider"
 import { useToast } from "@/hooks/use-toast"
 import marketService from "@/lib/market-service"
 import type { TokenDetails } from "@/lib/types/api-types"
@@ -29,6 +30,7 @@ export function TradingPanel({ tokenAddress: propTokenAddress }: TradingPanelPro
   const { user } = useAuth()
   const { data: portfolio, refetch: refreshPortfolio, isLoading: portfolioLoading, error: portfolioError } = usePortfolio()
   const { isTrading, tradeError, executeBuy, executeSell, clearError } = useTrading()
+  const { connected: wsConnected, prices: livePrices, subscribe, unsubscribe } = usePriceStreamContext()
   const { toast } = useToast()
 
   // State
@@ -60,6 +62,16 @@ export function TradingPanel({ tokenAddress: propTokenAddress }: TradingPanelPro
       const [details] = await Promise.all([
         marketService.getTokenDetails(tokenAddress)
       ])
+      
+      // Log token details for debugging
+      console.log('Token details loaded:', {
+        tokenAddress: tokenAddress.substring(0, 8) + '...',
+        hasDetails: !!details,
+        tokenSymbol: details?.tokenSymbol,
+        tokenName: details?.tokenName,
+        price: details?.price,
+        hasPrice: !!details?.price
+      })
       
       setTokenDetails(details)
 
@@ -139,6 +151,16 @@ export function TradingPanel({ tokenAddress: propTokenAddress }: TradingPanelPro
   useEffect(() => {
     loadTokenData()
   }, [loadTokenData])
+
+  // Subscribe to real-time price updates for this token
+  useEffect(() => {
+    if (tokenAddress && wsConnected) {
+      subscribe(tokenAddress)
+      return () => {
+        unsubscribe(tokenAddress)
+      }
+    }
+  }, [tokenAddress, wsConnected, subscribe, unsubscribe])
 
   // Handle trade execution
   const handleTrade = useCallback(async (action: 'buy' | 'sell') => {
@@ -307,7 +329,9 @@ export function TradingPanel({ tokenAddress: propTokenAddress }: TradingPanelPro
     )
   }
 
-  const currentPrice = parseFloat(tokenDetails.price.toString()) / 1e9 // Convert to readable price
+  // Get current price - use live WebSocket price if available, otherwise fall back to static price
+  const livePrice = livePrices.get(tokenAddress)
+  const currentPrice = livePrice ? livePrice.price : (tokenDetails.price ? parseFloat(tokenDetails.price.toString()) / 1e9 : 0)
   const balance = user ? parseFloat(user.virtualSolBalance) : 0
   const tokenBalance = tokenHolding ? parseFloat(tokenHolding.quantity) : 0
 
@@ -350,11 +374,11 @@ export function TradingPanel({ tokenAddress: propTokenAddress }: TradingPanelPro
             colorize={false}
             glowOnChange={true}
           />
-          {tokenDetails.priceChange24h && (
+          {(livePrice?.change24h !== undefined || tokenDetails.priceChange24h) && (
             <AnimatedNumber
-              value={tokenDetails.priceChange24h}
+              value={livePrice?.change24h ?? tokenDetails.priceChange24h}
               suffix="%"
-              prefix={tokenDetails.priceChange24h >= 0 ? '+' : ''}
+              prefix={(livePrice?.change24h ?? tokenDetails.priceChange24h) >= 0 ? '+' : ''}
               decimals={2}
               className="text-sm font-medium"
               colorize={true}
