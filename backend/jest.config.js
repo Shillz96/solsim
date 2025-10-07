@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   preset: 'ts-jest/presets/default-esm',
   extensionsToTreatAsEsm: ['.ts'],
   testEnvironment: 'node',
@@ -16,10 +16,9 @@ module.exports = {
       }
     }]
   },
-  moduleNameMapping: {
-    '^(\\.{1,2}/.*)\\.js$': '$1.ts'
+  moduleNameMapper: {
+    '^(\\.{1,2}/.*)\\.js$': '$1'
   },
-  setupFilesAfterEnv: ['<rootDir>/tests/setup.ts'],
   collectCoverageFrom: [
     'src/**/*.ts',
     '!src/**/*.d.ts',
@@ -35,7 +34,5 @@ module.exports = {
       statements: 80
     }
   },
-  testTimeout: 30000,
-  globalSetup: '<rootDir>/tests/globalSetup.ts',
-  globalTeardown: '<rootDir>/tests/globalTeardown.ts'
+  testTimeout: 30000
 };

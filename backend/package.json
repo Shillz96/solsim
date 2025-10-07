@@ -5,7 +5,7 @@
   "type": "module",
   "main": "dist/index.js",
   "scripts": {
-    "build": "tsc --skipLibCheck",
+    "build": "prisma generate && tsc --skipLibCheck",
     "start": "node dist/index.js",
     "dev": "tsx watch src/index.ts",
     "test": "jest",
@@ -19,10 +19,12 @@
     "db:migrate": "prisma migrate dev",
     "db:studio": "prisma studio",
     "clean": "rimraf dist",
-    "prestart": "npm run build"
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@prisma/client": "^5.19.1",
+    "@solana/spl-token": "^0.4.14",
+    "@solana/web3.js": "^1.98.4",
     "@types/multer": "^2.0.0",
     "@types/pg": "^8.15.5",
     "@types/redis": "^4.0.10",

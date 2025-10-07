@@ -7,6 +7,13 @@ generator client {
   provider = "prisma-client-js"
 }
 
+enum UserTier {
+  EMAIL_USER      // 10 SOL, limited features
+  WALLET_USER     // Same as email if no $SIM tokens
+  SIM_HOLDER      // 100 SOL, premium features
+  ADMINISTRATOR   // Platform management access
+}
+
 model User {
   id                 String   @id @default(uuid())
   email              String   @unique
@@ -32,6 +39,16 @@ model User {
   // Creator rewards
   solanaWallet       String?  // Solana wallet for creator rewards (backend only)
   
+  // Tier system and wallet verification
+  userTier           UserTier @default(EMAIL_USER)
+  walletAddress      String?  // Connected Solana wallet address
+  walletVerified     Boolean  @default(false)
+  simTokenBalance    Decimal? // Cached $SIM token balance
+  simBalanceUpdated  DateTime? // Last token balance check
+  monthlyConversions Decimal  @default("0") // SOL converted this month
+  conversionResetAt  DateTime? // Monthly limit reset date
+  premiumFeatures    String?  @default("[]") // JSON array of enabled features
+  
   // Timestamps
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
@@ -40,6 +57,7 @@ model User {
   trades             Trade[]
   holdings           Holding[]
   transactions       TransactionHistory[]
+  conversions        ConversionHistory[]
 }
 
 model Trade {
@@ -163,4 +181,23 @@ model Token {
   @@index([isTrending, momentumScore])
   @@index([symbol])
   @@index([isNew])
+}
+
+// Conversion History for virtual SOL to $SIM token conversions
+model ConversionHistory {
+  id                String   @id @default(uuid())
+  userId            String
+  virtualSolAmount  Decimal  // Amount of virtual SOL converted
+  simTokensReceived Decimal  // Amount of $SIM tokens received
+  conversionRate    Decimal  // Rate at time of conversion
+  transactionHash   String?  // Solana transaction hash (if applicable)
+  status            String   // PENDING, COMPLETED, FAILED, ESCROWED
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  // User relation
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId, createdAt(sort: Desc)], name: "user_conversions_recent")
+  @@index([status, createdAt(sort: Desc)], name: "conversions_by_status")
 }
