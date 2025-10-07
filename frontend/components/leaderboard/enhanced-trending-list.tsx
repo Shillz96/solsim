@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { AnimatedNumber, Sparkline } from "@/components/ui/animated-number"
-import Image from "next/image"
+import { TokenImage } from "@/components/ui/token-image"
 import { useTrendingTokens } from "@/lib/api-hooks"
 import type { TrendingToken } from "@/lib/types/api-types"
 
@@ -72,15 +72,12 @@ export function EnhancedTrendingList() {
             className="p-3 cursor-pointer bento-card"
           >
           <div className="flex items-start gap-3">
-            <div className="relative h-10 w-10 flex-shrink-0 rounded-full overflow-hidden bg-muted">
-              <Image 
-                src={token.imageUrl || "/placeholder-token.svg"} 
-                alt={token.tokenName || 'Unknown Token'} 
-                fill 
-                sizes="40px"
-                className="object-cover" 
-              />
-            </div>
+            <TokenImage 
+              src={token.imageUrl} 
+              alt={token.tokenName || 'Unknown Token'} 
+              size={40}
+              className="flex-shrink-0" 
+            />
 
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">

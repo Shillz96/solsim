@@ -16,6 +16,9 @@ import type {
 } from './types/api-types'
 
 class MarketService {
+  private tokenDetailsCache = new Map<string, { data: TokenDetails; timestamp: number }>()
+  private readonly CACHE_DURATION = 30000 // 30 seconds cache
+
   // Get current SOL price
   async getSolPrice(): Promise<{ price: number; priceChange24h: number }> {
     const response = await apiClient.get<{ price: number; currency: string; source: string; timestamp: number }>('/api/v1/market/sol-price')
@@ -86,7 +89,29 @@ class MarketService {
 
   // Get detailed token information
   async getTokenDetails(tokenAddress: string): Promise<TokenDetails> {
-    return apiClient.get<TokenDetails>(`/api/v1/market/token/${tokenAddress}`)
+    // Check cache first
+    const cached = this.tokenDetailsCache.get(tokenAddress)
+    if (cached && Date.now() - cached.timestamp < this.CACHE_DURATION) {
+      return cached.data
+    }
+
+    try {
+      const data = await apiClient.get<TokenDetails>(`/api/v1/market/token/${tokenAddress}`)
+      
+      // Cache the response
+      this.tokenDetailsCache.set(tokenAddress, {
+        data,
+        timestamp: Date.now()
+      })
+      
+      return data
+    } catch (error) {
+      // If we have cached data and the API fails, return cached data
+      if (cached) {
+        return cached.data
+      }
+      throw error
+    }
   }
 
   // Get token by ID (alternative endpoint)
