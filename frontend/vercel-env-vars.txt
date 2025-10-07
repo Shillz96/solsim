@@ -8,8 +8,8 @@
 # ==========================================
 
 # Backend API Connection
-NEXT_PUBLIC_API_URL=https://your-backend-service.up.railway.app
-NEXT_PUBLIC_WS_URL=wss://your-backend-service.up.railway.app
+NEXT_PUBLIC_API_URL=https://lovely-nature-production.up.railway.app
+NEXT_PUBLIC_WS_URL=wss://lovely-nature-production.up.railway.app
 
 # Application Environment
 NEXT_PUBLIC_ENV=production
@@ -20,8 +20,8 @@ NEXT_PUBLIC_DEBUG=false
 # ==========================================
 
 # Solana Network Configuration for Wallet Adapter
-NEXT_PUBLIC_SOLANA_NETWORK=devnet
-NEXT_PUBLIC_SOLANA_RPC_ENDPOINT=https://api.devnet.solana.com
+NEXT_PUBLIC_SOLANA_NETWORK=mainnet-beta
+NEXT_PUBLIC_SOLANA_RPC_ENDPOINT=https://api.mainnet-beta.solana.com
 
 # ==========================================
 # DUAL-TIER SYSTEM CONFIGURATION
