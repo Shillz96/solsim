@@ -1,6 +1,7 @@
 import { Decimal } from '@prisma/client/runtime/library';
 import { transactionService } from './transactionService.js';
 import { logger } from '../utils/logger.js';
+import prisma from '../lib/prisma.js';
 
 /**
  * FIFO Cost Basis Calculator - Accurate cost tracking for tax and PnL reporting
@@ -131,19 +132,23 @@ export class CostBasisCalculator {
     currentPrices?: Map<string, number>
   ): Promise<CostBasisResult[]> {
     try {
-      // Get unique token addresses from transactions
-      const transactions = await transactionService.getUserTransactions(userId);
-      const tokenAddresses = new Set<string>();
-      
-      for (const tx of transactions) {
-        if (tx.remainingQuantity && new Decimal(tx.remainingQuantity).gt(0)) {
-          tokenAddresses.add(tx.tokenAddress);
+      // Get unique token addresses with remaining quantities efficiently
+      const uniqueTokens = await prisma.transactionHistory.findMany({
+        where: {
+          userId,
+          remainingQuantity: {
+            gt: 0
+          }
+        },
+        distinct: ['tokenAddress'],
+        select: {
+          tokenAddress: true
         }
-      }
+      });
       
       const results: CostBasisResult[] = [];
       
-      for (const tokenAddress of tokenAddresses) {
+      for (const { tokenAddress } of uniqueTokens) {
         const currentPriceSol = currentPrices?.get(tokenAddress);
         const costBasis = await this.calculateCostBasis(userId, tokenAddress, currentPriceSol);
         

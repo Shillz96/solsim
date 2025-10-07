@@ -317,55 +317,75 @@ router.get('/token/:address', apiLimiter, async (req: Request, res: Response): P
       throw new ValidationError(ERROR_MESSAGES.INVALID_ADDRESS);
     }
 
-    // Get token info and price with timeout protection
-    let tokenData;
+    // Get token info, price, and metadata with timeout protection
+    let tokenData, tokenMetadata;
     try {
-      [tokenData] = await Promise.race([
-        Promise.all([
-          priceService.getPrice(address)
+      const [priceResult, metadataResult] = await Promise.race([
+        Promise.allSettled([
+          priceService.getPrice(address),
+          req.app.locals.services.metadataService.getMetadata(address)
         ]),
         // 10 second timeout
-        new Promise<[null]>((resolve) =>
-          setTimeout(() => resolve([null]), TIMEOUTS.TOKEN_INFO)
+        new Promise<[null, null]>((resolve) =>
+          setTimeout(() => resolve([null, null]), TIMEOUTS.TOKEN_INFO)
         )
       ]);
+      
+      // Handle price result
+      if (priceResult && priceResult.status === 'fulfilled') {
+        tokenData = priceResult.value;
+      }
+      
+      // Handle metadata result
+      if (metadataResult && metadataResult.status === 'fulfilled') {
+        tokenMetadata = metadataResult.value;
+      }
     } catch (error) {
       logger.warn(`Failed to fetch token data for ${address}:`, error);
       tokenData = null;
+      tokenMetadata = null;
     }
 
-    // If we got token data, return it
+    // If we got token data, return it with metadata
     if (tokenData) {
       res.json({
         success: true,
         data: {
-          address,
-          price: tokenData.price || tokenData.toString(),
-          priceData: tokenData,
+          tokenAddress: address,
+          tokenSymbol: tokenMetadata?.symbol || address.substring(0, 6).toUpperCase(),
+          tokenName: tokenMetadata?.name || `Token ${address.substring(0, 8)}`,
+          imageUrl: tokenMetadata?.logoUri || null,
+          price: typeof tokenData.price === 'number' ? tokenData.price : parseFloat(tokenData.price?.toString() || '0'),
+          priceChange24h: tokenData.priceChange24h || 0,
+          priceChangePercent24h: tokenData.priceChange24h || 0,
+          volume24h: tokenData.volume24h || 0,
+          marketCap: tokenData.marketCap || 0,
+          liquidity: tokenData.liquidity || 0,
+          lastUpdated: new Date().toISOString(),
           timestamp: Date.now()
         }
       });
       return;
     }
 
-    // Fallback: Return basic token data for unknown tokens
+    // Fallback: Return basic token data for unknown tokens with metadata
     logger.info(`Token ${address} not found in price service, returning fallback data`);
     
     res.json({
       success: true,
       data: {
-        address,
-        symbol: address.substring(0, 6).toUpperCase(),
-        name: `Token ${address.substring(0, 8)}`,
+        tokenAddress: address,
+        tokenSymbol: tokenMetadata?.symbol || address.substring(0, 6).toUpperCase(),
+        tokenName: tokenMetadata?.name || `Token ${address.substring(0, 8)}`,
+        imageUrl: tokenMetadata?.logoUri || null,
         source: 'fallback',
-        price: '0',
-        priceData: {
-          price: '0',
-          marketCap: 0,
-          volume24h: 0,
-          priceChange24h: 0,
-          source: 'fallback'
-        },
+        price: 0,
+        priceChange24h: 0,
+        priceChangePercent24h: 0,
+        volume24h: 0,
+        marketCap: 0,
+        liquidity: 0,
+        lastUpdated: new Date().toISOString(),
         timestamp: Date.now()
       }
     });

@@ -236,20 +236,24 @@ router.get('/metrics-json', async (req: Request, res: Response): Promise<void> =
 /**
  * GET /api/v1/monitoring/alerts
  * 
- * Get recent performance alerts (from performance.ts)
+ * Get system alerts based on current metrics and thresholds
  */
 router.get('/alerts', async (req: Request, res: Response): Promise<void> => {
   try {
     const limit = parseInt(req.query.limit as string) || 10;
     const severity = req.query.severity as string;
     
-    const alerts = []; // Performance monitoring removed for v1 simplification
+    // Generate real-time alerts based on current system state
+    const alerts = await monitoringService.getSystemAlerts();
     
     // Filter by severity if specified
     let filteredAlerts = alerts;
     if (severity && ['low', 'medium', 'high', 'critical'].includes(severity)) {
       filteredAlerts = alerts.filter((alert: any) => alert.severity === severity);
     }
+    
+    // Apply limit
+    filteredAlerts = filteredAlerts.slice(0, limit);
     
     res.json({
       success: true,
@@ -261,10 +265,10 @@ router.get('/alerts', async (req: Request, res: Response): Promise<void> => {
       }
     });
   } catch (error) {
-    console.error('Failed to get performance alerts:', error);
+    console.error('Failed to get system alerts:', error);
     res.status(500).json({
       success: false,
-      error: 'Failed to retrieve performance alerts',
+      error: 'Failed to retrieve system alerts',
       details: error instanceof Error ? error.message : 'Unknown error'
     });
   }
@@ -541,9 +545,9 @@ router.get('/system-status', async (req: Request, res: Response): Promise<void> 
     let dbConnections = 0;
     let dbStatus = 'unknown';
     try {
-      // This would be implemented based on your database connection pool
+      const dbStats = await dbPoolMonitor.getCurrentPoolStats();
       dbStatus = 'connected';
-      dbConnections = 10; // Placeholder
+      dbConnections = dbStats.active_connections;
     } catch (error) {
       dbStatus = 'error';
     }

@@ -118,6 +118,38 @@ export class PriceService {
   }
 
   /**
+   * Get combined price data (USD and SOL) for a single token
+   * More efficient than calling getPrice and getPriceSol separately
+   */
+  async getTokenPrices(tokenAddress: string): Promise<{
+    price: number;
+    priceSol: number;
+    marketCap?: number;
+  } | null> {
+    try {
+      const [tokenPrice, solPrice] = await Promise.all([
+        this.getPrice(tokenAddress),
+        this.getSolPrice()
+      ]);
+
+      if (!tokenPrice) {
+        return null;
+      }
+
+      const priceSol = tokenPrice.price / solPrice;
+
+      return {
+        price: tokenPrice.price,
+        priceSol,
+        marketCap: tokenPrice.marketCap
+      };
+    } catch (error) {
+      logger.error(`Error getting combined token prices for ${tokenAddress}:`, error);
+      return null;
+    }
+  }
+
+  /**
    * Get current price for a single token
    * Uses Redis caching with memory fallback
    * Implements cache stampede protection to prevent duplicate external API calls

@@ -37,6 +37,18 @@ export interface TransactionInput {
   executedAt?: Date;
 }
 
+export interface FIFOPnLResult {
+  realizedPnLSol: Decimal;
+  totalCostBasisSol: Decimal;
+  avgEntryPriceSol: Decimal;
+  consumedLots: Array<{
+    id: string;
+    quantityConsumed: Decimal;
+    pricePerTokenSol: Decimal;
+    costBasisSol: Decimal;
+  }>;
+}
+
 export interface FIFOLot {
   id: string;
   quantity: Decimal;
@@ -59,17 +71,96 @@ export interface TransactionResult {
 export class TransactionService {
   
   /**
-   * Record a BUY transaction
+   * Calculate FIFO-based realized PnL for a potential sell without executing it
+   * Used by trade service to determine PnL before committing the transaction
+   */
+  async calculateFIFOPnL(
+    userId: string,
+    tokenAddress: string,
+    quantityToSell: Decimal | number | string,
+    sellPricePerToken: Decimal | number | string
+  ): Promise<FIFOPnLResult> {
+    try {
+      const quantity = new Decimal(quantityToSell);
+      const sellPrice = new Decimal(sellPricePerToken);
+      
+      // Get available lots in FIFO order
+      const availableLots = await this.getAvailableLots(userId, tokenAddress);
+      
+      if (availableLots.length === 0) {
+        throw new Error('No available lots for FIFO calculation');
+      }
+      
+      let remainingToSell = quantity;
+      let totalCostBasisSol = new Decimal(0);
+      const consumedLots: Array<{
+        id: string;
+        quantityConsumed: Decimal;
+        pricePerTokenSol: Decimal;
+        costBasisSol: Decimal;
+      }> = [];
+      
+      // Simulate FIFO consumption
+      for (const lot of availableLots) {
+        if (remainingToSell.lte(0)) break;
+        
+        const lotRemaining = new Decimal(lot.remainingQuantity);
+        const consumeQuantity = Decimal.min(remainingToSell, lotRemaining);
+        const lotPricePerToken = new Decimal(lot.pricePerTokenSol);
+        const lotCostBasis = consumeQuantity.mul(lotPricePerToken);
+        
+        totalCostBasisSol = totalCostBasisSol.add(lotCostBasis);
+        
+        consumedLots.push({
+          id: lot.id,
+          quantityConsumed: consumeQuantity,
+          pricePerTokenSol: lotPricePerToken,
+          costBasisSol: lotCostBasis,
+        });
+        
+        remainingToSell = remainingToSell.sub(consumeQuantity);
+      }
+      
+      // Check if we have enough quantity
+      const actualQuantitySold = quantity.sub(remainingToSell);
+      if (actualQuantitySold.lt(quantity)) {
+        throw new Error(`Insufficient quantity available. Requested: ${quantity}, Available: ${actualQuantitySold}`);
+      }
+      
+      // Calculate results
+      const totalRevenueSol = quantity.mul(sellPrice);
+      const realizedPnLSol = totalRevenueSol.sub(totalCostBasisSol);
+      const avgEntryPriceSol = totalCostBasisSol.div(quantity);
+      
+      return {
+        realizedPnLSol,
+        totalCostBasisSol,
+        avgEntryPriceSol,
+        consumedLots,
+      };
+    } catch (error) {
+      logger.error('[TransactionService] Failed to calculate FIFO PnL:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Record a BUY transaction (with optional transaction context)
    * Creates a new lot for FIFO tracking with full remaining quantity
    */
-  async recordBuyTransaction(input: TransactionInput): Promise<TransactionResult> {
+  async recordBuyTransaction(
+    input: TransactionInput,
+    tx?: Prisma.TransactionClient
+  ): Promise<TransactionResult> {
     try {
       const quantity = new Decimal(input.quantity);
       const pricePerTokenSol = new Decimal(input.pricePerTokenSol);
       const totalCostSol = new Decimal(input.totalCostSol);
       const feesSol = input.feesSol ? new Decimal(input.feesSol) : new Decimal(0);
       
-      const transaction = await prisma.transactionHistory.create({
+      const client = tx || prisma;
+      
+      const transaction = await client.transactionHistory.create({
         data: {
           userId: input.userId,
           tokenAddress: input.tokenAddress,
@@ -97,15 +188,20 @@ export class TransactionService {
   }
   
   /**
-   * Record a SELL transaction
+   * Record a SELL transaction (with optional transaction context)
    * Consumes lots using FIFO and calculates realized PnL
    */
-  async recordSellTransaction(input: TransactionInput): Promise<TransactionResult> {
+  async recordSellTransaction(
+    input: TransactionInput,
+    tx?: Prisma.TransactionClient
+  ): Promise<TransactionResult> {
     try {
       const quantityToSell = new Decimal(input.quantity);
       const sellPricePerToken = new Decimal(input.pricePerTokenSol);
       const totalRevenueSol = new Decimal(input.totalCostSol);
       const feesSol = input.feesSol ? new Decimal(input.feesSol) : new Decimal(0);
+      
+      const client = tx || prisma;
       
       // Get available lots for FIFO consumption (oldest first)
       const availableLots = await this.getAvailableLots(
@@ -154,7 +250,7 @@ export class TransactionService {
         totalCostBasis = totalCostBasis.add(lotCostBasis);
         
         // Update lot's remaining quantity
-        await prisma.transactionHistory.update({
+        await client.transactionHistory.update({
           where: { id: lot.id },
           data: {
             remainingQuantity: lotRemaining.sub(consumeQuantity),
@@ -177,7 +273,7 @@ export class TransactionService {
       const realizedPnLSol = totalRevenueSol.sub(totalCostBasis).sub(feesSol);
       
       // Record the SELL transaction
-      const transaction = await prisma.transactionHistory.create({
+      const transaction = await client.transactionHistory.create({
         data: {
           userId: input.userId,
           tokenAddress: input.tokenAddress,

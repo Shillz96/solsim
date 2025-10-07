@@ -26,7 +26,8 @@ class TradingService {
       amountSol: InputSanitizer.sanitizeNumericInput(tradeRequest.amountSol)
     }
 
-    return apiClient.post<TradeResult>('/api/v1/trades/execute', sanitizedRequest)
+    const response = await apiClient.post<{ result: TradeResult }>('/api/v1/trades/execute', sanitizedRequest)
+    return response.result
   }
 
   // Direct buy endpoint
@@ -36,10 +37,11 @@ class TradingService {
       throw new Error('Too many buy requests. Please wait before trying again.')
     }
 
-    return apiClient.post<TradeResult>('/api/v1/trades/buy', {
+    const response = await apiClient.post<{ result: TradeResult }>('/api/v1/trades/buy', {
       tokenAddress: InputSanitizer.sanitizeTokenAddress(tokenAddress),
       amountSol: InputSanitizer.sanitizeNumericInput(amountSol)
     })
+    return response.result
   }
 
   // Direct sell endpoint
@@ -49,10 +51,11 @@ class TradingService {
       throw new Error('Too many sell requests. Please wait before trying again.')
     }
 
-    return apiClient.post<TradeResult>('/api/v1/trades/sell', {
+    const response = await apiClient.post<{ result: TradeResult }>('/api/v1/trades/sell', {
       tokenAddress: InputSanitizer.sanitizeTokenAddress(tokenAddress),
       amountSol: InputSanitizer.sanitizeNumericInput(amountSol)
     })
+    return response.result
   }
 
   // Get trade history for current user
@@ -74,7 +77,12 @@ class TradingService {
     }
 
     const query = queryParams.toString()
-    return apiClient.get<TradeHistory>(`/api/v1/trades/history${query ? `?${query}` : ''}`)
+    // Backend returns { success: true, data: { trades: [...], pagination: {...} } }
+    const response = await apiClient.get<{ trades: any[]; pagination: any }>(`/api/v1/trades/history${query ? `?${query}` : ''}`)
+    return {
+      trades: response.trades,
+      pagination: response.pagination
+    }
   }
 
   // Get trade history for specific user (public)
@@ -92,7 +100,11 @@ class TradingService {
     }
 
     const query = queryParams.toString()
-    return apiClient.get<TradeHistory>(`/api/v1/trades/history/${userId}${query ? `?${query}` : ''}`)
+    const response = await apiClient.get<{ trades: any[]; pagination: any }>(`/api/v1/trades/history/${userId}${query ? `?${query}` : ''}`)
+    return {
+      trades: response.trades,
+      pagination: response.pagination
+    }
   }
 
   // Get trade statistics

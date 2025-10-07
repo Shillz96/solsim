@@ -242,8 +242,10 @@ export class TrendingService {
     score += activityScore * this.scoringWeights.tradeActivity;
 
     // 4. Liquidity Score (10% weight)
-    // Would require external data - placeholder
-    const liquidityScore = 0.5; // Placeholder
+    // Estimate liquidity based on market cap and volume ratio
+    const tokenMarketCap = token.marketCapUsd?.toNumber() || 0;
+    const liquidityScore = tokenMarketCap > 0 ? 
+      Math.min(volume24h / tokenMarketCap, 1.0) : 0.1;
     score += liquidityScore * this.scoringWeights.liquidity;
 
     // 5. Recency Score (5% weight)

@@ -73,6 +73,64 @@ npm run dev            # Development server (port 3000)
 npm run build          # Production build
 ```
 
+## Production Deployment (Railway + Vercel)
+
+### Railway Backend Deployment
+**CRITICAL**: SolSim backend is deployed on Railway with PostgreSQL and Redis plugins
+
+```bash
+# Deploy to Railway (from backend directory)
+railway up
+
+# Database setup after PostgreSQL plugin is connected
+railway run npx prisma migrate deploy
+railway run npx prisma db seed
+```
+
+**Required Railway Environment Variables**:
+```bash
+# Core (set in Railway dashboard)
+NODE_ENV=production
+PORT=4002
+DATABASE_URL=${{Postgres-ServiceName.DATABASE_URL}}  # Auto-set by PostgreSQL plugin
+REDIS_URL=${{Redis.REDIS_URL}}                       # Auto-set by Redis plugin
+JWT_SECRET=secure-32-character-minimum-production-secret
+FRONTEND_ORIGIN=https://solsim.fun,https://*.vercel.app,https://solsim.vercel.app
+
+# API Keys (existing values)
+BIRDEYE_API_KEY=673c073ddd2d4da19ee1748e24796e20
+COINGECKO_API_KEY=CG-9Y1EpBG7HSPUtR7tGPMyP7cq
+HELIUS_API_KEY=8dc08491-9c29-440a-8616-bd3143a2af87
+SOLANA_TRACKER_API_KEY=2eb1ecf9-5430-4a4c-b7cc-297e5f52427f
+```
+
+**Database Connection Troubleshooting**:
+- If "Can't reach database server" error occurs, create new PostgreSQL service in Railway
+- Update `DATABASE_URL` to point to new database: `railway variables --set "DATABASE_URL=${{NewPostgres.DATABASE_URL}}"`
+- Run migrations: `railway run npx prisma migrate deploy`
+- **Never modify environment.ts** - database connection issues are infrastructure-level
+
+### Vercel Frontend Deployment
+```bash
+# Deploy frontend (from frontend directory)
+vercel --prod
+
+# Required Vercel environment variables:
+NEXT_PUBLIC_API_URL=https://lovely-nature-production.up.railway.app
+NEXT_PUBLIC_WS_URL=https://lovely-nature-production.up.railway.app
+```
+
+### Deployment Files
+- **railway.toml**: Main Railway configuration (project root)
+- **nixpacks.toml**: Build configuration (backend directory)
+- **RAILWAY_DEPLOYMENT_GUIDE.md**: Complete deployment documentation
+
+### Common Deployment Issues
+1. **Database Connection Failures**: Always check PostgreSQL service status in Railway dashboard
+2. **Environment Variables**: Use Railway service templates `${{ServiceName.VARIABLE}}`
+3. **Migration Errors**: Run `railway run npx prisma migrate deploy` separately after deployment
+4. **Service Linking**: Ensure PostgreSQL and Redis plugins are connected to backend service
+
 ## Hybrid Trending Token System
 
 ### Multi-Source Architecture (`src/routes/solana-tracker.ts`)

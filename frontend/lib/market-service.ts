@@ -84,7 +84,25 @@ class MarketService {
 
   // Get comprehensive market statistics
   async getMarketStats(): Promise<MarketStats> {
-    return apiClient.get<MarketStats>('/api/v1/market/stats')
+    // Backend returns partial stats, need to construct full MarketStats
+    const response = await apiClient.get<{
+      totalTrades: number;
+      totalVolume: string;
+      totalVolumeUsd: string;
+      solPrice: string;
+      timestamp: number;
+    }>('/api/v1/market/stats')
+    
+    // Convert to expected MarketStats format
+    return {
+      solPrice: parseFloat(response.solPrice),
+      solPriceChange24h: 0, // Not provided by backend yet
+      totalMarketCap: 0, // Not provided by backend yet
+      totalVolume24h: parseFloat(response.totalVolumeUsd),
+      activeTokens: 0, // Not provided by backend yet
+      topGainer: {} as TokenPrice, // Not provided by backend yet
+      topLoser: {} as TokenPrice, // Not provided by backend yet
+    }
   }
 
   // Get detailed token information
@@ -121,7 +139,28 @@ class MarketService {
 
   // Get major cryptocurrency prices
   async getMajorCryptoPrices(): Promise<TokenPrice[]> {
-    return apiClient.get<TokenPrice[]>('/api/v1/market/major-crypto-prices')
+    // Backend returns array directly (not wrapped in data)
+    const prices = await apiClient.get<Array<{
+      symbol: string;
+      name: string;
+      price: number;
+      change24h: number;
+      timestamp: number;
+    }>>('/api/v1/market/major-crypto-prices')
+    
+    // Convert to TokenPrice format
+    return prices.map(p => ({
+      tokenAddress: p.symbol, // Use symbol as address for major cryptos
+      tokenSymbol: p.symbol,
+      tokenName: p.name,
+      price: p.price,
+      priceChange24h: p.change24h,
+      priceChangePercent24h: p.change24h,
+      volume24h: 0,
+      marketCap: 0,
+      imageUrl: null,
+      lastUpdated: new Date(p.timestamp).toISOString()
+    }))
   }
 
   // Test Pump.fun integration

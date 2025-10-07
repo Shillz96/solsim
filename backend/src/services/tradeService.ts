@@ -4,6 +4,15 @@ import { logger } from '../utils/logger.js';
 import { PriceService } from './priceService.js';
 import { transactionService } from './transactionService.js';
 import prisma from '../lib/prisma.js';
+import { NotFoundError } from '../lib/errors.js';
+
+// Define trade actions as constants for type safety
+const TradeAction = {
+  BUY: 'BUY' as const,
+  SELL: 'SELL' as const
+} as const;
+
+type TradeActionType = typeof TradeAction[keyof typeof TradeAction];
 
 /**
  * Trade Service - Unified trade execution and management
@@ -52,11 +61,11 @@ export interface InternalTradeRequest {
   tokenSymbol?: string;
   tokenName?: string;
   tokenImageUrl?: string;
-  action: 'BUY' | 'SELL';
+  action: TradeActionType;
   quantity: string; // Token quantity as string for Decimal precision
   price: string; // Price per token in USD as string
   marketCapUsd?: number;
-  pricePerTokenSol?: number; // SOL price per token for transaction recording
+  pricePerTokenSol: number; // SOL price per token for transaction recording
 }
 
 export interface TradeResult {
@@ -112,20 +121,20 @@ export class TradeService {
     try {
       logger.info(`Executing BUY trade for user ${userId}:`, request);
 
-      // Fetch user and current price in parallel
-      const [user, tokenPrice, tokenPriceSol] = await Promise.all([
+      const [user, tokenPrices] = await Promise.all([
         prisma.user.findUnique({ where: { id: userId } }),
-        this.priceService.getPrice(request.tokenAddress),
-        this.priceService.getPriceSol(request.tokenAddress), // Get SOL-native price
+        this.priceService.getTokenPrices(request.tokenAddress),
       ]);
 
       if (!user) {
-        throw new Error('User not found');
+        throw new NotFoundError('User not found');
       }
 
-      if (!tokenPrice || !tokenPriceSol) {
-        throw new Error('Unable to fetch token price');
+      if (!tokenPrices || !tokenPrices.price || !tokenPrices.priceSol) {
+        throw new NotFoundError('Unable to fetch token price');
       }
+      
+      const { price: tokenPriceUsd, priceSol: tokenPriceSol } = tokenPrices;
 
       // Validate balance
       const amountSol = new Decimal(request.amountSol);
@@ -133,11 +142,10 @@ export class TradeService {
         throw new Error('Insufficient SOL balance');
       }
 
-      // Get SOL price for USD calculations (still needed for USD displays)
+      // Get SOL price for USD calculations
       const solPrice = await this.priceService.getSolPrice();
 
       // Calculate token quantity using SOL-native price
-      // quantity = amountSol / tokenPriceSol
       const quantity = amountSol.div(tokenPriceSol);
 
       // Execute trade in atomic transaction
@@ -147,11 +155,11 @@ export class TradeService {
         tokenSymbol: request.tokenSymbol,
         tokenName: request.tokenName,
         tokenImageUrl: request.tokenImageUrl,
-        action: 'BUY',
+        action: TradeAction.BUY,
         quantity: quantity.toString(),
-        price: tokenPrice.price.toString(),
-        marketCapUsd: tokenPrice.marketCap,
-        pricePerTokenSol: tokenPriceSol, // Pass SOL price for transaction recording
+        price: tokenPriceUsd.toString(),
+        marketCapUsd: tokenPrices.marketCap,
+        pricePerTokenSol: tokenPriceSol,
       }, amountSol, solPrice);
 
       // Broadcast updates
@@ -164,7 +172,7 @@ export class TradeService {
           action: 'buy',
           token: request.tokenAddress,
           quantity: quantity.toString(),
-          price: tokenPrice.price,
+          price: tokenPriceUsd,
         });
       }
 
@@ -199,7 +207,7 @@ export class TradeService {
       logger.info(`Executing SELL trade for user ${userId}:`, request);
 
       // Fetch holding and current price in parallel
-      const [holding, tokenPrice, tokenPriceSol] = await Promise.all([
+      const [holding, tokenPrices] = await Promise.all([
         prisma.holding.findUnique({
           where: {
             user_token_position: {
@@ -208,17 +216,18 @@ export class TradeService {
             },
           },
         }),
-        this.priceService.getPrice(request.tokenAddress),
-        this.priceService.getPriceSol(request.tokenAddress), // Get SOL-native price
+        this.priceService.getTokenPrices(request.tokenAddress),
       ]);
 
       if (!holding || holding.quantity.lte(0)) {
-        throw new Error('No holdings for this token');
+        throw new NotFoundError('No holdings for this token');
       }
 
-      if (!tokenPrice || !tokenPriceSol) {
-        throw new Error('Unable to fetch token price');
+      if (!tokenPrices || !tokenPrices.price || !tokenPrices.priceSol) {
+        throw new NotFoundError('Unable to fetch token price');
       }
+      
+      const { price: tokenPriceUsd, priceSol: tokenPriceSol } = tokenPrices;
 
       // Get SOL price for calculations
       const solPrice = await this.priceService.getSolPrice();
@@ -232,10 +241,13 @@ export class TradeService {
         throw new Error(`Insufficient holdings. Have: ${holding.quantity}, Need: ${quantity}`);
       }
 
-      // Calculate realized PnL
-      const entryPriceSol = holding.entryPrice;
-      const currentPriceSol = new Decimal(tokenPrice.price).div(solPrice);
-      const realizedPnL = currentPriceSol.sub(entryPriceSol).mul(quantity);
+      // Calculate realized PnL using FIFO method
+      const fifoResult = await transactionService.calculateFIFOPnL(
+        userId,
+        request.tokenAddress,
+        quantity,
+        tokenPriceSol
+      );
 
       // Execute trade in atomic transaction
       const result = await this.executeTradeTransaction({
@@ -244,12 +256,12 @@ export class TradeService {
         tokenSymbol: request.tokenSymbol || holding.tokenSymbol,
         tokenName: request.tokenName || holding.tokenName,
         tokenImageUrl: request.tokenImageUrl || holding.tokenImageUrl,
-        action: 'SELL',
+        action: TradeAction.SELL,
         quantity: quantity.toString(),
-        price: tokenPrice.price.toString(),
-        marketCapUsd: tokenPrice.marketCap,
-        pricePerTokenSol: tokenPriceSol, // Pass SOL price for transaction recording
-      }, amountSol, solPrice, realizedPnL);
+        price: tokenPriceUsd.toString(),
+        marketCapUsd: tokenPrices.marketCap,
+        pricePerTokenSol: tokenPriceSol,
+      }, amountSol, solPrice, fifoResult.realizedPnLSol);
 
       // Broadcast updates
       if (broadcasts?.broadcastBalanceUpdate) {
@@ -261,8 +273,8 @@ export class TradeService {
           action: 'sell',
           token: request.tokenAddress,
           quantity: quantity.toString(),
-          price: tokenPrice.price,
-          pnl: realizedPnL.toString(),
+          price: tokenPriceUsd,
+          pnl: fifoResult.realizedPnLSol.toString(),
         });
       }
 
@@ -309,44 +321,44 @@ export class TradeService {
           },
         });
 
-        // 1a. Record transaction for FIFO tracking (if SOL price available)
-        if (tradeData.pricePerTokenSol) {
-          try {
-            if (tradeData.action === 'BUY') {
-              await transactionService.recordBuyTransaction({
-                userId: tradeData.userId,
-                tokenAddress: tradeData.tokenAddress,
-                tokenSymbol: tradeData.tokenSymbol,
-                tokenName: tradeData.tokenName,
-                action: 'BUY',
-                quantity: tradeData.quantity,
-                pricePerTokenSol: tradeData.pricePerTokenSol,
-                totalCostSol: totalCost.toString(),
-                tradeId: trade.id,
-                executedAt: trade.timestamp,
-              });
-            } else {
-              await transactionService.recordSellTransaction({
-                userId: tradeData.userId,
-                tokenAddress: tradeData.tokenAddress,
-                tokenSymbol: tradeData.tokenSymbol,
-                tokenName: tradeData.tokenName,
-                action: 'SELL',
-                quantity: tradeData.quantity,
-                pricePerTokenSol: tradeData.pricePerTokenSol,
-                totalCostSol: totalCost.toString(),
-                tradeId: trade.id,
-                executedAt: trade.timestamp,
-              });
-            }
-          } catch (txError) {
-            // Log but don't fail the trade if transaction recording fails
-            logger.error('Failed to record transaction for FIFO:', txError);
+        // 1a. Record transaction for FIFO tracking
+        try {
+          if (tradeData.action === TradeAction.BUY) {
+            await transactionService.recordBuyTransaction({
+              userId: tradeData.userId,
+              tokenAddress: tradeData.tokenAddress,
+              tokenSymbol: tradeData.tokenSymbol,
+              tokenName: tradeData.tokenName,
+              action: 'BUY',
+              quantity: tradeData.quantity,
+              pricePerTokenSol: tradeData.pricePerTokenSol,
+              totalCostSol: totalCost.toString(),
+              tradeId: trade.id,
+              executedAt: trade.timestamp,
+            }, tx);
+          } else { // SELL
+            await transactionService.recordSellTransaction({
+              userId: tradeData.userId,
+              tokenAddress: tradeData.tokenAddress,
+              tokenSymbol: tradeData.tokenSymbol,
+              tokenName: tradeData.tokenName,
+              action: 'SELL',
+              quantity: tradeData.quantity,
+              pricePerTokenSol: tradeData.pricePerTokenSol,
+              totalCostSol: totalCost.toString(),
+              tradeId: trade.id,
+              executedAt: trade.timestamp,
+            }, tx);
           }
+        } catch (txError) {
+          // If FIFO transaction recording fails, fail the entire trade
+          // This ensures data consistency
+          logger.error('Failed to record transaction for FIFO - failing trade:', txError);
+          throw new Error('Failed to record transaction for cost basis tracking');
         }
 
         // 2. Update user balance
-        const balanceChange = tradeData.action === 'BUY' 
+        const balanceChange = tradeData.action === TradeAction.BUY
           ? totalCost.neg() // Subtract for buy
           : totalCost; // Add for sell
 
@@ -362,7 +374,7 @@ export class TradeService {
         // 3. Update or create holding
         let updatedHolding: Holding;
 
-        if (tradeData.action === 'BUY') {
+        if (tradeData.action === TradeAction.BUY) {
           // Upsert holding with weighted average entry price
           const existing = await tx.holding.findUnique({
             where: {
@@ -416,37 +428,58 @@ export class TradeService {
                 tokenAddress: tradeData.tokenAddress,
                 tokenSymbol: tradeData.tokenSymbol || null,
                 tokenName: tradeData.tokenName || null,
+                tokenImageUrl: tradeData.tokenImageUrl || null,
                 quantity: newQuantity,
                 entryPrice: newEntryPrice,
                 avgBuyMarketCap: tradeData.marketCapUsd ? new Decimal(tradeData.marketCapUsd) : null,
               },
             });
           }
-        } else {
-          // SELL: Reduce quantity
-          const sellQuantity = new Decimal(tradeData.quantity);
-
-          updatedHolding = await tx.holding.update({
+        } else { // SELL
+          const quantitySold = new Decimal(tradeData.quantity);
+          const existingHolding = await tx.holding.findUnique({
             where: {
               user_token_position: {
                 userId: tradeData.userId,
                 tokenAddress: tradeData.tokenAddress,
               },
             },
-            data: {
-              quantity: {
-                decrement: sellQuantity,
-              },
-            },
           });
 
-          // Delete holding if quantity reaches zero
-          if (updatedHolding.quantity.lte(0)) {
+          if (!existingHolding) {
+            throw new Error('Attempted to sell a token the user does not hold.');
+          }
+
+          const newQuantity = existingHolding.quantity.sub(quantitySold);
+
+          if (newQuantity.isNegative()) {
+            throw new Error('Attempted to sell more tokens than available in holding.');
+          }
+
+          if (newQuantity.isZero()) {
+            // If all holdings are sold, delete the record
             await tx.holding.delete({
               where: {
                 user_token_position: {
                   userId: tradeData.userId,
                   tokenAddress: tradeData.tokenAddress,
+                },
+              },
+            });
+            // Create a dummy holding object to return
+            updatedHolding = { ...existingHolding, quantity: new Decimal(0) };
+          } else {
+            // Otherwise, update the holding with the new quantity
+            updatedHolding = await tx.holding.update({
+              where: {
+                user_token_position: {
+                  userId: tradeData.userId,
+                  tokenAddress: tradeData.tokenAddress,
+                },
+              },
+              data: {
+                quantity: {
+                  decrement: quantitySold,
                 },
               },
             });

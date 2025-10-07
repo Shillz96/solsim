@@ -1,4 +1,5 @@
 import { logger } from '../utils/logger.js';
+import { monitoringService } from './monitoringService.js';
 
 interface TokenMetadata {
   symbol: string;
@@ -27,77 +28,83 @@ export class MetadataService {
       name: 'DexScreener',
       timeout: 3000,
       fetch: async (address: string): Promise<TokenMetadata | null> => {
-        const response = await fetch(
-          `https://api.dexscreener.com/latest/dex/tokens/${address}`,
-          {
-            signal: AbortSignal.timeout(3000),
-            headers: { 'Accept': 'application/json' }
-          }
-        );
+        return await monitoringService.trackExternalAPICall('DexScreener', async () => {
+          const response = await fetch(
+            `https://api.dexscreener.com/latest/dex/tokens/${address}`,
+            {
+              signal: AbortSignal.timeout(3000),
+              headers: { 'Accept': 'application/json' }
+            }
+          );
 
-        if (!response.ok) return null;
+          if (!response.ok) return null;
 
-        const data = await response.json() as any;
-        const pair = data.pairs?.[0];
-        
-        if (!pair) return null;
+          const data = await response.json() as any;
+          const pair = data.pairs?.[0];
+          
+          if (!pair) return null;
 
-        return {
-          symbol: pair.baseToken?.symbol || null,
-          name: pair.baseToken?.name || null,
-          logoUri: pair.info?.imageUrl || null
-        };
+          return {
+            symbol: pair.baseToken?.symbol || null,
+            name: pair.baseToken?.name || null,
+            logoUri: pair.info?.imageUrl || null
+          };
+        });
       }
     },
     {
       name: 'Birdeye',
       timeout: 3000,
       fetch: async (address: string): Promise<TokenMetadata | null> => {
-        const response = await fetch(
-          `https://public-api.birdeye.so/defi/token_overview?address=${address}`,
-          {
-            signal: AbortSignal.timeout(3000),
-            headers: { 
-              'Accept': 'application/json',
-              'X-API-KEY': process.env.BIRDEYE_API_KEY || '' // Optional API key
+        return await monitoringService.trackExternalAPICall('Birdeye', async () => {
+          const response = await fetch(
+            `https://public-api.birdeye.so/defi/token_overview?address=${address}`,
+            {
+              signal: AbortSignal.timeout(3000),
+              headers: { 
+                'Accept': 'application/json',
+                'X-API-KEY': process.env.BIRDEYE_API_KEY || '' // Optional API key
+              }
             }
-          }
-        );
+          );
 
-        if (!response.ok) return null;
+          if (!response.ok) return null;
 
-        const data = await response.json() as any;
-        
-        if (!data.success || !data.data) return null;
+          const data = await response.json() as any;
+          
+          if (!data.success || !data.data) return null;
 
-        return {
-          symbol: data.data.symbol || null,
-          name: data.data.name || null,
-          logoUri: data.data.logoURI || null
-        };
+          return {
+            symbol: data.data.symbol || null,
+            name: data.data.name || null,
+            logoUri: data.data.logoURI || null
+          };
+        });
       }
     },
     {
       name: 'Jupiter',
       timeout: 2000,
       fetch: async (address: string): Promise<TokenMetadata | null> => {
-        const response = await fetch(
-          `https://token.jup.ag/strict/${address}`,
-          {
-            signal: AbortSignal.timeout(2000),
-            headers: { 'Accept': 'application/json' }
-          }
-        );
+        return await monitoringService.trackExternalAPICall('Jupiter', async () => {
+          const response = await fetch(
+            `https://token.jup.ag/strict/${address}`,
+            {
+              signal: AbortSignal.timeout(2000),
+              headers: { 'Accept': 'application/json' }
+            }
+          );
 
-        if (!response.ok) return null;
+          if (!response.ok) return null;
 
-        const data = await response.json() as any;
-        
-        return {
-          symbol: data.symbol || null,
-          name: data.name || null,
-          logoUri: data.logoURI || null
-        };
+          const data = await response.json() as any;
+          
+          return {
+            symbol: data.symbol || null,
+            name: data.name || null,
+            logoUri: data.logoURI || null
+          };
+        });
       }
     }
   ];

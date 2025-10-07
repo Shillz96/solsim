@@ -76,12 +76,14 @@ export interface Holding {
 class PortfolioService {
   // Get complete portfolio summary
   async getPortfolio(): Promise<PortfolioSummary> {
-    return apiClient.get<PortfolioSummary>('/api/v1/portfolio')
+    const response = await apiClient.get<{ portfolio: PortfolioSummary }>('/api/v1/portfolio')
+    return response.portfolio
   }
 
   // Get user's SOL balance
   async getBalance(): Promise<{ balance: string; currency: string; timestamp: number }> {
-    return apiClient.get('/api/v1/portfolio/balance')
+    // Balance endpoint returns data directly (not nested in portfolio)
+    return apiClient.get<{ balance: string; currency: string; timestamp: number }>('/api/v1/portfolio/balance')
   }
 
   // Get detailed holdings
@@ -103,11 +105,13 @@ class PortfolioService {
     }
 
     const query = queryParams.toString()
-    return apiClient.get<Holding[]>(`/api/v1/portfolio/holdings${query ? `?${query}` : ''}`)
+    const response = await apiClient.get<{ holdings: Holding[] }>(`/api/v1/portfolio/holdings${query ? `?${query}` : ''}`)
+    return response.holdings
   }
 
   // Get portfolio performance over time
   async getPerformance(period: '24h' | '7d' | '30d' | '90d' | '1y' | 'all' = '30d'): Promise<PerformanceData> {
+    // Performance endpoint returns data directly (not nested)
     return apiClient.get<PerformanceData>(`/api/v1/portfolio/performance?period=${period}`)
   }
 

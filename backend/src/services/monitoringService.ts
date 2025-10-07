@@ -493,6 +493,108 @@ export class MonitoringService {
   }
 
   /**
+   * Get system alerts based on current metrics and thresholds
+   */
+  public async getSystemAlerts(): Promise<Array<{
+    id: string;
+    type: string;
+    severity: 'low' | 'medium' | 'high' | 'critical';
+    message: string;
+    timestamp: string;
+    resolved: boolean;
+  }>> {
+    const alerts: Array<{
+      id: string;
+      type: string;
+      severity: 'low' | 'medium' | 'high' | 'critical';
+      message: string;
+      timestamp: string;
+      resolved: boolean;
+    }> = [];
+
+    try {
+      // Check memory usage
+      const memoryUsage = process.memoryUsage();
+      const memoryUsageMB = memoryUsage.heapUsed / 1024 / 1024;
+      
+      if (memoryUsageMB > this.ALERT_THRESHOLDS.HIGH_MEMORY_USAGE) {
+        alerts.push({
+          id: `memory-high-${Date.now()}`,
+          type: 'system',
+          severity: memoryUsageMB > this.ALERT_THRESHOLDS.HIGH_MEMORY_USAGE * 1.5 ? 'critical' : 'high',
+          message: `High memory usage: ${Math.round(memoryUsageMB)}MB`,
+          timestamp: new Date().toISOString(),
+          resolved: false
+        });
+      }
+
+      // Check database connection pool
+      try {
+        const dbStats = await dbPoolMonitor.getCurrentPoolStats();
+        if (dbStats.active_connections >= this.ALERT_THRESHOLDS.HIGH_DB_CONNECTIONS) {
+          alerts.push({
+            id: `db-connections-high-${Date.now()}`,
+            type: 'database',
+            severity: dbStats.active_connections >= 19 ? 'critical' : 'high',
+            message: `High database connections: ${dbStats.active_connections}/${dbStats.total_connections}`,
+            timestamp: new Date().toISOString(),
+            resolved: false
+          });
+        }
+      } catch (dbError) {
+        alerts.push({
+          id: `db-health-error-${Date.now()}`,
+          type: 'database',
+          severity: 'critical',
+          message: 'Database health check failed',
+          timestamp: new Date().toISOString(),
+          resolved: false
+        });
+      }
+
+      // Check cache health
+      try {
+        const cacheHealth = await cacheService.healthCheck();
+        if (cacheHealth.status !== 'healthy') {
+          alerts.push({
+            id: `cache-unhealthy-${Date.now()}`,
+            type: 'cache',
+            severity: 'medium',
+            message: `Cache service unhealthy: ${cacheHealth.status}`,
+            timestamp: new Date().toISOString(),
+            resolved: false
+          });
+        }
+      } catch (cacheError) {
+        alerts.push({
+          id: `cache-error-${Date.now()}`,
+          type: 'cache',
+          severity: 'high',
+          message: 'Cache service check failed',
+          timestamp: new Date().toISOString(),
+          resolved: false
+        });
+      }
+
+      // Sort by severity (critical first)
+      const severityOrder = { critical: 0, high: 1, medium: 2, low: 3 };
+      alerts.sort((a, b) => severityOrder[a.severity] - severityOrder[b.severity]);
+
+      return alerts;
+    } catch (error) {
+      logger.error('Error generating system alerts:', error);
+      return [{
+        id: `alert-generation-error-${Date.now()}`,
+        type: 'system',
+        severity: 'medium',
+        message: 'Alert generation failed',
+        timestamp: new Date().toISOString(),
+        resolved: false
+      }];
+    }
+  }
+
+  /**
    * Clear all metrics (useful for testing)
    */
   public clearMetrics(): void {
