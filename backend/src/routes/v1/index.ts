@@ -6,6 +6,7 @@ import monitoringRoutes from './monitoring.js';
 import authRoutes from './auth.js';
 import userRoutes from './user.js';
 import leaderboardRoutes from './leaderboard.js';
+// import walletRoutes from './wallet.js'; // Temporarily disabled - needs refactoring
 
 const router = express.Router();
 
@@ -17,5 +18,6 @@ router.use('/monitoring', monitoringRoutes);
 router.use('/auth', authRoutes);
 router.use('/user', userRoutes);
 router.use('/leaderboard', leaderboardRoutes);
+// router.use('/wallet', walletRoutes); // Temporarily disabled - needs refactoring
 
 export default router;

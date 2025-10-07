@@ -107,8 +107,8 @@ router.post('/register', authLimiter, async (req: Request, res: Response): Promi
       solanaWallet: solanaWallet ? (solanaWallet as string).trim() : undefined,
     });
 
-    // Generate JWT token
-    const token = generateToken(user.id, user.email, user.username);
+    // Generate JWT token with tier information
+    const token = generateToken(user.id, user.email, user.username, user.userTier, user.walletAddress);
 
     // Log successful registration (for security monitoring)
     logger.info(`New user registered: ${user.id} (${user.email})`);
@@ -198,6 +198,15 @@ router.post('/login', authLimiter, async (req: Request, res: Response): Promise<
     // Find user by email
     const user = await prisma.user.findUnique({
       where: { email: emailValidation.sanitized as string },
+      select: {
+        id: true,
+        email: true,
+        username: true,
+        passwordHash: true,
+        userTier: true,
+        walletAddress: true,
+        virtualSolBalance: true
+      }
     });
 
     // Use constant-time comparison to prevent timing attacks
@@ -224,8 +233,8 @@ router.post('/login', authLimiter, async (req: Request, res: Response): Promise<
       return;
     }
 
-    // Generate JWT token
-    const token = generateToken(user.id, user.email, user.username);
+    // Generate JWT token with tier information
+    const token = generateToken(user.id, user.email, user.username, user.userTier, user.walletAddress);
 
     // Log successful login
     logger.info(`User logged in: ${user.id}`);
@@ -270,7 +279,9 @@ router.get('/verify', authenticate, async (req: Request, res: Response): Promise
         id: true,
         email: true,
         username: true,
-        virtualSolBalance: true,
+        userTier: true,
+        walletAddress: true,
+        virtualSolBalance: true
       },
     });
 
@@ -314,6 +325,8 @@ router.post('/refresh', authenticate, async (req: Request, res: Response): Promi
         id: true,
         email: true,
         username: true,
+        userTier: true,
+        walletAddress: true,
       },
     });
 
@@ -325,8 +338,8 @@ router.post('/refresh', authenticate, async (req: Request, res: Response): Promi
       return;
     }
 
-    // Generate new token
-    const newToken = generateToken(user.id, user.email, user.username);
+    // Generate new token with tier information
+    const newToken = generateToken(user.id, user.email, user.username, user.userTier, user.walletAddress);
 
     res.status(200).json({
       success: true,
@@ -459,6 +472,14 @@ router.post('/change-password', authenticate, async (req: Request, res: Response
     // Get user
     const user = await prisma.user.findUnique({
       where: { id: userId },
+      select: {
+        id: true,
+        email: true,
+        username: true,
+        passwordHash: true,
+        userTier: true,
+        walletAddress: true,
+      }
     });
 
     if (!user) {
@@ -498,8 +519,8 @@ router.post('/change-password', authenticate, async (req: Request, res: Response
       data: { passwordHash: newPasswordHash },
     });
 
-    // Generate new token (invalidate old ones)
-    const newToken = generateToken(user.id, user.email, user.username);
+    // Generate new token with tier information (invalidate old ones)
+    const newToken = generateToken(user.id, user.email, user.username, user.userTier, user.walletAddress);
 
     logger.info(`Password changed for user: ${userId}`);
 

@@ -19,6 +19,8 @@ import { Request, Response, NextFunction } from 'express';
 import prisma from './prisma.js';
 import { config } from '../config/environment.js';
 import { logger } from '../utils/logger.js';
+import { UserTier } from '@prisma/client';
+import { tierService } from '../services/tierService.js';
 
 // ============================================================================
 // TYPES & INTERFACES
@@ -29,6 +31,8 @@ export interface AuthenticatedRequest extends Request {
     id: string;
     email?: string;
     username?: string;
+    userTier?: UserTier;
+    walletAddress?: string;
   };
 }
 
@@ -36,6 +40,8 @@ export interface JWTPayload {
   sub: string;        // User ID (standard JWT claim)
   email?: string;
   username?: string;
+  userTier?: UserTier;
+  walletAddress?: string;
   iat?: number;       // Issued at
   exp?: number;       // Expiration
 }
@@ -167,7 +173,13 @@ export class AuthenticationService {
       // Find or create development user
       let user = await prisma.user.findUnique({
         where: { id: devUserId },
-        select: { id: true, email: true, username: true }
+        select: { 
+          id: true, 
+          email: true, 
+          username: true,
+          userTier: true,
+          walletAddress: true 
+        }
       });
 
       if (!user) {
@@ -178,9 +190,16 @@ export class AuthenticationService {
             email: devEmail,
             username: devUserId,
             passwordHash: 'dev-mode-no-password',
-            virtualSolBalance: 100  // Dev users also start with 100 SOL
+            virtualSolBalance: 100,  // Dev users start with 100 SOL
+            userTier: UserTier.SIM_HOLDER // Dev users get premium tier for testing
           },
-          select: { id: true, email: true, username: true }
+          select: { 
+            id: true, 
+            email: true, 
+            username: true,
+            userTier: true,
+            walletAddress: true 
+          }
         });
       }
 
@@ -188,7 +207,9 @@ export class AuthenticationService {
       (req as AuthenticatedRequest).user = {
         id: user.id,
         email: user.email,
-        username: user.username
+        username: user.username,
+        userTier: user.userTier,
+        walletAddress: user.walletAddress || undefined
       };
 
       next();
@@ -274,7 +295,9 @@ export class AuthenticationService {
       (req as AuthenticatedRequest).user = {
         id: userId,
         email: decoded.email,
-        username: decoded.username
+        username: decoded.username,
+        userTier: decoded.userTier,
+        walletAddress: decoded.walletAddress
       };
 
       logger.debug('✅ User authenticated', { userId: userId.substring(0, 8) });
@@ -375,8 +398,14 @@ export function getUser(req: Request): AuthenticatedRequest['user'] {
 /**
  * Generate JWT token (for login/register endpoints)
  */
-export function generateToken(userId: string, email?: string, username?: string): string {
-  return authService.generateToken({ sub: userId, email, username });
+export function generateToken(userId: string, email?: string, username?: string, userTier?: UserTier, walletAddress?: string): string {
+  return authService.generateToken({ 
+    sub: userId, 
+    email, 
+    username, 
+    userTier, 
+    walletAddress 
+  });
 }
 
 /**
@@ -384,6 +413,140 @@ export function generateToken(userId: string, email?: string, username?: string)
  */
 export function verifyToken(token: string): JWTPayload {
   return authService.verifyToken(token);
+}
+
+// ============================================================================
+// TIER-BASED ACCESS CONTROL MIDDLEWARE
+// ============================================================================
+
+/**
+ * Require minimum user tier for access
+ */
+export function requireTier(minimumTier: UserTier) {
+  return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const user = getUser(req);
+      
+      // Get fresh user tier info from database for accuracy
+      const { tier: currentTier } = await tierService.getUserTierInfo(user.id);
+      
+      if (!hasRequiredTier(currentTier, minimumTier)) {
+        const tierNames = {
+          [UserTier.EMAIL_USER]: 'Email User',
+          [UserTier.WALLET_USER]: 'Wallet User', 
+          [UserTier.SIM_HOLDER]: '$SIM Holder',
+          [UserTier.ADMINISTRATOR]: 'Administrator'
+        };
+        
+        throw new AuthorizationError(
+          `Access denied. Required tier: ${tierNames[minimumTier]}, current tier: ${tierNames[currentTier]}`
+        );
+      }
+      
+      // Update request with current tier info
+      (req as AuthenticatedRequest).user.userTier = currentTier;
+      next();
+    } catch (error) {
+      next(error);
+    }
+  };
+}
+
+/**
+ * Require premium features access ($SIM holders or admins)
+ */
+export function requirePremiumFeature(feature: string) {
+  return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const user = getUser(req);
+      const { tier } = await tierService.getUserTierInfo(user.id);
+      
+      if (!tierService.canPerformAction(tier, feature)) {
+        throw new AuthorizationError(`Premium feature '${feature}' requires $SIM token holdings`);
+      }
+      
+      next();
+    } catch (error) {
+      next(error);
+    }
+  };
+}
+
+/**
+ * Require wallet connection
+ */
+export function requireWallet() {
+  return requireTier(UserTier.WALLET_USER);
+}
+
+/**
+ * Require $SIM token holdings
+ */
+export function requireSimHolder() {
+  return requireTier(UserTier.SIM_HOLDER);
+}
+
+/**
+ * Require administrator access
+ */
+export function requireAdmin() {
+  return requireTier(UserTier.ADMINISTRATOR);
+}
+
+/**
+ * Check if current tier meets minimum requirement
+ */
+function hasRequiredTier(currentTier: UserTier, minimumTier: UserTier): boolean {
+  const tierHierarchy = {
+    [UserTier.EMAIL_USER]: 0,
+    [UserTier.WALLET_USER]: 1,
+    [UserTier.SIM_HOLDER]: 2,
+    [UserTier.ADMINISTRATOR]: 3
+  };
+  
+  return tierHierarchy[currentTier] >= tierHierarchy[minimumTier];
+}
+
+/**
+ * Get user tier from request (with database lookup for accuracy)
+ */
+export async function getUserTier(req: Request): Promise<UserTier> {
+  const user = getUser(req);
+  const { tier } = await tierService.getUserTierInfo(user.id);
+  return tier;
+}
+
+/**
+ * Check if user can perform specific action
+ */
+export async function canUserPerformAction(req: Request, action: string): Promise<boolean> {
+  try {
+    const tier = await getUserTier(req);
+    return tierService.canPerformAction(tier, action);
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Middleware to add tier info to response headers (for debugging)
+ */
+export function addTierHeaders() {
+  return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      if ((req as AuthenticatedRequest).user) {
+        const tier = await getUserTier(req);
+        const benefits = tierService.getTierBenefits(tier);
+        
+        res.setHeader('X-User-Tier', tier);
+        res.setHeader('X-Virtual-Sol-Limit', benefits.virtualSolBalance);
+        res.setHeader('X-Monthly-Conversion-Limit', benefits.monthlyConversionLimit);
+      }
+    } catch (error) {
+      logger.debug('Failed to add tier headers', { error });
+    }
+    next();
+  };
 }
 
 // ============================================================================
@@ -464,6 +627,16 @@ export default {
   verifyToken,
   validateRequired,
   validateTradeRequest,
+  // Tier-based access control
+  requireTier,
+  requirePremiumFeature,
+  requireWallet,
+  requireSimHolder,
+  requireAdmin,
+  getUserTier,
+  canUserPerformAction,
+  addTierHeaders,
+  // Error classes
   AuthenticationError,
   AuthorizationError
 };
