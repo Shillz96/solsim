@@ -14,9 +14,20 @@ export const corsMiddleware = cors({
     // Allow requests with no origin (mobile apps, etc.)
     if (!origin) return callback(null, true);
     
-    // Check for exact matches or Vercel pattern
-    if (allowedOrigins.includes(origin) || 
-        origin.match(/^https:\/\/frontend-.*\.vercel\.app$/)) {
+    // Check for exact matches
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    
+    // Check for Vercel patterns (more flexible matching)
+    if (origin.match(/^https:\/\/.*\.vercel\.app$/) || 
+        origin.match(/^https:\/\/frontend-.*\.vercel\.app$/) ||
+        origin.includes('vercel.app')) {
+      return callback(null, true);
+    }
+    
+    // Allow localhost for development
+    if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
       return callback(null, true);
     }
     
