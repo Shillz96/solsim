@@ -1,7 +1,7 @@
 # GitHub Copilot Instructions - SolSim Trading Simulator
 
 ## Project Overview
-SolSim is a full-stack Solana trading simulator with real-time market data, built on Node.js/Express backend with Prisma ORM and Next.js/React frontend. The app simulates cryptocurrency trading with virtual SOL balances.
+SolSim is a full-stack Solana trading simulator with real-time market data, built on Node.js/Express backend with Prisma ORM and Next.js/React frontend. The app simulates cryptocurrency trading with virtual SOL balances using **FIFO accounting** for accurate profit/loss calculations.
 
 ## Architecture & Key Patterns
 
@@ -11,8 +11,49 @@ SolSim is a full-stack Solana trading simulator with real-time market data, buil
 - **User Extraction**: Always use `getUserId(req)` helper to extract authenticated user ID from requests
 - **Error Classes**: Import from `src/lib/errors.ts` (unified) - `ValidationError`, `AuthenticationError`, `AuthorizationError`, `NotFoundError`
 
+### FIFO Trading System & PnL Calculations
+**CRITICAL**: SolSim uses enterprise-grade FIFO (First-In-First-Out) accounting for accurate tax reporting and cost basis tracking
+
+```typescript
+// Always use the unified PnL calculator
+import { calculatePnL } from '../shared/utils/pnlCalculator.js';
+
+const pnl = calculatePnL({
+  quantity: holding.quantity,           // tokens held
+  entryPriceSol: holding.entryPrice,   // price paid per token (in SOL)
+  currentPriceUsd: marketPrice,        // current price per token (in USD)
+  solPriceUsd: currentSolPrice         // current SOL/USD rate
+});
+```
+
+### Trade Execution Pattern
+```typescript
+// ALL trades must use atomic transactions with FIFO tracking
+await prisma.$transaction(async (tx) => {
+  // 1. Record transaction in TransactionHistory (for FIFO)
+  await transactionService.recordBuyTransaction({ ...tradeData }, tx);
+  
+  // 2. Calculate FIFO PnL for sells
+  if (action === 'SELL') {
+    const fifoResult = await transactionService.calculateFIFOPnL(
+      userId, tokenAddress, sellQuantity, tx
+    );
+  }
+  
+  // 3. Update holdings with FIFO cost basis
+  // 4. Update user balance
+}, { isolationLevel: 'Serializable' });
+```
+
+### Service Architecture Principles
+- **TransactionService**: FIFO lot tracking, cost basis calculations (`src/services/transactionService.ts`)
+- **TradeService**: Unified trade execution with atomic transactions (`src/services/tradeService.ts`)
+- **MonitoringService**: Comprehensive Prometheus metrics and external API tracking (`src/services/monitoringService.ts`)
+- **All External APIs**: Wrapped with `monitoringService.trackExternalAPICall()` for observability
+
 ### Database Schema & Relationships
-- **Core Models**: `User`, `Trade`, `Holding`, `Token` with CASCADE deletions
+- **Core Models**: `User`, `Trade`, `Holding`, `Token`, `TransactionHistory` with CASCADE deletions
+- **FIFO Tracking**: `TransactionHistory` table tracks individual lots with `remainingQuantity` for consumption
 - **Decimal Precision**: All financial values use `Decimal(65,30)` for precision - serialize with `serializeDecimals()` utility
 - **Key Constraints**: `Holding` has unique constraint on `(userId, tokenAddress)`
 - **Optimized Indexes**: Use existing composite indexes like `user_trades_recent`, `user_holdings_by_size`
@@ -23,12 +64,28 @@ SolSim is a full-stack Solana trading simulator with real-time market data, buil
 router.get('/endpoint', authMiddleware, apiLimiter, async (req: Request, res: Response): Promise<void> => {
   try {
     const userId = getUserId(req);
-    // ... business logic
+    // ... business logic with monitoring
+    const result = await monitoringService.trackExternalAPICall(
+      'ServiceName', 'Operation',
+      async () => await someExternalAPI()
+    );
     res.json({ success: true, data: serializeDecimals(result) });
   } catch (error) {
     handleRouteError(error, res, 'Context description');
   }
 });
+```
+
+### Monitoring Integration
+**CRITICAL**: All external API calls must be wrapped with monitoring for observability and performance tracking
+
+```typescript
+// Correct pattern for external API calls
+const response = await this.monitoringService.trackExternalAPICall(
+  'DexScreener',     // API provider name
+  'Token Metadata',  // Operation description
+  async () => await fetch(`https://api.dexscreener.com/latest/dex/tokens/${address}`)
+);
 ```
 
 ### Validation & Rate Limiting
@@ -186,6 +243,46 @@ const response = await apiClient.get<{ tokens: TrendingToken[] }>(`/api/solana-t
 - **Real-time**: WebSocket connection on port 4001 for live price updates
 - **Components**: Radix UI primitives with Tailwind styling, custom components in `components/ui/`
 
+## Key Service Methods & APIs
+
+### Core Trading Operations
+```typescript
+// Trade execution (unified service method)
+await tradeService.executeTrade(tradeRequest, userId, currentPrice);
+
+// FIFO PnL calculation
+const fifoResult = await transactionService.calculateFIFOPnL(userId, tokenAddress, quantity, tx);
+
+// Portfolio retrieval with PnL
+const portfolio = await portfolioService.getPortfolioWithPnL(userId);
+```
+
+### External API Integration Pattern
+```typescript
+// All external calls must use monitoring wrapper
+const tokenData = await monitoringService.trackExternalAPICall(
+  'DexScreener',           // Provider name
+  'Token Metadata',        // Operation
+  async () => {
+    const response = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${address}`);
+    return response.json();
+  }
+);
+```
+
+### Database Transaction Patterns
+```typescript
+// Simple operations
+const result = await prisma.user.update({ where: { id }, data: { ... } });
+
+// Complex multi-table operations (always use transactions)
+await prisma.$transaction(async (tx) => {
+  await tx.trade.create({ data: tradeData });
+  await tx.holding.upsert({ where: { ... }, create: { ... }, update: { ... } });
+  await tx.user.update({ where: { id }, data: { virtualSolBalance } });
+}, { isolationLevel: 'Serializable' });
+```
+
 ## Real-Time WebSocket Architecture
 
 ### Price Streaming Service (`src/price-stream.ts`)
@@ -323,7 +420,11 @@ const { data, loading, error } = useTrendingTokens()
 - Apply proper rate limiting based on endpoint sensitivity
 - **WebSocket**: Always handle connection cleanup to prevent memory leaks
 - **PnL Calculations**: Never implement custom PnL logic - use `calculatePnL()` function
+- **FIFO Implementation**: All trades must record transactions in `TransactionHistory` for proper cost basis tracking
+- **Monitoring Integration**: Wrap all external API calls with `monitoringService.trackExternalAPICall()`
 - **Hydration**: Use `mounted` state for theme-dependent rendering to prevent SSR mismatches
 - **Real-time Data**: Implement proper error boundaries for WebSocket connection failures
-- **Trending Tokens**: Use `/api/solana-tracker/trending` for diverse token discovery (not older endpoints)
+- **Trending Tokens**: Use `/api/v1/market/trending` for diverse token discovery (not older endpoints)
 - **Image Domains**: Add new external domains to `next.config.mjs` when encountering "Invalid src prop" errors
+- **Wallet Adapters**: Don't include PhantomWalletAdapter - Phantom uses Standard Wallet API automatically
+- **Trade Execution**: Use `TradeService.executeTrade()` - never bypass the service layer for financial operations
