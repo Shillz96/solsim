@@ -799,9 +799,7 @@ export class PriceStreamService extends EventEmitter {
         // Use the existing HTTP server instead of creating a new one
         this.server = httpServer;
         this.setupWebSocketServer();
-        this.startPriceUpdates();
-        this.startHeartbeat();
-        this.startCleanup();
+        this.startBackgroundTasks();
         
         logger.info(`🚀 Price Stream WebSocket Server attached to main HTTP server`);
         logger.info(`📊 Service configuration:`, {

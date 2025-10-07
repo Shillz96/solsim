@@ -11,10 +11,10 @@ const isProduction = process.env.NODE_ENV === 'production';
 try {
   // Only import Redis store if Redis URL is available
   if (config.redis?.url) {
-    const RedisStoreModule = await import('rate-limit-redis');
+    const { default: RedisStoreClass } = await import('rate-limit-redis');
     const { createClient } = await import('redis');
     
-    RedisStore = RedisStoreModule.default;
+    RedisStore = RedisStoreClass;
     redisClient = createClient({
       url: config.redis.url,
       socket: {
