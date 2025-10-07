@@ -1,0 +1,83 @@
+# Railway Production Environment Variables for SolSim Backend
+# 
+# Copy these environment variables to your Railway project settings:
+# https://railway.app/project/[your-project-id]/service/[backend-service-id]/variables
+
+# ==========================================
+# REQUIRED PRODUCTION VARIABLES
+# ==========================================
+
+# Database Connection (provided by Railway PostgreSQL plugin)
+DATABASE_URL=${{Postgres.DATABASE_URL}}
+
+# Server Configuration
+PORT=4002
+NODE_ENV=production
+FRONTEND_ORIGIN=https://your-solsim-app.vercel.app
+
+# JWT Authentication - CRITICAL: Change this for security
+JWT_SECRET=your-production-jwt-secret-min-32-characters-secure
+JWT_EXPIRES_IN=24h
+
+# ==========================================
+# SOLANA CONFIGURATION FOR DUAL-TIER SYSTEM
+# ==========================================
+
+# Solana Network Configuration
+SOLANA_NETWORK=devnet
+SOLANA_RPC_ENDPOINT=https://api.devnet.solana.com
+
+# $SIM Token Configuration for Premium Tier
+SIM_TOKEN_MINT_ADDRESS=So11111111111111111111111111111111111111112
+MINIMUM_SIM_TOKENS=1000
+
+# ==========================================
+# REDIS CACHE (Required for rate limiting)
+# ==========================================
+
+# Redis Connection (Railway Redis plugin or external service)
+REDIS_URL=${{Redis.REDIS_URL}}
+
+# ==========================================
+# EXTERNAL APIS
+# ==========================================
+
+# Birdeye API for real-time market data
+BIRDEYE_API_KEY=673c073ddd2d4da19ee1748e24796e20
+BIRDEYE_BASE_URL=https://public-api.birdeye.so
+
+# ==========================================
+# SECURITY & FEATURES
+# ==========================================
+
+# Disable development features in production
+DEV_AUTH_BYPASS=false
+ENABLE_DB_MONITORING=true
+
+# ==========================================
+# DEPLOYMENT INSTRUCTIONS
+# ==========================================
+
+# 1. Add Railway PostgreSQL plugin to your project
+# 2. Add Railway Redis plugin to your project  
+# 3. Set all environment variables above in Railway dashboard
+# 4. Deploy the backend service
+# 5. Run database migration: railway run npx prisma migrate deploy
+# 6. Update FRONTEND_ORIGIN with your actual Vercel domain
+
+# ==========================================
+# TIER SYSTEM CONFIGURATION
+# ==========================================
+
+# Starting balances for different user tiers (in SOL)
+EMAIL_USER_STARTING_BALANCE=10
+WALLET_USER_STARTING_BALANCE=50
+SIM_HOLDER_STARTING_BALANCE=100
+
+# Monthly conversion limits (in virtual SOL)
+EMAIL_USER_MONTHLY_LIMIT=5
+SIM_HOLDER_MONTHLY_LIMIT=50
+
+# Conversion rates and fees
+VIRTUAL_SOL_TO_SIM_BASE_RATE=0.1
+PREMIUM_TIER_RATE_BONUS=0.05

@@ -5,7 +5,8 @@ import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { ArrowUpRight, ArrowDownRight, ChevronDown, Loader2, AlertCircle } from "lucide-react"
+import { ArrowUpRight, ArrowDownRight, ChevronDown, Loader2, AlertCircle, TrendingUp } from "lucide-react"
+import Link from "next/link"
 import { useTradeHistory } from "@/lib/api-hooks"
 import type { Trade } from "@/lib/types/api-types"
 
@@ -87,8 +88,27 @@ export function TradeHistory({
       )}
 
       {filteredTrades.length === 0 ? (
-        <div className="text-center text-muted-foreground py-8">
-          {tokenAddress ? "No trades found for this token" : "No trades yet"}
+        <div className="text-center py-12">
+          <div className="inline-flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 mb-4">
+            <TrendingUp className="h-8 w-8 text-primary" />
+          </div>
+          <h3 className="font-semibold text-lg mb-2">
+            {tokenAddress ? "No Token Trades" : "No Trade History"}
+          </h3>
+          <p className="text-muted-foreground mb-6 max-w-sm mx-auto">
+            {tokenAddress 
+              ? "No trades found for this token. Start trading to see your history here."
+              : "Make your first trade to see your transaction history here."
+            }
+          </p>
+          {!tokenAddress && (
+            <Button asChild size="lg">
+              <Link href="/trade">
+                <TrendingUp className="mr-2 h-4 w-4" />
+                Start Trading
+              </Link>
+            </Button>
+          )}
         </div>
       ) : (
         <div className="space-y-3">

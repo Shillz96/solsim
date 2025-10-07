@@ -5,8 +5,9 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { AnimatedNumber } from "@/components/ui/animated-number"
-import { TrendingUp, TrendingDown, X, Loader2, AlertCircle, RefreshCw } from "lucide-react"
+import { TrendingUp, TrendingDown, X, Loader2, AlertCircle, RefreshCw, Wallet } from "lucide-react"
 import { motion } from "framer-motion"
+import Link from "next/link"
 import { usePortfolio } from "@/lib/api-hooks"
 import { usePriceStreamContext } from "@/lib/price-stream-provider"
 import { useCallback, useState, useEffect } from "react"
@@ -130,16 +131,34 @@ export function ActivePositions() {
           <h3 className="font-semibold text-lg">Active Positions</h3>
           <Badge variant="secondary" className="font-mono">0 open</Badge>
         </div>
-        <div className="text-center py-8 text-muted-foreground">
-          <p className="text-sm">No active positions</p>
-          <p className="text-xs mt-1">Make your first trade to see positions here</p>
+        <div className="text-center py-12">
+          <div className="inline-flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 mb-4">
+            <Wallet className="h-8 w-8 text-primary" />
+          </div>
+          <h3 className="font-semibold text-lg mb-2">No Active Positions</h3>
+          <p className="text-muted-foreground mb-6 max-w-sm mx-auto">
+            Start trading to build your portfolio and track your positions here.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <Button asChild size="lg">
+              <Link href="/trade">
+                <TrendingUp className="mr-2 h-4 w-4" />
+                Start Trading
+              </Link>
+            </Button>
+            <Button variant="outline" size="lg" asChild>
+              <Link href="/trending">
+                Browse Trending
+              </Link>
+            </Button>
+          </div>
         </div>
       </Card>
     )
   }
 
   return (
-    <Card className="card-enhanced p-6">
+    <Card className="glass-solid p-6">
       <div className="mb-4 flex items-center justify-between">
         <h3 className="font-semibold text-lg">Active Positions</h3>
         <div className="flex items-center gap-2">

@@ -24,7 +24,7 @@ export function EnhancedTrendingList() {
 
   if (loading && !trendingTokens) {
     return (
-      <Card className="p-4">
+      <Card className="glass-solid p-4">
         <div className="flex items-center justify-center h-32">
           <Loader2 className="h-4 w-4 animate-spin" />
           <span className="ml-2 text-sm">Loading...</span>
@@ -35,7 +35,7 @@ export function EnhancedTrendingList() {
 
   if (error) {
     return (
-      <Card className="p-4">
+      <Card className="glass-solid p-4">
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription className="text-xs">

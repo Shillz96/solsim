@@ -10,10 +10,12 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Mail, Lock, User, TrendingUp, AlertCircle, CheckCircle, ArrowLeft } from "lucide-react"
+import { Mail, Lock, User, TrendingUp, AlertCircle, CheckCircle, ArrowLeft, Wallet } from "lucide-react"
 import { useAuth } from "@/lib/api-hooks"
 import authService from "@/lib/auth-service"
 import { ApiError } from "@/lib/api-client"
+import { WalletConnectButton } from "@/components/wallet/wallet-connect-button"
+import { useWalletIntegration } from "@/hooks/use-wallet-integration"
 
 interface AuthModalProps {
   open: boolean
@@ -27,10 +29,34 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
   const [currentView, setCurrentView] = useState<AuthView>('login')
+  const [walletConnected, setWalletConnected] = useState<string | null>(null)
   const { login, register } = useAuth()
+  const { connectWallet, isLoading: walletLoading } = useWalletIntegration()
 
   const clearMessages = () => {
     setError(null)
+    setSuccess(null)
+  }
+
+  // Handle wallet connection during registration
+  const handleWalletConnect = async (walletAddress: string) => {
+    setWalletConnected(walletAddress)
+    setSuccess(`Wallet connected: ${walletAddress.slice(0, 4)}...${walletAddress.slice(-4)}`)
+    
+    try {
+      // Verify and get tier information from backend
+      const result = await connectWallet()
+      if (result) {
+        setSuccess(`Wallet verified! Tier: ${result.tier}`)
+      }
+    } catch (err) {
+      console.error('Wallet verification error:', err)
+      // Don't show error here as the wallet is still connected
+    }
+  }
+
+  const handleWalletDisconnect = () => {
+    setWalletConnected(null)
     setSuccess(null)
   }
 
@@ -138,15 +164,17 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md bg-card border-border">
-        <DialogHeader>
-          <div className="flex items-center justify-center gap-2 mb-2">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-secondary">
-              <TrendingUp className="h-6 w-6 text-white" />
+      <DialogContent className="sm:max-w-md bg-card border-border shadow-2xl backdrop-blur-none">
+        <div className="absolute inset-0 bg-card rounded-lg" />
+        <div className="relative z-10">
+        <DialogHeader className="space-y-3">
+          <div className="flex items-center justify-center gap-3 mb-4">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-accent shadow-lg">
+              <TrendingUp className="h-7 w-7 text-white" />
             </div>
-            <DialogTitle className="font-space-grotesk text-2xl gradient-text">Sol Sim</DialogTitle>
+            <DialogTitle className="text-3xl font-bold gradient-text">Sol Sim</DialogTitle>
           </div>
-          <DialogDescription className="text-center">
+          <DialogDescription className="text-center text-base text-foreground/80">
             {currentView === 'forgot-password' && 'Reset your password'}
             {currentView === 'reset-success' && 'Check your email'}
             {(currentView === 'login' || currentView === 'register') && 'Start your paper trading journey on Solana'}
@@ -155,42 +183,42 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
 
         {/* Message Display */}
         {error && (
-          <Alert className="border-destructive/50 text-destructive">
+          <Alert className="border-destructive bg-destructive/10 text-destructive">
             <AlertCircle className="h-4 w-4" />
-            <AlertDescription>{String(error)}</AlertDescription>
+            <AlertDescription className="font-medium">{String(error)}</AlertDescription>
           </Alert>
         )}
 
-        {success && (
-          <Alert className="border-green-500/50 text-green-700 dark:text-green-400">
+                {success && (
+          <Alert className="border-green-500 bg-green-500/10 text-green-700 dark:text-green-400">
             <CheckCircle className="h-4 w-4" />
-            <AlertDescription>{success}</AlertDescription>
+            <AlertDescription className="font-medium">{success}</AlertDescription>
           </Alert>
         )}
 
         {/* Forgot Password View */}
         {currentView === 'forgot-password' && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+          <Card className="border-border bg-card">
+            <CardHeader className="space-y-2">
+              <CardTitle className="flex items-center gap-3 text-lg">
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => setCurrentView('login')}
-                  className="p-1 h-auto"
+                  className="p-2 h-auto hover:bg-muted"
                 >
                   <ArrowLeft className="h-4 w-4" />
                 </Button>
                 Reset Password
               </CardTitle>
-              <CardDescription>
+              <CardDescription className="text-foreground/70">
                 Enter your email address and we'll send you a link to reset your password.
               </CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="space-y-4">
               <form onSubmit={handleForgotPassword} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="reset-email">Email</Label>
+                  <Label htmlFor="reset-email" className="text-foreground font-medium">Email</Label>
                   <div className="relative">
                     <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                     <Input
@@ -198,31 +226,34 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
                       name="email"
                       type="email"
                       placeholder="your@email.com"
-                      className="pl-10"
+                      className="pl-10 bg-background border-border h-11"
                       required
                       disabled={isLoading}
                     />
                   </div>
                 </div>
-                <Button type="submit" className="w-full" disabled={isLoading}>
+                <Button 
+                  type="submit" 
+                  className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-medium" 
+                  size="lg"
+                  disabled={isLoading}
+                >
                   {isLoading ? 'Sending...' : 'Send Reset Link'}
                 </Button>
               </form>
             </CardContent>
           </Card>
-        )}
-
-        {/* Reset Success View */}
+        )}        {/* Reset Success View */}
         {currentView === 'reset-success' && (
-          <Card>
-            <CardHeader className="text-center">
-              <div className="flex justify-center mb-4">
-                <div className="h-12 w-12 rounded-full bg-green-100 dark:bg-green-900 flex items-center justify-center">
-                  <CheckCircle className="h-6 w-6 text-green-600 dark:text-green-400" />
+          <Card className="border-border bg-card">
+            <CardHeader className="text-center space-y-4">
+              <div className="flex justify-center">
+                <div className="h-16 w-16 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+                  <CheckCircle className="h-8 w-8 text-green-600 dark:text-green-400" />
                 </div>
               </div>
-              <CardTitle>Check your email</CardTitle>
-              <CardDescription>
+              <CardTitle className="text-xl font-semibold text-foreground">Check your email</CardTitle>
+              <CardDescription className="text-foreground/70">
                 We've sent password reset instructions to your email address.
               </CardDescription>
             </CardHeader>
@@ -231,6 +262,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
                 onClick={() => setCurrentView('login')} 
                 className="w-full"
                 variant="outline"
+                size="lg"
               >
                 Back to Login
               </Button>
@@ -240,146 +272,180 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
 
         {/* Login/Register Tabs */}
         {(currentView === 'login' || currentView === 'register') && (
-          <Tabs value={currentView} onValueChange={(value) => setCurrentView(value as AuthView)} className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="login">Login</TabsTrigger>
-              <TabsTrigger value="register">Register</TabsTrigger>
-            </TabsList>
-          {error && (
-            <div className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-lg text-destructive text-sm">
-              <AlertCircle className="h-4 w-4" />
-              <span>{String(error)}</span>
-            </div>
-          )}
+          <div className="space-y-6">
+            <Tabs value={currentView} onValueChange={(value) => setCurrentView(value as AuthView)} className="w-full">
+              <TabsList className="grid w-full grid-cols-2 bg-muted/50">
+                <TabsTrigger value="login" className="font-medium">Login</TabsTrigger>
+                <TabsTrigger value="register" className="font-medium">Register</TabsTrigger>
+              </TabsList>
 
-          <TabsContent value="login">
-            <form onSubmit={handleLogin} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="login-email">Email</Label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                  <Input 
-                    id="login-email" 
-                    name="email"
-                    type="email" 
-                    placeholder="you@example.com" 
-                    className="pl-10" 
-                    required 
-                  />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="login-password">Password</Label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                  <Input 
-                    id="login-password" 
-                    name="password"
-                    type="password" 
-                    placeholder="••••••••" 
-                    className="pl-10" 
-                    required 
-                  />
-                </div>
-              </div>
-              <div className="flex justify-end">
-                <Button
-                  type="button"
-                  variant="link"
-                  className="px-0 text-sm"
-                  onClick={() => setCurrentView('forgot-password')}
-                  disabled={isLoading}
-                >
-                  Forgot your password?
-                </Button>
-              </div>
-              <Button type="submit" className="w-full bg-primary hover:bg-primary/90 glow-primary" disabled={isLoading}>
-                {isLoading ? "Logging in..." : "Login"}
-              </Button>
-            </form>
-          </TabsContent>
+              <TabsContent value="login" className="space-y-4 mt-6">
+                <form onSubmit={handleLogin} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="login-email" className="text-foreground font-medium">Email</Label>
+                    <div className="relative">
+                      <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                      <Input 
+                        id="login-email" 
+                        name="email"
+                        type="email" 
+                        placeholder="you@example.com" 
+                        className="pl-10 bg-background border-border h-11" 
+                        required 
+                        disabled={isLoading}
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="login-password" className="text-foreground font-medium">Password</Label>
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                      <Input 
+                        id="login-password" 
+                        name="password"
+                        type="password" 
+                        placeholder="••••••••" 
+                        className="pl-10 bg-background border-border h-11" 
+                        required 
+                        disabled={isLoading}
+                      />
+                    </div>
+                  </div>
+                  <div className="flex justify-end">
+                    <Button
+                      type="button"
+                      variant="link"
+                      className="px-0 text-sm text-primary hover:text-primary/80"
+                      onClick={() => setCurrentView('forgot-password')}
+                      disabled={isLoading}
+                    >
+                      Forgot your password?
+                    </Button>
+                  </div>
+                  <Button 
+                    type="submit" 
+                    className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-medium" 
+                    size="lg"
+                    disabled={isLoading}
+                  >
+                    {isLoading ? "Logging in..." : "Login"}
+                  </Button>
+                </form>
+              </TabsContent>
 
-          <TabsContent value="register">
-            <form onSubmit={handleRegister} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="register-username">Username</Label>
-                <div className="relative">
-                  <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                  <Input 
-                    id="register-username" 
-                    name="username"
-                    type="text" 
-                    placeholder="trader123" 
-                    className="pl-10"
-                    required
-                    minLength={3}
-                    maxLength={20}
-                  />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="register-email">Email</Label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                  <Input 
-                    id="register-email" 
-                    name="email"
-                    type="email" 
-                    placeholder="you@example.com" 
-                    className="pl-10" 
-                    required 
-                  />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="register-password">Password</Label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                  <Input 
-                    id="register-password" 
-                    name="password"
-                    type="password" 
-                    placeholder="••••••••" 
-                    className="pl-10" 
-                    required
-                    minLength={8}
+              <TabsContent value="register" className="space-y-4 mt-6">
+                <form onSubmit={handleRegister} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="register-username" className="text-foreground font-medium">Username</Label>
+                    <div className="relative">
+                      <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                      <Input 
+                        id="register-username" 
+                        name="username"
+                        type="text" 
+                        placeholder="trader123" 
+                        className="pl-10 bg-background border-border h-11"
+                        required
+                        minLength={3}
+                        maxLength={20}
+                        disabled={isLoading}
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="register-email" className="text-foreground font-medium">Email</Label>
+                    <div className="relative">
+                      <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                      <Input 
+                        id="register-email" 
+                        name="email"
+                        type="email" 
+                        placeholder="you@example.com" 
+                        className="pl-10 bg-background border-border h-11" 
+                        required 
+                        disabled={isLoading}
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="register-password" className="text-foreground font-medium">Password</Label>
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                      <Input 
+                        id="register-password" 
+                        name="password"
+                        type="password" 
+                        placeholder="••••••••" 
+                        className="pl-10 bg-background border-border h-11" 
+                        required
+                        minLength={8}
+                        disabled={isLoading}
+                      />
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Must be 8+ characters with uppercase, lowercase, and number
+                    </p>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="register-confirm-password" className="text-foreground font-medium">Confirm Password</Label>
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                      <Input 
+                        id="register-confirm-password" 
+                        name="confirmPassword"
+                        type="password" 
+                        placeholder="••••••••" 
+                        className="pl-10 bg-background border-border h-11" 
+                        required
+                        disabled={isLoading}
+                      />
+                    </div>
+                  </div>
+                  
+                  {/* Wallet Connection Section */}
+                  <div className="space-y-3 py-4 border-t border-border">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Wallet className="h-4 w-4 text-muted-foreground" />
+                      <Label className="text-foreground font-medium">Wallet Connection (Optional)</Label>
+                    </div>
+                    <div className="bg-muted/30 rounded-lg p-4">
+                      <p className="text-sm text-muted-foreground mb-3">
+                        Connect your Solana wallet to unlock premium features and higher starting balance.
+                      </p>
+                      <WalletConnectButton
+                        onWalletConnected={handleWalletConnect}
+                        onWalletDisconnected={handleWalletDisconnect}
+                        size="sm"
+                        variant="outline"
+                        className="w-full"
+                      />
+                      {walletConnected && (
+                        <div className="mt-2 p-2 bg-green-50 dark:bg-green-900/20 rounded border border-green-200 dark:border-green-800">
+                          <p className="text-xs text-green-700 dark:text-green-400">
+                            ✓ Wallet connected - You'll receive enhanced tier benefits!
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  
+                  <Button
+                    type="submit"
+                    className="w-full bg-gradient-to-r from-primary to-accent hover:opacity-90 text-white font-medium"
+                    size="lg"
                     disabled={isLoading}
-                  />
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  Must be 8+ characters with uppercase, lowercase, and number
-                </p>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="register-confirm-password">Confirm Password</Label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                  <Input 
-                    id="register-confirm-password" 
-                    name="confirmPassword"
-                    type="password" 
-                    placeholder="••••••••" 
-                    className="pl-10" 
-                    required
-                    disabled={isLoading}
-                  />
-                </div>
-              </div>
-              <Button
-                type="submit"
-                className="w-full bg-gradient-to-r from-primary to-secondary hover:opacity-90 glow-primary"
-                disabled={isLoading}
-              >
-                {isLoading ? "Creating account..." : "Create Account"}
-              </Button>
-              <p className="text-xs text-center text-muted-foreground">
-                By registering, you agree to our Terms of Service and Privacy Policy
-              </p>
-            </form>
-          </TabsContent>
-        </Tabs>
+                  >
+                    {isLoading ? "Creating account..." : "Create Account"}
+                  </Button>
+                  <p className="text-xs text-center text-muted-foreground">
+                    By registering, you agree to our Terms of Service and Privacy Policy
+                  </p>
+                </form>
+              </TabsContent>
+            </Tabs>
+          </div>
         )}
-
+        </div>
       </DialogContent>
     </Dialog>
   )

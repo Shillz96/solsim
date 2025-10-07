@@ -7,8 +7,7 @@
 
 import { Connection, PublicKey, Keypair } from '@solana/web3.js';
 import { getAccount, getAssociatedTokenAddress, TOKEN_PROGRAM_ID } from '@solana/spl-token';
-// @ts-ignore - tweetnacl types not available
-import { sign } from 'tweetnacl';
+import nacl from 'tweetnacl';
 import { logger } from '../utils/logger.js';
 import { config } from '../config/environment.js';
 import { UserTier } from '@prisma/client';
@@ -89,7 +88,7 @@ export class SolanaService {
       const signatureBytes = Buffer.from(signature, 'base64');
 
       // Verify signature
-      const isValid = sign.detached.verify(
+      const isValid = nacl.sign.detached.verify(
         messageBytes,
         signatureBytes,
         publicKey.toBytes()

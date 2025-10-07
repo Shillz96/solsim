@@ -6,8 +6,10 @@ A full-stack web application for simulating cryptocurrency trading on the Solana
 
 ### Trading & Portfolio Management
 - **Real-time Trading Simulation**: Execute virtual trades with live market data
+- **Dual-Tier Signup System**: Email signup (10 SOL) or wallet connection with $SIM token verification (100 SOL)
 - **Portfolio Tracking**: Monitor your virtual portfolio performance with detailed analytics
 - **Position Management**: Track open positions, profit/loss, and trade history
+- **Virtual to Real Conversion**: Convert earned virtual SOL into real $SIM tokens
 - **Risk Management**: Built-in risk assessment and position sizing tools
 
 ### Market Data & Analysis
@@ -268,9 +270,11 @@ If you encounter any issues or have questions:
 ## 🔮 Roadmap
 
 ### Upcoming Features
+- [ ] $SIM token staking rewards for premium users
 - [ ] Advanced charting with TradingView integration
 - [ ] Social trading features (copy trading)
-- [ ] Advanced portfolio analytics
+- [ ] Quest and achievement system with $SIM rewards
+- [ ] Advanced portfolio analytics for token holders
 - [ ] Mobile app (React Native)
 - [ ] Options trading simulation
 - [ ] Educational trading courses
@@ -287,4 +291,4 @@ If you encounter any issues or have questions:
 
 **Happy Trading! 📈**
 
-*Remember: This is a simulation platform for educational purposes. No real money or cryptocurrencies are involved.*
+*Remember: This is a simulation platform for educational purposes. Virtual trading only - earn real $SIM tokens through successful simulation trading.*

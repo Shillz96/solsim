@@ -8,6 +8,7 @@ import { ThemeProvider } from "@/components/theme-provider"
 import { GlobalErrorBoundary } from "@/components/error-boundary-enhanced"
 import { QueryProvider } from "@/lib/query-provider"
 import { PriceStreamProvider } from "@/lib/price-stream-provider"
+import { SolanaWalletProvider } from "@/lib/solana-wallet-provider"
 import { PWAProvider, PWAInstallPrompt, PWAUpdatePrompt } from "@/lib/pwa-utils"
 import "./globals.css"
 
@@ -41,21 +42,25 @@ export const viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning className="dark">
+    <html lang="en" suppressHydrationWarning>
       <body className={`${radnikaNext.variable} ${ibmPlexSans.variable} ${jetBrainsMono.variable} font-sans`}>
         <GlobalErrorBoundary>
           <QueryProvider>
-            <PriceStreamProvider>
-              <PWAProvider>
-                <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
-                  <NavBar />
-                  <main className="min-h-screen pt-16 pb-20 md:pb-12">{children}</main>
-                  <BottomNavBar />
+            <SolanaWalletProvider>
+              <PriceStreamProvider>
+                <PWAProvider>
+                  <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
+                  <NavBar aria-label="Primary navigation" />
+                  <main className="min-h-screen pt-16 pb-20 md:pb-12" role="main">
+                    {children}
+                  </main>
+                  <BottomNavBar aria-label="Mobile navigation" />
                   <PWAInstallPrompt />
                   <PWAUpdatePrompt />
                 </ThemeProvider>
               </PWAProvider>
             </PriceStreamProvider>
+            </SolanaWalletProvider>
           </QueryProvider>
         </GlobalErrorBoundary>
       </body>

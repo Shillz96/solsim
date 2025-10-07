@@ -84,7 +84,7 @@ export function TokenSearch() {
 
       {/* Search Results */}
       {showResults && results.length > 0 && (
-        <Card className="absolute top-full mt-2 w-full z-50 max-h-80 overflow-y-auto">
+        <Card className="absolute top-full mt-2 w-full z-50 max-h-80 overflow-y-auto glass-overlay">
           <div className="p-2 space-y-1">
             {results.map((token) => (
               <Button
@@ -136,7 +136,7 @@ export function TokenSearch() {
 
       {/* No Results */}
       {showResults && query && !isSearching && results.length === 0 && (
-        <Card className="absolute top-full mt-2 w-full z-50">
+        <Card className="absolute top-full mt-2 w-full z-50 glass-overlay">
           <div className="p-4 text-center text-muted-foreground">
             No tokens found for "{query}"
           </div>

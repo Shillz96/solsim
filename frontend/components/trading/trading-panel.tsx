@@ -7,11 +7,13 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Separator } from "@/components/ui/separator"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { TrendingUp, TrendingDown, Wallet, Settings, AlertCircle, CheckCircle, Loader2, RefreshCw } from "lucide-react"
 import { useAuth, useTrading, usePortfolio } from "@/lib/api-hooks"
 import { usePriceStreamContext } from "@/lib/price-stream-provider"
 import { useToast } from "@/hooks/use-toast"
+import { cn } from "@/lib/utils"
 import marketService from "@/lib/market-service"
 import type { TokenDetails } from "@/lib/types/api-types"
 import type { PortfolioPosition } from "@/lib/portfolio-service"
@@ -353,38 +355,49 @@ export function TradingPanel({ tokenAddress: propTokenAddress }: TradingPanelPro
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="buy" className="space-y-4 mt-4">
-          <div className="space-y-2">
+        <TabsContent value="buy" className="space-y-6 mt-4">
+          {/* Amount selection */}
+          <div className="space-y-3">
             <div className="flex items-center justify-between">
               <Label>Amount (SOL)</Label>
               <Button
-                variant="ghost"
+                variant={showCustomInput ? "default" : "ghost"}
                 size="sm"
-                className="h-6 px-2 text-xs"
+                className={cn(
+                  "h-6 px-2 text-xs transition-colors",
+                  showCustomInput && "bg-primary text-primary-foreground"
+                )}
                 onClick={() => setShowCustomInput(!showCustomInput)}
               >
                 <Settings className="h-3 w-3 mr-1" />
-                Custom
+                {showCustomInput ? 'Presets' : 'Custom'}
               </Button>
             </div>
 
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-2 gap-3">
               {presetSolAmounts.map((amount) => (
                 <Button
                   key={amount}
+                  size="lg"
                   variant={selectedSolAmount === amount ? "default" : "outline"}
-                  className={`font-mono text-sm ${
+                  className={cn(
+                    "h-12 font-mono text-base transition-all relative",
                     selectedSolAmount === amount
-                      ? "bg-accent text-accent-foreground hover:bg-accent/90"
-                      : "bg-transparent"
-                  }`}
+                      ? "bg-accent text-accent-foreground hover:bg-accent/90 ring-2 ring-accent ring-offset-2"
+                      : "bg-card hover:bg-muted",
+                    amount > balance && "opacity-50 cursor-not-allowed"
+                  )}
                   onClick={() => {
                     setSelectedSolAmount(amount)
                     setCustomSolAmount("")
                   }}
                   disabled={amount > balance}
+                  title={amount > balance ? `Insufficient balance (need ${amount} SOL)` : undefined}
                 >
                   {amount} SOL
+                  {amount > balance && (
+                    <span className="absolute -top-1 -right-1 h-3 w-3 bg-destructive rounded-full" />
+                  )}
                 </Button>
               ))}
             </div>
@@ -407,8 +420,13 @@ export function TradingPanel({ tokenAddress: propTokenAddress }: TradingPanelPro
             )}
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="token-amount">You'll receive ({tokenDetails.tokenSymbol})</Label>
+          <Separator className="my-4" />
+
+          {/* Token calculation */}
+          <div className="space-y-3">
+            <Label htmlFor="token-amount">
+              You'll receive {tokenDetails?.tokenSymbol ? `(${tokenDetails.tokenSymbol})` : '(tokens)'}
+            </Label>
             <Input
               id="token-amount"
               type="text"
@@ -424,7 +442,10 @@ export function TradingPanel({ tokenAddress: propTokenAddress }: TradingPanelPro
             />
           </div>
 
-          <div className="space-y-2 rounded-lg bg-muted p-3 text-sm">
+          <Separator className="my-4" />
+
+          {/* Price info */}
+          <div className="rounded-lg bg-muted/50 p-4 space-y-2">
             <div className="flex justify-between">
               <span className="text-muted-foreground">Price</span>
               <span className="font-mono">${currentPrice.toFixed(8)}</span>
@@ -443,10 +464,18 @@ export function TradingPanel({ tokenAddress: propTokenAddress }: TradingPanelPro
             }`} 
             size="lg"
             onClick={() => handleTrade('buy')}
-            disabled={isTrading || isRefreshing || (!selectedSolAmount && !customSolAmount)}
+            disabled={
+              isTrading || 
+              isRefreshing || 
+              (!selectedSolAmount && !customSolAmount) ||
+              !tokenDetails?.tokenSymbol
+            }
           >
             <TrendingUp className="mr-2 h-4 w-4" />
-            {isTrading ? 'Processing...' : `Buy ${tokenDetails.tokenSymbol}`}
+            {isTrading ? 'Processing...' : 
+             !tokenDetails ? 'Loading Token...' :
+             !tokenDetails.tokenSymbol ? 'Select a Token' :
+             `Buy ${tokenDetails.tokenSymbol}`}
           </Button>
         </TabsContent>
 
@@ -511,11 +540,12 @@ export function TradingPanel({ tokenAddress: propTokenAddress }: TradingPanelPro
                     <Button
                       key={percent}
                       variant={selectedPercentage === percent ? "default" : "outline"}
-                      className={`font-mono text-sm ${
+                      className={cn(
+                        "font-mono text-sm transition-all",
                         selectedPercentage === percent
-                          ? "bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                          : "bg-transparent"
-                      }`}
+                          ? "bg-destructive text-destructive-foreground hover:bg-destructive/90 ring-2 ring-destructive ring-offset-2"
+                          : "bg-card hover:bg-muted"
+                      )}
                       onClick={() => setSelectedPercentage(percent)}
                     >
                       {percent === 100 ? "ALL" : `${percent}%`}
@@ -569,10 +599,18 @@ export function TradingPanel({ tokenAddress: propTokenAddress }: TradingPanelPro
                 }`} 
                 size="lg"
                 onClick={() => handleTrade('sell')}
-                disabled={isTrading || isRefreshing || !selectedPercentage}
+                disabled={
+                  isTrading || 
+                  isRefreshing || 
+                  !selectedPercentage ||
+                  !tokenDetails?.tokenSymbol
+                }
               >
                 <TrendingDown className="mr-2 h-4 w-4" />
-                {isTrading ? 'Processing...' : `Sell ${tokenDetails.tokenSymbol}`}
+                {isTrading ? 'Processing...' : 
+                 !tokenDetails ? 'Loading Token...' :
+                 !tokenDetails.tokenSymbol ? 'Select a Token' :
+                 `Sell ${tokenDetails.tokenSymbol}`}
               </Button>
             </>
           )}

@@ -116,7 +116,7 @@ export function NavBar() {
 
   return (
     <>
-      <nav className="sticky top-0 z-50 border-b border-border glass shadow-lg">
+      <nav className="sticky top-0 z-50 border-b border-border glass-nav shadow-lg">
         <div className="mx-auto flex h-16 items-center justify-between px-4 max-w-[2400px] gap-4">
           <div className="flex items-center gap-4">
             {/* Mobile Hamburger */}
@@ -207,7 +207,8 @@ export function NavBar() {
                 placeholder="Search tokens or paste CA..."
                 value={searchQuery}
                 onChange={handleSearchChange}
-                className="w-full h-9 pl-9 pr-10 rounded-lg glass border border-border text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:glow-primary transition-all duration-300"
+                className="w-full h-9 pl-9 pr-10 rounded-lg glass-solid border border-border text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:glow-primary transition-all duration-300"
+                aria-label="Search for tokens by name or contract address"
               />
               
               {/* Search Results Dropdown */}

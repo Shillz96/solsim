@@ -7,8 +7,8 @@ import { useEffect, useState, createContext, useContext } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/api-hooks'
 import authService from '@/lib/auth-service'
-import { AuthModal } from '@/components/modals/auth-modal'
 import { Card } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { TrendingUp, AlertCircle } from 'lucide-react'
@@ -150,7 +150,12 @@ export function AuthWrapper({
             <AlertCircle className="h-4 w-4" />
             <AlertDescription>{tokenRefreshError}</AlertDescription>
           </Alert>
-          <AuthModal open={true} onOpenChange={() => setTokenRefreshError(null)} />
+          <Button 
+            onClick={() => setTokenRefreshError(null)} 
+            className="w-full"
+          >
+            Try Again
+          </Button>
         </Card>
       </div>
     )
@@ -171,7 +176,9 @@ export function AuthWrapper({
           <p className="text-muted-foreground mb-6">
             Please sign in to access your portfolio and trading features.
           </p>
-          <AuthModal open={true} onOpenChange={() => {}} />
+          <p className="text-sm text-muted-foreground">
+            Click the "Sign In" button in the navigation bar to get started.
+          </p>
         </Card>
       </div>
     )

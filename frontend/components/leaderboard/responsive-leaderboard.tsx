@@ -2,11 +2,9 @@
 
 import type React from "react"
 
-import { useState, useEffect } from "react"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { AnimatedNumber } from "@/components/ui/animated-number"
-import { motion } from "framer-motion"
 import { Trophy, TrendingUp, TrendingDown, Minus, Sparkles, Loader2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import type { LeaderboardEntry as APILeaderboardEntry } from "@/lib/leaderboard-service"
@@ -26,28 +24,11 @@ export function ResponsiveLeaderboard({
   loading = false,
   data: externalData = []
 }: ResponsiveLeaderboardProps) {
-  const [animatingRanks, setAnimatingRanks] = useState<Set<number>>(new Set())
-
-  useEffect(() => {
-    if (!externalData || externalData.length === 0) return
-
-    // Trigger rank change animations for entries with rank changes
-    const changedRanks = new Set(
-      externalData
-        .filter((entry) => entry.previousRank && entry.rank !== entry.previousRank)
-        .map((entry) => entry.rank!)
-    )
-    setAnimatingRanks(changedRanks)
-
-    // Clear animations after 1 second
-    const timer = setTimeout(() => setAnimatingRanks(new Set()), 1000)
-    return () => clearTimeout(timer)
-  }, [externalData, timeRange])
 
   const getRankBadge = (rank: number) => {
     if (rank === 1)
       return (
-        <div className="flex items-center gap-2 animate-pulse">
+        <div className="flex items-center gap-2">
           <Trophy className="h-5 w-5 text-yellow-500" />
           <span className="font-bold text-xl gradient-text">#{rank}</span>
         </div>
@@ -70,23 +51,32 @@ export function ResponsiveLeaderboard({
   }
 
   const getRankChange = (current?: number, previous?: number) => {
-    if (!current || !previous) return null
+    if (!current || !previous || current === previous) {
+      return (
+        <div className="flex items-center gap-1 text-muted-foreground">
+          <Minus className="h-4 w-4" />
+        </div>
+      )
+    }
     
     const change = previous - current
-    if (change > 0)
+    if (change > 0) {
       return (
         <div className="flex items-center gap-1 text-green-500">
           <TrendingUp className="h-4 w-4" />
-          <span className="text-xs">+{change}</span>
+          <span className="text-xs font-medium">+{change}</span>
         </div>
       )
-    if (change < 0)
+    }
+    if (change < 0) {
       return (
         <div className="flex items-center gap-1 text-red-500">
           <TrendingDown className="h-4 w-4" />
-          <span className="text-xs">{change}</span>
+          <span className="text-xs font-medium">{change}</span>
         </div>
       )
+    }
+    
     return (
       <div className="flex items-center gap-1 text-muted-foreground">
         <Minus className="h-4 w-4" />
@@ -119,7 +109,7 @@ export function ResponsiveLeaderboard({
   }
 
   return (
-    <Card className="card-enhanced overflow-hidden">
+    <Card className="glass-solid overflow-hidden">
       {/* Desktop View */}
       <div className="hidden md:block overflow-x-auto">
         <table className="w-full">
@@ -136,7 +126,6 @@ export function ResponsiveLeaderboard({
           <tbody className="divide-y divide-border">
             {externalData.map((entry) => {
               const isCurrentUser = entry.id === currentUserId
-              const isAnimating = animatingRanks.has(entry.rank!)
 
               return (
                 <tr
@@ -145,7 +134,6 @@ export function ResponsiveLeaderboard({
                   className={cn(
                     "hover:bg-muted/30 transition-all duration-300",
                     isCurrentUser && "bg-primary/10 border-l-4 border-l-primary",
-                    isAnimating && "animate-pulse",
                     entry.rank! <= 3 && "bg-gradient-to-r from-primary/5 to-transparent",
                   )}
                 >
@@ -197,7 +185,6 @@ export function ResponsiveLeaderboard({
       <div className="md:hidden divide-y divide-border">
         {externalData.map((entry) => {
           const isCurrentUser = entry.id === currentUserId
-          const isAnimating = animatingRanks.has(entry.rank!)
 
           return (
             <div
@@ -206,7 +193,6 @@ export function ResponsiveLeaderboard({
               className={cn(
                 "p-4 transition-all duration-300",
                 isCurrentUser && "bg-primary/10 border-l-4 border-l-primary",
-                isAnimating && "animate-pulse",
                 entry.rank! <= 3 && "bg-gradient-to-r from-primary/5 to-transparent",
               )}
             >
