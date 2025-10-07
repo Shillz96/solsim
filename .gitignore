@@ -20,6 +20,11 @@ out/
 .env.test.local
 .env.production.local
 
+# Security files
+**/jwt_secret.txt
+**/jwt_secret
+**/*secret*.txt
+
 # IDE
 .vscode/
 .idea/

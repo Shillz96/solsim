@@ -108,8 +108,9 @@ export const config: Config = {
 // Validate required environment variables
 const requiredEnvVars = ['DATABASE_URL'];
 
-// Add JWT_SECRET requirement for production
-if (process.env.NODE_ENV === 'production') {
+// Validate JWT_SECRET for production environments
+const isProduction = process.env.NODE_ENV === 'production' || process.env.RAILWAY_ENVIRONMENT === 'production';
+if (isProduction) {
   requiredEnvVars.push('JWT_SECRET');
 }
 
@@ -122,17 +123,24 @@ if (missingEnvVars.length > 0) {
 }
 
 // Validate JWT_SECRET in production
-if (process.env.NODE_ENV === 'production') {
+if (isProduction) {
   const jwtSecret = process.env.JWT_SECRET;
+  if (!jwtSecret) {
+    console.error('❌ CRITICAL: JWT_SECRET environment variable is required for production');
+    console.error('💡 Set JWT_SECRET in your deployment platform (Railway, Vercel, etc.)');
+    process.exit(1);
+  }
   if (jwtSecret === 'development-secret-key') {
     console.error('❌ CRITICAL: Using development JWT secret in production!');
     console.error('💡 Set a secure JWT_SECRET environment variable (min 32 characters)');
     process.exit(1);
   }
-  if (jwtSecret && jwtSecret.length < 32) {
+  if (jwtSecret.length < 32) {
     console.error('❌ CRITICAL: JWT_SECRET is too short (minimum 32 characters required)');
+    console.error('💡 Current length:', jwtSecret.length);
     process.exit(1);
   }
+  console.log('✅ JWT_SECRET configured correctly for production');
 }
 
 export default config;

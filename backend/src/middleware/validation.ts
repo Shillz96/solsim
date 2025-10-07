@@ -1,5 +1,4 @@
 import { Request, Response, NextFunction } from 'express';
-import DOMPurify from 'isomorphic-dompurify';
 import validator from 'validator';
 
 /**
@@ -24,12 +23,12 @@ interface ValidationRules {
 
 /**
  * Sanitize HTML to prevent XSS attacks
+ * Using validator.escape for server-side sanitization
  */
 export const sanitizeHTML = (input: string): string => {
-  return DOMPurify.sanitize(input, { 
-    ALLOWED_TAGS: [], // Strip all HTML tags
-    ALLOWED_ATTR: [] 
-  });
+  // Escape HTML entities to prevent XSS
+  // This converts <, >, &, ', ", and / to their HTML entity equivalents
+  return validator.escape(input);
 };
 
 /**

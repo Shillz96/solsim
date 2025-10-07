@@ -242,6 +242,12 @@ process.on('uncaughtException', (error) => {
 // Start server
 const startServer = async () => {
   try {
+    // Add a delay in production to ensure database is ready
+    if (process.env.NODE_ENV === 'production') {
+      logger.info('Waiting for database to be ready...');
+      await new Promise(resolve => setTimeout(resolve, 5000));
+    }
+    
     // Initialize Redis cache service
     logger.info('Initializing cache service...');
     await cacheService.connect();

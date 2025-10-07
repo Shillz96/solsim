@@ -54,21 +54,7 @@ const prismaOptions: Prisma.PrismaClientOptions = {
   // These parameters are appended to DATABASE_URL
   datasources: {
     db: {
-      url: process.env.DATABASE_URL + (isProduction
-        // PRODUCTION: Optimized for Railway single-instance deployment
-        // Railway Starter: 20 connections total, using conservative limit
-        // Single instance: use 3 connections to prevent pool exhaustion
-        ? '?connection_limit=3' +            // Max 3 concurrent connections (conservative)
-          '&pool_timeout=30' +                // Wait 30s for available connection
-          '&connect_timeout=60' +             // 60s to establish new connection
-          '&statement_cache_size=0' +         // Disable for pgBouncer compatibility
-          '&pgbouncer=true'                   // pgBouncer mode (if using)
-        // DEVELOPMENT: Conservative pooling for local testing
-        : '?connection_limit=5' +             // Max 5 connections (local dev)
-          '&pool_timeout=10' +                // Wait 10s for available connection
-          '&connect_timeout=30' +             // 30s to establish new connection
-          '&statement_cache_size=100'         // Enable cache for dev performance
-      )
+      url: process.env.DATABASE_URL
     }
   }
 };
