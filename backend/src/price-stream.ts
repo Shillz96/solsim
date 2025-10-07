@@ -62,9 +62,9 @@ const CONFIG = {
   MAX_SUBSCRIPTIONS_PER_CLIENT: 50,
   CONNECTION_TIMEOUT: 90000, // 90 seconds
   
-  // Rate limiting
+  // Rate limiting (for client actions only, not server-sent updates)
   RATE_LIMIT_WINDOW: 60000, // 1 minute
-  RATE_LIMIT_MAX_ACTIONS: 100, // 100 actions per minute per client
+  RATE_LIMIT_MAX_ACTIONS: 1000, // 1000 client actions per minute (subscription/unsubscription)
   
   // Price updates
   PRICE_UPDATE_INTERVAL: 2000, // 2 seconds
