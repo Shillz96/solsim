@@ -9,13 +9,6 @@ const __dirname = path.dirname(__filename);
 // Load environment variables with proper ES module path
 dotenv.config({ path: path.join(__dirname, '../../.env') });
 
-// Debug: Log environment variable loading
-console.log('🔍 Environment loading debug:');
-console.log('- NODE_ENV:', process.env.NODE_ENV);
-console.log('- RAILWAY_ENVIRONMENT:', process.env.RAILWAY_ENVIRONMENT);
-console.log('- JWT_SECRET exists:', !!process.env.JWT_SECRET);
-console.log('- JWT_SECRET length:', process.env.JWT_SECRET?.length || 0);
-
 export interface Config {
   port: number;
   priceStreamPort: number;
@@ -117,11 +110,6 @@ const requiredEnvVars = ['DATABASE_URL'];
 
 // Validate JWT_SECRET for production environments
 const isProduction = process.env.NODE_ENV === 'production' || process.env.RAILWAY_ENVIRONMENT === 'production';
-console.log('🔍 Production environment detection:');
-console.log('- isProduction:', isProduction);
-console.log('- NODE_ENV === production:', process.env.NODE_ENV === 'production');
-console.log('- RAILWAY_ENVIRONMENT === production:', process.env.RAILWAY_ENVIRONMENT === 'production');
-
 if (isProduction) {
   requiredEnvVars.push('JWT_SECRET');
 }
