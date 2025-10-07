@@ -17,6 +17,9 @@ export class MetadataService {
   private static readonly CACHE_TTL = 15 * 60 * 1000; // 15 minutes (increased)
   private static readonly RETRY_ATTEMPTS = 3;
   private static readonly RETRY_DELAY = 1000; // 1 second
+  
+  // Cache stampede protection: track in-flight requests
+  private inflightRequests = new Map<string, Promise<TokenMetadata | null>>();
 
   // Multiple metadata sources for better reliability
   private sources: MetadataSource[] = [
@@ -109,6 +112,31 @@ export class MetadataService {
       return cached.data;
     }
 
+    // Cache stampede protection: Check if request already in-flight
+    const inflightRequest = this.inflightRequests.get(address);
+    if (inflightRequest) {
+      logger.debug(`Metadata request already in-flight, waiting: ${address.substring(0, 8)}...`);
+      return await inflightRequest;
+    }
+
+    // Create new request and track it
+    const requestPromise = this.fetchMetadataFromSources(address);
+    this.inflightRequests.set(address, requestPromise);
+
+    try {
+      const metadata = await requestPromise;
+      return metadata;
+    } finally {
+      // Clean up in-flight tracker
+      this.inflightRequests.delete(address);
+    }
+  }
+
+  /**
+   * Fetch metadata from multiple sources
+   * Separated for cache stampede protection
+   */
+  private async fetchMetadataFromSources(address: string): Promise<TokenMetadata> {
     // Try multiple sources with retries
     for (const source of this.sources) {
       try {
@@ -132,7 +160,7 @@ export class MetadataService {
       logoUri: null
     };
     
-    // Cache fallback with shorter TTL
+    // Cache fallback with shorter TTL (negative caching)
     this.cache.set(address, { 
       data: fallback, 
       timestamp: Date.now() - (MetadataService.CACHE_TTL - 60000) // Cache for only 1 minute

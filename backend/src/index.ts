@@ -32,7 +32,8 @@ const httpServer = createServer(app);
 setupSecurityMiddleware(app);
 
 // Trust proxy for correct client IP detection (important for rate limiting)
-app.set('trust proxy', 1);
+// Railway uses multiple proxy layers, so we trust the proxy chain
+app.set('trust proxy', true);
 
 // Add monitoring middleware before other middleware
 app.use(monitoringService.getHttpMetricsMiddleware());
@@ -66,8 +67,22 @@ app.get('/health', async (req: Request, res: Response) => {
   try {
     const healthStatus = await monitoringService.getHealthStatus();
     
-    const statusCode = healthStatus.status === 'healthy' ? 200 : 
-                      healthStatus.status === 'degraded' ? 200 : 503;
+    // Determine status code based on health and environment
+    let statusCode = 200;
+    const isProduction = process.env.NODE_ENV === 'production';
+    
+    if (healthStatus.status === 'unhealthy') {
+      statusCode = 503;
+    } else if (healthStatus.status === 'degraded') {
+      // In production, return 503 if Redis is down (critical for distributed systems)
+      // In development, return 200 (degraded is acceptable)
+      if (isProduction && healthStatus.checks?.redis?.status === 'unhealthy') {
+        statusCode = 503;
+        logger.warn('Health check degraded: Redis is down in production');
+      } else {
+        statusCode = 200;
+      }
+    }
     
     res.status(statusCode).json({
       status: healthStatus.status,
@@ -77,13 +92,18 @@ app.get('/health', async (req: Request, res: Response) => {
       version: '1.0.0',
       services: healthStatus.checks,
       metrics: healthStatus.metrics,
+      // Add critical warnings for production
+      warnings: isProduction && healthStatus.status === 'degraded' 
+        ? ['Service is degraded - check Redis and database connections']
+        : undefined
     });
   } catch (error) {
     logger.error('Health check error:', error);
     res.status(503).json({
       status: 'unhealthy',
       timestamp: new Date().toISOString(),
-      error: 'Health check failed'
+      error: 'Health check failed',
+      message: error instanceof Error ? error.message : 'Unknown error'
     });
   }
 });

@@ -1,21 +1,22 @@
-// API Client for SolSim Frontend
-// Provides typed, error-handled communication with backend
+// Optimized API Client for SolSim Frontend
+// Streamlined for high-volume traffic with unified rate limiting
 
 import type { ApiResponse, ApiError as IApiError } from './types/api-types'
 import { errorLogger } from './error-logger'
-import { circuitBreaker } from './circuit-breaker'
+import { rateLimitManager } from './unified-rate-limit-manager'
 import { performanceMonitor } from './performance-monitor'
-import { apiOptimizer } from './api-optimizer'
 
 export class ApiError extends Error implements IApiError {
   public status: number
   public code?: string
+  public retryAfter?: number
 
-  constructor(message: string, status: number, code?: string) {
+  constructor(message: string, status: number, code?: string, retryAfter?: number) {
     super(message)
     this.name = 'ApiError'
     this.status = status
     this.code = code
+    this.retryAfter = retryAfter
   }
 }
 
@@ -27,13 +28,12 @@ class ApiClient {
   constructor(baseURL: string = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4002') {
     this.baseURL = baseURL
     
-    // Try to get token from localStorage on client side
+    // Load token on client side only
     if (typeof window !== 'undefined') {
       this.authToken = localStorage.getItem('auth_token')
     }
   }
 
-  // Set authentication token
   setAuthToken(token: string) {
     this.authToken = token
     if (typeof window !== 'undefined') {
@@ -41,7 +41,6 @@ class ApiClient {
     }
   }
 
-  // Clear authentication
   clearAuth() {
     this.authToken = null
     if (typeof window !== 'undefined') {
@@ -49,23 +48,22 @@ class ApiClient {
     }
   }
 
-  // Generic API request method
   private async request<T>(
     endpoint: string,
     options: RequestInit = {}
   ): Promise<T> {
-    // Check circuit breaker before making request
-    if (!circuitBreaker.isRequestAllowed(endpoint)) {
-      const state = circuitBreaker.getState(endpoint)
+    // Check unified rate limit manager FIRST
+    if (!rateLimitManager.isRequestAllowed(endpoint)) {
+      const delay = rateLimitManager.getRetryDelay(endpoint)
       throw new ApiError(
-        `Circuit breaker open for ${endpoint}. Too many rate limit errors. Please try again later.`,
+        `Endpoint temporarily unavailable. Please retry in ${Math.ceil(delay / 1000)} seconds.`,
         429,
-        'CIRCUIT_BREAKER_OPEN'
+        'RATE_LIMIT_BLOCKED',
+        Math.ceil(delay / 1000)
       )
     }
 
     const url = `${this.baseURL}${endpoint}`
-    
     const headers = new Headers({
       'Content-Type': 'application/json',
       ...options.headers,
@@ -77,62 +75,38 @@ class ApiClient {
       headers.set('x-dev-user-id', 'dev-user-1')
       headers.set('x-dev-email', 'dev-user-1@dev.local')
     } else if (this.authToken) {
-      // Production mode: Add auth token if available
       headers.set('Authorization', `Bearer ${this.authToken}`)
     }
 
+    const startTime = Date.now()
+
     try {
-      const startTime = Date.now()
       const response = await fetch(url, {
         ...options,
         headers,
       })
+      
       const duration = Date.now() - startTime
-
-      // Log API performance
-      errorLogger.performance(`API ${options.method || 'GET'} ${endpoint}`, duration, {
-        metadata: { statusCode: response.status }
-      })
 
       // Handle 401 Unauthorized - attempt token refresh (only in production)
       if (response.status === 401 && !isDevelopment && this.authToken && endpoint !== '/api/v1/auth/refresh') {
-        errorLogger.warn('Token expired, attempting refresh', { 
-          action: 'token_refresh_attempt',
-          metadata: { endpoint }
-        })
-        
         try {
-          // Prevent multiple simultaneous refresh attempts
           if (!this.refreshPromise) {
             this.refreshPromise = this.refreshToken()
           }
           
           const newToken = await this.refreshPromise
           
-          // Retry original request with new token
+          // Retry with new token
           headers.set('Authorization', `Bearer ${newToken}`)
-          const retryResponse = await fetch(url, {
-            ...options,
-            headers,
-          })
-          
+          const retryResponse = await fetch(url, { ...options, headers })
           const retryData: ApiResponse<T> = await retryResponse.json()
+          
           if (retryResponse.ok && retryData.success) {
-            errorLogger.info('Token refresh successful', {
-              action: 'token_refresh_success',
-              metadata: { endpoint }
-            })
             return retryData.data as T
           }
         } catch (refreshError) {
-          // Refresh failed, clear auth and throw original error
           this.clearAuth()
-          errorLogger.apiError('token-refresh', refreshError instanceof Error ? refreshError : new Error('Unknown refresh error'), {
-            action: 'token_refresh_failed',
-            metadata: { endpoint }
-          })
-          
-          // Dispatch custom event for components to handle auth failure
           if (typeof window !== 'undefined') {
             window.dispatchEvent(new CustomEvent('auth:token-expired'))
           }
@@ -144,43 +118,37 @@ class ApiClient {
       const data: ApiResponse<T> = await response.json()
 
       if (!response.ok) {
-        // Special handling for 429 errors - extract retry information
+        // Extract retry information for 429 errors
         const retryAfter = response.headers.get('Retry-After') || 
                           response.headers.get('RateLimit-Reset') ||
-                          (data as any).retryAfter?.toString();
+                          (data as any).retryAfter
         
         const apiError = new ApiError(
           data.error || `HTTP ${response.status}`,
           response.status,
-          data.error
-        );
+          data.error,
+          retryAfter ? parseInt(retryAfter.toString()) : undefined
+        )
         
-        // Attach retry information for 429 errors
-        if (response.status === 429 && retryAfter) {
-          (apiError as any).retryAfter = retryAfter;
-        }
-        
-        // Log API error with rate limit context
-        errorLogger.apiError(endpoint, apiError, {
-          metadata: { 
-            statusCode: response.status,
-            method: options.method || 'GET',
-            retryAfter: retryAfter,
-            rateLimit: response.status === 429 ? {
-              limit: response.headers.get('RateLimit-Limit'),
-              remaining: response.headers.get('RateLimit-Remaining'),
-              reset: response.headers.get('RateLimit-Reset')
-            } : undefined
-          }
-        })
-        
-        // Record failure in circuit breaker and metrics
-        const errorDuration = Date.now() - startTime;
-        performanceMonitor.recordApiCall(endpoint, errorDuration, false, response.status);
+        // Record in unified rate limit manager
         if (response.status === 429) {
-          performanceMonitor.recordError('circuit-breaker');
+          rateLimitManager.recordRateLimitError(endpoint, apiError.retryAfter)
+          performanceMonitor.recordApiCall(endpoint, duration, false, response.status)
+          
+          errorLogger.apiError(endpoint, apiError, {
+            metadata: { 
+              statusCode: response.status,
+              retryAfter: apiError.retryAfter,
+              blockedEndpoints: rateLimitManager.getBlockedEndpoints()
+            }
+          })
+        } else {
+          errorLogger.apiError(endpoint, apiError, {
+            metadata: { statusCode: response.status }
+          })
+          performanceMonitor.recordApiCall(endpoint, duration, false, response.status)
         }
-        circuitBreaker.onFailure(endpoint, apiError);
+        
         throw apiError
       }
 
@@ -192,59 +160,38 @@ class ApiClient {
         )
         
         errorLogger.apiError(endpoint, apiError, {
-          metadata: { 
-            statusCode: response.status,
-            method: options.method || 'GET'
-          }
+          metadata: { statusCode: response.status }
         })
-        
-        // Record failure in circuit breaker and metrics
-        const failureDuration = Date.now() - startTime;
-        performanceMonitor.recordApiCall(endpoint, failureDuration, false, response.status);
-        circuitBreaker.onFailure(endpoint, apiError);
+        performanceMonitor.recordApiCall(endpoint, duration, false, response.status)
         throw apiError
       }
 
-      // Log successful API call and reset circuit breaker
-      const successDuration = Date.now() - startTime;
-      errorLogger.apiSuccess(endpoint, successDuration, {
-        metadata: {
-          statusCode: response.status,
-          method: options.method || 'GET'
-        }
-      })
-
-      // Record metrics and reset circuit breaker
-      performanceMonitor.recordApiCall(endpoint, successDuration, true, response.status);
-      circuitBreaker.onSuccess(endpoint);
+      // Success - reset rate limit state
+      rateLimitManager.recordSuccess(endpoint)
+      performanceMonitor.recordApiCall(endpoint, duration, true, response.status)
+      
       return data.data as T
     } catch (error) {
       if (error instanceof ApiError) {
         throw error
       }
       
-      // Network or parsing error
+      // Network error
       const networkError = new ApiError(
         error instanceof Error ? error.message : 'Network error',
         0
       )
       
       errorLogger.apiError(endpoint, networkError, {
-        metadata: {
-          errorType: 'network_error',
-          method: options.method || 'GET'
-        }
+        metadata: { errorType: 'network_error' }
       })
+      performanceMonitor.recordApiCall(endpoint, 0, false, 0)
+      performanceMonitor.recordError('network')
       
-      // Record network failure in circuit breaker and metrics
-      performanceMonitor.recordApiCall(endpoint, 0, false, 0);
-      performanceMonitor.recordError('network');
-      circuitBreaker.onFailure(endpoint, networkError);
       throw networkError
     }
   }
 
-  // Private method to handle token refresh
   private async refreshToken(): Promise<string> {
     if (!this.authToken) {
       throw new Error('No token to refresh')
@@ -273,12 +220,11 @@ class ApiClient {
     return newToken
   }
 
-  // GET request
+  // HTTP methods
   async get<T>(endpoint: string): Promise<T> {
     return this.request<T>(endpoint, { method: 'GET' })
   }
 
-  // POST request
   async post<T>(endpoint: string, data?: any): Promise<T> {
     return this.request<T>(endpoint, {
       method: 'POST',
@@ -286,7 +232,6 @@ class ApiClient {
     })
   }
 
-  // PUT request
   async put<T>(endpoint: string, data?: any): Promise<T> {
     return this.request<T>(endpoint, {
       method: 'PUT',
@@ -294,18 +239,14 @@ class ApiClient {
     })
   }
 
-  // DELETE request
   async delete<T>(endpoint: string): Promise<T> {
     return this.request<T>(endpoint, { method: 'DELETE' })
   }
 
-  // File upload request
   async upload<T>(endpoint: string, formData: FormData): Promise<T> {
     const url = `${this.baseURL}${endpoint}`
-    
     const headers = new Headers()
 
-    // Add auth token if available (don't set Content-Type for FormData)
     if (this.authToken) {
       headers.set('Authorization', `Bearer ${this.authToken}`)
     }
@@ -341,7 +282,6 @@ class ApiClient {
         throw error
       }
       
-      // Network or parsing error
       throw new ApiError(
         error instanceof Error ? error.message : 'Upload error',
         0
@@ -353,5 +293,5 @@ class ApiClient {
 // Create singleton instance
 const apiClient = new ApiClient()
 
-// Export default instance
 export default apiClient
+

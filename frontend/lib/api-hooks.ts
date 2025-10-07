@@ -1,20 +1,20 @@
-// Enhanced API Hooks with TanStack Query
-// Provides sophisticated caching, background refetching, optimistic updates, and error handling
+// Optimized API Hooks with React Query
+// Removed: Redundant deduplication (React Query handles this)
+// Removed: Aggressive refetch intervals
+// Strategy: Event-driven updates, on-demand refetching
 
 import { 
   useQuery, 
   useMutation, 
   useQueryClient,
-  useInfiniteQuery,
   type UseQueryOptions,
-  type UseMutationOptions 
 } from '@tanstack/react-query'
 import { useCallback, useMemo } from 'react'
 
 // Services
 import authService from './auth-service'
 import userService from './user-service'
-import portfolioService, { PortfolioSummary, PerformanceData as PortfolioPerformanceData } from './portfolio-service'
+import portfolioService, { PortfolioSummary } from './portfolio-service'
 import tradingService from './trading-service'
 import leaderboardService from './leaderboard-service'
 import marketService from './market-service'
@@ -23,65 +23,53 @@ import monitoringService from './monitoring-service'
 // Types
 import type { 
   User, 
-  UserProfile, 
-  Portfolio, 
   TradeRequest,
   TradeResult,
   TradeHistory, 
   TradeStats,
   LeaderboardEntry, 
   TrendingToken, 
-  TokenPrice,
   TokenDetails,
   MarketStats,
   UserSettings,
   HealthCheck,
-  SystemMetrics,
   TimePeriod,
   TokenCategory
 } from './types/api-types'
 
 import { STALE_TIMES, CACHE_TIMES } from './query-provider'
-import { ApiError } from './api-client'
 
 // ============================================================================
-// QUERY KEYS - Centralized key management for cache invalidation
+// QUERY KEYS - Centralized for cache invalidation
 // ============================================================================
 
 export const queryKeys = {
-  // Authentication
   auth: ['auth'] as const,
   authUser: () => [...queryKeys.auth, 'user'] as const,
   
-  // Portfolio
   portfolio: ['portfolio'] as const,
   portfolioSummary: () => [...queryKeys.portfolio, 'summary'] as const,
   portfolioPerformance: (period: TimePeriod) => [...queryKeys.portfolio, 'performance', period] as const,
   portfolioBalance: () => [...queryKeys.portfolio, 'balance'] as const,
   
-  // Trading
   trading: ['trading'] as const,
   tradeHistory: (limit: number) => [...queryKeys.trading, 'history', limit] as const,
   tradeStats: () => [...queryKeys.trading, 'stats'] as const,
   recentTrades: (limit: number) => [...queryKeys.trading, 'recent', limit] as const,
   
-  // Market Data
   market: ['market'] as const,
   trendingTokens: (limit: number, category?: TokenCategory) => [...queryKeys.market, 'trending', limit, category] as const,
   tokenPrice: (address: string) => [...queryKeys.market, 'price', address] as const,
   tokenDetails: (address: string) => [...queryKeys.market, 'details', address] as const,
   marketStats: () => [...queryKeys.market, 'stats'] as const,
   
-  // User
   user: ['user'] as const,
   userProfile: (userId?: string) => [...queryKeys.user, 'profile', userId || 'me'] as const,
   userSettings: () => [...queryKeys.user, 'settings'] as const,
   
-  // Leaderboard
   leaderboard: ['leaderboard'] as const,
   leaderboardEntries: () => [...queryKeys.leaderboard, 'entries'] as const,
   
-  // System
   system: ['system'] as const,
   systemHealth: () => [...queryKeys.system, 'health'] as const,
 } as const
@@ -93,7 +81,6 @@ export const queryKeys = {
 export function useAuth() {
   const queryClient = useQueryClient()
 
-  // Query for current user authentication state
   const { 
     data: user, 
     isLoading: loading, 
@@ -105,65 +92,49 @@ export function useAuth() {
       const isDevelopment = process.env.NEXT_PUBLIC_ENV === 'development'
       
       if (isDevelopment) {
-        // In development mode, return mock user
         return authService.getDevUser()
       }
       
-      // Production mode authentication check
       if (authService.isAuthenticated()) {
         return await authService.getProfile()
       }
       
       return null
     },
-    staleTime: STALE_TIMES.moderate,
-    gcTime: CACHE_TIMES.medium,
-    retry: 1, // Don't retry auth failures aggressively
-    networkMode: 'online',
+    staleTime: STALE_TIMES.slow,
+    gcTime: CACHE_TIMES.long,
+    retry: false, // Don't retry auth checks
   })
 
-  // Login mutation
   const loginMutation = useMutation({
     mutationFn: async ({ email, password }: { email: string; password: string }) => {
       return authService.login({ email, password })
     },
     onSuccess: (response) => {
-      // Update auth cache with new user data
       queryClient.setQueryData(queryKeys.authUser(), response.user)
-      // Invalidate all user-related queries
+      // Invalidate user-dependent data
       queryClient.invalidateQueries({ queryKey: queryKeys.portfolio })
-      queryClient.invalidateQueries({ queryKey: queryKeys.user })
       queryClient.invalidateQueries({ queryKey: queryKeys.trading })
     },
-    // Error handling now managed by global error handler
   })
 
-  // Register mutation
   const registerMutation = useMutation({
     mutationFn: async ({ email, password, username }: { email: string; password: string; username?: string }) => {
       return authService.register({ email, password, username })
     },
     onSuccess: (response) => {
-      // Update auth cache with new user data
       queryClient.setQueryData(queryKeys.authUser(), response.user)
-      // Invalidate all user-related queries
       queryClient.invalidateQueries({ queryKey: queryKeys.portfolio })
-      queryClient.invalidateQueries({ queryKey: queryKeys.user })
       queryClient.invalidateQueries({ queryKey: queryKeys.trading })
     },
-    // Error handling now managed by global error handler
   })
 
-  // Logout function
   const logout = useCallback(() => {
     authService.logout()
-    // Clear all cached data
     queryClient.clear()
-    // Set auth state to null
     queryClient.setQueryData(queryKeys.authUser(), null)
   }, [queryClient])
 
-  // Refresh function
   const refresh = useCallback(async () => {
     await refetch()
   }, [refetch])
@@ -183,7 +154,7 @@ export function useAuth() {
 }
 
 // ============================================================================
-// PORTFOLIO HOOKS
+// PORTFOLIO HOOKS - Optimized for high traffic
 // ============================================================================
 
 export function usePortfolio() {
@@ -192,11 +163,10 @@ export function usePortfolio() {
   return useQuery({
     queryKey: queryKeys.portfolioSummary(),
     queryFn: () => portfolioService.getPortfolio(),
-    enabled: !!user, // Only run when user is authenticated
-    staleTime: STALE_TIMES.moderate,
+    enabled: !!user,
+    staleTime: STALE_TIMES.moderate, // 15 minutes
     gcTime: CACHE_TIMES.medium,
-    refetchInterval: 5 * 60 * 1000, // Reduced to 5 minutes to prevent rate limiting
-    refetchIntervalInBackground: false, // Disable background refetching to reduce load
+    // NO automatic refetching - user triggers via pull-to-refresh or manual action
   })
 }
 
@@ -222,15 +192,14 @@ export function useBalance() {
       return balanceData.balance
     },
     enabled: !!user,
-    staleTime: STALE_TIMES.fast, // Balance changes frequently
+    staleTime: STALE_TIMES.fast, // 10 minutes
     gcTime: CACHE_TIMES.short,
-    refetchInterval: 2 * 60 * 1000, // Reduced to 2 minutes to prevent rate limiting
-    refetchIntervalInBackground: false, // Disable background refetching
+    // NO automatic refetching - updates after trades via invalidation
   })
 }
 
 // ============================================================================
-// TRADING HOOKS
+// TRADING HOOKS - Optimized with smart invalidation
 // ============================================================================
 
 export function useTradeHistory(limit: number = 50) {
@@ -257,60 +226,27 @@ export function useTradeStats() {
   })
 }
 
-export function useRecentTrades(limit: number = 20) {
+export function useRecentTrades(limit: number = 10) {
   return useQuery({
     queryKey: queryKeys.recentTrades(limit),
     queryFn: () => tradingService.getRecentTrades(limit),
-    staleTime: STALE_TIMES.fast,
-    gcTime: CACHE_TIMES.short,
-    refetchInterval: 30000, // Recent trades update frequently
+    staleTime: STALE_TIMES.moderate,
+    gcTime: CACHE_TIMES.medium,
+    // NO polling - real-time updates via WebSocket or manual refresh
   })
 }
 
-// Enhanced trading hook with optimistic updates
 export function useTrading() {
   const queryClient = useQueryClient()
-  const { user } = useAuth()
 
   const tradeMutation = useMutation({
     mutationFn: (tradeRequest: TradeRequest) => tradingService.executeTrade(tradeRequest),
-    onMutate: async (tradeRequest) => {
-      // Cancel outgoing refetches for optimistic updates
-      await queryClient.cancelQueries({ queryKey: queryKeys.portfolioBalance() })
-      await queryClient.cancelQueries({ queryKey: queryKeys.portfolioSummary() })
-
-      // Snapshot previous values
-      const previousBalance = queryClient.getQueryData(queryKeys.portfolioBalance())
-      const previousPortfolio = queryClient.getQueryData(queryKeys.portfolioSummary())
-
-      // Optimistically update balance (rough estimation)
-      if (previousBalance && typeof previousBalance === 'string') {
-        const currentBalance = parseFloat(previousBalance)
-        if (tradeRequest.action === 'buy') {
-          // Estimate balance decrease for buy orders
-          const estimatedNewBalance = Math.max(0, currentBalance - tradeRequest.amountSol)
-          queryClient.setQueryData(queryKeys.portfolioBalance(), estimatedNewBalance.toFixed(8))
-        }
-      }
-
-      return { previousBalance, previousPortfolio }
-    },
-    onError: (err, tradeRequest, context) => {
-      // Rollback optimistic updates on error
-      if (context?.previousBalance) {
-        queryClient.setQueryData(queryKeys.portfolioBalance(), context.previousBalance)
-      }
-      if (context?.previousPortfolio) {
-        queryClient.setQueryData(queryKeys.portfolioSummary(), context.previousPortfolio)
-      }
-    },
     onSuccess: () => {
-      // Invalidate related data to fetch fresh values
+      // Invalidate affected queries after successful trade
       queryClient.invalidateQueries({ queryKey: queryKeys.portfolioBalance() })
       queryClient.invalidateQueries({ queryKey: queryKeys.portfolioSummary() })
-      queryClient.invalidateQueries({ queryKey: queryKeys.trading }) // Invalidate all trading queries
-      queryClient.invalidateQueries({ queryKey: queryKeys.tradeStats() })
-      queryClient.invalidateQueries({ queryKey: queryKeys.authUser() }) // Refresh user balance
+      queryClient.invalidateQueries({ queryKey: queryKeys.trading })
+      queryClient.invalidateQueries({ queryKey: queryKeys.authUser() })
     }
   })
 
@@ -341,17 +277,16 @@ export function useTrading() {
 }
 
 // ============================================================================
-// MARKET DATA HOOKS
+// MARKET DATA HOOKS - Cached aggressively
 // ============================================================================
 
 export function useTrendingTokens(limit: number = 20, category?: TokenCategory) {
   return useQuery({
     queryKey: queryKeys.trendingTokens(limit, category),
     queryFn: () => marketService.getTrendingTokens(limit, category),
-    staleTime: STALE_TIMES.moderate,
+    staleTime: STALE_TIMES.moderate, // 15 minutes
     gcTime: CACHE_TIMES.medium,
-    refetchInterval: 60000, // Refetch every minute
-    refetchIntervalInBackground: true,
+    // NO polling - manual refresh only
   })
 }
 
@@ -360,10 +295,9 @@ export function useTokenPrice(tokenAddress: string) {
     queryKey: queryKeys.tokenPrice(tokenAddress),
     queryFn: () => marketService.getTokenPrice(tokenAddress),
     enabled: !!tokenAddress,
-    staleTime: STALE_TIMES.fast, // Prices change frequently
+    staleTime: STALE_TIMES.fast, // 10 minutes
     gcTime: CACHE_TIMES.short,
-    refetchInterval: 60000, // Reduced to 1 minute to prevent rate limiting
-    refetchIntervalInBackground: false, // Disable background refetching
+    // NO polling - WebSocket or manual refresh
   })
 }
 
@@ -372,7 +306,7 @@ export function useTokenDetails(tokenAddress: string) {
     queryKey: queryKeys.tokenDetails(tokenAddress),
     queryFn: () => marketService.getTokenDetails(tokenAddress),
     enabled: !!tokenAddress,
-    staleTime: STALE_TIMES.slow, // Token details change less frequently
+    staleTime: STALE_TIMES.slow, // 30 minutes
     gcTime: CACHE_TIMES.long,
   })
 }
@@ -381,9 +315,8 @@ export function useMarketStats() {
   return useQuery({
     queryKey: queryKeys.marketStats(),
     queryFn: () => marketService.getMarketStats(),
-    staleTime: STALE_TIMES.static,
+    staleTime: STALE_TIMES.static, // 60 minutes
     gcTime: CACHE_TIMES.long,
-    refetchInterval: 5 * 60 * 1000, // Refetch every 5 minutes
   })
 }
 
@@ -420,9 +353,8 @@ export function useLeaderboard() {
   return useQuery({
     queryKey: queryKeys.leaderboardEntries(),
     queryFn: () => leaderboardService.getLeaderboard(),
-    staleTime: STALE_TIMES.static,
+    staleTime: STALE_TIMES.static, // 60 minutes
     gcTime: CACHE_TIMES.long,
-    refetchInterval: 2 * 60 * 1000, // Refetch every 2 minutes
   })
 }
 
@@ -434,11 +366,10 @@ export function useSystemHealth() {
   return useQuery({
     queryKey: queryKeys.systemHealth(),
     queryFn: () => monitoringService.getHealth(),
-    staleTime: STALE_TIMES.fast,
-    gcTime: CACHE_TIMES.short,
-    refetchInterval: 5 * 60 * 1000, // Reduced to 5 minutes to prevent rate limiting
-    refetchIntervalInBackground: false,
-    retry: 1, // Don't retry health checks aggressively
+    staleTime: STALE_TIMES.static, // 60 minutes
+    gcTime: CACHE_TIMES.long,
+    // NO polling for health checks
+    retry: 1,
   })
 }
 
@@ -446,7 +377,6 @@ export function useSystemHealth() {
 // UTILITY HOOKS
 // ============================================================================
 
-// Hook to manually trigger cache invalidation
 export function useCacheInvalidation() {
   const queryClient = useQueryClient()
 
@@ -461,7 +391,6 @@ export function useCacheInvalidation() {
   }), [queryClient])
 }
 
-// Hook for prefetching data
 export function usePrefetch() {
   const queryClient = useQueryClient()
 
@@ -489,3 +418,4 @@ export function usePrefetch() {
     }
   }), [queryClient])
 }
+

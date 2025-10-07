@@ -380,17 +380,30 @@ export class MonitoringService {
     let overallStatus: 'healthy' | 'degraded' | 'unhealthy' = 'healthy';
 
     try {
-      // Database health
+      const isProduction = process.env.NODE_ENV === 'production';
+      
+      // Database health with connection pool metrics
       const dbHealth = await dbPoolMonitor.getHealthReport();
+      const poolUtilization = dbHealth.pool?.active_connections && dbHealth.pool?.total_connections
+        ? (dbHealth.pool.active_connections / dbHealth.pool.total_connections) * 100
+        : 0;
+      
       checks.database = {
         status: dbHealth.pool ? 'healthy' : 'unhealthy',
         pool: dbHealth.pool,
+        utilization: poolUtilization.toFixed(1) + '%',
+        warnings: poolUtilization > 80 ? ['High connection pool utilization'] : [],
         recommendations: dbHealth.recommendations,
       };
 
-      // Cache health
+      // Redis/Cache health - CRITICAL in production
       const cacheHealth = await cacheService.healthCheck();
-      checks.cache = cacheHealth;
+      checks.redis = {
+        status: cacheHealth.status,
+        latency: cacheHealth.latency,
+        critical: isProduction, // Mark as critical in production
+        error: cacheHealth.error,
+      };
 
       // Memory health
       const memUsage = process.memoryUsage();
@@ -399,28 +412,44 @@ export class MonitoringService {
         status: memUsageMB > this.ALERT_THRESHOLDS.HIGH_MEMORY_USAGE ? 'degraded' : 'healthy',
         heapUsed: `${memUsageMB.toFixed(2)}MB`,
         heapTotal: `${(memUsage.heapTotal / 1024 / 1024).toFixed(2)}MB`,
+        external: `${(memUsage.external / 1024 / 1024).toFixed(2)}MB`,
       };
 
-      // Determine overall status
-      if (checks.database.status === 'unhealthy' || checks.cache.status === 'unhealthy') {
+      // Determine overall status with production-aware logic
+      if (checks.database.status === 'unhealthy') {
         overallStatus = 'unhealthy';
-      } else if (checks.memory.status === 'degraded') {
+      } else if (isProduction && checks.redis.status === 'unhealthy') {
+        // In production, Redis failure is critical
+        overallStatus = 'degraded'; // Degraded not unhealthy, app can still function
+        logger.warn('Redis is unhealthy in production - distributed features affected');
+      } else if (checks.redis.status === 'unhealthy') {
+        // In development, Redis failure is just degraded
+        overallStatus = 'degraded';
+      } else if (checks.memory.status === 'degraded' || poolUtilization > 80) {
         overallStatus = 'degraded';
       }
 
-      // Get current metrics
+      // Get current metrics with enhanced pool information
       const metrics = {
         connections: {
-          database: dbHealth.pool?.active_connections || 0,
+          database: {
+            active: dbHealth.pool?.active_connections || 0,
+            total: dbHealth.pool?.total_connections || 0,
+            idle: dbHealth.pool?.idle_connections || 0,
+            utilization: poolUtilization.toFixed(1) + '%',
+          },
           websocket: (wsConnectionsActive as any).get ? (wsConnectionsActive as any).get() : 0,
         },
         cache: {
           hitRate: (cacheHitRate as any).get ? (cacheHitRate as any).get() : 0,
-          connected: checks.cache.status === 'healthy',
+          connected: checks.redis.status === 'healthy',
+          latency: checks.redis.latency || null,
         },
         performance: {
-          memoryUsageMB: memUsageMB,
-          uptime: process.uptime(),
+          memoryUsageMB: memUsageMB.toFixed(2),
+          memoryTotal: (memUsage.heapTotal / 1024 / 1024).toFixed(2) + 'MB',
+          uptime: Math.floor(process.uptime()),
+          uptimeFormatted: this.formatUptime(process.uptime()),
         },
       };
 
@@ -438,6 +467,22 @@ export class MonitoringService {
         metrics: {},
       };
     }
+  }
+
+  /**
+   * Format uptime in human-readable format
+   */
+  private formatUptime(seconds: number): string {
+    const days = Math.floor(seconds / 86400);
+    const hours = Math.floor((seconds % 86400) / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    
+    const parts: string[] = [];
+    if (days > 0) parts.push(`${days}d`);
+    if (hours > 0) parts.push(`${hours}h`);
+    if (minutes > 0) parts.push(`${minutes}m`);
+    
+    return parts.join(' ') || '< 1m';
   }
 
   /**

@@ -1,6 +1,7 @@
 import express from 'express';
 import NodeCache from 'node-cache';
 import { logger } from '../utils/logger.js';
+import { config } from '../config/environment.js';
 import {
   transformSolanaTrackerToken,
   transformPumpFunToken,
@@ -36,6 +37,11 @@ async function callSolanaTrackerAPI(endpoint: string): Promise<any> {
       'User-Agent': API_CONFIG.USER_AGENT,
       'Content-Type': 'application/json'
     };
+
+    // Add API key if configured
+    if (config.apis.solanaTracker.apiKey) {
+      headers['x-api-key'] = config.apis.solanaTracker.apiKey;
+    }
 
     logger.info(`Calling Solana Tracker API: ${url}`);
 

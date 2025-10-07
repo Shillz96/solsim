@@ -39,11 +39,13 @@ export class ErrorLogger {
   private logs: ErrorLog[] = []
   private sessionId: string
   private userId?: string
-  private maxLogs: number = 1000
+  private maxLogs: number = 100 // Reduced from 1000 to prevent memory issues
   private batchSize: number = 50
   private flushInterval: number = 30000 // 30 seconds
   private flushTimer?: NodeJS.Timeout
-  private monitoringEndpointAvailable: boolean = true
+  // Remote logging is DISABLED by default to prevent failed network requests
+  // Enable by setting NEXT_PUBLIC_ENABLE_REMOTE_LOGGING=true
+  private remoteLoggingEnabled: boolean = false
   // Throttling for development logging
   private logThrottle: Map<string, number> = new Map()
   private throttleInterval = 2000 // 2 seconds
@@ -58,7 +60,21 @@ export class ErrorLogger {
   private constructor() {
     this.sessionId = this.generateSessionId()
     this.setupErrorHandlers()
-    this.startFlushTimer()
+    
+    // Only enable remote logging if explicitly configured
+    if (typeof window !== 'undefined') {
+      this.remoteLoggingEnabled = process.env.NEXT_PUBLIC_ENABLE_REMOTE_LOGGING === 'true'
+      
+      if (this.remoteLoggingEnabled) {
+        console.info('Remote error logging enabled')
+        this.startFlushTimer()
+      } else {
+        console.debug('Remote error logging disabled (console-only mode)')
+      }
+      
+      // Clean up old logs from localStorage on startup
+      this.cleanupLocalStorage()
+    }
   }
 
   private generateSessionId(): string {
@@ -99,6 +115,11 @@ export class ErrorLogger {
   }
 
   private startFlushTimer() {
+    // Only start timer if remote logging is enabled
+    if (!this.remoteLoggingEnabled) {
+      return
+    }
+    
     if (this.flushTimer) {
       clearInterval(this.flushTimer)
     }
@@ -106,6 +127,40 @@ export class ErrorLogger {
     this.flushTimer = setInterval(() => {
       this.flush()
     }, this.flushInterval)
+  }
+
+  /**
+   * Clean up old logs from localStorage to prevent accumulation
+   */
+  private cleanupLocalStorage() {
+    if (typeof window === 'undefined') return
+    
+    try {
+      const keysToRemove: string[] = []
+      
+      // Find all keys that might be error logs or old session data
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i)
+        if (key && (
+          key.startsWith('error_log_') || 
+          key.startsWith('session_log_') ||
+          key.includes('errorLogger')
+        )) {
+          keysToRemove.push(key)
+        }
+      }
+      
+      // Remove old log keys
+      keysToRemove.forEach(key => {
+        localStorage.removeItem(key)
+      })
+      
+      if (keysToRemove.length > 0) {
+        console.debug(`Cleaned up ${keysToRemove.length} old log entries from localStorage`)
+      }
+    } catch (error) {
+      console.debug('Error cleaning up localStorage:', error)
+    }
   }
 
   public setUser(userId: string) {
@@ -351,15 +406,24 @@ export class ErrorLogger {
     this.logs = []
   }
 
-  // Flush logs to server
+  // Flush logs to server (only if remote logging enabled)
   public async flush(): Promise<void> {
+    // Skip if remote logging is disabled
+    if (!this.remoteLoggingEnabled) {
+      // Just clear logs to prevent memory accumulation
+      if (this.logs.length > this.maxLogs) {
+        this.logs = this.logs.slice(-this.maxLogs)
+      }
+      return
+    }
+    
     if (this.logs.length === 0) return
 
     const logsToFlush = this.logs.splice(0, this.batchSize)
     
-    // Send to monitoring endpoint if available
+    // Send to monitoring endpoint
     try {
-      if (typeof window !== 'undefined' && navigator.onLine && this.monitoringEndpointAvailable) {
+      if (typeof window !== 'undefined' && navigator.onLine) {
         const response = await fetch('/api/v1/monitoring/logs', {
           method: 'POST',
           headers: {
@@ -372,13 +436,15 @@ export class ErrorLogger {
           })
         })
         
-        // Handle 405 Method Not Allowed - endpoint doesn't exist
-        if (response.status === 405) {
-          console.debug('Monitoring logs endpoint not available (405), disabling log flushing')
-          this.monitoringEndpointAvailable = false
-          // Clear any existing logs and stop trying
-          this.logs = []
-          this.destroy()
+        // Handle 404/405 - endpoint doesn't exist
+        if (response.status === 404 || response.status === 405) {
+          console.warn('Remote logging endpoint not available, disabling remote logging')
+          this.remoteLoggingEnabled = false
+          this.logs = [] // Clear queued logs
+          if (this.flushTimer) {
+            clearInterval(this.flushTimer)
+            this.flushTimer = undefined
+          }
           return
         }
         
@@ -386,23 +452,20 @@ export class ErrorLogger {
         if (!response.ok) {
           throw new Error(`HTTP ${response.status}: ${response.statusText}`)
         }
+        
+        console.debug(`Successfully flushed ${logsToFlush.length} logs to server`)
       }
     } catch (error) {
-      // Check if this is a 405 error or network error
+      // Check if this is a network error
       if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
-        // Network error - re-add logs for retry
-        this.logs.unshift(...logsToFlush)
+        // Network error - re-add logs for retry (up to max limit)
+        const combinedLogs = [...logsToFlush, ...this.logs]
+        this.logs = combinedLogs.slice(-this.maxLogs)
         console.debug('Network error flushing logs, will retry later')
-      } else if (error instanceof Error && error.message.includes('405')) {
-        // 405 Method Not Allowed - disable logging
-        console.debug('Monitoring logs endpoint not supported, disabling error logging')
-        this.monitoringEndpointAvailable = false
-        this.logs = []
-        this.destroy()
       } else {
-        // Other errors - re-add logs for retry but log the error
-        this.logs.unshift(...logsToFlush)
+        // Other errors - log but don't re-queue to prevent infinite growth
         console.warn('Failed to flush logs:', error instanceof Error ? error.message : String(error))
+        // Don't re-add logs to prevent memory leak
       }
     }
   }

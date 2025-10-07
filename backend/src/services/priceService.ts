@@ -50,6 +50,7 @@ export interface PriceCache {
 
 const CACHE_TTL = 30; // 30 seconds Redis TTL
 const MEMORY_CACHE_TTL = 10 * 1000; // 10 seconds in-memory fallback
+const NEGATIVE_CACHE_TTL = 5 * 60; // 5 minutes for failed lookups (negative caching)
 const BATCH_SIZE = 50; // Max tokens per batch request
 const REQUEST_TIMEOUT = 5000; // 5 second timeout
 const RATE_LIMIT_DELAY = 100; // 100ms between requests
@@ -59,6 +60,7 @@ const CACHE_KEYS = {
   TOKEN_PRICE: 'price:token:',
   SOL_PRICE: 'price:sol',
   BATCH_PRICES: 'price:batch:',
+  NEGATIVE: 'price:negative:', // For failed lookups
 } as const;
 
 // SOL token addresses for different sources
@@ -76,10 +78,18 @@ export class PriceService {
   private lastRequestTime: number = 0;
   private requestQueue: Array<() => Promise<any>> = [];
   private isProcessingQueue: boolean = false;
+  
+  // Cache stampede protection: track in-flight requests
+  private inflightRequests: Map<string, Promise<TokenPrice | null>> = new Map();
+  
+  // Batch request coalescing: track in-flight batch requests
+  // Key is sorted comma-separated addresses to match identical batch requests
+  private inflightBatchRequests: Map<string, Promise<Map<string, TokenPrice>>> = new Map();
 
   /**
    * Get current price for a single token
    * Uses Redis caching with memory fallback
+   * Implements cache stampede protection to prevent duplicate external API calls
    */
   async getPrice(tokenAddress: string): Promise<TokenPrice | null> {
     try {
@@ -108,18 +118,24 @@ export class PriceService {
 
       trackCacheOperation('get', 'miss');
 
-      // 3. Fetch from external APIs
-      const price = await this.fetchPriceWithFallback(tokenAddress);
-      
-      if (price) {
-        // Cache in both Redis and memory
-        await this.cachePrice(tokenAddress, price);
-        trackPriceUpdate(price.source, 'success');
-      } else {
-        trackPriceUpdate('unknown', 'error');
+      // 3. Cache stampede protection: Check if request already in-flight
+      const inflightRequest = this.inflightRequests.get(tokenAddress);
+      if (inflightRequest) {
+        logger.debug(`Price request already in-flight, waiting: ${tokenAddress}`);
+        return await inflightRequest;
       }
 
-      return price;
+      // 4. Create new request and track it
+      const requestPromise = this.fetchAndCachePrice(tokenAddress);
+      this.inflightRequests.set(tokenAddress, requestPromise);
+
+      try {
+        const price = await requestPromise;
+        return price;
+      } finally {
+        // Clean up in-flight tracker
+        this.inflightRequests.delete(tokenAddress);
+      }
     } catch (error) {
       logger.error(`Error getting price for ${tokenAddress}:`, error);
       return null;
@@ -127,8 +143,56 @@ export class PriceService {
   }
 
   /**
+   * Fetch price from external APIs and cache the result
+   * Separated for cache stampede protection
+   */
+  private async fetchAndCachePrice(tokenAddress: string): Promise<TokenPrice | null> {
+    try {
+      // Check negative cache first (failed lookups)
+      const negativeCacheKey = CACHE_KEYS.NEGATIVE + tokenAddress;
+      const isNegativelyCached = await cacheService.exists(negativeCacheKey);
+      
+      if (isNegativelyCached) {
+        logger.debug(`Token in negative cache (previously failed): ${tokenAddress}`);
+        return null; // Don't retry failed lookups for 5 minutes
+      }
+      
+      const price = await this.fetchPriceWithFallback(tokenAddress);
+      
+      if (price) {
+        // Cache in both Redis and memory
+        await this.cachePrice(tokenAddress, price);
+        trackPriceUpdate(price.source, 'success');
+      } else {
+        // Negative caching: cache failures for 5 minutes to prevent hammering
+        // This prevents repeated expensive API calls for non-existent or delisted tokens
+        await cacheService.set(negativeCacheKey, { failed: true, timestamp: Date.now() }, { 
+          ttl: NEGATIVE_CACHE_TTL,
+          serialize: true 
+        });
+        trackPriceUpdate('unknown', 'error');
+        logger.debug(`Negative caching failed price lookup: ${tokenAddress} (cached for ${NEGATIVE_CACHE_TTL}s)`);
+      }
+
+      return price;
+    } catch (error) {
+      logger.error(`Error fetching price for ${tokenAddress}:`, error);
+      
+      // Also negative cache errors to prevent retry storms
+      const negativeCacheKey = CACHE_KEYS.NEGATIVE + tokenAddress;
+      await cacheService.set(negativeCacheKey, { error: true, timestamp: Date.now() }, { 
+        ttl: NEGATIVE_CACHE_TTL,
+        serialize: true 
+      });
+      
+      return null;
+    }
+  }
+
+  /**
    * Get prices for multiple tokens efficiently
-   * Uses Redis batch operations for optimal performance
+   * Uses Redis batch operations and request coalescing for optimal performance
+   * Implements request coalescing to prevent duplicate batch fetches
    */
   async getPrices(tokenAddresses: string[]): Promise<Map<string, TokenPrice>> {
     const results = new Map<string, TokenPrice>();
@@ -174,38 +238,83 @@ export class PriceService {
         }
       }
 
-      // 3. Fetch uncached tokens in batches
+      // 3. Fetch uncached tokens with request coalescing
       if (uncachedTokens.length > 0) {
         logger.debug(`Fetching ${uncachedTokens.length} uncached prices`);
-        const batches = this.splitIntoBatches(uncachedTokens, BATCH_SIZE);
-
-        for (const batch of batches) {
-          const batchPrices = await this.fetchBatchPrices(batch);
-          
-          // Cache and add to results
-          const cacheEntries: Array<[string, TokenPrice]> = [];
-          
-          batchPrices.forEach((price, address) => {
-            results.set(address, price);
-            cacheEntries.push([CACHE_KEYS.TOKEN_PRICE + address, price]);
-            // Also cache in memory
-            this.cachePrice(address, price);
+        
+        // Create batch key for request coalescing (sorted to match identical requests)
+        const batchKey = [...uncachedTokens].sort().join(',');
+        
+        // Check if this exact batch is already being fetched
+        const inflightBatch = this.inflightBatchRequests.get(batchKey);
+        if (inflightBatch) {
+          logger.debug(`Batch request already in-flight, waiting for ${uncachedTokens.length} tokens`);
+          const batchResults = await inflightBatch;
+          batchResults.forEach((price, address) => {
+            if (uncachedTokens.includes(address)) {
+              results.set(address, price);
+            }
           });
-
-          // Batch cache to Redis
-          if (cacheEntries.length > 0) {
-            await cacheService.mset(cacheEntries, { ttl: CACHE_TTL });
-          }
-
-          // Rate limiting between batches
-          await this.waitForRateLimit();
+          return results;
+        }
+        
+        // Create new batch request and track it
+        const batchPromise = this.fetchBatchPricesWithCoalescing(uncachedTokens);
+        this.inflightBatchRequests.set(batchKey, batchPromise);
+        
+        try {
+          const batchResults = await batchPromise;
+          batchResults.forEach((price, address) => {
+            results.set(address, price);
+          });
+        } finally {
+          // Clean up in-flight tracker
+          this.inflightBatchRequests.delete(batchKey);
         }
       }
 
-      logger.debug(`Batch price fetch complete: ${results.size}/${tokenAddresses.length} prices retrieved`);
       return results;
     } catch (error) {
       logger.error('Error getting batch prices:', error);
+      return results;
+    }
+  }
+
+  /**
+   * Fetch batch prices with proper caching
+   * Separated for request coalescing
+   */
+  private async fetchBatchPricesWithCoalescing(tokenAddresses: string[]): Promise<Map<string, TokenPrice>> {
+    const results = new Map<string, TokenPrice>();
+    
+    try {
+      const batches = this.splitIntoBatches(tokenAddresses, BATCH_SIZE);
+
+      for (const batch of batches) {
+        const batchPrices = await this.fetchBatchPrices(batch);
+        
+        // Cache and add to results
+        const cacheEntries: Array<[string, TokenPrice]> = [];
+        
+        batchPrices.forEach((price, address) => {
+          results.set(address, price);
+          cacheEntries.push([CACHE_KEYS.TOKEN_PRICE + address, price]);
+          // Also cache in memory
+          this.cachePrice(address, price);
+        });
+
+        // Batch cache to Redis
+        if (cacheEntries.length > 0) {
+          await cacheService.mset(cacheEntries, { ttl: CACHE_TTL, serialize: true });
+        }
+
+        // Rate limiting between batches
+        await this.waitForRateLimit();
+      }
+
+      return results;
+    } catch (error) {
+      logger.error('Error fetching batch prices:', error);
       return results;
     }
   }

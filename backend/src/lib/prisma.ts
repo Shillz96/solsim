@@ -4,18 +4,29 @@ import { logger } from '../utils/logger.js';
 /**
  * Enhanced Prisma Client with Optimized Connection Pooling
  * 
- * CONNECTION POOL OPTIMIZATIONS:
- * - Production: 20 connections with 20s pool timeout, 60s connect timeout
- * - Development: 10 connections with 10s pool timeout, 30s connect timeout
+ * CONNECTION POOL OPTIMIZATIONS FOR RAILWAY:
+ * - Production: 8 connections per instance (Railway Starter = 20 total across all instances)
+ * - Development: 5 connections (local dev)
  * - pgBouncer compatible settings for production scalability
  * - Statement cache disabled for better memory efficiency
  * - Connection lifecycle management with health checks
  * 
+ * RAILWAY MULTI-INSTANCE CONSIDERATIONS:
+ * - Railway Starter Plan: 20 connection limit TOTAL (shared across instances)
+ * - With 2 instances: 8 connections each = 16 total (safe buffer)
+ * - With 3 instances: 8 connections each = 24 total (requires upgrade or reduction)
+ * - Monitor connection pool utilization in Railway metrics
+ * 
  * PERFORMANCE TUNING:
- * - Larger pool in production for concurrent user load
+ * - Conservative pool size prevents connection exhaustion
  * - Longer connect timeout to handle network latency
  * - Pool timeout prevents connection exhaustion
  * - Prepared statements optimization via pgBouncer in transaction mode
+ * 
+ * SCALING RECOMMENDATIONS:
+ * - Single instance: Can use up to 18 connections safely
+ * - Two instances: Use 8-10 connections per instance
+ * - Three+ instances: Upgrade to Railway Pro or implement pgBouncer
  */
 
 let prisma: PrismaClient;
@@ -44,14 +55,16 @@ const prismaOptions: Prisma.PrismaClientOptions = {
   datasources: {
     db: {
       url: process.env.DATABASE_URL + (isProduction
-        // PRODUCTION: Aggressive pooling for high concurrency
-        ? '?connection_limit=20' +           // Max 20 concurrent connections
+        // PRODUCTION: Optimized for Railway multi-instance deployment
+        // Railway Starter: 20 connections total across ALL instances
+        // With 2-3 instances: use 8 connections per instance max
+        ? '?connection_limit=8' +            // Max 8 concurrent connections per instance
           '&pool_timeout=20' +                // Wait 20s for available connection
           '&connect_timeout=60' +             // 60s to establish new connection
           '&statement_cache_size=0' +         // Disable for pgBouncer compatibility
           '&pgbouncer=true'                   // pgBouncer mode (if using)
         // DEVELOPMENT: Conservative pooling for local testing
-        : '?connection_limit=10' +            // Max 10 connections
+        : '?connection_limit=5' +             // Max 5 connections (local dev)
           '&pool_timeout=10' +                // Wait 10s for available connection
           '&connect_timeout=30' +             // 30s to establish new connection
           '&statement_cache_size=100'         // Enable cache for dev performance

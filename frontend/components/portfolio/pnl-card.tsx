@@ -8,7 +8,7 @@ import { TrendingUp, Wallet, Activity, AlertCircle, RefreshCw } from "lucide-rea
 import { motion } from "framer-motion"
 import { SharePnLDialog } from "@/components/modals/share-pnl-dialog"
 import { usePortfolio, useBalance, useRecentTrades } from "@/lib/api-hooks"
-import { memo, useState, useCallback } from "react"
+import { memo, useState, useCallback, useEffect } from "react"
 
 const AnimatedBackground = memo(({ isPositive }: { isPositive: boolean }) => {
   return (
@@ -42,7 +42,7 @@ AnimatedBackground.displayName = "AnimatedBackground"
 export function PnLCard() {
   const { data: portfolio, isLoading: portfolioLoading, error: portfolioError, refetch: refetchPortfolio } = usePortfolio()
   const { data: balance, isLoading: balanceLoading, error: balanceError, refetch: refetchBalance } = useBalance()
-  const { data: trades, isLoading: tradesLoading, error: tradesError, refetch: refetchTrades } = useRecentTrades()
+  const { data: trades, isLoading: tradesLoading, error: tradesError, refetch: refetchTrades } = useRecentTrades(10) // Limit trades to reduce API load
   const [isRefreshing, setIsRefreshing] = useState(false)
 
   // Enhanced data extraction with proper validation and fallbacks
@@ -75,23 +75,25 @@ export function PnLCard() {
     setIsRefreshing(false)
   }, [refetchPortfolio, refetchBalance, refetchTrades])
 
-  // Debug logging for development
-  if (process.env.NODE_ENV === 'development') {
-    import('@/lib/error-logger').then(({ errorLogger }) => {
-      errorLogger.info('PnLCard data loaded', {
-        action: 'pnl_card_data_debug',
-        metadata: {
-          hasPortfolio: !!portfolio,
-          totalPnL,
-          totalPnLPercent,
-          currentValue,
-          totalInvested,
-          hasError,
-          component: 'PnLCard'
-        }
+  // Debug logging moved to useEffect to prevent render loops
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'development' && (portfolio || balance || trades)) {
+      import('@/lib/error-logger').then(({ errorLogger }) => {
+        errorLogger.info('PnLCard data loaded', {
+          action: 'pnl_card_data_debug',
+          metadata: {
+            hasPortfolio: !!portfolio,
+            totalPnL,
+            totalPnLPercent,
+            currentValue,
+            totalInvested,
+            hasError,
+            component: 'PnLCard'
+          }
+        })
       })
-    })
-  }
+    }
+  }, [portfolio, balance, trades]) // Only log when data actually changes
 
   // Show loading state only on initial load
   if (isLoading && !portfolio && !balance && !trades) {

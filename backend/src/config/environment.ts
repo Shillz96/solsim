@@ -34,8 +34,15 @@ export interface Config {
     helius: {
       apiKey?: string;
       baseUrl: string;
+      rpcUrl?: string;
+      secureRpcUrl?: string;
+      wsUrl?: string;
     };
     coingecko: {
+      apiKey?: string;
+      baseUrl: string;
+    };
+    solanaTracker: {
       apiKey?: string;
       baseUrl: string;
     };
@@ -75,10 +82,17 @@ export const config: Config = {
     helius: {
       apiKey: process.env.HELIUS_API_KEY,
       baseUrl: process.env.HELIUS_BASE_URL || 'https://api.helius.xyz',
+      rpcUrl: process.env.HELIUS_RPC_URL,
+      secureRpcUrl: process.env.HELIUS_SECURE_RPC_URL,
+      wsUrl: process.env.HELIUS_WS_URL,
     },
     coingecko: {
       apiKey: process.env.COINGECKO_API_KEY,
       baseUrl: process.env.COINGECKO_BASE_URL || 'https://api.coingecko.com/api/v3',
+    },
+    solanaTracker: {
+      apiKey: process.env.SOLANA_TRACKER_API_KEY,
+      baseUrl: 'https://data.solanatracker.io',
     },
     twitter: {
       clientId: process.env.TWITTER_CLIENT_ID,
