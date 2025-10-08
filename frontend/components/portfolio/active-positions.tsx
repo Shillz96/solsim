@@ -70,7 +70,7 @@ export function ActivePositions() {
     return () => {
       wsMgrRef.current?.clear()
     }
-  }, [wsConnected, subscribeMany, unsubscribeMany, tokenAddresses])
+  }, [wsConnected, tokenAddresses]) // Remove subscribeMany/unsubscribeMany from deps - they're stable from context
 
   // Helper to get live price or fallback to stored price
   const getCurrentPrice = useCallback((tokenAddress: string, fallbackPrice: number) => {

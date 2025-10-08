@@ -277,13 +277,16 @@ export class PriceStreamService extends EventEmitter {
   // ============================================================================
 
   private handleClientMessage(client: PriceClient, message: any): void {
-    // Rate limiting check
-    if (!this.checkRateLimit(client)) {
+    client.lastActivity = Date.now();
+
+    // Only rate-limit non-essential operations (not subscribe/unsubscribe)
+    // Subscribe/unsubscribe are legitimate user actions and should not be rate limited
+    const isEssentialOperation = ['subscribe', 'unsubscribe', 'unsubscribe_all'].includes(message.type);
+    
+    if (!isEssentialOperation && !this.checkRateLimit(client)) {
       this.sendError(client, 'Rate limit exceeded');
       return;
     }
-
-    client.lastActivity = Date.now();
 
     switch (message.type) {
       case 'subscribe':

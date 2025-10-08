@@ -5,206 +5,208 @@
 --------------------------- */
 :root {
   /* SolSim Trading Platform Design System - Light Mode */
+  /* Minimal Black/White Aesthetic */
   
   /* Base UI Colors */
-  --background: #f8fafc;
-  --background-oklch: oklch(0.98 0.005 240);
-  --foreground: #0f172a;
-  --foreground-oklch: oklch(0.2 0.01 240);
+  --background: #ffffff;
+  --background-oklch: oklch(1 0 0);
+  --foreground: #000000;
+  --foreground-oklch: oklch(0 0 0);
   
   /* Card and Surface Colors */
   --card: #ffffff;
   --card-oklch: oklch(1 0 0);
-  --card-foreground: #0f172a;
-  --card-foreground-oklch: oklch(0.2 0.01 240);
+  --card-foreground: #000000;
+  --card-foreground-oklch: oklch(0 0 0);
   
   /* Popover and Dialog Colors */
   --popover: #ffffff;
   --popover-oklch: oklch(1 0 0);
-  --popover-foreground: #0f172a;
-  --popover-foreground-oklch: oklch(0.2 0.01 240);
+  --popover-foreground: #000000;
+  --popover-foreground-oklch: oklch(0 0 0);
 
-  /* Primary Brand Color - Indigo */
-  --primary: #6366f1;
-  --primary-oklch: oklch(0.55 0.24 270);
+  /* Primary - Subtle Gray */
+  --primary: #444444;
+  --primary-oklch: oklch(0.35 0 0);
   --primary-foreground: #ffffff;
   --primary-foreground-oklch: oklch(1 0 0);
 
   /* Secondary UI Colors */
-  --secondary: #f1f5f9;
-  --secondary-oklch: oklch(0.96 0.01 240);
-  --secondary-foreground: #0f172a;
-  --secondary-foreground-oklch: oklch(0.2 0.01 240);
+  --secondary: #f5f5f5;
+  --secondary-oklch: oklch(0.97 0 0);
+  --secondary-foreground: #000000;
+  --secondary-foreground-oklch: oklch(0 0 0);
   
   /* Muted UI Elements */
-  --muted: #f1f5f9;
-  --muted-oklch: oklch(0.96 0.01 240);
-  --muted-foreground: #64748b;
-  --muted-foreground-oklch: oklch(0.55 0.02 240);
+  --muted: #f5f5f5;
+  --muted-oklch: oklch(0.97 0 0);
+  --muted-foreground: #666666;
+  --muted-foreground-oklch: oklch(0.45 0 0);
 
-  /* Accent UI Elements */
-  --accent: #6366f1;
-  --accent-oklch: oklch(0.55 0.24 270);
+  /* Accent - Black */
+  --accent: #000000;
+  --accent-oklch: oklch(0 0 0);
   --accent-foreground: #ffffff;
   --accent-foreground-oklch: oklch(1 0 0);
 
-  /* Destructive/Error Elements */
-  --destructive: #ef4444;
-  --destructive-oklch: oklch(0.58 0.25 27);
+  /* Destructive/Error Elements - Flat Red */
+  --destructive: #ff4d4d;
+  --destructive-oklch: oklch(0.65 0.25 27);
   --destructive-foreground: #ffffff;
   --destructive-foreground-oklch: oklch(1 0 0);
   
   /* Borders and Inputs */
-  --border: #e2e8f0;
-  --border-oklch: oklch(0.92 0.01 240);
-  --input: #e2e8f0;
-  --input-oklch: oklch(0.92 0.01 240);
-  --ring: #6366f1;
-  --ring-oklch: oklch(0.55 0.24 270);
+  --border: #e5e5e5;
+  --border-oklch: oklch(0.92 0 0);
+  --input: #e5e5e5;
+  --input-oklch: oklch(0.92 0 0);
+  --ring: #000000;
+  --ring-oklch: oklch(0 0 0);
 
-  /* Trading-Specific Colors */
-  --profit: #10b981;
-  --profit-oklch: oklch(0.60 0.22 150);
-  --profit-foreground: #ffffff;
-  --profit-foreground-oklch: oklch(1 0 0);
+  /* Trading-Specific Colors - Flat Green/Red */
+  --profit: #00ff85;
+  --profit-oklch: oklch(0.85 0.30 150);
+  --profit-foreground: #000000;
+  --profit-foreground-oklch: oklch(0 0 0);
   
-  --loss: #ef4444;
-  --loss-oklch: oklch(0.58 0.25 27);
+  --loss: #ff4d4d;
+  --loss-oklch: oklch(0.65 0.25 27);
   --loss-foreground: #ffffff;
   --loss-foreground-oklch: oklch(1 0 0);
   
-  /* Chart Colors */
-  --chart-1: #6366f1; /* Primary/Brand */
-  --chart-1-oklch: oklch(0.55 0.24 270);
-  --chart-2: #10b981; /* Profit */
-  --chart-2-oklch: oklch(0.60 0.22 150);
-  --chart-3: #ef4444; /* Loss */
-  --chart-3-oklch: oklch(0.58 0.25 27);
-  --chart-4: #f59e0b; /* Warning/Alert */
-  --chart-4-oklch: oklch(0.70 0.18 80);
-  --chart-5: #64748b; /* Neutral */
-  --chart-5-oklch: oklch(0.55 0.02 240);
+  /* Chart Colors - Minimal Palette */
+  --chart-1: #000000; /* Primary/Black */
+  --chart-1-oklch: oklch(0 0 0);
+  --chart-2: #00ff85; /* Profit/Green */
+  --chart-2-oklch: oklch(0.85 0.30 150);
+  --chart-3: #ff4d4d; /* Loss/Red */
+  --chart-3-oklch: oklch(0.65 0.25 27);
+  --chart-4: #666666; /* Neutral Gray */
+  --chart-4-oklch: oklch(0.45 0 0);
+  --chart-5: #999999; /* Light Gray */
+  --chart-5-oklch: oklch(0.65 0 0);
   
   /* UI Elements */
   --radius: 0.5rem;
-  --sidebar: #f8fafc;
-  --sidebar-oklch: oklch(0.98 0.005 240);
-  --sidebar-foreground: #0f172a;
-  --sidebar-foreground-oklch: oklch(0.145 0 0);
-  --sidebar-primary: #8d6e63;
-  --sidebar-primary-oklch: oklch(0.5 0.1 30);
-  --sidebar-primary-foreground: #fafafa;
-  --sidebar-primary-foreground-oklch: oklch(0.985 0 0);
-  --sidebar-accent: #f7f7f7;
+  --sidebar: #ffffff;
+  --sidebar-oklch: oklch(1 0 0);
+  --sidebar-foreground: #000000;
+  --sidebar-foreground-oklch: oklch(0 0 0);
+  --sidebar-primary: #000000;
+  --sidebar-primary-oklch: oklch(0 0 0);
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-primary-foreground-oklch: oklch(1 0 0);
+  --sidebar-accent: #f5f5f5;
   --sidebar-accent-oklch: oklch(0.97 0 0);
-  --sidebar-accent-foreground: #262626;
-  --sidebar-accent-foreground-oklch: oklch(0.205 0 0);
-  --sidebar-border: #ebebeb;
-  --sidebar-border-oklch: oklch(0.922 0 0);
-  --sidebar-ring: #a3a3a3;
-  --sidebar-ring-oklch: oklch(0.708 0 0);
+  --sidebar-accent-foreground: #000000;
+  --sidebar-accent-foreground-oklch: oklch(0 0 0);
+  --sidebar-border: #e5e5e5;
+  --sidebar-border-oklch: oklch(0.92 0 0);
+  --sidebar-ring: #000000;
+  --sidebar-ring-oklch: oklch(0 0 0);
 }
 
 .dark {
   /* SolSim Trading Platform Design System - Dark Mode */
+  /* Minimal Black/White Aesthetic */
   
   /* Base UI Colors */
-  --background: #0f172a;
-  --background-oklch: oklch(0.2 0.01 240);
-  --foreground: #f8fafc;
-  --foreground-oklch: oklch(0.98 0.005 240);
+  --background: #000000;
+  --background-oklch: oklch(0 0 0);
+  --foreground: #ffffff;
+  --foreground-oklch: oklch(1 0 0);
   
   /* Card and Surface Colors */
-  --card: #1e293b;
-  --card-oklch: oklch(0.25 0.01 240);
-  --card-foreground: #f8fafc;
-  --card-foreground-oklch: oklch(0.98 0.005 240);
+  --card: #111111;
+  --card-oklch: oklch(0.10 0 0);
+  --card-foreground: #ffffff;
+  --card-foreground-oklch: oklch(1 0 0);
   
   /* Popover and Dialog Colors */
-  --popover: #1e293b;
-  --popover-oklch: oklch(0.25 0.01 240);
-  --popover-foreground: #f8fafc;
-  --popover-foreground-oklch: oklch(0.98 0.005 240);
+  --popover: #111111;
+  --popover-oklch: oklch(0.10 0 0);
+  --popover-foreground: #ffffff;
+  --popover-foreground-oklch: oklch(1 0 0);
 
-  /* Primary Brand Color - Indigo (slightly brightened for dark mode) */
-  --primary: #818cf8;
-  --primary-oklch: oklch(0.65 0.24 270);
-  --primary-foreground: #0f172a;
-  --primary-foreground-oklch: oklch(0.2 0.01 240);
+  /* Primary - Subtle Gray */
+  --primary: #cccccc;
+  --primary-oklch: oklch(0.82 0 0);
+  --primary-foreground: #000000;
+  --primary-foreground-oklch: oklch(0 0 0);
 
   /* Secondary UI Colors */
-  --secondary: #334155;
-  --secondary-oklch: oklch(0.35 0.01 240);
-  --secondary-foreground: #f8fafc;
-  --secondary-foreground-oklch: oklch(0.98 0.005 240);
+  --secondary: #1a1a1a;
+  --secondary-oklch: oklch(0.15 0 0);
+  --secondary-foreground: #ffffff;
+  --secondary-foreground-oklch: oklch(1 0 0);
   
   /* Muted UI Elements */
-  --muted: #334155;
-  --muted-oklch: oklch(0.35 0.01 240);
-  --muted-foreground: #94a3b8;
-  --muted-foreground-oklch: oklch(0.70 0.02 240);
+  --muted: #1a1a1a;
+  --muted-oklch: oklch(0.15 0 0);
+  --muted-foreground: #999999;
+  --muted-foreground-oklch: oklch(0.65 0 0);
 
-  /* Accent UI Elements (slightly brightened for dark mode) */
-  --accent: #818cf8;
-  --accent-oklch: oklch(0.65 0.24 270);
-  --accent-foreground: #0f172a;
-  --accent-foreground-oklch: oklch(0.2 0.01 240);
+  /* Accent - White */
+  --accent: #ffffff;
+  --accent-oklch: oklch(1 0 0);
+  --accent-foreground: #000000;
+  --accent-foreground-oklch: oklch(0 0 0);
 
-  /* Destructive/Error Elements (slightly brightened for dark mode) */
-  --destructive: #f87171;
-  --destructive-oklch: oklch(0.68 0.25 27);
-  --destructive-foreground: #0f172a;
-  --destructive-foreground-oklch: oklch(0.2 0.01 240);
+  /* Destructive/Error Elements - Flat Red */
+  --destructive: #ff4d4d;
+  --destructive-oklch: oklch(0.65 0.25 27);
+  --destructive-foreground: #000000;
+  --destructive-foreground-oklch: oklch(0 0 0);
   
   /* Borders and Inputs */
-  --border: #334155;
-  --border-oklch: oklch(0.35 0.01 240);
-  --input: #334155;
-  --input-oklch: oklch(0.35 0.01 240);
-  --ring: #818cf8;
-  --ring-oklch: oklch(0.65 0.24 270);
+  --border: #333333;
+  --border-oklch: oklch(0.25 0 0);
+  --input: #333333;
+  --input-oklch: oklch(0.25 0 0);
+  --ring: #ffffff;
+  --ring-oklch: oklch(1 0 0);
 
-  /* Trading-Specific Colors (slightly brightened for dark mode) */
-  --profit: #34d399;
-  --profit-oklch: oklch(0.75 0.22 150);
-  --profit-foreground: #0f172a;
-  --profit-foreground-oklch: oklch(0.2 0.01 240);
+  /* Trading-Specific Colors - Flat Green/Red */
+  --profit: #00ff85;
+  --profit-oklch: oklch(0.85 0.30 150);
+  --profit-foreground: #000000;
+  --profit-foreground-oklch: oklch(0 0 0);
   
-  --loss: #f87171;
-  --loss-oklch: oklch(0.68 0.25 27);
-  --loss-foreground: #0f172a;
-  --loss-foreground-oklch: oklch(0.2 0.01 240);
+  --loss: #ff4d4d;
+  --loss-oklch: oklch(0.65 0.25 27);
+  --loss-foreground: #000000;
+  --loss-foreground-oklch: oklch(0 0 0);
   
-  /* Chart Colors (enhanced for dark mode) */
-  --chart-1: #818cf8; /* Primary/Brand */
-  --chart-1-oklch: oklch(0.65 0.24 270);
-  --chart-2: #34d399; /* Profit */
-  --chart-2-oklch: oklch(0.75 0.22 150);
-  --chart-3: #f87171; /* Loss */
-  --chart-3-oklch: oklch(0.68 0.25 27);
-  --chart-4: #fbbf24; /* Warning/Alert */
-  --chart-4-oklch: oklch(0.80 0.18 80);
-  --chart-5: #94a3b8; /* Neutral */
-  --chart-5-oklch: oklch(0.70 0.02 240);
+  /* Chart Colors - Minimal Palette */
+  --chart-1: #ffffff; /* Primary/White */
+  --chart-1-oklch: oklch(1 0 0);
+  --chart-2: #00ff85; /* Profit/Green */
+  --chart-2-oklch: oklch(0.85 0.30 150);
+  --chart-3: #ff4d4d; /* Loss/Red */
+  --chart-3-oklch: oklch(0.65 0.25 27);
+  --chart-4: #999999; /* Neutral Gray */
+  --chart-4-oklch: oklch(0.65 0 0);
+  --chart-5: #666666; /* Dark Gray */
+  --chart-5-oklch: oklch(0.45 0 0);
 
   /* UI Elements */
   --radius: 0.5rem;
-  --sidebar: #0f172a;
-  --sidebar-oklch: oklch(0.2 0.01 240);
-  --sidebar-foreground: #f8fafc;
-  --sidebar-foreground-oklch: oklch(0.98 0.005 240);
-  --sidebar-primary: #818cf8;
-  --sidebar-primary-oklch: oklch(0.65 0.24 270);
-  --sidebar-primary-foreground: #0f172a;
-  --sidebar-primary-foreground-oklch: oklch(0.2 0.01 240);
-  --sidebar-accent: #334155;
-  --sidebar-accent-oklch: oklch(0.35 0.01 240);
-  --sidebar-accent-foreground: #f8fafc;
-  --sidebar-accent-foreground-oklch: oklch(0.98 0.005 240);
-  --sidebar-border: #334155;
-  --sidebar-border-oklch: oklch(0.35 0.01 240);
-  --sidebar-ring: #818cf8;
-  --sidebar-ring-oklch: oklch(0.65 0.24 270);
+  --sidebar: #000000;
+  --sidebar-oklch: oklch(0 0 0);
+  --sidebar-foreground: #ffffff;
+  --sidebar-foreground-oklch: oklch(1 0 0);
+  --sidebar-primary: #ffffff;
+  --sidebar-primary-oklch: oklch(1 0 0);
+  --sidebar-primary-foreground: #000000;
+  --sidebar-primary-foreground-oklch: oklch(0 0 0);
+  --sidebar-accent: #1a1a1a;
+  --sidebar-accent-oklch: oklch(0.15 0 0);
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-accent-foreground-oklch: oklch(1 0 0);
+  --sidebar-border: #333333;
+  --sidebar-border-oklch: oklch(0.25 0 0);
+  --sidebar-ring: #ffffff;
+  --sidebar-ring-oklch: oklch(1 0 0);
 }
 
 /* Tailwind theme extensions */
@@ -333,12 +335,9 @@
     border-radius: var(--radius-sm);
   }
 
-  /* Updated gradient text with new color scheme */
+  /* Minimal text styling - no gradients */
   .gradient-text {
-    background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: var(--foreground);
   }
 
   /* ---------------------------
@@ -369,33 +368,23 @@
      ENHANCED EFFECTS & ANIMATIONS
   --------------------------- */
   
-  /* Advanced glow effects with multiple layers */
+  /* Flat effects - no glows */
   .glow-primary {
-    box-shadow: 
-      0 0 20px color-mix(in srgb, var(--primary) 30%, transparent),
-      0 0 40px color-mix(in srgb, var(--primary) 15%, transparent),
-      0 0 60px color-mix(in srgb, var(--primary) 8%, transparent);
+    box-shadow: 0 2px 8px color-mix(in srgb, black 8%, transparent);
     transition: box-shadow 0.3s ease;
   }
 
   .glow-primary:hover {
-    box-shadow: 
-      0 0 30px color-mix(in srgb, var(--primary) 50%, transparent),
-      0 0 60px color-mix(in srgb, var(--primary) 25%, transparent),
-      0 0 90px color-mix(in srgb, var(--primary) 12%, transparent);
+    box-shadow: 0 4px 12px color-mix(in srgb, black 12%, transparent);
   }
 
   .glow-accent {
-    box-shadow: 
-      0 0 20px color-mix(in srgb, var(--accent) 30%, transparent),
-      0 0 40px color-mix(in srgb, var(--accent) 15%, transparent);
+    box-shadow: 0 2px 8px color-mix(in srgb, black 8%, transparent);
     transition: box-shadow 0.3s ease;
   }
 
   .glow-accent:hover {
-    box-shadow: 
-      0 0 30px color-mix(in srgb, var(--accent) 50%, transparent),
-      0 0 60px color-mix(in srgb, var(--accent) 25%, transparent);
+    box-shadow: 0 4px 12px color-mix(in srgb, black 12%, transparent);
   }
 
   /* Solid cards - no transparency for minimal bold design */
@@ -415,27 +404,13 @@
     box-shadow: 0 1px 3px color-mix(in srgb, black 10%, transparent);
   }
 
-  /* Enhanced gradient backgrounds */
+  /* Flat backgrounds - no gradients */
   .gradient-trading {
-    background: linear-gradient(135deg, 
-      var(--primary) 0%, 
-      var(--accent) 30%, 
-      var(--chart-3) 60%, 
-      var(--chart-4) 100%);
+    background: var(--card);
   }
 
   .gradient-mesh {
-    background: 
-      radial-gradient(circle at 25% 25%, var(--primary) 0%, transparent 50%),
-      radial-gradient(circle at 75% 75%, var(--accent) 0%, transparent 50%),
-      radial-gradient(circle at 50% 50%, var(--chart-3) 0%, transparent 50%);
-    background-size: 300% 300%;
-    animation: gradientShift 8s ease infinite;
-  }
-
-  @keyframes gradientShift {
-    0%, 100% { background-position: 0% 0%, 100% 100%, 50% 50%; }
-    50% { background-position: 100% 100%, 0% 0%, 100% 0%; }
+    background: var(--card);
   }
 
   /* Floating elements animation */
@@ -449,17 +424,17 @@
     66% { transform: translateY(-5px) rotate(-1deg); }
   }
 
-  /* Pulse animation for indicators */
+  /* Flat pulse - no glow */
   .pulse-glow {
-    animation: pulseGlow 2s ease-in-out infinite;
+    animation: pulseFade 2s ease-in-out infinite;
   }
 
-  @keyframes pulseGlow {
+  @keyframes pulseFade {
     0%, 100% { 
-      box-shadow: 0 0 5px color-mix(in srgb, var(--accent) 50%, transparent);
+      opacity: 0.8;
     }
     50% { 
-      box-shadow: 0 0 20px color-mix(in srgb, var(--accent) 80%, transparent);
+      opacity: 1;
     }
   }
 
@@ -507,26 +482,7 @@
     overflow: hidden;
   }
 
-  .card-enhanced::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(
-      90deg,
-      transparent,
-      color-mix(in srgb, var(--primary) 5%, transparent),
-      transparent
-    );
-    transition: left 0.5s ease;
-    z-index: 1;
-  }
-
-  .card-enhanced:hover::before {
-    left: 100%;
-  }
+  /* Removed gradient sweep effect for minimal design */
 
   .card-enhanced:hover {
     transform: translateY(-2px);
@@ -545,23 +501,7 @@
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
-  .bento-card::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(
-      circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
-      color-mix(in srgb, var(--accent) 8%, transparent) 0%,
-      transparent 40%
-    );
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    z-index: 1;
-  }
-
-  .bento-card:hover::after {
-    opacity: 1;
-  }
+  /* Removed radial gradient effect for minimal design */
 
   .bento-card:hover {
     transform: scale(1.02);
@@ -576,20 +516,7 @@
     overflow: hidden;
   }
 
-  .trading-card::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 1px;
-    background: linear-gradient(90deg,
-      transparent 0%,
-      var(--accent) 50%,
-      transparent 100%
-    );
-    opacity: 0.6;
-  }
+  /* Removed gradient accent line for minimal design */
 
   /* ---------------------------
      INTERACTIVE ELEMENTS
@@ -603,23 +530,10 @@
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
-  .btn-enhanced::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(135deg, var(--primary), var(--accent));
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    z-index: -1;
-  }
-
-  .btn-enhanced:hover::before {
-    opacity: 1;
-  }
-
+  /* Flat button hover - no gradients or glows */
   .btn-enhanced:hover {
     transform: translateY(-1px);
-    box-shadow: 0 8px 25px color-mix(in srgb, var(--primary) 40%, transparent);
+    box-shadow: 0 4px 12px color-mix(in srgb, black 12%, transparent);
   }
 
   /* Morphing icons */
@@ -637,20 +551,18 @@
     transition: all 0.3s ease;
   }
 
+  /* Flat profit/loss numbers - no glows */
   .number-positive {
-    color: var(--chart-3);
-    text-shadow: 0 0 8px color-mix(in srgb, var(--chart-3) 30%, transparent);
+    color: var(--profit);
   }
 
   .number-negative {
-    color: var(--destructive);
-    text-shadow: 0 0 8px color-mix(in srgb, var(--destructive) 30%, transparent);
+    color: var(--loss);
   }
 
-  /* Progress indicators */
+  /* Flat progress indicators - no gradients or glows */
   .progress-glow {
-    background: linear-gradient(90deg, var(--primary), var(--accent));
-    box-shadow: 0 0 12px color-mix(in srgb, var(--primary) 50%, transparent);
+    background: var(--foreground);
     animation: progressPulse 2s ease-in-out infinite;
   }
 

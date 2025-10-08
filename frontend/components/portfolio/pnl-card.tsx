@@ -73,7 +73,7 @@ export function PnLCard() {
     return () => {
       wsMgrRef.current?.clear()
     }
-  }, [wsConnected, subscribeMany, unsubscribeMany, tokenAddresses])
+  }, [wsConnected, tokenAddresses]) // Remove subscribeMany/unsubscribeMany from deps - they're stable from context
 
   // Enhanced data extraction with live price integration
   const getLivePrice = (tokenAddress: string, fallbackPrice: number) => {
