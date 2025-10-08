@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { Request, Response, NextFunction } from 'express';
+import { Decimal } from '@prisma/client/runtime/library';
 import { TradeService } from '../../services/tradeService.js';
 import { PriceService } from '../../services/priceService.js';
 import { PortfolioService } from '../../services/portfolioService.js';
@@ -260,6 +261,34 @@ router.post('/execute', tradeLimiter, async (req: Request, res: Response, next: 
         name: `Token ${tokenAddress.substring(0, 8)}`,
         logoUri: null
       };
+    }
+
+    // CRITICAL FIX: Save token to database for search functionality
+    // This ensures traded tokens appear in search even if not from trending
+    if (tokenData && tokenMetadata) {
+      prisma.token.upsert({
+        where: { address: tokenAddress },
+        create: {
+          address: tokenAddress,
+          symbol: tokenMetadata.symbol || null,
+          name: tokenMetadata.name || null,
+          imageUrl: tokenMetadata.logoUri || null,
+          lastPrice: tokenData.price ? new Decimal(tokenData.price) : null,
+          lastTs: new Date(),
+          lastUpdatedAt: new Date()
+        },
+        update: {
+          symbol: tokenMetadata.symbol || undefined,
+          name: tokenMetadata.name || undefined,
+          imageUrl: tokenMetadata.logoUri || undefined,
+          lastPrice: tokenData.price ? new Decimal(tokenData.price) : undefined,
+          lastTs: new Date(),
+          lastUpdatedAt: new Date()
+        }
+      }).catch(err => {
+        // Log but don't fail the trade if database save fails
+        logger.warn(`Failed to save token ${tokenAddress} to database:`, err.message);
+      });
     }
 
     // Execute trade with enhanced metadata

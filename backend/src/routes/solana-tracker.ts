@@ -1,5 +1,7 @@
 import express from 'express';
 import NodeCache from 'node-cache';
+import { Decimal } from '@prisma/client/runtime/library';
+import prisma from '../lib/prisma.js';
 import { logger } from '../utils/logger.js';
 import { config } from '../config/environment.js';
 import { readLimiter } from '../middleware/rateLimiter.js';
@@ -21,6 +23,58 @@ import {
 } from '../config/solanaTrackerConfig.js';
 
 const router = express.Router();
+
+/**
+ * Save tokens to database for search functionality
+ * This runs in the background and doesn't block the response
+ */
+async function saveTokensToDatabase(tokens: StandardizedToken[]): Promise<void> {
+  try {
+    logger.info(`Saving ${tokens.length} tokens to database for search...`);
+    
+    // Batch upsert tokens (non-blocking)
+    const operations = tokens.map(token => 
+      prisma.token.upsert({
+        where: { address: token.tokenAddress },
+        create: {
+          address: token.tokenAddress,
+          symbol: token.tokenSymbol || null,
+          name: token.tokenName || null,
+          imageUrl: token.imageUrl || null,
+          lastPrice: token.price ? new Decimal(token.price) : null,
+          priceChange24h: token.priceChange24h ? new Decimal(token.priceChange24h) : null,
+          volume24h: token.volume24h ? new Decimal(token.volume24h) : null,
+          marketCapUsd: token.marketCap ? new Decimal(token.marketCap) : null,
+          liquidityUsd: null, // Liquidity not available in StandardizedToken
+          lastTs: new Date(),
+          lastUpdatedAt: new Date()
+        },
+        update: {
+          symbol: token.tokenSymbol || undefined,
+          name: token.tokenName || undefined,
+          imageUrl: token.imageUrl || undefined,
+          lastPrice: token.price ? new Decimal(token.price) : undefined,
+          priceChange24h: token.priceChange24h ? new Decimal(token.priceChange24h) : undefined,
+          volume24h: token.volume24h ? new Decimal(token.volume24h) : undefined,
+          marketCapUsd: token.marketCap ? new Decimal(token.marketCap) : undefined,
+          lastTs: new Date(),
+          lastUpdatedAt: new Date()
+        }
+      }).catch((err: Error) => {
+        // Log individual errors but don't fail the whole batch
+        logger.warn(`Failed to save token ${token.tokenAddress}:`, err.message);
+        return null;
+      })
+    );
+    
+    const results = await Promise.allSettled(operations);
+    const successCount = results.filter(r => r.status === 'fulfilled' && r.value !== null).length;
+    logger.info(`Successfully saved ${successCount}/${tokens.length} tokens to database`);
+  } catch (error) {
+    logger.error('Error saving tokens to database:', error);
+    // Don't throw - this is a background operation
+  }
+}
 
 // Cache for trending tokens
 const trendingCache = new NodeCache({ stdTTL: CACHE_TTL.STANDARD });
@@ -152,6 +206,12 @@ router.get('/trending', readLimiter, async (req, res) => {
       
       trendingCache.set(cacheKey, responseData, CACHE_TTL.STANDARD);
 
+      // CRITICAL FIX: Save tokens to database for search functionality
+      // This runs in background and doesn't block the response
+      saveTokensToDatabase(finalTokens).catch(err => 
+        logger.error('Background token save failed:', err)
+      );
+
       return res.json({
         success: true,
         data: responseData
@@ -176,6 +236,11 @@ router.get('/trending', readLimiter, async (req, res) => {
         };
         
         trendingCache.set(cacheKey, responseData, CACHE_TTL.FALLBACK);
+
+        // Save fallback tokens to database too
+        saveTokensToDatabase(transformedTokens).catch(err => 
+          logger.error('Background token save failed (fallback):', err)
+        );
 
         return res.json({
           success: true,
@@ -264,6 +329,11 @@ router.get('/trending', readLimiter, async (req, res) => {
     };
 
     trendingCache.set(cacheKey, responseData, CACHE_TTL.ERROR_FALLBACK);
+    
+    // Save hardcoded tokens to database so search still works
+    saveTokensToDatabase(fallbackTokens).catch(err => 
+      logger.error('Background token save failed (hardcoded fallback):', err)
+    );
 
     return res.json({
       success: true,
