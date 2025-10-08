@@ -11,7 +11,7 @@ import Link from "next/link"
 import { usePortfolio } from "@/lib/api-hooks"
 import { usePriceStreamContext } from "@/lib/price-stream-provider"
 import { WsSubManager } from "@/lib/ws-subscription-delta"
-import { useCallback, useState, useEffect, useMemo } from "react"
+import { useCallback, useState, useEffect, useMemo, useRef } from "react"
 import type { PortfolioPosition } from "@/lib/portfolio-service"
 
 // Helper function to format large numbers
@@ -36,7 +36,6 @@ export function ActivePositions() {
   
   // Real-time price stream integration with delta-based subscriptions
   const { connected: wsConnected, prices: livePrices, subscribeMany, unsubscribeMany } = usePriceStreamContext()
-  const [wsMgr] = useState(() => new WsSubManager(subscribeMany, unsubscribeMany))
   
   // Handle manual refresh
   const handleRefresh = useCallback(async () => {
@@ -48,17 +47,30 @@ export function ActivePositions() {
   // Extract positions from portfolio data
   const positions = portfolio?.positions?.filter(pos => parseFloat(pos.quantity) > 0) || []
 
+  // Memoize token addresses to prevent unnecessary re-subscriptions
+  const tokenAddresses = useMemo(
+    () => positions.map(p => p.tokenAddress),
+    [positions.map(p => p.tokenAddress).join(',')]
+  )
+
   // Subscribe to price updates using delta manager
+  // Create manager ref to avoid stale closures
+  const wsMgrRef = useRef<WsSubManager | null>(null)
+  
   useEffect(() => {
     if (!wsConnected) return
 
-    const tokens = positions.map(p => p.tokenAddress)
-    wsMgr.sync(tokens)
+    // Create or update manager with current subscribe/unsubscribe functions
+    if (!wsMgrRef.current) {
+      wsMgrRef.current = new WsSubManager(subscribeMany, unsubscribeMany)
+    }
+
+    wsMgrRef.current.sync(tokenAddresses)
 
     return () => {
-      wsMgr.clear()
+      wsMgrRef.current?.clear()
     }
-  }, [wsConnected, positions])
+  }, [wsConnected, subscribeMany, unsubscribeMany, tokenAddresses])
 
   // Helper to get live price or fallback to stored price
   const getCurrentPrice = useCallback((tokenAddress: string, fallbackPrice: number) => {

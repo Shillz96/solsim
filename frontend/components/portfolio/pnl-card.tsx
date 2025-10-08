@@ -10,7 +10,7 @@ import { SharePnLDialog } from "@/components/modals/share-pnl-dialog"
 import { usePortfolio, useBalance, useRecentTrades } from "@/lib/api-hooks"
 import { usePriceStreamContext } from "@/lib/price-stream-provider"
 import { WsSubManager } from "@/lib/ws-subscription-delta"
-import { memo, useState, useCallback, useEffect } from "react"
+import { memo, useState, useCallback, useEffect, useRef, useMemo } from "react"
 
 const AnimatedBackground = memo(({ isPositive }: { isPositive: boolean }) => {
   return (
@@ -49,19 +49,31 @@ export function PnLCard() {
 
   // Real-time price stream integration with delta-based subscriptions
   const { connected: wsConnected, prices: livePrices, subscribeMany, unsubscribeMany } = usePriceStreamContext()
-  const [wsMgr] = useState(() => new WsSubManager(subscribeMany, unsubscribeMany))
+
+  // Memoize token addresses to prevent unnecessary re-subscriptions
+  const tokenAddresses = useMemo(
+    () => (portfolio?.positions ?? []).map(p => p.tokenAddress),
+    [(portfolio?.positions ?? []).map(p => p.tokenAddress).join(',')]
+  )
 
   // Subscribe to price updates for all holdings using delta manager
+  // Create manager ref to avoid stale closures
+  const wsMgrRef = useRef<WsSubManager | null>(null)
+  
   useEffect(() => {
     if (!wsConnected) return
 
-    const tokens = (portfolio?.positions ?? []).map(p => p.tokenAddress)
-    wsMgr.sync(tokens)
+    // Create or update manager with current subscribe/unsubscribe functions
+    if (!wsMgrRef.current) {
+      wsMgrRef.current = new WsSubManager(subscribeMany, unsubscribeMany)
+    }
+
+    wsMgrRef.current.sync(tokenAddresses)
 
     return () => {
-      wsMgr.clear()
+      wsMgrRef.current?.clear()
     }
-  }, [wsConnected, portfolio?.positions])
+  }, [wsConnected, subscribeMany, unsubscribeMany, tokenAddresses])
 
   // Enhanced data extraction with live price integration
   const getLivePrice = (tokenAddress: string, fallbackPrice: number) => {
