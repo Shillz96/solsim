@@ -385,7 +385,9 @@ export class PriceStreamService extends EventEmitter {
 
   private handleUnsubscribe(client: PriceClient, tokenAddress: string): void {
     if (!client.subscriptions.has(tokenAddress)) {
-      this.sendError(client, 'Not subscribed to this token');
+      // Silently ignore duplicate unsubscribe requests instead of throwing error
+      // This handles race conditions from rapid UI re-renders
+      logger.debug(`Client ${client.id} attempted to unsubscribe from ${tokenAddress} but was not subscribed`);
       return;
     }
 

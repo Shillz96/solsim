@@ -103,26 +103,21 @@ export function TradingPanel({ tokenAddress: propTokenAddress }: TradingPanelPro
     loadTokenDetails()
   }, [loadTokenDetails])
 
-  // Memoize subscribe/unsubscribe functions to prevent effect loops
-  const subscribeToToken = useCallback((address: string) => {
-    if (wsConnected) {
-      subscribe(address)
-    }
-  }, [wsConnected, subscribe])
-
-  const unsubscribeFromToken = useCallback((address: string) => {
-    unsubscribe(address)
-  }, [unsubscribe])
-
   // Subscribe to real-time price updates for this token
+  // Only re-subscribe when tokenAddress changes, not on every render
   useEffect(() => {
-    if (tokenAddress) {
-      subscribeToToken(tokenAddress)
-      return () => {
-        unsubscribeFromToken(tokenAddress)
+    if (!tokenAddress) return
+    
+    if (wsConnected) {
+      subscribe(tokenAddress)
+    }
+    
+    return () => {
+      if (wsConnected) {
+        unsubscribe(tokenAddress)
       }
     }
-  }, [tokenAddress, subscribeToToken, unsubscribeFromToken])
+  }, [tokenAddress]) // Only depend on tokenAddress, not subscribe/unsubscribe functions
 
   // Handle trade execution
   const handleTrade = useCallback(async (action: 'buy' | 'sell') => {
