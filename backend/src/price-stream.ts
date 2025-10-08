@@ -67,7 +67,7 @@ const CONFIG = {
   RATE_LIMIT_MAX_ACTIONS: 10000, // 10000 client actions per minute (high limit for reconnections)
   
   // Price updates
-  PRICE_UPDATE_INTERVAL: 2000, // 2 seconds
+  PRICE_UPDATE_INTERVAL: 5000, // 5 seconds (reduced from 2s to prevent UI spam)
   BATCH_UPDATE_SIZE: 20, // Process 20 tokens at once
   
   // Heartbeat and cleanup

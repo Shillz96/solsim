@@ -94,20 +94,38 @@ export function usePriceStream(options: UsePriceStreamOptions = {}): PriceStream
           
           if (message.type === 'price_update') {
             const { tokenAddress, price, change24h, timestamp } = message
-            setPrices(prev => new Map(prev.set(tokenAddress, { price, change24h, timestamp })))
+            setPrices(prev => {
+              const existing = prev.get(tokenAddress)
+              // Only update if price actually changed - prevents unnecessary re-renders
+              if (existing?.price === price && existing?.change24h === change24h) {
+                return prev
+              }
+              const newMap = new Map(prev)
+              newMap.set(tokenAddress, { price, change24h, timestamp })
+              return newMap
+            })
           }
           else if (message.type === 'price_batch') {
             const updates = message.updates
             setPrices(prev => {
+              let hasChanges = false
               const newPrices = new Map(prev)
+              
               updates.forEach((update: any) => {
-                newPrices.set(update.tokenAddress, {
-                  price: update.price,
-                  change24h: update.change24h,
-                  timestamp: update.timestamp
-                })
+                const existing = newPrices.get(update.tokenAddress)
+                // Only update if values changed
+                if (existing?.price !== update.price || existing?.change24h !== update.change24h) {
+                  newPrices.set(update.tokenAddress, {
+                    price: update.price,
+                    change24h: update.change24h,
+                    timestamp: update.timestamp
+                  })
+                  hasChanges = true
+                }
               })
-              return newPrices
+              
+              // Return same reference if nothing changed - prevents re-renders
+              return hasChanges ? newPrices : prev
             })
           }
           else if (message.type === 'welcome') {

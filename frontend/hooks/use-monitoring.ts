@@ -13,13 +13,13 @@ export function useHealthCheck(refreshInterval: number = 30000) {
 
   const fetchHealth = useCallback(async () => {
     try {
-      setLoading(true)
+      // Don't set loading=true on refetch, only on initial load
       setError(null)
       const health = await monitoringService.getHealth()
       setData(health)
+      setLoading(false) // Set false after first successful load
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch health data')
-    } finally {
       setLoading(false)
     }
   }, [])
@@ -49,13 +49,13 @@ export function useSystemMetrics(refreshInterval: number = 15000) {
 
   const fetchMetrics = useCallback(async () => {
     try {
-      setLoading(true)
+      // Don't set loading=true on refetch, only on initial load
       setError(null)
       const metrics = await monitoringService.getMetrics()
       setData(metrics)
+      setLoading(false) // Set false after first successful load
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch metrics data')
-    } finally {
       setLoading(false)
     }
   }, [])
@@ -91,13 +91,13 @@ export function useSystemAlerts(refreshInterval: number = 10000) {
 
   const fetchAlerts = useCallback(async () => {
     try {
-      setLoading(true)
+      // Don't set loading=true on refetch, only on initial load
       setError(null)
       const alerts = await monitoringService.getAlerts()
       setData(alerts)
+      setLoading(false) // Set false after first successful load
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch alerts data')
-    } finally {
       setLoading(false)
     }
   }, [])
@@ -137,13 +137,13 @@ export function useSystemStatus(refreshInterval: number = 20000) {
 
   const fetchStatus = useCallback(async () => {
     try {
-      setLoading(true)
+      // Don't set loading=true on refetch, only on initial load
       setError(null)
       const status = await monitoringService.getSystemStatus()
       setData(status)
+      setLoading(false) // Set false after first successful load
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch system status')
-    } finally {
       setLoading(false)
     }
   }, [])
