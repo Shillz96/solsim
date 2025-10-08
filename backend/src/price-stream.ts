@@ -64,7 +64,7 @@ const CONFIG = {
   
   // Rate limiting (for client actions only, not server-sent updates)
   RATE_LIMIT_WINDOW: 60000, // 1 minute
-  RATE_LIMIT_MAX_ACTIONS: 1000, // 1000 client actions per minute (subscription/unsubscription)
+  RATE_LIMIT_MAX_ACTIONS: 10000, // 10000 client actions per minute (high limit for reconnections)
   
   // Price updates
   PRICE_UPDATE_INTERVAL: 2000, // 2 seconds
