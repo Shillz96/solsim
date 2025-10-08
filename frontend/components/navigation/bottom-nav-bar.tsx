@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils"
 import { useState, useEffect } from "react"
 import { useTheme } from "next-themes"
 import { motion, AnimatePresence } from "framer-motion"
+import marketService from "@/lib/market-service"
 
 interface MarketPrice {
   symbol: string
@@ -19,14 +20,33 @@ export function BottomNavBar() {
   const { theme, setTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
   const [marketPrices, setMarketPrices] = useState<MarketPrice[]>([
-    { symbol: "SOL", price: 142.56, change24h: 5.23 },
-    { symbol: "BTC", price: 67234.12, change24h: -2.15 },
-    { symbol: "ETH", price: 3456.78, change24h: 3.45 },
+    { symbol: "SOL", price: 0, change24h: 0 },
   ])
 
   // Prevent hydration mismatch by only rendering theme toggle after mount
   useEffect(() => {
     setMounted(true)
+  }, [])
+
+  // Fetch real SOL price
+  useEffect(() => {
+    const fetchPrices = async () => {
+      try {
+        const solPrice = await marketService.getSolPrice()
+        setMarketPrices([
+          { symbol: "SOL", price: solPrice.price, change24h: solPrice.priceChange24h }
+        ])
+      } catch (error) {
+        console.error('Failed to fetch market prices:', error)
+        // Keep default values on error
+      }
+    }
+
+    fetchPrices()
+    
+    // Refresh prices every 30 seconds
+    const interval = setInterval(fetchPrices, 30000)
+    return () => clearInterval(interval)
   }, [])
 
   const navItems = [

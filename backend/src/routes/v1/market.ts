@@ -99,18 +99,28 @@ router.get('/search', apiLimiter, async (req: Request, res: Response): Promise<v
       limit: { type: 'number', default: LIMITS.SEARCH_DEFAULT, min: 1, max: LIMITS.SEARCH_MAX }
     });
 
-    // Basic token search using database (case-insensitive for SQLite compatibility)
-    const searchTerm = q.toLowerCase();
+    // Case-insensitive search for PostgreSQL using mode: 'insensitive'
     const tokens = await prisma.token.findMany({
       where: {
         OR: [
-          { symbol: { contains: searchTerm } },
-          { name: { contains: searchTerm } },
-          { address: { contains: q } } // Addresses are typically case-sensitive
+          { symbol: { contains: q, mode: 'insensitive' } },
+          { name: { contains: q, mode: 'insensitive' } },
+          { address: { equals: q } } // Exact match for addresses
         ]
       },
       take: limit,
-      orderBy: { volume24h: 'desc' }
+      orderBy: { volume24h: 'desc' },
+      select: {
+        address: true,
+        symbol: true,
+        name: true,
+        imageUrl: true,
+        lastPrice: true,
+        priceChange24h: true,
+        volume24h: true,
+        marketCapUsd: true,
+        liquidityUsd: true
+      }
     });
 
     res.json({

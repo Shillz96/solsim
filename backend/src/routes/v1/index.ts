@@ -20,4 +20,7 @@ router.use('/user', userRoutes);
 router.use('/leaderboard', leaderboardRoutes);
 // router.use('/wallet', walletRoutes); // Temporarily disabled - needs refactoring
 
+// Alias /trending to /market/trending for backwards compatibility
+router.use('/trending', marketRoutes);
+
 export default router;

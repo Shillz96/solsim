@@ -58,8 +58,8 @@ export interface PriceCache {
 // CONFIGURATION
 // ============================================================================
 
-const CACHE_TTL = 30; // 30 seconds Redis TTL
-const MEMORY_CACHE_TTL = 10 * 1000; // 10 seconds in-memory fallback
+const CACHE_TTL = 60; // 60 seconds Redis TTL (increased from 30s)
+const MEMORY_CACHE_TTL = 30 * 1000; // 30 seconds in-memory fallback (increased from 10s)
 const NEGATIVE_CACHE_TTL = 5 * 60; // 5 minutes for failed lookups (negative caching)
 const BATCH_SIZE = 50; // Max tokens per batch request
 const REQUEST_TIMEOUT = 5000; // 5 second timeout
