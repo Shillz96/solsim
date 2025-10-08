@@ -522,7 +522,7 @@ export class PriceService {
    * Pairs are scored by liquidity, volume, and recent activity
    */
   private async fetchDexScreenerPrice(tokenAddress: string): Promise<TokenPrice | null> {
-    // Wrap with circuit breaker
+    // Wrap with circuit breaker - only catches real API failures
     return this.dexScreenerBreaker.execute(async () => {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT);
@@ -538,6 +538,10 @@ export class PriceService {
       clearTimeout(timeoutId);
 
       if (!response.ok) {
+        // Only throw for server errors (500+), not for 404 (token not found)
+        if (response.status >= 500) {
+          throw new Error(`DexScreener API error: ${response.status}`);
+        }
         logger.debug(`DexScreener API error: ${response.status}`);
         return null;
       }
@@ -671,6 +675,10 @@ export class PriceService {
       clearTimeout(timeoutId);
 
       if (!response.ok) {
+        // Only throw for server errors (500+), not for 404 (token not found)
+        if (response.status >= 500) {
+          throw new Error(`Birdeye API error: ${response.status}`);
+        }
         return null;
       }
 
@@ -711,6 +719,10 @@ export class PriceService {
       clearTimeout(timeoutId);
 
       if (!response.ok) {
+        // Only throw for server errors (500+), not for 404 (token not found)
+        if (response.status >= 500) {
+          throw new Error(`CoinGecko API error: ${response.status}`);
+        }
         return null;
       }
 
