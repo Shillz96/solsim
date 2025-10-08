@@ -66,7 +66,7 @@ export function PositionNotes({ tokenAddress }: PositionNotesProps) {
           return (
             <div
               key={index}
-              className="rounded-lg border border-border bg-card/50 p-3 space-y-2 hover:border-primary/50 transition-colors"
+              className="rounded-lg border border-border bg-card p-3 space-y-2 hover:border-primary/50 transition-colors"
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">

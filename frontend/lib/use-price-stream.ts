@@ -13,6 +13,8 @@ interface PriceStreamHook {
   error: string | null
   subscribe: (tokenAddress: string) => void
   unsubscribe: (tokenAddress: string) => void
+  subscribeMany: (tokenAddresses: string[]) => void
+  unsubscribeMany: (tokenAddresses: string[]) => void
   prices: Map<string, { price: number; change24h: number; timestamp: number }>
   reconnect: () => void
 }
@@ -114,6 +116,9 @@ export function usePriceStream(options: UsePriceStreamOptions = {}): PriceStream
           else if (message.type === 'subscribed') {
             // Subscription confirmed for token
           }
+          else if (message.type === 'subscription_confirmed') {
+            // Already subscribed - this is fine (handles reconnection)
+          }
           else if (message.type === 'error') {
             console.error('WebSocket server error:', message.message)
             setError(message.message)
@@ -171,6 +176,11 @@ export function usePriceStream(options: UsePriceStreamOptions = {}): PriceStream
   }, [])
 
   const subscribe = useCallback((tokenAddress: string) => {
+    // Prevent duplicate subscriptions
+    if (subscriptionsRef.current.has(tokenAddress)) {
+      return
+    }
+    
     subscriptionsRef.current.add(tokenAddress)
     
     if (wsRef.current?.readyState === WebSocket.OPEN) {
@@ -199,6 +209,51 @@ export function usePriceStream(options: UsePriceStreamOptions = {}): PriceStream
     })
   }, [])
 
+  const subscribeMany = useCallback((tokenAddresses: string[]) => {
+    if (!tokenAddresses || tokenAddresses.length === 0) return
+    
+    // Filter out tokens already subscribed
+    const newTokens = tokenAddresses.filter(addr => !subscriptionsRef.current.has(addr))
+    if (newTokens.length === 0) return
+    
+    // Add to subscription set
+    newTokens.forEach(addr => subscriptionsRef.current.add(addr))
+    
+    // Send batch subscription if connected
+    if (wsRef.current?.readyState === WebSocket.OPEN) {
+      newTokens.forEach(tokenAddress => {
+        wsRef.current?.send(JSON.stringify({
+          type: 'subscribe',
+          tokenAddress
+        }))
+      })
+    }
+  }, [])
+
+  const unsubscribeMany = useCallback((tokenAddresses: string[]) => {
+    if (!tokenAddresses || tokenAddresses.length === 0) return
+    
+    // Remove from subscription set
+    tokenAddresses.forEach(addr => subscriptionsRef.current.delete(addr))
+    
+    // Send batch unsubscribe if connected
+    if (wsRef.current?.readyState === WebSocket.OPEN) {
+      tokenAddresses.forEach(tokenAddress => {
+        wsRef.current?.send(JSON.stringify({
+          type: 'unsubscribe',
+          tokenAddress
+        }))
+      })
+    }
+
+    // Remove prices from local state
+    setPrices(prev => {
+      const newPrices = new Map(prev)
+      tokenAddresses.forEach(addr => newPrices.delete(addr))
+      return newPrices
+    })
+  }, [])
+
   const reconnect = useCallback(() => {
     disconnect()
     setTimeout(connect, 100)
@@ -223,6 +278,8 @@ export function usePriceStream(options: UsePriceStreamOptions = {}): PriceStream
     error,
     subscribe,
     unsubscribe,
+    subscribeMany,
+    unsubscribeMany,
     prices,
     reconnect
   }

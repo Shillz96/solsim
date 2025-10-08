@@ -16,7 +16,7 @@ const TOP_TRADERS = [
 
 export function LeaderboardPreview() {
   return (
-    <section className="py-20 md:py-32">
+    <section className="py-20 md:py-32 bg-muted">
       <div className="container mx-auto px-4">
         <motion.div
           className="text-center space-y-4 mb-12"
@@ -38,10 +38,10 @@ export function LeaderboardPreview() {
           viewport={{ once: true }}
           transition={{ delay: 0.2 }}
         >
-          <Card className="max-w-4xl mx-auto bg-card border-border overflow-hidden shadow-xl">
+          <Card className="max-w-4xl mx-auto bg-card border-border overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="bg-muted/50">
+                <thead className="bg-muted">
                   <tr>
                     <th className="px-6 py-4 text-left text-sm font-semibold">Rank</th>
                     <th className="px-6 py-4 text-left text-sm font-semibold">Trader</th>
@@ -54,7 +54,7 @@ export function LeaderboardPreview() {
                   {TOP_TRADERS.map((trader) => (
                     <motion.tr
                       key={trader.rank}
-                      className="hover:bg-muted/30 transition-colors"
+                      className="hover:bg-muted transition-colors"
                       initial={{ opacity: 0, x: -20 }}
                       whileInView={{ opacity: 1, x: 0 }}
                       viewport={{ once: true }}
@@ -62,26 +62,26 @@ export function LeaderboardPreview() {
                     >
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-2">
-                          {trader.rank === 1 && <Trophy className="h-5 w-5 text-yellow-500" />}
-                          {trader.rank === 2 && <Trophy className="h-5 w-5 text-gray-400" />}
-                          {trader.rank === 3 && <Trophy className="h-5 w-5 text-orange-600" />}
-                          <span className="font-bold text-lg">#{trader.rank}</span>
+                          {trader.rank === 1 && <Trophy className="h-5 w-5 text-foreground" strokeWidth={2.5} />}
+                          {trader.rank === 2 && <Trophy className="h-5 w-5 text-foreground" strokeWidth={2} />}
+                          {trader.rank === 3 && <Trophy className="h-5 w-5 text-foreground" strokeWidth={1.5} />}
+                          <span className={`text-lg ${trader.rank <= 3 ? 'font-bold' : 'font-medium'}`}>#{trader.rank}</span>
                         </div>
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-2">
-                          <span className="font-medium">{trader.username}</span>
-                          {trader.isRising && <TrendingUp className="h-4 w-4 text-accent" />}
+                          <span className={`${trader.rank <= 3 ? 'font-bold' : 'font-medium'}`}>{trader.username}</span>
+                          {trader.isRising && <TrendingUp className="h-4 w-4 text-foreground" />}
                         </div>
                       </td>
                       <td className="px-6 py-4 text-right">
-                        <span className="font-bold text-accent font-mono">+{trader.roi.toFixed(1)}%</span>
+                        <span className={`font-mono ${trader.rank <= 3 ? 'font-bold' : 'font-medium'} text-green-600`}>+{trader.roi.toFixed(1)}%</span>
                       </td>
                       <td className="px-6 py-4 text-right">
                         <span className="text-muted-foreground font-mono">{trader.trades}</span>
                       </td>
                       <td className="px-6 py-4 text-right">
-                        <span className="font-medium font-mono">{trader.balance.toFixed(2)} SOL</span>
+                        <span className={`font-mono ${trader.rank <= 3 ? 'font-bold' : 'font-medium'}`}>{trader.balance.toFixed(2)} SOL</span>
                       </td>
                     </motion.tr>
                   ))}
@@ -99,7 +99,7 @@ export function LeaderboardPreview() {
           transition={{ delay: 0.4 }}
         >
           <Link href="/leaderboard">
-            <Button size="lg" variant="outline" className="group bg-transparent hover:bg-card">
+            <Button size="lg" variant="outline" className="group border-2">
               View Full Leaderboard
               <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
             </Button>

@@ -103,15 +103,26 @@ export function TradingPanel({ tokenAddress: propTokenAddress }: TradingPanelPro
     loadTokenDetails()
   }, [loadTokenDetails])
 
+  // Memoize subscribe/unsubscribe functions to prevent effect loops
+  const subscribeToToken = useCallback((address: string) => {
+    if (wsConnected) {
+      subscribe(address)
+    }
+  }, [wsConnected, subscribe])
+
+  const unsubscribeFromToken = useCallback((address: string) => {
+    unsubscribe(address)
+  }, [unsubscribe])
+
   // Subscribe to real-time price updates for this token
   useEffect(() => {
-    if (tokenAddress && wsConnected) {
-      subscribe(tokenAddress)
+    if (tokenAddress) {
+      subscribeToToken(tokenAddress)
       return () => {
-        unsubscribe(tokenAddress)
+        unsubscribeFromToken(tokenAddress)
       }
     }
-  }, [tokenAddress, wsConnected]) // Remove subscribe/unsubscribe to prevent loops
+  }, [tokenAddress, subscribeToToken, unsubscribeFromToken])
 
   // Handle trade execution
   const handleTrade = useCallback(async (action: 'buy' | 'sell') => {
@@ -526,7 +537,7 @@ export function TradingPanel({ tokenAddress: propTokenAddress }: TradingPanelPro
                 <div className="font-mono text-lg font-semibold">
                   {parseFloat(tokenHolding.quantity).toLocaleString(undefined, { maximumFractionDigits: 6 })} {tokenDetails?.tokenSymbol || 'tokens'}
                 </div>
-                {tokenHolding.pnl && (
+                {tokenHolding.pnl?.sol?.absolute && (
                   <div className={`text-sm ${parseFloat(tokenHolding.pnl.sol.absolute) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                     {parseFloat(tokenHolding.pnl.sol.absolute) >= 0 ? '+' : ''}{parseFloat(tokenHolding.pnl.sol.absolute).toFixed(4)} SOL 
                     ({tokenHolding.pnl.sol.percent >= 0 ? '+' : ''}{tokenHolding.pnl.sol.percent.toFixed(2)}%)

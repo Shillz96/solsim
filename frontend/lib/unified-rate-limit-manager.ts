@@ -197,14 +197,137 @@ export class UnifiedRateLimitManager {
    * Removes dynamic parameters like IDs, addresses, query strings
    */
   private normalizeEndpoint(endpoint: string): string {
-    return endpoint
-      .replace(/\/[a-fA-F0-9-]{36,}/g, '/:id')        // UUIDs
-      .replace(/\/[a-zA-Z0-9]{32,}/g, '/:address')    // Token addresses
-      .replace(/\?.*$/, '')                           // Query parameters
-      .replace(/\d+/g, ':num')                        // Any numbers
+    const normalizations = [
+      { pattern: /\/[a-fA-F0-9-]{36,}/g, replacement: '/:id' },        // UUIDs
+      { pattern: /\/[a-zA-Z0-9]{32,}/g, replacement: '/:address' },    // Token addresses
+      { pattern: /\?.*$/, replacement: '' },                           // Query parameters
+      { pattern: /\d+/g, replacement: ':num' }                         // Any numbers
+    ]
+
+    return normalizations.reduce(
+      (normalized, { pattern, replacement }) => normalized.replace(pattern, replacement),
+      endpoint
+    )
   }
 }
 
 // Export singleton
 export const rateLimitManager = UnifiedRateLimitManager.getInstance()
 
+/**
+ * Client-side WebSocket emission rate limiter (defense in depth)
+ * 
+ * Creates a guard that limits how many emissions can happen per second.
+ * Useful for preventing rapid-fire WebSocket emit storms from UI interactions.
+ * 
+ * @param limitPerSec - Maximum emissions allowed per second (default: 8)
+ * @returns A wrapped emit function that enforces the rate limit
+ * 
+ * @example
+ * ```typescript
+ * const guardedEmit = createEmitterGuard(8);
+ * const wrappedEmit = guardedEmit((data) => socket.emit('subscribe', data));
+ * 
+ * // This will be throttled to 8 calls/sec max
+ * wrappedEmit(tokenAddress);
+ * ```
+ */
+export function createEmitterGuard(limitPerSec: number = 8) {
+  let count = 0;
+  let resetTimer: NodeJS.Timeout | null = null;
+
+  // Reset counter every second
+  const startResetTimer = () => {
+    if (!resetTimer) {
+      resetTimer = setInterval(() => {
+        count = 0;
+      }, 1000);
+    }
+  };
+
+  return function guardedEmit<T extends (...args: any[]) => void>(
+    emitFn: T
+  ): (...args: Parameters<T>) => void {
+    startResetTimer();
+
+    return (...args: Parameters<T>) => {
+      if (count < limitPerSec) {
+        count++;
+        emitFn(...args);
+      } else {
+        // Silently drop emissions over the limit
+        if (process.env.NODE_ENV === 'development') {
+          console.warn(
+            `[Rate Limit] Emission throttled (${count}/${limitPerSec} per second)`
+          );
+        }
+      }
+    };
+  };
+}
+
+/**
+ * Sliding window rate limiter for WebSocket subscriptions
+ * 
+ * More sophisticated than simple counter - tracks individual emission timestamps
+ * and enforces a true sliding window.
+ * 
+ * @param maxEmissions - Maximum emissions in the time window
+ * @param windowMs - Time window in milliseconds (default: 1000ms)
+ * 
+ * @example
+ * ```typescript
+ * const limiter = new SlidingWindowRateLimiter(10, 1000); // 10 per second
+ * 
+ * if (limiter.tryAcquire()) {
+ *   socket.emit('subscribe', token);
+ * }
+ * ```
+ */
+export class SlidingWindowRateLimiter {
+  private emissions: number[] = [];
+
+  constructor(
+    private maxEmissions: number,
+    private windowMs: number = 1000
+  ) {}
+
+  /**
+   * Try to acquire permission for an emission
+   * @returns true if emission is allowed, false if rate limit exceeded
+   */
+  tryAcquire(): boolean {
+    const now = Date.now();
+    
+    // Remove emissions outside the current window
+    this.emissions = this.emissions.filter(
+      timestamp => now - timestamp < this.windowMs
+    );
+
+    // Check if we're under the limit
+    if (this.emissions.length < this.maxEmissions) {
+      this.emissions.push(now);
+      return true;
+    }
+
+    return false;
+  }
+
+  /**
+   * Get current emission count in the window
+   */
+  getCurrentCount(): number {
+    const now = Date.now();
+    this.emissions = this.emissions.filter(
+      timestamp => now - timestamp < this.windowMs
+    );
+    return this.emissions.length;
+  }
+
+  /**
+   * Reset the limiter
+   */
+  reset(): void {
+    this.emissions = [];
+  }
+}

@@ -4,6 +4,7 @@ import prisma from '../lib/prisma.js';
 import { Decimal } from '@prisma/client/runtime/library';
 import { cacheService } from './cacheService.js';
 import { monitoringService, trackPriceUpdate, trackCacheOperation } from './monitoringService.js';
+import { circuitBreakerManager } from '../utils/circuitBreaker.js';
 
 /**
  * Price Service - Unified price fetching and caching
@@ -94,6 +95,25 @@ export class PriceService {
   // Batch request coalescing: track in-flight batch requests
   // Key is sorted comma-separated addresses to match identical batch requests
   private inflightBatchRequests: Map<string, Promise<Map<string, TokenPrice>>> = new Map();
+  
+  // Circuit breakers for external APIs
+  private dexScreenerBreaker = circuitBreakerManager.getBreaker('dexscreener', {
+    failureThreshold: 5,
+    timeout: 30000, // 30 seconds
+    successThreshold: 2
+  });
+  
+  private birdeyeBreaker = circuitBreakerManager.getBreaker('birdeye', {
+    failureThreshold: 3,
+    timeout: 60000, // 1 minute
+    successThreshold: 2
+  });
+  
+  private coinGeckoBreaker = circuitBreakerManager.getBreaker('coingecko', {
+    failureThreshold: 3,
+    timeout: 60000, // 1 minute
+    successThreshold: 2
+  });
 
   /**
    * Get current price for a single token in SOL
@@ -344,36 +364,47 @@ export class PriceService {
   }
 
   /**
-   * Fetch batch prices with proper caching
+   * Fetch batch prices with proper caching and timeout protection
    * Separated for request coalescing
    */
   private async fetchBatchPricesWithCoalescing(tokenAddresses: string[]): Promise<Map<string, TokenPrice>> {
     const results = new Map<string, TokenPrice>();
     
+    // Add timeout protection - don't let batch fetches hang
+    const BATCH_FETCH_TIMEOUT = 5000; // 5 seconds max for batch
+    
     try {
       const batches = this.splitIntoBatches(tokenAddresses, BATCH_SIZE);
 
-      for (const batch of batches) {
-        const batchPrices = await this.fetchBatchPrices(batch);
-        
-        // Cache and add to results
-        const cacheEntries: Array<[string, TokenPrice]> = [];
-        
-        batchPrices.forEach((price, address) => {
-          results.set(address, price);
-          cacheEntries.push([CACHE_KEYS.TOKEN_PRICE + address, price]);
-          // Also cache in memory
-          this.cachePrice(address, price);
-        });
+      // Wrap the batch processing in a timeout
+      await Promise.race([
+        (async () => {
+          for (const batch of batches) {
+            const batchPrices = await this.fetchBatchPrices(batch);
+            
+            // Cache and add to results
+            const cacheEntries: Array<[string, TokenPrice]> = [];
+            
+            batchPrices.forEach((price, address) => {
+              results.set(address, price);
+              cacheEntries.push([CACHE_KEYS.TOKEN_PRICE + address, price]);
+              // Also cache in memory
+              this.cachePrice(address, price);
+            });
 
-        // Batch cache to Redis
-        if (cacheEntries.length > 0) {
-          await cacheService.mset(cacheEntries, { ttl: CACHE_TTL, serialize: true });
-        }
+            // Batch cache to Redis
+            if (cacheEntries.length > 0) {
+              await cacheService.mset(cacheEntries, { ttl: CACHE_TTL, serialize: true });
+            }
 
-        // Rate limiting between batches
-        await this.waitForRateLimit();
-      }
+            // Rate limiting between batches
+            await this.waitForRateLimit();
+          }
+        })(),
+        new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Batch fetch timeout')), BATCH_FETCH_TIMEOUT)
+        )
+      ]);
 
       return results;
     } catch (error) {
@@ -491,7 +522,8 @@ export class PriceService {
    * Pairs are scored by liquidity, volume, and recent activity
    */
   private async fetchDexScreenerPrice(tokenAddress: string): Promise<TokenPrice | null> {
-    try {
+    // Wrap with circuit breaker
+    return this.dexScreenerBreaker.execute(async () => {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT);
 
@@ -609,23 +641,19 @@ export class PriceService {
           liquidityScore: scorePair(selectedPair),
         },
       };
-    } catch (error) {
-      if ((error as any).name !== 'AbortError') {
-        logger.debug(`DexScreener fetch error for ${tokenAddress}:`, error);
-      }
-      return null;
-    }
+    }, null); // null fallback - will try other sources
   }
 
   /**
    * Fetch price from Birdeye API
    */
   private async fetchBirdeyePrice(tokenAddress: string): Promise<TokenPrice | null> {
-    try {
-      if (!config.apis.birdeye.apiKey) {
-        return null;
-      }
+    if (!config.apis.birdeye.apiKey) {
+      return null;
+    }
 
+    // Wrap with circuit breaker
+    return this.birdeyeBreaker.execute(async () => {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT);
 
@@ -635,7 +663,7 @@ export class PriceService {
           signal: controller.signal,
           headers: {
             'Accept': 'application/json',
-            'X-API-KEY': config.apis.birdeye.apiKey,
+            'X-API-KEY': config.apis.birdeye.apiKey!,
           },
         }
       );
@@ -659,19 +687,15 @@ export class PriceService {
         timestamp: Date.now(),
         source: 'birdeye',
       };
-    } catch (error) {
-      if ((error as any).name !== 'AbortError') {
-        logger.debug(`Birdeye fetch error for ${tokenAddress}:`, error);
-      }
-      return null;
-    }
+    }, null); // null fallback
   }
 
   /**
    * Fetch price from CoinGecko API (for major tokens like SOL)
    */
   private async fetchCoinGeckoPrice(coinId: string): Promise<TokenPrice | null> {
-    try {
+    // Wrap with circuit breaker
+    return this.coinGeckoBreaker.execute(async () => {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT);
 
@@ -703,12 +727,7 @@ export class PriceService {
         timestamp: Date.now(),
         source: 'coingecko',
       };
-    } catch (error) {
-      if ((error as any).name !== 'AbortError') {
-        logger.debug(`CoinGecko fetch error for ${coinId}:`, error);
-      }
-      return null;
-    }
+    }, null); // null fallback
   }
 
   /**

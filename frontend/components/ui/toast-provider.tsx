@@ -3,7 +3,7 @@
 import { useEffect } from 'react'
 import { toast } from '../ui/use-toast'
 
-export function ToastProvider() {
+export function GlobalToastProvider() {
   useEffect(() => {
     // Listen for global error events from error handler
     const handleUserMessage = (event: CustomEvent) => {

@@ -3,22 +3,24 @@
 import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
 import { usePortfolioPerformance } from "@/lib/api-hooks"
 import { Loader2, AlertCircle } from "lucide-react"
-import { useState } from "react"
+import { useState, useMemo } from "react"
 
 export function PortfolioChart() {
   const [period, setPeriod] = useState<'30d' | '7d' | '90d'>('30d')
   const { data: performance, isLoading, error } = usePortfolioPerformance(period)
 
-  // Generate chart data from performance history
-  const chartData = performance?.tradeHistory?.map((trade, index) => ({
-    time: new Date(trade.timestamp).toLocaleDateString('en-US', { 
-      month: 'short', 
-      day: 'numeric' 
-    }),
-    value: parseFloat(trade.totalCost || '0'),
-    pnl: parseFloat(trade.realizedPnL || '0'),
-    index
-  })) || []
+  // Memoize chart data generation to avoid recalculation on every render
+  const chartData = useMemo(() => {
+    return performance?.tradeHistory?.map((trade, index) => ({
+      time: new Date(trade.timestamp).toLocaleDateString('en-US', { 
+        month: 'short', 
+        day: 'numeric' 
+      }),
+      value: parseFloat(trade.totalCost || '0'),
+      pnl: parseFloat(trade.realizedPnL || '0'),
+      index
+    })) || []
+  }, [performance])
 
   if (isLoading) {
     return (
@@ -80,6 +82,7 @@ export function PortfolioChart() {
               tickLine={false}
               axisLine={false}
               tickFormatter={(value) => `${Number(value).toFixed(2)} SOL`}
+              label={{ value: 'Spend (SOL)', angle: -90, position: 'insideLeft', style: { fontSize: 12, fill: 'hsl(var(--muted-foreground))' } }}
             />
             <Tooltip
               content={({ active, payload }) => {
@@ -89,7 +92,7 @@ export function PortfolioChart() {
                     <div className="rounded-lg border border-border bg-background p-3 shadow-lg">
                       <p className="text-xs text-muted-foreground">{data.time}</p>
                       <p className="font-mono text-sm font-semibold text-foreground">
-                        {Number(data.value).toFixed(4)} SOL
+                        Spend: {Number(data.value).toFixed(4)} SOL
                       </p>
                       {data.pnl !== 0 && (
                         <p className={`font-mono text-xs ${

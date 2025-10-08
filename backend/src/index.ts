@@ -139,10 +139,14 @@ const services = {
   metadataService: serviceFactory.metadataService
 };
 
+// Set services on app.locals for routes that need it
+app.locals.services = services;
+
 // Initialize route modules with services
 initializeMarketRoutes({
   trendingService: services.trendingService,
-  priceService: services.priceService
+  priceService: services.priceService,
+  metadataService: services.metadataService
 });
 
 initializePortfolioRoutes({
@@ -153,7 +157,8 @@ initializePortfolioRoutes({
 initializeTradesRoutes({
   tradeService: services.tradeService,
   priceService: services.priceService,
-  portfolioService: services.portfolioService
+  portfolioService: services.portfolioService,
+  metadataService: services.metadataService
 });
 
 // Mount v1 API routes
@@ -161,13 +166,6 @@ app.use('/api/v1', v1Routes);
 
 // Mount Solana Tracker routes under v1 for consistency
 app.use('/api/v1/solana-tracker', solanaTrackerRoutes);
-
-// Legacy support - redirect to versioned endpoint
-app.use('/api/solana-tracker', (req: Request, res: Response) => {
-  const newPath = `/api/v1${req.path}`;
-  logger.warn(`Deprecated endpoint accessed: ${req.originalUrl}, redirecting to ${newPath}`);
-  res.redirect(301, newPath);
-});
 
 // Serve static avatar files
 const uploadsPath = path.join(process.cwd(), 'uploads');

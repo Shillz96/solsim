@@ -1,4 +1,9 @@
 import withSerwistInit from '@serwist/next'
+import withBundleAnalyzer from '@next/bundle-analyzer'
+
+const bundleAnalyzer = withBundleAnalyzer({
+  enabled: process.env.ANALYZE === 'true',
+})
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -56,7 +61,8 @@ const nextConfig = {
       'bafybeicqiiqq6bbrrvrlv2j7aanopwyrcgcdudbhvkukpdu5cw3a2turaa.ipfs.nftstorage.link', // IPFS storage
       'bafkreicd5ijwhv5bzcpso5p5sqsc7efgg5f5vedg5fzupsl6i4c3tjhyvi.ipfs.nftstorage.link', // IPFS storage
       'bafybeiaoa7pw52xbsomr2klv3tg37ka6bjwekvugssvxz2twsnaupkg7lu.ipfs.nftstorage.link', // IPFS storage
-      'api-main.uxento.io' // Uxento API proxy for images
+      'api-main.uxento.io', // Uxento API proxy for images
+      '79.252.218.193' // Backend server IP
     ],
     remotePatterns: [
       {
@@ -213,4 +219,4 @@ const withSerwist = withSerwistInit({
   ],
 })
 
-export default withSerwist(nextConfig)
+export default bundleAnalyzer(withSerwist(nextConfig))

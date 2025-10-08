@@ -197,6 +197,36 @@ export class ErrorLogger {
     return Math.abs(hash).toString(36)
   }
 
+  private cleanupThrottle() {
+    if (this.logThrottle.size <= 100) return
+    
+    const now = Date.now()
+    const cutoff = now - this.throttleInterval * 2
+    
+    for (const [key, timestamp] of this.logThrottle.entries()) {
+      if (timestamp < cutoff) {
+        this.logThrottle.delete(key)
+      }
+    }
+  }
+
+  private shouldLog(level: LogLevel['level'], message: string): boolean {
+    if (process.env.NODE_ENV !== 'development') return false
+    
+    const logKey = `${level}:${message.substring(0, 50)}`
+    const now = Date.now()
+    const lastLogged = this.logThrottle.get(logKey) || 0
+    
+    // Always log errors, throttle others
+    if (level === 'error' || level === 'critical' || now - lastLogged > this.throttleInterval) {
+      this.logThrottle.set(logKey, now)
+      this.cleanupThrottle()
+      return true
+    }
+    
+    return false
+  }
+
   private log(level: LogLevel['level'], message: string, context: Partial<LogContext> = {}) {
     const logEntry: ErrorLog = {
       ...this.getBaseContext(),
@@ -219,29 +249,11 @@ export class ErrorLogger {
       this.logs = this.logs.slice(-this.maxLogs)
     }
 
-    // Console output in development with throttling
-    if (process.env.NODE_ENV === 'development') {
-      const logKey = `${level}:${message.substring(0, 50)}`
-      const now = Date.now()
-      const lastLogged = this.logThrottle.get(logKey) || 0
-      
-      // Only log if enough time has passed since last identical log (except errors)
-      if (level === 'error' || level === 'critical' || now - lastLogged > this.throttleInterval) {
-        const consoleMethod = level === 'error' || level === 'critical' ? 'error' :
-                             level === 'warn' ? 'warn' : 'log'
-        console[consoleMethod](`[${level.toUpperCase()}] ${message}`, context)
-        this.logThrottle.set(logKey, now)
-        
-        // Clean old throttle entries to prevent memory leak
-        if (this.logThrottle.size > 100) {
-          const cutoff = now - this.throttleInterval * 2
-          for (const [key, timestamp] of this.logThrottle.entries()) {
-            if (timestamp < cutoff) {
-              this.logThrottle.delete(key)
-            }
-          }
-        }
-      }
+    // Console output with throttling
+    if (this.shouldLog(level, message)) {
+      const consoleMethod = level === 'error' || level === 'critical' ? 'error' :
+                           level === 'warn' ? 'warn' : 'log'
+      console[consoleMethod](`[${level.toUpperCase()}] ${message}`, context)
     }
 
     // Immediate flush for critical errors

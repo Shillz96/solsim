@@ -2,12 +2,12 @@ import Link from "next/link"
 
 export function Footer() {
   return (
-    <footer className="border-t border-border bg-background">
+    <footer className="border-t border-border bg-[#f9fafb] dark:bg-[#111]">
       <div className="container mx-auto px-4 py-12">
         <div className="grid gap-8 md:grid-cols-4">
           <div className="space-y-4">
             <Link href="/" className="flex items-center group">
-              <span className="font-heading text-2xl font-bold gradient-text tracking-tight group-hover:scale-105 transition-transform duration-200">
+              <span className="font-heading text-2xl font-bold tracking-tight group-hover:scale-105 transition-transform duration-200">
                 Sol Sim
               </span>
             </Link>
@@ -80,9 +80,9 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="mt-12 pt-8 border-t border-border text-center text-sm text-muted-foreground">
-          <p>© 2025 Sol Sim. All rights reserved.</p>
-          <p className="mt-2">
+        <div className="mt-12 pt-8 border-t border-border text-center">
+          <p className="text-sm text-muted-foreground">© 2025 Sol Sim. All rights reserved.</p>
+          <p className="mt-2 text-xs text-muted-foreground/70">
             <strong>Disclaimer:</strong> Sol Sim is a simulator. No real financial risk is involved.
           </p>
         </div>

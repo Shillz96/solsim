@@ -29,7 +29,7 @@ const features = [
 
 export function FeaturesSection() {
   return (
-    <section id="features" className="py-20 md:py-32 bg-muted/30">
+    <section id="features" className="py-20 md:py-32 bg-muted">
       <div className="container mx-auto px-4">
         <motion.div
           className="text-center space-y-4 mb-16"
@@ -55,14 +55,14 @@ export function FeaturesSection() {
               viewport={{ once: true }}
               transition={{ delay: index * 0.1, duration: 0.5 }}
             >
-              <Card className="p-6 bg-card border-border hover:border-primary/50 transition-all duration-300 hover:shadow-lg hover:shadow-primary/10 group h-full">
+              <Card className="p-6 bg-card border-border hover:border-foreground/20 transition-all duration-300 group h-full">
                 <div className="space-y-4">
-                  <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-lg">
-                    <feature.icon className="h-6 w-6 text-white" />
+                  <div className="h-12 w-12 rounded-full bg-foreground dark:bg-background flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                    <feature.icon className="h-6 w-6 text-background dark:text-foreground" />
                   </div>
                   <div className="space-y-2">
                     <h3 className="font-heading text-xl font-bold">{feature.title}</h3>
-                    <p className="text-sm text-muted-foreground leading-relaxed">{feature.description}</p>
+                    <p className="text-base text-muted-foreground leading-relaxed">{feature.description}</p>
                   </div>
                 </div>
               </Card>

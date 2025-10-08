@@ -12,6 +12,24 @@ import type {
 } from './types/api-types'
 
 class TradingService {
+  // Extract common trade operation logic
+  private async executeTradeOperation(
+    endpoint: string,
+    tokenAddress: string,
+    amountSol: number
+  ): Promise<TradeResult> {
+    // Rate limiting check
+    if (!ClientRateLimiter.checkRateLimit(endpoint, 5, 60000)) {
+      throw new Error('Too many trade requests. Please wait before trying again.')
+    }
+
+    const response = await apiClient.post<{ result: TradeResult }>(endpoint, {
+      tokenAddress: InputSanitizer.sanitizeTokenAddress(tokenAddress),
+      amountSol: InputSanitizer.sanitizeNumericInput(amountSol)
+    })
+    return response.result
+  }
+
   // Execute a trade (buy or sell)
   async executeTrade(tradeRequest: TradeRequest): Promise<TradeResult> {
     // Rate limiting check
@@ -32,30 +50,12 @@ class TradingService {
 
   // Direct buy endpoint
   async buy(tokenAddress: string, amountSol: number): Promise<TradeResult> {
-    // Rate limiting check
-    if (!ClientRateLimiter.checkRateLimit('/api/v1/trades/buy', 5, 60000)) {
-      throw new Error('Too many buy requests. Please wait before trying again.')
-    }
-
-    const response = await apiClient.post<{ result: TradeResult }>('/api/v1/trades/buy', {
-      tokenAddress: InputSanitizer.sanitizeTokenAddress(tokenAddress),
-      amountSol: InputSanitizer.sanitizeNumericInput(amountSol)
-    })
-    return response.result
+    return this.executeTradeOperation('/api/v1/trades/buy', tokenAddress, amountSol)
   }
 
   // Direct sell endpoint
   async sell(tokenAddress: string, amountSol: number): Promise<TradeResult> {
-    // Rate limiting check
-    if (!ClientRateLimiter.checkRateLimit('/api/v1/trades/sell', 5, 60000)) {
-      throw new Error('Too many sell requests. Please wait before trying again.')
-    }
-
-    const response = await apiClient.post<{ result: TradeResult }>('/api/v1/trades/sell', {
-      tokenAddress: InputSanitizer.sanitizeTokenAddress(tokenAddress),
-      amountSol: InputSanitizer.sanitizeNumericInput(amountSol)
-    })
-    return response.result
+    return this.executeTradeOperation('/api/v1/trades/sell', tokenAddress, amountSol)
   }
 
   // Get trade history for current user
@@ -119,22 +119,6 @@ class TradingService {
     return response.trades
   }
 
-  // Legacy executeTrade alias for backward compatibility
-  async executeBuyTrade(tokenAddress: string, amountSol: number): Promise<TradeResult> {
-    return this.executeTrade({
-      action: 'buy',
-      tokenAddress,
-      amountSol
-    })
-  }
-
-  async executeSellTrade(tokenAddress: string, amountSol: number): Promise<TradeResult> {
-    return this.executeTrade({
-      action: 'sell',
-      tokenAddress,
-      amountSol
-    })
-  }
 }
 
 // Export singleton instance

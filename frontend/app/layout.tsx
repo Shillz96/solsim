@@ -2,14 +2,11 @@ import type React from "react"
 import type { Metadata } from "next"
 import { IBM_Plex_Sans, JetBrains_Mono } from "next/font/google"
 import localFont from "next/font/local"
+
 import { NavBar } from "@/components/navigation/nav-bar"
 import { BottomNavBar } from "@/components/navigation/bottom-nav-bar"
-import { ThemeProvider } from "@/components/theme-provider"
-import { GlobalErrorBoundary } from "@/components/error-boundary-enhanced"
-import { QueryProvider } from "@/lib/query-provider"
-import { PriceStreamProvider } from "@/lib/price-stream-provider"
-import { SolanaWalletProvider } from "@/lib/solana-wallet-provider"
-import { PWAProvider, PWAInstallPrompt, PWAUpdatePrompt } from "@/lib/pwa-utils"
+import { AppProviders } from "@/components/providers"
+
 import "./globals.css"
 
 const radnikaNext = localFont({
@@ -43,26 +40,16 @@ export const viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${radnikaNext.variable} ${ibmPlexSans.variable} ${jetBrainsMono.variable} font-sans`}>
-        <GlobalErrorBoundary>
-          <QueryProvider>
-            <SolanaWalletProvider>
-              <PriceStreamProvider>
-                <PWAProvider>
-                  <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
-                  <NavBar aria-label="Primary navigation" />
-                  <main className="min-h-screen pt-16 pb-20 md:pb-12" role="main">
-                    {children}
-                  </main>
-                  <BottomNavBar aria-label="Mobile navigation" />
-                  <PWAInstallPrompt />
-                  <PWAUpdatePrompt />
-                </ThemeProvider>
-              </PWAProvider>
-            </PriceStreamProvider>
-            </SolanaWalletProvider>
-          </QueryProvider>
-        </GlobalErrorBoundary>
+      <body
+        className={`${radnikaNext.variable} ${ibmPlexSans.variable} ${jetBrainsMono.variable} font-sans`}
+      >
+        <AppProviders>
+          <NavBar aria-label="Primary navigation" />
+          <main className="min-h-screen pt-16 pb-20 md:pb-12" role="main">
+            {children}
+          </main>
+          <BottomNavBar aria-label="Mobile navigation" />
+        </AppProviders>
       </body>
     </html>
   )

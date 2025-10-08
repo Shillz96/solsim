@@ -9,6 +9,8 @@ interface PriceStreamContextType {
   error: string | null
   subscribe: (tokenAddress: string) => void
   unsubscribe: (tokenAddress: string) => void
+  subscribeMany: (tokenAddresses: string[]) => void
+  unsubscribeMany: (tokenAddresses: string[]) => void
   prices: Map<string, { price: number; change24h: number; timestamp: number }>
   reconnect: () => void
 }

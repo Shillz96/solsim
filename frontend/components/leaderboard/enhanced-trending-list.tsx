@@ -82,11 +82,17 @@ export function EnhancedTrendingList() {
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
                 <span className="font-semibold text-foreground">{token.tokenSymbol || 'N/A'}</span>
-                {token.priceChangePercent24h > 0 ? (
-                  <TrendingUp className="h-3 w-3 text-green-600" />
-                ) : (
-                  <TrendingDown className="h-3 w-3 text-red-600" />
-                )}
+                {(() => {
+                  const change = token.priceChangePercent24h || 0;
+                  // Add threshold to prevent flickering on near-zero values
+                  if (change > 0.01) {
+                    return <TrendingUp className="h-3 w-3 text-green-600" />;
+                  } else if (change < -0.01) {
+                    return <TrendingDown className="h-3 w-3 text-red-600" />;
+                  }
+                  // For values between -0.01 and 0.01, show neutral
+                  return null;
+                })()}
               </div>
               <p className="text-xs text-muted-foreground truncate">{token.tokenName || 'Unknown Token'}</p>
             </div>
@@ -104,7 +110,7 @@ export function EnhancedTrendingList() {
                 <AnimatedNumber
                   value={token.priceChangePercent24h}
                   suffix="%"
-                  prefix={token.priceChangePercent24h > 0 ? "+" : ""}
+                  prefix={token.priceChangePercent24h > 0.01 ? "+" : ""}
                   decimals={2}
                   className="text-xs font-medium"
                   colorize={true}
@@ -115,7 +121,13 @@ export function EnhancedTrendingList() {
                   data={[...Array(7)].map(() => Math.random() * 100 + 50)}
                   width={30}
                   height={12}
-                  color={token.priceChangePercent24h > 0 ? "var(--chart-3)" : "var(--destructive)"}
+                  color={
+                    token.priceChangePercent24h > 0.01 
+                      ? "var(--chart-3)" 
+                      : token.priceChangePercent24h < -0.01
+                      ? "var(--destructive)"
+                      : "var(--muted-foreground)"
+                  }
                 />
               </div>
             </div>

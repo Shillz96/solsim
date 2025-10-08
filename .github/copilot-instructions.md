@@ -8,7 +8,7 @@ SolSim is a full-stack Solana trading simulator with **FIFO accounting** for acc
 ### FIFO Trading System (NEVER BYPASS)
 ```typescript
 // 1. Always use unified PnL calculator
-import { calculatePnL } from '../shared/utils/pnlCalculator.js';
+import { calculatePnL } from '../shared/utils/pnlCalculator.ts';
 const pnl = calculatePnL({
   quantity: holding.quantity,
   entryPriceSol: holding.entryPrice,   // Price paid per token (SOL)
@@ -25,8 +25,16 @@ await prisma.$transaction(async (tx) => {
   // Update holdings + user balance
 }, { isolationLevel: 'Serializable' });
 
-// 3. Use TradeService.executeTrade() - never bypass service layer
-await tradeService.executeTrade(tradeRequest, userId, currentPrice);
+// 3. Use appropriate TradeService methods - never bypass service layer
+// For backend:
+await tradeService.executeBuy(userId, tradeRequest);  // For buys
+await tradeService.executeSell(userId, tradeRequest); // For sells
+
+// For frontend:
+await tradingService.executeTrade({ action: 'buy', tokenAddress, amountSol }); // Recommended
+// Legacy methods (still supported but prefer executeTrade):
+// await tradingService.executeBuyTrade(tokenAddress, amountSol);
+// await tradingService.executeSellTrade(tokenAddress, amountSol);
 ```
 
 ### Authentication & Middleware
@@ -238,16 +246,34 @@ NEXT_PUBLIC_WS_URL=https://lovely-nature-production.up.railway.app
 ## Hybrid Trending Token System
 
 ### Multi-Source Architecture (`src/routes/solana-tracker.ts`)
-**CRITICAL**: Primary trending system combining Birdeye API (70%) with Pump.fun API (30%) for maximum token diversity
+**CRITICAL**: Primary trending system combining Solana Tracker API (70%) with Pump.fun API (30%) for maximum token diversity
 
 ```typescript
 // Enhanced trending endpoint with Pump.fun integration
 router.get('/trending', async (req, res) => {
-  // 1. Fetch from Solana Tracker (established tokens)
-  // 2. Fetch from Pump.fun (fresh meme coins)
-  // 3. Apply quality filters (min $5K market cap, $1K volume)
-  // 4. Deduplicate and merge with trend scoring
-  // 5. Cache for 5 minutes with NodeCache
+  // Use parallel fetching for performance
+  const fetchTasks = [];
+  
+  // 1. Solana Tracker trending (primary source - 70%)
+  fetchTasks.push(callSolanaTrackerAPI(`/tokens/trending/1h`));
+  
+  // 2. Pump.fun trending (secondary source - 30%)
+  fetchTasks.push(fetch(`${API_CONFIG.PUMP_FUN_URL}/coins?limit=${PAGINATION.PUMP_FUN_FETCH_LIMIT}`));
+  
+  const [trendingData, pumpFunData] = await Promise.all(fetchTasks);
+  
+  // 3. Transform and filter tokens
+  const solanaTrackerTokens = trendingData.map(token => transformSolanaTrackerToken(token));
+  const pumpFunTokens = filterPumpFunTokens(pumpFunData, TOKEN_FILTERS.MIN_MARKET_CAP)
+    .map(token => transformPumpFunToken(token));
+  
+  // 4. Deduplicate and sort by trend score
+  const allTokens = [...solanaTrackerTokens, ...pumpFunTokens];
+  const uniqueTokens = deduplicateTokens(allTokens);
+  const finalTokens = sortByTrendScore(uniqueTokens).slice(0, limit);
+  
+  // 5. Cache for 5 minutes
+  trendingCache.set(cacheKey, responseData, CACHE_TTL.STANDARD);
 });
 ```
 

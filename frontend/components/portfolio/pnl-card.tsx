@@ -9,6 +9,7 @@ import { motion } from "framer-motion"
 import { SharePnLDialog } from "@/components/modals/share-pnl-dialog"
 import { usePortfolio, useBalance, useRecentTrades } from "@/lib/api-hooks"
 import { usePriceStreamContext } from "@/lib/price-stream-provider"
+import { WsSubManager } from "@/lib/ws-subscription-delta"
 import { memo, useState, useCallback, useEffect } from "react"
 
 const AnimatedBackground = memo(({ isPositive }: { isPositive: boolean }) => {
@@ -46,24 +47,21 @@ export function PnLCard() {
   const { data: trades, isLoading: tradesLoading, error: tradesError, refetch: refetchTrades } = useRecentTrades(10)
   const [isRefreshing, setIsRefreshing] = useState(false)
 
-  // Real-time price stream integration
-  const { connected: wsConnected, prices: livePrices, subscribe, unsubscribe } = usePriceStreamContext()
+  // Real-time price stream integration with delta-based subscriptions
+  const { connected: wsConnected, prices: livePrices, subscribeMany, unsubscribeMany } = usePriceStreamContext()
+  const [wsMgr] = useState(() => new WsSubManager(subscribeMany, unsubscribeMany))
 
-  // Subscribe to price updates for all holdings
+  // Subscribe to price updates for all holdings using delta manager
   useEffect(() => {
-    if (portfolio?.positions && wsConnected) {
-      portfolio.positions.forEach(position => {
-        subscribe(position.tokenAddress)
-      })
+    if (!wsConnected) return
 
-      // Cleanup subscriptions on unmount or change
-      return () => {
-        portfolio.positions.forEach(position => {
-          unsubscribe(position.tokenAddress)
-        })
-      }
+    const tokens = (portfolio?.positions ?? []).map(p => p.tokenAddress)
+    wsMgr.sync(tokens)
+
+    return () => {
+      wsMgr.clear()
     }
-  }, [portfolio?.positions, wsConnected]) // Remove subscribe/unsubscribe to prevent loops
+  }, [wsConnected, portfolio?.positions])
 
   // Enhanced data extraction with live price integration
   const getLivePrice = (tokenAddress: string, fallbackPrice: number) => {

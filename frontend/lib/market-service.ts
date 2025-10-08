@@ -52,7 +52,7 @@ class MarketService {
     try {
       // Use enhanced Solana Tracker API for better diversity
       // Fetching trending tokens from enhanced Solana Tracker API
-      const response = await apiClient.get<{ tokens: TrendingToken[] }>(`/api/solana-tracker/trending?${params.toString()}`)
+      const response = await apiClient.get<{ tokens: TrendingToken[] }>(`/api/v1/solana-tracker/trending?${params.toString()}`)
       
       if (response.tokens && Array.isArray(response.tokens)) {
         // Successfully fetched trending tokens

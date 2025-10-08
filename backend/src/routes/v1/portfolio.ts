@@ -25,17 +25,57 @@ export function initializePortfolioRoutes(services: {
 }
 
 // Helper function to get portfolio with proper price conversion
+// Uses aggressive timeout to prevent slow responses
 async function getPortfolioWithPrices(userId: string): Promise<any> {
   const holdings = await portfolioService.getHoldings(userId);
   const tokenAddresses = holdings.map(h => h.tokenAddress);
   
-  const pricesMap = await priceService.getPrices(tokenAddresses);
-  const solPrice = await priceService.getSolPrice();
+  // Fetch prices with timeout protection - return stale data if APIs are slow
+  const PRICE_FETCH_TIMEOUT = 3000; // 3 seconds max
+  
+  let pricesMap: Map<string, any>;
+  let solPrice: number;
+  
+  try {
+    const [pricesResult, solPriceResult] = await Promise.race([
+      Promise.all([
+        priceService.getPrices(tokenAddresses),
+        priceService.getSolPrice()
+      ]),
+      new Promise<[Map<string, any>, number]>((_, reject) => 
+        setTimeout(() => reject(new Error('Price fetch timeout')), PRICE_FETCH_TIMEOUT)
+      )
+    ]);
+    
+    pricesMap = pricesResult;
+    solPrice = solPriceResult;
+  } catch (error) {
+    // Timeout or error - use cached/fallback prices
+    logger.warn(`Price fetch timeout for portfolio, using fallback prices`);
+    
+    // Get whatever prices we can from cache quickly
+    pricesMap = new Map();
+    for (const address of tokenAddresses) {
+      try {
+        const cached = await Promise.race([
+          priceService.getPrice(address),
+          new Promise<null>((resolve) => setTimeout(() => resolve(null), 500))
+        ]);
+        if (cached) {
+          pricesMap.set(address, cached);
+        }
+      } catch {
+        // Skip this token if we can't get price quickly
+      }
+    }
+    
+    solPrice = 140; // Default SOL price if fetch fails
+  }
   
   // Convert TokenPrice map to number map
   const currentPrices = new Map<string, number>();
   pricesMap.forEach((tokenPrice, address) => {
-    currentPrices.set(address, tokenPrice.price);
+    currentPrices.set(address, tokenPrice.price || 0);
   });
   
   return portfolioService.getPortfolio(userId, currentPrices, solPrice);

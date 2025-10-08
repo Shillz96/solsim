@@ -113,12 +113,12 @@ export function AuthWrapper({
   if (loading || isRefreshing) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <Card className="p-8 w-full max-w-md">
+        <Card className="p-8 w-full max-w-md bg-card border-border">
           <div className="flex items-center justify-center gap-2 mb-6">
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-secondary">
               <TrendingUp className="h-6 w-6 text-white" />
             </div>
-            <h1 className="text-2xl font-bold">Sol Sim</h1>
+            <h1 className="text-2xl font-bold text-foreground">Sol Sim</h1>
           </div>
           <div className="space-y-4">
             <Skeleton className="h-4 w-full" />
@@ -139,16 +139,16 @@ export function AuthWrapper({
   if (tokenRefreshError) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <Card className="p-8 w-full max-w-md">
+        <Card className="p-8 w-full max-w-md bg-card border-border">
           <div className="flex items-center justify-center gap-2 mb-6">
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-secondary">
               <TrendingUp className="h-6 w-6 text-white" />
             </div>
-            <h1 className="text-2xl font-bold">Sol Sim</h1>
+            <h1 className="text-2xl font-bold text-foreground">Sol Sim</h1>
           </div>
-          <Alert className="mb-4">
-            <AlertCircle className="h-4 w-4" />
-            <AlertDescription>{tokenRefreshError}</AlertDescription>
+          <Alert className="mb-4 bg-destructive/10 border-destructive/50">
+            <AlertCircle className="h-4 w-4 text-destructive" />
+            <AlertDescription className="text-foreground">{tokenRefreshError}</AlertDescription>
           </Alert>
           <Button 
             onClick={() => setTokenRefreshError(null)} 
@@ -164,21 +164,37 @@ export function AuthWrapper({
   // If authentication is required but user is not authenticated, show auth modal
   if (requireAuth && !isAuthenticated) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <Card className="p-8 w-full max-w-md text-center">
-          <div className="flex items-center justify-center gap-2 mb-6">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-secondary">
-              <TrendingUp className="h-6 w-6 text-white" />
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <Card className="p-8 md:p-12 w-full max-w-md text-center space-y-6 border-2 bg-card border-border">
+          {/* Logo */}
+          <div className="flex items-center justify-center gap-3 mb-2">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-foreground">
+              <TrendingUp className="h-6 w-6 text-background" />
             </div>
-            <h1 className="text-2xl font-bold">Sol Sim</h1>
+            <h1 className="text-3xl font-bold font-heading text-foreground">Sol Sim</h1>
           </div>
-          <h2 className="text-xl font-semibold mb-2">Authentication Required</h2>
-          <p className="text-muted-foreground mb-6">
-            Please sign in to access your portfolio and trading features.
-          </p>
-          <p className="text-sm text-muted-foreground">
-            Click the "Sign In" button in the navigation bar to get started.
-          </p>
+
+          {/* Heading */}
+          <div className="space-y-2">
+            <h2 className="text-2xl md:text-3xl font-bold font-heading">Authentication Required</h2>
+            <p className="text-base text-muted-foreground">
+              Please sign in to access your portfolio and trading features.
+            </p>
+          </div>
+
+          {/* Instructions */}
+          <div className="pt-4 border-t border-border">
+            <p className="text-sm text-muted-foreground/80">
+              Click the <span className="font-semibold text-foreground">"Sign In"</span> button in the navigation bar to get started.
+            </p>
+          </div>
+
+          {/* Optional: Add a visual arrow pointing up */}
+          <div className="flex justify-center opacity-50">
+            <svg className="h-8 w-8 text-muted-foreground animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
+            </svg>
+          </div>
         </Card>
       </div>
     )

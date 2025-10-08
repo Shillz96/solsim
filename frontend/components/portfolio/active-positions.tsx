@@ -10,7 +10,8 @@ import { motion } from "framer-motion"
 import Link from "next/link"
 import { usePortfolio } from "@/lib/api-hooks"
 import { usePriceStreamContext } from "@/lib/price-stream-provider"
-import { useCallback, useState, useEffect } from "react"
+import { WsSubManager } from "@/lib/ws-subscription-delta"
+import { useCallback, useState, useEffect, useMemo } from "react"
 import type { PortfolioPosition } from "@/lib/portfolio-service"
 
 // Helper function to format large numbers
@@ -33,8 +34,9 @@ export function ActivePositions() {
   const { data: portfolio, isLoading, error, refetch } = usePortfolio()
   const [isRefreshing, setIsRefreshing] = useState(false)
   
-  // Real-time price stream integration
-  const { connected: wsConnected, prices: livePrices, subscribe, unsubscribe } = usePriceStreamContext()
+  // Real-time price stream integration with delta-based subscriptions
+  const { connected: wsConnected, prices: livePrices, subscribeMany, unsubscribeMany } = usePriceStreamContext()
+  const [wsMgr] = useState(() => new WsSubManager(subscribeMany, unsubscribeMany))
   
   // Handle manual refresh
   const handleRefresh = useCallback(async () => {
@@ -46,30 +48,26 @@ export function ActivePositions() {
   // Extract positions from portfolio data
   const positions = portfolio?.positions?.filter(pos => parseFloat(pos.quantity) > 0) || []
 
-  // Subscribe to price updates for all positions
+  // Subscribe to price updates using delta manager
   useEffect(() => {
-    if (positions.length > 0 && wsConnected) {
-      positions.forEach(position => {
-        subscribe(position.tokenAddress)
-      })
+    if (!wsConnected) return
 
-      // Cleanup subscriptions on unmount or change
-      return () => {
-        positions.forEach(position => {
-          unsubscribe(position.tokenAddress)
-        })
-      }
+    const tokens = positions.map(p => p.tokenAddress)
+    wsMgr.sync(tokens)
+
+    return () => {
+      wsMgr.clear()
     }
-  }, [positions, wsConnected]) // Remove subscribe/unsubscribe to prevent loops
+  }, [wsConnected, positions])
 
   // Helper to get live price or fallback to stored price
-  const getCurrentPrice = (tokenAddress: string, fallbackPrice: number) => {
+  const getCurrentPrice = useCallback((tokenAddress: string, fallbackPrice: number) => {
     const livePrice = livePrices.get(tokenAddress)
     return livePrice ? livePrice.price : fallbackPrice
-  }
+  }, [livePrices])
 
-  // Calculate real-time PnL for a position
-  const calculateLivePnL = (position: any) => {
+  // Memoize PnL calculation per position to avoid hot path recalculations
+  const calculateLivePnL = useCallback((position: any) => {
     const currentPrice = getCurrentPrice(position.tokenAddress, position.currentPrice)
     const quantity = parseFloat(position.quantity)
     const entryPrice = parseFloat(position.entryPrice)
@@ -80,7 +78,7 @@ export function ActivePositions() {
     const pnlPercent = invested > 0 ? (pnlAmount / invested) * 100 : 0
 
     return { pnlAmount, pnlPercent, currentPrice }
-  }
+  }, [getCurrentPrice])
   // Loading state - only show skeleton on initial load
   if (isLoading && !portfolio) {
     return (

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useCallback, useEffect } from "react"
+import { useState, useCallback, useEffect, useRef } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Search, Loader2, TrendingUp } from "lucide-react"
 import { Input } from "@/components/ui/input"
@@ -8,12 +8,14 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { useDebounce } from "@/hooks/use-debounce"
+import { useClickOutside } from "@/hooks/use-click-outside"
 import marketService from "@/lib/market-service"
 import type { TokenSearchResult } from "@/lib/types/api-types"
 
 export function TokenSearch() {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const searchContainerRef = useRef<HTMLDivElement>(null)
   const [query, setQuery] = useState("")
   const [results, setResults] = useState<TokenSearchResult[]>([])
   const [isSearching, setIsSearching] = useState(false)
@@ -55,17 +57,15 @@ export function TokenSearch() {
     setQuery("")
   }, [router, searchParams])
 
-  // Hide results when clicking outside
-  useEffect(() => {
-    const handleClickOutside = () => setShowResults(false)
-    if (showResults) {
-      document.addEventListener('click', handleClickOutside)
-      return () => document.removeEventListener('click', handleClickOutside)
-    }
-  }, [showResults])
+  // Hide results when clicking outside using custom hook
+  useClickOutside(
+    searchContainerRef,
+    () => setShowResults(false),
+    showResults
+  )
 
   return (
-    <div className="relative">
+    <div className="relative" ref={searchContainerRef}>
       <div className="relative">
         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <Input
@@ -97,8 +97,12 @@ export function TokenSearch() {
                   {token.imageUrl && (
                     <img 
                       src={token.imageUrl} 
-                      alt={token.symbol || 'Token'}
+                      alt={`${token.symbol || token.name || 'Token'} logo`}
                       className="w-8 h-8 rounded-full"
+                      loading="lazy"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).style.display = 'none'
+                      }}
                     />
                   )}
                   <div className="flex-1 text-left">
@@ -120,10 +124,13 @@ export function TokenSearch() {
                       ${token.price ? (parseFloat(token.price) / 1e9).toFixed(8) : 'N/A'}
                     </div>
                     {token.priceChange24h !== undefined && (
-                      <div className={`text-xs ${
-                        token.priceChange24h >= 0 ? 'text-green-600' : 'text-red-600'
-                      }`}>
-                        {token.priceChange24h >= 0 ? '+' : ''}{token.priceChange24h.toFixed(2)}%
+                      <div 
+                        className={`text-xs ${
+                          token.priceChange24h >= 0 ? 'text-green-600' : 'text-red-600'
+                        }`}
+                        aria-label={`Price ${token.priceChange24h >= 0 ? 'increase' : 'decrease'} ${Math.abs(token.priceChange24h).toFixed(2)} percent in 24 hours`}
+                      >
+                        {token.priceChange24h >= 0 ? '▲' : '▼'} {token.priceChange24h >= 0 ? '+' : ''}{token.priceChange24h.toFixed(2)}%
                       </div>
                     )}
                   </div>

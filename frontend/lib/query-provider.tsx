@@ -25,7 +25,45 @@ export const CACHE_TIMES = {
   long: 2 * 60 * 60 * 1000,       // 2 hours
 } as const
 
+// Extract retry strategies for better readability and testability
+const createRetryStrategy = () => ({
+  shouldRetry: (failureCount: number, error: any): boolean => {
+    // Never retry 429 errors automatically
+    if (error?.status === 429) return false
+    
+    // Don't retry 4xx client errors
+    if (error?.status >= 400 && error?.status < 500) return false
+    
+    // Retry server errors max 2 times
+    return failureCount < 2
+  },
+  
+  getRetryDelay: (attemptIndex: number, error: any): number => {
+    // For 429 errors, use the retryAfter from error
+    if (error?.status === 429) {
+      const retryAfter = error?.retryAfter ? error.retryAfter * 1000 : 120000
+      return retryAfter
+    }
+    
+    // Standard exponential backoff for other errors
+    return Math.min(1000 * Math.pow(2, attemptIndex), 30000)
+  }
+})
+
+const createMutationRetryStrategy = () => ({
+  shouldRetry: (failureCount: number, error: any): boolean => {
+    // Never retry mutations on 4xx errors
+    if (error?.status >= 400 && error?.status < 500) return false
+    
+    // Single retry for server errors
+    return failureCount < 1
+  }
+})
+
 export function QueryProvider({ children }: { children: ReactNode }) {
+  const retryStrategy = createRetryStrategy()
+  const mutationRetryStrategy = createMutationRetryStrategy()
+  
   const [queryClient] = useState(
     () =>
       new QueryClient({
@@ -41,41 +79,13 @@ export function QueryProvider({ children }: { children: ReactNode }) {
             refetchOnReconnect: true,    // Refetch on network reconnect
             
             // Smart retry logic for 429 errors
-            retry: (failureCount, error: any) => {
-              // Never retry 429 errors automatically
-              if (error?.status === 429) {
-                return false
-              }
-              // Don't retry 4xx client errors (except 429 handled above)
-              if (error?.status >= 400 && error?.status < 500) {
-                return false
-              }
-              // Retry server errors max 2 times
-              return failureCount < 2
-            },
-            
-            // Exponential backoff with special 429 handling
-            retryDelay: (attemptIndex, error: any) => {
-              // For 429 errors, use the retryAfter from error
-              if (error?.status === 429) {
-                const retryAfter = error?.retryAfter ? error.retryAfter * 1000 : 120000
-                return retryAfter // Use server's recommendation
-              }
-              // Standard exponential backoff for other errors
-              return Math.min(1000 * Math.pow(2, attemptIndex), 30000)
-            },
+            retry: retryStrategy.shouldRetry,
+            retryDelay: retryStrategy.getRetryDelay,
             
             networkMode: 'online',
           },
           mutations: {
-            retry: (failureCount, error: any) => {
-              // Never retry mutations on 4xx errors
-              if (error?.status >= 400 && error?.status < 500) {
-                return false
-              }
-              // Single retry for server errors
-              return failureCount < 1
-            },
+            retry: mutationRetryStrategy.shouldRetry,
             networkMode: 'online',
           },
         },

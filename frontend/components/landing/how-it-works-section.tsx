@@ -25,7 +25,7 @@ const steps = [
 
 export function HowItWorksSection() {
   return (
-    <section className="py-20 md:py-32">
+    <section className="py-20 md:py-32 bg-background">
       <div className="container mx-auto px-4">
         <div className="text-center space-y-4 mb-16">
           <h2 className="font-space-grotesk text-4xl md:text-5xl font-bold">
@@ -38,7 +38,7 @@ export function HowItWorksSection() {
 
         <div className="relative">
           {/* Connection line */}
-          <div className="hidden lg:block absolute top-1/2 left-0 right-0 h-0.5 bg-gradient-solana opacity-30" />
+          <div className="hidden lg:block absolute top-1/2 left-0 right-0 h-px bg-border" />
 
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4 relative">
             {steps.map((step, index) => (
@@ -46,17 +46,17 @@ export function HowItWorksSection() {
                 <div className="flex flex-col items-center text-center space-y-4">
                   {/* Step number */}
                   <div className="relative">
-                    <div className="h-16 w-16 rounded-full bg-gradient-solana flex items-center justify-center glow-primary">
-                      <step.icon className="h-8 w-8 text-white" />
+                    <div className="h-16 w-16 rounded-full bg-foreground dark:bg-background border-2 border-foreground flex items-center justify-center">
+                      <step.icon className="h-8 w-8 text-background dark:text-foreground" />
                     </div>
-                    <div className="absolute -top-2 -right-2 h-8 w-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-bold">
+                    <div className="absolute -top-2 -right-2 h-8 w-8 rounded-full bg-foreground text-background dark:bg-background dark:text-foreground border-2 border-foreground flex items-center justify-center text-sm font-bold">
                       {index + 1}
                     </div>
                   </div>
 
                   <div className="space-y-2">
                     <h3 className="font-space-grotesk text-xl font-bold">{step.title}</h3>
-                    <p className="text-sm text-muted-foreground leading-relaxed max-w-xs">{step.description}</p>
+                    <p className="text-base text-muted-foreground leading-relaxed max-w-xs">{step.description}</p>
                   </div>
                 </div>
               </div>

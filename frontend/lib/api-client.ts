@@ -244,12 +244,30 @@ class ApiClient {
   }
 
   async upload<T>(endpoint: string, formData: FormData): Promise<T> {
+    // Check unified rate limit manager FIRST
+    if (!rateLimitManager.isRequestAllowed(endpoint)) {
+      const delay = rateLimitManager.getRetryDelay(endpoint)
+      throw new ApiError(
+        `Endpoint temporarily unavailable. Please retry in ${Math.ceil(delay / 1000)} seconds.`,
+        429,
+        'RATE_LIMIT_BLOCKED',
+        Math.ceil(delay / 1000)
+      )
+    }
+
     const url = `${this.baseURL}${endpoint}`
     const headers = new Headers()
 
-    if (this.authToken) {
+    // Reuse authentication logic
+    const isDevBypass = process.env.NEXT_PUBLIC_DEV_BYPASS === 'true'
+    if (isDevBypass) {
+      headers.set('x-dev-user-id', 'dev-user-1')
+      headers.set('x-dev-email', 'dev-user-1@dev.local')
+    } else if (this.authToken) {
       headers.set('Authorization', `Bearer ${this.authToken}`)
     }
+
+    const startTime = Date.now()
 
     try {
       const response = await fetch(url, {
@@ -257,35 +275,60 @@ class ApiClient {
         headers,
         body: formData,
       })
-
+      
+      const duration = Date.now() - startTime
       const data: ApiResponse<T> = await response.json()
 
       if (!response.ok) {
-        throw new ApiError(
+        const apiError = new ApiError(
           data.error || `HTTP ${response.status}`,
           response.status,
           data.error
         )
+        
+        errorLogger.apiError(endpoint, apiError, {
+          metadata: { statusCode: response.status }
+        })
+        performanceMonitor.recordApiCall(endpoint, duration, false, response.status)
+        throw apiError
       }
 
       if (!data.success) {
-        throw new ApiError(
+        const apiError = new ApiError(
           data.error || 'Upload failed',
           response.status,
           data.error
         )
+        
+        errorLogger.apiError(endpoint, apiError, {
+          metadata: { statusCode: response.status }
+        })
+        performanceMonitor.recordApiCall(endpoint, duration, false, response.status)
+        throw apiError
       }
 
+      // Success - reset rate limit state
+      rateLimitManager.recordSuccess(endpoint)
+      performanceMonitor.recordApiCall(endpoint, duration, true, response.status)
+      
       return data.data as T
     } catch (error) {
       if (error instanceof ApiError) {
         throw error
       }
       
-      throw new ApiError(
+      const networkError = new ApiError(
         error instanceof Error ? error.message : 'Upload error',
         0
       )
+      
+      errorLogger.apiError(endpoint, networkError, {
+        metadata: { errorType: 'network_error' }
+      })
+      performanceMonitor.recordApiCall(endpoint, 0, false, 0)
+      performanceMonitor.recordError('network')
+      
+      throw networkError
     }
   }
 }

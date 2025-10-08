@@ -34,6 +34,7 @@ export function NavBar() {
   const [isSearching, setIsSearching] = useState(false)
   const [showResults, setShowResults] = useState(false)
   const searchRef = useRef<HTMLDivElement>(null)
+  const abortControllerRef = useRef<AbortController | null>(null)
   const debouncedQuery = useDebounce(searchQuery, 300)
   
   // Use real authentication and balance data
@@ -52,23 +53,40 @@ export function NavBar() {
       return
     }
 
+    // Cancel previous search if still running
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort()
+    }
+
+    // Create new abort controller for this search
+    abortControllerRef.current = new AbortController()
+
     setIsSearching(true)
     try {
       const results = await marketService.searchTokens(query.trim(), 8) // Limit to 8 results for navbar
-      setSearchResults(results)
-      setShowResults(true)
+      
+      // Only update state if this search wasn't aborted
+      if (!abortControllerRef.current.signal.aborted) {
+        setSearchResults(results)
+        setShowResults(true)
+      }
     } catch (error) {
-      import('@/lib/error-logger').then(({ errorLogger }) => {
-        errorLogger.error('Token search failed', {
-          error: error as Error,
-          action: 'token_search_failed',
-          metadata: { query, component: 'NavBar' }
+      // Don't log aborted searches
+      if (error instanceof Error && error.name !== 'AbortError') {
+        import('@/lib/error-logger').then(({ errorLogger }) => {
+          errorLogger.error('Token search failed', {
+            error: error as Error,
+            action: 'token_search_failed',
+            metadata: { query, component: 'NavBar' }
+          })
         })
-      })
-      setSearchResults([])
-      setShowResults(false)
+        setSearchResults([])
+        setShowResults(false)
+      }
     } finally {
-      setIsSearching(false)
+      if (!abortControllerRef.current?.signal.aborted) {
+        setIsSearching(false)
+      }
     }
   }, [])
 
@@ -104,6 +122,15 @@ export function NavBar() {
     }
   }, [debouncedQuery, performSearch])
 
+  // Cleanup: abort pending search on unmount
+  useEffect(() => {
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort()
+      }
+    }
+  }, [])
+
   const navLinks = [
     { href: "/", label: "Dashboard" },
     { href: "/trade", label: "Trade" },
@@ -131,7 +158,7 @@ export function NavBar() {
                   {/* SOL Balance Display for Mobile */}
                   {isAuthenticated && (
                     <motion.div 
-                      className="flex items-center gap-2 px-3 py-2 rounded-lg trading-card shadow-sm mb-4"
+                      className="flex items-center gap-2 px-4 py-3 rounded-lg trading-card shadow-sm mb-4"
                       initial={{ opacity: 0, scale: 0.9 }}
                       animate={{ opacity: 1, scale: 1 }}
                       transition={{ duration: 0.3 }}
@@ -149,7 +176,7 @@ export function NavBar() {
                       href={link.href}
                       onClick={() => setMobileMenuOpen(false)}
                       className={cn(
-                        "text-sm font-medium transition-colors px-3 py-2 rounded-lg",
+                        "text-sm font-medium transition-colors px-4 py-3 rounded-lg",
                         pathname === link.href
                           ? "bg-primary/10 text-primary"
                           : "text-muted-foreground hover:text-foreground hover:bg-card",
@@ -190,7 +217,7 @@ export function NavBar() {
             ))}
           </div>
 
-          <div className="hidden md:flex flex-1 max-w-xs ml-4">
+          <div className="hidden md:flex flex-1 max-w-xs lg:max-w-md xl:max-w-lg ml-4">
             <motion.div 
               ref={searchRef}
               className="relative w-full"
@@ -233,8 +260,9 @@ export function NavBar() {
                         {token.imageUrl && (
                           <img 
                             src={token.imageUrl} 
-                            alt={token.symbol || ''} 
+                            alt={`${token.symbol || token.name || 'Token'} logo`}
                             className="w-6 h-6 rounded-full flex-shrink-0"
+                            loading="lazy"
                             onError={(e) => {
                               (e.target as HTMLImageElement).style.display = 'none'
                             }}
@@ -260,9 +288,12 @@ export function NavBar() {
                             <p className="text-sm font-mono text-foreground">
                               ${parseFloat(token.price).toLocaleString(undefined, { maximumFractionDigits: 6 })}
                             </p>
-                            {token.priceChange24h && (
-                              <p className={`text-xs ${token.priceChange24h >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                                {token.priceChange24h >= 0 ? '+' : ''}{token.priceChange24h.toFixed(2)}%
+                            {token.priceChange24h !== undefined && (
+                              <p 
+                                className={`text-xs ${token.priceChange24h >= 0 ? 'text-green-600' : 'text-red-600'}`}
+                                aria-label={`Price ${token.priceChange24h >= 0 ? 'increase' : 'decrease'} ${Math.abs(token.priceChange24h).toFixed(2)} percent in 24 hours`}
+                              >
+                                {token.priceChange24h >= 0 ? '▲' : '▼'} {token.priceChange24h >= 0 ? '+' : ''}{token.priceChange24h.toFixed(2)}%
                               </p>
                             )}
                           </div>

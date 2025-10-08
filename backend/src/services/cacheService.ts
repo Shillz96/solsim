@@ -44,6 +44,8 @@ export class CacheService {
       url: config.redis.url,
       socket: {
         connectTimeout: 5000,
+        keepAlive: true, // Enable keep-alive
+        noDelay: true, // Disable Nagle's algorithm for lower latency
         reconnectStrategy: (retries) => {
           if (retries >= this.maxReconnectAttempts) {
             logger.error('Redis max reconnection attempts reached');
@@ -53,7 +55,13 @@ export class CacheService {
           logger.warn(`Redis reconnecting in ${delay}ms (attempt ${retries + 1})`);
           return delay;
         }
-      }
+      },
+      // Optimize for performance and reliability
+      readonly: false,
+      // Increase command queue for better throughput
+      commandsQueueMaxLength: 1000,
+      // Keep offline queue for reliability (commands queued during reconnection)
+      disableOfflineQueue: false
     });
 
     this.setupEventHandlers();

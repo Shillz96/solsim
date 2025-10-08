@@ -63,9 +63,10 @@ export function AnimatedNumber({
 
   const getColorClass = () => {
     if (!colorize) return ''
-    if (value > 0) return 'number-positive'
-    if (value < 0) return 'number-negative'
-    return ''
+    // Use threshold to prevent flickering on near-zero values (0.01 = 1 basis point)
+    if (value > 0.01) return 'number-positive'
+    if (value < -0.01) return 'number-negative'
+    return '' // Neutral color for values between -0.01 and 0.01
   }
 
   const formatLargeNumber = (num: number, decimals: number, separator: string): string => {
@@ -195,17 +196,17 @@ export function Sparkline({
 }
 
 // Enhanced loading skeleton with shimmer effect
-interface SkeletonProps {
+interface AnimatedNumberSkeletonProps {
   className?: string
   variant?: 'text' | 'circular' | 'rectangular'
   animation?: 'pulse' | 'wave' | 'none'
 }
 
-export function Skeleton({ 
+export function AnimatedNumberSkeleton({ 
   className, 
   variant = 'rectangular',
   animation = 'wave'
-}: SkeletonProps) {
+}: AnimatedNumberSkeletonProps) {
   const baseClasses = {
     text: "h-4 rounded",
     circular: "rounded-full aspect-square",

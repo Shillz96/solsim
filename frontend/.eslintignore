@@ -1,0 +1,10 @@
+node_modules
+.next
+dist
+build
+coverage
+public/sw.js
+*.config.js
+*.config.mjs
+.storybook
+

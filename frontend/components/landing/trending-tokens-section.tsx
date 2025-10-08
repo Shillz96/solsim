@@ -13,7 +13,7 @@ export function TrendingTokensSection() {
   const { data: trendingTokens, isLoading: loading } = useTrendingTokens(3) // Limit to 3 for landing page
 
   return (
-    <section className="py-20 md:py-32 bg-muted/30">
+    <section className="py-20 md:py-32 bg-background">
       <div className="container mx-auto px-4">
         <motion.div
           className="text-center space-y-4 mb-12"
@@ -72,10 +72,10 @@ export function TrendingTokensSection() {
                 transition={{ delay: index * 0.1 }}
               >
                 <Link href={`/trade?token=${token.tokenAddress}`}>
-                  <Card className="p-6 bg-card border-border hover:border-primary/50 transition-all duration-300 hover:shadow-lg hover:shadow-primary/10 group cursor-pointer h-full">
+                  <Card className="p-6 bg-card border-border hover:border-foreground/30 transition-all duration-300 group cursor-pointer h-full">
                     <div className="space-y-4">
                       <div className="flex items-center gap-3">
-                        <div className="relative h-12 w-12 rounded-full overflow-hidden bg-muted ring-2 ring-primary/20 group-hover:ring-primary/50 transition-all">
+                        <div className="relative h-12 w-12 rounded-full overflow-hidden bg-muted">
                           <Image 
                             src={token.imageUrl || "/placeholder-token.svg"} 
                             alt={token.tokenName || 'Unknown Token'} 
@@ -90,11 +90,17 @@ export function TrendingTokensSection() {
                         <div className="flex-1">
                           <div className="flex items-center gap-2">
                             <h3 className="font-heading text-lg font-bold">{token.tokenSymbol || 'N/A'}</h3>
-                            {(token.priceChangePercent24h || 0) > 0 ? (
-                              <TrendingUp className="h-4 w-4 text-green-600" />
-                            ) : (
-                              <TrendingDown className="h-4 w-4 text-red-600" />
-                            )}
+                            {(() => {
+                              const change = token.priceChangePercent24h || 0;
+                              // Add threshold to prevent flickering on near-zero values
+                              if (change > 0.01) {
+                                return <TrendingUp className="h-4 w-4 text-green-600" />;
+                              } else if (change < -0.01) {
+                                return <TrendingDown className="h-4 w-4 text-red-600" />;
+                              }
+                              // For values between -0.01 and 0.01, show neutral (no icon or dash)
+                              return null;
+                            })()}
                           </div>
                           <p className="text-sm text-muted-foreground">{token.tokenName || 'Unknown Token'}</p>
                         </div>
@@ -110,9 +116,19 @@ export function TrendingTokensSection() {
                       <div>
                         <p className="text-xs text-muted-foreground">24h Change</p>
                         <p
-                          className={`text-lg font-bold font-mono ${(token.priceChangePercent24h || 0) > 0 ? "text-green-600" : "text-red-600"}`}
+                          className={`text-lg font-bold font-mono ${(() => {
+                            const change = token.priceChangePercent24h || 0;
+                            if (change > 0.01) return "text-green-600";
+                            if (change < -0.01) return "text-red-600";
+                            return "text-muted-foreground";
+                          })()}`}
                         >
-                          {(token.priceChangePercent24h || 0) > 0 ? "+" : ""}
+                          {(() => {
+                            const change = token.priceChangePercent24h || 0;
+                            if (change > 0.01) return "+";
+                            if (change < -0.01) return "";
+                            return "";
+                          })()}
                           {(token.priceChangePercent24h || 0).toFixed(2)}%
                         </p>
                       </div>
@@ -135,8 +151,8 @@ export function TrendingTokensSection() {
                     </div>
 
                     <Button
-                      variant="outline"
-                      className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors bg-transparent"
+                      variant="default"
+                      className="w-full bg-foreground text-background hover:bg-foreground/90"
                     >
                       View Trade
                       <ArrowRight className="ml-2 h-4 w-4" />
@@ -156,7 +172,7 @@ export function TrendingTokensSection() {
           viewport={{ once: true }}
         >
           <Link href="/trade">
-            <Button size="lg" variant="outline" className="group bg-transparent hover:bg-card">
+            <Button size="lg" className="group bg-foreground text-background hover:bg-foreground/90">
               View All Tokens
               <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
             </Button>

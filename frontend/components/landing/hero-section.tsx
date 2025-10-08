@@ -11,7 +11,7 @@ const DexScreenerChart = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="h-[400px] w-full animate-pulse rounded-2xl bg-card/50 border border-border flex items-center justify-center">
+      <div className="h-[400px] w-full animate-pulse rounded-2xl bg-card border border-border flex items-center justify-center">
         <TrendingUp className="h-12 w-12 text-muted-foreground animate-pulse" />
       </div>
     ),
@@ -20,35 +20,18 @@ const DexScreenerChart = dynamic(
 
 export function HeroSection() {
   return (
-    <section className="relative overflow-hidden py-20 md:py-32">
-      <div className="absolute inset-0 gradient-mesh" />
+    <section className="relative overflow-hidden py-20 md:py-32 bg-background">
+      {/* Subtle gradient accent - only in hero */}
       <motion.div
-        className="absolute inset-0 opacity-30"
+        className="absolute inset-0 opacity-10"
         animate={{
           background: [
-            "radial-gradient(circle at 20% 50%, oklch(0.55 0.22 250 / 0.15) 0%, transparent 50%)",
-            "radial-gradient(circle at 80% 50%, oklch(0.70 0.20 180 / 0.15) 0%, transparent 50%)",
-            "radial-gradient(circle at 20% 50%, oklch(0.55 0.22 250 / 0.15) 0%, transparent 50%)",
+            "radial-gradient(circle at 20% 50%, oklch(0.55 0.22 250 / 0.08) 0%, transparent 50%)",
+            "radial-gradient(circle at 80% 50%, oklch(0.55 0.22 250 / 0.08) 0%, transparent 50%)",
+            "radial-gradient(circle at 20% 50%, oklch(0.55 0.22 250 / 0.08) 0%, transparent 50%)",
           ],
         }}
         transition={{ duration: 10, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
-      />
-      
-      {/* Floating elements */}
-      <motion.div
-        className="absolute top-20 left-1/4 w-2 h-2 bg-primary/30 rounded-full float"
-        animate={{ y: [0, -20, 0] }}
-        transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-      />
-      <motion.div
-        className="absolute top-1/3 right-1/4 w-1 h-1 bg-accent/40 rounded-full float"
-        animate={{ y: [0, -15, 0], x: [0, 10, 0] }}
-        transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: 2 }}
-      />
-      <motion.div
-        className="absolute bottom-1/4 left-1/3 w-1.5 h-1.5 bg-chart-3/30 rounded-full float"
-        animate={{ y: [0, -25, 0], rotate: [0, 180, 360] }}
-        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut", delay: 1 }}
       />
 
       <div className="container relative mx-auto px-4">
@@ -72,7 +55,7 @@ export function HeroSection() {
               </motion.div>
 
               <h1 className="font-heading text-5xl md:text-6xl lg:text-7xl font-bold leading-tight text-balance">
-                Trade Solana <span className="gradient-text">Without Risk</span>
+                Trade <span className="gradient-text">Solana</span> Without Risk
               </h1>
               <p className="text-xl text-muted-foreground max-w-xl leading-relaxed">
                 Practice trading real Solana tokens with live market data. No financial risk, learn faster, trade
@@ -89,7 +72,7 @@ export function HeroSection() {
               <Link href="/trade">
                 <Button
                   size="lg"
-                  className="w-full sm:w-auto bg-primary text-primary-foreground hover:bg-primary/90 glow-primary group"
+                  className="w-full sm:w-auto bg-foreground text-background hover:bg-foreground/90 group"
                 >
                   Start Trading
                   <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
@@ -98,7 +81,7 @@ export function HeroSection() {
               <Button
                 size="lg"
                 variant="outline"
-                className="w-full sm:w-auto bg-transparent hover:bg-card"
+                className="w-full sm:w-auto border-2"
                 onClick={() => document.getElementById("features")?.scrollIntoView({ behavior: "smooth" })}
               >
                 Learn More
@@ -112,15 +95,15 @@ export function HeroSection() {
               transition={{ delay: 0.6 }}
             >
               <div className="space-y-1">
-                <div className="text-3xl font-bold gradient-text">100 SOL</div>
+                <div className="text-3xl font-bold text-green-600">100 SOL</div>
                 <p className="text-sm text-muted-foreground">Virtual balance</p>
               </div>
               <div className="space-y-1">
-                <div className="text-3xl font-bold gradient-text">Real-time</div>
+                <div className="text-3xl font-bold">Real-time</div>
                 <p className="text-sm text-muted-foreground">Live data</p>
               </div>
               <div className="space-y-1">
-                <div className="text-3xl font-bold gradient-text">Zero Risk</div>
+                <div className="text-3xl font-bold">Zero Risk</div>
                 <p className="text-sm text-muted-foreground">Practice safely</p>
               </div>
             </motion.div>
@@ -133,11 +116,8 @@ export function HeroSection() {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.3, duration: 0.6 }}
           >
-            <div className="absolute -inset-4 gradient-trading opacity-30 blur-3xl rounded-full" />
-            <div className="relative rounded-2xl overflow-hidden glass shadow-2xl glow-primary">
+            <div className="relative rounded-2xl overflow-hidden border border-border shadow-lg">
               <DexScreenerChart tokenAddress="DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263" />
-              {/* Overlay gradient for better chart integration */}
-              <div className="absolute inset-0 bg-gradient-to-t from-card/20 via-transparent to-transparent pointer-events-none" />
             </div>
           </motion.div>
         </div>

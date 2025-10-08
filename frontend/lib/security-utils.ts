@@ -1,5 +1,20 @@
 // Input Sanitization Utilities for Security
 export class InputSanitizer {
+  // Extract common XSS sanitization patterns
+  private static removeScriptTags(input: string): string {
+    return input.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+  }
+
+  private static removeHtmlTags(input: string): string {
+    return input.replace(/[<>]/g, '')
+  }
+
+  private static sanitizeString(input: string, maxLength: number): string {
+    return this.removeHtmlTags(this.removeScriptTags(input))
+      .trim()
+      .substring(0, maxLength)
+  }
+
   // Sanitize HTML to prevent XSS
   static sanitizeHtml(input: string): string {
     if (typeof window === 'undefined') return input
@@ -11,11 +26,7 @@ export class InputSanitizer {
 
   // Clean user input for search queries
   static sanitizeSearchQuery(query: string): string {
-    return query
-      .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
-      .replace(/[<>]/g, '')
-      .trim()
-      .substring(0, 100) // Limit length
+    return this.sanitizeString(query, 100)
   }
 
   // Validate and sanitize token addresses
@@ -32,11 +43,7 @@ export class InputSanitizer {
 
   // Sanitize user profile inputs
   static sanitizeProfileInput(input: string, maxLength = 200): string {
-    return input
-      .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
-      .replace(/[<>]/g, '')
-      .trim()
-      .substring(0, maxLength)
+    return this.sanitizeString(input, maxLength)
   }
 
   // Validate email format

@@ -3,6 +3,7 @@ import { Request, Response, NextFunction } from 'express';
 import { TradeService } from '../../services/tradeService.js';
 import { PriceService } from '../../services/priceService.js';
 import { PortfolioService } from '../../services/portfolioService.js';
+import { MetadataService } from '../../services/metadataService.js';
 import { authMiddleware, getUserId } from '../../lib/unifiedAuth.js';
 import { serializeDecimals } from '../../utils/decimal.js';
 import { tradeLimiter, apiLimiter, readLimiter, writeLimiter } from '../../middleware/rateLimiter.js';
@@ -18,16 +19,19 @@ const router = Router();
 let tradeService: TradeService;
 let priceService: PriceService;
 let portfolioService: PortfolioService;
+let metadataService: MetadataService;
 
 // Initialize services
 export function initializeTradesRoutes(services: {
   tradeService: TradeService;
   priceService: PriceService;
   portfolioService: PortfolioService;
+  metadataService: MetadataService;
 }) {
   tradeService = services.tradeService;
   priceService = services.priceService;
   portfolioService = services.portfolioService;
+  metadataService = services.metadataService;
 }
 
 // Apply authentication and security middleware
@@ -210,7 +214,7 @@ router.post('/execute', tradeLimiter, async (req: Request, res: Response, next: 
           ),
         ]),
         Promise.race([
-          req.app.locals.services.metadataService.getMetadata(tokenAddress),
+          metadataService.getMetadata(tokenAddress),
           new Promise((_, reject) =>
             setTimeout(() => reject(new Error('Metadata timeout')), 3000)
           ),

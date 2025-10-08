@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 import { LRUCache } from 'lru-cache';
 import { TrendingService } from '../../services/trendingService.js';
 import { PriceService } from '../../services/priceService.js';
+import { MetadataService } from '../../services/metadataService.js';
 import { apiLimiter } from '../../middleware/rateLimiter.js';
 import { validateSolanaAddress } from '../../middleware/validation.js';
 import { handleRouteError, ValidationError, NotFoundError, validateQueryParams } from '../../utils/errorHandler.js';
@@ -15,6 +16,7 @@ const router = Router();
 // Service instances - will be injected via SimpleServiceFactory
 let trendingService: TrendingService;
 let priceService: PriceService;
+let metadataService: MetadataService;
 
 // LRU Cache for token not found warnings (prevents memory leak)
 const tokenWarningCache = new LRUCache<string, number>({
@@ -26,9 +28,11 @@ const tokenWarningCache = new LRUCache<string, number>({
 export function initializeMarketRoutes(services: {
   trendingService: TrendingService;
   priceService: PriceService;
+  metadataService: MetadataService;
 }) {
   trendingService = services.trendingService;
   priceService = services.priceService;
+  metadataService = services.metadataService;
 }
 
 /**
@@ -323,7 +327,7 @@ router.get('/token/:address', apiLimiter, async (req: Request, res: Response): P
       const [priceResult, metadataResult] = await Promise.race([
         Promise.allSettled([
           priceService.getPrice(address),
-          req.app.locals.services.metadataService.getMetadata(address)
+          metadataService.getMetadata(address)
         ]),
         // 10 second timeout
         new Promise<[null, null]>((resolve) =>
