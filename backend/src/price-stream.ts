@@ -342,8 +342,14 @@ export class PriceStreamService extends EventEmitter {
       return;
     }
 
+    // Check if client is already subscribed to this token
     if (client.subscriptions.has(tokenAddress)) {
-      this.sendError(client, 'Already subscribed to this token');
+      // Send success response instead of error - this handles reconnection scenarios gracefully
+      this.sendToClient(client, {
+        type: 'subscription_confirmed',
+        tokenAddress,
+        message: 'Already subscribed to this token'
+      });
       return;
     }
 

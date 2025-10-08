@@ -1,13 +1,20 @@
 import { Router } from 'express';
 import { PrismaClient } from '@prisma/client';
+import { readLimiter } from '../../middleware/rateLimiter.js';
+import { logger } from '../../utils/logger.js';
 
 const router = Router();
 const prisma = new PrismaClient();
 
-// Get leaderboard data
-router.get('/', async (req, res) => {
+/**
+ * GET /api/v1/leaderboard
+ * Get leaderboard data with top traders
+ * 
+ * Rate Limit: 200 requests per minute (authenticated)
+ */
+router.get('/', readLimiter, async (req, res) => {
   try {
-    console.log('Leaderboard API called - fetching top traders');
+    logger.info('Leaderboard API called - fetching top traders');
 
     // Get top traders with their holdings and trades
     const topTraders = await prisma.user.findMany({
@@ -72,7 +79,7 @@ router.get('/', async (req, res) => {
       };
     }).sort((a, b) => b.totalPnL - a.totalPnL); // Sort by total PnL descending
 
-    console.log(`Leaderboard fetched: ${leaderboard.length} traders`);
+    logger.info(`Leaderboard fetched: ${leaderboard.length} traders`);
 
     res.json({
       success: true,
@@ -81,7 +88,7 @@ router.get('/', async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Leaderboard error:', error);
+    logger.error('Leaderboard error:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to fetch leaderboard data'

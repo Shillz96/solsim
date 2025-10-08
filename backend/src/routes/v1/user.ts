@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { authMiddleware, optionalAuthenticate, getUserId } from '../../lib/unifiedAuth.js';
-import { apiLimiter, authLimiter } from '../../middleware/rateLimiter.js';
+import { apiLimiter, authLimiter, readLimiter, writeLimiter } from '../../middleware/rateLimiter.js';
 import { validateURL } from '../../middleware/validation.js';
 import { handleRouteError, ValidationError, NotFoundError, AuthorizationError, validateQueryParams } from '../../utils/errorHandler.js';
 import { LIMITS, ERROR_MESSAGES, VALIDATION_PATTERNS } from '../../config/constants.js';
@@ -87,10 +87,10 @@ const validateAndCleanHandle = (handle: string): string | null => {
  * Params:
  * - userId: Optional user ID (if not provided, returns authenticated user's profile)
  * 
- * Rate Limit: 100 requests per minute
+ * Rate Limit: 200 requests per minute (authenticated)
  * Auth: Required for own profile, optional for public profiles
  */
-router.get('/profile/:userId?', optionalAuthenticate, apiLimiter, async (req: Request, res: Response): Promise<void> => {
+router.get('/profile/:userId?', optionalAuthenticate, readLimiter, async (req: Request, res: Response): Promise<void> => {
   try {
     const authReq = req as unknown as AuthenticatedRequest;
     const targetUserId = req.params.userId;
@@ -202,10 +202,10 @@ router.get('/profile/:userId?', optionalAuthenticate, apiLimiter, async (req: Re
  * - avatarUrl: Avatar image URL (optional, valid HTTP/HTTPS image)
  * - isProfilePublic: Profile visibility (optional, boolean)
  * 
- * Rate Limit: 100 requests per minute
+ * Rate Limit: 30 requests per minute (write operations)
  * Auth: Required
  */
-router.put('/profile', authMiddleware, apiLimiter, async (req: Request, res: Response): Promise<void> => {
+router.put('/profile', authMiddleware, writeLimiter, async (req: Request, res: Response): Promise<void> => {
   try {
     const userId = getUserId(req);
     const { displayName, bio, twitter, discord, telegram, website, isProfilePublic, avatarUrl } = req.body;

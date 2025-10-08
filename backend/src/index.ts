@@ -63,8 +63,8 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 // ROUTES
 // ============================================================================
 
-// Health check endpoint
-app.get('/health', async (req: Request, res: Response) => {
+// Health check endpoint (versioned for consistency, also available at root for load balancers)
+const healthCheckHandler = async (req: Request, res: Response) => {
   try {
     const healthStatus = await monitoringService.getHealthStatus();
     
@@ -86,6 +86,7 @@ app.get('/health', async (req: Request, res: Response) => {
     }
     
     res.status(statusCode).json({
+      success: true,
       status: healthStatus.status,
       timestamp: new Date().toISOString(),
       uptime: process.uptime(),
@@ -100,17 +101,27 @@ app.get('/health', async (req: Request, res: Response) => {
     });
   } catch (error) {
     logger.error('Health check error:', error);
+    const isProduction = process.env.NODE_ENV === 'production';
     res.status(503).json({
+      success: false,
       status: 'unhealthy',
       timestamp: new Date().toISOString(),
-      error: 'Health check failed',
-      message: error instanceof Error ? error.message : 'Unknown error'
+      error: {
+        message: 'Health check failed',
+        // Don't expose internal error details in production
+        details: isProduction ? 'Service temporarily unavailable' : (error instanceof Error ? error.message : 'Unknown error')
+      }
     });
   }
-});
+};
+
+// Mount health check at versioned path (primary)
+app.get('/api/v1/health', healthCheckHandler);
+// Also available at root for load balancers (no auth required)
+app.get('/health', healthCheckHandler);
 
 // API version check
-app.get('/api/version', (req: Request, res: Response) => {
+app.get('/api/v1/version', (req: Request, res: Response) => {
   res.json({
     version: '1.0.0',
     apiVersion: 'v1',
@@ -148,8 +159,15 @@ initializeTradesRoutes({
 // Mount v1 API routes
 app.use('/api/v1', v1Routes);
 
-// Mount Solana Tracker routes (improved trending data with Pump.fun integration)
-app.use('/api/solana-tracker', solanaTrackerRoutes);
+// Mount Solana Tracker routes under v1 for consistency
+app.use('/api/v1/solana-tracker', solanaTrackerRoutes);
+
+// Legacy support - redirect to versioned endpoint
+app.use('/api/solana-tracker', (req: Request, res: Response) => {
+  const newPath = `/api/v1${req.path}`;
+  logger.warn(`Deprecated endpoint accessed: ${req.originalUrl}, redirecting to ${newPath}`);
+  res.redirect(301, newPath);
+});
 
 // Serve static avatar files
 const uploadsPath = path.join(process.cwd(), 'uploads');

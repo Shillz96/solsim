@@ -3,6 +3,7 @@ import path from 'path';
 import { promises as fs } from 'fs';
 import sharp from 'sharp';
 import { ValidationError } from '../utils/errorHandler.js';
+import { logger } from '../utils/logger.js';
 
 /**
  * Avatar Upload Middleware
@@ -27,7 +28,7 @@ const ensureUploadDir = async () => {
 };
 
 // Initialize upload directory
-ensureUploadDir().catch(console.error);
+ensureUploadDir().catch(err => logger.error('Failed to ensure upload directory:', err));
 
 // Configure multer storage
 const storage = multer.memoryStorage(); // Use memory storage for processing
@@ -115,7 +116,7 @@ export const processAvatar = async (
     return `/uploads/avatars/${filename}`;
 
   } catch (error) {
-    console.error('Error processing avatar:', error);
+    logger.error('Error processing avatar:', error);
     throw new ValidationError('Failed to process avatar image');
   }
 };
@@ -133,7 +134,7 @@ export const deleteAvatarFile = async (avatarPath: string): Promise<void> => {
     await fs.unlink(fullPath);
   } catch (error) {
     // Log but don't throw - file might already be deleted
-    console.warn('Could not delete old avatar file:', avatarPath, error);
+    logger.warn('Could not delete old avatar file:', avatarPath, error);
   }
 };
 

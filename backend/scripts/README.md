@@ -4,11 +4,10 @@ This directory contains utility scripts for backend development and maintenance.
 
 ## Directory Structure
 
-### 📁 `archive/`
-Contains historical scripts and one-time fixes that were used during development. These are kept for reference but should not be used in current development.
-
 ### 📁 `dangerous/` 
 Contains production/destructive scripts that require extra caution. These should only be run by experienced developers who understand the consequences.
+
+⚠️ **WARNING**: Scripts in this folder can delete data or modify production databases. Always backup before running!
 
 ### 📁 `dev-tools/`
 Contains development utility scripts for testing, data verification, and development environment management.
@@ -20,6 +19,13 @@ Verifies that all required environment variables are properly configured.
 
 ```bash
 node scripts/verify-env.mjs
+```
+
+### `migrate-to-fifo.ts`
+Migrates existing holdings to use FIFO (First In, First Out) accounting for tax lot tracking.
+
+```bash
+npm run tsx scripts/migrate-to-fifo.ts
 ```
 
 ## Usage Guidelines
@@ -36,6 +42,16 @@ For development environment management, use scripts in `dev-tools/`:
 - `reset-dev-user.mjs` - Reset development user data
 - `test-prisma.js` - Test Prisma database connection
 
-## Archive
+## Maintenance & Migration Scripts
 
-The `archive/` folder contains historical scripts that were used for one-time fixes and migrations. These are preserved for reference but are not intended for current use.
+### Metadata Backfill
+Located in `src/scripts/backfillMetadata.ts` - Backfills missing token metadata for historical trades.
+
+```bash
+npm run tsx src/scripts/backfillMetadata.ts
+```
+
+## Cleanup Notes
+
+- Archive folder removed (historical one-time scripts no longer needed)
+- SQLite migration backups removed (project now uses PostgreSQL exclusively)

@@ -133,7 +133,7 @@ router.get('/health-json', async (req: Request, res: Response): Promise<void> =>
       }
     } catch (error) {
       dbStatus = 'unhealthy';
-      console.error('Database health check failed:', error);
+      logger.error('Database health check failed:', error);
     }
     
     // WebSocket monitoring removed for v1 simplification
@@ -186,7 +186,7 @@ router.get('/health-json', async (req: Request, res: Response): Promise<void> =>
     
   } catch (error) {
     const responseTime = Date.now() - startTime;
-    console.error('❌ Health check error:', error);
+    logger.error('❌ Health check error:', error);
     
     res.status(503).json({
       success: false,
@@ -224,7 +224,7 @@ router.get('/metrics-json', async (req: Request, res: Response): Promise<void> =
       timestamp: new Date().toISOString()
     });
   } catch (error) {
-    console.error('Failed to get performance metrics:', error);
+    logger.error('Failed to get performance metrics:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to retrieve performance metrics',
@@ -265,7 +265,7 @@ router.get('/alerts', async (req: Request, res: Response): Promise<void> => {
       }
     });
   } catch (error) {
-    console.error('Failed to get system alerts:', error);
+    logger.error('Failed to get system alerts:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to retrieve system alerts',
@@ -355,7 +355,7 @@ router.get('/performance-targets', async (req: Request, res: Response): Promise<
     
   } catch (error) {
     const responseTime = Date.now() - startTime;
-    console.error('❌ Performance targets check error:', error);
+    logger.error('❌ Performance targets check error:', error);
     
     res.status(500).json({
       success: false,
@@ -424,7 +424,7 @@ router.post('/performance-test', async (req: Request, res: Response): Promise<vo
           await new Promise(resolve => setTimeout(resolve, Math.random() * 100 + 50)); // Simulated 50-150ms
           portfolioTimes.push(Date.now() - testStart);
         } catch (error) {
-          console.warn('Portfolio test iteration failed:', error);
+          logger.warn('Portfolio test iteration failed:', error);
         }
       }
       
@@ -459,7 +459,7 @@ router.post('/performance-test', async (req: Request, res: Response): Promise<vo
           await new Promise(resolve => setTimeout(resolve, Math.random() * 200 + 200)); // Simulated 200-400ms
           tradeTimes.push(Date.now() - testStart);
         } catch (error) {
-          console.warn('Trade test iteration failed:', error);
+          logger.warn('Trade test iteration failed:', error);
         }
       }
       
@@ -509,7 +509,7 @@ router.post('/performance-test', async (req: Request, res: Response): Promise<vo
     
   } catch (error) {
     const responseTime = Date.now() - startTime;
-    console.error('❌ Performance test error:', error);
+    logger.error('❌ Performance test error:', error);
     
     res.status(500).json({
       success: false,
@@ -593,7 +593,7 @@ router.get('/system-status', async (req: Request, res: Response): Promise<void> 
     
   } catch (error) {
     const responseTime = Date.now() - startTime;
-    console.error('❌ System status error:', error);
+    logger.error('❌ System status error:', error);
     
     res.status(500).json({
       success: false,

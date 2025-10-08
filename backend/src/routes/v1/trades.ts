@@ -5,7 +5,7 @@ import { PriceService } from '../../services/priceService.js';
 import { PortfolioService } from '../../services/portfolioService.js';
 import { authMiddleware, getUserId } from '../../lib/unifiedAuth.js';
 import { serializeDecimals } from '../../utils/decimal.js';
-import { tradeLimiter, apiLimiter } from '../../middleware/rateLimiter.js';
+import { tradeLimiter, apiLimiter, readLimiter, writeLimiter } from '../../middleware/rateLimiter.js';
 import { validateTradeAmount, validatePagination, preventNoSQLInjection } from '../../middleware/validation.js';
 import { handleRouteError } from '../../utils/errorHandler.js';
 import { logger } from '../../utils/logger.js';
@@ -71,8 +71,10 @@ const emitTradeEvent = (
 /**
  * GET /api/v1/trades/history
  * Get paginated trade history for authenticated user
+ * 
+ * Rate Limit: 200 requests per minute (authenticated)
  */
-router.get('/history', async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+router.get('/history', readLimiter, async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const userId = getUserId(req);
     const { tokenAddress, limit: limitQuery, offset: offsetQuery } = req.query;
@@ -115,8 +117,10 @@ router.get('/history', async (req: Request, res: Response, next: NextFunction): 
 /**
  * GET /api/v1/trades/stats
  * Get trade statistics for authenticated user
+ * 
+ * Rate Limit: 200 requests per minute (authenticated)
  */
-router.get('/stats', async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+router.get('/stats', readLimiter, async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const userId = getUserId(req);
     
@@ -313,9 +317,11 @@ router.post('/execute', tradeLimiter, async (req: Request, res: Response, next: 
 /**
  * GET /api/v1/trades/history/:userId
  * Get trade history for specific user (admin endpoint)
+ * 
+ * Rate Limit: 200 requests per minute (authenticated)
  * TODO: Add proper admin authorization
  */
-router.get('/history/:userId', async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+router.get('/history/:userId', readLimiter, async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { userId } = req.params;
     const { tokenAddress, limit: limitQuery, offset: offsetQuery } = req.query;
@@ -461,8 +467,10 @@ router.post('/sell', tradeLimiter, async (req: Request, res: Response, next: Nex
 /**
  * GET /api/v1/trades/recent
  * Get recent trades across all users (public endpoint)
+ * 
+ * Rate Limit: 200 requests per minute (authenticated)
  */
-router.get('/recent', async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+router.get('/recent', readLimiter, async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { limit: limitQuery } = req.query;
 

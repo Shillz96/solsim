@@ -113,18 +113,26 @@ export const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 20, // Limit each IP to 20 requests per windowMs (allows for retries and testing)
   store: createStore(),
-  message: {
-    success: false,
-    error: 'Too many authentication attempts. Please try again in 15 minutes.',
-  },
   standardHeaders: 'draft-7',
   legacyHeaders: false,
   handler: (req: Request, res: Response) => {
+    const retryAfterSeconds = 15 * 60; // 15 minutes in seconds
     logger.warn(`Auth rate limit exceeded for IP: ${req.ip} on ${req.path}`);
+    
+    // Set standard Retry-After header (in seconds)
+    res.setHeader('Retry-After', retryAfterSeconds);
+    
     res.status(429).json({
       success: false,
-      error: 'Too many authentication attempts. Please try again later.',
-      retryAfter: Math.ceil((req.rateLimit?.resetTime || Date.now() + 15 * 60 * 1000) / 1000),
+      error: {
+        message: 'Too many authentication attempts',
+        code: 'RATE_LIMIT_EXCEEDED',
+        type: 'auth'
+      },
+      retryAfter: retryAfterSeconds,
+      limit: 20,
+      window: '15 minutes',
+      timestamp: new Date().toISOString()
     });
   },
 });
@@ -134,11 +142,6 @@ export const tradeLimiter = rateLimit({
   windowMs: 1 * 60 * 1000, // 1 minute
   max: 60, // Increased to 60 trades per minute to allow rapid trading
   store: createStore(),
-  message: {
-    success: false,
-    error: 'Trading too quickly. Please slow down.',
-    retryAfter: 60,
-  },
   keyGenerator: (req: Request) => {
     // Use user ID from auth token for authenticated rate limiting
     const user = (req as any).user;
@@ -148,18 +151,28 @@ export const tradeLimiter = rateLimit({
   legacyHeaders: false,
   handler: (req: Request, res: Response) => {
     const user = (req as any).user;
+    const retryAfterSeconds = 60;
+    
     logger.warn(`Trade rate limit exceeded for user ${user?.id || 'anonymous'}`, {
       userId: user?.id,
       ip: req.ip,
       endpoint: req.path
     });
 
+    // Set standard Retry-After header
+    res.setHeader('Retry-After', retryAfterSeconds);
+
     res.status(429).json({
       success: false,
-      error: 'Trading too quickly. Please slow down.',
-      retryAfter: 60,
+      error: {
+        message: 'Trading too quickly',
+        code: 'RATE_LIMIT_EXCEEDED',
+        type: 'trade'
+      },
+      retryAfter: retryAfterSeconds,
       limit: 60,
-      window: '1 minute'
+      window: '1 minute',
+      timestamp: new Date().toISOString()
     });
   },
 });
@@ -176,11 +189,6 @@ export const apiLimiter = rateLimit({
     }
     return 300; // 300 requests per minute for unauthenticated users
   },
-  message: {
-    success: false,
-    error: 'Too many requests. Please try again later.',
-    retryAfter: 60,
-  },
   standardHeaders: 'draft-7', // Use draft-7 standard for better client handling
   legacyHeaders: false,
   keyGenerator: (req: Request) => {
@@ -191,7 +199,8 @@ export const apiLimiter = rateLimit({
   skip: (req: Request) => {
     // Skip rate limiting for health checks and static assets
     const skipPaths = [
-      '/api/v1/monitoring/health',
+      '/api/v1/health',
+      '/health',
       '/favicon.ico',
       '/api/v1/auth/refresh' // Don't rate limit token refresh
     ];
@@ -200,6 +209,8 @@ export const apiLimiter = rateLimit({
   handler: (req: Request, res: Response) => {
     const user = (req as any).user;
     const identifier = user?.id ? `user ${user.id}` : `IP ${req.ip}`;
+    const userLimit = user?.id ? 1000 : 300;
+    const retryAfterSeconds = 60;
     
     logger.warn(`Rate limit exceeded for ${identifier} on ${req.method} ${req.path}`, {
       userId: user?.id,
@@ -208,12 +219,20 @@ export const apiLimiter = rateLimit({
       endpoint: req.path
     });
 
+    // Set standard Retry-After header
+    res.setHeader('Retry-After', retryAfterSeconds);
+
     res.status(429).json({
       success: false,
-      error: 'Too many requests. Please try again later.',
-      retryAfter: 60,
-      limit: user?.id ? 1000 : 300,
-      window: '1 minute'
+      error: {
+        message: 'Too many requests',
+        code: 'RATE_LIMIT_EXCEEDED',
+        type: 'api'
+      },
+      retryAfter: retryAfterSeconds,
+      limit: userLimit,
+      window: '1 minute',
+      timestamp: new Date().toISOString()
     });
   },
   // Enable request counting skip for failed requests to prevent abuse penalties
@@ -232,4 +251,87 @@ export const passwordResetLimiter = rateLimit({
   },
   standardHeaders: 'draft-7',
   legacyHeaders: false,
+});
+
+// Read-only rate limiter for portfolio and market data endpoints
+// More lenient than write operations but still prevents abuse
+export const readLimiter = rateLimit({
+  windowMs: 1 * 60 * 1000, // 1 minute window
+  store: createStore(),
+  limit: async (req: Request) => {
+    const user = (req as any).user;
+    if (user?.id) {
+      return 200; // 200 reads per minute for authenticated users
+    }
+    return 100; // 100 reads per minute for unauthenticated users
+  },
+  standardHeaders: 'draft-7',
+  legacyHeaders: false,
+  keyGenerator: (req: Request) => {
+    const user = (req as any).user;
+    return user?.id ? `read:user:${user.id}` : `read:ip:${req.ip || 'anonymous'}`;
+  },
+  handler: (req: Request, res: Response) => {
+    const user = (req as any).user;
+    const userLimit = user?.id ? 200 : 100;
+    const retryAfterSeconds = 60;
+    
+    logger.warn(`Read rate limit exceeded for ${user?.id || req.ip} on ${req.path}`);
+
+    // Set standard Retry-After header
+    res.setHeader('Retry-After', retryAfterSeconds);
+
+    res.status(429).json({
+      success: false,
+      error: {
+        message: 'Too many read requests',
+        code: 'RATE_LIMIT_EXCEEDED',
+        type: 'read'
+      },
+      retryAfter: retryAfterSeconds,
+      limit: userLimit,
+      window: '1 minute',
+      timestamp: new Date().toISOString()
+    });
+  },
+});
+
+// Write operation rate limiter (for updates, not trades)
+// Stricter than reads but more lenient than trades
+export const writeLimiter = rateLimit({
+  windowMs: 1 * 60 * 1000, // 1 minute window
+  max: 30, // 30 write operations per minute
+  store: createStore(),
+  standardHeaders: 'draft-7',
+  legacyHeaders: false,
+  keyGenerator: (req: Request) => {
+    const user = (req as any).user;
+    return user?.id ? `write:user:${user.id}` : `write:ip:${req.ip}`;
+  },
+  handler: (req: Request, res: Response) => {
+    const user = (req as any).user;
+    const retryAfterSeconds = 60;
+    
+    logger.warn(`Write rate limit exceeded for user ${user?.id || 'anonymous'}`, {
+      userId: user?.id,
+      ip: req.ip,
+      endpoint: req.path
+    });
+
+    // Set standard Retry-After header
+    res.setHeader('Retry-After', retryAfterSeconds);
+
+    res.status(429).json({
+      success: false,
+      error: {
+        message: 'Too many write operations',
+        code: 'RATE_LIMIT_EXCEEDED',
+        type: 'write'
+      },
+      retryAfter: retryAfterSeconds,
+      limit: 30,
+      window: '1 minute',
+      timestamp: new Date().toISOString()
+    });
+  },
 });

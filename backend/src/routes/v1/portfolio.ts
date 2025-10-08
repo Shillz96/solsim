@@ -1,8 +1,9 @@
 import { Router, Request, Response } from 'express';
 import { PortfolioService } from '../../services/portfolioService.js';
 import { PriceService } from '../../services/priceService.js';
-import { authMiddleware, getUserId } from '../../lib/unifiedAuth.js';
-import { apiLimiter, tradeLimiter } from '../../middleware/rateLimiter.js';
+import { authMiddleware, getUserId, requireAdmin } from '../../lib/unifiedAuth.js';
+import { apiLimiter, tradeLimiter, readLimiter, writeLimiter } from '../../middleware/rateLimiter.js';
+import { serializeDecimals } from '../../utils/decimal.js';
 import { handleRouteError, ValidationError, NotFoundError, AuthorizationError, validateQueryParams } from '../../utils/errorHandler.js';
 import { LIMITS, ERROR_MESSAGES } from '../../config/constants.js';
 import { logger } from '../../utils/logger.js';
@@ -44,41 +45,18 @@ async function getPortfolioWithPrices(userId: string): Promise<any> {
 router.use(authMiddleware);
 
 /**
- * Admin authorization middleware
- * TODO: Implement proper role-based access control
+ * Admin authorization middleware is imported from unifiedAuth.js
+ * Uses tier-based access control system
  */
-const requireAdmin = async (req: Request, res: Response, next: any): Promise<void> => {
-  try {
-    const userId = getUserId(req);
-    
-    // TODO: Check user role in database
-    // For now, we'll disable admin endpoints entirely
-    throw new AuthorizationError('Admin endpoints are currently disabled');
-    
-    // Future implementation:
-    // const user = await prisma.user.findUnique({
-    //   where: { id: userId },
-    //   select: { role: true }
-    // });
-    // 
-    // if (!user || user.role !== 'ADMIN') {
-    //   throw new AuthorizationError('Admin access required');
-    // }
-    // 
-    // next();
-  } catch (error) {
-    handleRouteError(error, res, 'Admin authorization check');
-  }
-};
 
 /**
  * GET /api/v1/portfolio
  * Get portfolio data for authenticated user
  * 
- * Rate Limit: 100 requests per minute
+ * Rate Limit: 200 requests per minute (authenticated)
  * Auth: Required
  */
-router.get('/', apiLimiter, async (req: Request, res: Response): Promise<void> => {
+router.get('/', readLimiter, async (req: Request, res: Response): Promise<void> => {
   try {
     const userId = getUserId(req);
     const portfolio = await getPortfolioWithPrices(userId);
@@ -100,10 +78,10 @@ router.get('/', apiLimiter, async (req: Request, res: Response): Promise<void> =
  * GET /api/v1/portfolio/balance
  * Get SOL balance for authenticated user
  * 
- * Rate Limit: 100 requests per minute
+ * Rate Limit: 200 requests per minute (authenticated)
  * Auth: Required
  */
-router.get('/balance', apiLimiter, async (req: Request, res: Response): Promise<void> => {
+router.get('/balance', readLimiter, async (req: Request, res: Response): Promise<void> => {
   try {
     const userId = getUserId(req);
     const balance = await portfolioService.getBalance(userId);
@@ -130,10 +108,10 @@ router.get('/balance', apiLimiter, async (req: Request, res: Response): Promise<
  * - sortBy: Sort by field (value|quantity|symbol, default: value)
  * - sortOrder: Sort order (asc|desc, default: desc)
  * 
- * Rate Limit: 100 requests per minute
+ * Rate Limit: 200 requests per minute (authenticated)
  * Auth: Required
  */
-router.get('/holdings', apiLimiter, async (req: Request, res: Response): Promise<void> => {
+router.get('/holdings', readLimiter, async (req: Request, res: Response): Promise<void> => {
   try {
     const userId = getUserId(req);
     
@@ -226,10 +204,10 @@ router.get('/holdings', apiLimiter, async (req: Request, res: Response): Promise
  * Query Params:
  * - period: Time period (1d|7d|30d|90d|1y|all, default: 30d)
  * 
- * Rate Limit: 100 requests per minute
+ * Rate Limit: 200 requests per minute (authenticated)
  * Auth: Required
  */
-router.get('/performance', apiLimiter, async (req: Request, res: Response): Promise<void> => {
+router.get('/performance', readLimiter, async (req: Request, res: Response): Promise<void> => {
   try {
     const userId = getUserId(req);
     
@@ -352,7 +330,7 @@ router.get('/performance', apiLimiter, async (req: Request, res: Response): Prom
  * Rate Limit: 100 requests per minute
  * Auth: Required + Admin
  */
-router.get('/:userId', apiLimiter, requireAdmin, async (req: Request, res: Response): Promise<void> => {
+router.get('/:userId', apiLimiter, requireAdmin(), async (req: Request, res: Response): Promise<void> => {
   try {
     const { userId } = validateQueryParams(req.params, {
       userId: { type: 'string', required: true }
@@ -403,13 +381,13 @@ router.get('/:userId', apiLimiter, requireAdmin, async (req: Request, res: Respo
  * - balance: New balance amount (required, positive number, max 1M SOL)
  * - reason: Reason for balance change (required for audit)
  * 
- * Rate Limit: 30 requests per minute (trade limiter)
+ * Rate Limit: 30 requests per minute (write operations)
  * Auth: Required + Admin
  * 
  * WARNING: This endpoint allows arbitrary balance manipulation
  * Consider removing in production or adding strict authorization
  */
-router.put('/balance', tradeLimiter, requireAdmin, async (req: Request, res: Response): Promise<void> => {
+router.put('/balance', writeLimiter, requireAdmin(), async (req: Request, res: Response): Promise<void> => {
   try {
     const userId = getUserId(req);
     
@@ -476,7 +454,7 @@ router.put('/balance', tradeLimiter, requireAdmin, async (req: Request, res: Res
  * 
  * WARNING: This will delete all trades and holdings for the user
  */
-router.post('/reset', tradeLimiter, requireAdmin, async (req: Request, res: Response): Promise<void> => {
+router.post('/reset', tradeLimiter, requireAdmin(), async (req: Request, res: Response): Promise<void> => {
   try {
     const userId = getUserId(req);
     

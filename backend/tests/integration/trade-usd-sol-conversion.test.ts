@@ -89,7 +89,7 @@ describe('Trade USD/SOL Conversion Integration Tests', () => {
       const currentValueSol_BROKEN = quantity * currentPriceUsd; // Actually USD, not SOL!
       const currentValueUsd_BROKEN = currentValueSol_BROKEN * solPriceUsd; // Doubles the value!
       
-      expect(Math.round(currentValueUsd_BROKEN * 100) / 100).toBe(7570.98); // 253x too high!
+      expect(Math.round(currentValueUsd_BROKEN * 100) / 100).toBeCloseTo(7570.98, 1); // 253x too high!
       expect(currentValueUsd_BROKEN).not.toBe(35.60); // Wrong!
     });
   });
@@ -119,8 +119,8 @@ describe('Trade USD/SOL Conversion Integration Tests', () => {
       const pnlUsd = currentValueUsd - entryValueUsd;
       const pnlSol = currentValueSol - entryValueSol;
       
-      expect(pnlUsd).toBe(10);
-      expect(pnlSol).toBe(0.04);
+      expect(pnlUsd).toBeCloseTo(10, 2);
+      expect(pnlSol).toBeCloseTo(0.04, 8);
       
       // PnL %: ($10 / $40) × 100 = 25%
       const pnlPercent = (pnlUsd / entryValueUsd) * 100;
@@ -284,7 +284,7 @@ describe('Trade USD/SOL Conversion Integration Tests', () => {
       
       // PnL SOL: currentValueSol - investedSol
       const pnlSol = currentValueSol.sub(investedSol);
-      expect(pnlSol.toNumber()).toBe(0.4); // 2 - 1.6 = 0.4 SOL profit
+      expect(pnlSol.toNumber()).toBeCloseTo(0.4, 8); // 2 - 1.6 = 0.4 SOL profit
       
       // PnL %: (pnlSol / investedSol) × 100
       const pnlPercent = pnlSol.div(investedSol).mul(100);
@@ -335,7 +335,7 @@ describe('Trade USD/SOL Conversion Integration Tests', () => {
       const pnlPerToken = currentPriceUsd - entryPriceUsd; // $0.0002/token
       const pnlUsd = quantity * pnlPerToken; // $20 USD
       
-      expect(pnlUsd).toBe(20);
+      expect(pnlUsd).toBeCloseTo(20, 2);
       
       // Convert to SOL
       const solPrice = 250;

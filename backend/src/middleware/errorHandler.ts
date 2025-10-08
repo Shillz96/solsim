@@ -36,8 +36,11 @@ export {
 
 /**
  * Database error handler
+ * Sanitizes database errors to prevent information leakage
  */
 function handleDatabaseError(error: any): AppError {
+  const isProduction = process.env.NODE_ENV === 'production';
+  
   // Prisma errors
   if (error.code === 'P2002') {
     return new ConflictError('A record with this value already exists');
@@ -49,12 +52,19 @@ function handleDatabaseError(error: any): AppError {
     return new ValidationError('Foreign key constraint failed');
   }
   
-  // Generic database errors
+  // Generic database errors - sanitize in production
   if (error.message?.includes('connect')) {
-    return new AppError('Database connection error', 503, 'DB_CONNECTION_ERROR', false);
+    const message = isProduction 
+      ? 'Database temporarily unavailable' 
+      : 'Database connection error';
+    return new AppError(message, 503, 'DB_CONNECTION_ERROR', false);
   }
   
-  return new AppError('Database error', 500, 'DB_ERROR', false, error);
+  // Don't expose internal database details in production
+  const message = isProduction 
+    ? 'A database error occurred' 
+    : 'Database error';
+  return new AppError(message, 500, 'DB_ERROR', false, isProduction ? undefined : error);
 }
 
 /**
@@ -113,14 +123,16 @@ export const errorHandler = (
     );
   }
 
-  // Log error details
+  // Log error details (sanitized for production)
+  const isProduction = process.env.NODE_ENV === 'production';
+  
   const logData = {
     error: {
       message: error.message,
       statusCode: error.statusCode,
       code: error.code,
       isOperational: error.isOperational,
-      stack: error.stack,
+      stack: isProduction ? undefined : error.stack, // Don't log full stack traces in production
       details: error.details
     },
     request: {
@@ -128,7 +140,8 @@ export const errorHandler = (
       url: req.url,
       params: req.params,
       query: req.query,
-      body: req.body,
+      // Sanitize body in production - don't log sensitive data
+      body: isProduction ? '[REDACTED]' : req.body,
       headers: {
         'user-agent': req.headers['user-agent'],
         'content-type': req.headers['content-type']
@@ -147,16 +160,23 @@ export const errorHandler = (
     logger.info('Request error:', logData);
   }
 
-  // Send error response
+  // Send standardized error response
   const response: any = {
     success: false,
     error: {
       message: error.message,
       code: error.code
-    }
+    },
+    timestamp: new Date().toISOString()
   };
 
-  // Add stack trace and details in development
+  // Add retry-after header for rate limit errors
+  if (error.statusCode === 429 || error.code === 'RATE_LIMIT_ERROR') {
+    res.setHeader('Retry-After', '60');
+    response.retryAfter = 60;
+  }
+
+  // Add stack trace and details in development only
   if (process.env.NODE_ENV === 'development') {
     response.error.statusCode = error.statusCode;
     response.error.stack = error.stack;

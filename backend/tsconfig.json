@@ -6,27 +6,49 @@
     "lib": ["ES2020"],
     "outDir": "./dist",
     "rootDir": "./src",
+    
+    // Type Checking - Relaxed for faster development
     "strict": false,
+    "noImplicitAny": false,
+    "strictNullChecks": false,
+    "strictFunctionTypes": false,
+    "strictBindCallApply": false,
+    "strictPropertyInitialization": false,
+    "noImplicitThis": false,
+    "alwaysStrict": false,
+    
+    // Module Resolution
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
     "forceConsistentCasingInFileNames": true,
-    "noImplicitAny": false,
-    "noImplicitReturns": false,
-    "noImplicitThis": false,
+    
+    // Emit
+    "declaration": false,
+    "declarationMap": false,
+    "sourceMap": false,
+    "removeComments": true,
+    "importHelpers": false,
+    "importsNotUsedAsValues": "remove",
+    
+    // Performance
+    "incremental": true,
+    "tsBuildInfoFile": "./dist/.tsbuildinfo",
+    "skipLibCheck": true,
+    
+    // Advanced - Disabled for flexibility
     "noUnusedLocals": false,
     "noUnusedParameters": false,
-    "exactOptionalPropertyTypes": false,
+    "noImplicitReturns": false,
+    "noFallthroughCasesInSwitch": false,
+    "noUncheckedIndexedAccess": false,
     "noImplicitOverride": false,
     "noPropertyAccessFromIndexSignature": false,
-    "noUncheckedIndexedAccess": false,
     "allowUnusedLabels": true,
-    "allowUnreachableCode": true,
-    "noFallthroughCasesInSwitch": false,
-    "incremental": true,
-    "tsBuildInfoFile": "./dist/.tsbuildinfo"
+    "allowUnreachableCode": true
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist", "tests/**/*", "prisma/**/*"],
+  "exclude": ["node_modules", "dist", "tests/**/*", "prisma/**/*", "scripts/**/*"],
   "ts-node": {
     "esm": true,
     "experimentalSpecifierResolution": "node"

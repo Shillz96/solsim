@@ -2,6 +2,7 @@ import express from 'express';
 import NodeCache from 'node-cache';
 import { logger } from '../utils/logger.js';
 import { config } from '../config/environment.js';
+import { readLimiter } from '../middleware/rateLimiter.js';
 import {
   transformSolanaTrackerToken,
   transformPumpFunToken,
@@ -66,10 +67,13 @@ async function callSolanaTrackerAPI(endpoint: string): Promise<any> {
 }
 
 /**
+ * GET /api/v1/solana-tracker/trending
  * Get trending tokens with better data diversity
  * Enhanced with Pump.fun integration for fresh token discovery
+ * 
+ * Rate Limit: 200 requests per minute (authenticated)
  */
-router.get('/trending', async (req, res) => {
+router.get('/trending', readLimiter, async (req, res) => {
   try {
     const limit = Math.min(parseInt(req.query.limit as string) || PAGINATION.DEFAULT_LIMIT, PAGINATION.MAX_LIMIT);
     const cacheKey = `solana-tracker-trending-${limit}`;
@@ -277,9 +281,12 @@ router.get('/trending', async (req, res) => {
 });
 
 /**
+ * GET /api/v1/solana-tracker/token/:address
  * Get specific token information from Solana Tracker
+ * 
+ * Rate Limit: 200 requests per minute (authenticated)
  */
-router.get('/token/:address', async (req, res) => {
+router.get('/token/:address', readLimiter, async (req, res) => {
   try {
     const { address } = req.params;
     const cacheKey = `solana-tracker-token-${address}`;
