@@ -1,7 +1,6 @@
-# Railway config for SolSim backend (in backend/ subdirectory)
+# Railway config for SolSim backend - using Nixpacks auto-detection
 [build]
 buildCommand = "cd backend && npm ci && npm run build"
-dockerfilePath = "backend/Dockerfile"
 
 [deploy]
 restartPolicyType = "ON_FAILURE"
