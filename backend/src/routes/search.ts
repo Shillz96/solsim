@@ -23,7 +23,7 @@ export default async function searchRoutes(app: FastifyInstance) {
       }
       
       return {
-        mint: meta.mint,
+        mint: meta.address,
         symbol: meta.symbol,
         name: meta.name,
         logoURI: meta.logoURI,

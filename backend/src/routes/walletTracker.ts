@@ -19,9 +19,9 @@ export default async function walletTrackerRoutes(app: FastifyInstance) {
       // Check if already tracking this wallet
       const existing = await prisma.walletTrack.findUnique({
         where: {
-          userId_walletAddress: {
+          userId_address: {
             userId,
-            walletAddress
+            address: walletAddress
           }
         }
       });
@@ -34,16 +34,15 @@ export default async function walletTrackerRoutes(app: FastifyInstance) {
       const trackedWallet = await prisma.walletTrack.create({
         data: {
           userId,
-          walletAddress,
-          label: label || null,
-          isActive: true
+          address: walletAddress,
+          alias: label || null
         }
       });
       
       return {
         id: trackedWallet.id,
-        walletAddress: trackedWallet.walletAddress,
-        label: trackedWallet.label,
+        walletAddress: trackedWallet.address,
+        label: trackedWallet.alias,
         message: "Wallet added to tracking list"
       };
     } catch (error: any) {
@@ -58,7 +57,7 @@ export default async function walletTrackerRoutes(app: FastifyInstance) {
     
     try {
       const trackedWallets = await prisma.walletTrack.findMany({
-        where: { userId, isActive: true },
+        where: { userId },
         orderBy: { createdAt: "desc" }
       });
       
@@ -74,9 +73,8 @@ export default async function walletTrackerRoutes(app: FastifyInstance) {
     const { trackingId } = req.params as { trackingId: string };
     
     try {
-      await prisma.walletTrack.update({
-        where: { id: trackingId },
-        data: { isActive: false }
+      await prisma.walletTrack.delete({
+        where: { id: trackingId }
       });
       
       return { message: "Wallet removed from tracking" };
@@ -202,7 +200,7 @@ export default async function walletTrackerRoutes(app: FastifyInstance) {
           mint: tokenOut.mint,
           side: "BUY",
           qty: proportionalAmount,
-          priceUsd: priceUsd,
+          priceUsd: parseFloat(tradeResult.trade.price.toString()),
           status: "EXECUTED",
           executedAt: new Date()
         }
@@ -227,16 +225,11 @@ export default async function walletTrackerRoutes(app: FastifyInstance) {
     const { userId } = req.params as { userId: string };
     
     try {
-      const [totalTracked, activeTracked] = await Promise.all([
-        prisma.walletTrack.count({ where: { userId } }),
-        prisma.walletTrack.count({ where: { userId, isActive: true } })
-      ]);
+      const totalTracked = await prisma.walletTrack.count({ where: { userId } });
       
       return {
         userId,
-        totalTracked,
-        activeTracked,
-        inactiveTracked: totalTracked - activeTracked
+        totalTracked
       };
     } catch (error: any) {
       app.log.error(error);

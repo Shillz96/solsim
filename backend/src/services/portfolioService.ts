@@ -68,10 +68,10 @@ export async function getPortfolio(userId: string): Promise<PortfolioResponse> {
   // Get total realized PnL
   const realizedPnl = await prisma.realizedPnL.aggregate({
     where: { userId },
-    _sum: { pnlUsd: true }
+    _sum: { pnl: true }
   });
 
-  const totalRealizedUsd = parseFloat(realizedPnl._sum.pnlUsd?.toString() || "0");
+  const totalRealizedUsd = parseFloat(realizedPnl._sum?.pnl?.toString() || "0");
   const totalPnlUsd = totalUnrealizedUsd + totalRealizedUsd;
 
   return {
