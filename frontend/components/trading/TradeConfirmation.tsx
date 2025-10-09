@@ -108,8 +108,8 @@ export function TradeConfirmation({
                 <div className="text-xs text-muted-foreground">{token.symbol}</div>
               </div>
             </div>
-            {parseFloat(token.priceChange24h || '0') !== undefined && (
-              <TrendIndicator value={parseFloat(token.priceChange24h || '0')} />
+            {token.priceChangePercent24h !== undefined && token.priceChangePercent24h !== null && (
+              <TrendIndicator value={token.priceChangePercent24h} />
             )}
           </div>
           

@@ -10,18 +10,10 @@ import { Badge } from "@/components/ui/badge"
 import { useDebounce } from "@/hooks/use-debounce"
 import { useClickOutside } from "@/hooks/use-click-outside"
 import * as api from "@/lib/api"
+import * as Backend from "@/lib/types/backend"
 
-// Token search result type
-type TokenSearchResult = {
-  address: string
-  symbol: string | null
-  name: string | null
-  price: string | null
-  priceChange24h?: number
-  marketCap?: number
-  imageUrl: string | null
-  trending?: boolean
-}
+// Use the backend type for consistency
+type TokenSearchResult = Backend.TokenSearchResult
 
 export function TokenSearch() {
   const router = useRouter()
@@ -132,9 +124,9 @@ export function TokenSearch() {
                   </div>
                   <div className="text-right">
                     <div className="font-mono text-sm">
-                      ${parseFloat(token.lastPrice || '0') ? (parseFloat(token.lastPrice || '0') / 1e9).toFixed(8) : 'N/A'}
+                      ${token.price ? (token.price / 1e9).toFixed(8) : 'N/A'}
                     </div>
-                    {token.priceChange24h !== undefined && (
+                    {token.priceChange24h !== undefined && token.priceChange24h !== null && (
                       <div 
                         className={`text-xs ${
                           token.priceChange24h >= 0 ? 'text-green-600' : 'text-red-600'

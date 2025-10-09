@@ -201,7 +201,7 @@ export function TradingPanel({ tokenAddress: propTokenAddress }: TradingPanelPro
   // Handle portfolio position finding - separate effect
   useEffect(() => {
     if (portfolio?.positions && Array.isArray(portfolio.positions)) {
-      const holding = portfolio.positions.find(p => 
+      const holding = portfolio.positions.find((p: any) => 
         p?.tokenAddress === tokenAddress && 
         p?.quantity && 
         parseFloat(p.quantity) > 0
