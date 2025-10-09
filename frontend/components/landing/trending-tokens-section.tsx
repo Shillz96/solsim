@@ -10,7 +10,7 @@ import { useTrendingTokens } from "@/lib/api-hooks"
 import type { TrendingToken } from "@/lib/types/api-types"
 
 export function TrendingTokensSection() {
-  const { data: trendingTokens, isLoading: loading } = useTrendingTokens(3) // Limit to 3 for landing page
+  const { data: trendingTokens, isLoading: loading } = useTrendingTokens(6) // Increased to 6 for better showcase
 
   return (
     <section className="py-20 md:py-32 bg-background border-t border-b border-border">
@@ -32,7 +32,7 @@ export function TrendingTokensSection() {
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mb-8">
           {loading ? (
             // Loading skeleton
-            Array.from({ length: 3 }).map((_, index) => (
+            Array.from({ length: 6 }).map((_, index) => (
               <motion.div
                 key={index}
                 initial={{ opacity: 0, y: 20 }}

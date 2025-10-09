@@ -13,7 +13,7 @@ import { useTrendingTokens } from "@/lib/api-hooks"
 import type { TrendingToken } from "@/lib/types/api-types"
 
 export function EnhancedTrendingList() {
-  const { data: trendingTokens, isLoading: loading, error, refetch: refresh } = useTrendingTokens(5) // Limit to 5 for sidebar
+  const { data: trendingTokens, isLoading: loading, error, refetch: refresh } = useTrendingTokens(10) // Increased to 10 for better variety
   const [isRefreshing, setIsRefreshing] = useState(false)
   
   const handleRefresh = async () => {

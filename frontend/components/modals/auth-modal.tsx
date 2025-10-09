@@ -164,7 +164,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-[95vw] max-w-md mx-auto bg-card border-2 border-border shadow-none rounded-none max-h-[90vh] overflow-y-auto">
+      <DialogContent className="w-[95vw] max-w-md mx-auto border-2 border-border shadow-none rounded-none max-h-[90vh] overflow-y-auto" style={{ backgroundColor: 'var(--background)', opacity: 1 }}>
         <div className="relative z-10">
         <DialogHeader className="space-y-3">
           <div className="flex items-center justify-center gap-3 mb-4">
@@ -197,7 +197,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
 
         {/* Forgot Password View */}
         {currentView === 'forgot-password' && (
-          <Card className="border-border bg-card">
+          <Card className="border-border" style={{ backgroundColor: 'var(--background)', opacity: 1 }}>
             <CardHeader className="space-y-2">
               <CardTitle className="flex items-center gap-3 text-lg">
                 <Button
@@ -244,7 +244,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
           </Card>
         )}        {/* Reset Success View */}
         {currentView === 'reset-success' && (
-          <Card className="border-border bg-card">
+          <Card className="border-border" style={{ backgroundColor: 'var(--background)', opacity: 1 }}>
             <CardHeader className="text-center space-y-4">
               <div className="flex justify-center">
                 <div className="h-16 w-16 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
