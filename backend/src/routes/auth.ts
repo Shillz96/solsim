@@ -42,6 +42,7 @@ export default async function (app: FastifyInstance) {
     const user = await prisma.user.create({
       data: {
         email,
+        username: email.split('@')[0], // Use email prefix as default username
         passwordHash: hash,
         handle: handle ?? null,
         profileImage: profileImage ?? null,
@@ -73,7 +74,14 @@ export default async function (app: FastifyInstance) {
     await prisma.user.upsert({
       where: { walletAddress },
       update: { walletNonce: nonce },
-      create: { walletAddress, walletNonce: nonce, virtualSolBalance: 10 } // default 10; upgrade after holding check
+      create: { 
+        email: `${walletAddress.slice(0, 8)}@wallet.solsim.fun`, // Temporary email for wallet users
+        username: walletAddress.slice(0, 16),
+        passwordHash: '', // No password for wallet-only users
+        walletAddress, 
+        walletNonce: nonce, 
+        virtualSolBalance: 10 
+      }
     });
     return { nonce };
   });

@@ -22,9 +22,9 @@ export async function getLeaderboard(limit: number = 50): Promise<LeaderboardEnt
           costUsd: true
         }
       },
-      realizedPnl: {
+      realizedPnls: {
         select: {
-          pnlUsd: true
+          pnl: true
         }
       },
       positions: {

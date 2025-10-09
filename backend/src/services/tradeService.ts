@@ -39,14 +39,15 @@ export async function fillTrade({
   const trade = await prisma.trade.create({
     data: {
       userId,
+      tokenAddress: mint,
       mint,
       side,
-      qty: q,
-      fillPriceSol: priceSol,
-      fillPriceUsd: priceUsd,
-      solUsdAtFill: solUsd,
-      marketCapAtFillUsd: mcAtFill,
-      source: tick.source
+      action: side.toLowerCase(),
+      quantity: q,
+      price: priceUsd,
+      totalCost: q.mul(priceSol),
+      costUsd: q.mul(priceUsd),
+      marketCapUsd: mcAtFill
     }
   });
 
@@ -54,27 +55,30 @@ export async function fillTrade({
   let pos = await prisma.position.findUnique({ where: { userId_mint: { userId, mint } } });
   if (!pos) {
     pos = await prisma.position.create({
-      data: { userId, mint, qty: D(0), costBasisUsd: D(0), mcVwapUsd: D(0) }
+      data: { userId, mint, qty: D(0), costBasis: D(0) }
     });
   }
 
   if (side === "BUY") {
     // New lot
     await prisma.positionLot.create({
-      data: { userId, mint, qtyRemaining: q, unitCostUsd: priceUsd }
+      data: { 
+        position: { connect: { userId_mint: { userId, mint } } },
+        userId, 
+        mint, 
+        qtyRemaining: q, 
+        unitCostUsd: priceUsd 
+      }
     });
 
-    // Update VWAP + MarketCap VWAP
-    const newVWAP = vwapBuy(pos.qty as any, pos.costBasisUsd as any, q, priceUsd);
-    const newMc = mcVwapUpdate(pos.qty as any, pos.mcVwapUsd as any, q, mcAtFill);
+    // Update VWAP
+    const newVWAP = vwapBuy(pos.qty as any, pos.costBasis as any, q, priceUsd);
 
     pos = await prisma.position.update({
       where: { userId_mint: { userId, mint } },
       data: {
         qty: newVWAP.newQty,
-        costBasisUsd: newVWAP.newBasis,
-        mcVwapUsd: newMc,
-        updatedAt: new Date()
+        costBasis: newVWAP.newBasis
       }
     });
   } else {
@@ -101,17 +105,17 @@ export async function fillTrade({
     }
 
     const newQty = (pos.qty as any as Decimal).sub(q);
-    let newBasis = pos.costBasisUsd as any as Decimal;
+    let newBasis = pos.costBasis as any as Decimal;
     if (newQty.eq(0)) newBasis = D(0);
 
     pos = await prisma.position.update({
       where: { userId_mint: { userId, mint } },
-      data: { qty: newQty, costBasisUsd: newBasis, updatedAt: new Date() }
+      data: { qty: newQty, costBasis: newBasis }
     });
 
     // Record realized PnL
-    await prisma.realizedPnl.create({
-      data: { userId, mint, tradeId: trade.id, realizedUsd: realized }
+    await prisma.realizedPnL.create({
+      data: { userId, mint, pnl: realized }
     });
   }
 

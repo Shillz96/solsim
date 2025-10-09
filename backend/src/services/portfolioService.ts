@@ -66,7 +66,7 @@ export async function getPortfolio(userId: string): Promise<PortfolioResponse> {
   }
 
   // Get total realized PnL
-  const realizedPnl = await prisma.realizedPnl.aggregate({
+  const realizedPnl = await prisma.realizedPnL.aggregate({
     where: { userId },
     _sum: { pnlUsd: true }
   });
@@ -110,7 +110,7 @@ export async function getPortfolioPerformance(userId: string, days: number = 30)
   let runningValue = 0;
 
   for (const trade of trades) {
-    const tradeValue = parseFloat(trade.costUsd.toString());
+    const tradeValue = parseFloat(trade.costUsd?.toString() || trade.totalCost?.toString() || "0");
     if (trade.side === "BUY") {
       runningValue += tradeValue;
     } else {

@@ -48,10 +48,11 @@ export async function snapshotRewards(epoch: number, poolAmount: Decimal) {
       const share = (u.rewardPoints as any as Decimal).div(totalPoints);
       const amount = poolAmount.mul(share);
 
-      if (amount.gt(0)) {
+      if (amount.gt(0) && u.walletAddress) {
         claimData.push({
           userId: u.id,
           epoch,
+          wallet: u.walletAddress,
           amount,
           status: "PENDING"
         });

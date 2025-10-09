@@ -17,7 +17,7 @@ export default async function walletTrackerRoutes(app: FastifyInstance) {
     
     try {
       // Check if already tracking this wallet
-      const existing = await prisma.trackedWallet.findUnique({
+      const existing = await prisma.walletTrack.findUnique({
         where: {
           userId_walletAddress: {
             userId,
@@ -31,7 +31,7 @@ export default async function walletTrackerRoutes(app: FastifyInstance) {
       }
       
       // Add wallet to tracking list
-      const trackedWallet = await prisma.trackedWallet.create({
+      const trackedWallet = await prisma.walletTrack.create({
         data: {
           userId,
           walletAddress,
@@ -57,7 +57,7 @@ export default async function walletTrackerRoutes(app: FastifyInstance) {
     const { userId } = req.params as { userId: string };
     
     try {
-      const trackedWallets = await prisma.trackedWallet.findMany({
+      const trackedWallets = await prisma.walletTrack.findMany({
         where: { userId, isActive: true },
         orderBy: { createdAt: "desc" }
       });
@@ -74,7 +74,7 @@ export default async function walletTrackerRoutes(app: FastifyInstance) {
     const { trackingId } = req.params as { trackingId: string };
     
     try {
-      await prisma.trackedWallet.update({
+      await prisma.walletTrack.update({
         where: { id: trackingId },
         data: { isActive: false }
       });
@@ -198,12 +198,13 @@ export default async function walletTrackerRoutes(app: FastifyInstance) {
       await prisma.copyTrade.create({
         data: {
           userId,
-          originalWallet: walletAddress,
-          originalSignature: signature,
-          copyTradeId: tradeResult.trade.id,
-          percentage: parseFloat(percentage.toString()),
-          originalAmount: originalAmountIn.toString(),
-          copiedAmount: proportionalAmount.toString()
+          walletAddress,
+          mint: tokenOut.mint,
+          side: "BUY",
+          qty: proportionalAmount,
+          priceUsd: priceUsd,
+          status: "EXECUTED",
+          executedAt: new Date()
         }
       });
       
@@ -227,8 +228,8 @@ export default async function walletTrackerRoutes(app: FastifyInstance) {
     
     try {
       const [totalTracked, activeTracked] = await Promise.all([
-        prisma.trackedWallet.count({ where: { userId } }),
-        prisma.trackedWallet.count({ where: { userId, isActive: true } })
+        prisma.walletTrack.count({ where: { userId } }),
+        prisma.walletTrack.count({ where: { userId, isActive: true } })
       ]);
       
       return {

@@ -41,17 +41,17 @@ export default async function rewardsRoutes(app: FastifyInstance) {
         prisma.trade.count({ where: { userId } }),
         prisma.trade.aggregate({
           where: { userId },
-          _sum: { costUsd: true }
+          _sum: { totalCost: true }
         }),
-        prisma.realizedPnl.aggregate({
-          where: { userId, pnlUsd: { gt: 0 } },
+        prisma.realizedPnL.aggregate({
+          where: { userId, pnl: { gt: 0 } },
           _count: { id: true }
         })
       ]);
       
       const totalTrades = await prisma.trade.count({ where: { userId } });
       const winRatePercent = totalTrades > 0 ? (winRate._count.id / totalTrades) * 100 : 0;
-      const volumeUsd = parseFloat(totalVolume._sum.costUsd?.toString() || "0");
+      const volumeUsd = parseFloat(totalVolume._sum.totalCost?.toString() || "0");
       
       // Complex reward calculation based on multiple factors
       let rewardAmount = 0;
@@ -129,36 +129,36 @@ export default async function rewardsRoutes(app: FastifyInstance) {
         }
       });
       
-      const snapshots = [];
+      // Calculate total points for the epoch
+      let totalPoints = 0;
       for (const user of users) {
         const tradeCount = user.trades.length;
         const positionCount = user.positions.length;
         
-        // Calculate reward based on activity
-        let rewardAmount = 0;
-        if (tradeCount > 0) rewardAmount += tradeCount * 5;
-        if (positionCount > 0) rewardAmount += positionCount * 2;
+        // Calculate points based on activity
+        let userPoints = 0;
+        if (tradeCount > 0) userPoints += tradeCount * 5;
+        if (positionCount > 0) userPoints += positionCount * 2;
         
-        if (rewardAmount > 0) {
-          snapshots.push({
-            userId: user.id,
-            epoch: parseInt(epoch.toString()),
-            eligibleAmount: Math.min(rewardAmount, 1000),
-            tradeCount,
-            positionCount
-          });
-        }
+        totalPoints += userPoints;
       }
       
-      // Store snapshots and trigger token distribution process
-      await prisma.rewardSnapshot.createMany({
-        data: snapshots
+      // Default pool amount (can be configured)
+      const poolAmount = 10000; // 10,000 SIM tokens per epoch
+      
+      // Store snapshot for this epoch
+      await prisma.rewardSnapshot.create({
+        data: {
+          epoch: parseInt(epoch.toString()),
+          totalPoints,
+          poolAmount
+        }
       });
       
       return {
         epoch: parseInt(epoch.toString()),
-        eligibleUsers: snapshots.length,
-        totalRewards: snapshots.reduce((sum, s) => sum + s.eligibleAmount, 0)
+        totalPoints,
+        poolAmount
       };
     } catch (error: any) {
       app.log.error(error);

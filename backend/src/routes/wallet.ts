@@ -81,7 +81,7 @@ export default async function walletRoutes(app: FastifyInstance) {
         select: {
           id: true,
           side: true,
-          qty: true,
+          quantity: true,
           costUsd: true,
           mint: true,
           createdAt: true
