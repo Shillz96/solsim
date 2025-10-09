@@ -4,7 +4,7 @@ import priceService from "./priceService.js";
 
 export default async function wsPlugin(app: FastifyInstance) {
   // WebSocket route for price updates
-  app.get("/ws/prices", { websocket: true }, (connection, req) => {
+  app.get("/ws/prices", { websocket: true }, (socket, req) => {
       console.log("🔌 Client connected to price WebSocket");
       
       const subscribedTokens = new Set<string>();
@@ -13,14 +13,14 @@ export default async function wsPlugin(app: FastifyInstance) {
       const unsubscribe = priceService.subscribe((tick) => {
         // Only send updates for subscribed tokens (or all if none specified)
         if (subscribedTokens.size === 0 || subscribedTokens.has(tick.mint)) {
-          (connection.socket as any).send(JSON.stringify({
+          socket.send(JSON.stringify({
             type: "price_update",
             data: tick
           }));
         }
       });
       
-      connection.socket.on("message", (message) => {
+      socket.on("message", (message) => {
         try {
           const data = JSON.parse(message.toString());
           
@@ -30,7 +30,7 @@ export default async function wsPlugin(app: FastifyInstance) {
             
             // Send current price immediately
             priceService.getLastTick(data.mint).then(tick => {
-              (connection.socket as any).send(JSON.stringify({
+              socket.send(JSON.stringify({
                 type: "price_update",
                 data: tick
               }));
@@ -51,7 +51,7 @@ export default async function wsPlugin(app: FastifyInstance) {
         }
       });
       
-      connection.socket.on("close", () => {
+      socket.on("close", () => {
         console.log("🔌 Client disconnected from price WebSocket");
         unsubscribe();
       });

@@ -1,6 +1,6 @@
 // Fastify app entrypoint
 import Fastify from "fastify";
-import websocket from "fastify-websocket";
+import websocket from "@fastify/websocket";
 import cors from "@fastify/cors";
 import tradeRoutes from "./routes/trade.js";
 import portfolioRoutes from "./routes/portfolio.js";
