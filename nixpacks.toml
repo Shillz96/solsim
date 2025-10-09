@@ -1,11 +1,2 @@
-[variables]
-NODE_VERSION = '18'
-
-[phases.install]
-cmds = ['npm ci']
-
-[phases.build] 
-cmds = ['npm run build']
-
-[start]
-cmd = 'npm run start:prod'
+# Railway will auto-detect Node.js and use standard build process
+# when root directory is set to 'backend'
