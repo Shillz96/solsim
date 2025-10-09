@@ -45,17 +45,16 @@ export async function getPortfolio(userId: string): Promise<PortfolioResponse> {
   for (const position of positions) {
     const currentPrice = prices[position.mint] || 0;
     const qty = parseFloat((position as any).qty.toString());
-    const avgCost = parseFloat((position as any).avgCostUsd.toString());
+    const costBasisUsd = parseFloat((position as any).costBasis.toString());
 
     const valueUsd = qty * currentPrice;
-    const costBasis = qty * avgCost;
-    const unrealizedUsd = valueUsd - costBasis;
-    const unrealizedPercent = costBasis > 0 ? (unrealizedUsd / costBasis) * 100 : 0;
+    const unrealizedUsd = valueUsd - costBasisUsd;
+    const unrealizedPercent = costBasisUsd > 0 ? (unrealizedUsd / costBasisUsd) * 100 : 0;
 
     portfolioPositions.push({
       mint: position.mint,
       qty: qty.toString(),
-      avgCostUsd: avgCost.toFixed(6),
+      avgCostUsd: (costBasisUsd / qty).toFixed(6),
       valueUsd: valueUsd.toFixed(2),
       unrealizedUsd: unrealizedUsd.toFixed(2),
       unrealizedPercent: unrealizedPercent.toFixed(2)
