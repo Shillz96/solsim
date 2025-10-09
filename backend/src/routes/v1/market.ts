@@ -134,21 +134,32 @@ router.get('/search', apiLimiter, async (req: Request, res: Response): Promise<v
         // Fetch token metadata
         const metadata = await metadataService.getMetadata(q);
         
-        // Fetch current price
-        const priceData = await priceService.getTokenPrices(q);
+        logger.info(`[Search] Metadata fetch result for ${q}:`, metadata ? `${metadata.symbol} - ${metadata.name}` : 'null');
         
-        if (metadata && metadata.symbol && metadata.name && priceData) {
-          // Save to database
+        // Metadata is required, but price is optional (might not be available for new tokens)
+        if (metadata && metadata.symbol && metadata.name) {
+          // Try to fetch current price (optional)
+          let priceData = null;
+          try {
+            priceData = await priceService.getTokenPrices(q);
+            logger.info(`[Search] Price fetch result for ${q}:`, priceData ? `$${priceData.price}` : 'null');
+          } catch (priceError) {
+            logger.warn(`[Search] Price fetch failed for ${q}, continuing with metadata only:`, priceError);
+          }
+          
+          logger.info(`[Search] Attempting to save token ${q} to database...`);
+          
+          // Save to database with available data
           const savedToken = await prisma.token.upsert({
             where: { address: q },
             update: {
               symbol: metadata.symbol,
               name: metadata.name,
               imageUrl: metadata.logoUri,
-              lastPrice: new Decimal(priceData.price),
+              lastPrice: priceData ? new Decimal(priceData.price) : new Decimal(0),
               priceChange24h: new Decimal(0), // Not available from getTokenPrices
               volume24h: new Decimal(0), // Not available from getTokenPrices
-              marketCapUsd: priceData.marketCap ? new Decimal(priceData.marketCap) : new Decimal(0),
+              marketCapUsd: priceData?.marketCap ? new Decimal(priceData.marketCap) : new Decimal(0),
               liquidityUsd: new Decimal(0), // Not available from getTokenPrices
               lastUpdatedAt: new Date(),
             },
@@ -157,10 +168,10 @@ router.get('/search', apiLimiter, async (req: Request, res: Response): Promise<v
               symbol: metadata.symbol,
               name: metadata.name,
               imageUrl: metadata.logoUri,
-              lastPrice: new Decimal(priceData.price),
+              lastPrice: priceData ? new Decimal(priceData.price) : new Decimal(0),
               priceChange24h: new Decimal(0),
               volume24h: new Decimal(0),
-              marketCapUsd: priceData.marketCap ? new Decimal(priceData.marketCap) : new Decimal(0),
+              marketCapUsd: priceData?.marketCap ? new Decimal(priceData.marketCap) : new Decimal(0),
               liquidityUsd: new Decimal(0),
             },
             select: {
@@ -177,11 +188,15 @@ router.get('/search', apiLimiter, async (req: Request, res: Response): Promise<v
             }
           });
 
-          logger.info(`[Search] ✅ Token ${q} fetched and saved: ${savedToken.symbol} - ${savedToken.name}`);
+          logger.info(`[Search] ✅ Token ${q} fetched and saved: ${savedToken.symbol} - ${savedToken.name}${priceData ? ` (price: $${priceData.price})` : ' (no price data)'}`);
           tokens = [savedToken];
+        } else {
+          logger.warn(`[Search] Could not fetch valid metadata for ${q} - metadata: ${JSON.stringify(metadata)}`);
         }
       } catch (fetchError) {
-        logger.error(`[Search] Failed to fetch/save token ${q}:`, fetchError);
+        const errorMsg = fetchError instanceof Error ? fetchError.message : String(fetchError);
+        const errorStack = fetchError instanceof Error ? fetchError.stack : undefined;
+        logger.error(`[Search] Failed to fetch/save token ${q}: ${errorMsg}`, { stack: errorStack });
         // Continue with empty results
       }
     }

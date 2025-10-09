@@ -240,11 +240,37 @@ router.post('/execute', tradeLimiter, async (req: Request, res: Response, next: 
         tokenMetadata = metadataResult.value;
       } else {
         logger.warn(`Metadata fetch failed for ${tokenAddress}:`, metadataResult.reason);
-        tokenMetadata = {
-          symbol: tokenAddress.substring(0, 8).toUpperCase(),
-          name: `Token ${tokenAddress.substring(0, 8)}`,
-          logoUri: null
-        };
+        
+        // Try to get metadata from database as fallback
+        try {
+          const existingToken = await prisma.token.findUnique({
+            where: { address: tokenAddress },
+            select: { symbol: true, name: true, imageUrl: true }
+          });
+          
+          if (existingToken && existingToken.symbol && existingToken.name) {
+            logger.info(`Using cached metadata from database for ${tokenAddress}`);
+            tokenMetadata = {
+              symbol: existingToken.symbol,
+              name: existingToken.name,
+              logoUri: existingToken.imageUrl
+            };
+          } else {
+            // Final fallback - use address-based placeholder
+            tokenMetadata = {
+              symbol: tokenAddress.substring(0, 8).toUpperCase(),
+              name: `Token ${tokenAddress.substring(0, 8)}`,
+              logoUri: null
+            };
+          }
+        } catch (dbError) {
+          logger.warn(`Failed to get metadata from database for ${tokenAddress}:`, dbError);
+          tokenMetadata = {
+            symbol: tokenAddress.substring(0, 8).toUpperCase(),
+            name: `Token ${tokenAddress.substring(0, 8)}`,
+            logoUri: null
+          };
+        }
       }
 
     } catch (error) {

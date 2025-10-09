@@ -418,6 +418,7 @@ export class TradeService {
                 avgBuyMarketCap: avgMarketCap,
                 tokenSymbol: tradeData.tokenSymbol || existing.tokenSymbol,
                 tokenName: tradeData.tokenName || existing.tokenName,
+                tokenImageUrl: tradeData.tokenImageUrl || existing.tokenImageUrl,
               },
             });
           } else {
