@@ -1,19 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import apiClient from '../lib/api-client';
-import type { 
-  ApiResponse,
-  TrendingToken, 
-  TokenDetails,
-} from '../lib/types/api-types';
-import type {
-  TradeResponse, 
-  Portfolio, 
-  TokenBalance, 
-  Transaction, 
-  PortfolioHistoryPoint,
-  WatchlistItem,
-  LeaderboardEntry
-} from './types/api-types';
+import * as api from '../lib/api';
+import type * as Backend from '../lib/types/backend';
 
 /**
  * Hook for fetching trending tokens with React Query
@@ -22,11 +9,8 @@ export function useTrendingTokens(limit = 10) {
   return useQuery({
     queryKey: ['trending', limit],
     queryFn: async () => {
-      const params = new URLSearchParams({ limit: limit.toString() });
-      const response = await apiClient.get<{ success: boolean, data: { tokens: TrendingToken[] } }>(
-        `/api/v1/solana-tracker/trending?${params.toString()}`
-      );
-      return response.data.tokens;
+      const trending = await api.getTrendingTokens();
+      return trending.slice(0, limit);
     },
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
@@ -40,37 +24,35 @@ export function useTokenDetails(tokenAddress: string | null) {
     queryKey: ['token', tokenAddress],
     queryFn: async () => {
       if (!tokenAddress) throw new Error('Token address is required');
-      const response = await apiClient.get<{ success: boolean, data: TokenDetails }>(
-        `/api/tokens/${tokenAddress}`
-      );
-      return response.data;
+      return await api.getTokenDetails(tokenAddress);
     },
-    enabled: !!tokenAddress, // Only run the query if tokenAddress is provided
+    enabled: !!tokenAddress,
     staleTime: 1000 * 60 * 3, // 3 minutes
   });
 }
 
 /**
  * Hook for fetching user portfolio with React Query
+ * @deprecated Use usePortfolio from @/hooks/use-portfolio instead
  */
 export function usePortfolio() {
   return useQuery({
     queryKey: ['portfolio'],
     queryFn: async () => {
-      const response = await apiClient.get<{ 
-        success: boolean, 
-        data: { 
-          holdings: Array<any>, 
-          totalValueUsd: number,
-          totalPnlUsd: number,
-          pnlPercentage: number,
-          solBalance?: number
-        } 
-      }>('/api/portfolio');
-      return response.data;
+      return api.getPortfolio(getUserId());
     },
-    staleTime: 1000 * 60, // 1 minute
+    staleTime: 1000 * 30, // 30 seconds
+    refetchInterval: 1000 * 60, // 1 minute
   });
+}
+
+// Helper function to get user ID (you may need to adjust this based on your auth system)
+function getUserId(): string {
+  if (typeof window !== 'undefined') {
+    const stored = localStorage.getItem('userId');
+    if (stored) return stored;
+  }
+  throw new Error('User not authenticated');
 }
 
 /**
@@ -81,24 +63,22 @@ export function useExecuteTrade() {
   
   return useMutation({
     mutationFn: async ({ 
+      userId,
       action, 
       tokenAddress, 
-      amountSol 
+      qty 
     }: { 
+      userId: string,
       action: 'buy' | 'sell', 
       tokenAddress: string, 
-      amountSol: number 
+      qty: string 
     }) => {
-      const response = await apiClient.post<ApiResponse<TradeResponse>>(
-        '/api/trade', 
-        { action, tokenAddress, amountSol }
-      );
-      
-      if (!response.success || !response.data) {
-        throw new Error(response.error || 'Trade execution failed');
-      }
-      
-      return response.data;
+      return await api.trade({
+        userId,
+        mint: tokenAddress,
+        side: action.toUpperCase() as 'BUY' | 'SELL',
+        qty
+      });
     },
     onSuccess: () => {
       // Invalidate related queries to refresh their data
@@ -112,15 +92,17 @@ export function useExecuteTrade() {
 /**
  * Hook for fetching user balance with React Query
  */
-export function useBalance() {
+export function useBalance(userId?: string) {
   return useQuery({
-    queryKey: ['balance'],
+    queryKey: ['balance', userId],
     queryFn: async () => {
-      const response = await apiClient.get<{ success: boolean, data: { balanceSol: number } }>(
-        '/api/users/balance'
-      );
-      return response.data.balanceSol;
+      const userIdToUse = userId || getUserId();
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/wallet/balance/${userIdToUse}`);
+      if (!response.ok) throw new Error('Failed to fetch balance');
+      const data = await response.json();
+      return data.balance;
     },
+    enabled: !!userId || (typeof window !== 'undefined' && !!localStorage.getItem('userId')),
     staleTime: 1000 * 30, // 30 seconds
   });
 }
@@ -128,31 +110,19 @@ export function useBalance() {
 /**
  * Hook for fetching user transaction history with React Query
  */
-export function useTransactions(limit = 10, page = 1) {
+export function useTransactions(userId?: string, limit = 50, offset = 0) {
   return useQuery({
-    queryKey: ['transactions', limit, page],
+    queryKey: ['transactions', userId, limit, offset],
     queryFn: async () => {
-      const params = new URLSearchParams({
-        limit: limit.toString(),
-        page: page.toString()
-      });
-      
-      const response = await apiClient.get<{ 
-        success: boolean, 
-        data: { 
-          transactions: Array<any>,
-          totalCount: number,
-          totalPages: number
-        } 
-      }>(`/api/transactions?${params.toString()}`);
-      
-      return {
-        transactions: response.data.transactions,
-        totalCount: response.data.totalCount,
-        totalPages: response.data.totalPages,
-        currentPage: page
-      };
+      const userIdToUse = userId || getUserId();
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/wallet/transactions/${userIdToUse}?limit=${limit}&offset=${offset}`
+      );
+      if (!response.ok) throw new Error('Failed to fetch transactions');
+      const data = await response.json();
+      return data.transactions;
     },
+    enabled: !!userId || (typeof window !== 'undefined' && !!localStorage.getItem('userId')),
     staleTime: 1000 * 60, // 1 minute
   });
 }
@@ -160,96 +130,14 @@ export function useTransactions(limit = 10, page = 1) {
 /**
  * Hook for fetching leaderboard data with React Query
  */
-export function useLeaderboard() {
+export function useLeaderboard(limit = 50) {
   return useQuery({
-    queryKey: ['leaderboard'],
+    queryKey: ['leaderboard', limit],
     queryFn: async () => {
-      const response = await apiClient.get<{ 
-        success: boolean, 
-        data: Array<{
-          userId: string,
-          username: string,
-          avatarUrl?: string,
-          totalValueUsd: number,
-          pnlPercentage: number,
-          rank: number
-        }> 
-      }>('/api/leaderboard');
-      
-      return response.data;
+      return await api.getLeaderboard(limit);
     },
     staleTime: 1000 * 60 * 15, // 15 minutes
   });
 }
 
-/**
- * Hook for fetching current Solana price in USD
- */
-export function useSolanaPrice() {
-  return useQuery({
-    queryKey: ['solana-price'],
-    queryFn: async () => {
-      const response = await apiClient.get<ApiResponse<{ price: number }>>('/api/market/solana-price');
-      return response.data?.price || 0;
-    },
-    staleTime: 1000 * 30, // 30 seconds for real-time pricing
-  });
-}
-
-/**
- * Hook for fetching portfolio history over time
- */
-export function usePortfolioHistory(timeframe: '1d' | '1w' | '1m' | '3m' | '1y' = '1w') {
-  return useQuery({
-    queryKey: ['portfolio-history', timeframe],
-    queryFn: async () => {
-      const response = await apiClient.get<ApiResponse<{ history: PortfolioHistoryPoint[] }>>(
-        `/api/portfolio/history?timeframe=${timeframe}`
-      );
-      return response.data?.history || [];
-    },
-    staleTime: timeframe === '1d' ? 1000 * 60 * 5 : 1000 * 60 * 15, // 5 minutes for daily, 15 for others
-  });
-}
-
-/**
- * Hook for managing watchlist items
- */
-export function useWatchlist() {
-  return useQuery({
-    queryKey: ['watchlist'],
-    queryFn: async () => {
-      const response = await apiClient.get<ApiResponse<{ items: WatchlistItem[] }>>('/api/watchlist');
-      return response.data?.items || [];
-    },
-    staleTime: 1000 * 60 * 5, // 5 minutes
-  });
-}
-
-/**
- * Hook for updating watchlist items
- */
-export function useUpdateWatchlist() {
-  const queryClient = useQueryClient();
-  
-  return useMutation({
-    mutationFn: async ({ 
-      action, 
-      tokenAddress 
-    }: { 
-      action: 'add' | 'remove'; 
-      tokenAddress: string;
-    }) => {
-      if (action === 'add') {
-        const response = await apiClient.post<ApiResponse>('/api/watchlist/add', { tokenAddress });
-        return response.data;
-      } else {
-        const response = await apiClient.delete<ApiResponse>(`/api/watchlist/${tokenAddress}`);
-        return response.data;
-      }
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['watchlist'] });
-    },
-  });
-}
+// Additional hooks can be added here as backend endpoints are implemented

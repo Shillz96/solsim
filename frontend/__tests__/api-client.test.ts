@@ -1,5 +1,5 @@
 // Test suite for API Client
-import apiClient, { ApiError } from '@/lib/api-client'
+import apiClient, { ApiError } from '@/lib/api'
 
 // Mock fetch
 const mockFetch = global.fetch as jest.MockedFunction<typeof fetch>

@@ -9,8 +9,19 @@ import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { useDebounce } from "@/hooks/use-debounce"
 import { useClickOutside } from "@/hooks/use-click-outside"
-import marketService from "@/lib/market-service"
-import type { TokenSearchResult } from "@/lib/types/api-types"
+import * as api from "@/lib/api"
+
+// Token search result type
+type TokenSearchResult = {
+  address: string
+  symbol: string | null
+  name: string | null
+  price: string | null
+  priceChange24h?: number
+  marketCap?: number
+  imageUrl: string | null
+  trending?: boolean
+}
 
 export function TokenSearch() {
   const router = useRouter()
@@ -32,7 +43,7 @@ export function TokenSearch() {
 
     setIsSearching(true)
     try {
-      const searchResults = await marketService.searchTokens(searchQuery)
+      const searchResults = await api.searchTokens(searchQuery)
       setResults(searchResults)
       setShowResults(true)
     } catch (error) {
@@ -121,7 +132,7 @@ export function TokenSearch() {
                   </div>
                   <div className="text-right">
                     <div className="font-mono text-sm">
-                      ${token.price ? (parseFloat(token.price) / 1e9).toFixed(8) : 'N/A'}
+                      ${parseFloat(token.lastPrice || '0') ? (parseFloat(token.lastPrice || '0') / 1e9).toFixed(8) : 'N/A'}
                     </div>
                     {token.priceChange24h !== undefined && (
                       <div 

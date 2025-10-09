@@ -11,11 +11,9 @@ import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Mail, Lock, User, TrendingUp, AlertCircle, CheckCircle, ArrowLeft, Wallet } from "lucide-react"
-import { useAuth } from "@/lib/api-hooks"
-import authService from "@/lib/auth-service"
-import { ApiError } from "@/lib/api-client"
+import { useAuth } from "@/hooks/use-auth"
 import { WalletConnectButton } from "@/components/wallet/wallet-connect-button"
-import { useWalletIntegration } from "@/hooks/use-wallet-integration"
+// Wallet integration handled by WalletConnectButton component
 
 interface AuthModalProps {
   open: boolean
@@ -29,9 +27,11 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
   const [currentView, setCurrentView] = useState<AuthView>('login')
+  
+  const { login, signup } = useAuth()
   const [walletConnected, setWalletConnected] = useState<string | null>(null)
-  const { login, register } = useAuth()
-  const { connectWallet, isLoading: walletLoading } = useWalletIntegration()
+  // Use services directly instead of hooks
+  // Wallet integration handled by WalletConnectButton component
 
   const clearMessages = () => {
     setError(null)
@@ -42,17 +42,6 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
   const handleWalletConnect = async (walletAddress: string) => {
     setWalletConnected(walletAddress)
     setSuccess(`Wallet connected: ${walletAddress.slice(0, 4)}...${walletAddress.slice(-4)}`)
-    
-    try {
-      // Verify and get tier information from backend
-      const result = await connectWallet()
-      if (result) {
-        setSuccess(`Wallet verified! Tier: ${result.tier}`)
-      }
-    } catch (err) {
-      console.error('Wallet verification error:', err)
-      // Don't show error here as the wallet is still connected
-    }
   }
 
   const handleWalletDisconnect = () => {
@@ -77,11 +66,11 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
     }
 
     try {
-      await login({ email, password })
+      await login(email, password)
       onOpenChange(false) // Close modal on success
     } catch (err) {
-      const apiError = err as ApiError
-      setError(apiError.message || 'Login failed')
+      const error = err as Error
+      setError(error.message || 'Login failed')
     } finally {
       setIsLoading(false)
     }
@@ -126,11 +115,11 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
     }
 
     try {
-      await register({ email, password, username: username.trim() })
+      await signup(email, password, username.trim())
       onOpenChange(false) // Close modal on success
     } catch (err) {
-      const apiError = err as ApiError
-      setError(apiError.message || 'Registration failed')
+      const error = err as Error
+      setError(error.message || 'Registration failed')
     } finally {
       setIsLoading(false)
     }
@@ -151,12 +140,12 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
     }
 
     try {
-      await authService.forgotPassword({ email })
-      setCurrentView('reset-success')
-      setSuccess('Password reset instructions have been sent to your email')
+      // Forgot password not yet implemented in new backend
+      console.warn('Forgot password not yet implemented')
+      setError('Password reset is not yet available. Please contact support.')
     } catch (err) {
-      const apiError = err as ApiError
-      setError(apiError.message || 'Failed to send reset email')
+      const error = err as Error
+      setError(error.message || 'Failed to send reset email')
     } finally {
       setIsLoading(false)
     }

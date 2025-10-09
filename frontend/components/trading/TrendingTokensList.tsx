@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState } from 'react';
-import { useTrendingTokens, useTokenDetails } from '@/hooks/use-react-query-hooks';
+import { useQuery } from '@tanstack/react-query';
+import * as api from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { 
   Card, 
@@ -55,7 +56,12 @@ export function TrendingTokensList({
     error, 
     refetch, 
     isRefetching 
-  } = useTrendingTokens(limit);
+  } = useQuery({
+    queryKey: ['trending-tokens', limit],
+    queryFn: () => api.getTrendingTokens(),
+    refetchInterval: 30000, // Refresh every 30 seconds
+    staleTime: 10000, // Consider data stale after 10 seconds
+  });
 
   // Function to handle manual refresh
   const handleRefresh = () => {
@@ -91,7 +97,7 @@ export function TrendingTokensList({
     switch (timeframe) {
       case '1h': return token.priceChangePercent1h || 0;
       case '7d': return token.priceChangePercent7d || 0;
-      default: return token.priceChangePercent24h || 0;
+      default: return parseFloat(token.priceChange24h || '0') || 0;
     }
   };
 
@@ -171,41 +177,41 @@ export function TrendingTokensList({
             
             {!isLoading && !isError && tokens && tokens.map((token, index) => (
               <div
-                key={token.tokenAddress}
+                key={token.address}
                 className={cn(
                   "flex items-center justify-between p-3 rounded-md",
                   onSelectToken ? "cursor-pointer hover:bg-accent/50" : "",
                   "border"
                 )}
-                onClick={() => handleTokenSelect(token.tokenAddress)}
+                onClick={() => handleTokenSelect(token.address)}
               >
                 <div className="flex items-center">
                   <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 mr-3">
                     {token.imageUrl ? (
                       <Avatar className="h-8 w-8">
-                        <AvatarImage src={token.imageUrl} alt={token.tokenName || ''} />
-                        <AvatarFallback>{token.tokenSymbol?.substring(0, 2) || 'TKN'}</AvatarFallback>
+                        <AvatarImage src={token.imageUrl} alt={token.name || ''} />
+                        <AvatarFallback>{token.symbol?.substring(0, 2) || 'TKN'}</AvatarFallback>
                       </Avatar>
                     ) : (
-                      <span className="text-sm">{token.tokenSymbol?.substring(0, 2) || 'TKN'}</span>
+                      <span className="text-sm">{token.symbol?.substring(0, 2) || 'TKN'}</span>
                     )}
                   </div>
                   <div>
                     <div className="font-medium">
-                      {token.tokenName || 'Unknown Token'}
+                      {token.name || 'Unknown Token'}
                       <Badge variant="outline" className="ml-2 font-normal">
                         #{index + 1}
                       </Badge>
                     </div>
                     <div className="text-xs text-muted-foreground">
-                      {token.tokenSymbol || '???'}
+                      {token.symbol || '???'}
                     </div>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="text-right">
                     <div className="font-medium">
-                      ${token.price?.toFixed(token.price < 0.01 ? 6 : 2)}
+                      ${parseFloat(token.lastPrice || '0')?.toFixed(parseFloat(token.lastPrice || '0') < 0.01 ? 6 : 2)}
                     </div>
                     <div className={cn(
                       "text-xs flex items-center justify-end",

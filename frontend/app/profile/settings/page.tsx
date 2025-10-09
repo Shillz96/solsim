@@ -28,18 +28,59 @@ import {
   Bell,
   DollarSign
 } from 'lucide-react'
-import { useAuth, useUserSettings } from '@/lib/api-hooks'
-import authService from '@/lib/auth-service'
-import userService from '@/lib/user-service'
+// Use modern auth hook
+import { useAuth } from '@/hooks/use-auth'
 import { useToast } from '@/hooks/use-toast'
-import type { User as UserType, UserSettings, ChangePasswordRequest } from '@/lib/types/api-types'
+import * as api from '@/lib/api'
+
+// Types for settings page
+type UserType = {
+  id: string
+  email: string
+  username: string | null
+  virtualSolBalance: string
+  displayName?: string
+  bio?: string
+  avatarUrl?: string
+  website?: string
+  twitter?: string
+  discord?: string
+  telegram?: string
+}
+
+type UserSettings = {
+  notifications: {
+    email: boolean
+    browser: boolean
+    trading: boolean
+    portfolio: boolean
+  }
+  privacy: {
+    publicProfile: boolean
+    showBalance: boolean
+    showTrades: boolean
+  }
+  trading: {
+    confirmTrades: boolean
+    defaultSlippage: number
+    autoRefresh: boolean
+  }
+}
+
+type ChangePasswordRequest = {
+  currentPassword: string
+  newPassword: string
+}
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
 const ALLOWED_FILE_TYPES = ['image/jpeg', 'image/png', 'image/webp']
 
 function UserSettingsPage() {
-  const { user, refresh: refreshAuth } = useAuth()
-  const { data: settings, isLoading: settingsLoading, refetch: refreshSettings } = useUserSettings()
+  const { user, isAuthenticated } = useAuth()
+  // TODO: Implement useUserSettings hook
+  const settings = null
+  const settingsLoading = false
+  const refreshSettings = () => {}
   
   // States
   const [isLoading, setIsLoading] = useState(false)
@@ -60,12 +101,12 @@ function UserSettingsPage() {
   useEffect(() => {
     if (user) {
       setProfileData({
-        displayName: user.displayName || '',
-        bio: user.bio || '',
-        website: user.website || '',
-        twitter: user.twitter || '',
-        discord: user.discord || '',
-        telegram: user.telegram || ''
+        displayName: user.handle || '',
+        bio: '', // Bio not available in auth user object
+        // website: user.website || '',
+        // twitter: user.twitter || '',
+        // discord: user.discord || '',
+        // telegram: user.telegram || ''
       })
     }
     if (settings) {
@@ -97,34 +138,48 @@ function UserSettingsPage() {
       setIsLoading(true)
       clearMessages()
 
-      const { avatarUrl } = await userService.uploadAvatar(file)
-      setSuccess('Avatar updated successfully')
-      
-      // Refresh user data to show new avatar
-      await refreshAuth()
+      const userId = localStorage.getItem('userId');
+      if (!userId) throw new Error('User not authenticated');
+
+      // For now, use a data URL for the avatar (in production, upload to cloud storage)
+      const reader = new FileReader()
+      reader.onloadend = async () => {
+        try {
+          const avatarUrl = reader.result as string
+          await api.updateAvatar({ userId, avatarUrl })
+          setSuccess('Avatar updated successfully')
+          
+          // Note: In production, you should upload to cloud storage (S3, Cloudinary, etc.)
+          // and pass the URL to the backend instead of using data URLs
+        } catch (err: any) {
+          setError(err.message || 'Failed to upload avatar')
+        } finally {
+          setIsLoading(false)
+        }
+      }
+      reader.readAsDataURL(file)
     } catch (err: any) {
       setError(err.message || 'Failed to upload avatar')
-    } finally {
       setIsLoading(false)
     }
-  }, [clearMessages, refreshAuth])
+  }, [clearMessages])
 
   const handleAvatarDelete = useCallback(async () => {
     try {
       setIsLoading(true)
       clearMessages()
 
-      await userService.deleteAvatar()
-      setSuccess('Avatar removed successfully')
+      const userId = localStorage.getItem('userId');
+      if (!userId) throw new Error('User not authenticated');
       
-      // Refresh user data
-      await refreshAuth()
+      await api.removeAvatar(userId);
+      setSuccess('Avatar removed successfully')
     } catch (err: any) {
       setError(err.message || 'Failed to remove avatar')
     } finally {
       setIsLoading(false)
     }
-  }, [clearMessages, refreshAuth])
+  }, [clearMessages])
 
   // Profile update handling
   const handleProfileUpdate = useCallback(async (e: React.FormEvent) => {
@@ -134,17 +189,25 @@ function UserSettingsPage() {
       setIsLoading(true)
       clearMessages()
 
-      await userService.updateProfile(profileData)
+      const userId = localStorage.getItem('userId');
+      if (!userId) throw new Error('User not authenticated');
+      
+      await api.updateProfile({
+        userId,
+        handle: profileData.displayName,
+        bio: profileData.bio
+        // profileImage will be handled separately via avatar upload functionality
+      });
       setSuccess('Profile updated successfully')
       
-      // Refresh user data
-      await refreshAuth()
+      // TODO: Refresh user data
+      // await refreshAuth()
     } catch (err: any) {
       setError(err.message || 'Failed to update profile')
     } finally {
       setIsLoading(false)
     }
-  }, [profileData, clearMessages, refreshAuth])
+  }, [profileData, clearMessages])
 
   // Password change handling
   const handlePasswordChange = useCallback(async (e: React.FormEvent) => {
@@ -170,9 +233,16 @@ function UserSettingsPage() {
       setIsLoading(true)
       clearMessages()
 
-      await authService.changePassword(passwordData)
-      setSuccess('Password changed successfully')
-      
+      const userId = localStorage.getItem('userId');
+      if (!userId) throw new Error('User not authenticated');
+
+      await api.changePassword({
+        userId,
+        currentPassword: passwordData.currentPassword,
+        newPassword: passwordData.newPassword
+      });
+
+      setSuccess('Password changed successfully');
       // Clear password fields
       setPasswordData({ currentPassword: '', newPassword: '' })
     } catch (err: any) {
@@ -188,8 +258,10 @@ function UserSettingsPage() {
       setIsLoading(true)
       clearMessages()
 
-      await userService.updateSettings(settingsData)
-      setSuccess('Settings updated successfully')
+      // TODO: Implement settings storage in backend or use localStorage
+      // For now, just store settings locally
+      localStorage.setItem('userSettings', JSON.stringify(settingsData));
+      setSuccess('Settings saved locally (backend implementation pending)')
       
       // Refresh settings
       await refreshSettings()
@@ -250,9 +322,9 @@ function UserSettingsPage() {
         <CardContent className="space-y-4">
           <div className="flex items-center gap-4">
             <Avatar className="h-20 w-20">
-              <AvatarImage src={user.avatarUrl} alt={user.username || 'User'} />
+              <AvatarImage src={user.profileImage} alt={user.handle || 'User'} />
               <AvatarFallback className="text-lg">
-                {user.username?.[0]?.toUpperCase() || user.email[0].toUpperCase()}
+                {user.handle?.[0]?.toUpperCase() || user.email?.[0]?.toUpperCase()}
               </AvatarFallback>
             </Avatar>
             <div className="space-y-2">
@@ -265,7 +337,7 @@ function UserSettingsPage() {
                   <Upload className="h-4 w-4 mr-2" />
                   Upload New
                 </Button>
-                {user.avatarUrl && (
+                {user.profileImage && (
                   <Button
                     onClick={handleAvatarDelete}
                     disabled={isLoading}
@@ -311,7 +383,7 @@ function UserSettingsPage() {
                 <Label htmlFor="username">Username</Label>
                 <Input
                   id="username"
-                  value={user.username || ''}
+                  value={user.handle || ''}
                   disabled
                   className="bg-muted"
                 />
@@ -696,13 +768,13 @@ function UserSettingsPage() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="text-center">
               <p className="text-sm text-muted-foreground">Balance</p>
-              <p className="text-lg font-semibold">{user.virtualSolBalance} SOL</p>
+              <p className="text-lg font-semibold">-- SOL</p>
+              <p className="text-xs text-muted-foreground">Check portfolio for current balance</p>
             </div>
             <div className="text-center">
               <p className="text-sm text-muted-foreground">Member Since</p>
-              <p className="text-lg font-semibold">
-                {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}
-              </p>
+              <p className="text-lg font-semibold">--</p>
+              <p className="text-xs text-muted-foreground">Account info not available</p>
             </div>
             <div className="text-center">
               <p className="text-sm text-muted-foreground">Status</p>

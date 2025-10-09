@@ -11,10 +11,14 @@ interface SharePnLDialogProps {
   totalPnLPercent: number
   currentValue: number
   initialBalance: number
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
 }
 
-export function SharePnLDialog({ totalPnL, totalPnLPercent, currentValue, initialBalance }: SharePnLDialogProps) {
-  const [open, setOpen] = useState(false)
+export function SharePnLDialog({ totalPnL, totalPnLPercent, currentValue, initialBalance, open: externalOpen, onOpenChange: externalOnOpenChange }: SharePnLDialogProps) {
+  const [internalOpen, setInternalOpen] = useState(false)
+  const open = externalOpen !== undefined ? externalOpen : internalOpen
+  const setOpen = externalOnOpenChange || setInternalOpen
   const [copied, setCopied] = useState(false)
   const [isGenerating, setIsGenerating] = useState(false)
   const cardRef = useRef<HTMLDivElement>(null)

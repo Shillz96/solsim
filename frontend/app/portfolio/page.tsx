@@ -1,18 +1,36 @@
 "use client"
 
-import { AuthWrapper } from "@/components/auth/auth-wrapper"
+import { AuthGuard } from "@/components/auth/auth-guard"
 import { PnLCard } from "@/components/portfolio/pnl-card"
 import { ActivePositions } from "@/components/portfolio/active-positions"
+import { RewardsCard } from "@/components/portfolio/rewards-card"
 import { EnhancedTrendingList } from "@/components/leaderboard/enhanced-trending-list"
 import { TradeHistory } from "@/components/trading/trade-history"
 import { PortfolioChart } from "@/components/portfolio/portfolio-chart-dynamic"
 import { Card } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { TrendingUp, History, BarChart3 } from "lucide-react"
+import { useState, useEffect } from "react"
 
 export default function PortfolioPage() {
+  const [userId, setUserId] = useState<string | null>(null)
+  const [walletAddress, setWalletAddress] = useState<string | null>(null)
+
+  useEffect(() => {
+    // Get userId from localStorage or auth service
+    if (typeof window !== 'undefined') {
+      const storedUserId = localStorage.getItem('userId')
+      setUserId(storedUserId)
+      
+      // TODO: Get wallet address from wallet connection
+      // For now, we'll use a placeholder
+      const storedWallet = localStorage.getItem('walletAddress')
+      setWalletAddress(storedWallet)
+    }
+  }, [])
+
   return (
-    <AuthWrapper requireAuth={true}>
+    <AuthGuard>
       <div className="min-h-screen bg-background">
         <main className="container mx-auto px-6 py-8 max-w-7xl">
           {/* Header */}
@@ -62,16 +80,27 @@ export default function PortfolioPage() {
               </Tabs>
             </div>
 
-            {/* Right Sidebar - Trending (1/3 width) */}
+            {/* Right Sidebar - Rewards & Trending (1/3 width) */}
             <aside className="space-y-6">
-              <div className="lg:sticky lg:top-8">
-                <h3 className="font-bold text-lg mb-6">Trending Tokens</h3>
-                <EnhancedTrendingList />
+              <div className="lg:sticky lg:top-8 space-y-6">
+                {/* Rewards Card */}
+                {userId && (
+                  <RewardsCard 
+                    userId={userId} 
+                    walletAddress={walletAddress || undefined}
+                  />
+                )}
+                
+                {/* Trending Tokens */}
+                <div>
+                  <h3 className="font-bold text-lg mb-6">Trending Tokens</h3>
+                  <EnhancedTrendingList />
+                </div>
               </div>
             </aside>
           </div>
         </main>
       </div>
-    </AuthWrapper>
+    </AuthGuard>
   )
 }

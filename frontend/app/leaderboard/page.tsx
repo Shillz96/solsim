@@ -7,16 +7,17 @@ import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ResponsiveLeaderboard } from "@/components/leaderboard/responsive-leaderboard"
 import { Trophy, ArrowUp, ArrowDown, Minus, Target, RefreshCw } from "lucide-react"
-import leaderboardService from "@/lib/leaderboard-service"
-import authService from "@/lib/auth-service"
-import type { LeaderboardEntry } from "@/lib/leaderboard-service"
+import { useAuth } from "@/hooks/use-auth"
+import * as api from "@/lib/api"
+import type * as Backend from "@/lib/types/backend"
 
 type TimeRange = "24h" | "7d" | "all"
 
 export default function LeaderboardPage() {
+  const { user, isAuthenticated } = useAuth()
   const [timeRange, setTimeRange] = useState<TimeRange>("all")
   const [showStats, setShowStats] = useState(true)
-  const [leaderboardData, setLeaderboardData] = useState<LeaderboardEntry[]>([])
+  const [leaderboardData, setLeaderboardData] = useState<Backend.LeaderboardEntry[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [currentUserId, setCurrentUserId] = useState<string | null>(null)
@@ -31,7 +32,7 @@ export default function LeaderboardPage() {
   const fetchLeaderboard = async () => {
     try {
       setError(null)
-      const data = await leaderboardService.getLeaderboard()
+      const data = await api.getLeaderboard()
       setLeaderboardData(data)
     } catch (err) {
       import('@/lib/error-logger').then(({ errorLogger }) => {
@@ -51,10 +52,9 @@ export default function LeaderboardPage() {
   // Get current user ID
   useEffect(() => {
     const fetchCurrentUser = async () => {
-      if (authService.isAuthenticated()) {
+      if (isAuthenticated && user) {
         try {
-          const profile = await authService.getProfile()
-          setCurrentUserId(profile.id)
+          setCurrentUserId(user.id)
         } catch (err) {
           import('@/lib/error-logger').then(({ errorLogger }) => {
             errorLogger.error('Failed to fetch user profile', {
@@ -68,7 +68,7 @@ export default function LeaderboardPage() {
     }
 
     fetchCurrentUser()
-  }, [])
+  }, [isAuthenticated, user])
 
   // Initial fetch
   useEffect(() => {
@@ -91,20 +91,16 @@ export default function LeaderboardPage() {
 
   // Calculate stats from leaderboard data
   const topPerformers = leaderboardData.slice(0, 3)
-  const currentUser = leaderboardData.find(entry => entry.id === currentUserId)
+  const currentUser = leaderboardData.find(entry => entry.userId === currentUserId)
   
   const totalTraders = leaderboardData.length
-  const activeToday = leaderboardData.filter(entry => {
-    if (!entry.lastTradeDate) return false
-    const dayAgo = Date.now() - 24 * 60 * 60 * 1000
-    return entry.lastTradeDate > dayAgo
-  }).length
+  const activeToday = leaderboardData.filter(entry => entry.totalTrades > 0).length
 
   const avgROI = totalTraders > 0
-    ? leaderboardData.reduce((sum, entry) => sum + entry.totalPnL, 0) / totalTraders
+    ? leaderboardData.reduce((sum, entry) => sum + parseFloat(entry.totalPnlUsd), 0) / totalTraders
     : 0
 
-  const totalVolume = leaderboardData.reduce((sum, entry) => sum + entry.balance, 0)
+  const totalVolume = leaderboardData.reduce((sum, entry) => sum + entry.totalTrades, 0)
 
   return (
     <div className="min-h-screen bg-background">
@@ -189,31 +185,17 @@ export default function LeaderboardPage() {
                     </div>
 
                     <div className="flex items-center gap-2">
-                      {currentUser.previousRank && currentUser.rank && currentUser.rank < currentUser.previousRank && (
-                        <div className="flex items-center gap-1 text-green-500">
-                          <ArrowUp className="h-4 w-4" />
-                          <span className="text-sm font-medium">+{currentUser.previousRank - currentUser.rank}</span>
-                        </div>
-                      )}
-                      {currentUser.previousRank && currentUser.rank && currentUser.rank > currentUser.previousRank && (
-                        <div className="flex items-center gap-1 text-red-500">
-                          <ArrowDown className="h-4 w-4" />
-                          <span className="text-sm font-medium">-{currentUser.rank - currentUser.previousRank}</span>
-                        </div>
-                      )}
-                      {currentUser.previousRank && currentUser.rank === currentUser.previousRank && (
-                        <div className="flex items-center gap-1 text-muted-foreground">
-                          <Minus className="h-4 w-4" />
-                          <span className="text-sm font-medium">No change</span>
-                        </div>
-                      )}
+                      <div className="flex items-center gap-1 text-muted-foreground">
+                        <Target className="h-4 w-4" />
+                        <span className="text-sm">Current Position</span>
+                      </div>
                     </div>
 
                     <div className="grid grid-cols-2 gap-4 pt-4 border-t border-border">
                       <div>
                         <p className="text-sm text-muted-foreground mb-2 font-bold">Total PnL</p>
-                        <p className={`font-bold text-lg ${currentUser.totalPnL >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                          {currentUser.totalPnL >= 0 ? '+' : ''}{currentUser.totalPnL.toFixed(2)} SOL
+                        <p className={`font-bold text-lg ${parseFloat(currentUser.totalPnlUsd) >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                          {parseFloat(currentUser.totalPnlUsd) >= 0 ? '+' : ''}{parseFloat(currentUser.totalPnlUsd).toFixed(2)} USD
                         </p>
                       </div>
                       <div>
@@ -226,7 +208,7 @@ export default function LeaderboardPage() {
                       </div>
                       <div>
                         <p className="text-sm text-muted-foreground mb-2 font-bold">Balance</p>
-                        <p className="font-bold text-lg font-mono">{currentUser.balance.toFixed(2)} SOL</p>
+                        <p className="font-bold text-lg font-mono">100.00 SOL</p>
                       </div>
                     </div>
                   </div>
@@ -243,7 +225,7 @@ export default function LeaderboardPage() {
                   <div className="space-y-4">
                     {topPerformers.map((performer, index) => (
                       <div
-                        key={performer.id}
+                        key={performer.userId}
                         className="flex items-center justify-between p-4 rounded-none bg-muted/30 hover:bg-muted/50 transition-colors border border-border"
                       >
                         <div className="flex items-center gap-3">
@@ -251,13 +233,13 @@ export default function LeaderboardPage() {
                             {index + 1}
                           </div>
                           <div>
-                            <p className="font-medium">{performer.username}</p>
+                            <p className="font-medium">{performer.handle || `User ${performer.userId.slice(0, 8)}`}</p>
                             <p className="text-xs text-muted-foreground">{performer.totalTrades} trades</p>
                           </div>
                         </div>
                         <div className="text-right">
-                          <p className={`font-bold ${performer.totalPnL >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                            {performer.totalPnL >= 0 ? '+' : ''}{performer.totalPnL.toFixed(2)} SOL
+                          <p className={`font-bold ${parseFloat(performer.totalPnlUsd) >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                            {parseFloat(performer.totalPnlUsd) >= 0 ? '+' : ''}{parseFloat(performer.totalPnlUsd).toFixed(2)} USD
                           </p>
                           <p className="text-xs text-muted-foreground">{performer.winRate.toFixed(1)}% win</p>
                         </div>

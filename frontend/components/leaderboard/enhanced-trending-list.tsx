@@ -9,8 +9,9 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { AnimatedNumber, Sparkline } from "@/components/ui/animated-number"
 import { TokenImage } from "@/components/ui/token-image"
-import { useTrendingTokens } from "@/lib/api-hooks"
-import type { TrendingToken } from "@/lib/types/api-types"
+// Use backend types and hooks
+import type * as Backend from "@/lib/types/backend"
+import { useTrendingTokens } from "@/hooks/use-react-query-hooks"
 
 export function EnhancedTrendingList() {
   const { data: trendingTokens, isLoading: loading, error, refetch: refresh } = useTrendingTokens(10) // Increased to 10 for better variety
@@ -61,7 +62,7 @@ export function EnhancedTrendingList() {
       <div className={`space-y-2 transition-opacity ${isRefreshing ? 'opacity-70' : 'opacity-100'}`}>
         {trendingTokens?.map((token, index) => (
         <motion.div
-          key={token.tokenAddress}
+          key={token.address}
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.3, delay: index * 0.1 }}
@@ -74,16 +75,16 @@ export function EnhancedTrendingList() {
           <div className="flex items-start gap-3">
             <TokenImage 
               src={token.imageUrl} 
-              alt={token.tokenName || 'Unknown Token'} 
+              alt={token.name || 'Unknown Token'} 
               size={40}
               className="flex-shrink-0" 
             />
 
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
-                <span className="font-semibold text-foreground">{token.tokenSymbol || 'N/A'}</span>
+                <span className="font-semibold text-foreground">{token.symbol || 'N/A'}</span>
                 {(() => {
-                  const change = token.priceChangePercent24h || 0;
+                  const change = parseFloat(token.priceChange24h || '0') || 0;
                   // Add threshold to prevent flickering on near-zero values
                   if (change > 0.01) {
                     return <TrendingUp className="h-3 w-3 text-green-600" />;
@@ -94,23 +95,23 @@ export function EnhancedTrendingList() {
                   return null;
                 })()}
               </div>
-              <p className="text-xs text-muted-foreground truncate">{token.tokenName || 'Unknown Token'}</p>
+              <p className="text-xs text-muted-foreground truncate">{token.name || 'Unknown Token'}</p>
             </div>
 
             <div className="text-right flex-shrink-0 space-y-1">
               <AnimatedNumber
-                value={token.price}
+                value={parseFloat(token.lastPrice || '0')}
                 prefix="$"
-                decimals={token.price < 0.001 ? 6 : 4}
+                decimals={parseFloat(token.lastPrice || '0') < 0.001 ? 6 : 4}
                 className="font-mono text-sm font-semibold text-foreground"
                 formatLarge={false}
                 glowOnChange={true}
               />
               <div className="flex items-center gap-1">
                 <AnimatedNumber
-                  value={token.priceChangePercent24h}
+                  value={parseFloat(token.priceChange24h || '0')}
                   suffix="%"
-                  prefix={token.priceChangePercent24h > 0.01 ? "+" : ""}
+                  prefix={parseFloat(token.priceChange24h || '0') > 0.01 ? "+" : ""}
                   decimals={2}
                   className="text-xs font-medium"
                   colorize={true}
@@ -122,9 +123,9 @@ export function EnhancedTrendingList() {
                   width={30}
                   height={12}
                   color={
-                    token.priceChangePercent24h > 0.01 
+                    parseFloat(token.priceChange24h || '0') > 0.01 
                       ? "var(--chart-3)" 
-                      : token.priceChangePercent24h < -0.01
+                      : parseFloat(token.priceChange24h || '0') < -0.01
                       ? "var(--destructive)"
                       : "var(--muted-foreground)"
                   }

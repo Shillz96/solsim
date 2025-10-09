@@ -147,6 +147,116 @@ paths:
                   trade: { type: object }
                   position: { type: object }
 
+  /api/trades:
+    get:
+      summary: Get recent trades (global feed)
+      parameters:
+        - name: limit
+          in: query
+          schema: { type: integer, default: 50 }
+        - name: offset
+          in: query
+          schema: { type: integer, default: 0 }
+      responses:
+        "200":
+          description: Recent trades with token metadata
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  trades:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id: { type: string }
+                        userId: { type: string }
+                        mint: { type: string }
+                        side: { type: string }
+                        qty: { type: string }
+                        fillPriceSol: { type: string }
+                        fillPriceUsd: { type: string }
+                        createdAt: { type: string }
+                        symbol: { type: string, nullable: true }
+                        name: { type: string, nullable: true }
+                        logoURI: { type: string, nullable: true }
+                        user:
+                          type: object
+                          properties:
+                            id: { type: string }
+                            handle: { type: string, nullable: true }
+                            profileImage: { type: string, nullable: true }
+
+  /api/trades/user/{userId}:
+    get:
+      summary: Get trades for a specific user
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema: { type: string }
+        - name: limit
+          in: query
+          schema: { type: integer, default: 50 }
+        - name: offset
+          in: query
+          schema: { type: integer, default: 0 }
+      responses:
+        "200":
+          description: User's trades with token metadata
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  trades:
+                    type: array
+                    items:
+                      type: object
+
+  /api/trades/token/{mint}:
+    get:
+      summary: Get trades for a specific token
+      parameters:
+        - name: mint
+          in: path
+          required: true
+          schema: { type: string }
+        - name: limit
+          in: query
+          schema: { type: integer, default: 50 }
+        - name: offset
+          in: query
+          schema: { type: integer, default: 0 }
+      responses:
+        "200":
+          description: Token trades with metadata
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  trades:
+                    type: array
+                    items:
+                      type: object
+
+  /api/trades/stats:
+    get:
+      summary: Get trade statistics
+      responses:
+        "200":
+          description: Global trade statistics
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  totalTrades: { type: integer }
+                  totalVolumeUsd: { type: string }
+                  uniqueTraders: { type: integer }
+
   /api/portfolio:
     get:
       summary: Get portfolio
@@ -206,6 +316,52 @@ paths:
                 properties:
                   sig: { type: string }
                   amount: { type: string }
+
+  /api/rewards/claims/{userId}:
+    get:
+      summary: Get user's reward claims
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: User's reward claims
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  claims:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id: { type: string }
+                        userId: { type: string }
+                        epoch: { type: integer }
+                        wallet: { type: string }
+                        amount: { type: string }
+                        status: { type: string, enum: [PENDING, COMPLETED, FAILED] }
+                        claimedAt: { type: string, format: date-time, nullable: true }
+                        txSig: { type: string, nullable: true }
+                        createdAt: { type: string, format: date-time }
+
+  /api/rewards/stats:
+    get:
+      summary: Get global reward statistics
+      responses:
+        "200":
+          description: Global reward stats
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  totalClaims: { type: integer }
+                  totalAmount: { type: number }
+                  pendingClaims: { type: integer }
 
   /api/rewards/snapshot:
     post:

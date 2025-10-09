@@ -197,6 +197,28 @@ const nextConfig = {
 
   // Set output file tracing root to fix lockfile warning
   outputFileTracingRoot: process.cwd(),
+
+  // Webpack configuration
+  webpack: (config, { isServer }) => {
+    // Ignore pino-pretty (optional dependency used by WalletConnect)
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      'pino-pretty': false,
+    };
+    
+    // Fallback for Node.js modules not available in browser
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        net: false,
+        tls: false,
+        crypto: false,
+      };
+    }
+
+    return config;
+  },
 }
 
 // Configure Serwist for PWA capabilities

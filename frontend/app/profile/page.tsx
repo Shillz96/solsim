@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState } from "react"
-import { AuthWrapper } from "@/components/auth/auth-wrapper"
+import { AuthGuard } from "@/components/auth/auth-guard"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -16,7 +16,7 @@ export default function ProfilePage() {
   const [darkMode, setDarkMode] = useState(true)
 
   return (
-    <AuthWrapper requireAuth={true}>
+    <AuthGuard>
       <div className="min-h-screen bg-background pb-20 md:pb-8">
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         {/* Header */}
@@ -173,6 +173,6 @@ export default function ProfilePage() {
         </div>
       </div>
     </div>
-    </AuthWrapper>
+    </AuthGuard>
   )
 }

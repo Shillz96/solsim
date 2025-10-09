@@ -16,11 +16,12 @@ import { useState, useCallback, useEffect, useRef } from "react"
 import { AuthModal } from "@/components/modals/auth-modal"
 import { cn } from "@/lib/utils"
 import { motion, AnimatePresence } from "framer-motion"
-import { useAuth, useBalance } from "@/lib/api-hooks"
 import { useRouter } from "next/navigation"
 import { useDebounce } from "@/hooks/use-debounce"
-import marketService from "@/lib/market-service"
-import type { TokenSearchResult } from "@/lib/types/api-types"
+import { useAuth } from "@/hooks/use-auth"
+import { useQuery } from "@tanstack/react-query"
+import * as api from "@/lib/api"
+import type { TokenSearchResult } from "@/lib/types/backend"
 
 export function NavBar() {
   const [authModalOpen, setAuthModalOpen] = useState(false)
@@ -39,11 +40,18 @@ export function NavBar() {
   
   // Use real authentication and balance data
   const { user, isAuthenticated, logout } = useAuth()
-  const { data: balance } = useBalance()
+  
+  // Get balance using React Query directly
+  const { data: balanceData } = useQuery({
+    queryKey: ['user-balance', user?.id],
+    queryFn: () => api.getWalletBalance(user!.id),
+    enabled: !!user,
+    staleTime: 30000, // Cache for 30 seconds
+  })
   
   // Parse balance for display
-  const balanceNumber = balance ? parseFloat(balance) : 0
-  const hasNotifications = true // TODO: Implement real notifications
+  const balanceNumber = balanceData ? parseFloat(balanceData.balance) : 0
+  const hasNotifications = false // Notifications feature to be implemented later
 
   // Search functionality
   const performSearch = useCallback(async (query: string) => {
@@ -63,7 +71,7 @@ export function NavBar() {
 
     setIsSearching(true)
     try {
-      const results = await marketService.searchTokens(query.trim(), 8) // Limit to 8 results for navbar
+      const results = await api.searchTokens(query.trim(), 8) // Limit to 8 results for navbar
       
       // Only update state if this search wasn't aborted
       if (!abortControllerRef.current.signal.aborted) {
@@ -284,10 +292,10 @@ export function NavBar() {
                             {token.name || `${token.address.substring(0, 8)}...${token.address.substring(-8)}`}
                           </p>
                         </div>
-                        {token.price && (
+                        {parseFloat(token.lastPrice || '0') && (
                           <div className="text-right">
                             <p className="text-sm font-mono text-foreground">
-                              ${parseFloat(token.price).toLocaleString(undefined, { maximumFractionDigits: 6 })}
+                              ${parseFloat(token.lastPrice || '0').toLocaleString(undefined, { maximumFractionDigits: 6 })}
                             </p>
                             {token.priceChange24h !== undefined && (
                               <p 

@@ -114,8 +114,8 @@ export function MonitoringStatusWidget({
                       <span className="capitalize truncate">
                         {component.replace(/([A-Z])/g, ' $1').trim()}
                       </span>
-                      <Badge variant="outline" className={`text-xs ${getStatusColor(status)}`}>
-                        {status}
+                      <Badge variant="outline" className={`text-xs ${getStatusColor(status as string)}`}>
+                        {status as string}
                       </Badge>
                     </div>
                   ))}

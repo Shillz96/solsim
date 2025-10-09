@@ -1,14 +1,15 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { ArrowUpRight, ArrowDownRight, ChevronDown, Loader2, AlertCircle, TrendingUp } from "lucide-react"
 import Link from "next/link"
-import { useTradeHistory } from "@/lib/api-hooks"
-import type { Trade } from "@/lib/types/api-types"
+import { AnimatedNumber } from "@/components/ui/animated-number"
+import { useAuth } from "@/hooks/use-auth"
+import * as api from "@/lib/api"
 
 interface TradeHistoryProps {
   tokenAddress?: string
@@ -21,15 +22,49 @@ export function TradeHistory({
   showHeader = true, 
   limit = 50 
 }: TradeHistoryProps = {}) {
-  const { data: tradeHistory, isLoading: loading, error, refetch: refresh } = useTradeHistory(limit)
+  const [trades, setTrades] = useState<api.TradeHistoryItem[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [showAll, setShowAll] = useState(false)
+  
+  const { user, isAuthenticated } = useAuth()
 
-  // Filter trades by token address if specified
-  const filteredTrades = tokenAddress 
-    ? tradeHistory?.trades.filter(trade => trade.tokenAddress === tokenAddress) || []
-    : tradeHistory?.trades || []
+  // Load trade history from actual backend API
+  const loadTrades = useCallback(async () => {
+    if (!isAuthenticated || !user) {
+      setError("Please login to view trade history")
+      setIsLoading(false)
+      return
+    }
 
-  const displayTrades = showAll ? filteredTrades : filteredTrades.slice(0, 10)
+    try {
+      setError(null)
+      setIsLoading(true)
+
+      let response: api.TradesResponse
+      
+      if (tokenAddress) {
+        // Get trades for specific token
+        response = await api.getTokenTrades(tokenAddress, limit)
+      } else {
+        // Get user's trades
+        response = await api.getUserTrades(user.id, limit)
+      }
+      
+      setTrades(response.trades)
+    } catch (err) {
+      setError((err as Error).message)
+    } finally {
+      setIsLoading(false)
+    }
+  }, [limit, tokenAddress, user, isAuthenticated])
+
+  useEffect(() => {
+    loadTrades()
+  }, [loadTrades])
+
+  // Trades are already filtered by the API call
+  const displayTrades = showAll ? trades : trades.slice(0, 10)
 
   const formatTimestamp = (timestamp: string) => {
     const date = new Date(timestamp)
@@ -50,7 +85,7 @@ export function TradeHistory({
     return pnl.toFixed(4)
   }
 
-  if (loading) {
+  if (isLoading) {
     return (
       <Card className="p-6">
         <div className="flex items-center justify-center h-32">
@@ -67,7 +102,7 @@ export function TradeHistory({
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
-            Failed to load trade history: {error?.message || 'Unknown error'}
+            Failed to load trade history: {error}
           </AlertDescription>
         </Alert>
       </Card>
@@ -81,13 +116,13 @@ export function TradeHistory({
           <h3 className="font-semibold">
             {tokenAddress ? "Token Trade History" : "Recent Trades"}
           </h3>
-          <Button variant="ghost" size="sm" onClick={() => refresh()}>
+          <Button variant="ghost" size="sm" onClick={loadTrades}>
             Refresh
           </Button>
         </div>
       )}
 
-      {filteredTrades.length === 0 ? (
+      {trades.length === 0 ? (
         <div className="text-center py-12">
           <div className="inline-flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 mb-4">
             <TrendingUp className="h-8 w-8 text-primary" />
@@ -119,11 +154,11 @@ export function TradeHistory({
             >
               <div className="flex items-center gap-3">
                 <div className={`flex h-8 w-8 items-center justify-center rounded-full ${
-                  trade.action === "BUY" 
+                  trade.side === "BUY" 
                     ? "bg-green-100 text-green-600 dark:bg-green-900/20" 
                     : "bg-red-100 text-red-600 dark:bg-red-900/20"
                 }`}>
-                  {trade.action === "BUY" ? (
+                  {trade.side === "BUY" ? (
                     <ArrowUpRight className="h-4 w-4" />
                   ) : (
                     <ArrowDownRight className="h-4 w-4" />
@@ -131,13 +166,13 @@ export function TradeHistory({
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <Badge variant={trade.action === "BUY" ? "default" : "destructive"} className="text-xs">
-                      {trade.action}
+                    <Badge variant={trade.side === "BUY" ? "default" : "destructive"} className="text-xs">
+                      {trade.side}
                     </Badge>
-                    <span className="font-medium">{trade.tokenSymbol || 'Unknown'}</span>
+                    <span className="font-medium">{trade.symbol || 'Unknown'}</span>
                   </div>
                   <div className="text-sm text-muted-foreground">
-                    {trade.tokenName || 'Unknown Token'}
+                    {trade.name || 'Unknown Token'}
                   </div>
                 </div>
               </div>
@@ -146,39 +181,32 @@ export function TradeHistory({
                 <div className="flex items-center gap-2">
                   <div>
                     <div className="font-mono text-sm">
-                      {parseFloat(trade.quantity).toLocaleString()} tokens
+                      {parseFloat(trade.qty).toLocaleString()} tokens
                     </div>
                     <div className="text-xs text-muted-foreground">
-                      ${parseFloat(trade.price).toFixed(8)}
+                      ${parseFloat(trade.priceUsd).toFixed(8)}
                     </div>
                   </div>
                   <div>
                     <div className="font-mono text-sm font-medium">
-                      {parseFloat(trade.totalCost).toFixed(4)} SOL
+                      ${parseFloat(trade.costUsd).toFixed(2)}
                     </div>
-                    {trade.realizedPnL && (
-                      <div className={`text-xs ${
-                        parseFloat(trade.realizedPnL) >= 0 ? 'text-green-600' : 'text-red-600'
-                      }`}>
-                        {parseFloat(trade.realizedPnL) >= 0 ? '+' : ''}{formatPnL(trade.realizedPnL)} SOL
-                      </div>
-                    )}
                   </div>
                   <div className="text-xs text-muted-foreground w-16 text-right">
-                    {formatTimestamp(trade.timestamp)}
+                    {formatTimestamp(trade.createdAt)}
                   </div>
                 </div>
               </div>
             </div>
           ))}
 
-          {filteredTrades.length > 10 && (
+          {trades.length > 10 && (
             <Button
               variant="outline"
               className="w-full"
               onClick={() => setShowAll(!showAll)}
             >
-              {showAll ? "Show Less" : `Show All (${filteredTrades.length})`}
+              {showAll ? "Show Less" : `Show All (${trades.length})`}
               <ChevronDown className={`ml-2 h-4 w-4 transition-transform ${showAll ? "rotate-180" : ""}`} />
             </Button>
           )}

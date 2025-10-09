@@ -10,14 +10,28 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Separator } from "@/components/ui/separator"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { TrendingUp, TrendingDown, Wallet, Settings, AlertCircle, CheckCircle, Loader2, RefreshCw } from "lucide-react"
-import { useAuth, useTrading, usePortfolio } from "@/lib/api-hooks"
+// Remove old hooks - use services directly
 import { usePriceStreamContext } from "@/lib/price-stream-provider"
 import { useToast } from "@/hooks/use-toast"
 import { cn } from "@/lib/utils"
-import marketService from "@/lib/market-service"
-import type { TokenDetails } from "@/lib/types/api-types"
-import type { PortfolioPosition } from "@/lib/portfolio-service"
+import * as api from "@/lib/api"
+import * as Backend from "@/lib/types/backend"
 import { AnimatedNumber } from "@/components/ui/animated-number"
+import { useAuth } from "@/hooks/use-auth"
+
+// Token details type
+type TokenDetails = {
+  tokenAddress: string
+  tokenSymbol: string | null
+  tokenName: string | null
+  price: number
+  priceChange24h: number
+  priceChangePercent24h: number
+  volume24h: number
+  marketCap: number
+  imageUrl: string | null
+  lastUpdated: string
+}
 
 interface TradingPanelProps {
   tokenAddress?: string
@@ -28,16 +42,98 @@ export function TradingPanel({ tokenAddress: propTokenAddress }: TradingPanelPro
   const defaultTokenAddress = "DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263" // BONK
   const tokenAddress = propTokenAddress || searchParams.get("token") || defaultTokenAddress
 
-  // Hooks
-  const { user } = useAuth()
-  const { data: portfolio, refetch: refreshPortfolio, isLoading: portfolioLoading, error: portfolioError } = usePortfolio()
-  const { isTrading, tradeError, executeBuy, executeSell, clearError } = useTrading()
+  const { user, isAuthenticated, getUserId } = useAuth()
+  const [portfolio, setPortfolio] = useState<any>(null)
+  const [portfolioLoading, setPortfolioLoading] = useState(false)
+  const [portfolioError, setPortfolioError] = useState<string | null>(null)
+  const [isTrading, setIsTrading] = useState(false)
+  const [tradeError, setTradeError] = useState<string | null>(null)
+
+  // Load portfolio
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      const loadPortfolio = async () => {
+        setPortfolioLoading(true)
+        try {
+          const data = await api.getPortfolio(user.id)
+          setPortfolio(data)
+        } catch (err) {
+          setPortfolioError((err as Error).message)
+        } finally {
+          setPortfolioLoading(false)
+        }
+      }
+      loadPortfolio()
+    }
+  }, [isAuthenticated, user])
+
+  const refreshPortfolio = async () => {
+    if (!isAuthenticated || !user) return
+    setPortfolioLoading(true)
+    try {
+      const data = await api.getPortfolio(user.id)
+      setPortfolio(data)
+      setPortfolioError(null)
+    } catch (err) {
+      setPortfolioError((err as Error).message)
+    } finally {
+      setPortfolioLoading(false)
+    }
+  }
+
+  const executeBuy = async (tokenAddress: string, amount: number) => {
+    setIsTrading(true)
+    setTradeError(null)
+    try {
+      const userId = getUserId()
+      if (!userId) throw new Error('Not authenticated')
+      
+      const result = await api.trade({
+        userId,
+        mint: tokenAddress,
+        side: 'BUY',
+        qty: amount.toString()
+      })
+      await refreshPortfolio()
+      return result
+    } catch (err) {
+      setTradeError((err as Error).message)
+      throw err
+    } finally {
+      setIsTrading(false)
+    }
+  }
+
+  const executeSell = async (tokenAddress: string, amount: number) => {
+    setIsTrading(true)
+    setTradeError(null)
+    try {
+      const userId = getUserId()
+      if (!userId) throw new Error('Not authenticated')
+      
+      const result = await api.trade({
+        userId,
+        mint: tokenAddress,
+        side: 'SELL',
+        qty: amount.toString()
+      })
+      await refreshPortfolio()
+      return result
+    } catch (err) {
+      setTradeError((err as Error).message)
+      throw err
+    } finally {
+      setIsTrading(false)
+    }
+  }
+
+  const clearError = () => setTradeError(null)
   const { connected: wsConnected, prices: livePrices, subscribe, unsubscribe } = usePriceStreamContext()
   const { toast } = useToast()
 
   // State
   const [tokenDetails, setTokenDetails] = useState<TokenDetails | null>(null)
-  const [tokenHolding, setTokenHolding] = useState<PortfolioPosition | null>(null)
+  const [tokenHolding, setTokenHolding] = useState<Backend.PortfolioPosition | null>(null)
   const [loadingToken, setLoadingToken] = useState(true)
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [customSolAmount, setCustomSolAmount] = useState("")
@@ -60,8 +156,26 @@ export function TradingPanel({ tokenAddress: propTokenAddress }: TradingPanelPro
     }
     
     try {
-      const details = await marketService.getTokenDetails(tokenAddress)
-      setTokenDetails(details)
+      // For now, use trending to find token (token details not in new API yet)
+      const trending = await api.getTrendingTokens()
+      const token = trending.find(t => t.address === tokenAddress)
+      
+      if (token) {
+        setTokenDetails({
+          tokenAddress: token.address,
+          tokenSymbol: token.symbol,
+          tokenName: token.name,
+          price: parseFloat(token.lastPrice || '0'),
+          priceChange24h: parseFloat(token.priceChange24h || '0'),
+          priceChangePercent24h: parseFloat(token.priceChange24h || '0'),
+          volume24h: parseFloat(token.volume24h || '0'),
+          marketCap: parseFloat(token.marketCapUsd || '0'),
+          imageUrl: token.imageUrl,
+          lastUpdated: new Date().toISOString()
+        })
+      } else {
+        throw new Error('Token not found in trending list')
+      }
     } catch (error) {
       import('@/lib/error-logger').then(({ errorLogger }) => {
         errorLogger.error('Failed to load token data', {

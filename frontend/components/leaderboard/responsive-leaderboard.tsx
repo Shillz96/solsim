@@ -7,14 +7,14 @@ import { Badge } from "@/components/ui/badge"
 import { AnimatedNumber } from "@/components/ui/animated-number"
 import { Trophy, TrendingUp, TrendingDown, Minus, Sparkles, Loader2 } from "lucide-react"
 import { cn } from "@/lib/utils"
-import type { LeaderboardEntry as APILeaderboardEntry } from "@/lib/leaderboard-service"
+import type * as Backend from "@/lib/types/backend"
 
 interface ResponsiveLeaderboardProps {
   timeRange: "24h" | "7d" | "all"
   currentUserId?: string
   userRowRef?: React.RefObject<HTMLElement | null>
   loading?: boolean
-  data?: APILeaderboardEntry[]
+  data?: Backend.LeaderboardEntry[]
 }
 
 export function ResponsiveLeaderboard({ 
@@ -125,11 +125,11 @@ export function ResponsiveLeaderboard({
           </thead>
           <tbody className="divide-y divide-border">
             {externalData.map((entry) => {
-              const isCurrentUser = entry.id === currentUserId
+              const isCurrentUser = entry.userId === currentUserId
 
               return (
                 <tr
-                  key={entry.id}
+                  key={entry.userId}
                   ref={isCurrentUser ? userRowRef as React.RefObject<HTMLTableRowElement | null> : undefined}
                   className={cn(
                     "hover:bg-muted/30 transition-all duration-300",
@@ -140,12 +140,12 @@ export function ResponsiveLeaderboard({
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
                       {getRankBadge(entry.rank!)}
-                      {getRankChange(entry.rank, entry.previousRank)}
+                      {getRankChange(entry.rank, undefined)}
                     </div>
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-2">
-                      <span className="font-medium">{entry.username}</span>
+                      <span className="font-medium">{entry.handle || 'Anonymous'}</span>
                       {isCurrentUser && (
                         <Badge variant="secondary" className="text-xs">
                           You
@@ -156,9 +156,9 @@ export function ResponsiveLeaderboard({
                   </td>
                   <td className="px-6 py-4 text-right">
                     <AnimatedNumber
-                      value={entry.totalPnL}
+                      value={parseFloat(entry.totalPnlUsd)}
                       suffix=" SOL"
-                      prefix={entry.totalPnL >= 0 ? '+' : ''}
+                      prefix={parseFloat(entry.totalPnlUsd) >= 0 ? '+' : ''}
                       decimals={2}
                       className="font-bold"
                       colorize={true}
@@ -172,7 +172,7 @@ export function ResponsiveLeaderboard({
                     <span className="text-muted-foreground">{entry.winRate.toFixed(1)}%</span>
                   </td>
                   <td className="px-6 py-4 text-right">
-                    <span className="font-medium font-mono">{entry.balance.toFixed(2)} SOL</span>
+                    <span className="font-medium font-mono">{parseFloat(entry.totalPnlUsd).toFixed(2)} SOL</span>
                   </td>
                 </tr>
               )
@@ -184,11 +184,11 @@ export function ResponsiveLeaderboard({
       {/* Mobile View */}
       <div className="md:hidden divide-y divide-border">
         {externalData.map((entry) => {
-          const isCurrentUser = entry.id === currentUserId
+          const isCurrentUser = entry.userId === currentUserId
 
           return (
             <div
-              key={entry.id}
+              key={entry.userId}
               ref={isCurrentUser ? userRowRef as React.RefObject<HTMLDivElement | null> : undefined}
               className={cn(
                 "p-4 transition-all duration-300",
@@ -199,13 +199,13 @@ export function ResponsiveLeaderboard({
               <div className="flex items-start justify-between mb-3">
                 <div className="flex items-center gap-3">
                   {getRankBadge(entry.rank!)}
-                  {getRankChange(entry.rank, entry.previousRank)}
+                  {getRankChange(entry.rank, undefined)}
                 </div>
                 <div className="text-right">
                   <AnimatedNumber
-                    value={entry.totalPnL}
+                    value={parseFloat(entry.totalPnlUsd)}
                     suffix=" SOL"
-                    prefix={entry.totalPnL >= 0 ? '+' : ''}
+                    prefix={parseFloat(entry.totalPnlUsd) >= 0 ? '+' : ''}
                     decimals={2}
                     className="font-bold text-lg"
                     colorize={true}
@@ -217,7 +217,7 @@ export function ResponsiveLeaderboard({
 
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
-                  <span className="font-medium">{entry.username}</span>
+                  <span className="font-medium">{entry.handle || 'Anonymous'}</span>
                   {isCurrentUser && (
                     <Badge variant="secondary" className="text-xs">
                       You
@@ -225,7 +225,7 @@ export function ResponsiveLeaderboard({
                   )}
                 </div>
                 <div className="text-right">
-                  <p className="font-mono text-sm">{entry.balance.toFixed(2)} SOL</p>
+                  <p className="font-mono text-sm">{parseFloat(entry.totalPnlUsd).toFixed(2)} SOL</p>
                   <p className="text-xs text-muted-foreground">{entry.winRate.toFixed(1)}% win</p>
                 </div>
               </div>

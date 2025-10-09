@@ -1,10 +1,9 @@
 // Test suite for Trading Service
-import tradingService from '@/lib/trading-service'
-import apiClient from '@/lib/api-client'
+import apiClient from '@/lib/api'
 import { ClientRateLimiter } from '@/lib/security-utils'
 
 // Mock dependencies
-jest.mock('@/lib/api-client')
+jest.mock('@/lib/api')
 jest.mock('@/lib/security-utils')
 
 const mockApiClient = apiClient as jest.Mocked<typeof apiClient>

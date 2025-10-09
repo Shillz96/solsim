@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState } from 'react';
-import { useLeaderboard } from '@/hooks/use-react-query-hooks';
+import { useQuery } from '@tanstack/react-query';
+import * as api from '@/lib/api';
 import { 
   Card, 
   CardContent, 
@@ -54,7 +55,12 @@ export function Leaderboard({
     error,
     refetch,
     isRefetching,
-  } = useLeaderboard();
+  } = useQuery({
+    queryKey: ['leaderboard'],
+    queryFn: () => api.getLeaderboard(),
+    refetchInterval: 30000, // Refresh every 30 seconds
+    staleTime: 10000, // Consider data stale after 10 seconds
+  });
 
   // Limit the number of entries to display
   const leaderboardEntries = leaderboardData 
@@ -191,24 +197,24 @@ export function Leaderboard({
                       </div>
                       <div className="flex items-center">
                         <Avatar className="h-8 w-8 mr-2">
-                          <AvatarImage src={entry.avatarUrl} alt={entry.username} />
-                          <AvatarFallback>{entry.username.substring(0, 2)}</AvatarFallback>
+                          <AvatarImage src={entry.avatarUrl ?? undefined} alt={entry.displayName || 'User'} />
+                          <AvatarFallback>{(entry.displayName || 'U').substring(0, 2).toUpperCase()}</AvatarFallback>
                         </Avatar>
                         <div>
                           <div className="font-medium">
-                            {entry.username}
+                            {entry.displayName || 'Unknown User'}
                             {entry.userId === 'current-user' && (
                               <Badge variant="secondary" className="ml-2">You</Badge>
                             )}
                           </div>
                           <div className={cn(
                             "text-xs flex items-center",
-                            getTrendColor(entry.pnlPercentage)
+                            getTrendColor(parseFloat(entry.totalPnlUsd || '0'))
                           )}>
-                            {getTrendIcon(entry.pnlPercentage)}
+                            {getTrendIcon(parseFloat(entry.totalPnlUsd || '0'))}
                             <span className="ml-1">
-                              {entry.pnlPercentage > 0 && '+'}
-                              {entry.pnlPercentage.toFixed(2)}%
+                              {parseFloat(entry.totalPnlUsd || '0') > 0 && '+'}
+                              {parseFloat(entry.totalPnlUsd || '0').toFixed(2)}%
                             </span>
                           </div>
                         </div>
@@ -216,7 +222,7 @@ export function Leaderboard({
                     </div>
                     <div className="text-right">
                       <div className="font-medium">
-                        ${entry.totalValueUsd.toLocaleString()}
+                        ${entry.totalPnlUsd.toLocaleString()}
                       </div>
                     </div>
                   </div>
@@ -247,11 +253,11 @@ export function Leaderboard({
                         <TableCell>
                           <div className="flex items-center">
                             <Avatar className="h-8 w-8 mr-2">
-                              <AvatarImage src={entry.avatarUrl} alt={entry.username} />
-                              <AvatarFallback>{entry.username.substring(0, 2)}</AvatarFallback>
+                              <AvatarImage src={entry.avatarUrl ?? undefined} alt={entry.displayName || 'User'} />
+                              <AvatarFallback>{(entry.displayName || 'U').substring(0, 2).toUpperCase()}</AvatarFallback>
                             </Avatar>
                             <span className="font-medium">
-                              {entry.username}
+                              {entry.displayName || 'Unknown User'}
                               {entry.userId === 'current-user' && (
                                 <Badge variant="secondary" className="ml-2">You</Badge>
                               )}
@@ -259,17 +265,17 @@ export function Leaderboard({
                           </div>
                         </TableCell>
                         <TableCell className="text-right font-medium">
-                          ${entry.totalValueUsd.toLocaleString()}
+                          ${entry.totalPnlUsd.toLocaleString()}
                         </TableCell>
                         <TableCell className="text-right">
                           <div className={cn(
                             "flex items-center justify-end",
-                            getTrendColor(entry.pnlPercentage)
+                            getTrendColor(parseFloat(entry.totalPnlUsd || '0'))
                           )}>
-                            {getTrendIcon(entry.pnlPercentage)}
+                            {getTrendIcon(parseFloat(entry.totalPnlUsd || '0'))}
                             <span className="ml-1">
-                              {entry.pnlPercentage > 0 && '+'}
-                              {entry.pnlPercentage.toFixed(2)}%
+                              {parseFloat(entry.totalPnlUsd || '0') > 0 && '+'}
+                              {parseFloat(entry.totalPnlUsd || '0').toFixed(2)}%
                             </span>
                           </div>
                         </TableCell>

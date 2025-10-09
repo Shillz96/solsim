@@ -1,50 +1,34 @@
 /**
- * Shared types for portfolio components
+ * Portfolio component types - Re-exports backend types and UI-specific interfaces
  */
-import { Token } from '../trading/types';
+
+// Re-export backend portfolio types
+export type {
+  PortfolioPosition,
+  PortfolioTotals,
+  PortfolioResponse
+} from '@/lib/types/backend';
 
 /**
- * Portfolio position representing a held token
+ * Enhanced position with token metadata for UI display
  */
-export interface Position {
-  id: string;
-  token: Token;
-  quantity: number;
-  entryPrice: number;
-  currentPrice: number;
-  value: number;
-  profitLoss: number;
-  profitLossPercent: number;
-  lastUpdated?: Date;
+export interface EnhancedPosition extends PortfolioPosition {
+  tokenSymbol?: string;
+  tokenName?: string;
+  tokenImageUrl?: string;
+  currentPrice?: number;
 }
 
 /**
- * Trade history record
- */
-export interface TradeHistory {
-  id: string;
-  timestamp: Date;
-  token: Token;
-  type: 'buy' | 'sell';
-  quantity: number;
-  price: number;
-  totalValue: number;
-  fee?: number;
-}
-
-/**
- * Portfolio summary data
+ * Portfolio summary for UI components
  */
 export interface PortfolioSummary {
-  portfolioValue: number;
-  portfolioChange24h?: number;
+  totalValue: number;
   totalPnL: number;
-  pnlChangePercent?: number;
-  activePositionsCount: number;
-  totalTradesCount: number;
-  positions: Position[];
-  recentTrades: TradeHistory[];
-  cashBalance: number;
+  totalPnLPercent: number;
+  realizedPnL: number;
+  unrealizedPnL: number;
+  positionsCount: number;
   lastUpdated: Date;
 }
 
@@ -52,17 +36,26 @@ export interface PortfolioSummary {
  * Props for the portfolio positions table
  */
 export interface PortfolioPositionsProps {
-  positions: Position[];
+  positions: EnhancedPosition[];
   isLoading?: boolean;
-  onSelectPosition?: (position: Position) => void;
+  onSelectPosition?: (position: EnhancedPosition) => void;
 }
 
 /**
- * Props for the trade history table
+ * Performance data point for charts
  */
-export interface TradeHistoryProps {
-  trades: TradeHistory[];
+export interface PortfolioPerformancePoint {
+  date: string;
+  value: number;
+  pnl?: number;
+}
+
+/**
+ * Props for portfolio performance chart
+ */
+export interface PortfolioChartProps {
+  data: PortfolioPerformancePoint[];
   isLoading?: boolean;
-  limit?: number;
-  showFilters?: boolean;
+  timeframe?: '1D' | '7D' | '30D' | '90D' | '1Y' | 'ALL';
+  onTimeframeChange?: (timeframe: string) => void;
 }

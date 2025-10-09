@@ -5,134 +5,149 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { TrendIndicator } from '@/components/shared/TrendIndicator';
 import { Wallet, TrendingUp, TrendingDown, Activity, Briefcase } from 'lucide-react';
 import { formatNumber } from '@/lib/utils';
-import { PortfolioMetricsProps } from '../trading/types';
+import { useQuery } from '@tanstack/react-query';
+import * as api from '@/lib/api';
+import * as Backend from '@/lib/types/backend';
+
+interface PortfolioMetricsProps {
+  isLoading?: boolean;
+}
 
 /**
  * PortfolioMetrics component for displaying portfolio performance
  * 
- * Follows the UX pattern guidelines for portfolio performance:
- * - Card-based metrics with consistent styling
- * - Semantic coloring for profit/loss
- * - Group related metrics together
- * - Use appropriate icons to reinforce meaning
+ * Updated to use the new backend API structure:
+ * - Fetches data directly from portfolio service
+ * - Uses standardized portfolio types
+ * - Displays all key metrics from backend
  */
-export function PortfolioMetrics({
-  portfolioValue,
-  portfolioChange24h,
-  totalPnL,
-  pnlChangePercent,
-  activePositionsCount,
-  totalTradesCount,
-  isLoading = false
-}: PortfolioMetricsProps) {
-  const normalizedTotalPnL = totalPnL ?? 0;
-  const isPnLPositive = normalizedTotalPnL >= 0;
+export function StatCard({ title, value, change, changeType, isLoading, icon: Icon }: StatCardProps) {
+  return (
+    <Card className="p-6">
+      <div className="flex items-center justify-between">
+        <div className="space-y-1">
+          <p className="text-sm font-medium text-muted-foreground">{title}</p>
+          <div className="flex items-center gap-2">
+            {isLoading ? (
+              <Skeleton className="h-8 w-20" />
+            ) : (
+              <p className="text-2xl font-bold">{value}</p>
+            )}
+            {Icon && <Icon className="h-5 w-5 text-muted-foreground" />}
+          </div>
+        </div>
+        {change !== undefined && changeType && (
+          <div className={`flex items-center gap-1 text-sm ${
+            changeType === 'positive' ? 'text-green-600' :
+            changeType === 'negative' ? 'text-red-600' : 'text-muted-foreground'
+          }`}>
+            {changeType === 'positive' && <TrendingUp className="h-4 w-4" />}
+            {changeType === 'negative' && <TrendingDown className="h-4 w-4" />}
+            <span>{change}</span>
+          </div>
+        )}
+      </div>
+    </Card>
+  )
+}
+
+export function PortfolioMetrics({ isLoading: externalLoading = false }: PortfolioMetricsProps) {
+  // Use React Query to fetch portfolio data directly
+  const { 
+    data: portfolio, 
+    isLoading: dataLoading, 
+    error 
+  } = useQuery({
+    queryKey: ['portfolio'],
+    queryFn: async () => {
+      const userId = localStorage.getItem('userId');
+      if (!userId) throw new Error('User not authenticated');
+      return api.getPortfolio(userId);
+    },
+    enabled: typeof window !== 'undefined' && !!localStorage.getItem('userId'),
+    refetchInterval: 30000, // Refresh every 30 seconds
+    staleTime: 10000, // Consider data stale after 10 seconds
+  })
+
+  const isLoading = externalLoading || dataLoading
 
   if (isLoading) {
     return <PortfolioMetricsSkeleton />;
   }
 
+  if (error || !portfolio) {
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+        <Card>
+          <CardContent className="p-4 text-center">
+            <p className="text-sm text-muted-foreground">Unable to load portfolio metrics</p>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
+
+  const totalValue = parseFloat(portfolio.totals.totalValueUsd)
+  const totalPnL = parseFloat(portfolio.totals.totalPnlUsd)
+  const unrealizedPnL = parseFloat(portfolio.totals.totalUnrealizedUsd)
+  const realizedPnL = parseFloat(portfolio.totals.totalRealizedUsd)
+  
+  // Calculate cost basis and PnL percentage
+  const costBasis = totalValue - unrealizedPnL
+  const totalPnLPercent = costBasis > 0 ? (totalPnL / costBasis) * 100 : 0
+  
+  const isPnLPositive = totalPnL >= 0
+  const positionsCount = portfolio.positions.length
+  const activePositionsCount = portfolio.positions.filter(p => parseFloat(p.qty) > 0).length
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
       <StatCard
         title="Portfolio Value"
-        value={`$${formatNumber(portfolioValue)}`}
-        change={portfolioChange24h}
-        changeSuffix="%"
+        value={`$${formatNumber(totalValue)}`}
         icon={<Wallet className="h-4 w-4" />}
       />
       
       <StatCard
-        title="Total Profit/Loss"
-        value={`$${formatNumber(normalizedTotalPnL)}`}
-        change={pnlChangePercent}
+        title="Total P&L"
+        value={`${totalPnL >= 0 ? '+' : ''}$${formatNumber(Math.abs(totalPnL))}`}
+        change={totalPnLPercent}
         changeSuffix="%"
         icon={isPnLPositive ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
-        trend={isPnLPositive ? 'positive' : 'negative'}
+        valueColor={isPnLPositive ? 'text-green-500' : 'text-red-500'}
+      />
+      
+      <StatCard
+        title="Unrealized P&L"
+        value={`${unrealizedPnL >= 0 ? '+' : ''}$${formatNumber(Math.abs(unrealizedPnL))}`}
+        icon={<Activity className="h-4 w-4" />}
+        valueColor={unrealizedPnL >= 0 ? 'text-green-500' : 'text-red-500'}
       />
       
       <StatCard
         title="Active Positions"
         value={activePositionsCount.toString()}
         icon={<Briefcase className="h-4 w-4" />}
-      />
-      
-      <StatCard
-        title="Total Trades"
-        value={totalTradesCount.toString()}
-        icon={<Activity className="h-4 w-4" />}
+        subtitle={`${positionsCount} total`}
       />
     </div>
   );
 }
 
-/**
- * StatCard component for individual portfolio metrics
- */
-interface StatCardProps {
-  title: string;
-  value: string;
-  change?: number;
-  changeSuffix?: string;
-  icon?: React.ReactNode;
-  trend?: 'positive' | 'negative' | 'neutral';
-}
 
-export function StatCard({
-  title,
-  value,
-  change,
-  changeSuffix = '',
-  icon,
-  trend = 'neutral'
-}: StatCardProps) {
-  return (
-    <Card>
-      <CardContent className="p-6">
-        <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <p className="text-sm text-muted-foreground">{title}</p>
-            {icon && <div className="text-muted-foreground">{icon}</div>}
-          </div>
-          
-          <div className="flex items-baseline justify-between">
-            <h3 className={`
-              text-2xl font-semibold tabular-nums
-              ${trend === 'positive' ? 'text-profit' : trend === 'negative' ? 'text-loss' : ''}
-            `}>
-              {value}
-            </h3>
-            {typeof change === 'number' && (
-              <TrendIndicator 
-                value={change} 
-                suffix={changeSuffix}
-              />
-            )}
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
-
-/**
- * Loading skeleton for portfolio metrics
- */
 function PortfolioMetricsSkeleton() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
-      {[...Array(4)].map((_, i) => (
+      {Array.from({ length: 4 }).map((_, i) => (
         <Card key={i}>
-          <CardContent className="p-6">
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Skeleton className="h-4 w-24" />
-                <Skeleton className="h-4 w-4 rounded-full" />
-              </div>
-              <div className="flex items-baseline justify-between">
-                <Skeleton className="h-8 w-28" />
-                <Skeleton className="h-4 w-12" />
-              </div>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between space-y-0 pb-2">
+              <Skeleton className="h-4 w-[100px]" />
+              <Skeleton className="h-4 w-4" />
+            </div>
+            <div className="space-y-1">
+              <Skeleton className="h-8 w-[120px]" />
+              <Skeleton className="h-4 w-[80px]" />
             </div>
           </CardContent>
         </Card>

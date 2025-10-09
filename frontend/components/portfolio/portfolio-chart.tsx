@@ -1,26 +1,91 @@
 "use client"
 
 import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
-import { usePortfolioPerformance } from "@/lib/api-hooks"
 import { Loader2, AlertCircle } from "lucide-react"
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect, useCallback } from "react"
+import { useQuery } from "@tanstack/react-query"
+import { Chart } from "react-chartjs-2"
+import { useAuth } from "@/hooks/use-auth"
+import * as api from "@/lib/api"
+
+interface TradeData {
+  time: string;
+  value: number;
+  cumulative: number;
+  index: number;
+}
 
 export function PortfolioChart() {
   const [period, setPeriod] = useState<'30d' | '7d' | '90d'>('30d')
-  const { data: performance, isLoading, error } = usePortfolioPerformance(period)
+  const [trades, setTrades] = useState<api.TradeHistoryItem[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  
+  const { user, isAuthenticated } = useAuth()
+
+  // Load trade history from actual backend API
+  const loadTrades = useCallback(async () => {
+    if (!isAuthenticated || !user) {
+      setError("Please login to view trade history")
+      setIsLoading(false)
+      return
+    }
+
+    try {
+      setError(null)
+      setIsLoading(true)
+      
+      // Calculate limit based on period (more trades for longer periods)
+      const limit = period === '7d' ? 50 : period === '30d' ? 100 : 200
+      
+      const response = await api.getUserTrades(user.id, limit)
+      
+      // Filter trades by date based on period
+      const now = new Date()
+      const periodDays = period === '7d' ? 7 : period === '30d' ? 30 : 90
+      const cutoffDate = new Date(now.getTime() - periodDays * 24 * 60 * 60 * 1000)
+      
+      const filteredTrades = response.trades.filter(trade => 
+        new Date(trade.createdAt) >= cutoffDate
+      )
+      
+      setTrades(filteredTrades.reverse()) // Chronological order (oldest first)
+    } catch (err) {
+      setError((err as Error).message)
+    } finally {
+      setIsLoading(false)
+    }
+  }, [period, user, isAuthenticated])
+
+  useEffect(() => {
+    loadTrades()
+  }, [loadTrades])
 
   // Memoize chart data generation to avoid recalculation on every render
-  const chartData = useMemo(() => {
-    return performance?.tradeHistory?.map((trade, index) => ({
-      time: new Date(trade.timestamp).toLocaleDateString('en-US', { 
-        month: 'short', 
-        day: 'numeric' 
-      }),
-      value: parseFloat(trade.totalCost || '0'),
-      pnl: parseFloat(trade.realizedPnL || '0'),
-      index
-    })) || []
-  }, [performance])
+  const chartData: TradeData[] = useMemo(() => {
+    let cumulativeValue = 0
+    
+    return trades.map((trade, index) => {
+      const tradeValue = parseFloat(trade.costUsd)
+      
+      // Add to cumulative if it's a buy, subtract if it's a sell
+      if (trade.side === 'BUY') {
+        cumulativeValue += tradeValue
+      } else {
+        cumulativeValue -= tradeValue
+      }
+      
+      return {
+        time: new Date(trade.createdAt).toLocaleDateString('en-US', { 
+          month: 'short', 
+          day: 'numeric' 
+        }),
+        value: tradeValue,
+        cumulative: cumulativeValue,
+        index
+      }
+    })
+  }, [trades])
 
   if (isLoading) {
     return (
@@ -39,7 +104,7 @@ export function PortfolioChart() {
         <div className="flex items-center gap-2 text-muted-foreground">
           <AlertCircle className="h-4 w-4" />
           <span className="text-sm">
-            {error ? 'Failed to load data' : 'No trading history available'}
+            {error ? `Failed to load data: ${error}` : 'No trading history available'}
           </span>
         </div>
       </div>
@@ -81,8 +146,8 @@ export function PortfolioChart() {
               fontSize={12}
               tickLine={false}
               axisLine={false}
-              tickFormatter={(value) => `${Number(value).toFixed(2)} SOL`}
-              label={{ value: 'Spend (SOL)', angle: -90, position: 'insideLeft', style: { fontSize: 12, fill: 'hsl(var(--muted-foreground))' } }}
+              tickFormatter={(value) => `$${Number(value).toFixed(0)}`}
+              label={{ value: 'Trade Value ($)', angle: -90, position: 'insideLeft', style: { fontSize: 12, fill: 'hsl(var(--muted-foreground))' } }}
             />
             <Tooltip
               content={({ active, payload }) => {
@@ -92,15 +157,11 @@ export function PortfolioChart() {
                     <div className="rounded-lg border border-border bg-background p-3 shadow-lg">
                       <p className="text-xs text-muted-foreground">{data.time}</p>
                       <p className="font-mono text-sm font-semibold text-foreground">
-                        Spend: {Number(data.value).toFixed(4)} SOL
+                        Trade: ${Number(data.value).toFixed(2)}
                       </p>
-                      {data.pnl !== 0 && (
-                        <p className={`font-mono text-xs ${
-                          data.pnl > 0 ? 'text-green-500' : 'text-red-500'
-                        }`}>
-                          PnL: {data.pnl > 0 ? '+' : ''}{Number(data.pnl).toFixed(4)} SOL
-                        </p>
-                      )}
+                      <p className="font-mono text-xs text-muted-foreground">
+                        Cumulative: ${Number(data.cumulative).toFixed(2)}
+                      </p>
                     </div>
                   )
                 }
@@ -109,7 +170,7 @@ export function PortfolioChart() {
             />
             <Line
               type="monotone"
-              dataKey="value"
+              dataKey="cumulative"
               stroke="hsl(var(--primary))"
               strokeWidth={2}
               dot={false}

@@ -6,8 +6,9 @@ import { TrendingUp, ArrowRight, TrendingDown, Loader2 } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 import { motion } from "framer-motion"
-import { useTrendingTokens } from "@/lib/api-hooks"
-import type { TrendingToken } from "@/lib/types/api-types"
+// Use backend types
+import type * as Backend from "@/lib/types/backend"
+import { useTrendingTokens } from "@/hooks/use-react-query-hooks"
 
 export function TrendingTokensSection() {
   const { data: trendingTokens, isLoading: loading } = useTrendingTokens(6) // Increased to 6 for better showcase
@@ -65,20 +66,20 @@ export function TrendingTokensSection() {
           ) : (
             trendingTokens?.map((token, index) => (
               <motion.div
-                key={token.tokenAddress}
+                key={token.address}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1 }}
               >
-                <Link href={`/trade?token=${token.tokenAddress}`}>
+                <Link href={`/trade?token=${token.address}`}>
                   <Card className="p-6 bg-card border-2 border-foreground hover:border-foreground transition-all duration-300 group cursor-pointer h-full">
                     <div className="space-y-4">
                       <div className="flex items-center gap-3">
                         <div className="relative h-12 w-12 rounded-full overflow-hidden bg-muted">
                           <Image 
                             src={token.imageUrl || "/placeholder-token.svg"} 
-                            alt={token.tokenName || 'Unknown Token'} 
+                            alt={token.name || 'Unknown Token'} 
                             fill 
                             sizes="48px"
                             className="object-cover"
@@ -89,9 +90,9 @@ export function TrendingTokensSection() {
                         </div>
                         <div className="flex-1">
                           <div className="flex items-center gap-2">
-                            <h3 className="font-heading text-lg font-bold">{token.tokenSymbol || 'N/A'}</h3>
+                            <h3 className="font-heading text-lg font-bold">{token.symbol || 'N/A'}</h3>
                             {(() => {
-                              const change = token.priceChangePercent24h || 0;
+                              const change = parseFloat(token.priceChange24h || '0') || 0;
                               // Add threshold to prevent flickering on near-zero values
                               if (change > 0.01) {
                                 return <TrendingUp className="h-4 w-4 text-[#00ff85]" />;
@@ -102,7 +103,7 @@ export function TrendingTokensSection() {
                               return null;
                             })()}
                           </div>
-                          <p className="text-sm text-muted-foreground">{token.tokenName || 'Unknown Token'}</p>
+                          <p className="text-sm text-muted-foreground">{token.name || 'Unknown Token'}</p>
                         </div>
                       </div>
 
@@ -110,42 +111,42 @@ export function TrendingTokensSection() {
                       <div>
                         <p className="text-xs text-muted-foreground">Price</p>
                         <p className="text-lg font-bold font-mono">
-                          ${(token.price || 0) < 0.001 ? (token.price || 0).toExponential(2) : (token.price || 0).toFixed(4)}
+                          ${(parseFloat(token.lastPrice || '0') || 0) < 0.001 ? (parseFloat(token.lastPrice || '0') || 0).toExponential(2) : (parseFloat(token.lastPrice || '0') || 0).toFixed(4)}
                         </p>
                       </div>
                       <div>
                         <p className="text-xs text-muted-foreground">24h Change</p>
                         <p
                           className={`text-lg font-bold font-mono ${(() => {
-                            const change = token.priceChangePercent24h || 0;
+                            const change = parseFloat(token.priceChange24h || '0') || 0;
                             if (change > 0.01) return "text-[#00ff85]";
                             if (change < -0.01) return "text-[#ff4d4d]";
                             return "text-muted-foreground";
                           })()}`}
                         >
                           {(() => {
-                            const change = token.priceChangePercent24h || 0;
+                            const change = parseFloat(token.priceChange24h || '0') || 0;
                             if (change > 0.01) return "+";
                             if (change < -0.01) return "";
                             return "";
                           })()}
-                          {(token.priceChangePercent24h || 0).toFixed(2)}%
+                          {(parseFloat(token.priceChange24h || '0') || 0).toFixed(2)}%
                         </p>
                       </div>
                       <div>
                         <p className="text-xs text-muted-foreground">Volume</p>
                         <p className="text-sm font-medium font-mono">
-                          ${(token.volume24h || 0) > 1000000 
-                            ? `${((token.volume24h || 0) / 1000000).toFixed(1)}M` 
-                            : `${((token.volume24h || 0) / 1000).toFixed(0)}K`}
+                          ${parseFloat(token.volume24h || '0') > 1000000 
+                            ? `${(parseFloat(token.volume24h || '0') / 1000000).toFixed(1)}M` 
+                            : `${(parseFloat(token.volume24h || '0') / 1000).toFixed(0)}K`}
                         </p>
                       </div>
                       <div>
                         <p className="text-xs text-muted-foreground">Market Cap</p>
                         <p className="text-sm font-medium font-mono">
-                          ${token.marketCap > 1000000 
-                            ? `${(token.marketCap / 1000000).toFixed(1)}M` 
-                            : `${(token.marketCap / 1000).toFixed(0)}K`}
+                          ${parseFloat(token.marketCapUsd || '0') > 1000000 
+                            ? `${(parseFloat(token.marketCapUsd || '0') / 1000000).toFixed(1)}M` 
+                            : `${(parseFloat(token.marketCapUsd || '0') / 1000).toFixed(0)}K`}
                         </p>
                       </div>
                     </div>

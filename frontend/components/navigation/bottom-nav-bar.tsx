@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils"
 import { useState, useEffect } from "react"
 import { useTheme } from "next-themes"
 import { motion, AnimatePresence } from "framer-motion"
-import marketService from "@/lib/market-service"
+import { usePriceStreamContext } from "@/lib/price-stream-provider"
 
 interface MarketPrice {
   symbol: string
@@ -19,8 +19,9 @@ export function BottomNavBar() {
   const pathname = usePathname()
   const { theme, setTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
+  const { prices } = usePriceStreamContext()
   const [marketPrices, setMarketPrices] = useState<MarketPrice[]>([
-    { symbol: "SOL", price: 0, change24h: 0 },
+    { symbol: "SOL", price: 100, change24h: 2.5 },
   ])
 
   // Prevent hydration mismatch by only rendering theme toggle after mount
@@ -28,26 +29,17 @@ export function BottomNavBar() {
     setMounted(true)
   }, [])
 
-  // Fetch real SOL price
+  // Use SOL price from price stream if available
   useEffect(() => {
-    const fetchPrices = async () => {
-      try {
-        const solPrice = await marketService.getSolPrice()
-        setMarketPrices([
-          { symbol: "SOL", price: solPrice.price, change24h: solPrice.priceChange24h }
-        ])
-      } catch (error) {
-        console.error('Failed to fetch market prices:', error)
-        // Keep default values on error
-      }
-    }
+    const solMint = "So11111111111111111111111111111111111111112" // SOL mint address
+    const solPrice = prices.get(solMint)
 
-    fetchPrices()
-    
-    // Refresh prices every 30 seconds
-    const interval = setInterval(fetchPrices, 30000)
-    return () => clearInterval(interval)
-  }, [])
+    if (solPrice) {
+      setMarketPrices([
+        { symbol: "SOL", price: solPrice.price, change24h: solPrice.change24h }
+      ])
+    }
+  }, [prices])
 
   const navItems = [
     { href: "/", icon: Home, label: "Home" },

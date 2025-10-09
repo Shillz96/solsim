@@ -24,15 +24,15 @@ const getWebSocketURL = () => {
   // Use explicit WebSocket URL if provided (for production)
   if (process.env.NEXT_PUBLIC_WS_URL) {
     const wsUrl = process.env.NEXT_PUBLIC_WS_URL
-    return wsUrl.endsWith('/price-stream') ? wsUrl : `${wsUrl}/price-stream`
+    return wsUrl.endsWith('/ws/prices') ? wsUrl : `${wsUrl}/ws/prices`
   }
   
   // Fallback to constructing from API URL
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4002'
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
   
-  // For local development, use dedicated WebSocket port
+  // For local development, use backend WebSocket endpoint
   if (baseUrl.includes('localhost')) {
-    return 'ws://localhost:4001/price-stream'
+    return 'ws://localhost:4000/ws/prices'
   }
   
   // For production deployments (Railway, etc.), use same domain with WS protocol
@@ -40,7 +40,7 @@ const getWebSocketURL = () => {
     match === 'https://' ? 'wss://' : 'ws://'
   )
   
-  return `${wsBaseUrl}/price-stream`
+  return `${wsBaseUrl}/ws/prices`
 }
 
 const WEBSOCKET_URL = getWebSocketURL()

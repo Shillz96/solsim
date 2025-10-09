@@ -5,14 +5,25 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { AnimatedNumber } from "@/components/ui/animated-number"
-import { TrendingUp, TrendingDown, X, Loader2, AlertCircle, RefreshCw, Wallet } from "lucide-react"
+import { TrendingUp, TrendingDown, Loader2, AlertCircle, RefreshCw, Wallet } from "lucide-react"
 import { motion } from "framer-motion"
 import Link from "next/link"
-import { usePortfolio } from "@/lib/api-hooks"
 import { usePriceStreamContext } from "@/lib/price-stream-provider"
-import { WsSubManager } from "@/lib/ws-subscription-delta"
-import { useCallback, useState, useEffect, useMemo, useRef } from "react"
-import type { PortfolioPosition } from "@/lib/portfolio-service"
+import { useTokenMetadataBatch } from "@/hooks/use-token-metadata"
+import { useCallback, useState, useEffect, useMemo } from "react"
+import { useQuery } from "@tanstack/react-query"
+import * as api from "@/lib/api"
+import * as Backend from "@/lib/types/backend"
+import { useAuth } from "@/hooks/use-auth"
+
+// Enhanced position with live price data for display
+interface EnhancedPosition extends Backend.PortfolioPosition {
+  tokenSymbol?: string;
+  tokenName?: string;
+  tokenImage?: string | null;
+  tokenImageUrl?: string;
+  currentPrice?: number;
+}
 
 // Helper function to format large numbers
 const formatAmount = (amount: string): string => {
@@ -31,261 +42,280 @@ const formatPrice = (price: number): string => {
 }
 
 export function ActivePositions() {
-  const { data: portfolio, isLoading, error, refetch } = usePortfolio()
-  const [isRefreshing, setIsRefreshing] = useState(false)
+  const { user, isAuthenticated } = useAuth()
   
-  // Real-time price stream integration with delta-based subscriptions
+  // Use React Query to fetch portfolio data directly
+  const { 
+    data: portfolio, 
+    isLoading, 
+    error, 
+    refetch,
+    isRefetching 
+  } = useQuery({
+    queryKey: ['portfolio', user?.id],
+    queryFn: async () => {
+      if (!user?.id) throw new Error('User not authenticated')
+      return api.getPortfolio(user.id)
+    },
+    enabled: isAuthenticated && !!user?.id,
+    refetchInterval: 30000, // Refresh every 30 seconds
+    staleTime: 10000, // Consider data stale after 10 seconds
+  })
+
+  // Real-time price stream integration
   const { connected: wsConnected, prices: livePrices, subscribeMany, unsubscribeMany } = usePriceStreamContext()
   
-  // Handle manual refresh
-  const handleRefresh = useCallback(async () => {
-    setIsRefreshing(true)
-    await refetch()
-    setIsRefreshing(false)
-  }, [refetch])
+  // Subscribe to price updates for all positions
+  useEffect(() => {
+    if (portfolio?.positions && wsConnected) {
+      const mints = portfolio.positions.map(p => p.mint)
+      subscribeMany(mints)
+      
+      return () => {
+        unsubscribeMany(mints)
+      }
+    }
+  }, [portfolio?.positions, wsConnected, subscribeMany, unsubscribeMany])
 
-  // Extract positions from portfolio data
-  const positions = portfolio?.positions?.filter(pos => parseFloat(pos.quantity) > 0) || []
-
-  // Memoize token addresses to prevent unnecessary re-subscriptions
-  const tokenAddresses = useMemo(
-    () => positions.map(p => p.tokenAddress),
-    [positions.map(p => p.tokenAddress).join(',')]
+  // Get all mints for metadata fetching
+  const mints = useMemo(() => 
+    portfolio?.positions?.map(p => p.mint) || [], 
+    [portfolio?.positions]
   )
 
-  // Subscribe to price updates using delta manager
-  // Create manager ref to avoid stale closures
-  const wsMgrRef = useRef<WsSubManager | null>(null)
-  
-  useEffect(() => {
-    if (!wsConnected) return
+  // Fetch token metadata for all positions
+  const { data: metadataResults } = useTokenMetadataBatch(mints, mints.length > 0)
 
-    // Create or update manager with current subscribe/unsubscribe functions
-    if (!wsMgrRef.current) {
-      wsMgrRef.current = new WsSubManager(subscribeMany, unsubscribeMany)
-    }
+  // Create metadata map for quick lookup
+  const metadataMap = useMemo(() => {
+    const map = new Map()
+    metadataResults?.forEach(result => {
+      if (result.data) {
+        map.set(result.mint, result.data)
+      }
+    })
+    return map
+  }, [metadataResults])
 
-    wsMgrRef.current.sync(tokenAddresses)
-
-    return () => {
-      wsMgrRef.current?.clear()
-    }
-  }, [wsConnected, tokenAddresses]) // Remove subscribeMany/unsubscribeMany from deps - they're stable from context
-
-  // Helper to get live price or fallback to stored price
-  const getCurrentPrice = useCallback((tokenAddress: string, fallbackPrice: number) => {
-    const livePrice = livePrices.get(tokenAddress)
-    return livePrice ? livePrice.price : fallbackPrice
-  }, [livePrices])
-
-  // Memoize PnL calculation per position to avoid hot path recalculations
-  const calculateLivePnL = useCallback((position: any) => {
-    const currentPrice = getCurrentPrice(position.tokenAddress, position.currentPrice)
-    const quantity = parseFloat(position.quantity)
-    const entryPrice = parseFloat(position.entryPrice)
+  // Enhance positions with live prices and token metadata
+  const enhancedPositions = useMemo(() => {
+    if (!portfolio?.positions) return []
     
-    const invested = quantity * entryPrice
-    const currentValue = quantity * currentPrice
-    const pnlAmount = currentValue - invested
-    const pnlPercent = invested > 0 ? (pnlAmount / invested) * 100 : 0
+    return portfolio.positions.map(position => {
+      const livePrice = livePrices.get(position.mint)
+      const currentPrice = livePrice || parseFloat(position.valueUsd) / parseFloat(position.qty)
+      const metadata = metadataMap.get(position.mint)
+      
+      return {
+        ...position,
+        currentPrice,
+        tokenSymbol: metadata?.symbol || position.mint.slice(0, 6) + '...',
+        tokenName: metadata?.name || `Token ${position.mint.slice(0, 8)}`,
+        tokenImage: metadata?.imageUrl || metadata?.logoURI || null,
+      }
+    })
+  }, [portfolio?.positions, livePrices, metadataMap])
 
-    return { pnlAmount, pnlPercent, currentPrice }
-  }, [getCurrentPrice])
-  // Loading state - only show skeleton on initial load
-  if (isLoading && !portfolio) {
+  const handleRefresh = useCallback(() => {
+    refetch()
+  }, [refetch])
+
+  if (isLoading) {
     return (
       <Card className="p-6">
-        <div className="mb-4 flex items-center justify-between">
-          <h3 className="font-semibold text-lg">Active Positions</h3>
-          <Badge variant="secondary" className="font-mono">...</Badge>
-        </div>
-        <div className="flex items-center justify-center py-8">
-          <Loader2 className="h-6 w-6 animate-spin mr-2" />
-          <span className="text-muted-foreground">Loading positions...</span>
+        <div className="flex items-center justify-center space-x-2">
+          <Loader2 className="h-5 w-5 animate-spin" />
+          <span>Loading portfolio...</span>
         </div>
       </Card>
     )
   }
 
-  // Error state
   if (error) {
     return (
       <Card className="p-6">
-        <div className="mb-4 flex items-center justify-between">
-          <h3 className="font-semibold text-lg">Active Positions</h3>
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            onClick={handleRefresh}
-            className="text-muted-foreground hover:text-foreground"
-          >
-            <RefreshCw className="h-4 w-4 mr-2" />
-            Retry
-          </Button>
-        </div>
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
-            Failed to load positions: {error?.message || 'Unknown error'}
+            Failed to load portfolio: {error instanceof Error ? error.message : 'Unknown error'}
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="ml-2"
+              onClick={handleRefresh}
+            >
+              Retry
+            </Button>
           </AlertDescription>
         </Alert>
       </Card>
     )
   }
 
-  // Empty state
-  if (positions.length === 0) {
+  if (!portfolio || !portfolio.positions || portfolio.positions.length === 0) {
     return (
-      <Card className="p-8 border-dashed">
-        <div className="text-center py-8">
-          <div className="inline-flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-primary/20 to-primary/5 mb-4">
-            <Wallet className="h-10 w-10 text-primary" />
-          </div>
-          <h3 className="font-semibold text-xl mb-2">No Active Positions</h3>
-          <p className="text-muted-foreground mb-8 max-w-md mx-auto">
-            Your portfolio is empty. Start trading to build your positions and track your performance.
+      <Card className="p-6">
+        <div className="text-center">
+          <Wallet className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+          <h3 className="text-lg font-medium">No Active Positions</h3>
+          <p className="text-muted-foreground">
+            Start trading to see your positions here
           </p>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <Button asChild size="lg" className="gap-2">
-              <Link href="/trade">
-                <TrendingUp className="h-4 w-4" />
-                Start Trading
-              </Link>
-            </Button>
-            <Button variant="outline" size="lg" asChild>
-              <Link href="/trending">
-                Browse Trending Tokens
-              </Link>
-            </Button>
-          </div>
+          <Link href="/trade">
+            <Button className="mt-4">Start Trading</Button>
+          </Link>
         </div>
       </Card>
     )
   }
 
+  const totalValue = parseFloat(portfolio.totals.totalValueUsd)
+  const totalPnL = parseFloat(portfolio.totals.totalPnlUsd)
+  const unrealizedPnL = parseFloat(portfolio.totals.totalUnrealizedUsd)
+  const realizedPnL = parseFloat(portfolio.totals.totalRealizedUsd)
+  const totalPnLPercent = totalValue > 0 ? (totalPnL / totalValue) * 100 : 0
+
   return (
-    <Card className="glass-solid p-6">
-      <div className="mb-4 flex items-center justify-between">
-        <h3 className="font-semibold text-lg">Active Positions</h3>
-        <div className="flex items-center gap-2">
-          <Badge variant="secondary" className="font-mono">
-            {positions.length} open
-          </Badge>
-          <Button 
-            variant="ghost" 
-            size="sm" 
+    <div className="space-y-6">
+      {/* Portfolio Summary */}
+      <Card className="p-6">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-2xl font-bold">Active Positions</h2>
+          <Button
+            variant="outline"
+            size="sm"
             onClick={handleRefresh}
-            disabled={isRefreshing}
-            className="h-6 w-6 p-0 text-muted-foreground hover:text-foreground"
+            disabled={isRefetching}
           >
-            <RefreshCw className={`h-3 w-3 ${isRefreshing ? 'animate-spin' : ''}`} />
+            {isRefetching ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <RefreshCw className="h-4 w-4" />
+            )}
           </Button>
         </div>
-      </div>
 
-      <div className={`space-y-3 transition-opacity ${isRefreshing ? 'opacity-70' : 'opacity-100'}`}>
-        {positions.map((position) => {
-          // Use live PnL calculation if WebSocket is connected
-          const { pnlAmount, pnlPercent, currentPrice } = wsConnected 
-            ? calculateLivePnL(position)
-            : {
-                pnlAmount: parseFloat(position.pnl?.sol?.absolute || '0'),
-                pnlPercent: position.pnl?.sol?.percent || 0,
-                currentPrice: position.currentPrice
-              }
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <div className="text-center p-4 bg-muted/50 rounded-lg">
+            <p className="text-sm text-muted-foreground">Total Value</p>
+            <p className="text-2xl font-bold">
+              <AnimatedNumber value={totalValue} prefix="$" decimals={2} />
+            </p>
+          </div>
           
-          const entryPrice = parseFloat(position.entryPrice)
+          <div className="text-center p-4 bg-muted/50 rounded-lg">
+            <p className="text-sm text-muted-foreground">Total PnL</p>
+            <div className="flex items-center justify-center space-x-1">
+              {totalPnL >= 0 ? (
+                <TrendingUp className="h-4 w-4 text-green-500" />
+              ) : (
+                <TrendingDown className="h-4 w-4 text-red-500" />
+              )}
+              <p className={`text-2xl font-bold ${totalPnL >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                <AnimatedNumber 
+                  value={Math.abs(totalPnL)} 
+                  prefix={totalPnL >= 0 ? '+$' : '-$'} 
+                  decimals={2}
+                />
+              </p>
+            </div>
+            <p className={`text-sm ${totalPnLPercent >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+              {totalPnLPercent >= 0 ? '+' : ''}{totalPnLPercent.toFixed(2)}%
+            </p>
+          </div>
+
+          <div className="text-center p-4 bg-muted/50 rounded-lg">
+            <p className="text-sm text-muted-foreground">Positions</p>
+            <p className="text-2xl font-bold">{portfolio.positions.length}</p>
+          </div>
+        </div>
+
+        {/* PnL Breakdown */}
+        <div className="grid grid-cols-2 gap-4">
+          <div className="text-center p-3 bg-green-500/10 rounded-lg">
+            <p className="text-sm text-muted-foreground">Realized PnL</p>
+            <p className={`text-lg font-semibold ${realizedPnL >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+              {realizedPnL >= 0 ? '+' : ''}${realizedPnL.toFixed(2)}
+            </p>
+          </div>
           
-          return (
-            <motion.div
-              key={position.tokenAddress}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
-              className="group"
-            >
-              <Link 
-                href={`/trade?token=${position.tokenAddress}`}
-                className="block"
-              >
-                <div className={`flex items-center justify-between rounded-lg border border-border bg-card p-4 transition-all hover:border-primary/50 hover:shadow-md ${
-                  wsConnected ? 'ring-1 ring-green-500/20' : ''
-                }`}>
-                  <div className="flex items-center gap-6 flex-1">
-                    {/* Token Info */}
-                    <div className="min-w-[120px]">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="font-bold text-lg">
-                          {position.tokenSymbol || position.tokenAddress.substring(0, 8)}
-                        </span>
-                        {wsConnected && (
-                          <div className="h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse" title="Live" />
-                        )}
-                      </div>
-                      <p className="text-xs text-muted-foreground truncate max-w-[120px]">
-                        {position.tokenName || `${position.tokenAddress.substring(0, 12)}...`}
-                      </p>
-                    </div>
+          <div className="text-center p-3 bg-blue-500/10 rounded-lg">
+            <p className="text-sm text-muted-foreground">Unrealized PnL</p>
+            <p className={`text-lg font-semibold ${unrealizedPnL >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+              {unrealizedPnL >= 0 ? '+' : ''}${unrealizedPnL.toFixed(2)}
+            </p>
+          </div>
+        </div>
+      </Card>
 
-                    {/* Stats Grid */}
-                    <div className="hidden md:grid md:grid-cols-3 gap-6 flex-1">
-                      <div>
-                        <p className="text-xs text-muted-foreground mb-1">Amount</p>
-                        <p className="font-mono font-semibold text-sm">
-                          {formatAmount(position.quantity)}
-                        </p>
+      {/* Positions Table */}
+      <Card className="p-6">
+        <h3 className="text-lg font-semibold mb-4">Holdings</h3>
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className="border-b">
+                <th className="text-left p-2">Token</th>
+                <th className="text-right p-2">Quantity</th>
+                <th className="text-right p-2">Avg Cost</th>
+                <th className="text-right p-2">Current Value</th>
+                <th className="text-right p-2">PnL</th>
+                <th className="text-right p-2">PnL %</th>
+              </tr>
+            </thead>
+            <tbody>
+              {enhancedPositions.map((position, index) => {
+                const pnl = parseFloat(position.unrealizedUsd)
+                const pnlPercent = parseFloat(position.unrealizedPercent)
+                
+                return (
+                  <motion.tr
+                    key={position.mint}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                    className="border-b hover:bg-muted/50 transition-colors"
+                  >
+                    <td className="p-2">
+                      <div className="flex items-center space-x-2">
+                        <div className="w-8 h-8 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full flex items-center justify-center text-xs font-bold text-white">
+                          {position.tokenSymbol?.slice(0, 2) || '??'}
+                        </div>
+                        <div>
+                          <p className="font-medium">{position.tokenSymbol}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {position.mint.slice(0, 6)}...{position.mint.slice(-4)}
+                          </p>
+                        </div>
                       </div>
-
-                      <div>
-                        <p className="text-xs text-muted-foreground mb-1">Entry → Current</p>
-                        <p className="font-mono text-sm">
-                          {formatPrice(entryPrice)} → {formatPrice(currentPrice)}
-                        </p>
-                      </div>
-
-                      <div>
-                        <p className="text-xs text-muted-foreground mb-1">Value</p>
-                        <p className="font-mono font-semibold text-sm">
-                          {(parseFloat(position.quantity) * currentPrice).toFixed(4)} SOL
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* PnL Display */}
-                  <div className="text-right min-w-[140px]">
-                    <div className="flex items-center justify-end gap-2 mb-1">
-                      <AnimatedNumber
-                        value={pnlAmount}
-                        suffix=" SOL"
-                        prefix={pnlAmount > 0 ? "+" : ""}
-                        decimals={4}
-                        className="font-mono text-base font-bold"
-                        colorize={true}
-                        glowOnChange={true}
-                      />
-                      {pnlAmount > 0 ? (
-                        <TrendingUp className="h-4 w-4 text-green-500" />
-                      ) : (
-                        <TrendingDown className="h-4 w-4 text-red-500" />
-                      )}
-                    </div>
-                    <AnimatedNumber
-                      value={pnlPercent}
-                      suffix="%"
-                      prefix={pnlPercent > 0 ? "+" : ""}
-                      decimals={2}
-                      className="text-sm font-medium font-mono"
-                      colorize={true}
-                      glowOnChange={true}
-                    />
-                  </div>
-                </div>
-              </Link>
-            </motion.div>
-          )
-        })}
-      </div>
-    </Card>
+                    </td>
+                    <td className="text-right p-2">
+                      {formatAmount(position.qty)}
+                    </td>
+                    <td className="text-right p-2">
+                      ${parseFloat(position.avgCostUsd).toFixed(6)}
+                    </td>
+                    <td className="text-right p-2 font-medium">
+                      ${formatAmount(position.valueUsd)}
+                    </td>
+                    <td className={`text-right p-2 font-medium ${pnl >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                      {pnl >= 0 ? '+' : ''}${pnl.toFixed(2)}
+                    </td>
+                    <td className="text-right p-2">
+                      <Badge 
+                        variant={pnlPercent >= 0 ? "default" : "destructive"}
+                        className={pnlPercent >= 0 ? "bg-green-500" : ""}
+                      >
+                        {pnlPercent >= 0 ? '+' : ''}{pnlPercent.toFixed(2)}%
+                      </Badge>
+                    </td>
+                  </motion.tr>
+                )
+              })}
+            </tbody>
+          </table>
+        </div>
+      </Card>
+    </div>
   )
 }
