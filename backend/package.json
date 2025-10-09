@@ -4,11 +4,9 @@
   "type": "module",
   "scripts": {
     "dev": "tsx src/index.ts",
-    "build": "tsc",
+    "build": "npx prisma generate && tsc",
     "start": "node dist/index.js",
-    "start:prod": "node dist/index.js",
-    "railway:build": "npm ci --production=false && npm run build",
-    "railway:start": "npm run prisma:setup && npm run start",
+    "railway:start": "node dist/index.js",
     "prisma:setup": "prisma generate && prisma migrate deploy",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate deploy",

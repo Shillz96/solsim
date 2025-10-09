@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { PriceUpdateMessage } from './types/api-types'
 
 interface UsePriceStreamOptions {
   enabled?: boolean

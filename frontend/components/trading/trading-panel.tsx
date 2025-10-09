@@ -46,24 +46,30 @@ export function TradingPanel({ tokenAddress: propTokenAddress }: TradingPanelPro
   const [portfolio, setPortfolio] = useState<any>(null)
   const [portfolioLoading, setPortfolioLoading] = useState(false)
   const [portfolioError, setPortfolioError] = useState<string | null>(null)
+  const [userBalance, setUserBalance] = useState<number>(0)
   const [isTrading, setIsTrading] = useState(false)
   const [tradeError, setTradeError] = useState<string | null>(null)
 
-  // Load portfolio
+  // Load portfolio and user balance
   useEffect(() => {
     if (isAuthenticated && user) {
-      const loadPortfolio = async () => {
+      const loadData = async () => {
         setPortfolioLoading(true)
         try {
-          const data = await api.getPortfolio(user.id)
-          setPortfolio(data)
+          // Load portfolio
+          const portfolioData = await api.getPortfolio(user.id)
+          setPortfolio(portfolioData)
+          
+          // Load user balance
+          const balanceData = await api.getWalletBalance(user.id)
+          setUserBalance(parseFloat(balanceData.balance))
         } catch (err) {
           setPortfolioError((err as Error).message)
         } finally {
           setPortfolioLoading(false)
         }
       }
-      loadPortfolio()
+      loadData()
     }
   }, [isAuthenticated, user])
 
@@ -71,8 +77,14 @@ export function TradingPanel({ tokenAddress: propTokenAddress }: TradingPanelPro
     if (!isAuthenticated || !user) return
     setPortfolioLoading(true)
     try {
-      const data = await api.getPortfolio(user.id)
-      setPortfolio(data)
+      // Refresh portfolio
+      const portfolioData = await api.getPortfolio(user.id)
+      setPortfolio(portfolioData)
+      
+      // Refresh user balance
+      const balanceData = await api.getWalletBalance(user.id)
+      setUserBalance(parseFloat(balanceData.balance))
+      
       setPortfolioError(null)
     } catch (err) {
       setPortfolioError((err as Error).message)
@@ -260,7 +272,7 @@ export function TradingPanel({ tokenAddress: propTokenAddress }: TradingPanelPro
         return
       }
 
-      if (amountSol > parseFloat(user.virtualSolBalance)) {
+      if (amountSol > userBalance) {
         toast({
           title: "Insufficient Balance",
           description: "You don't have enough SOL for this trade",
@@ -403,7 +415,7 @@ export function TradingPanel({ tokenAddress: propTokenAddress }: TradingPanelPro
   // Get current price - use live WebSocket price if available, otherwise fall back to static price
   const livePrice = livePrices.get(tokenAddress)
   const currentPrice = livePrice ? livePrice.price : (tokenDetails.price ? parseFloat(tokenDetails.price.toString()) / 1e9 : 0)
-  const balance = user ? parseFloat(user.virtualSolBalance) : 0
+  const balance = userBalance
   const tokenBalance = tokenHolding ? parseFloat(tokenHolding.quantity) : 0
 
   return (

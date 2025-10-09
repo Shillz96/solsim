@@ -2,4 +2,4 @@
 import apiClient from './api';
 
 export default apiClient;
-export { ApiError } from './api';
+export type { ApiError } from './api';

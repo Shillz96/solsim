@@ -131,7 +131,6 @@ export interface Token {
   socials: string | null; // JSON array as string
 
   // Additional properties used in components
-  priceChange24h: number | null;
   price: number | null;
 
   // Timestamps

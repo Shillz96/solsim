@@ -1,9 +1,4 @@
-# Railway config for SolSim backend
-[build]
-builder = "NIXPACKS"
-rootDir = "/backend"
-buildCommand = "npm ci && npm run build"
-
+# Railway config - let Railway auto-detect Dockerfile (Method 2)
 [deploy]
 restartPolicyType = "ON_FAILURE"
 restartPolicyMaxRetries = 10
@@ -13,7 +8,8 @@ startCommand = "npm run railway:start"
 [deploy.variables]
 NODE_OPTIONS = "--max-old-space-size=4096"
 NODE_ENV = "production"
+NPM_CONFIG_PRODUCTION = "false"
 
 [[deploy.healthcheck]]
 path = "/health"
-port = 4000
+port = 4002
