@@ -1,0 +1,11 @@
+[phases.build]
+cmds = [
+  'cd backend && npm install',
+  'cd backend && npm run build'
+]
+
+[start]
+cmd = 'cd backend && npm run start:prod'
+
+[variables]
+NODE_VERSION = '18'
