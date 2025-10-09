@@ -1,11 +1,12 @@
-# Railway config with custom Dockerfile (Method 2)
+# Railway config for SolSim backend (in backend/ subdirectory)
 [build]
-dockerfilePath = "Dockerfile"
+buildCommand = "cd backend && npm ci && npm run build"
+dockerfilePath = "backend/Dockerfile"
 
 [deploy]
 restartPolicyType = "ON_FAILURE"
 restartPolicyMaxRetries = 10
-startCommand = "npm run railway:start"
+startCommand = "cd backend && npm run railway:start"
 
 # Add memory limits to prevent OOM during export
 [deploy.variables]

@@ -4,7 +4,6 @@ import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "rec
 import { Loader2, AlertCircle } from "lucide-react"
 import { useState, useMemo, useEffect, useCallback } from "react"
 import { useQuery } from "@tanstack/react-query"
-import { Chart } from "react-chartjs-2"
 import { useAuth } from "@/hooks/use-auth"
 import * as api from "@/lib/api"
 

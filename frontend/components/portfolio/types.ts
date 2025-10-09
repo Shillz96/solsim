@@ -2,6 +2,8 @@
  * Portfolio component types - Re-exports backend types and UI-specific interfaces
  */
 
+import type { PortfolioPosition } from '@/lib/types/backend';
+
 // Re-export backend portfolio types
 export type {
   PortfolioPosition,

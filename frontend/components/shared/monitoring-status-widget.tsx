@@ -123,14 +123,6 @@ export function MonitoringStatusWidget({
               </div>
             )}
 
-            {systemStatus.alerts && systemStatus.alerts.length > 0 && (
-              <div className="flex items-center gap-2 text-xs">
-                <AlertTriangle className="h-3 w-3 text-yellow-500" />
-                <span className="text-muted-foreground">
-                  {systemStatus.alerts.filter((alert: any) => !alert.resolved).length} active alerts
-                </span>
-              </div>
-            )}
           </div>
         ) : null}
       </CardContent>

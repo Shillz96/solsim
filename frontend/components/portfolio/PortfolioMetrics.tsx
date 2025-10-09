@@ -13,6 +13,18 @@ interface PortfolioMetricsProps {
   isLoading?: boolean;
 }
 
+interface StatCardProps {
+  title: string;
+  value: string;
+  change?: string | number;
+  changeType?: 'positive' | 'negative' | 'neutral';
+  changeSuffix?: string;
+  isLoading?: boolean;
+  icon?: React.ReactNode;
+  valueColor?: string;
+  subtitle?: string;
+}
+
 /**
  * PortfolioMetrics component for displaying portfolio performance
  * 
@@ -21,7 +33,7 @@ interface PortfolioMetricsProps {
  * - Uses standardized portfolio types
  * - Displays all key metrics from backend
  */
-export function StatCard({ title, value, change, changeType, isLoading, icon: Icon }: StatCardProps) {
+export function StatCard({ title, value, change, changeType, changeSuffix, isLoading, icon, valueColor, subtitle }: StatCardProps) {
   return (
     <Card className="p-6">
       <div className="flex items-center justify-between">
@@ -31,10 +43,13 @@ export function StatCard({ title, value, change, changeType, isLoading, icon: Ic
             {isLoading ? (
               <Skeleton className="h-8 w-20" />
             ) : (
-              <p className="text-2xl font-bold">{value}</p>
+              <p className={`text-2xl font-bold ${valueColor || ''}`}>{value}</p>
             )}
-            {Icon && <Icon className="h-5 w-5 text-muted-foreground" />}
+            {icon}
           </div>
+          {subtitle && (
+            <p className="text-xs text-muted-foreground">{subtitle}</p>
+          )}
         </div>
         {change !== undefined && changeType && (
           <div className={`flex items-center gap-1 text-sm ${
@@ -43,7 +58,7 @@ export function StatCard({ title, value, change, changeType, isLoading, icon: Ic
           }`}>
             {changeType === 'positive' && <TrendingUp className="h-4 w-4" />}
             {changeType === 'negative' && <TrendingDown className="h-4 w-4" />}
-            <span>{change}</span>
+            <span>{change}{changeSuffix || ''}</span>
           </div>
         )}
       </div>
