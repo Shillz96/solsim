@@ -1,8 +1,5 @@
-[build]
-builder = "NIXPACKS"
-
+# Minimal Railway config - let Railway auto-detect everything
 [deploy]
-startCommand = "npm run start:prod"
 restartPolicyType = "ON_FAILURE"
 restartPolicyMaxRetries = 10
 
