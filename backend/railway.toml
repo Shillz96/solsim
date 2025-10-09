@@ -1,15 +1,17 @@
-# Railway config - let Railway auto-detect Dockerfile (Method 2)
+# Railway config for SolSim backend
+[build]
+builder = "dockerfile"
+dockerfilePath = "Dockerfile"
+
 [deploy]
 restartPolicyType = "ON_FAILURE"
 restartPolicyMaxRetries = 10
-startCommand = "npm run railway:start"
 
 # Add memory limits to prevent OOM during export
 [deploy.variables]
 NODE_OPTIONS = "--max-old-space-size=4096"
 NODE_ENV = "production"
-NPM_CONFIG_PRODUCTION = "false"
 
 [[deploy.healthcheck]]
 path = "/health"
-port = 4002
+port = 4000
