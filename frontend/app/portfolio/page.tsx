@@ -14,23 +14,23 @@ export default function PortfolioPage() {
   return (
     <AuthWrapper requireAuth={true}>
       <div className="min-h-screen bg-background">
-        <main className="container mx-auto px-4 py-6 max-w-7xl">
+        <main className="container mx-auto px-6 py-8 max-w-7xl">
           {/* Header */}
-          <div className="mb-6">
-            <h1 className="text-3xl font-bold tracking-tight mb-2">Portfolio</h1>
-            <p className="text-muted-foreground">Track your positions and performance</p>
+          <div className="mb-8">
+            <h1 className="text-4xl font-bold tracking-tight mb-4">Portfolio</h1>
+            <p className="text-lg text-muted-foreground">Track your positions and performance</p>
           </div>
 
           {/* Main Grid Layout */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Left Column - Main Content (2/3 width) */}
-            <div className="lg:col-span-2 space-y-6">
+            <div className="lg:col-span-2 space-y-8">
               {/* Portfolio Summary */}
               <PnLCard />
 
               {/* Tabbed Content */}
               <Tabs defaultValue="positions" className="w-full">
-                <TabsList className="grid w-full grid-cols-3 mb-4">
+                <TabsList className="grid w-full grid-cols-3 mb-6">
                   <TabsTrigger value="positions" className="gap-2">
                     <TrendingUp className="h-4 w-4" />
                     <span className="hidden sm:inline">Positions</span>
@@ -50,8 +50,8 @@ export default function PortfolioPage() {
                 </TabsContent>
 
                 <TabsContent value="performance" className="mt-0">
-                  <Card className="bento-card p-6">
-                    <h3 className="font-semibold text-lg mb-4">Portfolio Performance</h3>
+                  <Card className="p-6 border border-border rounded-none shadow-none">
+                    <h3 className="font-bold text-lg mb-6">Portfolio Performance</h3>
                     <PortfolioChart />
                   </Card>
                 </TabsContent>
@@ -64,8 +64,8 @@ export default function PortfolioPage() {
 
             {/* Right Sidebar - Trending (1/3 width) */}
             <aside className="space-y-6">
-              <div className="lg:sticky lg:top-6">
-                <h3 className="font-semibold text-lg mb-4 px-1">Trending Tokens</h3>
+              <div className="lg:sticky lg:top-8">
+                <h3 className="font-bold text-lg mb-6">Trending Tokens</h3>
                 <EnhancedTrendingList />
               </div>
             </aside>

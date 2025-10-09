@@ -211,13 +211,13 @@ router.post('/execute', tradeLimiter, async (req: Request, res: Response, next: 
         Promise.race([
           priceService.getPrice(tokenAddress),
           new Promise((_, reject) =>
-            setTimeout(() => reject(new Error('Price timeout')), 5000)
+            setTimeout(() => reject(new Error('Price timeout')), 8000) // Increased from 5000ms
           ),
         ]),
         Promise.race([
           metadataService.getMetadata(tokenAddress),
           new Promise((_, reject) =>
-            setTimeout(() => reject(new Error('Metadata timeout')), 3000)
+            setTimeout(() => reject(new Error('Metadata timeout')), 6000) // Increased from 3000ms
           ),
         ])
       ]);

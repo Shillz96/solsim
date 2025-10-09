@@ -150,6 +150,7 @@ model Token {
   address         String    @id
   symbol          String?
   name            String?
+  decimals        Int?      @default(9)    // Token decimals (default 9 for SPL tokens)
   imageUrl        String?
   lastPrice       Decimal?  // Last known price in USD per token
   lastTs          DateTime?

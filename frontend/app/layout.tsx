@@ -9,6 +9,7 @@ import { AppProviders } from "@/components/providers"
 
 import "./globals.css"
 
+// Typography: IBM Plex Sans Bold for headings, Radnika Next for body
 const radnikaNext = localFont({
   src: "./fonts/Radnika-Medium.otf",
   variable: "--font-radnika-next",
@@ -18,6 +19,7 @@ const ibmPlexSans = IBM_Plex_Sans({
   weight: ["700"],
   variable: "--font-ibm-plex-sans",
 })
+// JetBrains Mono kept for code/monospace elements only
 const jetBrainsMono = JetBrains_Mono({
   subsets: ["latin"],
   weight: ["400"],

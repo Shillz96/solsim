@@ -164,17 +164,16 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md bg-card border-border shadow-2xl backdrop-blur-none">
-        <div className="absolute inset-0 bg-card rounded-lg" />
+      <DialogContent className="w-[95vw] max-w-md mx-auto bg-card border-2 border-border shadow-none rounded-none max-h-[90vh] overflow-y-auto">
         <div className="relative z-10">
         <DialogHeader className="space-y-3">
           <div className="flex items-center justify-center gap-3 mb-4">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-accent shadow-lg">
-              <TrendingUp className="h-7 w-7 text-white" />
+            <div className="flex h-12 w-12 items-center justify-center rounded-none bg-foreground shadow-none">
+              <TrendingUp className="h-7 w-7 text-background" />
             </div>
-            <DialogTitle className="text-3xl font-bold gradient-text">Sol Sim</DialogTitle>
+            <DialogTitle className="text-2xl md:text-3xl font-bold">Sol Sim</DialogTitle>
           </div>
-          <DialogDescription className="text-center text-base text-foreground/80">
+          <DialogDescription className="text-center text-sm md:text-base text-muted-foreground">
             {currentView === 'forgot-password' && 'Reset your password'}
             {currentView === 'reset-success' && 'Check your email'}
             {(currentView === 'login' || currentView === 'register') && 'Start your paper trading journey on Solana'}
@@ -234,7 +233,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
                 </div>
                 <Button 
                   type="submit" 
-                  className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-medium" 
+                  className="w-full bg-foreground text-background hover:bg-foreground/90 font-medium" 
                   size="lg"
                   disabled={isLoading}
                 >
@@ -324,7 +323,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
                   </div>
                   <Button 
                     type="submit" 
-                    className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-medium" 
+                    className="w-full bg-foreground text-background hover:bg-foreground/90 font-medium" 
                     size="lg"
                     disabled={isLoading}
                   >
@@ -431,7 +430,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
                   
                   <Button
                     type="submit"
-                    className="w-full bg-gradient-to-r from-primary to-accent hover:opacity-90 text-white font-medium"
+                    className="w-full bg-foreground text-background hover:bg-foreground/90 font-medium"
                     size="lg"
                     disabled={isLoading}
                   >

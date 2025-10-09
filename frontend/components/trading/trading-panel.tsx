@@ -202,6 +202,9 @@ export function TradingPanel({ tokenAddress: propTokenAddress }: TradingPanelPro
       })
     }
 
+    // Round to max 9 decimal places to match backend validation
+    amountSol = Math.round(amountSol * 1e9) / 1e9
+
     try {
       let result
       if (action === 'buy') {
@@ -290,7 +293,7 @@ export function TradingPanel({ tokenAddress: propTokenAddress }: TradingPanelPro
   const tokenBalance = tokenHolding ? parseFloat(tokenHolding.quantity) : 0
 
   return (
-    <Card className="trading-card p-6 space-y-6">
+    <Card className="trading-card p-6 space-y-6 border border-border rounded-none shadow-none">
       {/* Trade Status */}
       {tradeError && (
         <Alert variant="destructive">
@@ -306,10 +309,10 @@ export function TradingPanel({ tokenAddress: propTokenAddress }: TradingPanelPro
         </Alert>
       )}
 
-      <div className="space-y-2">
-        <div className="flex items-center justify-between">
+      <div className="space-y-3">
+        <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
-            <h3 className="font-semibold text-lg">Trade {tokenDetails.tokenSymbol || 'Token'}</h3>
+            <h3 className="font-bold text-lg">Trade {tokenDetails.tokenSymbol || 'Token'}</h3>
             {isRefreshing && (
               <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
             )}
@@ -348,13 +351,13 @@ export function TradingPanel({ tokenAddress: propTokenAddress }: TradingPanelPro
       </div>
 
       <Tabs defaultValue="buy" className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="buy" className="data-[state=active]:bg-accent data-[state=active]:text-accent-foreground">
+        <TabsList className="grid w-full grid-cols-2 h-12">
+          <TabsTrigger value="buy" className="tab-buy font-bold text-base">
             Buy
           </TabsTrigger>
           <TabsTrigger
             value="sell"
-            className="data-[state=active]:bg-destructive data-[state=active]:text-destructive-foreground"
+            className="tab-sell font-bold text-base"
             disabled={!tokenHolding || tokenBalance <= 0}
           >
             Sell
@@ -363,9 +366,9 @@ export function TradingPanel({ tokenAddress: propTokenAddress }: TradingPanelPro
 
         <TabsContent value="buy" className="space-y-6 mt-4">
           {/* Amount selection */}
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <Label>Amount (SOL)</Label>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between mb-2">
+              <Label className="text-sm font-bold">Amount (SOL)</Label>
               <Button
                 variant={showCustomInput ? "default" : "ghost"}
                 size="sm"
@@ -380,7 +383,7 @@ export function TradingPanel({ tokenAddress: propTokenAddress }: TradingPanelPro
               </Button>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-4">
               {presetSolAmounts.map((amount) => (
                 <Button
                   key={amount}
@@ -426,11 +429,11 @@ export function TradingPanel({ tokenAddress: propTokenAddress }: TradingPanelPro
             )}
           </div>
 
-          <Separator className="my-4" />
+          <Separator className="my-6" />
 
           {/* Token calculation */}
           <div className="space-y-3">
-            <Label htmlFor="token-amount">
+            <Label htmlFor="token-amount" className="text-sm font-bold">
               You'll receive {tokenDetails?.tokenSymbol ? `(${tokenDetails.tokenSymbol})` : '(tokens)'}
             </Label>
             <Input
@@ -448,26 +451,24 @@ export function TradingPanel({ tokenAddress: propTokenAddress }: TradingPanelPro
             />
           </div>
 
-          <Separator className="my-4" />
+          <Separator className="my-6" />
 
           {/* Price info */}
-          <div className="rounded-lg bg-muted/50 p-4 space-y-2">
+          <div className="rounded-none bg-muted/50 p-4 space-y-3 border border-border">
             <div className="flex justify-between">
-              <span className="text-muted-foreground">Price</span>
-              <span className="font-mono">${currentPrice.toFixed(8)}</span>
+              <span className="text-sm text-muted-foreground">Price</span>
+              <span className="font-mono text-sm">${currentPrice.toFixed(8)}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-muted-foreground">Market Cap</span>
-              <span className="font-mono">
+              <span className="text-sm text-muted-foreground">Market Cap</span>
+              <span className="font-mono text-sm">
                 {tokenDetails.marketCap ? `$${(tokenDetails.marketCap / 1e6).toFixed(2)}M` : 'N/A'}
               </span>
             </div>
           </div>
 
           <Button 
-            className={`w-full bg-accent text-accent-foreground hover:bg-accent/90 transition-opacity ${
-              isRefreshing ? 'opacity-70' : 'opacity-100'
-            }`} 
+            className="w-full btn-buy h-14 text-lg font-bold" 
             size="lg"
             onClick={() => handleTrade('buy')}
             disabled={
@@ -477,7 +478,7 @@ export function TradingPanel({ tokenAddress: propTokenAddress }: TradingPanelPro
               !tokenDetails?.tokenSymbol
             }
           >
-            <TrendingUp className="mr-2 h-4 w-4" />
+            <TrendingUp className="mr-2 h-5 w-5" />
             {isTrading ? 'Processing...' : 
              !tokenDetails ? 'Loading Token...' :
              !tokenDetails.tokenSymbol ? 'Select a Token' :
@@ -516,9 +517,9 @@ export function TradingPanel({ tokenAddress: propTokenAddress }: TradingPanelPro
           ) : (
             <>
               {/* Show current holdings */}
-              <div className="bg-muted/50 rounded-lg p-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">Your Holdings</span>
+              <div className="bg-muted/50 rounded-none p-4 border border-border">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-sm font-bold">Your Holdings</span>
                   <Button 
                     variant="ghost" 
                     size="sm" 
@@ -529,7 +530,7 @@ export function TradingPanel({ tokenAddress: propTokenAddress }: TradingPanelPro
                     <RefreshCw className={`h-3 w-3 ${isRefreshing ? 'animate-spin' : ''}`} />
                   </Button>
                 </div>
-                <div className="font-mono text-lg font-semibold">
+                <div className="font-mono text-lg font-semibold mb-2">
                   {parseFloat(tokenHolding.quantity).toLocaleString(undefined, { maximumFractionDigits: 6 })} {tokenDetails?.tokenSymbol || 'tokens'}
                 </div>
                 {tokenHolding.pnl?.sol?.absolute && (
@@ -539,9 +540,9 @@ export function TradingPanel({ tokenAddress: propTokenAddress }: TradingPanelPro
                   </div>
                 )}
               </div>
-              <div className="space-y-2">
-                <Label>Amount (% of holdings)</Label>
-                <div className="grid grid-cols-2 gap-2">
+              <div className="space-y-4">
+                <Label className="text-sm font-bold">Amount (% of holdings)</Label>
+                <div className="grid grid-cols-2 gap-4">
                   {sellPercentages.map((percent) => (
                     <Button
                       key={percent}
@@ -560,8 +561,8 @@ export function TradingPanel({ tokenAddress: propTokenAddress }: TradingPanelPro
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="sell-amount">Selling ({tokenDetails.tokenSymbol})</Label>
+              <div className="space-y-3">
+                <Label htmlFor="sell-amount" className="text-sm font-bold">Selling ({tokenDetails.tokenSymbol})</Label>
                 <Input
                   id="sell-amount"
                   type="text"
@@ -571,8 +572,8 @@ export function TradingPanel({ tokenAddress: propTokenAddress }: TradingPanelPro
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="receive-sol">You'll receive (SOL)</Label>
+              <div className="space-y-3">
+                <Label htmlFor="receive-sol" className="text-sm font-bold">You'll receive (SOL)</Label>
                 <Input
                   id="receive-sol"
                   type="text"
@@ -582,7 +583,7 @@ export function TradingPanel({ tokenAddress: propTokenAddress }: TradingPanelPro
                 />
               </div>
 
-              <div className="space-y-2 rounded-lg bg-muted p-3 text-sm">
+              <div className="space-y-3 rounded-none bg-muted p-4 text-sm border border-border">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Price</span>
                   <span className="font-mono">${currentPrice.toFixed(8)}</span>
@@ -600,9 +601,7 @@ export function TradingPanel({ tokenAddress: propTokenAddress }: TradingPanelPro
               </div>
 
               <Button 
-                className={`w-full bg-destructive text-destructive-foreground hover:bg-destructive/90 transition-opacity ${
-                  isRefreshing ? 'opacity-70' : 'opacity-100'
-                }`} 
+                className="w-full btn-sell h-14 text-lg font-bold" 
                 size="lg"
                 onClick={() => handleTrade('sell')}
                 disabled={
@@ -612,7 +611,7 @@ export function TradingPanel({ tokenAddress: propTokenAddress }: TradingPanelPro
                   !tokenDetails?.tokenSymbol
                 }
               >
-                <TrendingDown className="mr-2 h-4 w-4" />
+                <TrendingDown className="mr-2 h-5 w-5" />
                 {isTrading ? 'Processing...' : 
                  !tokenDetails ? 'Loading Token...' :
                  !tokenDetails.tokenSymbol ? 'Select a Token' :

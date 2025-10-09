@@ -2,7 +2,7 @@ import Link from "next/link"
 
 export function Footer() {
   return (
-    <footer className="border-t border-border bg-[#f9fafb] dark:bg-[#111]">
+    <footer className="border-t border-border bg-foreground text-background">
       <div className="container mx-auto px-4 py-12">
         <div className="grid gap-8 md:grid-cols-4">
           <div className="space-y-4">
@@ -11,7 +11,7 @@ export function Footer() {
                 Sol Sim
               </span>
             </Link>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-background/60">
               Practice Solana trading with real market data. No financial risk involved.
             </p>
           </div>
@@ -20,17 +20,17 @@ export function Footer() {
             <h3 className="font-semibold">Product</h3>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link href="/trade" className="text-muted-foreground hover:text-foreground transition-colors">
+                <Link href="/trade" className="text-background/60 hover:text-background transition-colors">
                   Trade
                 </Link>
               </li>
               <li>
-                <Link href="/portfolio" className="text-muted-foreground hover:text-foreground transition-colors">
+                <Link href="/portfolio" className="text-background/60 hover:text-background transition-colors">
                   Portfolio
                 </Link>
               </li>
               <li>
-                <Link href="/leaderboard" className="text-muted-foreground hover:text-foreground transition-colors">
+                <Link href="/leaderboard" className="text-background/60 hover:text-background transition-colors">
                   Leaderboard
                 </Link>
               </li>
@@ -41,12 +41,12 @@ export function Footer() {
             <h3 className="font-semibold">Resources</h3>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link href="/docs" className="text-muted-foreground hover:text-foreground transition-colors">
+                <Link href="/docs" className="text-background/60 hover:text-background transition-colors">
                   Documentation
                 </Link>
               </li>
               <li>
-                <Link href="/about" className="text-muted-foreground hover:text-foreground transition-colors">
+                <Link href="/about" className="text-background/60 hover:text-background transition-colors">
                   About
                 </Link>
               </li>
@@ -61,7 +61,7 @@ export function Footer() {
                   href="https://github.com"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-muted-foreground hover:text-foreground transition-colors"
+                  className="text-background/60 hover:text-background transition-colors"
                 >
                   GitHub
                 </a>
@@ -71,7 +71,7 @@ export function Footer() {
                   href="https://twitter.com"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-muted-foreground hover:text-foreground transition-colors"
+                  className="text-background/60 hover:text-background transition-colors"
                 >
                   Twitter
                 </a>
@@ -81,8 +81,8 @@ export function Footer() {
         </div>
 
         <div className="mt-12 pt-8 border-t border-border text-center">
-          <p className="text-sm text-muted-foreground">© 2025 Sol Sim. All rights reserved.</p>
-          <p className="mt-2 text-xs text-muted-foreground/70">
+          <p className="text-sm text-background/60">© 2025 Sol Sim. All rights reserved.</p>
+          <p className="mt-2 text-xs text-background/40">
             <strong>Disclaimer:</strong> Sol Sim is a simulator. No real financial risk is involved.
           </p>
         </div>

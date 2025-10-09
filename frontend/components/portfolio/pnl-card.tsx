@@ -212,12 +212,12 @@ export function PnLCard() {
   }
 
   return (
-    <Card className="trading-card p-6 relative overflow-hidden">
+    <Card className="trading-card p-6 relative overflow-hidden border border-border rounded-none shadow-none">
       <AnimatedBackground isPositive={totalPnL > 0} />
 
       <div className={`space-y-6 relative transition-opacity ${isRefreshing ? 'opacity-70' : 'opacity-100'}`}>
-        <div className="flex items-center justify-between">
-          <p className="text-sm text-muted-foreground">Total P&L</p>
+        <div className="flex items-center justify-between mb-4">
+          <p className="text-sm font-bold">Total P&L</p>
           <div className="flex items-center gap-2">
             <Button
               variant="ghost"
@@ -238,17 +238,17 @@ export function PnLCard() {
         </div>
 
         <div>
-          <div className="flex items-baseline gap-2">
+          <div className="flex items-baseline gap-3">
             <AnimatedNumber
               value={totalPnL}
               suffix=" SOL"
               prefix={totalPnL > 0 ? "+" : ""}
               decimals={2}
-              className="font-mono text-3xl font-bold"
+              className="font-mono text-4xl font-bold"
               colorize={true}
               glowOnChange={true}
             />
-            <span className="text-lg font-medium font-mono">
+            <span className="text-xl font-medium font-mono">
               (
               <AnimatedNumber
                 value={totalPnLPercent}

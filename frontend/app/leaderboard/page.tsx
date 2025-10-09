@@ -108,13 +108,13 @@ export default function LeaderboardPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-6 py-8">
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="font-space-grotesk text-4xl md:text-5xl font-bold mb-4">
-                <span className="gradient-text">Leaderboard</span>
+              <h1 className="text-4xl md:text-5xl font-bold mb-4">
+                Leaderboard
               </h1>
               <p className="text-lg text-muted-foreground">Compete with traders worldwide and climb the ranks</p>
             </div>
@@ -123,7 +123,6 @@ export default function LeaderboardPage() {
               size="icon"
               onClick={handleRefresh}
               disabled={refreshing}
-              className="bg-transparent"
             >
               <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
             </Button>
@@ -132,13 +131,13 @@ export default function LeaderboardPage() {
 
         {/* Error Message */}
         {error && (
-          <Card className="card-enhanced p-4 mb-6 bg-destructive/10 border-destructive/20">
+          <Card className="p-6 mb-6 bg-destructive/10 border-destructive/20 border border-border rounded-none shadow-none">
             <p className="text-destructive">{String(error)}</p>
           </Card>
         )}
 
         {/* Time Range Filter */}
-        <div className="mb-6 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+        <div className="mb-8 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
           <Tabs value={timeRange} onValueChange={(v) => setTimeRange(v as TimeRange)}>
             <TabsList>
               <TabsTrigger value="24h">24 Hours</TabsTrigger>
@@ -148,7 +147,7 @@ export default function LeaderboardPage() {
           </Tabs>
 
           {currentUser && (
-            <Button variant="outline" onClick={scrollToUserRank} className="md:hidden bg-transparent">
+            <Button variant="outline" onClick={scrollToUserRank} className="md:hidden">
               <Target className="h-4 w-4 mr-2" />
               View My Rank
             </Button>
@@ -156,7 +155,7 @@ export default function LeaderboardPage() {
         </div>
 
         {/* Main Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Left: Leaderboard Table */}
           <div className="lg:col-span-2">
             <ResponsiveLeaderboard 
@@ -172,7 +171,7 @@ export default function LeaderboardPage() {
           <div className="space-y-6">
             {/* Mobile: Collapsible Stats */}
             <div className="lg:hidden">
-              <Button variant="outline" className="w-full mb-4 bg-transparent" onClick={() => setShowStats(!showStats)}>
+              <Button variant="outline" className="w-full mb-4" onClick={() => setShowStats(!showStats)}>
                 {showStats ? "Hide" : "Show"} Stats
               </Button>
             </div>
@@ -180,10 +179,10 @@ export default function LeaderboardPage() {
             <div className={`space-y-6 ${!showStats && "hidden lg:block"}`}>
               {/* Current User Rank */}
               {currentUser && (
-                <Card className="bento-card p-6 bg-gradient-to-br from-primary/10 to-secondary/10 border-primary/20">
+                <Card className="p-6 border border-border rounded-none shadow-none bg-muted/30">
                   <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <h3 className="font-semibold text-lg">Your Rank</h3>
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="font-bold text-lg">Your Rank</h3>
                       <Badge variant="secondary" className="text-lg px-3 py-1">
                         #{currentUser.rank}
                       </Badge>
@@ -212,22 +211,22 @@ export default function LeaderboardPage() {
 
                     <div className="grid grid-cols-2 gap-4 pt-4 border-t border-border">
                       <div>
-                        <p className="text-xs text-muted-foreground mb-1">Total PnL</p>
-                        <p className={`font-bold ${currentUser.totalPnL >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                        <p className="text-sm text-muted-foreground mb-2 font-bold">Total PnL</p>
+                        <p className={`font-bold text-lg ${currentUser.totalPnL >= 0 ? 'text-green-500' : 'text-red-500'}`}>
                           {currentUser.totalPnL >= 0 ? '+' : ''}{currentUser.totalPnL.toFixed(2)} SOL
                         </p>
                       </div>
                       <div>
-                        <p className="text-xs text-muted-foreground mb-1">Trades</p>
-                        <p className="font-bold">{currentUser.totalTrades}</p>
+                        <p className="text-sm text-muted-foreground mb-2 font-bold">Trades</p>
+                        <p className="font-bold text-lg">{currentUser.totalTrades}</p>
                       </div>
                       <div>
-                        <p className="text-xs text-muted-foreground mb-1">Win Rate</p>
-                        <p className="font-bold">{currentUser.winRate.toFixed(1)}%</p>
+                        <p className="text-sm text-muted-foreground mb-2 font-bold">Win Rate</p>
+                        <p className="font-bold text-lg">{currentUser.winRate.toFixed(1)}%</p>
                       </div>
                       <div>
-                        <p className="text-xs text-muted-foreground mb-1">Balance</p>
-                        <p className="font-bold font-mono">{currentUser.balance.toFixed(2)} SOL</p>
+                        <p className="text-sm text-muted-foreground mb-2 font-bold">Balance</p>
+                        <p className="font-bold text-lg font-mono">{currentUser.balance.toFixed(2)} SOL</p>
                       </div>
                     </div>
                   </div>
@@ -236,8 +235,8 @@ export default function LeaderboardPage() {
 
               {/* Top Performers */}
               {topPerformers.length > 0 && (
-                <Card className="trading-card p-6">
-                  <h3 className="font-semibold text-lg mb-4 flex items-center gap-2">
+                <Card className="p-6 border border-border rounded-none shadow-none">
+                  <h3 className="font-bold text-lg mb-6 flex items-center gap-2">
                     <Trophy className="h-5 w-5 text-yellow-500" />
                     Top Performers
                   </h3>
@@ -245,7 +244,7 @@ export default function LeaderboardPage() {
                     {topPerformers.map((performer, index) => (
                       <div
                         key={performer.id}
-                        className="flex items-center justify-between p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors"
+                        className="flex items-center justify-between p-4 rounded-none bg-muted/30 hover:bg-muted/50 transition-colors border border-border"
                       >
                         <div className="flex items-center gap-3">
                           <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br from-primary to-secondary text-primary-foreground font-bold text-sm">
@@ -269,26 +268,26 @@ export default function LeaderboardPage() {
               )}
 
               {/* Quick Stats */}
-              <Card className="card-enhanced p-6">
-                <h3 className="font-semibold text-lg mb-4">Competition Stats</h3>
-                <div className="space-y-3">
+              <Card className="p-6 border border-border rounded-none shadow-none">
+                <h3 className="font-bold text-lg mb-6">Competition Stats</h3>
+                <div className="space-y-4">
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Total Traders</span>
-                    <span className="font-bold">{totalTraders.toLocaleString()}</span>
+                    <span className="text-sm text-muted-foreground font-bold">Total Traders</span>
+                    <span className="font-bold text-lg">{totalTraders.toLocaleString()}</span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Active Today</span>
-                    <span className="font-bold">{activeToday.toLocaleString()}</span>
+                    <span className="text-sm text-muted-foreground font-bold">Active Today</span>
+                    <span className="font-bold text-lg">{activeToday.toLocaleString()}</span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Avg PnL</span>
-                    <span className={`font-bold ${avgROI >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                    <span className="text-sm text-muted-foreground font-bold">Avg PnL</span>
+                    <span className={`font-bold text-lg ${avgROI >= 0 ? 'text-green-500' : 'text-red-500'}`}>
                       {avgROI >= 0 ? '+' : ''}{avgROI.toFixed(2)} SOL
                     </span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Total Volume</span>
-                    <span className="font-bold">{totalVolume.toLocaleString(undefined, { maximumFractionDigits: 0 })} SOL</span>
+                    <span className="text-sm text-muted-foreground font-bold">Total Volume</span>
+                    <span className="font-bold text-lg">{totalVolume.toLocaleString(undefined, { maximumFractionDigits: 0 })} SOL</span>
                   </div>
                 </div>
               </Card>

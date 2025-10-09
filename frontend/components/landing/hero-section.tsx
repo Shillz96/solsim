@@ -20,19 +20,8 @@ const DexScreenerChart = dynamic(
 
 export function HeroSection() {
   return (
-    <section className="relative overflow-hidden py-20 md:py-32 bg-background">
-      {/* Subtle gradient accent - only in hero */}
-      <motion.div
-        className="absolute inset-0 opacity-10"
-        animate={{
-          background: [
-            "radial-gradient(circle at 20% 50%, oklch(0.55 0.22 250 / 0.08) 0%, transparent 50%)",
-            "radial-gradient(circle at 80% 50%, oklch(0.55 0.22 250 / 0.08) 0%, transparent 50%)",
-            "radial-gradient(circle at 20% 50%, oklch(0.55 0.22 250 / 0.08) 0%, transparent 50%)",
-          ],
-        }}
-        transition={{ duration: 10, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
-      />
+    <section className="relative overflow-hidden py-20 md:py-32 bg-foreground text-background">
+      {/* Uses theme foreground (black in light, white in dark) */}
 
       <div className="container relative mx-auto px-4">
         <div className="grid gap-12 lg:grid-cols-2 lg:gap-16 items-center">
@@ -48,16 +37,16 @@ export function HeroSection() {
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.2 }}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-background/10 border border-background/20"
               >
-                <Sparkles className="h-4 w-4 text-primary" />
-                <span className="text-sm font-medium text-primary">Practice Trading Platform</span>
+                <Sparkles className="h-4 w-4 text-background" />
+                <span className="text-sm font-medium text-background">Practice Trading Platform</span>
               </motion.div>
 
               <h1 className="font-heading text-5xl md:text-6xl lg:text-7xl font-bold leading-tight text-balance">
-                Trade <span className="gradient-text">Solana</span> Without Risk
+                Trade Solana Without Risk
               </h1>
-              <p className="text-xl text-muted-foreground max-w-xl leading-relaxed">
+              <p className="text-xl text-background/70 max-w-xl leading-relaxed">
                 Practice trading real Solana tokens with live market data. No financial risk, learn faster, trade
                 smarter.
               </p>
@@ -72,7 +61,7 @@ export function HeroSection() {
               <Link href="/trade">
                 <Button
                   size="lg"
-                  className="w-full sm:w-auto bg-foreground text-background hover:bg-foreground/90 group"
+                  className="w-full sm:w-auto bg-background text-foreground hover:bg-background/90 group"
                 >
                   Start Trading
                   <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
@@ -81,7 +70,7 @@ export function HeroSection() {
               <Button
                 size="lg"
                 variant="outline"
-                className="w-full sm:w-auto border-2"
+                className="w-full sm:w-auto border-2 border-background text-background hover:bg-background hover:text-foreground"
                 onClick={() => document.getElementById("features")?.scrollIntoView({ behavior: "smooth" })}
               >
                 Learn More
@@ -95,16 +84,16 @@ export function HeroSection() {
               transition={{ delay: 0.6 }}
             >
               <div className="space-y-1">
-                <div className="text-3xl font-bold text-green-600">100 SOL</div>
-                <p className="text-sm text-muted-foreground">Virtual balance</p>
+                <div className="text-3xl font-bold text-[#00ff85]">100 SOL</div>
+                <p className="text-sm text-background/60">Virtual balance</p>
               </div>
               <div className="space-y-1">
                 <div className="text-3xl font-bold">Real-time</div>
-                <p className="text-sm text-muted-foreground">Live data</p>
+                <p className="text-sm text-background/60">Live data</p>
               </div>
               <div className="space-y-1">
                 <div className="text-3xl font-bold">Zero Risk</div>
-                <p className="text-sm text-muted-foreground">Practice safely</p>
+                <p className="text-sm text-background/60">Practice safely</p>
               </div>
             </motion.div>
           </motion.div>
@@ -116,7 +105,7 @@ export function HeroSection() {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.3, duration: 0.6 }}
           >
-            <div className="relative rounded-2xl overflow-hidden border border-border shadow-lg">
+            <div className="relative rounded-2xl overflow-hidden border border-background/20 shadow-lg">
               <DexScreenerChart tokenAddress="DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263" />
             </div>
           </motion.div>

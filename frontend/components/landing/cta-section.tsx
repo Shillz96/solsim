@@ -4,11 +4,11 @@ import Link from "next/link"
 
 export function CTASection() {
   return (
-    <section className="py-20 md:py-32 bg-foreground">
+    <section className="py-20 md:py-32 bg-foreground text-background">
       <div className="container mx-auto px-4">
-        <div className="relative overflow-hidden rounded-3xl border-2 border-background bg-foreground p-12 md:p-16 text-center space-y-8">
+        <div className="relative overflow-hidden p-12 md:p-16 text-center space-y-8">
           <div className="space-y-4">
-            <h2 className="font-space-grotesk text-4xl md:text-5xl font-bold text-background">
+            <h2 className="font-heading text-4xl md:text-5xl font-bold">
               Ready to start trading without risk?
             </h2>
             <p className="text-xl text-background/70 max-w-2xl mx-auto">

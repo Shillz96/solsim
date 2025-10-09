@@ -13,7 +13,7 @@ export function TrendingTokensSection() {
   const { data: trendingTokens, isLoading: loading } = useTrendingTokens(3) // Limit to 3 for landing page
 
   return (
-    <section className="py-20 md:py-32 bg-background">
+    <section className="py-20 md:py-32 bg-background border-t border-b border-border">
       <div className="container mx-auto px-4">
         <motion.div
           className="text-center space-y-4 mb-12"
@@ -22,7 +22,7 @@ export function TrendingTokensSection() {
           viewport={{ once: true }}
         >
           <h2 className="font-heading text-4xl md:text-5xl font-bold text-balance">
-            <span className="gradient-text">Trending</span> Tokens
+            Trending Tokens
           </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
             Live market data from the hottest Solana tokens. Start trading now.
@@ -40,7 +40,7 @@ export function TrendingTokensSection() {
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1 }}
               >
-                <Card className="p-6 bg-card border-border h-full">
+                <Card className="p-6 bg-card border-2 border-foreground h-full">
                   <div className="space-y-4">
                     <div className="flex items-center gap-3">
                       <div className="h-12 w-12 rounded-full bg-muted animate-pulse" />
@@ -72,7 +72,7 @@ export function TrendingTokensSection() {
                 transition={{ delay: index * 0.1 }}
               >
                 <Link href={`/trade?token=${token.tokenAddress}`}>
-                  <Card className="p-6 bg-card border-border hover:border-foreground/30 transition-all duration-300 group cursor-pointer h-full">
+                  <Card className="p-6 bg-card border-2 border-foreground hover:border-foreground transition-all duration-300 group cursor-pointer h-full">
                     <div className="space-y-4">
                       <div className="flex items-center gap-3">
                         <div className="relative h-12 w-12 rounded-full overflow-hidden bg-muted">
@@ -94,9 +94,9 @@ export function TrendingTokensSection() {
                               const change = token.priceChangePercent24h || 0;
                               // Add threshold to prevent flickering on near-zero values
                               if (change > 0.01) {
-                                return <TrendingUp className="h-4 w-4 text-green-600" />;
+                                return <TrendingUp className="h-4 w-4 text-[#00ff85]" />;
                               } else if (change < -0.01) {
-                                return <TrendingDown className="h-4 w-4 text-red-600" />;
+                                return <TrendingDown className="h-4 w-4 text-[#ff4d4d]" />;
                               }
                               // For values between -0.01 and 0.01, show neutral (no icon or dash)
                               return null;
@@ -118,8 +118,8 @@ export function TrendingTokensSection() {
                         <p
                           className={`text-lg font-bold font-mono ${(() => {
                             const change = token.priceChangePercent24h || 0;
-                            if (change > 0.01) return "text-green-600";
-                            if (change < -0.01) return "text-red-600";
+                            if (change > 0.01) return "text-[#00ff85]";
+                            if (change < -0.01) return "text-[#ff4d4d]";
                             return "text-muted-foreground";
                           })()}`}
                         >

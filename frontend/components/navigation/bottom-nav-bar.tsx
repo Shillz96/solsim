@@ -59,7 +59,7 @@ export function BottomNavBar() {
   return (
     <>
       {/* Mobile Bottom Nav */}
-      <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-border glass-nav md:hidden">
+      <nav className="fixed bottom-0 left-0 right-0 z-50 border-t-2 border-border shadow-none md:hidden" style={{ backgroundColor: 'var(--background)', opacity: 1 }}>
         <div className="flex items-center justify-around h-16">
           {navItems.map((item, index) => {
             const Icon = item.icon
@@ -115,7 +115,7 @@ export function BottomNavBar() {
       </nav>
 
       {/* Desktop/Tablet Bottom Info Bar */}
-      <div className="hidden md:block fixed bottom-0 left-0 right-0 z-40 border-t border-border glass-nav">
+      <div className="hidden md:block fixed bottom-0 left-0 right-0 z-40 border-t-2 border-border shadow-none" style={{ backgroundColor: 'var(--background)', opacity: 1 }}>
         <div className="mx-auto flex h-12 items-center justify-between px-4 max-w-[2400px]">
           {/* Left: Social Links */}
           <div className="flex items-center gap-4">

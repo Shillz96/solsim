@@ -33,7 +33,7 @@ export function DexScreenerChart({
   }
 
   return (
-    <Card className="h-full overflow-hidden border-border relative">
+    <Card className="h-full overflow-hidden border border-border rounded-none shadow-none relative p-0">
       {/* Loading overlay */}
       {isLoading && (
         <div className="absolute inset-0 z-10 flex items-center justify-center bg-background/80 backdrop-blur-sm">
@@ -48,10 +48,13 @@ export function DexScreenerChart({
       <iframe
         ref={iframeRef}
         src={`https://dexscreener.com/solana/${currentToken}?embed=1&theme=dark&trades=0&info=0&timezone=UTC`}
-        className="h-full w-full"
+        className="h-full w-full block"
         style={{ 
-          minHeight: "700px",
+          minHeight: "100%",
+          height: "100%",
           touchAction: "pan-x pan-y", // Improve touch handling
+          display: "block", // Remove inline spacing
+          verticalAlign: "top", // Prevent baseline alignment issues
         }}
         title={`DexScreener chart for ${currentToken}`}
         aria-label="Token price chart"

@@ -143,7 +143,7 @@ export function NavBar() {
 
   return (
     <>
-      <nav className="sticky top-0 z-50 border-b border-border glass-nav shadow-lg">
+      <nav className="sticky top-0 z-50 border-b-2 border-border shadow-none" style={{ backgroundColor: 'var(--background)', opacity: 1 }}>
         <div className="mx-auto flex h-16 items-center justify-between px-4 max-w-[2400px] gap-4">
           <div className="flex items-center gap-4">
             {/* Mobile Hamburger */}
@@ -153,8 +153,8 @@ export function NavBar() {
                   <Menu className="h-5 w-5" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="left" className="w-64 bg-background border-border">
-                <div className="flex flex-col gap-4 mt-8">
+              <SheetContent side="left" className="w-64 border-2 border-border p-6" style={{ backgroundColor: 'var(--background)', opacity: 1, backdropFilter: 'none' }}>
+                <div className="flex flex-col gap-4">
                   {/* SOL Balance Display for Mobile */}
                   {isAuthenticated && (
                     <motion.div 
@@ -190,8 +190,9 @@ export function NavBar() {
             </Sheet>
 
             <Link href="/" className="flex items-center group">
-              <span className="font-heading text-2xl font-bold gradient-text tracking-tight group-hover:scale-105 transition-transform duration-200">
-                Sol Sim
+              <span className="text-2xl md:text-4xl font-bold tracking-tight group-hover:scale-105 transition-transform duration-200" style={{ fontFamily: 'var(--font-radnika-next)' }}>
+                <span className="hidden sm:inline">Solsim.fun</span>
+                <span className="sm:hidden">S.</span>
               </span>
             </Link>
           </div>
@@ -203,14 +204,14 @@ export function NavBar() {
                 href={link.href}
                 className={cn(
                   "text-sm font-medium transition-colors relative group",
-                  pathname === link.href ? "text-primary gradient-text" : "text-muted-foreground hover:gradient-text",
+                  pathname === link.href ? "text-foreground font-bold" : "text-muted-foreground hover:text-foreground",
                 )}
               >
                 {link.label}
                 {pathname === link.href && (
                   <motion.span
                     layoutId="navbar-indicator"
-                    className="absolute -bottom-[21px] left-0 right-0 h-0.5 bg-gradient-to-r from-primary to-accent"
+                    className="absolute -bottom-[21px] left-0 right-0 h-0.5 bg-foreground"
                   />
                 )}
               </Link>

@@ -16,7 +16,7 @@ const TOP_TRADERS = [
 
 export function LeaderboardPreview() {
   return (
-    <section className="py-20 md:py-32 bg-muted">
+    <section className="py-20 md:py-32 bg-foreground text-background border-t border-background/20">
       <div className="container mx-auto px-4">
         <motion.div
           className="text-center space-y-4 mb-12"
@@ -25,9 +25,9 @@ export function LeaderboardPreview() {
           viewport={{ once: true }}
         >
           <h2 className="font-heading text-4xl md:text-5xl font-bold text-balance">
-            Top <span className="gradient-text">Traders</span>
+            Top Traders
           </h2>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+          <p className="text-xl text-background/70 max-w-2xl mx-auto leading-relaxed">
             Compete with traders worldwide. Climb the ranks and prove your skills.
           </p>
         </motion.div>
@@ -38,16 +38,16 @@ export function LeaderboardPreview() {
           viewport={{ once: true }}
           transition={{ delay: 0.2 }}
         >
-          <Card className="max-w-4xl mx-auto bg-card border-border overflow-hidden">
+          <Card className="max-w-4xl mx-auto bg-background border-2 border-background overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="bg-muted">
+                <thead className="bg-foreground">
                   <tr>
-                    <th className="px-6 py-4 text-left text-sm font-semibold">Rank</th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold">Trader</th>
-                    <th className="px-6 py-4 text-right text-sm font-semibold">ROI</th>
-                    <th className="px-6 py-4 text-right text-sm font-semibold">Trades</th>
-                    <th className="px-6 py-4 text-right text-sm font-semibold">Balance</th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-background">Rank</th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-background">Trader</th>
+                    <th className="px-6 py-4 text-right text-sm font-semibold text-background">ROI</th>
+                    <th className="px-6 py-4 text-right text-sm font-semibold text-background">Trades</th>
+                    <th className="px-6 py-4 text-right text-sm font-semibold text-background">Balance</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
@@ -71,11 +71,11 @@ export function LeaderboardPreview() {
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-2">
                           <span className={`${trader.rank <= 3 ? 'font-bold' : 'font-medium'}`}>{trader.username}</span>
-                          {trader.isRising && <TrendingUp className="h-4 w-4 text-foreground" />}
+                          {trader.isRising && <TrendingUp className="h-4 w-4" />}
                         </div>
                       </td>
                       <td className="px-6 py-4 text-right">
-                        <span className={`font-mono ${trader.rank <= 3 ? 'font-bold' : 'font-medium'} text-green-600`}>+{trader.roi.toFixed(1)}%</span>
+                        <span className={`font-mono ${trader.rank <= 3 ? 'font-bold' : 'font-medium'} text-[#00ff85]`}>+{trader.roi.toFixed(1)}%</span>
                       </td>
                       <td className="px-6 py-4 text-right">
                         <span className="text-muted-foreground font-mono">{trader.trades}</span>
@@ -99,7 +99,7 @@ export function LeaderboardPreview() {
           transition={{ delay: 0.4 }}
         >
           <Link href="/leaderboard">
-            <Button size="lg" variant="outline" className="group border-2">
+            <Button size="lg" variant="outline" className="group border-2 border-background text-background hover:bg-background hover:text-foreground">
               View Full Leaderboard
               <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
             </Button>

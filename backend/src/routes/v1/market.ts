@@ -1,5 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { LRUCache } from 'lru-cache';
+import { Decimal } from '@prisma/client/runtime/library';
 import { TrendingService } from '../../services/trendingService.js';
 import { PriceService } from '../../services/priceService.js';
 import { MetadataService } from '../../services/metadataService.js';
@@ -100,7 +101,7 @@ router.get('/search', apiLimiter, async (req: Request, res: Response): Promise<v
     });
 
     // Case-insensitive search for PostgreSQL using mode: 'insensitive'
-    const tokens = await prisma.token.findMany({
+    let tokens = await prisma.token.findMany({
       where: {
         OR: [
           { symbol: { contains: q, mode: 'insensitive' } },
@@ -119,15 +120,89 @@ router.get('/search', apiLimiter, async (req: Request, res: Response): Promise<v
         priceChange24h: true,
         volume24h: true,
         marketCapUsd: true,
-        liquidityUsd: true
+        liquidityUsd: true,
+        isTrending: true
       }
     });
 
+    // If no results and query looks like a Solana address (32-44 chars, base58)
+    // Try to fetch it from external APIs and add to database
+    if (tokens.length === 0 && /^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(q)) {
+      logger.info(`[Search] No results for address ${q}, attempting to fetch and save...`);
+      
+      try {
+        // Fetch token metadata
+        const metadata = await metadataService.getMetadata(q);
+        
+        // Fetch current price
+        const priceData = await priceService.getTokenPrices(q);
+        
+        if (metadata && metadata.symbol && metadata.name && priceData) {
+          // Save to database
+          const savedToken = await prisma.token.upsert({
+            where: { address: q },
+            update: {
+              symbol: metadata.symbol,
+              name: metadata.name,
+              imageUrl: metadata.logoUri,
+              lastPrice: new Decimal(priceData.price),
+              priceChange24h: new Decimal(0), // Not available from getTokenPrices
+              volume24h: new Decimal(0), // Not available from getTokenPrices
+              marketCapUsd: priceData.marketCap ? new Decimal(priceData.marketCap) : new Decimal(0),
+              liquidityUsd: new Decimal(0), // Not available from getTokenPrices
+              lastUpdatedAt: new Date(),
+            },
+            create: {
+              address: q,
+              symbol: metadata.symbol,
+              name: metadata.name,
+              imageUrl: metadata.logoUri,
+              lastPrice: new Decimal(priceData.price),
+              priceChange24h: new Decimal(0),
+              volume24h: new Decimal(0),
+              marketCapUsd: priceData.marketCap ? new Decimal(priceData.marketCap) : new Decimal(0),
+              liquidityUsd: new Decimal(0),
+            },
+            select: {
+              address: true,
+              symbol: true,
+              name: true,
+              imageUrl: true,
+              lastPrice: true,
+              priceChange24h: true,
+              volume24h: true,
+              marketCapUsd: true,
+              liquidityUsd: true,
+              isTrending: true
+            }
+          });
+
+          logger.info(`[Search] ✅ Token ${q} fetched and saved: ${savedToken.symbol} - ${savedToken.name}`);
+          tokens = [savedToken];
+        }
+      } catch (fetchError) {
+        logger.error(`[Search] Failed to fetch/save token ${q}:`, fetchError);
+        // Continue with empty results
+      }
+    }
+
+    // Transform tokens to match frontend expectations
+    const transformedTokens = tokens.map(token => ({
+      address: token.address,
+      symbol: token.symbol,
+      name: token.name,
+      imageUrl: token.imageUrl,
+      price: token.lastPrice?.toString() || null,
+      priceChange24h: token.priceChange24h ? parseFloat(token.priceChange24h.toString()) : 0,
+      marketCap: token.marketCapUsd ? parseFloat(token.marketCapUsd.toString()) : 0,
+      trending: token.isTrending || false
+    }));
+
     res.json({
       success: true,
-      data: { tokens },
+      data: { tokens: transformedTokens },
       meta: {
-        count: tokens.length,
+        count: transformedTokens.length,
         query: q,
         limit
       }

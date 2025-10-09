@@ -47,16 +47,16 @@ export function PositionNotes({ tokenAddress }: PositionNotesProps) {
   }
 
   return (
-    <Card className="p-4">
-      <div className="flex items-center gap-2 mb-4">
+    <Card className="p-6 border border-border rounded-none shadow-none">
+      <div className="flex items-center gap-2 mb-6">
         <StickyNote className="h-4 w-4 text-primary" />
-        <h3 className="font-semibold text-sm">Position Notes</h3>
+        <h3 className="font-bold text-lg">Position Notes</h3>
         <Badge variant="secondary" className="text-xs ml-auto">
           {filteredNotes.length} Active
         </Badge>
       </div>
 
-      <div className="space-y-3">
+      <div className="space-y-4">
         {filteredNotes.map((note, index) => {
           const entryMC = Number.parseFloat(note.entryMarketCap.replace(/[$B]/g, ""))
           const currentMC = Number.parseFloat(note.currentMarketCap.replace(/[$B]/g, ""))
@@ -66,11 +66,11 @@ export function PositionNotes({ tokenAddress }: PositionNotesProps) {
           return (
             <div
               key={index}
-              className="rounded-lg border border-border bg-card p-3 space-y-2 hover:border-primary/50 transition-colors"
+              className="rounded-none border border-border bg-card p-4 space-y-3 hover:border-primary/50 transition-colors"
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <span className="font-semibold text-foreground">{note.tokenSymbol}</span>
+                  <span className="font-bold text-foreground">{note.tokenSymbol}</span>
                   <span className="text-xs text-muted-foreground">{note.timestamp}</span>
                 </div>
                 <Badge variant={isProfit ? "default" : "destructive"} className="text-xs">
@@ -79,7 +79,7 @@ export function PositionNotes({ tokenAddress }: PositionNotesProps) {
                 </Badge>
               </div>
 
-              <div className="grid grid-cols-2 gap-2 text-xs">
+              <div className="grid grid-cols-2 gap-3 text-xs">
                 <div className="flex items-center gap-1.5">
                   <BarChart3 className="h-3 w-3 text-muted-foreground" />
                   <span className="text-muted-foreground">Entry MC:</span>
