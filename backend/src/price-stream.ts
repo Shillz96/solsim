@@ -1,5 +1,4 @@
-import ws from 'ws';
-const { WebSocketServer, WebSocket } = ws;
+import WebSocket, { WebSocketServer } from 'ws';
 import { createServer, Server } from 'http';
 import { EventEmitter } from 'events';
 import { PriceService } from './services/priceService.js';
