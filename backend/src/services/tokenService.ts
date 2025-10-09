@@ -8,7 +8,7 @@ const DEX = "https://api.dexscreener.com";
 // Enrich token metadata (caches in DB)
 export async function getTokenMeta(mint: string) {
   // Try DB cache first
-  let token = await prisma.token.findUnique({ where: { mint } });
+  let token = await prisma.token.findUnique({ where: { address: mint } });
   const fresh = token && token.lastUpdated && Date.now() - token.lastUpdated.getTime() < 86400000; // 24h cache
 
   if (token && fresh) return token;
@@ -20,7 +20,7 @@ export async function getTokenMeta(mint: string) {
     const meta = json[0]?.onChainMetadata?.metadata || json[0]?.offChainMetadata?.metadata;
     if (meta) {
       token = await prisma.token.upsert({
-        where: { mint },
+        where: { address: mint },
         update: {
           symbol: meta.symbol || null,
           name: meta.name || null,
@@ -32,7 +32,6 @@ export async function getTokenMeta(mint: string) {
         },
         create: {
           address: mint,
-          mint,
           symbol: meta.symbol || null,
           name: meta.name || null,
           logoURI: meta.image || null,
@@ -55,7 +54,7 @@ export async function getTokenMeta(mint: string) {
       const pair = json.pairs?.[0];
       if (pair) {
         token = await prisma.token.upsert({
-          where: { mint },
+          where: { address: mint },
           update: {
             symbol: pair.baseToken?.symbol || null,
             name: pair.baseToken?.name || null,
@@ -67,7 +66,6 @@ export async function getTokenMeta(mint: string) {
           },
           create: {
             address: mint,
-            mint,
             symbol: pair.baseToken?.symbol || null,
             name: pair.baseToken?.name || null,
             logoURI: pair.info?.imageUrl || null,

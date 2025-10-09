@@ -163,12 +163,11 @@ model TransactionHistory {
 }
 
 model Token {
-  address         String    @id
-  mint            String    @unique // Token mint address (alias for address)
+  address         String    @id // Primary key - token address
   symbol          String?
   name            String?
   imageUrl        String?
-  logoURI         String?   // Logo URI for token
+  logoURI         String?   // Logo URI for token  
   lastPrice       Decimal?  // Last known price in USD per token
   lastTs          DateTime?
   
@@ -204,7 +203,6 @@ model Token {
   @@index([isTrending, momentumScore])
   @@index([symbol])
   @@index([isNew])
-  @@index([mint])
 }
 
 // Conversion History for virtual SOL to $SIM token conversions
