@@ -1,0 +1,224 @@
+openapi: 3.0.3
+info:
+  title: Solsim.fun Backend API
+  version: 0.1.0
+servers:
+  - url: https://api.solsim.fun
+paths:
+  /health:
+    get:
+      summary: Health check
+      responses: { "200": { description: OK } }
+
+  /api/auth/signup-email:
+    post:
+      summary: Email signup
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email: { type: string, format: email }
+                password: { type: string, minLength: 8 }
+                handle: { type: string }
+                profileImage: { type: string }
+      responses:
+        "200":
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  userId: { type: string }
+
+  /api/auth/login-email:
+    post:
+      summary: Email login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email: { type: string, format: email }
+                password: { type: string }
+      responses:
+        "200":
+          description: Authorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  userId: { type: string }
+
+  /api/auth/wallet/nonce:
+    post:
+      summary: Get nonce for Sign-In With Solana
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [walletAddress]
+              properties:
+                walletAddress: { type: string }
+      responses:
+        "200":
+          description: Nonce returned
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  nonce: { type: string }
+
+  /api/auth/wallet/verify:
+    post:
+      summary: Verify signature for wallet login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [walletAddress, signature]
+              properties:
+                walletAddress: { type: string }
+                signature: { type: string, description: "base58 signature of the nonce message" }
+      responses:
+        "200":
+          description: Authorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  userId: { type: string }
+
+  /api/auth/profile:
+    post:
+      summary: Update profile (handle/image/bio)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [userId]
+              properties:
+                userId: { type: string }
+                handle: { type: string }
+                profileImage: { type: string }
+                bio: { type: string }
+      responses: { "200": { description: OK } }
+
+  /api/trade:
+    post:
+      summary: Place a simulated trade
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [userId, mint, side, qty]
+              properties:
+                userId: { type: string }
+                mint: { type: string }
+                side: { type: string, enum: [BUY, SELL] }
+                qty: { type: string, description: "token amount as string" }
+      responses:
+        "200":
+          description: Trade executed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  trade: { type: object }
+                  position: { type: object }
+
+  /api/portfolio:
+    get:
+      summary: Get portfolio
+      parameters:
+        - name: userId
+          in: query
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Portfolio & totals
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  positions: { type: array, items: { type: object } }
+                  totals: { type: object }
+
+  /api/leaderboard:
+    get:
+      summary: Leaderboard
+      parameters:
+        - name: limit
+          in: query
+          schema: { type: integer, default: 50 }
+      responses:
+        "200": { description: OK }
+
+  /api/trending:
+    get:
+      summary: Trending tokens (blended ranking)
+      responses:
+        "200": { description: OK }
+
+  /api/rewards/claim:
+    post:
+      summary: Claim SIM rewards from treasury
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [userId, epoch, wallet]
+              properties:
+                userId: { type: string }
+                epoch: { type: integer }
+                wallet: { type: string }
+      responses:
+        "200":
+          description: Transfer initiated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  sig: { type: string }
+                  amount: { type: string }
+
+  /api/rewards/snapshot:
+    post:
+      summary: Admin/cron snapshot & allocation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [epoch, poolAmount]
+              properties:
+                epoch: { type: integer }
+                poolAmount: { type: string }
+      responses:
+        "200": { description: OK }
