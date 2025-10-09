@@ -297,7 +297,7 @@ export function NavBar() {
                             <p className="text-sm font-mono text-foreground">
                               ${parseFloat(token.lastPrice || '0').toLocaleString(undefined, { maximumFractionDigits: 6 })}
                             </p>
-                            {token.priceChange24h !== undefined && (
+                            {token.priceChange24h !== undefined && token.priceChange24h !== null && (
                               <p 
                                 className={`text-xs ${token.priceChange24h >= 0 ? 'text-green-600' : 'text-red-600'}`}
                                 aria-label={`Price ${token.priceChange24h >= 0 ? 'increase' : 'decrease'} ${Math.abs(token.priceChange24h).toFixed(2)} percent in 24 hours`}

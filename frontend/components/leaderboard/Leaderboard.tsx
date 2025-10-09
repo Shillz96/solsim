@@ -197,12 +197,12 @@ export function Leaderboard({
                       </div>
                       <div className="flex items-center">
                         <Avatar className="h-8 w-8 mr-2">
-                          <AvatarImage src={entry.avatarUrl ?? undefined} alt={entry.displayName || 'User'} />
-                          <AvatarFallback>{(entry.displayName || 'U').substring(0, 2).toUpperCase()}</AvatarFallback>
+                          <AvatarImage src={entry.profileImage ?? undefined} alt={entry.handle || 'User'} />
+                          <AvatarFallback>{(entry.handle || 'U').substring(0, 2).toUpperCase()}</AvatarFallback>
                         </Avatar>
                         <div>
                           <div className="font-medium">
-                            {entry.displayName || 'Unknown User'}
+                            {entry.handle || 'Unknown User'}
                             {entry.userId === 'current-user' && (
                               <Badge variant="secondary" className="ml-2">You</Badge>
                             )}
@@ -253,11 +253,11 @@ export function Leaderboard({
                         <TableCell>
                           <div className="flex items-center">
                             <Avatar className="h-8 w-8 mr-2">
-                              <AvatarImage src={entry.avatarUrl ?? undefined} alt={entry.displayName || 'User'} />
-                              <AvatarFallback>{(entry.displayName || 'U').substring(0, 2).toUpperCase()}</AvatarFallback>
+                              <AvatarImage src={entry.profileImage ?? undefined} alt={entry.handle || 'User'} />
+                              <AvatarFallback>{(entry.handle || 'U').substring(0, 2).toUpperCase()}</AvatarFallback>
                             </Avatar>
                             <span className="font-medium">
-                              {entry.displayName || 'Unknown User'}
+                              {entry.handle || 'Unknown User'}
                               {entry.userId === 'current-user' && (
                                 <Badge variant="secondary" className="ml-2">You</Badge>
                               )}

@@ -257,7 +257,7 @@ export function PnLCard() {
         totalPnL={totalPnL}
         totalPnLPercent={totalPnLPercent}
         currentValue={totalValue}
-        initialBalance={initialBalance}
+        initialBalance={costBasis}
       />
     </>
   )
