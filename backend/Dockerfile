@@ -1,42 +1,32 @@
-# Stage 1: Build the application
-FROM node:20-slim AS builder
+# Use Node.js 20 slim image
+FROM node:20-slim
 
 # Set working directory
 WORKDIR /app
 
-# Copy package files and prisma schema
+# Install dependencies first (for better Docker layer caching)
 COPY package*.json ./
 COPY prisma ./prisma/
 
-# Install all dependencies (including devDependencies)
-RUN npm ci
+# Install dependencies
+RUN npm ci --verbose
 
-# Copy the rest of the application source code
+# Copy application code
 COPY . .
 
-# Generate Prisma client and build the TypeScript project
+# Generate Prisma client and build TypeScript
 RUN npx prisma generate
 RUN npm run build
 
-# Stage 2: Create the production image
-FROM node:20-slim AS production
+# Remove dev dependencies to reduce image size
+RUN npm ci --omit=dev --verbose && npm cache clean --force
 
-# Set working directory
-WORKDIR /app
-
-# Copy package files
-COPY package*.json ./
-
-# Install ONLY production dependencies
-RUN npm ci --omit=dev
-
-# Copy the built application and prisma schema from the builder stage
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/prisma ./prisma
-COPY --from=builder /app/node_modules/.prisma ./.prisma
-
-# Expose the port the app runs on
+# Expose port
 EXPOSE 4000
 
-# The command to run the application
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD node -e "require('http').get('http://localhost:4000/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"
+
+# Start the application
 CMD ["npm", "run", "start"]
