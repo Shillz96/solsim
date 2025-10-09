@@ -25,6 +25,8 @@ model User {
   bio                String?
   avatar             String?
   avatarUrl          String?  // For uploaded avatars
+  handle             String?  // Public display handle
+  profileImage       String?  // Profile image URL
   
   // Social media links
   twitter            String?
@@ -41,7 +43,8 @@ model User {
   
   // Tier system and wallet verification
   userTier           UserTier @default(EMAIL_USER)
-  walletAddress      String?  // Connected Solana wallet address
+  walletAddress      String?  @unique // Connected Solana wallet address
+  walletNonce        String?  // Nonce for wallet signature verification
   walletVerified     Boolean  @default(false)
   simTokenBalance    Decimal? // Cached $SIM token balance
   simBalanceUpdated  DateTime? // Last token balance check
@@ -62,6 +65,10 @@ model User {
   transactions       TransactionHistory[]
   conversions        ConversionHistory[]
   rewardClaims       RewardClaim[]
+  positions          Position[]
+  realizedPnls       RealizedPnL[]
+  trackedWallets     WalletTrack[]
+  copyTrades         CopyTrade[]
 }
 
 model Trade {
@@ -69,22 +76,28 @@ model Trade {
   user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId        String
   tokenAddress  String
+  mint          String   // Token mint address (alias for tokenAddress)
   tokenSymbol   String?
   tokenName     String?
   action        String   // 'buy' or 'sell'
+  side          String   // 'BUY' or 'SELL'
   quantity      Decimal  // Number of tokens traded
   price         Decimal  // Price per token in USD (from DexScreener/external API)
   totalCost     Decimal  // Total cost in SOL (amount of SOL spent/received)
+  costUsd       Decimal? // Total cost in USD
   realizedPnL   Decimal? // Realized profit/loss in SOL (for sell trades only)
   marketCapUsd  Decimal? // Market cap in USD at time of trade (for market cap analysis)
   timestamp     DateTime @default(now())
+  createdAt     DateTime @default(now())
   
   // Relations
   transactions  TransactionHistory[]
   
   // Optimized indexes for common query patterns
   @@index([userId, timestamp(sort: Desc)], name: "user_trades_recent")
+  @@index([userId, createdAt(sort: Desc)], name: "user_trades_created")
   @@index([tokenAddress, timestamp(sort: Desc)], name: "token_trades_recent")
+  @@index([mint, createdAt(sort: Desc)], name: "mint_trades_recent")
   @@index([userId, tokenAddress, timestamp(sort: Desc)], name: "user_token_history")
   @@index([userId, action, timestamp(sort: Desc)], name: "user_trade_type")
   @@index([timestamp(sort: Desc)], name: "trades_chronological")
@@ -151,9 +164,11 @@ model TransactionHistory {
 
 model Token {
   address         String    @id
+  mint            String    @unique // Token mint address (alias for address)
   symbol          String?
   name            String?
   imageUrl        String?
+  logoURI         String?   // Logo URI for token
   lastPrice       Decimal?  // Last known price in USD per token
   lastTs          DateTime?
   
@@ -175,16 +190,21 @@ model Token {
   
   // Social and metadata (JSON strings for SQLite compatibility)
   websites        String?   @default("[]")
+  website         String?   // Single website URL
+  twitter         String?   // Twitter handle
+  telegram        String?   // Telegram link
   socials         String?   @default("[]")
   
   // Timestamps for tracking
   firstSeenAt     DateTime? @default(now())
   lastUpdatedAt   DateTime? @default(now())
+  lastUpdated     DateTime? // Legacy field
   
   @@index([lastTs])
   @@index([isTrending, momentumScore])
   @@index([symbol])
   @@index([isNew])
+  @@index([mint])
 }
 
 // Conversion History for virtual SOL to $SIM token conversions
@@ -234,5 +254,98 @@ model RewardClaim {
   @@unique([userId, epoch], name: "userId_epoch")
   @@index([userId, epoch])
   @@index([epoch, claimedAt])
+  @@index([status])
+}
+
+// Position tracking model for FIFO trading
+model Position {
+  id          String   @id @default(uuid())
+  userId      String
+  mint        String   // Token mint address
+  qty         Decimal  @default("0")
+  costBasis   Decimal  @default("0")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lots        PositionLot[]
+  
+  @@unique([userId, mint])
+  @@index([userId, mint])
+}
+
+// FIFO lot tracking for positions
+model PositionLot {
+  id             String   @id @default(uuid())
+  positionId     String
+  userId         String
+  mint           String
+  qtyRemaining   Decimal
+  unitCostUsd    Decimal
+  createdAt      DateTime @default(now())
+  
+  position       Position @relation(fields: [positionId], references: [id], onDelete: Cascade)
+  
+  @@index([positionId, createdAt])
+  @@index([userId, mint, createdAt])
+}
+
+// Realized PnL tracking
+model RealizedPnL {
+  id        String   @id @default(uuid())
+  userId    String
+  mint      String
+  pnl       Decimal
+  createdAt DateTime @default(now())
+  
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId, createdAt])
+  @@index([mint])
+}
+
+// Price tick history for candles
+model PriceTick {
+  id        String   @id @default(uuid())
+  mint      String
+  priceUsd  Decimal
+  volume    Decimal  @default("0")
+  timestamp DateTime @default(now())
+  
+  @@index([mint, timestamp])
+}
+
+// Wallet tracking for copy trading
+model WalletTrack {
+  id        String   @id @default(uuid())
+  userId    String
+  address   String   // Wallet address being tracked
+  alias     String?  // User-defined name for wallet
+  createdAt DateTime @default(now())
+  
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, address])
+  @@index([userId])
+  @@index([address])
+}
+
+// Copy trade records
+model CopyTrade {
+  id           String   @id @default(uuid())
+  userId       String
+  walletAddress String  // Source wallet being copied
+  mint         String
+  side         String   // BUY or SELL
+  qty          Decimal
+  priceUsd     Decimal
+  status       String   @default("PENDING") // PENDING, EXECUTED, FAILED
+  createdAt    DateTime @default(now())
+  executedAt   DateTime?
+  
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId, createdAt])
+  @@index([walletAddress, createdAt])
   @@index([status])
 }
