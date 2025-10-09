@@ -1,0 +1,1 @@
+// Recent trades routes placeholder

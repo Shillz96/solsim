@@ -1,0 +1,1 @@
+// PortfolioBar component placeholder

@@ -55,7 +55,7 @@ export function FeaturesSection() {
               viewport={{ once: true }}
               transition={{ delay: index * 0.1, duration: 0.5 }}
             >
-              <Card className="p-6 bg-card border-2 border-foreground hover:border-foreground transition-all duration-300 group h-full">
+ver              <Card className="p-6 bg-card border-2 border-foreground hover:border-foreground transition-all duration-300 group h-full">
                 <div className="space-y-4">
                   <div className="h-12 w-12 rounded-full bg-foreground flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                     <feature.icon className="h-6 w-6 text-background" />

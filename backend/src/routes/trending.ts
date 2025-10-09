@@ -1,0 +1,1 @@
+// Trending routes placeholder

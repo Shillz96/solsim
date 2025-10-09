@@ -1,0 +1,1 @@
+// NavSearch component placeholder

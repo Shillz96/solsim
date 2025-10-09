@@ -1,3 +1,5 @@
+# Ignore backup backend folder
+backend.backup/
 # Dependencies
 node_modules/
 .pnp
