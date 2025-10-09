@@ -1,0 +1,10 @@
+frontend/
+.next/
+node_modules/
+.git/
+*.log
+.env.local
+.vercel/
+Dockerfile*
+docker-compose*
+.dockerignore
