@@ -1,7 +1,7 @@
 # Railway config for SolSim backend - Nixpacks from backend/ root
 [build]
 builder = "NIXPACKS"
-buildCommand = "npm ci --omit=dev && npm run build"
+buildCommand = "npm ci && npm run build"
 
 [deploy]
 restartPolicyType = "ON_FAILURE"
@@ -16,4 +16,4 @@ NPM_CONFIG_PRODUCTION = "false"
 
 [[deploy.healthcheck]]
 path = "/health"
-port = 4002
+port = 4000
