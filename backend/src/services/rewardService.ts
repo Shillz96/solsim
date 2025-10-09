@@ -5,8 +5,11 @@ import { Connection, Keypair, PublicKey, SystemProgram, Transaction } from "@sol
 import { createTransferInstruction, getAssociatedTokenAddress, TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import bs58 from "bs58";
 
-const SIM_MINT = new PublicKey(process.env.SIM_TOKEN_MINT!);
-const REWARDS_WALLET = Keypair.fromSecretKey(bs58.decode(process.env.REWARDS_WALLET_SECRET!));
+// Optional reward system configuration
+const SIM_MINT = process.env.SIM_TOKEN_MINT ? new PublicKey(process.env.SIM_TOKEN_MINT) : null;
+const REWARDS_WALLET = process.env.REWARDS_WALLET_SECRET 
+  ? Keypair.fromSecretKey(bs58.decode(process.env.REWARDS_WALLET_SECRET))
+  : null;
 const RPC_URL = process.env.SOLANA_RPC || "https://api.mainnet-beta.solana.com";
 const connection = new Connection(RPC_URL, "confirmed");
 
@@ -83,6 +86,11 @@ export async function snapshotRewards(epoch: number, poolAmount: Decimal) {
 
 // --- 3. Claim rewards ---
 export async function claimReward(userId: string, epoch: number, wallet: string) {
+  // Check if reward system is configured
+  if (!SIM_MINT || !REWARDS_WALLET) {
+    throw new Error("Reward system not configured. Please set SIM_TOKEN_MINT and REWARDS_WALLET_SECRET environment variables.");
+  }
+
   const claim = await prisma.rewardClaim.findFirst({
     where: { userId, epoch, claimedAt: null }
   });
