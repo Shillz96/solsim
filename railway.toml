@@ -1,11 +1,12 @@
 [build]
 builder = "NIXPACKS"
 # Railway service runs from repository root, so we need to cd into backend
-buildCommand = "cd backend && npm install && npm run build"
+buildCommand = "cd backend && npm ci && npm run build"
 
 [environment]
 NODE_VERSION = "18"
 NPM_VERSION = "9"
+NIXPACKS_BUILD_CMD = "cd backend && npm ci && npm run build"
 
 [deploy]
 startCommand = "cd backend && npm run start:prod"
