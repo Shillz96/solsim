@@ -1,13 +1,13 @@
 // Search routes for token discovery
 import { FastifyInstance } from "fastify";
-import { getTokenMeta } from "../services/tokenService.js";
+import { getTokenMeta, getTokenInfo } from "../services/tokenService.js";
 import fetch from "node-fetch";
 
 const DEX = process.env.DEXSCREENER_BASE || "https://api.dexscreener.com";
 const BIRDEYE = process.env.BIRDEYE_BASE || "https://public-api.birdeye.so";
 
 export default async function searchRoutes(app: FastifyInstance) {
-  // Get token details by mint address
+  // Get token details by mint address with price data
   app.get("/token/:mint", async (req, reply) => {
     const { mint } = req.params as { mint: string };
     
@@ -16,21 +16,28 @@ export default async function searchRoutes(app: FastifyInstance) {
     }
     
     try {
-      const meta = await getTokenMeta(mint);
+      const tokenInfo = await getTokenInfo(mint);
       
-      if (!meta) {
+      if (!tokenInfo) {
         return reply.code(404).send({ error: "Token not found" });
       }
       
       return {
-        mint: meta.address,
-        symbol: meta.symbol,
-        name: meta.name,
-        logoURI: meta.logoURI,
-        website: meta.website,
-        twitter: meta.twitter,
-        telegram: meta.telegram,
-        lastUpdated: meta.lastUpdated
+        mint: tokenInfo.address,
+        address: tokenInfo.address, // For compatibility
+        symbol: tokenInfo.symbol,
+        name: tokenInfo.name,
+        logoURI: tokenInfo.logoURI,
+        imageUrl: tokenInfo.logoURI, // For compatibility
+        website: tokenInfo.website,
+        twitter: tokenInfo.twitter,
+        telegram: tokenInfo.telegram,
+        lastPrice: tokenInfo.lastPrice,
+        lastTs: tokenInfo.lastTs,
+        volume24h: tokenInfo.volume24h,
+        priceChange24h: tokenInfo.priceChange24h,
+        marketCapUsd: tokenInfo.marketCapUsd,
+        lastUpdated: tokenInfo.lastUpdated
       };
     } catch (error: any) {
       app.log.error(error);

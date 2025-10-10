@@ -1,9 +1,10 @@
-// Token service placeholder
+// Token service with enhanced metadata sources
 import prisma from "../plugins/prisma.js";
 import fetch from "node-fetch";
 
 const HELIUS = process.env.HELIUS_API!;
 const DEX = "https://api.dexscreener.com";
+const JUPITER = "https://price.jup.ag/v4";
 
 // Enrich token metadata (caches in DB)
 export async function getTokenMeta(mint: string) {
@@ -13,7 +14,35 @@ export async function getTokenMeta(mint: string) {
 
   if (token && fresh) return token;
 
-  // 1. Try Helius token metadata
+  // 1. Try Jupiter token list first (fastest and most reliable)
+  try {
+    const res = await fetch(`https://token.jup.ag/strict`);
+    const tokenList = await res.json() as any[];
+    const jupiterToken = tokenList.find(t => t.address === mint);
+    
+    if (jupiterToken) {
+      token = await prisma.token.upsert({
+        where: { address: mint },
+        update: {
+          symbol: jupiterToken.symbol || null,
+          name: jupiterToken.name || null,
+          logoURI: jupiterToken.logoURI || null,
+          lastUpdated: new Date()
+        },
+        create: {
+          address: mint,
+          symbol: jupiterToken.symbol || null,
+          name: jupiterToken.name || null,
+          logoURI: jupiterToken.logoURI || null,
+        }
+      });
+      return token;
+    }
+  } catch (e) {
+    console.warn("Jupiter token list fail", e);
+  }
+
+  // 2. Try Helius token metadata
   try {
     const res = await fetch(`https://api.helius.xyz/v0/token-metadata?api-key=${HELIUS}&mintAccounts=${mint}`);
     const json = await res.json() as any[];
@@ -46,7 +75,7 @@ export async function getTokenMeta(mint: string) {
     console.warn("Helius meta fail", e);
   }
 
-  // 2. Fallback to Dexscreener
+  // 3. Fallback to Dexscreener
   try {
     const res = await fetch(`${DEX}/latest/dex/tokens/${mint}`);
     if (res.ok) {
@@ -82,4 +111,63 @@ export async function getTokenMeta(mint: string) {
   }
 
   return token;
+}
+
+// Get comprehensive token information with price data
+export async function getTokenInfo(mint: string) {
+  const [metadata, priceData] = await Promise.all([
+    getTokenMeta(mint),
+    getTokenPriceData(mint)
+  ]);
+
+  return {
+    ...metadata,
+    ...priceData,
+    address: mint,
+    mint // Include both for compatibility
+  };
+}
+
+// Get token price data from multiple sources
+async function getTokenPriceData(mint: string) {
+  // Try Jupiter price API first
+  try {
+    const res = await fetch(`${JUPITER}/price?ids=${mint}`);
+    const data = await res.json() as any;
+    const price = data.data?.[mint]?.price;
+    
+    if (price) {
+      return {
+        lastPrice: price.toString(),
+        lastTs: new Date().toISOString()
+      };
+    }
+  } catch (e) {
+    console.warn("Jupiter price fail", e);
+  }
+
+  // Fallback to DexScreener for price data
+  try {
+    const res = await fetch(`${DEX}/latest/dex/tokens/${mint}`);
+    if (res.ok) {
+      const json = await res.json() as any;
+      const pair = json.pairs?.[0];
+      if (pair && pair.priceUsd) {
+        return {
+          lastPrice: pair.priceUsd,
+          lastTs: new Date().toISOString(),
+          volume24h: pair.volume?.h24 || null,
+          priceChange24h: pair.priceChange?.h24 || null,
+          marketCapUsd: pair.marketCap || null
+        };
+      }
+    }
+  } catch (e) {
+    console.warn("DexScreener price fail", e);
+  }
+
+  return {
+    lastPrice: null,
+    lastTs: null
+  };
 }

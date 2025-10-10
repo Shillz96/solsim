@@ -42,11 +42,11 @@ export async function getLeaderboard(limit: number = 50): Promise<LeaderboardEnt
       sum + parseFloat(trade.costUsd.toString()), 0
     );
 
-    const totalPnlUsd = user.realizedPnl.reduce((sum: number, pnl: any) =>
+    const totalPnlUsd = user.realizedPnls.reduce((sum: number, pnl: any) =>
       sum + parseFloat(pnl.pnlUsd.toString()), 0
     );
 
-    const winningTrades = user.realizedPnl.filter((pnl: any) =>
+    const winningTrades = user.realizedPnls.filter((pnl: any) =>
       parseFloat(pnl.pnlUsd.toString()) > 0
     ).length;
     

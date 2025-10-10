@@ -5,15 +5,15 @@ import { Decimal } from "@prisma/client/runtime/library";
 import redis from "./redis.js";
 
 // Program IDs for DEX monitoring
-const RAYDIUM_AMM_PROGRAM = "675kPX9MHTjS2zt1qfr1NYHuzeLXfQM9H24wFSUt1Mp8";
-const RAYDIUM_CLMM_PROGRAM = "CAMMCzo5YL8w4VFF8KVHrK22GGUQpMkFr9WeqwJGJUmK";
+const RAYDIUM_V4_PROGRAM = "675kPX9MHTjS2zt1qfr1NYHuzeLXfQM9H24wFSUt1Mp8";
+const RAYDIUM_CLMM_PROGRAM = "CAMMCzo5YL8w4VFF8KVHrK22GGUQpMkFr9WeqwJGJUmK"; 
 const PUMP_FUN_PROGRAM = "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P";
 
-// Known quote tokens
+// Known quote tokens for price calculation
 const QUOTE_TOKENS = {
-  "So11111111111111111111111111111111111111112": "SOL",
-  "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v": "USDC",
-  "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB": "USDT"
+  "So11111111111111111111111111111111111111112": { symbol: "SOL", decimals: 9 },
+  "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v": { symbol: "USDC", decimals: 6 },
+  "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB": { symbol: "USDT", decimals: 6 }
 };
 
 interface PriceTick {
@@ -27,6 +27,14 @@ interface PriceTick {
   volume?: number;
 }
 
+interface SwapEvent {
+  baseMint: string;
+  quoteMint: string;
+  amountIn: number;
+  amountOut: number;
+  source: 'raydium' | 'pumpfun';
+}
+
 class HeliusPriceService {
   private ws: WebSocket | null = null;
   private connection: Connection;
@@ -35,6 +43,7 @@ class HeliusPriceService {
   private reconnectAttempts = 0;
   private maxReconnectAttempts = 5;
   private subscribers = new Set<(tick: PriceTick) => void>();
+  private lastSolPriceUpdate = 0;
 
   constructor() {
     const heliusUrl = process.env.HELIUS_RPC_URL || process.env.SOLANA_RPC_URL || "wss://mainnet.helius-rpc.com";
@@ -50,8 +59,118 @@ class HeliusPriceService {
     // Start WebSocket connection for real-time data
     await this.connectWebSocket();
     
+    // Subscribe to Redis pub/sub for horizontal scaling
+    await this.subscribeToRedisPrices();
+    
     // Update SOL price every 30 seconds
     setInterval(() => this.updateSolPrice(), 30000);
+  }
+
+  private async subscribeToRedisPrices() {
+    try {
+      // Create separate Redis client for subscriptions
+      const subscriber = redis.duplicate();
+      await subscriber.connect();
+      
+      await subscriber.subscribe("prices", (message) => {
+        try {
+          const tick: PriceTick = JSON.parse(message);
+          // Update in-memory cache from Redis pub/sub (from other instances)
+          this.priceCache.set(tick.mint, tick);
+          
+          // Notify local subscribers without republishing to Redis
+          this.subscribers.forEach(callback => {
+            try {
+              callback(tick);
+            } catch (error) {
+              console.error("Error in Redis price subscriber callback:", error);
+            }
+          });
+        } catch (error) {
+          console.error("Error processing Redis price message:", error);
+        }
+      });
+      
+      console.log("📡 Subscribed to Redis prices channel");
+    } catch (error) {
+      console.warn("Failed to subscribe to Redis prices channel:", error);
+    }
+  }
+
+  // Parse Raydium swap logs
+  private parseRaydiumLog(log: string): SwapEvent | null {
+    if (!log.includes("ray_log: Swap")) return null;
+
+    const mIn = log.match(/userIn=(\d+)/);
+    const mOut = log.match(/userOut=(\d+)/);
+    const baseMint = log.match(/baseMint=([A-Za-z0-9]+)/)?.[1];
+    const quoteMint = log.match(/quoteMint=([A-Za-z0-9]+)/)?.[1];
+
+    if (!mIn || !mOut || !baseMint || !quoteMint) return null;
+
+    return {
+      baseMint,
+      quoteMint,
+      amountIn: Number(mIn[1]),
+      amountOut: Number(mOut[1]),
+      source: 'raydium'
+    };
+  }
+
+  // Parse Pump.fun swap logs
+  private parsePumpfunLog(log: string): SwapEvent | null {
+    if (!log.includes("pump_log: Swap")) return null;
+
+    const fromMint = log.match(/fromMint=([A-Za-z0-9]+)/)?.[1];
+    const toMint = log.match(/toMint=([A-Za-z0-9]+)/)?.[1];
+    const amountIn = Number(log.match(/amountIn=(\d+)/)?.[1] || 0);
+    const amountOut = Number(log.match(/amountOut=(\d+)/)?.[1] || 0);
+
+    if (!fromMint || !toMint || amountIn <= 0 || amountOut <= 0) return null;
+
+    return { 
+      baseMint: toMint, 
+      quoteMint: fromMint, 
+      amountIn, 
+      amountOut,
+      source: 'pumpfun'
+    };
+  }
+
+  // Process swap event and calculate price
+  private processSwapEvent(swap: SwapEvent) {
+    const { baseMint, quoteMint, amountIn, amountOut, source } = swap;
+    
+    // Skip if not a known quote token
+    const quoteToken = QUOTE_TOKENS[quoteMint as keyof typeof QUOTE_TOKENS];
+    if (!quoteToken) return;
+
+    // Calculate price based on quote token
+    let priceInQuote = amountIn / amountOut;
+    let priceUsd = 0;
+
+    if (quoteToken.symbol === "USDC" || quoteToken.symbol === "USDT") {
+      // Direct USD price
+      priceUsd = priceInQuote / Math.pow(10, quoteToken.decimals);
+    } else if (quoteToken.symbol === "SOL") {
+      // Convert SOL price to USD
+      const priceInSol = priceInQuote / Math.pow(10, quoteToken.decimals);
+      priceUsd = priceInSol * this.solPriceUsd;
+    }
+
+    if (priceUsd > 0) {
+      const tick: PriceTick = {
+        mint: baseMint,
+        priceUsd,
+        priceSol: quoteToken.symbol === "SOL" ? priceInQuote / Math.pow(10, quoteToken.decimals) : undefined,
+        solUsd: this.solPriceUsd,
+        timestamp: Date.now(),
+        source: source,
+        volume: amountIn
+      };
+
+      this.updatePrice(tick);
+    }
   }
 
   private async connectWebSocket() {
@@ -76,8 +195,8 @@ class HeliusPriceService {
         }
       });
 
-      this.ws.on("close", () => {
-        console.log("❌ Helius WebSocket disconnected");
+      this.ws.on("close", (code, reason) => {
+        console.log(`❌ Helius WebSocket disconnected: ${code} ${reason}`);
         this.scheduleReconnect();
       });
 
@@ -114,7 +233,7 @@ class HeliusPriceService {
       id: 1,
       method: "programSubscribe",
       params: [
-        RAYDIUM_AMM_PROGRAM,
+        RAYDIUM_V4_PROGRAM,
         {
           commitment: "confirmed",
           encoding: "jsonParsed",
@@ -163,23 +282,31 @@ class HeliusPriceService {
   }
 
   private async parseSwapEvent(params: any) {
-    try {
-      const { result } = params;
-      const { account, context } = result;
-      
-      // Parse transaction logs to extract swap data
-      const logs = account?.data?.parsed?.info?.logs || [];
-      
-      for (const log of logs) {
-        if (log.includes("swap") || log.includes("Swap")) {
-          const swapData = this.extractSwapData(log, account);
-          if (swapData) {
-            await this.processPriceTick(swapData);
-          }
-        }
+    if (!params?.result?.value) return;
+
+    const { account, context } = params.result.value;
+    const logs = context?.transaction?.meta?.logMessages || [];
+
+    for (const log of logs) {
+      // Try Raydium parsing first
+      const raydiumSwap = this.parseRaydiumLog(log);
+      if (raydiumSwap) {
+        this.processSwapEvent(raydiumSwap);
+        continue;
       }
-    } catch (error) {
-      console.error("Error parsing swap event:", error);
+
+      // Try Pump.fun parsing
+      const pumpfunSwap = this.parsePumpfunLog(log);
+      if (pumpfunSwap) {
+        this.processSwapEvent(pumpfunSwap);
+        continue;
+      }
+
+      // Try generic extraction as fallback
+      const genericTick = this.extractSwapData(log, account);
+      if (genericTick) {
+        this.updatePrice(genericTick);
+      }
     }
   }
 
@@ -228,8 +355,9 @@ class HeliusPriceService {
         const [, amountIn, tokenIn, amountOut, tokenOut] = swapMatch;
         
         // Determine which is the base token (non-quote token)
-        const isTokenInQuote = Object.values(QUOTE_TOKENS).includes(tokenIn);
-        const isTokenOutQuote = Object.values(QUOTE_TOKENS).includes(tokenOut);
+        const quoteSymbols = Object.values(QUOTE_TOKENS).map(t => t.symbol);
+        const isTokenInQuote = quoteSymbols.includes(tokenIn);
+        const isTokenOutQuote = quoteSymbols.includes(tokenOut);
         
         if (!isTokenInQuote && !isTokenOutQuote) return null; // Need at least one quote token
         
@@ -268,18 +396,21 @@ class HeliusPriceService {
     }
   }
 
-  private async processPriceTick(tick: PriceTick) {
+  private async updatePrice(tick: PriceTick) {
     // Update in-memory cache
     this.priceCache.set(tick.mint, tick);
     
-    // Store in Redis with 1 hour expiry
+    // Store in Redis with 5s expiry as per spec
     try {
-      await redis.setex(`price:${tick.mint}`, 3600, JSON.stringify(tick));
+      await redis.setex(`price:${tick.mint}`, 5, JSON.stringify(tick));
+      
+      // Publish to Redis prices channel for horizontal scaling
+      await redis.publish("prices", JSON.stringify(tick));
     } catch (error) {
-      console.warn("Failed to cache price in Redis:", error);
+      console.warn("Failed to cache/publish price in Redis:", error);
     }
     
-    // Notify subscribers
+    // Notify local subscribers
     this.subscribers.forEach(callback => {
       try {
         callback(tick);
@@ -288,7 +419,7 @@ class HeliusPriceService {
       }
     });
     
-    console.log(`💰 Price update: ${tick.mint} = $${tick.priceUsd.toFixed(6)}`);
+    console.log(`💰 Price update: ${tick.mint} = $${tick.priceUsd.toFixed(6)} (${tick.source})`);
   }
 
   private async updateSolPrice() {
@@ -350,6 +481,23 @@ class HeliusPriceService {
       }
     } catch (error) {
       console.warn("DexScreener fallback failed:", error);
+    }
+    
+    try {
+      // Try Jupiter price API as secondary fallback
+      const response = await fetch(`https://price.jup.ag/v1/price?id=${mint}`);
+      const data = await response.json();
+      
+      if (data.data && data.data.price) {
+        return {
+          mint,
+          priceUsd: parseFloat(data.data.price),
+          timestamp: Date.now(),
+          source: "jupiter"
+        };
+      }
+    } catch (error) {
+      console.warn("Jupiter fallback failed:", error);
     }
     
     // Ultimate fallback
