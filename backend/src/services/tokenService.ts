@@ -4,7 +4,7 @@ import fetch from "node-fetch";
 
 const HELIUS = process.env.HELIUS_API!;
 const DEX = "https://api.dexscreener.com";
-const JUPITER = "https://price.jup.ag/v4";
+const JUPITER = "https://price.jup.ag/v6";
 
 // Enrich token metadata (caches in DB)
 export async function getTokenMeta(mint: string) {

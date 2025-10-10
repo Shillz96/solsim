@@ -1,9 +1,8 @@
 {
-  "build": {
-    "builder": "NIXPACKS"
-  },
+  "$schema": "https://railway.app/railway.schema.json",
   "deploy": {
-    "startCommand": "npm run railway:start",
-    "healthcheckPath": "/health"
+    "healthcheckPath": "/health",
+    "healthcheckTimeout": 300,
+    "restartPolicyType": "ON_FAILURE"
   }
 }

@@ -43,11 +43,11 @@ export async function getLeaderboard(limit: number = 50): Promise<LeaderboardEnt
     );
 
     const totalPnlUsd = user.realizedPnls.reduce((sum: number, pnl: any) =>
-      sum + parseFloat(pnl.pnlUsd.toString()), 0
+      sum + parseFloat(pnl.pnl.toString()), 0
     );
 
     const winningTrades = user.realizedPnls.filter((pnl: any) =>
-      parseFloat(pnl.pnlUsd.toString()) > 0
+      parseFloat(pnl.pnl.toString()) > 0
     ).length;
     
     const winRate = totalTrades > 0 ? (winningTrades / totalTrades) * 100 : 0;

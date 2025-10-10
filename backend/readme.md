@@ -97,7 +97,103 @@ npm run dev
 
 The API will be available at `http://localhost:4000`
 
-## 📡 API Endpoints
+## 🚀 Deployment
+
+### Railway Deployment (Current Working Setup)
+
+This project deploys successfully on [Railway](https://railway.app) using **Railpack 0.9.0**:
+
+**Build Process:**
+```
+╭────────────────╮
+│ Railpack 0.9.0 │
+╰────────────────╯
+
+↳ Detected Node
+↳ Using npm package manager  
+↳ Found web command in Procfile
+
+Packages: node 20.19.5
+Steps:
+▸ install: npm ci
+▸ build: npm run build
+Deploy: npm run railway:start
+```
+
+**Build Timeline:**
+- Install packages: ~7s
+- Build (Prisma + TypeScript): ~5s  
+- Docker import: ~6s
+- **Total build time: ~52s**
+
+**Deployment Configuration:**
+
+The deployment uses these key files:
+- `Procfile` - Defines the web process: `web: npm run railway:start`
+- `package.json` - Node.js 20+ engine requirement
+- `nixpacks.toml` - Optional Nixpacks configuration (fallback)
+
+**Current Railway Environment Variables:**
+
+```bash
+# Core Application
+DATABASE_URL=postgresql://...           # PostgreSQL connection
+REDIS_URL=redis://...                  # Redis connection  
+JWT_SECRET=your-jwt-secret             # Authentication
+NODE_ENV=production                    # Environment
+FRONTEND_URL=https://solsim.fun        # CORS configuration
+
+# Solana/Helius Integration  
+SOLANA_RPC=https://mainnet.helius-rpc.com/?api-key=...
+HELIUS_WS=wss://mainnet.helius-rpc.com/?api-key=...
+HELIUS_API=your-helius-api-key
+HELIUS_RPC_URL=https://mainnet.helius-rpc.com/?api-key=...
+SOLANA_RPC_URL=https://mainnet.helius-rpc.com/?api-key=...
+
+# External APIs
+DEXSCREENER_BASE=https://api.dexscreener.com
+JUPITER_BASE=https://quote-api.jup.ag
+```
+
+**Deployment Steps:**
+
+1. **Create Railway Service**: Connect GitHub repository
+2. **Add Environment Variables**: Set all required variables above  
+3. **Deploy**: Railway auto-builds and deploys on push
+4. **Monitor**: Check build logs and deploy logs
+
+**Troubleshooting:**
+
+If you encounter deployment issues:
+- **Docker Export Hanging**: Create a new Railway service (don't reuse old services)
+- **Build Failures**: Ensure all environment variables are properly set
+- **WebSocket 401 Errors**: Verify Helius API key and URL formats
+- **Database Connection**: Check DATABASE_URL format and database service status
+
+**Known Working Configuration:**
+- Railway automatically detects and uses Railpack 0.9.0
+- No custom railpack.json or railway.json needed
+- Procfile defines the web process: `web: npm run railway:start`
+- Build time averages 52 seconds
+- Service URL: `https://[service-name].up.railway.app`
+
+The current deployment is stable and builds consistently.
+
+### Environment Variables for Production
+
+Ensure these are set in your Railway dashboard:
+
+```bash
+DATABASE_URL=postgresql://...  # PostgreSQL connection string
+REDIS_URL=redis://...          # Redis connection string
+SOLANA_RPC=https://...         # Helius RPC endpoint
+HELIUS_WS=wss://...           # Helius WebSocket endpoint
+HELIUS_API=your-api-key       # Helius API key
+JWT_SECRET=secure-secret      # JWT signing secret
+NODE_ENV=production           # Environment setting
+```
+
+## �📡 API Endpoints
 
 ### Health Check
 - `GET /health` - Server health status

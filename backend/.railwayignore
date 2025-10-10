@@ -1,16 +1,31 @@
-# Ignore any potential Docker files
-Dockerfile*
-docker-compose*
-.dockerignore
+# Build outputs (will be regenerated)
+dist/
+node_modules/
+.next/
+*.tgz
+*.tar.gz
 
-# Ignore git files that might confuse Railway
+# Development files
+.env*
+*.log
+*.pid
+.DS_Store
+.vscode/
+.idea/
+
+# Test files
+tests/
+coverage/
+.nyc_output/
+
+# Documentation (keep readme.md)
+SECURITY_ENV.md
+
+# Git files
 .git/
 .gitignore
 
-# Only include necessary files for Nixpacks build
-!package.json
-!package-lock.json
-!src/
-!prisma/
-!nixpacks.toml
-!railway.json
+# Docker files (not needed with Railpack)
+Dockerfile*
+docker-compose*
+.dockerignore

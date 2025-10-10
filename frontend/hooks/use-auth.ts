@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
 import * as api from '@/lib/api'
 import type { User } from '@/lib/types/backend'
 
@@ -18,6 +19,7 @@ interface AuthState {
 }
 
 export function useAuth() {
+  const queryClient = useQueryClient()
   const [authState, setAuthState] = useState<AuthState>({
     user: null,
     isLoading: true,
@@ -60,9 +62,15 @@ export function useAuth() {
       isLoading: false,
       isAuthenticated: true
     })
+
+    // Invalidate all user-specific queries after login
+    queryClient.invalidateQueries({ queryKey: ['portfolio'] })
+    queryClient.invalidateQueries({ queryKey: ['balance'] })
+    queryClient.invalidateQueries({ queryKey: ['transactions'] })
+    queryClient.invalidateQueries({ queryKey: ['notes'] })
     
     return response
-  }, [])
+  }, [queryClient])
 
   const signup = useCallback(async (email: string, password: string, handle?: string) => {
     const response = await api.signupEmail({ email, password, handle })
@@ -76,9 +84,15 @@ export function useAuth() {
       isLoading: false,
       isAuthenticated: true
     })
+
+    // Invalidate all user-specific queries after signup
+    queryClient.invalidateQueries({ queryKey: ['portfolio'] })
+    queryClient.invalidateQueries({ queryKey: ['balance'] })
+    queryClient.invalidateQueries({ queryKey: ['transactions'] })
+    queryClient.invalidateQueries({ queryKey: ['notes'] })
     
     return response
-  }, [])
+  }, [queryClient])
 
   const logout = useCallback(() => {
     localStorage.removeItem('userId')

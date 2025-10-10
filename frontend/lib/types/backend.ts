@@ -384,6 +384,15 @@ export interface AuthLoginRequest {
 
 export interface AuthResponse {
   userId: string;
+  accessToken: string;
+  refreshToken: string;
+  user: {
+    id: string;
+    email: string;
+    userTier: UserTier;
+    virtualSolBalance: string;
+    walletAddress?: string; // Optional - only for wallet verification
+  };
 }
 
 export interface WalletNonceRequest {

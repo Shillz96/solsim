@@ -70,10 +70,12 @@ class HeliusPriceService {
     try {
       // Create separate Redis client for subscriptions
       const subscriber = redis.duplicate();
-      await subscriber.connect();
       
-      await subscriber.subscribe("prices", (message) => {
+      await subscriber.subscribe("prices");
+      
+      subscriber.on("message", (channel, message) => {
         try {
+          if (!message) return;
           const tick: PriceTick = JSON.parse(message);
           // Update in-memory cache from Redis pub/sub (from other instances)
           this.priceCache.set(tick.mint, tick);
@@ -485,13 +487,13 @@ class HeliusPriceService {
     
     try {
       // Try Jupiter price API as secondary fallback
-      const response = await fetch(`https://price.jup.ag/v1/price?id=${mint}`);
+      const response = await fetch(`https://price.jup.ag/v6/price?ids=${mint}`);
       const data = await response.json();
       
-      if (data.data && data.data.price) {
+      if (data.data && data.data[mint] && data.data[mint].price) {
         return {
           mint,
-          priceUsd: parseFloat(data.data.price),
+          priceUsd: parseFloat(data.data[mint].price),
           timestamp: Date.now(),
           source: "jupiter"
         };

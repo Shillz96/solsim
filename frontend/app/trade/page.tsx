@@ -8,7 +8,7 @@ import { TokenSearch } from "@/components/trading/token-search"
 import { EnhancedTrendingList } from "@/components/leaderboard/enhanced-trending-list"
 import { TradingPanel } from "@/components/trading/trading-panel"
 import { ActivePositions } from "@/components/portfolio/active-positions"
-import { PnLCard } from "@/components/portfolio/pnl-card"
+import { TokenPositionPnL } from "@/components/trading/token-position-pnl"
 import { TradeDetails } from "@/components/shared/trade-details"
 import { ChartSkeleton } from "@/components/shared/chart-skeleton"
 import { TokenDetailsHeader } from "@/components/trading/token-details-header"
@@ -52,7 +52,11 @@ function TradePageContent() {
                 tokenSymbol={tokenSymbol}
                 tokenName={tokenName}
               />
-              <PnLCard />
+              <TokenPositionPnL 
+                tokenAddress={currentTokenAddress}
+                tokenSymbol={tokenSymbol}
+                tokenName={tokenName}
+              />
             </div>
             
             {/* Real-time trade strip */}

@@ -33,14 +33,39 @@ You need to create **4 services** on Railway:
 
 1. Click **"New"** → **"GitHub Repo"**
 2. Select your **Solsim repository**
-3. Railway will detect the `railway.toml` configuration automatically
+3. Railway will automatically detect and use Railpack 0.9.0
 4. Configure the service:
 
-#### Build Settings (Auto-detected from railway.toml)
-```toml
-Build Command: cd backend && npm install && npm run build
-Start Command: cd backend && npm run start:prod
+#### Successful Build Process (Railpack 0.9.0)
 ```
+╭────────────────╮
+│ Railpack 0.9.0 │
+╰────────────────╯
+
+↳ Detected Node (20.19.5)
+↳ Using npm package manager  
+↳ Found web command in Procfile
+
+Steps:
+▸ install: npm ci (~7s)
+▸ build: npm run build (~5s)
+Deploy: npm run railway:start
+
+Total build time: ~52 seconds
+```
+
+#### Required Configuration Files
+
+Your repository needs these files (already included):
+- `Procfile` - Defines web process: `web: npm run railway:start`
+- `package.json` - Specifies Node.js 20+ in engines
+- `nixpacks.toml` - Fallback configuration (optional)
+
+#### Important Notes
+
+- **Use a fresh Railway service** - older services may have Docker export hanging issues
+- **Railpack 0.9.0 works reliably** - no custom configuration needed beyond environment variables
+- **Build consistently completes** in ~52 seconds with proper setup
 
 #### Environment Variables to Add
 
