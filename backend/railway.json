@@ -1,9 +1,5 @@
 {
   "$schema": "https://railway.com/railway.schema.json",
-  "build": {
-    "builder": "NIXPACKS",
-    "buildCommand": "npm ci && npm run prisma:generate && npx tsc"
-  },
   "deploy": {
     "startCommand": "npm run railway:start",
     "restartPolicyType": "ON_FAILURE",
