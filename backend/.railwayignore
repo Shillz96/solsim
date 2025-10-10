@@ -1,0 +1,16 @@
+# Ignore any potential Docker files
+Dockerfile*
+docker-compose*
+.dockerignore
+
+# Ignore git files that might confuse Railway
+.git/
+.gitignore
+
+# Only include necessary files for Nixpacks build
+!package.json
+!package-lock.json
+!src/
+!prisma/
+!nixpacks.toml
+!railway.json
