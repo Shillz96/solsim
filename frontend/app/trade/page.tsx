@@ -9,8 +9,10 @@ import { EnhancedTrendingList } from "@/components/leaderboard/enhanced-trending
 import { TradingPanel } from "@/components/trading/trading-panel"
 import { ActivePositions } from "@/components/portfolio/active-positions"
 import { PnLCard } from "@/components/portfolio/pnl-card"
-import { PositionNotes } from "@/components/shared/position-notes"
+import { TradeDetails } from "@/components/shared/trade-details"
 import { ChartSkeleton } from "@/components/shared/chart-skeleton"
+import { TokenDetailsHeader } from "@/components/trading/token-details-header"
+import { RealtimeTradeStrip } from "@/components/trading/realtime-trade-strip"
 
 const DexScreenerChart = dynamic(
   () => import("@/components/trading/dexscreener-chart").then((mod) => ({ default: mod.DexScreenerChart })),
@@ -23,10 +25,15 @@ const DexScreenerChart = dynamic(
 function TradePageContent() {
   const searchParams = useSearchParams()
   const currentTokenAddress = searchParams.get("token") ?? "DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263"
+  const tokenSymbol = searchParams.get("symbol") || undefined
+  const tokenName = searchParams.get("name") || undefined
 
   return (
     <div className="min-h-screen bg-background">
       <main className="px-6 py-6">
+        {/* Token details header - new component */}
+        <TokenDetailsHeader tokenAddress={currentTokenAddress} />
+        
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 min-h-[calc(100vh-5rem)]">
           <aside className="lg:col-span-2 space-y-4 overflow-y-auto lg:sticky lg:top-6 lg:h-[calc(100vh-8rem)]">
             <TokenSearch />
@@ -40,8 +47,17 @@ function TradePageContent() {
               </Suspense>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-2">
-              <PositionNotes tokenAddress={currentTokenAddress} />
+              <TradeDetails 
+                tokenAddress={currentTokenAddress} 
+                tokenSymbol={tokenSymbol}
+                tokenName={tokenName}
+              />
               <PnLCard />
+            </div>
+            
+            {/* Real-time trade strip */}
+            <div className="mt-6">
+              <RealtimeTradeStrip tokenAddress={currentTokenAddress} />
             </div>
           </div>
 

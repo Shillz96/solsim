@@ -1,14 +1,18 @@
 import { type ReactNode } from 'react';
 
 /**
- * Token object representing a cryptocurrency token
+ * Token object for trading components
+ * Note: This interface is mapped from Backend.Token where:
+ * - id maps to address
+ * - logoUrl maps to imageUrl || logoURI
+ * - priceChangePercent24h is derived from priceChange24h
  */
 export interface Token {
-  id: string;
+  id: string; // Maps to Backend.Token.address
   name: string;
   symbol: string;
-  logoUrl: string;
-  priceChangePercent24h?: number;
+  logoUrl: string; // Maps to Backend.Token.imageUrl || logoURI
+  priceChangePercent24h?: number; // Derived from Backend.Token.priceChange24h
 }
 
 /**

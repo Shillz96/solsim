@@ -2,16 +2,17 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import * as api from '@/lib/api'
+import type { User } from '@/lib/types/backend'
 
-interface User {
+// Simplified user type for authentication context
+interface AuthUser {
   id: string
-  email?: string
+  email: string
   handle?: string
-  profileImage?: string
 }
 
 interface AuthState {
-  user: User | null
+  user: AuthUser | null
   isLoading: boolean
   isAuthenticated: boolean
 }
@@ -90,12 +91,24 @@ export function useAuth() {
     })
   }, [])
 
-  const updateProfile = useCallback(async (updates: { handle?: string; profileImage?: string; bio?: string }) => {
+  const updateProfile = useCallback(async (updates: { 
+    handle?: string; 
+    profileImage?: string; 
+    bio?: string;
+    displayName?: string;
+    avatar?: string;
+    twitter?: string;
+    discord?: string;
+    telegram?: string;
+    website?: string;
+  }) => {
     if (!authState.user) throw new Error('Not authenticated')
     
     await api.updateProfile({
       userId: authState.user.id,
-      ...updates
+      handle: updates.handle,
+      profileImage: updates.profileImage,
+      bio: updates.bio,
     })
     
     const updatedUser = { ...authState.user, ...updates }

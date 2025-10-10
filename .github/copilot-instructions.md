@@ -13,10 +13,11 @@ SolSim is a **Solana paper trading simulator** with real-time market data. Users
 - **Services:** Business logic in `backend/src/services/` with clear separation from routes
 - **Plugins:** Core functionality in `backend/src/plugins/` (WebSocket, Redis, price streaming)
 - **Database:** Prisma schema with `UserTier` enum and virtual SOL balance tracking
+- **ES Modules:** Backend uses `.js` extensions in imports despite TypeScript (`import prisma from "../plugins/prisma.js"`)
 
 ### Frontend Structure (Next.js 14 App Router)
 - **API Layer:** `frontend/lib/api.ts` centralizes all backend calls with TypeScript contracts
-- **Types:** Shared backend types in `frontend/lib/types/backend.ts` mirror Prisma schema
+- **Types:** Shared backend types in `frontend/lib/types/backend.ts` mirror Prisma schema exactly
 - **Components:** Domain-specific components in `frontend/components/[domain]/`
 - **Hooks:** Custom hooks in `frontend/hooks/` for auth, trading, monitoring
 - **Providers:** Context stack in `frontend/components/providers.tsx` (Error → Query → Wallet → PriceStream → Theme)
@@ -25,6 +26,12 @@ SolSim is a **Solana paper trading simulator** with real-time market data. Users
 - **Price Service:** `backend/src/plugins/priceService.ts` manages Helius WebSocket subscriptions
 - **WebSocket Plugin:** `backend/src/plugins/ws.ts` handles client price subscriptions with filtering
 - **Frontend Stream:** `frontend/lib/price-stream-provider.tsx` manages WebSocket connections with auto-reconnect
+
+### Data Modeling Patterns
+- **FIFO Trading:** `PositionLot` model tracks cost basis for accurate P&L calculations
+- **Virtual Balances:** All SOL amounts stored as `Decimal` type for precision
+- **User Tiers:** `EMAIL_USER` (10 vSOL) → `WALLET_USER` → `SIM_HOLDER` (100 vSOL) → `ADMINISTRATOR`
+- **Position Tracking:** Separate `Position` and `PositionLot` tables for FIFO lot management
 
 ## 🔧 Development Workflows
 
@@ -45,31 +52,42 @@ cd backend && npm run dev
 cd frontend && npm run dev
 ```
 
-### Testing
+### Testing & Type Checking
 ```bash
 # Backend unit tests
 cd backend && npm test
 
 # Frontend tests (Vitest)
 cd frontend && npm test
+
+# Type checking (essential before commits)
+cd frontend && npm run type-check
 ```
 
 ## 🎨 Code Conventions
 
+### Critical Type Safety Rule
+**ALWAYS verify frontend types match backend exactly.** Check `backend/src/services/` interfaces against `frontend/lib/types/backend.ts`. Current alignment:
+- `PortfolioPosition`: `mint`, `qty`, `avgCostUsd`, `valueUsd`, `unrealizedUsd`, `unrealizedPercent`
+- `TrendingToken`: Backend service interface matches frontend `TrendingToken` type
+- `LeaderboardEntry`: Perfect backend/frontend type alignment
+
+### Backend Import Convention
+- **ES Modules:** Use `.js` extensions in TypeScript imports: `import prisma from "../plugins/prisma.js"`
+- **Module Resolution:** Backend configured for ES2022 modules with Node resolution
+- **Route Pattern:** Default export function accepting `FastifyInstance` parameter
+
 ### API Integration Pattern
 - All API calls go through `frontend/lib/api.ts` with typed contracts
-- Backend types are imported from `frontend/lib/types/backend.ts`
+- Backend types imported from `frontend/lib/types/backend.ts`
 - Use React Query hooks in `frontend/hooks/use-react-query-hooks.ts` for caching
-
-### Error Handling
-- Frontend: `GlobalErrorBoundary` in providers catches React errors
-- API errors: Always include meaningful error messages in backend responses
-- WebSocket: Auto-reconnection logic with exponential backoff
+- Error responses follow consistent `{ error: string }` format
 
 ### Database Patterns
-- **Virtual Trading:** All balances stored as `Decimal` type for precision
-- **User Tiers:** `EMAIL_USER` (10 SOL) → `WALLET_USER` → `SIM_HOLDER` (100 SOL)
-- **Trades:** Store both SOL and USD amounts for accurate P&L calculations
+- **Decimal Precision:** All financial amounts use Prisma `Decimal` type
+- **FIFO Cost Basis:** `PositionLot` table tracks individual purchase lots for accurate P&L
+- **Indexing Strategy:** Composite indexes on `[userId, field]` patterns for query optimization
+- **Soft Relations:** Some foreign keys use string IDs for flexibility
 
 ### Component Structure
 - Use shadcn/ui components consistently
@@ -80,51 +98,54 @@ cd frontend && npm test
 
 ### Price Data Flow
 1. **Helius WebSocket** → `priceService.ts` → Redis cache
-2. **Backend WebSocket** → Price filtering → Frontend price stream
+2. **Backend WebSocket** → Price filtering → Frontend price stream  
 3. **Frontend** → Auto-subscribe to viewed tokens → UI updates
 
 ### Authentication Flow
 - Email/password OR Solana wallet signature verification
-- JWT tokens with user tier information
-- Wallet verification updates user tier and SOL balance limits
+- No JWT tokens - simple userId-based authentication
+- Wallet verification updates user tier and SOL balance limits via `checkAndUpgradeSIMHolder()`
 
 ### Trading Engine
 - All trades are virtual - no actual blockchain transactions
-- Real-time P&L calculation using current market prices
-- Position tracking with average buy price and total quantities
+- Real-time P&L calculation using current market prices from `priceService`
+- FIFO position tracking with `PositionLot` model for cost basis accuracy
 
 ## 📁 Critical Files to Understand
 
 ### Backend Core
 - `src/index.ts` - App setup and route registration
-- `src/plugins/priceService.ts` - Real-time price management
-- `src/plugins/ws.ts` - WebSocket price subscriptions
-- `prisma/schema.prisma` - Database schema with user tiers and trading models
+- `src/plugins/priceService.ts` - Real-time price management via Helius
+- `src/plugins/ws.ts` - WebSocket price subscriptions with client filtering
+- `src/services/portfolioService.ts` - P&L calculations using FIFO methodology
+- `prisma/schema.prisma` - Database schema with user tiers and FIFO trading models
 
 ### Frontend Core  
-- `lib/api.ts` - Centralized API client with type safety
-- `lib/types/backend.ts` - Shared TypeScript types
-- `components/providers.tsx` - Provider hierarchy setup
-- `lib/price-stream-provider.tsx` - Real-time price streaming
+- `lib/api.ts` - Centralized API client with complete type safety
+- `lib/types/backend.ts` - Shared TypeScript types mirroring backend exactly
+- `components/providers.tsx` - Provider hierarchy with error boundaries
+- `lib/price-stream-provider.tsx` - Real-time price streaming with auto-reconnect
 
 ### Configuration
-- `backend/.env.example` - Backend environment variables (DB, Redis, RPC endpoints)
+- `backend/.env.example` - Backend environment variables (DB, Redis, Helius endpoints)
 - `frontend/.env.local.example` - Frontend environment variables (API URL)
 
 ## 🚨 Important Notes
 
-### Environment Setup
-- Backend requires PostgreSQL, Redis, and Solana RPC/WebSocket endpoints
-- Use Helius for WebSocket price feeds (`HELIUS_RPC_URL`, `HELIUS_WS`)
-- Frontend needs `NEXT_PUBLIC_API_URL` pointing to backend
-
 ### Development Tips
-- Always run Prisma migrations in `backend/` directory
-- Use TypeScript strict mode - types are enforced end-to-end
-- WebSocket connections auto-manage subscriptions - don't manually subscribe/unsubscribe
+- Always run Prisma commands in `backend/` directory
+- Backend TypeScript uses ES modules with `.js` import extensions
+- WebSocket connections auto-manage subscriptions - avoid manual subscribe/unsubscribe
 - Virtual SOL balances are in actual SOL units, not USD equivalent
+- **Run `npm run type-check` before commits** - prevents runtime type errors
 
 ### Performance Considerations
-- Price updates are filtered by client subscriptions to reduce WebSocket traffic
+- Price updates filtered by client subscriptions to reduce WebSocket traffic
 - Redis caching for price data and token metadata
 - React Query for frontend API response caching with real-time invalidation
+- Database indexes optimized for `[userId, field]` query patterns
+
+### Deployment
+- Railway deployment via `railway.json` - builds from `backend/` directory
+- Frontend deploys separately (Vercel/Netlify pattern)
+- Database migrations run automatically in production via `prisma:migrate` script

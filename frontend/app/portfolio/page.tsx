@@ -10,24 +10,10 @@ import { PortfolioChart } from "@/components/portfolio/portfolio-chart-dynamic"
 import { Card } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { TrendingUp, History, BarChart3 } from "lucide-react"
-import { useState, useEffect } from "react"
+import { useAuth } from "@/hooks/use-auth"
 
 export default function PortfolioPage() {
-  const [userId, setUserId] = useState<string | null>(null)
-  const [walletAddress, setWalletAddress] = useState<string | null>(null)
-
-  useEffect(() => {
-    // Get userId from localStorage or auth service
-    if (typeof window !== 'undefined') {
-      const storedUserId = localStorage.getItem('userId')
-      setUserId(storedUserId)
-      
-      // TODO: Get wallet address from wallet connection
-      // For now, we'll use a placeholder
-      const storedWallet = localStorage.getItem('walletAddress')
-      setWalletAddress(storedWallet)
-    }
-  }, [])
+  const { user, isAuthenticated } = useAuth()
 
   return (
     <AuthGuard>
@@ -84,10 +70,10 @@ export default function PortfolioPage() {
             <aside className="space-y-6">
               <div className="lg:sticky lg:top-8 space-y-6">
                 {/* Rewards Card */}
-                {userId && (
+                {isAuthenticated && user && (
                   <RewardsCard 
-                    userId={userId} 
-                    walletAddress={walletAddress || undefined}
+                    userId={user.id} 
+                    walletAddress={undefined}
                   />
                 )}
                 

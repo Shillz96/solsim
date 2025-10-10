@@ -1,0 +1,463 @@
+/**
+ * User Note Model for Prisma Schema
+ * 
+ * Add this to backend/prisma/schema.prisma file
+ */
+
+model UserNote {
+  id             String    @id @default(uuid())
+  userId         String
+  tokenAddress   String    // Token mint address
+  tokenSymbol    String?
+  tokenName      String?
+  
+  // Note content
+  notes          String?   // User's notes/thoughts about the token
+  entryPrice     Decimal?  // Entry price in USD
+  entryMarketCap Decimal?  // Market cap at entry in USD
+  solAmount      Decimal?  // Invested SOL amount (if applicable)
+  targetPrice    Decimal?  // Target price in USD (if applicable)
+  
+  // Timestamps
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  
+  // Relations
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Indexes
+  @@index([userId, createdAt(sort: Desc)], name: "user_notes_recent")
+  @@index([tokenAddress, createdAt(sort: Desc)], name: "token_notes_recent")
+  @@index([userId, tokenAddress], name: "user_token_notes")
+}
+
+/**
+ * API Routes for Notes
+ * 
+ * Create this as backend/src/routes/notes.ts
+ */
+
+// Notes routes
+import { FastifyInstance } from "fastify";
+import * as noteService from "../services/noteService.js";
+import { Decimal } from "@prisma/client/runtime/library";
+
+export default async function (app: FastifyInstance) {
+  // Get user's notes (all or filtered by token)
+  app.get("/", async (req, reply) => {
+    const { userId, tokenAddress } = req.query as {
+      userId: string;
+      tokenAddress?: string;
+    };
+    
+    if (!userId) {
+      return reply.code(400).send({ error: "Missing userId parameter" });
+    }
+    
+    try {
+      const notes = await noteService.getUserNotes(userId, tokenAddress);
+      return { notes };
+    } catch (e: any) {
+      app.log.error(e);
+      return reply.code(500).send({ error: e.message || "Failed to get notes" });
+    }
+  });
+  
+  // Create a new note
+  app.post("/", async (req, reply) => {
+    const { userId, tokenAddress, notes, entryPrice, entryMarketCap, solAmount, targetPrice } = req.body as {
+      userId: string;
+      tokenAddress: string;
+      notes?: string;
+      entryPrice?: string;
+      entryMarketCap?: string;
+      solAmount?: string;
+      targetPrice?: string;
+    };
+    
+    if (!userId || !tokenAddress) {
+      return reply.code(400).send({ error: "Missing required fields" });
+    }
+    
+    try {
+      const note = await noteService.createUserNote({
+        userId,
+        tokenAddress,
+        notes,
+        entryPrice: entryPrice ? new Decimal(entryPrice) : undefined,
+        entryMarketCap: entryMarketCap ? new Decimal(entryMarketCap) : undefined,
+        solAmount: solAmount ? new Decimal(solAmount) : undefined,
+        targetPrice: targetPrice ? new Decimal(targetPrice) : undefined
+      });
+      
+      return { success: true, note };
+    } catch (e: any) {
+      app.log.error(e);
+      return reply.code(400).send({ error: e.message || "Failed to create note" });
+    }
+  });
+  
+  // Update an existing note
+  app.put("/:noteId", async (req, reply) => {
+    const { noteId } = req.params as { noteId: string };
+    const { userId, notes, entryPrice, entryMarketCap, solAmount, targetPrice } = req.body as {
+      userId: string;
+      notes?: string;
+      entryPrice?: string;
+      entryMarketCap?: string;
+      solAmount?: string;
+      targetPrice?: string;
+    };
+    
+    if (!noteId || !userId) {
+      return reply.code(400).send({ error: "Missing required fields" });
+    }
+    
+    try {
+      const note = await noteService.updateUserNote({
+        noteId,
+        userId,
+        notes,
+        entryPrice: entryPrice ? new Decimal(entryPrice) : undefined,
+        entryMarketCap: entryMarketCap ? new Decimal(entryMarketCap) : undefined,
+        solAmount: solAmount ? new Decimal(solAmount) : undefined,
+        targetPrice: targetPrice ? new Decimal(targetPrice) : undefined
+      });
+      
+      if (!note) {
+        return reply.code(404).send({ error: "Note not found or you don't have permission to update it" });
+      }
+      
+      return { success: true, note };
+    } catch (e: any) {
+      app.log.error(e);
+      return reply.code(400).send({ error: e.message || "Failed to update note" });
+    }
+  });
+  
+  // Delete a note
+  app.delete("/:noteId", async (req, reply) => {
+    const { noteId } = req.params as { noteId: string };
+    const { userId } = req.query as { userId: string };
+    
+    if (!noteId || !userId) {
+      return reply.code(400).send({ error: "Missing required fields" });
+    }
+    
+    try {
+      const success = await noteService.deleteUserNote(noteId, userId);
+      
+      if (!success) {
+        return reply.code(404).send({ error: "Note not found or you don't have permission to delete it" });
+      }
+      
+      return { success: true };
+    } catch (e: any) {
+      app.log.error(e);
+      return reply.code(400).send({ error: e.message || "Failed to delete note" });
+    }
+  });
+}
+
+/**
+ * Note Service
+ * 
+ * Create this as backend/src/services/noteService.ts
+ */
+
+import prisma from "../plugins/prisma.js";
+import { Decimal } from "@prisma/client/runtime/library";
+import priceService from "../plugins/priceService.js";
+
+/**
+ * Get user notes, optionally filtered by token address
+ */
+export async function getUserNotes(userId: string, tokenAddress?: string) {
+  const where: any = { userId };
+  
+  if (tokenAddress) {
+    where.tokenAddress = tokenAddress;
+  }
+  
+  const notes = await prisma.userNote.findMany({
+    where,
+    orderBy: { createdAt: "desc" }
+  });
+  
+  return notes;
+}
+
+/**
+ * Create a new user note
+ */
+export async function createUserNote({
+  userId,
+  tokenAddress,
+  notes,
+  entryPrice,
+  entryMarketCap,
+  solAmount,
+  targetPrice
+}: {
+  userId: string;
+  tokenAddress: string;
+  notes?: string;
+  entryPrice?: Decimal;
+  entryMarketCap?: Decimal;
+  solAmount?: Decimal;
+  targetPrice?: Decimal;
+}) {
+  // Get token metadata if not provided
+  let tokenSymbol: string | null = null;
+  let tokenName: string | null = null;
+  
+  try {
+    // Try to get token details from price service
+    const tokenDetails = await priceService.getLastTick(tokenAddress);
+    if (tokenDetails) {
+      tokenSymbol = tokenDetails.symbol || null;
+      tokenName = tokenDetails.name || null;
+    }
+    
+    // Fallback to database
+    if (!tokenSymbol || !tokenName) {
+      const token = await prisma.token.findUnique({ where: { address: tokenAddress } });
+      if (token) {
+        tokenSymbol = token.symbol;
+        tokenName = token.name;
+      }
+    }
+  } catch (error) {
+    console.error("Failed to get token metadata", error);
+    // Continue without metadata
+  }
+  
+  // Create note
+  const note = await prisma.userNote.create({
+    data: {
+      userId,
+      tokenAddress,
+      tokenSymbol,
+      tokenName,
+      notes: notes || null,
+      entryPrice: entryPrice || null,
+      entryMarketCap: entryMarketCap || null,
+      solAmount: solAmount || null,
+      targetPrice: targetPrice || null
+    }
+  });
+  
+  return note;
+}
+
+/**
+ * Update an existing note
+ */
+export async function updateUserNote({
+  noteId,
+  userId,
+  notes,
+  entryPrice,
+  entryMarketCap,
+  solAmount,
+  targetPrice
+}: {
+  noteId: string;
+  userId: string;
+  notes?: string;
+  entryPrice?: Decimal;
+  entryMarketCap?: Decimal;
+  solAmount?: Decimal;
+  targetPrice?: Decimal;
+}) {
+  // Verify user owns the note
+  const existingNote = await prisma.userNote.findFirst({
+    where: { id: noteId, userId }
+  });
+  
+  if (!existingNote) {
+    return null;
+  }
+  
+  // Update note fields
+  const updateData: any = {};
+  
+  if (notes !== undefined) updateData.notes = notes;
+  if (entryPrice !== undefined) updateData.entryPrice = entryPrice;
+  if (entryMarketCap !== undefined) updateData.entryMarketCap = entryMarketCap;
+  if (solAmount !== undefined) updateData.solAmount = solAmount;
+  if (targetPrice !== undefined) updateData.targetPrice = targetPrice;
+  
+  const updatedNote = await prisma.userNote.update({
+    where: { id: noteId },
+    data: updateData
+  });
+  
+  return updatedNote;
+}
+
+/**
+ * Delete a user note
+ */
+export async function deleteUserNote(noteId: string, userId: string): Promise<boolean> {
+  // Verify user owns the note
+  const existingNote = await prisma.userNote.findFirst({
+    where: { id: noteId, userId }
+  });
+  
+  if (!existingNote) {
+    return false;
+  }
+  
+  await prisma.userNote.delete({
+    where: { id: noteId }
+  });
+  
+  return true;
+}
+
+/**
+ * Update to index.ts
+ * 
+ * Add this to backend/src/index.ts after the other routes
+ */
+
+import notesRoutes from "./routes/notes.js";
+// ...other imports...
+
+// Register routes
+// ...existing route registrations...
+app.register(notesRoutes, { prefix: "/api/notes" });
+
+/**
+ * OpenAPI Specification for Notes API
+ * 
+ * Add this to openapi.yaml
+ */
+
+  /api/notes:
+    get:
+      summary: Get user notes
+      parameters:
+        - name: userId
+          in: query
+          required: true
+          schema: { type: string }
+        - name: tokenAddress
+          in: query
+          required: false
+          schema: { type: string }
+      responses:
+        "200":
+          description: User's notes
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  notes:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/UserNote'
+                      
+    post:
+      summary: Create a new note
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [userId, tokenAddress]
+              properties:
+                userId: { type: string }
+                tokenAddress: { type: string }
+                notes: { type: string }
+                entryPrice: { type: string }
+                entryMarketCap: { type: string }
+                solAmount: { type: string }
+                targetPrice: { type: string }
+      responses:
+        "200":
+          description: Note created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  note:
+                    $ref: '#/components/schemas/UserNote'
+                    
+  /api/notes/{noteId}:
+    put:
+      summary: Update a note
+      parameters:
+        - name: noteId
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [userId]
+              properties:
+                userId: { type: string }
+                notes: { type: string }
+                entryPrice: { type: string }
+                entryMarketCap: { type: string }
+                solAmount: { type: string }
+                targetPrice: { type: string }
+      responses:
+        "200":
+          description: Note updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  note:
+                    $ref: '#/components/schemas/UserNote'
+                    
+    delete:
+      summary: Delete a note
+      parameters:
+        - name: noteId
+          in: path
+          required: true
+          schema: { type: string }
+        - name: userId
+          in: query
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Note deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+
+components:
+  schemas:
+    UserNote:
+      type: object
+      properties:
+        id: { type: string }
+        userId: { type: string }
+        tokenAddress: { type: string }
+        tokenSymbol: { type: string, nullable: true }
+        tokenName: { type: string, nullable: true }
+        notes: { type: string, nullable: true }
+        entryPrice: { type: string, nullable: true }
+        entryMarketCap: { type: string, nullable: true }
+        solAmount: { type: string, nullable: true }
+        targetPrice: { type: string, nullable: true }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }

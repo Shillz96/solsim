@@ -20,8 +20,7 @@ import { useAuth } from "@/hooks/use-auth"
 interface EnhancedPosition extends Backend.PortfolioPosition {
   tokenSymbol?: string;
   tokenName?: string;
-  tokenImage?: string | null;
-  tokenImageUrl?: string;
+  tokenImage?: string | null;  // Consistent field name
   currentPrice?: number;
 }
 
@@ -103,7 +102,9 @@ export function ActivePositions() {
     
     return portfolio.positions.map(position => {
       const livePrice = livePrices.get(position.mint)
-      const currentPrice = livePrice || parseFloat(position.valueUsd) / parseFloat(position.qty)
+      const positionValue = parseFloat(position.valueUsd)
+      const positionQty = parseFloat(position.qty)
+      const currentPrice = livePrice?.price || (positionQty > 0 ? positionValue / positionQty : 0)
       const metadata = metadataMap.get(position.mint)
       
       return {

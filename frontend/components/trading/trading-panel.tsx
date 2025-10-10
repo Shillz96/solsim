@@ -43,7 +43,7 @@ export function TradingPanel({ tokenAddress: propTokenAddress }: TradingPanelPro
   const tokenAddress = propTokenAddress || searchParams.get("token") || defaultTokenAddress
 
   const { user, isAuthenticated, getUserId } = useAuth()
-  const [portfolio, setPortfolio] = useState<any>(null)
+  const [portfolio, setPortfolio] = useState<Backend.PortfolioResponse | null>(null)
   const [portfolioLoading, setPortfolioLoading] = useState(false)
   const [portfolioError, setPortfolioError] = useState<string | null>(null)
   const [userBalance, setUserBalance] = useState<number>(0)
@@ -106,10 +106,47 @@ export function TradingPanel({ tokenAddress: propTokenAddress }: TradingPanelPro
         side: 'BUY',
         qty: amount.toString()
       })
-      await refreshPortfolio()
+      
+      // Update local state immediately with the response
+      if (result.success) {
+        // Update portfolio state
+        await refreshPortfolio()
+        
+        // Show success toast with trade details
+        toast({
+          title: "Trade Executed Successfully! 🎉",
+          description: `Bought ${parseFloat(result.trade.quantity).toFixed(4)} tokens for ${parseFloat(result.trade.totalCost).toFixed(4)} SOL`,
+          duration: 5000,
+        })
+        
+        // Show reward points earned
+        if (parseFloat(result.rewardPointsEarned) > 0) {
+          toast({
+            title: "Reward Points Earned! ⭐",
+            description: `+${parseFloat(result.rewardPointsEarned).toFixed(2)} points`,
+            duration: 3000,
+          })
+        }
+        
+        setLastTradeSuccess(true)
+        setTimeout(() => setLastTradeSuccess(false), 3000)
+        
+        // Reset form
+        setSelectedSolAmount(null)
+        setCustomSolAmount("")
+        setShowCustomInput(false)
+      }
+      
       return result
     } catch (err) {
-      setTradeError((err as Error).message)
+      const errorMessage = (err as Error).message
+      setTradeError(errorMessage)
+      toast({
+        title: "Trade Failed",
+        description: errorMessage,
+        variant: "destructive",
+        duration: 5000,
+      })
       throw err
     } finally {
       setIsTrading(false)
@@ -129,10 +166,51 @@ export function TradingPanel({ tokenAddress: propTokenAddress }: TradingPanelPro
         side: 'SELL',
         qty: amount.toString()
       })
-      await refreshPortfolio()
+      
+      // Update local state immediately with the response
+      if (result.success) {
+        // Update portfolio state
+        await refreshPortfolio()
+        
+        // Calculate realized PnL for display
+        const realizedPnL = parseFloat(result.trade.totalCost) - parseFloat(result.trade.costUsd || '0')
+        const pnlText = realizedPnL > 0 ? `+$${realizedPnL.toFixed(2)}` : `$${realizedPnL.toFixed(2)}`
+        
+        // Show success toast with trade details
+        toast({
+          title: "Trade Executed Successfully! 💰",
+          description: `Sold ${parseFloat(result.trade.quantity).toFixed(4)} tokens for ${parseFloat(result.trade.totalCost).toFixed(4)} SOL (${pnlText})`,
+          duration: 5000,
+        })
+        
+        // Show reward points earned
+        if (parseFloat(result.rewardPointsEarned) > 0) {
+          toast({
+            title: "Reward Points Earned! ⭐",
+            description: `+${parseFloat(result.rewardPointsEarned).toFixed(2)} points`,
+            duration: 3000,
+          })
+        }
+        
+        setLastTradeSuccess(true)
+        setTimeout(() => setLastTradeSuccess(false), 3000)
+        
+        // Reset form
+        setSelectedPercentage(null)
+        setCustomSolAmount("")
+        setShowCustomInput(false)
+      }
+      
       return result
     } catch (err) {
-      setTradeError((err as Error).message)
+      const errorMessage = (err as Error).message
+      setTradeError(errorMessage)
+      toast({
+        title: "Trade Failed",
+        description: errorMessage,
+        variant: "destructive",
+        duration: 5000,
+      })
       throw err
     } finally {
       setIsTrading(false)
@@ -157,7 +235,7 @@ export function TradingPanel({ tokenAddress: propTokenAddress }: TradingPanelPro
   const presetSolAmounts = [1, 5, 10, 20]
   const sellPercentages = [25, 50, 75, 100]
 
-  // Load token details - separate from portfolio handling to prevent loops
+  // Load token details - use proper token details API
   const loadTokenDetails = useCallback(async (isRefresh = false) => {
     if (!tokenAddress) return
 
@@ -168,13 +246,12 @@ export function TradingPanel({ tokenAddress: propTokenAddress }: TradingPanelPro
     }
     
     try {
-      // For now, use trending to find token (token details not in new API yet)
-      const trending = await api.getTrendingTokens()
-      const token = trending.find(t => t.address === tokenAddress)
+      // Use the proper token details API
+      const token = await api.getTokenDetails(tokenAddress)
       
       if (token) {
         setTokenDetails({
-          tokenAddress: token.address,
+          tokenAddress: token.address || token.mint || tokenAddress,
           tokenSymbol: token.symbol,
           tokenName: token.name,
           price: parseFloat(token.lastPrice || '0'),
@@ -182,11 +259,11 @@ export function TradingPanel({ tokenAddress: propTokenAddress }: TradingPanelPro
           priceChangePercent24h: parseFloat(token.priceChange24h || '0'),
           volume24h: parseFloat(token.volume24h || '0'),
           marketCap: parseFloat(token.marketCapUsd || '0'),
-          imageUrl: token.imageUrl,
-          lastUpdated: new Date().toISOString()
+          imageUrl: token.imageUrl || token.logoURI || null,
+          lastUpdated: token.lastTs || new Date().toISOString()
         })
       } else {
-        throw new Error('Token not found in trending list')
+        throw new Error('Token not found')
       }
     } catch (error) {
       import('@/lib/error-logger').then(({ errorLogger }) => {
@@ -201,7 +278,7 @@ export function TradingPanel({ tokenAddress: propTokenAddress }: TradingPanelPro
       })
       toast({
         title: "Error",
-        description: "Failed to load token information",
+        description: "Failed to load token information. Please try again.",
         variant: "destructive"
       })
     } finally {
@@ -213,10 +290,10 @@ export function TradingPanel({ tokenAddress: propTokenAddress }: TradingPanelPro
   // Handle portfolio position finding - separate effect
   useEffect(() => {
     if (portfolio?.positions && Array.isArray(portfolio.positions)) {
-      const holding = portfolio.positions.find((p: any) => 
-        p?.tokenAddress === tokenAddress && 
-        p?.quantity && 
-        parseFloat(p.quantity) > 0
+      const holding = portfolio.positions.find((p: Backend.PortfolioPosition) => 
+        p?.mint === tokenAddress && 
+        p?.qty && 
+        parseFloat(p.qty) > 0
       ) || null
       
       setTokenHolding(holding)
@@ -300,7 +377,7 @@ export function TradingPanel({ tokenAddress: propTokenAddress }: TradingPanelPro
         return
       }
 
-      const holdingQuantity = parseFloat(tokenHolding.quantity)
+      const holdingQuantity = parseFloat(tokenHolding.qty)
       if (isNaN(holdingQuantity) || holdingQuantity <= 0) {
         toast({
           title: "Invalid Holdings",
@@ -311,7 +388,7 @@ export function TradingPanel({ tokenAddress: propTokenAddress }: TradingPanelPro
       }
 
       const sellQuantity = (holdingQuantity * selectedPercentage) / 100
-      amountSol = sellQuantity * parseFloat(tokenDetails.price.toString()) / 1e9 // Convert to SOL
+      amountSol = sellQuantity * tokenDetails.price // Sell quantity in USD
       
       import('@/lib/error-logger').then(({ errorLogger }) => {
         errorLogger.info('Sell calculation performed', {
@@ -414,9 +491,9 @@ export function TradingPanel({ tokenAddress: propTokenAddress }: TradingPanelPro
 
   // Get current price - use live WebSocket price if available, otherwise fall back to static price
   const livePrice = livePrices.get(tokenAddress)
-  const currentPrice = livePrice ? livePrice.price : (tokenDetails.price ? parseFloat(tokenDetails.price.toString()) / 1e9 : 0)
+  const currentPrice = livePrice ? livePrice.price : (tokenDetails.price || 0)
   const balance = userBalance
-  const tokenBalance = tokenHolding ? parseFloat(tokenHolding.quantity) : 0
+  const tokenBalance = tokenHolding ? parseFloat(tokenHolding.qty) : 0
 
   return (
     <Card className="trading-card p-6 space-y-6 border border-border rounded-none shadow-none">
@@ -471,7 +548,7 @@ export function TradingPanel({ tokenAddress: propTokenAddress }: TradingPanelPro
         </div>
         {tokenHolding && (
           <div className="text-sm text-muted-foreground">
-            Holdings: {parseFloat(tokenHolding.quantity).toLocaleString()} {tokenDetails.tokenSymbol}
+            Holdings: {parseFloat(tokenHolding.qty).toLocaleString()} {tokenDetails.tokenSymbol}
           </div>
         )}
       </div>
@@ -613,7 +690,7 @@ export function TradingPanel({ tokenAddress: propTokenAddress }: TradingPanelPro
         </TabsContent>
 
         <TabsContent value="sell" className="space-y-4 mt-4">
-          {!tokenHolding || parseFloat(tokenHolding.quantity || '0') <= 0 ? (
+          {!tokenHolding || parseFloat(tokenHolding.qty || '0') <= 0 ? (
             <div className="space-y-3">
               <Alert>
                 <AlertCircle className="h-4 w-4" />
@@ -657,14 +734,12 @@ export function TradingPanel({ tokenAddress: propTokenAddress }: TradingPanelPro
                   </Button>
                 </div>
                 <div className="font-mono text-lg font-semibold mb-2">
-                  {parseFloat(tokenHolding.quantity).toLocaleString(undefined, { maximumFractionDigits: 6 })} {tokenDetails?.tokenSymbol || 'tokens'}
+                  {parseFloat(tokenHolding.qty).toLocaleString(undefined, { maximumFractionDigits: 6 })} {tokenDetails?.tokenSymbol || 'tokens'}
                 </div>
-                {tokenHolding.pnl?.sol?.absolute && (
-                  <div className={`text-sm ${parseFloat(tokenHolding.pnl.sol.absolute) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                    {parseFloat(tokenHolding.pnl.sol.absolute) >= 0 ? '+' : ''}{parseFloat(tokenHolding.pnl.sol.absolute).toFixed(4)} SOL 
-                    ({tokenHolding.pnl.sol.percent >= 0 ? '+' : ''}{tokenHolding.pnl.sol.percent.toFixed(2)}%)
-                  </div>
-                )}
+                <div className={`text-sm ${parseFloat(tokenHolding.unrealizedUsd) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                  {parseFloat(tokenHolding.unrealizedUsd) >= 0 ? '+' : ''}${parseFloat(tokenHolding.unrealizedUsd).toFixed(2)} USD 
+                  ({parseFloat(tokenHolding.unrealizedPercent) >= 0 ? '+' : ''}{parseFloat(tokenHolding.unrealizedPercent).toFixed(2)}%)
+                </div>
               </div>
               <div className="space-y-4">
                 <Label className="text-sm font-bold">Amount (% of holdings)</Label>
@@ -720,8 +795,8 @@ export function TradingPanel({ tokenAddress: propTokenAddress }: TradingPanelPro
                 </div>
                 {tokenHolding && (
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Entry Price</span>
-                    <span className="font-mono">${parseFloat(tokenHolding.entryPrice).toFixed(8)}</span>
+                    <span className="text-muted-foreground">Avg. Cost</span>
+                    <span className="font-mono">${parseFloat(tokenHolding.avgCostUsd).toFixed(8)}</span>
                   </div>
                 )}
               </div>

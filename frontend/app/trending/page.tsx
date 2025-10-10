@@ -14,7 +14,7 @@ import type * as Backend from "@/lib/types/backend"
 import { useTrendingTokens } from "@/hooks/use-react-query-hooks"
 
 type TimeRange = "5m" | "1h" | "6h" | "24h"
-// Use the backend TrendingTokenResponse type
+// Use the backend TrendingToken type
 
 function MiniSparkline({ data, isPositive }: { data?: number[]; isPositive: boolean }) {
   if (!data || data.length === 0) {
@@ -154,7 +154,7 @@ export default function TrendingPage() {
                 </thead>
                 <tbody>
                   {filteredTokens.map((token, index) => (
-                    <tr key={token.address} className="border-b border-border hover:bg-muted/20 transition-colors">
+                    <tr key={token.mint} className="border-b border-border hover:bg-muted/20 transition-colors">
                       {/* Rank */}
                       <td className="p-4">
                         <span className="text-sm font-medium text-muted-foreground">{index + 1}</span>
@@ -163,11 +163,11 @@ export default function TrendingPage() {
                       {/* Token Info */}
                       <td className="p-4">
                         <Link
-                          href={`/trade?token=${token.address}`}
+                          href={`/trade?token=${token.mint}`}
                           className="flex items-center gap-3 hover:opacity-80 transition-opacity"
                         >
                           <Image
-                            src={token.imageUrl || "/placeholder-token.svg"}
+                            src={token.logoURI || "/placeholder-token.svg"}
                             alt={token.name || 'Unknown Token'}
                             width={32}
                             height={32}
@@ -186,7 +186,7 @@ export default function TrendingPage() {
                       {/* Price */}
                       <td className="p-4">
                         <div className="text-sm font-medium">
-                          ${(parseFloat(token.lastPrice || '0')) < 0.001 ? parseFloat(token.lastPrice || '0').toExponential(2) : parseFloat(token.lastPrice || '0').toFixed(4)}
+                          ${token.priceUsd < 0.001 ? token.priceUsd.toExponential(2) : token.priceUsd.toFixed(4)}
                         </div>
                       </td>
 
@@ -194,42 +194,45 @@ export default function TrendingPage() {
                       <td className="p-4">
                         <div
                           className={`text-sm font-medium ${
-                            (parseFloat(token.priceChange24h || '0')) >= 0 ? "text-green-600" : "text-red-600"
+                            token.priceChange24h >= 0 ? "text-green-600" : "text-red-600"
                           }`}
                         >
-                          {parseFloat(token.priceChange24h || '0') >= 0 ? "+" : ""}
-                          {parseFloat(token.priceChange24h || '0').toFixed(2)}%
+                          {token.priceChange24h >= 0 ? "+" : ""}
+                          {token.priceChange24h.toFixed(2)}%
                         </div>
                       </td>
 
                       {/* Market Cap */}
                       <td className="p-4">
                         <div className="text-sm font-medium">
-                          ${parseFloat(token.marketCapUsd || '0') > 1000000 
-                            ? `${(parseFloat(token.marketCapUsd || '0') / 1000000).toFixed(1)}M` 
-                            : `${(parseFloat(token.marketCapUsd || '0') / 1000).toFixed(0)}K`}
+                          ${token.marketCapUsd && token.marketCapUsd > 1000000 
+                            ? `${(token.marketCapUsd / 1000000).toFixed(1)}M` 
+                            : token.marketCapUsd 
+                              ? `${(token.marketCapUsd / 1000).toFixed(0)}K`
+                              : 'N/A'}
                         </div>
                       </td>
 
                       {/* Volume */}
                       <td className="p-4">
                         <div className="text-sm">
-                          ${parseFloat(token.volume24h || '0') > 1000000 
-                            ? `${(parseFloat(token.volume24h || '0') / 1000000).toFixed(1)}M` 
-                            : `${(parseFloat(token.volume24h || '0') / 1000).toFixed(0)}K`}
+                          ${token.volume24h > 1000000 
+                            ? `${(token.volume24h / 1000000).toFixed(1)}M` 
+                            : `${(token.volume24h / 1000).toFixed(0)}K`}
                         </div>
                       </td>
 
                       {/* Trend Score */}
                       <td className="p-4">
                         <Badge variant="secondary" className="text-xs">
-                          {parseFloat(token.momentumScore || '0').toFixed(1)}
+                          {/* Use a calculated trend score since momentumScore doesn't exist in backend type */}
+                          {Math.abs(token.priceChange24h).toFixed(1)}
                         </Badge>
                       </td>
 
                       {/* Action */}
                       <td className="p-4 text-right">
-                        <Link href={`/trade?token=${token.address}`}>
+                        <Link href={`/trade?token=${token.mint}`}>
                           <Button size="sm" variant="outline">
                             Trade
                           </Button>

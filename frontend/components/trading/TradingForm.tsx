@@ -89,7 +89,17 @@ export function TradingForm({
       // Reset form on successful submission
       setAmount('');
     } catch (error) {
-      console.error('Error submitting trade:', error);
+      import('@/lib/error-logger').then(({ errorLogger }) => {
+        errorLogger.error('Trade submission failed', {
+          error: error as Error,
+          action: 'trade_submit_failed',
+          metadata: { 
+            tokenId: token.id,
+            tradeType,
+            amount: amountValue
+          }
+        })
+      })
     } finally {
       setIsLoading(false);
     }

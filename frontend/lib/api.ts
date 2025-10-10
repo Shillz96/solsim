@@ -2,6 +2,13 @@
 // Maps to openapi.yaml contract from backend
 
 import type * as Backend from './types/backend';
+import type {
+  UserNote,
+  CreateNoteRequest,
+  UpdateNoteRequest,
+  NoteResponse,
+  DeleteNoteResponse,
+} from './types/notes';
 
 const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
@@ -10,7 +17,8 @@ export type {
   TradeRequest,
   TradeResponse,
   LeaderboardEntry,
-  TrendingTokenResponse as TrendingToken,
+  TrendingToken,
+  TrendingTokenResponse,
   EnrichedTrade as TradeHistoryItem,
   TradesResponse,
   TradeStats,
@@ -38,7 +46,14 @@ export type {
   User,
   PortfolioPosition,
   PortfolioResponse,
-  Token
+  Token,
+  // Note types from notes.ts
+  UserNote,
+  CreateNoteRequest,
+  UpdateNoteRequest,
+  NotesResponse,
+  NoteResponse,
+  DeleteNoteResponse
 } from './types/backend';
 
 // All types are now imported from ./types/backend
@@ -85,10 +100,64 @@ export async function getPortfolio(userId: string): Promise<Backend.PortfolioRes
 }
 
 /**
+ * Get user portfolio with real-time price updates
+ * GET /api/portfolio/realtime?userId={userId}
+ */
+export async function getPortfolioRealtime(userId: string): Promise<Backend.PortfolioResponse> {
+  const response = await fetch(`${API}/api/portfolio/realtime?userId=${encodeURIComponent(userId)}`, {
+    method: 'GET',
+    headers: { 'Content-Type': 'application/json' },
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ message: 'Failed to fetch real-time portfolio' }));
+    throw new Error(error.message || `HTTP ${response.status}`);
+  }
+
+  return response.json();
+}
+
+/**
+ * Get trading statistics for a user
+ * GET /api/portfolio/stats?userId={userId}
+ */
+export async function getPortfolioStats(userId: string): Promise<Backend.TradingStats> {
+  const response = await fetch(`${API}/api/portfolio/stats?userId=${encodeURIComponent(userId)}`, {
+    method: 'GET',
+    headers: { 'Content-Type': 'application/json' },
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ message: 'Failed to fetch portfolio stats' }));
+    throw new Error(error.message || `HTTP ${response.status}`);
+  }
+
+  return response.json();
+}
+
+/**
+ * Get portfolio performance over time
+ * GET /api/portfolio/performance?userId={userId}&days={days}
+ */
+export async function getPortfolioPerformance(userId: string, days: number = 30): Promise<Backend.PortfolioPerformanceResponse> {
+  const response = await fetch(`${API}/api/portfolio/performance?userId=${encodeURIComponent(userId)}&days=${days}`, {
+    method: 'GET',
+    headers: { 'Content-Type': 'application/json' },
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ message: 'Failed to fetch portfolio performance' }));
+    throw new Error(error.message || `HTTP ${response.status}`);
+  }
+
+  return response.json();
+}
+
+/**
  * Get trending tokens
  * GET /api/trending
  */
-export async function getTrendingTokens(): Promise<Backend.TrendingTokenResponse[]> {
+export async function getTrendingTokens(): Promise<Backend.TrendingToken[]> {
   const response = await fetch(`${API}/api/trending`, {
     method: 'GET',
     headers: { 'Content-Type': 'application/json' },
@@ -115,6 +184,103 @@ export async function getTokenDetails(mint: string): Promise<Backend.Token> {
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({ message: 'Failed to fetch token details' }));
+    throw new Error(error.message || `HTTP ${response.status}`);
+  }
+  
+  const data = await response.json();
+  
+  // Map backend fields to the expected frontend fields
+  return {
+    ...data,
+    address: data.mint || data.address,
+    imageUrl: data.logoURI || data.imageUrl, // Map logoURI to imageUrl
+    price: data.price || Number(data.lastPrice) || 0,
+    isNew: data.isNew || false,
+    isTrending: data.isTrending || false,
+  };
+}
+
+/**
+ * Get user notes for a specific token or all tokens
+ * GET /api/notes?userId={userId}&tokenAddress={tokenAddress}
+ */
+export async function getUserNotes(userId: string, tokenAddress?: string): Promise<UserNote[]> {
+  const params = new URLSearchParams({
+    userId
+  });
+  
+  if (tokenAddress) {
+    params.append('tokenAddress', tokenAddress);
+  }
+  
+  const response = await fetch(`${API}/api/notes?${params.toString()}`, {
+    method: 'GET',
+    headers: { 'Content-Type': 'application/json' },
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ message: 'Failed to fetch notes' }));
+    throw new Error(error.message || `HTTP ${response.status}`);
+  }
+
+  const data = await response.json();
+  return data.notes;
+}
+
+/**
+ * Create a new note
+ * POST /api/notes
+ */
+export async function createNote(request: CreateNoteRequest): Promise<NoteResponse> {
+  const response = await fetch(`${API}/api/notes`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(request),
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ message: 'Failed to create note' }));
+    throw new Error(error.message || `HTTP ${response.status}`);
+  }
+
+  return response.json();
+}
+
+/**
+ * Update an existing note
+ * PUT /api/notes/{noteId}
+ */
+export async function updateNote(noteId: string, request: UpdateNoteRequest): Promise<NoteResponse> {
+  const response = await fetch(`${API}/api/notes/${encodeURIComponent(noteId)}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(request),
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ message: 'Failed to update note' }));
+    throw new Error(error.message || `HTTP ${response.status}`);
+  }
+
+  return response.json();
+}
+
+/**
+ * Delete a note
+ * DELETE /api/notes/{noteId}?userId={userId}
+ */
+export async function deleteNote(noteId: string, userId: string): Promise<DeleteNoteResponse> {
+  const params = new URLSearchParams({
+    userId
+  });
+  
+  const response = await fetch(`${API}/api/notes/${encodeURIComponent(noteId)}?${params.toString()}`, {
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json' },
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ message: 'Failed to delete note' }));
     throw new Error(error.message || `HTTP ${response.status}`);
   }
 
@@ -144,10 +310,10 @@ export async function searchTokens(query: string, limit: number = 20): Promise<B
   // Transform backend response to include convenience fields
   return (data.results || []).map((token: any) => ({
     ...token,
-    address: token.mint,
-    imageUrl: token.logoURI,
-    price: token.priceUsd,
-    lastPrice: token.priceUsd?.toString() || null,
+    address: token.mint || token.address,
+    imageUrl: token.logoURI || token.imageUrl,
+    price: token.priceUsd || token.price || 0,
+    lastPrice: token.priceUsd?.toString() || token.price?.toString() || null,
   }));
 }
 
@@ -173,7 +339,7 @@ export async function getLeaderboard(limit: number = 50): Promise<Backend.Leader
  * Get trending tokens
  * GET /api/trending
  */
-export async function getTrending(): Promise<Backend.TrendingTokenResponse[]> {
+export async function getTrending(): Promise<Backend.TrendingToken[]> {
   const response = await fetch(`${API}/api/trending`, {
     method: 'GET',
     headers: { 'Content-Type': 'application/json' },
@@ -184,7 +350,8 @@ export async function getTrending(): Promise<Backend.TrendingTokenResponse[]> {
     throw new Error(error.message || `HTTP ${response.status}`);
   }
 
-  return response.json();
+  const data = await response.json();
+  return data.items; // Backend returns { items: TrendingToken[] }
 }
 
 /**
@@ -587,6 +754,9 @@ export async function getWalletStats(userId: string): Promise<Backend.WalletStat
 export default {
   trade,
   getPortfolio,
+  getPortfolioRealtime,
+  getPortfolioStats,
+  getPortfolioPerformance,
   getLeaderboard,
   getTrendingTokens,
   getTokenDetails,

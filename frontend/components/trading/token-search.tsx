@@ -39,7 +39,13 @@ export function TokenSearch() {
       setResults(searchResults)
       setShowResults(true)
     } catch (error) {
-      console.error('Token search failed:', error)
+      import('@/lib/error-logger').then(({ errorLogger }) => {
+        errorLogger.error('Token search failed', {
+          error: error as Error,
+          action: 'token_search_failed',
+          metadata: { searchQuery }
+        })
+      })
       setResults([])
     } finally {
       setIsSearching(false)
@@ -94,12 +100,12 @@ export function TokenSearch() {
                 key={token.address}
                 variant="ghost"
                 className="w-full justify-start h-auto p-3"
-                onClick={() => handleTokenSelect(token.address)}
+                onClick={() => token.address && handleTokenSelect(token.address)}
               >
                 <div className="flex items-center gap-3 w-full">
-                  {token.imageUrl && (
+                  {(token.imageUrl || token.logoURI) && (
                     <img 
-                      src={token.imageUrl} 
+                      src={token.imageUrl || token.logoURI || ''} 
                       alt={`${token.symbol || token.name || 'Token'} logo`}
                       className="w-8 h-8 rounded-full"
                       loading="lazy"

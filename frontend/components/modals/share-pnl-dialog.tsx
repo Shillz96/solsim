@@ -142,7 +142,7 @@ export function SharePnLDialog({ totalPnL, totalPnLPercent, currentValue, initia
                 } border-2 rounded-lg p-4 mb-6`}
               >
                 <div className="text-4xl font-bold font-mono text-white">
-                  {totalPnL > 0 ? "+" : ""}${Math.abs(totalPnL * 150).toFixed(2)}K
+                  {totalPnL > 0 ? "+" : ""}${Math.abs(totalPnL).toFixed(2)}
                 </div>
               </div>
 
@@ -157,11 +157,11 @@ export function SharePnLDialog({ totalPnL, totalPnLPercent, currentValue, initia
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-primary text-sm font-semibold">Invested</span>
-                  <span className="text-sm font-mono text-white">${(initialBalance * 150).toFixed(2)}K</span>
+                  <span className="text-sm font-mono text-white">${initialBalance.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-primary text-sm font-semibold">Position</span>
-                  <span className="text-sm font-mono text-white">${(currentValue * 150).toFixed(2)}K</span>
+                  <span className="text-sm font-mono text-white">${currentValue.toFixed(2)}</span>
                 </div>
               </div>
 

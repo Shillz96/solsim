@@ -10,7 +10,6 @@ import { Button } from "@/components/ui/button"
 import { AnimatedNumber, Sparkline } from "@/components/ui/animated-number"
 import { TokenImage } from "@/components/ui/token-image"
 // Use backend types and hooks
-import type * as Backend from "@/lib/types/backend"
 import { useTrendingTokens } from "@/hooks/use-react-query-hooks"
 
 export function EnhancedTrendingList() {
@@ -62,7 +61,7 @@ export function EnhancedTrendingList() {
       <div className={`space-y-2 transition-opacity ${isRefreshing ? 'opacity-70' : 'opacity-100'}`}>
         {trendingTokens?.map((token, index) => (
         <motion.div
-          key={token.address}
+          key={token.mint}
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.3, delay: index * 0.1 }}
@@ -74,7 +73,7 @@ export function EnhancedTrendingList() {
           >
           <div className="flex items-start gap-3">
             <TokenImage 
-              src={token.imageUrl} 
+              src={token.logoURI} 
               alt={token.name || 'Unknown Token'} 
               size={40}
               className="flex-shrink-0" 
@@ -84,7 +83,7 @@ export function EnhancedTrendingList() {
               <div className="flex items-center gap-2">
                 <span className="font-semibold text-foreground">{token.symbol || 'N/A'}</span>
                 {(() => {
-                  const change = parseFloat(token.priceChange24h || '0') || 0;
+                  const change = parseFloat(token.priceChange24h?.toString() || '0') || 0;
                   // Add threshold to prevent flickering on near-zero values
                   if (change > 0.01) {
                     return <TrendingUp className="h-3 w-3 text-green-600" />;
@@ -100,18 +99,18 @@ export function EnhancedTrendingList() {
 
             <div className="text-right flex-shrink-0 space-y-1">
               <AnimatedNumber
-                value={parseFloat(token.lastPrice || '0')}
+                value={token.priceUsd}
                 prefix="$"
-                decimals={parseFloat(token.lastPrice || '0') < 0.001 ? 6 : 4}
+                decimals={token.priceUsd < 0.001 ? 6 : 4}
                 className="font-mono text-sm font-semibold text-foreground"
                 formatLarge={false}
                 glowOnChange={true}
               />
               <div className="flex items-center gap-1">
                 <AnimatedNumber
-                  value={parseFloat(token.priceChange24h || '0')}
+                  value={token.priceChange24h}
                   suffix="%"
-                  prefix={parseFloat(token.priceChange24h || '0') > 0.01 ? "+" : ""}
+                  prefix={token.priceChange24h > 0.01 ? "+" : ""}
                   decimals={2}
                   className="text-xs font-medium"
                   colorize={true}
@@ -123,9 +122,9 @@ export function EnhancedTrendingList() {
                   width={30}
                   height={12}
                   color={
-                    parseFloat(token.priceChange24h || '0') > 0.01 
+                    token.priceChange24h > 0.01 
                       ? "var(--chart-3)" 
-                      : parseFloat(token.priceChange24h || '0') < -0.01
+                      : token.priceChange24h < -0.01
                       ? "var(--destructive)"
                       : "var(--muted-foreground)"
                   }

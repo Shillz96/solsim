@@ -92,17 +92,24 @@ export function usePriceStream(options: UsePriceStreamOptions = {}): PriceStream
           const message = JSON.parse(event.data)
           
           if (message.type === 'price_update') {
-            const { tokenAddress, price, change24h, timestamp } = message
-            setPrices(prev => {
-              const existing = prev.get(tokenAddress)
-              // Only update if price actually changed - prevents unnecessary re-renders
-              if (existing?.price === price && existing?.change24h === change24h) {
-                return prev
-              }
-              const newMap = new Map(prev)
-              newMap.set(tokenAddress, { price, change24h, timestamp })
-              return newMap
-            })
+            // Handle both new and legacy message formats
+            const tokenAddress = message.tokenAddress || message.data?.mint
+            const price = message.price || message.data?.priceUsd
+            const change24h = message.change24h || 0
+            const timestamp = message.timestamp || message.data?.timestamp || Date.now()
+            
+            if (tokenAddress && price !== undefined) {
+              setPrices(prev => {
+                const existing = prev.get(tokenAddress)
+                // Only update if price actually changed - prevents unnecessary re-renders
+                if (existing?.price === price && existing?.change24h === change24h) {
+                  return prev
+                }
+                const newMap = new Map(prev)
+                newMap.set(tokenAddress, { price, change24h, timestamp })
+                return newMap
+              })
+            }
           }
           else if (message.type === 'price_batch') {
             const updates = message.updates
@@ -111,13 +118,15 @@ export function usePriceStream(options: UsePriceStreamOptions = {}): PriceStream
               const newPrices = new Map(prev)
               
               updates.forEach((update: any) => {
-                const existing = newPrices.get(update.tokenAddress)
+                const tokenAddress = update.tokenAddress || update.mint
+                const price = update.price || update.priceUsd
+                const existing = newPrices.get(tokenAddress)
                 // Only update if values changed
-                if (existing?.price !== update.price || existing?.change24h !== update.change24h) {
-                  newPrices.set(update.tokenAddress, {
-                    price: update.price,
-                    change24h: update.change24h,
-                    timestamp: update.timestamp
+                if (existing?.price !== price || existing?.change24h !== update.change24h) {
+                  newPrices.set(tokenAddress, {
+                    price: price,
+                    change24h: update.change24h || 0,
+                    timestamp: update.timestamp || Date.now()
                   })
                   hasChanges = true
                 }

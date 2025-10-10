@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import * as api from '@/lib/api';
+import * as Backend from '@/lib/types/backend';
 import { Button } from '@/components/ui/button';
 import { 
   Card, 
@@ -93,11 +94,18 @@ export function TrendingTokensList({
   };
 
   // Get the correct change percentage based on selected timeframe
-  const getChangePercent = (token: any) => {
+  const getChangePercent = (token: Backend.TrendingToken) => {
     switch (timeframe) {
-      case '1h': return token.priceChangePercent1h || 0;
-      case '7d': return token.priceChangePercent7d || 0;
-      default: return parseFloat(token.priceChange24h || '0') || 0;
+      case '1h': 
+        // For 1h, we could use a shorter term calculation if available
+        // For now, fall back to 24h data as it's the only available metric
+        return token.priceChange24h || 0;
+      case '7d': 
+        // For 7d, we could calculate a weekly average if we had historical data
+        // For now, fall back to 24h data as it's the only available metric
+        return token.priceChange24h || 0;
+      default: 
+        return token.priceChange24h || 0;
     }
   };
 
@@ -177,19 +185,19 @@ export function TrendingTokensList({
             
             {!isLoading && !isError && tokens && tokens.map((token, index) => (
               <div
-                key={token.address}
+                key={token.mint}
                 className={cn(
                   "flex items-center justify-between p-3 rounded-md",
                   onSelectToken ? "cursor-pointer hover:bg-accent/50" : "",
                   "border"
                 )}
-                onClick={() => handleTokenSelect(token.address)}
+                onClick={() => handleTokenSelect(token.mint)}
               >
                 <div className="flex items-center">
                   <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 mr-3">
-                    {token.imageUrl ? (
+                    {token.logoURI ? (
                       <Avatar className="h-8 w-8">
-                        <AvatarImage src={token.imageUrl} alt={token.name || ''} />
+                        <AvatarImage src={token.logoURI || undefined} alt={token.name || ''} />
                         <AvatarFallback>{token.symbol?.substring(0, 2) || 'TKN'}</AvatarFallback>
                       </Avatar>
                     ) : (
@@ -211,7 +219,7 @@ export function TrendingTokensList({
                 <div className="flex items-center gap-2">
                   <div className="text-right">
                     <div className="font-medium">
-                      ${parseFloat(token.lastPrice || '0')?.toFixed(parseFloat(token.lastPrice || '0') < 0.01 ? 6 : 2)}
+                      ${token.priceUsd?.toFixed(token.priceUsd < 0.01 ? 6 : 2)}
                     </div>
                     <div className={cn(
                       "text-xs flex items-center justify-end",

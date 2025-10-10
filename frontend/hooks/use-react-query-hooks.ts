@@ -9,7 +9,7 @@ export function useTrendingTokens(limit = 10) {
   return useQuery({
     queryKey: ['trending', limit],
     queryFn: async () => {
-      const trending = await api.getTrendingTokens();
+      const trending = await api.getTrending();
       return trending.slice(0, limit);
     },
     staleTime: 1000 * 60 * 5, // 5 minutes
@@ -17,30 +17,16 @@ export function useTrendingTokens(limit = 10) {
 }
 
 /**
- * Hook for fetching token details with React Query
- */
-export function useTokenDetails(tokenAddress: string | null) {
-  return useQuery({
-    queryKey: ['token', tokenAddress],
-    queryFn: async () => {
-      if (!tokenAddress) throw new Error('Token address is required');
-      return await api.getTokenDetails(tokenAddress);
-    },
-    enabled: !!tokenAddress,
-    staleTime: 1000 * 60 * 3, // 3 minutes
-  });
-}
-
-/**
  * Hook for fetching user portfolio with React Query
- * @deprecated Use usePortfolio from @/hooks/use-portfolio instead
  */
-export function usePortfolio() {
+export function usePortfolio(userId?: string) {
   return useQuery({
-    queryKey: ['portfolio'],
+    queryKey: ['portfolio', userId],
     queryFn: async () => {
-      return api.getPortfolio(getUserId());
+      const userIdToUse = userId || getUserId();
+      return api.getPortfolio(userIdToUse);
     },
+    enabled: !!userId || (typeof window !== 'undefined' && !!localStorage.getItem('userId')),
     staleTime: 1000 * 30, // 30 seconds
     refetchInterval: 1000 * 60, // 1 minute
   });
@@ -97,10 +83,8 @@ export function useBalance(userId?: string) {
     queryKey: ['balance', userId],
     queryFn: async () => {
       const userIdToUse = userId || getUserId();
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/wallet/balance/${userIdToUse}`);
-      if (!response.ok) throw new Error('Failed to fetch balance');
-      const data = await response.json();
-      return data.balance;
+      // Use the centralized API instead of direct fetch
+      return api.getWalletBalance(userIdToUse);
     },
     enabled: !!userId || (typeof window !== 'undefined' && !!localStorage.getItem('userId')),
     staleTime: 1000 * 30, // 30 seconds
@@ -115,12 +99,8 @@ export function useTransactions(userId?: string, limit = 50, offset = 0) {
     queryKey: ['transactions', userId, limit, offset],
     queryFn: async () => {
       const userIdToUse = userId || getUserId();
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/wallet/transactions/${userIdToUse}?limit=${limit}&offset=${offset}`
-      );
-      if (!response.ok) throw new Error('Failed to fetch transactions');
-      const data = await response.json();
-      return data.transactions;
+      // Use the centralized API instead of direct fetch
+      return api.getWalletTransactions(userIdToUse, limit, offset);
     },
     enabled: !!userId || (typeof window !== 'undefined' && !!localStorage.getItem('userId')),
     staleTime: 1000 * 60, // 1 minute
@@ -137,6 +117,78 @@ export function useLeaderboard(limit = 50) {
       return await api.getLeaderboard(limit);
     },
     staleTime: 1000 * 60 * 15, // 15 minutes
+  });
+}
+
+/**
+ * Hook for fetching user notes with React Query
+ * @param userId The user ID to fetch notes for
+ * @param tokenAddress Optional token address to filter by
+ */
+export function useUserNotes(userId: string | undefined, tokenAddress?: string) {
+  return useQuery({
+    queryKey: ['notes', userId, tokenAddress],
+    queryFn: async () => {
+      if (!userId) throw new Error('User ID is required');
+      return await api.getUserNotes(userId, tokenAddress);
+    },
+    enabled: !!userId,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
+}
+
+/**
+ * Hook for creating a new note with React Query
+ */
+export function useCreateNote() {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async (request: import('../lib/types/notes').CreateNoteRequest) => {
+      return await api.createNote(request);
+    },
+    onSuccess: (_, variables) => {
+      // Invalidate related queries to refresh their data
+      queryClient.invalidateQueries({ queryKey: ['notes', variables.userId] });
+      queryClient.invalidateQueries({ queryKey: ['notes', variables.userId, variables.tokenAddress] });
+    },
+  });
+}
+
+/**
+ * Hook for updating a note with React Query
+ */
+export function useUpdateNote() {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async ({ noteId, request }: { 
+      noteId: string, 
+      request: import('../lib/types/notes').UpdateNoteRequest 
+    }) => {
+      return await api.updateNote(noteId, request);
+    },
+    onSuccess: (_, variables) => {
+      // Invalidate related queries to refresh their data
+      queryClient.invalidateQueries({ queryKey: ['notes', variables.request.userId] });
+    },
+  });
+}
+
+/**
+ * Hook for deleting a note with React Query
+ */
+export function useDeleteNote() {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async ({ noteId, userId }: { noteId: string, userId: string }) => {
+      return await api.deleteNote(noteId, userId);
+    },
+    onSuccess: (_, variables) => {
+      // Invalidate related queries to refresh their data
+      queryClient.invalidateQueries({ queryKey: ['notes', variables.userId] });
+    },
   });
 }
 

@@ -21,7 +21,7 @@ export default function ProfilePage() {
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="mb-2 font-space-grotesk text-3xl font-bold gradient-text">Profile Settings</h1>
+          <h1 className="mb-2 text-3xl font-bold bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">Profile Settings</h1>
           <p className="text-muted-foreground">Manage your account settings and preferences</p>
         </div>
 
@@ -30,7 +30,7 @@ export default function ProfilePage() {
           <Card className="p-6 border-border bg-card">
             <div className="flex items-center gap-4 mb-6">
               <User className="h-5 w-5 text-primary" />
-              <h2 className="font-space-grotesk text-xl font-bold text-foreground">Profile Information</h2>
+              <h2 className="text-xl font-bold text-foreground">Profile Information</h2>
             </div>
 
             <div className="flex items-center gap-6 mb-6">
@@ -108,7 +108,7 @@ export default function ProfilePage() {
           <Card className="p-6 border-border bg-card">
             <div className="flex items-center gap-4 mb-6">
               <Palette className="h-5 w-5 text-primary" />
-              <h2 className="font-space-grotesk text-xl font-bold text-foreground">Appearance</h2>
+              <h2 className="text-xl font-bold text-foreground">Appearance</h2>
             </div>
 
             <div className="flex items-center justify-between">
@@ -124,7 +124,7 @@ export default function ProfilePage() {
           <Card className="p-6 border-border bg-card">
             <div className="flex items-center gap-4 mb-6">
               <Shield className="h-5 w-5 text-primary" />
-              <h2 className="font-space-grotesk text-xl font-bold text-foreground">Security</h2>
+              <h2 className="text-xl font-bold text-foreground">Security</h2>
             </div>
 
             <div className="space-y-4">
@@ -144,7 +144,7 @@ export default function ProfilePage() {
           <Card className="p-6 border-destructive bg-card">
             <div className="flex items-center gap-4 mb-6">
               <Trash2 className="h-5 w-5 text-destructive" />
-              <h2 className="font-space-grotesk text-xl font-bold text-destructive">Danger Zone</h2>
+              <h2 className="text-xl font-bold text-destructive">Danger Zone</h2>
             </div>
 
             <div className="space-y-4">
@@ -168,7 +168,7 @@ export default function ProfilePage() {
             <Button variant="outline" className="flex-1 bg-transparent">
               Cancel
             </Button>
-            <Button className="flex-1 bg-primary hover:bg-primary/90 glow-primary">Save Changes</Button>
+            <Button className="flex-1 bg-primary hover:bg-primary/90">Save Changes</Button>
           </div>
         </div>
       </div>

@@ -9,6 +9,7 @@ import { motion } from "framer-motion"
 import { SharePnLDialog } from "@/components/modals/share-pnl-dialog"
 import { memo, useState, useCallback } from "react"
 import { useQuery } from "@tanstack/react-query"
+import { useAuth } from "@/hooks/use-auth"
 import * as Backend from "@/lib/types/backend"
 import * as api from "@/lib/api"
 
@@ -43,6 +44,7 @@ AnimatedBackground.displayName = "AnimatedBackground"
 
 export function PnLCard() {
   const [shareDialogOpen, setShareDialogOpen] = useState(false)
+  const { user, isAuthenticated } = useAuth()
 
   // Use React Query to fetch portfolio data directly
   const { 
@@ -52,12 +54,12 @@ export function PnLCard() {
     refetch,
     isRefetching 
   } = useQuery({
-    queryKey: ['portfolio'],
+    queryKey: ['portfolio', user?.id],
     queryFn: async () => {
-      const userId = localStorage.getItem('userId');
-      if (!userId) throw new Error('User not authenticated');
-      return api.getPortfolio(userId);
+      if (!user?.id) throw new Error('User not authenticated')
+      return api.getPortfolio(user.id)
     },
+    enabled: isAuthenticated && !!user?.id,
     refetchInterval: 30000, // Refresh every 30 seconds
     staleTime: 10000, // Consider data stale after 10 seconds
   })
@@ -124,6 +126,12 @@ export function PnLCard() {
   const totalPnL = parseFloat(portfolio.totals.totalPnlUsd)
   const unrealizedPnL = parseFloat(portfolio.totals.totalUnrealizedUsd)
   const realizedPnL = parseFloat(portfolio.totals.totalRealizedUsd)
+  
+  // Enhanced trading statistics
+  const winRate = parseFloat(portfolio.totals.winRate)
+  const totalTrades = portfolio.totals.totalTrades
+  const winningTrades = portfolio.totals.winningTrades
+  const losingTrades = portfolio.totals.losingTrades
   
   // Calculate PnL percentage based on total invested (cost basis)
   const costBasis = totalValue - unrealizedPnL
@@ -208,7 +216,7 @@ export function PnLCard() {
           </div>
 
           {/* PnL Breakdown */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-4 mb-4">
             <motion.div 
               className="text-center p-4 bg-green-500/10 rounded-lg border border-green-500/20"
               whileHover={{ scale: 1.02 }}
@@ -232,6 +240,28 @@ export function PnLCard() {
                 <AnimatedNumber value={Math.abs(unrealizedPnL)} prefix="$" decimals={2} />
               </p>
             </motion.div>
+          </div>
+
+          {/* Trading Statistics */}
+          <div className="grid grid-cols-3 gap-3 mb-4 p-4 bg-muted/30 rounded-lg">
+            <div className="text-center">
+              <p className="text-sm text-muted-foreground mb-1">Win Rate</p>
+              <p className={`text-lg font-bold ${winRate >= 50 ? 'text-green-500' : 'text-red-500'}`}>
+                <AnimatedNumber value={winRate} suffix="%" decimals={1} />
+              </p>
+            </div>
+            <div className="text-center">
+              <p className="text-sm text-muted-foreground mb-1">Total Trades</p>
+              <p className="text-lg font-bold text-foreground">
+                <AnimatedNumber value={totalTrades} decimals={0} />
+              </p>
+            </div>
+            <div className="text-center">
+              <p className="text-sm text-muted-foreground mb-1">W/L Ratio</p>
+              <p className="text-lg font-bold text-foreground">
+                {winningTrades}:{losingTrades}
+              </p>
+            </div>
           </div>
 
           {/* Performance Indicator */}

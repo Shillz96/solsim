@@ -104,9 +104,11 @@ export interface TransactionHistory {
 
 export interface Token {
   address: string;
+  mint?: string;  // Some APIs return 'mint' instead of 'address'
   symbol: string | null;
   name: string | null;
   imageUrl: string | null;
+  logoURI?: string | null; // From backend API (Helius format)
   lastPrice: string | null; // Decimal as string
   lastTs: string | null; // DateTime as ISO string
 
@@ -122,13 +124,16 @@ export interface Token {
   holderCount: string | null; // BigInt as string
 
   // Discovery and trending flags
-  isNew: boolean;
-  isTrending: boolean;
+  isNew?: boolean;   // Default false if not provided
+  isTrending?: boolean;   // Default false if not provided
   momentumScore: string | null; // Decimal as string
 
   // Social and metadata
   websites: string | null; // JSON array as string
   socials: string | null; // JSON array as string
+  website?: string | null;  // Direct website field from backend
+  twitter?: string | null;  // Direct twitter field from backend
+  telegram?: string | null; // Direct telegram field from backend
 
   // Additional properties used in components
   price: number | null;
@@ -136,6 +141,7 @@ export interface Token {
   // Timestamps
   firstSeenAt: string | null; // DateTime as ISO string
   lastUpdatedAt: string | null; // DateTime as ISO string
+  lastUpdated?: string | null; // Alternative timestamp format
 }
 
 export interface ConversionHistory {
@@ -148,6 +154,49 @@ export interface ConversionHistory {
   status: string; // 'PENDING', 'COMPLETED', 'FAILED', 'ESCROWED'
   createdAt: string; // DateTime as ISO string
   updatedAt: string; // DateTime as ISO string
+}
+
+export interface UserNote {
+  id: string;
+  userId: string;
+  tokenAddress: string;
+  title: string;
+  content: string;
+  sentiment: 'BULLISH' | 'BEARISH' | 'NEUTRAL' | null;
+  isPrivate: boolean;
+  createdAt: string; // DateTime as ISO string
+  updatedAt: string; // DateTime as ISO string
+}
+
+export interface CreateNoteRequest {
+  tokenAddress: string;
+  title: string;
+  content: string;
+  sentiment?: 'BULLISH' | 'BEARISH' | 'NEUTRAL' | null;
+  isPrivate?: boolean;
+}
+
+export interface UpdateNoteRequest {
+  noteId: string;
+  title?: string;
+  content?: string;
+  sentiment?: 'BULLISH' | 'BEARISH' | 'NEUTRAL' | null;
+  isPrivate?: boolean;
+}
+
+export interface NotesResponse {
+  notes: UserNote[];
+  total: number;
+  hasMore: boolean;
+}
+
+export interface NoteResponse {
+  note: UserNote;
+}
+
+export interface DeleteNoteResponse {
+  success: boolean;
+  noteId: string;
 }
 
 // ================================
@@ -174,18 +223,17 @@ export interface EnrichedTrade extends Trade {
 export interface PortfolioPosition {
   mint: string;
   qty: string;
-  quantity: string;
   avgCostUsd: string;
   valueUsd: string;
   unrealizedUsd: string;
   unrealizedPercent: string;
-  entryPrice: string;
-  pnl?: {
-    sol: {
-      absolute: string;
-      percent: number;
-    };
-  };
+  // Enhanced metadata
+  tokenSymbol?: string;
+  tokenName?: string;
+  tokenImage?: string | null;
+  website?: string | null;
+  twitter?: string | null;
+  telegram?: string | null;
 }
 
 export interface PortfolioTotals {
@@ -193,11 +241,34 @@ export interface PortfolioTotals {
   totalUnrealizedUsd: string;
   totalRealizedUsd: string;
   totalPnlUsd: string;
+  // Enhanced stats
+  winRate: string;
+  totalTrades: number;
+  winningTrades: number;
+  losingTrades: number;
 }
 
 export interface PortfolioResponse {
   positions: PortfolioPosition[];
   totals: PortfolioTotals;
+}
+
+// Trading statistics interface
+export interface TradingStats {
+  totalTrades: number;
+  winningTrades: number;
+  losingTrades: number;
+  winRate: number;
+}
+
+// Portfolio performance data point
+export interface PerformanceDataPoint {
+  date: string;
+  value: number;
+}
+
+export interface PortfolioPerformanceResponse {
+  performance: PerformanceDataPoint[];
 }
 
 export interface LeaderboardEntry {
@@ -211,8 +282,25 @@ export interface LeaderboardEntry {
   rank: number;
 }
 
-export interface TrendingTokenResponse extends Token {
-  // Additional fields for trending display
+// Import the base TrendingToken from backend service
+export interface TrendingToken {
+  mint: string;
+  symbol: string | null;
+  name: string | null;
+  logoURI: string | null;
+  priceUsd: number;
+  priceChange24h: number;
+  volume24h: number;
+  marketCapUsd: number | null;
+  tradeCount: number;
+  uniqueTraders: number;
+}
+
+// Extended type for frontend display with additional optional fields
+export interface TrendingTokenResponse extends TrendingToken {
+  imageUrl?: string | null; // Alternative image field for compatibility
+  
+  // Additional fields for trending display formatting
   priceChangeFormatted?: string;
   volumeFormatted?: string;
   marketCapFormatted?: string;
@@ -231,8 +319,34 @@ export interface TradeRequest {
 
 export interface TradeResponse {
   success: boolean;
-  trade: EnrichedTrade;
-  position: PortfolioPosition | null;
+  trade: {
+    id: string;
+    userId: string;
+    tokenAddress: string;
+    side: 'BUY' | 'SELL';
+    quantity: string;
+    price: string;
+    totalCost: string;
+    costUsd?: string;
+    timestamp: string;
+    marketCapUsd?: string;
+  };
+  position: {
+    mint: string;
+    quantity: string;
+    costBasis: string;
+    currentPrice: string;
+    unrealizedPnL: string;
+  };
+  portfolioTotals: {
+    totalValueUsd: string;
+    totalCostBasis: string;
+    unrealizedPnL: string;
+    realizedPnL: string;
+    solBalance: string;
+  };
+  rewardPointsEarned: string;
+  currentPrice: number;
 }
 
 export interface TradesResponse {
@@ -328,6 +442,7 @@ export interface PriceUpdate {
   marketCapUsd?: number | null;
   priceSol?: number;
   solUsd?: number;
+  change24h?: number;
 }
 
 export interface WebSocketMessage {
@@ -341,6 +456,7 @@ export interface WebSocketMessage {
 // ================================
 
 export interface TokenSearchResult {
+  // Backend fields (from API response)
   mint: string;
   symbol: string;
   name: string;
@@ -351,11 +467,12 @@ export interface TokenSearchResult {
   volume24h: number | null;
   priceChange24h: number | null;
   source: string;
-  // Computed/convenience fields for UI
-  address: string;  // Same as mint
-  imageUrl: string | null; // Same as logoURI
-  price: number;    // Same as priceUsd
-  lastPrice: string | null; // String version of priceUsd
+  
+  // Computed/convenience fields for UI (added by frontend)
+  address: string;  // Same as mint, used by frontend components
+  imageUrl?: string | null; // Same as logoURI, used by frontend components
+  price?: number;    // Same as priceUsd, used by frontend components
+  lastPrice?: string | null; // String version of priceUsd
   trending?: boolean; // UI-only field
 }
 

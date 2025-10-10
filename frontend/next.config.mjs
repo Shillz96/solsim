@@ -62,6 +62,7 @@ const nextConfig = {
       'bafkreicd5ijwhv5bzcpso5p5sqsc7efgg5f5vedg5fzupsl6i4c3tjhyvi.ipfs.nftstorage.link', // IPFS storage
       'bafybeiaoa7pw52xbsomr2klv3tg37ka6bjwekvugssvxz2twsnaupkg7lu.ipfs.nftstorage.link', // IPFS storage
       'api-main.uxento.io', // Uxento API proxy for images
+      'dd.dexscreener.com', // DexScreener token images
       '79.252.218.193' // Backend server IP
     ],
     remotePatterns: [

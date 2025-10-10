@@ -38,7 +38,7 @@ export function useDebouncedCallback<T extends (...args: any[]) => any>(
   const timeoutRef = useRef<NodeJS.Timeout | null>(null)
   const callbackRef = useRef(callback)
 
-  // Update callback ref when callback changes
+  // Update callback ref when callback changes (stable reference)
   useEffect(() => {
     callbackRef.current = callback
   }, [callback])
@@ -48,6 +48,7 @@ export function useDebouncedCallback<T extends (...args: any[]) => any>(
     return () => {
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current)
+        timeoutRef.current = null
       }
     }
   }, [])
@@ -59,6 +60,7 @@ export function useDebouncedCallback<T extends (...args: any[]) => any>(
 
     timeoutRef.current = setTimeout(() => {
       callbackRef.current(...args)
+      timeoutRef.current = null
     }, delay)
   }, [delay])
 }

@@ -263,12 +263,12 @@ export function NavBar() {
                         initial={{ opacity: 0, x: -10 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ duration: 0.2, delay: index * 0.05 }}
-                        onClick={() => handleTokenSelect(token.address)}
+                        onClick={() => token.address && handleTokenSelect(token.address)}
                         className="w-full px-3 py-2 text-left hover:bg-muted transition-colors flex items-center gap-3 first:rounded-t-lg last:rounded-b-lg"
                       >
-                        {token.imageUrl && (
+                        {(token.imageUrl || token.logoURI) && (
                           <img 
-                            src={token.imageUrl} 
+                            src={token.imageUrl || token.logoURI || ''} 
                             alt={`${token.symbol || token.name || 'Token'} logo`}
                             className="w-6 h-6 rounded-full flex-shrink-0"
                             loading="lazy"
@@ -280,7 +280,7 @@ export function NavBar() {
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2">
                             <span className="font-medium text-foreground text-sm">
-                              {token.symbol || token.address.substring(0, 8)}
+                              {token.symbol || (token.address ? token.address.substring(0, 8) : 'Unknown')}
                             </span>
                             {token.trending && (
                               <span className="text-xs bg-accent/20 text-accent px-1.5 py-0.5 rounded">
@@ -289,7 +289,7 @@ export function NavBar() {
                             )}
                           </div>
                           <p className="text-xs text-muted-foreground truncate">
-                            {token.name || `${token.address.substring(0, 8)}...${token.address.substring(-8)}`}
+                            {token.name || (token.address ? `${token.address.substring(0, 8)}...${token.address.substring(-8)}` : 'Unknown Token')}
                           </p>
                         </div>
                         {parseFloat(token.lastPrice || '0') && (

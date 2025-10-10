@@ -5,7 +5,6 @@ import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react
 import { WalletAdapterNetwork } from '@solana/wallet-adapter-base';
 import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
 import {
-  SolflareWalletAdapter,
   TorusWalletAdapter,
   LedgerWalletAdapter,
   MathWalletAdapter,
@@ -39,7 +38,7 @@ export function SolanaWalletProvider({ children }: SolanaWalletProviderProps) {
       try {
         return [
           // Removed PhantomWalletAdapter as it's now a Standard Wallet
-          new SolflareWalletAdapter({ network }),
+          // Removed SolflareWalletAdapter as it's now also a Standard Wallet
           new TorusWalletAdapter(),
           new LedgerWalletAdapter(),
           new MathWalletAdapter(),

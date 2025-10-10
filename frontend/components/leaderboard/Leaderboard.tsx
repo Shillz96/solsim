@@ -222,7 +222,7 @@ export function Leaderboard({
                     </div>
                     <div className="text-right">
                       <div className="font-medium">
-                        ${entry.totalPnlUsd.toLocaleString()}
+                        ${parseFloat(entry.totalPnlUsd || '0').toLocaleString()}
                       </div>
                     </div>
                   </div>
@@ -265,7 +265,7 @@ export function Leaderboard({
                           </div>
                         </TableCell>
                         <TableCell className="text-right font-medium">
-                          ${entry.totalPnlUsd.toLocaleString()}
+                          ${parseFloat(entry.totalPnlUsd || '0').toLocaleString()}
                         </TableCell>
                         <TableCell className="text-right">
                           <div className={cn(

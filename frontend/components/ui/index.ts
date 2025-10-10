@@ -32,8 +32,10 @@ export * from './kbd';
 export * from './label';
 export * from './menubar';
 export * from './navigation-menu';
+export * from './NavSearch';
 export * from './pagination';
 export * from './popover';
+export * from './PortfolioBar';
 export * from './progress';
 export * from './radio-group';
 export * from './resizable';
@@ -42,7 +44,13 @@ export * from './select';
 export * from './separator';
 export * from './sheet';
 export * from './sidebar';
-export * from './skeleton';
+export { Skeleton } from './skeleton';
+export { 
+  Skeleton as EnhancedSkeleton, 
+  ChartSkeleton, 
+  CardSkeleton, 
+  TableSkeleton 
+} from './enhanced-skeleton';
 export * from './slider';
 export * from './sonner';
 export * from './spinner';

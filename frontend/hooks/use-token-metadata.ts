@@ -8,9 +8,16 @@ import * as api from '@/lib/api'
 export function useTokenMetadata(mint: string | undefined, enabled: boolean = true) {
   return useQuery({
     queryKey: ['token-metadata', mint],
-    queryFn: () => {
+    queryFn: async () => {
       if (!mint) throw new Error('Mint address required')
-      return api.getTokenDetails(mint)
+      try {
+        return await api.getTokenDetails(mint)
+      } catch (error) {
+        console.error(`Error fetching token metadata for ${mint}:`, error);
+        throw error instanceof Error 
+          ? error 
+          : new Error(`Failed to load token details: ${String(error)}`);
+      }
     },
     enabled: enabled && !!mint,
     staleTime: 5 * 60 * 1000, // Cache for 5 minutes
@@ -24,18 +31,11 @@ export function useTokenMetadata(mint: string | undefined, enabled: boolean = tr
  * Useful for portfolio views with multiple positions
  */
 export function useTokenMetadataBatch(mints: string[], enabled: boolean = true) {
-  const queries = mints.map(mint => ({
-    queryKey: ['token-metadata', mint],
-    queryFn: () => api.getTokenDetails(mint),
-    staleTime: 5 * 60 * 1000,
-    gcTime: 10 * 60 * 1000,
-    retry: 1,
-    enabled: enabled && !!mint,
-  }))
-
   return useQuery({
-    queryKey: ['token-metadata-batch', ...mints],
+    queryKey: ['token-metadata-batch', ...mints.sort()], // Sort for consistent caching
     queryFn: async () => {
+      if (mints.length === 0) return []
+      
       const results = await Promise.allSettled(
         mints.map(mint => api.getTokenDetails(mint))
       )
@@ -47,8 +47,9 @@ export function useTokenMetadataBatch(mints: string[], enabled: boolean = true) 
       }))
     },
     enabled: enabled && mints.length > 0,
-    staleTime: 5 * 60 * 1000,
-    gcTime: 10 * 60 * 1000,
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+    gcTime: 10 * 60 * 1000, // Keep in cache for 10 minutes
+    retry: 1, // Only retry once on failure
   })
 }
 

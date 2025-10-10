@@ -101,7 +101,7 @@ function UserSettingsPage() {
   useEffect(() => {
     if (user) {
       setProfileData({
-        displayName: user.handle || '',
+        displayName: (user as any).handle || '', // Handle might be available from initial auth
         bio: '', // Bio not available in auth user object
         // website: user.website || '',
         // twitter: user.twitter || '',
@@ -322,9 +322,9 @@ function UserSettingsPage() {
         <CardContent className="space-y-4">
           <div className="flex items-center gap-4">
             <Avatar className="h-20 w-20">
-              <AvatarImage src={user.profileImage} alt={user.handle || 'User'} />
+              <AvatarImage src={(user as any).profileImage} alt={(user as any).handle || 'User'} />
               <AvatarFallback className="text-lg">
-                {user.handle?.[0]?.toUpperCase() || user.email?.[0]?.toUpperCase()}
+                {(user as any).handle?.[0]?.toUpperCase() || user.email?.[0]?.toUpperCase()}
               </AvatarFallback>
             </Avatar>
             <div className="space-y-2">
@@ -337,7 +337,7 @@ function UserSettingsPage() {
                   <Upload className="h-4 w-4 mr-2" />
                   Upload New
                 </Button>
-                {user.profileImage && (
+                {(user as any).profileImage && (
                   <Button
                     onClick={handleAvatarDelete}
                     disabled={isLoading}
@@ -383,7 +383,7 @@ function UserSettingsPage() {
                 <Label htmlFor="username">Username</Label>
                 <Input
                   id="username"
-                  value={user.handle || ''}
+                  value={(user as any).handle || ''}
                   disabled
                   className="bg-muted"
                 />
