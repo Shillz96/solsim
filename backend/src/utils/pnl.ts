@@ -4,12 +4,11 @@ import { Decimal } from "@prisma/client/runtime/library";
 export const D = (x: Decimal | number | string) => new Decimal(x);
 
 // VWAP for buys: returns new {qty, costBasisUsd}
-export function vwapBuy(oldQty: Decimal, oldBasis: Decimal, buyQty: Decimal, fillPriceUsd: Decimal) {
+export function vwapBuy(oldQty: Decimal, oldTotalCostBasis: Decimal, buyQty: Decimal, fillPriceUsd: Decimal) {
   const newQty = oldQty.add(buyQty);
-  const newBasis = oldQty.eq(0)
-    ? fillPriceUsd
-    : oldQty.mul(oldBasis).add(buyQty.mul(fillPriceUsd)).div(newQty);
-  return { newQty, newBasis };
+  const additionalCost = buyQty.mul(fillPriceUsd);
+  const newTotalCostBasis = oldTotalCostBasis.add(additionalCost);
+  return { newQty, newBasis: newTotalCostBasis };
 }
 
 // FIFO sell across lots

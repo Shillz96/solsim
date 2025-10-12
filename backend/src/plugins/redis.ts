@@ -17,17 +17,17 @@ try {
 }
 
 const redis = new Redis(redisUrl, {
-  enableReadyCheck: false,
-  maxRetriesPerRequest: 3,
-  lazyConnect: true, // Don't connect immediately
-  enableOfflineQueue: false,
-  connectTimeout: 5000,
-  commandTimeout: 3000,
+  maxRetriesPerRequest: 1,
+  lazyConnect: true,
+  enableOfflineQueue: false, // Disable offline queue to fail fast
+  connectTimeout: 3000,
+  commandTimeout: 2000,
+  // Disable retry strategy to prevent spam
+  retryStrategy: () => null
 });
 
 redis.on("error", (err: Error) => {
-  console.error("Redis Client Error:", err.message);
-  // Don't crash the app on Redis errors
+  // Silently handle Redis errors - app continues without Redis
 });
 
 redis.on("connect", () => {
@@ -38,8 +38,14 @@ redis.on("close", () => {
   console.log("❌ Disconnected from Redis");
 });
 
-redis.on("reconnecting", () => {
-  console.log("🔄 Reconnecting to Redis...");
-});
+// Test Redis connection and handle gracefully
+redis.connect()
+  .then(() => {
+    console.log("✅ Redis connected successfully");
+  })
+  .catch((err) => {
+    console.error("❌ Redis connection failed:", err.message);
+    console.log("⚠️ App will continue without Redis caching");
+  });
 
 export default redis;

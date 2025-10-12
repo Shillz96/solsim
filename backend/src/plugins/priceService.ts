@@ -25,6 +25,7 @@ interface PriceTick {
   timestamp: number;
   source: string;
   volume?: number;
+  change24h?: number;
 }
 
 interface SwapEvent {
@@ -57,46 +58,30 @@ class HeliusPriceService {
     await this.updateSolPrice();
     
     // Start WebSocket connection for real-time data
-    await this.connectWebSocket();
+    try {
+      await this.connectWebSocket();
+    } catch (error) {
+      console.warn("Failed to connect to Helius WebSocket:", error);
+      console.log("⚠️ Continuing without real-time price updates");
+    }
     
     // Subscribe to Redis pub/sub for horizontal scaling
-    await this.subscribeToRedisPrices();
+    try {
+      await this.subscribeToRedisPrices();
+    } catch (error) {
+      console.warn("Failed to subscribe to Redis prices channel:", error);
+      console.log("⚠️ Continuing without Redis pub/sub (single-instance mode)");
+    }
     
     // Update SOL price every 30 seconds
     setInterval(() => this.updateSolPrice(), 30000);
   }
 
   private async subscribeToRedisPrices() {
-    try {
-      // Create separate Redis client for subscriptions
-      const subscriber = redis.duplicate();
-      
-      await subscriber.subscribe("prices");
-      
-      subscriber.on("message", (channel, message) => {
-        try {
-          if (!message) return;
-          const tick: PriceTick = JSON.parse(message);
-          // Update in-memory cache from Redis pub/sub (from other instances)
-          this.priceCache.set(tick.mint, tick);
-          
-          // Notify local subscribers without republishing to Redis
-          this.subscribers.forEach(callback => {
-            try {
-              callback(tick);
-            } catch (error) {
-              console.error("Error in Redis price subscriber callback:", error);
-            }
-          });
-        } catch (error) {
-          console.error("Error processing Redis price message:", error);
-        }
-      });
-      
-      console.log("📡 Subscribed to Redis prices channel");
-    } catch (error) {
-      console.warn("Failed to subscribe to Redis prices channel:", error);
-    }
+    // For now, disable Redis pub/sub to avoid connection issues
+    // This means the app will work in single-instance mode
+    console.log("ℹ️ Redis pub/sub disabled - running in single-instance mode");
+    return;
   }
 
   // Parse Raydium swap logs
@@ -177,8 +162,16 @@ class HeliusPriceService {
 
   private async connectWebSocket() {
     try {
-      const wsUrl = (process.env.HELIUS_RPC_URL || process.env.SOLANA_RPC_URL || "wss://mainnet.helius-rpc.com")
+      let wsUrl = (process.env.HELIUS_RPC_URL || process.env.SOLANA_RPC_URL || "wss://mainnet.helius-rpc.com")
         .replace("https://", "wss://");
+      
+      // Add API key if available and not already in URL
+      if (!wsUrl.includes("api-key=") && process.env.HELIUS_API) {
+        const separator = wsUrl.includes("?") ? "&" : "?";
+        wsUrl = `${wsUrl}${separator}api-key=${process.env.HELIUS_API}`;
+      }
+      
+      console.log(`🔗 Connecting to Helius WebSocket: ${wsUrl.replace(/api-key=[^&]*/, 'api-key=***')}`);
       
       this.ws = new WebSocket(wsUrl);
       
@@ -427,12 +420,27 @@ class HeliusPriceService {
   private async updateSolPrice() {
     try {
       // Get SOL price from CoinGecko or similar
-      const response = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd");
+      const response = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd&include_24hr_change=true");
       const data = await response.json();
       
       if (data.solana?.usd) {
+        const oldPrice = this.solPriceUsd;
         this.solPriceUsd = data.solana.usd;
         console.log(`📈 SOL price updated: $${this.solPriceUsd}`);
+        
+        // Create and emit a price tick for SOL itself
+        const solTick: PriceTick = {
+          mint: "So11111111111111111111111111111111111111112", // SOL mint address
+          priceUsd: this.solPriceUsd,
+          priceSol: 1, // SOL is always 1 SOL
+          solUsd: this.solPriceUsd,
+          timestamp: Date.now(),
+          source: "coingecko",
+          change24h: data.solana.usd_24h_change || 0
+        };
+        
+        // Update cache and emit to subscribers
+        await this.updatePrice(solTick);
       }
     } catch (error) {
       console.warn("Failed to update SOL price:", error);

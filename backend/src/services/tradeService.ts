@@ -49,8 +49,9 @@ export async function fillTrade({
   // Grab latest tick from cache
   const tick = await priceService.getLastTick(mint);
   const priceUsd = D(tick.priceUsd);
-  const priceSol = D(tick.priceSol || priceUsd.div(100)); // Fallback calculation
-  const solUsd = D(tick.solUsd || 100); // Default SOL price
+  const currentSolPrice = priceService.getSolPrice();
+  const priceSol = D(tick.priceSol || priceUsd.div(currentSolPrice)); // Use actual SOL price
+  const solUsd = D(tick.solUsd || currentSolPrice); // Use actual SOL price
   const mcAtFill = tick.marketCapUsd ? D(tick.marketCapUsd) : null;
 
   // Calculate trade cost
@@ -165,9 +166,16 @@ export async function fillTrade({
         });
       }
 
-      // Update position
+      // Update position - calculate new cost basis by removing consumed lots' cost
       const newQty = (pos.qty as Decimal).sub(q);
       let newBasis = pos.costBasis as Decimal;
+      
+      // Subtract the cost basis of the consumed lots
+      for (const c of consumed) {
+        const consumedCost = c.qty.mul(lots.find((l: any) => l.id === c.lotId)!.unitCostUsd as Decimal);
+        newBasis = newBasis.sub(consumedCost);
+      }
+      
       if (newQty.eq(0)) newBasis = D(0);
 
       pos = await tx.position.update({
@@ -223,11 +231,13 @@ async function calculatePortfolioTotals(userId: string) {
   for (const pos of positions) {
     const tick = await priceService.getLastTick(pos.mint);
     const currentPrice = D(tick.priceUsd);
-    const positionValue = (pos.qty as Decimal).mul(currentPrice);
-    const positionCost = (pos.qty as Decimal).mul(pos.costBasis as Decimal);
+    const positionQty = pos.qty as Decimal;
+    const positionCostBasis = pos.costBasis as Decimal; // This is now total cost basis, not per-unit
+    
+    const positionValue = positionQty.mul(currentPrice);
     
     totalValueUsd = totalValueUsd.add(positionValue);
-    totalCostBasis = totalCostBasis.add(positionCost);
+    totalCostBasis = totalCostBasis.add(positionCostBasis);
   }
   
   // Get total realized PnL

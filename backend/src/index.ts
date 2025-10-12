@@ -16,6 +16,7 @@ import searchRoutes from "./routes/search.js";
 import candleRoutes from "./routes/candles.js";
 import notesRoutes from "./routes/notes.js";
 import wsPlugin from "./plugins/ws.js";
+import wsTestPlugin from "./plugins/wsTest.js";
 import priceService from "./plugins/priceService.js";
 import { generalRateLimit } from "./plugins/rateLimiting.js";
 import { NonceCleanupService } from "./plugins/nonce.js";
@@ -39,11 +40,12 @@ app.register(helmet, {
   }
 });
 
-// CORS for frontend - support multiple origins
+// CORS for frontend - support multiple origins with WebSocket support
 const allowedOrigins = [
   "http://localhost:3000",
   "https://solsim.fun",
   "https://www.solsim.fun",
+  "https://solsim-3uf1qvvqp-shillz96s-projects.vercel.app", // Add your Vercel deployment URL
   process.env.FRONTEND_URL
 ].filter(Boolean);
 
@@ -61,18 +63,43 @@ app.register(cors, {
       return cb(null, true);
     }
     
+    // Allow Vercel preview deployments
+    if (origin.includes('vercel.app')) {
+      return cb(null, true);
+    }
+    
+    console.log('🚫 CORS rejected origin:', origin);
     return cb(null, false); // Reject with false, not error
   },
-  credentials: true
+  credentials: true,
+  // Add WebSocket-specific headers
+  allowedHeaders: ['Content-Type', 'Authorization', 'Upgrade', 'Connection', 'Sec-WebSocket-Key', 'Sec-WebSocket-Version', 'Sec-WebSocket-Protocol'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
 });
 
-// WebSocket support
-app.register(websocket);
-app.register(wsPlugin);
+// WebSocket support - register BEFORE any other routes for proper Railway compatibility
+// Disable perMessageDeflate to prevent proxy/CDN negotiation edge cases
+app.register(websocket, {
+  options: {
+    perMessageDeflate: false,
+    maxPayload: 100 * 1024, // 100KB max payload
+    clientTracking: true
+  }
+})
 
-// General rate limiting for all API routes
+// Register WebSocket routes BEFORE rate limiting
+app.register(wsTestPlugin) // Test WebSocket first for debugging
+app.register(wsPlugin) // Main price stream WebSocket
+
+// General rate limiting for API routes only (not WebSocket)
 app.register(async function (app) {
-  app.addHook('preHandler', generalRateLimit);
+  app.addHook('preHandler', async (request, reply) => {
+    // Skip rate limiting for WebSocket upgrade requests
+    if (request.headers.upgrade === 'websocket') {
+      return;
+    }
+    return generalRateLimit(request, reply);
+  });
 });
 
 // Health check

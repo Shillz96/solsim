@@ -56,10 +56,10 @@ export async function getLeaderboard(limit: number = 50): Promise<LeaderboardEnt
       userId: user.id,
       handle: user.handle,
       profileImage: user.profileImage,
-      totalPnlUsd: totalPnlUsd.toFixed(2),
+      totalPnlUsd: totalPnlUsd.toFixed(8), // Increased precision for small values
       totalTrades,
-      winRate: parseFloat(winRate.toFixed(2)),
-      totalVolumeUsd: totalVolumeUsd.toFixed(2),
+      winRate: parseFloat(winRate.toFixed(4)), // Increased precision for percentage
+      totalVolumeUsd: totalVolumeUsd.toFixed(8), // Increased precision for small values
       rank: 0 // Will be set after sorting
     };
   });

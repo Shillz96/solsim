@@ -81,10 +81,10 @@ export async function getPortfolio(userId: string): Promise<PortfolioResponse> {
     portfolioPositions.push({
       mint: position.mint,
       qty: qty.toString(),
-      avgCostUsd: (costBasisUsd / qty).toFixed(6),
-      valueUsd: valueUsd.toFixed(2),
-      unrealizedUsd: unrealizedUsd.toFixed(2),
-      unrealizedPercent: unrealizedPercent.toFixed(2),
+      avgCostUsd: (costBasisUsd / qty).toFixed(8), // Increased precision for small values
+      valueUsd: valueUsd.toFixed(8), // Increased precision to handle small values
+      unrealizedUsd: unrealizedUsd.toFixed(8), // Increased precision
+      unrealizedPercent: unrealizedPercent.toFixed(4), // Increased precision for percentage
       // Enhanced metadata
       tokenSymbol: metadata?.symbol || undefined,
       tokenName: metadata?.name || undefined,
@@ -113,12 +113,12 @@ export async function getPortfolio(userId: string): Promise<PortfolioResponse> {
   return {
     positions: portfolioPositions,
     totals: {
-      totalValueUsd: totalValueUsd.toFixed(2),
-      totalUnrealizedUsd: totalUnrealizedUsd.toFixed(2),
-      totalRealizedUsd: totalRealizedUsd.toFixed(2),
-      totalPnlUsd: totalPnlUsd.toFixed(2),
+      totalValueUsd: totalValueUsd.toFixed(8), // Increased precision
+      totalUnrealizedUsd: totalUnrealizedUsd.toFixed(8), // Increased precision
+      totalRealizedUsd: totalRealizedUsd.toFixed(8), // Increased precision
+      totalPnlUsd: totalPnlUsd.toFixed(8), // Increased precision
       // Enhanced stats
-      winRate: tradingStats.winRate.toFixed(2),
+      winRate: tradingStats.winRate.toFixed(4), // Increased precision for percentage
       totalTrades: tradingStats.totalTrades,
       winningTrades: tradingStats.winningTrades,
       losingTrades: tradingStats.losingTrades,
@@ -207,9 +207,9 @@ export async function getPortfolioWithRealTimePrices(userId: string): Promise<Po
       const newUnrealizedUsd = newValueUsd - costBasisUsd;
       const newUnrealizedPercent = costBasisUsd > 0 ? (newUnrealizedUsd / costBasisUsd) * 100 : 0;
       
-      position.valueUsd = newValueUsd.toFixed(2);
-      position.unrealizedUsd = newUnrealizedUsd.toFixed(2);
-      position.unrealizedPercent = newUnrealizedPercent.toFixed(2);
+      position.valueUsd = newValueUsd.toFixed(8); // Increased precision
+      position.unrealizedUsd = newUnrealizedUsd.toFixed(8); // Increased precision
+      position.unrealizedPercent = newUnrealizedPercent.toFixed(4); // Increased precision for percentage
     }
   }
   
@@ -221,11 +221,11 @@ export async function getPortfolioWithRealTimePrices(userId: string): Promise<Po
     sum + parseFloat(pos.unrealizedUsd), 0
   );
   
-  portfolio.totals.totalValueUsd = totalValueUsd.toFixed(2);
-  portfolio.totals.totalUnrealizedUsd = totalUnrealizedUsd.toFixed(2);
+  portfolio.totals.totalValueUsd = totalValueUsd.toFixed(8); // Increased precision
+  portfolio.totals.totalUnrealizedUsd = totalUnrealizedUsd.toFixed(8); // Increased precision
   portfolio.totals.totalPnlUsd = (
     totalUnrealizedUsd + parseFloat(portfolio.totals.totalRealizedUsd)
-  ).toFixed(2);
+  ).toFixed(8); // Increased precision
   
   return portfolio;
 }
