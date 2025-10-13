@@ -9,7 +9,11 @@ import { ArrowUpRight, ArrowDownRight, ChevronDown, Loader2, AlertCircle, Trendi
 import Link from "next/link"
 import { AnimatedNumber } from "@/components/ui/animated-number"
 import { useAuth } from "@/hooks/use-auth"
+import { usePriceStreamContext } from "@/lib/price-stream-provider"
 import * as api from "@/lib/api"
+
+// ✅ Import standardized table cells instead of manual formatting
+import { MoneyCell, PriceCell, QuantityCell, formatUSD } from "@/components/ui/table-cells"
 
 interface TradeHistoryProps {
   tokenAddress?: string
@@ -28,6 +32,10 @@ export function TradeHistory({
   const [showAll, setShowAll] = useState(false)
   
   const { user, isAuthenticated } = useAuth()
+  const { prices: livePrices } = usePriceStreamContext()
+  
+  // Get SOL price for conversions (SOL mint address)
+  const solPrice = livePrices.get('So11111111111111111111111111111111111111112')?.price || 0
 
   // Load trade history from actual backend API
   const loadTrades = useCallback(async () => {
@@ -77,12 +85,6 @@ export function TradeHistory({
     if (diffMins < 60) return `${diffMins}m ago`
     if (diffHours < 24) return `${diffHours}h ago`
     return `${diffDays}d ago`
-  }
-
-  const formatPnL = (realizedPnL: string | null) => {
-    if (!realizedPnL) return null
-    const pnl = parseFloat(realizedPnL)
-    return pnl.toFixed(4)
   }
 
   if (isLoading) {
@@ -177,24 +179,38 @@ export function TradeHistory({
                 </div>
               </div>
 
-              <div className="text-right">
-                <div className="flex items-center gap-2">
-                  <div>
-                    <div className="font-mono text-sm">
-                      {parseFloat(trade.qty).toLocaleString()} tokens
-                    </div>
-                    <div className="text-xs text-muted-foreground">
-                      ${parseFloat(trade.priceUsd).toFixed(8)}
-                    </div>
-                  </div>
-                  <div>
-                    <div className="font-mono text-sm font-medium">
-                      ${parseFloat(trade.costUsd).toFixed(2)}
-                    </div>
-                  </div>
-                  <div className="text-xs text-muted-foreground w-16 text-right">
-                    {formatTimestamp(trade.createdAt)}
-                  </div>
+              <div className="text-right flex items-center gap-4">
+                {/* ✅ Quantity with standardized formatting */}
+                <div>
+                  <QuantityCell 
+                    qty={parseFloat(trade.qty)}
+                    symbol={trade.symbol || ''}
+                    decimals={6}
+                    className="text-sm font-mono"
+                  />
+                </div>
+
+                {/* ✅ Price per token with SOL equivalent */}
+                <div>
+                  <PriceCell 
+                    priceUsd={parseFloat(trade.priceUsd)}
+                    className="text-sm"
+                    showSolEquiv={true}
+                  />
+                </div>
+
+                {/* ✅ Total cost with SOL equivalent */}
+                <div>
+                  <MoneyCell 
+                    usd={parseFloat(trade.costUsd)}
+                    className="text-sm font-medium"
+                    hideSolEquiv={false}
+                  />
+                </div>
+
+                {/* Timestamp */}
+                <div className="text-xs text-muted-foreground w-16 text-right">
+                  {formatTimestamp(trade.createdAt)}
                 </div>
               </div>
             </div>

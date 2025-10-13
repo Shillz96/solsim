@@ -2,12 +2,14 @@
 
 import type React from "react"
 
-import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { AnimatedNumber } from "@/components/ui/animated-number"
 import { Trophy, TrendingUp, TrendingDown, Minus, Sparkles, Loader2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import type * as Backend from "@/lib/types/backend"
+import { formatSolEquivalent } from "@/lib/sol-equivalent-utils"
+import { usePriceStreamContext } from "@/lib/price-stream-provider"
+import { UsdWithSol } from "@/lib/sol-equivalent"
 
 interface ResponsiveLeaderboardProps {
   timeRange: "24h" | "7d" | "all"
@@ -87,29 +89,29 @@ export function ResponsiveLeaderboard({
   // Loading state
   if (loading) {
     return (
-      <Card className="flex items-center justify-center p-12">
+      <div className="flex items-center justify-center p-12 rounded-lg bg-card border border-border/50">
         <div className="text-center">
           <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-primary" />
           <p className="text-muted-foreground">Loading leaderboard...</p>
         </div>
-      </Card>
+      </div>
     )
   }
 
   // Empty state
   if (!externalData || externalData.length === 0) {
     return (
-      <Card className="flex items-center justify-center p-12">
+      <div className="flex items-center justify-center p-12 rounded-lg bg-card border border-border/50">
         <div className="text-center">
           <Trophy className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
           <p className="text-muted-foreground">No leaderboard data available</p>
         </div>
-      </Card>
+      </div>
     )
   }
 
   return (
-    <Card className="glass-solid overflow-hidden">
+    <div className="rounded-lg bg-card border border-border/50 overflow-hidden">
       {/* Desktop View */}
       <div className="hidden md:block overflow-x-auto">
         <table className="w-full">
@@ -155,14 +157,11 @@ export function ResponsiveLeaderboard({
                     </div>
                   </td>
                   <td className="px-6 py-4 text-right">
-                    <AnimatedNumber
-                      value={parseFloat(entry.totalPnlUsd)}
-                      suffix=" SOL"
+                    <UsdWithSol 
+                      usd={parseFloat(entry.totalPnlUsd)}
                       prefix={parseFloat(entry.totalPnlUsd) >= 0 ? '+' : ''}
-                      decimals={2}
-                      className="font-bold"
-                      colorize={true}
-                      glowOnChange={true}
+                      className={`font-bold ${parseFloat(entry.totalPnlUsd) >= 0 ? 'text-profit' : 'text-loss'}`}
+                      solClassName="text-xs"
                     />
                   </td>
                   <td className="px-6 py-4 text-right">
@@ -172,7 +171,11 @@ export function ResponsiveLeaderboard({
                     <span className="text-muted-foreground">{entry.winRate.toFixed(1)}%</span>
                   </td>
                   <td className="px-6 py-4 text-right">
-                    <span className="font-medium font-mono">{parseFloat(entry.totalPnlUsd).toFixed(2)} SOL</span>
+                    <UsdWithSol 
+                      usd={parseFloat(entry.totalPnlUsd)}
+                      className="font-medium font-mono"
+                      solClassName="text-xs"
+                    />
                   </td>
                 </tr>
               )
@@ -202,14 +205,11 @@ export function ResponsiveLeaderboard({
                   {getRankChange(entry.rank, undefined)}
                 </div>
                 <div className="text-right">
-                  <AnimatedNumber
-                    value={parseFloat(entry.totalPnlUsd)}
-                    suffix=" SOL"
+                  <UsdWithSol 
+                    usd={parseFloat(entry.totalPnlUsd)}
                     prefix={parseFloat(entry.totalPnlUsd) >= 0 ? '+' : ''}
-                    decimals={2}
-                    className="font-bold text-lg"
-                    colorize={true}
-                    glowOnChange={true}
+                    className={`font-bold text-lg ${parseFloat(entry.totalPnlUsd) >= 0 ? 'text-profit' : 'text-loss'}`}
+                    solClassName="text-xs"
                   />
                   <p className="text-xs text-muted-foreground">{entry.totalTrades} trades</p>
                 </div>
@@ -225,7 +225,11 @@ export function ResponsiveLeaderboard({
                   )}
                 </div>
                 <div className="text-right">
-                  <p className="font-mono text-sm">{parseFloat(entry.totalPnlUsd).toFixed(2)} SOL</p>
+                  <UsdWithSol 
+                    usd={parseFloat(entry.totalPnlUsd)}
+                    className="font-mono text-sm"
+                    solClassName="text-xs"
+                  />
                   <p className="text-xs text-muted-foreground">{entry.winRate.toFixed(1)}% win</p>
                 </div>
               </div>
@@ -233,6 +237,6 @@ export function ResponsiveLeaderboard({
           )
         })}
       </div>
-    </Card>
+    </div>
   )
 }

@@ -5,7 +5,10 @@ import localFont from "next/font/local"
 
 import { NavBar } from "@/components/navigation/nav-bar"
 import { BottomNavBar } from "@/components/navigation/bottom-nav-bar"
+import { RealtimeTradeStrip } from "@/components/trading/realtime-trade-strip"
 import { AppProviders } from "@/components/providers"
+import { WebSocketTester } from "@/components/websocket-tester"
+import { WebSocketDebugInfo } from "@/components/websocket-debug-info"
 
 import "./globals.css"
 
@@ -46,8 +49,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         className={`${radnikaNext.variable} ${ibmPlexSans.variable} ${jetBrainsMono.variable} font-sans`}
       >
         <AppProviders>
+          <WebSocketDebugInfo />
           <NavBar aria-label="Primary navigation" />
-          <main className="min-h-screen pt-16 pb-20 md:pb-12" role="main">
+          <RealtimeTradeStrip className="fixed top-16 left-0 right-0 z-40 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60" maxTrades={15} />
+          <main className="min-h-screen pt-24 pb-20 md:pb-12" role="main">
             {children}
           </main>
           <BottomNavBar aria-label="Mobile navigation" />

@@ -34,6 +34,30 @@ const serwist = new Serwist({
   runtimeCaching: defaultCache,
 })
 
+// Override the default fetch handler to exclude WebSocket connections
+const originalHandleFetch = serwist.handleFetch.bind(serwist)
+serwist.handleFetch = (event) => {
+  // Skip service worker for WebSocket connections
+  if (event.request.headers.get('upgrade') === 'websocket') {
+    return; // Let the browser handle WebSocket connections directly
+  }
+  
+  // Skip service worker for WebSocket URLs
+  const url = new URL(event.request.url)
+  if (url.protocol === 'ws:' || url.protocol === 'wss:') {
+    return; // Let the browser handle WebSocket connections directly
+  }
+  
+  // Skip service worker for Railway WebSocket endpoints
+  if (url.hostname.includes('railway.app') && url.pathname.includes('/ws/')) {
+    return; // Let the browser handle Railway WebSocket connections directly
+  }
+  
+  // For all other requests, use Serwist's default handling
+  return originalHandleFetch(event)
+}
+
+// Add Serwist event listeners
 serwist.addEventListeners()
 
 // Handle periodic background sync with proper permission checking

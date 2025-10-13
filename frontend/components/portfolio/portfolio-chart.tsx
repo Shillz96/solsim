@@ -2,10 +2,13 @@
 
 import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
 import { Loader2, AlertCircle } from "lucide-react"
-import { useState, useMemo, useEffect, useCallback } from "react"
+import { useState, useMemo, useEffect, useCallback, memo } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { useAuth } from "@/hooks/use-auth"
+import { usePriceStreamContext } from "@/lib/price-stream-provider"
 import * as api from "@/lib/api"
+import { formatUSD } from "@/lib/format"
+import { PortfolioValue } from "@/components/ui/financial-value"
 
 interface TradeData {
   time: string;
@@ -14,13 +17,17 @@ interface TradeData {
   index: number;
 }
 
-export function PortfolioChart() {
+function PortfolioChartComponent() {
   const [period, setPeriod] = useState<'30d' | '7d' | '90d'>('30d')
   const [trades, setTrades] = useState<api.TradeHistoryItem[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   
   const { user, isAuthenticated } = useAuth()
+  
+  // Get SOL price for equivalents
+  const { prices: livePrices } = usePriceStreamContext()
+  const solPrice = livePrices.get('So11111111111111111111111111111111111111112')?.price || 0
 
   // Load trade history from actual backend API
   const loadTrades = useCallback(async () => {
@@ -155,12 +162,26 @@ export function PortfolioChart() {
                   return (
                     <div className="rounded-lg border border-border bg-background p-3 shadow-lg">
                       <p className="text-xs text-muted-foreground">{data.time}</p>
-                      <p className="font-mono text-sm font-semibold text-foreground">
-                        Trade: ${Number(data.value).toFixed(2)}
-                      </p>
-                      <p className="font-mono text-xs text-muted-foreground">
-                        Cumulative: ${Number(data.cumulative).toFixed(2)}
-                      </p>
+                      <div>
+                        <p className="font-mono text-sm font-semibold text-foreground">
+                          Trade: {formatUSD(Number(data.value))}
+                        </p>
+                        <PortfolioValue 
+                          usd={Number(data.value)} 
+                          className="text-xs text-muted-foreground"
+                          showSolEquivalent={true}
+                        />
+                      </div>
+                      <div>
+                        <p className="font-mono text-xs text-muted-foreground">
+                          Cumulative: {formatUSD(Number(data.cumulative))}
+                        </p>
+                        <PortfolioValue 
+                          usd={Number(data.cumulative)} 
+                          className="text-xs text-muted-foreground"
+                          showSolEquivalent={true}
+                        />
+                      </div>
                     </div>
                   )
                 }
@@ -181,3 +202,5 @@ export function PortfolioChart() {
     </div>
   )
 }
+
+export const PortfolioChart = memo(PortfolioChartComponent)

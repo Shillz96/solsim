@@ -2,6 +2,7 @@
 import WebSocket from "ws";
 import { Connection, PublicKey } from "@solana/web3.js";
 import { Decimal } from "@prisma/client/runtime/library";
+import { EventEmitter } from "events";
 import redis from "./redis.js";
 
 // Program IDs for DEX monitoring
@@ -57,13 +58,9 @@ class HeliusPriceService {
     // Get initial SOL price from external API
     await this.updateSolPrice();
     
-    // Start WebSocket connection for real-time data
-    try {
-      await this.connectWebSocket();
-    } catch (error) {
-      console.warn("Failed to connect to Helius WebSocket:", error);
-      console.log("⚠️ Continuing without real-time price updates");
-    }
+    // For now, focus on regular price updates from external APIs
+    // WebSocket implementation can be added later once basic prices work
+    console.log("ℹ️ Using external API price updates for now");
     
     // Subscribe to Redis pub/sub for horizontal scaling
     try {
@@ -75,6 +72,9 @@ class HeliusPriceService {
     
     // Update SOL price every 30 seconds
     setInterval(() => this.updateSolPrice(), 30000);
+    
+    // Update popular token prices every 60 seconds
+    setInterval(() => this.updatePopularTokenPrices(), 60000);
   }
 
   private async subscribeToRedisPrices() {
@@ -84,44 +84,32 @@ class HeliusPriceService {
     return;
   }
 
-  // Parse Raydium swap logs
+  // Parse Raydium swap logs - only process real data
   private parseRaydiumLog(log: string): SwapEvent | null {
-    if (!log.includes("ray_log: Swap")) return null;
-
-    const mIn = log.match(/userIn=(\d+)/);
-    const mOut = log.match(/userOut=(\d+)/);
-    const baseMint = log.match(/baseMint=([A-Za-z0-9]+)/)?.[1];
-    const quoteMint = log.match(/quoteMint=([A-Za-z0-9]+)/)?.[1];
-
-    if (!mIn || !mOut || !baseMint || !quoteMint) return null;
-
-    return {
-      baseMint,
-      quoteMint,
-      amountIn: Number(mIn[1]),
-      amountOut: Number(mOut[1]),
-      source: 'raydium'
-    };
+    // Only process if we can extract real swap data
+    if (log.includes("Program log: ray_log: ")) {
+      const rayLogMatch = log.match(/ray_log: ([^,]+),([^,]+),([^,]+),([^,]+),([^,]+)/);
+      if (rayLogMatch) {
+        const [, operation, amountIn, amountOut] = rayLogMatch;
+        
+        if (operation.includes("swap") && Number(amountIn) > 0 && Number(amountOut) > 0) {
+          return {
+            baseMint: "unknown", // Need to get from transaction context
+            quoteMint: "So11111111111111111111111111111111111111112",
+            amountIn: Number(amountIn),
+            amountOut: Number(amountOut),
+            source: 'raydium'
+          };
+        }
+      }
+    }
+    return null;
   }
 
-  // Parse Pump.fun swap logs
+  // Parse Pump.fun swap logs - only process real data  
   private parsePumpfunLog(log: string): SwapEvent | null {
-    if (!log.includes("pump_log: Swap")) return null;
-
-    const fromMint = log.match(/fromMint=([A-Za-z0-9]+)/)?.[1];
-    const toMint = log.match(/toMint=([A-Za-z0-9]+)/)?.[1];
-    const amountIn = Number(log.match(/amountIn=(\d+)/)?.[1] || 0);
-    const amountOut = Number(log.match(/amountOut=(\d+)/)?.[1] || 0);
-
-    if (!fromMint || !toMint || amountIn <= 0 || amountOut <= 0) return null;
-
-    return { 
-      baseMint: toMint, 
-      quoteMint: fromMint, 
-      amountIn, 
-      amountOut,
-      source: 'pumpfun'
-    };
+    // Only return data if we have real swap information
+    return null; // For now, focus on getting basic price updates working
   }
 
   // Process swap event and calculate price
@@ -222,57 +210,58 @@ class HeliusPriceService {
   private subscribeToPrograms() {
     if (!this.ws || this.ws.readyState !== WebSocket.OPEN) return;
 
-    // Subscribe to Raydium AMM program
+    // Subscribe to transaction logs mentioning DEX programs - this is the correct approach per Helius docs
     this.ws.send(JSON.stringify({
       jsonrpc: "2.0",
       id: 1,
-      method: "programSubscribe",
+      method: "logsSubscribe",
       params: [
-        RAYDIUM_V4_PROGRAM,
         {
-          commitment: "confirmed",
-          encoding: "jsonParsed",
-          filters: [
-            { dataSize: 752 } // Raydium pool account size
+          mentions: [
+            RAYDIUM_V4_PROGRAM,
+            RAYDIUM_CLMM_PROGRAM,
+            PUMP_FUN_PROGRAM
           ]
-        }
-      ]
-    }));
-
-    // Subscribe to Raydium CLMM program
-    this.ws.send(JSON.stringify({
-      jsonrpc: "2.0",
-      id: 2,
-      method: "programSubscribe",
-      params: [
-        RAYDIUM_CLMM_PROGRAM,
+        },
         {
-          commitment: "confirmed",
-          encoding: "jsonParsed"
+          commitment: "confirmed"
         }
       ]
     }));
 
-    // Subscribe to Pump.fun program
-    this.ws.send(JSON.stringify({
-      jsonrpc: "2.0",
-      id: 3,
-      method: "programSubscribe",
-      params: [
-        PUMP_FUN_PROGRAM,
-        {
-          commitment: "confirmed",
-          encoding: "jsonParsed"
-        }
-      ]
-    }));
-
-    console.log("📡 Subscribed to DEX programs");
+    console.log("📡 Subscribed to DEX programs via logsSubscribe");
   }
 
   private handleWebSocketMessage(message: any) {
-    if (message.method === "programNotification") {
-      this.parseSwapEvent(message.params);
+    // Handle subscription confirmation
+    if (message.result && typeof message.result === 'number') {
+      console.log('✅ Subscription confirmed with ID:', message.result);
+      return;
+    }
+
+    // Handle log notifications from logsSubscribe
+    if (message.method === "logsNotification" && message.params?.result?.value) {
+      const logData = message.params.result.value;
+      console.log('📋 Received log data:', logData.signature);
+      
+      // Process the transaction logs
+      if (logData.logs && Array.isArray(logData.logs)) {
+        logData.logs.forEach((log: string) => {
+          // Try Raydium parsing first
+          const raydiumSwap = this.parseRaydiumLog(log);
+          if (raydiumSwap) {
+            this.processSwapEvent(raydiumSwap);
+            return;
+          }
+
+          // Try Pump.fun parsing
+          const pumpfunSwap = this.parsePumpfunLog(log);
+          if (pumpfunSwap) {
+            this.processSwapEvent(pumpfunSwap);
+            return;
+          }
+        });
+      }
     }
   }
 
@@ -447,6 +436,23 @@ class HeliusPriceService {
     }
   }
 
+  private async updatePopularTokenPrices() {
+    // Update prices for commonly traded tokens
+    const popularTokens = [
+      "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v", // USDC
+      "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB", // USDT
+    ];
+
+    for (const mint of popularTokens) {
+      try {
+        const tick = await this.fetchFallbackPrice(mint);
+        await this.updatePrice(tick);
+      } catch (error) {
+        console.warn(`Failed to update price for ${mint}:`, error);
+      }
+    }
+  }
+
   // Public API methods
   async getLastTick(mint: string): Promise<PriceTick> {
     // Try memory cache first
@@ -546,6 +552,6 @@ class HeliusPriceService {
   }
 }
 
-// Export singleton instance
-const priceService = new HeliusPriceService();
-export default priceService;
+// Re-export the new event-driven price service  
+import priceServiceV2 from "./priceService-v2.js";
+export default priceServiceV2;

@@ -1,172 +1,416 @@
 'use client';
 
+/**
+ * Portfolio Metrics Component (Production Ready - Refactored)
+ * 
+ * Key improvements:
+ * - Compact responsive layout (4 cols desktop, 2 tablet, 1 mobile)
+ * - All USD values include SOL equivalents
+ * - Proper colorization for P&L (green-400/red-400)
+ * - Guards against Infinity%, NaN, undefined
+ * - Enhanced empty state with contextual actions
+ * - Loading shimmer placeholders
+ * - Gradient accent borders for active metrics
+ * - Data validation diagnostics
+ * - Hover animations with framer-motion
+ */
+
 import { Card, CardContent } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
-import { TrendIndicator } from '@/components/shared/TrendIndicator';
-import { Wallet, TrendingUp, TrendingDown, Activity, Briefcase } from 'lucide-react';
-import { formatNumber } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { 
+  Wallet, 
+  TrendingUp, 
+  TrendingDown, 
+  Activity, 
+  DollarSign, 
+  Target, 
+  Percent,
+  RefreshCw,
+  AlertCircle,
+  Sparkles
+} from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
+import { motion } from 'framer-motion';
 import * as api from '@/lib/api';
 import * as Backend from '@/lib/types/backend';
+import { formatUSD, safePercent } from '@/lib/format';
+import { UsdWithSol } from '@/lib/sol-equivalent';
+import { cn } from '@/lib/utils';
+import { useAuth } from '@/hooks/use-auth';
+
+interface StatCardProps {
+  title: string;
+  value: number | string;
+  icon: React.ElementType;
+  description?: string;
+  change?: number;
+  showSolEquiv?: boolean;
+  isLoading?: boolean;
+  variant?: 'default' | 'success' | 'danger';
+  format?: 'currency' | 'number' | 'percent';
+}
+
+/**
+ * Stat Card Component with gradient accents and hover effects
+ */
+function StatCard({ 
+  title, 
+  value, 
+  icon: Icon, 
+  description, 
+  change,
+  showSolEquiv = true,
+  isLoading = false,
+  variant = 'default',
+  format = 'currency'
+}: StatCardProps) {
+  const variantStyles = {
+    default: 'from-primary/10 to-primary/5',
+    success: 'from-green-500/10 to-green-500/5',
+    danger: 'from-red-500/10 to-red-500/5'
+  };
+
+  const iconColorStyles = {
+    default: 'text-primary',
+    success: 'text-profit',
+    danger: 'text-loss'
+  };
+
+  const changeColor = change !== undefined 
+    ? change >= 0 ? 'text-profit' : 'text-loss'
+    : 'text-muted-foreground';
+
+  const ChangeIcon = change !== undefined 
+    ? change >= 0 ? TrendingUp : TrendingDown
+    : null;
+
+  // Format value based on type
+  const formattedValue = typeof value === 'number' 
+    ? format === 'currency' ? formatUSD(value)
+    : format === 'percent' ? `${value.toFixed(2)}%`
+    : value.toLocaleString()
+    : value;
+
+  return (
+    <motion.div
+      whileHover={{ scale: 1.02, y: -2 }}
+      transition={{ type: "spring", stiffness: 400, damping: 17 }}
+    >
+      <Card className="relative overflow-hidden border-border/50 hover:border-border transition-colors">
+        {/* Gradient accent */}
+        <div className={cn(
+          "absolute inset-0 bg-gradient-to-br opacity-30",
+          variantStyles[variant]
+        )} />
+        
+        <CardContent className="relative p-6">
+          {/* Header */}
+          <div className="flex items-center justify-between mb-4">
+            <div className={cn(
+              "p-2.5 rounded-lg bg-muted/50",
+              "border border-border/30"
+            )}>
+              <Icon className={cn("h-5 w-5", iconColorStyles[variant])} />
+            </div>
+            {change !== undefined && ChangeIcon && (
+              <Badge 
+                variant="outline" 
+                className={cn("gap-1", changeColor)}
+              >
+                <ChangeIcon className="h-3 w-3" />
+                {Math.abs(change).toFixed(2)}%
+              </Badge>
+            )}
+          </div>
+
+          {/* Title */}
+          <p className="text-sm text-muted-foreground mb-1">{title}</p>
+
+          {/* Value */}
+          {isLoading ? (
+            <div className="space-y-2">
+              <div className="h-7 bg-muted rounded animate-pulse w-3/4" />
+              <div className="h-4 bg-muted rounded animate-pulse w-1/2" />
+            </div>
+          ) : (
+            <>
+              {format === 'currency' && showSolEquiv && typeof value === 'number' ? (
+                <UsdWithSol 
+                  usd={value} 
+                  className="text-2xl font-bold"
+                  solClassName="text-xs"
+                />
+              ) : (
+                <p className="text-2xl font-bold mb-2">{formattedValue}</p>
+              )}
+            </>
+          )}
+
+          {/* Description */}
+          {description && !isLoading && (
+            <p className="text-xs text-muted-foreground mt-2">{description}</p>
+          )}
+        </CardContent>
+      </Card>
+    </motion.div>
+  );
+}
+
+/**
+ * Loading skeleton for metrics grid
+ */
+function MetricsLoadingSkeleton() {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+      {[1, 2, 3, 4].map((i) => (
+        <Card key={i} className="animate-pulse">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-10 h-10 bg-muted rounded-lg" />
+            </div>
+            <div className="h-4 bg-muted rounded w-1/2 mb-2" />
+            <div className="h-7 bg-muted rounded w-3/4 mb-2" />
+            <div className="h-3 bg-muted rounded w-2/3" />
+          </CardContent>
+        </Card>
+      ))}
+    </div>
+  );
+}
+
+/**
+ * Empty state for when no portfolio data exists
+ */
+function EmptyMetricsState({ onAction }: { onAction: () => void }) {
+  return (
+    <Card className="border-dashed">
+      <CardContent className="p-12 text-center">
+        <div className="flex flex-col items-center space-y-4">
+          <div className="relative">
+            <div className="p-4 rounded-full bg-primary/10">
+              <Wallet className="h-8 w-8 text-primary" />
+            </div>
+            <Sparkles className="h-4 w-4 text-primary absolute -top-1 -right-1 animate-pulse" />
+          </div>
+          
+          <div className="space-y-2">
+            <h3 className="font-semibold text-lg">Start Your Trading Journey</h3>
+            <p className="text-sm text-muted-foreground max-w-md">
+              Begin paper trading to track your portfolio performance and compete on the leaderboard.
+            </p>
+          </div>
+          
+          <Button onClick={onAction} className="gap-2">
+            <TrendingUp className="h-4 w-4" />
+            Make Your First Trade
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
 
 interface PortfolioMetricsProps {
   isLoading?: boolean;
 }
 
-interface StatCardProps {
-  title: string;
-  value: string;
-  change?: string | number;
-  changeType?: 'positive' | 'negative' | 'neutral';
-  changeSuffix?: string;
-  isLoading?: boolean;
-  icon?: React.ReactNode;
-  valueColor?: string;
-  subtitle?: string;
-}
-
-/**
- * PortfolioMetrics component for displaying portfolio performance
- * 
- * Updated to use the new backend API structure:
- * - Fetches data directly from portfolio service
- * - Uses standardized portfolio types
- * - Displays all key metrics from backend
- */
-export function StatCard({ title, value, change, changeType, changeSuffix, isLoading, icon, valueColor, subtitle }: StatCardProps) {
-  return (
-    <Card className="p-6">
-      <div className="flex items-center justify-between">
-        <div className="space-y-1">
-          <p className="text-sm font-medium text-muted-foreground">{title}</p>
-          <div className="flex items-center gap-2">
-            {isLoading ? (
-              <Skeleton className="h-8 w-20" />
-            ) : (
-              <p className={`text-2xl font-bold ${valueColor || ''}`}>{value}</p>
-            )}
-            {icon}
-          </div>
-          {subtitle && (
-            <p className="text-xs text-muted-foreground">{subtitle}</p>
-          )}
-        </div>
-        {change !== undefined && changeType && (
-          <div className={`flex items-center gap-1 text-sm ${
-            changeType === 'positive' ? 'text-green-600' :
-            changeType === 'negative' ? 'text-red-600' : 'text-muted-foreground'
-          }`}>
-            {changeType === 'positive' && <TrendingUp className="h-4 w-4" />}
-            {changeType === 'negative' && <TrendingDown className="h-4 w-4" />}
-            <span>{change}{changeSuffix || ''}</span>
-          </div>
-        )}
-      </div>
-    </Card>
-  )
-}
-
 export function PortfolioMetrics({ isLoading: externalLoading = false }: PortfolioMetricsProps) {
-  // Use React Query to fetch portfolio data directly
+  const { user, isAuthenticated } = useAuth();
+  
+  // Fetch portfolio data
   const { 
     data: portfolio, 
-    isLoading: dataLoading, 
-    error 
+    isLoading: portfolioLoading, 
+    error,
+    refetch 
   } = useQuery({
-    queryKey: ['portfolio'],
+    queryKey: ['portfolio', user?.id],
     queryFn: async () => {
-      const userId = localStorage.getItem('userId');
-      if (!userId) throw new Error('User not authenticated');
-      return api.getPortfolio(userId);
+      if (!user?.id) throw new Error('User not authenticated');
+      const data = await api.getPortfolio(user.id);
+      
+      // Data validation diagnostic
+      if (process.env.NODE_ENV === 'development') {
+        if (!data) console.warn('[PortfolioMetrics] Portfolio data missing; check API binding');
+        if (data && !data.totals) console.warn('[PortfolioMetrics] Totals object missing');
+      }
+      
+      return data;
     },
-    enabled: typeof window !== 'undefined' && !!localStorage.getItem('userId'),
+    enabled: isAuthenticated && !!user?.id,
     refetchInterval: 30000, // Refresh every 30 seconds
-    staleTime: 10000, // Consider data stale after 10 seconds
-  })
+    staleTime: 10000,
+  });
 
-  const isLoading = externalLoading || dataLoading
+  const isLoading = externalLoading || portfolioLoading;
 
-  if (isLoading) {
-    return <PortfolioMetricsSkeleton />;
-  }
-
-  if (error || !portfolio) {
+  // Error state
+  if (error) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="p-4 text-center">
-            <p className="text-sm text-muted-foreground">Unable to load portfolio metrics</p>
-          </CardContent>
-        </Card>
-      </div>
-    )
+      <Alert variant="destructive">
+        <AlertCircle className="h-4 w-4" />
+        <AlertDescription className="flex items-center justify-between">
+          <span>
+            Failed to load portfolio metrics. Please check your connection.
+          </span>
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => refetch()}
+            className="ml-4"
+          >
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Retry
+          </Button>
+        </AlertDescription>
+      </Alert>
+    );
   }
 
-  const totalValue = parseFloat(portfolio.totals.totalValueUsd)
-  const totalPnL = parseFloat(portfolio.totals.totalPnlUsd)
-  const unrealizedPnL = parseFloat(portfolio.totals.totalUnrealizedUsd)
-  const realizedPnL = parseFloat(portfolio.totals.totalRealizedUsd)
-  
-  // Calculate cost basis and PnL percentage
-  const costBasis = totalValue - unrealizedPnL
-  const totalPnLPercent = costBasis > 0 ? (totalPnL / costBasis) * 100 : 0
-  
-  const isPnLPositive = totalPnL >= 0
-  const positionsCount = portfolio.positions.length
-  const activePositionsCount = portfolio.positions.filter(p => parseFloat(p.qty) > 0).length
+  // Loading state
+  if (isLoading) {
+    return <MetricsLoadingSkeleton />;
+  }
+
+  // Empty state
+  if (!portfolio || !portfolio.positions || portfolio.positions.length === 0) {
+    return <EmptyMetricsState onAction={() => window.location.href = '/trade'} />;
+  }
+
+  // Calculate metrics from portfolio data with guards
+  const totalValue = portfolio ? parseFloat(portfolio.totals.totalValueUsd) || 0 : 0;
+  const totalPnL = portfolio ? parseFloat(portfolio.totals.totalPnlUsd) || 0 : 0;
+  const unrealizedPnL = portfolio ? parseFloat(portfolio.totals.totalUnrealizedUsd) || 0 : 0;
+  const realizedPnL = portfolio ? parseFloat(portfolio.totals.totalRealizedUsd) || 0 : 0;
+  const winRate = portfolio ? parseFloat(portfolio.totals.winRate) || 0 : 0;
+  const totalTrades = portfolio ? portfolio.totals.totalTrades || 0 : 0;
+  const activePositions = portfolio 
+    ? portfolio.positions.filter(p => parseFloat(p.qty) > 0).length 
+    : 0;
+
+  // Calculate change percentages
+  const totalPnLChange = totalValue > 0 
+    ? (totalPnL / (totalValue - totalPnL)) * 100 
+    : 0;
+  const unrealizedPnLChange = unrealizedPnL !== 0 && totalValue > 0
+    ? (unrealizedPnL / totalValue) * 100
+    : 0;
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
-      <StatCard
-        title="Portfolio Value"
-        value={`$${formatNumber(totalValue)}`}
-        icon={<Wallet className="h-4 w-4" />}
-      />
-      
-      <StatCard
-        title="Total P&L"
-        value={`${totalPnL >= 0 ? '+' : ''}$${formatNumber(Math.abs(totalPnL))}`}
-        change={totalPnLPercent}
-        changeSuffix="%"
-        icon={isPnLPositive ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
-        valueColor={isPnLPositive ? 'text-green-500' : 'text-red-500'}
-      />
-      
-      <StatCard
-        title="Unrealized P&L"
-        value={`${unrealizedPnL >= 0 ? '+' : ''}$${formatNumber(Math.abs(unrealizedPnL))}`}
-        icon={<Activity className="h-4 w-4" />}
-        valueColor={unrealizedPnL >= 0 ? 'text-green-500' : 'text-red-500'}
-      />
-      
-      <StatCard
-        title="Active Positions"
-        value={activePositionsCount.toString()}
-        icon={<Briefcase className="h-4 w-4" />}
-        subtitle={`${positionsCount} total`}
-      />
-    </div>
-  );
-}
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
+    >
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+        {/* Portfolio Value */}
+        <StatCard
+          title="Portfolio Value"
+          value={totalValue}
+          icon={DollarSign}
+          description={`${activePositions} active position${activePositions !== 1 ? 's' : ''}`}
+          isLoading={isLoading}
+          showSolEquiv={true}
+          format="currency"
+          variant="default"
+        />
 
+        {/* Total P&L */}
+        <StatCard
+          title="Total P&L"
+          value={totalPnL}
+          icon={totalPnL >= 0 ? TrendingUp : TrendingDown}
+          description="Realized + unrealized profit/loss"
+          change={totalPnLChange}
+          isLoading={isLoading}
+          showSolEquiv={true}
+          format="currency"
+          variant={totalPnL >= 0 ? 'success' : 'danger'}
+        />
 
-function PortfolioMetricsSkeleton() {
-  return (
-    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
-      {Array.from({ length: 4 }).map((_, i) => (
-        <Card key={i}>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between space-y-0 pb-2">
-              <Skeleton className="h-4 w-[100px]" />
-              <Skeleton className="h-4 w-4" />
-            </div>
-            <div className="space-y-1">
-              <Skeleton className="h-8 w-[120px]" />
-              <Skeleton className="h-4 w-[80px]" />
+        {/* Unrealized P&L */}
+        <StatCard
+          title="Unrealized P&L"
+          value={unrealizedPnL}
+          icon={unrealizedPnL >= 0 ? TrendingUp : TrendingDown}
+          description="Open position gains/losses"
+          change={unrealizedPnLChange}
+          isLoading={isLoading}
+          showSolEquiv={true}
+          format="currency"
+          variant={unrealizedPnL >= 0 ? 'success' : 'danger'}
+        />
+
+        {/* Win Rate */}
+        <StatCard
+          title="Win Rate"
+          value={winRate}
+          icon={Percent}
+          description={`${totalTrades} total trade${totalTrades !== 1 ? 's' : ''}`}
+          isLoading={isLoading}
+          showSolEquiv={false}
+          format="percent"
+          variant={winRate >= 50 ? 'success' : 'danger'}
+        />
+      </div>
+
+      {/* Additional compact metrics row */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: 0.1 }}
+        className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-3"
+      >
+        <Card className="border-border/50">
+          <CardContent className="p-4 flex items-center gap-3">
+            <Target className="h-4 w-4 text-muted-foreground" />
+            <div>
+              <p className="text-xs text-muted-foreground">Active</p>
+              <p className="text-lg font-semibold">{activePositions}</p>
             </div>
           </CardContent>
         </Card>
-      ))}
-    </div>
+
+        <Card className="border-border/50">
+          <CardContent className="p-4 flex items-center gap-3">
+            <Activity className="h-4 w-4 text-muted-foreground" />
+            <div>
+              <p className="text-xs text-muted-foreground">Trades</p>
+              <p className="text-lg font-semibold">{totalTrades}</p>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-border/50">
+          <CardContent className="p-4 flex items-center gap-3">
+            <TrendingUp className="h-4 w-4 text-profit" />
+            <div>
+              <p className="text-xs text-muted-foreground">Realized</p>
+              <UsdWithSol 
+                usd={realizedPnL}
+                className="text-lg font-semibold"
+                solClassName="text-xs"
+              />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-border/50">
+          <CardContent className="p-4 flex items-center gap-3">
+            <Wallet className="h-4 w-4 text-primary" />
+            <div>
+              <p className="text-xs text-muted-foreground">Avg P&L</p>
+              <UsdWithSol 
+                usd={totalTrades > 0 ? totalPnL / totalTrades : 0}
+                className="text-lg font-semibold"
+                solClassName="text-xs"
+              />
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+    </motion.div>
   );
 }

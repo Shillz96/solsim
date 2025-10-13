@@ -1,0 +1,28 @@
+---
+description: Monetary, numeric, and display formatting
+globs:
+  - "frontend/**/*.tsx"
+alwaysApply: false
+---
+
+### 🔢 Numeric Rules
+- All components must use helpers from `lib/format.ts`:
+  - `formatUSD`, `formatPriceUSD`, `formatQty`, `safePercent`
+- Show both USD and SOL equivalents (via `SolEquiv`).
+- Guard against divide-by-zero → display "—".
+- Never round before aggregating; only at render.
+
+### 🧮 Decimal Precision
+| Value Type | Rule |
+|-------------|------|
+| USD ≥ 10 000 | Compact (`$12.3K`) |
+| USD < 10 000 | 2 decimals |
+| Price < 1 USD | 3-6 decimals |
+| Qty < 1 | 4-6 decimals |
+| Percent | Always show sign (+/-), 2 decimals |
+
+### 🪪 Example
+```tsx
+<span>{formatUSD(position.valueUsd)}</span>
+<SolEquiv usd={position.valueUsd} />
+```

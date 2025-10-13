@@ -2,7 +2,7 @@
 
 import React, { useState } from "react"
 import { AuthGuard } from "@/components/auth/auth-guard"
-import { Card } from "@/components/ui/card"
+import { EnhancedCard, CardGrid, CardSection } from "@/components/ui/enhanced-card-system"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -27,141 +27,146 @@ export default function ProfilePage() {
 
         <div className="space-y-6">
           {/* Profile Information */}
-          <Card className="p-6 border-border bg-card">
-            <div className="flex items-center gap-4 mb-6">
-              <User className="h-5 w-5 text-primary" />
-              <h2 className="text-xl font-bold text-foreground">Profile Information</h2>
-            </div>
+          <EnhancedCard>
+            <CardSection title="Profile Information">
+              <div className="flex items-center gap-2 mb-6">
+                <User className="h-5 w-5 text-primary" />
+              </div>
 
-            <div className="flex items-center gap-6 mb-6">
-              <Avatar className="h-20 w-20 border-2 border-primary">
-                <AvatarImage src="/placeholder.svg?height=80&width=80" />
-                <AvatarFallback className="bg-primary/10 text-primary text-xl">TR</AvatarFallback>
-              </Avatar>
-              <div className="space-y-2">
-                <Button variant="outline" size="sm">
-                  Change Avatar
-                </Button>
-                <p className="text-xs text-muted-foreground">JPG, PNG or GIF. Max 2MB.</p>
+              <div className="flex items-center gap-6 mb-6">
+                <Avatar className="h-20 w-20 border-2 border-primary">
+                  <AvatarImage src="/placeholder.svg?height=80&width=80" />
+                  <AvatarFallback className="bg-primary/10 text-primary text-xl">TR</AvatarFallback>
+                </Avatar>
+                <div className="space-y-2">
+                  <Button variant="outline" size="sm">
+                    Change Avatar
+                  </Button>
+                  <p className="text-xs text-muted-foreground">JPG, PNG or GIF. Max 2MB.</p>
+                </div>
               </div>
-            </div>
 
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="username">Username</Label>
-                <Input id="username" defaultValue="trader123" className="bg-background border-border" />
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="username">Username</Label>
+                  <Input id="username" defaultValue="trader123" className="bg-background border-border" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    defaultValue="trader@example.com"
+                    className="bg-background border-border"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="bio">Bio</Label>
+                  <Textarea
+                    id="bio"
+                    placeholder="Tell us about yourself..."
+                    className="bg-background border-border resize-none"
+                    rows={3}
+                  />
+                </div>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  defaultValue="trader@example.com"
-                  className="bg-background border-border"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="bio">Bio</Label>
-                <Textarea
-                  id="bio"
-                  placeholder="Tell us about yourself..."
-                  className="bg-background border-border resize-none"
-                  rows={3}
-                />
-              </div>
-            </div>
-          </Card>
+            </CardSection>
+          </EnhancedCard>
 
           {/* Notifications */}
-          <Card className="p-6 border-border bg-card">
-            <div className="flex items-center gap-4 mb-6">
-              <Bell className="h-5 w-5 text-primary" />
-              <h2 className="font-space-grotesk text-xl font-bold text-foreground">Notifications</h2>
-            </div>
+          <EnhancedCard>
+            <CardSection title="Notifications">
+              <div className="flex items-center gap-2 mb-6">
+                <Bell className="h-5 w-5 text-primary" />
+              </div>
 
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium text-foreground">Trade Alerts</p>
-                  <p className="text-sm text-muted-foreground">Get notified when your trades execute</p>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-medium text-foreground">Trade Alerts</p>
+                    <p className="text-sm text-muted-foreground">Get notified when your trades execute</p>
+                  </div>
+                  <Switch checked={notifications} onCheckedChange={setNotifications} />
                 </div>
-                <Switch checked={notifications} onCheckedChange={setNotifications} />
-              </div>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium text-foreground">Price Alerts</p>
-                  <p className="text-sm text-muted-foreground">Receive alerts for price movements</p>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-medium text-foreground">Price Alerts</p>
+                    <p className="text-sm text-muted-foreground">Receive alerts for price movements</p>
+                  </div>
+                  <Switch defaultChecked />
                 </div>
-                <Switch defaultChecked />
-              </div>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium text-foreground">Leaderboard Updates</p>
-                  <p className="text-sm text-muted-foreground">Get notified about rank changes</p>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-medium text-foreground">Leaderboard Updates</p>
+                    <p className="text-sm text-muted-foreground">Get notified about rank changes</p>
+                  </div>
+                  <Switch />
                 </div>
-                <Switch />
               </div>
-            </div>
-          </Card>
+            </CardSection>
+          </EnhancedCard>
 
           {/* Appearance */}
-          <Card className="p-6 border-border bg-card">
-            <div className="flex items-center gap-4 mb-6">
-              <Palette className="h-5 w-5 text-primary" />
-              <h2 className="text-xl font-bold text-foreground">Appearance</h2>
-            </div>
-
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="font-medium text-foreground">Dark Mode</p>
-                <p className="text-sm text-muted-foreground">Use dark theme (recommended)</p>
+          <EnhancedCard>
+            <CardSection title="Appearance">
+              <div className="flex items-center gap-2 mb-6">
+                <Palette className="h-5 w-5 text-primary" />
               </div>
-              <Switch checked={darkMode} onCheckedChange={setDarkMode} />
-            </div>
-          </Card>
+
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="font-medium text-foreground">Dark Mode</p>
+                  <p className="text-sm text-muted-foreground">Use dark theme (recommended)</p>
+                </div>
+                <Switch checked={darkMode} onCheckedChange={setDarkMode} />
+              </div>
+            </CardSection>
+          </EnhancedCard>
 
           {/* Security */}
-          <Card className="p-6 border-border bg-card">
-            <div className="flex items-center gap-4 mb-6">
-              <Shield className="h-5 w-5 text-primary" />
-              <h2 className="text-xl font-bold text-foreground">Security</h2>
-            </div>
+          <EnhancedCard>
+            <CardSection title="Security">
+              <div className="flex items-center gap-2 mb-6">
+                <Shield className="h-5 w-5 text-primary" />
+              </div>
 
-            <div className="space-y-4">
-              <Button variant="outline" className="w-full justify-start bg-transparent">
-                Change Password
-              </Button>
-              <Button variant="outline" className="w-full justify-start bg-transparent">
-                Two-Factor Authentication
-              </Button>
-              <Button variant="outline" className="w-full justify-start bg-transparent">
-                Active Sessions
-              </Button>
-            </div>
-          </Card>
+              <div className="space-y-4">
+                <Button variant="outline" className="w-full justify-start bg-transparent">
+                  Change Password
+                </Button>
+                <Button variant="outline" className="w-full justify-start bg-transparent">
+                  Two-Factor Authentication
+                </Button>
+                <Button variant="outline" className="w-full justify-start bg-transparent">
+                  Active Sessions
+                </Button>
+              </div>
+            </CardSection>
+          </EnhancedCard>
 
           {/* Danger Zone */}
-          <Card className="p-6 border-destructive bg-card">
-            <div className="flex items-center gap-4 mb-6">
-              <Trash2 className="h-5 w-5 text-destructive" />
-              <h2 className="text-xl font-bold text-destructive">Danger Zone</h2>
-            </div>
+          <EnhancedCard variant="bordered" className="border-destructive">
+            <CardSection title="Danger Zone">
+              <div className="flex items-center gap-2 mb-6">
+                <Trash2 className="h-5 w-5 text-destructive" />
+              </div>
 
-            <div className="space-y-4">
-              <Button
-                variant="outline"
-                className="w-full justify-start text-destructive border-destructive hover:bg-destructive/10 bg-transparent"
-              >
-                Reset Portfolio
-              </Button>
-              <Button
-                variant="outline"
-                className="w-full justify-start text-destructive border-destructive hover:bg-destructive/10 bg-transparent"
-              >
-                Delete Account
-              </Button>
-            </div>
-          </Card>
+              <div className="space-y-4">
+                <Button
+                  variant="outline"
+                  className="w-full justify-start text-destructive border-destructive hover:bg-destructive/10 bg-transparent"
+                >
+                  Reset Portfolio
+                </Button>
+                <Button
+                  variant="outline"
+                  className="w-full justify-start text-destructive border-destructive hover:bg-destructive/10 bg-transparent"
+                >
+                  Delete Account
+                </Button>
+              </div>
+            </CardSection>
+          </EnhancedCard>
 
           {/* Save Button */}
           <div className="flex gap-3">

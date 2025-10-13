@@ -1,0 +1,24 @@
+---
+description: Code quality, hooks, and React Query behavior
+globs:
+  - "frontend/**/*.{ts,tsx}"
+alwaysApply: false
+---
+
+### ⚙️ Hooks and Queries
+- React Query default:
+  ```ts
+  { staleTime: 30000, cacheTime: 300000, refetchOnWindowFocus: false }
+  ```
+- Derive all data via usePortfolioQuery, useRewardsQuery, etc.
+- Re-fetch after auth or trade events.
+
+### 🧩 Component Rules
+- ≤ 150 lines per component; split UI + logic if larger.
+- One concern per file.
+- Use React.memo for table rows and chart series.
+- Strong prop typing; avoid any.
+
+### 🧰 Utilities
+- Common functions live in lib/.
+- New helpers → add JSDoc + type signature.

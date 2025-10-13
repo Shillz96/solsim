@@ -22,6 +22,10 @@ export async function getCandles(
   
   try {
     const currentTick = await priceService.getLastTick(mint);
+    if (!currentTick) {
+      throw new Error(`No price data available for token ${mint}`);
+    }
+    
     const basePrice = currentTick.priceUsd;
     
     const candles: CandleData[] = [];

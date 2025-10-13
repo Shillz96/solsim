@@ -1,0 +1,31 @@
+---
+description: SolSim architecture and design principles
+globs:
+  - "**/*.ts"
+  - "**/*.tsx"
+alwaysApply: true
+---
+
+### 🔧 Architectural Standards
+- Use **Next.js App Router (14+)** for all frontend pages.
+- Use **Fastify + Prisma** for backend services.
+- Follow separation of concerns:
+  - `/frontend` → UI/UX, React Query, PriceStream
+  - `/backend` → Business logic, data persistence
+- Keep shared types aligned between backend and frontend (`frontend/lib/types/backend.ts`).
+
+### 🧱 Folder Layout
+
+```
+frontend/app/ # Pages
+frontend/components/ # UI and domain components
+frontend/lib/ # Utils, formatters, contexts
+frontend/hooks/ # Custom hooks
+frontend/styles/ # Tokens and globals
+backend/src/ # Fastify services
+```
+
+### ✅ Implementation Rules
+- End-to-end type safety via TypeScript + Zod.
+- Always validate API input/output with schemas.
+- One context provider per concern (Auth, PriceStream, Theme, Query).

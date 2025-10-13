@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Crown, Mail, Coins, Star, TrendingUp, Shield } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { formatUSD } from "@/lib/format"
 
 interface TierBenefit {
   name: string;
@@ -76,12 +77,13 @@ const TIER_CONFIG = {
  * Tier Status Display Component
  * Shows user's current tier, benefits, and balances
  */
+
 export function TierStatus({
   userTier,
   benefits,
   virtualSolBalance,
   simTokenBalance,
-  className,
+  className
 }: TierStatusProps) {
   const tierConfig = TIER_CONFIG[userTier];
   const displayBenefits = benefits || tierConfig.defaultBenefits;

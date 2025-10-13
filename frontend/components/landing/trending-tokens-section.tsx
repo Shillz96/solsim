@@ -1,6 +1,6 @@
 "use client"
 
-import { Card } from "@/components/ui/card"
+import { EnhancedCard, CardGrid, CardSection } from "@/components/ui/enhanced-card-system"
 import { Button } from "@/components/ui/button"
 import { TrendingUp, ArrowRight, TrendingDown, Loader2 } from "lucide-react"
 import Link from "next/link"
@@ -9,9 +9,15 @@ import { motion } from "framer-motion"
 // Use backend types
 import type * as Backend from "@/lib/types/backend"
 import { useTrendingTokens } from "@/hooks/use-react-query-hooks"
+import { usePriceStreamContext } from "@/lib/price-stream-provider"
+import { formatSolEquivalent } from "@/lib/sol-equivalent-utils"
 
 export function TrendingTokensSection() {
   const { data: trendingTokens, isLoading: loading } = useTrendingTokens(6) // Increased to 6 for better showcase
+  const { prices: livePrices } = usePriceStreamContext()
+  
+  // Get SOL price for equivalents
+  const solPrice = livePrices.get('So11111111111111111111111111111111111111112')?.price || 0
 
   return (
     <section className="py-20 md:py-32 bg-background border-t border-b border-border">
@@ -41,7 +47,7 @@ export function TrendingTokensSection() {
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1 }}
               >
-                <Card className="p-6 bg-card border-2 border-foreground h-full">
+                <EnhancedCard className="p-6 bg-card border-2 border-foreground h-full">
                   <div className="space-y-4">
                     <div className="flex items-center gap-3">
                       <div className="h-12 w-12 rounded-full bg-muted animate-pulse" />
@@ -60,7 +66,7 @@ export function TrendingTokensSection() {
                     </div>
                     <div className="h-10 w-full bg-muted animate-pulse rounded" />
                   </div>
-                </Card>
+                </EnhancedCard>
               </motion.div>
             ))
           ) : (
@@ -73,7 +79,7 @@ export function TrendingTokensSection() {
                 transition={{ delay: index * 0.1 }}
               >
                 <Link href={`/trade?token=${token.mint}`}>
-                  <Card className="p-6 bg-card border-2 border-foreground hover:border-foreground transition-all duration-300 group cursor-pointer h-full">
+                  <EnhancedCard className="p-6 bg-card border-2 border-foreground hover:border-foreground transition-all duration-300 group cursor-pointer h-full">
                     <div className="space-y-4">
                       <div className="flex items-center gap-3">
                         <div className="relative h-12 w-12 rounded-full overflow-hidden bg-muted">
@@ -113,6 +119,11 @@ export function TrendingTokensSection() {
                         <p className="text-lg font-bold font-mono">
                           ${token.priceUsd < 0.001 ? token.priceUsd.toExponential(2) : token.priceUsd.toFixed(4)}
                         </p>
+                        {solPrice > 0 && (
+                          <p className="text-xs text-muted-foreground">
+                            {formatSolEquivalent(token.priceUsd, solPrice)}
+                          </p>
+                        )}
                       </div>
                       <div>
                         <p className="text-xs text-muted-foreground">24h Change</p>
@@ -159,7 +170,7 @@ export function TrendingTokensSection() {
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>
                   </div>
-                </Card>
+                </EnhancedCard>
               </Link>
             </motion.div>
           ))

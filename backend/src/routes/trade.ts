@@ -40,6 +40,12 @@ export default async function (app: FastifyInstance) {
       
       // Get current price for real-time updates
       const currentTick = await priceService.getLastTick(mint);
+      if (!currentTick) {
+        return reply.code(500).send({ 
+          error: "Price data unavailable for this token",
+          code: "PRICE_UNAVAILABLE"
+        });
+      }
       
       // Format response for frontend
       return {

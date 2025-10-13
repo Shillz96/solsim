@@ -1,6 +1,6 @@
 "use client"
 
-import { Card } from "@/components/ui/card"
+import { EnhancedCard, CardGrid, CardSection } from "@/components/ui/enhanced-card-system"
 import { Button } from "@/components/ui/button"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { AlertCircle } from "lucide-react"
@@ -19,8 +19,8 @@ export default function MonitoringPage() {
         </AlertDescription>
       </Alert>
       
-      <Card className="p-6">
-        <div className="text-center">
+      <EnhancedCard>
+        <div className="text-center p-6">
           <h2 className="text-xl font-semibold mb-4">System Status: Operational</h2>
           <p className="text-muted-foreground mb-6">
             All systems are currently running normally. Check back later for detailed monitoring information.
@@ -34,7 +34,7 @@ export default function MonitoringPage() {
             </Button>
           </div>
         </div>
-      </Card>
+      </EnhancedCard>
     </div>
   )
 }

@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { TrendingUp, TrendingDown, Loader2, AlertCircle } from "lucide-react"
 import { motion } from "framer-motion"
 import { Card } from "@/components/ui/card"
@@ -15,11 +16,16 @@ import { useTrendingTokens } from "@/hooks/use-react-query-hooks"
 export function EnhancedTrendingList() {
   const { data: trendingTokens, isLoading: loading, error, refetch: refresh } = useTrendingTokens(10) // Increased to 10 for better variety
   const [isRefreshing, setIsRefreshing] = useState(false)
+  const router = useRouter()
   
   const handleRefresh = async () => {
     setIsRefreshing(true)
     await refresh()
     setIsRefreshing(false)
+  }
+
+  const handleTokenClick = (tokenAddress: string) => {
+    router.push(`/trade?token=${tokenAddress}`)
   }
 
   if (loading && !trendingTokens) {
@@ -70,6 +76,7 @@ export function EnhancedTrendingList() {
         >
           <Card
             className="p-3 cursor-pointer bento-card"
+            onClick={() => handleTokenClick(token.mint)}
           >
           <div className="flex items-start gap-3">
             <TokenImage 

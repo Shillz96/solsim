@@ -13,6 +13,7 @@ import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertTriangle, AlertCircle, CheckCircle } from 'lucide-react';
+import { formatUSD } from "@/lib/format"
 import { formatNumber, cn } from '@/lib/utils';
 import { Token } from './types';
 import { TradingFormErrorBoundary } from './TradingFormErrorBoundary';
@@ -55,14 +56,14 @@ const createTradingFormSchema = (balance: number, minTradeAmount: number = 0.1, 
         .min(safeMinAmount, `Minimum trade amount is ${safeMinAmount}`)
         .refine(
           (val) => val <= safeBalance * (safeMaxPercentage / 100),
-          { message: `Maximum trade amount is ${safeMaxPercentage}% of your balance (${(safeBalance * (safeMaxPercentage / 100)).toFixed(2)})` }
+          { message: `Maximum trade amount is ${safeMaxPercentage}% of your balance (${formatUSD(safeBalance * (safeMaxPercentage / 100))})` }
         )
     ),
     isUsdInput: z.boolean().default(true),
   });
 };
 
-export interface EnhancedTradingFormProps {
+interface EnhancedTradingFormProps {
   availableTokens: Token[];
   userBalance: number;
   onSubmitTrade: (formData: EnhancedTradeFormData) => Promise<void>;
@@ -213,8 +214,8 @@ export function EnhancedTradingForm({
     if (amount && currentPrice > 0) {
       const amountStr = typeof amount === 'string' ? amount : String(amount);
       const convertedAmount = newIsUsdInput 
-        ? (parseFloat(amountStr) * currentPrice).toFixed(2) 
-        : (parseFloat(amountStr) / currentPrice).toFixed(6);
+        ? (parseFloat(amountStr) * currentPrice).toString() 
+        : (parseFloat(amountStr) / currentPrice).toString();
       form.setValue('amount', convertedAmount);
     }
   };
@@ -378,7 +379,7 @@ export function EnhancedTradingForm({
                         variant="outline" 
                         size="sm"
                         className="h-10 text-sm font-medium transition-all hover:bg-primary/10 hover:border-primary hover:text-primary"
-                        onClick={() => form.setValue('amount', (userBalance * 0.25).toFixed(2))}
+                        onClick={() => form.setValue('amount', (userBalance * 0.25).toString())}
                       >
                         25%
                       </Button>
@@ -387,7 +388,7 @@ export function EnhancedTradingForm({
                         variant="outline" 
                         size="sm"
                         className="h-10 text-sm font-medium transition-all hover:bg-primary/10 hover:border-primary hover:text-primary"
-                        onClick={() => form.setValue('amount', (userBalance * 0.5).toFixed(2))}
+                        onClick={() => form.setValue('amount', (userBalance * 0.5).toString())}
                       >
                         50%
                       </Button>
@@ -396,7 +397,7 @@ export function EnhancedTradingForm({
                         variant="outline" 
                         size="sm"
                         className="h-10 text-sm font-medium transition-all hover:bg-primary/10 hover:border-primary hover:text-primary"
-                        onClick={() => form.setValue('amount', (userBalance * 0.75).toFixed(2))}
+                        onClick={() => form.setValue('amount', (userBalance * 0.75).toString())}
                       >
                         75%
                       </Button>
@@ -405,7 +406,7 @@ export function EnhancedTradingForm({
                         variant="outline" 
                         size="sm"
                         className="h-10 text-sm font-medium transition-all hover:bg-primary/10 hover:border-primary hover:text-primary"
-                        onClick={() => form.setValue('amount', (userBalance * 0.99).toFixed(2))}
+                        onClick={() => form.setValue('amount', (userBalance * 0.99).toString())}
                       >
                         Max
                       </Button>

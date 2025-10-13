@@ -1,10 +1,37 @@
 "use client"
 
-import { Card } from "@/components/ui/card"
+/**
+ * PnL Card Component (Production Ready - Refactored)
+ * 
+ * Key improvements:
+ * - All USD values include SOL equivalents
+ * - Proper colorization (green-400/red-400) for P&L
+ * - Guards against Infinity%, NaN, undefined
+ * - Animated gradient background based on P&L direction
+ * - Enhanced empty state with call-to-action
+ * - Share P&L dialog integration
+ * - Loading state with skeleton
+ * - Data validation diagnostics
+ * - Compact 2-column responsive layout
+ */
+
+import { EnhancedCard } from "@/components/ui/enhanced-card-system"
 import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { AnimatedNumber } from "@/components/ui/animated-number"
-import { TrendingUp, TrendingDown, Wallet, Activity, AlertCircle, RefreshCw, Share } from "lucide-react"
+import { 
+  TrendingUp, 
+  TrendingDown, 
+  Wallet, 
+  Activity, 
+  AlertCircle, 
+  RefreshCw, 
+  Share2,
+  Sparkles,
+  Target,
+  Award,
+  DollarSign
+} from "lucide-react"
 import { motion } from "framer-motion"
 import { SharePnLDialog } from "@/components/modals/share-pnl-dialog"
 import { memo, useState, useCallback } from "react"
@@ -12,41 +39,153 @@ import { useQuery } from "@tanstack/react-query"
 import { useAuth } from "@/hooks/use-auth"
 import * as Backend from "@/lib/types/backend"
 import * as api from "@/lib/api"
+import { formatUSD, safePercent } from "@/lib/format"
+import { UsdWithSol } from "@/lib/sol-equivalent"
+import { cn } from "@/lib/utils"
 
+/**
+ * Animated gradient background based on P&L performance
+ */
 const AnimatedBackground = memo(({ isPositive }: { isPositive: boolean }) => {
   return (
     <motion.div
-      className="absolute inset-0 opacity-5"
-      style={{ willChange: "background" }}
+      className="absolute inset-0 opacity-10"
       animate={{
         background: isPositive
           ? [
-              "radial-gradient(circle at 0% 0%, oklch(0.70 0.20 180) 0%, transparent 50%)",
-              "radial-gradient(circle at 100% 0%, oklch(0.70 0.20 180) 0%, transparent 50%)",
-              "radial-gradient(circle at 100% 100%, oklch(0.70 0.20 180) 0%, transparent 50%)",
-              "radial-gradient(circle at 0% 100%, oklch(0.70 0.20 180) 0%, transparent 50%)",
-              "radial-gradient(circle at 0% 0%, oklch(0.70 0.20 180) 0%, transparent 50%)",
+              "radial-gradient(circle at 0% 0%, rgb(34, 197, 94) 0%, transparent 50%)",
+              "radial-gradient(circle at 100% 0%, rgb(34, 197, 94) 0%, transparent 50%)",
+              "radial-gradient(circle at 100% 100%, rgb(34, 197, 94) 0%, transparent 50%)",
+              "radial-gradient(circle at 0% 100%, rgb(34, 197, 94) 0%, transparent 50%)",
+              "radial-gradient(circle at 0% 0%, rgb(34, 197, 94) 0%, transparent 50%)",
             ]
           : [
-              "radial-gradient(circle at 0% 0%, oklch(0.55 0.25 25) 0%, transparent 50%)",
-              "radial-gradient(circle at 100% 0%, oklch(0.55 0.25 25) 0%, transparent 50%)",
-              "radial-gradient(circle at 100% 100%, oklch(0.55 0.25 25) 0%, transparent 50%)",
-              "radial-gradient(circle at 0% 100%, oklch(0.55 0.25 25) 0%, transparent 50%)",
-              "radial-gradient(circle at 0% 0%, oklch(0.55 0.25 25) 0%, transparent 50%)",
+              "radial-gradient(circle at 0% 0%, rgb(239, 68, 68) 0%, transparent 50%)",
+              "radial-gradient(circle at 100% 0%, rgb(239, 68, 68) 0%, transparent 50%)",
+              "radial-gradient(circle at 100% 100%, rgb(239, 68, 68) 0%, transparent 50%)",
+              "radial-gradient(circle at 0% 100%, rgb(239, 68, 68) 0%, transparent 50%)",
+              "radial-gradient(circle at 0% 0%, rgb(239, 68, 68) 0%, transparent 50%)",
             ],
       }}
-      transition={{ duration: 8, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
+      transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
     />
   )
 })
 
 AnimatedBackground.displayName = "AnimatedBackground"
 
-export function PnLCard() {
-  const [shareDialogOpen, setShareDialogOpen] = useState(false)
-  const { user, isAuthenticated } = useAuth()
+/**
+ * Empty state when no P&L data exists
+ */
+function EmptyPnLState() {
+  return (
+    <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
+      <div className="relative mb-4">
+        <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
+          <Activity className="w-8 h-8 text-primary" />
+        </div>
+        <Sparkles className="w-4 h-4 text-primary absolute -top-1 -right-1 animate-pulse" />
+      </div>
+      
+      <h3 className="text-lg font-semibold mb-2">No Trading Activity Yet</h3>
+      <p className="text-sm text-muted-foreground max-w-sm mb-4">
+        Start trading to see your profit & loss performance here.
+      </p>
+      
+      <Button className="gap-2" onClick={() => window.location.href = '/trade'}>
+        <TrendingUp className="w-4 h-4" />
+        Start Trading
+      </Button>
+    </div>
+  );
+}
 
-  // Use React Query to fetch portfolio data directly
+/**
+ * Loading skeleton for P&L card
+ */
+function PnLLoadingSkeleton() {
+  return (
+    <div className="space-y-6 p-6">
+      <div className="flex items-center justify-between">
+        <div className="h-6 bg-muted rounded w-32 animate-pulse" />
+        <div className="flex gap-2">
+          <div className="h-9 w-9 bg-muted rounded animate-pulse" />
+          <div className="h-9 w-20 bg-muted rounded animate-pulse" />
+        </div>
+      </div>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {[1, 2, 3, 4].map((i) => (
+          <div key={i} className="space-y-2">
+            <div className="h-4 bg-muted rounded w-24 animate-pulse" />
+            <div className="h-8 bg-muted rounded w-32 animate-pulse" />
+            <div className="h-3 bg-muted rounded w-20 animate-pulse" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Stat item component for P&L metrics
+ */
+interface StatItemProps {
+  label: string;
+  value: number;
+  showSolEquiv?: boolean;
+  color?: 'default' | 'positive' | 'negative';
+  percentage?: string;
+  icon?: React.ReactNode;
+}
+
+function StatItem({ 
+  label, 
+  value, 
+  showSolEquiv = true, 
+  color = 'default',
+  percentage,
+  icon 
+}: StatItemProps) {
+  const colorStyles = {
+    default: 'text-foreground',
+    positive: 'text-green-400',
+    negative: 'text-red-400'
+  };
+
+  return (
+    <div className="space-y-1">
+      <div className="flex items-center gap-2">
+        {icon}
+        <p className="text-sm text-muted-foreground">{label}</p>
+      </div>
+      
+      {showSolEquiv ? (
+        <UsdWithSol 
+          usd={value} 
+          className={cn("text-2xl font-bold", colorStyles[color])}
+          solClassName="text-xs"
+        />
+      ) : (
+        <p className={cn("text-2xl font-bold", colorStyles[color])}>
+          {formatUSD(value)}
+        </p>
+      )}
+      
+      {percentage && (
+        <p className={cn("text-xs", colorStyles[color])}>
+          {percentage}
+        </p>
+      )}
+    </div>
+  );
+}
+
+export function PnLCard() {
+  const [shareDialogOpen, setShareDialogOpen] = useState(false);
+  const { user, isAuthenticated } = useAuth();
+
+  // Fetch portfolio data with React Query
   const { 
     data: portfolio, 
     isLoading, 
@@ -56,47 +195,53 @@ export function PnLCard() {
   } = useQuery({
     queryKey: ['portfolio', user?.id],
     queryFn: async () => {
-      if (!user?.id) throw new Error('User not authenticated')
-      return api.getPortfolio(user.id)
+      if (!user?.id) throw new Error('User not authenticated');
+      const data = await api.getPortfolio(user.id);
+      
+      // Data validation diagnostic
+      if (process.env.NODE_ENV === 'development') {
+        if (!data) console.warn('[PnLCard] Portfolio data missing; check API binding or cache invalidation');
+        if (data && !data.totals) console.warn('[PnLCard] Totals object missing from portfolio');
+      }
+      
+      return data;
     },
     enabled: isAuthenticated && !!user?.id,
     refetchInterval: 30000, // Refresh every 30 seconds
-    staleTime: 10000, // Consider data stale after 10 seconds
-  })
+    staleTime: 10000,
+  });
 
   const handleRefresh = useCallback(() => {
-    refetch()
-  }, [refetch])
+    refetch();
+  }, [refetch]);
 
   const handleShare = useCallback(() => {
-    setShareDialogOpen(true)
-  }, [])
+    setShareDialogOpen(true);
+  }, []);
 
+  // Loading state
   if (isLoading) {
     return (
-      <Card className="relative overflow-hidden">
-        <div className="p-6">
-          <div className="flex items-center justify-center space-x-2">
-            <Activity className="h-5 w-5 animate-pulse" />
-            <span>Loading PnL data...</span>
-          </div>
-        </div>
-      </Card>
-    )
+      <EnhancedCard className="relative overflow-hidden">
+        <PnLLoadingSkeleton />
+      </EnhancedCard>
+    );
   }
 
+  // Error state
   if (error) {
     return (
-      <Card className="relative overflow-hidden">
+      <EnhancedCard className="relative overflow-hidden">
         <div className="p-6">
           <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
-            <AlertDescription>
-              Failed to load PnL data: {error instanceof Error ? error.message : 'Unknown error'}
+            <AlertDescription className="flex items-center justify-between">
+              <span>
+                Failed to load P&L data: {error instanceof Error ? error.message : 'Unknown error'}
+              </span>
               <Button 
                 variant="outline" 
-                size="sm" 
-                className="ml-2"
+                size="sm"
                 onClick={handleRefresh}
               >
                 Retry
@@ -104,191 +249,179 @@ export function PnLCard() {
             </AlertDescription>
           </Alert>
         </div>
-      </Card>
-    )
+      </EnhancedCard>
+    );
   }
 
-  if (!portfolio) {
+  // Empty state
+  if (!portfolio || !portfolio.positions || portfolio.positions.length === 0) {
     return (
-      <Card className="relative overflow-hidden">
-        <div className="p-6 text-center">
-          <Wallet className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-          <h3 className="text-lg font-medium">No Portfolio Data</h3>
-          <p className="text-muted-foreground">
-            Start trading to see your PnL here
-          </p>
-        </div>
-      </Card>
-    )
+      <EnhancedCard className="relative overflow-hidden">
+        <EmptyPnLState />
+      </EnhancedCard>
+    );
   }
 
-  const totalValue = parseFloat(portfolio.totals.totalValueUsd)
-  const totalPnL = parseFloat(portfolio.totals.totalPnlUsd)
-  const unrealizedPnL = parseFloat(portfolio.totals.totalUnrealizedUsd)
-  const realizedPnL = parseFloat(portfolio.totals.totalRealizedUsd)
+  // Calculate metrics with guards
+  const totalValue = parseFloat(portfolio.totals.totalValueUsd) || 0;
+  const totalPnL = parseFloat(portfolio.totals.totalPnlUsd) || 0;
+  const realizedPnL = parseFloat(portfolio.totals.totalRealizedUsd) || 0;
+  const unrealizedPnL = parseFloat(portfolio.totals.totalUnrealizedUsd) || 0;
+  const winRate = parseFloat(portfolio.totals.winRate) || 0;
+  const totalTrades = portfolio.totals.totalTrades || 0;
   
-  // Enhanced trading statistics
-  const winRate = parseFloat(portfolio.totals.winRate)
-  const totalTrades = portfolio.totals.totalTrades
-  const winningTrades = portfolio.totals.winningTrades
-  const losingTrades = portfolio.totals.losingTrades
-  
-  // Calculate PnL percentage based on total invested (cost basis)
-  const costBasis = totalValue - unrealizedPnL
-  const totalPnLPercent = costBasis > 0 ? (totalPnL / costBasis) * 100 : 0
-  
-  const isPositive = totalPnL >= 0
+  const costBasis = totalValue - totalPnL;
+  const totalPnLPercent = safePercent(totalPnL, costBasis);
+  const realizedPnLPercent = safePercent(realizedPnL, costBasis);
+  const unrealizedPnLPercent = safePercent(unrealizedPnL, costBasis);
+
+  const isPositive = totalPnL >= 0;
+  const PnLIcon = isPositive ? TrendingUp : TrendingDown;
+  const pnlColor = isPositive ? 'positive' : 'negative';
 
   return (
     <>
-      <Card className="relative overflow-hidden">
+      <EnhancedCard className="relative overflow-hidden">
+        {/* Animated Background */}
         <AnimatedBackground isPositive={isPositive} />
-        
-        <div className="relative z-10 p-6">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center space-x-2">
-              <div className={`p-2 rounded-lg ${isPositive ? 'bg-green-500/20' : 'bg-red-500/20'}`}>
-                {isPositive ? (
-                  <TrendingUp className="h-5 w-5 text-green-500" />
-                ) : (
-                  <TrendingDown className="h-5 w-5 text-red-500" />
-                )}
+
+        <div className="relative p-6 space-y-6">
+          {/* Header */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className={cn(
+                "p-2 rounded-lg",
+                isPositive ? "bg-green-500/10" : "bg-red-500/10"
+              )}>
+                <PnLIcon className={cn(
+                  "h-5 w-5",
+                  isPositive ? "text-green-400" : "text-red-400"
+                )} />
               </div>
-              <h2 className="text-lg font-semibold">Portfolio P&L</h2>
+              <div>
+                <h3 className="text-lg font-semibold">Profit & Loss</h3>
+                <p className="text-sm text-muted-foreground">
+                  {totalTrades} trade{totalTrades !== 1 ? 's' : ''} • {winRate.toFixed(1)}% win rate
+                </p>
+              </div>
             </div>
 
-            <div className="flex items-center space-x-2">
+            {/* Actions */}
+            <div className="flex gap-2">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleRefresh}
+                disabled={isRefetching}
+                className="shrink-0"
+              >
+                <RefreshCw className={cn(
+                  "h-4 w-4",
+                  isRefetching && "animate-spin"
+                )} />
+              </Button>
+              
               <Button
                 variant="outline"
                 size="sm"
                 onClick={handleShare}
-                className="p-2"
+                className="gap-2"
               >
-                <Share className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleRefresh}
-                disabled={isRefetching}
-                className="p-2"
-              >
-                {isRefetching ? (
-                  <Activity className="h-4 w-4 animate-spin" />
-                ) : (
-                  <RefreshCw className="h-4 w-4" />
-                )}
+                <Share2 className="h-4 w-4" />
+                <span className="hidden sm:inline">Share</span>
               </Button>
             </div>
           </div>
 
-          {/* Main PnL Display */}
-          <div className="text-center mb-6">
-            <motion.div
-              key={totalPnL}
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ duration: 0.3 }}
-            >
-              <p className="text-sm text-muted-foreground mb-1">Total P&L</p>
-              <div className="flex items-center justify-center space-x-1 mb-2">
-                <span className={`text-3xl font-bold ${isPositive ? 'text-green-500' : 'text-red-500'}`}>
-                  {isPositive ? '+' : ''}
-                  <AnimatedNumber 
-                    value={Math.abs(totalPnL)} 
-                    prefix="$" 
-                    decimals={2}
-                  />
-                </span>
-              </div>
-              <div className={`text-lg font-medium ${isPositive ? 'text-green-500' : 'text-red-500'}`}>
-                {isPositive ? '+' : ''}{totalPnLPercent.toFixed(2)}%
-              </div>
-            </motion.div>
-          </div>
-
-          {/* Portfolio Value */}
-          <div className="text-center mb-6 p-4 bg-muted/30 rounded-lg">
-            <p className="text-sm text-muted-foreground mb-1">Portfolio Value</p>
-            <p className="text-2xl font-bold">
-              <AnimatedNumber value={totalValue} prefix="$" decimals={2} />
-            </p>
-          </div>
-
-          {/* PnL Breakdown */}
-          <div className="grid grid-cols-2 gap-4 mb-4">
-            <motion.div 
-              className="text-center p-4 bg-green-500/10 rounded-lg border border-green-500/20"
-              whileHover={{ scale: 1.02 }}
-              transition={{ duration: 0.2 }}
-            >
-              <p className="text-sm text-muted-foreground mb-1">Realized</p>
-              <p className={`text-lg font-semibold ${realizedPnL >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                {realizedPnL >= 0 ? '+' : ''}
-                <AnimatedNumber value={Math.abs(realizedPnL)} prefix="$" decimals={2} />
-              </p>
-            </motion.div>
-            
-            <motion.div 
-              className="text-center p-4 bg-blue-500/10 rounded-lg border border-blue-500/20"
-              whileHover={{ scale: 1.02 }}
-              transition={{ duration: 0.2 }}
-            >
-              <p className="text-sm text-muted-foreground mb-1">Unrealized</p>
-              <p className={`text-lg font-semibold ${unrealizedPnL >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                {unrealizedPnL >= 0 ? '+' : ''}
-                <AnimatedNumber value={Math.abs(unrealizedPnL)} prefix="$" decimals={2} />
-              </p>
-            </motion.div>
-          </div>
-
-          {/* Trading Statistics */}
-          <div className="grid grid-cols-3 gap-3 mb-4 p-4 bg-muted/30 rounded-lg">
-            <div className="text-center">
-              <p className="text-sm text-muted-foreground mb-1">Win Rate</p>
-              <p className={`text-lg font-bold ${winRate >= 50 ? 'text-green-500' : 'text-red-500'}`}>
-                <AnimatedNumber value={winRate} suffix="%" decimals={1} />
-              </p>
-            </div>
-            <div className="text-center">
-              <p className="text-sm text-muted-foreground mb-1">Total Trades</p>
-              <p className="text-lg font-bold text-foreground">
-                <AnimatedNumber value={totalTrades} decimals={0} />
-              </p>
-            </div>
-            <div className="text-center">
-              <p className="text-sm text-muted-foreground mb-1">W/L Ratio</p>
-              <p className="text-lg font-bold text-foreground">
-                {winningTrades}:{losingTrades}
-              </p>
-            </div>
-          </div>
-
-          {/* Performance Indicator */}
-          <div className="mt-4 flex items-center justify-center">
-            <div className={`flex items-center space-x-1 px-3 py-1 rounded-full text-sm font-medium ${
+          {/* Main P&L Display - Featured */}
+          <motion.div
+            initial={{ scale: 0.95, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ delay: 0.1 }}
+            className={cn(
+              "p-6 rounded-xl border-2",
               isPositive 
-                ? 'bg-green-500/20 text-green-700 dark:text-green-300' 
-                : 'bg-red-500/20 text-red-700 dark:text-red-300'
-            }`}>
-              {isPositive ? (
-                <TrendingUp className="h-3 w-3" />
-              ) : (
-                <TrendingDown className="h-3 w-3" />
-              )}
-              <span>{isPositive ? 'Profitable' : 'At Loss'}</span>
-            </div>
+                ? "bg-green-500/5 border-green-500/20" 
+                : "bg-red-500/5 border-red-500/20"
+            )}
+          >
+            <StatItem
+              label="Total P&L"
+              value={totalPnL}
+              showSolEquiv={true}
+              color={pnlColor}
+              percentage={totalPnLPercent}
+              icon={<Award className={cn(
+                "h-4 w-4",
+                isPositive ? "text-green-400" : "text-red-400"
+              )} />}
+            />
+          </motion.div>
+
+          {/* Detailed Metrics Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t">
+            <StatItem
+              label="Realized P&L"
+              value={realizedPnL}
+              showSolEquiv={true}
+              color={realizedPnL >= 0 ? 'positive' : 'negative'}
+              percentage={realizedPnLPercent}
+              icon={<Target className="h-4 w-4 text-muted-foreground" />}
+            />
+
+            <StatItem
+              label="Unrealized P&L"
+              value={unrealizedPnL}
+              showSolEquiv={true}
+              color={unrealizedPnL >= 0 ? 'positive' : 'negative'}
+              percentage={unrealizedPnLPercent}
+              icon={<Activity className="h-4 w-4 text-muted-foreground" />}
+            />
+
+            <StatItem
+              label="Portfolio Value"
+              value={totalValue}
+              showSolEquiv={true}
+              color="default"
+              icon={<Wallet className="h-4 w-4 text-muted-foreground" />}
+            />
+
+            <StatItem
+              label="Cost Basis"
+              value={costBasis}
+              showSolEquiv={true}
+              color="default"
+              icon={<DollarSign className="h-4 w-4 text-muted-foreground" />}
+            />
           </div>
+
+          {/* Performance Badge */}
+          {totalTrades >= 5 && (
+            <div className="flex items-center gap-2 pt-4 border-t">
+              <Badge 
+                variant={winRate >= 50 ? "default" : "secondary"}
+                className="gap-1"
+              >
+                <Award className="h-3 w-3" />
+                {winRate >= 70 ? "Outstanding" : winRate >= 50 ? "Profitable" : "Building Experience"}
+              </Badge>
+              <span className="text-xs text-muted-foreground">
+                {winRate.toFixed(1)}% success rate across {totalTrades} trades
+              </span>
+            </div>
+          )}
         </div>
-      </Card>
+      </EnhancedCard>
 
       {/* Share Dialog */}
       <SharePnLDialog
+        open={shareDialogOpen}
+        onOpenChange={setShareDialogOpen}
         totalPnL={totalPnL}
-        totalPnLPercent={totalPnLPercent}
+        totalPnLPercent={parseFloat(totalPnLPercent.replace(/[^0-9.-]/g, '')) || 0}
         currentValue={totalValue}
         initialBalance={costBasis}
       />
     </>
-  )
+  );
 }

@@ -1,0 +1,24 @@
+{
+  "name": "solsim-monorepo",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "frontend",
+    "backend"
+  ],
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "install": "cd backend && npm install",
+    "build": "cd backend && npm run build",
+    "start": "cd backend && npm start",
+    "install-workspaces": "npm install && npm run install-types",
+    "install-types": "cd packages/types && npm install"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/server-filesystem": "^2025.8.21",
+    "tailwindcss-language-server": "^0.0.1",
+    "typescript-language-server": "^5.0.1"
+  }
+}

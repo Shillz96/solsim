@@ -1,92 +1,200 @@
 "use client"
 
+import { Suspense } from "react"
 import { AuthGuard } from "@/components/auth/auth-guard"
 import { PnLCard } from "@/components/portfolio/pnl-card"
-import { ActivePositions } from "@/components/portfolio/active-positions"
+import { UnifiedPositions } from "@/components/portfolio/unified-positions"
 import { RewardsCard } from "@/components/portfolio/rewards-card"
+import { PortfolioMetrics } from "@/components/portfolio/PortfolioMetrics"
 import { EnhancedTrendingList } from "@/components/leaderboard/enhanced-trending-list"
 import { TradeHistory } from "@/components/trading/trade-history"
 import { PortfolioChart } from "@/components/portfolio/portfolio-chart-dynamic"
-import { Card } from "@/components/ui/card"
+import { SimplePageHeader, PortfolioPageActions } from "@/components/shared/simple-page-header"
+import { EnhancedCard, CardGrid, CardSection } from "@/components/ui/enhanced-card-system"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { TrendingUp, History, BarChart3 } from "lucide-react"
+import { TrendingUp, History, BarChart3, Wallet, Target, Loader2 } from "lucide-react"
+import { motion } from "framer-motion"
 import { useAuth } from "@/hooks/use-auth"
 
-export default function PortfolioPage() {
+function PortfolioPageContent() {
   const { user, isAuthenticated } = useAuth()
 
   return (
-    <AuthGuard>
-      <div className="min-h-screen bg-background">
-        <main className="container mx-auto px-6 py-8 max-w-7xl">
-          {/* Header */}
-          <div className="mb-8">
-            <h1 className="text-4xl font-bold tracking-tight mb-4">Portfolio</h1>
-            <p className="text-lg text-muted-foreground">Track your positions and performance</p>
-          </div>
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
+      <main className="w-full px-2 sm:px-4 lg:px-6 py-6 max-w-[2000px] mx-auto">
+        {/* Enhanced Header */}
+        <SimplePageHeader
+          title="Portfolio"
+          subtitle="Track your positions and performance"
+          icon={<Wallet className="h-6 w-6 text-primary" />}
+          actions={<PortfolioPageActions />}
+        />
 
-          {/* Main Grid Layout */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Left Column - Main Content (2/3 width) */}
-            <div className="lg:col-span-2 space-y-8">
-              {/* Portfolio Summary */}
-              <PnLCard />
+        {/* Portfolio Metrics - Top Level */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+          className="mb-6"
+        >
+          <PortfolioMetrics />
+        </motion.div>
 
-              {/* Tabbed Content */}
+        {/* Enhanced Main Grid Layout */}
+        <CardGrid
+          columns={{ desktop: 4, tablet: 2, mobile: 1 }}
+          gap="lg"
+          className="xl:grid-cols-[3fr_1fr]"
+        >
+          {/* Left Column - Main Content (3/4 width) */}
+          <div className="xl:col-span-1 space-y-6">
+            {/* Enhanced Portfolio Summary */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+            >
+              <EnhancedCard variant="glass" size="lg">
+                <CardSection title="Portfolio Summary" spacing="normal">
+                  <PnLCard />
+                </CardSection>
+              </EnhancedCard>
+            </motion.div>
+
+            {/* Enhanced Tabbed Content */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+            >
               <Tabs defaultValue="positions" className="w-full">
-                <TabsList className="grid w-full grid-cols-3 mb-6">
-                  <TabsTrigger value="positions" className="gap-2">
+                <TabsList className="grid w-full grid-cols-3 mb-6 bg-muted/50 backdrop-blur-sm border border-border/50">
+                  <TabsTrigger value="positions" className="gap-2 data-[state=active]:bg-primary/20">
                     <TrendingUp className="h-4 w-4" />
                     <span className="hidden sm:inline">Positions</span>
                   </TabsTrigger>
-                  <TabsTrigger value="performance" className="gap-2">
+                  <TabsTrigger value="performance" className="gap-2 data-[state=active]:bg-primary/20">
                     <BarChart3 className="h-4 w-4" />
                     <span className="hidden sm:inline">Performance</span>
                   </TabsTrigger>
-                  <TabsTrigger value="history" className="gap-2">
+                  <TabsTrigger value="history" className="gap-2 data-[state=active]:bg-primary/20">
                     <History className="h-4 w-4" />
                     <span className="hidden sm:inline">History</span>
                   </TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="positions" className="mt-0">
-                  <ActivePositions />
+                  <EnhancedCard variant="bordered" size="lg">
+                    <CardSection title="Your Positions" spacing="normal">
+                      <UnifiedPositions 
+                        variant="full" 
+                        showHeader={false}
+                        showSummary={true}
+                      />
+                    </CardSection>
+                  </EnhancedCard>
                 </TabsContent>
 
                 <TabsContent value="performance" className="mt-0">
-                  <Card className="p-6 border border-border rounded-none shadow-none">
-                    <h3 className="font-bold text-lg mb-6">Portfolio Performance</h3>
-                    <PortfolioChart />
-                  </Card>
+                  <EnhancedCard variant="elevated" size="lg">
+                    <CardSection 
+                      title="Portfolio Performance" 
+                      description="Track your portfolio value over time"
+                      spacing="normal"
+                    >
+                      <PortfolioChart />
+                    </CardSection>
+                  </EnhancedCard>
                 </TabsContent>
 
                 <TabsContent value="history" className="mt-0">
-                  <TradeHistory />
+                  <EnhancedCard variant="default" size="lg">
+                    <CardSection 
+                      title="Trade History" 
+                      description="Your recent trading activity"
+                      spacing="normal"
+                    >
+                      <TradeHistory />
+                    </CardSection>
+                  </EnhancedCard>
                 </TabsContent>
               </Tabs>
-            </div>
-
-            {/* Right Sidebar - Rewards & Trending (1/3 width) */}
-            <aside className="space-y-6">
-              <div className="lg:sticky lg:top-8 space-y-6">
-                {/* Rewards Card */}
-                {isAuthenticated && user && (
-                  <RewardsCard 
-                    userId={user.id} 
-                    walletAddress={undefined}
-                  />
-                )}
-                
-                {/* Trending Tokens */}
-                <div>
-                  <h3 className="font-bold text-lg mb-6">Trending Tokens</h3>
-                  <EnhancedTrendingList />
-                </div>
-              </div>
-            </aside>
+            </motion.div>
           </div>
-        </main>
-      </div>
+
+          {/* Enhanced Right Sidebar (1/4 width) */}
+          <aside className="space-y-6 order-first xl:order-last">
+            <div className="xl:sticky xl:top-6 space-y-6">
+              {/* Enhanced Rewards Card */}
+              {isAuthenticated && user && (
+                <motion.div
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.5, delay: 0.3 }}
+                >
+                  <EnhancedCard variant="glass" size="md">
+                    <CardSection title="Rewards" spacing="normal">
+                      <RewardsCard 
+                        userId={user.id} 
+                        walletAddress={undefined}
+                      />
+                    </CardSection>
+                  </EnhancedCard>
+                </motion.div>
+              )}
+              
+              {/* Enhanced Trending Tokens */}
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5, delay: 0.5 }}
+              >
+                <EnhancedCard variant="elevated" size="md">
+                  <CardSection 
+                    title="Trending Tokens" 
+                    description="Popular tokens on SolSim"
+                    spacing="normal"
+                  >
+                    <EnhancedTrendingList />
+                  </CardSection>
+                </EnhancedCard>
+              </motion.div>
+            </div>
+          </aside>
+        </CardGrid>
+
+        {/* Decorative Elements */}
+        <div className="fixed inset-0 pointer-events-none -z-20 overflow-hidden">
+          <div className="absolute top-1/3 left-1/5 w-96 h-96 bg-primary/3 rounded-full blur-3xl"></div>
+          <div className="absolute bottom-1/3 right-1/5 w-96 h-96 bg-green-500/3 rounded-full blur-3xl"></div>
+          <div className="absolute top-2/3 left-2/3 w-64 h-64 bg-blue-500/3 rounded-full blur-2xl"></div>
+        </div>
+      </main>
+    </div>
+  )
+}
+
+export default function PortfolioPage() {
+  return (
+    <AuthGuard>
+      <Suspense fallback={
+        <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
+          <div className="flex items-center justify-center min-h-screen">
+            <div className="text-center space-y-4">
+              <div className="relative">
+                <div className="h-16 w-16 border-4 border-primary/20 border-t-primary rounded-full animate-spin mx-auto"></div>
+                <div className="absolute inset-0 h-16 w-16 border-2 border-green-500/20 border-b-green-500 rounded-full animate-spin mx-auto" style={{ animationDirection: 'reverse', animationDuration: '1.5s' }}></div>
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold">Loading Portfolio</h3>
+                <p className="text-sm text-muted-foreground">Analyzing your positions...</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      }>
+        <PortfolioPageContent />
+      </Suspense>
     </AuthGuard>
   )
 }

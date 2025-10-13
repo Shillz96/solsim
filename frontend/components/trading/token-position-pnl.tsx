@@ -1,17 +1,33 @@
 "use client"
 
+/**
+ * Token Position P&L Component (Production Ready - Refactored)
+ * 
+ * Key improvements:
+ * - Uses standardized formatting (formatUSD, safePercent)
+ * - All USD values include SOL equivalents via UsdWithSol
+ * - Proper empty state for no position
+ * - Guards against Infinity%, NaN, undefined
+ * - Animated gradient background based on P&L
+ * - Real-time P&L calculation with live prices
+ * - Loading state with skeleton
+ * - Data validation diagnostics
+ */
+
 import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Wallet, TrendingUp, TrendingDown, RefreshCw, AlertCircle } from "lucide-react"
+import { Wallet, TrendingUp, TrendingDown, RefreshCw, AlertCircle, Package } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { AnimatedNumber } from "@/components/ui/animated-number"
 import { usePriceStreamContext } from "@/lib/price-stream-provider"
 import { usePortfolio } from "@/hooks/use-react-query-hooks"
 import { useAuth } from "@/hooks/use-auth"
 import * as Backend from "@/lib/types/backend"
+import { formatUSD, safePercent } from "@/lib/format"
+import { UsdWithSol } from "@/lib/sol-equivalent"
 import { cn } from "@/lib/utils"
+import { motion } from "framer-motion"
 
 interface TokenPositionPnLProps {
   tokenAddress: string
@@ -19,30 +35,99 @@ interface TokenPositionPnLProps {
   tokenName?: string
 }
 
-interface AnimatedBackgroundProps {
-  isPositive: boolean
-  hasPosition: boolean
-}
-
-function AnimatedBackground({ isPositive, hasPosition }: AnimatedBackgroundProps) {
+/**
+ * Animated gradient background based on P&L performance
+ */
+function AnimatedBackground({ isPositive, hasPosition }: { isPositive: boolean; hasPosition: boolean }) {
   if (!hasPosition) return null
   
   return (
     <div className="absolute inset-0 overflow-hidden rounded-lg">
-      <div 
-        className={cn(
-          "absolute inset-0 opacity-5 transition-all duration-1000",
-          isPositive ? "bg-gradient-to-br from-green-400 to-green-600" : "bg-gradient-to-br from-red-400 to-red-600"
-        )}
-      />
-      <div 
+      <motion.div 
         className={cn(
           "absolute inset-0 opacity-10 transition-all duration-1000",
           isPositive 
-            ? "bg-[radial-gradient(circle_at_30%_20%,rgba(34,197,94,0.3),transparent_50%)]"
-            : "bg-[radial-gradient(circle_at_30%_20%,rgba(239,68,68,0.3),transparent_50%)]"
+            ? "bg-gradient-to-br from-green-400 to-green-600" 
+            : "bg-gradient-to-br from-red-400 to-red-600"
         )}
+        animate={{
+          scale: [1, 1.1, 1],
+          opacity: [0.1, 0.15, 0.1]
+        }}
+        transition={{
+          duration: 3,
+          repeat: Infinity,
+          ease: "easeInOut"
+        }}
       />
+    </div>
+  )
+}
+
+/**
+ * Empty state when no position exists
+ */
+function NoPositionState({ tokenSymbol, tokenName }: { tokenSymbol?: string; tokenName?: string }) {
+  return (
+    <div className="flex flex-col items-center justify-center py-8 px-4 text-center">
+      <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
+        <Package className="w-8 h-8 text-muted-foreground" />
+      </div>
+      
+      <h3 className="text-lg font-semibold mb-2">No Position</h3>
+      <p className="text-sm text-muted-foreground mb-4">
+        You don't have an active position in {tokenSymbol || tokenName || 'this token'}.
+      </p>
+      
+      <p className="text-xs text-muted-foreground">
+        Buy some tokens to start tracking P&L here.
+      </p>
+    </div>
+  )
+}
+
+/**
+ * Loading skeleton
+ */
+function PnLLoadingSkeleton() {
+  return (
+    <div className="space-y-4 p-6 animate-pulse">
+      <div className="flex items-center justify-between">
+        <div className="h-6 bg-muted rounded w-32" />
+        <div className="h-8 bg-muted rounded w-20" />
+      </div>
+      <div className="space-y-3">
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="space-y-2">
+            <div className="h-4 bg-muted rounded w-24" />
+            <div className="h-6 bg-muted rounded w-40" />
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+/**
+ * Stat row component for displaying metrics
+ */
+function StatRow({ 
+  label, 
+  value, 
+  showSol = true 
+}: { 
+  label: string; 
+  value: number; 
+  showSol?: boolean 
+}) {
+  return (
+    <div className="space-y-1">
+      <p className="text-sm text-muted-foreground">{label}</p>
+      {showSol ? (
+        <UsdWithSol usd={value} className="text-lg font-semibold" />
+      ) : (
+        <p className="text-lg font-semibold">{formatUSD(value)}</p>
+      )}
     </div>
   )
 }
@@ -59,6 +144,13 @@ export function TokenPositionPnL({ tokenAddress, tokenSymbol, tokenName }: Token
     refetch 
   } = usePortfolio(user?.id)
 
+  // Data validation diagnostic
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'development' && portfolio) {
+      if (!portfolio.positions) console.warn('[TokenPositionPnL] Positions array missing from portfolio');
+    }
+  }, [portfolio])
+
   // Find the specific token position
   const tokenPosition = portfolio?.positions?.find((position: Backend.PortfolioPosition) => 
     position.mint === tokenAddress && parseFloat(position.qty) > 0
@@ -71,9 +163,13 @@ export function TokenPositionPnL({ tokenAddress, tokenSymbol, tokenName }: Token
   const calculateRealTimePnL = () => {
     if (!tokenPosition || !livePrice) return null
     
-    const currentValue = parseFloat(tokenPosition.qty) * livePrice.price
-    const costBasis = parseFloat(tokenPosition.avgCostUsd) * parseFloat(tokenPosition.qty)
+    const qty = parseFloat(tokenPosition.qty)
+    const avgCost = parseFloat(tokenPosition.avgCostUsd)
+    const currentValue = qty * livePrice.price
+    const costBasis = avgCost * qty
     const unrealizedPnL = currentValue - costBasis
+    
+    // Guard against division by zero
     const unrealizedPercent = costBasis > 0 ? (unrealizedPnL / costBasis) * 100 : 0
     
     return {
@@ -92,8 +188,15 @@ export function TokenPositionPnL({ tokenAddress, tokenSymbol, tokenName }: Token
     costBasis: tokenPosition ? parseFloat(tokenPosition.avgCostUsd) * parseFloat(tokenPosition.qty) : 0
   }
 
-  const isPositive = displayPnL.unrealizedPnL >= 0
+  // Guard against invalid values
+  const safeUnrealizedPnL = isFinite(displayPnL.unrealizedPnL) ? displayPnL.unrealizedPnL : 0
+  const safeCostBasis = isFinite(displayPnL.costBasis) ? displayPnL.costBasis : 0
+  const safeCurrentValue = isFinite(displayPnL.currentValue) ? displayPnL.currentValue : 0
+
+  const isPositive = safeUnrealizedPnL >= 0
   const hasPosition = !!tokenPosition
+  const PnLIcon = isPositive ? TrendingUp : TrendingDown
+  const pnlColor = isPositive ? "text-green-400" : "text-red-400"
 
   const handleRefresh = async () => {
     setIsRefreshing(true)
@@ -104,157 +207,122 @@ export function TokenPositionPnL({ tokenAddress, tokenSymbol, tokenName }: Token
     }
   }
 
+  // Loading state
   if (isLoading) {
     return (
       <Card className="relative overflow-hidden">
-        <div className="p-6 text-center">
-          <RefreshCw className="mx-auto h-8 w-8 text-muted-foreground animate-spin mb-4" />
-          <h3 className="text-lg font-medium">Loading Position...</h3>
-        </div>
+        <PnLLoadingSkeleton />
       </Card>
     )
   }
 
+  // Error state
   if (error) {
     return (
       <Card className="relative overflow-hidden">
-        <div className="p-6">
+        <CardContent className="p-6">
           <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
             <AlertDescription>
-              Failed to load position data.
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                onClick={handleRefresh}
-                className="ml-2"
-              >
-                Try again
-              </Button>
+              Failed to load position data. Please try again.
             </AlertDescription>
           </Alert>
-        </div>
+        </CardContent>
       </Card>
     )
   }
 
+  // No position state
   if (!hasPosition) {
     return (
       <Card className="relative overflow-hidden">
-        <div className="p-6 text-center">
-          <Wallet className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-          <h3 className="text-lg font-medium">No Position</h3>
-          <p className="text-muted-foreground mb-4">
-            You don't hold any {tokenSymbol || 'tokens'} yet
-          </p>
-          <Badge variant="outline">Start trading to build a position</Badge>
-        </div>
+        <NoPositionState tokenSymbol={tokenSymbol} tokenName={tokenName} />
       </Card>
     )
   }
 
+  // Calculate percentage for display
+  const pnlPercent = safePercent(safeUnrealizedPnL, safeCostBasis)
+
   return (
     <Card className="relative overflow-hidden">
+      {/* Animated Background */}
       <AnimatedBackground isPositive={isPositive} hasPosition={hasPosition} />
-      
-      <CardHeader className="relative z-10 pb-2">
+
+      <CardHeader className="relative z-10 pb-3">
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <div className={`p-2 rounded-lg ${isPositive ? 'bg-green-500/20' : 'bg-red-500/20'}`}>
-              {isPositive ? (
-                <TrendingUp className="h-5 w-5 text-green-500" />
-              ) : (
-                <TrendingDown className="h-5 w-5 text-red-500" />
-              )}
-            </div>
-            <div>
-              <CardTitle className="text-lg">Position P&L</CardTitle>
-              <p className="text-sm text-muted-foreground">
-                {tokenSymbol || tokenName || 'Token'} Holdings
-              </p>
-            </div>
+          <div className="flex items-center gap-2">
+            <CardTitle className="text-lg">Position P&L</CardTitle>
+            {livePrice && (
+              <Badge variant="secondary" className="text-xs">
+                Live
+              </Badge>
+            )}
           </div>
-          <Button 
-            variant="ghost" 
-            size="sm" 
+          
+          <Button
+            variant="ghost"
+            size="icon"
             onClick={handleRefresh}
             disabled={isRefreshing}
-            className="h-8 w-8 p-0"
           >
-            <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+            <RefreshCw className={cn("h-4 w-4", isRefreshing && "animate-spin")} />
           </Button>
         </div>
       </CardHeader>
 
-      <CardContent className="relative z-10 pt-2">
+      <CardContent className="relative z-10 space-y-6">
         {/* Main P&L Display */}
-        <div className="text-center mb-6">
-          <div className="mb-2">
-            <div className={`text-3xl font-bold ${isPositive ? 'text-green-500' : 'text-red-500'}`}>
-              {isPositive ? '+' : ''}
-              <AnimatedNumber 
-                value={Math.abs(displayPnL.unrealizedPnL)} 
-                prefix="$" 
-                decimals={2}
-              />
-            </div>
-            <div className={`text-lg font-medium ${isPositive ? 'text-green-500' : 'text-red-500'}`}>
-              {isPositive ? '+' : ''}<AnimatedNumber value={displayPnL.unrealizedPercent} suffix="%" decimals={2} />
-            </div>
-          </div>
-          
-          {realTimePnL && (
-            <Badge variant="outline" className="text-xs">
-              Live Price {livePrice ? `$${livePrice.price.toFixed(6)}` : ''}
-            </Badge>
+        <motion.div
+          initial={{ scale: 0.95, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          className={cn(
+            "p-4 rounded-lg border-2",
+            isPositive 
+              ? "bg-green-500/5 border-green-500/20" 
+              : "bg-red-500/5 border-red-500/20"
           )}
+        >
+          <div className="flex items-baseline gap-3">
+            <PnLIcon className={cn("h-6 w-6", pnlColor)} />
+            <div>
+              <p className="text-sm text-muted-foreground mb-1">Unrealized P&L</p>
+              <UsdWithSol 
+                usd={safeUnrealizedPnL} 
+                className={cn("text-3xl font-bold", pnlColor)}
+              />
+              <p className={cn("text-sm mt-1", pnlColor)}>
+                {pnlPercent}
+              </p>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Detailed Metrics */}
+        <div className="grid grid-cols-2 gap-4 pt-4 border-t">
+          <StatRow label="Current Value" value={safeCurrentValue} />
+          <StatRow label="Cost Basis" value={safeCostBasis} />
         </div>
 
-        {/* Position Details */}
-        <div className="grid grid-cols-2 gap-4 mb-4 p-4 bg-muted/30 rounded-lg">
-          <div className="text-center">
-            <p className="text-sm text-muted-foreground mb-1">Holdings</p>
-            <p className="font-mono font-semibold">
-              <AnimatedNumber 
-                value={parseFloat(tokenPosition.qty)} 
-                decimals={2}
-                className="text-sm"
+        {/* Position Info */}
+        {tokenPosition && (
+          <div className="pt-4 border-t">
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-muted-foreground">Quantity</span>
+              <span className="font-medium">
+                {parseFloat(tokenPosition.qty).toLocaleString()} {tokenSymbol || 'tokens'}
+              </span>
+            </div>
+            <div className="flex items-center justify-between text-sm mt-2">
+              <span className="text-muted-foreground">Avg Entry</span>
+              <UsdWithSol 
+                usd={parseFloat(tokenPosition.avgCostUsd)} 
+                className="font-medium text-sm"
+                solClassName="text-xs"
               />
-            </p>
-            <p className="text-xs text-muted-foreground">{tokenSymbol || 'tokens'}</p>
+            </div>
           </div>
-          <div className="text-center">
-            <p className="text-sm text-muted-foreground mb-1">Avg. Cost</p>
-            <p className="font-mono font-semibold text-sm">
-              $<AnimatedNumber 
-                value={parseFloat(tokenPosition.avgCostUsd)} 
-                decimals={6}
-              />
-            </p>
-          </div>
-        </div>
-
-        {/* Value Breakdown */}
-        <div className="space-y-2 text-sm">
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">Current Value</span>
-            <span className="font-mono">
-              $<AnimatedNumber value={displayPnL.currentValue} decimals={2} />
-            </span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">Cost Basis</span>
-            <span className="font-mono">
-              $<AnimatedNumber value={displayPnL.costBasis} decimals={2} />
-            </span>
-          </div>
-          <div className="flex justify-between pt-2 border-t border-border">
-            <span className="text-muted-foreground font-medium">P&L</span>
-            <span className={`font-mono font-bold ${isPositive ? 'text-green-500' : 'text-red-500'}`}>
-              {isPositive ? '+' : ''}$<AnimatedNumber value={Math.abs(displayPnL.unrealizedPnL)} decimals={2} />
-            </span>
-          </div>
-        </div>
+        )}
       </CardContent>
     </Card>
   )

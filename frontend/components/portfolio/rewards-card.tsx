@@ -12,6 +12,7 @@ import * as api from "@/lib/api"
 import * as Backend from "@/lib/types/backend"
 import { useToast } from "@/hooks/use-toast"
 import { cn } from "@/lib/utils"
+import { formatUSD, formatNumber } from "@/lib/format"
 
 interface RewardsCardProps {
   userId: string
@@ -126,7 +127,7 @@ export function RewardsCard({ userId, walletAddress }: RewardsCardProps) {
               Unclaimed Rewards
             </div>
             <div className="text-2xl font-bold">
-              {totalUnclaimed.toFixed(2)} $SIM
+              {formatNumber(totalUnclaimed)} $SIM
             </div>
           </div>
           <div className="space-y-2">
@@ -147,7 +148,7 @@ export function RewardsCard({ userId, walletAddress }: RewardsCardProps) {
             <div className="grid grid-cols-3 gap-4 text-sm">
               <div>
                 <div className="text-muted-foreground">Total Claimed</div>
-                <div className="font-medium">{rewardStats.totalAmount.toFixed(2)} $SIM</div>
+                <div className="font-medium">{formatNumber(rewardStats.totalAmount)} $SIM</div>
               </div>
               <div>
                 <div className="text-muted-foreground">Total Claims</div>
@@ -176,7 +177,7 @@ export function RewardsCard({ userId, walletAddress }: RewardsCardProps) {
                   <div className="flex items-center gap-3">
                     <Badge variant="secondary">Week {claim.epoch}</Badge>
                     <div>
-                      <div className="font-medium">{parseFloat(claim.amount).toFixed(2)} $SIM</div>
+                      <div className="font-medium">{formatNumber(parseFloat(claim.amount))} $SIM</div>
                       <div className="text-sm text-muted-foreground">
                         Available to claim
                       </div>
@@ -208,7 +209,7 @@ export function RewardsCard({ userId, walletAddress }: RewardsCardProps) {
                   <div className="flex items-center gap-3">
                     <Badge variant="outline">Week {claim.epoch}</Badge>
                     <div>
-                      <div className="font-medium">{parseFloat(claim.amount).toFixed(2)} $SIM</div>
+                      <div className="font-medium">{formatNumber(parseFloat(claim.amount))} $SIM</div>
                       <div className="text-sm text-muted-foreground">
                         Claimed {claim.claimedAt ? new Date(claim.claimedAt).toLocaleDateString() : 'Unknown'}
                       </div>

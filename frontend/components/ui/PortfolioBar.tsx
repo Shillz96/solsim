@@ -4,6 +4,8 @@ import * as React from "react"
 import { cn } from "@/lib/utils"
 import { Progress } from "@/components/ui/progress"
 
+// Percentage formatting now inline
+
 interface PortfolioBarProps {
   /** Current portfolio value */
   value: number
@@ -54,7 +56,7 @@ export function PortfolioBar({
         <div className="flex justify-between items-center text-sm">
           {label && <span className="text-muted-foreground">{label}</span>}
           {showPercentage && (
-            <span className="font-medium">{percentage.toFixed(1)}%</span>
+            <span className="font-medium">{(percentage / 100).toFixed(2)}%</span>
           )}
         </div>
       )}

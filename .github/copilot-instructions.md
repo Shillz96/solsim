@@ -1,9 +1,46 @@
 # SolSim Copilot Instructions
 
 ## 🎯 Project Overview
-SolSim is a **Solana paper trading simulator** with real-time market data. Users practice trading without financial risk while competing on leaderboards and earning rewards.
+SolSim is a **Solana paper trading simulator** with real-time market data. Users practice trading without financial risk while competing on leaderboards and earnings rewards.
 
 **Tech Stack:** Fastify + Prisma + Redis (backend) | Next.js + shadcn/ui + React Query (frontend)
+
+## 🚨 CRITICAL UX REQUIREMENT: SOL Equivalents
+
+**MANDATORY PATTERN**: ALL components displaying USD financial values MUST also show SOL equivalents.
+
+**Why**: Like any trading platform, users need to understand values in terms they recognize. In Solana ecosystem, SOL is the reference currency.
+
+### Required Implementation for ALL Financial Displays:
+
+```typescript
+// 1. MANDATORY: Import price stream
+import { usePriceStreamContext } from "@/lib/price-stream-provider"
+
+// 2. MANDATORY: Helper function (copy to every component)
+const formatSolEquivalent = (usdValue: number, solPrice: number): string => {
+  if (!solPrice || solPrice === 0) return ''
+  const solValue = usdValue / solPrice
+  if (solValue >= 1) return `${solValue.toFixed(2)} SOL`
+  else if (solValue >= 0.01) return `${solValue.toFixed(4)} SOL`
+  else if (solValue >= 0.0001) return `${solValue.toFixed(6)} SOL`
+  else return `${solValue.toFixed(8)} SOL`
+}
+
+// 3. MANDATORY: Get SOL price
+const { prices: livePrices } = usePriceStreamContext()
+const solPrice = livePrices.get('So11111111111111111111111111111111111111112')?.price || 0
+
+// 4. MANDATORY: Display pattern
+<div>{formatCurrency(usdValue)}</div>
+{solPrice > 0 && (
+  <div className="text-xs text-muted-foreground">
+    {formatSolEquivalent(usdValue, solPrice)}
+  </div>
+)}
+```
+
+**ANY component showing USD values without SOL equivalents is incomplete and must be updated.**
 
 ## 🏗 Architecture Patterns
 

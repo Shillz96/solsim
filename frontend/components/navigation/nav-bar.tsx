@@ -3,15 +3,22 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { Menu, User, Settings, LogOut, Bell, Search, Loader2 } from "lucide-react"
+import { Input } from "@/components/ui/input"
+import { 
+  Menu, User, Settings, LogOut, Bell, Search, Loader2, 
+  TrendingUp, Wallet, Target, BarChart3, Home, Zap,
+  ChevronDown, Command
+} from "lucide-react"
 import { useState, useCallback, useEffect, useRef } from "react"
 import { AuthModal } from "@/components/modals/auth-modal"
 import { cn } from "@/lib/utils"
@@ -22,6 +29,49 @@ import { useAuth } from "@/hooks/use-auth"
 import { useQuery } from "@tanstack/react-query"
 import * as api from "@/lib/api"
 import type { TokenSearchResult } from "@/lib/types/backend"
+import { formatUSD } from "@/lib/format"
+import { usePriceStreamContext } from "@/lib/price-stream-provider"
+import { formatSolEquivalent } from "@/lib/sol-equivalent-utils"
+
+// Enhanced navigation items with better organization
+const navigationItems = [
+  {
+    name: "Dashboard",
+    href: "/",
+    icon: Home,
+    description: "Overview of your trading activity"
+  },
+  {
+    name: "Trade",
+    href: "/trade",
+    icon: Zap,
+    description: "Buy and sell tokens"
+  },
+  {
+    name: "Portfolio",
+    href: "/portfolio", 
+    icon: Wallet,
+    description: "Track your positions and P&L"
+  },
+  {
+    name: "Leaderboard",
+    href: "/leaderboard",
+    icon: Target,
+    description: "See top traders and compete"
+  },
+  {
+    name: "Trending",
+    href: "/trending",
+    icon: TrendingUp,
+    description: "Discover popular tokens"
+  },
+  {
+    name: "Monitoring",
+    href: "/monitoring",
+    icon: BarChart3,
+    description: "System status and metrics"
+  }
+]
 
 export function NavBar() {
   const [authModalOpen, setAuthModalOpen] = useState(false)
@@ -38,22 +88,21 @@ export function NavBar() {
   const abortControllerRef = useRef<AbortController | null>(null)
   const debouncedQuery = useDebounce(searchQuery, 300)
   
-  // Use real authentication and balance data
+  // Auth and balance data
   const { user, isAuthenticated, logout } = useAuth()
+  const { prices: livePrices } = usePriceStreamContext()
+  const solPrice = livePrices.get('So11111111111111111111111111111111111111112')?.price || 0
   
-  // Get balance using React Query directly
   const { data: balanceData } = useQuery({
     queryKey: ['user-balance', user?.id],
     queryFn: () => api.getWalletBalance(user!.id),
     enabled: !!user,
-    staleTime: 30000, // Cache for 30 seconds
+    staleTime: 30000,
   })
   
-  // Parse balance for display
   const balanceNumber = balanceData ? parseFloat(balanceData.balance) : 0
-  const hasNotifications = false // Notifications feature to be implemented later
 
-  // Search functionality
+  // Enhanced search functionality
   const performSearch = useCallback(async (query: string) => {
     if (!query.trim()) {
       setSearchResults([])
@@ -61,57 +110,38 @@ export function NavBar() {
       return
     }
 
-    // Cancel previous search if still running
     if (abortControllerRef.current) {
       abortControllerRef.current.abort()
     }
 
-    // Create new abort controller for this search
     abortControllerRef.current = new AbortController()
-
     setIsSearching(true)
+    
     try {
-      const results = await api.searchTokens(query.trim(), 8) // Limit to 8 results for navbar
+      const results = await api.searchTokens(query.trim(), 8)
       
-      // Only update state if this search wasn't aborted
       if (!abortControllerRef.current.signal.aborted) {
         setSearchResults(results)
         setShowResults(true)
       }
     } catch (error) {
-      // Don't log aborted searches
-      if (error instanceof Error && error.name !== 'AbortError') {
-        import('@/lib/error-logger').then(({ errorLogger }) => {
-          errorLogger.error('Token search failed', {
-            error: error as Error,
-            action: 'token_search_failed',
-            metadata: { query, component: 'NavBar' }
-          })
-        })
+      if (!abortControllerRef.current.signal.aborted) {
+        console.error('Search failed:', error)
         setSearchResults([])
         setShowResults(false)
       }
     } finally {
-      if (!abortControllerRef.current?.signal.aborted) {
+      if (!abortControllerRef.current.signal.aborted) {
         setIsSearching(false)
       }
     }
   }, [])
 
-  // Handle token selection
-  const handleTokenSelect = useCallback((tokenAddress: string) => {
-    router.push(`/trade?token=${tokenAddress}`)
-    setSearchQuery("")
-    setShowResults(false)
-    setSearchResults([])
-  }, [router])
+  useEffect(() => {
+    performSearch(debouncedQuery)
+  }, [debouncedQuery, performSearch])
 
-  // Handle search input changes
-  const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(e.target.value)
-  }, [])
-
-  // Hide results when clicking outside
+  // Close search results when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
@@ -119,329 +149,243 @@ export function NavBar() {
       }
     }
 
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [])
-
-  // Perform search when debounced query changes
-  useEffect(() => {
-    if (debouncedQuery) {
-      performSearch(debouncedQuery)
+    if (showResults) {
+      document.addEventListener('mousedown', handleClickOutside)
+      return () => document.removeEventListener('mousedown', handleClickOutside)
     }
-  }, [debouncedQuery, performSearch])
+  }, [showResults])
 
-  // Cleanup: abort pending search on unmount
-  useEffect(() => {
-    return () => {
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort()
-      }
-    }
-  }, [])
+  const handleTokenSelect = useCallback((token: TokenSearchResult) => {
+    router.push(`/trade?token=${token.mint}&symbol=${token.symbol}&name=${encodeURIComponent(token.name)}`)
+    setSearchQuery('')
+    setShowResults(false)
+    setMobileMenuOpen(false)
+  }, [router])
 
-  const navLinks = [
-    { href: "/", label: "Dashboard" },
-    { href: "/trade", label: "Trade" },
-    { href: "/trending", label: "Trending" },
-    { href: "/portfolio", label: "Portfolio" },
-    { href: "/leaderboard", label: "Leaderboard" },
-    { href: "/monitoring", label: "Monitoring" },
-    { href: "/docs", label: "Docs" },
-  ]
+  const handleLogout = useCallback(() => {
+    logout()
+    setMobileMenuOpen(false)
+  }, [logout])
 
   return (
-    <>
-      <nav className="sticky top-0 z-50 border-b-2 border-border shadow-none" style={{ backgroundColor: 'var(--background)', opacity: 1 }}>
-        <div className="mx-auto flex h-16 items-center justify-between px-4 max-w-[2400px] gap-4">
-          <div className="flex items-center gap-4">
-            {/* Mobile Hamburger */}
-            <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
-              <SheetTrigger asChild className="md:hidden">
-                <Button variant="ghost" size="icon">
-                  <Menu className="h-5 w-5" />
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="left" className="w-64 border-2 border-border p-6" style={{ backgroundColor: 'var(--background)', opacity: 1, backdropFilter: 'none' }}>
-                <div className="flex flex-col gap-4">
-                  {/* SOL Balance Display for Mobile */}
-                  {isAuthenticated && (
-                    <motion.div 
-                      className="flex items-center gap-2 px-4 py-3 rounded-lg trading-card shadow-sm mb-4"
-                      initial={{ opacity: 0, scale: 0.9 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ duration: 0.3 }}
-                    >
-                      <div className="h-2 w-2 rounded-full bg-accent pulse-glow" />
-                      <span className="text-sm font-semibold text-foreground font-mono number-display">
-                        {balanceNumber.toFixed(2)} SOL
-                      </span>
-                    </motion.div>
-                  )}
-                  
-                  {navLinks.map((link) => (
-                    <Link
-                      key={link.href}
-                      href={link.href}
-                      onClick={() => setMobileMenuOpen(false)}
-                      className={cn(
-                        "text-sm font-medium transition-colors px-4 py-3 rounded-lg",
-                        pathname === link.href
-                          ? "bg-primary/10 text-primary"
-                          : "text-muted-foreground hover:text-foreground hover:bg-card",
-                      )}
-                    >
-                      {link.label}
-                    </Link>
-                  ))}
-                </div>
-              </SheetContent>
-            </Sheet>
-
-            <Link href="/" className="flex items-center group">
-              <span className="text-2xl md:text-4xl font-bold tracking-tight group-hover:scale-105 transition-transform duration-200" style={{ fontFamily: 'var(--font-radnika-next)' }}>
-                <span className="hidden sm:inline">Solsim.fun</span>
-                <span className="sm:hidden">S.</span>
+    <motion.header 
+      initial={{ y: -100 }}
+      animate={{ y: 0 }}
+      className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60"
+    >
+      <div className="w-full px-6">
+        <div className="flex h-16 items-center justify-between">
+          {/* Logo and Brand */}
+          <div className="flex items-center gap-6">
+            <Link href="/" className="flex items-center">
+              <span className="font-bold text-xl">
+                Sol<span className="text-primary">Sim</span>
               </span>
             </Link>
+
+            {/* Desktop Navigation */}
+            <nav className="hidden md:flex items-center space-x-1">
+              {navigationItems.slice(0, 5).map((item) => {
+                const Icon = item.icon
+                const isActive = pathname === item.href
+                
+                return (
+                  <Link key={item.href} href={item.href}>
+                    <Button
+                      variant={isActive ? "secondary" : "ghost"}
+                      size="sm"
+                      className={cn(
+                        "flex items-center gap-2 px-3 py-2 transition-all duration-200",
+                        isActive && "bg-primary/10 text-primary font-semibold"
+                      )}
+                    >
+                      <Icon className="h-4 w-4" />
+                      <span className="hidden lg:inline">{item.name}</span>
+                    </Button>
+                  </Link>
+                )
+              })}
+            </nav>
           </div>
 
-          <div className="hidden items-center gap-6 lg:flex">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={cn(
-                  "text-sm font-medium transition-colors relative group",
-                  pathname === link.href ? "text-foreground font-bold" : "text-muted-foreground hover:text-foreground",
-                )}
-              >
-                {link.label}
-                {pathname === link.href && (
-                  <motion.span
-                    layoutId="navbar-indicator"
-                    className="absolute -bottom-[21px] left-0 right-0 h-0.5 bg-foreground"
-                  />
-                )}
-              </Link>
-            ))}
-          </div>
-
-          <div className="hidden md:flex flex-1 max-w-xs lg:max-w-md xl:max-w-lg ml-4">
-            <motion.div 
-              ref={searchRef}
-              className="relative w-full"
-              initial={{ opacity: 0, width: 0 }}
-              animate={{ opacity: 1, width: "100%" }}
-              transition={{ duration: 0.5, delay: 0.3 }}
-            >
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground icon-morph" />
-              {isSearching && (
-                <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground animate-spin" />
-              )}
-              <input
-                type="text"
-                placeholder="Search tokens or paste CA..."
+          {/* Enhanced Search Bar */}
+          <div className="flex-1 max-w-sm mx-4 relative" ref={searchRef}>
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search tokens..."
                 value={searchQuery}
-                onChange={handleSearchChange}
-                className="w-full h-9 pl-9 pr-10 rounded-lg glass-solid border border-border text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:glow-primary transition-all duration-300"
-                aria-label="Search for tokens by name or contract address"
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10 pr-4 w-full bg-muted/50 border-0 focus:bg-background focus:ring-2 focus:ring-primary/20"
               />
-              
-              {/* Search Results Dropdown */}
-              <AnimatePresence>
-                {showResults && searchResults.length > 0 && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    transition={{ duration: 0.2 }}
-                    className="absolute top-full left-0 right-0 mt-1 bg-card border border-border rounded-lg shadow-lg z-50 max-h-80 overflow-y-auto"
-                  >
-                    {searchResults.map((token, index) => (
-                      <motion.button
-                        key={token.address}
-                        initial={{ opacity: 0, x: -10 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.2, delay: index * 0.05 }}
-                        onClick={() => token.address && handleTokenSelect(token.address)}
-                        className="w-full px-3 py-2 text-left hover:bg-muted transition-colors flex items-center gap-3 first:rounded-t-lg last:rounded-b-lg"
+              {isSearching && (
+                <Loader2 className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 animate-spin text-muted-foreground" />
+              )}
+            </div>
+
+            {/* Enhanced Search Results */}
+            <AnimatePresence>
+              {showResults && searchResults.length > 0 && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  className="absolute top-full mt-2 w-full bg-popover border rounded-lg shadow-lg z-50 max-h-80 overflow-y-auto"
+                >
+                  <div className="p-2">
+                    <div className="text-xs text-muted-foreground px-2 py-1 font-semibold">
+                      Search Results
+                    </div>
+                    {searchResults.map((token) => (
+                      <button
+                        key={token.mint}
+                        onClick={() => handleTokenSelect(token)}
+                        className="w-full text-left px-3 py-2 rounded-md hover:bg-muted transition-colors duration-200"
                       >
-                        {(token.imageUrl || token.logoURI) && (
-                          <img 
-                            src={token.imageUrl || token.logoURI || ''} 
-                            alt={`${token.symbol || token.name || 'Token'} logo`}
-                            className="w-6 h-6 rounded-full flex-shrink-0"
-                            loading="lazy"
-                            onError={(e) => {
-                              (e.target as HTMLImageElement).style.display = 'none'
-                            }}
-                          />
-                        )}
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2">
-                            <span className="font-medium text-foreground text-sm">
-                              {token.symbol || (token.address ? token.address.substring(0, 8) : 'Unknown')}
-                            </span>
-                            {token.trending && (
-                              <span className="text-xs bg-accent/20 text-accent px-1.5 py-0.5 rounded">
-                                🔥 Trending
-                              </span>
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            {token.logoURI && (
+                              <img 
+                                src={token.logoURI} 
+                                alt={token.symbol}
+                                className="w-6 h-6 rounded-full"
+                                onError={(e) => {
+                                  (e.target as HTMLImageElement).style.display = 'none'
+                                }}
+                              />
                             )}
+                            <div>
+                              <div className="font-semibold text-sm">{token.symbol}</div>
+                              <div className="text-xs text-muted-foreground truncate max-w-[200px]">
+                                {token.name}
+                              </div>
+                            </div>
                           </div>
-                          <p className="text-xs text-muted-foreground truncate">
-                            {token.name || (token.address ? `${token.address.substring(0, 8)}...${token.address.substring(-8)}` : 'Unknown Token')}
-                          </p>
+                          {token.price && (
+                            <div className="text-right">
+                              <div className="text-sm font-medium">
+                                ${parseFloat(token.price.toString()).toFixed(6)}
+                              </div>
+                              {solPrice > 0 && (
+                                <div className="text-xs text-muted-foreground">
+                                  {formatSolEquivalent(parseFloat(token.price.toString()), solPrice)}
+                                </div>
+                              )}
+                            </div>
+                          )}
                         </div>
-                        {parseFloat(token.lastPrice || '0') && (
-                          <div className="text-right">
-                            <p className="text-sm font-mono text-foreground">
-                              ${parseFloat(token.lastPrice || '0').toLocaleString(undefined, { maximumFractionDigits: 6 })}
-                            </p>
-                            {token.priceChange24h !== undefined && token.priceChange24h !== null && (
-                              <p 
-                                className={`text-xs ${token.priceChange24h >= 0 ? 'text-green-600' : 'text-red-600'}`}
-                                aria-label={`Price ${token.priceChange24h >= 0 ? 'increase' : 'decrease'} ${Math.abs(token.priceChange24h).toFixed(2)} percent in 24 hours`}
-                              >
-                                {token.priceChange24h >= 0 ? '▲' : '▼'} {token.priceChange24h >= 0 ? '+' : ''}{token.priceChange24h.toFixed(2)}%
-                              </p>
-                            )}
-                          </div>
-                        )}
-                      </motion.button>
+                      </button>
                     ))}
-                  </motion.div>
-                )}
-              </AnimatePresence>
-              
-              {/* No Results Message */}
-              <AnimatePresence>
-                {showResults && searchResults.length === 0 && searchQuery.trim() && !isSearching && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    transition={{ duration: 0.2 }}
-                    className="absolute top-full left-0 right-0 mt-1 bg-card border border-border rounded-lg shadow-lg z-50 p-3"
-                  >
-                    <p className="text-sm text-muted-foreground text-center">
-                      No tokens found for "{searchQuery}"
-                    </p>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </motion.div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
 
-          <div className="flex items-center gap-3">
+          {/* Right Side Actions */}
+          <div className="flex items-center gap-2">
             {isAuthenticated ? (
               <>
-                <motion.div 
-                  className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg trading-card shadow-sm"
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.4, delay: 0.2 }}
-                  whileHover={{ scale: 1.02 }}
-                >
-                  <div className="h-2 w-2 rounded-full bg-accent pulse-glow" />
-                  <span className="text-sm font-semibold text-foreground font-mono number-display">
-                    {balanceNumber.toFixed(2)} SOL
-                  </span>
-                </motion.div>
+                {/* Balance Display */}
+                <div className="hidden sm:flex items-center gap-2 px-3 py-2 rounded-lg bg-muted/50">
+                  <Wallet className="h-4 w-4 text-primary" />
+                  <div className="text-sm">
+                    <div className="font-semibold">
+                      {balanceData ? `${parseFloat(balanceData.balance).toFixed(2)} SOL` : 'Loading...'}
+                    </div>
+                    {solPrice > 0 && balanceData && (
+                      <div className="text-xs text-muted-foreground">
+                        {formatUSD(parseFloat(balanceData.balance) * solPrice)}
+                      </div>
+                    )}
+                  </div>
+                </div>
 
                 {/* Notifications */}
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.3, delay: 0.4 }}
-                >
-                  <Button variant="ghost" size="icon" className="relative hidden md:flex btn-enhanced">
-                    <Bell className="h-5 w-5 icon-morph" />
-                    {hasNotifications && (
-                      <motion.span 
-                        className="absolute top-1 right-1 h-2 w-2 rounded-full bg-accent"
-                        animate={{ scale: [1, 1.2, 1] }}
-                        transition={{ duration: 2, repeat: Infinity }}
-                      />
-                    )}
-                  </Button>
-                </motion.div>
+                <Button variant="ghost" size="sm" className="relative">
+                  <Bell className="h-4 w-4" />
+                  <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs">
+                    2
+                  </Badge>
+                </Button>
 
-                {/* Profile Dropdown */}
+                {/* User Menu */}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <motion.div
-                      initial={{ opacity: 0, scale: 0.8 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ duration: 0.3, delay: 0.5 }}
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      <Button variant="ghost" size="icon" className="rounded-full btn-enhanced">
-                        <div className="h-8 w-8 rounded-full gradient-trading flex items-center justify-center shadow-lg glow-primary">
-                          <User className="h-4 w-4 text-white" />
-                        </div>
-                      </Button>
-                    </motion.div>
+                    <Button variant="ghost" className="flex items-center gap-2 px-3">
+                      <User className="h-4 w-4" />
+                      <span className="hidden sm:inline font-medium">
+                        {user?.email?.split('@')[0] || 'User'}
+                      </span>
+                      <ChevronDown className="h-3 w-3" />
+                    </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-48 bg-card border-border">
+                  <DropdownMenuContent align="end" className="w-56">
+                    <DropdownMenuLabel>My Account</DropdownMenuLabel>
                     <DropdownMenuItem asChild>
-                      <Link href="/profile" className="cursor-pointer">
-                        <User className="mr-2 h-4 w-4" />
+                      <Link href="/profile" className="flex items-center gap-2">
+                        <User className="h-4 w-4" />
                         Profile
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
-                      <Link href="/profile" className="cursor-pointer">
-                        <Settings className="mr-2 h-4 w-4" />
+                      <Link href="/profile/settings" className="flex items-center gap-2">
+                        <Settings className="h-4 w-4" />
                         Settings
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem className="cursor-pointer text-destructive" onClick={logout}>
-                      <LogOut className="mr-2 h-4 w-4" />
+                    <DropdownMenuItem onClick={handleLogout} className="text-red-600">
+                      <LogOut className="h-4 w-4 mr-2" />
                       Logout
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
               </>
             ) : (
-              <>
-                <motion.div
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.4, delay: 0.3 }}
-                >
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    className="hidden md:flex btn-enhanced" 
-                    onClick={() => setAuthModalOpen(true)}
-                  >
-                    Login
-                  </Button>
-                </motion.div>
-                <motion.div
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.4, delay: 0.4 }}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                >
-                  <Button 
-                    size="sm" 
-                    className="gradient-trading text-white shadow-lg glow-primary btn-enhanced" 
-                    onClick={() => setAuthModalOpen(true)}
-                  >
-                    Start Trading
-                  </Button>
-                </motion.div>
-              </>
+              <Button onClick={() => setAuthModalOpen(true)} className="font-semibold">
+                Sign In
+              </Button>
             )}
+
+            {/* Mobile Menu */}
+            <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="sm" className="md:hidden">
+                  <Menu className="h-5 w-5" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-80">
+                <div className="flex flex-col space-y-4 mt-4">
+                  <div className="space-y-2">
+                    {navigationItems.map((item) => {
+                      const Icon = item.icon
+                      const isActive = pathname === item.href
+                      
+                      return (
+                        <Link key={item.href} href={item.href} onClick={() => setMobileMenuOpen(false)}>
+                          <div className={cn(
+                            "flex items-center gap-3 px-3 py-3 rounded-lg transition-colors",
+                            isActive ? "bg-primary/10 text-primary" : "hover:bg-muted"
+                          )}>
+                            <Icon className="h-5 w-5" />
+                            <div>
+                              <div className="font-medium">{item.name}</div>
+                              <div className="text-xs text-muted-foreground">{item.description}</div>
+                            </div>
+                          </div>
+                        </Link>
+                      )
+                    })}
+                  </div>
+                </div>
+              </SheetContent>
+            </Sheet>
           </div>
         </div>
-      </nav>
+      </div>
 
       <AuthModal open={authModalOpen} onOpenChange={setAuthModalOpen} />
-    </>
+    </motion.header>
   )
 }

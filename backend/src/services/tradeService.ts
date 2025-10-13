@@ -48,6 +48,10 @@ export async function fillTrade({
 
   // Grab latest tick from cache
   const tick = await priceService.getLastTick(mint);
+  if (!tick) {
+    throw new Error(`Price data unavailable for token ${mint}`);
+  }
+  
   const priceUsd = D(tick.priceUsd);
   const currentSolPrice = priceService.getSolPrice();
   const priceSol = D(tick.priceSol || priceUsd.div(currentSolPrice)); // Use actual SOL price
@@ -230,6 +234,11 @@ async function calculatePortfolioTotals(userId: string) {
   // Calculate current value of all positions
   for (const pos of positions) {
     const tick = await priceService.getLastTick(pos.mint);
+    if (!tick) {
+      console.warn(`No price data available for position ${pos.mint}, skipping...`);
+      continue;
+    }
+    
     const currentPrice = D(tick.priceUsd);
     const positionQty = pos.qty as Decimal;
     const positionCostBasis = pos.costBasis as Decimal; // This is now total cost basis, not per-unit

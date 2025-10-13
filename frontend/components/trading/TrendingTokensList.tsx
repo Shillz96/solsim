@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { useRouter } from 'next/navigation';
 import * as api from '@/lib/api';
 import * as Backend from '@/lib/types/backend';
 import { Button } from '@/components/ui/button';
@@ -33,6 +34,9 @@ import {
 } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';
+import { usePriceStreamContext } from "@/lib/price-stream-provider";
+// ✅ Import standardized table cells instead of manual formatting
+import { PriceCell, formatUSD, safePercent } from "@/components/ui/table-cells"
 
 interface TrendingTokensListProps {
   limit?: number;
@@ -48,7 +52,12 @@ export function TrendingTokensList({
   onSelectToken
 }: TrendingTokensListProps) {
   const [timeframe, setTimeframe] = useState<'1h' | '24h' | '7d'>('24h');
+  const router = useRouter();
   const queryClient = useQueryClient();
+  
+  // Get SOL price for equivalents
+  const { prices: livePrices } = usePriceStreamContext()
+  const solPrice = livePrices.get('So11111111111111111111111111111111111111112')?.price || 0
   
   const { 
     data: tokens, 
@@ -73,22 +82,25 @@ export function TrendingTokensList({
   const handleTokenSelect = (tokenAddress: string) => {
     if (onSelectToken) {
       onSelectToken(tokenAddress);
+    } else {
+      // Navigate to trade page with token parameter
+      router.push(`/trade?token=${tokenAddress}`);
     }
   };
 
   // Function to get trend badge color
   const getTrendColor = (change: number) => {
-    if (change > 0) return 'text-green-600';
-    if (change < 0) return 'text-destructive';
+    if (change > 0) return 'text-green-400';
+    if (change < 0) return 'text-red-400';
     return 'text-muted-foreground';
   };
 
   // Function to render trend icon
   const renderTrendIcon = (change: number) => {
     if (change > 0) {
-      return <ArrowUpRight className="h-4 w-4 text-green-600" />;
+      return <ArrowUpRight className="h-4 w-4 text-green-400" />;
     } else if (change < 0) {
-      return <ArrowDownRight className="h-4 w-4 text-destructive" />;
+      return <ArrowDownRight className="h-4 w-4 text-red-400" />;
     }
     return null;
   };
@@ -157,7 +169,7 @@ export function TrendingTokensList({
             
             {isError && (
               <div className="text-center py-8">
-                <p className="text-destructive mb-2">Failed to load trending tokens</p>
+                <p className="text-red-400 mb-2">Failed to load trending tokens</p>
                 <p className="text-sm text-muted-foreground mb-4">
                   {(error as Error)?.message || 'An unknown error occurred'}
                 </p>
@@ -218,15 +230,21 @@ export function TrendingTokensList({
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="text-right">
-                    <div className="font-medium">
-                      ${token.priceUsd?.toFixed(token.priceUsd < 0.01 ? 6 : 2)}
-                    </div>
+                    {/* ✅ Use PriceCell for standardized price display with SOL equivalent */}
+                    <PriceCell 
+                      priceUsd={token.priceUsd || 0}
+                      priceChangePercent={getChangePercent(token)}
+                      className="font-medium"
+                      showSolEquiv={true}
+                    />
                     <div className={cn(
-                      "text-xs flex items-center justify-end",
+                      "text-xs flex items-center justify-end mt-1",
                       getTrendColor(getChangePercent(token))
                     )}>
                       {renderTrendIcon(getChangePercent(token))}
-                      <span>{getChangePercent(token) > 0 ? '+' : ''}{getChangePercent(token).toFixed(2)}%</span>
+                      <span>
+                        {getChangePercent(token) >= 0 ? '+' : ''}{getChangePercent(token).toFixed(2)}%
+                      </span>
                     </div>
                   </div>
                   {onSelectToken && <ChevronRight className="h-4 w-4 text-muted-foreground" />}

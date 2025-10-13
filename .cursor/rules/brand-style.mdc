@@ -1,0 +1,22 @@
+---
+description: Visual identity and UI consistency
+globs:
+  - "frontend/**/*.{ts,tsx,css}"
+alwaysApply: true
+---
+
+### 🎨 Theme
+- Black-and-white minimalist trading aesthetic.
+- Primary accent: gradient teal → purple.
+- Use CSS variables (`--gradient-primary`, `--radius-lg`, etc.) from `:root`.
+
+### ✨ Components
+- Monetary displays: `$USD` primary line + SOL equivalent in muted text.
+- Use shadcn/ui primitives for consistent accessibility and focus states.
+- Apply glass-morphism and subtle glow to cards and modals.
+- Motion: Framer-Motion fade/slide; 150–300 ms transitions.
+
+### 📐 Typography
+- Headings: IBM Plex Sans Bold
+- Data text: JetBrains Mono
+- Secondary text: muted gray (oklch(0.6 0 0))

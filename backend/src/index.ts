@@ -15,6 +15,7 @@ import walletTrackerRoutes from "./routes/walletTracker.js";
 import searchRoutes from "./routes/search.js";
 import candleRoutes from "./routes/candles.js";
 import notesRoutes from "./routes/notes.js";
+import debugRoutes from "./routes/debug.js";
 import wsPlugin from "./plugins/ws.js";
 import wsTestPlugin from "./plugins/wsTest.js";
 import priceService from "./plugins/priceService.js";
@@ -118,6 +119,7 @@ app.register(walletTrackerRoutes, { prefix: "/api/wallet-tracker" });
 app.register(searchRoutes, { prefix: "/api/search" });
 app.register(candleRoutes, { prefix: "/api/candles" });
 app.register(notesRoutes); // Note: This route is already prefixed in the implementation
+app.register(debugRoutes); // Debug routes for price service monitoring
 
 // Start background services
 console.log("🚀 Starting background services...");

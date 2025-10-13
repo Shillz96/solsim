@@ -1,0 +1,43 @@
+---
+description: Automated code review for SolSim rule violations
+globs:
+  - "**/*.{ts,tsx,js,jsx}"
+alwaysApply: false
+---
+
+### 🔍 Code Review Checklist
+
+#### 🎨 Frontend Formatting Violations
+- **Missing SOL equivalents**: Look for USD values without `<SolEquiv>` component
+- **Incorrect decimal precision**: Check if formatting follows the precision table
+- **Missing format helpers**: Direct number rendering instead of `formatUSD`, `formatPriceUSD`, etc.
+- **Divide-by-zero risks**: Look for division operations without guards
+
+#### 🧩 Component Quality Issues
+- **Oversized components**: Files > 150 lines need splitting
+- **Missing React.memo**: Heavy components (tables, charts) without memoization
+- **Weak typing**: `any` types or missing prop interfaces
+- **Missing accessibility**: Interactive elements without `aria-label`
+
+#### ⚙️ Backend Service Issues
+- **Missing validation**: Route handlers without Zod schemas
+- **Direct DB access**: Bypassing service layer patterns
+- **Missing transactions**: Multi-step operations without Prisma transactions
+- **No error handling**: Async operations without try/catch
+
+#### 🏗️ Architecture Violations
+- **Mixed concerns**: UI logic in components, business logic in UI
+- **Missing type safety**: API calls without proper TypeScript interfaces
+- **Inconsistent patterns**: Different approaches to similar problems
+
+### 🚨 Auto-Comment Examples
+```markdown
+❌ **Formatting Violation**: Missing SOL equivalent for USD value
+💡 **Fix**: Add `<SolEquiv usd={value} />` component
+
+❌ **Component Quality**: Component exceeds 150 lines
+💡 **Fix**: Split into UI component + logic hook
+
+❌ **Backend Pattern**: Missing Zod validation
+💡 **Fix**: Add schema validation to route handler
+```

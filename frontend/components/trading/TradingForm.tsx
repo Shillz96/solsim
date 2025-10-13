@@ -10,8 +10,12 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Activity, Loader2 } from 'lucide-react';
 import { formatNumber } from '@/lib/utils';
+import { usePriceStreamContext } from "@/lib/price-stream-provider";
+import { ContextualLoader } from '@/components/shared/enhanced-loading';
 import { TradingFormProps, TradeDetails, TradeType } from './types';
+import { TradingValue } from "@/components/ui/financial-value"
 
 /**
  * TradingForm component for buying and selling tokens
@@ -34,6 +38,10 @@ export function TradingForm({
   const [amount, setAmount] = useState<string>('');
   const [isUsdInput, setIsUsdInput] = useState<boolean>(true);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  // Get SOL price for equivalents
+  const { prices: livePrices } = usePriceStreamContext()
+  const solPrice = livePrices.get('So11111111111111111111111111111111111111112')?.price || 0
 
   // Reset form if token changes
   useEffect(() => {
@@ -130,8 +138,13 @@ export function TradingForm({
                     <Switch
                       checked={isUsdInput}
                       onCheckedChange={setIsUsdInput}
+                      aria-label={`Toggle input currency between USD and ${token.symbol}`}
+                      aria-describedby="currency-switch-help"
                     />
                     <span className="text-xs text-muted-foreground">{token.symbol}</span>
+                  </div>
+                  <div id="currency-switch-help" className="sr-only">
+                    Currently entering amount in {isUsdInput ? 'USD' : token.symbol}
                   </div>
                 </div>
                 
@@ -145,16 +158,17 @@ export function TradingForm({
                     placeholder="0.00"
                     className="pl-8"
                     aria-label={`Amount in ${isUsdInput ? 'USD' : token.symbol}`}
+                    aria-describedby="amount-conversion"
                   />
                   <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                     {isUsdInput ? '$' : ''}
                   </div>
                 </div>
                 
-                <div className="text-xs text-muted-foreground text-right">
+                <div className="text-xs text-muted-foreground text-right" id="amount-conversion">
                   {isUsdInput && amount
                     ? `≈ ${formatNumber(amountInTokens, 6)} ${token.symbol}`
-                    : amount ? `≈ $${formatNumber(amountInUsd)}` : ''}
+                    : amount ? `≈ $${formatNumber(amountInUsd)}` : 'Enter amount to see conversion'}
                 </div>
               </div>
               
@@ -163,16 +177,39 @@ export function TradingForm({
                   <div className="text-sm font-medium">Trade Preview</div>
                   <div className="flex justify-between text-sm">
                     <span>Execution Price</span>
-                    <span className="font-medium">${formatNumber(executionPrice)}</span>
+                    <div className="text-right">
+                      <div className="font-medium">${formatNumber(executionPrice)}</div>
+                      <TradingValue 
+                        usd={executionPrice} 
+                        className="text-xs text-muted-foreground"
+                        showSolEquivalent={true}
+                      />
+                    </div>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span>Network Fee</span>
-                    <span className="font-medium">${formatNumber(networkFee)}</span>
+                    <div className="text-right">
+                      <div className="font-medium">${formatNumber(networkFee)}</div>
+                      {networkFee > 0 && (
+                        <TradingValue 
+                          usd={networkFee} 
+                          className="text-xs text-muted-foreground"
+                          showSolEquivalent={true}
+                        />
+                      )}
+                    </div>
                   </div>
                   <Separator className="my-2" />
                   <div className="flex justify-between">
                     <span>Total</span>
-                    <span className="font-medium">${formatNumber(totalCost)}</span>
+                    <div className="text-right">
+                      <div className="font-medium">${formatNumber(totalCost)}</div>
+                      <TradingValue 
+                        usd={totalCost} 
+                        className="text-xs text-muted-foreground"
+                        showSolEquivalent={true}
+                      />
+                    </div>
                   </div>
                 </div>
               )}

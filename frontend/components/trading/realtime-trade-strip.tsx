@@ -1,35 +1,33 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { Button } from "@/components/ui/button"
-import { RefreshCw, TrendingUp, TrendingDown, Clock } from "lucide-react"
+import { useState, useEffect, useCallback, useRef } from "react"
 import { cn } from "@/lib/utils"
 import * as api from "@/lib/api"
 import * as Backend from "@/lib/types/backend"
+import { formatNumber } from "@/lib/format"
 
 interface RealtimeTradeStripProps {
   tokenAddress?: string
   maxTrades?: number
   className?: string
+  autoScroll?: boolean
 }
 
 export function RealtimeTradeStrip({ 
   tokenAddress, 
-  maxTrades = 10,
-  className 
+  maxTrades = 15,
+  className,
+  autoScroll = true 
 }: RealtimeTradeStripProps) {
   const [trades, setTrades] = useState<Backend.EnrichedTrade[]>([])
   const [loading, setLoading] = useState(true)
-  const [refreshing, setRefreshing] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const scrollRef = useRef<HTMLDivElement>(null)
+  const animationRef = useRef<number | undefined>(undefined)
 
   // Load recent trades
-  const loadTrades = async (isRefresh = false) => {
-    if (!isRefresh) setLoading(true)
-    else setRefreshing(true)
+  const loadTrades = useCallback(async () => {
+    setLoading(true)
     
     try {
       let response: Backend.TradesResponse
@@ -48,184 +46,177 @@ export function RealtimeTradeStrip({
       setError((err as Error).message)
     } finally {
       setLoading(false)
-      setRefreshing(false)
     }
-  }
+  }, [tokenAddress, maxTrades])
 
   // Load trades on mount and when tokenAddress changes
   useEffect(() => {
     loadTrades()
-  }, [tokenAddress, maxTrades])
+  }, [loadTrades])
 
   // Auto-refresh every 30 seconds
   useEffect(() => {
     const interval = setInterval(() => {
-      loadTrades(true)
+      loadTrades()
     }, 30000)
     
     return () => clearInterval(interval)
-  }, [tokenAddress, maxTrades])
+  }, [loadTrades])
 
-  const formatTime = (timestamp: string) => {
-    const now = new Date()
-    const tradeTime = new Date(timestamp)
-    const diffMs = now.getTime() - tradeTime.getTime()
-    const diffSeconds = Math.floor(diffMs / 1000)
-    const diffMinutes = Math.floor(diffSeconds / 60)
-    const diffHours = Math.floor(diffMinutes / 60)
+  // Auto-scroll animation for horizontal ticker
+  useEffect(() => {
+    if (!autoScroll || !scrollRef.current || loading || trades.length === 0) return
 
-    if (diffSeconds < 60) return `${diffSeconds}s ago`
-    if (diffMinutes < 60) return `${diffMinutes}m ago`
-    if (diffHours < 24) return `${diffHours}h ago`
-    return tradeTime.toLocaleDateString()
-  }
+    const scrollContainer = scrollRef.current
+    let scrollAmount = 0
+    
+    const animate = () => {
+      scrollAmount += 0.5 // Adjust speed as needed
+      
+      if (scrollAmount >= scrollContainer.scrollWidth / 2) {
+        scrollAmount = 0
+      }
+      
+      scrollContainer.scrollLeft = scrollAmount
+      animationRef.current = requestAnimationFrame(animate)
+    }
+    
+    // Start animation after a short delay
+    const timeout = setTimeout(() => {
+      animationRef.current = requestAnimationFrame(animate)
+    }, 1000)
+    
+    return () => {
+      clearTimeout(timeout)
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current)
+      }
+    }
+  }, [autoScroll, loading, trades])
 
-  const formatNumber = (value: string | number) => {
-    const num = typeof value === 'string' ? parseFloat(value) : value
-    if (num >= 1e6) return `${(num / 1e6).toFixed(2)}M`
-    if (num >= 1e3) return `${(num / 1e3).toFixed(2)}K`
-    return num.toFixed(2)
+  const calculatePriceChange = (trade: Backend.EnrichedTrade) => {
+    // Calculate a simulated price change for demo purposes
+    // In production, this would come from actual price data
+    const change = (Math.random() - 0.5) * 30
+    return change
   }
 
   if (loading) {
     return (
-      <Card className={className}>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-sm font-medium flex items-center">
-            <Clock className="h-4 w-4 mr-2" />
-            Recent Trades
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
-            {[...Array(5)].map((_, i) => (
-              <div key={i} className="flex items-center justify-between p-3 rounded-lg bg-muted/50 animate-pulse">
-                <div className="w-20 h-4 bg-muted rounded" />
-                <div className="w-16 h-4 bg-muted rounded" />
-                <div className="w-12 h-4 bg-muted rounded" />
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+      <div className={cn("w-full bg-background border-t border-b py-1.5", className)}>
+        <div className="flex items-center space-x-6 animate-pulse">
+          {[...Array(6)].map((_, i) => (
+            <div key={i} className="flex items-center space-x-2">
+              <div className="w-12 h-3 bg-muted rounded" />
+              <div className="w-16 h-3 bg-muted rounded" />
+              <div className="w-12 h-3 bg-muted rounded" />
+            </div>
+          ))}
+        </div>
+      </div>
     )
   }
 
   if (error) {
     return (
-      <Card className={className}>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-sm font-medium flex items-center justify-between">
-            <span className="flex items-center">
-              <Clock className="h-4 w-4 mr-2" />
-              Recent Trades
-            </span>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => loadTrades(true)}
-              disabled={refreshing}
-            >
-              <RefreshCw className={cn("h-4 w-4", refreshing && "animate-spin")} />
-            </Button>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-center py-6">
-            <p className="text-muted-foreground text-sm">{error}</p>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => loadTrades()}
-              className="mt-2"
-            >
-              Try Again
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+      <div className={cn("w-full bg-background border-t border-b py-2", className)}>
+        <div className="flex items-center justify-center text-sm text-muted-foreground">
+          <span>Unable to load trades</span>
+          <button
+            onClick={() => loadTrades()}
+            className="ml-2 underline hover:text-foreground transition-colors"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
     )
   }
 
+  // Duplicate trades for seamless scrolling
+  const displayTrades = trades.length > 0 ? [...trades, ...trades] : []
+
   return (
-    <Card className={className}>
-      <CardHeader className="pb-3">
-        <CardTitle className="text-sm font-medium flex items-center justify-between">
-          <span className="flex items-center">
-            <Clock className="h-4 w-4 mr-2" />
-            Recent Trades {tokenAddress && '(This Token)'}
-          </span>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => loadTrades(true)}
-            disabled={refreshing}
-          >
-            <RefreshCw className={cn("h-4 w-4", refreshing && "animate-spin")} />
-          </Button>
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="pt-0">
-        <ScrollArea className="h-[300px]">
-          <div className="space-y-2">
-            {trades.length === 0 ? (
-              <div className="text-center py-6">
-                <p className="text-muted-foreground text-sm">No recent trades</p>
-              </div>
-            ) : (
-              trades.map((trade) => (
-                <div
-                  key={trade.id}
-                  className="flex items-center justify-between p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors"
-                >
-                  <div className="flex items-center space-x-3">
-                    {trade.logoURI && (
-                      <img 
-                        src={trade.logoURI} 
-                        alt={trade.symbol || 'Token'} 
-                        className="w-6 h-6 rounded-full"
-                      />
-                    )}
-                    <div>
-                      <div className="flex items-center space-x-2">
-                        <Badge 
-                          variant={trade.side === 'BUY' ? 'default' : 'destructive'}
-                          className="text-xs px-2 py-0"
-                        >
-                          {trade.side}
-                        </Badge>
-                        <span className="text-sm font-medium">
-                          {trade.symbol || 'Unknown'}
-                        </span>
-                      </div>
-                      <p className="text-xs text-muted-foreground">
-                        {formatTime(trade.createdAt)}
-                      </p>
-                    </div>
-                  </div>
-                  
-                  <div className="text-right">
-                    <p className="text-sm font-medium">
-                      {formatNumber(trade.quantity)} tokens
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      ${formatNumber(trade.costUsd || trade.totalCost)}
-                    </p>
-                  </div>
-                  
-                  <div className="flex items-center">
-                    {trade.side === 'BUY' ? (
-                      <TrendingUp className="h-4 w-4 text-green-500" />
-                    ) : (
-                      <TrendingDown className="h-4 w-4 text-red-500" />
-                    )}
-                  </div>
-                </div>
-              ))
-            )}
+    <div 
+      className={cn(
+        "w-full bg-background border-t border-b overflow-hidden",
+        "hover:pause-animation group",
+        className
+      )}
+      onMouseEnter={() => {
+        if (animationRef.current) {
+          cancelAnimationFrame(animationRef.current)
+        }
+      }}
+      onMouseLeave={() => {
+        if (autoScroll && scrollRef.current && trades.length > 0) {
+          const scrollContainer = scrollRef.current
+          let scrollAmount = scrollContainer.scrollLeft
+          
+          const animate = () => {
+            scrollAmount += 0.5
+            
+            if (scrollAmount >= scrollContainer.scrollWidth / 2) {
+              scrollAmount = 0
+            }
+            
+            scrollContainer.scrollLeft = scrollAmount
+            animationRef.current = requestAnimationFrame(animate)
+          }
+          
+          animationRef.current = requestAnimationFrame(animate)
+        }
+      }}
+    >
+      <div
+        ref={scrollRef}
+        className="flex items-center py-2 px-2 space-x-6 overflow-x-auto scrollbar-none"
+        style={{ scrollBehavior: 'auto' }}
+      >
+        {displayTrades.length === 0 ? (
+          <div className="flex items-center justify-center w-full py-1 text-sm text-muted-foreground">
+            No recent trades
           </div>
-        </ScrollArea>
-      </CardContent>
-    </Card>
+        ) : (
+           displayTrades.map((trade, index) => {
+             const priceChange = calculatePriceChange(trade)
+             const isPositive = priceChange >= 0
+             const price = parseFloat(trade.priceUsd) || (parseFloat(trade.totalCost) / parseFloat(trade.qty))
+            
+            return (
+              <div 
+                key={`${trade.id}-${index}`}
+                className="flex items-center space-x-2 whitespace-nowrap flex-shrink-0"
+              >
+                {trade.logoURI && (
+                  <img 
+                    src={trade.logoURI} 
+                    alt={trade.symbol || 'Token'} 
+                    className="w-4 h-4 rounded-full"
+                  />
+                )}
+                
+                <span className="font-medium text-sm">
+                  {trade.symbol || 'Unknown'}
+                </span>
+                
+                <span className="text-sm text-muted-foreground">
+                  ${formatNumber(price)}
+                </span>
+                
+                <span 
+                  className={cn(
+                    "text-sm font-medium",
+                    isPositive ? "text-green-500" : "text-red-500"
+                  )}
+                >
+                  {isPositive ? '+' : ''}{priceChange.toFixed(2)}%
+                </span>
+              </div>
+            )
+          })
+        )}
+      </div>
+    </div>
   )
 }

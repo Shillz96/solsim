@@ -1,0 +1,307 @@
+/**
+ * Panel styles for improved readability and mobile compatibility
+ * 
+ * Fixes:
+ * - Glass/transparency effects that make text hard to read
+ * - Z-index conflicts causing overlapping content
+ * - Heavy backdrop filters that impact mobile performance
+ * - Inconsistent panel appearance across components
+ */
+
+/* =============================================================================
+   Z-INDEX HIERARCHY - Single source of truth
+   ============================================================================= */
+
+:root {
+  /* Base layers */
+  --z-base: 1;
+  --z-content: 10;
+  
+  /* Interface layers */
+  --z-header: 100;
+  --z-nav: 200;
+  --z-dropdown: 300;
+  --z-sidebar: 400;
+  
+  /* Overlay layers */
+  --z-modal-backdrop: 1000;
+  --z-modal: 1010;
+  --z-popover: 1020;
+  --z-tooltip: 1030;
+  
+  /* System layers */
+  --z-toast: 1100;
+  --z-loading: 1200;
+  --z-debug: 9999;
+}
+
+/* =============================================================================
+   PANEL FOUNDATION - Solid, readable backgrounds
+   ============================================================================= */
+
+.panel {
+  /* Mostly opaque background for readability */
+  background: color-mix(in oklab, var(--background) 90%, black 10%);
+  
+  /* Subtle border for definition without overwhelming */
+  border: 1px solid color-mix(in oklab, var(--foreground) 20%, transparent 80%);
+  
+  /* Remove heavy blur effects that hurt mobile performance */
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  
+  /* Consistent border radius */
+  border-radius: 0.5rem;
+  
+  /* Standard padding */
+  padding: 1rem;
+  
+  /* Smooth transitions for hover/focus states */
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.panel:hover {
+  border-color: color-mix(in oklab, var(--foreground) 30%, transparent 70%);
+}
+
+.panel:focus-within {
+  border-color: var(--ring);
+  box-shadow: 0 0 0 2px color-mix(in oklab, var(--ring) 20%, transparent 80%);
+}
+
+/* =============================================================================
+   PANEL VARIANTS - Semantic panel types
+   ============================================================================= */
+
+/* Login and authentication cards */
+.panel-auth {
+  background: color-mix(in oklab, var(--card) 95%, var(--background) 5%);
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 6px -1px color-mix(in oklab, black 10%, transparent 90%);
+}
+
+/* Trading interface panels */
+.panel-trading {
+  background: color-mix(in oklab, var(--background) 92%, var(--primary) 8%);
+  border: 1px solid color-mix(in oklab, var(--primary) 15%, transparent 85%);
+}
+
+/* Portfolio and position display panels */
+.panel-portfolio {
+  background: color-mix(in oklab, var(--background) 92%, var(--secondary) 8%);
+  border: 1px solid color-mix(in oklab, var(--secondary) 15%, transparent 85%);
+}
+
+/* Data/chart panels */
+.panel-data {
+  background: color-mix(in oklab, var(--muted) 95%, var(--background) 5%);
+  border: 1px solid var(--border);
+}
+
+/* Alert/notification panels */
+.panel-alert {
+  background: color-mix(in oklab, var(--background) 92%, var(--destructive) 8%);
+  border: 1px solid color-mix(in oklab, var(--destructive) 15%, transparent 85%);
+}
+
+/* Success/positive panels */
+.panel-success {
+  background: color-mix(in oklab, var(--background) 92%, green 8%);
+  border: 1px solid color-mix(in oklab, green 15%, transparent 85%);
+}
+
+/* =============================================================================
+   LAYOUT COMPONENTS - Proper z-index application
+   ============================================================================= */
+
+/* Header/navigation */
+.header {
+  z-index: var(--z-header);
+  position: sticky;
+  top: 0;
+  background: color-mix(in oklab, var(--background) 95%, transparent 5%);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--border);
+}
+
+/* Navigation components */
+.nav {
+  z-index: var(--z-nav);
+}
+
+/* Dropdown menus */
+.dropdown {
+  z-index: var(--z-dropdown);
+  background: var(--popover);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  box-shadow: 0 10px 15px -3px color-mix(in oklab, black 10%, transparent 90%);
+}
+
+/* Sidebar panels */
+.sidebar {
+  z-index: var(--z-sidebar);
+  background: color-mix(in oklab, var(--background) 98%, var(--muted) 2%);
+  border-right: 1px solid var(--border);
+}
+
+/* Modal components */
+.modal-backdrop {
+  z-index: var(--z-modal-backdrop);
+  background: color-mix(in oklab, black 50%, transparent 50%);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+.modal {
+  z-index: var(--z-modal);
+  background: var(--background);
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  box-shadow: 0 25px 50px -12px color-mix(in oklab, black 25%, transparent 75%);
+}
+
+/* Popover components */
+.popover {
+  z-index: var(--z-popover);
+  background: var(--popover);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  box-shadow: 0 10px 15px -3px color-mix(in oklab, black 10%, transparent 90%);
+}
+
+/* Tooltip components */
+.tooltip {
+  z-index: var(--z-tooltip);
+  background: color-mix(in oklab, var(--foreground) 90%, transparent 10%);
+  color: var(--background);
+  border-radius: 0.25rem;
+  font-size: 0.875rem;
+}
+
+/* Toast notifications */
+.toast {
+  z-index: var(--z-toast);
+  background: var(--background);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  box-shadow: 0 10px 15px -3px color-mix(in oklab, black 10%, transparent 90%);
+}
+
+/* Loading overlays */
+.loading {
+  z-index: var(--z-loading);
+  background: color-mix(in oklab, var(--background) 80%, transparent 20%);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+}
+
+/* Debug components */
+.debug {
+  z-index: var(--z-debug);
+  background: red;
+  color: white;
+  border: 2px solid darkred;
+}
+
+/* =============================================================================
+   MOBILE OPTIMIZATIONS - Performance and readability
+   ============================================================================= */
+
+@media (max-width: 768px) {
+  /* Reduce visual effects on mobile for better performance */
+  .panel {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    box-shadow: none;
+  }
+  
+  /* Increase contrast for outdoor viewing */
+  .panel {
+    background: color-mix(in oklab, var(--background) 95%, black 5%);
+    border-color: color-mix(in oklab, var(--foreground) 25%, transparent 75%);
+  }
+  
+  /* Larger touch targets */
+  .panel button,
+  .panel [role="button"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Better spacing for touch interaction */
+  .panel {
+    padding: 1.25rem;
+    margin-bottom: 0.75rem;
+  }
+}
+
+/* =============================================================================
+   DARK MODE OPTIMIZATIONS
+   ============================================================================= */
+
+@media (prefers-color-scheme: dark) {
+  .panel {
+    /* Darker base for better contrast in dark environments */
+    background: color-mix(in oklab, var(--background) 85%, black 15%);
+  }
+  
+  .panel-auth {
+    background: color-mix(in oklab, var(--card) 90%, black 10%);
+  }
+}
+
+/* =============================================================================
+   ACCESSIBILITY IMPROVEMENTS
+   ============================================================================= */
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .panel {
+    border-width: 2px;
+    border-color: var(--foreground);
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .panel {
+    transition: none;
+  }
+}
+
+/* Focus indicators for keyboard navigation */
+.panel:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+/* =============================================================================
+   UTILITY CLASSES - Quick application
+   ============================================================================= */
+
+/* Remove panel styling */
+.panel-none {
+  background: transparent;
+  border: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: none;
+}
+
+/* Glass effect for special cases (use sparingly) */
+.panel-glass {
+  background: color-mix(in oklab, var(--background) 70%, transparent 30%);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid color-mix(in oklab, var(--foreground) 10%, transparent 90%);
+}
+
+/* Solid panel for maximum readability */
+.panel-solid {
+  background: var(--background);
+  border: 1px solid var(--border);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}

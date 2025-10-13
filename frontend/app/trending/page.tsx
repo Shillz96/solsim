@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState } from "react"
-import { Card } from "@/components/ui/card"
+import { EnhancedCard, CardGrid, CardSection } from "@/components/ui/enhanced-card-system"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
@@ -12,6 +12,9 @@ import Image from "next/image"
 // Use backend types
 import type * as Backend from "@/lib/types/backend"
 import { useTrendingTokens } from "@/hooks/use-react-query-hooks"
+import { usePriceStreamContext } from "@/lib/price-stream-provider"
+import { formatUSD, formatNumber } from "@/lib/format"
+import { UsdWithSol } from "@/lib/sol-equivalent"
 
 type TimeRange = "5m" | "1h" | "6h" | "24h"
 // Use the backend TrendingToken type
@@ -55,6 +58,20 @@ export default function TrendingPage() {
   
   // Use the API hook to fetch trending tokens
   const { data: trendingTokens, isLoading: loading, error, refetch: refresh } = useTrendingTokens(50)
+  
+  // Get SOL price for USD equivalents
+  const { prices: livePrices } = usePriceStreamContext()
+  const solPrice = livePrices.get('So11111111111111111111111111111111111111112')?.price || 0
+
+  // Helper function for SOL equivalents (required for all financial displays)
+  const formatSolEquivalent = (usdValue: number, solPrice: number): string => {
+    if (!solPrice || solPrice === 0) return ''
+    const solValue = usdValue / solPrice
+    if (solValue >= 1) return `${solValue.toFixed(2)} SOL`
+    else if (solValue >= 0.01) return `${solValue.toFixed(4)} SOL`
+    else if (solValue >= 0.0001) return `${solValue.toFixed(6)} SOL`
+    else return `${solValue.toFixed(8)} SOL`
+  }
 
   const filteredTokens = trendingTokens?.filter(
     (token) =>
@@ -75,7 +92,7 @@ export default function TrendingPage() {
         </div>
 
         {/* Filters & Search */}
-        <Card className="p-4 mb-4">
+        <EnhancedCard className="mb-4">
           <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
             {/* Time Range Filters */}
             <div className="flex items-center gap-2">
@@ -106,10 +123,10 @@ export default function TrendingPage() {
               />
             </div>
           </div>
-        </Card>
+        </EnhancedCard>
 
         {/* Trending Tokens Table */}
-        <Card className="overflow-hidden">
+        <EnhancedCard className="overflow-hidden">
           {loading && (
             <div className="flex items-center justify-center h-64">
               <Loader2 className="h-8 w-8 animate-spin" />
@@ -185,9 +202,11 @@ export default function TrendingPage() {
 
                       {/* Price */}
                       <td className="p-4">
-                        <div className="text-sm font-medium">
-                          ${token.priceUsd < 0.001 ? token.priceUsd.toExponential(2) : token.priceUsd.toFixed(4)}
-                        </div>
+                        <UsdWithSol 
+                          usd={token.priceUsd} 
+                          className="text-sm font-medium"
+                          solClassName="text-xs"
+                        />
                       </td>
 
                       {/* 24h Change */}
@@ -204,22 +223,26 @@ export default function TrendingPage() {
 
                       {/* Market Cap */}
                       <td className="p-4">
-                        <div className="text-sm font-medium">
-                          ${token.marketCapUsd && token.marketCapUsd > 1000000 
-                            ? `${(token.marketCapUsd / 1000000).toFixed(1)}M` 
-                            : token.marketCapUsd 
-                              ? `${(token.marketCapUsd / 1000).toFixed(0)}K`
-                              : 'N/A'}
-                        </div>
+                        {token.marketCapUsd ? (
+                          <UsdWithSol 
+                            usd={token.marketCapUsd} 
+                            className="text-sm font-medium"
+                            solClassName="text-xs"
+                            compact
+                          />
+                        ) : (
+                          <div className="text-sm font-medium text-muted-foreground">N/A</div>
+                        )}
                       </td>
 
                       {/* Volume */}
                       <td className="p-4">
-                        <div className="text-sm">
-                          ${token.volume24h > 1000000 
-                            ? `${(token.volume24h / 1000000).toFixed(1)}M` 
-                            : `${(token.volume24h / 1000).toFixed(0)}K`}
-                        </div>
+                        <UsdWithSol 
+                          usd={token.volume24h} 
+                          className="text-sm"
+                          solClassName="text-xs"
+                          compact
+                        />
                       </td>
 
                       {/* Trend Score */}
@@ -244,7 +267,7 @@ export default function TrendingPage() {
               </table>
             </div>
           )}
-        </Card>
+        </EnhancedCard>
       </main>
     </div>
   )

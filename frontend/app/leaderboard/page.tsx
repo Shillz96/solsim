@@ -1,15 +1,16 @@
 "use client"
 
 import { useState, useRef, useEffect } from "react"
-import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ResponsiveLeaderboard } from "@/components/leaderboard/responsive-leaderboard"
 import { Trophy, ArrowUp, ArrowDown, Minus, Target, RefreshCw } from "lucide-react"
 import { useAuth } from "@/hooks/use-auth"
+import { useQuery } from "@tanstack/react-query"
 import * as api from "@/lib/api"
 import type * as Backend from "@/lib/types/backend"
+import { UsdWithSol } from "@/lib/sol-equivalent"
 
 type TimeRange = "24h" | "7d" | "all"
 
@@ -27,6 +28,14 @@ export default function LeaderboardPage() {
   const scrollToUserRank = () => {
     userRowRef.current?.scrollIntoView({ behavior: "smooth", block: "center" })
   }
+
+  // Fetch user balance
+  const { data: balanceData } = useQuery({
+    queryKey: ['user-balance', user?.id],
+    queryFn: () => api.getWalletBalance(user!.id),
+    enabled: !!user && isAuthenticated,
+    staleTime: 30000,
+  })
 
   // Fetch leaderboard data
   const fetchLeaderboard = async () => {
@@ -127,9 +136,9 @@ export default function LeaderboardPage() {
 
         {/* Error Message */}
         {error && (
-          <Card className="p-6 mb-6 bg-destructive/10 border-destructive/20 border border-border rounded-none shadow-none">
+          <div className="mb-6 p-4 rounded-lg bg-destructive/10 border border-destructive/20">
             <p className="text-destructive">{String(error)}</p>
-          </Card>
+          </div>
         )}
 
         {/* Time Range Filter */}
@@ -151,7 +160,7 @@ export default function LeaderboardPage() {
         </div>
 
         {/* Main Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left: Leaderboard Table */}
           <div className="lg:col-span-2">
             <ResponsiveLeaderboard 
@@ -175,58 +184,65 @@ export default function LeaderboardPage() {
             <div className={`space-y-6 ${!showStats && "hidden lg:block"}`}>
               {/* Current User Rank */}
               {currentUser && (
-                <Card className="p-6 border border-border rounded-none shadow-none bg-muted/30">
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between mb-4">
-                      <h3 className="font-bold text-lg">Your Rank</h3>
+                <div className="p-6 rounded-lg bg-muted/20 border border-border/50">
+                  <div className="mb-4">
+                    <h3 className="font-semibold text-lg mb-2">Your Rank</h3>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Target className="h-4 w-4" />
+                        <span className="text-sm text-muted-foreground">Current Position</span>
+                      </div>
                       <Badge variant="secondary" className="text-lg px-3 py-1">
                         #{currentUser.rank}
                       </Badge>
                     </div>
+                  </div>
 
-                    <div className="flex items-center gap-2">
-                      <div className="flex items-center gap-1 text-muted-foreground">
-                        <Target className="h-4 w-4" />
-                        <span className="text-sm">Current Position</span>
+                  <div className="grid grid-cols-2 gap-4 pt-4 border-t border-border/50">
+                    <div>
+                      <p className="text-sm text-muted-foreground mb-2">Total PnL</p>
+                      <div className={`font-semibold text-lg ${parseFloat(currentUser.totalPnlUsd) >= 0 ? 'text-profit' : 'text-loss'}`}>
+                        <UsdWithSol 
+                          usd={parseFloat(currentUser.totalPnlUsd)} 
+                          prefix={parseFloat(currentUser.totalPnlUsd) >= 0 ? '+' : ''}
+                          className="text-lg font-semibold"
+                          solClassName="text-xs"
+                        />
                       </div>
                     </div>
-
-                    <div className="grid grid-cols-2 gap-4 pt-4 border-t border-border">
-                      <div>
-                        <p className="text-sm text-muted-foreground mb-2 font-bold">Total PnL</p>
-                        <p className={`font-bold text-lg ${parseFloat(currentUser.totalPnlUsd) >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                          {parseFloat(currentUser.totalPnlUsd) >= 0 ? '+' : ''}{parseFloat(currentUser.totalPnlUsd).toFixed(2)} USD
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-muted-foreground mb-2 font-bold">Trades</p>
-                        <p className="font-bold text-lg">{currentUser.totalTrades}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-muted-foreground mb-2 font-bold">Win Rate</p>
-                        <p className="font-bold text-lg">{currentUser.winRate.toFixed(1)}%</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-muted-foreground mb-2 font-bold">Balance</p>
-                        <p className="font-bold text-lg font-mono">100.00 SOL</p>
-                      </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground mb-2">Trades</p>
+                      <p className="font-semibold text-lg">{currentUser.totalTrades}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground mb-2">Win Rate</p>
+                      <p className="font-semibold text-lg">{currentUser.winRate.toFixed(1)}%</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground mb-2">Balance</p>
+                      <p className="font-semibold text-lg font-mono">
+                        {balanceData ? `${parseFloat(balanceData.balance).toFixed(2)} SOL` : 'Loading...'}
+                      </p>
                     </div>
                   </div>
-                </Card>
+                </div>
               )}
 
               {/* Top Performers */}
               {topPerformers.length > 0 && (
-                <Card className="p-6 border border-border rounded-none shadow-none">
-                  <h3 className="font-bold text-lg mb-6 flex items-center gap-2">
-                    <Trophy className="h-5 w-5 text-yellow-500" />
-                    Top Performers
-                  </h3>
-                  <div className="space-y-4">
+                <div className="p-6 rounded-lg bg-card border border-border/50">
+                  <div className="mb-6">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Trophy className="h-5 w-5 text-yellow-500" />
+                      <h3 className="font-semibold text-lg">Top Performers</h3>
+                    </div>
+                    <span className="text-sm text-muted-foreground">Leading traders</span>
+                  </div>
+                  <div className="space-y-3">
                     {topPerformers.map((performer, index) => (
                       <div
                         key={performer.userId}
-                        className="flex items-center justify-between p-4 rounded-none bg-muted/30 hover:bg-muted/50 transition-colors border border-border"
+                        className="flex items-center justify-between p-3 rounded-md bg-muted/20 hover:bg-muted/30 transition-colors"
                       >
                         <div className="flex items-center gap-3">
                           <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br from-primary to-secondary text-primary-foreground font-bold text-sm">
@@ -238,41 +254,48 @@ export default function LeaderboardPage() {
                           </div>
                         </div>
                         <div className="text-right">
-                          <p className={`font-bold ${parseFloat(performer.totalPnlUsd) >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                            {parseFloat(performer.totalPnlUsd) >= 0 ? '+' : ''}{parseFloat(performer.totalPnlUsd).toFixed(2)} USD
-                          </p>
+                          <div className={`font-semibold ${parseFloat(performer.totalPnlUsd) >= 0 ? 'text-profit' : 'text-loss'}`}>
+                            <UsdWithSol 
+                              usd={parseFloat(performer.totalPnlUsd)} 
+                              prefix={parseFloat(performer.totalPnlUsd) >= 0 ? '+' : ''}
+                              className="font-semibold"
+                              solClassName="text-xs"
+                            />
+                          </div>
                           <p className="text-xs text-muted-foreground">{performer.winRate.toFixed(1)}% win</p>
                         </div>
                       </div>
                     ))}
                   </div>
-                </Card>
+                </div>
               )}
 
               {/* Quick Stats */}
-              <Card className="p-6 border border-border rounded-none shadow-none">
-                <h3 className="font-bold text-lg mb-6">Competition Stats</h3>
+              <div className="p-6 rounded-lg bg-card border border-border/50">
+                <div className="mb-4">
+                  <h3 className="font-semibold text-lg">Competition Stats</h3>
+                </div>
                 <div className="space-y-4">
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground font-bold">Total Traders</span>
-                    <span className="font-bold text-lg">{totalTraders.toLocaleString()}</span>
+                    <span className="text-sm text-muted-foreground">Total Traders</span>
+                    <span className="font-semibold text-lg">{totalTraders.toLocaleString()}</span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground font-bold">Active Today</span>
-                    <span className="font-bold text-lg">{activeToday.toLocaleString()}</span>
+                    <span className="text-sm text-muted-foreground">Active Today</span>
+                    <span className="font-semibold text-lg">{activeToday.toLocaleString()}</span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground font-bold">Avg PnL</span>
-                    <span className={`font-bold text-lg ${avgROI >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                    <span className="text-sm text-muted-foreground">Avg PnL</span>
+                    <span className={`font-semibold text-lg ${avgROI >= 0 ? 'text-green-500' : 'text-red-500'}`}>
                       {avgROI >= 0 ? '+' : ''}{avgROI.toFixed(2)} SOL
                     </span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground font-bold">Total Volume</span>
-                    <span className="font-bold text-lg">{totalVolume.toLocaleString(undefined, { maximumFractionDigits: 0 })} SOL</span>
+                    <span className="text-sm text-muted-foreground">Total Volume</span>
+                    <span className="font-semibold text-lg">{totalVolume.toLocaleString(undefined, { maximumFractionDigits: 0 })} SOL</span>
                   </div>
                 </div>
-              </Card>
+              </div>
             </div>
           </div>
         </div>

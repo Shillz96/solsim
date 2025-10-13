@@ -1,8 +1,7 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, memo } from "react"
 import { useSearchParams } from "next/navigation"
-import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -14,9 +13,15 @@ import { TrendingUp, TrendingDown, Wallet, Settings, AlertCircle, CheckCircle, L
 import { usePriceStreamContext } from "@/lib/price-stream-provider"
 import { useToast } from "@/hooks/use-toast"
 import { cn } from "@/lib/utils"
+import { formatUSD, formatNumber, safePercent } from "@/lib/format"
+import { SolEquiv, UsdWithSol } from "@/lib/sol-equivalent"
+import { formatSolEquivalent } from "@/lib/sol-equivalent-utils"
 import * as api from "@/lib/api"
 import * as Backend from "@/lib/types/backend"
 import { AnimatedNumber } from "@/components/ui/animated-number"
+import { ScreenReaderAnnouncements } from "@/components/shared/screen-reader-announcements"
+import { useScreenReaderAnnouncements } from "@/hooks/use-screen-reader-announcements"
+import { TradingValue, ProfitLossValue } from "@/components/ui/financial-value"
 import { useAuth } from "@/hooks/use-auth"
 
 // Token details type
@@ -37,7 +42,7 @@ interface TradingPanelProps {
   tokenAddress?: string
 }
 
-export function TradingPanel({ tokenAddress: propTokenAddress }: TradingPanelProps = {}) {
+function TradingPanelComponent({ tokenAddress: propTokenAddress }: TradingPanelProps = {}) {
   const searchParams = useSearchParams()
   const defaultTokenAddress = "DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263" // BONK
   const tokenAddress = propTokenAddress || searchParams.get("token") || defaultTokenAddress
@@ -49,6 +54,16 @@ export function TradingPanel({ tokenAddress: propTokenAddress }: TradingPanelPro
   const [userBalance, setUserBalance] = useState<number>(0)
   const [isTrading, setIsTrading] = useState(false)
   const [tradeError, setTradeError] = useState<string | null>(null)
+
+  // Screen reader announcements
+  const {
+    announcement,
+    urgentAnnouncement,
+    announcePriceChange,
+    announceTradeComplete,
+    announceTradeError,
+    announceBalanceUpdate,
+  } = useScreenReaderAnnouncements()
 
   // Load portfolio and user balance
   useEffect(() => {
@@ -119,11 +134,19 @@ export function TradingPanel({ tokenAddress: propTokenAddress }: TradingPanelPro
           duration: 5000,
         })
         
+        // Announce trade completion for screen readers
+        announceTradeComplete(
+          'buy',
+          tokenDetails?.tokenSymbol || 'tokens',
+          parseFloat(result.trade.quantity),
+          parseFloat(result.trade.totalCost)
+        )
+        
         // Show reward points earned
         if (parseFloat(result.rewardPointsEarned) > 0) {
           toast({
             title: "Reward Points Earned! ⭐",
-            description: `+${parseFloat(result.rewardPointsEarned).toFixed(2)} points`,
+            description: `+${formatNumber(parseFloat(result.rewardPointsEarned))} points`,
             duration: 3000,
           })
         }
@@ -141,6 +164,10 @@ export function TradingPanel({ tokenAddress: propTokenAddress }: TradingPanelPro
     } catch (err) {
       const errorMessage = (err as Error).message
       setTradeError(errorMessage)
+      
+      // Announce error for screen readers
+      announceTradeError(errorMessage)
+      
       toast({
         title: "Trade Failed",
         description: errorMessage,
@@ -174,7 +201,7 @@ export function TradingPanel({ tokenAddress: propTokenAddress }: TradingPanelPro
         
         // Calculate realized PnL for display
         const realizedPnL = parseFloat(result.trade.totalCost) - parseFloat(result.trade.costUsd || '0')
-        const pnlText = realizedPnL > 0 ? `+$${realizedPnL.toFixed(2)}` : `$${realizedPnL.toFixed(2)}`
+        const pnlText = realizedPnL >= 0 ? `+${formatUSD(realizedPnL)}` : formatUSD(realizedPnL)
         
         // Show success toast with trade details
         toast({
@@ -183,11 +210,19 @@ export function TradingPanel({ tokenAddress: propTokenAddress }: TradingPanelPro
           duration: 5000,
         })
         
-        // Show reward points earned
+        // Announce trade completion for screen readers
+        announceTradeComplete(
+          'sell',
+          tokenDetails?.tokenSymbol || 'tokens',
+          parseFloat(result.trade.quantity),
+          parseFloat(result.trade.totalCost)
+        )
+        
+        // Show reward points earned  
         if (parseFloat(result.rewardPointsEarned) > 0) {
           toast({
             title: "Reward Points Earned! ⭐",
-            description: `+${parseFloat(result.rewardPointsEarned).toFixed(2)} points`,
+            description: `+${formatNumber(parseFloat(result.rewardPointsEarned))} points`,
             duration: 3000,
           })
         }
@@ -205,6 +240,10 @@ export function TradingPanel({ tokenAddress: propTokenAddress }: TradingPanelPro
     } catch (err) {
       const errorMessage = (err as Error).message
       setTradeError(errorMessage)
+      
+      // Announce error for screen readers
+      announceTradeError(errorMessage)
+      
       toast({
         title: "Trade Failed",
         description: errorMessage,
@@ -220,6 +259,9 @@ export function TradingPanel({ tokenAddress: propTokenAddress }: TradingPanelPro
   const clearError = () => setTradeError(null)
   const { connected: wsConnected, prices: livePrices, subscribe, unsubscribe } = usePriceStreamContext()
   const { toast } = useToast()
+  
+  // Get SOL price for conversions (SOL mint address)
+  const solPrice = livePrices.get('So11111111111111111111111111111111111111112')?.price || 0
 
   // State
   const [tokenDetails, setTokenDetails] = useState<TokenDetails | null>(null)
@@ -466,26 +508,26 @@ export function TradingPanel({ tokenAddress: propTokenAddress }: TradingPanelPro
   // Loading state
   if (loadingToken) {
     return (
-      <Card className="p-6 space-y-6">
+      <div className="p-6 rounded-lg bg-card border border-border/50">
         <div className="animate-pulse space-y-4">
           <div className="h-6 bg-muted rounded w-3/4"></div>
           <div className="h-8 bg-muted rounded w-1/2"></div>
           <div className="h-32 bg-muted rounded"></div>
         </div>
-      </Card>
+      </div>
     )
   }
 
   if (!tokenDetails) {
     return (
-      <Card className="p-6">
+      <div className="p-6 rounded-lg bg-card border border-border/50">
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
             Failed to load token information. Please try again.
           </AlertDescription>
         </Alert>
-      </Card>
+      </div>
     )
   }
 
@@ -496,16 +538,17 @@ export function TradingPanel({ tokenAddress: propTokenAddress }: TradingPanelPro
   const tokenBalance = tokenHolding ? parseFloat(tokenHolding.qty) : 0
 
   return (
-    <Card className="trading-card p-6 space-y-6 border border-border rounded-none shadow-none">
-      {/* Trade Status */}
-      {tradeError && (
-        <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription>{tradeError}</AlertDescription>
-        </Alert>
-      )}
+    <div className="p-6 rounded-lg bg-card border border-border/50">
+      <div className="space-y-6">
+        {/* Trade Status */}
+        {tradeError && (
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>{tradeError}</AlertDescription>
+          </Alert>
+        )}
 
-      {lastTradeSuccess && (
+        {lastTradeSuccess && (
         <Alert className="border-green-200 bg-green-50 text-green-800">
           <CheckCircle className="h-4 w-4" />
           <AlertDescription>Trade executed successfully!</AlertDescription>
@@ -525,7 +568,7 @@ export function TradingPanel({ tokenAddress: propTokenAddress }: TradingPanelPro
             <span className="font-mono">{balance.toFixed(2)} SOL</span>
           </div>
         </div>
-        <div className="flex items-baseline gap-2">
+        <div className="flex flex-col items-end">
           <AnimatedNumber
             value={currentPrice}
             prefix="$"
@@ -534,6 +577,11 @@ export function TradingPanel({ tokenAddress: propTokenAddress }: TradingPanelPro
             colorize={false}
             glowOnChange={true}
           />
+          {solPrice > 0 && (
+            <div className="text-xs text-muted-foreground">
+              {formatSolEquivalent(currentPrice, solPrice)}
+            </div>
+          )}
           {(livePrice?.change24h !== undefined || tokenDetails.priceChange24h) && (
             <AnimatedNumber
               value={livePrice?.change24h ?? tokenDetails.priceChange24h}
@@ -547,8 +595,13 @@ export function TradingPanel({ tokenAddress: propTokenAddress }: TradingPanelPro
           )}
         </div>
         {tokenHolding && (
-          <div className="text-sm text-muted-foreground">
-            Holdings: {parseFloat(tokenHolding.qty).toLocaleString()} {tokenDetails.tokenSymbol}
+          <div className="space-y-1">
+            <div className="text-sm text-muted-foreground">
+              Holdings: {parseFloat(tokenHolding.qty).toLocaleString()} {tokenDetails.tokenSymbol}
+            </div>
+            <div className="text-xs text-muted-foreground">
+              Value: <UsdWithSol usd={parseFloat(tokenHolding.qty) * currentPrice} className="inline" compact />
+            </div>
           </div>
         )}
       </div>
@@ -604,11 +657,17 @@ export function TradingPanel({ tokenAddress: propTokenAddress }: TradingPanelPro
                     setCustomSolAmount("")
                   }}
                   disabled={amount > balance}
+                  aria-label={
+                    amount > balance 
+                      ? `${amount} SOL - Insufficient balance, you have ${balance.toFixed(2)} SOL available`
+                      : `Select ${amount} SOL to spend${selectedSolAmount === amount ? ', currently selected' : ''}`
+                  }
+                  aria-pressed={selectedSolAmount === amount}
                   title={amount > balance ? `Insufficient balance (need ${amount} SOL)` : undefined}
                 >
                   {amount} SOL
                   {amount > balance && (
-                    <span className="absolute -top-1 -right-1 h-3 w-3 bg-destructive rounded-full" />
+                    <span className="absolute -top-1 -right-1 h-3 w-3 bg-destructive rounded-full" aria-hidden="true" />
                   )}
                 </Button>
               ))}
@@ -627,7 +686,12 @@ export function TradingPanel({ tokenAddress: propTokenAddress }: TradingPanelPro
                   className="font-mono"
                   max={balance}
                   step="0.1"
+                  aria-label="Custom SOL amount to spend"
+                  aria-describedby="custom-amount-help"
                 />
+                <div id="custom-amount-help" className="sr-only">
+                  Enter the amount of SOL you want to spend. Maximum available: {balance.toFixed(2)} SOL
+                </div>
               </div>
             )}
           </div>
@@ -651,22 +715,43 @@ export function TradingPanel({ tokenAddress: propTokenAddress }: TradingPanelPro
               }
               readOnly
               className="font-mono bg-muted"
+              aria-label={`Tokens you will receive: ${
+                selectedSolAmount
+                  ? (selectedSolAmount / currentPrice).toFixed(0)
+                  : customSolAmount
+                    ? (Number.parseFloat(customSolAmount) / currentPrice).toFixed(0)
+                    : "0"
+              } ${tokenDetails?.tokenSymbol || 'tokens'}`}
             />
           </div>
 
           <Separator className="my-6" />
 
           {/* Price info */}
-          <div className="rounded-none bg-muted/50 p-4 space-y-3 border border-border">
+          <div className="rounded-none bg-muted/50 p-4 space-y-3 border border-border" role="region" aria-label="Token pricing information">
             <div className="flex justify-between">
               <span className="text-sm text-muted-foreground">Price</span>
-              <span className="font-mono text-sm">${currentPrice.toFixed(8)}</span>
+              <div className="flex flex-col items-end">
+                <span className="font-mono text-sm" aria-label={`Current price: ${currentPrice.toFixed(8)} dollars`}>
+                  ${currentPrice.toFixed(8)}
+                </span>
+                {solPrice > 0 && (
+                  <span className="text-xs text-muted-foreground">
+                    {formatSolEquivalent(currentPrice, solPrice)}
+                  </span>
+                )}
+              </div>
             </div>
             <div className="flex justify-between">
               <span className="text-sm text-muted-foreground">Market Cap</span>
-              <span className="font-mono text-sm">
-                {tokenDetails.marketCap ? `$${(tokenDetails.marketCap / 1e6).toFixed(2)}M` : 'N/A'}
-              </span>
+              <div className="flex flex-col items-end">
+                <span className="font-mono text-sm" aria-label={`Market capitalization: ${tokenDetails.marketCap ? formatNumber(tokenDetails.marketCap) : 'Not available'}`}>
+                  {tokenDetails.marketCap ? `$${formatNumber(tokenDetails.marketCap)}` : 'N/A'}
+                </span>
+                {tokenDetails.marketCap && solPrice > 0 && (
+                  <SolEquiv usd={tokenDetails.marketCap} className="text-xs" />
+                )}
+              </div>
             </div>
           </div>
 
@@ -680,13 +765,27 @@ export function TradingPanel({ tokenAddress: propTokenAddress }: TradingPanelPro
               (!selectedSolAmount && !customSolAmount) ||
               !tokenDetails?.tokenSymbol
             }
+            aria-label={
+              isTrading ? 'Processing buy order' :
+              !tokenDetails ? 'Loading token information' :
+              !tokenDetails.tokenSymbol ? 'Select a token to trade' :
+              (!selectedSolAmount && !customSolAmount) ? 'Enter amount to buy' :
+              `Buy ${tokenDetails.tokenSymbol} for ${selectedSolAmount || customSolAmount} SOL`
+            }
+            aria-describedby="buy-button-help"
           >
-            <TrendingUp className="mr-2 h-5 w-5" />
+            <TrendingUp className="mr-2 h-5 w-5" aria-hidden="true" />
             {isTrading ? 'Processing...' : 
              !tokenDetails ? 'Loading Token...' :
              !tokenDetails.tokenSymbol ? 'Select a Token' :
              `Buy ${tokenDetails.tokenSymbol}`}
           </Button>
+          <div id="buy-button-help" className="sr-only">
+            {(!selectedSolAmount && !customSolAmount) 
+              ? 'Select or enter an amount to enable buying'
+              : `This will purchase ${tokenDetails?.tokenSymbol || 'tokens'} at the current market price`
+            }
+          </div>
         </TabsContent>
 
         <TabsContent value="sell" className="space-y-4 mt-4">
@@ -720,7 +819,7 @@ export function TradingPanel({ tokenAddress: propTokenAddress }: TradingPanelPro
           ) : (
             <>
               {/* Show current holdings */}
-              <div className="bg-muted/50 rounded-none p-4 border border-border">
+              <div className="bg-muted/20 rounded-lg p-4 border border-border/50">
                 <div className="flex items-center justify-between mb-3">
                   <span className="text-sm font-bold">Your Holdings</span>
                   <Button 
@@ -737,9 +836,19 @@ export function TradingPanel({ tokenAddress: propTokenAddress }: TradingPanelPro
                   {parseFloat(tokenHolding.qty).toLocaleString(undefined, { maximumFractionDigits: 6 })} {tokenDetails?.tokenSymbol || 'tokens'}
                 </div>
                 <div className={`text-sm ${parseFloat(tokenHolding.unrealizedUsd) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                  {parseFloat(tokenHolding.unrealizedUsd) >= 0 ? '+' : ''}${parseFloat(tokenHolding.unrealizedUsd).toFixed(2)} USD 
-                  ({parseFloat(tokenHolding.unrealizedPercent) >= 0 ? '+' : ''}{parseFloat(tokenHolding.unrealizedPercent).toFixed(2)}%)
+                  <div>{formatUSD(parseFloat(tokenHolding.unrealizedUsd))}</div>
+                  {solPrice > 0 && (
+                    <div className="text-xs text-muted-foreground">
+                      {formatSolEquivalent(Math.abs(parseFloat(tokenHolding.unrealizedUsd)), solPrice)}
+                    </div>
+                  )}
+                  <div>({parseFloat(tokenHolding.unrealizedPercent).toFixed(2)}%)</div>
                 </div>
+                <ProfitLossValue 
+                  usd={Math.abs(parseFloat(tokenHolding.unrealizedUsd))} 
+                  className="text-xs text-muted-foreground"
+                  showSolEquivalent={true}
+                />
               </div>
               <div className="space-y-4">
                 <Label className="text-sm font-bold">Amount (% of holdings)</Label>
@@ -770,6 +879,7 @@ export function TradingPanel({ tokenAddress: propTokenAddress }: TradingPanelPro
                   value={selectedPercentage ? ((tokenBalance * selectedPercentage) / 100).toFixed(0) : ""}
                   readOnly
                   className="font-mono bg-muted"
+                  aria-label={`Tokens to sell: ${selectedPercentage ? ((tokenBalance * selectedPercentage) / 100).toFixed(0) : "0"} ${tokenDetails.tokenSymbol}`}
                 />
               </div>
 
@@ -781,22 +891,23 @@ export function TradingPanel({ tokenAddress: propTokenAddress }: TradingPanelPro
                   value={selectedPercentage ? (((tokenBalance * selectedPercentage) / 100) * currentPrice).toFixed(6) : ""}
                   readOnly
                   className="font-mono bg-muted"
+                  aria-label={`SOL you will receive: ${selectedPercentage ? (((tokenBalance * selectedPercentage) / 100) * currentPrice).toFixed(6) : "0"} SOL`}
                 />
               </div>
 
-              <div className="space-y-3 rounded-none bg-muted p-4 text-sm border border-border">
+              <div className="space-y-3 rounded-lg bg-muted/20 p-4 text-sm border border-border/50" role="region" aria-label="Token selling information">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Price</span>
-                  <span className="font-mono">${currentPrice.toFixed(8)}</span>
+                  <span className="font-mono" aria-label={`Current price: ${currentPrice.toFixed(8)} dollars`}>${currentPrice.toFixed(8)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Total Holdings</span>
-                  <span className="font-mono">{tokenBalance.toLocaleString()} {tokenDetails.tokenSymbol}</span>
+                  <span className="font-mono" aria-label={`Total holdings: ${tokenBalance.toLocaleString()} ${tokenDetails.tokenSymbol}`}>{tokenBalance.toLocaleString()} {tokenDetails.tokenSymbol}</span>
                 </div>
                 {tokenHolding && (
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Avg. Cost</span>
-                    <span className="font-mono">${parseFloat(tokenHolding.avgCostUsd).toFixed(8)}</span>
+                    <span className="font-mono" aria-label={`Average cost: ${parseFloat(tokenHolding.avgCostUsd).toFixed(8)} dollars`}>${parseFloat(tokenHolding.avgCostUsd).toFixed(8)}</span>
                   </div>
                 )}
               </div>
@@ -811,17 +922,40 @@ export function TradingPanel({ tokenAddress: propTokenAddress }: TradingPanelPro
                   !selectedPercentage ||
                   !tokenDetails?.tokenSymbol
                 }
+                aria-label={
+                  isTrading ? 'Processing sell order' :
+                  !tokenDetails ? 'Loading token information' :
+                  !tokenDetails.tokenSymbol ? 'Select a token to trade' :
+                  !selectedPercentage ? 'Select percentage to sell' :
+                  `Sell ${selectedPercentage}% of ${tokenDetails.tokenSymbol} for ${((tokenBalance * selectedPercentage) / 100 * currentPrice).toFixed(6)} SOL`
+                }
+                aria-describedby="sell-button-help"
               >
-                <TrendingDown className="mr-2 h-5 w-5" />
+                <TrendingDown className="mr-2 h-5 w-5" aria-hidden="true" />
                 {isTrading ? 'Processing...' : 
                  !tokenDetails ? 'Loading Token...' :
                  !tokenDetails.tokenSymbol ? 'Select a Token' :
                  `Sell ${tokenDetails.tokenSymbol}`}
               </Button>
+              <div id="sell-button-help" className="sr-only">
+                {!selectedPercentage 
+                  ? 'Select a percentage of your holdings to sell'
+                  : `This will sell ${selectedPercentage}% of your ${tokenDetails?.tokenSymbol || 'tokens'} at the current market price`
+                }
+              </div>
             </>
           )}
         </TabsContent>
       </Tabs>
-    </Card>
+      
+      {/* Screen reader announcements for trading actions */}
+      <ScreenReaderAnnouncements 
+        politeMessage={announcement}
+        urgentMessage={urgentAnnouncement}
+      />
+      </div>
+    </div>
   )
 }
+
+export const TradingPanel = memo(TradingPanelComponent)

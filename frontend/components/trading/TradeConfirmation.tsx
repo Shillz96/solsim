@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+// Percentage formatting now inline
 import { TrendIndicator } from "@/components/shared/TrendIndicator";
 import { formatNumber } from "@/lib/utils";
 import { TradeConfirmationProps } from "./types";

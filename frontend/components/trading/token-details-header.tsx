@@ -1,7 +1,8 @@
 "use client"
 
 import { useEffect } from "react"
-import { Card } from "@/components/ui/card"
+import { formatNumber } from "@/lib/format"
+import { EnhancedCard, CardGrid, CardSection } from "@/components/ui/enhanced-card-system"
 import { Badge } from "@/components/ui/badge"
 import { 
   ExternalLink, 
@@ -20,6 +21,8 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { TokenImage } from "@/components/ui/token-image"
 import { usePriceStreamContext } from "@/lib/price-stream-provider"
 import { useTokenMetadata } from "@/hooks/use-token-metadata"
+// ✅ Import standardized components instead of manual formatting
+import { PriceCell, MoneyCell } from "@/components/ui/table-cells"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import {
@@ -58,40 +61,40 @@ export function TokenDetailsHeader({ tokenAddress }: TokenDetailsHeaderProps) {
   // Ensure currentPrice is always a number for AnimatedNumber component
   const currentPrice = livePrice?.price || tokenDetails?.price || Number(tokenDetails?.lastPrice) || 0
   
-  // Format numbers for display
+  // Format numbers for display using the global formatter
   const formatNumber = (num: number | null | undefined) => {
     if (num === null || num === undefined) return 'N/A'
-    if (num >= 1e9) return `$${(num / 1e9).toFixed(2)}B`
-    if (num >= 1e6) return `$${(num / 1e6).toFixed(2)}M`
-    if (num >= 1e3) return `$${(num / 1e3).toFixed(2)}K`
-    return `$${num.toLocaleString()}`
+    return formatNumber(num)
   }
 
   if (isLoading) {
     return (
-      <Card className="p-4 mb-4 flex items-center justify-center">
+      <EnhancedCard className="p-4 mb-4 flex items-center justify-center">
         <Loader2 className="h-5 w-5 animate-spin text-muted-foreground mr-2" />
         <span className="text-muted-foreground">Loading token information...</span>
-      </Card>
+      </EnhancedCard>
     )
   }
 
   if (error || !tokenDetails) {
     return (
-      <Card className="p-4 mb-4">
+      <EnhancedCard className="p-4 mb-4">
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
             Failed to load token information: {error instanceof Error ? error.message : "Unknown error"}
           </AlertDescription>
         </Alert>
-      </Card>
+      </EnhancedCard>
     )
   }
 
   const priceChange = livePrice?.change24h || (tokenDetails.priceChange24h ? Number(tokenDetails.priceChange24h) : null)
   const isPositiveChange = priceChange !== undefined && priceChange !== null && priceChange > 0
   const isNegativeChange = priceChange !== undefined && priceChange !== null && priceChange < 0
+  
+  // Get SOL price for equivalents
+  const solPrice = livePrices.get('So11111111111111111111111111111111111111112')?.price || 0
   
   // Debug logging for token image URL - helpful for troubleshooting
   if (process.env.NODE_ENV !== 'production') {
@@ -138,204 +141,237 @@ export function TokenDetailsHeader({ tokenAddress }: TokenDetailsHeaderProps) {
   };
 
   return (
-    <Card className="p-4 mb-4">
-      <div className="flex flex-col md:flex-row items-start md:items-center gap-4 overflow-hidden">
-        <div className="flex items-center">
-          <TokenImage 
-            src={tokenDetails.imageUrl || tokenDetails.logoURI} 
-            alt={tokenDetails.name || 'Token'} 
-            size={48}
-            className="mr-4"
-          />
-          
-          <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-xl font-bold">{tokenDetails.symbol}</h1>
-              <Badge variant="outline" className="h-6">
-                {tokenDetails.name}
-              </Badge>
-              
+    <EnhancedCard className="relative overflow-hidden border border-border/50 bg-card/50 backdrop-blur-sm">
+      {/* Animated Background */}
+      <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-blue-500/5 opacity-50"></div>
+      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-blue-500"></div>
+      
+      <div className="relative z-10 p-6">
+        <div className="flex flex-col md:flex-row items-start md:items-center gap-6 overflow-hidden">
+          <div className="flex items-center">
+            <div className="relative">
+              <TokenImage 
+                src={tokenDetails.imageUrl || tokenDetails.logoURI} 
+                alt={tokenDetails.name || 'Token'} 
+                size={56}
+                className="mr-4 ring-2 ring-primary/20 ring-offset-2 ring-offset-background"
+              />
               {tokenDetails.isNew && (
-                <Badge variant="default" className="bg-blue-600 hover:bg-blue-700">
-                  New
-                </Badge>
+                <div className="absolute -top-1 -right-1 w-3 h-3 bg-blue-500 rounded-full animate-pulse"></div>
               )}
-              
               {tokenDetails.isTrending && (
-                <Badge variant="default">
-                  Trending
-                </Badge>
+                <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
               )}
-            </div>
-            <div className="text-sm text-muted-foreground truncate max-w-[300px] mt-1">
-              {tokenAddress}
             </div>
             
-            {/* Social Links */}
-            <div className="flex gap-2 mt-2">
-              <TooltipProvider>
-                {websites.slice(0, 1).map((website: string, index: number) => (
-                  <Tooltip key={index}>
+            <div>
+              <div className="flex items-center gap-3 flex-wrap">
+                <h1 className="text-2xl font-bold bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text">
+                  {tokenDetails.symbol}
+                </h1>
+                <Badge variant="outline" className="h-7 px-3 font-medium bg-muted/50 backdrop-blur-sm">
+                  {tokenDetails.name}
+                </Badge>
+                
+                {tokenDetails.isNew && (
+                  <Badge variant="default" className="bg-blue-600 hover:bg-blue-700 animate-pulse">
+                    🔥 New
+                  </Badge>
+                )}
+                
+                {tokenDetails.isTrending && (
+                  <Badge variant="default" className="bg-green-600 hover:bg-green-700 animate-pulse">
+                    📈 Trending
+                  </Badge>
+                )}
+              </div>
+              
+              <div className="text-sm text-muted-foreground font-mono truncate max-w-[300px] mt-2 bg-muted/30 px-2 py-1 rounded">
+                {tokenAddress}
+              </div>
+              
+              {/* Enhanced Social Links */}
+              <div className="flex gap-2 mt-3">
+                <TooltipProvider>
+                  {websites.slice(0, 1).map((website: string, index: number) => (
+                    <Tooltip key={index}>
+                      <TooltipTrigger asChild>
+                        <Link 
+                          href={website} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                        >
+                          <Button variant="outline" size="sm" className="h-8 w-8 p-0 bg-background/50 hover:bg-primary/20 transition-all duration-200">
+                            <Globe className="h-4 w-4" />
+                          </Button>
+                        </Link>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Website</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  ))}
+                  
+                  {socials.slice(0, 2).map((social: string, index: number) => (
+                    <Tooltip key={`social-${index}`}>
+                      <TooltipTrigger asChild>
+                        <Link 
+                          href={social} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                        >
+                          <Button variant="outline" size="sm" className="h-8 w-8 p-0 bg-background/50 hover:bg-primary/20 transition-all duration-200">
+                            {getSocialIcon(social)}
+                          </Button>
+                        </Link>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>{social.includes('twitter.com') || social.includes('x.com') ? 'Twitter' : 
+                           social.includes('t.me') ? 'Telegram' : 'Social'}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  ))}
+                  
+                  <Tooltip>
                     <TooltipTrigger asChild>
                       <Link 
-                        href={website} 
+                        href={`https://solscan.io/token/${tokenAddress}`}
                         target="_blank" 
                         rel="noopener noreferrer"
                       >
-                        <Button variant="outline" size="sm" className="h-7 w-7 p-0">
-                          <Globe className="h-3.5 w-3.5" />
+                        <Button variant="outline" size="sm" className="h-8 w-8 p-0 bg-background/50 hover:bg-primary/20 transition-all duration-200">
+                          <ExternalLink className="h-4 w-4" />
                         </Button>
                       </Link>
                     </TooltipTrigger>
                     <TooltipContent>
-                      <p>Website</p>
+                      <p>View on Solscan</p>
                     </TooltipContent>
                   </Tooltip>
-                ))}
-                
-                {socials.map((social: string, index: number) => (
-                  <Tooltip key={`social-${index}`}>
-                    <TooltipTrigger asChild>
-                      <Link 
-                        href={social} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                      >
-                        <Button variant="outline" size="sm" className="h-7 w-7 p-0">
-                          {getSocialIcon(social)}
-                        </Button>
-                      </Link>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>{social.includes('twitter.com') || social.includes('x.com') ? 'Twitter' : 
-                         social.includes('t.me') ? 'Telegram' : 'Social'}</p>
-                    </TooltipContent>
-                  </Tooltip>
-                ))}
-                
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Link 
-                      href={`https://solscan.io/token/${tokenAddress}`}
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                    >
-                      <Button variant="outline" size="sm" className="h-7 w-7 p-0">
-                        <ExternalLink className="h-3.5 w-3.5" />
-                      </Button>
-                    </Link>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>View on Solscan</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
+                </TooltipProvider>
+              </div>
             </div>
+          </div>
+          
+          {/* ✅ Enhanced Metrics Section with Standardized Components */}
+          <div className="flex flex-wrap items-center gap-6 ml-auto">
+            <div className="text-center p-4 bg-muted/30 rounded-lg backdrop-blur-sm">
+              <div className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Price</div>
+              <div className="flex items-center gap-2">
+                {/* ✅ Use PriceCell for standardized price display with SOL equivalent */}
+                <PriceCell 
+                  priceUsd={currentPrice}
+                  priceChangePercent={priceChange || undefined}
+                  className="text-xl font-mono font-bold"
+                  showSolEquiv={true}
+                />
+                {priceChange !== undefined && priceChange !== null && (
+                  <div className={`flex items-center text-sm px-2 py-1 rounded-full ${
+                    isPositiveChange 
+                      ? 'text-green-400 bg-green-500/10' 
+                      : isNegativeChange 
+                        ? 'text-red-400 bg-red-500/10' 
+                        : 'text-muted-foreground bg-muted/20'
+                  }`}>
+                    {isPositiveChange && <TrendingUp className="h-3 w-3 mr-1" />}
+                    {isNegativeChange && <TrendingDown className="h-3 w-3 mr-1" />}
+                    <AnimatedNumber
+                      value={priceChange}
+                      prefix={priceChange >= 0 ? "+" : ""}
+                      suffix="%"
+                      decimals={2}
+                      colorize={false}
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
+            
+            {tokenDetails.marketCapUsd && (
+              <div className="text-center p-4 bg-muted/30 rounded-lg backdrop-blur-sm">
+                <div className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Market Cap</div>
+                {/* ✅ Use MoneyCell for market cap with SOL equivalent */}
+                <MoneyCell 
+                  usd={Number(tokenDetails.marketCapUsd)}
+                  className="text-lg font-mono font-bold"
+                  hideSolEquiv={false}
+                />
+              </div>
+            )}
+            
+            {tokenDetails.volume24h && (
+              <div className="text-center p-4 bg-muted/30 rounded-lg backdrop-blur-sm">
+                <div className="text-xs text-muted-foreground uppercase tracking-wide mb-1">24h Volume</div>
+                {/* ✅ Use MoneyCell for volume with SOL equivalent */}
+                <MoneyCell 
+                  usd={Number(tokenDetails.volume24h)}
+                  className="text-lg font-mono font-bold"
+                  hideSolEquiv={false}
+                />
+              </div>
+            )}
+            
+            {tokenDetails.liquidityUsd && (
+              <div className="text-center p-4 bg-muted/30 rounded-lg backdrop-blur-sm">
+                <div className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Liquidity</div>
+                {/* ✅ Use MoneyCell for liquidity with SOL equivalent */}
+                <MoneyCell 
+                  usd={Number(tokenDetails.liquidityUsd)}
+                  className="text-lg font-mono font-bold"
+                  hideSolEquiv={false}
+                />
+              </div>
+            )}
           </div>
         </div>
         
-        <div className="flex flex-wrap items-center gap-6 ml-auto">
-          <div className="text-center">
-            <div className="text-sm text-muted-foreground">Price</div>
-            <div className="flex items-center gap-1">
-              <AnimatedNumber
-                value={currentPrice}
-                prefix="$"
-                decimals={currentPrice < 0.001 ? 9 : currentPrice < 1 ? 6 : 2}
-                className="text-lg font-mono font-bold"
-                glowOnChange={true}
-              />
-              {priceChange !== undefined && priceChange !== null && (
-                <span className={`ml-1 flex items-center text-sm ${isPositiveChange ? 'text-green-500' : isNegativeChange ? 'text-red-500' : ''}`}>
-                  {isPositiveChange && <TrendingUp className="h-3 w-3 mr-1" />}
-                  {isNegativeChange && <TrendingDown className="h-3 w-3 mr-1" />}
-                  <AnimatedNumber
-                    value={priceChange}
-                    prefix={priceChange >= 0 ? "+" : ""}
-                    suffix="%"
-                    decimals={2}
-                    colorize={false}
-                  />
-                </span>
-              )}
-            </div>
-          </div>
-          
-          {tokenDetails.marketCapUsd && (
-            <div className="text-center">
-              <div className="text-sm text-muted-foreground">Market Cap</div>
-              <div className="text-lg font-mono font-bold">
-                {formatNumber(Number(tokenDetails.marketCapUsd))}
-              </div>
+        {/* Enhanced Additional Details Section */}
+        <div className="mt-6 pt-4 border-t border-border/50 flex flex-wrap gap-x-8 gap-y-3 text-sm">
+          {tokenDetails.holderCount && (
+            <div className="flex items-center gap-2 px-3 py-2 bg-muted/20 rounded-lg">
+              <Users className="h-4 w-4 text-primary" />
+              <span className="text-muted-foreground">Holders:</span>
+              <span className="font-semibold">{Number(tokenDetails.holderCount).toLocaleString()}</span>
             </div>
           )}
           
-          {tokenDetails.volume24h && (
-            <div className="text-center">
-              <div className="text-sm text-muted-foreground">24h Volume</div>
-              <div className="text-lg font-mono font-bold">
-                {formatNumber(Number(tokenDetails.volume24h))}
-              </div>
+          {tokenDetails.firstSeenAt && (
+            <div className="flex items-center gap-2 px-3 py-2 bg-muted/20 rounded-lg">
+              <Clock className="h-4 w-4 text-primary" />
+              <span className="text-muted-foreground">First Seen:</span>
+              <span className="font-semibold">{formatTimestamp(tokenDetails.firstSeenAt)}</span>
             </div>
           )}
           
-          {tokenDetails.liquidityUsd && (
-            <div className="text-center">
-              <div className="text-sm text-muted-foreground">Liquidity</div>
-              <div className="text-lg font-mono font-bold">
-                {formatNumber(Number(tokenDetails.liquidityUsd))}
-              </div>
+          {websites.length > 0 && websites[0] && (
+            <div className="flex items-center gap-2 px-3 py-2 bg-muted/20 rounded-lg">
+              <Globe className="h-4 w-4 text-primary" />
+              <span className="text-muted-foreground">Website:</span>
+              <Link 
+                href={websites[0]} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-primary hover:underline truncate max-w-[200px] font-semibold"
+              >
+                {websites[0].replace(/https?:\/\/(www\.)?/, '')}
+              </Link>
             </div>
           )}
-        </div>
-      </div>
-      
-      {/* Additional Details Section */}
-      <div className="mt-4 pt-4 border-t border-border flex flex-wrap gap-x-8 gap-y-2 text-sm">
-        {tokenDetails.holderCount && (
-          <div className="flex items-center gap-1">
-            <Users className="h-3.5 w-3.5 text-muted-foreground" />
-            <span className="text-muted-foreground">Holders:</span>
-            <span>{Number(tokenDetails.holderCount).toLocaleString()}</span>
-          </div>
-        )}
-        
-        {tokenDetails.firstSeenAt && (
-          <div className="flex items-center gap-1">
-            <Clock className="h-3.5 w-3.5 text-muted-foreground" />
-            <span className="text-muted-foreground">First Seen:</span>
-            <span>{formatTimestamp(tokenDetails.firstSeenAt)}</span>
-          </div>
-        )}
-        
-        {websites.length > 0 && websites[0] && (
-          <div className="flex items-center gap-1">
-            <Globe className="h-3.5 w-3.5 text-muted-foreground" />
-            <span className="text-muted-foreground">Website:</span>
+          
+          <div className="ml-auto">
             <Link 
-              href={websites[0]} 
+              href={`https://dexscreener.com/solana/${tokenAddress}`} 
               target="_blank" 
               rel="noopener noreferrer"
-              className="text-primary hover:underline truncate max-w-[200px]"
             >
-              {websites[0].replace(/https?:\/\/(www\.)?/, '')}
+              <Badge variant="secondary" className="flex items-center gap-2 px-4 py-2 cursor-pointer hover:bg-secondary/80 transition-colors bg-primary/10 hover:bg-primary/20">
+                <ExternalLink className="h-4 w-4" />
+                View on DexScreener
+              </Badge>
             </Link>
           </div>
-        )}
-        
-        <div className="ml-auto">
-          <Link 
-            href={`https://dexscreener.com/solana/${tokenAddress}`} 
-            target="_blank" 
-            rel="noopener noreferrer"
-          >
-            <Badge variant="secondary" className="flex items-center gap-1 px-3 py-1 cursor-pointer hover:bg-secondary/80">
-              <ExternalLink className="h-3.5 w-3.5 mr-1" />
-              View on DexScreener
-            </Badge>
-          </Link>
         </div>
       </div>
-    </Card>
+    </EnhancedCard>
   )
 }

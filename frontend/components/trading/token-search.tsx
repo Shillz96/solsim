@@ -11,6 +11,7 @@ import { useDebounce } from "@/hooks/use-debounce"
 import { useClickOutside } from "@/hooks/use-click-outside"
 import * as api from "@/lib/api"
 import * as Backend from "@/lib/types/backend"
+// Percentage formatting now inline
 
 // Use the backend type for consistency
 type TokenSearchResult = Backend.TokenSearchResult

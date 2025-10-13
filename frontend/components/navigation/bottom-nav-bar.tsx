@@ -9,6 +9,8 @@ import { useTheme } from "next-themes"
 import { motion, AnimatePresence } from "framer-motion"
 import { usePriceStreamContext } from "@/lib/price-stream-provider"
 
+// Percentage formatting now inline
+
 interface MarketPrice {
   symbol: string
   price: number
@@ -19,7 +21,7 @@ export function BottomNavBar() {
   const pathname = usePathname()
   const { theme, setTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
-  const { prices } = usePriceStreamContext()
+  const { prices, subscribe, unsubscribe } = usePriceStreamContext()
   const [marketPrices, setMarketPrices] = useState<MarketPrice[]>([
     { symbol: "SOL", price: 100, change24h: 2.5 },
   ])
@@ -28,6 +30,16 @@ export function BottomNavBar() {
   useEffect(() => {
     setMounted(true)
   }, [])
+
+  // Subscribe to SOL price updates
+  useEffect(() => {
+    const solMint = "So11111111111111111111111111111111111111112"
+    subscribe(solMint)
+    
+    return () => {
+      unsubscribe(solMint)
+    }
+  }, [subscribe, unsubscribe])
 
   // Use SOL price from price stream if available
   useEffect(() => {
@@ -133,18 +145,28 @@ export function BottomNavBar() {
           {/* Center: Market Prices */}
           <div className="flex items-center gap-6">
             {marketPrices.map((market) => (
-              <div key={market.symbol} className="flex items-center gap-2">
-                <span className="text-xs font-medium text-muted-foreground">{market.symbol}</span>
-                <span className="text-xs font-semibold text-foreground">${market.price.toLocaleString()}</span>
+              <div key={market.symbol} className="flex items-center gap-3 px-3 py-1 rounded-lg bg-muted/30">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                  <span className="text-sm font-semibold text-foreground">{market.symbol}</span>
+                </div>
+                <span className="text-sm font-bold text-foreground">
+                  ${market.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </span>
                 <span
                   className={cn(
-                    "text-xs font-medium",
-                    market.change24h > 0 ? "text-green-500" : market.change24h < 0 ? "text-red-500" : "text-gray-500",
+                    "text-xs font-medium px-2 py-0.5 rounded",
+                    market.change24h > 0 
+                      ? "text-green-600 bg-green-100 dark:bg-green-900 dark:text-green-400" 
+                      : market.change24h < 0 
+                      ? "text-red-600 bg-red-100 dark:bg-red-900 dark:text-red-400" 
+                      : "text-gray-500 bg-gray-100 dark:bg-gray-800",
                   )}
                 >
                   {market.change24h > 0 ? "+" : ""}
                   {market.change24h.toFixed(2)}%
                 </span>
+                <span className="text-xs text-muted-foreground">24h</span>
               </div>
             ))}
           </div>
