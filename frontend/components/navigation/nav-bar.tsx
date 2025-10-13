@@ -17,7 +17,7 @@ import { Input } from "@/components/ui/input"
 import { 
   Menu, User, Settings, LogOut, Bell, Search, Loader2, 
   TrendingUp, Wallet, Target, BarChart3, Home, Zap,
-  ChevronDown, Command
+  ChevronDown, Command, Gift
 } from "lucide-react"
 import { useState, useCallback, useEffect, useRef } from "react"
 import { AuthModal } from "@/components/modals/auth-modal"
@@ -65,6 +65,12 @@ const navigationItems = [
     href: "/trending",
     icon: TrendingUp,
     description: "Discover popular tokens"
+  },
+  {
+    name: "Rewards",
+    href: "/rewards",
+    icon: Gift,
+    description: "Earn points and claim rewards"
   },
   {
     name: "Monitoring",
@@ -173,7 +179,7 @@ export function NavBar() {
     <motion.header 
       initial={{ y: -100 }}
       animate={{ y: 0 }}
-      className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60"
+      className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur-md supports-[backdrop-filter]:bg-background/80"
     >
       <div className="w-full px-6">
         <div className="flex h-16 items-center justify-between">
@@ -187,7 +193,7 @@ export function NavBar() {
 
             {/* Desktop Navigation */}
             <nav className="hidden md:flex items-center space-x-1">
-              {navigationItems.slice(0, 5).map((item) => {
+              {navigationItems.slice(0, 6).map((item) => {
                 const Icon = item.icon
                 const isActive = pathname === item.href
                 
@@ -232,7 +238,7 @@ export function NavBar() {
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
-                  className="absolute top-full mt-2 w-full bg-background border border-border rounded-lg shadow-xl z-50 max-h-80 overflow-y-auto backdrop-blur-sm"
+                  className="absolute top-full mt-2 w-full bg-background backdrop-blur-md border border-border rounded-lg shadow-xl z-50 max-h-80 overflow-y-auto"
                 >
                   <div className="p-2">
                     <div className="text-xs text-muted-foreground px-2 py-1 font-semibold border-b border-border/50 mb-1">
@@ -242,7 +248,7 @@ export function NavBar() {
                       <button
                         key={token.mint}
                         onClick={() => handleTokenSelect(token)}
-                        className="w-full text-left px-3 py-2 rounded-md hover:bg-muted/80 transition-colors duration-200 focus:bg-muted/80 focus:outline-none"
+                        className="w-full text-left px-3 py-2 rounded-md hover:bg-muted transition-colors duration-200 focus:bg-muted focus:outline-none"
                       >
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-3">
@@ -289,7 +295,7 @@ export function NavBar() {
             {isAuthenticated ? (
               <>
                 {/* Balance Display */}
-                <div className="hidden sm:flex items-center gap-2 px-3 py-2 rounded-lg bg-muted/50">
+                <div className="hidden sm:flex items-center gap-2 px-3 py-2 rounded-lg bg-muted">
                   <Wallet className="h-4 w-4 text-primary" />
                   <div className="text-sm">
                     <div className="font-semibold">

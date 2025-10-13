@@ -124,20 +124,25 @@ async function checkMemory(): Promise<ComponentHealth> {
   const memUsage = process.memoryUsage();
   const heapUsedPercent = (memUsage.heapUsed / memUsage.heapTotal) * 100;
 
-  // Consider unhealthy if heap usage is above 90%
-  if (heapUsedPercent > 90) {
+  // Get total system memory (8GB on Railway)
+  const totalSystemMemory = 8 * 1024 * 1024 * 1024; // 8GB in bytes
+  const systemMemoryUsedPercent = (memUsage.rss / totalSystemMemory) * 100;
+
+  // Use system memory percentage for health check, not heap percentage
+  // Node.js heap can be high percentage of heap total but still using minimal system memory
+  if (systemMemoryUsedPercent > 80) {
     return {
       status: 'down',
-      error: `High memory usage: ${heapUsedPercent.toFixed(2)}%`,
+      error: `High system memory usage: ${systemMemoryUsedPercent.toFixed(2)}%`,
       details: memUsage
     };
   }
 
-  // Consider degraded if heap usage is above 75%
-  if (heapUsedPercent > 75) {
+  // Consider degraded if system memory usage is above 60%
+  if (systemMemoryUsedPercent > 60) {
     return {
       status: 'degraded',
-      error: `Elevated memory usage: ${heapUsedPercent.toFixed(2)}%`,
+      error: `Elevated system memory usage: ${systemMemoryUsedPercent.toFixed(2)}%`,
       details: memUsage
     };
   }
@@ -146,7 +151,11 @@ async function checkMemory(): Promise<ComponentHealth> {
     status: 'up',
     details: {
       heapUsedPercent: heapUsedPercent.toFixed(2),
-      ...memUsage
+      systemMemoryUsedPercent: systemMemoryUsedPercent.toFixed(2),
+      heapUsedMB: (memUsage.heapUsed / 1024 / 1024).toFixed(2),
+      heapTotalMB: (memUsage.heapTotal / 1024 / 1024).toFixed(2),
+      rssMB: (memUsage.rss / 1024 / 1024).toFixed(2),
+      totalSystemMemoryGB: (totalSystemMemory / 1024 / 1024 / 1024).toFixed(2)
     }
   };
 }

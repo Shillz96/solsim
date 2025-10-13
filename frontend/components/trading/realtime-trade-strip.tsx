@@ -105,7 +105,7 @@ export function RealtimeTradeStrip({
 
   if (loading) {
     return (
-      <div className={cn("w-full bg-background border-t border-b py-1.5", className)} style={style}>
+      <div className={cn("w-full bg-background backdrop-blur-md border-t border-b py-1.5", className)} style={style}>
         <div className="flex items-center space-x-6 animate-pulse">
           {[...Array(6)].map((_, i) => (
             <div key={i} className="flex items-center space-x-2">
@@ -121,7 +121,7 @@ export function RealtimeTradeStrip({
 
   if (error) {
     return (
-      <div className={cn("w-full bg-background border-t border-b py-2", className)} style={style}>
+      <div className={cn("w-full bg-background backdrop-blur-md border-t border-b py-2", className)} style={style}>
         <div className="flex items-center justify-center text-sm text-muted-foreground">
           <span>Unable to load positions</span>
           <button
@@ -138,7 +138,7 @@ export function RealtimeTradeStrip({
   return (
     <div
       className={cn(
-        "w-full bg-background border-t border-b overflow-hidden",
+        "w-full bg-background backdrop-blur-md border-t border-b overflow-hidden",
         className
       )}
       style={style}
@@ -171,10 +171,6 @@ export function RealtimeTradeStrip({
 
                 <span className="font-medium text-sm">
                   {position.tokenSymbol || 'Unknown'}
-                </span>
-
-                <span className="text-sm text-muted-foreground">
-                  {formatPriceUSD(pnl.currentPrice)}
                 </span>
 
                 <span className={cn(

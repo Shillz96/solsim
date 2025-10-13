@@ -67,10 +67,10 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
 
     try {
       await login(email, password)
-      // Small delay to allow auth state to propagate before closing modal
-      setTimeout(() => {
-        onOpenChange(false)
-      }, 100)
+      // Close modal and force page refresh to ensure auth state is properly reflected
+      onOpenChange(false)
+      // Force a page refresh to ensure UI updates with new auth state
+      window.location.reload()
     } catch (err) {
       const error = err as Error
       setError(error.message || 'Login failed')
@@ -119,10 +119,10 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
 
     try {
       await signup(email, password, username.trim())
-      // Small delay to allow auth state to propagate before closing modal
-      setTimeout(() => {
-        onOpenChange(false)
-      }, 100)
+      // Close modal and force page refresh to ensure auth state is properly reflected
+      onOpenChange(false)
+      // Force a page refresh to ensure UI updates with new auth state
+      window.location.reload()
     } catch (err) {
       const error = err as Error
       setError(error.message || 'Registration failed')

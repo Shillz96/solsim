@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
+import { useWallet } from '@solana/wallet-adapter-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -22,6 +23,7 @@ export function RewardsOverview() {
   const { toast } = useToast()
   const queryClient = useQueryClient()
   const { user, isAuthenticated } = useAuth()
+  const { connected, publicKey } = useWallet()
   const [isClaimingAll, setIsClaimingAll] = useState(false)
 
   // Get user's reward claims
@@ -66,7 +68,7 @@ export function RewardsOverview() {
   })
 
   const handleClaimAll = async () => {
-    if (!user?.wallet) {
+    if (!connected) {
       toast({
         title: "Wallet Required",
         description: "Please connect your wallet to claim rewards",
@@ -81,13 +83,15 @@ export function RewardsOverview() {
 
     if (unclaimedRewards.length === 0) return
 
+    if (!user || !publicKey) return;
+    
     setIsClaimingAll(true)
     try {
       for (const claim of unclaimedRewards) {
         await claimMutation.mutateAsync({
           userId: user.id,
           epoch: claim.epoch,
-          wallet: user.wallet,
+          wallet: publicKey.toBase58(),
         })
       }
     } finally {
@@ -96,7 +100,7 @@ export function RewardsOverview() {
   }
 
   const handleSingleClaim = (claim: Backend.RewardClaim) => {
-    if (!user?.wallet) {
+    if (!connected) {
       toast({
         title: "Wallet Required",
         description: "Please connect your wallet to claim rewards",
@@ -105,10 +109,12 @@ export function RewardsOverview() {
       return
     }
 
+    if (!user || !publicKey) return;
+
     claimMutation.mutate({
       userId: user.id,
       epoch: claim.epoch,
-      wallet: user.wallet,
+      wallet: publicKey.toBase58(),
     })
   }
 
@@ -126,9 +132,10 @@ export function RewardsOverview() {
   const totalUnclaimed = unclaimedRewards.reduce((sum, claim) => sum + parseFloat(claim.amount), 0)
   const totalClaimed = claimedRewards.reduce((sum, claim) => sum + parseFloat(claim.amount), 0)
 
-  // Calculate user tier based on trading volume
+  // Calculate user tier based on trading volume (using placeholder for now)
   const getUserTier = () => {
-    const totalVolume = portfolio?.totalVolume || 0
+    // TODO: Replace with actual trading volume from user stats
+    const totalVolume = 0 // portfolio?.totals?.totalTrades * 1000 || 0 // Placeholder calculation
     if (totalVolume >= 1000000) return { name: "Diamond", color: "text-cyan-500", icon: "💎", multiplier: 2.0 }
     if (totalVolume >= 500000) return { name: "Platinum", color: "text-purple-500", icon: "🔮", multiplier: 1.75 }
     if (totalVolume >= 100000) return { name: "Gold", color: "text-yellow-500", icon: "🏆", multiplier: 1.5 }
@@ -138,16 +145,15 @@ export function RewardsOverview() {
   }
 
   const userTier = getUserTier()
-  const nextTierVolume = portfolio?.totalVolume ?
-    portfolio.totalVolume < 10000 ? 10000 :
-    portfolio.totalVolume < 50000 ? 50000 :
-    portfolio.totalVolume < 100000 ? 100000 :
-    portfolio.totalVolume < 500000 ? 500000 :
-    portfolio.totalVolume < 1000000 ? 1000000 : 0
-    : 10000
+  const totalVolume = 0 // Placeholder - replace with actual volume
+  const nextTierVolume = totalVolume < 10000 ? 10000 :
+    totalVolume < 50000 ? 50000 :
+    totalVolume < 100000 ? 100000 :
+    totalVolume < 500000 ? 500000 :
+    totalVolume < 1000000 ? 1000000 : 0
 
-  const progressToNextTier = portfolio?.totalVolume && nextTierVolume > 0 ?
-    (portfolio.totalVolume / nextTierVolume) * 100 : 0
+  const progressToNextTier = totalVolume && nextTierVolume > 0 ?
+    (totalVolume / nextTierVolume) * 100 : 0
 
   if (!isAuthenticated || !user) {
     return (
@@ -197,7 +203,7 @@ export function RewardsOverview() {
                 size="sm"
                 className="mt-3 w-full"
                 onClick={handleClaimAll}
-                disabled={isClaimingAll || claimMutation.isPending || !user.wallet}
+                disabled={isClaimingAll || claimMutation.isPending || !connected}
               >
                 {isClaimingAll ? "Claiming..." : `Claim All (${unclaimedRewards.length})`}
               </Button>
@@ -242,7 +248,7 @@ export function RewardsOverview() {
               <div className="mt-3 space-y-1">
                 <Progress value={progressToNextTier} className="h-1" />
                 <p className="text-xs text-muted-foreground">
-                  {formatUSD(nextTierVolume - (portfolio?.totalVolume || 0))} to next tier
+                  {formatUSD(nextTierVolume - totalVolume)} to next tier
                 </p>
               </div>
             )}
@@ -268,49 +274,89 @@ export function RewardsOverview() {
         </Card>
       </div>
 
-      {/* Unclaimed Rewards List */}
-      {unclaimedRewards.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Gift className="h-5 w-5" />
-              Unclaimed Rewards
-            </CardTitle>
-            <CardDescription>
-              Claim your rewards to receive $SIM tokens in your wallet
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {unclaimedRewards.map((claim) => (
-                <div key={claim.id} className="flex items-center justify-between p-4 rounded-lg border bg-muted/30">
-                  <div className="flex items-center gap-4">
-                    <div className="p-2 rounded-full bg-primary/10">
-                      <Coins className="h-5 w-5 text-primary" />
-                    </div>
-                    <div>
-                      <div className="font-semibold">{formatNumber(parseFloat(claim.amount))} $SIM</div>
-                      <div className="text-sm text-muted-foreground">
-                        Week {claim.epoch} rewards
+      {/* Two Column Layout for Additional Content */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Unclaimed Rewards List */}
+        {unclaimedRewards.length > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Gift className="h-5 w-5" />
+                Unclaimed Rewards
+              </CardTitle>
+              <CardDescription>
+                Claim your rewards to receive $SIM tokens in your wallet
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3 max-h-80 overflow-y-auto">
+                {unclaimedRewards.map((claim) => (
+                  <div key={claim.id} className="flex items-center justify-between p-4 rounded-lg border bg-muted">
+                    <div className="flex items-center gap-4">
+                      <div className="p-2 rounded-full bg-primary/10">
+                        <Coins className="h-5 w-5 text-primary" />
+                      </div>
+                      <div>
+                        <div className="font-semibold">{formatNumber(parseFloat(claim.amount))} $SIM</div>
+                        <div className="text-sm text-muted-foreground">
+                          Week {claim.epoch} rewards
+                        </div>
                       </div>
                     </div>
+                    <Button
+                      size="sm"
+                      onClick={() => handleSingleClaim(claim)}
+                      disabled={claimMutation.isPending || !connected}
+                    >
+                      Claim
+                    </Button>
                   </div>
-                  <Button
-                    size="sm"
-                    onClick={() => handleSingleClaim(claim)}
-                    disabled={claimMutation.isPending || !user.wallet}
-                  >
-                    Claim
-                  </Button>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
-      {/* Wallet Connection Warning */}
-      {!user.wallet && unclaimedRewards.length > 0 && (
+        {/* Global Stats */}
+        {rewardStats && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Zap className="h-5 w-5" />
+                Platform Statistics
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <div className="text-2xl font-bold">{formatNumber(rewardStats.totalAmount)}</div>
+                  <p className="text-sm text-muted-foreground">$SIM Distributed</p>
+                </div>
+                <div>
+                  <div className="text-2xl font-bold">{rewardStats.totalClaims}</div>
+                  <p className="text-sm text-muted-foreground">Total Claims</p>
+                </div>
+                <div>
+                  <div className="text-2xl font-bold">{rewardStats.pendingClaims}</div>
+                  <p className="text-sm text-muted-foreground">Pending Claims</p>
+                </div>
+                <div>
+                  <div className="text-2xl font-bold">
+                    {rewardStats.totalClaims > 0 ?
+                      formatNumber(rewardStats.totalAmount / rewardStats.totalClaims) :
+                      '0'
+                    }
+                  </div>
+                  <p className="text-sm text-muted-foreground">Avg Claim Size</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+      </div>
+
+      {/* Wallet Connection Warning - Full Width */}
+      {!connected && unclaimedRewards.length > 0 && (
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription className="flex items-center justify-between">
@@ -321,43 +367,6 @@ export function RewardsOverview() {
             </Button>
           </AlertDescription>
         </Alert>
-      )}
-
-      {/* Global Stats */}
-      {rewardStats && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Zap className="h-5 w-5" />
-              Platform Statistics
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div>
-                <div className="text-2xl font-bold">{formatNumber(rewardStats.totalAmount)}</div>
-                <p className="text-sm text-muted-foreground">$SIM Distributed</p>
-              </div>
-              <div>
-                <div className="text-2xl font-bold">{rewardStats.totalClaims}</div>
-                <p className="text-sm text-muted-foreground">Total Claims</p>
-              </div>
-              <div>
-                <div className="text-2xl font-bold">{rewardStats.pendingClaims}</div>
-                <p className="text-sm text-muted-foreground">Pending Claims</p>
-              </div>
-              <div>
-                <div className="text-2xl font-bold">
-                  {rewardStats.totalClaims > 0 ?
-                    formatNumber(rewardStats.totalAmount / rewardStats.totalClaims) :
-                    '0'
-                  }
-                </div>
-                <p className="text-sm text-muted-foreground">Avg Claim Size</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
       )}
     </div>
   )

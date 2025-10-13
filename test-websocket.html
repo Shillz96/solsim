@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket Test - SolSim</title>
+    <style>
+        body {
+            font-family: monospace;
+            padding: 20px;
+            background: #1a1a1a;
+            color: #0f0;
+        }
+        #status {
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #0f0;
+        }
+        #messages {
+            height: 400px;
+            overflow-y: auto;
+            border: 1px solid #0f0;
+            padding: 10px;
+            background: #000;
+        }
+        .error { color: #f00; }
+        .success { color: #0f0; }
+        .info { color: #ff0; }
+    </style>
+</head>
+<body>
+    <h1>SolSim WebSocket Test</h1>
+    <div id="status">Status: <span id="statusText">Disconnected</span></div>
+    <button onclick="testWebSocket()">Test WebSocket Connection</button>
+    <button onclick="clearMessages()">Clear</button>
+    <div id="messages"></div>
+
+    <script>
+        let ws = null;
+
+        function log(message, type = 'info') {
+            const messagesDiv = document.getElementById('messages');
+            const timestamp = new Date().toLocaleTimeString();
+            messagesDiv.innerHTML += `<div class="${type}">[${timestamp}] ${message}</div>`;
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        function updateStatus(status, color) {
+            const statusText = document.getElementById('statusText');
+            statusText.textContent = status;
+            statusText.className = color;
+        }
+
+        function testWebSocket() {
+            log('🔌 Attempting to connect to WebSocket...', 'info');
+
+            // Test WebSocket connection
+            const wsUrl = 'wss://solsim-production.up.railway.app/ws';
+            log(`Connecting to: ${wsUrl}`, 'info');
+
+            try {
+                ws = new WebSocket(wsUrl);
+
+                ws.onopen = function(event) {
+                    log('✅ WebSocket Connected!', 'success');
+                    updateStatus('Connected', 'success');
+
+                    // Test subscribing to a price
+                    const testMessage = {
+                        action: 'subscribe',
+                        tokens: ['So11111111111111111111111111111111111111112'] // SOL
+                    };
+
+                    log('📤 Sending subscription for SOL price...', 'info');
+                    ws.send(JSON.stringify(testMessage));
+                };
+
+                ws.onmessage = function(event) {
+                    log(`📥 Received: ${event.data}`, 'success');
+
+                    try {
+                        const data = JSON.parse(event.data);
+                        if (data.type === 'price') {
+                            log(`💰 Price Update - Token: ${data.mint}, Price: $${data.priceUsd}`, 'success');
+                        }
+                    } catch (e) {
+                        log(`📨 Raw message: ${event.data}`, 'info');
+                    }
+                };
+
+                ws.onerror = function(error) {
+                    log(`❌ WebSocket Error: ${error}`, 'error');
+                    updateStatus('Error', 'error');
+                };
+
+                ws.onclose = function(event) {
+                    log(`🔌 WebSocket Closed - Code: ${event.code}, Reason: ${event.reason}`, 'info');
+                    updateStatus('Disconnected', 'error');
+                };
+
+            } catch (error) {
+                log(`❌ Failed to create WebSocket: ${error}`, 'error');
+                updateStatus('Failed', 'error');
+            }
+        }
+
+        function clearMessages() {
+            document.getElementById('messages').innerHTML = '';
+        }
+
+        // Auto-test on load
+        window.onload = function() {
+            log('🚀 SolSim WebSocket Tester Ready', 'info');
+            log('Click "Test WebSocket Connection" to begin', 'info');
+        };
+    </script>
+</body>
+</html>

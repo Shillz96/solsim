@@ -99,10 +99,10 @@ export function RewardsExplainer() {
   return (
     <div className="space-y-6">
       {/* Introduction */}
-      <Card>
+      <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Info className="h-5 w-5" />
+            <Info className="h-5 w-5 text-primary" />
             How SIM Token Rewards Work
           </CardTitle>
           <CardDescription>
@@ -118,8 +118,8 @@ export function RewardsExplainer() {
             </p>
           </div>
 
-          <Alert className="border-primary/20 bg-primary/5">
-            <Gift className="h-4 w-4" />
+          <Alert className="border-primary/20 bg-primary/5 backdrop-blur-sm">
+            <Gift className="h-4 w-4 text-primary" />
             <AlertDescription>
               <strong>Important:</strong> $SIM tokens are distributed on the Solana blockchain.
               You'll need a Solana wallet connected to claim your rewards. The rewards are sent
@@ -130,10 +130,10 @@ export function RewardsExplainer() {
       </Card>
 
       {/* Earning Points */}
-      <Card>
+      <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Coins className="h-5 w-5" />
+            <Coins className="h-5 w-5 text-primary" />
             How to Earn Reward Points
           </CardTitle>
           <CardDescription>
@@ -141,16 +141,16 @@ export function RewardsExplainer() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid gap-4">
+          <div className="grid gap-4 md:grid-cols-2">
             {rewardActivities.map((activity, index) => (
-              <div key={index} className="flex gap-4 p-4 rounded-lg border bg-muted/30">
+              <div key={index} className="flex gap-4 p-4 rounded-lg border border-border/50 bg-muted/30 hover:bg-muted/50 transition-colors">
                 <div className="p-2 rounded-full bg-primary/10 h-fit">
                   <activity.icon className="h-5 w-5 text-primary" />
                 </div>
                 <div className="flex-1 space-y-1">
                   <div className="flex items-center justify-between">
                     <h4 className="font-semibold">{activity.activity}</h4>
-                    <Badge variant="secondary">{activity.points}</Badge>
+                    <Badge variant="secondary" className="ml-2">{activity.points}</Badge>
                   </div>
                   <p className="text-sm text-muted-foreground">
                     {activity.description}
@@ -163,10 +163,10 @@ export function RewardsExplainer() {
       </Card>
 
       {/* Tier System */}
-      <Card>
+      <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Award className="h-5 w-5" />
+            <Award className="h-5 w-5 text-primary" />
             Tier System & Multipliers
           </CardTitle>
           <CardDescription>
@@ -174,11 +174,11 @@ export function RewardsExplainer() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {tiers.map((tier, index) => (
               <div key={index} className={cn(
-                "p-4 rounded-lg border transition-all",
-                "hover:shadow-md hover:border-primary/20",
+                "p-4 rounded-lg border border-border/50 transition-all",
+                "hover:shadow-md hover:border-primary/20 hover:scale-105",
                 tier.bgColor
               )}>
                 <div className="flex items-start justify-between">
@@ -187,10 +187,10 @@ export function RewardsExplainer() {
                       <span className="text-2xl">{tier.icon}</span>
                       <div>
                         <h4 className={cn("font-semibold text-lg", tier.color)}>
-                          {tier.name} Tier
+                          {tier.name}
                         </h4>
                         <p className="text-sm text-muted-foreground">
-                          ${tier.minVolume.toLocaleString()}+ volume
+                          ${tier.minVolume.toLocaleString()}+
                         </p>
                       </div>
                     </div>

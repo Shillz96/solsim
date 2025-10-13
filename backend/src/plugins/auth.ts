@@ -3,9 +3,19 @@ import jwt from 'jsonwebtoken';
 import { FastifyRequest, FastifyReply } from 'fastify';
 import prisma from '../plugins/prisma.js';
 import redis from '../plugins/redis.js';
-const JWT_SECRET = process.env.JWT_SECRET || 'fallback-secret-for-development';
+
+// Get JWT config from environment variables
+const JWT_SECRET = process.env.JWT_SECRET;
 const JWT_EXPIRY = process.env.JWT_EXPIRY || '24h';
 const REFRESH_TOKEN_EXPIRY = process.env.REFRESH_TOKEN_EXPIRY || '7d';
+
+// Validate JWT_SECRET exists (critical for security)
+if (!JWT_SECRET) {
+  throw new Error('JWT_SECRET environment variable is required');
+}
+
+// TypeScript assertion after validation
+const VERIFIED_JWT_SECRET: string = JWT_SECRET;
 
 export interface JWTPayload {
   userId: string;
@@ -33,15 +43,15 @@ class AuthService {
       sessionId
     };
 
-    const accessToken = jwt.sign(payload, JWT_SECRET, { 
+    const accessToken = jwt.sign(payload, VERIFIED_JWT_SECRET, { 
       expiresIn: JWT_EXPIRY,
       issuer: 'solsim.fun',
       audience: 'solsim.fun'
     } as jwt.SignOptions);
 
     const refreshToken = jwt.sign(
-      { userId, sessionId, type: 'refresh' }, 
-      JWT_SECRET, 
+      { userId, sessionId, type: 'refresh' },
+      VERIFIED_JWT_SECRET, 
       { 
         expiresIn: REFRESH_TOKEN_EXPIRY,
         issuer: 'solsim.fun',
@@ -55,7 +65,7 @@ class AuthService {
   // Verify JWT token
   static verifyToken(token: string): JWTPayload {
     try {
-      return jwt.verify(token, JWT_SECRET, {
+      return jwt.verify(token, VERIFIED_JWT_SECRET, {
         issuer: 'solsim.fun',
         audience: 'solsim.fun'
       }) as JWTPayload;

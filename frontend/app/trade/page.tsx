@@ -25,7 +25,7 @@ const DexScreenerChart = dynamic(
 
 function TradePageContent() {
   const searchParams = useSearchParams()
-  const currentTokenAddress = searchParams.get("token") ?? "DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263"
+  const currentTokenAddress = searchParams.get("token") ?? "2uf4xh61rdwxng9woyxsvqp7zua6klfpb3nvnrqeoisd"
   const tokenSymbol = searchParams.get("symbol") || undefined
   const tokenName = searchParams.get("name") || undefined
 

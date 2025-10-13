@@ -9,6 +9,7 @@ import { RealtimeTradeStrip } from "@/components/trading/realtime-trade-strip"
 import { AppProviders } from "@/components/providers"
 
 import "./globals.css"
+import "./wallet-modal-override.css"
 
 // Typography: IBM Plex Sans Bold for headings, Radnika Next for body
 const radnikaNext = localFont({
@@ -49,7 +50,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <AppProviders>
           <NavBar aria-label="Primary navigation" />
           <RealtimeTradeStrip
-            className="fixed left-0 right-0 z-40 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60"
+            className="fixed left-0 right-0 z-40 border-b bg-background"
             style={{ top: 'var(--navbar-height)' }}
             maxTrades={15}
           />

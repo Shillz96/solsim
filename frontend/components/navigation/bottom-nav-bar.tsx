@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Home, TrendingUp, Wallet, Trophy, Twitter, Github, Plus, Moon, Sun } from "lucide-react"
+import { Home, TrendingUp, Wallet, Trophy, Twitter, Github, Plus, Moon, Sun, Gift } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useState, useEffect } from "react"
 import { useTheme } from "next-themes"
@@ -85,13 +85,14 @@ export function BottomNavBar() {
     { href: "/", icon: Home, label: "Home" },
     { href: "/trade", icon: TrendingUp, label: "Trade" },
     { href: "/portfolio", icon: Wallet, label: "Portfolio" },
+    { href: "/rewards", icon: Gift, label: "Rewards" },
     { href: "/leaderboard", icon: Trophy, label: "Leaderboard" },
   ]
 
   return (
     <>
       {/* Mobile Bottom Nav */}
-      <nav className="fixed bottom-0 left-0 right-0 z-50 border-t-2 border-border shadow-none md:hidden" style={{ backgroundColor: 'var(--background)', opacity: 1 }}>
+      <nav className="fixed bottom-0 left-0 right-0 z-50 border-t-2 border-border bg-background/95 backdrop-blur-md supports-[backdrop-filter]:bg-background/80 shadow-none md:hidden">
         <div className="flex items-center justify-around h-16">
           {navItems.map((item, index) => {
             const Icon = item.icon
@@ -147,7 +148,7 @@ export function BottomNavBar() {
       </nav>
 
       {/* Desktop/Tablet Bottom Info Bar */}
-      <div className="hidden md:block fixed bottom-0 left-0 right-0 z-40 border-t-2 border-border shadow-none" style={{ backgroundColor: 'var(--background)', opacity: 1 }}>
+      <div className="hidden md:block fixed bottom-0 left-0 right-0 z-40 border-t-2 border-border bg-background/95 backdrop-blur-md supports-[backdrop-filter]:bg-background/80 shadow-none">
         <div className="mx-auto flex h-12 items-center justify-between px-4 max-w-content">
           {/* Left: Social Links */}
           <div className="flex items-center gap-4">
@@ -173,7 +174,7 @@ export function BottomNavBar() {
           {/* Center: Market Prices */}
           <div className="flex items-center gap-6">
             {marketPrices.map((market) => (
-              <div key={market.symbol} className="flex items-center gap-3 px-3 py-1 rounded-lg bg-muted/30">
+              <div key={market.symbol} className="flex items-center gap-3 px-3 py-1 rounded-lg bg-muted">
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
                   <span className="text-sm font-semibold text-foreground">{market.symbol}</span>

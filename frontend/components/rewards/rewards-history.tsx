@@ -158,7 +158,7 @@ export function RewardsHistory() {
     <div className="space-y-6">
       {/* Statistics Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card>
+        <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
               Total Claimed
@@ -170,7 +170,7 @@ export function RewardsHistory() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
               Pending Rewards
@@ -184,7 +184,7 @@ export function RewardsHistory() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
               Total Claims
@@ -196,7 +196,7 @@ export function RewardsHistory() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
               Average Claim
@@ -210,12 +210,12 @@ export function RewardsHistory() {
       </div>
 
       {/* History Table */}
-      <Card>
+      <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
         <CardHeader>
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
               <CardTitle className="flex items-center gap-2">
-                <History className="h-5 w-5" />
+                <History className="h-5 w-5 text-primary" />
                 Reward History
               </CardTitle>
               <CardDescription>
@@ -244,7 +244,7 @@ export function RewardsHistory() {
                 placeholder="Search by epoch, amount, or transaction..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-9"
+                className="pl-9 bg-background"
               />
             </div>
             <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as FilterStatus)}>

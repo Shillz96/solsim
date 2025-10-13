@@ -7,23 +7,22 @@ import { RewardsExplainer } from "@/components/rewards/rewards-explainer"
 import { RewardsHistory } from "@/components/rewards/rewards-history"
 import { RewardsLeaderboard } from "@/components/rewards/rewards-leaderboard"
 import { SimplePageHeader } from "@/components/shared/simple-page-header"
-import { EnhancedCard, CardGrid } from "@/components/ui/enhanced-card-system"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Gift, Trophy, History, Info, Loader2 } from "lucide-react"
+import { Gift, Trophy, History, Info } from "lucide-react"
 import { motion } from "framer-motion"
 
 function RewardsPageContent() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
       <main className="w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-6 max-w-page-xl mx-auto">
-        {/* Header */}
+        {/* Enhanced Header */}
         <SimplePageHeader
           title="SIM Token Rewards"
           subtitle="Earn rewards for your trading activity"
           icon={<Gift className="h-6 w-6 text-primary" />}
         />
 
-        {/* Main Overview */}
+        {/* Main Overview - Top Level */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -33,64 +32,44 @@ function RewardsPageContent() {
           <RewardsOverview />
         </motion.div>
 
-        {/* Two Column Layout */}
-        <CardGrid columns={{ desktop: 2, tablet: 1, mobile: 1 }} gap="lg">
-          {/* Left Column - Main Content */}
-          <div className="space-y-6">
-            {/* Tabbed Content */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-            >
-              <Tabs defaultValue="how-it-works" className="w-full">
-                <TabsList className="grid w-full grid-cols-3 mb-6 bg-muted/50 backdrop-blur-sm border border-border/50">
-                  <TabsTrigger value="how-it-works" className="gap-2 data-[state=active]:bg-primary/20">
-                    <Info className="h-4 w-4" />
-                    <span className="hidden sm:inline">How It Works</span>
-                  </TabsTrigger>
-                  <TabsTrigger value="history" className="gap-2 data-[state=active]:bg-primary/20">
-                    <History className="h-4 w-4" />
-                    <span className="hidden sm:inline">History</span>
-                  </TabsTrigger>
-                  <TabsTrigger value="leaderboard" className="gap-2 data-[state=active]:bg-primary/20">
-                    <Trophy className="h-4 w-4" />
-                    <span className="hidden sm:inline">Top Earners</span>
-                  </TabsTrigger>
-                </TabsList>
+        {/* Enhanced Tabbed Content - Full Width */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+        >
+          <Tabs defaultValue="how-it-works" className="w-full">
+            <TabsList className="grid w-full grid-cols-3 mb-6 bg-muted/50 backdrop-blur-sm border border-border/50">
+              <TabsTrigger value="how-it-works" className="gap-2 data-[state=active]:bg-primary/20">
+                <Info className="h-4 w-4" />
+                <span className="hidden sm:inline">How It Works</span>
+                <span className="sm:hidden">Info</span>
+              </TabsTrigger>
+              <TabsTrigger value="history" className="gap-2 data-[state=active]:bg-primary/20">
+                <History className="h-4 w-4" />
+                <span className="hidden sm:inline">History</span>
+                <span className="sm:hidden">History</span>
+              </TabsTrigger>
+              <TabsTrigger value="leaderboard" className="gap-2 data-[state=active]:bg-primary/20">
+                <Trophy className="h-4 w-4" />
+                <span className="hidden sm:inline">Top Earners</span>
+                <span className="sm:hidden">Top</span>
+              </TabsTrigger>
+            </TabsList>
 
-                <TabsContent value="how-it-works" className="mt-0">
-                  <RewardsExplainer />
-                </TabsContent>
+            <TabsContent value="how-it-works" className="mt-0">
+              <RewardsExplainer />
+            </TabsContent>
 
-                <TabsContent value="history" className="mt-0">
-                  <RewardsHistory />
-                </TabsContent>
+            <TabsContent value="history" className="mt-0">
+              <RewardsHistory />
+            </TabsContent>
 
-                <TabsContent value="leaderboard" className="mt-0">
-                  <RewardsLeaderboard />
-                </TabsContent>
-              </Tabs>
-            </motion.div>
-          </div>
-
-          {/* Right Column - Quick Stats and Actions */}
-          <div className="space-y-6">
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5, delay: 0.3 }}
-              className="lg:sticky lg:top-6"
-            >
-              {/* This will be populated with reward stats and claim interface */}
-              <EnhancedCard variant="elevated" size="lg">
-                <div id="rewards-sidebar">
-                  {/* Dynamically loaded content */}
-                </div>
-              </EnhancedCard>
-            </motion.div>
-          </div>
-        </CardGrid>
+            <TabsContent value="leaderboard" className="mt-0">
+              <RewardsLeaderboard />
+            </TabsContent>
+          </Tabs>
+        </motion.div>
 
         {/* Decorative Elements */}
         <div className="fixed inset-0 pointer-events-none -z-20 overflow-hidden">

@@ -185,20 +185,20 @@ export function RewardsLeaderboard() {
   return (
     <div className="space-y-6">
       {/* Leaderboard Header */}
-      <Card>
+      <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
         <CardHeader>
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
               <CardTitle className="flex items-center gap-2">
-                <Trophy className="h-5 w-5" />
+                <Trophy className="h-5 w-5 text-primary" />
                 Top Reward Earners
               </CardTitle>
               <CardDescription>
                 The traders earning the most $SIM tokens
               </CardDescription>
             </div>
-            <Tabs value={timeframe} onValueChange={(v) => setTimeframe(v as any)}>
-              <TabsList>
+            <Tabs value={timeframe} onValueChange={(v) => setTimeframe(v as any)} className="w-full sm:w-auto">
+              <TabsList className="grid w-full grid-cols-3">
                 <TabsTrigger value="weekly">Weekly</TabsTrigger>
                 <TabsTrigger value="monthly">Monthly</TabsTrigger>
                 <TabsTrigger value="all-time">All Time</TabsTrigger>
@@ -212,8 +212,10 @@ export function RewardsLeaderboard() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {leaders?.slice(0, 3).map((leader) => (
           <Card key={leader.userId} className={cn(
-            "relative overflow-hidden",
-            leader.rank === 1 && "border-yellow-500/50 bg-gradient-to-br from-yellow-500/5 to-transparent"
+            "relative overflow-hidden border-border/50 bg-card/50 backdrop-blur-sm transition-all hover:shadow-lg hover:scale-105",
+            leader.rank === 1 && "border-yellow-500/50 bg-gradient-to-br from-yellow-500/5 to-transparent",
+            leader.rank === 2 && "border-gray-400/50 bg-gradient-to-br from-gray-400/5 to-transparent",
+            leader.rank === 3 && "border-amber-600/50 bg-gradient-to-br from-amber-600/5 to-transparent"
           )}>
             {leader.rank === 1 && (
               <div className="absolute top-2 right-2">
@@ -222,14 +224,14 @@ export function RewardsLeaderboard() {
             )}
             <CardHeader className="pb-3">
               <div className="flex items-center gap-3">
-                <Avatar>
+                <Avatar className="h-12 w-12 border-2 border-primary/20">
                   <AvatarImage src={leader.avatar} />
-                  <AvatarFallback>{leader.username[0]}</AvatarFallback>
+                  <AvatarFallback className="bg-primary/10">{leader.username[0]}</AvatarFallback>
                 </Avatar>
                 <div>
                   <div className="font-semibold">{leader.username}</div>
                   <div className="flex items-center gap-2">
-                    <span className={cn("text-sm", leader.tierColor)}>
+                    <span className={cn("text-sm font-medium", leader.tierColor)}>
                       {leader.tierIcon} {leader.tier}
                     </span>
                   </div>
@@ -258,25 +260,28 @@ export function RewardsLeaderboard() {
       </div>
 
       {/* Full Leaderboard */}
-      <Card>
+      <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
         <CardHeader>
-          <CardTitle className="text-lg">Complete Rankings</CardTitle>
+          <CardTitle className="text-lg flex items-center gap-2">
+            <Users className="h-5 w-5 text-primary" />
+            Complete Rankings
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
             {leaders?.map((leader) => (
               <div key={leader.userId} className={cn(
-                "flex items-center justify-between p-4 rounded-lg border",
-                "hover:bg-muted/50 transition-colors",
-                user?.id === leader.userId && "bg-primary/5 border-primary/20"
+                "flex items-center justify-between p-4 rounded-lg border border-border/50",
+                "hover:bg-muted/50 transition-all hover:shadow-md",
+                user?.id === leader.userId && "bg-primary/5 border-primary/30 ring-2 ring-primary/10"
               )}>
                 <div className="flex items-center gap-4">
                   <div className="w-8 flex justify-center">
                     {getRankIcon(leader.rank)}
                   </div>
-                  <Avatar>
+                  <Avatar className="h-10 w-10">
                     <AvatarImage src={leader.avatar} />
-                    <AvatarFallback>{leader.username[0]}</AvatarFallback>
+                    <AvatarFallback className="bg-primary/10">{leader.username[0]}</AvatarFallback>
                   </Avatar>
                   <div>
                     <div className="flex items-center gap-2">
@@ -286,7 +291,7 @@ export function RewardsLeaderboard() {
                       )}
                     </div>
                     <div className="flex items-center gap-3 text-sm text-muted-foreground">
-                      <span className={cn(leader.tierColor)}>
+                      <span className={cn("font-medium", leader.tierColor)}>
                         {leader.tierIcon} {leader.tier}
                       </span>
                       <span>•</span>
@@ -312,11 +317,11 @@ export function RewardsLeaderboard() {
                     <span className="text-sm font-semibold">#{Math.floor(Math.random() * 50 + 6)}</span>
                   </div>
                   <Avatar>
-                    <AvatarFallback>{user.username?.[0] || 'U'}</AvatarFallback>
+                    <AvatarFallback>{user.handle?.[0] || 'U'}</AvatarFallback>
                   </Avatar>
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="font-semibold">{user.username || 'You'}</span>
+                      <span className="font-semibold">{user.handle || 'You'}</span>
                       <Badge variant="secondary" className="text-xs">You</Badge>
                     </div>
                     <div className="text-sm text-muted-foreground">
