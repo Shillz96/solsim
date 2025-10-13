@@ -2,6 +2,7 @@
   "name": "solsim-backend",
   "private": true,
   "type": "module",
+  "packageManager": "npm@10.2.4",
   "scripts": {
     "dev": "tsx src/index.ts",
     "build": "npx prisma generate && tsc",

@@ -10,11 +10,11 @@
     "node": ">=20.0.0"
   },
   "scripts": {
-    "install": "cd backend && npm install",
     "build": "cd backend && npm run build",
     "start": "cd backend && npm start",
     "install-workspaces": "npm install && npm run install-types",
-    "install-types": "cd packages/types && npm install"
+    "install-types": "cd packages/types && npm install",
+    "backend:install": "cd backend && npm install"
   },
   "dependencies": {
     "@modelcontextprotocol/server-filesystem": "^2025.8.21",
