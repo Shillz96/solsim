@@ -29,14 +29,18 @@ import { NonceCleanupService } from "./plugins/nonce.js";
 import { RateLimitCleanupService } from "./plugins/rateLimiting.js";
 
 // Import new production-ready plugins
-import { validateEnvironment, getConfig } from "./utils/env.js";
-import healthPlugin from "./plugins/health.js";
-import requestTrackingPlugin from "./plugins/requestTracking.js";
-import productionRateLimitingPlugin, { productionRateLimits } from "./plugins/productionRateLimiting.js";
+// import { validateEnvironment, getConfig } from "./utils/env.js";
+// import healthPlugin from "./plugins/health.js";
+// import requestTrackingPlugin from "./plugins/requestTracking.js";
+// import productionRateLimitingPlugin, { productionRateLimits } from "./plugins/productionRateLimiting.js";
 
 // Validate environment variables on startup
-validateEnvironment();
-const config = getConfig();
+// validateEnvironment();
+// const config = getConfig();
+const config = { 
+  isProduction: process.env.NODE_ENV === 'production',
+  jwtSecret: process.env.JWT_SECRET || 'fallback-secret-for-development'
+};
 
 const app = Fastify({
   logger: { transport: { target: "pino-pretty" } }
@@ -148,8 +152,8 @@ app.register(cors, {
 });
 
 // Production monitoring and tracking plugins
-app.register(requestTrackingPlugin);
-app.register(healthPlugin);
+// app.register(requestTrackingPlugin);
+// app.register(healthPlugin);
 
 // WebSocket support - register BEFORE any other routes for proper Railway compatibility
 // Disable perMessageDeflate to prevent proxy/CDN negotiation edge cases
@@ -166,7 +170,7 @@ app.register(wsTestPlugin) // Test WebSocket first for debugging
 app.register(wsPlugin) // Main price stream WebSocket
 
 // Production rate limiting (replaces old rate limiting for better scale)
-app.register(productionRateLimitingPlugin);
+// app.register(productionRateLimitingPlugin);
 
 // Legacy rate limiting fallback for non-covered routes
 app.register(async function (app) {
@@ -179,50 +183,24 @@ app.register(async function (app) {
   });
 });
 
-// API Routes with production rate limiting
-app.register(async function(app) {
-  // Auth routes with strict rate limiting
-  app.addHook('onRequest', productionRateLimits.auth);
-  app.register(authRoutes, { prefix: "/api/auth" });
-});
+// Health check
+app.get("/health", async () => ({ ok: true, timestamp: new Date().toISOString() }));
 
-app.register(async function(app) {
-  // Trading routes with moderate rate limiting
-  app.addHook('onRequest', productionRateLimits.trading);
-  app.register(tradeRoutes, { prefix: "/api/trade" });
-  app.register(tradesRoutes, { prefix: "/api/trades" });
-});
-
-app.register(async function(app) {
-  // Wallet operations with controlled rate limiting  
-  app.addHook('onRequest', productionRateLimits.wallet);
-  app.register(walletRoutes, { prefix: "/api/wallet" });
-  app.register(walletTrackerRoutes, { prefix: "/api/wallet-tracker" });
-});
-
-app.register(async function(app) {
-  // Data endpoints with higher limits
-  app.addHook('onRequest', productionRateLimits.data);
-  app.register(portfolioRoutes, { prefix: "/api/portfolio" });
-  app.register(leaderboardRoutes, { prefix: "/api/leaderboard" });
-  app.register(trendingRoutes, { prefix: "/api/trending" });
-  app.register(rewardsRoutes, { prefix: "/api/rewards" });
-  app.register(searchRoutes, { prefix: "/api/search" });
-  app.register(candleRoutes, { prefix: "/api/candles" });
-});
-
-app.register(async function(app) {
-  // Admin routes with admin-level rate limits
-  app.addHook('onRequest', productionRateLimits.admin);
-  app.register(adminRoutes, { prefix: "/api/admin" });
-});
-
-// Public routes with basic rate limiting
-app.register(async function(app) {
-  app.addHook('onRequest', productionRateLimits.public);
-  app.register(notesRoutes);
-  app.register(debugRoutes);
-});
+// API Routes
+app.register(authRoutes, { prefix: "/api/auth" });
+app.register(tradeRoutes, { prefix: "/api/trade" });
+app.register(portfolioRoutes, { prefix: "/api/portfolio" });
+app.register(leaderboardRoutes, { prefix: "/api/leaderboard" });
+app.register(trendingRoutes, { prefix: "/api/trending" });
+app.register(rewardsRoutes, { prefix: "/api/rewards" });
+app.register(tradesRoutes, { prefix: "/api/trades" });
+app.register(walletRoutes, { prefix: "/api/wallet" });
+app.register(walletTrackerRoutes, { prefix: "/api/wallet-tracker" });
+app.register(searchRoutes, { prefix: "/api/search" });
+app.register(candleRoutes, { prefix: "/api/candles" });
+app.register(notesRoutes); // Note: This route is already prefixed in the implementation
+app.register(debugRoutes); // Debug routes for price service monitoring
+app.register(adminRoutes, { prefix: "/api/admin" }); // Admin maintenance routes (protected)
 
 // Start background services
 console.log("🚀 Starting background services...");
