@@ -1,9 +1,10 @@
 // Production-ready rate limiting with tiered limits and Redis backing
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import redis from './redis.js';
-import { getConfig } from '../utils/env.js';
-
-const config = getConfig();
+const config = {
+  rateLimitMaxRequests: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || '300'),
+  rateLimitWindow: process.env.RATE_LIMIT_WINDOW || '1m'
+};
 
 interface RateLimitOptions {
   max: number;

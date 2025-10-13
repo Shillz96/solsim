@@ -93,17 +93,7 @@ app.register(helmet, {
     policy: "strict-origin-when-cross-origin"
   },
 
-  // Permissions Policy - Control browser features
-  permissionsPolicy: {
-    camera: [],
-    microphone: [],
-    geolocation: [],
-    payment: [],
-    usb: [],
-    magnetometer: [],
-    accelerometer: [],
-    gyroscope: []
-  },
+  // Note: permissionsPolicy not available in current helmet version
 
   // Cross-Origin policies
   crossOriginEmbedderPolicy: false, // Allow external resources for trading data

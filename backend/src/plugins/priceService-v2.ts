@@ -366,9 +366,9 @@ class EventDrivenPriceService extends EventEmitter {
     const PRICE_FRESHNESS_THRESHOLD = 2 * 60 * 1000; // 2 minutes
     const isStale = tick && (Date.now() - tick.timestamp) > PRICE_FRESHNESS_THRESHOLD;
 
-    if (isStale) {
+    if (isStale && tick) {
       logger.debug({ mint, age: Date.now() - tick.timestamp }, "Cached price is stale, refetching");
-      tick = null; // Force refetch
+      tick = undefined; // Force refetch
     }
 
     if (!tick) {
@@ -381,7 +381,9 @@ class EventDrivenPriceService extends EventEmitter {
 
           if (!isRedisStale && redisTick) {
             tick = redisTick;
-            this.priceCache.set(mint, tick);
+            if (tick) {
+              this.priceCache.set(mint, tick);
+            }
           }
         }
       } catch (error) {
