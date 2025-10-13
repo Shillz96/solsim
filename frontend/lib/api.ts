@@ -194,7 +194,7 @@ export async function getTokenDetails(mint: string): Promise<Backend.Token> {
     ...data,
     address: data.mint || data.address,
     imageUrl: data.logoURI || data.imageUrl, // Map logoURI to imageUrl
-    price: data.price || Number(data.lastPrice) || 0,
+    price: data.price || (data.lastPrice ? parseFloat(data.lastPrice) : 0), // Only parse for display
     isNew: data.isNew || false,
     isTrending: data.isTrending || false,
   };

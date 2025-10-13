@@ -1,25 +1,6 @@
-// import { PriceTickV1, type PriceTick } from "@solsim/types";
+import { WSFrame, type PriceTick } from "../src/types/contracts";
 
-// Simplified types until @solsim/types is installed
-interface PriceTick {
-  v: number;
-  seq: number;
-  mint: string;
-  priceLamports: string;
-  ts: number;
-}
-
-// Simplified validation until Zod is available
-const validatePriceTick = (data: any): PriceTick => {
-  return {
-    v: 1,
-    seq: data.seq || Date.now(),
-    mint: data.mint || '',
-    priceLamports: data.priceLamports || '0',
-    ts: data.ts || Date.now()
-  };
-};
-
+// Use the proper contract types from our contracts file
 type CloseFn = () => void;
 
 /**
@@ -66,11 +47,20 @@ export function connectPrices(onTick: (t: PriceTick) => void, url: string): Clos
       try {
         const msg = JSON.parse(ev.data);
         
-        // Handle price ticks with schema validation
-        if (msg?.t === "price" || msg?.type === "price") {
+        // Handle price ticks with schema validation - new contract format
+        if (msg?.t === "price" && msg?.d) {
           try {
-            // Convert legacy format to new contract format if needed
-            const data = msg.d || {
+            // Validate with Zod schema
+            const frame = WSFrame.parse(msg);
+            onTick(frame.d);
+          } catch (parseError) {
+            console.error("❌ Price tick validation failed:", parseError, msg);
+          }
+        }
+        // Legacy format support (remove after migration)
+        else if (msg?.type === "price" && msg?.mint) {
+          try {
+            const data: PriceTick = {
               v: 1,
               seq: Date.now(), // fallback sequence
               mint: msg.mint,
@@ -78,10 +68,9 @@ export function connectPrices(onTick: (t: PriceTick) => void, url: string): Clos
               ts: msg.timestamp || Date.now()
             };
             
-            const validated = validatePriceTick(data);
-            onTick(validated);
+            onTick(data);
           } catch (parseError) {
-            console.error("❌ Price tick validation failed:", parseError, msg);
+            console.error("❌ Legacy price tick validation failed:", parseError, msg);
           }
         }
         

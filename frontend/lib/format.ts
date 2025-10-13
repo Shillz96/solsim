@@ -255,8 +255,18 @@ export function lamportsToSolStr(lamportsStr: string): string {
  */
 export function solToLamports(solAmount: number | string): bigint {
   try {
-    const sol = typeof solAmount === 'string' ? parseFloat(solAmount) : solAmount;
-    return BigInt(Math.round(sol * Number(LAMPORTS_PER_SOL)));
+    // Keep as BigInt calculation to maintain precision
+    if (typeof solAmount === 'string') {
+      // Parse string as decimal parts to avoid float precision issues
+      const [whole, frac = ''] = solAmount.split('.');
+      const wholeLamports = BigInt(whole || '0') * LAMPORTS_PER_SOL;
+      const fracPadded = frac.padEnd(9, '0').slice(0, 9);
+      const fracLamports = BigInt(fracPadded);
+      return wholeLamports + fracLamports;
+    } else {
+      // Only use Number() for actual numbers, but round carefully
+      return BigInt(Math.round(solAmount * Number(LAMPORTS_PER_SOL)));
+    }
   } catch (error) {
     console.error("❌ solToLamports failed:", error, solAmount);
     return 0n;
@@ -292,7 +302,9 @@ export function usdToLamports(usdPrice: number, solPriceUsd: number): bigint {
  */
 export function lamportsToUsd(lamportsStr: string, solPriceUsd: number): number {
   try {
-    const solAmount = parseFloat(lamportsToSolStr(lamportsStr));
+    // Keep conversion as string until final calculation
+    const solStr = lamportsToSolStr(lamportsStr);
+    const solAmount = parseFloat(solStr); // Only parse at final step for USD calculation
     return solAmount * solPriceUsd;
   } catch (error) {
     console.error("❌ lamportsToUsd failed:", error, { lamportsStr, solPriceUsd });
@@ -305,10 +317,12 @@ export function lamportsToUsd(lamportsStr: string, solPriceUsd: number): number 
  * Uses the existing number formatting logic
  * 
  * @param lamportsStr - Lamports as string
+/**
  * @returns Formatted SOL string with symbol
  */
 export function formatLamportsAsSOL(lamportsStr: string): string {
   const solStr = lamportsToSolStr(lamportsStr);
+  // Only parse for display formatting (not for calculations)
   const solNum = parseFloat(solStr);
   return `${formatNumber(solNum)} SOL`;
 }
