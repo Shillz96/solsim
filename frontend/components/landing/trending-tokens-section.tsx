@@ -11,6 +11,7 @@ import type * as Backend from "@/lib/types/backend"
 import { useTrendingTokens } from "@/hooks/use-react-query-hooks"
 import { usePriceStreamContext } from "@/lib/price-stream-provider"
 import { formatSolEquivalent } from "@/lib/sol-equivalent-utils"
+import { formatPriceUSD, formatNumber } from "@/lib/format"
 
 export function TrendingTokensSection() {
   const { data: trendingTokens, isLoading: loading } = useTrendingTokens(6) // Increased to 6 for better showcase
@@ -117,7 +118,7 @@ export function TrendingTokensSection() {
                       <div>
                         <p className="text-xs text-muted-foreground">Price</p>
                         <p className="text-lg font-bold font-mono">
-                          ${token.priceUsd < 0.001 ? token.priceUsd.toExponential(2) : token.priceUsd.toFixed(4)}
+                          {formatPriceUSD(token.priceUsd)}
                         </p>
                         {solPrice > 0 && (
                           <p className="text-xs text-muted-foreground">

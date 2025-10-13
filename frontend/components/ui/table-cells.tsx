@@ -9,7 +9,7 @@
  * - Guards against Infinity%, NaN, and undefined values
  */
 
-import { formatUSD, formatPriceUSD, formatQty, safePercent } from "@/lib/format";
+import { formatUSD, formatPriceUSD, formatQty, safePercent, formatTokenQuantity } from "@/lib/format";
 import { SolEquiv } from "@/lib/sol-equivalent";
 import { cn } from "@/lib/utils";
 
@@ -32,23 +32,27 @@ interface MoneyCellProps {
  * Money cell showing USD value, quantity + symbol, and SOL equivalent
  * Used for: Bought | Sold | Remaining columns
  */
-export function MoneyCell({ 
-  usd, 
-  qty, 
-  symbol, 
-  decimals = 0, 
+export function MoneyCell({
+  usd,
+  qty,
+  symbol,
+  decimals = 0,
   className,
-  hideSolEquiv = false 
+  hideSolEquiv = false
 }: MoneyCellProps) {
   // Guard against invalid values
   const safeUsd = isFinite(usd) ? usd : 0;
-  
+  const safeQty = qty !== undefined && isFinite(qty) ? qty : 0;
+
   return (
     <div className={cn("flex flex-col gap-0.5", className)}>
-      <span className="font-medium">{formatUSD(safeUsd)}</span>
+      <span className="font-medium font-mono">{formatUSD(safeUsd)}</span>
       {qty !== undefined && symbol && (
-        <span className="text-xs text-muted-foreground">
-          {formatQty(qty, decimals, symbol)}
+        <span className="text-xs text-muted-foreground font-mono">
+          {decimals === 0
+            ? formatTokenQuantity(safeQty, symbol)
+            : formatQty(safeQty, decimals, symbol)
+          }
         </span>
       )}
       {!hideSolEquiv && <SolEquiv usd={safeUsd} />}
@@ -71,23 +75,23 @@ interface PnLCellProps {
  * PnL cell showing USD delta and percentage with proper colorization
  * Used for: PnL column
  */
-export function PnLCell({ 
-  pnlUsd, 
-  costUsd, 
+export function PnLCell({
+  pnlUsd,
+  costUsd,
   className,
-  showSolEquiv = false 
+  showSolEquiv = false
 }: PnLCellProps) {
   // Guard against invalid values
   const safePnl = isFinite(pnlUsd) ? pnlUsd : 0;
   const safeCost = isFinite(costUsd) ? costUsd : 0;
-  
+
   const percentage = safePercent(safePnl, safeCost);
   const color = safePnl > 0 ? "text-green-400" : safePnl < 0 ? "text-red-400" : "text-muted-foreground";
-  
+
   return (
     <div className={cn("flex flex-col gap-0.5", className)}>
-      <span className={cn("font-medium", color)}>{formatUSD(safePnl)}</span>
-      <span className={cn("text-xs", color)}>{percentage}</span>
+      <span className={cn("font-medium font-mono", color)}>{formatUSD(safePnl)}</span>
+      <span className={cn("text-xs font-mono", color)}>{percentage}</span>
       {showSolEquiv && <SolEquiv usd={Math.abs(safePnl)} />}
     </div>
   );
@@ -110,25 +114,25 @@ interface PriceCellProps {
  * Price cell showing current price with optional change indicators
  * Used for: token price displays
  */
-export function PriceCell({ 
-  priceUsd, 
-  priceChangeUsd, 
-  priceChangePercent, 
+export function PriceCell({
+  priceUsd,
+  priceChangeUsd,
+  priceChangePercent,
   className,
-  showSolEquiv = true 
+  showSolEquiv = true
 }: PriceCellProps) {
   // Guard against invalid values
   const safePrice = isFinite(priceUsd) ? priceUsd : 0;
   const hasChange = priceChangeUsd !== undefined && priceChangePercent !== undefined && isFinite(priceChangeUsd) && isFinite(priceChangePercent);
-  const changeColor = hasChange 
+  const changeColor = hasChange
     ? priceChangeUsd > 0 ? "text-green-400" : priceChangeUsd < 0 ? "text-red-400" : "text-muted-foreground"
     : "text-muted-foreground";
-  
+
   return (
     <div className={cn("flex flex-col gap-0.5", className)}>
-      <span className="font-medium">{formatPriceUSD(safePrice)}</span>
+      <span className="font-medium font-mono">{formatPriceUSD(safePrice)}</span>
       {hasChange && (
-        <span className={cn("text-xs", changeColor)}>
+        <span className={cn("text-xs font-mono", changeColor)}>
           {priceChangeUsd > 0 ? "+" : ""}{formatUSD(priceChangeUsd)} ({priceChangePercent > 0 ? "+" : ""}{priceChangePercent.toFixed(2)}%)
         </span>
       )}
@@ -192,10 +196,10 @@ interface QuantityCellProps {
  */
 export function QuantityCell({ qty, symbol, decimals, className }: QuantityCellProps) {
   const safeQty = isFinite(qty) ? qty : 0;
-  
+
   return (
     <div className={cn("flex flex-col", className)}>
-      <span className="font-medium">{formatQty(safeQty, decimals, symbol)}</span>
+      <span className="font-medium font-mono">{formatQty(safeQty, decimals, symbol)}</span>
     </div>
   );
 }
@@ -215,28 +219,28 @@ interface PercentageCellProps {
  * Percentage cell with proper colorization and sign handling
  * Used for: change percentages, performance metrics
  */
-export function PercentageCell({ 
-  percentage, 
-  denominator, 
+export function PercentageCell({
+  percentage,
+  denominator,
   className,
-  forceColor 
+  forceColor
 }: PercentageCellProps) {
   const safePercentage = isFinite(percentage) ? percentage : 0;
-  const displayValue = denominator !== undefined 
+  const displayValue = denominator !== undefined
     ? safePercent(safePercentage, denominator)
     : safePercent(safePercentage, 100); // Assume it's already a percentage
-  
-  const color = forceColor 
+
+  const color = forceColor
     ? forceColor === "green" ? "text-green-400" : forceColor === "red" ? "text-red-400" : "text-muted-foreground"
-    : safePercentage > 0 
-      ? "text-green-400" 
-      : safePercentage < 0 
-        ? "text-red-400" 
+    : safePercentage > 0
+      ? "text-green-400"
+      : safePercentage < 0
+        ? "text-red-400"
         : "text-muted-foreground";
-  
+
   return (
     <div className={cn("flex flex-col", className)}>
-      <span className={cn("font-medium", color)}>{displayValue}</span>
+      <span className={cn("font-medium font-mono", color)}>{displayValue}</span>
     </div>
   );
 }

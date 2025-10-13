@@ -149,7 +149,7 @@ export async function getPortfolio(userId: string): Promise<PortfolioResponse> {
 
     portfolioPositions.push({
       mint: position.mint,
-      qty: qty.toFixed(9), // Use 9 decimals for token quantities (Solana standard)
+      qty: qty.toString(), // Use full precision, let frontend handle formatting
       avgCostUsd: formatPrice(avgCostUsd), // Smart formatting for avg cost
       valueUsd: formatUsdValue(valueUsd), // Smart formatting for position value
       unrealizedUsd: unrealizedUsd.toFixed(2), // 2 decimals for PnL

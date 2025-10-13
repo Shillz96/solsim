@@ -13,7 +13,7 @@ import Image from "next/image"
 import type * as Backend from "@/lib/types/backend"
 import { useTrendingTokens } from "@/hooks/use-react-query-hooks"
 import { usePriceStreamContext } from "@/lib/price-stream-provider"
-import { formatUSD, formatNumber } from "@/lib/format"
+import { formatUSD, formatNumber, safePercent } from "@/lib/format"
 import { UsdWithSol } from "@/lib/sol-equivalent"
 
 type TimeRange = "5m" | "1h" | "6h" | "24h"
@@ -81,7 +81,7 @@ export default function TrendingPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <main className="w-full px-2 py-6 max-w-page-xl mx-auto">
+      <main className="w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-6 max-w-page-xl mx-auto">
         {/* Header */}
         <div className="mb-6">
           <div className="flex items-center gap-2 mb-2">
@@ -212,8 +212,8 @@ export default function TrendingPage() {
                       {/* 24h Change */}
                       <td className="p-4">
                         <div
-                          className={`text-sm font-medium ${
-                            token.priceChange24h >= 0 ? "text-green-600" : "text-red-600"
+                          className={`text-sm font-medium font-mono ${
+                            token.priceChange24h >= 0 ? "text-green-400" : "text-red-400"
                           }`}
                         >
                           {token.priceChange24h >= 0 ? "+" : ""}

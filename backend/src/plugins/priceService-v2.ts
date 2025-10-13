@@ -347,16 +347,40 @@ class EventDrivenPriceService extends EventEmitter {
 
   // Public API methods
   async getLastTick(mint: string): Promise<PriceTick | null> {
+    // For SOL, always return current price
+    if (mint === "So11111111111111111111111111111111111111112") {
+      return {
+        mint,
+        priceUsd: this.solPriceUsd,
+        priceSol: 1,
+        solUsd: this.solPriceUsd,
+        timestamp: Date.now(),
+        source: "live"
+      };
+    }
+
     // Try memory cache first
     let tick = this.priceCache.get(mint);
-    
+
+    // Check if cached price is stale (older than 2 minutes)
+    const PRICE_FRESHNESS_THRESHOLD = 2 * 60 * 1000; // 2 minutes
+    const isStale = tick && (Date.now() - tick.timestamp) > PRICE_FRESHNESS_THRESHOLD;
+
+    if (isStale) {
+      logger.debug({ mint, age: Date.now() - tick.timestamp }, "Cached price is stale, refetching");
+      tick = null; // Force refetch
+    }
+
     if (!tick) {
       // Try Redis cache
       try {
         const cached = await redis.get(`price:${mint}`);
         if (cached) {
-          tick = JSON.parse(cached);
-          if (tick) {
+          const redisTick = JSON.parse(cached);
+          const isRedisStale = redisTick && (Date.now() - redisTick.timestamp) > PRICE_FRESHNESS_THRESHOLD;
+
+          if (!isRedisStale && redisTick) {
+            tick = redisTick;
             this.priceCache.set(mint, tick);
           }
         }
@@ -364,21 +388,17 @@ class EventDrivenPriceService extends EventEmitter {
         console.warn("⚠️ Redis get failed:", error);
       }
     }
-    
+
+    // If still not found or stale, fetch on-demand
     if (!tick) {
-      // For SOL, return current price even if not cached
-      if (mint === "So11111111111111111111111111111111111111112") {
-        tick = {
-          mint,
-          priceUsd: this.solPriceUsd,
-          priceSol: 1,
-          solUsd: this.solPriceUsd,
-          timestamp: Date.now(),
-          source: "live"
-        };
+      logger.debug({ mint }, "Price not in cache or stale, fetching on-demand from getLastTick");
+      const fetchedTick = await this.fetchTokenPrice(mint);
+      if (fetchedTick) {
+        await this.updatePrice(fetchedTick);
+        tick = fetchedTick;
       }
     }
-    
+
     return tick || null;
   }
 

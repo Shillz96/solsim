@@ -18,7 +18,7 @@ import {
   DollarSign
 } from "lucide-react"
 import { useState } from "react"
-import { formatUSD, formatQty } from "@/lib/format"
+import { formatUSD, formatQty, formatTokenQuantity } from "@/lib/format"
 import { useQuery } from "@tanstack/react-query"
 import { formatDistanceToNow } from "date-fns"
 import { motion } from "framer-motion"
@@ -340,7 +340,7 @@ export function TradeDetails({
                         <div className="text-xs text-muted-foreground mb-1">Quantity</div>
                         <div className="font-mono font-medium flex items-center justify-center gap-1">
                           <Coins className="h-3 w-3" />
-                          {formatQuantity(parseFloat(trade.quantity))}
+                          {formatTokenQuantity(parseFloat(trade.quantity))}
                         </div>
                       </div>
                       

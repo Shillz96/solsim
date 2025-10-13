@@ -88,7 +88,12 @@ export async function trade(request: Backend.TradeRequest): Promise<Backend.Trad
 export async function getPortfolio(userId: string): Promise<Backend.PortfolioResponse> {
   const response = await fetch(`${API}/api/portfolio?userId=${encodeURIComponent(userId)}`, {
     method: 'GET',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      'Pragma': 'no-cache'
+    },
+    cache: 'no-store'
   });
 
   if (!response.ok) {

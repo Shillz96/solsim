@@ -21,7 +21,7 @@ function PortfolioPageContent() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
-      <main className="w-full px-2 sm:px-4 lg:px-6 py-6 max-w-page-xl mx-auto">
+      <main className="w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-6 max-w-page-xl mx-auto">
         {/* Enhanced Header */}
         <SimplePageHeader
           title="Portfolio"
@@ -48,17 +48,13 @@ function PortfolioPageContent() {
         >
           {/* Left Column - Main Content (3/4 width) */}
           <div className="xl:col-span-1 space-y-6">
-            {/* Enhanced Portfolio Summary */}
+            {/* Portfolio Summary */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.2 }}
             >
-              <EnhancedCard variant="glass" size="lg">
-                <CardSection title="Portfolio Summary" spacing="normal">
-                  <PnLCard />
-                </CardSection>
-              </EnhancedCard>
+              <PnLCard />
             </motion.div>
 
             {/* Enhanced Tabbed Content */}
@@ -84,15 +80,11 @@ function PortfolioPageContent() {
                 </TabsList>
 
                 <TabsContent value="positions" className="mt-0">
-                  <EnhancedCard variant="bordered" size="lg">
-                    <CardSection title="Your Positions" spacing="normal">
-                      <UnifiedPositions 
-                        variant="full" 
-                        showHeader={false}
-                        showSummary={true}
-                      />
-                    </CardSection>
-                  </EnhancedCard>
+                  <UnifiedPositions
+                    variant="full"
+                    showHeader={false}
+                    showSummary={true}
+                  />
                 </TabsContent>
 
                 <TabsContent value="performance" className="mt-0">
@@ -125,38 +117,34 @@ function PortfolioPageContent() {
           {/* Enhanced Right Sidebar (1/4 width) */}
           <aside className="space-y-6 order-first xl:order-last">
             <div className="xl:sticky xl:top-6 space-y-6">
-              {/* Enhanced Rewards Card */}
+              {/* Rewards Card */}
               {isAuthenticated && user && (
                 <motion.div
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.5, delay: 0.3 }}
                 >
-                  <EnhancedCard variant="glass" size="md">
-                    <CardSection title="Rewards" spacing="normal">
-                      <RewardsCard 
-                        userId={user.id} 
-                        walletAddress={undefined}
-                      />
-                    </CardSection>
-                  </EnhancedCard>
+                  <RewardsCard
+                    userId={user.id}
+                    walletAddress={undefined}
+                  />
                 </motion.div>
               )}
-              
-              {/* Enhanced Trending Tokens */}
+
+              {/* Trending Tokens */}
               <motion.div
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.5, delay: 0.5 }}
               >
-                <EnhancedCard variant="elevated" size="md">
-                  <CardSection 
-                    title="Trending Tokens" 
-                    description="Popular tokens on SolSim"
-                    spacing="normal"
-                  >
+                <EnhancedCard variant="elevated" size="md" className="overflow-hidden">
+                  <div className="p-6 space-y-4">
+                    <div>
+                      <h3 className="text-lg font-semibold">Trending Tokens</h3>
+                      <p className="text-sm text-muted-foreground">Popular tokens on SolSim</p>
+                    </div>
                     <EnhancedTrendingList />
-                  </CardSection>
+                  </div>
                 </EnhancedCard>
               </motion.div>
             </div>

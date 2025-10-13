@@ -11,6 +11,7 @@ import { useQuery } from "@tanstack/react-query"
 import * as api from "@/lib/api"
 import type * as Backend from "@/lib/types/backend"
 import { UsdWithSol } from "@/lib/sol-equivalent"
+import { formatUSD, formatNumber } from "@/lib/format"
 
 type TimeRange = "24h" | "7d" | "all"
 
@@ -114,7 +115,7 @@ export default function LeaderboardPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-6 py-8">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between">
@@ -287,13 +288,18 @@ export default function LeaderboardPage() {
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-sm text-muted-foreground">Avg PnL</span>
-                    <span className={`font-semibold text-lg ${avgROI >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                      {avgROI >= 0 ? '+' : ''}{avgROI.toFixed(2)} SOL
-                    </span>
+                    <div className={`font-semibold text-lg ${avgROI >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                      <UsdWithSol
+                        usd={avgROI}
+                        prefix={avgROI >= 0 ? '+' : ''}
+                        className="text-lg font-semibold font-mono"
+                        solClassName="text-xs"
+                      />
+                    </div>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Total Volume</span>
-                    <span className="font-semibold text-lg">{totalVolume.toLocaleString(undefined, { maximumFractionDigits: 0 })} SOL</span>
+                    <span className="text-sm text-muted-foreground">Total Trades</span>
+                    <span className="font-semibold text-lg font-mono">{formatNumber(totalVolume, { useCompact: true })}</span>
                   </div>
                 </div>
               </div>

@@ -218,7 +218,7 @@ export function NavBar() {
                 placeholder="Search tokens..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 pr-4 w-full bg-muted/50 border-0 focus:bg-background focus:ring-2 focus:ring-primary/20"
+                className="pl-10 pr-4 w-full bg-background border border-border focus:ring-2 focus:ring-primary/20"
               />
               {isSearching && (
                 <Loader2 className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 animate-spin text-muted-foreground" />
@@ -232,17 +232,17 @@ export function NavBar() {
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
-                  className="absolute top-full mt-2 w-full bg-popover border rounded-lg shadow-lg z-50 max-h-80 overflow-y-auto"
+                  className="absolute top-full mt-2 w-full bg-background border border-border rounded-lg shadow-xl z-50 max-h-80 overflow-y-auto backdrop-blur-sm"
                 >
                   <div className="p-2">
-                    <div className="text-xs text-muted-foreground px-2 py-1 font-semibold">
+                    <div className="text-xs text-muted-foreground px-2 py-1 font-semibold border-b border-border/50 mb-1">
                       Search Results
                     </div>
                     {searchResults.map((token) => (
                       <button
                         key={token.mint}
                         onClick={() => handleTokenSelect(token)}
-                        className="w-full text-left px-3 py-2 rounded-md hover:bg-muted transition-colors duration-200"
+                        className="w-full text-left px-3 py-2 rounded-md hover:bg-muted/80 transition-colors duration-200 focus:bg-muted/80 focus:outline-none"
                       >
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-3">
@@ -355,7 +355,12 @@ export function NavBar() {
             {/* Mobile Menu */}
             <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
               <SheetTrigger asChild>
-                <Button variant="ghost" size="sm" className="md:hidden">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="md:hidden border-2 border-border bg-background hover:bg-muted"
+                  aria-label="Open navigation menu"
+                >
                   <Menu className="h-5 w-5" />
                 </Button>
               </SheetTrigger>

@@ -59,50 +59,75 @@ export function formatUSD(n: number): string {
 
 /**
  * Format token prices in USD with precision based on magnitude
- * 
+ *
  * Rules:
  * - ≥ $1 → 2 decimals
  * - $0.10 – $0.99 → 3–4 decimals
- * - $0.000001 – $0.0999 → 6 decimals max (trim)
- * - < $0.000001 → scientific notation or very small decimals with tooltip
+ * - $0.01 - $0.0999 → 4 decimals
+ * - $0.000001 – $0.0099 → 6-8 decimals max (trim)
+ * - < $0.000001 → show up to 10 decimals with actual precision
  */
 export function formatPriceUSD(n: number): string {
   if (!isFinite(n)) return "$0.00";
-  
+
   const abs = Math.abs(n);
-  
+
   if (abs >= 1) {
-    return `$${n.toLocaleString("en-US", { 
-      minimumFractionDigits: 2, 
-      maximumFractionDigits: 2 
+    return `$${n.toLocaleString("en-US", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
     })}`;
   }
-  
+
   if (abs >= 0.1) {
-    return `$${n.toLocaleString("en-US", { 
-      minimumFractionDigits: 3, 
-      maximumFractionDigits: 4 
+    return `$${n.toLocaleString("en-US", {
+      minimumFractionDigits: 3,
+      maximumFractionDigits: 4
     })}`;
   }
-  
+
+  if (abs >= 0.01) {
+    return `$${n.toLocaleString("en-US", {
+      minimumFractionDigits: 4,
+      maximumFractionDigits: 4
+    })}`;
+  }
+
   if (abs >= 0.000001) {
-    return `$${n.toLocaleString("en-US", { 
-      minimumFractionDigits: 4, 
-      maximumFractionDigits: 6 
+    // For micro prices, show enough decimals to capture the value
+    return `$${n.toLocaleString("en-US", {
+      minimumFractionDigits: 6,
+      maximumFractionDigits: 8
     })}`;
   }
-  
+
   if (abs === 0) {
     return "$0.00";
   }
-  
-  // Very small values: use scientific notation
-  return `${n.toExponential(2)} USD`;
+
+  // Very small values: show actual precision up to 10 decimals
+  // Remove trailing zeros
+  const formatted = n.toFixed(10).replace(/\.?0+$/, '');
+  const [whole, decimal] = formatted.split('.');
+
+  if (decimal && decimal.length > 0) {
+    // Count leading zeros after decimal point
+    const leadingZeros = decimal.match(/^0*/)?.[0]?.length || 0;
+
+    if (leadingZeros >= 5) {
+      // If more than 5 leading zeros, show in a more readable format
+      return `$0.0{${leadingZeros}}${decimal.slice(leadingZeros)}`;
+    }
+
+    return `$${formatted}`;
+  }
+
+  return "$0.00";
 }
 
 /**
  * Format token quantities using mint decimals
- * 
+ *
  * Rules:
  * - Use mint's decimals to scale raw amounts (never round in calculations, only in render)
  * - ≥ 10,000 → compact: 12.4K
@@ -113,13 +138,13 @@ export function formatPriceUSD(n: number): string {
 export function formatQty(raw: string | number, decimals: number, symbol?: string): string {
   const n = typeof raw === "string" ? Number(raw) : raw;
   if (!isFinite(n)) return symbol ? `0 ${symbol}` : "0";
-  
+
   // Scale by mint decimals
   const qty = n / Math.pow(10, decimals);
   const abs = Math.abs(qty);
-  
+
   let body = "";
-  
+
   if (abs >= 10_000) {
     body = `${compact.format(qty)}`;
   } else if (abs >= 1) {
@@ -129,7 +154,43 @@ export function formatQty(raw: string | number, decimals: number, symbol?: strin
   } else {
     body = qty.toLocaleString("en-US", { maximumFractionDigits: 6 });
   }
-  
+
+  return symbol ? `${body} ${symbol}` : body;
+}
+
+/**
+ * Format token quantities (already scaled to proper decimals)
+ * Used for displaying token amounts that are already in user-readable units
+ *
+ * Rules:
+ * - ≥ 1,000,000,000 → billions: 1.2B
+ * - ≥ 1,000,000 → millions: 58.9M
+ * - ≥ 10,000 → thousands: 12.4K
+ * - 1 – 9,999 → up to 2 decimals
+ * - < 1 → 4–6 decimals (trim)
+ */
+export function formatTokenQuantity(qty: number | string, symbol?: string): string {
+  const n = typeof qty === "string" ? parseFloat(qty) : qty;
+  if (!isFinite(n)) return symbol ? `0 ${symbol}` : "0";
+
+  const abs = Math.abs(n);
+
+  let body = "";
+
+  if (abs >= 1_000_000_000) {
+    body = `${(n / 1_000_000_000).toFixed(1)}B`;
+  } else if (abs >= 1_000_000) {
+    body = `${(n / 1_000_000).toFixed(1)}M`;
+  } else if (abs >= 10_000) {
+    body = `${(n / 1_000).toFixed(1)}K`;
+  } else if (abs >= 1) {
+    body = n.toLocaleString("en-US", { maximumFractionDigits: 2 });
+  } else if (abs === 0) {
+    body = "0";
+  } else {
+    body = n.toLocaleString("en-US", { maximumFractionDigits: 6 });
+  }
+
   return symbol ? `${body} ${symbol}` : body;
 }
 

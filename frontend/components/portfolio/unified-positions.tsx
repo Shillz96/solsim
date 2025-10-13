@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { AnimatedNumber } from "@/components/ui/animated-number"
-import { formatUSD, formatPriceUSD, formatNumber, safePercent } from "@/lib/format"
+import { formatUSD, formatPriceUSD, formatNumber, safePercent, formatTokenQuantity } from "@/lib/format"
 import { UsdWithSol } from "@/lib/sol-equivalent"
 import { 
   TrendingUp, 
@@ -53,7 +53,7 @@ interface UnifiedPositionsProps {
 // Helper functions
 const formatAmount = (amount: string): string => {
   const num = parseFloat(amount)
-  return formatNumber(num) // Use global formatNumber function
+  return formatTokenQuantity(num) // Use formatTokenQuantity for large token amounts
 }
 
 // Using formatPriceUSD and formatUSD from lib/format.ts

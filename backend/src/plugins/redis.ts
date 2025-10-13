@@ -17,17 +17,35 @@ try {
 }
 
 const redis = new Redis(redisUrl, {
-  maxRetriesPerRequest: 1,
+  maxRetriesPerRequest: 3,
   lazyConnect: true,
   enableOfflineQueue: false, // Disable offline queue to fail fast
-  connectTimeout: 3000,
-  commandTimeout: 2000,
-  // Disable retry strategy to prevent spam
-  retryStrategy: () => null
+  connectTimeout: 10000, // Increased to 10s for Railway network latency
+  commandTimeout: 5000, // Increased to 5s
+  // Retry strategy with exponential backoff
+  retryStrategy(times) {
+    if (times > 5) {
+      console.error('❌ Redis connection failed after 5 retries');
+      return null; // Stop retrying
+    }
+    const delay = Math.min(times * 500, 3000); // Max 3s delay
+    console.log(`⏳ Redis retry ${times}/5 in ${delay}ms`);
+    return delay;
+  },
+  // Reconnect on error for better resilience
+  reconnectOnError(err) {
+    const targetErrors = ['READONLY', 'ECONNRESET', 'ETIMEDOUT'];
+    if (targetErrors.some(target => err.message.includes(target))) {
+      console.log(`♻️ Redis reconnecting due to: ${err.message}`);
+      return true;
+    }
+    return false;
+  }
 });
 
 redis.on("error", (err: Error) => {
-  // Silently handle Redis errors - app continues without Redis
+  // Log Redis errors for debugging, but don't crash the app
+  console.error(`Redis Client Error: ${err.name}: ${err.message}`);
 });
 
 redis.on("connect", () => {

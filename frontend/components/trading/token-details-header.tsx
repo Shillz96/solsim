@@ -147,12 +147,12 @@ export function TokenDetailsHeader({ tokenAddress }: TokenDetailsHeaderProps) {
       <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-blue-500"></div>
       
       <div className="relative z-10 p-6">
-        <div className="flex flex-col md:flex-row items-start md:items-center gap-6 overflow-hidden">
-          <div className="flex items-center">
-            <div className="relative">
-              <TokenImage 
-                src={tokenDetails.imageUrl || tokenDetails.logoURI} 
-                alt={tokenDetails.name || 'Token'} 
+        <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
+          <div className="flex items-center flex-shrink-0">
+            <div className="relative flex-shrink-0">
+              <TokenImage
+                src={tokenDetails.imageUrl || tokenDetails.logoURI}
+                alt={tokenDetails.name || 'Token'}
                 size={56}
                 className="mr-4 ring-2 ring-primary/20 ring-offset-2 ring-offset-background"
               />

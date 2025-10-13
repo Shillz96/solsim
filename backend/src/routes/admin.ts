@@ -60,10 +60,11 @@ const adminRoutes: FastifyPluginAsync = async (app) => {
         });
       }
     } catch (error) {
-      app.log.error("Error in position rebuild:", error);
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+      app.log.error(`Error in position rebuild: ${errorMessage}`);
       return reply.code(500).send({
         success: false,
-        error: error instanceof Error ? error.message : "Unknown error",
+        error: errorMessage,
         message: "Failed to rebuild positions"
       });
     }

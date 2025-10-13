@@ -1,22 +1,9 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { ArrowRight, TrendingUp, Sparkles } from "lucide-react"
+import { ArrowRight, Sparkles } from "lucide-react"
 import Link from "next/link"
-import dynamic from "next/dynamic"
 import { motion } from "framer-motion"
-
-const DexScreenerChart = dynamic(
-  () => import("@/components/trading/dexscreener-chart").then((mod) => mod.DexScreenerChart),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="h-[400px] w-full animate-pulse rounded-2xl bg-card border border-border flex items-center justify-center">
-        <TrendingUp className="h-12 w-12 text-muted-foreground animate-pulse" />
-      </div>
-    ),
-  },
-)
 
 export function HeroSection() {
   return (
@@ -98,15 +85,24 @@ export function HeroSection() {
             </motion.div>
           </motion.div>
 
-          {/* Right: Animated chart */}
+          {/* Right: Demo video */}
           <motion.div
             className="relative"
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.3, duration: 0.6 }}
           >
-            <div className="relative rounded-2xl overflow-hidden border border-background/20 shadow-lg">
-              <DexScreenerChart tokenAddress="DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263" />
+            <div className="relative rounded-2xl overflow-hidden border border-background/20 shadow-lg bg-background/5">
+              <video
+                autoPlay
+                loop
+                muted
+                playsInline
+                className="w-full h-auto object-contain"
+              >
+                <source src="/demo-video.mp4" type="video/mp4" />
+                Your browser does not support the video tag.
+              </video>
             </div>
           </motion.div>
         </div>

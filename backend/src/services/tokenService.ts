@@ -42,11 +42,20 @@ export async function getTokenMeta(mint: string) {
       return token;
     }
   } catch (e: any) {
-    console.warn(`Jupiter token list failed (${e.code || e.message}):`, e.message);
+    // Only log non-DNS errors to reduce noise
+    if (e.code !== 'ENOTFOUND') {
+      console.warn(`Jupiter token list failed (${e.code || e.message}):`, e.message);
+    }
   }
 
   // 2. Try Helius token metadata
   try {
+    // Validate mint address format (base58, 32-44 chars)
+    if (!mint || mint.length < 32 || mint.length > 44 || !/^[1-9A-HJ-NP-Za-km-z]+$/.test(mint)) {
+      console.warn(`Invalid mint address format: ${mint}`);
+      return token;
+    }
+
     const json = await fetchJSON<any[]>(
       `https://api.helius.xyz/v0/token-metadata?api-key=${HELIUS}&mintAccounts=${mint}`,
       { timeout: 8000, retries: 2, retryDelay: 500 }
@@ -77,7 +86,10 @@ export async function getTokenMeta(mint: string) {
       return token;
     }
   } catch (e: any) {
-    console.warn(`Helius metadata failed (${e.code || e.message}):`, e.message);
+    // Don't log 400 errors (invalid token addresses) to reduce noise
+    if (!e.message?.includes('400') && !e.message?.includes('Bad Request')) {
+      console.warn(`Helius metadata failed (${e.code || e.message}):`, e.message);
+    }
   }
 
   // 3. Fallback to Dexscreener
@@ -150,7 +162,10 @@ async function getTokenPriceData(mint: string) {
       };
     }
   } catch (e: any) {
-    console.warn(`Jupiter price failed (${e.code || e.message}):`, e.message);
+    // Only log non-DNS errors to reduce noise
+    if (e.code !== 'ENOTFOUND') {
+      console.warn(`Jupiter price failed (${e.code || e.message}):`, e.message);
+    }
   }
 
   // Fallback to DexScreener for price data

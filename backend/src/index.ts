@@ -3,6 +3,8 @@ import Fastify from "fastify";
 import websocket from "@fastify/websocket";
 import cors from "@fastify/cors";
 import helmet from "@fastify/helmet";
+
+// Import route handlers
 import tradeRoutes from "./routes/trade.js";
 import portfolioRoutes from "./routes/portfolio.js";
 import leaderboardRoutes from "./routes/leaderboard.js";
@@ -17,6 +19,8 @@ import candleRoutes from "./routes/candles.js";
 import notesRoutes from "./routes/notes.js";
 import debugRoutes from "./routes/debug.js";
 import adminRoutes from "./routes/admin.js";
+
+// Import plugins and services
 import wsPlugin from "./plugins/ws.js";
 import wsTestPlugin from "./plugins/wsTest.js";
 import priceService from "./plugins/priceService.js";
@@ -24,22 +28,86 @@ import { generalRateLimit } from "./plugins/rateLimiting.js";
 import { NonceCleanupService } from "./plugins/nonce.js";
 import { RateLimitCleanupService } from "./plugins/rateLimiting.js";
 
+// Import new production-ready plugins
+import { validateEnvironment, getConfig } from "./utils/env.js";
+import healthPlugin from "./plugins/health.js";
+import requestTrackingPlugin from "./plugins/requestTracking.js";
+import productionRateLimitingPlugin, { productionRateLimits } from "./plugins/productionRateLimiting.js";
+
+// Validate environment variables on startup
+validateEnvironment();
+const config = getConfig();
+
 const app = Fastify({
   logger: { transport: { target: "pino-pretty" } }
 });
 
-// Security headers
+// Production-grade security headers
 app.register(helmet, {
+  // Content Security Policy - Prevent XSS attacks
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'"],
-      scriptSrc: ["'self'"],
-      connectSrc: ["'self'", "wss:", "https:"],
-      imgSrc: ["'self'", "data:", "https:"],
-      fontSrc: ["'self'", "https:", "data:"]
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+      scriptSrc: ["'self'", "'unsafe-eval'"], // unsafe-eval needed for JSON parsing in some cases
+      connectSrc: [
+        "'self'", 
+        "wss:", 
+        "https:",
+        "https://api.birdeye.so",
+        "https://api.dexscreener.com",
+        "https://solsim.fun",
+        "wss://solsim.fun"
+      ],
+      imgSrc: ["'self'", "data:", "https:", "blob:"],
+      fontSrc: ["'self'", "https:", "data:", "https://fonts.gstatic.com"],
+      objectSrc: ["'none'"],
+      baseUri: ["'self'"],
+      formAction: ["'self'"],
+      frameAncestors: ["'none'"], // Prevent clickjacking
+      upgradeInsecureRequests: config.isProduction ? [] : null // Only in production
     }
-  }
+  },
+  
+  // HTTP Strict Transport Security - Force HTTPS
+  hsts: {
+    maxAge: 31536000, // 1 year
+    includeSubDomains: true,
+    preload: true
+  },
+
+  // X-Frame-Options - Prevent clickjacking
+  frameguard: {
+    action: 'deny'
+  },
+
+  // X-Content-Type-Options - Prevent MIME sniffing
+  noSniff: true,
+
+  // Referrer Policy - Control referrer information
+  referrerPolicy: {
+    policy: "strict-origin-when-cross-origin"
+  },
+
+  // Permissions Policy - Control browser features
+  permissionsPolicy: {
+    camera: [],
+    microphone: [],
+    geolocation: [],
+    payment: [],
+    usb: [],
+    magnetometer: [],
+    accelerometer: [],
+    gyroscope: []
+  },
+
+  // Cross-Origin policies
+  crossOriginEmbedderPolicy: false, // Allow external resources for trading data
+  crossOriginOpenerPolicy: false,
+  crossOriginResourcePolicy: { policy: "cross-origin" },
+
+  // Hide server information
+  hidePoweredBy: true
 });
 
 // CORS for frontend - support multiple origins with WebSocket support
@@ -74,10 +142,14 @@ app.register(cors, {
     return cb(null, false); // Reject with false, not error
   },
   credentials: true,
-  // Add WebSocket-specific headers
-  allowedHeaders: ['Content-Type', 'Authorization', 'Upgrade', 'Connection', 'Sec-WebSocket-Key', 'Sec-WebSocket-Version', 'Sec-WebSocket-Protocol'],
+  // Add WebSocket-specific headers and cache control headers
+  allowedHeaders: ['Content-Type', 'Authorization', 'Upgrade', 'Connection', 'Sec-WebSocket-Key', 'Sec-WebSocket-Version', 'Sec-WebSocket-Protocol', 'Cache-Control', 'Pragma'],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
 });
+
+// Production monitoring and tracking plugins
+app.register(requestTrackingPlugin);
+app.register(healthPlugin);
 
 // WebSocket support - register BEFORE any other routes for proper Railway compatibility
 // Disable perMessageDeflate to prevent proxy/CDN negotiation edge cases
@@ -93,7 +165,10 @@ app.register(websocket, {
 app.register(wsTestPlugin) // Test WebSocket first for debugging
 app.register(wsPlugin) // Main price stream WebSocket
 
-// General rate limiting for API routes only (not WebSocket)
+// Production rate limiting (replaces old rate limiting for better scale)
+app.register(productionRateLimitingPlugin);
+
+// Legacy rate limiting fallback for non-covered routes
 app.register(async function (app) {
   app.addHook('preHandler', async (request, reply) => {
     // Skip rate limiting for WebSocket upgrade requests
@@ -104,24 +179,50 @@ app.register(async function (app) {
   });
 });
 
-// Health check
-app.get("/health", async () => ({ ok: true, timestamp: new Date().toISOString() }));
+// API Routes with production rate limiting
+app.register(async function(app) {
+  // Auth routes with strict rate limiting
+  app.addHook('onRequest', productionRateLimits.auth);
+  app.register(authRoutes, { prefix: "/api/auth" });
+});
 
-// API Routes
-app.register(authRoutes, { prefix: "/api/auth" });
-app.register(tradeRoutes, { prefix: "/api/trade" });
-app.register(portfolioRoutes, { prefix: "/api/portfolio" });
-app.register(leaderboardRoutes, { prefix: "/api/leaderboard" });
-app.register(trendingRoutes, { prefix: "/api/trending" });
-app.register(rewardsRoutes, { prefix: "/api/rewards" });
-app.register(tradesRoutes, { prefix: "/api/trades" });
-app.register(walletRoutes, { prefix: "/api/wallet" });
-app.register(walletTrackerRoutes, { prefix: "/api/wallet-tracker" });
-app.register(searchRoutes, { prefix: "/api/search" });
-app.register(candleRoutes, { prefix: "/api/candles" });
-app.register(notesRoutes); // Note: This route is already prefixed in the implementation
-app.register(debugRoutes); // Debug routes for price service monitoring
-app.register(adminRoutes, { prefix: "/api/admin" }); // Admin maintenance routes (protected)
+app.register(async function(app) {
+  // Trading routes with moderate rate limiting
+  app.addHook('onRequest', productionRateLimits.trading);
+  app.register(tradeRoutes, { prefix: "/api/trade" });
+  app.register(tradesRoutes, { prefix: "/api/trades" });
+});
+
+app.register(async function(app) {
+  // Wallet operations with controlled rate limiting  
+  app.addHook('onRequest', productionRateLimits.wallet);
+  app.register(walletRoutes, { prefix: "/api/wallet" });
+  app.register(walletTrackerRoutes, { prefix: "/api/wallet-tracker" });
+});
+
+app.register(async function(app) {
+  // Data endpoints with higher limits
+  app.addHook('onRequest', productionRateLimits.data);
+  app.register(portfolioRoutes, { prefix: "/api/portfolio" });
+  app.register(leaderboardRoutes, { prefix: "/api/leaderboard" });
+  app.register(trendingRoutes, { prefix: "/api/trending" });
+  app.register(rewardsRoutes, { prefix: "/api/rewards" });
+  app.register(searchRoutes, { prefix: "/api/search" });
+  app.register(candleRoutes, { prefix: "/api/candles" });
+});
+
+app.register(async function(app) {
+  // Admin routes with admin-level rate limits
+  app.addHook('onRequest', productionRateLimits.admin);
+  app.register(adminRoutes, { prefix: "/api/admin" });
+});
+
+// Public routes with basic rate limiting
+app.register(async function(app) {
+  app.addHook('onRequest', productionRateLimits.public);
+  app.register(notesRoutes);
+  app.register(debugRoutes);
+});
 
 // Start background services
 console.log("🚀 Starting background services...");
@@ -134,7 +235,52 @@ RateLimitCleanupService.start();
 await priceService.start();
 
 const port = Number(process.env.PORT || 4000);
+
+// Graceful shutdown handling
+let isShuttingDown = false;
+
+const gracefulShutdown = async (signal: string) => {
+  if (isShuttingDown) return;
+  isShuttingDown = true;
+
+  console.log(`\n🛑 Received ${signal}, starting graceful shutdown...`);
+
+  try {
+    // Stop accepting new connections
+    await app.close();
+    
+    // Stop background services
+    console.log('⏹️  Stopping background services...');
+    NonceCleanupService.stop();
+    RateLimitCleanupService.stop();
+    await priceService.stop();
+
+    console.log('✅ Graceful shutdown completed');
+    process.exit(0);
+  } catch (error) {
+    console.error('❌ Error during shutdown:', error);
+    process.exit(1);
+  }
+};
+
+// Handle shutdown signals
+process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+
+// Handle uncaught exceptions and rejections
+process.on('uncaughtException', (error) => {
+  console.error('🚨 Uncaught Exception:', error);
+  gracefulShutdown('uncaughtException');
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('🚨 Unhandled Rejection at:', promise, 'reason:', reason);
+  gracefulShutdown('unhandledRejection');
+});
+
 app.listen({ port, host: "0.0.0.0" }).then(() => {
-  app.log.info(`🚀 Secure API running on :${port}`);
-  app.log.info(`🔒 Security features enabled: JWT, Rate Limiting, Input Validation, Secure Nonces`);
+  app.log.info(`🚀 SolSim API running on :${port}`);
+  app.log.info(`🔒 Security: JWT, Production Rate Limiting, Input Validation, Secure Nonces`);
+  app.log.info(`📊 Monitoring: Health checks, Request tracking, Error logging`);
+  app.log.info(`⚡ Performance: Redis caching, Database optimization, Connection pooling`);
 });

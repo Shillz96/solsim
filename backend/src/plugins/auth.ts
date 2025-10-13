@@ -3,9 +3,11 @@ import jwt from 'jsonwebtoken';
 import { FastifyRequest, FastifyReply } from 'fastify';
 import prisma from '../plugins/prisma.js';
 import redis from '../plugins/redis.js';
+import { getConfig } from '../utils/env.js';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secure-jwt-secret-change-this-in-production';
-const JWT_EXPIRY = process.env.JWT_EXPIRY || '24h';
+const config = getConfig();
+const JWT_SECRET = config.jwtSecret;
+const JWT_EXPIRY = config.jwtExpiry;
 const REFRESH_TOKEN_EXPIRY = process.env.REFRESH_TOKEN_EXPIRY || '7d';
 
 export interface JWTPayload {

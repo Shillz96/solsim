@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, memo } from "react"
 import { useSearchParams } from "next/navigation"
+import { useQueryClient } from "@tanstack/react-query"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -13,7 +14,7 @@ import { TrendingUp, TrendingDown, Wallet, Settings, AlertCircle, CheckCircle, L
 import { usePriceStreamContext } from "@/lib/price-stream-provider"
 import { useToast } from "@/hooks/use-toast"
 import { cn } from "@/lib/utils"
-import { formatUSD, formatNumber, safePercent } from "@/lib/format"
+import { formatUSD, formatNumber, safePercent, formatTokenQuantity, formatPriceUSD } from "@/lib/format"
 import { SolEquiv, UsdWithSol } from "@/lib/sol-equivalent"
 import { formatSolEquivalent } from "@/lib/sol-equivalent-utils"
 import * as api from "@/lib/api"
@@ -44,6 +45,7 @@ interface TradingPanelProps {
 
 function TradingPanelComponent({ tokenAddress: propTokenAddress }: TradingPanelProps = {}) {
   const searchParams = useSearchParams()
+  const queryClient = useQueryClient()
   const defaultTokenAddress = "DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263" // BONK
   const tokenAddress = propTokenAddress || searchParams.get("token") || defaultTokenAddress
 
@@ -126,14 +128,23 @@ function TradingPanelComponent({ tokenAddress: propTokenAddress }: TradingPanelP
       if (result.success) {
         // Update portfolio state
         await refreshPortfolio()
-        
+
+        // Update wallet balance after successful trade
+        const balanceData = await api.getWalletBalance(userId)
+        setUserBalance(parseFloat(balanceData.balance))
+        announceBalanceUpdate(parseFloat(balanceData.balance))
+
+        // Invalidate React Query cache to force navbar balance refresh
+        queryClient.invalidateQueries({ queryKey: ['user-balance', userId] })
+        queryClient.invalidateQueries({ queryKey: ['portfolio', userId] })
+
         // Show success toast with trade details
         toast({
           title: "Trade Executed Successfully! 🎉",
-          description: `Bought ${parseFloat(result.trade.quantity).toFixed(4)} tokens for ${parseFloat(result.trade.totalCost).toFixed(4)} SOL`,
+          description: `Bought ${formatTokenQuantity(parseFloat(result.trade.quantity))} tokens for ${parseFloat(result.trade.totalCost).toFixed(4)} SOL`,
           duration: 5000,
         })
-        
+
         // Announce trade completion for screen readers
         announceTradeComplete(
           'buy',
@@ -198,18 +209,27 @@ function TradingPanelComponent({ tokenAddress: propTokenAddress }: TradingPanelP
       if (result.success) {
         // Update portfolio state
         await refreshPortfolio()
-        
+
+        // Update wallet balance after successful trade
+        const balanceData = await api.getWalletBalance(userId)
+        setUserBalance(parseFloat(balanceData.balance))
+        announceBalanceUpdate(parseFloat(balanceData.balance))
+
+        // Invalidate React Query cache to force navbar balance refresh
+        queryClient.invalidateQueries({ queryKey: ['user-balance', userId] })
+        queryClient.invalidateQueries({ queryKey: ['portfolio', userId] })
+
         // Calculate realized PnL for display
         const realizedPnL = parseFloat(result.trade.totalCost) - parseFloat(result.trade.costUsd || '0')
         const pnlText = realizedPnL >= 0 ? `+${formatUSD(realizedPnL)}` : formatUSD(realizedPnL)
-        
+
         // Show success toast with trade details
         toast({
           title: "Trade Executed Successfully! 💰",
-          description: `Sold ${parseFloat(result.trade.quantity).toFixed(4)} tokens for ${parseFloat(result.trade.totalCost).toFixed(4)} SOL (${pnlText})`,
+          description: `Sold ${formatTokenQuantity(parseFloat(result.trade.quantity))} tokens for ${parseFloat(result.trade.totalCost).toFixed(4)} SOL (${pnlText})`,
           duration: 5000,
         })
-        
+
         // Announce trade completion for screen readers
         announceTradeComplete(
           'sell',
@@ -376,12 +396,12 @@ function TradingPanelComponent({ tokenAddress: propTokenAddress }: TradingPanelP
     }
 
     clearError()
-    
+
     let amountSol: number
-    
+
     if (action === 'buy') {
       amountSol = selectedSolAmount || (customSolAmount ? parseFloat(customSolAmount) : 0)
-      
+
       if (amountSol <= 0) {
         toast({
           title: "Invalid Amount",
@@ -409,7 +429,7 @@ function TradingPanelComponent({ tokenAddress: propTokenAddress }: TradingPanelP
         })
         return
       }
-      
+
       if (!selectedPercentage) {
         toast({
           title: "Select Amount",
@@ -431,7 +451,7 @@ function TradingPanelComponent({ tokenAddress: propTokenAddress }: TradingPanelP
 
       const sellQuantity = (holdingQuantity * selectedPercentage) / 100
       amountSol = sellQuantity * tokenDetails.price // Sell quantity in USD
-      
+
       import('@/lib/error-logger').then(({ errorLogger }) => {
         errorLogger.info('Sell calculation performed', {
           action: 'sell_calculation',
@@ -447,15 +467,42 @@ function TradingPanelComponent({ tokenAddress: propTokenAddress }: TradingPanelP
       })
     }
 
+    // Convert to token quantity for backend
+    let tokenQuantity: number
+    if (action === 'buy') {
+      // For buy: convert SOL amount to USD then to token quantity
+      // The backend expects token quantity, not SOL amount
+      // amountSol * solPrice gives us USD value, then divide by token price
+      const amountUsd = amountSol * (solPrice || 250) // Use current SOL price or fallback
+      tokenQuantity = amountUsd / tokenDetails.price
+
+      import('@/lib/error-logger').then(({ errorLogger }) => {
+        errorLogger.info('Buy calculation performed', {
+          action: 'buy_calculation',
+          metadata: {
+            amountSol,
+            solPrice: solPrice || 250,
+            amountUsd,
+            tokenPrice: tokenDetails.price,
+            tokenQuantity,
+            component: 'TradingPanel'
+          }
+        })
+      })
+    } else {
+      // For sell: amountSol is already the token quantity (calculated as percentage of holdings)
+      tokenQuantity = (tokenBalance * (selectedPercentage || 0)) / 100
+    }
+
     // Round to max 9 decimal places to match backend validation
-    amountSol = Math.round(amountSol * 1e9) / 1e9
+    tokenQuantity = Math.round(tokenQuantity * 1e9) / 1e9
 
     try {
       let result
       if (action === 'buy') {
-        result = await executeBuy(tokenAddress, amountSol)
+        result = await executeBuy(tokenAddress, tokenQuantity)
       } else {
-        result = await executeSell(tokenAddress, amountSol)
+        result = await executeSell(tokenAddress, tokenQuantity)
       }
 
       // Show success message
@@ -597,7 +644,7 @@ function TradingPanelComponent({ tokenAddress: propTokenAddress }: TradingPanelP
         {tokenHolding && (
           <div className="space-y-1">
             <div className="text-sm text-muted-foreground">
-              Holdings: {parseFloat(tokenHolding.qty).toLocaleString()} {tokenDetails.tokenSymbol}
+              Holdings: {formatTokenQuantity(tokenHolding.qty)} {tokenDetails.tokenSymbol}
             </div>
             <div className="text-xs text-muted-foreground">
               Value: <UsdWithSol usd={parseFloat(tokenHolding.qty) * currentPrice} className="inline" compact />
@@ -708,9 +755,9 @@ function TradingPanelComponent({ tokenAddress: propTokenAddress }: TradingPanelP
               type="text"
               value={
                 selectedSolAmount
-                  ? (selectedSolAmount / currentPrice).toFixed(0)
+                  ? formatTokenQuantity(selectedSolAmount / currentPrice)
                   : customSolAmount
-                    ? (Number.parseFloat(customSolAmount) / currentPrice).toFixed(0)
+                    ? formatTokenQuantity(Number.parseFloat(customSolAmount) / currentPrice)
                     : ""
               }
               readOnly
@@ -732,8 +779,8 @@ function TradingPanelComponent({ tokenAddress: propTokenAddress }: TradingPanelP
             <div className="flex justify-between">
               <span className="text-sm text-muted-foreground">Price</span>
               <div className="flex flex-col items-end">
-                <span className="font-mono text-sm" aria-label={`Current price: ${currentPrice.toFixed(8)} dollars`}>
-                  ${currentPrice.toFixed(8)}
+                <span className="font-mono text-sm" aria-label={`Current price: ${formatPriceUSD(currentPrice).replace('$', '')} dollars`}>
+                  {formatPriceUSD(currentPrice)}
                 </span>
                 {solPrice > 0 && (
                   <span className="text-xs text-muted-foreground">
@@ -833,7 +880,7 @@ function TradingPanelComponent({ tokenAddress: propTokenAddress }: TradingPanelP
                   </Button>
                 </div>
                 <div className="font-mono text-lg font-semibold mb-2">
-                  {parseFloat(tokenHolding.qty).toLocaleString(undefined, { maximumFractionDigits: 6 })} {tokenDetails?.tokenSymbol || 'tokens'}
+                  {formatTokenQuantity(tokenHolding.qty)} {tokenDetails?.tokenSymbol || 'tokens'}
                 </div>
                 <div className={`text-sm ${parseFloat(tokenHolding.unrealizedUsd) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                   <div>{formatUSD(parseFloat(tokenHolding.unrealizedUsd))}</div>
@@ -876,10 +923,10 @@ function TradingPanelComponent({ tokenAddress: propTokenAddress }: TradingPanelP
                 <Input
                   id="sell-amount"
                   type="text"
-                  value={selectedPercentage ? ((tokenBalance * selectedPercentage) / 100).toFixed(0) : ""}
+                  value={selectedPercentage ? formatTokenQuantity((tokenBalance * selectedPercentage) / 100) : ""}
                   readOnly
                   className="font-mono bg-muted"
-                  aria-label={`Tokens to sell: ${selectedPercentage ? ((tokenBalance * selectedPercentage) / 100).toFixed(0) : "0"} ${tokenDetails.tokenSymbol}`}
+                  aria-label={`Tokens to sell: ${selectedPercentage ? formatTokenQuantity((tokenBalance * selectedPercentage) / 100) : "0"} ${tokenDetails.tokenSymbol}`}
                 />
               </div>
 
@@ -898,16 +945,16 @@ function TradingPanelComponent({ tokenAddress: propTokenAddress }: TradingPanelP
               <div className="space-y-3 rounded-lg bg-muted/20 p-4 text-sm border border-border/50" role="region" aria-label="Token selling information">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Price</span>
-                  <span className="font-mono" aria-label={`Current price: ${currentPrice.toFixed(8)} dollars`}>${currentPrice.toFixed(8)}</span>
+                  <span className="font-mono" aria-label={`Current price: ${formatPriceUSD(currentPrice).replace('$', '')} dollars`}>{formatPriceUSD(currentPrice)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Total Holdings</span>
-                  <span className="font-mono" aria-label={`Total holdings: ${tokenBalance.toLocaleString()} ${tokenDetails.tokenSymbol}`}>{tokenBalance.toLocaleString()} {tokenDetails.tokenSymbol}</span>
+                  <span className="font-mono" aria-label={`Total holdings: ${formatTokenQuantity(tokenBalance)} ${tokenDetails.tokenSymbol}`}>{formatTokenQuantity(tokenBalance)} {tokenDetails.tokenSymbol}</span>
                 </div>
                 {tokenHolding && (
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Avg. Cost</span>
-                    <span className="font-mono" aria-label={`Average cost: ${parseFloat(tokenHolding.avgCostUsd).toFixed(8)} dollars`}>${parseFloat(tokenHolding.avgCostUsd).toFixed(8)}</span>
+                    <span className="font-mono" aria-label={`Average cost: ${formatPriceUSD(parseFloat(tokenHolding.avgCostUsd)).replace('$', '')} dollars`}>{formatPriceUSD(parseFloat(tokenHolding.avgCostUsd))}</span>
                   </div>
                 )}
               </div>

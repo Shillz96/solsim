@@ -24,7 +24,7 @@ import { usePriceStreamContext } from "@/lib/price-stream-provider"
 import { usePortfolio } from "@/hooks/use-react-query-hooks"
 import { useAuth } from "@/hooks/use-auth"
 import * as Backend from "@/lib/types/backend"
-import { formatUSD, safePercent } from "@/lib/format"
+import { formatUSD, safePercent, formatTokenQuantity } from "@/lib/format"
 import { UsdWithSol } from "@/lib/sol-equivalent"
 import { cn } from "@/lib/utils"
 import { motion } from "framer-motion"
@@ -310,7 +310,7 @@ export function TokenPositionPnL({ tokenAddress, tokenSymbol, tokenName }: Token
             <div className="flex items-center justify-between text-sm">
               <span className="text-muted-foreground">Quantity</span>
               <span className="font-medium">
-                {parseFloat(tokenPosition.qty).toLocaleString()} {tokenSymbol || 'tokens'}
+                {formatTokenQuantity(tokenPosition.qty)} {tokenSymbol || 'tokens'}
               </span>
             </div>
             <div className="flex items-center justify-between text-sm mt-2">

@@ -3,7 +3,16 @@
     "allow": [
       "Bash(npm run build)",
       "Bash(curl \"http://localhost:4000/api/portfolio?userId=e072a09b-f94f-42a5-870c-1f9e3135a215\")",
-      "Bash(test:*)"
+      "Bash(test:*)",
+      "Bash(npm test)",
+      "Read(//c/Users/offic/Pictures/Screenshots/**)",
+      "Bash(npx tsx:*)",
+      "Bash(dir public)",
+      "Bash(copy \"C:\\Users\\offic\\Desktop\\SolSim\\frontend\\final comp_1.mp4\" \"C:\\Users\\offic\\Desktop\\SolSim\\frontend\\public\\demo-video.mp4\")",
+      "Bash(cp:*)",
+      "Bash(railway logs:*)",
+      "Bash(railway service:*)",
+      "Bash(find:*)"
     ],
     "deny": [],
     "ask": []

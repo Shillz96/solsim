@@ -46,10 +46,10 @@ export function HowItWorksSection() {
                 <div className="flex flex-col items-center text-center space-y-4">
                   {/* Step number */}
                   <div className="relative">
-                    <div className="h-16 w-16 rounded-full bg-background border-2 border-background flex items-center justify-center">
-                      <step.icon className="h-8 w-8 text-foreground" />
+                    <div className="h-20 w-20 rounded-full bg-background border-2 border-background flex items-center justify-center">
+                      <step.icon className="h-9 w-9 text-foreground" />
                     </div>
-                    <div className="absolute -top-2 -right-2 h-8 w-8 rounded-full bg-background text-foreground border-2 border-background flex items-center justify-center text-sm font-bold">
+                    <div className="absolute -top-1 -right-1 h-9 w-9 rounded-full bg-[#00ff85] text-foreground border-2 border-foreground flex items-center justify-center text-base font-bold shadow-lg">
                       {index + 1}
                     </div>
                   </div>

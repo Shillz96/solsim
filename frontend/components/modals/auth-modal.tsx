@@ -159,7 +159,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-[95vw] max-w-md mx-auto border-2 border-border shadow-none rounded-none max-h-[90vh] overflow-y-auto" style={{ backgroundColor: 'var(--background)', opacity: 1 }}>
+      <DialogContent className="w-[90vw] max-w-md mx-auto border-2 border-border shadow-none rounded-md max-h-[85vh] overflow-y-auto p-4 sm:p-6" style={{ backgroundColor: 'var(--background)', opacity: 1 }}>
         <div className="relative z-10">
         <DialogHeader className="space-y-3">
           <div className="flex items-center justify-center gap-3 mb-4">
@@ -328,7 +328,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
               </TabsContent>
 
               <TabsContent value="register" className="space-y-4 mt-6">
-                <form onSubmit={handleRegister} className="space-y-4">
+                <form onSubmit={handleRegister} className="space-y-3 sm:space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="register-username" className="text-foreground font-medium">Username</Label>
                     <div className="relative">
@@ -395,15 +395,15 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
                       />
                     </div>
                   </div>
-                  
+
                   {/* Wallet Connection Section */}
-                  <div className="space-y-3 py-4 border-t border-border">
-                    <div className="flex items-center gap-2 mb-2">
+                  <div className="space-y-3 py-3 sm:py-4 border-t border-border mt-2">
+                    <div className="flex items-center gap-2 mb-1">
                       <Wallet className="h-4 w-4 text-muted-foreground" />
-                      <Label className="text-foreground font-medium">Wallet Connection (Optional)</Label>
+                      <Label className="text-sm sm:text-base text-foreground font-medium">Wallet Connection (Optional)</Label>
                     </div>
-                    <div className="bg-muted/30 rounded-lg p-4">
-                      <p className="text-sm text-muted-foreground mb-3">
+                    <div className="bg-muted/30 rounded-lg p-3 sm:p-4">
+                      <p className="text-xs sm:text-sm text-muted-foreground mb-3">
                         Connect your Solana wallet to unlock premium features and higher starting balance.
                       </p>
                       <WalletConnectButton
@@ -414,8 +414,8 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
                         className="w-full"
                       />
                       {walletConnected && (
-                        <div className="mt-2 p-2 bg-green-50 dark:bg-green-900/20 rounded border border-green-200 dark:border-green-800">
-                          <p className="text-xs text-green-700 dark:text-green-400">
+                        <div className="mt-2 p-2 sm:p-3 bg-green-50 dark:bg-green-900/20 rounded border border-green-200 dark:border-green-800">
+                          <p className="text-xs sm:text-sm text-green-700 dark:text-green-400">
                             ✓ Wallet connected - You'll receive enhanced tier benefits!
                           </p>
                         </div>
@@ -425,13 +425,13 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
                   
                   <Button
                     type="submit"
-                    className="w-full bg-foreground text-background hover:bg-foreground/90 font-medium"
+                    className="w-full bg-foreground text-background hover:bg-foreground/90 font-medium mt-2"
                     size="lg"
                     disabled={isLoading}
                   >
                     {isLoading ? "Creating account..." : "Create Account"}
                   </Button>
-                  <p className="text-xs text-center text-muted-foreground">
+                  <p className="text-xs sm:text-sm text-center text-muted-foreground px-2">
                     By registering, you agree to our Terms of Service and Privacy Policy
                   </p>
                 </form>

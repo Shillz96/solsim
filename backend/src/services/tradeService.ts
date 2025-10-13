@@ -42,6 +42,9 @@ export async function fillTrade({
   const q = D(qty);
   if (q.lte(0)) throw new Error("Quantity must be greater than 0");
 
+  // Debug logging for trade execution
+  console.log(`[Trade] ${side} order: userId=${userId}, mint=${mint.substring(0, 8)}..., qty=${qty}`);
+
   // Get user to check SOL balance
   const user = await prisma.user.findUnique({ where: { id: userId } });
   if (!user) throw new Error("User not found");
@@ -82,6 +85,10 @@ export async function fillTrade({
   // Calculate trade cost
   const tradeCostSol = q.mul(priceSol);
   const tradeCostUsd = q.mul(priceUsd);
+
+  // Debug logging for price and cost calculations
+  console.log(`[Trade] Price: USD=${priceUsd.toString()}, SOL=${priceSol.toString()}`);
+  console.log(`[Trade] Cost: SOL=${tradeCostSol.toString()}, USD=${tradeCostUsd.toString()}`);
 
   // For BUY orders, check if user has enough SOL balance
   if (side === "BUY") {

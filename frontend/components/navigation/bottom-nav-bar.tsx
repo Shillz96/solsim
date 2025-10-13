@@ -23,7 +23,7 @@ export function BottomNavBar() {
   const [mounted, setMounted] = useState(false)
   const { prices, subscribe, unsubscribe } = usePriceStreamContext()
   const [marketPrices, setMarketPrices] = useState<MarketPrice[]>([
-    { symbol: "SOL", price: 0, change24h: 0 },
+    { symbol: "SOL", price: 250, change24h: 0 }, // Default to reasonable price instead of 0
   ])
 
   // Prevent hydration mismatch by only rendering theme toggle after mount
@@ -46,12 +46,40 @@ export function BottomNavBar() {
     const solMint = "So11111111111111111111111111111111111111112" // SOL mint address
     const solPrice = prices.get(solMint)
 
-    if (solPrice) {
+    if (solPrice && solPrice.price > 0) {
       setMarketPrices([
-        { symbol: "SOL", price: solPrice.price, change24h: solPrice.change24h }
+        { symbol: "SOL", price: solPrice.price, change24h: solPrice.change24h || 0 }
       ])
     }
   }, [prices])
+
+  // Fetch SOL price on mount as a fallback
+  useEffect(() => {
+    const fetchSolPrice = async () => {
+      try {
+        const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd&include_24hr_change=true')
+        const data = await response.json()
+
+        if (data.solana?.usd) {
+          setMarketPrices(prev => {
+            // Only update if we still have the default price
+            if (prev[0]?.price === 250 || prev[0]?.price === 0) {
+              return [{
+                symbol: "SOL",
+                price: data.solana.usd,
+                change24h: data.solana.usd_24h_change || 0
+              }]
+            }
+            return prev
+          })
+        }
+      } catch (error) {
+        console.warn('Failed to fetch SOL price:', error)
+      }
+    }
+
+    fetchSolPrice()
+  }, [])
 
   const navItems = [
     { href: "/", icon: Home, label: "Home" },

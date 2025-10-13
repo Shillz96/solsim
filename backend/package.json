@@ -14,6 +14,7 @@
     "db:migrate": "prisma migrate dev",
     "db:reset": "prisma migrate reset",
     "db:seed": "prisma db seed",
+    "db:optimize": "tsx src/scripts/create-performance-indexes.ts",
     "test": "jest"
   },
   "dependencies": {
@@ -32,7 +33,8 @@
     "node-fetch": "^3.3.2",
     "pino-pretty": "^11.2.2",
     "typescript": "^5.6.3",
-    "ws": "^8.18.0"
+    "ws": "^8.18.0",
+    "zod": "^4.1.12"
   },
   "devDependencies": {
     "@solana/spl-token": "^0.4.14",
