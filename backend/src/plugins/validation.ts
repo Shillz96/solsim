@@ -18,8 +18,9 @@ const commonPatterns = {
   password: {
     type: 'string',
     minLength: 8,
-    maxLength: 128,
-    pattern: '^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]'
+    maxLength: 128
+    // Removed strict pattern for production - can be re-enabled later
+    // pattern: '^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]+$'
   },
   uuid: {
     type: 'string',
