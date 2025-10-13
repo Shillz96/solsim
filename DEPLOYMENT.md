@@ -92,21 +92,21 @@ node -e "console.log(require('crypto').randomBytes(64).toString('base64'))"
 
 4. **Configure Build & Start Commands**
 
-   **Backend Service:**
+   **Backend Service (deploy from /backend directory):**
    ```json
    {
-     "build": "cd backend && npm ci && npx prisma generate && npm run build",
-     "start": "cd backend && npx prisma migrate deploy && npm start",
+     "build": "npx prisma generate && npm run build",
+     "start": "npx prisma migrate deploy && npm start",
      "healthcheckPath": "/health",
      "healthcheckTimeout": 10
    }
    ```
 
-   **Frontend Service:**
+   **Frontend Service (deploy from /frontend directory):**
    ```json
    {
-     "build": "cd frontend && npm ci && npm run build",
-     "start": "cd frontend && npm start",
+     "build": "npm ci && npm run build",
+     "start": "npm start",
      "port": 3000
    }
    ```
@@ -137,25 +137,18 @@ node -e "console.log(require('crypto').randomBytes(64).toString('base64'))"
 
 2. **Nixpacks Configuration** (nixpacks.toml):
    ```toml
-   # For root directory deployment
-   [phases.setup]
-   nixPkgs = ["nodejs-20_x", "npm-10_x"]
-
+   # Deploy backend directory directly
    [phases.install]
-   cmds = [
-     "cd backend && npm ci",
-     "cd ../frontend && npm ci"
-   ]
+   cmds = ["npm install"]
 
    [phases.build]
-   cmds = [
-     "cd backend && npx prisma generate && npm run build",
-     "cd ../frontend && npm run build"
-   ]
+   cmds = ["npm run build"]
 
    [start]
-   cmd = "cd backend && npx prisma migrate deploy && npm start"
+   cmd = "npm start"
    ```
+
+   **Note:** When deploying to Railway, set the **Root Directory** to `/backend` in your service settings. This tells Railway to deploy from the backend folder directly.
 
 ### WebSocket Configuration for Railway
 
