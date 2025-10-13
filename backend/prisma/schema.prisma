@@ -89,10 +89,10 @@ model Trade {
   marketCapUsd  Decimal? // Market cap in USD at time of trade (for market cap analysis)
   timestamp     DateTime @default(now())
   createdAt     DateTime @default(now())
-  
+
   // Relations
   transactions  TransactionHistory[]
-  
+
   // Optimized indexes for common query patterns
   @@index([userId, timestamp(sort: Desc)], name: "user_trades_recent")
   @@index([userId, createdAt(sort: Desc)], name: "user_trades_created")
@@ -101,6 +101,9 @@ model Trade {
   @@index([userId, tokenAddress, timestamp(sort: Desc)], name: "user_token_history")
   @@index([userId, action, timestamp(sort: Desc)], name: "user_trade_type")
   @@index([timestamp(sort: Desc)], name: "trades_chronological")
+  @@index([tokenAddress], name: "token_lookup")
+  @@index([mint], name: "mint_lookup")
+  @@index([userId, mint], name: "user_token_position_lookup")
 }
 
 model Holding {
@@ -264,12 +267,13 @@ model Position {
   costBasis   Decimal  @default("0")
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  
+
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   lots        PositionLot[]
-  
+
   @@unique([userId, mint])
   @@index([userId, mint])
+  @@index([userId, qty(sort: Desc)], name: "user_active_positions")
 }
 
 // FIFO lot tracking for positions
@@ -281,11 +285,12 @@ model PositionLot {
   qtyRemaining   Decimal
   unitCostUsd    Decimal
   createdAt      DateTime @default(now())
-  
+
   position       Position @relation(fields: [positionId], references: [id], onDelete: Cascade)
-  
+
   @@index([positionId, createdAt])
   @@index([userId, mint, createdAt])
+  @@index([userId, mint, qtyRemaining, createdAt(sort: Asc)], name: "fifo_sell_query")
 }
 
 // Realized PnL tracking

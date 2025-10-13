@@ -4,7 +4,7 @@ import { CardSkeleton, ChartSkeleton, TableSkeleton } from "@/components/ui/enha
 export default function PortfolioLoading() {
   return (
     <div className="min-h-screen bg-background">
-      <main className="container mx-auto px-4 py-6 max-w-7xl">
+      <main className="container mx-auto px-4 py-6 max-w-page-xl">
         {/* Header Skeleton */}
         <div className="mb-6">
           <CardSkeleton className="h-12 w-48 mb-2" />

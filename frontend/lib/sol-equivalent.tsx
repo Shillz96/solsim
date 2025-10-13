@@ -79,45 +79,54 @@ export function UsdWithSol({
 }: UsdWithSolProps) {
   const formatUSD = (value: number): string => {
     if (!isFinite(value)) return "$0.00";
-    
+
     const abs = Math.abs(value);
-    
+    const sign = value < 0 ? "-" : "";
+
     if (compact && abs >= 10_000) {
-      const compactFormatter = new Intl.NumberFormat("en-US", { 
-        notation: "compact", 
-        maximumFractionDigits: 1 
+      const compactFormatter = new Intl.NumberFormat("en-US", {
+        notation: "compact",
+        maximumFractionDigits: 1
       });
-      return `$${compactFormatter.format(value)}`;
+      return `${sign}$${compactFormatter.format(abs)}`;
     }
-    
+
     if (abs >= 1) {
-      return `$${value.toLocaleString("en-US", { 
-        minimumFractionDigits: 2, 
-        maximumFractionDigits: 2 
+      return `${sign}$${abs.toLocaleString("en-US", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
       })}`;
     }
-    
+
     if (abs >= 0.01) {
-      return `$${value.toLocaleString("en-US", { 
-        minimumFractionDigits: 2, 
-        maximumFractionDigits: 3 
+      return `${sign}$${abs.toLocaleString("en-US", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 3
       })}`;
     }
-    
+
     if (abs === 0) {
       return "$0.00";
     }
-    
-    return `$${value.toLocaleString("en-US", { 
-      minimumFractionDigits: 4, 
-      maximumFractionDigits: 6 
+
+    return `${sign}$${abs.toLocaleString("en-US", {
+      minimumFractionDigits: 4,
+      maximumFractionDigits: 6
     })}`;
   };
   
+  // Apply prefix only if it makes sense
+  // Don't add '+' prefix to negative numbers or '-' prefix to positive numbers
+  const shouldUsePrefix = prefix && (
+    (prefix === '+' && usd >= 0) ||
+    (prefix === '-' && usd < 0) ||
+    (prefix !== '+' && prefix !== '-')
+  );
+
   return (
     <div className="flex flex-col">
       <span className={cn("font-medium", className)}>
-        {prefix}{formatUSD(usd)}
+        {shouldUsePrefix ? prefix : ''}{formatUSD(usd)}
       </span>
       <SolEquiv usd={usd} className={solClassName} />
     </div>

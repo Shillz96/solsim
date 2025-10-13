@@ -21,7 +21,7 @@ function PortfolioPageContent() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
-      <main className="w-full px-2 sm:px-4 lg:px-6 py-6 max-w-[2000px] mx-auto">
+      <main className="w-full px-2 sm:px-4 lg:px-6 py-6 max-w-page-xl mx-auto">
         {/* Enhanced Header */}
         <SimplePageHeader
           title="Portfolio"

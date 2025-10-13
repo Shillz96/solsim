@@ -10,20 +10,18 @@ interface RealtimeTradeStripProps {
   tokenAddress?: string
   maxTrades?: number
   className?: string
-  autoScroll?: boolean
+  style?: React.CSSProperties
 }
 
 export function RealtimeTradeStrip({ 
   tokenAddress, 
   maxTrades = 15,
   className,
-  autoScroll = true 
+  style 
 }: RealtimeTradeStripProps) {
   const [trades, setTrades] = useState<Backend.EnrichedTrade[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const scrollRef = useRef<HTMLDivElement>(null)
-  const animationRef = useRef<number | undefined>(undefined)
 
   // Load recent trades
   const loadTrades = useCallback(async () => {
@@ -63,47 +61,11 @@ export function RealtimeTradeStrip({
     return () => clearInterval(interval)
   }, [loadTrades])
 
-  // Auto-scroll animation for horizontal ticker
-  useEffect(() => {
-    if (!autoScroll || !scrollRef.current || loading || trades.length === 0) return
 
-    const scrollContainer = scrollRef.current
-    let scrollAmount = 0
-    
-    const animate = () => {
-      scrollAmount += 0.5 // Adjust speed as needed
-      
-      if (scrollAmount >= scrollContainer.scrollWidth / 2) {
-        scrollAmount = 0
-      }
-      
-      scrollContainer.scrollLeft = scrollAmount
-      animationRef.current = requestAnimationFrame(animate)
-    }
-    
-    // Start animation after a short delay
-    const timeout = setTimeout(() => {
-      animationRef.current = requestAnimationFrame(animate)
-    }, 1000)
-    
-    return () => {
-      clearTimeout(timeout)
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current)
-      }
-    }
-  }, [autoScroll, loading, trades])
-
-  const calculatePriceChange = (trade: Backend.EnrichedTrade) => {
-    // Calculate a simulated price change for demo purposes
-    // In production, this would come from actual price data
-    const change = (Math.random() - 0.5) * 30
-    return change
-  }
 
   if (loading) {
     return (
-      <div className={cn("w-full bg-background border-t border-b py-1.5", className)}>
+      <div className={cn("w-full bg-background border-t border-b py-1.5", className)} style={style}>
         <div className="flex items-center space-x-6 animate-pulse">
           {[...Array(6)].map((_, i) => (
             <div key={i} className="flex items-center space-x-2">
@@ -119,7 +81,7 @@ export function RealtimeTradeStrip({
 
   if (error) {
     return (
-      <div className={cn("w-full bg-background border-t border-b py-2", className)}>
+      <div className={cn("w-full bg-background border-t border-b py-2", className)} style={style}>
         <div className="flex items-center justify-center text-sm text-muted-foreground">
           <span>Unable to load trades</span>
           <button
@@ -133,59 +95,26 @@ export function RealtimeTradeStrip({
     )
   }
 
-  // Duplicate trades for seamless scrolling
-  const displayTrades = trades.length > 0 ? [...trades, ...trades] : []
-
   return (
     <div 
       className={cn(
         "w-full bg-background border-t border-b overflow-hidden",
-        "hover:pause-animation group",
         className
       )}
-      onMouseEnter={() => {
-        if (animationRef.current) {
-          cancelAnimationFrame(animationRef.current)
-        }
-      }}
-      onMouseLeave={() => {
-        if (autoScroll && scrollRef.current && trades.length > 0) {
-          const scrollContainer = scrollRef.current
-          let scrollAmount = scrollContainer.scrollLeft
-          
-          const animate = () => {
-            scrollAmount += 0.5
-            
-            if (scrollAmount >= scrollContainer.scrollWidth / 2) {
-              scrollAmount = 0
-            }
-            
-            scrollContainer.scrollLeft = scrollAmount
-            animationRef.current = requestAnimationFrame(animate)
-          }
-          
-          animationRef.current = requestAnimationFrame(animate)
-        }
-      }}
+      style={style}
     >
-      <div
-        ref={scrollRef}
-        className="flex items-center py-2 px-2 space-x-6 overflow-x-auto scrollbar-none"
-        style={{ scrollBehavior: 'auto' }}
-      >
-        {displayTrades.length === 0 ? (
+      <div className="flex items-center py-2 px-2 space-x-6 overflow-x-auto scrollbar-none">
+        {trades.length === 0 ? (
           <div className="flex items-center justify-center w-full py-1 text-sm text-muted-foreground">
             No recent trades
           </div>
         ) : (
-           displayTrades.map((trade, index) => {
-             const priceChange = calculatePriceChange(trade)
-             const isPositive = priceChange >= 0
+           trades.map((trade) => {
              const price = parseFloat(trade.priceUsd) || (parseFloat(trade.totalCost) / parseFloat(trade.qty))
             
             return (
               <div 
-                key={`${trade.id}-${index}`}
+                key={trade.id}
                 className="flex items-center space-x-2 whitespace-nowrap flex-shrink-0"
               >
                 {trade.logoURI && (
@@ -204,13 +133,11 @@ export function RealtimeTradeStrip({
                   ${formatNumber(price)}
                 </span>
                 
-                <span 
-                  className={cn(
-                    "text-sm font-medium",
-                    isPositive ? "text-green-500" : "text-red-500"
-                  )}
-                >
-                  {isPositive ? '+' : ''}{priceChange.toFixed(2)}%
+                <span className={cn(
+                  "text-xs font-medium px-2 py-1 rounded",
+                  trade.side === 'BUY' ? "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300" : "bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300"
+                )}>
+                  {trade.side}
                 </span>
               </div>
             )

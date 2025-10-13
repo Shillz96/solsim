@@ -103,7 +103,7 @@ function NoteModal({
   
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-dialog-sm">
         <DialogHeader>
           <DialogTitle>
             {isEditing ? "Edit Note" : "Add Note"} 

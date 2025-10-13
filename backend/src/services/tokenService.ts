@@ -1,6 +1,6 @@
 // Token service with enhanced metadata sources
 import prisma from "../plugins/prisma.js";
-import fetch from "node-fetch";
+import { robustFetch, fetchJSON } from "../utils/fetch.js";
 
 const HELIUS = process.env.HELIUS_API!;
 const DEX = "https://api.dexscreener.com";
@@ -16,10 +16,13 @@ export async function getTokenMeta(mint: string) {
 
   // 1. Try Jupiter token list first (fastest and most reliable)
   try {
-    const res = await fetch(`https://token.jup.ag/strict`);
-    const tokenList = await res.json() as any[];
+    const tokenList = await fetchJSON<any[]>(`https://token.jup.ag/strict`, {
+      timeout: 8000,
+      retries: 2,
+      retryDelay: 500
+    });
     const jupiterToken = tokenList.find(t => t.address === mint);
-    
+
     if (jupiterToken) {
       token = await prisma.token.upsert({
         where: { address: mint },
@@ -38,14 +41,16 @@ export async function getTokenMeta(mint: string) {
       });
       return token;
     }
-  } catch (e) {
-    console.warn("Jupiter token list fail", e);
+  } catch (e: any) {
+    console.warn(`Jupiter token list failed (${e.code || e.message}):`, e.message);
   }
 
   // 2. Try Helius token metadata
   try {
-    const res = await fetch(`https://api.helius.xyz/v0/token-metadata?api-key=${HELIUS}&mintAccounts=${mint}`);
-    const json = await res.json() as any[];
+    const json = await fetchJSON<any[]>(
+      `https://api.helius.xyz/v0/token-metadata?api-key=${HELIUS}&mintAccounts=${mint}`,
+      { timeout: 8000, retries: 2, retryDelay: 500 }
+    );
     const meta = json[0]?.onChainMetadata?.metadata || json[0]?.offChainMetadata?.metadata;
     if (meta) {
       token = await prisma.token.upsert({
@@ -71,43 +76,43 @@ export async function getTokenMeta(mint: string) {
       });
       return token;
     }
-  } catch (e) {
-    console.warn("Helius meta fail", e);
+  } catch (e: any) {
+    console.warn(`Helius metadata failed (${e.code || e.message}):`, e.message);
   }
 
   // 3. Fallback to Dexscreener
   try {
-    const res = await fetch(`${DEX}/latest/dex/tokens/${mint}`);
-    if (res.ok) {
-      const json = await res.json() as any;
-      const pair = json.pairs?.[0];
-      if (pair) {
-        token = await prisma.token.upsert({
-          where: { address: mint },
-          update: {
-            symbol: pair.baseToken?.symbol || null,
-            name: pair.baseToken?.name || null,
-            logoURI: pair.info?.imageUrl || null,
-            website: pair.info?.websiteUrl || null,
-            twitter: pair.info?.twitter || null,
-            telegram: pair.info?.telegram || null,
-            lastUpdated: new Date()
-          },
-          create: {
-            address: mint,
-            symbol: pair.baseToken?.symbol || null,
-            name: pair.baseToken?.name || null,
-            logoURI: pair.info?.imageUrl || null,
-            website: pair.info?.websiteUrl || null,
-            twitter: pair.info?.twitter || null,
-            telegram: pair.info?.telegram || null,
-          }
-        });
-        return token;
-      }
+    const json = await fetchJSON<any>(
+      `${DEX}/latest/dex/tokens/${mint}`,
+      { timeout: 8000, retries: 2, retryDelay: 500 }
+    );
+    const pair = json.pairs?.[0];
+    if (pair) {
+      token = await prisma.token.upsert({
+        where: { address: mint },
+        update: {
+          symbol: pair.baseToken?.symbol || null,
+          name: pair.baseToken?.name || null,
+          logoURI: pair.info?.imageUrl || null,
+          website: pair.info?.websiteUrl || null,
+          twitter: pair.info?.twitter || null,
+          telegram: pair.info?.telegram || null,
+          lastUpdated: new Date()
+        },
+        create: {
+          address: mint,
+          symbol: pair.baseToken?.symbol || null,
+          name: pair.baseToken?.name || null,
+          logoURI: pair.info?.imageUrl || null,
+          website: pair.info?.websiteUrl || null,
+          twitter: pair.info?.twitter || null,
+          telegram: pair.info?.telegram || null,
+        }
+      });
+      return token;
     }
-  } catch (e) {
-    console.warn("Dexscreener meta fail", e);
+  } catch (e: any) {
+    console.warn(`DexScreener metadata failed (${e.code || e.message}):`, e.message);
   }
 
   return token;
@@ -132,38 +137,40 @@ export async function getTokenInfo(mint: string) {
 async function getTokenPriceData(mint: string) {
   // Try Jupiter price API first
   try {
-    const res = await fetch(`${JUPITER}/price?ids=${mint}`);
-    const data = await res.json() as any;
+    const data = await fetchJSON<any>(
+      `${JUPITER}/price?ids=${mint}`,
+      { timeout: 8000, retries: 2, retryDelay: 500 }
+    );
     const price = data.data?.[mint]?.price;
-    
+
     if (price) {
       return {
         lastPrice: price.toString(),
         lastTs: new Date().toISOString()
       };
     }
-  } catch (e) {
-    console.warn("Jupiter price fail", e);
+  } catch (e: any) {
+    console.warn(`Jupiter price failed (${e.code || e.message}):`, e.message);
   }
 
   // Fallback to DexScreener for price data
   try {
-    const res = await fetch(`${DEX}/latest/dex/tokens/${mint}`);
-    if (res.ok) {
-      const json = await res.json() as any;
-      const pair = json.pairs?.[0];
-      if (pair && pair.priceUsd) {
-        return {
-          lastPrice: pair.priceUsd,
-          lastTs: new Date().toISOString(),
-          volume24h: pair.volume?.h24 || null,
-          priceChange24h: pair.priceChange?.h24 || null,
-          marketCapUsd: pair.marketCap || null
-        };
-      }
+    const json = await fetchJSON<any>(
+      `${DEX}/latest/dex/tokens/${mint}`,
+      { timeout: 8000, retries: 2, retryDelay: 500 }
+    );
+    const pair = json.pairs?.[0];
+    if (pair && pair.priceUsd) {
+      return {
+        lastPrice: pair.priceUsd,
+        lastTs: new Date().toISOString(),
+        volume24h: pair.volume?.h24 || null,
+        priceChange24h: pair.priceChange?.h24 || null,
+        marketCapUsd: pair.marketCap || null
+      };
     }
-  } catch (e) {
-    console.warn("DexScreener price fail", e);
+  } catch (e: any) {
+    console.warn(`DexScreener price failed (${e.code || e.message}):`, e.message);
   }
 
   return {

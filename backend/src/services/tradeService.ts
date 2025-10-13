@@ -46,14 +46,35 @@ export async function fillTrade({
   const user = await prisma.user.findUnique({ where: { id: userId } });
   if (!user) throw new Error("User not found");
 
-  // Grab latest tick from cache
+  // Grab latest tick from cache with validation
   const tick = await priceService.getLastTick(mint);
   if (!tick) {
     throw new Error(`Price data unavailable for token ${mint}`);
   }
-  
+
+  // Validate price is not zero or negative
+  if (!tick.priceUsd || tick.priceUsd <= 0) {
+    throw new Error(`Invalid price for token ${mint}: $${tick.priceUsd}. Cannot execute trade with zero or negative price.`);
+  }
+
+  // Validate price is not stale (older than 5 minutes)
+  const PRICE_STALENESS_THRESHOLD = 5 * 60 * 1000; // 5 minutes in milliseconds
+  const priceAge = Date.now() - tick.timestamp;
+  if (priceAge > PRICE_STALENESS_THRESHOLD) {
+    throw new Error(
+      `Price data is stale for token ${mint} (${Math.floor(priceAge / 1000)}s old). ` +
+      `Please try again in a moment when fresh price data is available.`
+    );
+  }
+
   const priceUsd = D(tick.priceUsd);
   const currentSolPrice = priceService.getSolPrice();
+
+  // Validate SOL price is not zero
+  if (currentSolPrice <= 0) {
+    throw new Error(`Invalid SOL price: $${currentSolPrice}. Cannot execute trade.`);
+  }
+
   const priceSol = D(tick.priceSol || priceUsd.div(currentSolPrice)); // Use actual SOL price
   const solUsd = D(tick.solUsd || currentSolPrice); // Use actual SOL price
   const mcAtFill = tick.marketCapUsd ? D(tick.marketCapUsd) : null;
@@ -172,14 +193,23 @@ export async function fillTrade({
 
       // Update position - calculate new cost basis by removing consumed lots' cost
       const newQty = (pos.qty as Decimal).sub(q);
-      let newBasis = pos.costBasis as Decimal;
-      
-      // Subtract the cost basis of the consumed lots
-      for (const c of consumed) {
-        const consumedCost = c.qty.mul(lots.find((l: any) => l.id === c.lotId)!.unitCostUsd as Decimal);
-        newBasis = newBasis.sub(consumedCost);
+
+      // Calculate total consumed cost from the FIFO calculation (more precise)
+      const totalConsumedCost = consumed.reduce((sum, c) => {
+        const lot = lots.find((l: any) => l.id === c.lotId)!;
+        return sum.add(c.qty.mul(lot.unitCostUsd as Decimal));
+      }, D(0));
+
+      let newBasis = (pos.costBasis as Decimal).sub(totalConsumedCost);
+
+      // Validation: newBasis should never be negative
+      if (newBasis.lt(0)) {
+        console.error(`⚠️ FIFO calculation error: negative cost basis ${newBasis.toString()} for position ${pos.id}`);
+        console.error(`Position details: qty=${(pos.qty as Decimal).toString()}, costBasis=${(pos.costBasis as Decimal).toString()}`);
+        console.error(`Consumed: ${consumed.length} lots, total cost: ${totalConsumedCost.toString()}`);
+        newBasis = D(0); // Clamp to zero to prevent negative values
       }
-      
+
       if (newQty.eq(0)) newBasis = D(0);
 
       pos = await tx.position.update({
@@ -224,41 +254,44 @@ export async function fillTrade({
 // Calculate comprehensive portfolio totals
 async function calculatePortfolioTotals(userId: string) {
   const user = await prisma.user.findUnique({ where: { id: userId } });
-  const positions = await prisma.position.findMany({ 
-    where: { userId, qty: { gt: 0 } } 
+  const positions = await prisma.position.findMany({
+    where: { userId, qty: { gt: 0 } }
   });
-  
+
+  // Batch fetch all prices at once
+  const mints = positions.map(p => p.mint);
+  const prices = await priceService.getPrices(mints);
+
   let totalValueUsd = D(0);
   let totalCostBasis = D(0);
-  
+
   // Calculate current value of all positions
   for (const pos of positions) {
-    const tick = await priceService.getLastTick(pos.mint);
-    if (!tick) {
+    const currentPrice = D(prices[pos.mint] || 0);
+    if (currentPrice.eq(0)) {
       console.warn(`No price data available for position ${pos.mint}, skipping...`);
       continue;
     }
-    
-    const currentPrice = D(tick.priceUsd);
+
     const positionQty = pos.qty as Decimal;
     const positionCostBasis = pos.costBasis as Decimal; // This is now total cost basis, not per-unit
-    
+
     const positionValue = positionQty.mul(currentPrice);
-    
+
     totalValueUsd = totalValueUsd.add(positionValue);
     totalCostBasis = totalCostBasis.add(positionCostBasis);
   }
-  
+
   // Get total realized PnL
   const realizedPnLRecords = await prisma.realizedPnL.findMany({ where: { userId } });
   const totalRealizedPnL = realizedPnLRecords.reduce(
-    (sum, record) => sum.add(record.pnl as Decimal), 
+    (sum, record) => sum.add(record.pnl as Decimal),
     D(0)
   );
-  
+
   const unrealizedPnL = totalValueUsd.sub(totalCostBasis);
   const solBalance = user?.virtualSolBalance as Decimal || D(0);
-  
+
   return {
     totalValueUsd,
     totalCostBasis,

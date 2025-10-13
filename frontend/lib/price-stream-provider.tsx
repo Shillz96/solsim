@@ -235,29 +235,26 @@ function usePriceStream(options: {
       }, CONNECTION_TIMEOUT)
       
       ws.onopen = () => {
-        console.log('✅ WebSocket connected successfully!')
-        
         if (connectionTimeoutRef.current) {
           clearTimeout(connectionTimeoutRef.current)
           connectionTimeoutRef.current = null
         }
-        
+
         updateConnectionState(ConnectionState.Connected)
         setError(null)
         reconnectAttemptsRef.current = 0
         consecutiveFailuresRef.current = 0
         isManuallyClosedRef.current = false
-        
+
         // Start heartbeat to maintain connection
         startHeartbeat()
-        
+
         // Subscribe to SOL first for base price calculations
         const SOL_MINT = 'So11111111111111111111111111111111111111112'
         try {
           ws.send(JSON.stringify({ type: 'subscribe', mint: SOL_MINT }))
-          console.log('📡 Subscribed to SOL base price')
         } catch (err) {
-          console.error('Failed to subscribe to SOL base price:', err)
+          console.error('Failed to subscribe to SOL:', err)
         }
 
         // Resubscribe to all tokens with delay to avoid overwhelming the server
@@ -268,26 +265,20 @@ function usePriceStream(options: {
               try {
                 if (ws.readyState === WebSocket.OPEN) {
                   ws.send(JSON.stringify({ type: 'subscribe', mint: address }))
-                  console.log(`📡 Resubscribed to ${address}`)
                 }
               } catch (err) {
-                console.error('Failed to resubscribe to token:', address, err)
+                console.error('Failed to resubscribe:', err)
               }
             }, index * 100) // Stagger subscriptions by 100ms each
           })
-          if (subscriptions.length > 0) {
-            console.log(`📡 Resubscribing to ${subscriptions.length} tokens`)
-          }
         }, 200)
       }
       
       ws.onmessage = (event) => {
         try {
           const data = JSON.parse(event.data)
-          console.log('📨 WebSocket received message:', data)
-          
+
           if (data.type === 'price' && data.mint) {
-            console.log(`💰 Processing price update for ${data.mint}: $${data.price}`)
             setPrices(prev => {
               const next = new Map(prev)
               next.set(data.mint, {
@@ -295,18 +286,12 @@ function usePriceStream(options: {
                 change24h: data.change24h || 0,
                 timestamp: Date.now()
               })
-              console.log(`📊 Updated prices map, now has ${next.size} tokens`)
               return next
             })
-          } else if (data.type === 'pong') {
-            console.log('💓 Received pong from server')
-          } else if (data.type === 'hello') {
-            console.log('👋 Received hello from server:', data.message)
-          } else {
-            console.log('❓ Unknown message type:', data.type, data)
           }
+          // Silently handle pong and hello messages
         } catch (err) {
-          console.error('Failed to parse WebSocket message:', err, 'Raw data:', event.data)
+          console.error('Failed to parse WebSocket message:', err)
         }
       }
       
@@ -412,30 +397,26 @@ function usePriceStream(options: {
   
   const subscribe = useCallback((tokenAddress: string) => {
     if (!tokenAddress) return
-    
+
     subscriptionsRef.current.add(tokenAddress)
-    
+
     if (wsRef.current?.readyState === WebSocket.OPEN) {
       try {
         wsRef.current.send(JSON.stringify({ type: 'subscribe', mint: tokenAddress }))
-        console.log(`📡 Subscribed to ${tokenAddress}`)
       } catch (err) {
         console.error('Failed to send subscription:', err)
       }
-    } else {
-      console.log(`📝 Queued subscription for ${tokenAddress} (connection not ready)`)
     }
   }, [])
   
   const unsubscribe = useCallback((tokenAddress: string) => {
     if (!tokenAddress) return
-    
+
     subscriptionsRef.current.delete(tokenAddress)
-    
+
     if (wsRef.current?.readyState === WebSocket.OPEN) {
       try {
         wsRef.current.send(JSON.stringify({ type: 'unsubscribe', mint: tokenAddress }))
-        console.log(`📡 Unsubscribed from ${tokenAddress}`)
       } catch (err) {
         console.error('Failed to send unsubscription:', err)
       }

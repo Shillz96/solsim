@@ -13,12 +13,13 @@ export type {
 
 /**
  * Enhanced position with token metadata for UI display
+ * Note: Does not override currentPrice to maintain compatibility with backend
  */
 export interface EnhancedPosition extends PortfolioPosition {
   tokenSymbol?: string;
   tokenName?: string;
   tokenImageUrl?: string;
-  currentPrice?: number;
+  // currentPrice is already defined in PortfolioPosition as string
 }
 
 /**

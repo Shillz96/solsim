@@ -1,7 +1,7 @@
 // Search routes for token discovery
 import { FastifyInstance } from "fastify";
 import { getTokenMeta, getTokenInfo } from "../services/tokenService.js";
-import fetch from "node-fetch";
+import { robustFetch } from "../utils/fetch.js";
 
 const DEX = process.env.DEXSCREENER_BASE || "https://api.dexscreener.com";
 const BIRDEYE = process.env.BIRDEYE_BASE || "https://public-api.birdeye.so";
@@ -68,11 +68,15 @@ async function searchTokens(query: string, limit: number = 20) {
   
   // Search Dexscreener
   try {
-    const res = await fetch(`${DEX}/latest/dex/search/?q=${encodeURIComponent(query)}`);
+    const res = await robustFetch(`${DEX}/latest/dex/search/?q=${encodeURIComponent(query)}`, {
+      timeout: 10000,
+      retries: 2,
+      retryDelay: 1000
+    });
     if (res.ok) {
       const data = await res.json() as any;
       const pairs = data.pairs || [];
-      
+
       for (const pair of pairs.slice(0, limit)) {
         if (pair.chainId === "solana" && pair.baseToken) {
           results.push({
@@ -90,21 +94,24 @@ async function searchTokens(query: string, limit: number = 20) {
         }
       }
     }
-  } catch (error) {
-    console.warn("Dexscreener search failed:", error);
+  } catch (error: any) {
+    console.warn(`DexScreener search failed (${error.code || error.message}):`, error.message);
   }
   
   // Search Birdeye (if API key available)
   if (process.env.BIRDEYE_API_KEY) {
     try {
-      const res = await fetch(`${BIRDEYE}/defi/search?keyword=${encodeURIComponent(query)}&chain=solana`, {
-        headers: { "X-API-KEY": process.env.BIRDEYE_API_KEY }
+      const res = await robustFetch(`${BIRDEYE}/defi/search?keyword=${encodeURIComponent(query)}&chain=solana`, {
+        headers: { "X-API-KEY": process.env.BIRDEYE_API_KEY },
+        timeout: 10000,
+        retries: 2,
+        retryDelay: 1000
       });
-      
+
       if (res.ok) {
         const data = await res.json() as any;
         const tokens = data.data || [];
-        
+
         for (const token of tokens.slice(0, limit)) {
           // Avoid duplicates
           if (!results.find(r => r.mint === token.address)) {
@@ -123,8 +130,8 @@ async function searchTokens(query: string, limit: number = 20) {
           }
         }
       }
-    } catch (error) {
-      console.warn("Birdeye search failed:", error);
+    } catch (error: any) {
+      console.warn(`Birdeye search failed (${error.code || error.message}):`, error.message);
     }
   }
   

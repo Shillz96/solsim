@@ -4,6 +4,37 @@ import priceService from "../plugins/priceService.js";
 import { getTokenMeta } from "./tokenService.js";
 import { Decimal } from "@prisma/client/runtime/library";
 
+// Helper to create Decimal safely
+const D = (x: Decimal | number | string) => new Decimal(x);
+
+// Smart number formatting for memecoin prices
+function formatPrice(price: Decimal): string {
+  const num = price.toNumber();
+
+  // For very small numbers, use scientific notation or high precision
+  if (num < 0.000001 && num > 0) {
+    return price.toFixed(12); // Show 12 decimals for micro-cap tokens
+  } else if (num < 0.01 && num > 0) {
+    return price.toFixed(8); // Show 8 decimals for small tokens
+  } else if (num < 1) {
+    return price.toFixed(6); // Show 6 decimals for sub-dollar tokens
+  } else {
+    return price.toFixed(2); // Show 2 decimals for regular prices
+  }
+}
+
+// Format USD value intelligently
+function formatUsdValue(value: Decimal): string {
+  const num = value.toNumber();
+
+  // For tiny values, show more precision
+  if (num < 0.01 && num > 0) {
+    return value.toFixed(6);
+  } else {
+    return value.toFixed(2);
+  }
+}
+
 export interface PortfolioPosition {
   mint: string;
   qty: string;
@@ -11,6 +42,11 @@ export interface PortfolioPosition {
   valueUsd: string;
   unrealizedUsd: string;
   unrealizedPercent: string;
+  // Memecoin-friendly pricing data
+  currentPrice: string; // Current token price (high precision for micro-cap tokens)
+  valueSol?: string; // Position value in SOL terms
+  marketCapUsd?: string; // Token market cap
+  priceChange24h?: string; // 24h price change %
   // Enhanced metadata
   tokenSymbol?: string;
   tokenName?: string;
@@ -18,6 +54,16 @@ export interface PortfolioPosition {
   website?: string | null;
   twitter?: string | null;
   telegram?: string | null;
+}
+
+// Internal calculation interface using Decimal for precision
+interface PositionCalculation {
+  qty: Decimal;
+  costBasis: Decimal;
+  currentPrice: Decimal;
+  valueUsd: Decimal;
+  unrealizedUsd: Decimal;
+  unrealizedPercent: Decimal;
 }
 
 export interface PortfolioTotals {
@@ -46,9 +92,19 @@ export async function getPortfolio(userId: string): Promise<PortfolioResponse> {
     }
   });
 
-  // Get current prices for all tokens
+  // Get current prices and market data for all tokens
   const mints = positions.map((p: any) => p.mint);
   const prices = await priceService.getPrices(mints);
+
+  // Get full price ticks for market cap and other data
+  const priceTickPromises = mints.map(mint => priceService.getLastTick(mint));
+  const priceTicks = await Promise.all(priceTickPromises);
+  const priceTickMap = new Map();
+  mints.forEach((mint, index) => {
+    if (priceTicks[index]) {
+      priceTickMap.set(mint, priceTicks[index]);
+    }
+  });
 
   // Fetch metadata for all tokens concurrently
   const metadataPromises = mints.map(mint => getTokenMeta(mint));
@@ -63,28 +119,46 @@ export async function getPortfolio(userId: string): Promise<PortfolioResponse> {
     }
   });
 
-  // Calculate position values and unrealized PnL
+  // Get SOL price once for all calculations
+  const solPrice = priceService.getSolPrice();
+
+  // Calculate position values and unrealized PnL using Decimal for precision
   const portfolioPositions: PortfolioPosition[] = [];
-  let totalValueUsd = 0;
-  let totalUnrealizedUsd = 0;
+  let totalValueUsd = D(0);
+  let totalUnrealizedUsd = D(0);
 
   for (const position of positions) {
-    const currentPrice = prices[position.mint] || 0;
-    const qty = parseFloat((position as any).qty.toString());
-    const costBasisUsd = parseFloat((position as any).costBasis.toString());
+    const currentPrice = D(prices[position.mint] || 0);
+    const qty = position.qty as Decimal;
+    const costBasis = position.costBasis as Decimal;
     const metadata = metadataMap.get(position.mint);
+    const priceTick = priceTickMap.get(position.mint);
 
-    const valueUsd = qty * currentPrice;
-    const unrealizedUsd = valueUsd - costBasisUsd;
-    const unrealizedPercent = costBasisUsd > 0 ? (unrealizedUsd / costBasisUsd) * 100 : 0;
+    // Use Decimal for all calculations to prevent precision loss
+    const valueUsd = qty.mul(currentPrice);
+    const unrealizedUsd = valueUsd.sub(costBasis);
+    const unrealizedPercent = costBasis.gt(0)
+      ? unrealizedUsd.div(costBasis).mul(100)
+      : D(0);
+
+    // Calculate average cost per token
+    const avgCostUsd = qty.gt(0) ? costBasis.div(qty) : D(0);
+
+    // Calculate value in SOL terms
+    const valueSol = solPrice > 0 ? valueUsd.div(solPrice) : D(0);
 
     portfolioPositions.push({
       mint: position.mint,
-      qty: qty.toString(),
-      avgCostUsd: (costBasisUsd / qty).toFixed(8), // Increased precision for small values
-      valueUsd: valueUsd.toFixed(8), // Increased precision to handle small values
-      unrealizedUsd: unrealizedUsd.toFixed(8), // Increased precision
-      unrealizedPercent: unrealizedPercent.toFixed(4), // Increased precision for percentage
+      qty: qty.toFixed(9), // Use 9 decimals for token quantities (Solana standard)
+      avgCostUsd: formatPrice(avgCostUsd), // Smart formatting for avg cost
+      valueUsd: formatUsdValue(valueUsd), // Smart formatting for position value
+      unrealizedUsd: unrealizedUsd.toFixed(2), // 2 decimals for PnL
+      unrealizedPercent: unrealizedPercent.toFixed(2), // 2 decimals for percentage
+      // Memecoin-friendly pricing data
+      currentPrice: formatPrice(currentPrice), // High precision for micro-cap tokens
+      valueSol: valueSol.toFixed(4), // SOL value with 4 decimals
+      marketCapUsd: priceTick?.marketCapUsd ? D(priceTick.marketCapUsd).toFixed(0) : undefined, // Whole number market cap
+      priceChange24h: priceTick?.change24h?.toString(),
       // Enhanced metadata
       tokenSymbol: metadata?.symbol || undefined,
       tokenName: metadata?.name || undefined,
@@ -94,8 +168,8 @@ export async function getPortfolio(userId: string): Promise<PortfolioResponse> {
       telegram: metadata?.telegram || null,
     });
 
-    totalValueUsd += valueUsd;
-    totalUnrealizedUsd += unrealizedUsd;
+    totalValueUsd = totalValueUsd.add(valueUsd);
+    totalUnrealizedUsd = totalUnrealizedUsd.add(unrealizedUsd);
   }
 
   // Get total realized PnL and trading stats
@@ -107,18 +181,18 @@ export async function getPortfolio(userId: string): Promise<PortfolioResponse> {
     getPortfolioTradingStats(userId)
   ]);
 
-  const totalRealizedUsd = parseFloat(realizedPnlResult._sum?.pnl?.toString() || "0");
-  const totalPnlUsd = totalUnrealizedUsd + totalRealizedUsd;
+  const totalRealizedUsd = D(realizedPnlResult._sum?.pnl?.toString() || "0");
+  const totalPnlUsd = totalUnrealizedUsd.add(totalRealizedUsd);
 
   return {
     positions: portfolioPositions,
     totals: {
-      totalValueUsd: totalValueUsd.toFixed(8), // Increased precision
-      totalUnrealizedUsd: totalUnrealizedUsd.toFixed(8), // Increased precision
-      totalRealizedUsd: totalRealizedUsd.toFixed(8), // Increased precision
-      totalPnlUsd: totalPnlUsd.toFixed(8), // Increased precision
+      totalValueUsd: totalValueUsd.toFixed(2), // 2 decimals for USD
+      totalUnrealizedUsd: totalUnrealizedUsd.toFixed(2), // 2 decimals for USD
+      totalRealizedUsd: totalRealizedUsd.toFixed(2), // 2 decimals for USD
+      totalPnlUsd: totalPnlUsd.toFixed(2), // 2 decimals for USD
       // Enhanced stats
-      winRate: tradingStats.winRate.toFixed(4), // Increased precision for percentage
+      winRate: tradingStats.winRate.toFixed(2), // 2 decimals for percentage
       totalTrades: tradingStats.totalTrades,
       winningTrades: tradingStats.winningTrades,
       losingTrades: tradingStats.losingTrades,
@@ -146,21 +220,21 @@ export async function getPortfolioPerformance(userId: string, days: number = 30)
     orderBy: { createdAt: "asc" }
   });
 
-  // Calculate daily portfolio values
+  // Calculate daily portfolio values using Decimal
   const dailyValues = [];
-  let runningValue = 0;
+  let runningValue = D(0);
 
   for (const trade of trades) {
-    const tradeValue = parseFloat(trade.costUsd?.toString() || trade.totalCost?.toString() || "0");
+    const tradeValue = D(trade.costUsd?.toString() || trade.totalCost?.toString() || "0");
     if (trade.side === "BUY") {
-      runningValue += tradeValue;
+      runningValue = runningValue.add(tradeValue);
     } else {
-      runningValue -= tradeValue;
+      runningValue = runningValue.sub(tradeValue);
     }
 
     dailyValues.push({
       date: trade.createdAt.toISOString().split('T')[0],
-      value: runningValue
+      value: runningValue.toFixed(2) // 2 decimals for USD display
     });
   }
 
@@ -176,9 +250,10 @@ export async function getPortfolioTradingStats(userId: string) {
   });
 
   const totalTrades = realizedPnlRecords.length;
-  const winningTrades = realizedPnlRecords.filter(record => 
-    parseFloat(record.pnl.toString()) > 0
-  ).length;
+  const winningTrades = realizedPnlRecords.filter(record => {
+    const pnl = record.pnl as Decimal;
+    return pnl.gt(0);
+  }).length;
   const losingTrades = totalTrades - winningTrades;
   const winRate = totalTrades > 0 ? (winningTrades / totalTrades) * 100 : 0;
 
@@ -194,38 +269,39 @@ export async function getPortfolioTradingStats(userId: string) {
 export async function getPortfolioWithRealTimePrices(userId: string): Promise<PortfolioResponse> {
   // Use cached prices from Redis for real-time updates
   const portfolio = await getPortfolio(userId);
-  
-  // Update with the most recent prices if available
+
+  // Update with the most recent prices if available using Decimal for precision
   for (const position of portfolio.positions) {
     const latestPrice = await priceService.getPrice(position.mint);
     if (latestPrice && latestPrice > 0) {
-      const qty = parseFloat(position.qty);
-      const avgCost = parseFloat(position.avgCostUsd);
-      const costBasisUsd = qty * avgCost;
-      
-      const newValueUsd = qty * latestPrice;
-      const newUnrealizedUsd = newValueUsd - costBasisUsd;
-      const newUnrealizedPercent = costBasisUsd > 0 ? (newUnrealizedUsd / costBasisUsd) * 100 : 0;
-      
-      position.valueUsd = newValueUsd.toFixed(8); // Increased precision
-      position.unrealizedUsd = newUnrealizedUsd.toFixed(8); // Increased precision
-      position.unrealizedPercent = newUnrealizedPercent.toFixed(4); // Increased precision for percentage
+      const qty = D(position.qty);
+      const avgCost = D(position.avgCostUsd);
+      const costBasis = qty.mul(avgCost);
+      const currentPrice = D(latestPrice);
+
+      const newValueUsd = qty.mul(currentPrice);
+      const newUnrealizedUsd = newValueUsd.sub(costBasis);
+      const newUnrealizedPercent = costBasis.gt(0)
+        ? newUnrealizedUsd.div(costBasis).mul(100)
+        : D(0);
+
+      position.valueUsd = newValueUsd.toFixed(2); // 2 decimals for USD
+      position.unrealizedUsd = newUnrealizedUsd.toFixed(2); // 2 decimals for USD
+      position.unrealizedPercent = newUnrealizedPercent.toFixed(2); // 2 decimals for percentage
     }
   }
-  
-  // Recalculate totals
-  const totalValueUsd = portfolio.positions.reduce((sum, pos) => 
-    sum + parseFloat(pos.valueUsd), 0
+
+  // Recalculate totals using Decimal
+  const totalValueUsd = portfolio.positions.reduce((sum, pos) =>
+    sum.add(D(pos.valueUsd)), D(0)
   );
-  const totalUnrealizedUsd = portfolio.positions.reduce((sum, pos) => 
-    sum + parseFloat(pos.unrealizedUsd), 0
+  const totalUnrealizedUsd = portfolio.positions.reduce((sum, pos) =>
+    sum.add(D(pos.unrealizedUsd)), D(0)
   );
-  
-  portfolio.totals.totalValueUsd = totalValueUsd.toFixed(8); // Increased precision
-  portfolio.totals.totalUnrealizedUsd = totalUnrealizedUsd.toFixed(8); // Increased precision
-  portfolio.totals.totalPnlUsd = (
-    totalUnrealizedUsd + parseFloat(portfolio.totals.totalRealizedUsd)
-  ).toFixed(8); // Increased precision
-  
+
+  portfolio.totals.totalValueUsd = totalValueUsd.toFixed(2); // 2 decimals for USD
+  portfolio.totals.totalUnrealizedUsd = totalUnrealizedUsd.toFixed(2); // 2 decimals for USD
+  portfolio.totals.totalPnlUsd = totalUnrealizedUsd.add(D(portfolio.totals.totalRealizedUsd)).toFixed(2); // 2 decimals for USD
+
   return portfolio;
 }

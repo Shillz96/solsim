@@ -364,7 +364,7 @@ export const NotificationProvider: React.FC<{
       {children}
       
       {/* Notification overlay */}
-      <div className="fixed top-4 right-4 z-50 space-y-2 max-w-md">
+      <div className="fixed top-4 right-4 z-50 space-y-2 max-w-notification">
         <AnimatePresence>
           {notifications.map((notification) => (
             <NotificationBanner
@@ -388,7 +388,7 @@ export const ErrorBoundaryNotification: React.FC<{
   onReport: () => void
 }> = ({ error, onRetry, onReport }) => {
   return (
-    <Card className="max-w-md mx-auto">
+    <Card className="max-w-notification mx-auto">
       <CardContent className="p-6">
         <div className="flex items-start gap-3">
           <AlertCircle className="h-5 w-5 text-red-500 mt-0.5" />

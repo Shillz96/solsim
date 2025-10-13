@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback } from 'react'
+import { flushSync } from 'react-dom'
 import { useQueryClient } from '@tanstack/react-query'
 import * as api from '@/lib/api'
 import type { User } from '@/lib/types/backend'
@@ -57,10 +58,13 @@ export function useAuth() {
     localStorage.setItem('userId', response.userId)
     localStorage.setItem('user', JSON.stringify({ email }))
     
-    setAuthState({
-      user,
-      isLoading: false,
-      isAuthenticated: true
+    // Force a synchronous state update to ensure UI re-renders immediately
+    flushSync(() => {
+      setAuthState({
+        user,
+        isLoading: false,
+        isAuthenticated: true
+      })
     })
 
     // Invalidate all user-specific queries after login
@@ -79,10 +83,13 @@ export function useAuth() {
     localStorage.setItem('userId', response.userId)
     localStorage.setItem('user', JSON.stringify({ email, handle }))
     
-    setAuthState({
-      user,
-      isLoading: false,
-      isAuthenticated: true
+    // Force a synchronous state update to ensure UI re-renders immediately
+    flushSync(() => {
+      setAuthState({
+        user,
+        isLoading: false,
+        isAuthenticated: true
+      })
     })
 
     // Invalidate all user-specific queries after signup

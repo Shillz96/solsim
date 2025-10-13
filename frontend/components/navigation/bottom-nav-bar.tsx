@@ -23,7 +23,7 @@ export function BottomNavBar() {
   const [mounted, setMounted] = useState(false)
   const { prices, subscribe, unsubscribe } = usePriceStreamContext()
   const [marketPrices, setMarketPrices] = useState<MarketPrice[]>([
-    { symbol: "SOL", price: 100, change24h: 2.5 },
+    { symbol: "SOL", price: 0, change24h: 0 },
   ])
 
   // Prevent hydration mismatch by only rendering theme toggle after mount
@@ -120,7 +120,7 @@ export function BottomNavBar() {
 
       {/* Desktop/Tablet Bottom Info Bar */}
       <div className="hidden md:block fixed bottom-0 left-0 right-0 z-40 border-t-2 border-border shadow-none" style={{ backgroundColor: 'var(--background)', opacity: 1 }}>
-        <div className="mx-auto flex h-12 items-center justify-between px-4 max-w-[2400px]">
+        <div className="mx-auto flex h-12 items-center justify-between px-4 max-w-content">
           {/* Left: Social Links */}
           <div className="flex items-center gap-4">
             <a
@@ -173,8 +173,8 @@ export function BottomNavBar() {
 
           {/* Right: Theme Toggle & Quick Trade */}
           <div className="flex items-center gap-4">
-            {/* Theme Toggle Button - Only render after mount to prevent hydration mismatch */}
-            {mounted && (
+            {/* Theme Toggle Button - Skeleton prevents layout shift */}
+            {mounted ? (
               <button
                 onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
                 className="text-muted-foreground hover:text-primary transition-colors"
@@ -182,6 +182,8 @@ export function BottomNavBar() {
               >
                 {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
               </button>
+            ) : (
+              <div className="w-4 h-4 bg-muted-foreground/20 rounded animate-pulse" />
             )}
             <Link
               href="/trade"

@@ -142,12 +142,76 @@ module.exports = {
         '400': '400ms',
       },
       
-      // Trading UI specific measurements
+      // Standardized Spacing Scale for Design System
       spacing: {
-        // Standard spacing scale remains, adding trading-specific values
-        'card-padding': '1.25rem', // Standard card padding
-        'chart-height': '24rem', // Standard chart height
-        'panel-gap': '1rem', // Gap between trading panel elements
+        // Base spacing scale (enhances Tailwind defaults)
+        'xs': '0.25rem',      // 4px - Micro adjustments
+        'sm': '0.5rem',       // 8px - Tight spacing
+        'md': '1rem',         // 16px - Standard spacing
+        'lg': '1.5rem',       // 24px - Relaxed spacing
+        'xl': '2rem',         // 32px - Loose spacing
+        'xxl': '3rem',        // 48px - Extra loose spacing
+        
+        // Component-specific spacing
+        'card-padding': '1.25rem',     // 20px - Standard card padding
+        'card-padding-sm': '1rem',     // 16px - Compact card padding
+        'card-padding-lg': '1.5rem',   // 24px - Spacious card padding
+        'panel-gap': '1rem',           // 16px - Gap between trading panel elements
+        'section-gap': '2rem',         // 32px - Gap between page sections
+        'content-gap': '1.5rem',       // 24px - Gap between content blocks
+        
+        // Layout spacing
+        'navbar-height': '4rem',           // 64px - Navigation bar height
+        'trade-strip-height': '2.5rem',   // 40px - Trade strip height
+        'bottom-nav-height': '4rem',      // 64px - Bottom navigation height
+        'sidebar-width': '16rem',         // 256px - Sidebar width
+        'sidebar-width-collapsed': '4rem', // 64px - Collapsed sidebar width
+        
+        // Chart and visualization
+        'chart-height': '24rem',          // 384px - Standard chart height
+        'chart-height-sm': '16rem',       // 256px - Small chart height
+        'chart-height-lg': '32rem',       // 512px - Large chart height
+        'chart-padding': '1rem',          // 16px - Chart container padding
+        
+        // Form elements
+        'input-padding': '0.75rem',       // 12px - Input field padding
+        'button-padding-sm': '0.5rem 1rem',  // 8px 16px - Small button padding
+        'button-padding-md': '0.75rem 1.5rem', // 12px 24px - Medium button padding
+        'button-padding-lg': '1rem 2rem',    // 16px 32px - Large button padding
+        
+        // Interactive elements
+        'hover-offset': '0.125rem',       // 2px - Subtle hover movement
+        'focus-offset': '0.25rem',        // 4px - Focus state offset
+        'border-radius-sm': '0.25rem',    // 4px - Small border radius
+        'border-radius-md': '0.5rem',     // 8px - Medium border radius
+        'border-radius-lg': '0.75rem',    // 12px - Large border radius
+      },
+      
+      // Standardized Container Max-Widths
+      maxWidth: {
+        'page-sm': '768px',       // Small pages (forms, settings)
+        'page-md': '1024px',      // Medium pages (profiles, docs)
+        'page-lg': '1280px',      // Large pages (trading, portfolio)
+        'page-xl': '1536px',      // Extra large pages (leaderboard, trending)
+        'page-full': '1920px',    // Full width pages (dashboards)
+        'content': '1920px',      // Default content max-width
+        'dialog-sm': '425px',     // Small dialogs
+        'dialog-md': '600px',     // Medium dialogs
+        'dialog-lg': '768px',     // Large dialogs
+        'notification': '420px',  // Notification containers
+      },
+      
+      // Standardized Border Radius Scale
+      borderRadius: {
+        'none': '0',
+        'xs': '0.125rem',      // 2px - Very small radius
+        'sm': '0.25rem',       // 4px - Small radius (buttons, inputs)
+        'DEFAULT': '0.375rem', // 6px - Default radius
+        'md': '0.5rem',        // 8px - Medium radius (cards, panels)
+        'lg': '0.75rem',       // 12px - Large radius (dialogs, modals)
+        'xl': '1rem',          // 16px - Extra large radius
+        'xxl': '1.5rem',       // 24px - Very large radius
+        'full': '9999px',      // Full circle/pill shape
       },
       
       // Box Shadows for UI Depth

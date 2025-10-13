@@ -227,6 +227,11 @@ export interface PortfolioPosition {
   valueUsd: string;
   unrealizedUsd: string;
   unrealizedPercent: string;
+  // Memecoin-friendly pricing data
+  currentPrice: string; // Current token price (high precision for micro-cap tokens)
+  valueSol?: string; // Position value in SOL terms
+  marketCapUsd?: string; // Token market cap
+  priceChange24h?: string; // 24h price change %
   // Enhanced metadata
   tokenSymbol?: string;
   tokenName?: string;

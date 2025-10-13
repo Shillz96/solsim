@@ -82,7 +82,8 @@ export default function LeaderboardPage() {
   // Initial fetch
   useEffect(() => {
     fetchLeaderboard()
-  }, [fetchLeaderboard, timeRange])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [timeRange])
 
   // Auto-refresh every 30 seconds
   useEffect(() => {

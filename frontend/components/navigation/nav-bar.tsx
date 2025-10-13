@@ -26,6 +26,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import { useRouter } from "next/navigation"
 import { useDebounce } from "@/hooks/use-debounce"
 import { useAuth } from "@/hooks/use-auth"
+import { useNotifications } from "@/hooks/use-notifications"
 import { useQuery } from "@tanstack/react-query"
 import * as api from "@/lib/api"
 import type { TokenSearchResult } from "@/lib/types/backend"
@@ -90,6 +91,7 @@ export function NavBar() {
   
   // Auth and balance data
   const { user, isAuthenticated, logout } = useAuth()
+  const { unreadCount } = useNotifications()
   const { prices: livePrices } = usePriceStreamContext()
   const solPrice = livePrices.get('So11111111111111111111111111111111111111112')?.price || 0
   
@@ -304,9 +306,11 @@ export function NavBar() {
                 {/* Notifications */}
                 <Button variant="ghost" size="sm" className="relative">
                   <Bell className="h-4 w-4" />
-                  <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs">
-                    2
-                  </Badge>
+                  {unreadCount > 0 && (
+                    <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs">
+                      {unreadCount}
+                    </Badge>
+                  )}
                 </Button>
 
                 {/* User Menu */}

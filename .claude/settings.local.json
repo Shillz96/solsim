@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run build)",
+      "Bash(curl \"http://localhost:4000/api/portfolio?userId=e072a09b-f94f-42a5-870c-1f9e3135a215\")",
+      "Bash(test:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

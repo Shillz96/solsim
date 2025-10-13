@@ -274,7 +274,7 @@ function UserSettingsPage() {
 
   if (!user) {
     return (
-      <div className="container max-w-4xl mx-auto py-8">
+      <div className="container max-w-page-sm mx-auto py-8">
         <Card>
           <CardContent className="flex items-center justify-center py-8">
             <div className="text-center">
@@ -288,7 +288,7 @@ function UserSettingsPage() {
   }
 
   return (
-    <div className="container max-w-4xl mx-auto py-8 space-y-8">
+    <div className="container max-w-page-sm mx-auto py-8 space-y-8">
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold">Settings</h1>

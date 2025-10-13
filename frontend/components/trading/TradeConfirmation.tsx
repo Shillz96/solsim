@@ -79,7 +79,7 @@ export function TradeConfirmation({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-dialog-sm">
         <DialogHeader>
           <DialogTitle>
             Confirm {tradeType.toUpperCase()} Order

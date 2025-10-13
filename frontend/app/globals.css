@@ -216,6 +216,16 @@
   --font-heading: var(--font-ibm-plex-sans);
   --font-mono: var(--font-jetbrains-mono);
 
+  /* Layout height variables for consistent spacing */
+  --navbar-height: 4rem;
+  --trade-strip-height: 2.5rem;
+  --bottom-nav-height: 4rem;
+  --bottom-nav-desktop-height: 3rem;
+
+  /* Standardized content max-width */
+  --content-max-width: 1920px;
+  --content-max-width-xl: 2000px;
+
   /* Use oklch with hex fallbacks */
   --color-background: var(--background-oklch, var(--background));
   --color-foreground: var(--foreground-oklch, var(--foreground));

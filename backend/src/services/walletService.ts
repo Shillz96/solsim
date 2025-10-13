@@ -1,5 +1,5 @@
 // Wallet service placeholder
-import fetch from "node-fetch";
+import { robustFetch } from "../utils/fetch.js";
 
 const HELIUS_API = process.env.HELIUS_API!;
 
@@ -7,7 +7,11 @@ const HELIUS_API = process.env.HELIUS_API!;
 export async function getWalletBalances(wallet: string) {
   // Helius balances API
   const url = `https://api.helius.xyz/v0/addresses/${wallet}/balances?api-key=${HELIUS_API}`;
-  const res = await fetch(url);
+  const res = await robustFetch(url, {
+    timeout: 10000,
+    retries: 2,
+    retryDelay: 1000
+  });
   if (!res.ok) throw new Error(`Helius balances API failed: ${res.status}`);
   const json = await res.json() as any;
 

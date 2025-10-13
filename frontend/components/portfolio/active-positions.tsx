@@ -54,13 +54,12 @@ import { useAuth } from "@/hooks/use-auth"
 import { formatUSD, safePercent } from "@/lib/format"
 import { UsdWithSol } from "@/lib/sol-equivalent"
 import { cn } from "@/lib/utils"
+import { PositionCard } from "./position-card"
+import type { EnhancedPosition } from "./types"
 
-// Enhanced position with live price data
-interface EnhancedPosition extends Backend.PortfolioPosition {
-  tokenSymbol?: string;
-  tokenName?: string;
-  tokenImage?: string | null;
-  currentPrice?: number;
+// Extended position with real-time price data
+interface LiveEnhancedPosition extends EnhancedPosition {
+  livePriceNumber?: number; // Live price as number for calculations
   liveValue?: number;
   livePnL?: number;
   livePnLPercent?: number;
@@ -265,9 +264,9 @@ export function ActivePositions() {
   }, [metadataResults]);
 
   // Enhance positions with live prices and token metadata
-  const enhancedPositions = useMemo(() => {
+  const enhancedPositions: LiveEnhancedPosition[] = useMemo(() => {
     if (!portfolio?.positions) return [];
-    
+
     return portfolio.positions
       .filter(p => parseFloat(p.qty) > 0) // Only show positions with quantity
       .map(position => {
@@ -275,29 +274,42 @@ export function ActivePositions() {
         const positionQty = parseFloat(position.qty);
         const avgCost = parseFloat(position.avgCostUsd);
         const storedValue = parseFloat(position.valueUsd);
-        
+
         // Calculate live values if we have real-time price
         const currentPrice = livePrice?.price || (positionQty > 0 ? storedValue / positionQty : 0);
         const liveValue = livePrice?.price ? positionQty * livePrice.price : storedValue;
         const costBasis = avgCost * positionQty;
         const livePnL = liveValue - costBasis;
         const livePnLPercent = costBasis > 0 ? (livePnL / costBasis) * 100 : 0;
-        
+
         const metadata = metadataMap.get(position.mint);
-        
+
         return {
           ...position,
-          currentPrice,
+          livePriceNumber: currentPrice,
           liveValue,
           livePnL,
           livePnLPercent,
           tokenSymbol: metadata?.symbol || position.mint.slice(0, 6) + '...',
           tokenName: metadata?.name || `Token ${position.mint.slice(0, 8)}`,
           tokenImage: metadata?.imageUrl || metadata?.logoURI || null,
-        } as EnhancedPosition;
+        } as LiveEnhancedPosition;
       })
-      .sort((a, b) => b.liveValue! - a.liveValue!); // Sort by value descending
+      .sort((a, b) => (b.liveValue || 0) - (a.liveValue || 0)); // Sort by value descending
   }, [portfolio?.positions, livePrices, metadataMap]);
+
+  // Memoize totals calculation to prevent recalculation on every render
+  const { totalValue, totalPnL, unrealizedPnL, activePositionCount } = useMemo(() => {
+    if (!portfolio) {
+      return { totalValue: 0, totalPnL: 0, unrealizedPnL: 0, activePositionCount: 0 };
+    }
+    return {
+      totalValue: parseFloat(portfolio.totals.totalValueUsd),
+      totalPnL: parseFloat(portfolio.totals.totalPnlUsd),
+      unrealizedPnL: parseFloat(portfolio.totals.totalUnrealizedUsd),
+      activePositionCount: enhancedPositions.length
+    };
+  }, [portfolio, enhancedPositions.length]);
 
   const handleRefresh = useCallback(() => {
     refetch();
@@ -348,12 +360,6 @@ export function ActivePositions() {
     );
   }
 
-  // Calculate totals
-  const totalValue = parseFloat(portfolio.totals.totalValueUsd);
-  const totalPnL = parseFloat(portfolio.totals.totalPnlUsd);
-  const unrealizedPnL = parseFloat(portfolio.totals.totalUnrealizedUsd);
-  const activePositions = enhancedPositions.length;
-
   return (
     <div className="space-y-6">
       <EnhancedCard className="p-6">
@@ -362,13 +368,13 @@ export function ActivePositions() {
           totalValue={totalValue}
           totalPnL={totalPnL}
           unrealizedPnL={unrealizedPnL}
-          activePositions={activePositions}
+          activePositions={activePositionCount}
           isRefreshing={isRefetching}
           onRefresh={handleRefresh}
         />
 
-        {/* Positions Table */}
-        <div className="rounded-lg border">
+        {/* Positions Table - Desktop */}
+        <div className="hidden md:block rounded-lg border">
           <Table>
             <TableHeader>
               <TableRow className="bg-muted/30">
@@ -404,7 +410,7 @@ export function ActivePositions() {
                     {/* Price */}
                     <TableCell>
                       <PriceCell
-                        priceUsd={position.currentPrice!}
+                        priceUsd={position.livePriceNumber!}
                         showSolEquiv={true}
                       />
                     </TableCell>
@@ -458,6 +464,23 @@ export function ActivePositions() {
               </AnimatePresence>
             </TableBody>
           </Table>
+        </div>
+
+        {/* Position Cards - Mobile */}
+        <div className="md:hidden space-y-3">
+          <AnimatePresence>
+            {enhancedPositions.map((position, index) => (
+              <motion.div
+                key={position.mint}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ delay: index * 0.05 }}
+              >
+                <PositionCard position={position} />
+              </motion.div>
+            ))}
+          </AnimatePresence>
         </div>
 
         {/* WebSocket Connection Status */}

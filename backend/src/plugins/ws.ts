@@ -100,56 +100,44 @@ export default async function wsPlugin(app: FastifyInstance) {
         try {
           const data = JSON.parse(message.toString());
           console.log("📨 Received:", data.type || data.t, data.mint ? `(${data.mint})` : '');
-          
+
           if (data.type === "subscribe" && data.mint) {
             subscribedTokens.add(data.mint);
             console.log(`📡 Subscribed to ${data.mint}`);
-            
+
             // Send current cached price immediately if available
             if (data.mint === 'So11111111111111111111111111111111111111112') {
               // Special handling for SOL - always send current price
               const solPrice = priceService.getSolPrice();
-              const priceLamports = solToLamports(solPrice);
-              console.log(`💰 Sending SOL price directly: $${solPrice} (${priceLamports} lamports)`);
-              
+              console.log(`💰 Sending SOL price directly: $${solPrice}`);
+
               socket.send(JSON.stringify({
-                t: "price",
-                d: {
-                  v: 1,
-                  seq: ++seq,
-                  mint: data.mint,
-                  priceLamports,
-                  ts: Date.now()
-                }
+                type: "price",
+                mint: data.mint,
+                price: solPrice,
+                change24h: 0,
+                timestamp: Date.now()
               }));
             } else {
               // For other tokens, try the cache first
               priceService.getLastTick(data.mint).then(tick => {
                 if (tick) {
-                  const priceLamports = solToLamports(tick.priceUsd / priceService.getSolPrice());
-                  
                   socket.send(JSON.stringify({
-                    t: "price",
-                    d: {
-                      v: 1,
-                      seq: ++seq,
-                      mint: data.mint,
-                      priceLamports,
-                      ts: tick.timestamp
-                    }
+                    type: "price",
+                    mint: data.mint,
+                    price: tick.priceUsd,
+                    change24h: tick.change24h || 0,
+                    timestamp: tick.timestamp
                   }));
-                  console.log(`💰 Sent cached price for ${data.mint}: $${tick.priceUsd} (${priceLamports} lamports)`);
+                  console.log(`💰 Sent cached price for ${data.mint}: $${tick.priceUsd}`);
                 } else {
                   // Send a placeholder response when no price is available
                   socket.send(JSON.stringify({
-                    t: "price",
-                    d: {
-                      v: 1,
-                      seq: ++seq,
-                      mint: data.mint,
-                      priceLamports: "0",
-                      ts: Date.now()
-                    }
+                    type: "price",
+                    mint: data.mint,
+                    price: 0,
+                    change24h: 0,
+                    timestamp: Date.now()
                   }));
                   console.log(`⚠️ No cached price available for ${data.mint}`);
                 }
@@ -157,74 +145,57 @@ export default async function wsPlugin(app: FastifyInstance) {
                 console.error(`❌ Failed to get price for ${data.mint}:`, err);
                 // Send a placeholder response so the client knows we received the subscription
                 socket.send(JSON.stringify({
-                  t: "price",
-                  d: {
-                    v: 1,
-                    seq: ++seq,
-                    mint: data.mint,
-                    priceLamports: "0",
-                    ts: Date.now()
-                  }
+                  type: "price",
+                  mint: data.mint,
+                  price: 0,
+                  change24h: 0,
+                  timestamp: Date.now()
                 }));
               });
             }
-            
+
             // Subscribe to real-time price updates for this token using manual subscription
             console.log(`🔌 Setting up subscription for ${data.mint}`);
             const unsubscribe = priceService.subscribe((tick) => {
-              console.log(`🔔 Price callback triggered for ${tick.mint}, subscribed to: ${data.mint}, match: ${tick.mint === data.mint}`);
               if (tick.mint === data.mint && subscribedTokens.has(data.mint)) {
                 try {
-                  const priceLamports = tick.mint === 'So11111111111111111111111111111111111111112' 
-                    ? solToLamports(tick.priceUsd) 
-                    : solToLamports(tick.priceUsd / priceService.getSolPrice());
-                  
                   socket.send(JSON.stringify({
-                    t: "price",
-                    d: {
-                      v: 1,
-                      seq: ++seq,
-                      mint: data.mint,
-                      priceLamports,
-                      ts: tick.timestamp
-                    }
+                    type: "price",
+                    mint: data.mint,
+                    price: tick.priceUsd,
+                    change24h: tick.change24h || 0,
+                    timestamp: tick.timestamp
                   }));
-                  console.log(`🔄 Live price update sent for ${data.mint}: $${tick.priceUsd} (${priceLamports} lamports)`);
                 } catch (err) {
                   console.error(`❌ Failed to send price update for ${data.mint}:`, err);
                 }
               }
             });
-            
+
             // Store the unsubscribe function
             priceSubscriptions.set(data.mint, unsubscribe);
-            console.log(`📊 Total WebSocket subscribers: ${priceSubscriptions.size}`);
-            
+
           } else if (data.type === "unsubscribe" && data.mint) {
             subscribedTokens.delete(data.mint);
             console.log(`📡 Unsubscribed from ${data.mint}`);
-            
+
             // Remove price service subscription
             const unsubscribe = priceSubscriptions.get(data.mint);
             if (unsubscribe) {
               unsubscribe();
               priceSubscriptions.delete(data.mint);
             }
-            
+
           } else if (data.type === "ping") {
             // Respond to client ping with pong
             try {
               socket.send(JSON.stringify({ type: "pong", timestamp: Date.now() }));
-              console.log("💓 Responded to client ping with pong");
             } catch (err) {
               console.error("❌ Failed to send pong:", err);
             }
           } else if (data.type === "pong") {
             // Client responded to our ping - connection is healthy
             console.log("💓 Received pong from client - connection healthy");
-          } else if (data.t === "pong") {
-            // Handle client pong in the new format
-            console.log("💓 Received pong from hardened client - connection healthy");
           }
         } catch (error) {
           console.error("❌ Error parsing message:", error);
@@ -259,11 +230,6 @@ export default async function wsPlugin(app: FastifyInstance) {
       });
   });
 
-  // Add a mock price broadcaster for testing (remove when real data is wired)
-  setInterval(() => {
-    app.broadcastPrice({ 
-      mint: "So11111111111111111111111111111111111111112", 
-      priceLamports: solToLamports(Math.random() * 200 + 100) // Random SOL price between $100-300
-    });
-  }, 2000); // Every 2 seconds for testing
+  // Price broadcasts are handled by the price service subscriptions above
+  // Real-time prices are emitted when the price service detects updates
 }

@@ -18,7 +18,7 @@ export default function ProfilePage() {
   return (
     <AuthGuard>
       <div className="min-h-screen bg-background pb-20 md:pb-8">
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
+      <div className="container mx-auto px-4 py-8 max-w-page-sm">
         {/* Header */}
         <div className="mb-8">
           <h1 className="mb-2 text-3xl font-bold bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">Profile Settings</h1>

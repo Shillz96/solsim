@@ -1,6 +1,9 @@
 // Event-driven price service with proper EventEmitter architecture
 import { EventEmitter } from "events";
 import redis from "./redis.js";
+import { loggers } from "../utils/logger.js";
+
+const logger = loggers.priceService;
 
 interface PriceTick {
   mint: string;
@@ -14,33 +17,119 @@ interface PriceTick {
   change24h?: number;
 }
 
+// Simple LRU Cache implementation
+class LRUCache<K, V> {
+  private cache = new Map<K, V>();
+  private maxSize: number;
+
+  constructor(maxSize: number) {
+    this.maxSize = maxSize;
+  }
+
+  get(key: K): V | undefined {
+    const value = this.cache.get(key);
+    if (value !== undefined) {
+      // Move to end (most recently used)
+      this.cache.delete(key);
+      this.cache.set(key, value);
+    }
+    return value;
+  }
+
+  set(key: K, value: V): void {
+    // Remove if exists (to reinsert at end)
+    if (this.cache.has(key)) {
+      this.cache.delete(key);
+    }
+    // Remove oldest if at capacity
+    else if (this.cache.size >= this.maxSize) {
+      const firstKey = this.cache.keys().next().value;
+      if (firstKey !== undefined) {
+        this.cache.delete(firstKey);
+      }
+    }
+    this.cache.set(key, value);
+  }
+
+  has(key: K): boolean {
+    return this.cache.has(key);
+  }
+
+  get size(): number {
+    return this.cache.size;
+  }
+
+  forEach(callback: (value: V, key: K) => void): void {
+    this.cache.forEach((value, key) => callback(value, key));
+  }
+}
+
+// Circuit breaker for external API calls
+class CircuitBreaker {
+  private failureCount = 0;
+  private lastFailureTime = 0;
+  private state: 'CLOSED' | 'OPEN' | 'HALF_OPEN' = 'CLOSED';
+  private readonly threshold = 5;
+  private readonly timeout = 60000; // 1 minute
+
+  async execute<T>(fn: () => Promise<T>): Promise<T | null> {
+    if (this.state === 'OPEN') {
+      if (Date.now() - this.lastFailureTime > this.timeout) {
+        this.state = 'HALF_OPEN';
+      } else {
+        throw new Error('Circuit breaker is OPEN');
+      }
+    }
+
+    try {
+      const result = await fn();
+      if (this.state === 'HALF_OPEN') {
+        this.state = 'CLOSED';
+        this.failureCount = 0;
+      }
+      return result;
+    } catch (error) {
+      this.failureCount++;
+      this.lastFailureTime = Date.now();
+
+      if (this.failureCount >= this.threshold) {
+        this.state = 'OPEN';
+        logger.error('Circuit breaker opened after 5 failures');
+      }
+      throw error;
+    }
+  }
+}
+
 class EventDrivenPriceService extends EventEmitter {
-  private priceCache = new Map<string, PriceTick>();
+  private priceCache = new LRUCache<string, PriceTick>(500); // LRU cache with max 500 entries
   private solPriceUsd = 100; // Default SOL price
   private updateIntervals: NodeJS.Timeout[] = [];
+  private dexScreenerBreaker = new CircuitBreaker();
+  private jupiterBreaker = new CircuitBreaker();
 
   constructor() {
     super();
-    console.log("🚀 Initializing Event-Driven Price Service");
+    logger.info("Initializing Event-Driven Price Service");
   }
 
   async start() {
-    console.log("🚀 Starting Event-Driven Price Service...");
-    
+    logger.info("Starting Event-Driven Price Service");
+
     // Get initial SOL price
     await this.updateSolPrice();
-    
-    // Set up regular price updates  
+
+    // Set up regular price updates
     const solInterval = setInterval(() => this.updateSolPrice(), 30000); // Every 30s
     const popularInterval = setInterval(() => this.updatePopularTokenPrices(), 60000); // Every 60s
-    
+
     this.updateIntervals.push(solInterval, popularInterval);
-    
-    console.log("✅ Price service started with regular updates");
+
+    logger.info("Price service started with regular updates");
   }
 
   async stop() {
-    console.log("🛑 Stopping price service...");
+    logger.info("Stopping price service");
     this.updateIntervals.forEach(interval => clearInterval(interval));
     this.updateIntervals = [];
     this.removeAllListeners();
@@ -48,21 +137,21 @@ class EventDrivenPriceService extends EventEmitter {
 
   private async updateSolPrice() {
     try {
-      console.log("🔄 Fetching SOL price from CoinGecko...");
+      logger.debug("Fetching SOL price from CoinGecko");
       const response = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd&include_24hr_change=true");
-      
+
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
-      
+
       const data = await response.json();
-      
+
       if (data.solana?.usd) {
         const oldPrice = this.solPriceUsd;
         this.solPriceUsd = data.solana.usd;
-        
-        console.log(`📈 SOL price updated: $${this.solPriceUsd} (was $${oldPrice})`);
-        
+
+        logger.info({ oldPrice, newPrice: this.solPriceUsd }, "SOL price updated");
+
         // Create and emit a price tick for SOL
         const solTick: PriceTick = {
           mint: "So11111111111111111111111111111111111111112", // SOL mint address
@@ -73,21 +162,21 @@ class EventDrivenPriceService extends EventEmitter {
           source: "coingecko",
           change24h: data.solana.usd_24h_change || 0
         };
-        
+
         // Update cache and emit event
         await this.updatePrice(solTick);
-        
+
       } else {
-        console.warn("⚠️ Invalid response format from CoinGecko:", data);
+        logger.warn({ data }, "Invalid response format from CoinGecko");
       }
     } catch (error) {
-      console.error("❌ Failed to update SOL price:", error);
+      logger.error({ error }, "Failed to update SOL price");
     }
   }
 
   private async updatePopularTokenPrices() {
-    console.log("🔄 Updating popular token prices...");
-    
+    logger.debug("Updating popular token prices");
+
     // Update prices for commonly traded tokens
     const popularTokens = [
       "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v", // USDC
@@ -101,93 +190,159 @@ class EventDrivenPriceService extends EventEmitter {
           await this.updatePrice(tick);
         }
       } catch (error) {
-        console.warn(`⚠️ Failed to update price for ${mint}:`, error);
+        logger.warn({ mint, error }, "Failed to update token price");
       }
     }
   }
 
-  private async fetchTokenPrice(mint: string): Promise<PriceTick | null> {
-    console.log(`🔍 Fetching price for token: ${mint}`);
-    
-    // Try DexScreener first
+  async fetchTokenPrice(mint: string): Promise<PriceTick | null> {
+    logger.debug({ mint }, "Fetching price for token");
+
+    // Try DexScreener first (best for SPL tokens) with circuit breaker
     try {
-      const response = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${mint}`);
-      
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`);
-      }
-      
-      const data = await response.json();
-      
-      if (data.pairs && data.pairs.length > 0) {
-        const pair = data.pairs[0];
-        const priceUsd = parseFloat(pair.priceUsd || "0");
-        
-        if (priceUsd > 0) {
-          console.log(`💰 Found price for ${mint}: $${priceUsd} (DexScreener)`);
-          return {
-            mint,
-            priceUsd,
-            priceSol: priceUsd / this.solPriceUsd,
-            solUsd: this.solPriceUsd,
-            timestamp: Date.now(),
-            source: "dexscreener",
-            change24h: parseFloat(pair.priceChange?.h24 || "0")
-          };
+      const dexResult = await this.dexScreenerBreaker.execute(async () => {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 8000); // Increased to 8s timeout
+
+        try {
+          const response = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${mint}`, {
+            signal: controller.signal,
+            headers: {
+              'Accept': 'application/json',
+              'User-Agent': 'SolSim/1.0'
+            }
+          });
+          clearTimeout(timeoutId);
+
+          if (!response.ok) {
+            if (response.status === 429) {
+              logger.warn({ mint }, "DexScreener rate limit hit");
+              throw new Error('Rate limited');
+            }
+            throw new Error(`HTTP ${response.status}`);
+          }
+
+          const data = await response.json();
+
+          if (data.pairs && data.pairs.length > 0) {
+            // Sort pairs by liquidity to get most reliable price
+            const sortedPairs = data.pairs.sort((a: any, b: any) => {
+              const liqA = parseFloat(a.liquidity?.usd || "0");
+              const liqB = parseFloat(b.liquidity?.usd || "0");
+              return liqB - liqA;
+            });
+
+            const pair = sortedPairs[0];
+            const priceUsd = parseFloat(pair.priceUsd || "0");
+
+            if (priceUsd > 0) {
+              logger.info({ mint, priceUsd, source: "dexscreener", liquidity: pair.liquidity?.usd }, "Price fetched successfully");
+              return {
+                mint,
+                priceUsd,
+                priceSol: priceUsd / this.solPriceUsd,
+                solUsd: this.solPriceUsd,
+                timestamp: Date.now(),
+                source: "dexscreener",
+                change24h: parseFloat(pair.priceChange?.h24 || "0"),
+                volume: parseFloat(pair.volume?.h24 || "0"),
+                marketCapUsd: parseFloat(pair.marketCap || "0")
+              };
+            }
+          }
+          return null;
+        } catch (err) {
+          clearTimeout(timeoutId);
+          throw err;
         }
+      });
+
+      if (dexResult) return dexResult;
+    } catch (error: any) {
+      if (error.message !== 'Circuit breaker is OPEN') {
+        logger.warn({ mint, error: error.message }, "DexScreener fetch failed");
       }
-    } catch (error) {
-      console.warn(`⚠️ DexScreener failed for ${mint}:`, error);
     }
-    
-    // Try Jupiter as fallback
+
+    // Try Jupiter as fallback with circuit breaker
     try {
-      const response = await fetch(`https://price.jup.ag/v6/price?ids=${mint}`);
-      
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`);
+      const jupResult = await this.jupiterBreaker.execute(async () => {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 8000); // 8s timeout
+
+        try {
+          const response = await fetch(`https://price.jup.ag/v6/price?ids=${mint}`, {
+            signal: controller.signal,
+            headers: {
+              'Accept': 'application/json',
+              'User-Agent': 'SolSim/1.0'
+            }
+          });
+          clearTimeout(timeoutId);
+
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+          }
+
+          const data = await response.json();
+
+          if (data.data && data.data[mint] && data.data[mint].price) {
+            const priceUsd = parseFloat(data.data[mint].price);
+            if (priceUsd > 0) {
+              logger.info({ mint, priceUsd, source: "jupiter" }, "Price fetched successfully");
+
+              return {
+                mint,
+                priceUsd,
+                priceSol: priceUsd / this.solPriceUsd,
+                solUsd: this.solPriceUsd,
+                timestamp: Date.now(),
+                source: "jupiter"
+              };
+            }
+          }
+          return null;
+        } catch (err) {
+          clearTimeout(timeoutId);
+          throw err;
+        }
+      });
+
+      if (jupResult) return jupResult;
+    } catch (error: any) {
+      if (error.message !== 'Circuit breaker is OPEN') {
+        logger.warn({ mint, error: error.message }, "Jupiter fetch failed");
       }
-      
-      const data = await response.json();
-      
-      if (data.data && data.data[mint] && data.data[mint].price) {
-        const priceUsd = parseFloat(data.data[mint].price);
-        console.log(`💰 Found price for ${mint}: $${priceUsd} (Jupiter)`);
-        
-        return {
-          mint,
-          priceUsd,
-          priceSol: priceUsd / this.solPriceUsd,
-          solUsd: this.solPriceUsd,
-          timestamp: Date.now(),
-          source: "jupiter"
-        };
-      }
-    } catch (error) {
-      console.warn(`⚠️ Jupiter failed for ${mint}:`, error);
     }
-    
-    console.warn(`❌ No price found for ${mint}`);
+
+    logger.warn({ mint }, "No price found from any source");
     return null;
   }
 
   private async updatePrice(tick: PriceTick) {
-    console.log(`💰 Price update: ${tick.mint} = $${tick.priceUsd.toFixed(6)} (${tick.source})`);
-    
+    logger.debug({
+      mint: tick.mint,
+      priceUsd: tick.priceUsd.toFixed(6),
+      source: tick.source
+    }, "Price update");
+
     // Update in-memory cache
     this.priceCache.set(tick.mint, tick);
-    
+
     // Store in Redis (optional - don't fail if Redis is unavailable)
     try {
       await redis.setex(`price:${tick.mint}`, 60, JSON.stringify(tick)); // 60s cache
       await redis.publish("prices", JSON.stringify(tick));
     } catch (error) {
-      console.warn("⚠️ Redis cache/publish failed (continuing without Redis):", error);
+      logger.warn({ error }, "Redis cache/publish failed, continuing without Redis");
     }
-    
+
     // CRITICAL: Emit the event to all subscribers
     this.emit("price", tick);
-    console.log(`📡 Emitted price event for ${tick.mint} to ${this.listenerCount('price')} subscribers`);
+    logger.debug({
+      mint: tick.mint,
+      subscribers: this.listenerCount('price')
+    }, "Emitted price event");
   }
 
   // Public API methods
@@ -231,20 +386,32 @@ class EventDrivenPriceService extends EventEmitter {
     if (mint === "So11111111111111111111111111111111111111112") {
       return this.solPriceUsd;
     }
-    
-    const tick = await this.getLastTick(mint);
+
+    // Try to get from cache first
+    let tick = await this.getLastTick(mint);
+
+    // If not in cache, fetch it now (on-demand)
+    if (!tick) {
+      logger.debug({ mint }, "Price not in cache, fetching on-demand");
+      tick = await this.fetchTokenPrice(mint);
+      if (tick) {
+        await this.updatePrice(tick);
+      }
+    }
+
     return tick?.priceUsd || 0;
   }
 
   async getPrices(mints: string[]): Promise<Record<string, number>> {
     const prices: Record<string, number> = {};
-    
+
+    // Fetch all prices in parallel, using on-demand fetching
     await Promise.all(
       mints.map(async (mint) => {
         prices[mint] = await this.getPrice(mint);
       })
     );
-    
+
     return prices;
   }
 
@@ -255,12 +422,12 @@ class EventDrivenPriceService extends EventEmitter {
   // Subscription methods using EventEmitter
   onPriceUpdate(callback: (tick: PriceTick) => void): () => void {
     this.on("price", callback);
-    console.log(`➕ Added price subscriber (total: ${this.listenerCount('price')})`);
-    
+    logger.debug({ totalSubscribers: this.listenerCount('price') }, "Added price subscriber");
+
     // Return unsubscribe function
     return () => {
       this.off("price", callback);
-      console.log(`➖ Removed price subscriber (total: ${this.listenerCount('price')})`);
+      logger.debug({ totalSubscribers: this.listenerCount('price') }, "Removed price subscriber");
     };
   }
 

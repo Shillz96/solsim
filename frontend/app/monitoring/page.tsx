@@ -8,7 +8,7 @@ import Link from "next/link"
 
 export default function MonitoringPage() {
   return (
-    <div className="container max-w-6xl mx-auto py-8 px-4">
+    <div className="container max-w-page-md mx-auto py-8 px-4">
       <h1 className="text-3xl font-bold mb-6">System Monitoring</h1>
       
       <Alert className="mb-8">

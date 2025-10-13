@@ -30,10 +30,11 @@ import * as Backend from "@/lib/types/backend"
 import { useAuth } from "@/hooks/use-auth"
 import { cn } from "@/lib/utils"
 import { ProfitLossValue, PortfolioValue } from "@/components/ui/financial-value"
+import type { EnhancedPosition } from "./types"
 
 // Enhanced position with live price data for display
-interface EnhancedPosition extends Backend.PortfolioPosition {
-  currentPrice?: number;
+interface LiveEnhancedPosition extends EnhancedPosition {
+  livePriceNumber?: number;
   currentValueUsd?: number;
   liveUnrealizedUsd?: number;
   liveUnrealizedPercent?: number;
@@ -125,7 +126,7 @@ export const UnifiedPositions = memo(function UnifiedPositions({
   }, [metadataResults])
 
   // Enhance positions with live prices and token metadata
-  const enhancedPositions = useMemo(() => {
+  const enhancedPositions: LiveEnhancedPosition[] = useMemo(() => {
     if (!portfolio?.positions) return []
     
     let positions = portfolio.positions
@@ -156,7 +157,7 @@ export const UnifiedPositions = memo(function UnifiedPositions({
           tokenName: metadata?.name || position.tokenName || `Token ${position.mint.slice(0, 8)}`,
           tokenImage: metadata?.imageUrl || metadata?.logoURI || position.tokenImage,
           // Live price calculations
-          currentPrice,
+          livePriceNumber: currentPrice,
           currentValueUsd,
           liveUnrealizedUsd,
           liveUnrealizedPercent,
@@ -595,9 +596,9 @@ export const UnifiedPositions = memo(function UnifiedPositions({
                       />
                     </td>
                     <td className="text-right p-2">
-                      {position.currentPrice ? (
+                      {position.livePriceNumber ? (
                         <UsdWithSol 
-                          usd={position.currentPrice}
+                          usd={position.livePriceNumber}
                           className="text-sm"
                           solClassName="text-xs"
                         />

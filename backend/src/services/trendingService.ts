@@ -2,7 +2,7 @@
 import prisma from "../plugins/prisma.js";
 import priceService from "../plugins/priceService.js";
 import { getTokenMeta } from "./tokenService.js";
-import fetch from "node-fetch";
+import { robustFetch, fetchJSON } from "../utils/fetch.js";
 
 export interface TrendingToken {
   mint: string;
@@ -105,12 +105,15 @@ async function getBirdeyeTrending(limit: number): Promise<TrendingToken[]> {
     console.log('Using Birdeye API key:', BIRDEYE_API_KEY ? 'Found' : 'Not found');
 
     // Use the correct Birdeye trending endpoint
-    const response = await fetch(`https://public-api.birdeye.so/defi/token_trending?sort_by=volume24hUSD&sort_type=desc&offset=0&limit=${limit}&ui_amount_mode=scaled`, {
+    const response = await robustFetch(`https://public-api.birdeye.so/defi/token_trending?sort_by=volume24hUSD&sort_type=desc&offset=0&limit=${limit}&ui_amount_mode=scaled`, {
       headers: {
         'Accept': 'application/json',
         'x-chain': 'solana',
         'X-API-KEY': BIRDEYE_API_KEY,
-      }
+      },
+      timeout: 10000,
+      retries: 2,
+      retryDelay: 1000
     });
     
     if (!response.ok) {
@@ -213,24 +216,32 @@ async function enrichWithInternalData(tokens: TrendingToken[]): Promise<Trending
 async function getDexScreenerTrending(limit: number): Promise<TrendingToken[]> {
   try {
     // Get trending pairs from DexScreener - improved endpoint
-    const response = await fetch(`https://api.dexscreener.com/latest/dex/tokens/trending?chainId=solana`);
-    
+    const response = await robustFetch(`https://api.dexscreener.com/latest/dex/tokens/trending?chainId=solana`, {
+      timeout: 10000,
+      retries: 2,
+      retryDelay: 1000
+    });
+
     if (!response.ok) {
       // Fallback to search endpoint
-      const searchResponse = await fetch(`https://api.dexscreener.com/latest/dex/search/?q=SOL&orderBy=volume24hDesc&limit=${limit * 2}`);
+      const searchResponse = await robustFetch(`https://api.dexscreener.com/latest/dex/search/?q=SOL&orderBy=volume24hDesc&limit=${limit * 2}`, {
+        timeout: 10000,
+        retries: 2,
+        retryDelay: 1000
+      });
       if (!searchResponse.ok) {
         throw new Error(`DexScreener API error: ${searchResponse.status}`);
       }
       const searchData = await searchResponse.json() as any;
       return processDexScreenerPairs(searchData.pairs || [], limit);
     }
-    
+
     const data = await response.json() as any;
     return processDexScreenerPairs(data.pairs || [], limit);
-    
-  } catch (error) {
-    console.error('DexScreener trending fetch failed:', error);
-    
+
+  } catch (error: any) {
+    console.error(`DexScreener trending failed (${error.code || error.message}):`, error.message);
+
     // Fallback to popular Solana tokens with current prices
     return getPopularSolanaTokens();
   }

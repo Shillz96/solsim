@@ -1,6 +1,6 @@
 // Wallet tracker service placeholder
 import prisma from "../plugins/prisma.js";
-import fetch from "node-fetch";
+import { robustFetch } from "../utils/fetch.js";
 
 const HELIUS_API = process.env.HELIUS_API!;
 
@@ -27,7 +27,11 @@ export async function listTrackedWallets(userId: string) {
 export async function getWalletTrades(address: string, limit = 10) {
   // Use Helius "transactions" API
   const url = `https://api.helius.xyz/v0/addresses/${address}/transactions?api-key=${HELIUS_API}&limit=${limit}`;
-  const res = await fetch(url);
+  const res = await robustFetch(url, {
+    timeout: 10000,
+    retries: 2,
+    retryDelay: 1000
+  });
   if (!res.ok) throw new Error("Helius wallet tx fetch failed");
   const txs: any = await res.json();
 

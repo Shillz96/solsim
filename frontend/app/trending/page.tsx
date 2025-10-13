@@ -81,7 +81,7 @@ export default function TrendingPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <main className="w-full px-2 py-6 max-w-[2000px] mx-auto">
+      <main className="w-full px-2 py-6 max-w-page-xl mx-auto">
         {/* Header */}
         <div className="mb-6">
           <div className="flex items-center gap-2 mb-2">
