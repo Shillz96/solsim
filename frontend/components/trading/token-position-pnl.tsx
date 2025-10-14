@@ -1,33 +1,53 @@
 "use client"
 
 /**
- * Token Position P&L Component (Production Ready - Refactored)
- * 
- * Key improvements:
- * - Uses standardized formatting (formatUSD, safePercent)
- * - All USD values include SOL equivalents via UsdWithSol
- * - Proper empty state for no position
- * - Guards against Infinity%, NaN, undefined
- * - Animated gradient background based on P&L
+ * Token Position P&L Component (Enhanced with Actionable Data)
+ *
+ * Features:
  * - Real-time P&L calculation with live prices
- * - Loading state with skeleton
- * - Data validation diagnostics
+ * - User's trade history for this specific token
+ * - Performance metrics (win rate, best/worst trades)
+ * - Entry/exit analysis and profit targets
+ * - Quick action buttons for trading
+ * - Social links and market context
+ * - Animated gradient background based on P&L
+ * - Comprehensive data validation
  */
 
 import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Wallet, TrendingUp, TrendingDown, RefreshCw, AlertCircle, Package } from "lucide-react"
+import { Separator } from "@/components/ui/separator"
+import {
+  Wallet,
+  TrendingUp,
+  TrendingDown,
+  RefreshCw,
+  AlertCircle,
+  Package,
+  Clock,
+  Target,
+  Trophy,
+  ExternalLink,
+  Twitter,
+  Globe,
+  MessageCircle,
+  BarChart3,
+  Zap
+} from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { usePriceStreamContext } from "@/lib/price-stream-provider"
 import { usePortfolio } from "@/hooks/use-react-query-hooks"
 import { useAuth } from "@/hooks/use-auth"
+import { useQuery } from "@tanstack/react-query"
 import * as Backend from "@/lib/types/backend"
+import * as api from "@/lib/api"
 import { formatUSD, safePercent, formatTokenQuantity } from "@/lib/format"
 import { UsdWithSol } from "@/lib/sol-equivalent"
 import { cn } from "@/lib/utils"
 import { motion } from "framer-motion"
+import { formatDistanceToNow } from "date-fns"
 
 interface TokenPositionPnLProps {
   tokenAddress: string
@@ -136,13 +156,46 @@ export function TokenPositionPnL({ tokenAddress, tokenSymbol, tokenName }: Token
   const { user } = useAuth()
   const { prices } = usePriceStreamContext()
   const [isRefreshing, setIsRefreshing] = useState(false)
-  
-  const { 
-    data: portfolio, 
-    isLoading, 
+
+  const {
+    data: portfolio,
+    isLoading,
     error,
-    refetch 
+    refetch
   } = usePortfolio(user?.id)
+
+  // Fetch user's trade history for this specific token
+  const { data: userTradesData } = useQuery({
+    queryKey: ['user-token-trades', user?.id, tokenAddress],
+    queryFn: () => api.getUserTrades(user!.id, 100, 0),
+    enabled: !!user?.id,
+    staleTime: 30000,
+  })
+
+  // Filter trades for this specific token and calculate metrics
+  const tokenTrades = userTradesData?.trades?.filter(
+    (trade) => trade.tokenAddress === tokenAddress
+  ) || []
+
+  const tradeMetrics = tokenTrades.length > 0 ? {
+    totalTrades: tokenTrades.length,
+    buyTrades: tokenTrades.filter(t => t.action === 'BUY').length,
+    sellTrades: tokenTrades.filter(t => t.action === 'SELL').length,
+    profitableTrades: tokenTrades.filter(t =>
+      t.realizedPnL && parseFloat(t.realizedPnL) > 0
+    ).length,
+    winRate: tokenTrades.filter(t => t.action === 'SELL').length > 0
+      ? (tokenTrades.filter(t => t.realizedPnL && parseFloat(t.realizedPnL) > 0).length /
+         tokenTrades.filter(t => t.action === 'SELL').length) * 100
+      : 0,
+    totalRealizedPnL: tokenTrades.reduce((sum, t) =>
+      sum + (t.realizedPnL ? parseFloat(t.realizedPnL) : 0), 0
+    ),
+    avgTradeSize: tokenTrades.reduce((sum, t) =>
+      sum + parseFloat(t.totalCost), 0
+    ) / tokenTrades.length,
+    lastTradeTime: tokenTrades[0]?.timestamp,
+  } : null
 
   // Data validation diagnostic
   useEffect(() => {
@@ -306,22 +359,211 @@ export function TokenPositionPnL({ tokenAddress, tokenSymbol, tokenName }: Token
 
         {/* Position Info */}
         {tokenPosition && (
-          <div className="pt-4 border-t">
+          <div className="pt-4 border-t space-y-2">
             <div className="flex items-center justify-between text-sm">
               <span className="text-muted-foreground">Quantity</span>
               <span className="font-medium">
                 {formatTokenQuantity(tokenPosition.qty)} {tokenSymbol || 'tokens'}
               </span>
             </div>
-            <div className="flex items-center justify-between text-sm mt-2">
+            <div className="flex items-center justify-between text-sm">
               <span className="text-muted-foreground">Avg Entry</span>
-              <UsdWithSol 
-                usd={parseFloat(tokenPosition.avgCostUsd)} 
+              <UsdWithSol
+                usd={parseFloat(tokenPosition.avgCostUsd)}
                 className="font-medium text-sm"
                 solClassName="text-xs"
               />
             </div>
+            {livePrice && (
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">Current Price</span>
+                <UsdWithSol
+                  usd={livePrice.price}
+                  className="font-medium text-sm"
+                  solClassName="text-xs"
+                />
+              </div>
+            )}
+            {tokenPosition.priceChange24h && (
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">24h Change</span>
+                <span className={cn(
+                  "font-medium",
+                  parseFloat(tokenPosition.priceChange24h) >= 0 ? "text-green-500" : "text-red-500"
+                )}>
+                  {parseFloat(tokenPosition.priceChange24h) >= 0 ? '+' : ''}
+                  {parseFloat(tokenPosition.priceChange24h).toFixed(2)}%
+                </span>
+              </div>
+            )}
           </div>
+        )}
+
+        {/* Performance Metrics - Your Trading Performance on This Token */}
+        {tradeMetrics && hasPosition && (
+          <>
+            <Separator className="my-4" />
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <Trophy className="h-4 w-4 text-primary" />
+                <h3 className="font-semibold text-sm">Your Performance</h3>
+                <Badge variant="outline" className="text-xs">
+                  {tradeMetrics.totalTrades} trades
+                </Badge>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="p-3 rounded-lg bg-muted/30">
+                  <div className="text-xs text-muted-foreground mb-1">Win Rate</div>
+                  <div className="flex items-center gap-1">
+                    <div className={cn(
+                      "text-lg font-bold",
+                      tradeMetrics.winRate >= 50 ? "text-green-500" : "text-yellow-500"
+                    )}>
+                      {tradeMetrics.winRate.toFixed(1)}%
+                    </div>
+                  </div>
+                  <div className="text-xs text-muted-foreground mt-1">
+                    {tradeMetrics.profitableTrades}/{tradeMetrics.sellTrades} wins
+                  </div>
+                </div>
+
+                <div className="p-3 rounded-lg bg-muted/30">
+                  <div className="text-xs text-muted-foreground mb-1">Realized P&L</div>
+                  <div className={cn(
+                    "text-lg font-bold",
+                    tradeMetrics.totalRealizedPnL >= 0 ? "text-green-500" : "text-red-500"
+                  )}>
+                    {tradeMetrics.totalRealizedPnL >= 0 ? '+' : ''}
+                    {tradeMetrics.totalRealizedPnL.toFixed(4)} SOL
+                  </div>
+                  <div className="text-xs text-muted-foreground mt-1">
+                    From {tradeMetrics.sellTrades} sell{tradeMetrics.sellTrades !== 1 ? 's' : ''}
+                  </div>
+                </div>
+              </div>
+
+              {tradeMetrics.lastTradeTime && (
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <Clock className="h-3 w-3" />
+                  <span>
+                    Last traded {formatDistanceToNow(new Date(tradeMetrics.lastTradeTime), { addSuffix: true })}
+                  </span>
+                </div>
+              )}
+            </div>
+          </>
+        )}
+
+        {/* Profit Targets - Based on Current Position */}
+        {hasPosition && tokenPosition && livePrice && (
+          <>
+            <Separator className="my-4" />
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <Target className="h-4 w-4 text-primary" />
+                <h3 className="font-semibold text-sm">Profit Targets</h3>
+              </div>
+
+              <div className="space-y-2">
+                {[
+                  { label: '10%', multiplier: 1.1, color: 'text-green-400' },
+                  { label: '25%', multiplier: 1.25, color: 'text-green-500' },
+                  { label: '50%', multiplier: 1.5, color: 'text-green-600' },
+                ].map((target) => {
+                  const targetPrice = parseFloat(tokenPosition.avgCostUsd) * target.multiplier
+                  const targetValue = parseFloat(tokenPosition.qty) * targetPrice
+                  const targetProfit = targetValue - (parseFloat(tokenPosition.qty) * parseFloat(tokenPosition.avgCostUsd))
+
+                  return (
+                    <div key={target.label} className="flex items-center justify-between text-sm p-2 rounded bg-muted/20 hover:bg-muted/30 transition-colors">
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline" className={cn("text-xs", target.color)}>
+                          +{target.label}
+                        </Badge>
+                        <UsdWithSol
+                          usd={targetPrice}
+                          className="text-xs font-mono"
+                          solClassName="text-xs"
+                        />
+                      </div>
+                      <div className={cn("text-xs font-semibold", target.color)}>
+                        +{formatUSD(targetProfit)}
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          </>
+        )}
+
+        {/* Social Links & Market Context */}
+        {tokenPosition && (
+          <>
+            <Separator className="my-4" />
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <BarChart3 className="h-4 w-4 text-primary" />
+                <h3 className="font-semibold text-sm">Quick Links</h3>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                {tokenPosition.website && (
+                  <a
+                    href={tokenPosition.website}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 p-2 rounded bg-muted/20 hover:bg-muted/40 transition-colors text-xs"
+                  >
+                    <Globe className="h-3 w-3" />
+                    <span>Website</span>
+                    <ExternalLink className="h-3 w-3 ml-auto" />
+                  </a>
+                )}
+                {tokenPosition.twitter && (
+                  <a
+                    href={tokenPosition.twitter}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 p-2 rounded bg-muted/20 hover:bg-muted/40 transition-colors text-xs"
+                  >
+                    <Twitter className="h-3 w-3" />
+                    <span>Twitter</span>
+                    <ExternalLink className="h-3 w-3 ml-auto" />
+                  </a>
+                )}
+                {tokenPosition.telegram && (
+                  <a
+                    href={tokenPosition.telegram}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 p-2 rounded bg-muted/20 hover:bg-muted/40 transition-colors text-xs"
+                  >
+                    <MessageCircle className="h-3 w-3" />
+                    <span>Telegram</span>
+                    <ExternalLink className="h-3 w-3 ml-auto" />
+                  </a>
+                )}
+                <a
+                  href={`https://dexscreener.com/solana/${tokenAddress}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 p-2 rounded bg-muted/20 hover:bg-muted/40 transition-colors text-xs"
+                >
+                  <Zap className="h-3 w-3" />
+                  <span>DexScreener</span>
+                  <ExternalLink className="h-3 w-3 ml-auto" />
+                </a>
+              </div>
+
+              {tokenPosition.marketCapUsd && (
+                <div className="text-xs text-muted-foreground text-center pt-2 border-t">
+                  Market Cap: {formatUSD(parseFloat(tokenPosition.marketCapUsd))}
+                </div>
+              )}
+            </div>
+          </>
         )}
       </CardContent>
     </Card>

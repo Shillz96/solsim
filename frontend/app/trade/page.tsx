@@ -62,6 +62,8 @@ function TradePageContent() {
                 tokenAddress={currentTokenAddress}
                 tokenSymbol={tokenSymbol}
                 tokenName={tokenName}
+                variant="sidebar"
+                maxTrades={20}
               />
             </div>
           </motion.aside>

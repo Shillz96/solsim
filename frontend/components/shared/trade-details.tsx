@@ -33,6 +33,8 @@ interface TradeDetailsProps {
   tokenAddress: string
   tokenSymbol?: string
   tokenName?: string
+  variant?: 'default' | 'sidebar' // New prop for sidebar optimization
+  maxTrades?: number // Configurable max trades to show
 }
 
 // Animated background component similar to P&L card
@@ -72,12 +74,15 @@ function AnimatedBackground({ hasActivity }: { hasActivity: boolean }) {
   )
 }
 
-export function TradeDetails({ 
+export function TradeDetails({
   tokenAddress,
   tokenSymbol,
-  tokenName
+  tokenName,
+  variant = 'default',
+  maxTrades = 20
 }: TradeDetailsProps) {
-  const [limit] = useState(10) // Show last 10 trades
+  const isSidebar = variant === 'sidebar'
+  const [limit] = useState(maxTrades)
   
   // Get SOL price for equivalents
   const { prices: livePrices } = usePriceStreamContext()
@@ -153,22 +158,29 @@ export function TradeDetails({
     <Card className="relative overflow-hidden">
       <AnimatedBackground hasActivity={trades.length > 0} />
       
-      <CardHeader className="relative z-10 pb-4">
+      <CardHeader className={cn("relative z-10", isSidebar ? "pb-2" : "pb-4")}>
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <div className="p-2 rounded-lg bg-primary/20">
-              <Activity className="h-5 w-5 text-primary" />
-            </div>
+            {!isSidebar && (
+              <div className="p-2 rounded-lg bg-primary/20">
+                <Activity className="h-5 w-5 text-primary" />
+              </div>
+            )}
             <div>
-              <CardTitle className="text-lg">Trade Details</CardTitle>
-              <p className="text-sm text-muted-foreground">
-                {tokenSymbol || tokenName || 'Token'} Activity
-              </p>
+              <CardTitle className={cn(isSidebar ? "text-sm" : "text-lg")}>
+                {isSidebar && <Activity className="h-4 w-4 inline mr-2 text-primary" />}
+                Trade Activity
+              </CardTitle>
+              {!isSidebar && (
+                <p className="text-sm text-muted-foreground">
+                  {tokenSymbol || tokenName || 'Token'} Activity
+                </p>
+              )}
             </div>
           </div>
-          <Button 
-            variant="ghost" 
-            size="sm" 
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={() => refetch()}
             className="h-8 w-8 p-0"
           >
@@ -194,7 +206,7 @@ export function TradeDetails({
         ) : (
           <>
             {/* Enhanced Stats Section */}
-            {stats && (
+            {stats && !isSidebar && (
               <div className="mb-6">
                 {/* Main Volume Display */}
                 <div className="text-center mb-6 p-4 bg-muted/30 rounded-lg">
@@ -273,18 +285,20 @@ export function TradeDetails({
             )}
 
             {/* Recent Trades List */}
-            <div className="space-y-3">
-              <div className="flex items-center justify-between mb-3">
-                <h4 className="text-sm font-medium flex items-center gap-2">
-                  <BarChart3 className="h-4 w-4" />
-                  Recent Activity
-                </h4>
-                <Badge variant="secondary" className="text-xs">
-                  Last {Math.min(trades.length, 10)}
-                </Badge>
-              </div>
-              
-              {trades.slice(0, 5).map((trade, index) => {
+            <div className={cn("space-y-2", isSidebar && "max-h-[500px] overflow-y-auto pr-2")}>
+              {!isSidebar && (
+                <div className="flex items-center justify-between mb-3">
+                  <h4 className="text-sm font-medium flex items-center gap-2">
+                    <BarChart3 className="h-4 w-4" />
+                    Recent Activity
+                  </h4>
+                  <Badge variant="secondary" className="text-xs">
+                    Last {Math.min(trades.length, 10)}
+                  </Badge>
+                </div>
+              )}
+
+              {trades.slice(0, isSidebar ? 15 : 5).map((trade, index) => {
                 const isRecent = index < 2 // Highlight the 2 most recent trades
                 const timeAgo = formatDistanceToNow(new Date(trade.timestamp), { addSuffix: true })
                 const isBuy = trade.action === 'BUY'
@@ -294,92 +308,136 @@ export function TradeDetails({
                     key={trade.id}
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.1 }}
+                    transition={{ delay: isSidebar ? index * 0.02 : index * 0.1 }}
                     className={cn(
-                      "rounded-lg border p-4 transition-all duration-200 hover:border-primary/50 hover:shadow-sm",
-                      isRecent 
-                        ? "border-primary/20 bg-primary/5" 
+                      "rounded-lg border transition-all duration-200 hover:border-primary/50",
+                      isSidebar ? "p-2" : "p-4 hover:shadow-sm",
+                      isRecent
+                        ? "border-primary/20 bg-primary/5"
                         : "border-border bg-card/50"
                     )}
                   >
-                    <div className="flex items-center justify-between mb-3">
+                    <div className={cn("flex items-center justify-between", isSidebar ? "mb-2" : "mb-3")}>
                       <div className="flex items-center gap-2">
-                        <Badge 
+                        <Badge
                           variant={isBuy ? 'default' : 'destructive'}
-                          className="text-xs font-medium"
+                          className={cn("font-medium", isSidebar ? "text-xs py-0 h-5" : "text-xs")}
                         >
                           {isBuy ? (
-                            <TrendingUp className="h-3 w-3 mr-1" />
+                            <TrendingUp className={cn(isSidebar ? "h-2.5 w-2.5 mr-0.5" : "h-3 w-3 mr-1")} />
                           ) : (
-                            <TrendingDown className="h-3 w-3 mr-1" />
+                            <TrendingDown className={cn(isSidebar ? "h-2.5 w-2.5 mr-0.5" : "h-3 w-3 mr-1")} />
                           )}
                           {trade.action}
                         </Badge>
-                        
-                        {trade.user && (
+
+                        {!isSidebar && trade.user && (
                           <div className="flex items-center gap-1 text-xs text-muted-foreground">
                             <User className="h-3 w-3" />
                             <span>{trade.user.handle || 'Anonymous'}</span>
                           </div>
                         )}
                       </div>
-                      
+
                       <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                        <Clock className="h-3 w-3" />
-                        <span>{timeAgo}</span>
+                        <Clock className={cn(isSidebar ? "h-2.5 w-2.5" : "h-3 w-3")} />
+                        <span className={cn(isSidebar && "text-xs")}>
+                          {isSidebar ? timeAgo.replace(' ago', '').replace('about ', '') : timeAgo}
+                        </span>
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-3 gap-4 text-sm">
-                      <div className="text-center p-2 bg-muted/50 rounded">
-                        <div className="text-xs text-muted-foreground mb-1">Quantity</div>
-                        <div className="font-mono font-medium flex items-center justify-center gap-1">
-                          <Coins className="h-3 w-3" />
-                          {formatTokenQuantity(parseFloat(trade.quantity))}
-                        </div>
-                      </div>
-                      
-                      <div className="text-center p-2 bg-muted/50 rounded">
-                        <div className="text-xs text-muted-foreground mb-1">Price</div>
-                        <div>
-                          <PriceDisplay
-                            priceUSD={parseFloat(trade.price)}
-                            showSol={true}
-                            className="font-mono font-medium text-sm"
-                          />
-                        </div>
-                      </div>
-                      
-                      <div className="text-center p-2 bg-muted/50 rounded">
-                        <div className="text-xs text-muted-foreground mb-1">Total</div>
-                        <div className="font-mono font-medium">
-                          {parseFloat(trade.totalCost).toFixed(4)} SOL
-                        </div>
-                      </div>
-                    </div>
-
-                    {trade.realizedPnL && parseFloat(trade.realizedPnL) !== 0 && (
-                      <div className="mt-3 pt-3 border-t border-border/50">
-                        <div className="flex items-center justify-between text-xs">
-                          <span className="text-muted-foreground">P&L:</span>
-                          <span className={cn(
-                            "font-mono font-medium",
-                            parseFloat(trade.realizedPnL) > 0 ? 'text-green-500' : 'text-red-500'
-                          )}>
-                            {parseFloat(trade.realizedPnL) > 0 ? '+' : ''}
-                            {parseFloat(trade.realizedPnL).toFixed(4)} SOL
+                    {isSidebar ? (
+                      // Compact sidebar layout
+                      <div className="space-y-1 text-xs">
+                        <div className="flex items-center justify-between">
+                          <span className="text-muted-foreground">Qty:</span>
+                          <span className="font-mono font-medium">
+                            {formatTokenQuantity(parseFloat(trade.quantity))}
                           </span>
                         </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-muted-foreground">Price:</span>
+                          <PriceDisplay
+                            priceUSD={parseFloat(trade.price)}
+                            showSol={false}
+                            className="font-mono font-medium text-xs"
+                          />
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-muted-foreground">Total:</span>
+                          <span className="font-mono font-medium">
+                            {parseFloat(trade.totalCost).toFixed(3)} SOL
+                          </span>
+                        </div>
+                        {trade.realizedPnL && parseFloat(trade.realizedPnL) !== 0 && (
+                          <div className="flex items-center justify-between pt-1 border-t">
+                            <span className="text-muted-foreground">P&L:</span>
+                            <span className={cn(
+                              "font-mono font-medium",
+                              parseFloat(trade.realizedPnL) > 0 ? 'text-green-500' : 'text-red-500'
+                            )}>
+                              {parseFloat(trade.realizedPnL) > 0 ? '+' : ''}
+                              {parseFloat(trade.realizedPnL).toFixed(3)} SOL
+                            </span>
+                          </div>
+                        )}
                       </div>
+                    ) : (
+                      // Full layout for default view
+                      <>
+                        <div className="grid grid-cols-3 gap-4 text-sm">
+                          <div className="text-center p-2 bg-muted/50 rounded">
+                            <div className="text-xs text-muted-foreground mb-1">Quantity</div>
+                            <div className="font-mono font-medium flex items-center justify-center gap-1">
+                              <Coins className="h-3 w-3" />
+                              {formatTokenQuantity(parseFloat(trade.quantity))}
+                            </div>
+                          </div>
+
+                          <div className="text-center p-2 bg-muted/50 rounded">
+                            <div className="text-xs text-muted-foreground mb-1">Price</div>
+                            <div>
+                              <PriceDisplay
+                                priceUSD={parseFloat(trade.price)}
+                                showSol={true}
+                                className="font-mono font-medium text-sm"
+                              />
+                            </div>
+                          </div>
+
+                          <div className="text-center p-2 bg-muted/50 rounded">
+                            <div className="text-xs text-muted-foreground mb-1">Total</div>
+                            <div className="font-mono font-medium">
+                              {parseFloat(trade.totalCost).toFixed(4)} SOL
+                            </div>
+                          </div>
+                        </div>
+
+                        {trade.realizedPnL && parseFloat(trade.realizedPnL) !== 0 && (
+                          <div className="mt-3 pt-3 border-t border-border/50">
+                            <div className="flex items-center justify-between text-xs">
+                              <span className="text-muted-foreground">P&L:</span>
+                              <span className={cn(
+                                "font-mono font-medium",
+                                parseFloat(trade.realizedPnL) > 0 ? 'text-green-500' : 'text-red-500'
+                              )}>
+                                {parseFloat(trade.realizedPnL) > 0 ? '+' : ''}
+                                {parseFloat(trade.realizedPnL).toFixed(4)} SOL
+                              </span>
+                            </div>
+                          </div>
+                        )}
+                      </>
                     )}
                   </motion.div>
                 )
               })}
-              
-              {trades.length > 5 && (
+
+              {trades.length > (isSidebar ? 15 : 5) && (
                 <div className="text-center pt-2">
                   <Badge variant="outline" className="text-xs">
-                    +{trades.length - 5} more trades
+                    +{trades.length - (isSidebar ? 15 : 5)} more trades
                   </Badge>
                 </div>
               )}

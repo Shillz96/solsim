@@ -154,85 +154,100 @@ export function WalletActivityList({
                     const tokenMint = mainToken.mint;
                     const tokenSymbol = mainToken.symbol || 'Unknown';
                     const tokenAmount = mainToken.amount;
+                    const walletLabel = getWalletLabel(activity.walletAddress);
 
                     return (
-                      <div className="flex items-center gap-2">
-                        <Link
-                          href={`/trade?token=${tokenMint}`}
-                          className="flex items-center gap-2 hover:opacity-80 transition-opacity"
-                        >
-                          {/* Token Image */}
-                          <div className="relative h-8 w-8 rounded-full overflow-hidden bg-muted flex-shrink-0">
-                            {activity.tokenOut.logoURI || activity.tokenIn.logoURI ? (
-                              <Image
-                                src={activity.type === 'BUY' ? activity.tokenOut.logoURI! : activity.tokenIn.logoURI!}
-                                alt={tokenSymbol}
-                                fill
-                                className="object-cover"
-                                unoptimized
-                              />
-                            ) : (
-                              <div className="w-full h-full flex items-center justify-center">
-                                <Coins className="h-4 w-4 text-muted-foreground" />
-                              </div>
-                            )}
-                          </div>
-
-                          {/* Token Symbol */}
-                          <span className="font-semibold text-base">
-                            {tokenSymbol}
-                          </span>
-                        </Link>
-
-                        {/* Amount with label */}
-                        {tokenAmount && (
-                          <span className="text-xs text-muted-foreground">
-                            {formatNumber(parseFloat(tokenAmount))}
-                          </span>
-                        )}
-
-                        {/* DEX/Program badge */}
-                        {activity.program && activity.program !== 'Unknown' && (
-                          <Badge variant="secondary" className="text-xs">
-                            {activity.program}
+                      <>
+                        <div className="flex items-center gap-2">
+                          {/* Wallet Label Badge */}
+                          <Badge variant="outline" className="text-xs font-medium text-muted-foreground border-muted-foreground/30 flex-shrink-0">
+                            {walletLabel}
                           </Badge>
-                        )}
-                      </div>
+
+                          <Link
+                            href={`/trade?token=${tokenMint}`}
+                            className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+                          >
+                            {/* Token Image */}
+                            <div className="relative h-8 w-8 rounded-full overflow-hidden bg-muted flex-shrink-0">
+                              {activity.tokenOut.logoURI || activity.tokenIn.logoURI ? (
+                                <Image
+                                  src={activity.type === 'BUY' ? activity.tokenOut.logoURI! : activity.tokenIn.logoURI!}
+                                  alt={tokenSymbol}
+                                  fill
+                                  className="object-cover"
+                                  unoptimized
+                                />
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center">
+                                  <Coins className="h-4 w-4 text-muted-foreground" />
+                                </div>
+                              )}
+                            </div>
+
+                            {/* Token Symbol */}
+                            <span className="font-semibold text-base">
+                              {tokenSymbol}
+                            </span>
+                          </Link>
+
+                          {/* Token Amount */}
+                          {tokenAmount && (
+                            <span className="text-xs text-muted-foreground">
+                              {formatNumber(parseFloat(tokenAmount))}
+                            </span>
+                          )}
+
+                          {/* SOL Amount */}
+                          {activity.solAmount && (
+                            <span className="text-xs font-medium text-purple-400">
+                              {parseFloat(activity.solAmount).toFixed(2)} SOL
+                            </span>
+                          )}
+
+                          {/* DEX/Program badge */}
+                          {activity.program && activity.program !== 'Unknown' && (
+                            <Badge variant="secondary" className="text-xs">
+                              {activity.program}
+                            </Badge>
+                          )}
+                        </div>
+
+                        {/* Wallet actions row (smaller, below) */}
+                        <div className="flex items-center gap-2 mt-1">
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <button
+                                onClick={() => copyToClipboard(activity.walletAddress, "Wallet address")}
+                                className="text-muted-foreground hover:text-foreground transition-colors"
+                              >
+                                <Copy className="h-3 w-3" />
+                              </button>
+                            </TooltipTrigger>
+                            <TooltipContent>Copy wallet address</TooltipContent>
+                          </Tooltip>
+
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <a
+                                href={`https://solscan.io/tx/${activity.signature}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-muted-foreground hover:text-foreground transition-colors"
+                              >
+                                <ExternalLink className="h-3 w-3" />
+                              </a>
+                            </TooltipTrigger>
+                            <TooltipContent>View on Solscan</TooltipContent>
+                          </Tooltip>
+
+                          <span className="text-xs text-muted-foreground/60">
+                            {activity.signature.slice(0, 8)}...
+                          </span>
+                        </div>
+                      </>
                     );
                   })()}
-
-                  {/* Wallet info */}
-                  <div className="flex items-center gap-2 mt-1">
-                    <span className="text-xs text-muted-foreground">
-                      {getWalletLabel(activity.walletAddress)}
-                    </span>
-
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <button
-                          onClick={() => copyToClipboard(activity.walletAddress, "Wallet address")}
-                          className="text-muted-foreground hover:text-foreground transition-colors"
-                        >
-                          <Copy className="h-3 w-3" />
-                        </button>
-                      </TooltipTrigger>
-                      <TooltipContent>Copy wallet address</TooltipContent>
-                    </Tooltip>
-
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <a
-                          href={`https://solscan.io/tx/${activity.signature}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-muted-foreground hover:text-foreground transition-colors"
-                        >
-                          <ExternalLink className="h-3 w-3" />
-                        </a>
-                      </TooltipTrigger>
-                      <TooltipContent>View on Solscan</TooltipContent>
-                    </Tooltip>
-                  </div>
                 </div>
 
                 {/* Price & Stats */}

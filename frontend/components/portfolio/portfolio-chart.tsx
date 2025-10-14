@@ -47,16 +47,31 @@ function PortfolioChartComponent() {
   // Memoize chart data generation
   const chartData: ChartData[] = useMemo(() => {
     if (!performanceResponse?.performance || performanceResponse.performance.length === 0) return []
-    
+
     return performanceResponse.performance.map((point) => ({
       date: point.date,
       value: typeof point.value === 'string' ? parseFloat(point.value) : point.value,
-      formattedDate: new Date(point.date).toLocaleDateString('en-US', { 
-        month: 'short', 
-        day: 'numeric' 
+      formattedDate: new Date(point.date).toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric'
       })
     }))
   }, [performanceResponse])
+
+  // Calculate value range for better Y-axis scaling
+  const valueRange = useMemo(() => {
+    if (chartData.length === 0) return { min: 0, max: 100 }
+
+    const values = chartData.map(d => d.value)
+    const min = Math.min(...values)
+    const max = Math.max(...values)
+    const padding = (max - min) * 0.1 || 10 // 10% padding or minimum 10
+
+    return {
+      min: Math.max(0, min - padding),
+      max: max + padding
+    }
+  }, [chartData])
 
   if (isLoading) {
     return (
@@ -112,10 +127,10 @@ function PortfolioChartComponent() {
           <button
             key={p}
             onClick={() => setPeriod(p)}
-            className={`px-3 py-1 text-xs rounded-md transition-colors ${
+            className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${
               period === p
-                ? 'bg-primary text-primary-foreground'
-                : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                ? 'bg-primary text-primary-foreground shadow-sm'
+                : 'bg-muted text-foreground hover:bg-muted/70 hover:text-foreground border border-border/50'
             }`}
           >
             {p}
@@ -125,27 +140,42 @@ function PortfolioChartComponent() {
 
       <div className="h-[300px] w-full">
         <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={chartData}>
-            <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
-            <XAxis 
-              dataKey="formattedDate" 
-              stroke="hsl(var(--muted-foreground))" 
-              fontSize={12} 
-              tickLine={false} 
-              axisLine={false}
+          <LineChart
+            data={chartData}
+            margin={{ top: 5, right: 10, left: 10, bottom: 5 }}
+          >
+            <CartesianGrid
+              strokeDasharray="3 3"
+              stroke="hsl(var(--border))"
+              opacity={0.2}
+              vertical={false}
+            />
+            <XAxis
+              dataKey="formattedDate"
+              stroke="hsl(var(--foreground))"
+              fontSize={11}
+              tickLine={false}
+              axisLine={{ stroke: 'hsl(var(--border))', strokeWidth: 1 }}
               interval="preserveStartEnd"
+              tick={{ fill: 'hsl(var(--foreground))' }}
             />
             <YAxis
-              stroke="hsl(var(--muted-foreground))"
-              fontSize={12}
+              stroke="hsl(var(--foreground))"
+              fontSize={11}
               tickLine={false}
-              axisLine={false}
+              axisLine={{ stroke: 'hsl(var(--border))', strokeWidth: 1 }}
               tickFormatter={(value) => `$${Number(value).toFixed(0)}`}
-              label={{ 
-                value: 'Portfolio Value ($)', 
-                angle: -90, 
-                position: 'insideLeft', 
-                style: { fontSize: 12, fill: 'hsl(var(--muted-foreground))' } 
+              domain={[valueRange.min, valueRange.max]}
+              tick={{ fill: 'hsl(var(--foreground))' }}
+              label={{
+                value: 'Portfolio Value',
+                angle: -90,
+                position: 'insideLeft',
+                style: {
+                  fontSize: 11,
+                  fill: 'hsl(var(--foreground))',
+                  fontWeight: 500
+                }
               }}
             />
             <Tooltip
@@ -175,9 +205,17 @@ function PortfolioChartComponent() {
               type="monotone"
               dataKey="value"
               stroke="hsl(var(--primary))"
-              strokeWidth={2}
-              dot={false}
-              activeDot={{ r: 6, fill: "hsl(var(--primary))", strokeWidth: 2, stroke: "hsl(var(--background))" }}
+              strokeWidth={2.5}
+              dot={chartData.length <= 7 ? { fill: "hsl(var(--primary))", r: 3 } : false}
+              activeDot={{
+                r: 6,
+                fill: "hsl(var(--primary))",
+                strokeWidth: 2,
+                stroke: "hsl(var(--background))"
+              }}
+              isAnimationActive={true}
+              animationDuration={800}
+              animationEasing="ease-in-out"
             />
           </LineChart>
         </ResponsiveContainer>
