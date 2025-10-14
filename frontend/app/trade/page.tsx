@@ -14,7 +14,6 @@ import { ChartSkeleton } from "@/components/shared/chart-skeleton"
 import { TokenDetailsHeader } from "@/components/trading/token-details-header"
 import { UnifiedPositions } from "@/components/portfolio/unified-positions"
 import { EnhancedCard, CardGrid, CardSection } from "@/components/ui/enhanced-card-system"
-import { TradingStatsWidget, QuickActionsWidget } from "@/components/trading/sidebar-widgets"
 
 const DexScreenerChart = dynamic(
   () => import("@/components/trading/dexscreener-chart").then((mod) => ({ default: mod.DexScreenerChart })),
@@ -45,7 +44,7 @@ function TradePageContent() {
         
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6 min-h-[calc(100vh-10rem)]">
           {/* Left Sidebar */}
-          <motion.aside 
+          <motion.aside
             className="lg:col-span-2 space-y-4 order-2 lg:order-1"
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -54,18 +53,21 @@ function TradePageContent() {
             <div className="lg:sticky lg:top-4 lg:h-[calc(100vh-8rem)] lg:overflow-y-auto space-y-4">
               <TokenSearch />
               <EnhancedTrendingList />
-              <UnifiedPositions 
-                variant="compact" 
+              <UnifiedPositions
+                variant="compact"
                 maxPositions={5}
                 showViewAllButton={true}
               />
-              <TradingStatsWidget />
-              <QuickActionsWidget />
+              <TradeDetails
+                tokenAddress={currentTokenAddress}
+                tokenSymbol={tokenSymbol}
+                tokenName={tokenName}
+              />
             </div>
           </motion.aside>
 
           {/* Main Content Area */}
-          <motion.div 
+          <motion.div
             className="lg:col-span-8 order-1 lg:order-2"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -78,20 +80,13 @@ function TradePageContent() {
                   <DexScreenerChart tokenAddress={currentTokenAddress} />
                 </Suspense>
               </div>
-              
-              {/* Analytics Section */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6">
-                <TradeDetails 
-                  tokenAddress={currentTokenAddress} 
-                  tokenSymbol={tokenSymbol}
-                  tokenName={tokenName}
-                />
-                <TokenPositionPnL 
-                  tokenAddress={currentTokenAddress}
-                  tokenSymbol={tokenSymbol}
-                  tokenName={tokenName}
-                />
-              </div>
+
+              {/* Position P&L - Full Width Under Chart */}
+              <TokenPositionPnL
+                tokenAddress={currentTokenAddress}
+                tokenSymbol={tokenSymbol}
+                tokenName={tokenName}
+              />
             </div>
           </motion.div>
 

@@ -124,25 +124,24 @@ export function WalletActivityList({
             >
               <div className="flex items-center gap-3 p-3">
                 {/* Time Column */}
-                <div className="w-12 text-xs text-muted-foreground text-center">
+                <div className="w-10 text-xs text-muted-foreground text-center flex-shrink-0">
                   {activity.timeAgo}
                 </div>
 
-                {/* Trade Icon */}
-                <div className={cn(
-                  "flex items-center justify-center h-8 w-8 rounded-full",
-                  activity.type === 'BUY' ? "bg-green-500/10" :
-                  activity.type === 'SELL' ? "bg-red-500/10" :
-                  "bg-blue-500/10"
-                )}>
-                  {activity.type === 'BUY' ? (
-                    <CheckCircle2 className="h-4 w-4 text-green-500" />
-                  ) : activity.type === 'SELL' ? (
-                    <XCircle className="h-4 w-4 text-red-500" />
-                  ) : (
-                    <ArrowUpRight className="h-4 w-4 text-blue-500" />
+                {/* BUY/SELL Badge - PROMINENT */}
+                <Badge
+                  className={cn(
+                    "font-bold text-xs px-3 py-1 flex-shrink-0 min-w-[50px] justify-center",
+                    activity.type === 'BUY'
+                      ? "bg-green-500/20 text-green-500 hover:bg-green-500/30 border-green-500/50"
+                      : activity.type === 'SELL'
+                      ? "bg-red-500/20 text-red-500 hover:bg-red-500/30 border-red-500/50"
+                      : "bg-blue-500/20 text-blue-500 hover:bg-blue-500/30 border-blue-500/50"
                   )}
-                </div>
+                  variant="outline"
+                >
+                  {activity.type}
+                </Badge>
 
                 {/* Token Info */}
                 <div className="flex-1 min-w-0">
@@ -157,46 +156,48 @@ export function WalletActivityList({
                     const tokenAmount = mainToken.amount;
 
                     return (
-                      <Link
-                        href={`/trade?token=${tokenMint}`}
-                        className="flex items-center gap-2 hover:opacity-80 transition-opacity"
-                      >
-                        {/* Token Image */}
-                        <div className="relative h-8 w-8 rounded-full overflow-hidden bg-muted flex-shrink-0">
-                          {activity.tokenOut.logoURI || activity.tokenIn.logoURI ? (
-                            <Image
-                              src={activity.type === 'BUY' ? activity.tokenOut.logoURI! : activity.tokenIn.logoURI!}
-                              alt={tokenSymbol}
-                              fill
-                              className="object-cover"
-                              unoptimized
-                            />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center">
-                              <Coins className="h-4 w-4 text-muted-foreground" />
-                            </div>
-                          )}
-                        </div>
+                      <div className="flex items-center gap-2">
+                        <Link
+                          href={`/trade?token=${tokenMint}`}
+                          className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+                        >
+                          {/* Token Image */}
+                          <div className="relative h-8 w-8 rounded-full overflow-hidden bg-muted flex-shrink-0">
+                            {activity.tokenOut.logoURI || activity.tokenIn.logoURI ? (
+                              <Image
+                                src={activity.type === 'BUY' ? activity.tokenOut.logoURI! : activity.tokenIn.logoURI!}
+                                alt={tokenSymbol}
+                                fill
+                                className="object-cover"
+                                unoptimized
+                              />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center">
+                                <Coins className="h-4 w-4 text-muted-foreground" />
+                              </div>
+                            )}
+                          </div>
 
-                        {/* Token Symbol */}
-                        <span className="font-semibold text-base">
-                          {tokenSymbol}
-                        </span>
+                          {/* Token Symbol */}
+                          <span className="font-semibold text-base">
+                            {tokenSymbol}
+                          </span>
+                        </Link>
 
-                        {/* Amount */}
+                        {/* Amount with label */}
                         {tokenAmount && (
-                          <Badge variant="secondary" className="text-xs">
+                          <span className="text-xs text-muted-foreground">
                             {formatNumber(parseFloat(tokenAmount))}
-                          </Badge>
+                          </span>
                         )}
 
-                        {/* Program badge */}
-                        {activity.program && (
-                          <Badge variant="outline" className="text-xs">
+                        {/* DEX/Program badge */}
+                        {activity.program && activity.program !== 'Unknown' && (
+                          <Badge variant="secondary" className="text-xs">
                             {activity.program}
                           </Badge>
                         )}
-                      </Link>
+                      </div>
                     );
                   })()}
 

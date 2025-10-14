@@ -266,6 +266,34 @@ export class WalletActivityService {
   }
 
   /**
+   * Detect DEX/program from transaction instructions
+   */
+  private detectDexProgram(tx: any): string {
+    const dexPrograms: { [key: string]: string } = {
+      "675kPX9MHTjS2zt1qfr1NYHuzeLXfQM9H24wFSUt1Mp8": "Raydium",
+      "CAMMCzo5YL8w4VFF8KVHrK22GGUsp5VTaW7grrKgrWqK": "Raydium",
+      "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P": "Pump.fun",
+      "JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4": "Jupiter",
+      "whirLbMiicVdio4qvUfM5KAg6Ct8VwpYzGff3uctyCc": "Orca",
+      "9W959DqEETiGZocYWCQPaJ6sBmUzgfxXfqGeTEdp3aQP": "Orca",
+      "SWiMDJYFUGj6cPrQ6QYYYWZtvXQdRChSVAygDZDsCHC": "Saber",
+      "DjVE6JNiYqPL2QXyCUUh8rNjHrbz9hXHNYt99MQ59qw1": "Orca V1"
+    };
+
+    // Check transaction instructions
+    if (tx.instructions) {
+      for (const instruction of tx.instructions) {
+        if (dexPrograms[instruction.programId]) {
+          return dexPrograms[instruction.programId];
+        }
+      }
+    }
+
+    // Fallback to tx.source or swap.innerSwaps if available
+    return tx?.source || "Unknown";
+  }
+
+  /**
    * Parse swap from tx.events.swap (preferred method)
    */
   private parseSwapFromEvents(tx: any, swap: any): ParsedSwap | null {
@@ -330,8 +358,8 @@ export class WalletActivityService {
     const frac = (abs % denom).toString().padStart(focus.decimals, "0").replace(/0+$/, "");
     const humanAmount = frac ? parseFloat(`${whole}.${frac}`) : parseFloat(whole);
 
-    // Extract program info
-    const program = swap?.innerSwaps?.[0]?.programInfo?.source ?? tx?.source ?? "Unknown";
+    // Extract program info using shared detection logic
+    const program = this.detectDexProgram(tx);
 
     // Determine tokenIn and tokenOut
     const tokenInMint = isBuy ? this.SOL_MINT : focus.mint;
@@ -363,25 +391,8 @@ export class WalletActivityService {
     const transfers = tx.tokenTransfers;
     if (!transfers || transfers.length < 1) return null;
 
-    // Identify DEX programs
-    const dexPrograms: { [key: string]: string } = {
-      "675kPX9MHTjS2zt1qfr1NYHuzeLXfQM9H24wFSUt1Mp8": "Raydium V4",
-      "CAMMCzo5YL8w4VFF8KVHrK22GGUsp5VTaW7grrKgrWqK": "Raydium CLMM",
-      "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P": "Pump.fun",
-      "JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4": "Jupiter",
-      "whirLbMiicVdio4qvUfM5KAg6Ct8VwpYzGff3uctyCc": "Orca Whirlpool",
-      "9W959DqEETiGZocYWCQPaJ6sBmUzgfxXfqGeTEdp3aQP": "Orca V2"
-    };
-
-    let program = "Unknown";
-    if (tx.instructions) {
-      for (const instruction of tx.instructions) {
-        if (dexPrograms[instruction.programId]) {
-          program = dexPrograms[instruction.programId];
-          break;
-        }
-      }
-    }
+    // Detect DEX program using shared detection logic
+    const program = this.detectDexProgram(tx);
 
     // Look for swap pattern: one token in, one token out
     let tokenIn = null;
