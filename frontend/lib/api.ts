@@ -2,13 +2,6 @@
 // Maps to openapi.yaml contract from backend
 
 import type * as Backend from './types/backend';
-import type {
-  UserNote,
-  CreateNoteRequest,
-  UpdateNoteRequest,
-  NoteResponse,
-  DeleteNoteResponse,
-} from './types/notes';
 
 const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
@@ -60,14 +53,7 @@ export type {
   User,
   PortfolioPosition,
   PortfolioResponse,
-  Token,
-  // Note types from notes.ts
-  UserNote,
-  CreateNoteRequest,
-  UpdateNoteRequest,
-  NotesResponse,
-  NoteResponse,
-  DeleteNoteResponse
+  Token
 } from './types/backend';
 
 // All types are now imported from ./types/backend
@@ -217,93 +203,6 @@ export async function getTokenDetails(mint: string): Promise<Backend.Token> {
     isNew: data.isNew || false,
     isTrending: data.isTrending || false,
   };
-}
-
-/**
- * Get user notes for a specific token or all tokens
- * GET /api/notes?userId={userId}&tokenAddress={tokenAddress}
- */
-export async function getUserNotes(userId: string, tokenAddress?: string): Promise<UserNote[]> {
-  const params = new URLSearchParams({
-    userId
-  });
-  
-  if (tokenAddress) {
-    params.append('tokenAddress', tokenAddress);
-  }
-  
-  const response = await fetch(`${API}/api/notes?${params.toString()}`, {
-    method: 'GET',
-    headers: { 'Content-Type': 'application/json' },
-  });
-
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({ message: 'Failed to fetch notes' }));
-    throw new Error(error.message || `HTTP ${response.status}`);
-  }
-
-  const data = await response.json();
-  return data.notes;
-}
-
-/**
- * Create a new note
- * POST /api/notes
- */
-export async function createNote(request: CreateNoteRequest): Promise<NoteResponse> {
-  const response = await fetch(`${API}/api/notes`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(request),
-  });
-
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({ message: 'Failed to create note' }));
-    throw new Error(error.message || `HTTP ${response.status}`);
-  }
-
-  return response.json();
-}
-
-/**
- * Update an existing note
- * PUT /api/notes/{noteId}
- */
-export async function updateNote(noteId: string, request: UpdateNoteRequest): Promise<NoteResponse> {
-  const response = await fetch(`${API}/api/notes/${encodeURIComponent(noteId)}`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(request),
-  });
-
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({ message: 'Failed to update note' }));
-    throw new Error(error.message || `HTTP ${response.status}`);
-  }
-
-  return response.json();
-}
-
-/**
- * Delete a note
- * DELETE /api/notes/{noteId}?userId={userId}
- */
-export async function deleteNote(noteId: string, userId: string): Promise<DeleteNoteResponse> {
-  const params = new URLSearchParams({
-    userId
-  });
-  
-  const response = await fetch(`${API}/api/notes/${encodeURIComponent(noteId)}?${params.toString()}`, {
-    method: 'DELETE',
-    headers: { 'Content-Type': 'application/json' },
-  });
-
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({ message: 'Failed to delete note' }));
-    throw new Error(error.message || `HTTP ${response.status}`);
-  }
-
-  return response.json();
 }
 
 /**
