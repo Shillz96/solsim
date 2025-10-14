@@ -25,7 +25,6 @@ import {
   CardTitle 
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -336,8 +335,8 @@ export function Leaderboard({
                     {/* Total P&L */}
                     <TableCell className="text-right">
                       <PnLCell
-                        pnlUsd={totalPnL}
-                        costUsd={costBasis}
+                        pnlUSD={totalPnL}
+                        costBasisUSD={costBasis}
                         showSolEquiv={false}
                       />
                     </TableCell>
