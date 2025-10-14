@@ -47,32 +47,7 @@ import { useWalletTrackerWebSocket } from "@/hooks/use-wallet-tracker-ws"
 import { WalletActivityList } from "./wallet-activity-list"
 import { WalletManager } from "./wallet-manager"
 import { WalletStats } from "./wallet-stats"
-
-interface WalletActivity {
-  id: string
-  walletAddress: string
-  signature: string
-  type: 'BUY' | 'SELL' | 'SWAP'
-  tokenIn: {
-    mint?: string
-    symbol?: string
-    amount?: string
-  }
-  tokenOut: {
-    mint?: string
-    symbol?: string
-    amount?: string
-  }
-  priceUsd?: string
-  solAmount?: string
-  program?: string
-  fee?: string
-  marketCap?: string
-  volume24h?: string
-  priceChange24h?: string
-  timestamp: string
-  timeAgo: string
-}
+import type { WalletActivity } from "./types"
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
 

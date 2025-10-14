@@ -28,32 +28,7 @@ import {
 import { cn } from "@/lib/utils"
 import { formatUSD, formatNumber } from "@/lib/format"
 import { useIntersectionObserver } from "@/hooks/use-intersection-observer"
-
-interface WalletActivity {
-  id: string
-  walletAddress: string
-  signature: string
-  type: 'BUY' | 'SELL' | 'SWAP'
-  tokenIn: {
-    mint?: string
-    symbol?: string
-    amount?: string
-  }
-  tokenOut: {
-    mint?: string
-    symbol?: string
-    amount?: string
-  }
-  priceUsd?: string
-  solAmount?: string
-  program?: string
-  fee?: string
-  marketCap?: string
-  volume24h?: string
-  priceChange24h?: string
-  timestamp: string
-  timeAgo: string
-}
+import type { WalletActivity } from "./types"
 
 interface WalletActivityListProps {
   activities: WalletActivity[]

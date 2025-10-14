@@ -1,5 +1,4 @@
 export { ChartSkeleton } from "./chart-skeleton"
-export { PositionNotes } from "./position-notes"
 export { TradeDetails } from "./trade-details"
 export { TrendIndicator, PnLIndicator } from "./TrendIndicator"
 export { SimplePageHeader, PortfolioPageActions } from "./simple-page-header"
