@@ -264,6 +264,25 @@ export default async function walletTrackerV2Routes(app: FastifyInstance) {
     }
   });
 
+  // Clear activities for a wallet (useful for re-syncing)
+  app.delete("/activities/:walletAddress", async (req, reply) => {
+    const { walletAddress } = req.params as { walletAddress: string };
+
+    try {
+      const deleted = await prisma.walletActivity.deleteMany({
+        where: { walletAddress }
+      });
+
+      return {
+        message: "Activities cleared",
+        deletedCount: deleted.count
+      };
+    } catch (error: any) {
+      app.log.error(error);
+      return reply.code(500).send({ error: "Failed to clear activities" });
+    }
+  });
+
   // Auto-sync all tracked wallets (for background job)
   app.post("/auto-sync", async (req, reply) => {
     const { secret } = req.body as { secret?: string };

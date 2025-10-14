@@ -3,6 +3,7 @@ import prisma from "../plugins/prisma.js";
 import priceService from "../plugins/priceService.js";
 import redis from "../plugins/redis.js";
 import { getTokenMeta } from "./tokenService.js";
+import { portfolioCoalescer } from "../utils/requestCoalescer.js";
 import { Decimal } from "@prisma/client/runtime/library";
 
 // Helper to create Decimal safely
@@ -85,13 +86,26 @@ export interface PortfolioResponse {
 }
 
 export async function getPortfolio(userId: string): Promise<PortfolioResponse> {
-  // Get user's active positions
-  const positions = await prisma.position.findMany({
-    where: {
-      userId,
-      qty: { gt: 0 }
-    }
-  });
+  // Use request coalescing to prevent duplicate concurrent requests
+  // If 100 users request portfolio at same time, only 1 DB query is made
+  return portfolioCoalescer.coalesce(
+    `portfolio:${userId}`,
+    async () => {
+      // Get user's active positions
+      const positions = await prisma.position.findMany({
+        where: {
+          userId,
+          qty: { gt: 0 }
+        }
+      });
+
+      return await calculatePortfolioData(userId, positions);
+    },
+    5000 // 5 second TTL - balance between freshness and deduplication
+  );
+}
+
+async function calculatePortfolioData(userId: string, positions: any[]): Promise<PortfolioResponse> {
 
   // Get current prices and market data for all tokens
   const mints = positions.map((p: any) => p.mint);
