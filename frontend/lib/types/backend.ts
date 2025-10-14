@@ -156,49 +156,6 @@ export interface ConversionHistory {
   updatedAt: string; // DateTime as ISO string
 }
 
-export interface UserNote {
-  id: string;
-  userId: string;
-  tokenAddress: string;
-  title: string;
-  content: string;
-  sentiment: 'BULLISH' | 'BEARISH' | 'NEUTRAL' | null;
-  isPrivate: boolean;
-  createdAt: string; // DateTime as ISO string
-  updatedAt: string; // DateTime as ISO string
-}
-
-export interface CreateNoteRequest {
-  tokenAddress: string;
-  title: string;
-  content: string;
-  sentiment?: 'BULLISH' | 'BEARISH' | 'NEUTRAL' | null;
-  isPrivate?: boolean;
-}
-
-export interface UpdateNoteRequest {
-  noteId: string;
-  title?: string;
-  content?: string;
-  sentiment?: 'BULLISH' | 'BEARISH' | 'NEUTRAL' | null;
-  isPrivate?: boolean;
-}
-
-export interface NotesResponse {
-  notes: UserNote[];
-  total: number;
-  hasMore: boolean;
-}
-
-export interface NoteResponse {
-  note: UserNote;
-}
-
-export interface DeleteNoteResponse {
-  success: boolean;
-  noteId: string;
-}
-
 // ================================
 // API Response Types (enriched with metadata)
 // ================================

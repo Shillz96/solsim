@@ -198,7 +198,7 @@ export function WalletTrackerContent() {
 
   // Get wallet label
   const getWalletLabel = (address: string) => {
-    const wallet = trackedWallets?.find(w => w.walletAddress === address)
+    const wallet = trackedWallets?.find((w: any) => w.walletAddress === address)
     return wallet?.label || `${address.slice(0, 4)}...${address.slice(-4)}`
   }
 
