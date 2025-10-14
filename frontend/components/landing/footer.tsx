@@ -58,17 +58,7 @@ export function Footer() {
             <ul className="space-y-2 text-sm">
               <li>
                 <a
-                  href="https://github.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-background/60 hover:text-background transition-colors"
-                >
-                  GitHub
-                </a>
-              </li>
-              <li>
-                <a
-                  href="https://twitter.com"
+                  href="https://x.com/solsim_fun"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-background/60 hover:text-background transition-colors"

@@ -13,9 +13,12 @@ interface SharePnLDialogProps {
   initialBalance: number
   open?: boolean
   onOpenChange?: (open: boolean) => void
+  userHandle?: string
+  userAvatarUrl?: string
+  userEmail?: string
 }
 
-export function SharePnLDialog({ totalPnL, totalPnLPercent, currentValue, initialBalance, open: externalOpen, onOpenChange: externalOnOpenChange }: SharePnLDialogProps) {
+export function SharePnLDialog({ totalPnL, totalPnLPercent, currentValue, initialBalance, open: externalOpen, onOpenChange: externalOnOpenChange, userHandle, userAvatarUrl, userEmail }: SharePnLDialogProps) {
   const [internalOpen, setInternalOpen] = useState(false)
   const open = externalOpen !== undefined ? externalOpen : internalOpen
   const setOpen = externalOnOpenChange || setInternalOpen
@@ -167,11 +170,19 @@ export function SharePnLDialog({ totalPnL, totalPnLPercent, currentValue, initia
 
               {/* User Info */}
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white font-bold">
-                  P
-                </div>
+                {userAvatarUrl ? (
+                  <img
+                    src={userAvatarUrl}
+                    alt={userHandle || 'User'}
+                    className="w-10 h-10 rounded-full object-cover"
+                  />
+                ) : (
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white font-bold">
+                    {(userHandle?.[0] || userEmail?.[0] || 'U').toUpperCase()}
+                  </div>
+                )}
                 <div>
-                  <div className="text-white font-semibold">@trader</div>
+                  <div className="text-white font-semibold">@{userHandle || userEmail?.split('@')[0] || 'trader'}</div>
                   <div className="text-xs text-primary">solsim.fun</div>
                 </div>
               </div>

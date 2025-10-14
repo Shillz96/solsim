@@ -1,12 +1,12 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useState, useMemo } from "react"
 import { EnhancedCard, CardGrid, CardSection } from "@/components/ui/enhanced-card-system"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Search, TrendingUp, Filter, Loader2, AlertCircle } from "lucide-react"
+import { Search, TrendingUp, Filter, Loader2, AlertCircle, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 import { motion } from "framer-motion"
@@ -18,7 +18,9 @@ import { formatUSD, formatNumber, safePercent } from "@/lib/format"
 import { UsdWithSol } from "@/lib/sol-equivalent"
 import { formatSolEquivalent } from "@/lib/sol-equivalent-utils"
 
-type TimeRange = "5m" | "1h" | "6h" | "24h"
+type BirdeyeSortBy = "rank" | "volume24hUSD" | "liquidity"
+type SortField = "price" | "priceChange24h" | "marketCapUsd" | "volume24h" | "trendScore"
+type SortDirection = "asc" | "desc"
 // Use the backend TrendingToken type
 
 function MiniSparkline({ data, isPositive }: { data?: number[]; isPositive: boolean }) {
@@ -53,23 +55,84 @@ function MiniSparkline({ data, isPositive }: { data?: number[]; isPositive: bool
 }
 
 export default function TrendingPage() {
-  const [timeRange, setTimeRange] = useState<TimeRange>("24h")
+  const [birdeyeSortBy, setBirdeyeSortBy] = useState<BirdeyeSortBy>("rank")
   const [searchQuery, setSearchQuery] = useState("")
-  // Category filtering not implemented in backend yet
-  // const [categoryFilter, setCategoryFilter] = useState<string | undefined>(undefined)
-  
-  // Use the API hook to fetch trending tokens
-  const { data: trendingTokens, isLoading: loading, error, refetch: refresh } = useTrendingTokens(50)
-  
+  const [sortField, setSortField] = useState<SortField>("volume24h")
+  const [sortDirection, setSortDirection] = useState<SortDirection>("desc")
+
+  // Use the API hook to fetch trending tokens with Birdeye sort
+  const { data: trendingTokens, isLoading: loading, error, refetch: refresh } = useTrendingTokens(50, birdeyeSortBy)
+
   // Get SOL price for USD equivalents
   const { prices: livePrices } = usePriceStreamContext()
   const solPrice = livePrices.get('So11111111111111111111111111111111111111112')?.price || 0
 
-  const filteredTokens = trendingTokens?.filter(
-    (token) =>
-      token.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      token.symbol?.toLowerCase().includes(searchQuery.toLowerCase()),
-  ) || []
+  // Filter and sort tokens
+  const filteredAndSortedTokens = useMemo(() => {
+    if (!trendingTokens) return []
+
+    // First filter by search query
+    let filtered = trendingTokens.filter(
+      (token) =>
+        token.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        token.symbol?.toLowerCase().includes(searchQuery.toLowerCase()),
+    )
+
+    // Then sort
+    const sorted = [...filtered].sort((a, b) => {
+      let aValue: number
+      let bValue: number
+
+      switch (sortField) {
+        case "price":
+          aValue = a.priceUsd || 0
+          bValue = b.priceUsd || 0
+          break
+        case "priceChange24h":
+          aValue = a.priceChange24h || 0
+          bValue = b.priceChange24h || 0
+          break
+        case "marketCapUsd":
+          aValue = a.marketCapUsd || 0
+          bValue = b.marketCapUsd || 0
+          break
+        case "volume24h":
+          aValue = a.volume24h || 0
+          bValue = b.volume24h || 0
+          break
+        case "trendScore":
+          aValue = Math.abs(a.priceChange24h || 0)
+          bValue = Math.abs(b.priceChange24h || 0)
+          break
+        default:
+          return 0
+      }
+
+      return sortDirection === "asc" ? aValue - bValue : bValue - aValue
+    })
+
+    return sorted
+  }, [trendingTokens, searchQuery, sortField, sortDirection])
+
+  const handleSort = (field: SortField) => {
+    if (sortField === field) {
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc")
+    } else {
+      setSortField(field)
+      setSortDirection("desc")
+    }
+  }
+
+  const SortIcon = ({ field }: { field: SortField }) => {
+    if (sortField !== field) {
+      return <ArrowUpDown className="h-3 w-3 ml-1 opacity-50" />
+    }
+    return sortDirection === "asc" ? (
+      <ArrowUp className="h-3 w-3 ml-1" />
+    ) : (
+      <ArrowDown className="h-3 w-3 ml-1" />
+    )
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
@@ -93,24 +156,32 @@ export default function TrendingPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
+          className="mb-4"
         >
-          <EnhancedCard className="mb-6">
-          <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
-            {/* Time Range Filters */}
-            <div className="flex items-center gap-2">
-              <Filter className="h-4 w-4 text-muted-foreground" />
-              <div className="flex gap-1">
-                {(["5m", "1h", "6h", "24h"] as TimeRange[]).map((range) => (
-                  <Button
-                    key={range}
-                    variant={timeRange === range ? "default" : "ghost"}
-                    size="sm"
-                    onClick={() => setTimeRange(range)}
-                    className={timeRange === range ? "glow" : ""}
-                  >
-                    {range}
-                  </Button>
-                ))}
+          <EnhancedCard className="!py-4">
+          <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between px-6">
+            {/* Birdeye Sort Filters */}
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+              <div className="flex items-center gap-2">
+                <Filter className="h-4 w-4 text-muted-foreground" />
+                <span className="text-sm text-muted-foreground mr-2">Sort by:</span>
+                <div className="flex gap-1">
+                  {[
+                    { value: "rank" as BirdeyeSortBy, label: "Rank" },
+                    { value: "volume24hUSD" as BirdeyeSortBy, label: "Volume" },
+                    { value: "liquidity" as BirdeyeSortBy, label: "Liquidity" }
+                  ].map((option) => (
+                    <Button
+                      key={option.value}
+                      variant={birdeyeSortBy === option.value ? "default" : "ghost"}
+                      size="sm"
+                      onClick={() => setBirdeyeSortBy(option.value)}
+                      className={birdeyeSortBy === option.value ? "glow" : ""}
+                    >
+                      {option.label}
+                    </Button>
+                  ))}
+                </div>
               </div>
             </div>
 
@@ -156,29 +227,69 @@ export default function TrendingPage() {
             </div>
           )}
 
-          {!loading && !error && filteredTokens.length === 0 && (
+          {!loading && !error && filteredAndSortedTokens.length === 0 && (
             <div className="p-6 text-center text-muted-foreground">
               No trending tokens found
             </div>
           )}
 
-          {!loading && !error && filteredTokens.length > 0 && (
+          {!loading && !error && filteredAndSortedTokens.length > 0 && (
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead className="border-b border-border bg-muted/30">
                   <tr>
                     <th className="text-left p-4 text-sm font-semibold text-muted-foreground">#</th>
                     <th className="text-left p-4 text-sm font-semibold text-muted-foreground">Token</th>
-                    <th className="text-left p-4 text-sm font-semibold text-muted-foreground">Price</th>
-                    <th className="text-left p-4 text-sm font-semibold text-muted-foreground">24h Change</th>
-                    <th className="text-left p-4 text-sm font-semibold text-muted-foreground">Market Cap</th>
-                    <th className="text-left p-4 text-sm font-semibold text-muted-foreground">Volume</th>
-                    <th className="text-left p-4 text-sm font-semibold text-muted-foreground">Trend Score</th>
+                    <th className="text-left p-4 text-sm font-semibold text-muted-foreground">
+                      <button
+                        onClick={() => handleSort("price")}
+                        className="flex items-center hover:text-foreground transition-colors"
+                      >
+                        Price
+                        <SortIcon field="price" />
+                      </button>
+                    </th>
+                    <th className="text-left p-4 text-sm font-semibold text-muted-foreground">
+                      <button
+                        onClick={() => handleSort("priceChange24h")}
+                        className="flex items-center hover:text-foreground transition-colors"
+                      >
+                        24h Change
+                        <SortIcon field="priceChange24h" />
+                      </button>
+                    </th>
+                    <th className="text-left p-4 text-sm font-semibold text-muted-foreground">
+                      <button
+                        onClick={() => handleSort("marketCapUsd")}
+                        className="flex items-center hover:text-foreground transition-colors"
+                      >
+                        Market Cap
+                        <SortIcon field="marketCapUsd" />
+                      </button>
+                    </th>
+                    <th className="text-left p-4 text-sm font-semibold text-muted-foreground">
+                      <button
+                        onClick={() => handleSort("volume24h")}
+                        className="flex items-center hover:text-foreground transition-colors"
+                      >
+                        Volume
+                        <SortIcon field="volume24h" />
+                      </button>
+                    </th>
+                    <th className="text-left p-4 text-sm font-semibold text-muted-foreground">
+                      <button
+                        onClick={() => handleSort("trendScore")}
+                        className="flex items-center hover:text-foreground transition-colors"
+                      >
+                        Trend Score
+                        <SortIcon field="trendScore" />
+                      </button>
+                    </th>
                     <th className="text-right p-4 text-sm font-semibold text-muted-foreground">Action</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredTokens.map((token, index) => (
+                  {filteredAndSortedTokens.map((token, index) => (
                     <tr key={token.mint} className="border-b border-border hover:bg-muted/20 transition-colors">
                       {/* Rank */}
                       <td className="p-4">
@@ -256,7 +367,7 @@ export default function TrendingPage() {
                       {/* Trend Score */}
                       <td className="p-4">
                         <Badge variant="secondary" className="text-xs">
-                          {/* Use a calculated trend score since momentumScore doesn't exist in backend type */}
+                          {/* Use absolute value of 24h change as trend score */}
                           {Math.abs(token.priceChange24h).toFixed(1)}
                         </Badge>
                       </td>

@@ -24,6 +24,7 @@ import debugRoutes from "./routes/debug.js";
 import adminRoutes from "./routes/admin.js";
 import sentryTestRoutes from "./routes/sentry-test.js";
 import purchaseRoutes from "./routes/purchase.js";
+import notificationsRoutes from "./routes/notifications.js";
 
 // Import plugins and services
 import wsPlugin from "./plugins/ws.js";
@@ -216,6 +217,7 @@ app.register(walletTrackerRoutes, { prefix: "/api/wallet-tracker" });
 app.register(walletTrackerV2Routes, { prefix: "/api/wallet-tracker/v2" });
 app.register(searchRoutes, { prefix: "/api/search" });
 app.register(purchaseRoutes, { prefix: "/api/purchase" });
+app.register(notificationsRoutes, { prefix: "/api/notifications" });
 app.register(debugRoutes); // Debug routes for price service monitoring
 app.register(adminRoutes, { prefix: "/api/admin" }); // Admin maintenance routes (protected)
 app.register(sentryTestRoutes); // Sentry test routes (dev only)

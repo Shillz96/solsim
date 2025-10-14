@@ -159,6 +159,8 @@ function UserSettingsPage() {
         title: "Success",
         description: "Profile updated successfully",
       })
+      // Invalidate with the correct query key that includes user ID
+      queryClient.invalidateQueries({ queryKey: ['userProfile', user?.id] })
       queryClient.invalidateQueries({ queryKey: ['userProfile'] })
     },
     onError: (error: any) => {
@@ -250,6 +252,8 @@ function UserSettingsPage() {
         title: "Success",
         description: "Avatar updated successfully",
       })
+      // Invalidate with the correct query key that includes user ID
+      queryClient.invalidateQueries({ queryKey: ['userProfile', user?.id] })
       queryClient.invalidateQueries({ queryKey: ['userProfile'] })
     },
     onError: (error: any) => {
@@ -272,6 +276,8 @@ function UserSettingsPage() {
         title: "Success",
         description: "Avatar removed successfully",
       })
+      // Invalidate with the correct query key that includes user ID
+      queryClient.invalidateQueries({ queryKey: ['userProfile', user?.id] })
       queryClient.invalidateQueries({ queryKey: ['userProfile'] })
     },
     onError: (error: any) => {

@@ -19,13 +19,13 @@ import { EnhancedCard } from "@/components/ui/enhanced-card-system"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { 
-  TrendingUp, 
-  TrendingDown, 
-  Wallet, 
-  Activity, 
-  AlertCircle, 
-  RefreshCw, 
+import {
+  TrendingUp,
+  TrendingDown,
+  Wallet,
+  Activity,
+  AlertCircle,
+  RefreshCw,
   Share2,
   Sparkles,
   Target,
@@ -37,7 +37,9 @@ import { SharePnLDialog } from "@/components/modals/share-pnl-dialog"
 import { memo, useState, useCallback } from "react"
 import { useAuth } from "@/hooks/use-auth"
 import { usePortfolio } from "@/hooks/use-portfolio"
+import { useQuery } from "@tanstack/react-query"
 import * as Backend from "@/lib/types/backend"
+import * as api from "@/lib/api"
 import { formatUSD, safePercent } from "@/lib/format"
 import { UsdWithSol } from "@/lib/sol-equivalent"
 import { CurrencyValue, PnLDisplay } from "@/components/shared/currency-display"
@@ -190,6 +192,17 @@ export function PnLCard() {
     refetch,
     isRefetching
   } = usePortfolio();
+
+  // Fetch user profile for share dialog
+  const { data: userProfile } = useQuery({
+    queryKey: ['userProfile', user?.id],
+    queryFn: async () => {
+      if (!user?.id) return null;
+      return api.getUserProfile(user.id);
+    },
+    enabled: !!user?.id,
+    staleTime: 5 * 60 * 1000,
+  });
 
   const handleRefresh = useCallback(() => {
     refetch();
@@ -401,6 +414,9 @@ export function PnLCard() {
         totalPnLPercent={parseFloat(totalPnLPercent.replace(/[^0-9.-]/g, '')) || 0}
         currentValue={totalValue}
         initialBalance={costBasis}
+        userHandle={(userProfile as any)?.handle || undefined}
+        userAvatarUrl={(userProfile as any)?.avatarUrl || (userProfile as any)?.profileImage || (userProfile as any)?.avatar || undefined}
+        userEmail={(userProfile as any)?.email || user?.email || undefined}
       />
     </>
   );

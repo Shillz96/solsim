@@ -1,72 +1,125 @@
 import { useState, useCallback, useEffect } from 'react';
 import { useAuth } from './use-auth';
+import { api } from '@/lib/api';
+import type { Notification as BackendNotification, NotificationResponse } from '@/lib/types/backend';
 
+// Frontend notification type for compatibility with existing UI
 export interface Notification {
   id: string;
-  type: 'trade' | 'portfolio' | 'price' | 'system';
+  type: 'trade' | 'portfolio' | 'price' | 'system' | 'leaderboard' | 'rewards' | 'wallet_tracker' | 'achievement';
   title: string;
   message: string;
   timestamp: Date;
   read: boolean;
   userId?: string;
+  metadata?: any;
+  actionUrl?: string | null;
 }
 
 interface NotificationState {
   notifications: Notification[];
   unreadCount: number;
+  loading: boolean;
 }
 
-// Mock notification data for demo - this would come from your backend
-const generateMockNotifications = (userId?: string): Notification[] => [
-  {
-    id: '1',
-    type: 'trade',
-    title: 'Trade Executed',
-    message: 'Successfully bought 100 SOL/USDC',
-    timestamp: new Date(Date.now() - 1000 * 60 * 5), // 5 minutes ago
-    read: false,
-    userId,
-  },
-  {
-    id: '2',
-    type: 'portfolio',
-    title: 'Portfolio Update',
-    message: 'Your portfolio value increased by 2.5%',
-    timestamp: new Date(Date.now() - 1000 * 60 * 30), // 30 minutes ago
-    read: false,
-    userId,
-  },
-  {
-    id: '3',
-    type: 'price',
-    title: 'Price Alert',
-    message: 'SOL price reached your target of $150',
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2), // 2 hours ago
-    read: true,
-    userId,
-  },
-];
+// Map backend notification category to frontend type
+function mapCategoryToType(category: string): Notification['type'] {
+  switch (category) {
+    case 'TRADE':
+      return 'trade';
+    case 'PORTFOLIO':
+      return 'portfolio';
+    case 'LEADERBOARD':
+      return 'leaderboard';
+    case 'REWARDS':
+      return 'rewards';
+    case 'WALLET_TRACKER':
+      return 'wallet_tracker';
+    case 'ACHIEVEMENT':
+      return 'achievement';
+    case 'SYSTEM':
+    case 'GENERAL':
+      return 'system';
+    default:
+      return 'system';
+  }
+}
+
+// Convert backend notification to frontend format
+function convertNotification(backendNotif: BackendNotification): Notification {
+  let metadata: any = {};
+  try {
+    metadata = backendNotif.metadata ? JSON.parse(backendNotif.metadata) : {};
+  } catch (e) {
+    console.error('Failed to parse notification metadata:', e);
+  }
+
+  return {
+    id: backendNotif.id,
+    type: mapCategoryToType(backendNotif.category),
+    title: backendNotif.title,
+    message: backendNotif.message,
+    timestamp: new Date(backendNotif.createdAt),
+    read: backendNotif.read,
+    userId: backendNotif.userId,
+    metadata,
+    actionUrl: backendNotif.actionUrl,
+  };
+}
 
 export function useNotifications() {
-  const { user } = useAuth();
+  const { user, token } = useAuth();
   const [state, setState] = useState<NotificationState>({
     notifications: [],
     unreadCount: 0,
+    loading: false,
   });
 
-  useEffect(() => {
-    // In a real app, you'd fetch from your backend API
-    // For now, using mock data
-    if (user?.id) {
-      const mockNotifications = generateMockNotifications(user.id);
-      setState({
-        notifications: mockNotifications,
-        unreadCount: mockNotifications.filter(n => !n.read).length,
-      });
-    }
-  }, [user?.id]);
+  // Fetch notifications from the backend
+  const fetchNotifications = useCallback(async () => {
+    if (!user?.id || !token) return;
 
-  const markAsRead = useCallback((notificationId: string) => {
+    setState(prev => ({ ...prev, loading: true }));
+
+    try {
+      const response = await api.get<NotificationResponse>('/notifications', {
+        params: { limit: 50 },
+      });
+
+      if (response.data.success) {
+        const notifications = response.data.notifications.map(convertNotification);
+        setState({
+          notifications,
+          unreadCount: response.data.unreadCount,
+          loading: false,
+        });
+      }
+    } catch (error) {
+      console.error('Failed to fetch notifications:', error);
+      setState(prev => ({ ...prev, loading: false }));
+    }
+  }, [user?.id, token]);
+
+  // Fetch on mount and when user changes
+  useEffect(() => {
+    fetchNotifications();
+  }, [fetchNotifications]);
+
+  // Poll for new notifications every 30 seconds
+  useEffect(() => {
+    if (!user?.id || !token) return;
+
+    const interval = setInterval(() => {
+      fetchNotifications();
+    }, 30000);
+
+    return () => clearInterval(interval);
+  }, [user?.id, token, fetchNotifications]);
+
+  const markAsRead = useCallback(async (notificationId: string) => {
+    if (!token) return;
+
+    // Optimistic update
     setState(prev => ({
       ...prev,
       notifications: prev.notifications.map(n =>
@@ -74,15 +127,34 @@ export function useNotifications() {
       ),
       unreadCount: Math.max(0, prev.unreadCount - 1),
     }));
-  }, []);
 
-  const markAllAsRead = useCallback(() => {
+    try {
+      await api.patch(`/notifications/${notificationId}/read`);
+    } catch (error) {
+      console.error('Failed to mark notification as read:', error);
+      // Revert on error
+      fetchNotifications();
+    }
+  }, [token, fetchNotifications]);
+
+  const markAllAsRead = useCallback(async () => {
+    if (!token) return;
+
+    // Optimistic update
     setState(prev => ({
       ...prev,
       notifications: prev.notifications.map(n => ({ ...n, read: true })),
       unreadCount: 0,
     }));
-  }, []);
+
+    try {
+      await api.patch('/notifications/read-all');
+    } catch (error) {
+      console.error('Failed to mark all notifications as read:', error);
+      // Revert on error
+      fetchNotifications();
+    }
+  }, [token, fetchNotifications]);
 
   const addNotification = useCallback((notification: Omit<Notification, 'id' | 'timestamp'>) => {
     const newNotification: Notification = {
@@ -92,29 +164,44 @@ export function useNotifications() {
     };
 
     setState(prev => ({
+      ...prev,
       notifications: [newNotification, ...prev.notifications.slice(0, 49)], // Keep max 50
       unreadCount: prev.unreadCount + (newNotification.read ? 0 : 1),
     }));
   }, []);
 
-  const removeNotification = useCallback((notificationId: string) => {
+  const removeNotification = useCallback(async (notificationId: string) => {
+    if (!token) return;
+
+    // Optimistic update
     setState(prev => {
       const notification = prev.notifications.find(n => n.id === notificationId);
       return {
+        ...prev,
         notifications: prev.notifications.filter(n => n.id !== notificationId),
-        unreadCount: notification && !notification.read 
-          ? Math.max(0, prev.unreadCount - 1) 
+        unreadCount: notification && !notification.read
+          ? Math.max(0, prev.unreadCount - 1)
           : prev.unreadCount,
       };
     });
-  }, []);
+
+    try {
+      await api.delete(`/notifications/${notificationId}`);
+    } catch (error) {
+      console.error('Failed to delete notification:', error);
+      // Revert on error
+      fetchNotifications();
+    }
+  }, [token, fetchNotifications]);
 
   return {
     notifications: state.notifications,
     unreadCount: state.unreadCount,
+    loading: state.loading,
     markAsRead,
     markAllAsRead,
     addNotification,
     removeNotification,
+    refresh: fetchNotifications,
   };
 }

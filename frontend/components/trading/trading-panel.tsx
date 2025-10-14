@@ -551,8 +551,8 @@ function TradingPanelComponent({ tokenAddress: propTokenAddress }: TradingPanelP
   const tokenBalance = tokenHolding ? parseFloat(tokenHolding.qty) : 0
 
   return (
-    <div className="p-6 rounded-lg bg-card border border-border/50">
-      <div className="space-y-6">
+    <div className="p-4 sm:p-6 rounded-lg bg-card border border-border/50">
+      <div className="space-y-4 sm:space-y-6">
         {/* Trade Status */}
         {tradeError && (
           <Alert variant="destructive">
@@ -620,13 +620,13 @@ function TradingPanelComponent({ tokenAddress: propTokenAddress }: TradingPanelP
       </div>
 
       <Tabs defaultValue="buy" className="w-full">
-        <TabsList className="grid w-full grid-cols-2 h-12">
-          <TabsTrigger value="buy" className="tab-buy font-bold text-base">
+        <TabsList className="grid w-full grid-cols-2 h-14 sm:h-12 gap-1">
+          <TabsTrigger value="buy" className="tab-buy font-bold text-base sm:text-sm h-12 sm:h-auto">
             Buy
           </TabsTrigger>
           <TabsTrigger
             value="sell"
-            className="tab-sell font-bold text-base"
+            className="tab-sell font-bold text-base sm:text-sm h-12 sm:h-auto"
             disabled={!tokenHolding || tokenBalance <= 0}
           >
             Sell

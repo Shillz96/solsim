@@ -11,6 +11,7 @@ import { validateBody, authSchemas, sanitizeInput } from "../plugins/validation.
 import { authRateLimit, walletRateLimit, sensitiveRateLimit } from "../plugins/rateLimiting.js";
 import { NonceService } from "../plugins/nonce.js";
 import { EmailService } from "../services/emailService.js";
+import * as notificationService from "../services/notificationService.js";
 
 // Check if wallet holds SIM tokens and upgrade balance
 async function checkAndUpgradeSIMHolder(userId: string, walletAddress: string) {
@@ -83,6 +84,11 @@ export default async function (app: FastifyInstance) {
       // Send verification email (non-blocking)
       EmailService.sendVerificationEmail(email, verificationToken, user.username).catch(error => {
         console.error('Failed to send verification email:', error);
+      });
+
+      // Send welcome notification (non-blocking)
+      notificationService.notifyWelcome(user.id, user.username).catch(error => {
+        console.error('Failed to send welcome notification:', error);
       });
 
       // Create session and generate tokens
@@ -194,21 +200,30 @@ export default async function (app: FastifyInstance) {
       const nonce = await NonceService.generateNonce(walletAddress);
 
       // Create or update user record
-      await prisma.user.upsert({
+      const walletUser = await prisma.user.upsert({
         where: { walletAddress },
-        update: { 
+        update: {
           walletNonce: null // Don't store nonce in DB anymore, only in Redis
         },
-        create: { 
+        create: {
           email: `${walletAddress.slice(0, 8)}@wallet.solsim.fun`,
           username: walletAddress.slice(0, 16),
           passwordHash: '',
-          walletAddress, 
+          walletAddress,
           walletNonce: null,
           virtualSolBalance: 10,
           userTier: 'WALLET_USER'
         }
       });
+
+      // Send welcome notification for new wallet users (non-blocking)
+      // Check if this is a new user by checking if they just got created
+      const isNewUser = await prisma.user.count({ where: { walletAddress } }) === 1;
+      if (isNewUser) {
+        notificationService.notifyWelcome(walletUser.id, walletUser.username).catch(error => {
+          console.error('Failed to send welcome notification:', error);
+        });
+      }
 
       // Create Sign-In With Solana message
       const message = NonceService.createSIWSMessage(walletAddress, nonce);

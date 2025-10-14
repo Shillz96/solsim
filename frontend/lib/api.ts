@@ -257,8 +257,8 @@ export async function getLeaderboard(limit: number = 50): Promise<Backend.Leader
  * Get trending tokens
  * GET /api/trending
  */
-export async function getTrending(): Promise<Backend.TrendingToken[]> {
-  const response = await fetch(`${API}/api/trending`, {
+export async function getTrending(sortBy: 'rank' | 'volume24hUSD' | 'liquidity' = 'rank'): Promise<Backend.TrendingToken[]> {
+  const response = await fetch(`${API}/api/trending?sortBy=${sortBy}`, {
     method: 'GET',
     headers: { 'Content-Type': 'application/json' },
   });

@@ -5,6 +5,8 @@ import priceService from "../plugins/priceService.js";
 import { D, vwapBuy, fifoSell } from "../utils/pnl.js";
 import { simulateFees } from "../utils/decimal-helpers.js";
 import { addTradePoints } from "./rewardService.js";
+import { portfolioCoalescer } from "../utils/requestCoalescer.js";
+import * as notificationService from "./notificationService.js";
 
 // Helper for market cap VWAP
 function mcVwapUpdate(oldQty: Decimal, oldMcVwap: Decimal, buyQty: Decimal, mcAtFillUsd: Decimal | null) {
@@ -292,12 +294,37 @@ export async function fillTrade({
   const tradeValueUsd = tradeCostUsd;
   await addTradePoints(userId, tradeValueUsd);
 
+  // CRITICAL: Invalidate portfolio cache to prevent stale data
+  portfolioCoalescer.invalidate(`portfolio:${userId}`);
+  console.log(`[Trade] Invalidated portfolio cache for user ${userId}`);
+
   // Calculate portfolio totals
   const portfolioTotals = await calculatePortfolioTotals(userId);
 
-  return { 
-    trade: result.trade, 
-    position: result.position, 
+  // Get token metadata for notification
+  const tokenMeta = await prisma.token.findUnique({ where: { address: mint } });
+  const tokenSymbol = tokenMeta?.symbol || 'Unknown';
+  const tokenName = tokenMeta?.name || 'Unknown Token';
+
+  // Create trade notification
+  await notificationService.notifyTradeExecuted(
+    userId,
+    side,
+    tokenSymbol,
+    tokenName,
+    mint,
+    q,
+    priceUsd,
+    tradeCostUsd
+  );
+
+  // Check for trade milestones
+  const tradeCount = await prisma.trade.count({ where: { userId } });
+  await notificationService.notifyTradeMilestone(userId, tradeCount);
+
+  return {
+    trade: result.trade,
+    position: result.position,
     portfolioTotals,
     rewardPointsEarned: tradeValueUsd
   };

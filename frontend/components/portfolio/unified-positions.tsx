@@ -118,9 +118,13 @@ export const UnifiedPositions = memo(function UnifiedPositions({
   // Enhance positions with live prices and token metadata
   const enhancedPositions: LiveEnhancedPosition[] = useMemo(() => {
     if (!portfolio?.positions) return []
-    
+
     let positions = portfolio.positions
-      .filter(position => parseFloat(position.qty) > 0)
+      .filter(position => {
+        // More robust filtering: check if qty exists and is a valid positive number
+        const qty = parseFloat(position.qty || '0')
+        return !isNaN(qty) && qty > 0
+      })
       .map(position => {
         const livePrice = livePrices.get(position.mint)
         const positionQty = parseFloat(position.qty)

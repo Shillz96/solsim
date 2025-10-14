@@ -256,8 +256,10 @@ export function PortfolioMetrics({ isLoading: externalLoading = false }: Portfol
     return <MetricsLoadingSkeleton />;
   }
 
-  // Empty state
-  if (!portfolio || !portfolio.positions || portfolio.positions.length === 0) {
+  // Empty state - only show if user has NEVER traded before
+  // If they have trading history but no current positions, still show metrics
+  const hasTradingHistory = portfolio?.totals?.totalTrades && portfolio.totals.totalTrades > 0;
+  if (!portfolio || !hasTradingHistory) {
     return <EmptyMetricsState onAction={() => window.location.href = '/trade'} />;
   }
 
@@ -274,12 +276,12 @@ export function PortfolioMetrics({ isLoading: externalLoading = false }: Portfol
 
   // Calculate change percentages
   // PnL% = pnl / costBasis, where costBasis = currentValue - pnl
-  const totalPnLChange = totalValue > 0 
-    ? (totalPnL / (totalValue - totalPnL)) * 100 
+  const totalPnLChange = totalValue > 0
+    ? (totalPnL / (totalValue - totalPnL)) * 100
     : 0;
   // For unrealized PnL, we need the cost basis of open positions
   // costBasis = currentValue - unrealizedPnL, so unrealizedPnL% = unrealizedPnL / costBasis
-  const unrealizedCostBasis = totalValue - unrealizedPnL
+  const unrealizedCostBasis = totalValue - unrealizedPnL;
   const unrealizedPnLChange = unrealizedCostBasis > 0
     ? (unrealizedPnL / unrealizedCostBasis) * 100
     : 0;

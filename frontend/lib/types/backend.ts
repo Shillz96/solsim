@@ -252,6 +252,9 @@ export interface TrendingToken {
   logoURI: string | null;
   priceUsd: number;
   priceChange24h: number;
+  priceChange5m?: number;
+  priceChange1h?: number;
+  priceChange6h?: number;
   volume24h: number;
   marketCapUsd: number | null;
   tradeCount: number;
@@ -353,6 +356,7 @@ export interface AuthResponse {
     email: string;
     userTier: UserTier;
     virtualSolBalance: string;
+    emailVerified: boolean;
     walletAddress?: string; // Optional - only for wallet verification
   };
 }
@@ -603,6 +607,86 @@ export interface PurchaseHistory {
 
 export interface PurchaseTiersResponse {
   tiers: PurchaseTier[];
+}
+
+// ================================
+// Notification Types
+// ================================
+
+export type NotificationType =
+  | 'TRADE_EXECUTED'        // Trade completed
+  | 'TRADE_MILESTONE'       // 10th, 50th, 100th trade
+  | 'POSITION_GAIN'         // Position up 10%, 25%, 50%, 100%
+  | 'POSITION_MOON'         // 2x, 5x, 10x gains
+  | 'POSITION_LOSS'         // Position down significantly
+  | 'DAILY_PNL'             // Daily profit milestone
+  | 'PORTFOLIO_ATH'         // Portfolio all-time high
+  | 'PORTFOLIO_RECOVERY'    // Recovered from loss
+  | 'LEADERBOARD_RANK'      // Entered top 100, top 10
+  | 'LEADERBOARD_MOVE'      // Moved up ranks
+  | 'REWARD_AVAILABLE'      // Rewards to claim
+  | 'REWARD_CLAIMED'        // Reward claimed
+  | 'WALLET_TRACKER_TRADE'  // KOL made a trade
+  | 'WALLET_TRACKER_GAIN'   // KOL position mooning
+  | 'ACHIEVEMENT'           // Fun achievements
+  | 'PRICE_ALERT'           // Price target hit
+  | 'TRENDING_TOKEN'        // Token you hold is trending
+  | 'SYSTEM'                // System announcements
+  | 'WELCOME';              // Welcome message
+
+export type NotificationCategory =
+  | 'TRADE'
+  | 'PORTFOLIO'
+  | 'LEADERBOARD'
+  | 'REWARDS'
+  | 'WALLET_TRACKER'
+  | 'ACHIEVEMENT'
+  | 'SYSTEM'
+  | 'GENERAL';
+
+export interface NotificationMetadata {
+  tokenSymbol?: string;
+  tokenName?: string;
+  tokenAddress?: string;
+  amount?: string;
+  price?: string;
+  pnl?: string;
+  pnlPercent?: string;
+  rank?: number;
+  rankChange?: number;
+  walletAddress?: string;
+  walletName?: string;
+  tradeCount?: number;
+  multiplier?: number;
+  achievementType?: string;
+  epoch?: number;
+  txSig?: string;
+  [key: string]: any;
+}
+
+export interface Notification {
+  id: string;
+  userId: string;
+  type: NotificationType;
+  category: NotificationCategory;
+  title: string;
+  message: string;
+  read: boolean;
+  metadata: string; // JSON string
+  actionUrl: string | null;
+  createdAt: string; // DateTime as ISO string
+}
+
+export interface NotificationResponse {
+  success: boolean;
+  notifications: Notification[];
+  unreadCount: number;
+  hasMore: boolean;
+}
+
+export interface UnreadCountResponse {
+  success: boolean;
+  count: number;
 }
 
 

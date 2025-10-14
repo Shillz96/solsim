@@ -5,11 +5,11 @@ import type * as Backend from '../lib/types/backend';
 /**
  * Hook for fetching trending tokens with React Query
  */
-export function useTrendingTokens(limit = 10) {
+export function useTrendingTokens(limit = 10, sortBy: 'rank' | 'volume24hUSD' | 'liquidity' = 'rank') {
   return useQuery({
-    queryKey: ['trending', limit],
+    queryKey: ['trending', limit, sortBy],
     queryFn: async () => {
-      const trending = await api.getTrending();
+      const trending = await api.getTrending(sortBy);
       return trending.slice(0, limit);
     },
     staleTime: 1000 * 60 * 5, // 5 minutes
@@ -46,18 +46,18 @@ function getUserId(): string {
  */
 export function useExecuteTrade() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: async ({ 
+    mutationFn: async ({
       userId,
-      action, 
-      tokenAddress, 
-      qty 
-    }: { 
+      action,
+      tokenAddress,
+      qty
+    }: {
       userId: string,
-      action: 'buy' | 'sell', 
-      tokenAddress: string, 
-      qty: string 
+      action: 'buy' | 'sell',
+      tokenAddress: string,
+      qty: string
     }) => {
       return await api.trade({
         userId,
@@ -66,11 +66,17 @@ export function useExecuteTrade() {
         qty
       });
     },
-    onSuccess: () => {
-      // Invalidate related queries to refresh their data
-      queryClient.invalidateQueries({ queryKey: ['portfolio'] });
-      queryClient.invalidateQueries({ queryKey: ['balance'] });
-      queryClient.invalidateQueries({ queryKey: ['transactions'] });
+    onSuccess: async () => {
+      // Invalidate and immediately refetch to ensure fresh data
+      // The backend now invalidates its cache, so this will get fresh data
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['portfolio'] }),
+        queryClient.invalidateQueries({ queryKey: ['balance'] }),
+        queryClient.invalidateQueries({ queryKey: ['transactions'] })
+      ]);
+
+      // Force immediate refetch for portfolio to show updated PnL
+      await queryClient.refetchQueries({ queryKey: ['portfolio'] });
     },
   });
 }

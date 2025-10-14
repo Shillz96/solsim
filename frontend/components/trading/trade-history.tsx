@@ -19,12 +19,14 @@ interface TradeHistoryProps {
   tokenAddress?: string
   showHeader?: boolean
   limit?: number
+  noCard?: boolean // Don't wrap in Card when already inside CardSection
 }
 
-export function TradeHistory({ 
-  tokenAddress, 
-  showHeader = true, 
-  limit = 50 
+export function TradeHistory({
+  tokenAddress,
+  showHeader = true,
+  limit = 50,
+  noCard = false
 }: TradeHistoryProps = {}) {
   const [trades, setTrades] = useState<api.TradeHistoryItem[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -88,31 +90,29 @@ export function TradeHistory({
   }
 
   if (isLoading) {
-    return (
-      <Card className="p-6">
-        <div className="flex items-center justify-center h-32">
-          <Loader2 className="h-6 w-6 animate-spin" />
-          <span className="ml-2">Loading trade history...</span>
-        </div>
-      </Card>
+    const loadingContent = (
+      <div className="flex items-center justify-center h-32">
+        <Loader2 className="h-6 w-6 animate-spin" />
+        <span className="ml-2">Loading trade history...</span>
+      </div>
     )
+    return noCard ? loadingContent : <Card className="p-6">{loadingContent}</Card>
   }
 
   if (error) {
-    return (
-      <Card className="p-6">
-        <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription>
-            Failed to load trade history: {error}
-          </AlertDescription>
-        </Alert>
-      </Card>
+    const errorContent = (
+      <Alert variant="destructive">
+        <AlertCircle className="h-4 w-4" />
+        <AlertDescription>
+          Failed to load trade history: {error}
+        </AlertDescription>
+      </Alert>
     )
+    return noCard ? errorContent : <Card className="p-6">{errorContent}</Card>
   }
 
-  return (
-    <Card className="p-6 space-y-4">
+  const content = (
+    <>
       {showHeader && (
         <div className="flex items-center justify-between">
           <h3 className="font-semibold">
@@ -133,7 +133,7 @@ export function TradeHistory({
             {tokenAddress ? "No Token Trades" : "No Trade History"}
           </h3>
           <p className="text-muted-foreground mb-6 max-w-sm mx-auto">
-            {tokenAddress 
+            {tokenAddress
               ? "No trades found for this token. Start trading to see your history here."
               : "Make your first trade to see your transaction history here."
             }
@@ -156,8 +156,8 @@ export function TradeHistory({
             >
               <div className="flex items-center gap-3">
                 <div className={`flex h-8 w-8 items-center justify-center rounded-full ${
-                  trade.side === "BUY" 
-                    ? "bg-green-100 text-green-600 dark:bg-green-900/20" 
+                  trade.side === "BUY"
+                    ? "bg-green-100 text-green-600 dark:bg-green-900/20"
                     : "bg-red-100 text-red-600 dark:bg-red-900/20"
                 }`}>
                   {trade.side === "BUY" ? (
@@ -182,7 +182,7 @@ export function TradeHistory({
               <div className="text-right flex items-center gap-4">
                 {/* ✅ Quantity with standardized formatting */}
                 <div>
-                  <QuantityCell 
+                  <QuantityCell
                     qty={parseFloat(trade.qty)}
                     symbol={trade.symbol || ''}
                     decimals={6}
@@ -192,7 +192,7 @@ export function TradeHistory({
 
                 {/* ✅ Price per token with SOL equivalent */}
                 <div>
-                  <PriceCell 
+                  <PriceCell
                     priceUSD={parseFloat(trade.priceUsd)}
                     className="text-sm"
                     showSolEquiv={true}
@@ -201,7 +201,7 @@ export function TradeHistory({
 
                 {/* ✅ Total cost with SOL equivalent */}
                 <div>
-                  <MoneyCell 
+                  <MoneyCell
                     usd={parseFloat(trade.costUsd)}
                     className="text-sm font-medium"
                     hideSolEquiv={false}
@@ -228,6 +228,12 @@ export function TradeHistory({
           )}
         </div>
       )}
-    </Card>
+    </>
+  )
+
+  return noCard ? (
+    <div className="space-y-4">{content}</div>
+  ) : (
+    <Card className="p-6 space-y-4">{content}</Card>
   )
 }

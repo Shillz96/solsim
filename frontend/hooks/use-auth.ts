@@ -11,6 +11,9 @@ interface AuthUser {
   id: string
   email: string
   handle?: string
+  emailVerified?: boolean
+  profileImage?: string
+  avatarUrl?: string
 }
 
 interface AuthState {
@@ -53,15 +56,19 @@ export function useAuth() {
 
   const login = useCallback(async (email: string, password: string) => {
     const response = await api.loginEmail({ email, password })
-    const user = { id: response.userId, email }
-    
+    const user: AuthUser = {
+      id: response.userId,
+      email,
+      emailVerified: response.user.emailVerified
+    }
+
     localStorage.setItem('userId', response.userId)
-    localStorage.setItem('user', JSON.stringify({ email }))
+    localStorage.setItem('user', JSON.stringify(user))
     // Store access token for authenticated API calls
     if (response.accessToken) {
       localStorage.setItem('accessToken', response.accessToken)
     }
-    
+
     // Force a synchronous state update to ensure UI re-renders immediately
     flushSync(() => {
       setAuthState({
@@ -76,21 +83,26 @@ export function useAuth() {
     queryClient.invalidateQueries({ queryKey: ['balance'] })
     queryClient.invalidateQueries({ queryKey: ['transactions'] })
     queryClient.invalidateQueries({ queryKey: ['notes'] })
-    
+
     return response
   }, [queryClient])
 
   const signup = useCallback(async (email: string, password: string, handle?: string) => {
     const response = await api.signupEmail({ email, password, handle })
-    const user = { id: response.userId, email, handle }
-    
+    const user: AuthUser = {
+      id: response.userId,
+      email,
+      handle,
+      emailVerified: response.user.emailVerified
+    }
+
     localStorage.setItem('userId', response.userId)
-    localStorage.setItem('user', JSON.stringify({ email, handle }))
+    localStorage.setItem('user', JSON.stringify(user))
     // Store access token for authenticated API calls
     if (response.accessToken) {
       localStorage.setItem('accessToken', response.accessToken)
     }
-    
+
     // Force a synchronous state update to ensure UI re-renders immediately
     flushSync(() => {
       setAuthState({
@@ -105,7 +117,7 @@ export function useAuth() {
     queryClient.invalidateQueries({ queryKey: ['balance'] })
     queryClient.invalidateQueries({ queryKey: ['transactions'] })
     queryClient.invalidateQueries({ queryKey: ['notes'] })
-    
+
     return response
   }, [queryClient])
 

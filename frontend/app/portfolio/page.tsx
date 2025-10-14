@@ -65,7 +65,7 @@ function PortfolioPageContent() {
               transition={{ duration: 0.5, delay: 0.4 }}
             >
               <Tabs defaultValue="positions" className="w-full">
-                <TabsList className="grid w-full grid-cols-3 mb-6 bg-muted/50 backdrop-blur-sm border border-border/50">
+                <TabsList className="grid w-full grid-cols-3 mb-4 bg-muted/50 backdrop-blur-sm border border-border/50">
                   <TabsTrigger value="positions" className="gap-2 data-[state=active]:bg-primary/20">
                     <TrendingUp className="h-4 w-4" />
                     <span className="hidden sm:inline">Positions</span>
@@ -89,11 +89,12 @@ function PortfolioPageContent() {
                 </TabsContent>
 
                 <TabsContent value="performance" className="mt-0">
-                  <EnhancedCard variant="elevated" size="lg">
-                    <CardSection 
-                      title="Portfolio Performance" 
+                  <EnhancedCard variant="elevated" size="lg" className="!py-4">
+                    <CardSection
+                      title="Portfolio Performance"
                       description="Track your portfolio value over time"
-                      spacing="normal"
+                      spacing="tight"
+                      className="px-6"
                     >
                       <PortfolioChart />
                     </CardSection>
@@ -106,13 +107,14 @@ function PortfolioPageContent() {
                 </TabsContent>
 
                 <TabsContent value="history" className="mt-0">
-                  <EnhancedCard variant="default" size="lg">
-                    <CardSection 
-                      title="Trade History" 
+                  <EnhancedCard variant="default" size="lg" className="!py-4">
+                    <CardSection
+                      title="Trade History"
                       description="Your recent trading activity"
-                      spacing="normal"
+                      spacing="tight"
+                      className="px-6"
                     >
-                      <TradeHistory />
+                      <TradeHistory showHeader={false} noCard={true} />
                     </CardSection>
                   </EnhancedCard>
                 </TabsContent>

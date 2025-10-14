@@ -117,7 +117,7 @@ export default function LeaderboardPage() {
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         {/* Header */}
-        <div className="mb-8">
+        <div className="mb-6">
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-4xl md:text-5xl font-bold mb-4">
@@ -144,21 +144,26 @@ export default function LeaderboardPage() {
         )}
 
         {/* Time Range Filter */}
-        <div className="mb-8 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-          <Tabs value={timeRange} onValueChange={(v) => setTimeRange(v as TimeRange)}>
-            <TabsList>
-              <TabsTrigger value="24h">24 Hours</TabsTrigger>
-              <TabsTrigger value="7d">7 Days</TabsTrigger>
-              <TabsTrigger value="all">All Time</TabsTrigger>
-            </TabsList>
-          </Tabs>
+        <div className="mb-4">
+          <div className="bg-card border border-border rounded-lg px-6 py-3 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+            <div className="flex items-center gap-4">
+              <Tabs value={timeRange} onValueChange={(v) => setTimeRange(v as TimeRange)}>
+                <TabsList>
+                  <TabsTrigger value="all">All Time</TabsTrigger>
+                </TabsList>
+              </Tabs>
+              <span className="text-xs text-muted-foreground">
+                (24h and 7d filters coming soon)
+              </span>
+            </div>
 
-          {currentUser && (
-            <Button variant="outline" onClick={scrollToUserRank} className="md:hidden">
-              <Target className="h-4 w-4 mr-2" />
-              View My Rank
-            </Button>
-          )}
+            {currentUser && (
+              <Button variant="outline" onClick={scrollToUserRank} className="md:hidden">
+                <Target className="h-4 w-4 mr-2" />
+                View My Rank
+              </Button>
+            )}
+          </div>
         </div>
 
         {/* Main Layout */}

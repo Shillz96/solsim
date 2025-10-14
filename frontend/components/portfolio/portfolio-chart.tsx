@@ -171,9 +171,9 @@ function PortfolioChartComponent() {
                 value: 'Portfolio Value',
                 angle: -90,
                 position: 'insideLeft',
+                fill: 'hsl(var(--foreground))',
                 style: {
                   fontSize: 11,
-                  fill: 'hsl(var(--foreground))',
                   fontWeight: 500
                 }
               }}
