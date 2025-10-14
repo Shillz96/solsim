@@ -21,7 +21,15 @@ export default async function rewardsRoutes(app: FastifyInstance) {
       if (!user) {
         return reply.code(404).send({ error: "User not found" });
       }
-      
+
+      // Check if email is verified
+      if (!user.emailVerified) {
+        return reply.code(403).send({
+          error: "Email verification required",
+          message: "Please verify your email address before claiming rewards"
+        });
+      }
+
       // Check if already claimed for this epoch
       const existingClaim = await prisma.rewardClaim.findUnique({
         where: {

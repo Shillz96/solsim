@@ -19,6 +19,7 @@ import { useAuth } from "@/hooks/use-auth"
 import { usePortfolio } from "@/hooks/use-portfolio"
 import { formatNumber, formatUSD } from "@/lib/format"
 import { cn } from "@/lib/utils"
+import { EmailVerificationBanner } from "@/components/auth/email-verification-banner"
 
 export function RewardsOverview() {
   const { toast } = useToast()
@@ -56,9 +57,15 @@ export function RewardsOverview() {
       queryClient.invalidateQueries({ queryKey: ['reward-claims', user?.id] })
     },
     onError: (error: any) => {
+      // Check if error is related to email verification
+      const isEmailVerificationError = error.message?.includes("verification") ||
+                                        error.message?.includes("verify your email")
+
       toast({
-        title: "Claim Failed",
-        description: error.message || "Failed to claim rewards",
+        title: isEmailVerificationError ? "Email Verification Required" : "Claim Failed",
+        description: isEmailVerificationError
+          ? "Please verify your email address before claiming rewards. Check your inbox for the verification link."
+          : error.message || "Failed to claim rewards",
         variant: "destructive",
       })
     },
@@ -182,6 +189,11 @@ export function RewardsOverview() {
 
   return (
     <div className="space-y-6">
+      {/* Email Verification Banner */}
+      {user && !user.emailVerified && (
+        <EmailVerificationBanner email={user.email} />
+      )}
+
       {/* Main Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Unclaimed Rewards */}
