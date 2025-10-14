@@ -147,10 +147,10 @@ export function WalletTrackerContent() {
   // Subscribe to tracked wallets
   useEffect(() => {
     if (connected && trackedWallets && trackedWallets.length > 0) {
-      const addresses = trackedWallets.map(w => w.walletAddress)
+      const addresses = trackedWallets.map((w: any) => w.walletAddress)
       subscribe(addresses)
     }
-  }, [connected, trackedWallets])
+  }, [connected, trackedWallets, subscribe])
 
   // Sync wallet activities
   const syncWallet = async (walletAddress: string) => {
