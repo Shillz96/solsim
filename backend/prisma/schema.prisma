@@ -46,6 +46,7 @@ model User {
   trades             Trade[]
   transactions       TransactionHistory[]
   trackedWallets     WalletTrack[]
+  solPurchases       SolPurchase[]
 }
 
 model Trade {
@@ -326,9 +327,11 @@ model WalletActivity {
   tokenInMint       String?   // Token being sold/sent
   tokenInSymbol     String?
   tokenInAmount     Decimal?
+  tokenInLogoURI    String?   // Token logo image URL
   tokenOutMint      String?   // Token being bought/received
   tokenOutSymbol    String?
   tokenOutAmount    Decimal?
+  tokenOutLogoURI   String?   // Token logo image URL
   priceUsd          Decimal?  // USD value of the trade
   solAmount         Decimal?  // SOL involved in the trade
   program           String?   // DEX program (Raydium, Pump.fun, etc)
@@ -347,6 +350,24 @@ model WalletActivity {
   @@index([tokenOutMint, timestamp(sort: Desc)])
   @@index([type, timestamp(sort: Desc)])
   @@index([timestamp(sort: Desc)])
+}
+
+model SolPurchase {
+  id                   String    @id @default(uuid())
+  userId               String
+  realSolAmount        Decimal   // Amount of real SOL spent
+  simulatedSolAmount   Decimal   // Amount of simulated SOL received
+  transactionSignature String    @unique // Solana transaction signature
+  walletAddress        String    // User's wallet address that made the payment
+  status               String    @default("PENDING") // PENDING, COMPLETED, FAILED
+  tierLabel            String?   // e.g., "Tier 1", "Tier 3 - Popular"
+  createdAt            DateTime  @default(now())
+  completedAt          DateTime?
+  user                 User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([status, createdAt(sort: Desc)])
+  @@index([transactionSignature])
 }
 
 enum UserTier {

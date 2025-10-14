@@ -7,11 +7,13 @@ export interface WalletActivity {
     mint?: string
     symbol?: string
     amount?: string
+    logoURI?: string
   }
   tokenOut: {
     mint?: string
     symbol?: string
     amount?: string
+    logoURI?: string
   }
   priceUsd?: string
   solAmount?: string

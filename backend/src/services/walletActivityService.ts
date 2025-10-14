@@ -8,6 +8,7 @@ interface HeliusTransaction {
   signature: string;
   timestamp: number;
   type?: string;
+  source?: string;
   description?: string;
   fee?: number;
   feePayer?: string;
@@ -26,6 +27,40 @@ interface HeliusTransaction {
     mint: string;
     decimals: number;
   }>;
+  // CORRECT: events.swap structure from Helius API
+  events?: {
+    swap?: {
+      tokenInputs?: Array<{
+        userAccount: string;
+        mint: string;
+        rawTokenAmount: {
+          tokenAmount: string;
+          decimals: number;
+        };
+      }>;
+      tokenOutputs?: Array<{
+        userAccount: string;
+        mint: string;
+        rawTokenAmount: {
+          tokenAmount: string;
+          decimals: number;
+        };
+      }>;
+      nativeInput?: {
+        account: string;
+        amount: string;
+      };
+      nativeOutput?: {
+        account: string;
+        amount: string;
+      };
+      innerSwaps?: Array<{
+        programInfo?: {
+          source?: string;
+        };
+      }>;
+    };
+  };
   accountData?: Array<{
     account: string;
     nativeBalanceChange?: number;
@@ -139,6 +174,34 @@ export class WalletActivityService {
           ? await this.getTokenMetadata(parsedSwap.tokenOutMint)
           : null;
 
+        // Fetch logo URIs from token metadata
+        let tokenInLogoURI: string | null = null;
+        let tokenOutLogoURI: string | null = null;
+
+        if (parsedSwap.tokenInMint) {
+          try {
+            const tokenInData = await prisma.token.findUnique({
+              where: { address: parsedSwap.tokenInMint },
+              select: { logoURI: true, imageUrl: true }
+            });
+            tokenInLogoURI = tokenInData?.logoURI || tokenInData?.imageUrl || null;
+          } catch (err) {
+            // Ignore if token not found in DB
+          }
+        }
+
+        if (parsedSwap.tokenOutMint) {
+          try {
+            const tokenOutData = await prisma.token.findUnique({
+              where: { address: parsedSwap.tokenOutMint },
+              select: { logoURI: true, imageUrl: true }
+            });
+            tokenOutLogoURI = tokenOutData?.logoURI || tokenOutData?.imageUrl || null;
+          } catch (err) {
+            // Ignore if token not found in DB
+          }
+        }
+
         // Create new activity record
         const activity = await prisma.walletActivity.create({
           data: {
@@ -148,9 +211,11 @@ export class WalletActivityService {
             tokenInMint: parsedSwap.tokenInMint,
             tokenInSymbol: parsedSwap.tokenInSymbol || tokenInMeta?.symbol,
             tokenInAmount: parsedSwap.tokenInAmount ? new Decimal(parsedSwap.tokenInAmount) : null,
+            tokenInLogoURI,
             tokenOutMint: parsedSwap.tokenOutMint,
             tokenOutSymbol: parsedSwap.tokenOutSymbol || tokenOutMeta?.symbol,
             tokenOutAmount: parsedSwap.tokenOutAmount ? new Decimal(parsedSwap.tokenOutAmount) : null,
+            tokenOutLogoURI,
             priceUsd: parsedSwap.priceUsd ? new Decimal(parsedSwap.priceUsd) : null,
             solAmount: parsedSwap.solAmount ? new Decimal(parsedSwap.solAmount) : null,
             program: parsedSwap.program,
@@ -174,13 +239,121 @@ export class WalletActivityService {
   }
 
   /**
-   * Parse swap activity from Helius transaction
+   * Parse swap activity from Helius transaction using correct tx.events.swap
    */
-  private parseSwapActivity(tx: HeliusTransaction): ParsedSwap | null {
-    // Check for token transfers (most swaps have 2 transfers)
-    if (!tx.tokenTransfers || tx.tokenTransfers.length < 1) {
-      return null;
+  private parseSwapActivity(tx: any): ParsedSwap | null {
+    // Try tx.events.swap first (preferred Helius format)
+    const swap = tx?.events?.swap;
+    if (swap) {
+      return this.parseSwapFromEvents(tx, swap);
     }
+
+    // Fallback to tokenTransfers parsing if events.swap not available
+    if (tx.tokenTransfers && tx.tokenTransfers.length >= 1) {
+      return this.parseSwapFromTokenTransfers(tx);
+    }
+
+    // No swap data found
+    return null;
+  }
+
+  /**
+   * Parse swap from tx.events.swap (preferred method)
+   */
+  private parseSwapFromEvents(tx: any, swap: any): ParsedSwap | null {
+
+    const BASE_MINTS = new Set([
+      this.SOL_MINT,
+      this.USDT_MINT,
+      this.USDC_MINT,
+    ]);
+
+    // Gather per-mint deltas for the wallet (feePayer)
+    type Delta = { mint: string; decimals: number; amount: bigint };
+    const deltas = new Map<string, Delta>();
+
+    const addDelta = (mint: string, decimals: number, amt: bigint) => {
+      const prev = deltas.get(mint) ?? { mint, decimals, amount: BigInt(0) };
+      deltas.set(mint, { mint, decimals, amount: prev.amount + amt });
+    };
+
+    // Token inputs: wallet sends tokens (negative)
+    for (const ti of swap.tokenInputs ?? []) {
+      if (ti.userAccount === tx.feePayer) {
+        const amt = BigInt(ti.rawTokenAmount.tokenAmount);
+        addDelta(ti.mint, ti.rawTokenAmount.decimals, -amt);
+      }
+    }
+
+    // Token outputs: wallet receives tokens (positive)
+    for (const to of swap.tokenOutputs ?? []) {
+      if (to.userAccount === tx.feePayer) {
+        const amt = BigInt(to.rawTokenAmount.tokenAmount);
+        addDelta(to.mint, to.rawTokenAmount.decimals, amt);
+      }
+    }
+
+    // Native SOL deltas
+    let nativeDeltaLamports = 0n;
+    if (swap.nativeInput?.account === tx.feePayer) {
+      nativeDeltaLamports -= BigInt(swap.nativeInput.amount);
+    }
+    if (swap.nativeOutput?.account === tx.feePayer) {
+      nativeDeltaLamports += BigInt(swap.nativeOutput.amount);
+    }
+
+    // Pick the "actual token" (exclude base mints)
+    const nonBase = [...deltas.values()].filter(d => !BASE_MINTS.has(d.mint) && d.amount !== 0n);
+    const focus = (nonBase.length > 0 ? nonBase : [...deltas.values()])
+      .sort((a, b) => {
+        const absA = a.amount < 0n ? -a.amount : a.amount;
+        const absB = b.amount < 0n ? -b.amount : b.amount;
+        return absB > absA ? 1 : -1;
+      })[0];
+
+    if (!focus || focus.amount === 0n) return null;
+
+    const isBuy = focus.amount > 0n; // received token => BUY; sent => SELL
+    const abs = focus.amount > 0n ? focus.amount : -focus.amount;
+
+    // Convert to human units
+    const denom = BigInt(10) ** BigInt(focus.decimals);
+    const whole = (abs / denom).toString();
+    const frac = (abs % denom).toString().padStart(focus.decimals, "0").replace(/0+$/, "");
+    const humanAmount = frac ? parseFloat(`${whole}.${frac}`) : parseFloat(whole);
+
+    // Extract program info
+    const program = swap?.innerSwaps?.[0]?.programInfo?.source ?? tx?.source ?? "Unknown";
+
+    // Determine tokenIn and tokenOut
+    const tokenInMint = isBuy ? this.SOL_MINT : focus.mint;
+    const tokenOutMint = isBuy ? focus.mint : this.SOL_MINT;
+    const tokenInAmount = isBuy ? undefined : humanAmount;
+    const tokenOutAmount = isBuy ? humanAmount : undefined;
+
+    // Calculate SOL amount from native delta
+    const solAmount = nativeDeltaLamports !== 0n
+      ? Math.abs(Number(nativeDeltaLamports)) / 1e9
+      : undefined;
+
+    return {
+      type: isBuy ? 'BUY' : 'SELL',
+      tokenInMint,
+      tokenInAmount,
+      tokenOutMint,
+      tokenOutAmount,
+      solAmount,
+      program,
+      fee: tx.fee ? tx.fee / 1e9 : undefined
+    };
+  }
+
+  /**
+   * Fallback: Parse swap from tokenTransfers (for older Helius responses)
+   */
+  private parseSwapFromTokenTransfers(tx: any): ParsedSwap | null {
+    const transfers = tx.tokenTransfers;
+    if (!transfers || transfers.length < 1) return null;
 
     // Identify DEX programs
     const dexPrograms: { [key: string]: string } = {
@@ -202,15 +375,12 @@ export class WalletActivityService {
       }
     }
 
-    // Simple swap detection based on transfers
-    const transfers = tx.tokenTransfers;
-
     // Look for swap pattern: one token in, one token out
     let tokenIn = null;
     let tokenOut = null;
 
     for (const transfer of transfers) {
-      // If user is sender, it's token going out (selling)
+      // If wallet is sender, it's token going out (selling)
       if (transfer.fromUserAccount?.toLowerCase() === tx.feePayer?.toLowerCase()) {
         tokenIn = {
           mint: transfer.mint,
@@ -218,7 +388,7 @@ export class WalletActivityService {
           decimals: transfer.decimals
         };
       }
-      // If user is receiver, it's token coming in (buying)
+      // If wallet is receiver, it's token coming in (buying)
       else if (transfer.toUserAccount?.toLowerCase() === tx.feePayer?.toLowerCase()) {
         tokenOut = {
           mint: transfer.mint,
@@ -234,7 +404,7 @@ export class WalletActivityService {
         if (nativeTransfer.fromUserAccount === tx.feePayer && !tokenIn) {
           tokenIn = {
             mint: this.SOL_MINT,
-            amount: nativeTransfer.amount / 1e9, // Convert lamports to SOL
+            amount: nativeTransfer.amount / 1e9,
             decimals: 9
           };
         } else if (nativeTransfer.toUserAccount === tx.feePayer && !tokenOut) {
@@ -247,9 +417,7 @@ export class WalletActivityService {
       }
     }
 
-    if (!tokenIn && !tokenOut) {
-      return null;
-    }
+    if (!tokenIn && !tokenOut) return null;
 
     // Determine trade type
     let type: 'BUY' | 'SELL' | 'SWAP' = 'SWAP';

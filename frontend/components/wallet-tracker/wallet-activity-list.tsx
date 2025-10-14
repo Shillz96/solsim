@@ -2,6 +2,8 @@
 
 import { useState, useRef, useCallback } from "react"
 import { motion } from "framer-motion"
+import Link from "next/link"
+import Image from "next/image"
 import {
   TrendingUp,
   TrendingDown,
@@ -13,7 +15,8 @@ import {
   Loader2,
   AlertCircle,
   CheckCircle2,
-  XCircle
+  XCircle,
+  Coins
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
@@ -143,38 +146,59 @@ export function WalletActivityList({
 
                 {/* Token Info */}
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    {/* Token symbols */}
-                    <div className="flex items-center gap-1">
-                      {activity.tokenIn.symbol && (
-                        <>
-                          <span className="font-medium text-sm">
-                            {activity.tokenIn.symbol}
-                          </span>
-                          <span className="text-xs text-muted-foreground">→</span>
-                        </>
-                      )}
-                      {activity.tokenOut.symbol && (
-                        <span className="font-medium text-sm text-primary">
-                          {activity.tokenOut.symbol}
+                  {(() => {
+                    // Get the main token (non-SOL token)
+                    const mainToken = activity.type === 'BUY'
+                      ? activity.tokenOut
+                      : activity.tokenIn;
+
+                    const tokenMint = mainToken.mint;
+                    const tokenSymbol = mainToken.symbol || 'Unknown';
+                    const tokenAmount = mainToken.amount;
+
+                    return (
+                      <Link
+                        href={`/token/${tokenMint}`}
+                        className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+                      >
+                        {/* Token Image */}
+                        <div className="relative h-8 w-8 rounded-full overflow-hidden bg-muted flex-shrink-0">
+                          {activity.tokenOut.logoURI || activity.tokenIn.logoURI ? (
+                            <Image
+                              src={activity.type === 'BUY' ? activity.tokenOut.logoURI! : activity.tokenIn.logoURI!}
+                              alt={tokenSymbol}
+                              fill
+                              className="object-cover"
+                              unoptimized
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center">
+                              <Coins className="h-4 w-4 text-muted-foreground" />
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Token Symbol */}
+                        <span className="font-semibold text-base">
+                          {tokenSymbol}
                         </span>
-                      )}
-                    </div>
 
-                    {/* Amount */}
-                    {activity.tokenOut.amount && (
-                      <Badge variant="secondary" className="text-xs">
-                        {formatNumber(parseFloat(activity.tokenOut.amount))}
-                      </Badge>
-                    )}
+                        {/* Amount */}
+                        {tokenAmount && (
+                          <Badge variant="secondary" className="text-xs">
+                            {formatNumber(parseFloat(tokenAmount))}
+                          </Badge>
+                        )}
 
-                    {/* Program badge */}
-                    {activity.program && (
-                      <Badge variant="outline" className="text-xs">
-                        {activity.program}
-                      </Badge>
-                    )}
-                  </div>
+                        {/* Program badge */}
+                        {activity.program && (
+                          <Badge variant="outline" className="text-xs">
+                            {activity.program}
+                          </Badge>
+                        )}
+                      </Link>
+                    );
+                  })()}
 
                   {/* Wallet info */}
                   <div className="flex items-center gap-2 mt-1">

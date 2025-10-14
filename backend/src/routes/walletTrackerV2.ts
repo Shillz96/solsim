@@ -47,12 +47,14 @@ export default async function walletTrackerV2Routes(app: FastifyInstance) {
         tokenIn: {
           mint: activity.tokenInMint,
           symbol: activity.tokenInSymbol,
-          amount: activity.tokenInAmount?.toString()
+          amount: activity.tokenInAmount?.toString(),
+          logoURI: activity.tokenInLogoURI
         },
         tokenOut: {
           mint: activity.tokenOutMint,
           symbol: activity.tokenOutSymbol,
-          amount: activity.tokenOutAmount?.toString()
+          amount: activity.tokenOutAmount?.toString(),
+          logoURI: activity.tokenOutLogoURI
         },
         priceUsd: activity.priceUsd?.toString(),
         solAmount: activity.solAmount?.toString(),
