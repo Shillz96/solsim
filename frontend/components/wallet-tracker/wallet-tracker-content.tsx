@@ -49,6 +49,15 @@ import { WalletManager } from "./wallet-manager"
 import { WalletStats } from "./wallet-stats"
 import type { WalletActivity } from "./types"
 
+interface TrackedWallet {
+  id: string
+  userId: string
+  walletAddress: string
+  label?: string
+  isActive: boolean
+  createdAt: string
+}
+
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
 
 export function WalletTrackerContent() {
@@ -65,7 +74,7 @@ export function WalletTrackerContent() {
   const [offset, setOffset] = useState(0)
 
   // Fetch tracked wallets
-  const { data: trackedWallets, isLoading: loadingWallets, refetch: refetchWallets } = useQuery({
+  const { data: trackedWallets, isLoading: loadingWallets, refetch: refetchWallets } = useQuery<TrackedWallet[]>({
     queryKey: ['tracked-wallets', user?.id],
     queryFn: async () => {
       if (!user?.id) return []

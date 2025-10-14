@@ -5,8 +5,8 @@ export function useWalletTrackerWebSocket(userId: string) {
   const [connected, setConnected] = useState(false)
   const [newActivities, setNewActivities] = useState<WalletActivity[]>([])
   const wsRef = useRef<WebSocket | null>(null)
-  const reconnectTimeoutRef = useRef<NodeJS.Timeout>()
-  const pingIntervalRef = useRef<NodeJS.Timeout>()
+  const reconnectTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined)
+  const pingIntervalRef = useRef<NodeJS.Timeout | undefined>(undefined)
 
   const connect = useCallback(() => {
     if (wsRef.current?.readyState === WebSocket.OPEN) return
