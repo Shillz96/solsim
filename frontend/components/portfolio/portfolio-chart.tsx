@@ -1,6 +1,6 @@
 "use client"
 
-import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
+import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis, CartesianGrid } from "recharts"
 import { Loader2, AlertCircle } from "lucide-react"
 import { useState, useMemo, useEffect, useCallback, memo } from "react"
 import { useQuery } from "@tanstack/react-query"
@@ -9,89 +9,54 @@ import { usePriceStreamContext } from "@/lib/price-stream-provider"
 import * as api from "@/lib/api"
 import { formatUSD } from "@/lib/format"
 import { PortfolioValue } from "@/components/ui/financial-value"
+import type * as Backend from "@/lib/types/backend"
 
-interface TradeData {
-  time: string;
+interface ChartData {
+  date: string;
   value: number;
-  cumulative: number;
-  index: number;
+  formattedDate: string;
 }
 
 function PortfolioChartComponent() {
-  const [period, setPeriod] = useState<'30d' | '7d' | '90d'>('30d')
-  const [trades, setTrades] = useState<api.TradeHistoryItem[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const [period, setPeriod] = useState<'7d' | '30d' | '90d'>('30d')
   
-  const { user, isAuthenticated } = useAuth()
+  const { user, isAuthenticated, getUserId } = useAuth()
   
   // Get SOL price for equivalents
   const { prices: livePrices } = usePriceStreamContext()
   const solPrice = livePrices.get('So11111111111111111111111111111111111111112')?.price || 0
 
-  // Load trade history from actual backend API
-  const loadTrades = useCallback(async () => {
-    if (!isAuthenticated || !user) {
-      setError("Please login to view trade history")
-      setIsLoading(false)
-      return
-    }
+  // Calculate days for API call
+  const periodDays = period === '7d' ? 7 : period === '30d' ? 30 : 90
 
-    try {
-      setError(null)
-      setIsLoading(true)
+  // Use React Query to fetch portfolio performance data
+  const { data: performanceResponse, isLoading, error, refetch } = useQuery<Backend.PortfolioPerformanceResponse>({
+    queryKey: ['portfolio-performance', user?.id, periodDays],
+    queryFn: async () => {
+      if (!user) throw new Error('User not authenticated')
+      const userId = getUserId()
+      if (!userId) throw new Error('User ID not available')
       
-      // Calculate limit based on period (more trades for longer periods)
-      const limit = period === '7d' ? 50 : period === '30d' ? 100 : 200
-      
-      const response = await api.getUserTrades(user.id, limit)
-      
-      // Filter trades by date based on period
-      const now = new Date()
-      const periodDays = period === '7d' ? 7 : period === '30d' ? 30 : 90
-      const cutoffDate = new Date(now.getTime() - periodDays * 24 * 60 * 60 * 1000)
-      
-      const filteredTrades = response.trades.filter(trade => 
-        new Date(trade.createdAt) >= cutoffDate
-      )
-      
-      setTrades(filteredTrades.reverse()) // Chronological order (oldest first)
-    } catch (err) {
-      setError((err as Error).message)
-    } finally {
-      setIsLoading(false)
-    }
-  }, [period, user, isAuthenticated])
+      return await api.getPortfolioPerformance(userId, periodDays)
+    },
+    enabled: isAuthenticated && !!user,
+    staleTime: 30000, // 30 seconds
+    refetchInterval: 60000, // Refetch every minute
+  })
 
-  useEffect(() => {
-    loadTrades()
-  }, [loadTrades])
-
-  // Memoize chart data generation to avoid recalculation on every render
-  const chartData: TradeData[] = useMemo(() => {
-    let cumulativeValue = 0
+  // Memoize chart data generation
+  const chartData: ChartData[] = useMemo(() => {
+    if (!performanceResponse?.performance || performanceResponse.performance.length === 0) return []
     
-    return trades.map((trade, index) => {
-      const tradeValue = parseFloat(trade.costUsd)
-      
-      // Add to cumulative if it's a buy, subtract if it's a sell
-      if (trade.side === 'BUY') {
-        cumulativeValue += tradeValue
-      } else {
-        cumulativeValue -= tradeValue
-      }
-      
-      return {
-        time: new Date(trade.createdAt).toLocaleDateString('en-US', { 
-          month: 'short', 
-          day: 'numeric' 
-        }),
-        value: tradeValue,
-        cumulative: cumulativeValue,
-        index
-      }
-    })
-  }, [trades])
+    return performanceResponse.performance.map((point) => ({
+      date: point.date,
+      value: typeof point.value === 'string' ? parseFloat(point.value) : point.value,
+      formattedDate: new Date(point.date).toLocaleDateString('en-US', { 
+        month: 'short', 
+        day: 'numeric' 
+      })
+    }))
+  }, [performanceResponse])
 
   if (isLoading) {
     return (
@@ -104,14 +69,36 @@ function PortfolioChartComponent() {
     )
   }
 
-  if (error || chartData.length === 0) {
+  if (error) {
     return (
       <div className="h-[300px] w-full flex items-center justify-center">
-        <div className="flex items-center gap-2 text-muted-foreground">
-          <AlertCircle className="h-4 w-4" />
-          <span className="text-sm">
-            {error ? `Failed to load data: ${error}` : 'No trading history available'}
-          </span>
+        <div className="flex flex-col items-center gap-2 text-muted-foreground">
+          <AlertCircle className="h-8 w-8" />
+          <span className="text-sm">Failed to load performance data</span>
+          <button
+            onClick={() => refetch()}
+            className="text-xs text-primary hover:underline"
+          >
+            Try again
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  if (chartData.length === 0) {
+    return (
+      <div className="h-[300px] w-full flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3 text-center">
+          <div className="p-4 bg-muted rounded-full">
+            <AlertCircle className="h-8 w-8 text-muted-foreground" />
+          </div>
+          <div>
+            <p className="text-sm font-medium">No trading activity yet</p>
+            <p className="text-xs text-muted-foreground mt-1">
+              Start trading to see your portfolio performance
+            </p>
+          </div>
         </div>
       </div>
     )
@@ -139,8 +126,9 @@ function PortfolioChartComponent() {
       <div className="h-[300px] w-full">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={chartData}>
+            <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
             <XAxis 
-              dataKey="time" 
+              dataKey="formattedDate" 
               stroke="hsl(var(--muted-foreground))" 
               fontSize={12} 
               tickLine={false} 
@@ -153,7 +141,12 @@ function PortfolioChartComponent() {
               tickLine={false}
               axisLine={false}
               tickFormatter={(value) => `$${Number(value).toFixed(0)}`}
-              label={{ value: 'Trade Value ($)', angle: -90, position: 'insideLeft', style: { fontSize: 12, fill: 'hsl(var(--muted-foreground))' } }}
+              label={{ 
+                value: 'Portfolio Value ($)', 
+                angle: -90, 
+                position: 'insideLeft', 
+                style: { fontSize: 12, fill: 'hsl(var(--muted-foreground))' } 
+              }}
             />
             <Tooltip
               content={({ active, payload }) => {
@@ -161,23 +154,13 @@ function PortfolioChartComponent() {
                   const data = payload[0].payload
                   return (
                     <div className="rounded-lg border border-border bg-background p-3 shadow-lg">
-                      <p className="text-xs text-muted-foreground">{data.time}</p>
+                      <p className="text-xs text-muted-foreground mb-2">{data.formattedDate}</p>
                       <div>
                         <p className="font-mono text-sm font-semibold text-foreground">
-                          Trade: {formatUSD(Number(data.value))}
+                          {formatUSD(Number(data.value))}
                         </p>
                         <PortfolioValue 
                           usd={Number(data.value)} 
-                          className="text-xs text-muted-foreground"
-                          showSolEquivalent={true}
-                        />
-                      </div>
-                      <div>
-                        <p className="font-mono text-xs text-muted-foreground">
-                          Cumulative: {formatUSD(Number(data.cumulative))}
-                        </p>
-                        <PortfolioValue 
-                          usd={Number(data.cumulative)} 
                           className="text-xs text-muted-foreground"
                           showSolEquivalent={true}
                         />
@@ -190,11 +173,11 @@ function PortfolioChartComponent() {
             />
             <Line
               type="monotone"
-              dataKey="cumulative"
+              dataKey="value"
               stroke="hsl(var(--primary))"
               strokeWidth={2}
               dot={false}
-              activeDot={{ r: 4, fill: "hsl(var(--primary))" }}
+              activeDot={{ r: 6, fill: "hsl(var(--primary))", strokeWidth: 2, stroke: "hsl(var(--background))" }}
             />
           </LineChart>
         </ResponsiveContainer>

@@ -193,7 +193,7 @@ export function TradeHistory({
                 {/* ✅ Price per token with SOL equivalent */}
                 <div>
                   <PriceCell 
-                    priceUsd={parseFloat(trade.priceUsd)}
+                    priceUSD={parseFloat(trade.priceUsd)}
                     className="text-sm"
                     showSolEquiv={true}
                   />

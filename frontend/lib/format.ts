@@ -58,6 +58,49 @@ export function formatUSD(n: number): string {
 }
 
 /**
+ * Format SOL currency values with intelligent precision
+ *
+ * Rules:
+ * - ≥ 1000 → compact: 1.2K SOL, 3.4M SOL
+ * - 1 – 999 → 2 decimals: 123.45 SOL
+ * - 0.01 – 0.99 → 2–4 decimals depending on magnitude
+ * - < 0.01 (micro amounts) → 4–6 decimals (trim trailing zeros)
+ */
+export function formatSOL(n: number): string {
+  if (!isFinite(n)) return "0 SOL";
+
+  const abs = Math.abs(n);
+
+  if (abs >= 1000) {
+    return `${compact.format(n)} SOL`;
+  }
+
+  if (abs >= 1) {
+    return `${n.toLocaleString("en-US", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    })} SOL`;
+  }
+
+  if (abs >= 0.01) {
+    return `${n.toLocaleString("en-US", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 4
+    })} SOL`;
+  }
+
+  if (abs === 0) {
+    return "0 SOL";
+  }
+
+  // Micro amounts: 4–6 decimals, trim trailing zeros
+  return `${n.toLocaleString("en-US", {
+    minimumFractionDigits: 4,
+    maximumFractionDigits: 6
+  })} SOL`;
+}
+
+/**
  * Format token prices in USD with precision based on magnitude
  *
  * Rules:
@@ -123,6 +166,40 @@ export function formatPriceUSD(n: number): string {
   }
 
   return "$0.00";
+}
+
+/**
+ * Format token prices in SOL with precision based on magnitude
+ *
+ * Rules:
+ * - ≥ 1 SOL → 2 decimals
+ * - 0.01 – 0.99 SOL → 4 decimals
+ * - 0.0001 – 0.0099 SOL → 6 decimals
+ * - < 0.0001 SOL → 8 decimals max
+ */
+export function formatPriceSOL(n: number): string {
+  if (!isFinite(n)) return "0 SOL";
+
+  const abs = Math.abs(n);
+
+  if (abs >= 1) {
+    return `${n.toFixed(2)} SOL`;
+  }
+
+  if (abs >= 0.01) {
+    return `${n.toFixed(4)} SOL`;
+  }
+
+  if (abs >= 0.0001) {
+    return `${n.toFixed(6)} SOL`;
+  }
+
+  if (abs === 0) {
+    return "0 SOL";
+  }
+
+  // Very small values: show up to 8 decimals
+  return `${n.toFixed(8)} SOL`;
 }
 
 /**

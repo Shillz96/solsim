@@ -3,6 +3,7 @@
 import { Suspense } from "react"
 import dynamic from "next/dynamic"
 import { useSearchParams } from "next/navigation"
+import { motion } from "framer-motion"
 import { AuthGuard } from "@/components/auth/auth-guard"
 import { TokenSearch } from "@/components/trading/token-search"
 import { EnhancedTrendingList } from "@/components/leaderboard/enhanced-trending-list"
@@ -30,16 +31,26 @@ function TradePageContent() {
   const tokenName = searchParams.get("name") || undefined
 
   return (
-    <div className="min-h-screen bg-background">
-      <main className="px-4 lg:px-6 py-4 lg:py-6">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
+      <main className="w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-6 max-w-page-xl mx-auto">
         {/* Token details header */}
-        <div className="mb-6">
+        <motion.div 
+          className="mb-6"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
           <TokenDetailsHeader tokenAddress={currentTokenAddress} />
-        </div>
+        </motion.div>
         
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6 min-h-[calc(100vh-10rem)]">
           {/* Left Sidebar */}
-          <aside className="lg:col-span-2 space-y-4 order-2 lg:order-1">
+          <motion.aside 
+            className="lg:col-span-2 space-y-4 order-2 lg:order-1"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+          >
             <div className="lg:sticky lg:top-4 lg:h-[calc(100vh-8rem)] lg:overflow-y-auto space-y-4">
               <TokenSearch />
               <EnhancedTrendingList />
@@ -51,10 +62,15 @@ function TradePageContent() {
               <TradingStatsWidget />
               <QuickActionsWidget />
             </div>
-          </aside>
+          </motion.aside>
 
           {/* Main Content Area */}
-          <div className="lg:col-span-8 order-1 lg:order-2">
+          <motion.div 
+            className="lg:col-span-8 order-1 lg:order-2"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+          >
             <div className="space-y-6">
               {/* Chart Section */}
               <div className="h-[400px] md:h-[500px] lg:h-[600px] border border-border/50 rounded-lg overflow-hidden bg-card">
@@ -77,14 +93,19 @@ function TradePageContent() {
                 />
               </div>
             </div>
-          </div>
+          </motion.div>
 
           {/* Right Sidebar - Trading Panel */}
-          <aside className="lg:col-span-2 order-3">
+          <motion.aside 
+            className="lg:col-span-2 order-3"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+          >
             <div className="lg:sticky lg:top-4 lg:h-[calc(100vh-8rem)]">
               <TradingPanel tokenAddress={currentTokenAddress} />
             </div>
-          </aside>
+          </motion.aside>
         </div>
 
         {/* Decorative Elements */}

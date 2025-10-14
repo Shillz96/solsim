@@ -12,6 +12,20 @@ import type {
 
 const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
+// Helper to get authorization headers
+function getAuthHeaders(): HeadersInit {
+  const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
+  const headers: HeadersInit = {
+    'Content-Type': 'application/json',
+  };
+  
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+  
+  return headers;
+}
+
 // Re-export types for convenience (excluding portfolio types which are in backend types)
 export type {
   TradeRequest,
@@ -533,7 +547,7 @@ export async function verifyWallet(request: Backend.WalletVerifyRequest): Promis
 export async function updateProfile(request: Backend.ProfileUpdateRequest): Promise<{ success: boolean; user?: Partial<Backend.User> }> {
   const response = await fetch(`${API}/api/auth/profile`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: getAuthHeaders(),
     body: JSON.stringify(request),
   });
 
@@ -574,7 +588,7 @@ export async function changePassword(request: {
 }): Promise<{ success: boolean; message: string }> {
   const response = await fetch(`${API}/api/auth/change-password`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: getAuthHeaders(),
     body: JSON.stringify(request),
   });
 
@@ -596,7 +610,7 @@ export async function updateAvatar(request: {
 }): Promise<{ success: boolean; avatarUrl: string; message: string }> {
   const response = await fetch(`${API}/api/auth/update-avatar`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: getAuthHeaders(),
     body: JSON.stringify(request),
   });
 
@@ -615,7 +629,7 @@ export async function updateAvatar(request: {
 export async function removeAvatar(userId: string): Promise<{ success: boolean; message: string }> {
   const response = await fetch(`${API}/api/auth/remove-avatar`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: getAuthHeaders(),
     body: JSON.stringify({ userId }),
   });
 

@@ -259,9 +259,9 @@ export function TokenDetailsHeader({ tokenAddress }: TokenDetailsHeaderProps) {
               <div className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Price</div>
               <div className="flex items-center gap-2">
                 {/* ✅ Use PriceCell for standardized price display with SOL equivalent */}
-                <PriceCell 
-                  priceUsd={currentPrice}
-                  priceChangePercent={priceChange || undefined}
+                <PriceCell
+                  priceUSD={currentPrice}
+                  priceChangePercent={priceChange ?? undefined}
                   className="text-xl font-mono font-bold"
                   showSolEquiv={true}
                 />

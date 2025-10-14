@@ -6,6 +6,7 @@ import { PnLCard } from "@/components/portfolio/pnl-card"
 import { UnifiedPositions } from "@/components/portfolio/unified-positions"
 import { RewardsCard } from "@/components/portfolio/rewards-card"
 import { PortfolioMetrics } from "@/components/portfolio/PortfolioMetrics"
+import { TradingStatsSummary } from "@/components/portfolio/trading-stats-summary"
 import { EnhancedTrendingList } from "@/components/leaderboard/enhanced-trending-list"
 import { TradeHistory } from "@/components/trading/trade-history"
 import { PortfolioChart } from "@/components/portfolio/portfolio-chart-dynamic"
@@ -97,6 +98,11 @@ function PortfolioPageContent() {
                       <PortfolioChart />
                     </CardSection>
                   </EnhancedCard>
+
+                  {/* Trading Stats Summary */}
+                  <div className="mt-6">
+                    <TradingStatsSummary />
+                  </div>
                 </TabsContent>
 
                 <TabsContent value="history" className="mt-0">

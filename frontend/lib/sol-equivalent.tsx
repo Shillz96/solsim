@@ -20,17 +20,19 @@ interface SolEquivProps {
 /**
  * Display SOL equivalent for a USD value
  * Shows on a muted second line with intelligent precision
+ * Formula: solValue = usd / liveSolUSD
  */
 export function SolEquiv({ usd, className, hideWhenUnavailable = false }: SolEquivProps) {
-  const { prices } = usePriceStreamContext();
-  const solPrice = prices.get("So11111111111111111111111111111111111111112")?.price || 0;
+  const { prices, connectionState } = usePriceStreamContext();
+  const solData = prices.get("So11111111111111111111111111111111111111112");
+  const solPrice = solData?.price || 0;
   
-  if (!solPrice || !isFinite(usd)) {
-    return hideWhenUnavailable ? null : (
-      <div className={cn("text-xs text-muted-foreground", className)}>
-        — SOL
-      </div>
-    );
+  // Only show SOL equivalent when we have live price data
+  const hasLivePrice = connectionState === "CONNECTED" && solPrice > 0 && isFinite(solPrice);
+  
+  if (!hasLivePrice || !isFinite(usd)) {
+    // Don't show placeholder - either show live data or nothing
+    return null;
   }
   
   const solValue = usd / solPrice;

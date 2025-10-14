@@ -62,9 +62,9 @@ export function MoneyCell({
 
 interface PnLCellProps {
   /** PnL amount in USD */
-  pnlUsd: number;
+  pnlUSD: number;
   /** Cost basis for percentage calculation */
-  costUsd: number;
+  costBasisUSD: number;
   /** Additional CSS classes */
   className?: string;
   /** Show SOL equivalent */
@@ -76,14 +76,14 @@ interface PnLCellProps {
  * Used for: PnL column
  */
 export function PnLCell({
-  pnlUsd,
-  costUsd,
+  pnlUSD,
+  costBasisUSD,
   className,
   showSolEquiv = false
 }: PnLCellProps) {
   // Guard against invalid values
-  const safePnl = isFinite(pnlUsd) ? pnlUsd : 0;
-  const safeCost = isFinite(costUsd) ? costUsd : 0;
+  const safePnl = isFinite(pnlUSD) ? pnlUSD : 0;
+  const safeCost = isFinite(costBasisUSD) ? costBasisUSD : 0;
 
   const percentage = safePercent(safePnl, safeCost);
   const color = safePnl > 0 ? "text-green-400" : safePnl < 0 ? "text-red-400" : "text-muted-foreground";
@@ -99,9 +99,9 @@ export function PnLCell({
 
 interface PriceCellProps {
   /** Price in USD */
-  priceUsd: number;
+  priceUSD: number;
   /** Price change in USD */
-  priceChangeUsd?: number;
+  priceChangeUSD?: number;
   /** Price change percentage */
   priceChangePercent?: number;
   /** Additional CSS classes */
@@ -115,17 +115,25 @@ interface PriceCellProps {
  * Used for: token price displays
  */
 export function PriceCell({
-  priceUsd,
-  priceChangeUsd,
+  priceUSD,
+  priceChangeUSD,
   priceChangePercent,
   className,
   showSolEquiv = true
 }: PriceCellProps) {
   // Guard against invalid values
-  const safePrice = isFinite(priceUsd) ? priceUsd : 0;
-  const hasChange = priceChangeUsd !== undefined && priceChangePercent !== undefined && isFinite(priceChangeUsd) && isFinite(priceChangePercent);
+  const safePrice = isFinite(priceUSD) ? priceUSD : 0;
+  const hasChange =
+    priceChangeUSD !== undefined &&
+    priceChangePercent !== undefined &&
+    isFinite(priceChangeUSD) &&
+    isFinite(priceChangePercent);
   const changeColor = hasChange
-    ? priceChangeUsd > 0 ? "text-green-400" : priceChangeUsd < 0 ? "text-red-400" : "text-muted-foreground"
+    ? priceChangeUSD > 0
+      ? "text-green-400"
+      : priceChangeUSD < 0
+      ? "text-red-400"
+      : "text-muted-foreground"
     : "text-muted-foreground";
 
   return (
@@ -133,7 +141,7 @@ export function PriceCell({
       <span className="font-medium font-mono">{formatPriceUSD(safePrice)}</span>
       {hasChange && (
         <span className={cn("text-xs font-mono", changeColor)}>
-          {priceChangeUsd > 0 ? "+" : ""}{formatUSD(priceChangeUsd)} ({priceChangePercent > 0 ? "+" : ""}{priceChangePercent.toFixed(2)}%)
+          {priceChangeUSD > 0 ? "+" : ""}{formatUSD(priceChangeUSD)} ({priceChangePercent > 0 ? "+" : ""}{priceChangePercent.toFixed(2)}%)
         </span>
       )}
       {showSolEquiv && <SolEquiv usd={safePrice} />}

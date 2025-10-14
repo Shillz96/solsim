@@ -9,12 +9,14 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Search, TrendingUp, Filter, Loader2, AlertCircle } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
+import { motion } from "framer-motion"
 // Use backend types
 import type * as Backend from "@/lib/types/backend"
 import { useTrendingTokens } from "@/hooks/use-react-query-hooks"
 import { usePriceStreamContext } from "@/lib/price-stream-provider"
 import { formatUSD, formatNumber, safePercent } from "@/lib/format"
 import { UsdWithSol } from "@/lib/sol-equivalent"
+import { formatSolEquivalent } from "@/lib/sol-equivalent-utils"
 
 type TimeRange = "5m" | "1h" | "6h" | "24h"
 // Use the backend TrendingToken type
@@ -63,16 +65,6 @@ export default function TrendingPage() {
   const { prices: livePrices } = usePriceStreamContext()
   const solPrice = livePrices.get('So11111111111111111111111111111111111111112')?.price || 0
 
-  // Helper function for SOL equivalents (required for all financial displays)
-  const formatSolEquivalent = (usdValue: number, solPrice: number): string => {
-    if (!solPrice || solPrice === 0) return ''
-    const solValue = usdValue / solPrice
-    if (solValue >= 1) return `${solValue.toFixed(2)} SOL`
-    else if (solValue >= 0.01) return `${solValue.toFixed(4)} SOL`
-    else if (solValue >= 0.0001) return `${solValue.toFixed(6)} SOL`
-    else return `${solValue.toFixed(8)} SOL`
-  }
-
   const filteredTokens = trendingTokens?.filter(
     (token) =>
       token.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -80,19 +72,29 @@ export default function TrendingPage() {
   ) || []
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
       <main className="w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-6 max-w-page-xl mx-auto">
         {/* Header */}
-        <div className="mb-6">
+        <motion.div 
+          className="mb-6"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
           <div className="flex items-center gap-2 mb-2">
             <TrendingUp className="h-6 w-6 text-primary" />
             <h1 className="text-3xl font-bold gradient-text">Trending Tokens</h1>
           </div>
           <p className="text-muted-foreground">Discover the hottest tokens on Solana with real-time market data</p>
-        </div>
+        </motion.div>
 
         {/* Filters & Search */}
-        <EnhancedCard className="mb-4">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+        >
+          <EnhancedCard className="mb-6">
           <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
             {/* Time Range Filters */}
             <div className="flex items-center gap-2">
@@ -124,9 +126,15 @@ export default function TrendingPage() {
             </div>
           </div>
         </EnhancedCard>
+        </motion.div>
 
         {/* Trending Tokens Table */}
-        <EnhancedCard className="overflow-hidden">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+        >
+          <EnhancedCard className="overflow-hidden">
           {loading && (
             <div className="flex items-center justify-center h-64">
               <Loader2 className="h-8 w-8 animate-spin" />
@@ -268,6 +276,14 @@ export default function TrendingPage() {
             </div>
           )}
         </EnhancedCard>
+        </motion.div>
+
+        {/* Decorative Elements */}
+        <div className="fixed inset-0 pointer-events-none -z-20 overflow-hidden">
+          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/3 rounded-full blur-3xl"></div>
+          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-blue-500/3 rounded-full blur-3xl"></div>
+          <div className="absolute top-3/4 left-3/4 w-64 h-64 bg-accent/3 rounded-full blur-2xl"></div>
+        </div>
       </main>
     </div>
   )

@@ -44,12 +44,11 @@ export * from './select';
 export * from './separator';
 export * from './sheet';
 export * from './sidebar';
-export { Skeleton } from './skeleton';
-export { 
-  Skeleton as EnhancedSkeleton, 
-  ChartSkeleton, 
-  CardSkeleton, 
-  TableSkeleton 
+export {
+  Skeleton,
+  ChartSkeleton,
+  CardSkeleton,
+  TableSkeleton
 } from './enhanced-skeleton';
 export * from './slider';
 export * from './sonner';

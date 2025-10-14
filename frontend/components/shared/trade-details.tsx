@@ -23,7 +23,7 @@ import { useQuery } from "@tanstack/react-query"
 import { formatDistanceToNow } from "date-fns"
 import { motion } from "framer-motion"
 import { usePriceStreamContext } from "@/lib/price-stream-provider"
-import { formatSolEquivalent } from "@/lib/sol-equivalent-utils"
+import { CurrencyValue, PriceDisplay } from "@/components/shared/currency-display"
 import * as api from "@/lib/api"
 import * as Backend from "@/lib/types/backend"
 import { AnimatedNumber } from "@/components/ui/animated-number"
@@ -200,7 +200,7 @@ export function TradeDetails({
                 <div className="text-center mb-6 p-4 bg-muted/30 rounded-lg">
                   <p className="text-sm text-muted-foreground mb-1">Total Volume</p>
                   <div className="flex items-center justify-center space-x-2 mb-2">
-                    <DollarSign className="h-5 w-5 text-primary" />
+                    <Coins className="h-5 w-5 text-primary" />
                     <span className="text-2xl font-bold">
                       <AnimatedNumber value={stats.totalVolume} decimals={2} />
                     </span>
@@ -233,14 +233,11 @@ export function TradeDetails({
                   >
                     <p className="text-sm text-muted-foreground mb-1">Avg Price</p>
                     <div>
-                      <p className="font-mono text-sm font-bold">
-                        {formatUSD(stats.avgPrice)}
-                      </p>
-                      {solPrice > 0 && (
-                        <p className="text-xs text-muted-foreground">
-                          {formatSolEquivalent(stats.avgPrice, solPrice)}
-                        </p>
-                      )}
+                      <PriceDisplay
+                        priceUSD={stats.avgPrice}
+                        showSol={true}
+                        className="font-mono text-sm font-bold"
+                      />
                     </div>
                   </motion.div>
                   
@@ -251,22 +248,20 @@ export function TradeDetails({
                   >
                     <p className="text-sm text-muted-foreground mb-1">Range</p>
                     {stats.priceRange ? (
-                      <div className="font-mono text-xs">
+                      <div className="font-mono text-xs space-y-1">
                         <div>
-                          <div className="text-green-500 font-medium">{formatUSD(stats.priceRange.high)}</div>
-                          {solPrice > 0 && (
-                            <div className="text-xs text-muted-foreground">
-                              {formatSolEquivalent(stats.priceRange.high, solPrice)}
-                            </div>
-                          )}
+                          <PriceDisplay
+                            priceUSD={stats.priceRange.high}
+                            showSol={true}
+                            className="text-green-500 font-medium"
+                          />
                         </div>
                         <div>
-                          <div className="text-red-500 font-medium">{formatUSD(stats.priceRange.low)}</div>
-                          {solPrice > 0 && (
-                            <div className="text-xs text-muted-foreground">
-                              {formatSolEquivalent(stats.priceRange.low, solPrice)}
-                            </div>
-                          )}
+                          <PriceDisplay
+                            priceUSD={stats.priceRange.low}
+                            showSol={true}
+                            className="text-red-500 font-medium"
+                          />
                         </div>
                       </div>
                     ) : (
@@ -347,14 +342,11 @@ export function TradeDetails({
                       <div className="text-center p-2 bg-muted/50 rounded">
                         <div className="text-xs text-muted-foreground mb-1">Price</div>
                         <div>
-                          <div className="font-mono font-medium">
-                            {formatUSD(parseFloat(trade.price))}
-                          </div>
-                          {solPrice > 0 && (
-                            <div className="text-xs text-muted-foreground">
-                              {formatSolEquivalent(parseFloat(trade.price), solPrice)}
-                            </div>
-                          )}
+                          <PriceDisplay
+                            priceUSD={parseFloat(trade.price)}
+                            showSol={true}
+                            className="font-mono font-medium text-sm"
+                          />
                         </div>
                       </div>
                       

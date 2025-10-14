@@ -24,6 +24,7 @@ import { ScreenReaderAnnouncements } from "@/components/shared/screen-reader-ann
 import { useScreenReaderAnnouncements } from "@/hooks/use-screen-reader-announcements"
 import { TradingValue, ProfitLossValue } from "@/components/ui/financial-value"
 import { useAuth } from "@/hooks/use-auth"
+import { usePortfolio, usePosition } from "@/hooks/use-portfolio"
 
 // Token details type
 type TokenDetails = {
@@ -50,9 +51,18 @@ function TradingPanelComponent({ tokenAddress: propTokenAddress }: TradingPanelP
   const tokenAddress = propTokenAddress || searchParams.get("token") || defaultTokenAddress
 
   const { user, isAuthenticated, getUserId } = useAuth()
-  const [portfolio, setPortfolio] = useState<Backend.PortfolioResponse | null>(null)
-  const [portfolioLoading, setPortfolioLoading] = useState(false)
-  const [portfolioError, setPortfolioError] = useState<string | null>(null)
+
+  // Use centralized portfolio hook
+  const {
+    data: portfolio,
+    isLoading: portfolioLoading,
+    error: portfolioErrorObj,
+    refetch: refreshPortfolio
+  } = usePortfolio()
+
+  // Convert error object to string for backward compatibility
+  const portfolioError = portfolioErrorObj ? (portfolioErrorObj as Error).message : null
+
   const [userBalance, setUserBalance] = useState<number>(0)
   const [isTrading, setIsTrading] = useState(false)
   const [tradeError, setTradeError] = useState<string | null>(null)
@@ -67,48 +77,20 @@ function TradingPanelComponent({ tokenAddress: propTokenAddress }: TradingPanelP
     announceBalanceUpdate,
   } = useScreenReaderAnnouncements()
 
-  // Load portfolio and user balance
+  // Load user balance on auth
   useEffect(() => {
     if (isAuthenticated && user) {
-      const loadData = async () => {
-        setPortfolioLoading(true)
+      const loadBalance = async () => {
         try {
-          // Load portfolio
-          const portfolioData = await api.getPortfolio(user.id)
-          setPortfolio(portfolioData)
-          
-          // Load user balance
           const balanceData = await api.getWalletBalance(user.id)
           setUserBalance(parseFloat(balanceData.balance))
         } catch (err) {
-          setPortfolioError((err as Error).message)
-        } finally {
-          setPortfolioLoading(false)
+          console.error('Failed to load balance:', err)
         }
       }
-      loadData()
+      loadBalance()
     }
   }, [isAuthenticated, user])
-
-  const refreshPortfolio = async () => {
-    if (!isAuthenticated || !user) return
-    setPortfolioLoading(true)
-    try {
-      // Refresh portfolio
-      const portfolioData = await api.getPortfolio(user.id)
-      setPortfolio(portfolioData)
-      
-      // Refresh user balance
-      const balanceData = await api.getWalletBalance(user.id)
-      setUserBalance(parseFloat(balanceData.balance))
-      
-      setPortfolioError(null)
-    } catch (err) {
-      setPortfolioError((err as Error).message)
-    } finally {
-      setPortfolioLoading(false)
-    }
-  }
 
   const executeBuy = async (tokenAddress: string, amount: number) => {
     setIsTrading(true)
@@ -126,7 +108,7 @@ function TradingPanelComponent({ tokenAddress: propTokenAddress }: TradingPanelP
       
       // Update local state immediately with the response
       if (result.success) {
-        // Update portfolio state
+        // Refresh portfolio using centralized hook
         await refreshPortfolio()
 
         // Update wallet balance after successful trade
@@ -136,7 +118,6 @@ function TradingPanelComponent({ tokenAddress: propTokenAddress }: TradingPanelP
 
         // Invalidate React Query cache to force navbar balance refresh
         queryClient.invalidateQueries({ queryKey: ['user-balance', userId] })
-        queryClient.invalidateQueries({ queryKey: ['portfolio', userId] })
 
         // Show success toast with trade details
         toast({
@@ -207,7 +188,7 @@ function TradingPanelComponent({ tokenAddress: propTokenAddress }: TradingPanelP
       
       // Update local state immediately with the response
       if (result.success) {
-        // Update portfolio state
+        // Refresh portfolio using centralized hook
         await refreshPortfolio()
 
         // Update wallet balance after successful trade
@@ -217,16 +198,15 @@ function TradingPanelComponent({ tokenAddress: propTokenAddress }: TradingPanelP
 
         // Invalidate React Query cache to force navbar balance refresh
         queryClient.invalidateQueries({ queryKey: ['user-balance', userId] })
-        queryClient.invalidateQueries({ queryKey: ['portfolio', userId] })
 
-        // Calculate realized PnL for display
-        const realizedPnL = parseFloat(result.trade.totalCost) - parseFloat(result.trade.costUsd || '0')
-        const pnlText = realizedPnL >= 0 ? `+${formatUSD(realizedPnL)}` : formatUSD(realizedPnL)
-
+        // Format trade confirmation - NEVER mix USD and SOL on same line
+        const tradedQuantity = formatTokenQuantity(parseFloat(result.trade.quantity))
+        const tradedSOL = parseFloat(result.trade.totalCost).toFixed(4)
+        
         // Show success toast with trade details
         toast({
-          title: "Trade Executed Successfully! 💰",
-          description: `Sold ${formatTokenQuantity(parseFloat(result.trade.quantity))} tokens for ${parseFloat(result.trade.totalCost).toFixed(4)} SOL (${pnlText})`,
+          title: "Sell Trade Executed! 💰",
+          description: `Sold ${tradedQuantity} tokens for ${tradedSOL} SOL`,
           duration: 5000,
         })
 
@@ -280,12 +260,13 @@ function TradingPanelComponent({ tokenAddress: propTokenAddress }: TradingPanelP
   const { connected: wsConnected, prices: livePrices, subscribe, unsubscribe } = usePriceStreamContext()
   const { toast } = useToast()
   
-  // Get SOL price for conversions (SOL mint address)
-  const solPrice = livePrices.get('So11111111111111111111111111111111111111112')?.price || 0
-
-  // State
+  // Get SOL price for calculations
+  const solPrice = livePrices.get('So11111111111111111111111111111111111111112')?.price || 208  // State
   const [tokenDetails, setTokenDetails] = useState<TokenDetails | null>(null)
-  const [tokenHolding, setTokenHolding] = useState<Backend.PortfolioPosition | null>(null)
+
+  // Use centralized position hook
+  const tokenHolding = usePosition(tokenAddress)
+
   const [loadingToken, setLoadingToken] = useState(true)
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [customSolAmount, setCustomSolAmount] = useState("")
@@ -348,21 +329,6 @@ function TradingPanelComponent({ tokenAddress: propTokenAddress }: TradingPanelP
       setIsRefreshing(false)
     }
   }, [tokenAddress, toast])
-
-  // Handle portfolio position finding - separate effect
-  useEffect(() => {
-    if (portfolio?.positions && Array.isArray(portfolio.positions)) {
-      const holding = portfolio.positions.find((p: Backend.PortfolioPosition) => 
-        p?.mint === tokenAddress && 
-        p?.qty && 
-        parseFloat(p.qty) > 0
-      ) || null
-      
-      setTokenHolding(holding)
-    } else {
-      setTokenHolding(null)
-    }
-  }, [portfolio?.positions, tokenAddress])
 
   useEffect(() => {
     loadTokenDetails()
@@ -473,7 +439,7 @@ function TradingPanelComponent({ tokenAddress: propTokenAddress }: TradingPanelP
       // For buy: convert SOL amount to USD then to token quantity
       // The backend expects token quantity, not SOL amount
       // amountSol * solPrice gives us USD value, then divide by token price
-      const amountUsd = amountSol * (solPrice || 250) // Use current SOL price or fallback
+      const amountUsd = amountSol * solPrice
       tokenQuantity = amountUsd / tokenDetails.price
 
       import('@/lib/error-logger').then(({ errorLogger }) => {
@@ -754,19 +720,19 @@ function TradingPanelComponent({ tokenAddress: propTokenAddress }: TradingPanelP
               id="token-amount"
               type="text"
               value={
-                selectedSolAmount
-                  ? formatTokenQuantity(selectedSolAmount / currentPrice)
-                  : customSolAmount
-                    ? formatTokenQuantity(Number.parseFloat(customSolAmount) / currentPrice)
+                selectedSolAmount && solPrice && currentPrice
+                  ? formatTokenQuantity((selectedSolAmount * solPrice) / currentPrice)
+                  : customSolAmount && solPrice && currentPrice
+                    ? formatTokenQuantity((Number.parseFloat(customSolAmount) * solPrice) / currentPrice)
                     : ""
               }
               readOnly
               className="font-mono bg-muted"
               aria-label={`Tokens you will receive: ${
-                selectedSolAmount
-                  ? (selectedSolAmount / currentPrice).toFixed(0)
-                  : customSolAmount
-                    ? (Number.parseFloat(customSolAmount) / currentPrice).toFixed(0)
+                selectedSolAmount && solPrice && currentPrice
+                  ? ((selectedSolAmount * solPrice) / currentPrice).toFixed(0)
+                  : customSolAmount && solPrice && currentPrice
+                    ? ((Number.parseFloat(customSolAmount) * solPrice) / currentPrice).toFixed(0)
                     : "0"
               } ${tokenDetails?.tokenSymbol || 'tokens'}`}
             />
@@ -891,11 +857,6 @@ function TradingPanelComponent({ tokenAddress: propTokenAddress }: TradingPanelP
                   )}
                   <div>({parseFloat(tokenHolding.unrealizedPercent).toFixed(2)}%)</div>
                 </div>
-                <ProfitLossValue 
-                  usd={Math.abs(parseFloat(tokenHolding.unrealizedUsd))} 
-                  className="text-xs text-muted-foreground"
-                  showSolEquivalent={true}
-                />
               </div>
               <div className="space-y-4">
                 <Label className="text-sm font-bold">Amount (% of holdings)</Label>
@@ -935,10 +896,10 @@ function TradingPanelComponent({ tokenAddress: propTokenAddress }: TradingPanelP
                 <Input
                   id="receive-sol"
                   type="text"
-                  value={selectedPercentage ? (((tokenBalance * selectedPercentage) / 100) * currentPrice).toFixed(6) : ""}
+                  value={selectedPercentage && solPrice > 0 ? (((tokenBalance * selectedPercentage) / 100) * currentPrice / solPrice).toFixed(6) : ""}
                   readOnly
                   className="font-mono bg-muted"
-                  aria-label={`SOL you will receive: ${selectedPercentage ? (((tokenBalance * selectedPercentage) / 100) * currentPrice).toFixed(6) : "0"} SOL`}
+                  aria-label={`SOL you will receive: ${selectedPercentage && solPrice > 0 ? (((tokenBalance * selectedPercentage) / 100) * currentPrice / solPrice).toFixed(6) : "0"} SOL`}
                 />
               </div>
 

@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { TrendingUp, TrendingDown } from "lucide-react"
 import { formatUSD, formatNumber, safePercent } from "@/lib/format"
-import { UsdWithSol } from "@/lib/sol-equivalent"
+import { CurrencyValue, PriceDisplay, PnLDisplay } from "@/components/shared/currency-display"
 import { cn } from "@/lib/utils"
 import type * as Backend from "@/lib/types/backend"
 import type { EnhancedPosition } from "./types"
@@ -65,10 +65,12 @@ export function PositionCard({ position }: PositionCardProps) {
       {/* Price and Holdings */}
       <div className="grid grid-cols-2 gap-3 mb-3">
         <div>
-          <div className="text-xs text-muted-foreground mb-1">Price</div>
-          <div className="font-mono text-sm font-medium">
-            ${formatNumber(position.livePriceNumber || 0, { maxDecimals: 6 })}
-          </div>
+          <div className="text-xs text-muted-foreground mb-1">Current Price</div>
+          <PriceDisplay
+            priceUSD={position.livePriceNumber || 0}
+            showSol={true}
+            className="text-sm font-mono"
+          />
         </div>
         <div className="text-right">
           <div className="text-xs text-muted-foreground mb-1">Holdings</div>
@@ -81,42 +83,36 @@ export function PositionCard({ position }: PositionCardProps) {
       {/* Value and Avg Cost */}
       <div className="grid grid-cols-2 gap-3 mb-3">
         <div>
-          <div className="text-xs text-muted-foreground mb-1">Value</div>
-          <UsdWithSol
+          <div className="text-xs text-muted-foreground mb-1">Current Value</div>
+          <CurrencyValue
             usd={position.liveValue || 0}
-            className="text-sm font-semibold"
-            solClassName="text-xs"
+            primary="USD"
+            showSecondary={true}
+            primaryClassName="text-sm font-semibold"
+            secondaryClassName="text-xs text-muted-foreground"
           />
         </div>
         <div className="text-right">
           <div className="text-xs text-muted-foreground mb-1">Avg Cost</div>
-          <div className="font-mono text-sm">
-            ${formatNumber(parseFloat(position.avgCostUsd), { maxDecimals: 6 })}
-          </div>
+          <PriceDisplay
+            priceUSD={parseFloat(position.avgCostUsd)}
+            showSol={true}
+            className="text-sm font-mono"
+          />
         </div>
       </div>
 
-      {/* P&L Badge */}
+      {/* P&L */}
       <div className="flex items-center justify-between pt-3 border-t">
-        <span className="text-xs text-muted-foreground">Profit/Loss</span>
-        <div className="flex items-center gap-2">
-          <Badge
-            variant={isProfitable ? "default" : "destructive"}
-            className={cn(
-              "font-mono text-sm",
-              isProfitable ? "bg-green-500/10 text-green-600 dark:text-green-400" : "bg-red-500/10 text-red-600 dark:text-red-400"
-            )}
-          >
-            {formatUSD(position.livePnL || 0)}
-          </Badge>
-          <PnLIcon className={cn("w-4 h-4", isProfitable ? "text-green-500" : "text-red-500")} />
-          <span className={cn("text-xs font-medium", isProfitable ? "text-green-500" : "text-red-500")}>
-            {safePercent(
-              position.livePnL || 0,
-              parseFloat(position.avgCostUsd) * parseFloat(position.qty)
-            )}
-          </span>
-        </div>
+        <span className="text-xs text-muted-foreground">Unrealized PnL</span>
+        <PnLDisplay
+          pnlUSD={position.livePnL || 0}
+          costBasisUSD={
+            parseFloat(position.avgCostUsd) * parseFloat(position.qty)
+          }
+          showSol={true}
+          className="text-right"
+        />
       </div>
     </div>
   )

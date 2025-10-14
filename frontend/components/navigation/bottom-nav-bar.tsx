@@ -2,12 +2,13 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Home, TrendingUp, Wallet, Trophy, Twitter, Github, Plus, Moon, Sun, Gift } from "lucide-react"
+import { Home, TrendingUp, Wallet, Trophy, Twitter, Plus, Moon, Sun, Gift, Eye } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useState, useEffect } from "react"
 import { useTheme } from "next-themes"
 import { motion, AnimatePresence } from "framer-motion"
 import { usePriceStreamContext } from "@/lib/price-stream-provider"
+import { Button } from "@/components/ui/button"
 
 // Percentage formatting now inline
 
@@ -147,6 +148,23 @@ export function BottomNavBar() {
         </div>
       </nav>
 
+      {/* Floating Wallet Tracker Button (Mobile) */}
+      <motion.div
+        className="fixed bottom-20 right-4 z-50 md:hidden"
+        initial={{ scale: 0, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ delay: 0.5, type: "spring", stiffness: 200 }}
+      >
+        <Link href="/wallet-tracker">
+          <Button
+            size="icon"
+            className="h-14 w-14 rounded-full shadow-lg hover:shadow-xl transition-all hover:scale-110 bg-gradient-to-br from-primary to-primary/80"
+          >
+            <Eye className="h-6 w-6" />
+          </Button>
+        </Link>
+      </motion.div>
+
       {/* Desktop/Tablet Bottom Info Bar */}
       <div className="hidden md:block fixed bottom-0 left-0 right-0 z-40 border-t-2 border-border bg-background/95 backdrop-blur-md supports-[backdrop-filter]:bg-background/80 shadow-none">
         <div className="mx-auto flex h-12 items-center justify-between px-4 max-w-content">
@@ -159,14 +177,6 @@ export function BottomNavBar() {
               className="text-muted-foreground hover:text-primary transition-colors"
             >
               <Twitter className="h-4 w-4 hover:glow-primary" />
-            </a>
-            <a
-              href="https://github.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-muted-foreground hover:text-primary transition-colors"
-            >
-              <Github className="h-4 w-4 hover:glow-primary" />
             </a>
             <span className="text-xs text-muted-foreground">© 2025 Sol Sim</span>
           </div>
@@ -200,8 +210,19 @@ export function BottomNavBar() {
             ))}
           </div>
 
-          {/* Right: Theme Toggle & Quick Trade */}
+          {/* Right: Wallet Tracker, Theme Toggle & Quick Trade */}
           <div className="flex items-center gap-4">
+            {/* Wallet Tracker Button */}
+            <Link href="/wallet-tracker">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-xs font-medium hover:text-primary transition-colors flex items-center gap-1.5 h-8"
+              >
+                <Eye className="h-4 w-4" />
+                Wallet Tracker
+              </Button>
+            </Link>
             {/* Theme Toggle Button - Skeleton prevents layout shift */}
             {mounted ? (
               <button

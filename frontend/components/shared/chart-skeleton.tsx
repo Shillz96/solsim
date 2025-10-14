@@ -1,5 +1,5 @@
 import { EnhancedCard } from "@/components/ui/enhanced-card-system"
-import { Skeleton } from "@/components/ui/skeleton"
+import { Skeleton } from "@/components/ui/enhanced-skeleton"
 import { TrendingUp, BarChart3, Loader2 } from "lucide-react"
 
 export function ChartSkeleton() {

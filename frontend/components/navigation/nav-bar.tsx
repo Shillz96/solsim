@@ -238,31 +238,31 @@ export function NavBar() {
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
-                  className="absolute top-full mt-2 w-full bg-background backdrop-blur-md border border-border rounded-lg shadow-xl z-50 max-h-80 overflow-y-auto"
+                  className="absolute top-full mt-2 w-full bg-popover text-popover-foreground border border-border rounded-lg shadow-xl z-50 max-h-80 overflow-y-auto"
                 >
                   <div className="p-2">
-                    <div className="text-xs text-muted-foreground px-2 py-1 font-semibold border-b border-border/50 mb-1">
+                    <div className="text-xs text-muted-foreground px-2 py-1 font-semibold border-b border-border mb-1">
                       Search Results
                     </div>
                     {searchResults.map((token) => (
                       <button
                         key={token.mint}
                         onClick={() => handleTokenSelect(token)}
-                        className="w-full text-left px-3 py-2 rounded-md hover:bg-muted transition-colors duration-200 focus:bg-muted focus:outline-none"
+                        className="w-full text-left px-3 py-2 rounded-md hover:bg-accent hover:text-accent-foreground transition-colors duration-200 focus:bg-accent focus:text-accent-foreground focus:outline-none"
                       >
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-3">
                             {token.logoURI && (
-                              <img 
-                                src={token.logoURI} 
+                              <img
+                                src={token.logoURI}
                                 alt={token.symbol}
-                                className="w-6 h-6 rounded-full"
+                                className="w-6 h-6 rounded-full flex-shrink-0"
                                 onError={(e) => {
                                   (e.target as HTMLImageElement).style.display = 'none'
                                 }}
                               />
                             )}
-                            <div>
+                            <div className="min-w-0">
                               <div className="font-semibold text-sm">{token.symbol}</div>
                               <div className="text-xs text-muted-foreground truncate max-w-[200px]">
                                 {token.name}
@@ -270,7 +270,7 @@ export function NavBar() {
                             </div>
                           </div>
                           {token.price && (
-                            <div className="text-right">
+                            <div className="text-right flex-shrink-0 ml-2">
                               <div className="text-sm font-medium">
                                 ${parseFloat(token.price.toString()).toFixed(6)}
                               </div>
@@ -332,12 +332,6 @@ export function NavBar() {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-56">
                     <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                    <DropdownMenuItem asChild>
-                      <Link href="/profile" className="flex items-center gap-2">
-                        <User className="h-4 w-4" />
-                        Profile
-                      </Link>
-                    </DropdownMenuItem>
                     <DropdownMenuItem asChild>
                       <Link href="/profile/settings" className="flex items-center gap-2">
                         <Settings className="h-4 w-4" />

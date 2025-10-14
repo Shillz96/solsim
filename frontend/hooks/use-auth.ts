@@ -57,6 +57,10 @@ export function useAuth() {
     
     localStorage.setItem('userId', response.userId)
     localStorage.setItem('user', JSON.stringify({ email }))
+    // Store access token for authenticated API calls
+    if (response.accessToken) {
+      localStorage.setItem('accessToken', response.accessToken)
+    }
     
     // Force a synchronous state update to ensure UI re-renders immediately
     flushSync(() => {
@@ -82,6 +86,10 @@ export function useAuth() {
     
     localStorage.setItem('userId', response.userId)
     localStorage.setItem('user', JSON.stringify({ email, handle }))
+    // Store access token for authenticated API calls
+    if (response.accessToken) {
+      localStorage.setItem('accessToken', response.accessToken)
+    }
     
     // Force a synchronous state update to ensure UI re-renders immediately
     flushSync(() => {
@@ -104,6 +112,7 @@ export function useAuth() {
   const logout = useCallback(() => {
     localStorage.removeItem('userId')
     localStorage.removeItem('user')
+    localStorage.removeItem('accessToken')
     
     setAuthState({
       user: null,

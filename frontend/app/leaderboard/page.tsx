@@ -114,7 +114,7 @@ export default function LeaderboardPage() {
   const totalVolume = leaderboardData.reduce((sum, entry) => sum + entry.totalTrades, 0)
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         {/* Header */}
         <div className="mb-8">

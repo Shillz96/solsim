@@ -1,5 +1,5 @@
 import { Card } from "@/components/ui/card"
-import { Skeleton } from "@/components/ui/skeleton"
+import { Skeleton } from "@/components/ui/enhanced-skeleton"
 
 export default function LeaderboardLoading() {
   return (

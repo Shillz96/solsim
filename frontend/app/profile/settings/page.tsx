@@ -11,43 +11,34 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Separator } from '@/components/ui/separator'
 import { Badge } from '@/components/ui/badge'
-import { 
-  User, 
-  Mail, 
-  Lock, 
-  Upload, 
-  Trash2, 
-  Save, 
-  Eye, 
-  EyeOff, 
-  AlertCircle, 
+import {
+  User,
+  Mail,
+  Lock,
+  Upload,
+  Trash2,
+  Save,
+  Eye,
+  EyeOff,
+  AlertCircle,
   CheckCircle,
   Camera,
   Settings,
   Shield,
   Bell,
-  DollarSign
+  DollarSign,
+  Globe,
+  MessageSquare
 } from 'lucide-react'
-// Use modern auth hook
 import { useAuth } from '@/hooks/use-auth'
 import { useToast } from '@/hooks/use-toast'
 import * as api from '@/lib/api'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 
-// Types for settings page
-type UserType = {
-  id: string
-  email: string
-  username: string | null
-  virtualSolBalance: string
-  displayName?: string
-  bio?: string
-  avatarUrl?: string
-  website?: string
-  twitter?: string
-  discord?: string
-  telegram?: string
-}
+const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
+const ALLOWED_FILE_TYPES = ['image/jpeg', 'image/png', 'image/webp']
 
+// Settings data structure
 type UserSettings = {
   notifications: {
     email: boolean
@@ -67,214 +58,251 @@ type UserSettings = {
   }
 }
 
-type ChangePasswordRequest = {
-  currentPassword: string
-  newPassword: string
-}
-
-const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
-const ALLOWED_FILE_TYPES = ['image/jpeg', 'image/png', 'image/webp']
-
 function UserSettingsPage() {
   const { user, isAuthenticated } = useAuth()
-  // TODO: Implement useUserSettings hook
-  const settings = null
-  const settingsLoading = false
-  const refreshSettings = () => {}
-  
-  // States
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [success, setSuccess] = useState<string | null>(null)
-  const [showCurrentPassword, setShowCurrentPassword] = useState(false)
-  const [showNewPassword, setShowNewPassword] = useState(false)
-  const [profileData, setProfileData] = useState<Partial<UserType>>({})
-  const [passwordData, setPasswordData] = useState<ChangePasswordRequest>({
-    currentPassword: '',
-    newPassword: ''
-  })
-  const [settingsData, setSettingsData] = useState<Partial<UserSettings>>({})
-  
+  const queryClient = useQueryClient()
+  const { toast } = useToast()
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  // Initialize form data when user/settings load
+  // States for form data
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false)
+  const [showNewPassword, setShowNewPassword] = useState(false)
+  const [profileData, setProfileData] = useState({
+    handle: '',
+    bio: '',
+    displayName: '',
+    website: '',
+    twitter: '',
+    discord: '',
+    telegram: ''
+  })
+  const [passwordData, setPasswordData] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: ''
+  })
+  const [settingsData, setSettingsData] = useState<UserSettings>({
+    notifications: {
+      email: true,
+      browser: false,
+      trading: true,
+      portfolio: true
+    },
+    privacy: {
+      publicProfile: true,
+      showBalance: false,
+      showTrades: false
+    },
+    trading: {
+      confirmTrades: true,
+      defaultSlippage: 1.0,
+      autoRefresh: true
+    }
+  })
+
+  // Fetch user profile data
+  const { data: userProfile, isLoading: profileLoading } = useQuery({
+    queryKey: ['userProfile', user?.id],
+    queryFn: () => user?.id ? api.getUserProfile(user.id) : null,
+    enabled: !!user?.id,
+    staleTime: 5 * 60 * 1000 // 5 minutes
+  })
+
+  // Initialize form data when user profile loads
   useEffect(() => {
-    if (user) {
+    if (userProfile) {
+      const profile = userProfile as any
       setProfileData({
-        displayName: (user as any).handle || '', // Handle might be available from initial auth
-        bio: '', // Bio not available in auth user object
-        // website: user.website || '',
-        // twitter: user.twitter || '',
-        // discord: user.discord || '',
-        // telegram: user.telegram || ''
+        handle: profile.handle || '',
+        bio: profile.bio || '',
+        displayName: profile.displayName || '',
+        website: profile.website || '',
+        twitter: profile.twitter || '',
+        discord: profile.discord || '',
+        telegram: profile.telegram || ''
       })
     }
-    if (settings) {
-      setSettingsData(settings)
-    }
-  }, [user, settings])
+  }, [userProfile])
 
-  const clearMessages = useCallback(() => {
-    setError(null)
-    setSuccess(null)
+  // Load settings from localStorage (or could be from API)
+  useEffect(() => {
+    const savedSettings = localStorage.getItem('userSettings')
+    if (savedSettings) {
+      try {
+        const parsed = JSON.parse(savedSettings)
+        setSettingsData(parsed)
+      } catch (e) {
+        console.error('Failed to parse saved settings')
+      }
+    }
   }, [])
 
-  // Avatar upload handling
-  const handleAvatarUpload = useCallback(async (file: File) => {
-    if (!file) return
-
-    // Validate file
-    if (!ALLOWED_FILE_TYPES.includes(file.type)) {
-      setError('Please upload a JPEG, PNG, or WebP image')
-      return
+  // Profile update mutation
+  const updateProfileMutation = useMutation({
+    mutationFn: async (data: typeof profileData) => {
+      if (!user?.id) throw new Error('User not authenticated')
+      return api.updateProfile({
+        userId: user.id,
+        handle: data.handle || undefined,
+        bio: data.bio || undefined
+      })
+    },
+    onSuccess: () => {
+      toast({
+        title: "Success",
+        description: "Profile updated successfully",
+      })
+      queryClient.invalidateQueries({ queryKey: ['userProfile'] })
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update profile",
+        variant: "destructive"
+      })
     }
+  })
 
-    if (file.size > MAX_FILE_SIZE) {
-      setError('File size must be less than 5MB')
-      return
-    }
+  // Password change mutation
+  const changePasswordMutation = useMutation({
+    mutationFn: async () => {
+      if (!user?.id) throw new Error('User not authenticated')
 
-    try {
-      setIsLoading(true)
-      clearMessages()
-
-      const userId = localStorage.getItem('userId');
-      if (!userId) throw new Error('User not authenticated');
-
-      // For now, use a data URL for the avatar (in production, upload to cloud storage)
-      const reader = new FileReader()
-      reader.onloadend = async () => {
-        try {
-          const avatarUrl = reader.result as string
-          await api.updateAvatar({ userId, avatarUrl })
-          setSuccess('Avatar updated successfully')
-          
-          // Note: In production, you should upload to cloud storage (S3, Cloudinary, etc.)
-          // and pass the URL to the backend instead of using data URLs
-        } catch (err: any) {
-          setError(err.message || 'Failed to upload avatar')
-        } finally {
-          setIsLoading(false)
-        }
+      if (passwordData.newPassword !== passwordData.confirmPassword) {
+        throw new Error('Passwords do not match')
       }
-      reader.readAsDataURL(file)
-    } catch (err: any) {
-      setError(err.message || 'Failed to upload avatar')
-      setIsLoading(false)
-    }
-  }, [clearMessages])
 
-  const handleAvatarDelete = useCallback(async () => {
-    try {
-      setIsLoading(true)
-      clearMessages()
+      if (passwordData.newPassword.length < 8) {
+        throw new Error('Password must be at least 8 characters')
+      }
 
-      const userId = localStorage.getItem('userId');
-      if (!userId) throw new Error('User not authenticated');
-      
-      await api.removeAvatar(userId);
-      setSuccess('Avatar removed successfully')
-    } catch (err: any) {
-      setError(err.message || 'Failed to remove avatar')
-    } finally {
-      setIsLoading(false)
-    }
-  }, [clearMessages])
+      const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d@$!%*?&]{8,}$/
+      if (!passwordRegex.test(passwordData.newPassword)) {
+        throw new Error('Password must contain uppercase, lowercase, and number')
+      }
 
-  // Profile update handling
-  const handleProfileUpdate = useCallback(async (e: React.FormEvent) => {
-    e.preventDefault()
-    
-    try {
-      setIsLoading(true)
-      clearMessages()
-
-      const userId = localStorage.getItem('userId');
-      if (!userId) throw new Error('User not authenticated');
-      
-      await api.updateProfile({
-        userId,
-        handle: profileData.displayName,
-        bio: profileData.bio
-        // profileImage will be handled separately via avatar upload functionality
-      });
-      setSuccess('Profile updated successfully')
-      
-      // TODO: Refresh user data
-      // await refreshAuth()
-    } catch (err: any) {
-      setError(err.message || 'Failed to update profile')
-    } finally {
-      setIsLoading(false)
-    }
-  }, [profileData, clearMessages])
-
-  // Password change handling
-  const handlePasswordChange = useCallback(async (e: React.FormEvent) => {
-    e.preventDefault()
-    
-    if (!passwordData.currentPassword || !passwordData.newPassword) {
-      setError('Please fill in all password fields')
-      return
-    }
-
-    if (passwordData.newPassword.length < 8) {
-      setError('New password must be at least 8 characters')
-      return
-    }
-
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d@$!%*?&]{8,}$/
-    if (!passwordRegex.test(passwordData.newPassword)) {
-      setError('Password must contain uppercase, lowercase, and number')
-      return
-    }
-
-    try {
-      setIsLoading(true)
-      clearMessages()
-
-      const userId = localStorage.getItem('userId');
-      if (!userId) throw new Error('User not authenticated');
-
-      await api.changePassword({
-        userId,
+      return api.changePassword({
+        userId: user.id,
         currentPassword: passwordData.currentPassword,
         newPassword: passwordData.newPassword
-      });
-
-      setSuccess('Password changed successfully');
+      })
+    },
+    onSuccess: () => {
+      toast({
+        title: "Success",
+        description: "Password changed successfully. Please log in again.",
+      })
       // Clear password fields
-      setPasswordData({ currentPassword: '', newPassword: '' })
-    } catch (err: any) {
-      setError(err.message || 'Failed to change password')
-    } finally {
-      setIsLoading(false)
+      setPasswordData({
+        currentPassword: '',
+        newPassword: '',
+        confirmPassword: ''
+      })
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to change password",
+        variant: "destructive"
+      })
     }
-  }, [passwordData, clearMessages])
+  })
 
-  // Settings update handling
-  const handleSettingsUpdate = useCallback(async () => {
+  // Avatar upload mutation
+  const uploadAvatarMutation = useMutation({
+    mutationFn: async (file: File) => {
+      if (!user?.id) throw new Error('User not authenticated')
+
+      // Validate file
+      if (!ALLOWED_FILE_TYPES.includes(file.type)) {
+        throw new Error('Please upload a JPEG, PNG, or WebP image')
+      }
+
+      if (file.size > MAX_FILE_SIZE) {
+        throw new Error('File size must be less than 5MB')
+      }
+
+      // Convert to base64 (in production, upload to cloud storage)
+      return new Promise<string>((resolve, reject) => {
+        const reader = new FileReader()
+        reader.onloadend = async () => {
+          try {
+            const avatarUrl = reader.result as string
+            await api.updateAvatar({ userId: user.id, avatarUrl })
+            resolve(avatarUrl)
+          } catch (err: any) {
+            reject(err)
+          }
+        }
+        reader.onerror = () => reject(new Error('Failed to read file'))
+        reader.readAsDataURL(file)
+      })
+    },
+    onSuccess: () => {
+      toast({
+        title: "Success",
+        description: "Avatar updated successfully",
+      })
+      queryClient.invalidateQueries({ queryKey: ['userProfile'] })
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to upload avatar",
+        variant: "destructive"
+      })
+    }
+  })
+
+  // Remove avatar mutation
+  const removeAvatarMutation = useMutation({
+    mutationFn: async () => {
+      if (!user?.id) throw new Error('User not authenticated')
+      return api.removeAvatar(user.id)
+    },
+    onSuccess: () => {
+      toast({
+        title: "Success",
+        description: "Avatar removed successfully",
+      })
+      queryClient.invalidateQueries({ queryKey: ['userProfile'] })
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to remove avatar",
+        variant: "destructive"
+      })
+    }
+  })
+
+  // Handle avatar file selection
+  const handleAvatarUpload = useCallback(async (file: File) => {
+    if (file) {
+      uploadAvatarMutation.mutate(file)
+    }
+  }, [uploadAvatarMutation])
+
+  // Save settings to localStorage
+  const handleSettingsUpdate = useCallback(() => {
     try {
-      setIsLoading(true)
-      clearMessages()
-
-      // TODO: Implement settings storage in backend or use localStorage
-      // For now, just store settings locally
-      localStorage.setItem('userSettings', JSON.stringify(settingsData));
-      setSuccess('Settings saved locally (backend implementation pending)')
-      
-      // Refresh settings
-      await refreshSettings()
-    } catch (err: any) {
-      setError(err.message || 'Failed to update settings')
-    } finally {
-      setIsLoading(false)
+      localStorage.setItem('userSettings', JSON.stringify(settingsData))
+      toast({
+        title: "Success",
+        description: "Settings saved successfully",
+      })
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to save settings",
+        variant: "destructive"
+      })
     }
-  }, [settingsData, clearMessages, refreshSettings])
+  }, [settingsData, toast])
 
-  if (!user) {
+  if (!isAuthenticated || !user) {
     return (
-      <div className="container max-w-page-sm mx-auto py-8">
+      <div className="container max-w-4xl mx-auto py-8">
         <Card>
           <CardContent className="flex items-center justify-center py-8">
             <div className="text-center">
@@ -287,28 +315,18 @@ function UserSettingsPage() {
     )
   }
 
+  const profile = userProfile as any
+  const displayEmail = profile?.email || user?.email || ''
+  const displayHandle = profile?.handle || (user as any)?.handle || ''
+  const avatarUrl = profile?.avatarUrl || profile?.profileImage || (user as any)?.profileImage
+
   return (
-    <div className="container max-w-page-sm mx-auto py-8 space-y-8">
+    <div className="container max-w-4xl mx-auto py-8 pb-24 space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold">Settings</h1>
-        <p className="text-muted-foreground">Manage your account and preferences</p>
+        <h1 className="text-3xl font-bold">Account Settings</h1>
+        <p className="text-muted-foreground">Manage your profile and preferences</p>
       </div>
-
-      {/* Messages */}
-      {error && (
-        <Alert className="border-destructive/50 text-destructive">
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription>{String(error)}</AlertDescription>
-        </Alert>
-      )}
-
-      {success && (
-        <Alert className="border-green-500/50 text-green-700 dark:text-green-400">
-          <CheckCircle className="h-4 w-4" />
-          <AlertDescription>{success}</AlertDescription>
-        </Alert>
-      )}
 
       {/* Avatar Section */}
       <Card>
@@ -320,32 +338,33 @@ function UserSettingsPage() {
           <CardDescription>Update your avatar image</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="flex items-center gap-4">
-            <Avatar className="h-20 w-20">
-              <AvatarImage src={(user as any).profileImage} alt={(user as any).handle || 'User'} />
-              <AvatarFallback className="text-lg">
-                {(user as any).handle?.[0]?.toUpperCase() || user.email?.[0]?.toUpperCase()}
+          <div className="flex items-center gap-6">
+            <Avatar className="h-24 w-24 border-2 border-border">
+              <AvatarImage src={avatarUrl} alt={displayHandle || 'User'} />
+              <AvatarFallback className="text-2xl bg-muted">
+                {displayHandle?.[0]?.toUpperCase() || displayEmail?.[0]?.toUpperCase() || 'U'}
               </AvatarFallback>
             </Avatar>
             <div className="space-y-2">
               <div className="flex gap-2">
                 <Button
                   onClick={() => fileInputRef.current?.click()}
-                  disabled={isLoading}
+                  disabled={uploadAvatarMutation.isPending}
                   size="sm"
+                  variant="outline"
                 >
                   <Upload className="h-4 w-4 mr-2" />
-                  Upload New
+                  {uploadAvatarMutation.isPending ? 'Uploading...' : 'Upload New'}
                 </Button>
-                {(user as any).profileImage && (
+                {avatarUrl && (
                   <Button
-                    onClick={handleAvatarDelete}
-                    disabled={isLoading}
+                    onClick={() => removeAvatarMutation.mutate()}
+                    disabled={removeAvatarMutation.isPending}
                     variant="outline"
                     size="sm"
                   >
                     <Trash2 className="h-4 w-4 mr-2" />
-                    Remove
+                    {removeAvatarMutation.isPending ? 'Removing...' : 'Remove'}
                   </Button>
                 )}
               </div>
@@ -374,28 +393,35 @@ function UserSettingsPage() {
             <User className="h-5 w-5" />
             Profile Information
           </CardTitle>
-          <CardDescription>Update your personal information and social links</CardDescription>
+          <CardDescription>Update your personal information</CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleProfileUpdate} className="space-y-4">
+          <form onSubmit={(e) => {
+            e.preventDefault()
+            updateProfileMutation.mutate(profileData)
+          }} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="username">Username</Label>
-                <Input
-                  id="username"
-                  value={(user as any).handle || ''}
-                  disabled
-                  className="bg-muted"
-                />
-                <p className="text-xs text-muted-foreground">Username cannot be changed</p>
+                <div className="flex items-center gap-2">
+                  <span className="text-muted-foreground">@</span>
+                  <Input
+                    id="username"
+                    value={profileData.handle}
+                    onChange={(e) => setProfileData(prev => ({ ...prev, handle: e.target.value }))}
+                    placeholder="username"
+                    maxLength={30}
+                  />
+                </div>
+                <p className="text-xs text-muted-foreground">Your unique handle</p>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <Input
                   id="email"
-                  value={user.email}
+                  value={displayEmail}
                   disabled
-                  className="bg-muted"
+                  className="bg-muted opacity-60"
                 />
                 <p className="text-xs text-muted-foreground">Email cannot be changed</p>
               </div>
@@ -405,73 +431,99 @@ function UserSettingsPage() {
               <Label htmlFor="displayName">Display Name</Label>
               <Input
                 id="displayName"
-                value={profileData.displayName || ''}
+                value={profileData.displayName}
                 onChange={(e) => setProfileData(prev => ({ ...prev, displayName: e.target.value }))}
                 placeholder="Your display name"
                 maxLength={50}
               />
+              <p className="text-xs text-muted-foreground">
+                This is how your name appears on the leaderboard
+              </p>
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="bio">Bio</Label>
               <Textarea
                 id="bio"
-                value={profileData.bio || ''}
+                value={profileData.bio}
                 onChange={(e) => setProfileData(prev => ({ ...prev, bio: e.target.value }))}
                 placeholder="Tell us about yourself..."
                 maxLength={500}
                 rows={3}
+                className="resize-none"
               />
               <p className="text-xs text-muted-foreground">
-                {(profileData.bio || '').length}/500 characters
+                {profileData.bio.length}/500 characters
               </p>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="website">Website</Label>
-              <Input
-                id="website"
-                type="url"
-                value={profileData.website || ''}
-                onChange={(e) => setProfileData(prev => ({ ...prev, website: e.target.value }))}
-                placeholder="https://yourwebsite.com"
-              />
+            <Separator />
+
+            <div className="space-y-4">
+              <h4 className="text-sm font-medium">Social Links</h4>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="website" className="flex items-center gap-2">
+                    <Globe className="h-4 w-4" />
+                    Website
+                  </Label>
+                  <Input
+                    id="website"
+                    type="url"
+                    value={profileData.website}
+                    onChange={(e) => setProfileData(prev => ({ ...prev, website: e.target.value }))}
+                    placeholder="https://yourwebsite.com"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="twitter" className="flex items-center gap-2">
+                    <MessageSquare className="h-4 w-4" />
+                    X (Twitter)
+                  </Label>
+                  <Input
+                    id="twitter"
+                    value={profileData.twitter}
+                    onChange={(e) => setProfileData(prev => ({ ...prev, twitter: e.target.value }))}
+                    placeholder="@username"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="discord" className="flex items-center gap-2">
+                    <MessageSquare className="h-4 w-4" />
+                    Discord
+                  </Label>
+                  <Input
+                    id="discord"
+                    value={profileData.discord}
+                    onChange={(e) => setProfileData(prev => ({ ...prev, discord: e.target.value }))}
+                    placeholder="username#1234"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="telegram" className="flex items-center gap-2">
+                    <MessageSquare className="h-4 w-4" />
+                    Telegram
+                  </Label>
+                  <Input
+                    id="telegram"
+                    value={profileData.telegram}
+                    onChange={(e) => setProfileData(prev => ({ ...prev, telegram: e.target.value }))}
+                    placeholder="@username"
+                  />
+                </div>
+              </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="twitter">Twitter</Label>
-                <Input
-                  id="twitter"
-                  value={profileData.twitter || ''}
-                  onChange={(e) => setProfileData(prev => ({ ...prev, twitter: e.target.value }))}
-                  placeholder="@username"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="discord">Discord</Label>
-                <Input
-                  id="discord"
-                  value={profileData.discord || ''}
-                  onChange={(e) => setProfileData(prev => ({ ...prev, discord: e.target.value }))}
-                  placeholder="username#1234"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="telegram">Telegram</Label>
-                <Input
-                  id="telegram"
-                  value={profileData.telegram || ''}
-                  onChange={(e) => setProfileData(prev => ({ ...prev, telegram: e.target.value }))}
-                  placeholder="@username"
-                />
-              </div>
+            <div className="flex justify-end">
+              <Button
+                type="submit"
+                disabled={updateProfileMutation.isPending}
+              >
+                <Save className="h-4 w-4 mr-2" />
+                {updateProfileMutation.isPending ? 'Saving...' : 'Save Profile'}
+              </Button>
             </div>
-
-            <Button type="submit" disabled={isLoading}>
-              <Save className="h-4 w-4 mr-2" />
-              {isLoading ? 'Saving...' : 'Save Profile'}
-            </Button>
           </form>
         </CardContent>
       </Card>
@@ -483,10 +535,13 @@ function UserSettingsPage() {
             <Shield className="h-5 w-5" />
             Security
           </CardTitle>
-          <CardDescription>Change your password and manage security settings</CardDescription>
+          <CardDescription>Change your password and manage security</CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handlePasswordChange} className="space-y-4">
+          <form onSubmit={(e) => {
+            e.preventDefault()
+            changePasswordMutation.mutate()
+          }} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="currentPassword">Current Password</Label>
               <div className="relative">
@@ -496,6 +551,8 @@ function UserSettingsPage() {
                   value={passwordData.currentPassword}
                   onChange={(e) => setPasswordData(prev => ({ ...prev, currentPassword: e.target.value }))}
                   placeholder="Enter current password"
+                  autoComplete="current-password"
+                  required
                 />
                 <Button
                   type="button"
@@ -519,6 +576,8 @@ function UserSettingsPage() {
                   onChange={(e) => setPasswordData(prev => ({ ...prev, newPassword: e.target.value }))}
                   placeholder="Enter new password"
                   minLength={8}
+                  autoComplete="new-password"
+                  required
                 />
                 <Button
                   type="button"
@@ -530,259 +589,293 @@ function UserSettingsPage() {
                   {showNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </Button>
               </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="confirmPassword">Confirm New Password</Label>
+              <Input
+                id="confirmPassword"
+                type="password"
+                value={passwordData.confirmPassword}
+                onChange={(e) => setPasswordData(prev => ({ ...prev, confirmPassword: e.target.value }))}
+                placeholder="Confirm new password"
+                minLength={8}
+                autoComplete="new-password"
+                required
+              />
               <p className="text-xs text-muted-foreground">
                 Must be 8+ characters with uppercase, lowercase, and number
               </p>
             </div>
 
-            <Button type="submit" disabled={isLoading || !passwordData.currentPassword || !passwordData.newPassword}>
-              <Lock className="h-4 w-4 mr-2" />
-              {isLoading ? 'Changing...' : 'Change Password'}
-            </Button>
+            <div className="flex justify-end">
+              <Button
+                type="submit"
+                disabled={changePasswordMutation.isPending || !passwordData.currentPassword || !passwordData.newPassword}
+              >
+                <Lock className="h-4 w-4 mr-2" />
+                {changePasswordMutation.isPending ? 'Changing...' : 'Change Password'}
+              </Button>
+            </div>
           </form>
         </CardContent>
       </Card>
 
       {/* App Settings */}
-      {settings && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Settings className="h-5 w-5" />
-              Preferences
-            </CardTitle>
-            <CardDescription>Customize your app experience</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {/* Notifications */}
-            <div>
-              <h4 className="text-sm font-medium mb-3 flex items-center gap-2">
-                <Bell className="h-4 w-4" />
-                Notifications
-              </h4>
-              <div className="space-y-3 pl-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <Label htmlFor="email-notifications">Email Notifications</Label>
-                    <p className="text-xs text-muted-foreground">Receive updates via email</p>
-                  </div>
-                  <Switch
-                    id="email-notifications"
-                    checked={settingsData.notifications?.email ?? false}
-                    onCheckedChange={(checked) => 
-                      setSettingsData(prev => ({
-                        ...prev,
-                        notifications: { 
-                          email: checked,
-                          browser: prev.notifications?.browser ?? false,
-                          trading: prev.notifications?.trading ?? false,
-                          portfolio: prev.notifications?.portfolio ?? false
-                        }
-                      }))
-                    }
-                  />
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Settings className="h-5 w-5" />
+            Preferences
+          </CardTitle>
+          <CardDescription>Customize your app experience</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {/* Notifications */}
+          <div>
+            <h4 className="text-sm font-medium mb-3 flex items-center gap-2">
+              <Bell className="h-4 w-4" />
+              Notifications
+            </h4>
+            <div className="space-y-3 pl-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label htmlFor="email-notifications">Email Notifications</Label>
+                  <p className="text-xs text-muted-foreground">Receive updates via email</p>
                 </div>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <Label htmlFor="browser-notifications">Browser Notifications</Label>
-                    <p className="text-xs text-muted-foreground">Show notifications in browser</p>
-                  </div>
-                  <Switch
-                    id="browser-notifications"
-                    checked={settingsData.notifications?.browser ?? false}
-                    onCheckedChange={(checked) => 
-                      setSettingsData(prev => ({
-                        ...prev,
-                        notifications: { 
-                          email: prev.notifications?.email ?? false,
-                          browser: checked,
-                          trading: prev.notifications?.trading ?? false,
-                          portfolio: prev.notifications?.portfolio ?? false
-                        }
-                      }))
-                    }
-                  />
+                <Switch
+                  id="email-notifications"
+                  checked={settingsData.notifications.email}
+                  onCheckedChange={(checked) =>
+                    setSettingsData(prev => ({
+                      ...prev,
+                      notifications: { ...prev.notifications, email: checked }
+                    }))
+                  }
+                />
+              </div>
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label htmlFor="browser-notifications">Browser Notifications</Label>
+                  <p className="text-xs text-muted-foreground">Show notifications in browser</p>
                 </div>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <Label htmlFor="trading-notifications">Trading Alerts</Label>
-                    <p className="text-xs text-muted-foreground">Alerts for trades and price changes</p>
-                  </div>
-                  <Switch
-                    id="trading-notifications"
-                    checked={settingsData.notifications?.trading ?? false}
-                    onCheckedChange={(checked) => 
-                      setSettingsData(prev => ({
-                        ...prev,
-                        notifications: { 
-                          email: prev.notifications?.email ?? false,
-                          browser: prev.notifications?.browser ?? false,
-                          trading: checked,
-                          portfolio: prev.notifications?.portfolio ?? false
-                        }
-                      }))
-                    }
-                  />
+                <Switch
+                  id="browser-notifications"
+                  checked={settingsData.notifications.browser}
+                  onCheckedChange={(checked) =>
+                    setSettingsData(prev => ({
+                      ...prev,
+                      notifications: { ...prev.notifications, browser: checked }
+                    }))
+                  }
+                />
+              </div>
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label htmlFor="trading-notifications">Trading Alerts</Label>
+                  <p className="text-xs text-muted-foreground">Alerts for trades and price changes</p>
                 </div>
+                <Switch
+                  id="trading-notifications"
+                  checked={settingsData.notifications.trading}
+                  onCheckedChange={(checked) =>
+                    setSettingsData(prev => ({
+                      ...prev,
+                      notifications: { ...prev.notifications, trading: checked }
+                    }))
+                  }
+                />
+              </div>
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label htmlFor="portfolio-notifications">Portfolio Updates</Label>
+                  <p className="text-xs text-muted-foreground">Notifications about your portfolio</p>
+                </div>
+                <Switch
+                  id="portfolio-notifications"
+                  checked={settingsData.notifications.portfolio}
+                  onCheckedChange={(checked) =>
+                    setSettingsData(prev => ({
+                      ...prev,
+                      notifications: { ...prev.notifications, portfolio: checked }
+                    }))
+                  }
+                />
               </div>
             </div>
+          </div>
 
-            <Separator />
+          <Separator />
 
-            {/* Privacy */}
-            <div>
-              <h4 className="text-sm font-medium mb-3 flex items-center gap-2">
-                <Eye className="h-4 w-4" />
-                Privacy
-              </h4>
-              <div className="space-y-3 pl-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <Label htmlFor="public-profile">Public Profile</Label>
-                    <p className="text-xs text-muted-foreground">Allow others to view your profile</p>
-                  </div>
-                  <Switch
-                    id="public-profile"
-                    checked={settingsData.privacy?.publicProfile ?? false}
-                    onCheckedChange={(checked) => 
-                      setSettingsData(prev => ({
-                        ...prev,
-                        privacy: { 
-                          publicProfile: checked,
-                          showBalance: prev.privacy?.showBalance ?? false,
-                          showTrades: prev.privacy?.showTrades ?? false
-                        }
-                      }))
-                    }
-                  />
+          {/* Privacy */}
+          <div>
+            <h4 className="text-sm font-medium mb-3 flex items-center gap-2">
+              <Eye className="h-4 w-4" />
+              Privacy
+            </h4>
+            <div className="space-y-3 pl-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label htmlFor="public-profile">Public Profile</Label>
+                  <p className="text-xs text-muted-foreground">Allow others to view your profile</p>
                 </div>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <Label htmlFor="show-balance">Show Balance</Label>
-                    <p className="text-xs text-muted-foreground">Display your balance on public profile</p>
-                  </div>
-                  <Switch
-                    id="show-balance"
-                    checked={settingsData.privacy?.showBalance ?? false}
-                    onCheckedChange={(checked) => 
-                      setSettingsData(prev => ({
-                        ...prev,
-                        privacy: { 
-                          publicProfile: prev.privacy?.publicProfile ?? false,
-                          showBalance: checked,
-                          showTrades: prev.privacy?.showTrades ?? false
-                        }
-                      }))
-                    }
-                  />
+                <Switch
+                  id="public-profile"
+                  checked={settingsData.privacy.publicProfile}
+                  onCheckedChange={(checked) =>
+                    setSettingsData(prev => ({
+                      ...prev,
+                      privacy: { ...prev.privacy, publicProfile: checked }
+                    }))
+                  }
+                />
+              </div>
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label htmlFor="show-balance">Show Balance</Label>
+                  <p className="text-xs text-muted-foreground">Display your balance on public profile</p>
                 </div>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <Label htmlFor="show-trades">Show Trading Activity</Label>
-                    <p className="text-xs text-muted-foreground">Display recent trades on profile</p>
-                  </div>
-                  <Switch
-                    id="show-trades"
-                    checked={settingsData.privacy?.showTrades ?? false}
-                    onCheckedChange={(checked) => 
-                      setSettingsData(prev => ({
-                        ...prev,
-                        privacy: { 
-                          publicProfile: prev.privacy?.publicProfile ?? false,
-                          showBalance: prev.privacy?.showBalance ?? false,
-                          showTrades: checked
-                        }
-                      }))
-                    }
-                  />
+                <Switch
+                  id="show-balance"
+                  checked={settingsData.privacy.showBalance}
+                  onCheckedChange={(checked) =>
+                    setSettingsData(prev => ({
+                      ...prev,
+                      privacy: { ...prev.privacy, showBalance: checked }
+                    }))
+                  }
+                  disabled={!settingsData.privacy.publicProfile}
+                />
+              </div>
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label htmlFor="show-trades">Show Trading Activity</Label>
+                  <p className="text-xs text-muted-foreground">Display recent trades on profile</p>
                 </div>
+                <Switch
+                  id="show-trades"
+                  checked={settingsData.privacy.showTrades}
+                  onCheckedChange={(checked) =>
+                    setSettingsData(prev => ({
+                      ...prev,
+                      privacy: { ...prev.privacy, showTrades: checked }
+                    }))
+                  }
+                  disabled={!settingsData.privacy.publicProfile}
+                />
               </div>
             </div>
+          </div>
 
-            <Separator />
+          <Separator />
 
-            {/* Trading Preferences */}
-            <div>
-              <h4 className="text-sm font-medium mb-3 flex items-center gap-2">
-                <DollarSign className="h-4 w-4" />
-                Trading
-              </h4>
-              <div className="space-y-3 pl-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <Label htmlFor="confirm-trades">Confirm Trades</Label>
-                    <p className="text-xs text-muted-foreground">Show confirmation dialog before executing trades</p>
-                  </div>
-                  <Switch
-                    id="confirm-trades"
-                    checked={settingsData.trading?.confirmTrades ?? true}
-                    onCheckedChange={(checked) => 
+          {/* Trading Preferences */}
+          <div>
+            <h4 className="text-sm font-medium mb-3 flex items-center gap-2">
+              <DollarSign className="h-4 w-4" />
+              Trading
+            </h4>
+            <div className="space-y-3 pl-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label htmlFor="confirm-trades">Confirm Trades</Label>
+                  <p className="text-xs text-muted-foreground">Show confirmation dialog before executing trades</p>
+                </div>
+                <Switch
+                  id="confirm-trades"
+                  checked={settingsData.trading.confirmTrades}
+                  onCheckedChange={(checked) =>
+                    setSettingsData(prev => ({
+                      ...prev,
+                      trading: { ...prev.trading, confirmTrades: checked }
+                    }))
+                  }
+                />
+              </div>
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label htmlFor="auto-refresh">Auto Refresh</Label>
+                  <p className="text-xs text-muted-foreground">Automatically refresh portfolio and prices</p>
+                </div>
+                <Switch
+                  id="auto-refresh"
+                  checked={settingsData.trading.autoRefresh}
+                  onCheckedChange={(checked) =>
+                    setSettingsData(prev => ({
+                      ...prev,
+                      trading: { ...prev.trading, autoRefresh: checked }
+                    }))
+                  }
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="default-slippage">Default Slippage (%)</Label>
+                <Input
+                  id="default-slippage"
+                  type="number"
+                  min="0.1"
+                  max="50"
+                  step="0.1"
+                  value={settingsData.trading.defaultSlippage}
+                  onChange={(e) => {
+                    const value = parseFloat(e.target.value)
+                    if (!isNaN(value) && value >= 0.1 && value <= 50) {
                       setSettingsData(prev => ({
                         ...prev,
-                        trading: { 
-                          confirmTrades: checked,
-                          defaultSlippage: prev.trading?.defaultSlippage ?? 1.0,
-                          autoRefresh: prev.trading?.autoRefresh ?? true
-                        }
+                        trading: { ...prev.trading, defaultSlippage: value }
                       }))
                     }
-                  />
-                </div>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <Label htmlFor="auto-refresh">Auto Refresh</Label>
-                    <p className="text-xs text-muted-foreground">Automatically refresh portfolio and prices</p>
-                  </div>
-                  <Switch
-                    id="auto-refresh"
-                    checked={settingsData.trading?.autoRefresh ?? true}
-                    onCheckedChange={(checked) => 
-                      setSettingsData(prev => ({
-                        ...prev,
-                        trading: { 
-                          confirmTrades: prev.trading?.confirmTrades ?? true,
-                          defaultSlippage: prev.trading?.defaultSlippage ?? 1.0,
-                          autoRefresh: checked
-                        }
-                      }))
-                    }
-                  />
-                </div>
+                  }}
+                  className="max-w-[200px]"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Maximum price slippage for trades
+                </p>
               </div>
             </div>
+          </div>
 
-            <Button onClick={handleSettingsUpdate} disabled={isLoading}>
+          <div className="flex justify-end">
+            <Button onClick={handleSettingsUpdate}>
               <Save className="h-4 w-4 mr-2" />
-              {isLoading ? 'Saving...' : 'Save Preferences'}
+              Save Preferences
             </Button>
-          </CardContent>
-        </Card>
-      )}
+          </div>
+        </CardContent>
+      </Card>
 
-      {/* Account Stats */}
+      {/* Account Info */}
       <Card>
         <CardHeader>
           <CardTitle>Account Information</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="text-center">
+            <div>
+              <p className="text-sm text-muted-foreground">Account Type</p>
+              <Badge variant="secondary" className="mt-1">
+                {profile?.userTier || 'Standard'}
+              </Badge>
+            </div>
+            <div>
               <p className="text-sm text-muted-foreground">Balance</p>
-              <p className="text-lg font-semibold">-- SOL</p>
-              <p className="text-xs text-muted-foreground">Check portfolio for current balance</p>
+              <p className="text-lg font-semibold">
+                {profile?.virtualSolBalance || '10'} SOL
+              </p>
             </div>
-            <div className="text-center">
+            <div>
               <p className="text-sm text-muted-foreground">Member Since</p>
-              <p className="text-lg font-semibold">--</p>
-              <p className="text-xs text-muted-foreground">Account info not available</p>
+              <p className="text-sm">
+                {profile?.createdAt
+                  ? new Date(profile.createdAt).toLocaleDateString()
+                  : 'Unknown'}
+              </p>
             </div>
-            <div className="text-center">
-              <p className="text-sm text-muted-foreground">Status</p>
-              <Badge variant="secondary">Active</Badge>
-            </div>
-            <div className="text-center">
-              <p className="text-sm text-muted-foreground">Verification</p>
-              <Badge variant="outline">Email Verified</Badge>
+            <div>
+              <p className="text-sm text-muted-foreground">User ID</p>
+              <p className="text-xs font-mono truncate" title={user.id}>
+                {user.id}
+              </p>
             </div>
           </div>
         </CardContent>
