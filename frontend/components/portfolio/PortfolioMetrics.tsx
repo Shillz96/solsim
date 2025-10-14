@@ -31,14 +31,13 @@ import {
   AlertCircle,
   Sparkles
 } from 'lucide-react';
-import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import * as api from '@/lib/api';
 import * as Backend from '@/lib/types/backend';
 import { formatUSD, safePercent } from '@/lib/format';
 import { UsdWithSol } from '@/lib/sol-equivalent';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/use-auth';
+import { usePortfolio } from '@/hooks/use-portfolio';
 
 interface StatCardProps {
   title: string;
@@ -218,31 +217,14 @@ interface PortfolioMetricsProps {
 
 export function PortfolioMetrics({ isLoading: externalLoading = false }: PortfolioMetricsProps) {
   const { user, isAuthenticated } = useAuth();
-  
-  // Fetch portfolio data
-  const { 
-    data: portfolio, 
-    isLoading: portfolioLoading, 
+
+  // Use centralized portfolio hook
+  const {
+    data: portfolio,
+    isLoading: portfolioLoading,
     error,
-    refetch 
-  } = useQuery({
-    queryKey: ['portfolio', user?.id],
-    queryFn: async () => {
-      if (!user?.id) throw new Error('User not authenticated');
-      const data = await api.getPortfolio(user.id);
-      
-      // Data validation diagnostic
-      if (process.env.NODE_ENV === 'development') {
-        if (!data) console.warn('[PortfolioMetrics] Portfolio data missing; check API binding');
-        if (data && !data.totals) console.warn('[PortfolioMetrics] Totals object missing');
-      }
-      
-      return data;
-    },
-    enabled: isAuthenticated && !!user?.id,
-    refetchInterval: 30000, // Refresh every 30 seconds
-    staleTime: 10000,
-  });
+    refetch
+  } = usePortfolio();
 
   const isLoading = externalLoading || portfolioLoading;
 
@@ -291,11 +273,15 @@ export function PortfolioMetrics({ isLoading: externalLoading = false }: Portfol
     : 0;
 
   // Calculate change percentages
+  // PnL% = pnl / costBasis, where costBasis = currentValue - pnl
   const totalPnLChange = totalValue > 0 
     ? (totalPnL / (totalValue - totalPnL)) * 100 
     : 0;
-  const unrealizedPnLChange = unrealizedPnL !== 0 && totalValue > 0
-    ? (unrealizedPnL / totalValue) * 100
+  // For unrealized PnL, we need the cost basis of open positions
+  // costBasis = currentValue - unrealizedPnL, so unrealizedPnL% = unrealizedPnL / costBasis
+  const unrealizedCostBasis = totalValue - unrealizedPnL
+  const unrealizedPnLChange = unrealizedCostBasis > 0
+    ? (unrealizedPnL / unrealizedCostBasis) * 100
     : 0;
 
   return (

@@ -24,10 +24,9 @@ import Link from "next/link"
 import { usePriceStreamContext } from "@/lib/price-stream-provider"
 import { useTokenMetadataBatch } from "@/hooks/use-token-metadata"
 import { useCallback, useState, useEffect } from "react"
-import { useQuery } from "@tanstack/react-query"
-import * as api from "@/lib/api"
 import * as Backend from "@/lib/types/backend"
 import { useAuth } from "@/hooks/use-auth"
+import { usePortfolio } from "@/hooks/use-portfolio"
 import { cn } from "@/lib/utils"
 import { ProfitLossValue, PortfolioValue } from "@/components/ui/financial-value"
 import type { EnhancedPosition } from "./types"
@@ -68,24 +67,15 @@ export const UnifiedPositions = memo(function UnifiedPositions({
 }: UnifiedPositionsProps) {
   const { user, isAuthenticated } = useAuth()
   const [isRefreshing, setIsRefreshing] = useState(false)
-  
-  // Use React Query to fetch portfolio data
-  const { 
-    data: portfolio, 
-    isLoading, 
-    error, 
+
+  // Use centralized portfolio hook
+  const {
+    data: portfolio,
+    isLoading,
+    error,
     refetch,
-    isRefetching 
-  } = useQuery({
-    queryKey: ['portfolio', user?.id],
-    queryFn: async () => {
-      if (!user?.id) throw new Error('User not authenticated')
-      return api.getPortfolio(user.id)
-    },
-    enabled: isAuthenticated && !!user?.id,
-    refetchInterval: 30000, // Refresh every 30 seconds
-    staleTime: 10000, // Consider data stale after 10 seconds
-  })
+    isRefetching
+  } = usePortfolio()
 
   // Real-time price stream integration
   const { connected: wsConnected, prices: livePrices, subscribeMany, unsubscribeMany } = usePriceStreamContext()
@@ -181,7 +171,9 @@ export const UnifiedPositions = memo(function UnifiedPositions({
     const totalLiveUnrealized = enhancedPositions.reduce((sum, pos) => sum + (pos.liveUnrealizedUsd || 0), 0)
     const totalRealized = parseFloat(portfolio.totals.totalRealizedUsd)
     const totalLivePnL = totalLiveUnrealized + totalRealized
-    const totalLivePnLPercent = totalCurrentValue > 0 ? (totalLivePnL / totalCurrentValue) * 100 : 0
+    // PnL% = pnl / costBasis, where costBasis = currentValue - pnl
+    const totalCostBasis = totalCurrentValue - totalLivePnL
+    const totalLivePnLPercent = totalCostBasis > 0 ? (totalLivePnL / totalCostBasis) * 100 : 0
     
     return {
       totalValueUsd: totalCurrentValue,

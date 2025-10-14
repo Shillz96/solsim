@@ -49,24 +49,32 @@ model User {
 }
 
 model Trade {
-  id           String               @id @default(uuid())
-  userId       String
-  tokenAddress String
-  mint         String
-  tokenSymbol  String?
-  tokenName    String?
-  action       String
-  side         String
-  quantity     Decimal
-  price        Decimal
-  totalCost    Decimal
-  costUsd      Decimal?
-  realizedPnL  Decimal?
-  marketCapUsd Decimal?
-  timestamp    DateTime             @default(now())
-  createdAt    DateTime             @default(now())
-  user         User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
-  transactions TransactionHistory[]
+  id             String               @id @default(uuid())
+  userId         String
+  tokenAddress   String
+  mint           String
+  tokenSymbol    String?
+  tokenName      String?
+  action         String
+  side           String
+  quantity       Decimal
+  price          Decimal
+  totalCost      Decimal
+  costUsd        Decimal?
+  proceedsUsd    Decimal?             // SELL: netSOL * solUsdAtFill
+  realizedPnL    Decimal?
+  marketCapUsd   Decimal?
+  // Enhanced fields for proper PnL tracking
+  solUsdAtFill   Decimal?             // SOL→USD FX rate at fill time
+  grossSol       Decimal?             // Gross SOL before fees
+  feesSol        Decimal?             // Total fees (DEX + L1 + priority)
+  netSol         Decimal?             // Net SOL after fees (gross + fees for buy, gross - fees for sell)
+  route          String?              // Trading route (Raydium/Orca/Jupiter/Pumpfun)
+  priceSOLPerToken Decimal?           // Token price in SOL terms
+  timestamp      DateTime             @default(now())
+  createdAt      DateTime             @default(now())
+  user           User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions   TransactionHistory[]
 
   @@index([userId, timestamp(sort: Desc)], map: "user_trades_recent")
   @@index([userId, createdAt(sort: Desc)], map: "user_trades_created")
@@ -224,6 +232,8 @@ model PositionLot {
   mint         String
   qtyRemaining Decimal
   unitCostUsd  Decimal
+  unitCostSol  Decimal? // Cost per token in SOL
+  solUsdAtBuy  Decimal? // Freeze SOL→USD FX at buy time
   createdAt    DateTime @default(now())
   position     Position @relation(fields: [positionId], references: [id], onDelete: Cascade)
 
@@ -235,12 +245,36 @@ model RealizedPnL {
   id        String   @id @default(uuid())
   userId    String
   mint      String
-  pnl       Decimal
+  pnl       Decimal  // Legacy: USD PnL
+  pnlUsd    Decimal? // Explicit USD PnL (frozen at sell time)
+  pnlSol    Decimal? // SOL PnL (frozen at sell time)
+  tradeId   String?  // Reference to the sell trade
   createdAt DateTime @default(now())
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, createdAt])
   @@index([mint])
+  @@index([tradeId])
+}
+
+model LotClosure {
+  id               String   @id @default(uuid())
+  lotId            String
+  sellTradeId      String
+  userId           String
+  mint             String
+  qtyClosedUnits   Decimal  // Token quantity closed (in base units or decimal)
+  costSOL          Decimal  // SOL cost of this piece
+  costUSD          Decimal  // USD cost of this piece (frozen at buy)
+  proceedsSOL      Decimal  // SOL proceeds from this piece
+  proceedsUSD      Decimal  // USD proceeds (frozen at sell)
+  realizedPnlSOL   Decimal  // Realized PnL in SOL
+  realizedPnlUSD   Decimal  // Realized PnL in USD
+  createdAt        DateTime @default(now())
+
+  @@index([lotId])
+  @@index([sellTradeId])
+  @@index([userId, mint, createdAt])
 }
 
 model PriceTick {
@@ -282,6 +316,37 @@ model CopyTrade {
   @@index([userId, createdAt])
   @@index([walletAddress, createdAt])
   @@index([status])
+}
+
+model WalletActivity {
+  id                String    @id @default(uuid())
+  walletAddress     String
+  signature         String    @unique
+  type              String    // SWAP, BUY, SELL, TRANSFER
+  tokenInMint       String?   // Token being sold/sent
+  tokenInSymbol     String?
+  tokenInAmount     Decimal?
+  tokenOutMint      String?   // Token being bought/received
+  tokenOutSymbol    String?
+  tokenOutAmount    Decimal?
+  priceUsd          Decimal?  // USD value of the trade
+  solAmount         Decimal?  // SOL involved in the trade
+  program           String?   // DEX program (Raydium, Pump.fun, etc)
+  fee               Decimal?  // Transaction fee in SOL
+  profitLoss        Decimal?  // P&L if this is a sell
+  marketCap         Decimal?  // Market cap at time of trade
+  volume24h         Decimal?  // 24h volume at time of trade
+  priceChange24h    Decimal?  // 24h price change percentage
+  timestamp         DateTime
+  blockTime         BigInt?
+  createdAt         DateTime  @default(now())
+
+  @@index([walletAddress, timestamp(sort: Desc)])
+  @@index([signature])
+  @@index([tokenInMint, timestamp(sort: Desc)])
+  @@index([tokenOutMint, timestamp(sort: Desc)])
+  @@index([type, timestamp(sort: Desc)])
+  @@index([timestamp(sort: Desc)])
 }
 
 enum UserTier {

@@ -16,6 +16,7 @@ import * as api from "@/lib/api"
 import * as Backend from "@/lib/types/backend"
 import { useToast } from "@/hooks/use-toast"
 import { useAuth } from "@/hooks/use-auth"
+import { usePortfolio } from "@/hooks/use-portfolio"
 import { formatNumber, formatUSD } from "@/lib/format"
 import { cn } from "@/lib/utils"
 
@@ -41,12 +42,8 @@ export function RewardsOverview() {
     refetchInterval: 60000,
   })
 
-  // Get user's portfolio for tier calculation
-  const { data: portfolio } = useQuery({
-    queryKey: ['portfolio', user?.id],
-    queryFn: () => user ? api.getPortfolio(user.id) : Promise.resolve(null),
-    enabled: !!user?.id,
-  })
+  // Get user's portfolio for tier calculation using centralized hook
+  const { data: portfolio } = usePortfolio()
 
   // Claim rewards mutation
   const claimMutation = useMutation({

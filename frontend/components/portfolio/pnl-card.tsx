@@ -35,12 +35,12 @@ import {
 import { motion } from "framer-motion"
 import { SharePnLDialog } from "@/components/modals/share-pnl-dialog"
 import { memo, useState, useCallback } from "react"
-import { useQuery } from "@tanstack/react-query"
 import { useAuth } from "@/hooks/use-auth"
+import { usePortfolio } from "@/hooks/use-portfolio"
 import * as Backend from "@/lib/types/backend"
-import * as api from "@/lib/api"
 import { formatUSD, safePercent } from "@/lib/format"
 import { UsdWithSol } from "@/lib/sol-equivalent"
+import { CurrencyValue, PnLDisplay } from "@/components/shared/currency-display"
 import { cn } from "@/lib/utils"
 
 /**
@@ -160,17 +160,14 @@ function StatItem({
         <p className="text-sm text-muted-foreground">{label}</p>
       </div>
       
-      {showSolEquiv ? (
-        <UsdWithSol 
-          usd={value} 
-          className={cn("text-2xl font-bold", colorStyles[color])}
-          solClassName="text-xs"
-        />
-      ) : (
-        <p className={cn("text-2xl font-bold", colorStyles[color])}>
-          {formatUSD(value)}
-        </p>
-      )}
+      {/* Use new CurrencyValue component - never mix glyphs */}
+      <CurrencyValue
+        usd={value}
+        primary="USD"
+        showSecondary={showSolEquiv}
+        primaryClassName={cn("text-2xl font-bold", colorStyles[color])}
+        secondaryClassName="text-xs text-muted-foreground"
+      />
       
       {percentage && (
         <p className={cn("text-xs", colorStyles[color])}>
@@ -185,31 +182,14 @@ export function PnLCard() {
   const [shareDialogOpen, setShareDialogOpen] = useState(false);
   const { user, isAuthenticated } = useAuth();
 
-  // Fetch portfolio data with React Query
-  const { 
-    data: portfolio, 
-    isLoading, 
-    error, 
+  // Use centralized portfolio hook
+  const {
+    data: portfolio,
+    isLoading,
+    error,
     refetch,
-    isRefetching 
-  } = useQuery({
-    queryKey: ['portfolio', user?.id],
-    queryFn: async () => {
-      if (!user?.id) throw new Error('User not authenticated');
-      const data = await api.getPortfolio(user.id);
-      
-      // Data validation diagnostic
-      if (process.env.NODE_ENV === 'development') {
-        if (!data) console.warn('[PnLCard] Portfolio data missing; check API binding or cache invalidation');
-        if (data && !data.totals) console.warn('[PnLCard] Totals object missing from portfolio');
-      }
-      
-      return data;
-    },
-    enabled: isAuthenticated && !!user?.id,
-    refetchInterval: 30000, // Refresh every 30 seconds
-    staleTime: 10000,
-  });
+    isRefetching
+  } = usePortfolio();
 
   const handleRefresh = useCallback(() => {
     refetch();

@@ -1,11 +1,12 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
-import * as api from "@/lib/api"
 import * as Backend from "@/lib/types/backend"
 import { formatNumber, formatUSD, formatPriceUSD, formatTokenQuantity } from "@/lib/format"
 import { useAuth } from "@/hooks/use-auth"
+import { usePortfolio } from "@/hooks/use-portfolio"
 import { usePriceStreamContext } from "@/lib/price-stream-provider"
 
 interface RealtimeTradeStripProps {
@@ -21,57 +22,18 @@ export function RealtimeTradeStrip({
 }: RealtimeTradeStripProps) {
   const { user } = useAuth()
   const { prices: livePrices } = usePriceStreamContext()
-  const [positions, setPositions] = useState<Backend.PortfolioPosition[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const router = useRouter()
 
-  // Load user's portfolio positions
-  const loadPositions = useCallback(async () => {
-    if (!user?.id) {
-      setPositions([])
-      setLoading(false)
-      return
-    }
+  // Use centralized portfolio hook
+  const {
+    data: portfolio,
+    isLoading: loading,
+    error: portfolioError,
+    refetch
+  } = usePortfolio()
 
-    setLoading(true)
-
-    try {
-      // Add timestamp to bust any caching
-      const response = await api.getPortfolio(user.id)
-      // Filter to only show positions with quantity > 0
-      const heldPositions = response.positions.filter(pos => parseFloat(pos.qty) > 0)
-      setPositions(heldPositions)
-      setError(null)
-    } catch (err) {
-      setError((err as Error).message)
-    } finally {
-      setLoading(false)
-    }
-  }, [user?.id])
-
-  // Clear positions immediately when user changes
-  useEffect(() => {
-    // Clear old data immediately to prevent showing wrong user's data
-    setPositions([])
-    setError(null)
-    setLoading(true)
-  }, [user?.id])
-
-  // Load positions on mount and when user changes
-  useEffect(() => {
-    loadPositions()
-  }, [loadPositions])
-
-  // Auto-refresh every 30 seconds
-  useEffect(() => {
-    if (!user?.id) return
-
-    const interval = setInterval(() => {
-      loadPositions()
-    }, 30000)
-
-    return () => clearInterval(interval)
-  }, [loadPositions, user?.id])
+  const error = portfolioError ? portfolioError.message : null
+  const positions = portfolio?.positions?.filter(pos => parseFloat(pos.qty) > 0) || []
 
   // Calculate real-time PnL using live prices
   const getRealtimePnL = (position: Backend.PortfolioPosition) => {
@@ -125,7 +87,7 @@ export function RealtimeTradeStrip({
         <div className="flex items-center justify-center text-sm text-muted-foreground">
           <span>Unable to load positions</span>
           <button
-            onClick={() => loadPositions()}
+            onClick={() => refetch()}
             className="ml-2 underline hover:text-foreground transition-colors"
           >
             Retry
@@ -154,9 +116,10 @@ export function RealtimeTradeStrip({
             const isProfit = pnl.unrealizedUsd >= 0
 
             return (
-              <div
+              <button
                 key={position.mint}
-                className="flex items-center space-x-3 whitespace-nowrap flex-shrink-0"
+                onClick={() => router.push(`/trade?token=${position.mint}`)}
+                className="flex items-center space-x-3 whitespace-nowrap flex-shrink-0 hover:opacity-80 transition-opacity cursor-pointer"
               >
                 {position.tokenImage && (
                   <img
@@ -184,7 +147,7 @@ export function RealtimeTradeStrip({
                     ({isProfit ? '+' : ''}{pnl.unrealizedPercent.toFixed(2)}%)
                   </span>
                 </span>
-              </div>
+              </button>
             )
           })
         )}

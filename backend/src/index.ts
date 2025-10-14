@@ -18,6 +18,7 @@ import rewardsRoutes from "./routes/rewards.js";
 import tradesRoutes from "./routes/trades.js";
 import walletRoutes from "./routes/wallet.js";
 import walletTrackerRoutes from "./routes/walletTracker.js";
+import walletTrackerV2Routes from "./routes/walletTrackerV2.js";
 import searchRoutes from "./routes/search.js";
 import candleRoutes from "./routes/candles.js";
 import notesRoutes from "./routes/notes.js";
@@ -28,6 +29,7 @@ import sentryTestRoutes from "./routes/sentry-test.js";
 // Import plugins and services
 import wsPlugin from "./plugins/ws.js";
 import wsTestPlugin from "./plugins/wsTest.js";
+import wsWalletTrackerPlugin from "./plugins/wsWalletTracker.js";
 import priceService from "./plugins/priceService.js";
 import { generalRateLimit } from "./plugins/rateLimiting.js";
 import { NonceCleanupService } from "./plugins/nonce.js";
@@ -132,29 +134,39 @@ const allowedOrigins = [
 app.register(cors, {
   origin: (origin, cb) => {
     // Allow requests with no origin (mobile apps, postman, etc.)
-    if (!origin) return cb(null, true);
+    if (!origin) {
+      console.log('✅ CORS accepted: no origin (mobile/postman)');
+      return cb(null, true);
+    }
     
     if (allowedOrigins.includes(origin)) {
+      console.log('✅ CORS accepted from allowedOrigins:', origin);
       return cb(null, true);
     }
     
     // Allow any subdomain of solsim.fun in production
     if (origin.endsWith('.solsim.fun') || origin === 'https://solsim.fun') {
+      console.log('✅ CORS accepted (solsim.fun domain):', origin);
       return cb(null, true);
     }
     
     // Allow Vercel preview deployments
     if (origin.includes('vercel.app')) {
+      console.log('✅ CORS accepted (Vercel deployment):', origin);
       return cb(null, true);
     }
     
     console.log('🚫 CORS rejected origin:', origin);
-    return cb(null, false); // Reject with false, not error
+    // Return error instead of false to ensure proper headers are sent
+    return cb(new Error('Not allowed by CORS'), false);
   },
   credentials: true,
   // Add WebSocket-specific headers and cache control headers
   allowedHeaders: ['Content-Type', 'Authorization', 'Upgrade', 'Connection', 'Sec-WebSocket-Key', 'Sec-WebSocket-Version', 'Sec-WebSocket-Protocol', 'Cache-Control', 'Pragma'],
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  // Explicitly set preflight to continue so OPTIONS requests get proper responses
+  preflightContinue: false,
+  optionsSuccessStatus: 204
 });
 
 // Production monitoring and tracking plugins
@@ -174,6 +186,7 @@ app.register(websocket, {
 // Register WebSocket routes BEFORE rate limiting
 app.register(wsTestPlugin) // Test WebSocket first for debugging
 app.register(wsPlugin) // Main price stream WebSocket
+app.register(wsWalletTrackerPlugin) // Wallet tracker WebSocket
 
 // Production rate limiting (replaces old rate limiting for better scale)
 // app.register(productionRateLimitingPlugin);
@@ -201,6 +214,7 @@ app.register(rewardsRoutes, { prefix: "/api/rewards" });
 app.register(tradesRoutes, { prefix: "/api/trades" });
 app.register(walletRoutes, { prefix: "/api/wallet" });
 app.register(walletTrackerRoutes, { prefix: "/api/wallet-tracker" });
+app.register(walletTrackerV2Routes, { prefix: "/api/wallet-tracker/v2" });
 app.register(searchRoutes, { prefix: "/api/search" });
 app.register(candleRoutes, { prefix: "/api/candles" });
 app.register(notesRoutes); // Note: This route is already prefixed in the implementation
