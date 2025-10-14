@@ -2,21 +2,30 @@
 import prisma from "../plugins/prisma.js";
 import redis from "../plugins/redis.js";
 import { robustFetch, fetchJSON } from "../utils/fetch.js";
+import { safeStringify, safeParse } from "../utils/json.js";
+import { tokenMetadataCoalescer } from "../utils/requestCoalescer.js";
 
 const HELIUS = process.env.HELIUS_API!;
 const DEX = "https://api.dexscreener.com";
 const JUPITER = "https://price.jup.ag/v6";
 
-// Redis cache TTL: 10 minutes (balances freshness vs performance)
-const REDIS_TOKEN_META_TTL = 600;
+// Redis cache TTL: 1 hour for metadata (logos, names rarely change)
+const REDIS_TOKEN_META_TTL = 3600;
+const REDIS_TOKEN_META_VERSION = 'v2'; // Increment to invalidate old cache
 
 // Enrich token metadata (caches in Redis -> DB -> external APIs)
+// Wrapped with request coalescing to prevent duplicate concurrent API calls
 export async function getTokenMeta(mint: string) {
+  return tokenMetadataCoalescer.coalesce(`token:meta:${mint}`, () => getTokenMetaUncached(mint), 30000);
+}
+
+// Internal function: Fetch token metadata without coalescing
+async function getTokenMetaUncached(mint: string) {
   // Try Redis cache first (fastest - in-memory cache)
   try {
-    const cached = await redis.get(`token:meta:${mint}`);
+    const cached = await redis.get(`token:meta:${REDIS_TOKEN_META_VERSION}:${mint}`);
     if (cached) {
-      return JSON.parse(cached);
+      return safeParse(cached);
     }
   } catch (error) {
     // Redis failure is non-critical, continue to DB
@@ -26,11 +35,12 @@ export async function getTokenMeta(mint: string) {
   // Try DB cache second
   let token = await prisma.token.findUnique({ where: { address: mint } });
   const fresh = token && token.lastUpdated && Date.now() - token.lastUpdated.getTime() < 86400000; // 24h cache
+  const hasImage = token && token.logoURI; // Only use cache if we have an image
 
-  if (token && fresh) {
+  if (token && fresh && hasImage) {
     // Store in Redis for next time
     try {
-      await redis.setex(`token:meta:${mint}`, REDIS_TOKEN_META_TTL, JSON.stringify(token));
+      await redis.setex(`token:meta:${REDIS_TOKEN_META_VERSION}:${mint}`, REDIS_TOKEN_META_TTL, safeStringify(token));
     } catch (error) {
       console.warn(`Failed to cache token metadata in Redis:`, error);
     }
@@ -41,7 +51,7 @@ export async function getTokenMeta(mint: string) {
   try {
     const tokenList = await fetchJSON<any[]>(`https://token.jup.ag/strict`, {
       timeout: 8000,
-      retries: 2,
+      retries: 1, // Reduced from 2 - fail faster on DNS errors
       retryDelay: 500
     });
     const jupiterToken = tokenList.find(t => t.address === mint);
@@ -63,9 +73,9 @@ export async function getTokenMeta(mint: string) {
         }
       });
 
-      // Cache in Redis
+      // Cache in Redis with version key
       try {
-        await redis.setex(`token:meta:${mint}`, REDIS_TOKEN_META_TTL, JSON.stringify(token));
+        await redis.setex(`token:meta:${REDIS_TOKEN_META_VERSION}:${mint}`, REDIS_TOKEN_META_TTL, safeStringify(token));
       } catch (error) {
         console.warn(`Failed to cache token metadata in Redis:`, error);
       }
@@ -115,9 +125,9 @@ export async function getTokenMeta(mint: string) {
         }
       });
 
-      // Cache in Redis
+      // Cache in Redis with version key
       try {
-        await redis.setex(`token:meta:${mint}`, REDIS_TOKEN_META_TTL, JSON.stringify(token));
+        await redis.setex(`token:meta:${REDIS_TOKEN_META_VERSION}:${mint}`, REDIS_TOKEN_META_TTL, safeStringify(token));
       } catch (error) {
         console.warn(`Failed to cache token metadata in Redis:`, error);
       }
@@ -161,9 +171,9 @@ export async function getTokenMeta(mint: string) {
         }
       });
 
-      // Cache in Redis
+      // Cache in Redis with version key
       try {
-        await redis.setex(`token:meta:${mint}`, REDIS_TOKEN_META_TTL, JSON.stringify(token));
+        await redis.setex(`token:meta:${REDIS_TOKEN_META_VERSION}:${mint}`, REDIS_TOKEN_META_TTL, safeStringify(token));
       } catch (error) {
         console.warn(`Failed to cache token metadata in Redis:`, error);
       }
@@ -193,12 +203,18 @@ export async function getTokenInfo(mint: string) {
 }
 
 // Get token price data from multiple sources
+// Wrapped with request coalescing to prevent duplicate concurrent API calls
 async function getTokenPriceData(mint: string) {
+  return tokenMetadataCoalescer.coalesce(`token:price:${mint}`, () => getTokenPriceDataUncached(mint), 5000);
+}
+
+// Internal function: Fetch token price data without coalescing
+async function getTokenPriceDataUncached(mint: string) {
   // Try Jupiter price API first
   try {
     const data = await fetchJSON<any>(
       `${JUPITER}/price?ids=${mint}`,
-      { timeout: 8000, retries: 2, retryDelay: 500 }
+      { timeout: 8000, retries: 0, retryDelay: 500 } // No retries - fail fast, DexScreener is fallback
     );
     const price = data.data?.[mint]?.price;
 

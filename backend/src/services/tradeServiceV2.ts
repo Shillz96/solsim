@@ -8,6 +8,7 @@ import priceService from "../plugins/priceService.js";
 import { closeFIFO, type Lot, type Sell } from "../utils/fifo-closer.js";
 import { simulateFees } from "../utils/decimal-helpers.js";
 import { addTradePoints } from "./rewardService.js";
+import { portfolioCoalescer } from "../utils/requestCoalescer.js";
 
 const D = (x: Decimal | number | string) => new Decimal(x);
 
@@ -35,7 +36,7 @@ export async function fillTradeV2({
   side: "BUY" | "SELL";
   qty: string;
 }): Promise<TradeResult> {
-  const q = D(qty);
+  let q = D(qty);
   if (q.lte(0)) throw new Error("Quantity must be greater than 0");
 
   console.log(`[TradeV2] ${side} order: userId=${userId}, mint=${mint.substring(0, 8)}..., qty=${qty}`);
@@ -65,6 +66,32 @@ export async function fillTradeV2({
   const solUsdAtFill = D(currentSolPrice);
   const priceSol = priceUsd.div(solUsdAtFill);
   const mcAtFill = tick.marketCapUsd ? D(tick.marketCapUsd) : null;
+
+  // For sells, check position and clamp quantity if needed (handles floating-point rounding)
+  if (side === "SELL") {
+    const position = await prisma.position.findUnique({
+      where: { userId_mint: { userId, mint } },
+    });
+    if (!position) {
+      throw new Error(`No position found for token`);
+    }
+
+    const positionQty = position.qty as Decimal;
+    const difference = positionQty.minus(q);
+
+    // Allow tiny rounding errors (e.g., selling "all" with 0.0001 difference due to floating point)
+    const EPSILON = D("0.0001");
+    if (difference.lt(EPSILON.neg())) {
+      // Position is less than required by more than epsilon
+      throw new Error(`Insufficient token balance. Required: ${q.toFixed(4)}, Available: ${positionQty.toFixed(4)}`);
+    }
+
+    // If user is trying to sell slightly more than available due to rounding, clamp to available
+    if (difference.lt(0) && difference.gte(EPSILON.neg())) {
+      console.log(`[TradeV2] ⚠️ Clamping sell quantity from ${q.toString()} to ${positionQty.toString()} (diff: ${difference.toString()})`);
+      q = positionQty; // Clamp to exact position quantity
+    }
+  }
 
   // Calculate gross trade amounts
   const grossSol = q.mul(priceSol);
@@ -97,15 +124,6 @@ export async function fillTradeV2({
     netSol = grossSol.minus(totalFees);
     tradeCostSol = netSol;
     tradeCostUsd = netSol.mul(solUsdAtFill); // Freeze USD at fill time
-
-    // Check position
-    const position = await prisma.position.findUnique({
-      where: { userId_mint: { userId, mint } },
-    });
-    if (!position || (position.qty as Decimal).lt(q)) {
-      const available = position ? (position.qty as Decimal).toFixed(4) : "0";
-      throw new Error(`Insufficient token balance. Required: ${q.toFixed(4)}, Available: ${available}`);
-    }
   }
 
   console.log(`[TradeV2] Price: USD=${priceUsd.toString()}, SOL=${priceSol.toString()}`);
@@ -282,6 +300,10 @@ export async function fillTradeV2({
   // Add reward points
   const tradeValueUsd = tradeCostUsd;
   await addTradePoints(userId, tradeValueUsd);
+
+  // CRITICAL: Invalidate portfolio cache to prevent stale data
+  portfolioCoalescer.invalidate(`portfolio:${userId}`);
+  console.log(`[TradeV2] Invalidated portfolio cache for user ${userId}`);
 
   // Calculate portfolio totals
   const portfolioTotals = await calculatePortfolioTotals(userId);

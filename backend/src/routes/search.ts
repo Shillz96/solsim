@@ -77,25 +77,30 @@ async function searchTokens(query: string, limit: number = 20) {
       const data = await res.json() as any;
       const pairs = data.pairs || [];
 
-      for (const pair of pairs.slice(0, limit)) {
-        if (pair.chainId === "solana" && pair.baseToken) {
-          // Enrich with metadata from multiple sources (Jupiter, Helius, etc.)
-          const meta = await getTokenMeta(pair.baseToken.address);
+      // Parallelize metadata enrichment for better performance
+      const enrichedTokens = await Promise.all(
+        pairs.slice(0, limit)
+          .filter((pair: any) => pair.chainId === "solana" && pair.baseToken)
+          .map(async (pair: any) => {
+            // Enrich with metadata from multiple sources (Jupiter, Helius, etc.)
+            const meta = await getTokenMeta(pair.baseToken.address);
 
-          results.push({
-            mint: pair.baseToken.address,
-            symbol: meta?.symbol || pair.baseToken.symbol,
-            name: meta?.name || pair.baseToken.name,
-            logoURI: meta?.logoURI || pair.info?.imageUrl || null,
-            priceUsd: parseFloat(pair.priceUsd || "0"),
-            marketCapUsd: pair.marketCap || pair.fdv || null,
-            liquidity: pair.liquidity?.usd || null,
-            volume24h: pair.volume?.h24 || null,
-            priceChange24h: pair.priceChange?.h24 || null,
-            source: "dexscreener"
-          });
-        }
-      }
+            return {
+              mint: pair.baseToken.address,
+              symbol: meta?.symbol || pair.baseToken.symbol,
+              name: meta?.name || pair.baseToken.name,
+              logoURI: meta?.logoURI || pair.info?.imageUrl || null,
+              priceUsd: parseFloat(pair.priceUsd || "0"),
+              marketCapUsd: pair.marketCap || pair.fdv || null,
+              liquidity: pair.liquidity?.usd || null,
+              volume24h: pair.volume?.h24 || null,
+              priceChange24h: pair.priceChange?.h24 || null,
+              source: "dexscreener"
+            };
+          })
+      );
+
+      results.push(...enrichedTokens);
     }
   } catch (error: any) {
     console.warn(`DexScreener search failed (${error.code || error.message}):`, error.message);
@@ -115,13 +120,16 @@ async function searchTokens(query: string, limit: number = 20) {
         const data = await res.json() as any;
         const tokens = data.data || [];
 
-        for (const token of tokens.slice(0, limit)) {
-          // Avoid duplicates
-          if (!results.find(r => r.mint === token.address)) {
+        // Filter out duplicates first, then parallelize metadata enrichment
+        const uniqueTokens = tokens.slice(0, limit)
+          .filter((token: any) => !results.find(r => r.mint === token.address));
+
+        const enrichedTokens = await Promise.all(
+          uniqueTokens.map(async (token: any) => {
             // Enrich with metadata from multiple sources (Jupiter, Helius, etc.)
             const meta = await getTokenMeta(token.address);
 
-            results.push({
+            return {
               mint: token.address,
               symbol: meta?.symbol || token.symbol,
               name: meta?.name || token.name,
@@ -132,9 +140,11 @@ async function searchTokens(query: string, limit: number = 20) {
               volume24h: token.volume24h || null,
               priceChange24h: token.priceChange24h || null,
               source: "birdeye"
-            });
-          }
-        }
+            };
+          })
+        );
+
+        results.push(...enrichedTokens);
       }
     } catch (error: any) {
       console.warn(`Birdeye search failed (${error.code || error.message}):`, error.message);

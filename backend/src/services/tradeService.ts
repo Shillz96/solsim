@@ -42,7 +42,7 @@ export async function fillTrade({
   side: "BUY" | "SELL";
   qty: string;
 }): Promise<TradeResult> {
-  const q = D(qty);
+  let q = D(qty);
   if (q.lte(0)) throw new Error("Quantity must be greater than 0");
 
   // Debug logging for trade execution
@@ -85,6 +85,32 @@ export async function fillTrade({
   const priceSol = priceUsd.div(solUsdAtFill); // Token price in SOL terms
   const mcAtFill = tick.marketCapUsd ? D(tick.marketCapUsd) : null;
 
+  // For sells, check position and clamp quantity if needed (handles floating-point rounding)
+  if (side === "SELL") {
+    const position = await prisma.position.findUnique({
+      where: { userId_mint: { userId, mint } }
+    });
+    if (!position) {
+      throw new Error(`No position found for token`);
+    }
+
+    const positionQty = position.qty as Decimal;
+    const difference = positionQty.minus(q);
+
+    // Allow tiny rounding errors (e.g., selling "all" with 0.0001 difference due to floating point)
+    const EPSILON = D("0.0001");
+    if (difference.lt(EPSILON.neg())) {
+      // Position is less than required by more than epsilon
+      throw new Error(`Insufficient token balance. Required: ${q.toFixed(4)}, Available: ${positionQty.toFixed(4)}`);
+    }
+
+    // If user is trying to sell slightly more than available due to rounding, clamp to available
+    if (difference.lt(0) && difference.gte(EPSILON.neg())) {
+      console.log(`[Trade] ⚠️ Clamping sell quantity from ${q.toString()} to ${positionQty.toString()} (diff: ${difference.toString()})`);
+      q = positionQty; // Clamp to exact position quantity
+    }
+  }
+
   // Calculate gross trade amounts (before fees)
   const grossSol = q.mul(priceSol);
   const grossUsd = q.mul(priceUsd);
@@ -103,6 +129,12 @@ export async function fillTrade({
     netSol = grossSol.plus(totalFees);
     tradeCostSol = netSol;
     tradeCostUsd = netSol.mul(solUsdAtFill); // Freeze USD at fill time
+
+    // Check if user has enough SOL balance
+    const currentBalance = user.virtualSolBalance as Decimal;
+    if (currentBalance.lt(tradeCostSol)) {
+      throw new Error(`Insufficient SOL balance. Required: ${tradeCostSol.toFixed(4)} SOL, Available: ${currentBalance.toFixed(4)} SOL`);
+    }
   } else {
     // For sells: net = gross - fees (we receive less)
     netSol = grossSol.minus(totalFees);
@@ -114,24 +146,6 @@ export async function fillTrade({
   console.log(`[Trade] Price: USD=${priceUsd.toString()}, SOL=${priceSol.toString()}`);
   console.log(`[Trade] Cost: SOL=${tradeCostSol.toString()}, USD=${tradeCostUsd.toString()}`);
 
-  // For BUY orders, check if user has enough SOL balance
-  if (side === "BUY") {
-    const currentBalance = user.virtualSolBalance as Decimal;
-    if (currentBalance.lt(tradeCostSol)) {
-      throw new Error(`Insufficient SOL balance. Required: ${tradeCostSol.toFixed(4)} SOL, Available: ${currentBalance.toFixed(4)} SOL`);
-    }
-  }
-
-  // For SELL orders, check if user has enough tokens
-  if (side === "SELL") {
-    const position = await prisma.position.findUnique({ 
-      where: { userId_mint: { userId, mint } } 
-    });
-    if (!position || (position.qty as Decimal).lt(q)) {
-      const available = position ? (position.qty as Decimal).toFixed(4) : "0";
-      throw new Error(`Insufficient token balance. Required: ${q.toFixed(4)}, Available: ${available}`);
-    }
-  }
 
   // Create trade record using a transaction to ensure consistency
   const result = await prisma.$transaction(async (tx) => {
