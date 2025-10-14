@@ -14,7 +14,6 @@ import {
   CardHeader, 
   CardTitle 
 } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import { 
   Tabs, 
@@ -206,12 +205,16 @@ export function TrendingTokensList({
                 onClick={() => handleTokenSelect(token.mint)}
               >
                 <div className="flex items-center">
-                  <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 mr-3">
+                  <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 mr-3 overflow-hidden">
                     {token.logoURI ? (
-                      <Avatar className="h-8 w-8">
-                        <AvatarImage src={token.logoURI || undefined} alt={token.name || ''} />
-                        <AvatarFallback>{token.symbol?.substring(0, 2) || 'TKN'}</AvatarFallback>
-                      </Avatar>
+                      <img
+                        src={token.logoURI}
+                        alt={token.symbol || "Token"}
+                        className="w-full h-full object-cover"
+                        onError={(event) => {
+                          event.currentTarget.style.display = "none";
+                        }}
+                      />
                     ) : (
                       <span className="text-sm">{token.symbol?.substring(0, 2) || 'TKN'}</span>
                     )}
@@ -232,7 +235,7 @@ export function TrendingTokensList({
                   <div className="text-right">
                     {/* ✅ Use PriceCell for standardized price display with SOL equivalent */}
                     <PriceCell 
-                      priceUsd={token.priceUsd || 0}
+                      priceUSD={token.priceUsd || 0}
                       priceChangePercent={getChangePercent(token)}
                       className="font-medium"
                       showSolEquiv={true}
@@ -265,17 +268,17 @@ export function TrendingTokensList({
 // Skeleton loader for tokens
 function TokenSkeleton() {
   return (
-    <div className="flex items-center justify-between p-3 border rounded-md">
+    <div className="flex items-center justify-between p-3 border rounded-md animate-pulse">
       <div className="flex items-center">
-        <Skeleton className="h-8 w-8 rounded-full mr-3" />
+        <div className="h-8 w-8 rounded-full mr-3 bg-muted" />
         <div>
-          <Skeleton className="h-5 w-24 mb-1" />
-          <Skeleton className="h-3 w-12" />
+          <div className="h-5 w-24 mb-1 bg-muted rounded" />
+          <div className="h-3 w-12 bg-muted rounded" />
         </div>
       </div>
       <div className="text-right">
-        <Skeleton className="h-5 w-16 mb-1" />
-        <Skeleton className="h-3 w-12" />
+        <div className="h-5 w-16 mb-1 bg-muted rounded" />
+        <div className="h-3 w-12 bg-muted rounded" />
       </div>
     </div>
   );
