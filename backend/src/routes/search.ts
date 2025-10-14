@@ -65,7 +65,7 @@ export default async function searchRoutes(app: FastifyInstance) {
 
 async function searchTokens(query: string, limit: number = 20) {
   const results: any[] = [];
-  
+
   // Search Dexscreener
   try {
     const res = await robustFetch(`${DEX}/latest/dex/search/?q=${encodeURIComponent(query)}`, {
@@ -79,11 +79,14 @@ async function searchTokens(query: string, limit: number = 20) {
 
       for (const pair of pairs.slice(0, limit)) {
         if (pair.chainId === "solana" && pair.baseToken) {
+          // Enrich with metadata from multiple sources (Jupiter, Helius, etc.)
+          const meta = await getTokenMeta(pair.baseToken.address);
+
           results.push({
             mint: pair.baseToken.address,
-            symbol: pair.baseToken.symbol,
-            name: pair.baseToken.name,
-            logoURI: pair.info?.imageUrl || null,
+            symbol: meta?.symbol || pair.baseToken.symbol,
+            name: meta?.name || pair.baseToken.name,
+            logoURI: meta?.logoURI || pair.info?.imageUrl || null,
             priceUsd: parseFloat(pair.priceUsd || "0"),
             marketCapUsd: pair.marketCap || pair.fdv || null,
             liquidity: pair.liquidity?.usd || null,
@@ -115,11 +118,14 @@ async function searchTokens(query: string, limit: number = 20) {
         for (const token of tokens.slice(0, limit)) {
           // Avoid duplicates
           if (!results.find(r => r.mint === token.address)) {
+            // Enrich with metadata from multiple sources (Jupiter, Helius, etc.)
+            const meta = await getTokenMeta(token.address);
+
             results.push({
               mint: token.address,
-              symbol: token.symbol,
-              name: token.name,
-              logoURI: token.logoURI || null,
+              symbol: meta?.symbol || token.symbol,
+              name: meta?.name || token.name,
+              logoURI: meta?.logoURI || token.logoURI || null,
               priceUsd: parseFloat(token.price || "0"),
               marketCapUsd: token.marketCap || null,
               liquidity: token.liquidity || null,
