@@ -10,6 +10,7 @@ import { AuthService, authenticateToken, type AuthenticatedRequest } from "../pl
 import { validateBody, authSchemas, sanitizeInput } from "../plugins/validation.js";
 import { authRateLimit, walletRateLimit, sensitiveRateLimit } from "../plugins/rateLimiting.js";
 import { NonceService } from "../plugins/nonce.js";
+import { EmailService } from "../services/emailService.js";
 
 // Check if wallet holds SIM tokens and upgrade balance
 async function checkAndUpgradeSIMHolder(userId: string, walletAddress: string) {
@@ -59,6 +60,10 @@ export default async function (app: FastifyInstance) {
       // Hash password with secure salt rounds
       const hash = await bcrypt.hash(password, 12);
 
+      // Generate email verification token
+      const verificationToken = EmailService.generateToken();
+      const verificationExpiry = EmailService.generateTokenExpiry(24);
+
       // Create user
       const user = await prisma.user.create({
         data: {
@@ -68,8 +73,16 @@ export default async function (app: FastifyInstance) {
           handle: handle || null,
           profileImage: profileImage || null,
           virtualSolBalance: 10,
-          userTier: 'EMAIL_USER'
+          userTier: 'EMAIL_USER',
+          emailVerified: false,
+          emailVerificationToken: verificationToken,
+          emailVerificationExpiry: verificationExpiry
         }
+      });
+
+      // Send verification email (non-blocking)
+      EmailService.sendVerificationEmail(email, verificationToken, user.username).catch(error => {
+        console.error('Failed to send verification email:', error);
       });
 
       // Create session and generate tokens
@@ -83,7 +96,7 @@ export default async function (app: FastifyInstance) {
 
       console.log(`✅ New user registered: ${email} (${user.id})`);
 
-      return { 
+      return {
         userId: user.id,
         accessToken,
         refreshToken,
@@ -91,7 +104,8 @@ export default async function (app: FastifyInstance) {
           id: user.id,
           email: user.email,
           userTier: user.userTier,
-          virtualSolBalance: user.virtualSolBalance.toString()
+          virtualSolBalance: user.virtualSolBalance.toString(),
+          emailVerified: user.emailVerified
         }
       };
 
@@ -143,7 +157,7 @@ export default async function (app: FastifyInstance) {
 
       console.log(`✅ User logged in: ${email} (${user.id})`);
 
-      return { 
+      return {
         userId: user.id,
         accessToken,
         refreshToken,
@@ -151,7 +165,8 @@ export default async function (app: FastifyInstance) {
           id: user.id,
           email: user.email,
           userTier: user.userTier,
-          virtualSolBalance: user.virtualSolBalance.toString()
+          virtualSolBalance: user.virtualSolBalance.toString(),
+          emailVerified: user.emailVerified
         }
       };
 
@@ -717,16 +732,287 @@ export default async function (app: FastifyInstance) {
         }
       });
 
-      return { 
-        success: true, 
-        message: "Avatar removed successfully" 
+      return {
+        success: true,
+        message: "Avatar removed successfully"
       };
 
     } catch (error: any) {
       console.error('Remove avatar error:', error);
-      return reply.code(500).send({ 
-        error: "AVATAR_REMOVAL_FAILED", 
-        message: "Failed to remove avatar" 
+      return reply.code(500).send({
+        error: "AVATAR_REMOVAL_FAILED",
+        message: "Failed to remove avatar"
+      });
+    }
+  });
+
+  // Verify email with token
+  app.get("/verify-email/:token", async (req: FastifyRequest, reply: FastifyReply) => {
+    try {
+      const { token } = req.params as { token: string };
+
+      if (!token || token.length < 32) {
+        return reply.code(400).send({
+          error: "INVALID_TOKEN",
+          message: "Invalid verification token"
+        });
+      }
+
+      // Find user by verification token
+      const user = await prisma.user.findFirst({
+        where: {
+          emailVerificationToken: token,
+          emailVerificationExpiry: {
+            gte: new Date() // Token must not be expired
+          }
+        }
+      });
+
+      if (!user) {
+        return reply.code(400).send({
+          error: "INVALID_OR_EXPIRED_TOKEN",
+          message: "Verification link is invalid or has expired"
+        });
+      }
+
+      // Mark email as verified and clear token
+      await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          emailVerified: true,
+          emailVerificationToken: null,
+          emailVerificationExpiry: null
+        }
+      });
+
+      // Send welcome email (non-blocking)
+      EmailService.sendWelcomeEmail(user.email, user.username).catch(error => {
+        console.error('Failed to send welcome email:', error);
+      });
+
+      console.log(`✅ Email verified for user: ${user.email} (${user.id})`);
+
+      return {
+        success: true,
+        message: "Email verified successfully!",
+        user: {
+          id: user.id,
+          email: user.email,
+          emailVerified: true
+        }
+      };
+
+    } catch (error: any) {
+      console.error('Email verification error:', error);
+      return reply.code(500).send({
+        error: "VERIFICATION_FAILED",
+        message: "Failed to verify email"
+      });
+    }
+  });
+
+  // Resend verification email
+  app.post("/resend-verification", {
+    preHandler: [authenticateToken, authRateLimit]
+  }, async (req: AuthenticatedRequest, reply) => {
+    try {
+      const userId = req.user?.id;
+
+      if (!userId) {
+        return reply.code(401).send({
+          error: "UNAUTHORIZED",
+          message: "Authentication required"
+        });
+      }
+
+      const user = await prisma.user.findUnique({
+        where: { id: userId }
+      });
+
+      if (!user) {
+        return reply.code(404).send({
+          error: "USER_NOT_FOUND",
+          message: "User not found"
+        });
+      }
+
+      if (user.emailVerified) {
+        return reply.code(400).send({
+          error: "ALREADY_VERIFIED",
+          message: "Email is already verified"
+        });
+      }
+
+      // Generate new verification token
+      const verificationToken = EmailService.generateToken();
+      const verificationExpiry = EmailService.generateTokenExpiry(24);
+
+      // Update user with new token
+      await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          emailVerificationToken: verificationToken,
+          emailVerificationExpiry: verificationExpiry
+        }
+      });
+
+      // Send verification email
+      const emailSent = await EmailService.sendVerificationEmail(
+        user.email,
+        verificationToken,
+        user.username
+      );
+
+      if (!emailSent) {
+        return reply.code(500).send({
+          error: "EMAIL_SEND_FAILED",
+          message: "Failed to send verification email"
+        });
+      }
+
+      console.log(`✅ Verification email resent to: ${user.email} (${user.id})`);
+
+      return {
+        success: true,
+        message: "Verification email sent successfully"
+      };
+
+    } catch (error: any) {
+      console.error('Resend verification error:', error);
+      return reply.code(500).send({
+        error: "RESEND_FAILED",
+        message: "Failed to resend verification email"
+      });
+    }
+  });
+
+  // Request password reset
+  app.post("/forgot-password", {
+    preHandler: [authRateLimit]
+  }, async (req: FastifyRequest, reply: FastifyReply) => {
+    try {
+      const { email } = req.body as { email: string };
+
+      if (!email) {
+        return reply.code(400).send({
+          error: "MISSING_EMAIL",
+          message: "Email is required"
+        });
+      }
+
+      // Find user by email
+      const user = await prisma.user.findUnique({
+        where: { email }
+      });
+
+      // Always return success to prevent email enumeration
+      if (!user || !user.passwordHash) {
+        console.log(`Password reset requested for non-existent/wallet user: ${email}`);
+        return {
+          success: true,
+          message: "If an account exists with this email, you will receive password reset instructions"
+        };
+      }
+
+      // Generate password reset token
+      const resetToken = EmailService.generateToken();
+      const resetExpiry = EmailService.generateTokenExpiry(1); // 1 hour expiry
+
+      // Update user with reset token
+      await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          passwordResetToken: resetToken,
+          passwordResetExpiry: resetExpiry
+        }
+      });
+
+      // Send password reset email
+      await EmailService.sendPasswordResetEmail(user.email, resetToken, user.username);
+
+      console.log(`✅ Password reset email sent to: ${email} (${user.id})`);
+
+      return {
+        success: true,
+        message: "If an account exists with this email, you will receive password reset instructions"
+      };
+
+    } catch (error: any) {
+      console.error('Forgot password error:', error);
+      // Don't reveal error details to prevent email enumeration
+      return {
+        success: true,
+        message: "If an account exists with this email, you will receive password reset instructions"
+      };
+    }
+  });
+
+  // Reset password with token
+  app.post("/reset-password", {
+    preHandler: [authRateLimit]
+  }, async (req: FastifyRequest, reply: FastifyReply) => {
+    try {
+      const { token, newPassword } = req.body as { token: string; newPassword: string };
+
+      if (!token || !newPassword) {
+        return reply.code(400).send({
+          error: "MISSING_FIELDS",
+          message: "Token and new password are required"
+        });
+      }
+
+      if (newPassword.length < 8) {
+        return reply.code(400).send({
+          error: "WEAK_PASSWORD",
+          message: "Password must be at least 8 characters long"
+        });
+      }
+
+      // Find user by reset token
+      const user = await prisma.user.findFirst({
+        where: {
+          passwordResetToken: token,
+          passwordResetExpiry: {
+            gte: new Date() // Token must not be expired
+          }
+        }
+      });
+
+      if (!user) {
+        return reply.code(400).send({
+          error: "INVALID_OR_EXPIRED_TOKEN",
+          message: "Password reset link is invalid or has expired"
+        });
+      }
+
+      // Hash new password
+      const newHash = await bcrypt.hash(newPassword, 12);
+
+      // Update password and clear reset token
+      await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          passwordHash: newHash,
+          passwordResetToken: null,
+          passwordResetExpiry: null
+        }
+      });
+
+      // Invalidate all existing sessions for security
+      await AuthService.invalidateAllUserSessions(user.id);
+
+      console.log(`✅ Password reset successful for user: ${user.email} (${user.id})`);
+
+      return {
+        success: true,
+        message: "Password reset successfully. Please log in with your new password."
+      };
+
+    } catch (error: any) {
+      console.error('Reset password error:', error);
+      return reply.code(500).send({
+        error: "RESET_FAILED",
+        message: "Failed to reset password"
       });
     }
   });

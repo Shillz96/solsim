@@ -35,6 +35,11 @@ model User {
   conversionResetAt  DateTime?
   premiumFeatures    String?              @default("[]")
   rewardPoints       Decimal              @default(0)
+  emailVerified      Boolean              @default(false)
+  emailVerificationToken String?          @unique
+  emailVerificationExpiry DateTime?
+  passwordResetToken String?              @unique
+  passwordResetExpiry DateTime?
   createdAt          DateTime             @default(now())
   updatedAt          DateTime             @updatedAt
   conversions        ConversionHistory[]

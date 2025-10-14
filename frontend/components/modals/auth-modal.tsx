@@ -13,6 +13,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Mail, Lock, User, TrendingUp, AlertCircle, CheckCircle, ArrowLeft, Wallet } from "lucide-react"
 import { useAuth } from "@/hooks/use-auth"
 import { WalletConnectButton } from "@/components/wallet/wallet-connect-button"
+import { PasswordStrengthIndicator, validatePassword } from "@/components/auth/password-strength-indicator"
 // Wallet integration handled by WalletConnectButton component
 
 interface AuthModalProps {
@@ -27,7 +28,9 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
   const [currentView, setCurrentView] = useState<AuthView>('login')
-  
+  const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+
   const { login, signup } = useAuth()
   const [walletConnected, setWalletConnected] = useState<string | null>(null)
   // Use services directly instead of hooks
@@ -117,6 +120,14 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
       return
     }
 
+    // Validate password with utility function
+    const passwordValidation = validatePassword(password)
+    if (!passwordValidation.valid) {
+      setError(passwordValidation.errors[0])
+      setIsLoading(false)
+      return
+    }
+
     try {
       await signup(email, password, username.trim())
       // Close modal and force page refresh to ensure auth state is properly reflected
@@ -146,12 +157,28 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
     }
 
     try {
-      // Forgot password not yet implemented in new backend
-      console.warn('Forgot password not yet implemented')
-      setError('Password reset is not yet available. Please contact support.')
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/forgot-password`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      })
+
+      const data = await response.json()
+
+      if (response.ok || data.success) {
+        setSuccess('Password reset instructions have been sent to your email address')
+        setCurrentView('reset-success')
+      } else {
+        // Even on error, show success message to prevent email enumeration
+        setSuccess('If an account exists with this email, you will receive password reset instructions')
+        setCurrentView('reset-success')
+      }
     } catch (err) {
-      const error = err as Error
-      setError(error.message || 'Failed to send reset email')
+      // Show generic success message even on error to prevent email enumeration
+      setSuccess('If an account exists with this email, you will receive password reset instructions')
+      setCurrentView('reset-success')
     } finally {
       setIsLoading(false)
     }
@@ -365,36 +392,44 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
                     <Label htmlFor="register-password" className="text-foreground font-medium">Password</Label>
                     <div className="relative">
                       <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                      <Input 
-                        id="register-password" 
+                      <Input
+                        id="register-password"
                         name="password"
-                        type="password" 
-                        placeholder="••••••••" 
-                        className="pl-10 bg-background border-border h-11" 
+                        type="password"
+                        placeholder="••••••••"
+                        className="pl-10 bg-background border-border h-11"
                         required
                         minLength={8}
                         disabled={isLoading}
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
                       />
                     </div>
-                    <p className="text-xs text-muted-foreground">
-                      Must be 8+ characters with uppercase, lowercase, and number
-                    </p>
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="register-confirm-password" className="text-foreground font-medium">Confirm Password</Label>
                     <div className="relative">
                       <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                      <Input 
-                        id="register-confirm-password" 
+                      <Input
+                        id="register-confirm-password"
                         name="confirmPassword"
-                        type="password" 
-                        placeholder="••••••••" 
-                        className="pl-10 bg-background border-border h-11" 
+                        type="password"
+                        placeholder="••••••••"
+                        className="pl-10 bg-background border-border h-11"
                         required
                         disabled={isLoading}
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
                       />
                     </div>
                   </div>
+
+                  {/* Password Strength Indicator */}
+                  {password && (
+                    <div className="bg-muted/30 rounded-lg p-3 sm:p-4">
+                      <PasswordStrengthIndicator password={password} confirmPassword={confirmPassword} />
+                    </div>
+                  )}
 
                   {/* Wallet Connection Section */}
                   <div className="space-y-3 py-3 sm:py-4 border-t border-border mt-2">
