@@ -27,8 +27,8 @@ export function usePortfolio(userId?: string) {
       return api.getPortfolio(userIdToUse);
     },
     enabled: !!userId || (typeof window !== 'undefined' && !!localStorage.getItem('userId')),
-    staleTime: 1000 * 30, // 30 seconds
-    refetchInterval: 1000 * 60, // 1 minute
+    staleTime: 1000 * 5, // 5 seconds (faster with optimized backend)
+    refetchInterval: 1000 * 15, // 15 seconds (more responsive updates)
   });
 }
 

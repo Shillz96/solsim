@@ -59,7 +59,7 @@ const logger = pino({
   },
 
   formatters: {
-    level: (label) => {
+    level: (label: any) => {
       return { level: label };
     }
   },

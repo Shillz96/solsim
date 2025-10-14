@@ -11,8 +11,10 @@ export function useWalletTrackerWebSocket(userId: string) {
   const connect = useCallback(() => {
     if (wsRef.current?.readyState === WebSocket.OPEN) return
 
+    // Get base WS URL and remove any existing path segments
     const wsUrl = process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:4000'
-    const ws = new WebSocket(`${wsUrl}/ws/wallet-tracker`)
+    const baseUrl = wsUrl.replace(/\/(ws\/)?prices?\/?$/, '')
+    const ws = new WebSocket(`${baseUrl}/ws/wallet-tracker`)
 
     ws.onopen = () => {
       console.log('Wallet tracker WebSocket connected')

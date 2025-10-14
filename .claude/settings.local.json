@@ -17,7 +17,20 @@
       "Bash(npm install zod)",
       "Bash(curl:*)",
       "Bash(python -c \"import sys, json; print(json.load(sys.stdin)[''''status''''])\")",
-      "Bash(python:*)"
+      "Bash(python:*)",
+      "Read(//c/**)",
+      "Bash(railway status:*)",
+      "Bash(npx vercel:*)",
+      "Bash(npm install:*)",
+      "Bash(rm:*)",
+      "Bash(railway up:*)",
+      "Bash(xargs sed:*)",
+      "Bash(npx tsc:*)",
+      "Bash(node:*)",
+      "Bash(del componentsportfolioconsolidated-positions.tsx)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)"
     ],
     "deny": [],
     "ask": []

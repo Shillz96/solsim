@@ -20,30 +20,38 @@ export type Fill = {
   priceLamports: string;    // integer string - lamports per base unit
   feeLamports: string;      // integer string - total fee in lamports
   ts: number;               // timestamp for FIFO ordering
+  solUsdAtFill: string;     // SOL→USD FX rate at fill time
   fillId?: string;          // optional unique identifier
 };
 
 export type PnLResult = {
   realizedLamports: string;      // total realized PnL in lamports
+  realizedUsd: string;           // total realized PnL in USD (frozen at sell time)
   unrealizedLamports: string;    // unrealized PnL based on mark price
+  unrealizedUsd: string;         // unrealized PnL in USD (using current SOL price)
   openQuantity: string;          // remaining open position in base units
   averageCostLamports: string;   // average cost per base unit (0 if no position)
-  totalCostBasis: string;        // total cost basis of open position
+  averageCostUsd: string;        // average cost per base unit in USD (0 if no position)
+  totalCostBasis: string;        // total cost basis of open position in lamports
+  totalCostBasisUsd: string;     // total cost basis of open position in USD
   openLots: Array<{              // individual lots for debugging
     qty: string;
     costLamports: string;
+    costUsd: string;
     avgPrice: string;
+    solUsdAtBuy: string;         // SOL→USD rate when lot was created
   }>;
 };
 
 /**
- * Compute PnL for a series of fills using FIFO lot tracking
- * 
+ * Compute PnL for a series of fills using FIFO lot tracking with dual currency support
+ *
  * @param fills - Array of fills, will be sorted by timestamp
  * @param markPriceLamports - Current market price in lamports per base unit
- * @returns Complete PnL breakdown with integer precision
+ * @param currentSolUsd - Current SOL→USD exchange rate for unrealized USD PnL
+ * @returns Complete PnL breakdown with integer precision for both SOL and USD
  */
-export function computePnL(fills: Fill[], markPriceLamports: string): PnLResult {
+export function computePnL(fills: Fill[], markPriceLamports: string, currentSolUsd: string = "0"): PnLResult {
   // Validate inputs
   if (!markPriceLamports || markPriceLamports === "0") {
     throw new Error("Mark price must be provided and non-zero");
@@ -51,73 +59,98 @@ export function computePnL(fills: Fill[], markPriceLamports: string): PnLResult 
 
   // Sort fills by timestamp for FIFO processing
   const sortedFills = [...fills].sort((a, b) => a.ts - b.ts);
-  
-  // FIFO lot tracking - each lot has quantity and total cost
-  const openLots: Array<{ qty: bigint; costLamports: bigint }> = [];
-  let realizedLamports = 0n;
 
-  console.log(`🧮 Computing PnL for ${sortedFills.length} fills with mark price ${markPriceLamports}`);
+  // FIFO lot tracking - each lot has quantity and total cost in both SOL and USD
+  const openLots: Array<{
+    qty: bigint;
+    costLamports: bigint;
+    costUsd: bigint;
+    solUsdAtBuy: bigint;
+  }> = [];
+  let realizedLamports = 0n;
+  let realizedUsd = 0n;
+
+  const currentSolUsdBigInt = BigInt(Math.round(parseFloat(currentSolUsd) * 1_000_000)); // 6 decimal precision for USD
+
+  console.log(`🧮 Computing PnL for ${sortedFills.length} fills with mark price ${markPriceLamports} and SOL/USD rate ${currentSolUsd}`);
 
   for (const fill of sortedFills) {
     try {
       const qty = BigInt(fill.qtyBaseUnits);
       const price = BigInt(fill.priceLamports);
       const fee = BigInt(fill.feeLamports);
+      const solUsdAtFill = BigInt(Math.round(parseFloat(fill.solUsdAtFill) * 1_000_000));
 
-      console.log(`  Processing ${fill.side} ${qty} @ ${price} (fee: ${fee})`);
+      console.log(`  Processing ${fill.side} ${qty} @ ${price} (fee: ${fee}, SOL/USD: ${solUsdAtFill})`);
 
       if (fill.side === "BUY") {
         // Add new lot: cost = quantity × price + allocated fee
-        const totalCost = qty * price + fee;
-        openLots.push({ 
-          qty, 
-          costLamports: totalCost 
+        const totalCostLamports = qty * price + fee;
+        const totalCostUsd = (totalCostLamports * solUsdAtFill) / 1_000_000_000n; // Convert lamports to SOL then to USD
+
+        openLots.push({
+          qty,
+          costLamports: totalCostLamports,
+          costUsd: totalCostUsd,
+          solUsdAtBuy: solUsdAtFill
         });
-        
-        console.log(`    Added lot: qty=${qty}, cost=${totalCost}`);
-        
+
+        console.log(`    Added lot: qty=${qty}, cost=${totalCostLamports} lamports, ${totalCostUsd} USD`);
+
       } else { // SELL
         let remainingToSell = qty;
         let totalSellFee = fee;
-        
+
         while (remainingToSell > 0n && openLots.length > 0) {
           const lot = openLots[0];
-          
+
           // Determine how much to take from this lot
           const takeFromLot = remainingToSell < lot.qty ? remainingToSell : lot.qty;
-          
-          // Calculate proportional cost basis for this portion
-          const proportionalCost = lot.costLamports * takeFromLot / lot.qty;
-          
+
+          // Calculate proportional cost basis for this portion (in lamports)
+          const proportionalCostLamports = lot.costLamports * takeFromLot / lot.qty;
+
+          // Calculate proportional cost basis in USD (frozen at buy time)
+          const proportionalCostUsd = lot.costUsd * takeFromLot / lot.qty;
+
           // Calculate proceeds from this portion
           const grossProceeds = takeFromLot * price;
-          
+
           // Apportion sell fee proportionally
           const proportionalFee = totalSellFee * takeFromLot / qty;
           const netProceeds = grossProceeds - proportionalFee;
-          
-          // Realized PnL = net proceeds - cost basis
-          const realizedForThisPortion = netProceeds - proportionalCost;
-          realizedLamports += realizedForThisPortion;
-          
+
+          // Convert net proceeds to USD using sell-time FX rate
+          const netProceedsUsd = (netProceeds * solUsdAtFill) / 1_000_000_000n;
+
+          // Realized PnL in lamports = net proceeds - cost basis
+          const realizedForThisPortionLamports = netProceeds - proportionalCostLamports;
+
+          // Realized PnL in USD = net proceeds (in USD) - cost basis (in USD, frozen at buy)
+          const realizedForThisPortionUsd = netProceedsUsd - proportionalCostUsd;
+
+          realizedLamports += realizedForThisPortionLamports;
+          realizedUsd += realizedForThisPortionUsd;
+
           console.log(`    Closed portion: ${takeFromLot} units`);
-          console.log(`      Cost basis: ${proportionalCost}`);
-          console.log(`      Net proceeds: ${netProceeds}`);
-          console.log(`      Realized PnL: ${realizedForThisPortion}`);
-          
+          console.log(`      Cost basis: ${proportionalCostLamports} lamports, ${proportionalCostUsd} USD`);
+          console.log(`      Net proceeds: ${netProceeds} lamports, ${netProceedsUsd} USD`);
+          console.log(`      Realized PnL: ${realizedForThisPortionLamports} lamports, ${realizedForThisPortionUsd} USD`);
+
           // Update lot
           lot.qty -= takeFromLot;
-          lot.costLamports -= proportionalCost;
-          
+          lot.costLamports -= proportionalCostLamports;
+          lot.costUsd -= proportionalCostUsd;
+
           // Remove lot if fully consumed
           if (lot.qty === 0n) {
             openLots.shift();
             console.log(`    Lot fully closed`);
           }
-          
+
           remainingToSell -= takeFromLot;
         }
-        
+
         // If we still have quantity to sell but no lots, that's a short position
         // For now, we'll treat this as an error, but could support shorts later
         if (remainingToSell > 0n) {
@@ -125,7 +158,7 @@ export function computePnL(fills: Fill[], markPriceLamports: string): PnLResult 
           // Could throw error or handle as short position
         }
       }
-      
+
     } catch (error) {
       console.error(`❌ Error processing fill:`, fill, error);
       throw new Error(`Failed to process fill: ${error}`);
@@ -135,38 +168,57 @@ export function computePnL(fills: Fill[], markPriceLamports: string): PnLResult 
   // Calculate unrealized PnL from remaining open lots
   const markPrice = BigInt(markPriceLamports);
   let unrealizedLamports = 0n;
+  let unrealizedUsd = 0n;
   let totalOpenQty = 0n;
   let totalCostBasis = 0n;
+  let totalCostBasisUsd = 0n;
 
   for (const lot of openLots) {
-    const markValue = lot.qty * markPrice;
-    const unrealizedForLot = markValue - lot.costLamports;
-    unrealizedLamports += unrealizedForLot;
+    const markValueLamports = lot.qty * markPrice;
+
+    // Unrealized PnL in lamports = mark value - cost basis
+    const unrealizedForLotLamports = markValueLamports - lot.costLamports;
+
+    // Unrealized PnL in USD = (mark value in SOL * current SOL/USD rate) - cost basis in USD
+    const markValueSol = markValueLamports / 1_000_000_000n; // Convert lamports to SOL
+    const markValueUsd = (markValueSol * currentSolUsdBigInt) / 1_000_000n; // Convert SOL to USD
+    const unrealizedForLotUsd = markValueUsd - lot.costUsd;
+
+    unrealizedLamports += unrealizedForLotLamports;
+    unrealizedUsd += unrealizedForLotUsd;
     totalOpenQty += lot.qty;
     totalCostBasis += lot.costLamports;
-    
-    console.log(`  Open lot: ${lot.qty} units, cost ${lot.costLamports}, mark value ${markValue}, unrealized ${unrealizedForLot}`);
+    totalCostBasisUsd += lot.costUsd;
+
+    console.log(`  Open lot: ${lot.qty} units, cost ${lot.costLamports} lamports/${lot.costUsd} USD, mark value ${markValueLamports} lamports/${markValueUsd} USD, unrealized ${unrealizedForLotLamports} lamports/${unrealizedForLotUsd} USD`);
   }
 
   // Calculate average cost per unit (avoid division by zero)
   const averageCostLamports = totalOpenQty > 0n ? totalCostBasis / totalOpenQty : 0n;
+  const averageCostUsd = totalOpenQty > 0n ? totalCostBasisUsd / totalOpenQty : 0n;
 
   console.log(`✅ PnL computation complete:`);
-  console.log(`  Realized: ${realizedLamports} lamports`);
-  console.log(`  Unrealized: ${unrealizedLamports} lamports`);
+  console.log(`  Realized: ${realizedLamports} lamports, ${realizedUsd} USD`);
+  console.log(`  Unrealized: ${unrealizedLamports} lamports, ${unrealizedUsd} USD`);
   console.log(`  Open quantity: ${totalOpenQty} base units`);
-  console.log(`  Average cost: ${averageCostLamports} lamports per unit`);
+  console.log(`  Average cost: ${averageCostLamports} lamports/${averageCostUsd} USD per unit`);
 
   return {
     realizedLamports: realizedLamports.toString(),
+    realizedUsd: realizedUsd.toString(),
     unrealizedLamports: unrealizedLamports.toString(),
+    unrealizedUsd: unrealizedUsd.toString(),
     openQuantity: totalOpenQty.toString(),
     averageCostLamports: averageCostLamports.toString(),
+    averageCostUsd: averageCostUsd.toString(),
     totalCostBasis: totalCostBasis.toString(),
+    totalCostBasisUsd: totalCostBasisUsd.toString(),
     openLots: openLots.map(lot => ({
       qty: lot.qty.toString(),
       costLamports: lot.costLamports.toString(),
-      avgPrice: lot.qty > 0n ? (lot.costLamports / lot.qty).toString() : "0"
+      costUsd: lot.costUsd.toString(),
+      avgPrice: lot.qty > 0n ? (lot.costLamports / lot.qty).toString() : "0",
+      solUsdAtBuy: lot.solUsdAtBuy.toString()
     }))
   };
 }
@@ -202,6 +254,7 @@ export function createFill(
   displayPrice: number, // in SOL per token
   feeInSol: number,
   tokenDecimals: number,
+  solUsdAtFill: number, // SOL→USD FX rate at fill time
   timestamp: number = Date.now(),
   fillId?: string
 ): Fill {
@@ -209,12 +262,14 @@ export function createFill(
   const qtyBaseUnits = toBaseUnits(displayQty, tokenDecimals);
   const priceLamports = toBaseUnits(displayPrice, 9); // SOL has 9 decimals
   const feeLamports = toBaseUnits(feeInSol, 9);
+  const solUsdAtFillStr = solUsdAtFill.toFixed(6); // 6 decimal precision for USD rates
 
   return {
     side,
     qtyBaseUnits,
     priceLamports,
     feeLamports,
+    solUsdAtFill: solUsdAtFillStr,
     ts: timestamp,
     fillId
   };
@@ -225,20 +280,25 @@ export function createFill(
  */
 export function validateFills(fills: Fill[]): void {
   for (const fill of fills) {
-    if (!fill.qtyBaseUnits || !fill.priceLamports || !fill.feeLamports) {
+    if (!fill.qtyBaseUnits || !fill.priceLamports || !fill.feeLamports || !fill.solUsdAtFill) {
       throw new Error(`Invalid fill: missing required fields`);
     }
-    
+
     try {
       BigInt(fill.qtyBaseUnits);
       BigInt(fill.priceLamports);
       BigInt(fill.feeLamports);
+      parseFloat(fill.solUsdAtFill);
     } catch {
-      throw new Error(`Invalid fill: non-integer values detected`);
+      throw new Error(`Invalid fill: invalid values detected`);
     }
-    
+
     if (!["BUY", "SELL"].includes(fill.side)) {
       throw new Error(`Invalid fill side: ${fill.side}`);
+    }
+
+    if (parseFloat(fill.solUsdAtFill) <= 0) {
+      throw new Error(`Invalid fill: solUsdAtFill must be positive`);
     }
   }
 }

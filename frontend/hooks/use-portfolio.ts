@@ -20,12 +20,12 @@ export interface UsePortfolioOptions {
   enabled?: boolean
 
   /**
-   * Refetch interval in milliseconds. Defaults to 30000 (30 seconds).
+   * Refetch interval in milliseconds. Defaults to 15000 (15 seconds).
    */
   refetchInterval?: number
 
   /**
-   * Time in milliseconds before data is considered stale. Defaults to 10000 (10 seconds).
+   * Time in milliseconds before data is considered stale. Defaults to 5000 (5 seconds).
    */
   staleTime?: number
 }
@@ -35,8 +35,8 @@ export function usePortfolio(options: UsePortfolioOptions = {}) {
 
   const {
     enabled = isAuthenticated && !!user?.id,
-    refetchInterval = 30000, // 30 seconds
-    staleTime = 10000, // 10 seconds
+    refetchInterval = 15000, // 15 seconds (faster updates with optimized backend)
+    staleTime = 5000, // 5 seconds (more responsive to price changes)
   } = options
 
   return useQuery({

@@ -11,6 +11,8 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Separator } from '@/components/ui/separator'
 import { Badge } from '@/components/ui/badge'
+import { PurchaseModal } from '@/components/modals/purchase-modal'
+import { PurchaseHistoryTable } from '@/components/purchase/purchase-history'
 import {
   User,
   Mail,
@@ -28,7 +30,9 @@ import {
   Bell,
   DollarSign,
   Globe,
-  MessageSquare
+  MessageSquare,
+  Wallet,
+  ShoppingCart
 } from 'lucide-react'
 import { useAuth } from '@/hooks/use-auth'
 import { useToast } from '@/hooks/use-toast'
@@ -63,6 +67,9 @@ function UserSettingsPage() {
   const queryClient = useQueryClient()
   const { toast } = useToast()
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  // Purchase modal state
+  const [purchaseModalOpen, setPurchaseModalOpen] = useState(false)
 
   // States for form data
   const [showCurrentPassword, setShowCurrentPassword] = useState(false)
@@ -880,8 +887,83 @@ function UserSettingsPage() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Purchase Simulated SOL Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <ShoppingCart className="h-5 w-5" />
+            Purchase Simulated SOL
+          </CardTitle>
+          <CardDescription>
+            Add more simulated SOL to your trading balance with real SOL
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {/* Current Balance Display */}
+          <div className="bg-gradient-to-br from-primary/10 to-primary/5 rounded-lg p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground mb-1">Current Balance</p>
+                <p className="text-3xl font-bold text-primary">
+                  {profile?.virtualSolBalance 
+                    ? parseFloat(profile.virtualSolBalance).toFixed(2)
+                    : '0.00'} SOL
+                </p>
+              </div>
+              <Wallet className="h-12 w-12 text-primary/50" />
+            </div>
+          </div>
+
+          {/* Purchase Button */}
+          <div className="flex justify-center">
+            <Button
+              size="lg"
+              onClick={() => setPurchaseModalOpen(true)}
+              className="w-full md:w-auto"
+            >
+              <ShoppingCart className="h-4 w-4 mr-2" />
+              Buy More Simulated SOL
+            </Button>
+          </div>
+
+          <Separator />
+
+          {/* Purchase History */}
+          <div>
+            <h4 className="text-sm font-medium mb-4">Recent Purchases</h4>
+            <PurchaseHistorySection userId={user?.id || ''} />
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Purchase Modal */}
+      {user && (
+        <PurchaseModal
+          open={purchaseModalOpen}
+          onOpenChange={setPurchaseModalOpen}
+          userId={user.id}
+        />
+      )}
     </div>
   )
+}
+
+// Purchase History Component
+function PurchaseHistorySection({ userId }: { userId: string }) {
+  const { data, isLoading } = useQuery({
+    queryKey: ['purchaseHistory', userId],
+    queryFn: () => api.getPurchaseHistory(userId, 5, 0),
+    enabled: !!userId,
+    staleTime: 60 * 1000, // 1 minute
+  });
+
+  return (
+    <PurchaseHistoryTable
+      purchases={data?.purchases || []}
+      isLoading={isLoading}
+    />
+  );
 }
 
 export default UserSettingsPage

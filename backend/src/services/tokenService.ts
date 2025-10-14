@@ -1,18 +1,41 @@
 // Token service with enhanced metadata sources
 import prisma from "../plugins/prisma.js";
+import redis from "../plugins/redis.js";
 import { robustFetch, fetchJSON } from "../utils/fetch.js";
 
 const HELIUS = process.env.HELIUS_API!;
 const DEX = "https://api.dexscreener.com";
 const JUPITER = "https://price.jup.ag/v6";
 
-// Enrich token metadata (caches in DB)
+// Redis cache TTL: 10 minutes (balances freshness vs performance)
+const REDIS_TOKEN_META_TTL = 600;
+
+// Enrich token metadata (caches in Redis -> DB -> external APIs)
 export async function getTokenMeta(mint: string) {
-  // Try DB cache first
+  // Try Redis cache first (fastest - in-memory cache)
+  try {
+    const cached = await redis.get(`token:meta:${mint}`);
+    if (cached) {
+      return JSON.parse(cached);
+    }
+  } catch (error) {
+    // Redis failure is non-critical, continue to DB
+    console.warn(`Redis cache miss for token ${mint}:`, error);
+  }
+
+  // Try DB cache second
   let token = await prisma.token.findUnique({ where: { address: mint } });
   const fresh = token && token.lastUpdated && Date.now() - token.lastUpdated.getTime() < 86400000; // 24h cache
 
-  if (token && fresh) return token;
+  if (token && fresh) {
+    // Store in Redis for next time
+    try {
+      await redis.setex(`token:meta:${mint}`, REDIS_TOKEN_META_TTL, JSON.stringify(token));
+    } catch (error) {
+      console.warn(`Failed to cache token metadata in Redis:`, error);
+    }
+    return token;
+  }
 
   // 1. Try Jupiter token list first (fastest and most reliable)
   try {
@@ -39,6 +62,14 @@ export async function getTokenMeta(mint: string) {
           logoURI: jupiterToken.logoURI || null,
         }
       });
+
+      // Cache in Redis
+      try {
+        await redis.setex(`token:meta:${mint}`, REDIS_TOKEN_META_TTL, JSON.stringify(token));
+      } catch (error) {
+        console.warn(`Failed to cache token metadata in Redis:`, error);
+      }
+
       return token;
     }
   } catch (e: any) {
@@ -83,6 +114,14 @@ export async function getTokenMeta(mint: string) {
           telegram: meta.extensions?.telegram || null,
         }
       });
+
+      // Cache in Redis
+      try {
+        await redis.setex(`token:meta:${mint}`, REDIS_TOKEN_META_TTL, JSON.stringify(token));
+      } catch (error) {
+        console.warn(`Failed to cache token metadata in Redis:`, error);
+      }
+
       return token;
     }
   } catch (e: any) {
@@ -121,6 +160,14 @@ export async function getTokenMeta(mint: string) {
           telegram: pair.info?.telegram || null,
         }
       });
+
+      // Cache in Redis
+      try {
+        await redis.setex(`token:meta:${mint}`, REDIS_TOKEN_META_TTL, JSON.stringify(token));
+      } catch (error) {
+        console.warn(`Failed to cache token metadata in Redis:`, error);
+      }
+
       return token;
     }
   } catch (e: any) {

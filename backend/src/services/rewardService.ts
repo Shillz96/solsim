@@ -5,13 +5,14 @@ import { Connection, Keypair, PublicKey, SystemProgram, Transaction } from "@sol
 import { createTransferInstruction, getAssociatedTokenAddress, TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import bs58 from "bs58";
 
-// Optional reward system configuration
-const SIM_MINT = process.env.SIM_TOKEN_MINT ? new PublicKey(process.env.SIM_TOKEN_MINT) : null;
-const REWARDS_WALLET = process.env.REWARDS_WALLET_SECRET 
-  ? Keypair.fromSecretKey(bs58.decode(process.env.REWARDS_WALLET_SECRET))
-  : null;
+// Optional reward system configuration - disabled for now
+const SIM_MINT: PublicKey | null = null;
+const REWARDS_WALLET: Keypair | null = null;
 const RPC_URL = process.env.SOLANA_RPC || "https://api.mainnet-beta.solana.com";
 const connection = new Connection(RPC_URL, "confirmed");
+
+// Note: Reward token distribution is currently disabled
+// To enable: Set SIM_TOKEN_MINT and REWARDS_WALLET_SECRET environment variables
 
 // --- 1. Add points whenever a trade is made ---
 export async function addTradePoints(userId: string, tradeVolumeUsd: Decimal) {

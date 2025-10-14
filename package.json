@@ -10,12 +10,12 @@
     "node": ">=20.0.0"
   },
   "scripts": {
-    "install": "cd backend && npm ci",
-    "build": "cd backend && npx prisma generate && npm run build",
-    "start": "cd backend && npx prisma migrate deploy && node --max-old-space-size=6144 dist/index.js",
-    "install-workspaces": "npm install && npm run install-types",
-    "install-types": "cd packages/types && npm install",
-    "backend:install": "cd backend && npm install"
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "cd frontend && npm run dev",
+    "build:backend": "cd backend && npx prisma generate && npm run build",
+    "build:frontend": "cd frontend && npm run build",
+    "build": "npm run build:backend && npm run build:frontend",
+  "start": "cd backend && npx prisma migrate deploy && node --max-old-space-size=6144 dist/index.js"
   },
   "dependencies": {
     "@modelcontextprotocol/server-filesystem": "^2025.8.21",

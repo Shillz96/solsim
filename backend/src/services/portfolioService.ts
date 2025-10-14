@@ -1,6 +1,7 @@
 // Portfolio service for user positions and PnL calculations
 import prisma from "../plugins/prisma.js";
 import priceService from "../plugins/priceService.js";
+import redis from "../plugins/redis.js";
 import { getTokenMeta } from "./tokenService.js";
 import { Decimal } from "@prisma/client/runtime/library";
 
@@ -96,15 +97,8 @@ export async function getPortfolio(userId: string): Promise<PortfolioResponse> {
   const mints = positions.map((p: any) => p.mint);
   const prices = await priceService.getPrices(mints);
 
-  // Get full price ticks for market cap and other data
-  const priceTickPromises = mints.map(mint => priceService.getLastTick(mint));
-  const priceTicks = await Promise.all(priceTickPromises);
-  const priceTickMap = new Map();
-  mints.forEach((mint, index) => {
-    if (priceTicks[index]) {
-      priceTickMap.set(mint, priceTicks[index]);
-    }
-  });
+  // Get full price ticks for market cap and other data (batch operation - much faster!)
+  const priceTickMap = await priceService.getLastTicks(mints);
 
   // Fetch metadata for all tokens concurrently
   const metadataPromises = mints.map(mint => getTokenMeta(mint));
@@ -133,6 +127,14 @@ export async function getPortfolio(userId: string): Promise<PortfolioResponse> {
     const costBasis = position.costBasis as Decimal;
     const metadata = metadataMap.get(position.mint);
     const priceTick = priceTickMap.get(position.mint);
+
+    // DEBUG: Log the calculation values
+    console.log(`[PORTFOLIO DEBUG] ${position.mint}:`, {
+      qty: qty.toString(),
+      costBasis: costBasis.toString(),
+      currentPrice: currentPrice.toString(),
+      priceFromService: prices[position.mint]
+    });
 
     // Use Decimal for all calculations to prevent precision loss
     const valueUsd = qty.mul(currentPrice);
@@ -241,8 +243,19 @@ export async function getPortfolioPerformance(userId: string, days: number = 30)
   return dailyValues;
 }
 
-// New function to calculate trading statistics
+// New function to calculate trading statistics (with 60s Redis cache)
 export async function getPortfolioTradingStats(userId: string) {
+  // Try Redis cache first
+  const cacheKey = `portfolio:stats:${userId}`;
+  try {
+    const cached = await redis.get(cacheKey);
+    if (cached) {
+      return JSON.parse(cached);
+    }
+  } catch (error) {
+    console.warn(`Redis cache miss for trading stats ${userId}:`, error);
+  }
+
   // Get all realized PnL records for win rate calculation
   const realizedPnlRecords = await prisma.realizedPnL.findMany({
     where: { userId },
@@ -257,12 +270,21 @@ export async function getPortfolioTradingStats(userId: string) {
   const losingTrades = totalTrades - winningTrades;
   const winRate = totalTrades > 0 ? (winningTrades / totalTrades) * 100 : 0;
 
-  return {
+  const stats = {
     totalTrades,
     winningTrades,
     losingTrades,
     winRate
   };
+
+  // Cache in Redis for 60 seconds
+  try {
+    await redis.setex(cacheKey, 60, JSON.stringify(stats));
+  } catch (error) {
+    console.warn(`Failed to cache trading stats in Redis:`, error);
+  }
+
+  return stats;
 }
 
 // Enhanced function to get portfolio with real-time price updates

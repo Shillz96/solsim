@@ -3,6 +3,7 @@ import prisma from "../plugins/prisma.js";
 import { Decimal } from "@prisma/client/runtime/library";
 import priceService from "../plugins/priceService.js";
 import { D, vwapBuy, fifoSell } from "../utils/pnl.js";
+import { simulateFees } from "../utils/decimal-helpers.js";
 import { addTradePoints } from "./rewardService.js";
 
 // Helper for market cap VWAP
@@ -78,13 +79,34 @@ export async function fillTrade({
     throw new Error(`Invalid SOL price: $${currentSolPrice}. Cannot execute trade.`);
   }
 
-  const priceSol = D(tick.priceSol || priceUsd.div(currentSolPrice)); // Use actual SOL price
-  const solUsd = D(tick.solUsd || currentSolPrice); // Use actual SOL price
+  const solUsdAtFill = D(currentSolPrice); // Freeze SOL→USD FX at fill time
+  const priceSol = priceUsd.div(solUsdAtFill); // Token price in SOL terms
   const mcAtFill = tick.marketCapUsd ? D(tick.marketCapUsd) : null;
 
-  // Calculate trade cost
-  const tradeCostSol = q.mul(priceSol);
-  const tradeCostUsd = q.mul(priceUsd);
+  // Calculate gross trade amounts (before fees)
+  const grossSol = q.mul(priceSol);
+  const grossUsd = q.mul(priceUsd);
+
+  // Calculate fees (DEX + L1 + priority tip)
+  const fees = simulateFees(grossSol);
+  const totalFees = fees.dexFee.plus(fees.l1Fee).plus(fees.tipFee);
+
+  // Calculate net amounts (including fees in cost basis)
+  let netSol: Decimal;
+  let tradeCostSol: Decimal;
+  let tradeCostUsd: Decimal;
+
+  if (side === "BUY") {
+    // For buys: net = gross + fees (we pay more)
+    netSol = grossSol.plus(totalFees);
+    tradeCostSol = netSol;
+    tradeCostUsd = netSol.mul(solUsdAtFill); // Freeze USD at fill time
+  } else {
+    // For sells: net = gross - fees (we receive less)
+    netSol = grossSol.minus(totalFees);
+    tradeCostSol = netSol;
+    tradeCostUsd = netSol.mul(solUsdAtFill); // Freeze USD at fill time
+  }
 
   // Debug logging for price and cost calculations
   console.log(`[Trade] Price: USD=${priceUsd.toString()}, SOL=${priceSol.toString()}`);
@@ -111,7 +133,7 @@ export async function fillTrade({
 
   // Create trade record using a transaction to ensure consistency
   const result = await prisma.$transaction(async (tx) => {
-    // Create trade record
+    // Create trade record with enhanced tracking
     const trade = await tx.trade.create({
       data: {
         userId,
@@ -121,9 +143,15 @@ export async function fillTrade({
         action: side.toLowerCase(),
         quantity: q,
         price: priceUsd,
+        priceSOLPerToken: priceSol,
+        grossSol,
+        feesSol: totalFees,
+        netSol,
         totalCost: tradeCostSol,
         costUsd: tradeCostUsd,
-        marketCapUsd: mcAtFill
+        solUsdAtFill,
+        marketCapUsd: mcAtFill,
+        route: "Simulated" // Can be enhanced to detect actual DEX route
       }
     });
 
@@ -138,14 +166,16 @@ export async function fillTrade({
     let realizedPnL = D(0);
 
     if (side === "BUY") {
-      // Create new lot for FIFO tracking
+      // Create new lot for FIFO tracking with frozen FX rates
       await tx.positionLot.create({
         data: { 
           positionId: pos.id,
           userId, 
           mint, 
           qtyRemaining: q, 
-          unitCostUsd: priceUsd 
+          unitCostUsd: priceUsd,
+          unitCostSol: priceSol,
+          solUsdAtBuy: solUsdAtFill // Freeze SOL→USD FX at buy time
         }
       });
 
@@ -224,9 +254,24 @@ export async function fillTrade({
         data: { qty: newQty, costBasis: newBasis }
       });
 
-      // Record realized PnL
+      // Calculate realized PnL in both SOL and USD (frozen at sell time)
+      const realizedPnLSol = consumed.reduce((sum, c) => {
+        const lot = lots.find((l: any) => l.id === c.lotId)!;
+        const costSOL = c.qty.mul(lot.unitCostSol || priceSol);
+        const proceedsSOL = c.qty.mul(netSol.div(q)); // Proportional proceeds
+        return sum.plus(proceedsSOL.minus(costSOL));
+      }, D(0));
+
+      // Record realized PnL with both currencies
       await tx.realizedPnL.create({
-        data: { userId, mint, pnl: realized }
+        data: { 
+          userId, 
+          mint, 
+          pnl: realized, // Legacy USD field
+          pnlUsd: realized, // Explicit USD (frozen at sell)
+          pnlSol: realizedPnLSol, // SOL PnL (frozen at sell)
+          tradeId: trade.id
+        }
       });
 
       // Add SOL back to user balance

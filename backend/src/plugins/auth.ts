@@ -26,7 +26,7 @@ export interface JWTPayload {
   exp?: number;
 }
 
-export interface AuthenticatedRequest extends FastifyRequest {
+export interface AuthenticatedRequest<T = any> extends FastifyRequest<{ Body: T }> {
   user?: {
     id: string;
     userTier: string;

@@ -548,3 +548,61 @@ export interface CopyTrade {
   createdAt: string;
 }
 
+// ================================
+// Purchase Types
+// ================================
+
+export interface PurchaseTier {
+  realSol: number;
+  simulatedSol: number;
+  label: string;
+  bonus: number; // Percentage bonus
+  popular?: boolean;
+}
+
+export interface PurchaseRequest {
+  userId: string;
+  amount: number;
+  walletAddress: string;
+}
+
+export interface PurchaseInitiateResponse {
+  purchaseId: string;
+  recipientWallet: string;
+  amount: number;
+  simulatedSol: number;
+  tierLabel: string;
+}
+
+export interface PurchaseVerifyRequest {
+  userId: string;
+  transactionSignature: string;
+  walletAddress: string;
+}
+
+export interface PurchaseVerifyResponse {
+  success: boolean;
+  purchaseId: string;
+  simulatedSolAdded: string;
+  newBalance: string;
+  transactionSignature: string;
+  explorerUrl: string;
+}
+
+export interface PurchaseHistory {
+  id: string;
+  realSolAmount: string;
+  simulatedSolAmount: string;
+  transactionSignature: string;
+  status: 'PENDING' | 'COMPLETED' | 'FAILED';
+  tierLabel: string | null;
+  createdAt: string;
+  completedAt: string | null;
+  explorerUrl: string | null;
+}
+
+export interface PurchaseTiersResponse {
+  tiers: PurchaseTier[];
+}
+
+

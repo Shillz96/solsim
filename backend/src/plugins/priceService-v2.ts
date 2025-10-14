@@ -404,6 +404,101 @@ class EventDrivenPriceService extends EventEmitter {
     return tick || null;
   }
 
+  /**
+   * Batch fetch price ticks for multiple mints efficiently
+   * Uses parallel cache checks and fetches only missing prices
+   */
+  async getLastTicks(mints: string[]): Promise<Map<string, PriceTick>> {
+    const result = new Map<string, PriceTick>();
+    const toFetch: string[] = [];
+    const PRICE_FRESHNESS_THRESHOLD = 2 * 60 * 1000; // 2 minutes
+
+    // Check memory cache first for all mints
+    for (const mint of mints) {
+      // Handle SOL specially
+      if (mint === "So11111111111111111111111111111111111111112") {
+        result.set(mint, {
+          mint,
+          priceUsd: this.solPriceUsd,
+          priceSol: 1,
+          solUsd: this.solPriceUsd,
+          timestamp: Date.now(),
+          source: "live"
+        });
+        continue;
+      }
+
+      const tick = this.priceCache.get(mint);
+      const isStale = tick && (Date.now() - tick.timestamp) > PRICE_FRESHNESS_THRESHOLD;
+
+      if (tick && !isStale) {
+        result.set(mint, tick);
+      } else {
+        toFetch.push(mint);
+      }
+    }
+
+    // If all prices are cached, return early
+    if (toFetch.length === 0) {
+      return result;
+    }
+
+    // Try Redis cache for missing prices (batch operation)
+    try {
+      const redisKeys = toFetch.map(mint => `price:${mint}`);
+      const cachedValues = await redis.mget(...redisKeys);
+
+      for (let i = 0; i < toFetch.length; i++) {
+        const cached = cachedValues[i];
+        if (cached) {
+          try {
+            const tick = JSON.parse(cached);
+            const isStale = Date.now() - tick.timestamp > PRICE_FRESHNESS_THRESHOLD;
+
+            if (!isStale && tick) {
+              result.set(toFetch[i], tick);
+              this.priceCache.set(toFetch[i], tick);
+              // Remove from toFetch list
+              toFetch[i] = '';
+            }
+          } catch (error) {
+            logger.warn({ mint: toFetch[i], error }, "Failed to parse Redis cached price");
+          }
+        }
+      }
+    } catch (error) {
+      logger.warn({ error }, "Redis batch fetch failed, continuing");
+    }
+
+    // Filter out empty strings (already found in Redis)
+    const stillToFetch = toFetch.filter(mint => mint !== '');
+
+    // Fetch remaining prices in parallel (limit concurrency to avoid rate limits)
+    if (stillToFetch.length > 0) {
+      logger.debug({ count: stillToFetch.length }, "Batch fetching missing prices");
+
+      // Fetch up to 5 at a time to avoid overwhelming APIs
+      const BATCH_SIZE = 5;
+      for (let i = 0; i < stillToFetch.length; i += BATCH_SIZE) {
+        const batch = stillToFetch.slice(i, i + BATCH_SIZE);
+        const fetchPromises = batch.map(mint => this.fetchTokenPrice(mint));
+
+        const ticks = await Promise.allSettled(fetchPromises);
+
+        for (let j = 0; j < batch.length; j++) {
+          const tickResult = ticks[j];
+          if (tickResult.status === 'fulfilled' && tickResult.value) {
+            const tick = tickResult.value;
+            await this.updatePrice(tick);
+            result.set(batch[j], tick);
+          }
+        }
+      }
+    }
+
+    return result;
+  }
+
   async getPrice(mint: string): Promise<number> {
     if (mint === "So11111111111111111111111111111111111111112") {
       return this.solPriceUsd;

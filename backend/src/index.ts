@@ -20,11 +20,10 @@ import walletRoutes from "./routes/wallet.js";
 import walletTrackerRoutes from "./routes/walletTracker.js";
 import walletTrackerV2Routes from "./routes/walletTrackerV2.js";
 import searchRoutes from "./routes/search.js";
-import candleRoutes from "./routes/candles.js";
-import notesRoutes from "./routes/notes.js";
 import debugRoutes from "./routes/debug.js";
 import adminRoutes from "./routes/admin.js";
 import sentryTestRoutes from "./routes/sentry-test.js";
+import purchaseRoutes from "./routes/purchase.js";
 
 // Import plugins and services
 import wsPlugin from "./plugins/ws.js";
@@ -216,8 +215,7 @@ app.register(walletRoutes, { prefix: "/api/wallet" });
 app.register(walletTrackerRoutes, { prefix: "/api/wallet-tracker" });
 app.register(walletTrackerV2Routes, { prefix: "/api/wallet-tracker/v2" });
 app.register(searchRoutes, { prefix: "/api/search" });
-app.register(candleRoutes, { prefix: "/api/candles" });
-app.register(notesRoutes); // Note: This route is already prefixed in the implementation
+app.register(purchaseRoutes, { prefix: "/api/purchase" });
 app.register(debugRoutes); // Debug routes for price service monitoring
 app.register(adminRoutes, { prefix: "/api/admin" }); // Admin maintenance routes (protected)
 app.register(sentryTestRoutes); // Sentry test routes (dev only)

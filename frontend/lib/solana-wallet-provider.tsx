@@ -22,15 +22,23 @@ interface SolanaWalletProviderProps {
 /**
  * Solana Wallet Provider
  * Provides wallet connection functionality to the entire app
- * Supports multiple wallet types with devnet configuration for development
+ * Supports multiple wallet types with mainnet configuration for production
  * Note: PhantomWalletAdapter removed as Phantom now uses Standard Wallet API
  */
 export function SolanaWalletProvider({ children }: SolanaWalletProviderProps) {
-  // Configure Solana network (devnet for development)
-  const network = WalletAdapterNetwork.Devnet;
+  // Configure Solana network - use mainnet for production
+  const network = WalletAdapterNetwork.Mainnet;
   
-  // You can also provide a custom RPC endpoint
-  const endpoint = useMemo(() => clusterApiUrl(network), [network]);
+  // Use custom RPC endpoint or fallback to cluster API URL
+  const endpoint = useMemo(() => {
+    // Use Helius RPC or custom endpoint if provided
+    const customRpc = process.env.NEXT_PUBLIC_SOLANA_RPC_URL;
+    if (customRpc) {
+      return customRpc;
+    }
+    // Fallback to cluster API URL
+    return clusterApiUrl(network);
+  }, [network]);
 
   // Initialize wallet adapters
   const wallets = useMemo(

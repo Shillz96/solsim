@@ -1,4 +1,4 @@
-import { FastifyInstance } from "fastify";
+import { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
 import prisma from "../plugins/prisma.js";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
@@ -36,7 +36,7 @@ export default async function (app: FastifyInstance) {
   // Email signup with validation and rate limiting
   app.post("/signup-email", {
     preHandler: [authRateLimit, validateBody(authSchemas.emailSignup)]
-  }, async (req, reply) => {
+  }, async (req: FastifyRequest, reply: FastifyReply) => {
     try {
       const sanitizedBody = sanitizeInput(req.body) as {
         email: string;
@@ -107,7 +107,7 @@ export default async function (app: FastifyInstance) {
   // Email login with validation and rate limiting
   app.post("/login-email", {
     preHandler: [authRateLimit, validateBody(authSchemas.emailLogin)]
-  }, async (req, reply) => {
+  }, async (req: FastifyRequest, reply: FastifyReply) => {
     try {
       const sanitizedBody = sanitizeInput(req.body) as {
         email: string;
@@ -167,7 +167,7 @@ export default async function (app: FastifyInstance) {
   // Wallet nonce generation with secure TTL
   app.post("/wallet/nonce", {
     preHandler: [walletRateLimit, validateBody(authSchemas.walletNonce)]
-  }, async (req, reply) => {
+  }, async (req: FastifyRequest, reply: FastifyReply) => {
     try {
       const sanitizedBody = sanitizeInput(req.body) as {
         walletAddress: string;
@@ -224,7 +224,7 @@ export default async function (app: FastifyInstance) {
   // Wallet signature verification with secure nonce validation
   app.post("/wallet/verify", {
     preHandler: [walletRateLimit, validateBody(authSchemas.walletVerify)]
-  }, async (req, reply) => {
+  }, async (req: FastifyRequest, reply: FastifyReply) => {
     try {
       const sanitizedBody = sanitizeInput(req.body) as {
         walletAddress: string;
@@ -343,7 +343,7 @@ export default async function (app: FastifyInstance) {
   // Refresh token endpoint
   app.post("/refresh-token", {
     preHandler: [validateBody(authSchemas.refreshToken)]
-  }, async (req, reply) => {
+  }, async (req: FastifyRequest, reply: FastifyReply) => {
     try {
       const { refreshToken } = req.body as { refreshToken: string };
 
@@ -476,7 +476,7 @@ export default async function (app: FastifyInstance) {
   });
 
   // Get user profile with optional authentication
-  app.get("/user/:userId", async (req, reply) => {
+  app.get("/user/:userId", async (req: FastifyRequest, reply: FastifyReply) => {
     const { userId } = req.params as { userId: string };
     
     // Validate UUID format
@@ -628,14 +628,40 @@ export default async function (app: FastifyInstance) {
         });
       }
 
-      // Basic URL validation
-      try {
-        new URL(avatarUrl);
-      } catch {
+      // Validate URL format (accept both http/https URLs and base64 data URLs)
+      const isDataUrl = avatarUrl.startsWith('data:image/');
+      const isHttpUrl = avatarUrl.startsWith('http://') || avatarUrl.startsWith('https://');
+      
+      if (!isDataUrl && !isHttpUrl) {
         return reply.code(400).send({
           error: "INVALID_URL",
-          message: "Invalid avatar URL format"
+          message: "Avatar must be a valid URL or base64 data URL"
         });
+      }
+      
+      // Validate http/https URLs
+      if (isHttpUrl) {
+        try {
+          new URL(avatarUrl);
+        } catch {
+          return reply.code(400).send({
+            error: "INVALID_URL",
+            message: "Invalid avatar URL format"
+          });
+        }
+      }
+      
+      // Validate base64 data URLs
+      if (isDataUrl) {
+        const validImageTypes = ['data:image/jpeg', 'data:image/jpg', 'data:image/png', 'data:image/webp', 'data:image/gif'];
+        const isValidType = validImageTypes.some(type => avatarUrl.startsWith(type));
+        
+        if (!isValidType) {
+          return reply.code(400).send({
+            error: "INVALID_IMAGE_TYPE",
+            message: "Only JPEG, PNG, WebP, and GIF images are allowed"
+          });
+        }
       }
 
       const user = await prisma.user.update({

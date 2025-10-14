@@ -86,6 +86,7 @@ interface HeliusTransaction {
 interface TokenMetadata {
   symbol: string;
   name: string;
+  logoURI?: string;
   price?: number;
   marketCap?: number;
   volume24h?: number;
@@ -174,11 +175,15 @@ export class WalletActivityService {
           ? await this.getTokenMetadata(parsedSwap.tokenOutMint)
           : null;
 
-        // Fetch logo URIs from token metadata
+        // Fetch logo URIs from DexScreener metadata (preferred) or database
         let tokenInLogoURI: string | null = null;
         let tokenOutLogoURI: string | null = null;
 
-        if (parsedSwap.tokenInMint) {
+        // Use logoURI from DexScreener metadata if available
+        if (tokenInMeta?.logoURI) {
+          tokenInLogoURI = tokenInMeta.logoURI;
+        } else if (parsedSwap.tokenInMint) {
+          // Fallback to database
           try {
             const tokenInData = await prisma.token.findUnique({
               where: { address: parsedSwap.tokenInMint },
@@ -190,7 +195,10 @@ export class WalletActivityService {
           }
         }
 
-        if (parsedSwap.tokenOutMint) {
+        if (tokenOutMeta?.logoURI) {
+          tokenOutLogoURI = tokenOutMeta.logoURI;
+        } else if (parsedSwap.tokenOutMint) {
+          // Fallback to database
           try {
             const tokenOutData = await prisma.token.findUnique({
               where: { address: parsedSwap.tokenOutMint },
@@ -477,6 +485,7 @@ export class WalletActivityService {
           const metadata: TokenMetadata = {
             symbol: pair.baseToken.symbol,
             name: pair.baseToken.name,
+            logoURI: pair.info?.imageUrl || pair.baseToken.imageUrl || pair.info?.socials?.website || null,
             price: parseFloat(pair.priceUsd || 0),
             marketCap: parseFloat(pair.fdv || 0),
             volume24h: parseFloat(pair.volume?.h24 || 0),

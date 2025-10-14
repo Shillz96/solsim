@@ -158,7 +158,7 @@ export function WalletActivityList({
 
                     return (
                       <Link
-                        href={`/token/${tokenMint}`}
+                        href={`/trade?token=${tokenMint}`}
                         className="flex items-center gap-2 hover:opacity-80 transition-opacity"
                       >
                         {/* Token Image */}

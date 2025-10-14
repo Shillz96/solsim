@@ -104,6 +104,7 @@ export default async function wsPlugin(app: FastifyInstance) {
           if (data.type === "subscribe" && data.mint) {
             subscribedTokens.add(data.mint);
             console.log(`📡 Subscribed to ${data.mint}`);
+            console.log(`🔍 Checking if SOL: ${data.mint} === 'So11111111111111111111111111111111111111112'? ${data.mint === 'So11111111111111111111111111111111111111112'}`);
 
             // Send current cached price immediately if available
             if (data.mint === 'So11111111111111111111111111111111111111112') {

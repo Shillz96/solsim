@@ -21,6 +21,7 @@ import {
 } from "lucide-react"
 import { useState, useCallback, useEffect, useRef } from "react"
 import { AuthModal } from "@/components/modals/auth-modal"
+import { PurchaseModal } from "@/components/modals/purchase-modal"
 import { cn } from "@/lib/utils"
 import { motion, AnimatePresence } from "framer-motion"
 import { useRouter } from "next/navigation"
@@ -82,6 +83,7 @@ const navigationItems = [
 
 export function NavBar() {
   const [authModalOpen, setAuthModalOpen] = useState(false)
+  const [purchaseModalOpen, setPurchaseModalOpen] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const pathname = usePathname()
   const router = useRouter()
@@ -238,17 +240,17 @@ export function NavBar() {
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
-                  className="absolute top-full mt-2 w-full bg-popover text-popover-foreground border border-border rounded-lg shadow-xl z-50 max-h-80 overflow-y-auto"
+                  className="absolute top-full mt-2 w-full bg-white dark:bg-gray-900 text-foreground border-2 border-gray-300 dark:border-gray-700 rounded-lg shadow-2xl z-50 max-h-80 overflow-y-auto"
                 >
                   <div className="p-2">
-                    <div className="text-xs text-muted-foreground px-2 py-1 font-semibold border-b border-border mb-1">
+                    <div className="text-xs text-gray-600 dark:text-gray-400 px-2 py-1 font-semibold border-b border-gray-200 dark:border-gray-700 mb-1">
                       Search Results
                     </div>
                     {searchResults.map((token) => (
                       <button
                         key={token.mint}
                         onClick={() => handleTokenSelect(token)}
-                        className="w-full text-left px-3 py-2 rounded-md hover:bg-accent hover:text-accent-foreground transition-colors duration-200 focus:bg-accent focus:text-accent-foreground focus:outline-none"
+                        className="w-full text-left px-3 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200 focus:bg-gray-100 dark:focus:bg-gray-800 focus:outline-none"
                       >
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-3">
@@ -263,19 +265,19 @@ export function NavBar() {
                               />
                             )}
                             <div className="min-w-0">
-                              <div className="font-semibold text-sm">{token.symbol}</div>
-                              <div className="text-xs text-muted-foreground truncate max-w-[200px]">
+                              <div className="font-semibold text-sm text-gray-900 dark:text-gray-100">{token.symbol}</div>
+                              <div className="text-xs text-gray-600 dark:text-gray-400 truncate max-w-[200px]">
                                 {token.name}
                               </div>
                             </div>
                           </div>
                           {token.price && (
                             <div className="text-right flex-shrink-0 ml-2">
-                              <div className="text-sm font-medium">
+                              <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
                                 ${parseFloat(token.price.toString()).toFixed(6)}
                               </div>
                               {solPrice > 0 && (
-                                <div className="text-xs text-muted-foreground">
+                                <div className="text-xs text-gray-600 dark:text-gray-400">
                                   {formatSolEquivalent(parseFloat(token.price.toString()), solPrice)}
                                 </div>
                               )}
@@ -294,20 +296,24 @@ export function NavBar() {
           <div className="flex items-center gap-2">
             {isAuthenticated ? (
               <>
-                {/* Balance Display */}
-                <div className="hidden sm:flex items-center gap-2 px-3 py-2 rounded-lg bg-muted">
-                  <Wallet className="h-4 w-4 text-primary" />
+                {/* Balance Display - Clickable */}
+                <button
+                  onClick={() => setPurchaseModalOpen(true)}
+                  className="hidden sm:flex items-center gap-2 px-3 py-2 rounded-lg bg-muted hover:bg-muted/80 transition-colors cursor-pointer group"
+                  aria-label="Purchase simulated SOL"
+                >
+                  <Wallet className="h-4 w-4 text-primary group-hover:scale-110 transition-transform" />
                   <div className="text-sm">
-                    <div className="font-semibold">
+                    <div className="font-semibold text-foreground">
                       {balanceData ? `${parseFloat(balanceData.balance).toFixed(2)} SOL` : 'Loading...'}
                     </div>
                     {solPrice > 0 && balanceData && (
-                      <div className="text-xs text-muted-foreground">
+                      <div className="text-xs text-foreground/60">
                         {formatUSD(parseFloat(balanceData.balance) * solPrice)}
                       </div>
                     )}
                   </div>
-                </div>
+                </button>
 
                 {/* Notifications */}
                 <Button variant="ghost" size="sm" className="relative">
@@ -394,7 +400,15 @@ export function NavBar() {
         </div>
       </div>
 
+      {/* Modals */}
       <AuthModal open={authModalOpen} onOpenChange={setAuthModalOpen} />
+      {isAuthenticated && user && (
+        <PurchaseModal 
+          open={purchaseModalOpen} 
+          onOpenChange={setPurchaseModalOpen}
+          userId={user.id}
+        />
+      )}
     </motion.header>
   )
 }

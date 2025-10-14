@@ -21,8 +21,13 @@ const envSchema = z.object({
   // Solana RPC
   SOLANA_RPC: z.string().optional(),
   HELIUS_RPC_URL: z.string().optional(),
+  HELIUS_RPC: z.string().optional(),
   HELIUS_WS: z.string().optional(),
   HELIUS_API: z.string().optional(),
+  RPC_ENDPOINT: z.string().optional(),
+
+  // Purchase Configuration
+  RECIPIENT_WALLET: z.string().default('8i6HFhHLfBX9Wwd2BTkd7yeXZGcdwtAgg4vRRB4xf1iL'),
 
   // External APIs
   DEXSCREENER_BASE: z.string().default('https://api.dexscreener.com'),

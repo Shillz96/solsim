@@ -1,6 +1,7 @@
 // Wallet tracker routes for monitoring real wallets
 import { FastifyInstance } from "fastify";
 import prisma from "../plugins/prisma.js";
+import { getWalletTrades } from "../services/walletTrackerService.js";
 
 export default async function walletTrackerRoutes(app: FastifyInstance) {
   // Track a wallet address
@@ -61,7 +62,17 @@ export default async function walletTrackerRoutes(app: FastifyInstance) {
         orderBy: { createdAt: "desc" }
       });
       
-      return { trackedWallets };
+      // Map to match frontend interface
+      const formattedWallets = trackedWallets.map(wallet => ({
+        id: wallet.id,
+        userId: wallet.userId,
+        walletAddress: wallet.address,
+        label: wallet.alias,
+        isActive: true, // Default to true since we don't have this field in DB
+        createdAt: wallet.createdAt.toISOString()
+      }));
+      
+      return { trackedWallets: formattedWallets };
     } catch (error: any) {
       app.log.error(error);
       return reply.code(500).send({ error: "Failed to fetch tracked wallets" });
@@ -84,48 +95,30 @@ export default async function walletTrackerRoutes(app: FastifyInstance) {
     }
   });
 
-  // Get wallet activity using Helius API
+  // Get wallet activity using enhanced swap detection
   app.get("/activity/:walletAddress", async (req, reply) => {
     const { walletAddress } = req.params as { walletAddress: string };
     const { limit = "50" } = req.query as any;
     
     try {
-      const heliusUrl = process.env.HELIUS_RPC_URL;
-      if (!heliusUrl) {
-        return reply.code(500).send({ error: "Helius RPC URL not configured" });
-      }
+      // Use the new getWalletTrades function with proper swap detection
+      const trades = await getWalletTrades(walletAddress, parseInt(limit));
       
-      // Call Helius Enhanced Transactions API
-      const response = await fetch(`${heliusUrl}/v0/addresses/${walletAddress}/transactions?limit=${limit}`, {
-        method: "GET",
-        headers: {
-          "Authorization": `Bearer ${process.env.HELIUS_API_KEY}`
-        }
-      });
-      
-      if (!response.ok) {
-        throw new Error(`Helius API error: ${response.status}`);
-      }
-      
-      const data = await response.json();
-      
-      // Parse transactions to extract swap activities
-      const activities = [];
-      for (const tx of data) {
-        if (tx.type === "SWAP" || tx.description?.includes("swap")) {
-          activities.push({
-            signature: tx.signature,
-            type: tx.type || "SWAP",
-            tokenIn: tx.tokenTransfers?.[0]?.mint || null,
-            tokenOut: tx.tokenTransfers?.[1]?.mint || null,
-            amountIn: tx.tokenTransfers?.[0]?.tokenAmount?.toString() || "0",
-            amountOut: tx.tokenTransfers?.[1]?.tokenAmount?.toString() || "0",
-            timestamp: new Date(tx.timestamp * 1000).toISOString(),
-            program: tx.source || "Unknown",
-            fee: tx.fee?.toString() || "0"
-          });
-        }
-      }
+      // Format for frontend compatibility
+      const activities = trades.map(trade => ({
+        signature: trade.signature,
+        type: trade.type,
+        tokenMint: trade.tokenMint,
+        tokenSymbol: trade.tokenSymbol,
+        tokenName: trade.tokenName,
+        tokenLogoURI: trade.tokenLogoURI,
+        tokenAmount: trade.tokenAmount,
+        tokenDecimals: trade.tokenDecimals,
+        priceUsd: trade.priceUsd,
+        marketCapUsd: trade.marketCapUsd,
+        timestamp: new Date(trade.timestamp).toISOString(),
+        program: trade.program,
+      }));
       
       return {
         walletAddress,
@@ -223,10 +216,10 @@ export default async function walletTrackerRoutes(app: FastifyInstance) {
   // Get tracking statistics
   app.get("/stats/:userId", async (req, reply) => {
     const { userId } = req.params as { userId: string };
-    
+
     try {
       const totalTracked = await prisma.walletTrack.count({ where: { userId } });
-      
+
       return {
         userId,
         totalTracked

@@ -142,6 +142,38 @@ export const authSchemas = {
   } as ValidationSchema
 };
 
+// Purchase validation schemas
+export const purchaseSchemas = {
+  initiate: {
+    type: 'object',
+    required: ['userId', 'amount', 'walletAddress'],
+    properties: {
+      userId: commonPatterns.uuid,
+      amount: {
+        type: 'number',
+        minimum: 0.05,
+        maximum: 10.0
+      },
+      walletAddress: commonPatterns.solanaAddress
+    },
+    additionalProperties: false
+  } as ValidationSchema,
+
+  verify: {
+    type: 'object',
+    required: ['userId', 'transactionSignature', 'walletAddress'],
+    properties: {
+      userId: commonPatterns.uuid,
+      transactionSignature: {
+        type: 'string',
+        pattern: '^[1-9A-HJ-NP-Za-km-z]{60,100}$' // Base58 signature
+      },
+      walletAddress: commonPatterns.solanaAddress
+    },
+    additionalProperties: false
+  } as ValidationSchema
+};
+
 // Trade validation schemas
 export const tradeSchemas = {
   trade: {
