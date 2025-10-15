@@ -63,13 +63,31 @@ npm run test:coverage   # Coverage report
 ### Monorepo Root
 
 ```bash
-# Install everything
-npm run install-workspaces  # Install all workspace dependencies
+# Development (run in separate terminals)
+npm run dev:backend         # Start backend dev server
+npm run dev:frontend        # Start frontend dev server
 
-# Quick commands (from root)
-npm install                 # Backend install
-npm run build              # Backend build
-npm start                  # Backend start
+# Building
+npm run build:backend       # Build backend
+npm run build:frontend      # Build frontend
+npm run build              # Build both
+
+# Testing
+npm run test:backend        # Run backend tests
+npm run test:frontend       # Run frontend tests
+npm test                   # Run all tests
+
+# Database (shortcuts)
+npm run db:migrate          # Apply migrations
+npm run db:generate         # Generate Prisma client
+npm run db:studio          # Open Prisma Studio
+
+# Deployment (GitHub auto-deploy recommended, see GITHUB_DEPLOYMENT_SETUP.md)
+npm run deploy:backend      # Manual: Deploy backend to Railway
+npm run deploy:frontend     # Manual: Deploy frontend to Vercel (production)
+
+# Cleaning
+npm run clean              # Remove all node_modules and build artifacts
 ```
 
 ## Architecture Patterns
@@ -286,9 +304,74 @@ const totalCost = price * quantity;
 - Hook tests
 - Integration tests with MSW for API mocking
 
+## Git Workflow & Deployment
+
+### Branch Strategy
+
+The project uses a three-branch workflow for safe development:
+
+- **`dev`** - Active development branch (daily work happens here)
+- **`staging`** - Pre-production testing (merge from dev before production)
+- **`main`** - Production only (deploy only after staging verification)
+
+**Development Flow**:
+```bash
+# Daily work on dev
+git checkout dev
+git add .
+git commit -m "feat: your feature"
+git push origin dev  # No deployment
+
+# Test on staging
+git checkout staging
+git merge dev
+git push origin staging  # Auto-deploys to staging (if GitHub linked)
+
+# Deploy to production
+git checkout main
+git merge staging
+git push origin main  # Auto-deploys to production (if GitHub linked)
+```
+
+### Deployment
+
+**Recommended:** Link GitHub to Railway and Vercel for automatic deployments.
+
+**Critical Configuration for Monorepo**:
+- Railway Root Directory: `backend`
+- Vercel Root Directory: `frontend`
+
+**Manual Deployment** (if not using GitHub auto-deploy):
+```bash
+# Backend to Railway
+cd backend && railway up
+
+# Frontend to Vercel
+cd frontend && npx vercel --prod
+```
+
+See **GITHUB_DEPLOYMENT_SETUP.md** for complete auto-deployment configuration.
+
+### Environment Setup
+
+All environment variables are documented in **ENVIRONMENT_SETUP.md**.
+
+**Backend** (`.env`):
+- Database, Redis, Solana RPC, JWT secrets, API keys
+
+**Frontend** (`.env.local`):
+- `NEXT_PUBLIC_API_URL` - Backend API endpoint
+- `NEXT_PUBLIC_WS_URL` - Backend WebSocket endpoint
+
+**Important**: Never commit `.env` files. Only `.env.example` templates are tracked.
+
 ## Additional Resources
 
+- **WORKFLOW.md** - Complete development workflow and deployment guide
+- **QUICK_START.md** - Quick reference for common commands
+- **ENVIRONMENT_SETUP.md** - Environment variable configuration guide
+- **GITHUB_DEPLOYMENT_SETUP.md** - GitHub auto-deployment setup with Railway/Vercel
 - **ARCHITECTURE.md** - Comprehensive system architecture documentation
-- **Cursor Rules** (`.cursor/rules/`) - AI assistant guidelines for architecture, services, code quality
 - **README.md** - General project overview and setup instructions
 - **Prisma Schema** (`backend/prisma/schema.prisma`) - Complete database schema with comments
+- **Cursor Rules** (`.cursor/rules/`) - AI assistant guidelines for architecture, services, code quality

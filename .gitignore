@@ -66,6 +66,11 @@ prisma/migrations/**/migration.sql.backup
 backend/uploads/
 **/uploads/temp/
 
+# Large media files
+frontend/public/demo-video.mp4
+frontend/public/*.mp4
+frontend/public/*.mov
+
 # Deployment platforms
 .vercel
 .railway
