@@ -1,7 +1,7 @@
 // Test WebSocket connection and SOL price
 import WebSocket from 'ws';
 
-const ws = new WebSocket('wss://solsim-production.up.railway.app/ws/prices');
+const ws = new WebSocket('wss://virtualsol-production.up.railway.app/ws/prices');
 
 ws.on('open', function open() {
   console.log('✅ Connected to WebSocket');

@@ -1,10 +1,10 @@
-# Solsim.fun Architecture
+# VirtualSol.fun Architecture
 
-This document outlines the system architecture, design decisions, and technical implementation of Solsim.fun, a Solana paper trading simulator.
+This document outlines the system architecture, design decisions, and technical implementation of VirtualSol.fun, a Solana paper trading simulator.
 
 ## 🏗 System Overview
 
-Solsim.fun is a full-stack web application that simulates cryptocurrency trading on the Solana blockchain without real financial risk. Users can practice trading strategies, compete on leaderboards, and earn rewards based on their trading performance.
+VirtualSol.fun is a full-stack web application that simulates cryptocurrency trading on the Solana blockchain without real financial risk. Users can practice trading strategies, compete on leaderboards, and earn rewards based on their trading performance.
 
 ```
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
@@ -96,7 +96,7 @@ Users (id, email, walletAddress, tier, virtualSol, ...)
   ├── Trades (id, userId, mint, side, qty, price, ...)
   ├── Positions (id, userId, mint, qty, costBasis, ...)
   ├── TransactionHistory (FIFO lot tracking)
-  └── RewardClaims (SIM token rewards)
+  └── RewardClaims (VSOL token rewards)
 
 -- Token and market data
 Tokens (address, symbol, name, metrics, ...)
@@ -172,7 +172,7 @@ Routes (API Endpoints)
   │   ├── TradeService (Trade execution)
   │   ├── PortfolioService (Position management)
   │   ├── PriceService (Real-time prices)
-  │   └── RewardService (SIM token rewards)
+  │   └── RewardService (VSOL token rewards)
   ├── Utils (Shared utilities)
   └── Plugins (Database, Redis, WebSocket)
 ```
@@ -216,7 +216,7 @@ interface TradeExecution {
 1. Wallet Connection → Generate Nonce
 2. Message Signing → Verify Signature (nacl)
 3. Wallet Verification → User Session Creation
-4. Tier Upgrade → SIM Token Balance Check
+4. Tier Upgrade → VSOL Token Balance Check
 ```
 
 ### Security Measures
@@ -296,7 +296,7 @@ totalPoints = tradePoints + winRateBonus + volumeBonus
 interface RewardEpoch {
   epoch: number                    // Week identifier
   totalPoints: Decimal            // Sum of all user points
-  poolAmount: Decimal             // Available SIM tokens
+  poolAmount: Decimal             // Available VSOL tokens
   
   // Individual allocations
   userShare = userPoints / totalPoints
@@ -307,7 +307,7 @@ interface RewardEpoch {
 claimReward(userId, epoch, walletAddress) {
   // Validate claim eligibility
   // Create Solana transaction
-  // Transfer SIM tokens to user wallet
+  // Transfer VSOL tokens to user wallet
   // Update claim status
 }
 ```
@@ -511,4 +511,4 @@ class ErrorHandler {
 
 ---
 
-This architecture supports Solsim.fun's current feature set while providing a foundation for future growth and scalability. The modular design enables independent development and deployment of frontend and backend services, while the real-time infrastructure ensures responsive user experiences.
+This architecture supports VirtualSol.fun's current feature set while providing a foundation for future growth and scalability. The modular design enables independent development and deployment of frontend and backend services, while the real-time infrastructure ensures responsive user experiences.

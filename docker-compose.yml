@@ -4,17 +4,17 @@ services:
   # PostgreSQL Database
   postgres:
     image: postgres:16-alpine
-    container_name: solsim-postgres
+    container_name: virtualsol-postgres
     environment:
-      POSTGRES_DB: solsim
-      POSTGRES_USER: solsim
+      POSTGRES_DB: virtualsol
+      POSTGRES_USER: virtualsol
       POSTGRES_PASSWORD: ${DB_PASSWORD:-changeme}
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U solsim"]
+      test: ["CMD-SHELL", "pg_isready -U virtualsol"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -22,7 +22,7 @@ services:
   # Redis Cache
   redis:
     image: redis:7-alpine
-    container_name: solsim-redis
+    container_name: virtualsol-redis
     command: redis-server --appendonly yes
     ports:
       - "6379:6379"
@@ -34,13 +34,13 @@ services:
       timeout: 5s
       retries: 5
 
-  # SolSim Application (when using Dockerfile)
+  # VirtualSol Application (when using Dockerfile)
   # Uncomment to use with Docker instead of local development
   # app:
   #   build:
   #     context: .
   #     dockerfile: Dockerfile
-  #   container_name: solsim-app
+  #   container_name: virtualsol-app
   #   depends_on:
   #     postgres:
   #       condition: service_healthy
@@ -48,7 +48,7 @@ services:
   #       condition: service_healthy
   #   environment:
   #     NODE_ENV: production
-  #     DATABASE_URL: postgresql://solsim:${DB_PASSWORD:-changeme}@postgres:5432/solsim
+  #     DATABASE_URL: postgresql://virtualsol:${DB_PASSWORD:-changeme}@postgres:5432/virtualsol
   #     REDIS_URL: redis://redis:6379
   #     JWT_SECRET: ${JWT_SECRET}
   #     HELIUS_API: ${HELIUS_API}

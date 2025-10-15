@@ -1,8 +1,8 @@
-# SolSim Production Deployment Guide
+# VirtualSol Production Deployment Guide
 
 ## 🚀 Deployment Overview
 
-SolSim can be deployed using Railway, Docker, or any cloud provider that supports Node.js applications. This guide covers production deployment with a focus on Railway.
+VirtualSol can be deployed using Railway, Docker, or any cloud provider that supports Node.js applications. This guide covers production deployment with a focus on Railway.
 
 ## 📋 Pre-Deployment Checklist
 
@@ -37,7 +37,7 @@ SIM_TOKEN_MINT=<your-sim-token-mint-address>
 REWARDS_WALLET_SECRET=<base58-encoded-secret-key>
 
 # Frontend URL (for CORS)
-FRONTEND_URL=https://solsim.fun
+FRONTEND_URL=https://virtualsol.fun
 
 # Environment
 NODE_ENV=production
@@ -194,15 +194,15 @@ railway status
 
 ```bash
 # Build the image
-docker build -t solsim:latest .
+docker build -t virtualsol:latest .
 
 # Run with environment file
 docker run -d \
-  --name solsim \
+  --name virtualsol \
   --env-file .env.production \
   -p 3000:3000 \
   -p 4000:4000 \
-  solsim:latest
+  virtualsol:latest
 
 # Or use docker-compose
 docker-compose up -d
@@ -215,7 +215,7 @@ version: '3.8'
 
 services:
   app:
-    image: solsim:latest
+    image: virtualsol:latest
     restart: unless-stopped
     env_file: .env.production
     ports:
@@ -243,7 +243,7 @@ services:
 ### Monitoring Setup
 
 1. **Configure uptime monitoring** (e.g., UptimeRobot, Pingdom):
-   - Monitor: `https://api.solsim.fun/health`
+   - Monitor: `https://api.virtualsol.fun/health`
    - Expected response: 200 OK
    - Check interval: 5 minutes
 
@@ -431,7 +431,7 @@ railway run psql $DATABASE_URL < backup.sql
 
 - Railway Support: https://railway.app/help
 - Railway Status: https://status.railway.app
-- SolSim Issues: https://github.com/yourusername/solsim/issues
+- VirtualSol Issues: https://github.com/yourusername/virtualsol/issues
 
 ---
 

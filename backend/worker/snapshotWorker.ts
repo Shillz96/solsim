@@ -5,9 +5,9 @@ import prisma from "../src/plugins/prisma.js";
 
 // Validate required environment variables
 function validateEnvironment() {
-  const required = ['SIM_TOKEN_MINT', 'REWARDS_WALLET_SECRET', 'DATABASE_URL'];
+  const required = ['VSOL_TOKEN_MINT', 'REWARDS_WALLET_SECRET', 'DATABASE_URL'];
   const missing = required.filter(key => !process.env[key]);
-  
+
   if (missing.length > 0) {
     throw new Error(`Missing required environment variables: ${missing.join(', ')}`);
   }
@@ -27,11 +27,11 @@ async function calculatePoolAmount(): Promise<Decimal> {
     
     const volumeUsd = parseFloat(weeklyVolume._sum.costUsd?.toString() || "0");
     
-    // Pool = 0.1% of weekly volume, minimum 100 SIM, maximum 10,000 SIM
+    // Pool = 0.1% of weekly volume, minimum 100 VSOL, maximum 10,000 VSOL
     const poolFromVolume = volumeUsd * 0.001;
     const poolAmount = Math.max(100, Math.min(10000, poolFromVolume));
-    
-    console.log(`📊 Weekly volume: $${volumeUsd.toFixed(2)} → Pool: ${poolAmount} SIM`);
+
+    console.log(`📊 Weekly volume: $${volumeUsd.toFixed(2)} → Pool: ${poolAmount} VSOL`);
     
     return new Decimal(poolAmount);
   } catch (error) {
@@ -64,7 +64,7 @@ async function main() {
     // Calculate dynamic pool amount based on trading activity
     const poolAmount = await calculatePoolAmount();
     
-    console.log(`📊 Snapshotting rewards for epoch ${epoch}, pool = ${poolAmount.toString()} SIM`);
+    console.log(`📊 Snapshotting rewards for epoch ${epoch}, pool = ${poolAmount.toString()} VSOL`);
     
     await snapshotRewards(epoch, poolAmount);
     

@@ -14,13 +14,13 @@ async function main() {
 
   // Create test user
   const testUser = await prisma.user.upsert({
-    where: { email: 'test@solsim.fun' },
+    where: { email: 'test@virtualsol.fun' },
     update: {
       virtualSolBalance: 100.0, // 100 SOL starting balance
       userTier: 'EMAIL_USER'
     },
     create: {
-      email: 'test@solsim.fun',
+      email: 'test@virtualsol.fun',
       username: 'testuser',
       passwordHash: await bcrypt.hash('password123', 10),
       displayName: 'Test User',

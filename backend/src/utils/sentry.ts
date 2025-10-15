@@ -63,11 +63,11 @@ export function sentryErrorHandler(error: Error, request: any, reply: any) {
 // Test Sentry connection
 export function testSentryConnection() {
   try {
-    Sentry.captureMessage('Sentry test message from SolSim backend', 'info');
+    Sentry.captureMessage('Sentry test message from VirtualSol backend', 'info');
     console.log('📤 Test message sent to Sentry');
 
     // Also test error capture
-    const testError = new Error('Test error from SolSim backend initialization');
+    const testError = new Error('Test error from VirtualSol backend initialization');
     Sentry.captureException(testError);
     console.log('📤 Test error sent to Sentry');
 

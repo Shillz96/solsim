@@ -5,7 +5,7 @@
  * achievements, and platform interactions.
  */
 
-import { prisma } from '../utils/db.js';
+import prisma from '../plugins/prisma.js';
 import { NotificationType, NotificationCategory } from '@prisma/client';
 import { Decimal } from '@prisma/client/runtime/library';
 
@@ -465,7 +465,7 @@ export async function notifyRewardAvailable(
     type: NotificationType.REWARD_AVAILABLE,
     category: NotificationCategory.REWARDS,
     title: '🎁 Rewards Available!',
-    message: `You earned ${amount.toFixed(2)} SIM tokens in epoch ${epoch}. Claim now!`,
+    message: `You earned ${amount.toFixed(2)} VSOL tokens in epoch ${epoch}. Claim now!`,
     metadata: {
       epoch,
       amount: amount.toFixed(2),
@@ -488,7 +488,7 @@ export async function notifyRewardClaimed(
     type: NotificationType.REWARD_CLAIMED,
     category: NotificationCategory.REWARDS,
     title: '✅ Rewards Claimed!',
-    message: `Successfully claimed ${amount.toFixed(2)} SIM tokens from epoch ${epoch}!`,
+    message: `Successfully claimed ${amount.toFixed(2)} VSOL tokens from epoch ${epoch}!`,
     metadata: {
       epoch,
       amount: amount.toFixed(2),
@@ -589,7 +589,7 @@ export async function notifyWelcome(userId: string, username: string) {
     userId,
     type: NotificationType.WELCOME,
     category: NotificationCategory.SYSTEM,
-    title: '👋 Welcome to SolSim!',
+    title: '👋 Welcome to VirtualSol!',
     message: `Hey ${username}! Ready to master Solana trading? Start with 100 SOL and trade with zero risk! 🚀`,
     metadata: {
       username,

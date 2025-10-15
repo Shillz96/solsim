@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WebSocket Test - SolSim</title>
+    <title>WebSocket Test - VirtualSol</title>
     <style>
         body {
             font-family: monospace;
@@ -29,7 +29,7 @@
     </style>
 </head>
 <body>
-    <h1>SolSim WebSocket Test</h1>
+    <h1>VirtualSol WebSocket Test</h1>
     <div id="status">Status: <span id="statusText">Disconnected</span></div>
     <button onclick="testWebSocket()">Test WebSocket Connection</button>
     <button onclick="clearMessages()">Clear</button>
@@ -55,7 +55,7 @@
             log('🔌 Attempting to connect to WebSocket...', 'info');
 
             // Test WebSocket connection
-            const wsUrl = 'wss://solsim-production.up.railway.app/ws';
+            const wsUrl = 'wss://virtualsol-production.up.railway.app/ws';
             log(`Connecting to: ${wsUrl}`, 'info');
 
             try {
@@ -110,7 +110,7 @@
 
         // Auto-test on load
         window.onload = function() {
-            log('🚀 SolSim WebSocket Tester Ready', 'info');
+            log('🚀 VirtualSol WebSocket Tester Ready', 'info');
             log('Click "Test WebSocket Connection" to begin', 'info');
         };
     </script>

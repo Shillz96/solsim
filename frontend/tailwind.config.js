@@ -1,7 +1,7 @@
 /** @type {import('tailwindcss').Config} */
 
-// SolSim Design System - Tailwind Configuration
-// This file establishes the core design tokens for the SolSim Trading Platform
+// VirtualSol Design System - Tailwind Configuration
+// This file establishes the core design tokens for the VirtualSol Trading Platform
 
 module.exports = {
   darkMode: ["class"],

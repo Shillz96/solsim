@@ -4,12 +4,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-Solsim is a full-stack Solana paper trading platform with real-time price tracking, PnL calculations, leaderboards, and rewards. It uses a monorepo structure with a Next.js frontend and Fastify backend.
+VirtualSol is a full-stack Solana paper trading platform with real-time price tracking, PnL calculations, leaderboards, and rewards. It uses a monorepo structure with a Next.js frontend and Fastify backend.
 
 ## Project Structure
 
 ```
-SolSim/
+VirtualSol/
 ├── frontend/          # Next.js 14+ (App Router)
 ├── backend/           # Fastify + Prisma
 ├── packages/types/    # Shared TypeScript types
@@ -89,7 +89,7 @@ Key services:
 - `tradeService.ts` - Trade execution and validation
 - `portfolioService.ts` - Position management and PnL calculations
 - `priceService.ts` / `priceService-v2.ts` - Real-time price streaming via Helius WebSocket
-- `rewardService.ts` - SIM token reward distribution
+- `rewardService.ts` - VSOL token reward distribution
 - `walletTrackerService.ts` - KOL wallet tracking for copy trading
 
 ### FIFO Position Tracking
@@ -183,7 +183,7 @@ The price service streams real-time swap events from Solana DEXes (Raydium, Pump
 ### Type Safety
 
 - **End-to-end TypeScript** - Frontend and backend both use strict TS
-- **Shared types** - `@solsim/types` package or `frontend/lib/types/backend.ts`
+- **Shared types** - `@virtualsol/types` package or `frontend/lib/types/backend.ts`
 - **Runtime validation** - Zod schemas for all API inputs/outputs
 - **Never use `any`** - Strong typing required
 
@@ -200,7 +200,7 @@ The price service streams real-time swap events from Solana DEXes (Raydium, Pump
 - Prisma ORM prevents SQL injection via parameterized queries
 - JWT authentication with `@fastify/jwt`
 - Rate limiting via `@fastify/rate-limit`
-- CORS configured for specific origins (localhost:3000, solsim.fun, Vercel deployments)
+- CORS configured for specific origins (localhost:3000, virtualsol.fun, Vercel deployments)
 
 ### External Service Integration
 
@@ -210,7 +210,7 @@ The price service streams real-time swap events from Solana DEXes (Raydium, Pump
 - `HELIUS_API` - Helius API key for RPC and WebSocket
 - `HELIUS_RPC_URL` / `HELIUS_WS` - Helius endpoints
 - `SOLANA_RPC_URL` - Fallback Solana RPC
-- `SIM_TOKEN_MINT` - SIM token mint address for rewards
+- `VSOL_TOKEN_MINT` - VSOL token mint address for rewards
 - `REWARDS_WALLET_SECRET` - Secret key for reward distribution
 - `JWT_SECRET` - JWT signing secret
 

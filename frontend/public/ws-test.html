@@ -16,7 +16,7 @@
     </style>
 </head>
 <body>
-    <h1>SolSim WebSocket Diagnostic</h1>
+    <h1>VirtualSol WebSocket Diagnostic</h1>
     <div>
         <button onclick="testDirect()">Test Direct Connection</button>
         <button onclick="testWithDelay()">Test With 1s Delay</button>
@@ -26,7 +26,7 @@
     <div id="logs"></div>
 
     <script>
-        const WS_URL = 'wss://solsim-production.up.railway.app/ws/prices';
+        const WS_URL = 'wss://virtualsol-production.up.railway.app/ws/prices';
         let testCount = 0;
 
         function log(message, type = 'info') {

@@ -2,7 +2,7 @@
 // Uses the same ws version as backend to avoid client/proxy quirks
 import WebSocket from 'ws';
 
-const url = process.env.WS_URL || 'wss://solsim-production.up.railway.app/ws/prices';
+const url = process.env.WS_URL || 'wss://virtualsol-production.up.railway.app/ws/prices';
 console.log('Connecting to', url);
 
 const ws = new WebSocket(url, {

@@ -67,8 +67,8 @@ export async function robustFetch(
 
       if (shouldRetry) {
         const delay = retryDelay * Math.pow(2, attempt); // Exponential backoff
-        // Only log if it's the last attempt or not a DNS error
-        if (attempt === retries - 1 || error.code !== 'ENOTFOUND') {
+        // Don't log DNS errors (ENOTFOUND) since they're expected and we have fallbacks
+        if (error.code !== 'ENOTFOUND') {
           console.warn(
             `Fetch ${url} failed with ${error.code || error.name}, retrying in ${delay}ms (attempt ${attempt + 1}/${retries})`
           );

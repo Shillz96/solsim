@@ -1,6 +1,6 @@
-# Solsim Frontend
+# VirtualSol Frontend
 
-React/Next.js frontend for [Solsim.fun](https://solsim.fun), a Solana paper trading simulator. Practice trading Solana tokens with virtual SOL in a risk-free environment.
+React/Next.js frontend for [VirtualSol.fun](https://virtualsol.fun), a Solana paper trading simulator. Practice trading Solana tokens with virtual SOL in a risk-free environment.
 
 ## 🚀 Features
 
@@ -30,7 +30,7 @@ React/Next.js frontend for [Solsim.fun](https://solsim.fun), a Solana paper trad
 ## 📋 Prerequisites
 
 - Node.js 18+ and npm
-- Running Solsim backend API server
+- Running VirtualSol backend API server
 
 ## ⚡ Quick Start
 
@@ -236,8 +236,8 @@ npm run export
 Production environment variables:
 
 ```bash
-NEXT_PUBLIC_API_URL=https://api.solsim.fun
-NEXT_PUBLIC_WS_URL=wss://api.solsim.fun
+NEXT_PUBLIC_API_URL=https://api.virtualsol.fun
+NEXT_PUBLIC_WS_URL=wss://api.virtualsol.fun
 NEXT_PUBLIC_ANALYTICS_ID=production-analytics-id
 ```
 

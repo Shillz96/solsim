@@ -193,7 +193,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
             <div className="flex h-12 w-12 items-center justify-center rounded-none bg-foreground shadow-none">
               <TrendingUp className="h-7 w-7 text-background" />
             </div>
-            <DialogTitle className="text-2xl md:text-3xl font-bold">Sol Sim</DialogTitle>
+            <DialogTitle className="text-2xl md:text-3xl font-bold">VirtualSol</DialogTitle>
           </div>
           <DialogDescription className="text-center text-sm md:text-base text-muted-foreground">
             {currentView === 'forgot-password' && 'Reset your password'}

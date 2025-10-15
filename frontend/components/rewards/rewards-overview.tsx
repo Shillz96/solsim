@@ -52,7 +52,7 @@ export function RewardsOverview() {
     onSuccess: (data) => {
       toast({
         title: "Rewards Claimed!",
-        description: `Successfully claimed ${formatNumber(parseFloat(data.amount))} $SIM tokens`,
+        description: `Successfully claimed ${formatNumber(parseFloat(data.amount))} $VSOL tokens`,
       })
       queryClient.invalidateQueries({ queryKey: ['reward-claims', user?.id] })
     },
@@ -130,7 +130,24 @@ export function RewardsOverview() {
     return weekNumber
   }
 
+  // Get current week date range for display
+  const getCurrentWeekRange = () => {
+    const now = new Date()
+    const dayOfWeek = now.getDay()
+    const startOfWeek = new Date(now)
+    startOfWeek.setDate(now.getDate() - dayOfWeek)
+    const endOfWeek = new Date(startOfWeek)
+    endOfWeek.setDate(startOfWeek.getDate() + 6)
+
+    const formatDate = (date: Date) => {
+      return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+    }
+
+    return `${formatDate(startOfWeek)} - ${formatDate(endOfWeek)}`
+  }
+
   const currentEpoch = getCurrentEpoch()
+  const currentWeekRange = getCurrentWeekRange()
   const unclaimedRewards = rewardClaims?.filter(claim => claim.status === 'PENDING' || !claim.claimedAt) || []
   const claimedRewards = rewardClaims?.filter(claim => claim.status === 'COMPLETED' && claim.claimedAt) || []
   const totalUnclaimed = unclaimedRewards.reduce((sum, claim) => sum + parseFloat(claim.amount), 0)
@@ -167,7 +184,7 @@ export function RewardsOverview() {
             <Gift className="h-12 w-12 text-muted-foreground mx-auto" />
             <div>
               <h3 className="text-lg font-semibold">Sign In to View Rewards</h3>
-              <p className="text-sm text-muted-foreground">Connect your account to start earning $SIM tokens</p>
+              <p className="text-sm text-muted-foreground">Connect your account to start earning $VSOL tokens</p>
             </div>
           </div>
         </CardContent>
@@ -195,22 +212,22 @@ export function RewardsOverview() {
       )}
 
       {/* Main Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {/* Unclaimed Rewards */}
         <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
-          <CardHeader className="pb-3">
+          <CardHeader className="pb-4">
             <div className="flex items-center justify-between">
               <Coins className="h-5 w-5 text-primary" />
               <Badge variant="secondary">Available</Badge>
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">{formatNumber(totalUnclaimed)}</div>
-            <p className="text-sm text-muted-foreground">$SIM to claim</p>
+            <div className="text-4xl font-bold mb-2">{formatNumber(totalUnclaimed)}</div>
+            <p className="text-sm text-muted-foreground mb-4">$VSOL to claim</p>
             {unclaimedRewards.length > 0 && (
               <Button
                 size="sm"
-                className="mt-3 w-full"
+                className="w-full"
                 onClick={handleClaimAll}
                 disabled={isClaimingAll || claimMutation.isPending || !connected}
               >
@@ -222,93 +239,77 @@ export function RewardsOverview() {
 
         {/* Total Earned */}
         <Card>
-          <CardHeader className="pb-3">
+          <CardHeader className="pb-4">
             <div className="flex items-center justify-between">
               <Trophy className="h-5 w-5 text-yellow-500" />
               <Badge variant="outline">Lifetime</Badge>
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">{formatNumber(totalClaimed + totalUnclaimed)}</div>
-            <p className="text-sm text-muted-foreground">$SIM earned total</p>
-            <div className="mt-3 flex items-center gap-2 text-xs">
-              <CheckCircle className="h-3 w-3 text-green-500" />
-              <span>{formatNumber(totalClaimed)} claimed</span>
-            </div>
+            <div className="text-4xl font-bold mb-2">{formatNumber(totalClaimed + totalUnclaimed)}</div>
+            <p className="text-sm text-muted-foreground">$VSOL earned total</p>
           </CardContent>
         </Card>
 
         {/* Current Tier */}
         <Card>
-          <CardHeader className="pb-3">
+          <CardHeader className="pb-4">
             <div className="flex items-center justify-between">
               <Target className="h-5 w-5" />
               <span className="text-2xl">{userTier.icon}</span>
             </div>
           </CardHeader>
           <CardContent>
-            <div className={cn("text-2xl font-bold", userTier.color)}>
+            <div className={cn("text-4xl font-bold mb-2", userTier.color)}>
               {userTier.name}
             </div>
             <p className="text-sm text-muted-foreground">
               {userTier.multiplier}x multiplier
             </p>
-            {nextTierVolume > 0 && (
-              <div className="mt-3 space-y-1">
-                <Progress value={progressToNextTier} className="h-1" />
-                <p className="text-xs text-muted-foreground">
-                  {formatUSD(nextTierVolume - totalVolume)} to next tier
-                </p>
-              </div>
-            )}
           </CardContent>
         </Card>
 
         {/* Current Epoch */}
         <Card>
-          <CardHeader className="pb-3">
+          <CardHeader className="pb-4">
             <div className="flex items-center justify-between">
               <Calendar className="h-5 w-5" />
-              <Badge>Active</Badge>
+              <Badge>This Week</Badge>
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">Week {currentEpoch}</div>
-            <p className="text-sm text-muted-foreground">Current epoch</p>
-            <div className="mt-3 flex items-center gap-2 text-xs">
-              <Clock className="h-3 w-3" />
-              <span>Ends in {7 - new Date().getDay()} days</span>
-            </div>
+            <div className="text-2xl font-bold mb-2">{currentWeekRange}</div>
+            <p className="text-sm text-muted-foreground">
+              Resets in {7 - new Date().getDay()} days
+            </p>
           </CardContent>
         </Card>
       </div>
 
       {/* Two Column Layout for Additional Content */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
         {/* Unclaimed Rewards List */}
         {unclaimedRewards.length > 0 && (
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+              <CardTitle className="flex items-center gap-2 text-lg">
                 <Gift className="h-5 w-5" />
                 Unclaimed Rewards
               </CardTitle>
               <CardDescription>
-                Claim your rewards to receive $SIM tokens in your wallet
+                Claim your rewards to receive $VSOL tokens
               </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-3 max-h-80 overflow-y-auto">
                 {unclaimedRewards.map((claim) => (
-                  <div key={claim.id} className="flex items-center justify-between p-4 rounded-lg border bg-muted">
-                    <div className="flex items-center gap-4">
-                      <div className="p-2 rounded-full bg-primary/10">
-                        <Coins className="h-5 w-5 text-primary" />
-                      </div>
+                  <div key={claim.id} className="flex items-center justify-between p-4 rounded-lg border bg-card hover:bg-muted/50 transition-colors">
+                    <div className="flex items-center gap-3">
+                      <Coins className="h-5 w-5 text-primary" />
                       <div>
-                        <div className="font-semibold">{formatNumber(parseFloat(claim.amount))} $SIM</div>
-                        <div className="text-sm text-muted-foreground">
-                          Week {claim.epoch} rewards
+                        <div className="font-semibold text-lg">{formatNumber(parseFloat(claim.amount))} $VSOL</div>
+                        <div className="text-xs text-muted-foreground">
+                          Week {claim.epoch}
                         </div>
                       </div>
                     </div>
@@ -330,27 +331,27 @@ export function RewardsOverview() {
         {rewardStats && (
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+              <CardTitle className="flex items-center gap-2 text-lg">
                 <Zap className="h-5 w-5" />
                 Platform Statistics
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-6">
                 <div>
-                  <div className="text-2xl font-bold">{formatNumber(rewardStats.totalAmount)}</div>
-                  <p className="text-sm text-muted-foreground">$SIM Distributed</p>
+                  <div className="text-3xl font-bold mb-1">{formatNumber(rewardStats.totalAmount)}</div>
+                  <p className="text-sm text-muted-foreground">$VSOL Distributed</p>
                 </div>
                 <div>
-                  <div className="text-2xl font-bold">{rewardStats.totalClaims}</div>
+                  <div className="text-3xl font-bold mb-1">{rewardStats.totalClaims}</div>
                   <p className="text-sm text-muted-foreground">Total Claims</p>
                 </div>
                 <div>
-                  <div className="text-2xl font-bold">{rewardStats.pendingClaims}</div>
+                  <div className="text-3xl font-bold mb-1">{rewardStats.pendingClaims}</div>
                   <p className="text-sm text-muted-foreground">Pending Claims</p>
                 </div>
                 <div>
-                  <div className="text-2xl font-bold">
+                  <div className="text-3xl font-bold mb-1">
                     {rewardStats.totalClaims > 0 ?
                       formatNumber(rewardStats.totalAmount / rewardStats.totalClaims) :
                       '0'
@@ -366,7 +367,7 @@ export function RewardsOverview() {
 
       {/* Wallet Connection Warning - Full Width */}
       {!connected && unclaimedRewards.length > 0 && (
-        <Alert variant="destructive">
+        <Alert variant="destructive" className="mt-8">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription className="flex items-center justify-between">
             <span>Connect your Solana wallet to claim your rewards</span>

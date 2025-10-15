@@ -1,5 +1,5 @@
 ---
-description: Automated code review for SolSim rule violations
+description: Automated code review for VirtualSol rule violations
 globs:
   - "**/*.{ts,tsx,js,jsx}"
 alwaysApply: false

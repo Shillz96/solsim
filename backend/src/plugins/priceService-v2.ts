@@ -362,8 +362,8 @@ class EventDrivenPriceService extends EventEmitter {
     // Try memory cache first
     let tick = this.priceCache.get(mint);
 
-    // Check if cached price is stale (older than 2 minutes)
-    const PRICE_FRESHNESS_THRESHOLD = 2 * 60 * 1000; // 2 minutes
+    // Check if cached price is stale (older than 90 seconds for near real-time updates)
+    const PRICE_FRESHNESS_THRESHOLD = 90 * 1000; // 90 seconds
     const isStale = tick && (Date.now() - tick.timestamp) > PRICE_FRESHNESS_THRESHOLD;
 
     if (isStale && tick) {
@@ -411,7 +411,7 @@ class EventDrivenPriceService extends EventEmitter {
   async getLastTicks(mints: string[]): Promise<Map<string, PriceTick>> {
     const result = new Map<string, PriceTick>();
     const toFetch: string[] = [];
-    const PRICE_FRESHNESS_THRESHOLD = 2 * 60 * 1000; // 2 minutes
+    const PRICE_FRESHNESS_THRESHOLD = 90 * 1000; // 90 seconds (near real-time updates)
 
     // Check memory cache first for all mints
     for (const mint of mints) {
@@ -522,12 +522,14 @@ class EventDrivenPriceService extends EventEmitter {
   async getPrices(mints: string[]): Promise<Record<string, number>> {
     const prices: Record<string, number> = {};
 
-    // Fetch all prices in parallel, using on-demand fetching
-    await Promise.all(
-      mints.map(async (mint) => {
-        prices[mint] = await this.getPrice(mint);
-      })
-    );
+    // Use batch method for much better performance
+    const ticksMap = await this.getLastTicks(mints);
+
+    // Convert Map<string, PriceTick> to Record<string, number>
+    for (const mint of mints) {
+      const tick = ticksMap.get(mint);
+      prices[mint] = tick?.priceUsd || 0;
+    }
 
     return prices;
   }

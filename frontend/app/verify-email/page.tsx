@@ -30,8 +30,24 @@ function VerifyEmailContent() {
         if (response.ok) {
           setStatus('success')
           setMessage('Your email has been verified successfully!')
-          // Redirect to home after 3 seconds
-          setTimeout(() => router.push('/'), 3000)
+
+          // Update localStorage with verified status so UI updates immediately
+          const savedUser = localStorage.getItem('user')
+          if (savedUser) {
+            try {
+              const user = JSON.parse(savedUser)
+              user.emailVerified = true
+              localStorage.setItem('user', JSON.stringify(user))
+              console.log('✅ Updated localStorage with emailVerified: true')
+            } catch (e) {
+              console.warn('Failed to update user in localStorage:', e)
+            }
+          }
+
+          // Redirect to home after 3 seconds with full page reload to refresh auth state
+          setTimeout(() => {
+            window.location.href = '/'
+          }, 3000)
         } else {
           setStatus('error')
           setMessage(data.message || 'Email verification failed')
@@ -82,9 +98,12 @@ function VerifyEmailContent() {
               <p className="text-sm text-muted-foreground mb-4">
                 Redirecting you to the homepage...
               </p>
-              <Link href="/">
-                <Button className="w-full">Go to Homepage</Button>
-              </Link>
+              <Button
+                className="w-full"
+                onClick={() => window.location.href = '/'}
+              >
+                Go to Homepage
+              </Button>
             </div>
           )}
 

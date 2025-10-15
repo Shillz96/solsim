@@ -46,9 +46,12 @@ function PortfolioChartComponent() {
 
   // Memoize chart data generation
   const chartData: ChartData[] = useMemo(() => {
-    if (!performanceResponse?.performance || performanceResponse.performance.length === 0) return []
+    if (!performanceResponse?.performance || performanceResponse.performance.length === 0) {
+      console.log('No performance data available')
+      return []
+    }
 
-    return performanceResponse.performance.map((point) => ({
+    const data = performanceResponse.performance.map((point) => ({
       date: point.date,
       value: typeof point.value === 'string' ? parseFloat(point.value) : point.value,
       formattedDate: new Date(point.date).toLocaleDateString('en-US', {
@@ -56,6 +59,9 @@ function PortfolioChartComponent() {
         day: 'numeric'
       })
     }))
+
+    console.log('Chart data points:', data.length, 'Sample:', data[0])
+    return data
   }, [performanceResponse])
 
   // Calculate value range for better Y-axis scaling
@@ -75,9 +81,9 @@ function PortfolioChartComponent() {
 
   if (isLoading) {
     return (
-      <div className="h-[300px] w-full flex items-center justify-center">
+      <div className="h-[350px] w-full flex items-center justify-center">
         <div className="flex items-center gap-2 text-muted-foreground">
-          <Loader2 className="h-4 w-4 animate-spin" />
+          <Loader2 className="h-5 w-5 animate-spin" />
           <span className="text-sm">Loading performance data...</span>
         </div>
       </div>
@@ -86,8 +92,8 @@ function PortfolioChartComponent() {
 
   if (error) {
     return (
-      <div className="h-[300px] w-full flex items-center justify-center">
-        <div className="flex flex-col items-center gap-2 text-muted-foreground">
+      <div className="h-[350px] w-full flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3 text-muted-foreground">
           <AlertCircle className="h-8 w-8" />
           <span className="text-sm">Failed to load performance data</span>
           <button
@@ -103,7 +109,7 @@ function PortfolioChartComponent() {
 
   if (chartData.length === 0) {
     return (
-      <div className="h-[300px] w-full flex items-center justify-center">
+      <div className="h-[350px] w-full flex items-center justify-center">
         <div className="flex flex-col items-center gap-3 text-center">
           <div className="p-4 bg-muted rounded-full">
             <AlertCircle className="h-8 w-8 text-muted-foreground" />
@@ -120,17 +126,17 @@ function PortfolioChartComponent() {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       {/* Period selector */}
       <div className="flex gap-2">
         {(['7d', '30d', '90d'] as const).map((p) => (
           <button
             key={p}
             onClick={() => setPeriod(p)}
-            className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${
+            className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
               period === p
                 ? 'bg-primary text-primary-foreground shadow-sm'
-                : 'bg-muted text-foreground hover:bg-muted/70 hover:text-foreground border border-border/50'
+                : 'bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground'
             }`}
           >
             {p}
@@ -138,7 +144,7 @@ function PortfolioChartComponent() {
         ))}
       </div>
 
-      <div className="h-[300px] w-full">
+      <div className="h-[350px] w-full">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart
             data={chartData}
@@ -152,30 +158,31 @@ function PortfolioChartComponent() {
             />
             <XAxis
               dataKey="formattedDate"
-              stroke="hsl(var(--foreground))"
-              fontSize={11}
+              fontSize={12}
               tickLine={false}
               axisLine={{ stroke: 'hsl(var(--border))', strokeWidth: 1 }}
               interval="preserveStartEnd"
-              tick={{ fill: 'hsl(var(--foreground))' }}
+              tick={{ fill: 'currentColor' }}
+              className="text-foreground"
             />
             <YAxis
-              stroke="hsl(var(--foreground))"
-              fontSize={11}
+              fontSize={12}
               tickLine={false}
               axisLine={{ stroke: 'hsl(var(--border))', strokeWidth: 1 }}
               tickFormatter={(value) => `$${Number(value).toFixed(0)}`}
               domain={[valueRange.min, valueRange.max]}
-              tick={{ fill: 'hsl(var(--foreground))' }}
+              tick={{ fill: 'currentColor' }}
+              className="text-foreground"
               label={{
                 value: 'Portfolio Value',
                 angle: -90,
                 position: 'insideLeft',
-                fill: 'hsl(var(--foreground))',
                 style: {
-                  fontSize: 11,
-                  fontWeight: 500
-                }
+                  fontSize: 12,
+                  fontWeight: 500,
+                  fill: 'currentColor'
+                },
+                className: 'text-foreground'
               }}
             />
             <Tooltip
@@ -205,8 +212,8 @@ function PortfolioChartComponent() {
               type="monotone"
               dataKey="value"
               stroke="hsl(var(--primary))"
-              strokeWidth={2.5}
-              dot={chartData.length <= 7 ? { fill: "hsl(var(--primary))", r: 3 } : false}
+              strokeWidth={3}
+              dot={chartData.length <= 7}
               activeDot={{
                 r: 6,
                 fill: "hsl(var(--primary))",
@@ -214,8 +221,9 @@ function PortfolioChartComponent() {
                 stroke: "hsl(var(--background))"
               }}
               isAnimationActive={true}
-              animationDuration={800}
+              animationDuration={1000}
               animationEasing="ease-in-out"
+              connectNulls={true}
             />
           </LineChart>
         </ResponsiveContainer>

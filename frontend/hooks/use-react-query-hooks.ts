@@ -126,4 +126,17 @@ export function useLeaderboard(limit = 50) {
   });
 }
 
+/**
+ * Hook for fetching tokenized stocks with React Query
+ */
+export function useStocks(limit = 50) {
+  return useQuery({
+    queryKey: ['stocks', limit],
+    queryFn: async () => {
+      return await api.getStocks(limit);
+    },
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
+}
+
 // Additional hooks can be added here as backend endpoints are implemented

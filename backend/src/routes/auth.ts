@@ -13,24 +13,24 @@ import { NonceService } from "../plugins/nonce.js";
 import { EmailService } from "../services/emailService.js";
 import * as notificationService from "../services/notificationService.js";
 
-// Check if wallet holds SIM tokens and upgrade balance
-async function checkAndUpgradeSIMHolder(userId: string, walletAddress: string) {
+// Check if wallet holds VSOL tokens and upgrade balance
+async function checkAndUpgradeVSOLHolder(userId: string, walletAddress: string) {
   try {
     const balances = await getWalletBalances(walletAddress);
-    const simBalance = balances.find((token: any) => 
-      token.mint === process.env.SIM_TOKEN_MINT && token.uiAmount > 0
+    const vsolBalance = balances.find((token: any) =>
+      token.mint === process.env.VSOL_TOKEN_MINT && token.uiAmount > 0
     );
-    
-    if (simBalance) {
-      // Upgrade to 100 vSOL for SIM holders
+
+    if (vsolBalance) {
+      // Upgrade to 100 vSOL for VSOL holders
       await prisma.user.update({
         where: { id: userId },
         data: { virtualSolBalance: 100 }
       });
-      console.log(`🎯 Upgraded SIM holder ${walletAddress} to 100 vSOL`);
+      console.log(`🎯 Upgraded VSOL holder ${walletAddress} to 100 vSOL`);
     }
   } catch (error) {
-    console.warn("Failed to check SIM holdings:", error);
+    console.warn("Failed to check VSOL holdings:", error);
   }
 }
 
@@ -206,7 +206,7 @@ export default async function (app: FastifyInstance) {
           walletNonce: null // Don't store nonce in DB anymore, only in Redis
         },
         create: {
-          email: `${walletAddress.slice(0, 8)}@wallet.solsim.fun`,
+          email: `${walletAddress.slice(0, 8)}@wallet.virtualsol.fun`,
           username: walletAddress.slice(0, 16),
           passwordHash: '',
           walletAddress,
@@ -320,8 +320,8 @@ export default async function (app: FastifyInstance) {
         });
       }
 
-      // Check SIM token holding and upgrade balance if eligible
-      await checkAndUpgradeSIMHolder(user.id, walletAddress);
+      // Check VSOL token holding and upgrade balance if eligible
+      await checkAndUpgradeVSOLHolder(user.id, walletAddress);
 
       // Fetch updated user data
       const updatedUser = await prisma.user.findUnique({ where: { id: user.id } });
@@ -766,33 +766,82 @@ export default async function (app: FastifyInstance) {
     try {
       const { token } = req.params as { token: string };
 
+      console.log(`🔍 Email verification attempt - Token: ${token.substring(0, 8)}...`);
+
       if (!token || token.length < 32) {
+        console.warn(`❌ Invalid token format: length=${token?.length}`);
         return reply.code(400).send({
           error: "INVALID_TOKEN",
-          message: "Invalid verification token"
+          message: "Invalid verification token format"
         });
       }
 
-      // Find user by verification token
-      const user = await prisma.user.findFirst({
+      // First, check if user exists with this token (ignore expiry for now)
+      const userWithToken = await prisma.user.findFirst({
         where: {
-          emailVerificationToken: token,
-          emailVerificationExpiry: {
-            gte: new Date() // Token must not be expired
-          }
+          emailVerificationToken: token
         }
       });
 
-      if (!user) {
+      // If no user found with this token, it might have been used already
+      if (!userWithToken) {
+        console.warn(`❌ No user found with token ${token.substring(0, 8)}...`);
+
+        // Check if there's a user who already verified with this pattern
+        // (in case they're clicking the link again after verification)
+        const alreadyVerifiedUser = await prisma.user.findFirst({
+          where: {
+            email: { contains: '@' }, // Just to ensure it's a valid check
+            emailVerified: true,
+            emailVerificationToken: null
+          },
+          orderBy: { updatedAt: 'desc' },
+          take: 1
+        });
+
         return reply.code(400).send({
-          error: "INVALID_OR_EXPIRED_TOKEN",
-          message: "Verification link is invalid or has expired"
+          error: "TOKEN_NOT_FOUND",
+          message: "This verification link has already been used or is invalid. If you've already verified your email, you can log in directly."
         });
       }
 
-      // Mark email as verified and clear token
+      // Check if email is already verified
+      if (userWithToken.emailVerified) {
+        console.log(`✅ Email already verified for user: ${userWithToken.email} (${userWithToken.id})`);
+        return {
+          success: true,
+          message: "Your email is already verified! You can log in.",
+          user: {
+            id: userWithToken.id,
+            email: userWithToken.email,
+            emailVerified: true
+          }
+        };
+      }
+
+      // Check if token is expired
+      const now = new Date();
+      const expiryTime = userWithToken.emailVerificationExpiry;
+
+      if (!expiryTime || expiryTime < now) {
+        const expiredAgo = expiryTime
+          ? Math.floor((now.getTime() - expiryTime.getTime()) / 1000 / 60)
+          : 'unknown';
+
+        console.warn(
+          `❌ Token expired for user: ${userWithToken.email} ` +
+          `(expired ${expiredAgo} minutes ago, expiry: ${expiryTime?.toISOString()})`
+        );
+
+        return reply.code(400).send({
+          error: "TOKEN_EXPIRED",
+          message: "This verification link has expired. Please request a new verification email from your account settings."
+        });
+      }
+
+      // Token is valid! Mark email as verified and clear token
       await prisma.user.update({
-        where: { id: user.id },
+        where: { id: userWithToken.id },
         data: {
           emailVerified: true,
           emailVerificationToken: null,
@@ -801,18 +850,18 @@ export default async function (app: FastifyInstance) {
       });
 
       // Send welcome email (non-blocking)
-      EmailService.sendWelcomeEmail(user.email, user.username).catch(error => {
+      EmailService.sendWelcomeEmail(userWithToken.email, userWithToken.username).catch(error => {
         console.error('Failed to send welcome email:', error);
       });
 
-      console.log(`✅ Email verified for user: ${user.email} (${user.id})`);
+      console.log(`✅ Email verified for user: ${userWithToken.email} (${userWithToken.id})`);
 
       return {
         success: true,
         message: "Email verified successfully!",
         user: {
-          id: user.id,
-          email: user.email,
+          id: userWithToken.id,
+          email: userWithToken.email,
           emailVerified: true
         }
       };

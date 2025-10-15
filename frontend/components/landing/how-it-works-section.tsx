@@ -1,4 +1,4 @@
-import { UserPlus, Search, TrendingUp, BarChart2 } from "lucide-react"
+import { UserPlus, Search, TrendingUp, BarChart2, Eye, Gift } from "lucide-react"
 
 const steps = [
   {
@@ -8,8 +8,8 @@ const steps = [
   },
   {
     icon: Search,
-    title: "Explore trending tokens",
-    description: "Browse real-time trending tokens from Birdeye and Pump.fun.",
+    title: "Explore & track",
+    description: "Browse trending tokens and track successful wallets to learn winning strategies.",
   },
   {
     icon: TrendingUp,
@@ -17,9 +17,14 @@ const steps = [
     description: "Buy and sell tokens with virtual SOL. Practice without risk.",
   },
   {
+    icon: Gift,
+    title: "Earn rewards",
+    description: "Get rewarded for trading activity, daily streaks, and achievements.",
+  },
+  {
     icon: BarChart2,
     title: "Track & compete",
-    description: "Monitor your portfolio and climb the leaderboard rankings.",
+    description: "Monitor your portfolio stats and climb the leaderboard rankings.",
   },
 ]
 
@@ -32,7 +37,7 @@ export function HowItWorksSection() {
             How It Works
           </h2>
           <p className="text-xl text-background/70 max-w-2xl mx-auto">
-            Get started in minutes. No wallet connection required.
+            Start trading, tracking, and earning in minutes. No wallet connection required.
           </p>
         </div>
 
@@ -40,7 +45,7 @@ export function HowItWorksSection() {
           {/* Connection line */}
           <div className="hidden lg:block absolute top-1/2 left-0 right-0 h-px bg-background/20" />
 
-          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4 relative">
+          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-5 relative">
             {steps.map((step, index) => (
               <div key={index} className="relative">
                 <div className="flex flex-col items-center text-center space-y-4">

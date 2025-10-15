@@ -1,6 +1,6 @@
-# Solsim Backend
+# VirtualSol Backend
 
-Backend API for [Solsim.fun](https://solsim.fun), a Solana paper trading simulator that allows users to practice trading tokens with virtual SOL without risking real money.
+Backend API for [VirtualSol](https://virtualsol.fun), a Solana paper trading simulator that allows users to practice trading tokens with virtual SOL without risking real money.
 
 ## 🚀 Features
 
@@ -10,9 +10,9 @@ Backend API for [Solsim.fun](https://solsim.fun), a Solana paper trading simulat
 - **FIFO Cost Basis** - Accurate profit/loss calculations using first-in-first-out accounting
 - **Leaderboards** - Competitive rankings based on trading performance
 - **Trending Tokens** - Discover popular tokens based on trading activity
-- **Reward System** - Earn SIM tokens based on trading activity and performance
+- **Reward System** - Earn VSOL tokens based on trading activity and performance
 - **Authentication** - Support for email/password and Solana wallet sign-in
-- **User Tiers** - Different balance limits based on SIM token holdings
+- **User Tiers** - Different balance limits based on VSOL token holdings
 
 ## 🛠 Technology Stack
 
@@ -53,7 +53,7 @@ Required environment variables:
 
 ```bash
 # Database
-DATABASE_URL=postgresql://user:password@localhost:5432/solsim
+DATABASE_URL=postgresql://user:password@localhost:5432/virtualsol
 
 # Redis (for caching and pub/sub)
 REDIS_URL=redis://localhost:6379
@@ -68,7 +68,7 @@ DEXSCREENER_BASE=https://api.dexscreener.com
 JUPITER_BASE=https://quote-api.jup.ag
 
 # Token Configuration
-SIM_TOKEN_MINT=YourSimTokenMintAddress
+VSOL_TOKEN_MINT=YourVsolTokenMintAddress
 REWARDS_WALLET_SECRET=base58-encoded-secret-key
 
 # Optional
@@ -138,10 +138,10 @@ The deployment uses these key files:
 ```bash
 # Core Application
 DATABASE_URL=postgresql://...           # PostgreSQL connection
-REDIS_URL=redis://...                  # Redis connection  
+REDIS_URL=redis://...                  # Redis connection
 JWT_SECRET=your-jwt-secret             # Authentication
 NODE_ENV=production                    # Environment
-FRONTEND_URL=https://solsim.fun        # CORS configuration
+FRONTEND_URL=https://virtualsol.fun    # CORS configuration
 
 # Solana/Helius Integration  
 SOLANA_RPC=https://mainnet.helius-rpc.com/?api-key=...
@@ -225,7 +225,7 @@ NODE_ENV=production           # Environment setting
 - `GET /api/leaderboard?limit={limit}` - Get trading leaderboard
 
 ### Rewards
-- `POST /api/rewards/claim` - Claim SIM token rewards
+- `POST /api/rewards/claim` - Claim VSOL token rewards
 - `GET /api/rewards/claims/{userId}` - Get user's reward claims
 - `GET /api/rewards/stats` - Get reward statistics
 
@@ -248,7 +248,7 @@ The database uses Prisma with PostgreSQL. Key models:
 - **Position** - Current token holdings
 - **TransactionHistory** - FIFO lot tracking for cost basis
 - **Token** - Token metadata and metrics
-- **RewardClaim** - SIM token reward claims
+- **RewardClaim** - VSOL token reward claims
 
 See `prisma/schema.prisma` for the complete schema.
 
@@ -318,8 +318,8 @@ The API includes built-in logging with Pino. Key metrics to monitor:
 ### User Tiers
 
 - **EMAIL_USER**: 10 SOL virtual balance, basic features
-- **WALLET_USER**: Same as email user if no SIM tokens
-- **SIM_HOLDER**: 100 SOL balance, premium features
+- **WALLET_USER**: Same as email user if no VSOL tokens
+- **VSOL_HOLDER**: 100 SOL balance, premium features
 - **ADMINISTRATOR**: Platform management access
 
 ## 🤝 Contributing

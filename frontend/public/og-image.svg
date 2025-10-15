@@ -6,7 +6,7 @@
     </linearGradient>
   </defs>
   <rect width="1200" height="630" fill="url(#bg)"/>
-  <text x="600" y="250" text-anchor="middle" fill="white" font-size="80" font-weight="bold" font-family="Arial, sans-serif">Sol Sim</text>
+  <text x="600" y="250" text-anchor="middle" fill="white" font-size="80" font-weight="bold" font-family="Arial, sans-serif">VirtualSol</text>
   <text x="600" y="350" text-anchor="middle" fill="rgba(255,255,255,0.9)" font-size="40" font-family="Arial, sans-serif">Risk-Free Solana Trading</text>
   <text x="600" y="420" text-anchor="middle" fill="rgba(255,255,255,0.8)" font-size="32" font-family="Arial, sans-serif">Practice • Compete • Perfect Your Strategy</text>
   <circle cx="200" cy="150" r="60" fill="rgba(255,255,255,0.1)" stroke="rgba(255,255,255,0.3)" stroke-width="2"/>

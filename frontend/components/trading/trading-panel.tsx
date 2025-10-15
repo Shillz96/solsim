@@ -652,14 +652,14 @@ function TradingPanelComponent({ tokenAddress: propTokenAddress }: TradingPanelP
               </Button>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-3 sm:gap-4">
               {presetSolAmounts.map((amount) => (
                 <Button
                   key={amount}
                   size="lg"
                   variant={selectedSolAmount === amount ? "default" : "outline"}
                   className={cn(
-                    "h-12 font-mono text-base transition-all relative",
+                    "h-14 sm:h-12 font-mono text-lg sm:text-base transition-all relative active:scale-95",
                     selectedSolAmount === amount
                       ? "bg-accent text-accent-foreground hover:bg-accent/90 ring-2 ring-accent ring-offset-2"
                       : "bg-card hover:bg-muted",
@@ -671,7 +671,7 @@ function TradingPanelComponent({ tokenAddress: propTokenAddress }: TradingPanelP
                   }}
                   disabled={amount > balance}
                   aria-label={
-                    amount > balance 
+                    amount > balance
                       ? `${amount} SOL - Insufficient balance, you have ${balance.toFixed(2)} SOL available`
                       : `Select ${amount} SOL to spend${selectedSolAmount === amount ? ', currently selected' : ''}`
                   }
@@ -768,13 +768,13 @@ function TradingPanelComponent({ tokenAddress: propTokenAddress }: TradingPanelP
             </div>
           </div>
 
-          <Button 
-            className="w-full btn-buy h-14 text-lg font-bold" 
+          <Button
+            className="w-full btn-buy h-16 sm:h-14 text-xl sm:text-lg font-bold active:scale-[0.98] transition-transform"
             size="lg"
             onClick={() => handleTrade('buy')}
             disabled={
-              isTrading || 
-              isRefreshing || 
+              isTrading ||
+              isRefreshing ||
               (!selectedSolAmount && !customSolAmount) ||
               !tokenDetails?.tokenSymbol
             }
@@ -787,8 +787,8 @@ function TradingPanelComponent({ tokenAddress: propTokenAddress }: TradingPanelP
             }
             aria-describedby="buy-button-help"
           >
-            <TrendingUp className="mr-2 h-5 w-5" aria-hidden="true" />
-            {isTrading ? 'Processing...' : 
+            <TrendingUp className="mr-2 h-6 w-6 sm:h-5 sm:w-5" aria-hidden="true" />
+            {isTrading ? 'Processing...' :
              !tokenDetails ? 'Loading Token...' :
              !tokenDetails.tokenSymbol ? 'Select a Token' :
              `Buy ${tokenDetails.tokenSymbol}`}
@@ -860,13 +860,13 @@ function TradingPanelComponent({ tokenAddress: propTokenAddress }: TradingPanelP
               </div>
               <div className="space-y-4">
                 <Label className="text-sm font-bold">Amount (% of holdings)</Label>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-3 sm:gap-4">
                   {sellPercentages.map((percent) => (
                     <Button
                       key={percent}
                       variant={selectedPercentage === percent ? "default" : "outline"}
                       className={cn(
-                        "font-mono text-sm transition-all",
+                        "h-14 sm:h-12 font-mono text-lg sm:text-base transition-all active:scale-95",
                         selectedPercentage === percent
                           ? "bg-destructive text-destructive-foreground hover:bg-destructive/90 ring-2 ring-destructive ring-offset-2"
                           : "bg-card hover:bg-muted"
@@ -920,13 +920,13 @@ function TradingPanelComponent({ tokenAddress: propTokenAddress }: TradingPanelP
                 )}
               </div>
 
-              <Button 
-                className="w-full btn-sell h-14 text-lg font-bold" 
+              <Button
+                className="w-full btn-sell h-16 sm:h-14 text-xl sm:text-lg font-bold active:scale-[0.98] transition-transform"
                 size="lg"
                 onClick={() => handleTrade('sell')}
                 disabled={
-                  isTrading || 
-                  isRefreshing || 
+                  isTrading ||
+                  isRefreshing ||
                   !selectedPercentage ||
                   !tokenDetails?.tokenSymbol
                 }
@@ -939,8 +939,8 @@ function TradingPanelComponent({ tokenAddress: propTokenAddress }: TradingPanelP
                 }
                 aria-describedby="sell-button-help"
               >
-                <TrendingDown className="mr-2 h-5 w-5" aria-hidden="true" />
-                {isTrading ? 'Processing...' : 
+                <TrendingDown className="mr-2 h-6 w-6 sm:h-5 sm:w-5" aria-hidden="true" />
+                {isTrading ? 'Processing...' :
                  !tokenDetails ? 'Loading Token...' :
                  !tokenDetails.tokenSymbol ? 'Select a Token' :
                  `Sell ${tokenDetails.tokenSymbol}`}

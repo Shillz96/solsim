@@ -29,8 +29,8 @@ model User {
   walletAddress      String?              @unique
   walletNonce        String?
   walletVerified     Boolean              @default(false)
-  simTokenBalance    Decimal?
-  simBalanceUpdated  DateTime?
+  vsolTokenBalance   Decimal?
+  vsolBalanceUpdated DateTime?
   monthlyConversions Decimal              @default(0)
   conversionResetAt  DateTime?
   premiumFeatures    String?              @default("[]")
@@ -176,7 +176,7 @@ model ConversionHistory {
   id                String   @id @default(uuid())
   userId            String
   virtualSolAmount  Decimal
-  simTokensReceived Decimal
+  vsolTokensReceived Decimal
   conversionRate    Decimal
   transactionHash   String?
   status            String
@@ -395,7 +395,7 @@ model Notification {
 enum UserTier {
   EMAIL_USER
   WALLET_USER
-  SIM_HOLDER
+  VSOL_HOLDER
   ADMINISTRATOR
 }
 

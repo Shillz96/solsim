@@ -1,6 +1,7 @@
 import { HeroSection } from "@/components/landing/hero-section"
 import { FeaturesSection } from "@/components/landing/features-section"
 import { HowItWorksSection } from "@/components/landing/how-it-works-section"
+import { RewardsSection } from "@/components/landing/rewards-section"
 import { TrendingTokensSection } from "@/components/landing/trending-tokens-section"
 import { LeaderboardPreview } from "@/components/landing/leaderboard-preview"
 import { CTASection } from "@/components/landing/cta-section"
@@ -13,6 +14,7 @@ export default function Home() {
         <HeroSection />
         <FeaturesSection />
         <HowItWorksSection />
+        <RewardsSection />
         <TrendingTokensSection />
         <LeaderboardPreview />
         <CTASection />

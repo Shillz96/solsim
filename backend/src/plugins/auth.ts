@@ -43,19 +43,19 @@ class AuthService {
       sessionId
     };
 
-    const accessToken = jwt.sign(payload, VERIFIED_JWT_SECRET, { 
+    const accessToken = jwt.sign(payload, VERIFIED_JWT_SECRET, {
       expiresIn: JWT_EXPIRY,
-      issuer: 'solsim.fun',
-      audience: 'solsim.fun'
+      issuer: 'virtualsol.fun',
+      audience: 'virtualsol.fun'
     } as jwt.SignOptions);
 
     const refreshToken = jwt.sign(
       { userId, sessionId, type: 'refresh' },
       VERIFIED_JWT_SECRET, 
-      { 
+      {
         expiresIn: REFRESH_TOKEN_EXPIRY,
-        issuer: 'solsim.fun',
-        audience: 'solsim.fun'
+        issuer: 'virtualsol.fun',
+        audience: 'virtualsol.fun'
       } as jwt.SignOptions
     );
 
@@ -66,8 +66,8 @@ class AuthService {
   static verifyToken(token: string): JWTPayload {
     try {
       return jwt.verify(token, VERIFIED_JWT_SECRET, {
-        issuer: 'solsim.fun',
-        audience: 'solsim.fun'
+        issuer: 'virtualsol.fun',
+        audience: 'virtualsol.fun'
       }) as JWTPayload;
     } catch (error) {
       throw new Error('Invalid or expired token');

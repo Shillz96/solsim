@@ -1,6 +1,6 @@
-# SolSim Cursor Rules
+# VirtualSol Cursor Rules
 
-This directory contains the comprehensive Cursor rules structure for the SolSim project.
+This directory contains the comprehensive Cursor rules structure for the VirtualSol project.
 
 ## 📂 Structure
 

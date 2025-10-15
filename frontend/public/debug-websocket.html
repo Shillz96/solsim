@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SolSim WebSocket Debug</title>
+    <title>VirtualSol WebSocket Debug</title>
     <style>
         body { 
             font-family: Arial, sans-serif; 
@@ -24,14 +24,14 @@
     </style>
 </head>
 <body>
-    <h1>🔍 SolSim WebSocket Debug</h1>
+    <h1>🔍 VirtualSol WebSocket Debug</h1>
     <div id="status">Initializing...</div>
     <div id="logs"></div>
 
     <script>
         const logs = document.getElementById('logs');
         const status = document.getElementById('status');
-        
+
         function log(message, type = 'info') {
             const timestamp = new Date().toLocaleTimeString();
             const logDiv = document.createElement('div');
@@ -43,7 +43,7 @@
         }
 
         // Test the actual frontend environment variables
-        const WS_URL = "wss://solsim-production.up.railway.app/ws/prices";
+        const WS_URL = "wss://virtualsol-production.up.railway.app/ws/prices";
         
         log(`Starting WebSocket test to: ${WS_URL}`);
         status.textContent = "Connecting...";

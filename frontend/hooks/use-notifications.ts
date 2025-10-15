@@ -68,7 +68,7 @@ function convertNotification(backendNotif: BackendNotification): Notification {
 }
 
 export function useNotifications() {
-  const { user, token } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const [state, setState] = useState<NotificationState>({
     notifications: [],
     unreadCount: 0,
@@ -77,12 +77,12 @@ export function useNotifications() {
 
   // Fetch notifications from the backend
   const fetchNotifications = useCallback(async () => {
-    if (!user?.id || !token) return;
+    if (!user?.id || !isAuthenticated) return;
 
     setState(prev => ({ ...prev, loading: true }));
 
     try {
-      const response = await api.get<NotificationResponse>('/notifications', {
+      const response = await api.get<NotificationResponse>('/api/notifications', {
         params: { limit: 50 },
       });
 
@@ -98,7 +98,7 @@ export function useNotifications() {
       console.error('Failed to fetch notifications:', error);
       setState(prev => ({ ...prev, loading: false }));
     }
-  }, [user?.id, token]);
+  }, [user?.id, isAuthenticated]);
 
   // Fetch on mount and when user changes
   useEffect(() => {
@@ -107,17 +107,17 @@ export function useNotifications() {
 
   // Poll for new notifications every 30 seconds
   useEffect(() => {
-    if (!user?.id || !token) return;
+    if (!user?.id || !isAuthenticated) return;
 
     const interval = setInterval(() => {
       fetchNotifications();
     }, 30000);
 
     return () => clearInterval(interval);
-  }, [user?.id, token, fetchNotifications]);
+  }, [user?.id, isAuthenticated, fetchNotifications]);
 
   const markAsRead = useCallback(async (notificationId: string) => {
-    if (!token) return;
+    if (!isAuthenticated) return;
 
     // Optimistic update
     setState(prev => ({
@@ -129,16 +129,16 @@ export function useNotifications() {
     }));
 
     try {
-      await api.patch(`/notifications/${notificationId}/read`);
+      await api.patch(`/api/notifications/${notificationId}/read`);
     } catch (error) {
       console.error('Failed to mark notification as read:', error);
       // Revert on error
       fetchNotifications();
     }
-  }, [token, fetchNotifications]);
+  }, [isAuthenticated, fetchNotifications]);
 
   const markAllAsRead = useCallback(async () => {
-    if (!token) return;
+    if (!isAuthenticated) return;
 
     // Optimistic update
     setState(prev => ({
@@ -148,13 +148,13 @@ export function useNotifications() {
     }));
 
     try {
-      await api.patch('/notifications/read-all');
+      await api.patch('/api/notifications/read-all');
     } catch (error) {
       console.error('Failed to mark all notifications as read:', error);
       // Revert on error
       fetchNotifications();
     }
-  }, [token, fetchNotifications]);
+  }, [isAuthenticated, fetchNotifications]);
 
   const addNotification = useCallback((notification: Omit<Notification, 'id' | 'timestamp'>) => {
     const newNotification: Notification = {
@@ -171,7 +171,7 @@ export function useNotifications() {
   }, []);
 
   const removeNotification = useCallback(async (notificationId: string) => {
-    if (!token) return;
+    if (!isAuthenticated) return;
 
     // Optimistic update
     setState(prev => {
@@ -186,13 +186,13 @@ export function useNotifications() {
     });
 
     try {
-      await api.delete(`/notifications/${notificationId}`);
+      await api.delete(`/api/notifications/${notificationId}`);
     } catch (error) {
       console.error('Failed to delete notification:', error);
       // Revert on error
       fetchNotifications();
     }
-  }, [token, fetchNotifications]);
+  }, [isAuthenticated, fetchNotifications]);
 
   return {
     notifications: state.notifications,

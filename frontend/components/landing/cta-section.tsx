@@ -12,7 +12,7 @@ export function CTASection() {
               Ready to start trading without risk?
             </h2>
             <p className="text-xl text-background/70 max-w-2xl mx-auto">
-              Join thousands of traders practicing with Sol Sim. No credit card required.
+              Join traders practicing with VirtualSol. Track wallets, earn rewards, and compete on leaderboards - all risk-free.
             </p>
           </div>
 

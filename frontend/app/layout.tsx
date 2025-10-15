@@ -29,7 +29,7 @@ const jetBrainsMono = JetBrains_Mono({
 })
 
 export const metadata: Metadata = {
-  title: "Sol Sim - Solana Paper Trading",
+  title: "VirtualSol - Solana Paper Trading",
   description: "Practice Solana trading without risk. Real-time market data, zero financial risk.",
   generator: "v0.app",
 }

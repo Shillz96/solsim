@@ -1,7 +1,8 @@
 "use client"
 
+import React from "react"
 import { motion } from "framer-motion"
-import { Search, TrendingUp, Sparkles, ArrowRight } from "lucide-react"
+import { Search, TrendingUp, Sparkles, ArrowRight, Building2 } from "lucide-react"
 import { useQuery } from "@tanstack/react-query"
 import { useRouter } from "next/navigation"
 import * as api from "@/lib/api"
@@ -10,6 +11,79 @@ import { EnhancedCard } from "@/components/ui/enhanced-card-system"
 import { usePriceStreamContext } from "@/lib/price-stream-provider"
 import { formatUSD } from "@/lib/format"
 import { cn } from "@/lib/utils"
+import type * as Backend from "@/lib/types/backend"
+
+function StockCardPreview({ token, onClick }: { token: Backend.TrendingToken; onClick: () => void }) {
+  const [imageError, setImageError] = React.useState(false)
+  const { prices: livePrices } = usePriceStreamContext()
+  const livePrice = livePrices.get(token.mint)
+  const currentPrice = livePrice?.price || token.priceUsd || 0
+  const priceChange = token.priceChange24h || 0
+
+  return (
+    <EnhancedCard
+      className="p-4 border-2 hover:border-blue-500/50 transition-all cursor-pointer group"
+      onClick={onClick}
+    >
+      <div className="space-y-3">
+        {/* Token Header */}
+        <div className="flex items-center gap-3">
+          {token.logoURI && !imageError ? (
+            <img
+              src={token.logoURI}
+              alt={token.symbol || "Stock"}
+              className="w-10 h-10 rounded-full"
+              onError={() => setImageError(true)}
+            />
+          ) : (
+            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-lg">
+              <span className="text-white text-sm font-bold tracking-tight">
+                {token.symbol?.replace('x', '').replace('X', '').slice(0, 4) || '??'}
+              </span>
+            </div>
+          )}
+          <div className="flex-1 min-w-0">
+            <h3 className="font-semibold text-lg truncate group-hover:text-blue-500 transition-colors">
+              {token.symbol}
+            </h3>
+            <p className="text-xs text-muted-foreground truncate">
+              {token.name || "Unknown Stock"}
+            </p>
+          </div>
+        </div>
+
+        {/* Price Info */}
+        <div className="space-y-1">
+          <div className="text-xl font-bold">
+            {currentPrice > 0 ? formatUSD(currentPrice) : "N/A"}
+          </div>
+          <div
+            className={cn(
+              "text-sm font-medium flex items-center gap-1",
+              priceChange > 0
+                ? "text-green-600 dark:text-green-400"
+                : priceChange < 0
+                ? "text-red-600 dark:text-red-400"
+                : "text-muted-foreground"
+            )}
+          >
+            {priceChange > 0 ? "+" : ""}
+            {priceChange.toFixed(2)}% 24h
+          </div>
+        </div>
+
+        {/* Trade Button */}
+        <Button
+          size="sm"
+          className="w-full group-hover:bg-blue-500 group-hover:text-white transition-all"
+          variant="outline"
+        >
+          Trade Now
+        </Button>
+      </div>
+    </EnhancedCard>
+  )
+}
 
 export function TradeEmptyState() {
   const router = useRouter()
@@ -20,6 +94,13 @@ export function TradeEmptyState() {
     queryKey: ["trending-tokens"],
     queryFn: api.getTrendingTokens,
     staleTime: 60000,
+  })
+
+  // Fetch tokenized stocks
+  const { data: stockTokens = [] } = useQuery({
+    queryKey: ["stocks-tokens"],
+    queryFn: () => api.getStocks(8),
+    staleTime: 300000, // 5 minutes
   })
 
   const handleTokenClick = (token: any) => {
@@ -187,6 +268,45 @@ export function TradeEmptyState() {
             </div>
           </motion.section>
         )}
+
+        {/* Tokenized Stocks Grid - HIDDEN FOR NOW */}
+        {/* {stockTokens.length > 0 && (
+          <motion.section
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4, duration: 0.6 }}
+            className="space-y-6 mb-12"
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Building2 className="h-6 w-6 text-blue-500" />
+                <h2 className="font-heading text-2xl md:text-3xl font-bold">Tokenized Stocks</h2>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => router.push("/stocks")}
+                className="gap-2"
+              >
+                View All
+                <ArrowRight className="h-4 w-4" />
+              </Button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {stockTokens.map((token, index) => (
+                <motion.div
+                  key={token.mint}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 * index, duration: 0.4 }}
+                >
+                  <StockCardPreview token={token} onClick={() => handleTokenClick(token)} />
+                </motion.div>
+              ))}
+            </div>
+          </motion.section>
+        )} */}
 
         {/* Additional Info Cards */}
         <motion.div

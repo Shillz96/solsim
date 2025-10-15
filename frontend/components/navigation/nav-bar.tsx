@@ -14,10 +14,10 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { Input } from "@/components/ui/input"
-import { 
-  Menu, User, Settings, LogOut, Bell, Search, Loader2, 
+import {
+  Menu, User, Settings, LogOut, Bell, Search, Loader2,
   TrendingUp, Wallet, Target, BarChart3, Home, Zap,
-  ChevronDown, Command, Gift
+  ChevronDown, Command, Gift, Building2
 } from "lucide-react"
 import { useState, useCallback, useEffect, useRef } from "react"
 import { AuthModal } from "@/components/modals/auth-modal"
@@ -49,9 +49,15 @@ const navigationItems = [
     icon: Zap,
     description: "Buy and sell tokens"
   },
+  // {
+  //   name: "Stocks",
+  //   href: "/stocks",
+  //   icon: Building2,
+  //   description: "Trade tokenized stocks"
+  // },
   {
     name: "Portfolio",
-    href: "/portfolio", 
+    href: "/portfolio",
     icon: Wallet,
     description: "Track your positions and P&L"
   },
@@ -188,7 +194,7 @@ export function NavBar() {
           <div className="flex items-center gap-6">
             <Link href="/" className="flex items-center">
               <span className="font-bold text-xl">
-                Sol<span className="text-primary">Sim</span>
+                Virtual<span className="text-primary">Sol</span>
               </span>
             </Link>
 

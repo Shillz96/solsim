@@ -17,7 +17,7 @@ function RewardsPageContent() {
       <main className="w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-6 max-w-page-xl mx-auto">
         {/* Enhanced Header */}
         <SimplePageHeader
-          title="SIM Token Rewards"
+          title="VSOL Token Rewards"
           subtitle="Earn rewards for your trading activity"
           icon={<Gift className="h-6 w-6 text-primary" />}
         />
@@ -27,7 +27,7 @@ function RewardsPageContent() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
-          className="mb-6"
+          className="mb-8"
         >
           <RewardsOverview />
         </motion.div>
@@ -39,7 +39,7 @@ function RewardsPageContent() {
           transition={{ duration: 0.5, delay: 0.2 }}
         >
           <Tabs defaultValue="how-it-works" className="w-full">
-            <TabsList className="grid w-full grid-cols-3 mb-6 bg-muted/50 backdrop-blur-sm border border-border/50">
+            <TabsList className="grid w-full grid-cols-3 mb-8 bg-muted/50 backdrop-blur-sm border border-border/50">
               <TabsTrigger value="how-it-works" className="gap-2 data-[state=active]:bg-primary/20">
                 <Info className="h-4 w-4" />
                 <span className="hidden sm:inline">How It Works</span>

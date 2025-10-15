@@ -17,7 +17,7 @@ async function main() {
     '%demo%',
     '%mock%',
     '%example%',
-    '%@solsim.fun%', // Your test domain
+    '%@virtualsol.fun%', // Your test domain
   ];
 
   const testUsernamePatterns = [

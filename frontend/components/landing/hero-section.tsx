@@ -34,8 +34,7 @@ export function HeroSection() {
                 Trade Solana Without Risk
               </h1>
               <p className="text-xl text-background/70 max-w-xl leading-relaxed">
-                Practice trading real Solana tokens with live market data. No financial risk, learn faster, trade
-                smarter.
+                Practice trading real Solana tokens with live market data. Track wallets, earn rewards, compete on leaderboards - all risk-free.
               </p>
             </div>
 
@@ -72,11 +71,11 @@ export function HeroSection() {
             >
               <div className="space-y-1">
                 <div className="text-3xl font-bold text-[#00ff85]">100 SOL</div>
-                <p className="text-sm text-background/60">Virtual balance</p>
+                <p className="text-sm text-background/60">Starting balance</p>
               </div>
               <div className="space-y-1">
-                <div className="text-3xl font-bold">Real-time</div>
-                <p className="text-sm text-background/60">Live data</p>
+                <div className="text-3xl font-bold">Rewards</div>
+                <p className="text-sm text-background/60">Earn while learning</p>
               </div>
               <div className="space-y-1">
                 <div className="text-3xl font-bold">Zero Risk</div>

@@ -13,9 +13,9 @@ const PortfolioChartComponent = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="h-[300px] w-full flex items-center justify-center">
+      <div className="h-[350px] w-full flex items-center justify-center">
         <div className="flex items-center gap-2 text-muted-foreground">
-          <Loader2 className="h-4 w-4 animate-spin" />
+          <Loader2 className="h-5 w-5 animate-spin" />
           <span className="text-sm">Loading chart...</span>
         </div>
       </div>

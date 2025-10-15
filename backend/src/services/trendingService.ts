@@ -3,6 +3,8 @@ import prisma from "../plugins/prisma.js";
 import priceService from "../plugins/priceService.js";
 import { getTokenMeta } from "./tokenService.js";
 import { robustFetch, fetchJSON } from "../utils/fetch.js";
+import redis from "../plugins/redis.js";
+import { safeStringify, safeParse } from "../utils/json.js";
 
 export interface TrendingToken {
   mint: string;
@@ -11,101 +13,87 @@ export interface TrendingToken {
   logoURI: string | null;
   priceUsd: number;
   priceChange24h: number;
+  priceChange5m?: number;
+  priceChange1h?: number;
+  priceChange6h?: number;
   volume24h: number;
   marketCapUsd: number | null;
   tradeCount: number;
   uniqueTraders: number;
 }
 
-export async function getTrendingTokens(limit: number = 20): Promise<TrendingToken[]> {
+export type BirdeyeSortBy = 'rank' | 'volume24hUSD' | 'liquidity';
+
+export async function getTrendingTokens(limit: number = 20, sortBy: BirdeyeSortBy = 'rank'): Promise<TrendingToken[]> {
+  // Check Redis cache first (60 second TTL for trending data)
+  const cacheKey = `trending:${sortBy}:${limit}`;
   try {
-    console.log(`Fetching trending tokens with limit: ${limit}`);
-    
+    const cached = await redis.get(cacheKey);
+    if (cached) {
+      console.log(`[TRENDING CACHE HIT] Returning cached trending tokens`);
+      return safeParse(cached);
+    }
+  } catch (error) {
+    console.warn('Redis cache read failed for trending:', error);
+  }
+
+  try {
+    console.log(`Fetching trending tokens with limit: ${limit}, sortBy: ${sortBy}`);
+
     // Use Birdeye for trending data first
-    const birdeyeTrending = await getBirdeyeTrending(limit);
+    const birdeyeTrending = await getBirdeyeTrending(limit, sortBy);
     console.log(`Birdeye returned ${birdeyeTrending.length} tokens`);
-    
+
     if (birdeyeTrending.length > 0) {
       console.log('Using Birdeye data for trending tokens');
-      // Merge with our internal trading data
-      const trendingTokens: TrendingToken[] = [];
-      
-      for (const token of birdeyeTrending) {
-        try {
-          // Get our internal trading stats for this token
-          const last24h = new Date(Date.now() - 24 * 60 * 60 * 1000);
-          
-          const [tradeCount, uniqueTraders] = await Promise.all([
-            prisma.trade.count({
-              where: { mint: token.mint, createdAt: { gte: last24h } }
-            }),
-            prisma.trade.groupBy({
-              by: ["userId"],
-              where: { mint: token.mint, createdAt: { gte: last24h } }
-            })
-          ]);
+      // Birdeye already provides all necessary data - return directly for speed
+      // Internal stats (tradeCount, uniqueTraders) are mostly 0 for trending tokens anyway
+      console.log(`Returning ${birdeyeTrending.length} Birdeye trending tokens (fast mode)`);
 
-          // Get enhanced metadata from our token service
-          const meta = await getTokenMeta(token.mint);
-          
-          trendingTokens.push({
-            mint: token.mint,
-            symbol: meta?.symbol || token.symbol,
-            name: meta?.name || token.name,
-            logoURI: meta?.logoURI || token.logoURI,
-            priceUsd: token.priceUsd,
-            priceChange24h: token.priceChange24h,
-            volume24h: token.volume24h,
-            marketCapUsd: token.marketCapUsd,
-            tradeCount: tradeCount,
-            uniqueTraders: uniqueTraders.length
-          });
-        } catch (error) {
-          console.error(`Error processing trending token ${token.mint}:`, error);
-          // Still include the token with external data if internal processing fails
-          trendingTokens.push({
-            mint: token.mint,
-            symbol: token.symbol,
-            name: token.name,
-            logoURI: token.logoURI,
-            priceUsd: token.priceUsd,
-            priceChange24h: token.priceChange24h,
-            volume24h: token.volume24h,
-            marketCapUsd: token.marketCapUsd,
-            tradeCount: 0,
-            uniqueTraders: 0
-          });
-        }
+      // Cache result in Redis for 60 seconds
+      try {
+        await redis.setex(cacheKey, 60, safeStringify(birdeyeTrending));
+      } catch (error) {
+        console.warn('Failed to cache trending tokens:', error);
       }
 
-      console.log(`Returning ${trendingTokens.length} Birdeye trending tokens`);
-      return trendingTokens;
+      return birdeyeTrending;
     }
-    
+
     // Fallback to DexScreener if Birdeye fails
     console.log('Birdeye failed, trying DexScreener fallback');
     const dexTrending = await getDexScreenerTrending(limit);
-    console.log(`DexScreener returned ${dexTrending.length} tokens`);
-    return await enrichWithInternalData(dexTrending);
-    
+    console.log(`DexScreener returned ${dexTrending.length} tokens (fast mode - no enrichment)`);
+    // Skip internal enrichment for performance - DexScreener data is sufficient
+
+    // Cache DexScreener result
+    try {
+      await redis.setex(cacheKey, 60, safeStringify(dexTrending));
+    } catch (error) {
+      console.warn('Failed to cache trending tokens:', error);
+    }
+
+    return dexTrending;
+
   } catch (error) {
     console.error('Error fetching trending tokens:', error);
-    
+
     // Fallback to internal data only
     console.log('All external APIs failed, using internal data fallback');
     return getInternalTrendingTokens(limit);
   }
 }
 
-async function getBirdeyeTrending(limit: number): Promise<TrendingToken[]> {
+async function getBirdeyeTrending(limit: number, sortBy: BirdeyeSortBy = 'rank'): Promise<TrendingToken[]> {
   try {
     // Temporarily hardcode the API key for testing
     const BIRDEYE_API_KEY = process.env.BIRDEYE_API_KEY || "caa61fdc964643e197d86d70d5d70671";
-    
-    console.log('Using Birdeye API key:', BIRDEYE_API_KEY ? 'Found' : 'Not found');
 
-    // Use the correct Birdeye trending endpoint
-    const response = await robustFetch(`https://public-api.birdeye.so/defi/token_trending?sort_by=volume24hUSD&sort_type=desc&offset=0&limit=${limit}&ui_amount_mode=scaled`, {
+    console.log('Using Birdeye API key:', BIRDEYE_API_KEY ? 'Found' : 'Not found');
+    console.log(`Fetching trending tokens sorted by: ${sortBy}`);
+
+    // Use the correct Birdeye trending endpoint with dynamic sort_by
+    const response = await robustFetch(`https://public-api.birdeye.so/defi/token_trending?sort_by=${sortBy}&sort_type=desc&offset=0&limit=${limit}&ui_amount_mode=scaled`, {
       headers: {
         'Accept': 'application/json',
         'x-chain': 'solana',
@@ -115,17 +103,17 @@ async function getBirdeyeTrending(limit: number): Promise<TrendingToken[]> {
       retries: 2,
       retryDelay: 1000
     });
-    
+
     if (!response.ok) {
       console.error(`Birdeye API error: ${response.status} ${response.statusText}`);
       const errorText = await response.text().catch(() => 'No error details');
       console.error('Birdeye error response:', errorText);
       throw new Error(`Birdeye API error: ${response.status}`);
     }
-    
+
     const data = await response.json() as any;
     console.log('Birdeye API response structure:', JSON.stringify(data, null, 2).substring(0, 500) + '...');
-    
+
     // Handle the Birdeye trending API response structure
     let tokens = [];
     if (data.data?.tokens) {
@@ -138,16 +126,22 @@ async function getBirdeyeTrending(limit: number): Promise<TrendingToken[]> {
     }
 
     console.log(`Found ${tokens.length} tokens from Birdeye trending API`);
-    
+
     return tokens
       .map((token: any) => {
         // Map Birdeye trending API fields to our TrendingToken interface
         const mint = token.address;
         const price = parseFloat(token.price || '0');
+
+        // Extract all available price change fields
+        const priceChange5m = token.price5mChangePercent !== undefined ? parseFloat(token.price5mChangePercent) : undefined;
+        const priceChange1h = token.price1hChangePercent !== undefined ? parseFloat(token.price1hChangePercent) : undefined;
+        const priceChange6h = token.price6hChangePercent !== undefined ? parseFloat(token.price6hChangePercent) : undefined;
         const priceChange24h = parseFloat(token.price24hChangePercent || '0');
+
         const volume24h = parseFloat(token.volume24hUSD || '0');
         const marketCap = parseFloat(token.marketcap || '0') || null;
-        
+
         return {
           mint,
           symbol: token.symbol,
@@ -155,6 +149,9 @@ async function getBirdeyeTrending(limit: number): Promise<TrendingToken[]> {
           logoURI: token.logoURI || null,
           priceUsd: price,
           priceChange24h,
+          priceChange5m,
+          priceChange1h,
+          priceChange6h,
           volume24h,
           marketCapUsd: marketCap,
           tradeCount: 0,
@@ -169,7 +166,7 @@ async function getBirdeyeTrending(limit: number): Promise<TrendingToken[]> {
         }
         return isValid;
       });
-      
+
   } catch (error) {
     console.error('Birdeye trending fetch failed:', error);
     if (error instanceof Error) {
@@ -359,21 +356,18 @@ async function getPopularSolanaTokens(): Promise<TrendingToken[]> {
   
   for (const tokenData of popularTokens) {
     try {
-      // Add some randomness to make it look more realistic
-      const randomVariation = (Math.random() - 0.5) * 0.1; // ±5% variation
-      const adjustedPriceChange = tokenData.priceChange24h + randomVariation;
-      
+      // Use static fallback data - this only runs if all APIs fail
       tokens.push({
         mint: tokenData.mint,
         symbol: tokenData.symbol,
         name: tokenData.name,
         logoURI: tokenData.logoURI,
         priceUsd: tokenData.priceUsd,
-        priceChange24h: parseFloat(adjustedPriceChange.toFixed(4)), // Increased precision for percentage
+        priceChange24h: tokenData.priceChange24h,
         volume24h: tokenData.volume24h,
         marketCapUsd: tokenData.marketCapUsd,
-        tradeCount: Math.floor(Math.random() * 100) + 10, // Random trade count
-        uniqueTraders: Math.floor(Math.random() * 50) + 5  // Random unique traders
+        tradeCount: 0, // No internal data available in fallback mode
+        uniqueTraders: 0  // No internal data available in fallback mode
       });
     } catch (error) {
       console.error(`Error loading popular token ${tokenData.mint}:`, error);
@@ -414,10 +408,11 @@ async function getInternalTrendingTokens(limit: number): Promise<TrendingToken[]
     try {
       // Get current price
       const currentPrice = await priceService.getPrice(data.mint);
-      
-      // Get price 24h ago (simplified - would use historical data)
-      const price24hAgo = currentPrice * (0.95 + Math.random() * 0.1); // Mock 24h price
-      const priceChange24h = ((currentPrice - price24hAgo) / price24hAgo) * 100;
+
+      // TODO: Implement proper historical price tracking
+      // For now, set to 0 when historical data is unavailable
+      // This fallback should rarely be hit as Birdeye/DexScreener provide change24h
+      const priceChange24h = 0;
       
       // Get token metadata
       const meta = await getTokenMeta(data.mint);

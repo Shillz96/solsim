@@ -1,7 +1,7 @@
 // Advanced WebSocket Client Integration Example
 // This demonstrates the full hardened WebSocket with shared types
 
-// import { PriceTickV1, type PriceTick } from "@solsim/types";
+// import { PriceTickV1, type PriceTick } from "@virtualsol/types";
 import { connectPrices } from "../lib/ws";
 import { env } from "../lib/env";
 import { lamportsToSolStr, formatLamportsAsSOL, usdToLamports } from "../lib/format";
@@ -19,7 +19,7 @@ import { lamportsToSolStr, formatLamportsAsSOL, usdToLamports } from "../lib/for
  */
 
 export function useHardenedPriceStream() {
-  // Note: Uncomment when @solsim/types is properly installed
+  // Note: Uncomment when @virtualsol/types is properly installed
   /*
   const onPriceTick = (tick: PriceTick) => {
     console.log('✅ [HARDENED] Validated price tick:', {
@@ -66,13 +66,13 @@ export function ExamplePriceDisplay({ usdPrice, solPriceUsd }: {
 
 /**
  * Integration notes:
- * 
+ *
  * 1. Always use the connectPrices function from lib/ws.ts for WebSocket connections
  * 2. Store prices as lamports strings to avoid float precision issues
  * 3. Use formatting utilities from lib/format.ts for display
  * 4. Environment variables are validated at startup via lib/env.ts
  * 5. Message contracts prevent schema drift between frontend/backend
- * 
+ *
  * Benefits:
  * - No more tiny/wrong numbers from float rounding
  * - Connections survive Safari/mobile/Railway proxy issues

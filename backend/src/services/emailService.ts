@@ -3,7 +3,7 @@ import { Resend } from 'resend';
 import crypto from 'crypto';
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
-const FROM_EMAIL = process.env.FROM_EMAIL || 'SolSim <noreply@solsim.fun>';
+const FROM_EMAIL = process.env.FROM_EMAIL || 'VirtualSol <noreply@virtualsol.fun>';
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
 
 if (!RESEND_API_KEY) {
@@ -42,7 +42,7 @@ export class EmailService {
       const { data, error } = await resend.emails.send({
         from: FROM_EMAIL,
         to: email,
-        subject: 'Verify your SolSim account',
+        subject: 'Verify your VirtualSol account',
         html: this.getVerificationEmailTemplate(username, verificationUrl),
       });
 
@@ -74,7 +74,7 @@ export class EmailService {
       const { data, error } = await resend.emails.send({
         from: FROM_EMAIL,
         to: email,
-        subject: 'Reset your SolSim password',
+        subject: 'Reset your VirtualSol password',
         html: this.getPasswordResetEmailTemplate(username, resetUrl),
       });
 
@@ -104,7 +104,7 @@ export class EmailService {
       const { data, error } = await resend.emails.send({
         from: FROM_EMAIL,
         to: email,
-        subject: 'Welcome to SolSim - Your paper trading journey begins!',
+        subject: 'Welcome to VirtualSol - Your paper trading journey begins!',
         html: this.getWelcomeEmailTemplate(username),
       });
 
@@ -131,7 +131,7 @@ export class EmailService {
       <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Verify your SolSim account</title>
+        <title>Verify your VirtualSol account</title>
       </head>
       <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f5f5f5;">
         <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f5f5f5; padding: 40px 20px;">
@@ -141,7 +141,7 @@ export class EmailService {
                 <!-- Header -->
                 <tr>
                   <td style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px 20px; text-align: center;">
-                    <h1 style="color: #ffffff; margin: 0; font-size: 32px; font-weight: 700;">SolSim</h1>
+                    <h1 style="color: #ffffff; margin: 0; font-size: 32px; font-weight: 700;">VirtualSol</h1>
                     <p style="color: #ffffff; margin: 10px 0 0 0; font-size: 16px; opacity: 0.9;">Solana Paper Trading</p>
                   </td>
                 </tr>
@@ -151,7 +151,7 @@ export class EmailService {
                   <td style="padding: 40px 30px;">
                     <h2 style="color: #1a1a1a; margin: 0 0 20px 0; font-size: 24px; font-weight: 600;">Welcome, ${username}!</h2>
                     <p style="color: #4a4a4a; margin: 0 0 20px 0; font-size: 16px; line-height: 1.6;">
-                      Thank you for signing up with SolSim. To get started with paper trading on Solana, please verify your email address by clicking the button below:
+                      Thank you for signing up with VirtualSol. To get started with paper trading on Solana, please verify your email address by clicking the button below:
                     </p>
 
                     <!-- CTA Button -->
@@ -180,10 +180,10 @@ export class EmailService {
                 <tr>
                   <td style="background-color: #f8f8f8; padding: 30px; text-align: center; border-top: 1px solid #e5e5e5;">
                     <p style="color: #8a8a8a; margin: 0 0 10px 0; font-size: 14px;">
-                      If you didn't create a SolSim account, you can safely ignore this email.
+                      If you didn't create a VirtualSol account, you can safely ignore this email.
                     </p>
                     <p style="color: #8a8a8a; margin: 0; font-size: 12px;">
-                      © ${new Date().getFullYear()} SolSim. All rights reserved.
+                      © ${new Date().getFullYear()} VirtualSol. All rights reserved.
                     </p>
                   </td>
                 </tr>
@@ -206,7 +206,7 @@ export class EmailService {
       <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Reset your SolSim password</title>
+        <title>Reset your VirtualSol password</title>
       </head>
       <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f5f5f5;">
         <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f5f5f5; padding: 40px 20px;">
@@ -216,7 +216,7 @@ export class EmailService {
                 <!-- Header -->
                 <tr>
                   <td style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px 20px; text-align: center;">
-                    <h1 style="color: #ffffff; margin: 0; font-size: 32px; font-weight: 700;">SolSim</h1>
+                    <h1 style="color: #ffffff; margin: 0; font-size: 32px; font-weight: 700;">VirtualSol</h1>
                     <p style="color: #ffffff; margin: 10px 0 0 0; font-size: 16px; opacity: 0.9;">Solana Paper Trading</p>
                   </td>
                 </tr>
@@ -267,7 +267,7 @@ export class EmailService {
                       This link was requested from IP address. If you didn't request this, please contact support.
                     </p>
                     <p style="color: #8a8a8a; margin: 0; font-size: 12px;">
-                      © ${new Date().getFullYear()} SolSim. All rights reserved.
+                      © ${new Date().getFullYear()} VirtualSol. All rights reserved.
                     </p>
                   </td>
                 </tr>
@@ -290,7 +290,7 @@ export class EmailService {
       <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Welcome to SolSim!</title>
+        <title>Welcome to VirtualSol!</title>
       </head>
       <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f5f5f5;">
         <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f5f5f5; padding: 40px 20px;">
@@ -300,7 +300,7 @@ export class EmailService {
                 <!-- Header -->
                 <tr>
                   <td style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px 20px; text-align: center;">
-                    <h1 style="color: #ffffff; margin: 0; font-size: 32px; font-weight: 700;">🎉 Welcome to SolSim!</h1>
+                    <h1 style="color: #ffffff; margin: 0; font-size: 32px; font-weight: 700;">🎉 Welcome to VirtualSol!</h1>
                   </td>
                 </tr>
 
@@ -347,7 +347,7 @@ export class EmailService {
                       Need help? Check out our <a href="${FRONTEND_URL}/help" style="color: #667eea; text-decoration: none;">Help Center</a>
                     </p>
                     <p style="color: #8a8a8a; margin: 0; font-size: 12px;">
-                      © ${new Date().getFullYear()} SolSim. All rights reserved.
+                      © ${new Date().getFullYear()} VirtualSol. All rights reserved.
                     </p>
                   </td>
                 </tr>

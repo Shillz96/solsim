@@ -14,10 +14,10 @@ interface TierBenefit {
 }
 
 interface TierStatusProps {
-  userTier: 'EMAIL_USER' | 'WALLET_USER' | 'SIM_HOLDER' | 'ADMINISTRATOR';
+  userTier: 'EMAIL_USER' | 'WALLET_USER' | 'VSOL_HOLDER' | 'ADMINISTRATOR';
   benefits?: TierBenefit[];
   virtualSolBalance?: number;
-  simTokenBalance?: number;
+  vsolTokenBalance?: number;
   className?: string;
 }
 
@@ -46,12 +46,12 @@ const TIER_CONFIG = {
       { name: 'Priority Support', description: 'Faster response times', available: true },
     ]
   },
-  SIM_HOLDER: {
-    label: '$SIM Holder',
+  VSOL_HOLDER: {
+    label: '$VSOL Holder',
     icon: Crown,
     color: 'bg-gradient-to-r from-yellow-400 to-orange-500',
     textColor: 'text-yellow-700 dark:text-yellow-300',
-    description: 'Premium access for $SIM token holders',
+    description: 'Premium access for $VSOL token holders',
     defaultBenefits: [
       { name: '100 SOL Starting Balance', description: 'Maximum starting capital', available: true },
       { name: 'Premium Features', description: 'Advanced analytics and tools', available: true },
@@ -82,7 +82,7 @@ export function TierStatus({
   userTier,
   benefits,
   virtualSolBalance,
-  simTokenBalance,
+  vsolTokenBalance,
   className
 }: TierStatusProps) {
   const tierConfig = TIER_CONFIG[userTier];
@@ -131,14 +131,14 @@ export function TierStatus({
             </div>
           )}
 
-          {simTokenBalance !== undefined && simTokenBalance > 0 && (
+          {vsolTokenBalance !== undefined && vsolTokenBalance > 0 && (
             <div className="bg-muted/50 rounded-lg p-3">
               <div className="flex items-center gap-2 mb-1">
                 <TrendingUp className="h-4 w-4 text-yellow-500" />
-                <span className="text-sm font-medium">$SIM Tokens</span>
+                <span className="text-sm font-medium">$VSOL Tokens</span>
               </div>
               <p className="text-lg font-semibold text-yellow-600 dark:text-yellow-400">
-                {simTokenBalance.toLocaleString()} $SIM
+                {vsolTokenBalance.toLocaleString()} $VSOL
               </p>
             </div>
           )}

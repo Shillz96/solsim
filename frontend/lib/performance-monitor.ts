@@ -1,4 +1,4 @@
-// Performance Monitor for SolSim Frontend
+// Performance Monitor for VirtualSol Frontend
 // Tracks API performance, rate limit issues, and user experience metrics
 
 export interface PerformanceMetrics {

@@ -44,7 +44,7 @@ export function RewardsCard({ userId, walletAddress }: RewardsCardProps) {
     onSuccess: (data) => {
       toast({
         title: "Rewards Claimed!",
-        description: `Successfully claimed ${data.amount} $SIM tokens`,
+        description: `Successfully claimed ${data.amount} $VSOL tokens`,
       })
       // Refresh claims data
       queryClient.invalidateQueries({ queryKey: ['reward-claims', userId] })
@@ -84,7 +84,24 @@ export function RewardsCard({ userId, walletAddress }: RewardsCardProps) {
     return weekNumber
   }
 
+  // Get current week date range for display
+  const getCurrentWeekRange = () => {
+    const now = new Date()
+    const dayOfWeek = now.getDay()
+    const startOfWeek = new Date(now)
+    startOfWeek.setDate(now.getDate() - dayOfWeek)
+    const endOfWeek = new Date(startOfWeek)
+    endOfWeek.setDate(startOfWeek.getDate() + 6)
+
+    const formatDate = (date: Date) => {
+      return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+    }
+
+    return `${formatDate(startOfWeek)} - ${formatDate(endOfWeek)}`
+  }
+
   const currentEpoch = getCurrentEpoch()
+  const currentWeekRange = getCurrentWeekRange()
   const unclaimedRewards = rewardClaims?.filter(claim => claim.status === 'PENDING' || !claim.claimedAt) || []
   const claimedRewards = rewardClaims?.filter(claim => claim.status === 'COMPLETED' && claim.claimedAt) || []
   const totalUnclaimed = unclaimedRewards.reduce((sum, claim) => sum + parseFloat(claim.amount), 0)
@@ -112,10 +129,10 @@ export function RewardsCard({ userId, walletAddress }: RewardsCardProps) {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Gift className="h-5 w-5" />
-          SIM Token Rewards
+          VSOL Token Rewards
         </CardTitle>
         <CardDescription>
-          Earn $SIM tokens based on your trading activity. Rewards are distributed weekly.
+          Earn $VSOL tokens based on your trading activity. Rewards are distributed weekly.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -127,16 +144,16 @@ export function RewardsCard({ userId, walletAddress }: RewardsCardProps) {
               Unclaimed Rewards
             </div>
             <div className="text-2xl font-bold">
-              {formatNumber(totalUnclaimed)} $SIM
+              {formatNumber(totalUnclaimed)} $VSOL
             </div>
           </div>
           <div className="space-y-2">
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Calendar className="h-4 w-4" />
-              Current Epoch
+              This Week
             </div>
-            <div className="text-2xl font-bold">
-              Week {currentEpoch}
+            <div className="text-xl font-bold">
+              {currentWeekRange}
             </div>
           </div>
         </div>
@@ -148,7 +165,7 @@ export function RewardsCard({ userId, walletAddress }: RewardsCardProps) {
             <div className="grid grid-cols-3 gap-4 text-sm">
               <div>
                 <div className="text-muted-foreground">Total Claimed</div>
-                <div className="font-medium">{formatNumber(rewardStats.totalAmount)} $SIM</div>
+                <div className="font-medium">{formatNumber(rewardStats.totalAmount)} $VSOL</div>
               </div>
               <div>
                 <div className="text-muted-foreground">Total Claims</div>
@@ -177,7 +194,7 @@ export function RewardsCard({ userId, walletAddress }: RewardsCardProps) {
                   <div className="flex items-center gap-3">
                     <Badge variant="secondary">Week {claim.epoch}</Badge>
                     <div>
-                      <div className="font-medium">{formatNumber(parseFloat(claim.amount))} $SIM</div>
+                      <div className="font-medium">{formatNumber(parseFloat(claim.amount))} $VSOL</div>
                       <div className="text-sm text-muted-foreground">
                         Available to claim
                       </div>
@@ -209,7 +226,7 @@ export function RewardsCard({ userId, walletAddress }: RewardsCardProps) {
                   <div className="flex items-center gap-3">
                     <Badge variant="outline">Week {claim.epoch}</Badge>
                     <div>
-                      <div className="font-medium">{formatNumber(parseFloat(claim.amount))} $SIM</div>
+                      <div className="font-medium">{formatNumber(parseFloat(claim.amount))} $VSOL</div>
                       <div className="text-sm text-muted-foreground">
                         Claimed {claim.claimedAt ? new Date(claim.claimedAt).toLocaleDateString() : 'Unknown'}
                       </div>
@@ -235,7 +252,7 @@ export function RewardsCard({ userId, walletAddress }: RewardsCardProps) {
           <Alert>
             <TrendingUp className="h-4 w-4" />
             <AlertDescription>
-              Start trading to earn $SIM token rewards! Your trading activity generates points that are converted to rewards each week.
+              Start trading to earn $VSOL token rewards! Your trading activity generates points that are converted to rewards each week.
             </AlertDescription>
           </Alert>
         )}

@@ -273,7 +273,26 @@ export async function getTrending(sortBy: 'rank' | 'volume24hUSD' | 'liquidity' 
 }
 
 /**
- * Claim SIM rewards
+ * Get tokenized stocks
+ * GET /api/stocks
+ */
+export async function getStocks(limit: number = 50): Promise<Backend.TrendingToken[]> {
+  const response = await fetch(`${API}/api/stocks?limit=${limit}`, {
+    method: 'GET',
+    headers: { 'Content-Type': 'application/json' },
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ message: 'Failed to fetch stocks' }));
+    throw new Error(error.message || `HTTP ${response.status}`);
+  }
+
+  const data = await response.json();
+  return data.items; // Backend returns { items: StockToken[] } (compatible with TrendingToken)
+}
+
+/**
+ * Claim VSOL rewards
  * POST /api/rewards/claim
  */
 export async function claimRewards(request: Backend.RewardsClaimRequest): Promise<Backend.RewardsClaimResponse> {
@@ -567,6 +586,100 @@ export async function apiCall<T>(
   return response.json();
 }
 
+// ================================
+// Generic API Client (axios-like interface)
+// ================================
+
+interface ApiRequestConfig {
+  params?: Record<string, any>;
+  headers?: HeadersInit;
+}
+
+interface ApiResponse<T> {
+  data: T;
+  status: number;
+}
+
+export const api = {
+  async get<T>(endpoint: string, config?: ApiRequestConfig): Promise<ApiResponse<T>> {
+    const params = config?.params
+      ? '?' + new URLSearchParams(config.params).toString()
+      : '';
+
+    const response = await fetch(`${API}${endpoint}${params}`, {
+      method: 'GET',
+      headers: {
+        ...getAuthHeaders(),
+        ...config?.headers,
+      },
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ message: 'Request failed' }));
+      throw new Error(error.message || `HTTP ${response.status}`);
+    }
+
+    const data = await response.json();
+    return { data, status: response.status };
+  },
+
+  async post<T>(endpoint: string, body?: any, config?: ApiRequestConfig): Promise<ApiResponse<T>> {
+    const response = await fetch(`${API}${endpoint}`, {
+      method: 'POST',
+      headers: {
+        ...getAuthHeaders(),
+        ...config?.headers,
+      },
+      body: body ? JSON.stringify(body) : undefined,
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ message: 'Request failed' }));
+      throw new Error(error.message || `HTTP ${response.status}`);
+    }
+
+    const data = await response.json();
+    return { data, status: response.status };
+  },
+
+  async patch<T>(endpoint: string, body?: any, config?: ApiRequestConfig): Promise<ApiResponse<T>> {
+    const response = await fetch(`${API}${endpoint}`, {
+      method: 'PATCH',
+      headers: {
+        ...getAuthHeaders(),
+        ...config?.headers,
+      },
+      body: body ? JSON.stringify(body) : undefined,
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ message: 'Request failed' }));
+      throw new Error(error.message || `HTTP ${response.status}`);
+    }
+
+    const data = await response.json();
+    return { data, status: response.status };
+  },
+
+  async delete<T>(endpoint: string, config?: ApiRequestConfig): Promise<ApiResponse<T>> {
+    const response = await fetch(`${API}${endpoint}`, {
+      method: 'DELETE',
+      headers: {
+        ...getAuthHeaders(),
+        ...config?.headers,
+      },
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ message: 'Request failed' }));
+      throw new Error(error.message || `HTTP ${response.status}`);
+    }
+
+    const data = await response.json();
+    return { data, status: response.status };
+  },
+};
+
 /**
  * Get user's reward claims
  * GET /api/rewards/claims/{userId}
@@ -766,6 +879,8 @@ export default {
   getPortfolioPerformance,
   getLeaderboard,
   getTrendingTokens,
+  getTrending,
+  getStocks,
   getTokenDetails,
   searchTokens,
   claimRewards,

@@ -123,19 +123,7 @@ export function EnhancedTrendingList() {
                   colorize={true}
                   glowOnChange={true}
                 />
-                {/* Mini sparkline placeholder - could add real price history data */}
-                <Sparkline
-                  data={[...Array(7)].map(() => Math.random() * 100 + 50)}
-                  width={30}
-                  height={12}
-                  color={
-                    token.priceChange24h > 0.01 
-                      ? "var(--chart-3)" 
-                      : token.priceChange24h < -0.01
-                      ? "var(--destructive)"
-                      : "var(--muted-foreground)"
-                  }
-                />
+                {/* TODO: Add real price history sparkline when historical data is available */}
               </div>
             </div>
           </div>

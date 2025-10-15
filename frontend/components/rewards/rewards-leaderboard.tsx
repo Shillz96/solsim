@@ -31,86 +31,17 @@ interface RewardLeader {
   winRate: number
 }
 
-// Mock data for demonstration - replace with actual API call
-const mockLeaders: RewardLeader[] = [
-  {
-    userId: "1",
-    username: "CryptoKing",
-    totalRewards: 125000,
-    weeklyRewards: 8500,
-    tier: "Diamond",
-    tierColor: "text-cyan-500",
-    tierIcon: "💎",
-    rank: 1,
-    change: 0,
-    tradingVolume: 2500000,
-    winRate: 68.5
-  },
-  {
-    userId: "2",
-    username: "MoonTrader",
-    totalRewards: 98000,
-    weeklyRewards: 7200,
-    tier: "Diamond",
-    tierColor: "text-cyan-500",
-    tierIcon: "💎",
-    rank: 2,
-    change: 2,
-    tradingVolume: 1850000,
-    winRate: 65.2
-  },
-  {
-    userId: "3",
-    username: "SolanaWhale",
-    totalRewards: 87500,
-    weeklyRewards: 6800,
-    tier: "Platinum",
-    tierColor: "text-purple-500",
-    tierIcon: "🔮",
-    rank: 3,
-    change: -1,
-    tradingVolume: 950000,
-    winRate: 62.8
-  },
-  {
-    userId: "4",
-    username: "DeFiDegen",
-    totalRewards: 76000,
-    weeklyRewards: 5500,
-    tier: "Platinum",
-    tierColor: "text-purple-500",
-    tierIcon: "🔮",
-    rank: 4,
-    change: 3,
-    tradingVolume: 780000,
-    winRate: 59.4
-  },
-  {
-    userId: "5",
-    username: "PumpChaser",
-    totalRewards: 65000,
-    weeklyRewards: 4800,
-    tier: "Gold",
-    tierColor: "text-yellow-500",
-    tierIcon: "🏆",
-    rank: 5,
-    change: -2,
-    tradingVolume: 450000,
-    winRate: 57.1
-  }
-]
-
 export function RewardsLeaderboard() {
   const { user } = useAuth()
   const [timeframe, setTimeframe] = useState<"weekly" | "monthly" | "all-time">("weekly")
 
-  // In a real app, this would fetch from the backend
-  const { data: leaders, isLoading } = useQuery({
+  // Fetch actual leaderboard from backend - currently returns empty
+  const { data: leaders, isLoading } = useQuery<RewardLeader[]>({
     queryKey: ['reward-leaderboard', timeframe],
-    queryFn: async () => {
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 500))
-      return mockLeaders
+    queryFn: async (): Promise<RewardLeader[]> => {
+      // TODO: Implement backend endpoint /api/rewards/leaderboard
+      // For now, return empty array until backend is ready
+      return []
     },
   })
 
@@ -183,18 +114,18 @@ export function RewardsLeaderboard() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Leaderboard Header */}
       <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
         <CardHeader>
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
-              <CardTitle className="flex items-center gap-2">
+              <CardTitle className="flex items-center gap-2 text-xl">
                 <Trophy className="h-5 w-5 text-primary" />
                 Top Reward Earners
               </CardTitle>
-              <CardDescription>
-                The traders earning the most $SIM tokens
+              <CardDescription className="mt-1">
+                The traders earning the most $VSOL tokens
               </CardDescription>
             </div>
             <Tabs value={timeframe} onValueChange={(v) => setTimeframe(v as any)} className="w-full sm:w-auto">
@@ -209,7 +140,7 @@ export function RewardsLeaderboard() {
       </Card>
 
       {/* Top 3 Showcase */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {leaders?.slice(0, 3).map((leader) => (
           <Card key={leader.userId} className={cn(
             "relative overflow-hidden border-border/50 bg-card/50 backdrop-blur-sm transition-all hover:shadow-lg hover:scale-105",
@@ -242,11 +173,11 @@ export function RewardsLeaderboard() {
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Weekly Rewards</span>
-                  <span className="font-semibold">{formatNumber(leader.weeklyRewards)} $SIM</span>
+                  <span className="font-semibold">{formatNumber(leader.weeklyRewards)} $VSOL</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Total Earned</span>
-                  <span className="font-semibold">{formatNumber(leader.totalRewards)} $SIM</span>
+                  <span className="font-semibold">{formatNumber(leader.totalRewards)} $VSOL</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Win Rate</span>
@@ -262,7 +193,7 @@ export function RewardsLeaderboard() {
       {/* Full Leaderboard */}
       <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
         <CardHeader>
-          <CardTitle className="text-lg flex items-center gap-2">
+          <CardTitle className="text-xl flex items-center gap-2">
             <Users className="h-5 w-5 text-primary" />
             Complete Rankings
           </CardTitle>
@@ -301,38 +232,23 @@ export function RewardsLeaderboard() {
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="font-semibold">{formatNumber(leader.weeklyRewards)} $SIM</div>
+                  <div className="font-semibold">{formatNumber(leader.weeklyRewards)} $VSOL</div>
                   <div className="text-sm text-muted-foreground">This week</div>
                 </div>
               </div>
             ))}
           </div>
 
-          {/* Your Position (if not in top 5) */}
-          {user && !leaders?.find(l => l.userId === user.id) && (
+          {/* Coming Soon Message when no leaders data */}
+          {(!leaders || leaders.length === 0) && (
             <div className="mt-6 pt-6 border-t">
-              <div className="flex items-center justify-between p-4 rounded-lg bg-primary/5 border border-primary/20">
-                <div className="flex items-center gap-4">
-                  <div className="w-8 flex justify-center">
-                    <span className="text-sm font-semibold">#{Math.floor(Math.random() * 50 + 6)}</span>
-                  </div>
-                  <Avatar>
-                    <AvatarFallback>{user.handle?.[0] || 'U'}</AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="font-semibold">{user.handle || 'You'}</span>
-                      <Badge variant="secondary" className="text-xs">You</Badge>
-                    </div>
-                    <div className="text-sm text-muted-foreground">
-                      Keep trading to climb the ranks!
-                    </div>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <div className="font-semibold">0 $SIM</div>
-                  <div className="text-sm text-muted-foreground">This week</div>
-                </div>
+              <div className="flex flex-col items-center justify-center p-12 rounded-lg bg-muted/30 border border-border/50">
+                <Trophy className="h-12 w-12 text-muted-foreground/50 mb-4" />
+                <h3 className="text-lg font-semibold mb-2">Rewards Leaderboard Coming Soon</h3>
+                <p className="text-sm text-muted-foreground text-center max-w-md">
+                  Start trading now to prepare for the rewards leaderboard launch.
+                  Your trading performance will be tracked and rewarded with $VSOL tokens.
+                </p>
               </div>
             </div>
           )}
@@ -342,33 +258,33 @@ export function RewardsLeaderboard() {
       {/* Stats Summary */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+          <CardTitle className="flex items-center gap-2 text-lg">
             <Zap className="h-5 w-5" />
             Leaderboard Stats
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             <div>
-              <div className="text-2xl font-bold">
+              <div className="text-3xl font-bold mb-1">
                 {formatNumber(leaders?.reduce((sum, l) => sum + l.weeklyRewards, 0) || 0)}
               </div>
-              <p className="text-sm text-muted-foreground">Total Weekly $SIM</p>
+              <p className="text-sm text-muted-foreground">Total Weekly $VSOL</p>
             </div>
             <div>
-              <div className="text-2xl font-bold">
+              <div className="text-3xl font-bold mb-1">
                 {formatUSD(leaders?.reduce((sum, l) => sum + l.tradingVolume, 0) || 0)}
               </div>
               <p className="text-sm text-muted-foreground">Combined Volume</p>
             </div>
             <div>
-              <div className="text-2xl font-bold">
+              <div className="text-3xl font-bold mb-1">
                 {leaders?.[0]?.weeklyRewards ? formatNumber(leaders[0].weeklyRewards) : '0'}
               </div>
               <p className="text-sm text-muted-foreground">Top Reward</p>
             </div>
             <div>
-              <div className="text-2xl font-bold">
+              <div className="text-3xl font-bold mb-1">
                 {leaders?.length ?
                   (leaders.reduce((sum, l) => sum + l.winRate, 0) / leaders.length).toFixed(1) :
                   '0'

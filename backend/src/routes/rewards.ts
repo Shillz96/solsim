@@ -1,9 +1,9 @@
-// Rewards routes for SIM token claims
+// Rewards routes for VSOL token claims
 import { FastifyInstance } from "fastify";
 import prisma from "../plugins/prisma.js";
 
 export default async function rewardsRoutes(app: FastifyInstance) {
-  // Claim SIM rewards
+  // Claim VSOL rewards
   app.post("/claim", async (req, reply) => {
     const { userId, epoch, wallet } = req.body as {
       userId: string;
@@ -67,7 +67,7 @@ export default async function rewardsRoutes(app: FastifyInstance) {
       rewardAmount += Math.floor(volumeUsd / 100) * 10; // Volume bonus
       rewardAmount += Math.floor(winRatePercent / 10) * 50; // Win rate bonus
       
-      // Cap at 2000 SIM per epoch
+      // Cap at 2000 VSOL per epoch
       rewardAmount = Math.min(rewardAmount, 2000);
       
       // Create reward claim record
@@ -152,7 +152,7 @@ export default async function rewardsRoutes(app: FastifyInstance) {
       }
       
       // Default pool amount (can be configured)
-      const poolAmount = 10000; // 10,000 SIM tokens per epoch
+      const poolAmount = 10000; // 10,000 VSOL tokens per epoch
       
       // Store snapshot for this epoch
       await prisma.rewardSnapshot.create({

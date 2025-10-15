@@ -35,8 +35,8 @@ export function usePortfolio(options: UsePortfolioOptions = {}) {
 
   const {
     enabled = isAuthenticated && !!user?.id,
-    refetchInterval = 15000, // 15 seconds (faster updates with optimized backend)
-    staleTime = 5000, // 5 seconds (more responsive to price changes)
+    refetchInterval = 8000, // 8 seconds (near real-time updates, backend coalesces within 5s)
+    staleTime = 3000, // 3 seconds (more responsive to price changes)
   } = options
 
   return useQuery({

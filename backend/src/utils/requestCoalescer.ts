@@ -137,6 +137,28 @@ export class RequestCoalescer {
   resetStats() {
     this.stats = { hits: 0, misses: 0, errors: 0, savings: 0 };
   }
+
+  /**
+   * Invalidate a specific cache key
+   * Useful for forcing fresh data after mutations (e.g., after trades)
+   */
+  invalidate(key: string): boolean {
+    return this.pending.delete(key);
+  }
+
+  /**
+   * Invalidate all cache keys matching a pattern
+   */
+  invalidatePattern(pattern: string): number {
+    let cleared = 0;
+    for (const key of this.pending.keys()) {
+      if (key.includes(pattern)) {
+        this.pending.delete(key);
+        cleared++;
+      }
+    }
+    return cleared;
+  }
 }
 
 // Global coalescer instances for different use cases

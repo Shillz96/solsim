@@ -13,6 +13,7 @@ import tradeRoutes from "./routes/trade.js";
 import portfolioRoutes from "./routes/portfolio.js";
 import leaderboardRoutes from "./routes/leaderboard.js";
 import trendingRoutes from "./routes/trending.js";
+import stocksRoutes from "./routes/stocks.js";
 import authRoutes from "./routes/auth.js";
 import rewardsRoutes from "./routes/rewards.js";
 import tradesRoutes from "./routes/trades.js";
@@ -78,8 +79,8 @@ app.register(helmet, {
         "https:",
         "https://api.birdeye.so",
         "https://api.dexscreener.com",
-        "https://solsim.fun",
-        "wss://solsim.fun"
+        "https://virtualsol.fun",
+        "wss://virtualsol.fun"
       ],
       imgSrc: ["'self'", "data:", "https:", "blob:"],
       fontSrc: ["'self'", "https:", "data:", "https://fonts.gstatic.com"],
@@ -125,9 +126,9 @@ app.register(helmet, {
 // CORS for frontend - support multiple origins with WebSocket support
 const allowedOrigins = [
   "http://localhost:3000",
-  "https://solsim.fun",
-  "https://www.solsim.fun",
-  "https://solsim-3uf1qvvqp-shillz96s-projects.vercel.app", // Add your Vercel deployment URL
+  "https://virtualsol.fun",
+  "https://www.virtualsol.fun",
+  "https://virtualsol-production.vercel.app", // Add your Vercel deployment URL
   process.env.FRONTEND_URL
 ].filter(Boolean);
 
@@ -144,9 +145,9 @@ app.register(cors, {
       return cb(null, true);
     }
     
-    // Allow any subdomain of solsim.fun in production
-    if (origin.endsWith('.solsim.fun') || origin === 'https://solsim.fun') {
-      console.log('✅ CORS accepted (solsim.fun domain):', origin);
+    // Allow any subdomain of virtualsol.fun in production
+    if (origin.endsWith('.virtualsol.fun') || origin === 'https://virtualsol.fun') {
+      console.log('✅ CORS accepted (virtualsol.fun domain):', origin);
       return cb(null, true);
     }
     
@@ -210,6 +211,7 @@ app.register(tradeRoutes, { prefix: "/api/trade" });
 app.register(portfolioRoutes, { prefix: "/api/portfolio" });
 app.register(leaderboardRoutes, { prefix: "/api/leaderboard" });
 app.register(trendingRoutes, { prefix: "/api/trending" });
+app.register(stocksRoutes, { prefix: "/api/stocks" });
 app.register(rewardsRoutes, { prefix: "/api/rewards" });
 app.register(tradesRoutes, { prefix: "/api/trades" });
 app.register(walletRoutes, { prefix: "/api/wallet" });
@@ -288,7 +290,7 @@ process.on('unhandledRejection', (reason, promise) => {
 });
 
 app.listen({ port, host: "0.0.0.0" }).then(() => {
-  app.log.info(`🚀 SolSim API running on :${port}`);
+  app.log.info(`🚀 VirtualSol API running on :${port}`);
   app.log.info(`🔒 Security: JWT, Production Rate Limiting, Input Validation, Secure Nonces`);
   app.log.info(`📊 Monitoring: Health checks, Request tracking, Error logging`);
   app.log.info(`⚡ Performance: Redis caching, Database optimization, Connection pooling`);

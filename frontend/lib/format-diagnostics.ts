@@ -1,8 +1,8 @@
 /**
  * Numeric Formatting Diagnostics
- * 
+ *
  * Utilities for debugging and verifying correct numeric display
- * throughout the SolSim application
+ * throughout the VirtualSol application
  */
 
 import { formatUSD, formatPriceUSD, formatQty, safePercent } from './format';

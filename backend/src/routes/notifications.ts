@@ -4,9 +4,9 @@
  * API endpoints for managing user notifications
  */
 
-import { FastifyPluginAsync } from 'fastify';
-import { z } from 'zod';
+import { FastifyPluginAsync, FastifyRequest } from 'fastify';
 import * as notificationService from '../services/notificationService.js';
+import { authenticateToken, type AuthenticatedRequest } from '../plugins/auth.js';
 
 const notificationsRoutes: FastifyPluginAsync = async (fastify) => {
   /**
@@ -16,45 +16,52 @@ const notificationsRoutes: FastifyPluginAsync = async (fastify) => {
   fastify.get(
     '/',
     {
-      preHandler: [fastify.authenticate],
+      preHandler: [authenticateToken],
       schema: {
-        querystring: z.object({
-          limit: z.coerce.number().min(1).max(100).optional().default(50),
-          offset: z.coerce.number().min(0).optional().default(0),
-          unreadOnly: z
-            .enum(['true', 'false'])
-            .optional()
-            .transform((val) => val === 'true'),
-        }),
+        querystring: {
+          type: 'object',
+          properties: {
+            limit: { type: 'number', minimum: 1, maximum: 100, default: 50 },
+            offset: { type: 'number', minimum: 0, default: 0 },
+            unreadOnly: { type: 'string', enum: ['true', 'false'] },
+          },
+        },
         response: {
-          200: z.object({
-            success: z.literal(true),
-            notifications: z.array(
-              z.object({
-                id: z.string(),
-                type: z.string(),
-                category: z.string(),
-                title: z.string(),
-                message: z.string(),
-                read: z.boolean(),
-                metadata: z.string(),
-                actionUrl: z.string().nullable(),
-                createdAt: z.date(),
-              })
-            ),
-            unreadCount: z.number(),
-            hasMore: z.boolean(),
-          }),
+          200: {
+            type: 'object',
+            required: ['success', 'notifications', 'unreadCount', 'hasMore'],
+            properties: {
+              success: { type: 'boolean', const: true },
+              notifications: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                  properties: {
+                    id: { type: 'string' },
+                    type: { type: 'string' },
+                    category: { type: 'string' },
+                    title: { type: 'string' },
+                    message: { type: 'string' },
+                    read: { type: 'boolean' },
+                    metadata: { type: 'string' },
+                    actionUrl: { type: ['string', 'null'] },
+                    createdAt: { type: 'string', format: 'date-time' },
+                  },
+                },
+              },
+              unreadCount: { type: 'number' },
+              hasMore: { type: 'boolean' },
+            },
+          },
         },
       },
     },
-    async (request, reply) => {
-      const userId = request.user.userId;
-      const { limit, offset, unreadOnly } = request.query as {
-        limit: number;
-        offset: number;
-        unreadOnly: boolean;
-      };
+    async (request: AuthenticatedRequest, reply) => {
+      const userId = request.user!.id;
+      const query = request.query as any;
+      const limit = query.limit ? Number(query.limit) : 50;
+      const offset = query.offset ? Number(query.offset) : 0;
+      const unreadOnly = query.unreadOnly === 'true';
 
       const [notifications, unreadCount] = await Promise.all([
         notificationService.getUserNotifications(userId, limit, offset, unreadOnly),
@@ -79,18 +86,22 @@ const notificationsRoutes: FastifyPluginAsync = async (fastify) => {
   fastify.get(
     '/unread-count',
     {
-      preHandler: [fastify.authenticate],
+      preHandler: [authenticateToken],
       schema: {
         response: {
-          200: z.object({
-            success: z.literal(true),
-            count: z.number(),
-          }),
+          200: {
+            type: 'object',
+            required: ['success', 'count'],
+            properties: {
+              success: { type: 'boolean', const: true },
+              count: { type: 'number' },
+            },
+          },
         },
       },
     },
-    async (request, reply) => {
-      const userId = request.user.userId;
+    async (request: AuthenticatedRequest, reply) => {
+      const userId = request.user!.id;
       const count = await notificationService.getUnreadCount(userId);
 
       return {
@@ -107,20 +118,28 @@ const notificationsRoutes: FastifyPluginAsync = async (fastify) => {
   fastify.patch(
     '/:id/read',
     {
-      preHandler: [fastify.authenticate],
+      preHandler: [authenticateToken],
       schema: {
-        params: z.object({
-          id: z.string().uuid(),
-        }),
+        params: {
+          type: 'object',
+          required: ['id'],
+          properties: {
+            id: { type: 'string', format: 'uuid' },
+          },
+        },
         response: {
-          200: z.object({
-            success: z.literal(true),
-          }),
+          200: {
+            type: 'object',
+            required: ['success'],
+            properties: {
+              success: { type: 'boolean', const: true },
+            },
+          },
         },
       },
     },
-    async (request, reply) => {
-      const userId = request.user.userId;
+    async (request: AuthenticatedRequest, reply) => {
+      const userId = request.user!.id;
       const { id } = request.params as { id: string };
 
       await notificationService.markNotificationAsRead(id, userId);
@@ -136,17 +155,21 @@ const notificationsRoutes: FastifyPluginAsync = async (fastify) => {
   fastify.patch(
     '/read-all',
     {
-      preHandler: [fastify.authenticate],
+      preHandler: [authenticateToken],
       schema: {
         response: {
-          200: z.object({
-            success: z.literal(true),
-          }),
+          200: {
+            type: 'object',
+            required: ['success'],
+            properties: {
+              success: { type: 'boolean', const: true },
+            },
+          },
         },
       },
     },
-    async (request, reply) => {
-      const userId = request.user.userId;
+    async (request: AuthenticatedRequest, reply) => {
+      const userId = request.user!.id;
       await notificationService.markAllNotificationsAsRead(userId);
 
       return { success: true };
@@ -160,20 +183,28 @@ const notificationsRoutes: FastifyPluginAsync = async (fastify) => {
   fastify.delete(
     '/:id',
     {
-      preHandler: [fastify.authenticate],
+      preHandler: [authenticateToken],
       schema: {
-        params: z.object({
-          id: z.string().uuid(),
-        }),
+        params: {
+          type: 'object',
+          required: ['id'],
+          properties: {
+            id: { type: 'string', format: 'uuid' },
+          },
+        },
         response: {
-          200: z.object({
-            success: z.literal(true),
-          }),
+          200: {
+            type: 'object',
+            required: ['success'],
+            properties: {
+              success: { type: 'boolean', const: true },
+            },
+          },
         },
       },
     },
-    async (request, reply) => {
-      const userId = request.user.userId;
+    async (request: AuthenticatedRequest, reply) => {
+      const userId = request.user!.id;
       const { id } = request.params as { id: string };
 
       await notificationService.deleteNotification(id, userId);

@@ -1,7 +1,7 @@
 "use client"
 
 import { EnhancedCard } from "@/components/ui/enhanced-card-system"
-import { TrendingUp, Wallet, BarChart3, Trophy } from "lucide-react"
+import { TrendingUp, Wallet, BarChart3, Trophy, Eye, Gift, LineChart } from "lucide-react"
 import { motion } from "framer-motion"
 
 const features = [
@@ -16,14 +16,29 @@ const features = [
     description: "Start with 100 SOL virtual balance. Trade without losing real money while you learn.",
   },
   {
+    icon: Eye,
+    title: "Wallet Tracker",
+    description: "Track any Solana wallet's holdings and performance in real-time. Learn from successful traders.",
+  },
+  {
+    icon: LineChart,
+    title: "Portfolio Analytics",
+    description: "Advanced portfolio statistics, PnL tracking, win rates, and detailed performance metrics.",
+  },
+  {
+    icon: Gift,
+    title: "Rewards System",
+    description: "Earn rewards for trading activity, daily streaks, and achievements. Future $VSOL token airdrops.",
+  },
+  {
     icon: BarChart3,
     title: "Real Market Data",
     description: "Practice with live prices and charts. Experience real market conditions without the risk.",
   },
   {
     icon: Trophy,
-    title: "Performance Analytics",
-    description: "Track your PnL, analyze your trades, and compete on the leaderboard with other traders.",
+    title: "Competitive Leaderboards",
+    description: "Track your PnL, compete with other traders, and climb the rankings to earn exclusive rewards.",
   },
 ]
 
@@ -39,14 +54,14 @@ export function FeaturesSection() {
           transition={{ duration: 0.6 }}
         >
           <h2 className="font-heading text-4xl md:text-5xl font-bold text-balance">
-            Why Sol Sim?
+            Everything You Need to Master Trading
           </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            Everything you need to master Solana trading without risking real capital.
+            Professional-grade tools and features to help you practice and improve your Solana trading skills.
           </p>
         </motion.div>
 
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {features.map((feature, index) => (
             <motion.div
               key={index}

@@ -91,11 +91,10 @@ export async function getPortfolio(userId: string): Promise<PortfolioResponse> {
   return portfolioCoalescer.coalesce(
     `portfolio:${userId}`,
     async () => {
-      // Get user's active positions
+      // Get user's positions (including closed positions with trade history)
       const positions = await prisma.position.findMany({
         where: {
-          userId,
-          qty: { gt: 0 }
+          userId
         }
       });
 
@@ -141,14 +140,6 @@ async function calculatePortfolioData(userId: string, positions: any[]): Promise
     const costBasis = position.costBasis as Decimal;
     const metadata = metadataMap.get(position.mint);
     const priceTick = priceTickMap.get(position.mint);
-
-    // DEBUG: Log the calculation values
-    console.log(`[PORTFOLIO DEBUG] ${position.mint}:`, {
-      qty: qty.toString(),
-      costBasis: costBasis.toString(),
-      currentPrice: currentPrice.toString(),
-      priceFromService: prices[position.mint]
-    });
 
     // Use Decimal for all calculations to prevent precision loss
     const valueUsd = qty.mul(currentPrice);
@@ -227,7 +218,7 @@ export async function getPortfolioPerformance(userId: string, days: number = 30)
   const startDate = new Date();
   startDate.setDate(startDate.getDate() - days);
 
-  // Get daily snapshots or calculate from trades
+  // Get user's trade history to reconstruct daily portfolio values
   const trades = await prisma.trade.findMany({
     where: {
       userId,
@@ -236,21 +227,44 @@ export async function getPortfolioPerformance(userId: string, days: number = 30)
     orderBy: { createdAt: "asc" }
   });
 
-  // Calculate daily portfolio values using Decimal
-  const dailyValues = [];
-  let runningValue = D(0);
+  if (trades.length === 0) {
+    return [];
+  }
 
+  // Get current portfolio
+  const currentPortfolio = await getPortfolio(userId);
+
+  // Group trades by day and calculate portfolio value at end of each day
+  const dailyMap = new Map<string, Decimal>();
+
+  // Build a timeline of portfolio cost basis changes
   for (const trade of trades) {
+    const dateKey = trade.createdAt.toISOString().split('T')[0];
     const tradeValue = D(trade.costUsd?.toString() || trade.totalCost?.toString() || "0");
-    if (trade.side === "BUY") {
-      runningValue = runningValue.add(tradeValue);
-    } else {
-      runningValue = runningValue.sub(tradeValue);
-    }
 
+    const currentValue = dailyMap.get(dateKey) || D(0);
+    if (trade.side === "BUY") {
+      dailyMap.set(dateKey, currentValue.add(tradeValue));
+    } else {
+      // For sells, subtract the cost basis (not the sale proceeds)
+      dailyMap.set(dateKey, currentValue.sub(tradeValue));
+    }
+  }
+
+  // Convert to array and sort by date
+  const dailyValues = Array.from(dailyMap.entries())
+    .map(([date, value]) => ({
+      date,
+      value: value.toFixed(2)
+    }))
+    .sort((a, b) => a.date.localeCompare(b.date));
+
+  // Add today's value using current portfolio
+  const today = new Date().toISOString().split('T')[0];
+  if (dailyValues.length === 0 || dailyValues[dailyValues.length - 1].date !== today) {
     dailyValues.push({
-      date: trade.createdAt.toISOString().split('T')[0],
-      value: runningValue.toFixed(2) // 2 decimals for USD display
+      date: today,
+      value: currentPortfolio.totals.totalValueUsd
     });
   }
 

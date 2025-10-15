@@ -1,4 +1,4 @@
-# Solsim Backend + Frontend
+# VirtualSol Backend + Frontend
 
 A paper trading platform on Solana with real-time PnL tracking, rewards, trending tokens, and KOL wallet tracking.
 
@@ -55,6 +55,6 @@ DEXSCREENER_BASE
 
 JUPITER_BASE
 
-SIM_TOKEN_MINT
+VSOL_TOKEN_MINT
 
 REWARDS_WALLET_SECRET

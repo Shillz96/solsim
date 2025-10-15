@@ -76,7 +76,7 @@ export function TierCard({ tier, selected, onSelect }: TierCardProps) {
               <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent rounded-lg" />
               <div className="relative text-center py-6 px-4 rounded-lg border border-border/50 bg-gradient-to-br from-background/80 to-muted/20">
                 <div className="text-5xl font-black leading-none mb-2">
-                  <span className="bg-gradient-to-br from-foreground via-foreground to-foreground/60 bg-clip-text text-transparent">
+                  <span className="text-white">
                     {tier.simulatedSol}
                   </span>
                 </div>

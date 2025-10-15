@@ -8,7 +8,7 @@
       "Read(//c/Users/offic/Pictures/Screenshots/**)",
       "Bash(npx tsx:*)",
       "Bash(dir public)",
-      "Bash(copy \"C:\\Users\\offic\\Desktop\\SolSim\\frontend\\final comp_1.mp4\" \"C:\\Users\\offic\\Desktop\\SolSim\\frontend\\public\\demo-video.mp4\")",
+      "Bash(copy \"C:\\Users\\offic\\Desktop\\VirtualSol\\frontend\\final comp_1.mp4\" \"C:\\Users\\offic\\Desktop\\VirtualSol\\frontend\\public\\demo-video.mp4\")",
       "Bash(cp:*)",
       "Bash(railway logs:*)",
       "Bash(railway service:*)",
@@ -30,7 +30,11 @@
       "Bash(del componentsportfolioconsolidated-positions.tsx)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(npx prisma migrate dev:*)",
+      "Bash(npx prisma generate:*)",
+      "Bash(railway run npx prisma migrate:*)",
+      "Bash(railway variables:*)"
     ],
     "deny": [],
     "ask": []

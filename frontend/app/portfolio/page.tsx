@@ -65,7 +65,7 @@ function PortfolioPageContent() {
               transition={{ duration: 0.5, delay: 0.4 }}
             >
               <Tabs defaultValue="positions" className="w-full">
-                <TabsList className="grid w-full grid-cols-3 mb-4 bg-muted/50 backdrop-blur-sm border border-border/50">
+                <TabsList className="grid w-full grid-cols-3 mb-6 bg-muted/50 backdrop-blur-sm border border-border/50">
                   <TabsTrigger value="positions" className="gap-2 data-[state=active]:bg-primary/20">
                     <TrendingUp className="h-4 w-4" />
                     <span className="hidden sm:inline">Positions</span>
@@ -89,29 +89,29 @@ function PortfolioPageContent() {
                 </TabsContent>
 
                 <TabsContent value="performance" className="mt-0">
-                  <EnhancedCard variant="elevated" size="lg" className="!py-4">
-                    <CardSection
-                      title="Portfolio Performance"
-                      description="Track your portfolio value over time"
-                      spacing="tight"
-                      className="px-6"
-                    >
-                      <PortfolioChart />
-                    </CardSection>
-                  </EnhancedCard>
+                  <div className="space-y-6">
+                    <EnhancedCard variant="elevated" size="lg" className="!py-6">
+                      <CardSection
+                        title="Portfolio Performance"
+                        description="Track your portfolio value over time"
+                        spacing="loose"
+                        className="px-6"
+                      >
+                        <PortfolioChart />
+                      </CardSection>
+                    </EnhancedCard>
 
-                  {/* Trading Stats Summary */}
-                  <div className="mt-6">
+                    {/* Trading Stats Summary */}
                     <TradingStatsSummary />
                   </div>
                 </TabsContent>
 
                 <TabsContent value="history" className="mt-0">
-                  <EnhancedCard variant="default" size="lg" className="!py-4">
+                  <EnhancedCard variant="default" size="lg" className="!py-6">
                     <CardSection
                       title="Trade History"
                       description="Your recent trading activity"
-                      spacing="tight"
+                      spacing="loose"
                       className="px-6"
                     >
                       <TradeHistory showHeader={false} noCard={true} />
@@ -149,7 +149,7 @@ function PortfolioPageContent() {
                   <div className="p-6 space-y-4">
                     <div>
                       <h3 className="text-lg font-semibold">Trending Tokens</h3>
-                      <p className="text-sm text-muted-foreground">Popular tokens on SolSim</p>
+                      <p className="text-sm text-muted-foreground">Popular tokens on VirtualSol</p>
                     </div>
                     <EnhancedTrendingList />
                   </div>

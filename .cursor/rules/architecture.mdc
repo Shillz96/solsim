@@ -1,5 +1,5 @@
 ---
-description: SolSim architecture and design principles
+description: VirtualSol architecture and design principles
 globs:
   - "**/*.ts"
   - "**/*.tsx"

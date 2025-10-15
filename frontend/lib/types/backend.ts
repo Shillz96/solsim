@@ -5,7 +5,7 @@
 // Database Model Types (matching Prisma schema)
 // ================================
 
-export type UserTier = 'EMAIL_USER' | 'WALLET_USER' | 'SIM_HOLDER' | 'ADMINISTRATOR';
+export type UserTier = 'EMAIL_USER' | 'WALLET_USER' | 'VSOL_HOLDER' | 'ADMINISTRATOR';
 
 export interface User {
   id: string;
@@ -36,8 +36,8 @@ export interface User {
   userTier: UserTier;
   walletAddress: string | null;
   walletVerified: boolean;
-  simTokenBalance: string | null; // Decimal as string
-  simBalanceUpdated: string | null; // DateTime as ISO string
+  vsolTokenBalance: string | null; // Decimal as string
+  vsolBalanceUpdated: string | null; // DateTime as ISO string
   monthlyConversions: string; // Decimal as string
   conversionResetAt: string | null; // DateTime as ISO string
   premiumFeatures: string | null; // JSON array as string
@@ -148,7 +148,7 @@ export interface ConversionHistory {
   id: string;
   userId: string;
   virtualSolAmount: string; // Decimal as string
-  simTokensReceived: string; // Decimal as string
+  vsolTokensReceived: string; // Decimal as string
   conversionRate: string; // Decimal as string
   transactionHash: string | null;
   status: string; // 'PENDING', 'COMPLETED', 'FAILED', 'ESCROWED'

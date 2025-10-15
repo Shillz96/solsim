@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import Image from "next/image"
 import { usePathname } from "next/navigation"
 import { Home, TrendingUp, Wallet, Trophy, Twitter, Plus, Moon, Sun, Gift, Eye } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -26,6 +27,7 @@ export function BottomNavBar() {
   const [marketPrices, setMarketPrices] = useState<MarketPrice[]>([
     { symbol: "SOL", price: 250, change24h: 0 }, // Default to reasonable price instead of 0
   ])
+  const [simTokenCA] = useState<string>("Fp5eoESAMXWiAZuifsAYjxY4yX82K2fG5mLNar2wpump")
 
   // Prevent hydration mismatch by only rendering theme toggle after mount
   useEffect(() => {
@@ -171,30 +173,30 @@ export function BottomNavBar() {
           {/* Left: Social Links */}
           <div className="flex items-center gap-4">
             <a
-              href="https://x.com/solsim_fun"
+              href="https://x.com/vsol_fun"
               target="_blank"
               rel="noopener noreferrer"
               className="text-muted-foreground hover:text-primary transition-colors"
             >
               <Twitter className="h-4 w-4 hover:glow-primary" />
             </a>
-            <span className="text-xs text-muted-foreground">© 2025 Sol Sim</span>
+            <span className="text-xs text-muted-foreground">© 2025 VirtualSol</span>
           </div>
 
           {/* Center: Market Prices */}
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-4">
             {marketPrices.map((market) => (
-              <div key={market.symbol} className="flex items-center gap-3 px-3 py-1 rounded-lg bg-muted">
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-                  <span className="text-sm font-semibold text-foreground">{market.symbol}</span>
+              <div key={market.symbol} className="flex items-center gap-2 px-2 py-1 rounded-lg bg-muted">
+                <div className="flex items-center gap-1.5">
+                  <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div>
+                  <span className="text-xs font-semibold text-foreground">{market.symbol}</span>
                 </div>
-                <span className="text-sm font-bold text-foreground">
+                <span className="text-xs font-bold text-foreground">
                   ${market.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </span>
                 <span
                   className={cn(
-                    "text-xs font-medium px-2 py-0.5 rounded",
+                    "text-[10px] font-medium px-1.5 py-0.5 rounded",
                     market.change24h > 0 
                       ? "text-green-600 bg-green-100 dark:bg-green-900 dark:text-green-400" 
                       : market.change24h < 0 
@@ -205,9 +207,26 @@ export function BottomNavBar() {
                   {market.change24h > 0 ? "+" : ""}
                   {market.change24h.toFixed(2)}%
                 </span>
-                <span className="text-xs text-muted-foreground">24h</span>
               </div>
             ))}
+            
+            {/* VSOL Token Info */}
+            <div className="flex items-center gap-2 px-2 py-1 rounded-lg bg-muted">
+              <div className="flex items-center gap-1.5">
+                <div className="relative h-4 w-4">
+                  <Image
+                    src="/favicon.ico"
+                    alt="VSOL Logo"
+                    fill
+                    className="object-contain"
+                  />
+                </div>
+                <span className="text-xs font-semibold text-primary">VSOL</span>
+              </div>
+              <span className="text-[10px] text-muted-foreground font-mono">
+                {simTokenCA}
+              </span>
+            </div>
           </div>
 
           {/* Right: Wallet Tracker, Theme Toggle & Quick Trade */}

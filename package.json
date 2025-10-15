@@ -1,5 +1,5 @@
 {
-  "name": "solsim-monorepo",
+  "name": "virtualsol-monorepo",
   "private": true,
   "workspaces": [
     "packages/*",

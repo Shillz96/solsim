@@ -12,7 +12,7 @@ const RPC_URL = process.env.SOLANA_RPC || "https://api.mainnet-beta.solana.com";
 const connection = new Connection(RPC_URL, "confirmed");
 
 // Note: Reward token distribution is currently disabled
-// To enable: Set SIM_TOKEN_MINT and REWARDS_WALLET_SECRET environment variables
+// To enable: Set VSOL_TOKEN_MINT and REWARDS_WALLET_SECRET environment variables
 
 // --- 1. Add points whenever a trade is made ---
 export async function addTradePoints(userId: string, tradeVolumeUsd: Decimal) {
@@ -44,7 +44,7 @@ export async function snapshotRewards(epoch: number, poolAmount: Decimal) {
       data: { epoch, totalPoints, poolAmount }
     });
 
-    console.log(`📊 Created snapshot for epoch ${epoch}: ${users.length} users, ${totalPoints} points, ${poolAmount} SIM pool`);
+    console.log(`📊 Created snapshot for epoch ${epoch}: ${users.length} users, ${totalPoints} points, ${poolAmount} VSOL pool`);
 
     // Record claim entitlements in batch
     const claimData = [];
@@ -89,7 +89,7 @@ export async function snapshotRewards(epoch: number, poolAmount: Decimal) {
 export async function claimReward(userId: string, epoch: number, wallet: string) {
   // Check if reward system is configured
   if (!SIM_MINT || !REWARDS_WALLET) {
-    throw new Error("Reward system not configured. Please set SIM_TOKEN_MINT and REWARDS_WALLET_SECRET environment variables.");
+    throw new Error("Reward system not configured. Please set VSOL_TOKEN_MINT and REWARDS_WALLET_SECRET environment variables.");
   }
 
   const claim = await prisma.rewardClaim.findFirst({
@@ -157,7 +157,7 @@ export async function claimReward(userId: string, epoch: number, wallet: string)
       }
     });
 
-    console.log(`✅ Reward claimed: ${claim.amount} SIM to ${wallet} (${sig})`);
+    console.log(`✅ Reward claimed: ${claim.amount} VSOL to ${wallet} (${sig})`);
     return { sig, amount: claim.amount };
     
   } catch (error: any) {

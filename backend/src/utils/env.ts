@@ -35,7 +35,7 @@ const envSchema = z.object({
   BIRDEYE_API_KEY: z.string().optional(),
 
   // Token Configuration
-  SIM_TOKEN_MINT: z.string().optional(),
+  VSOL_TOKEN_MINT: z.string().optional(),
 
   // Rewards System
   REWARDS_WALLET_SECRET: z.string().optional(),
@@ -74,9 +74,9 @@ export function validateEnvironment(): EnvConfig {
         console.warn('⚠️  WARNING: SENTRY_DSN not configured - error tracking disabled');
       }
 
-      // Validate rewards wallet if SIM token is configured
-      if (parsed.SIM_TOKEN_MINT && !parsed.REWARDS_WALLET_SECRET) {
-        throw new Error('REWARDS_WALLET_SECRET is required when SIM_TOKEN_MINT is configured');
+      // Validate rewards wallet if VSOL token is configured
+      if (parsed.VSOL_TOKEN_MINT && !parsed.REWARDS_WALLET_SECRET) {
+        throw new Error('REWARDS_WALLET_SECRET is required when VSOL_TOKEN_MINT is configured');
       }
     }
 

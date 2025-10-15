@@ -168,7 +168,7 @@ export class NonceService {
   // Create Sign-In With Solana message
   static createSIWSMessage(walletAddress: string, nonce: string, domain?: string): string {
     const timestamp = new Date().toISOString();
-    const domainName = domain || 'solsim.fun';
+    const domainName = domain || 'virtualsol.fun';
     
     return [
       `${domainName} wants you to sign in with your Solana account:`,

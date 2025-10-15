@@ -70,15 +70,15 @@ Add the following to your backend environment (Railway, Vercel, etc.):
 ```env
 # Backend - Email Configuration (Resend)
 RESEND_API_KEY=re_hZkv8PeH_69uuhKcafdcUxFGzVg5ejmgk
-FROM_EMAIL=SolSim <noreply@solsim.fun>
-FRONTEND_URL=https://solsim.fun
+FROM_EMAIL=VirtualSol <noreply@virtualsol.fun>
+FRONTEND_URL=https://virtualsol.fun
 
 # Frontend - Backend API URL
 NEXT_PUBLIC_API_URL=https://lovely-nature-production.up.railway.app
 ```
 
 **Note:** Update `FRONTEND_URL` and `NEXT_PUBLIC_API_URL` based on your deployment:
-- Production Frontend: `https://solsim.fun`
+- Production Frontend: `https://virtualsol.fun`
 - Production Backend: `https://lovely-nature-production.up.railway.app`
 - Development Frontend: `http://localhost:3000`
 - Development Backend: `http://localhost:4000`
@@ -86,7 +86,7 @@ NEXT_PUBLIC_API_URL=https://lovely-nature-production.up.railway.app
 ### 3. Resend Configuration
 
 1. Log in to [Resend Dashboard](https://resend.com/domains)
-2. Verify your domain (`solsim.fun`) if not already done
+2. Verify your domain (`virtualsol.fun`) if not already done
 3. Add the provided API key to your environment variables
 4. Test email sending after deployment
 
@@ -154,7 +154,7 @@ After deployment, test the following flows:
 
 2. **Verify Domain**
    - Go to Resend dashboard
-   - Ensure `solsim.fun` is verified
+   - Ensure `virtualsol.fun` is verified
    - Check DNS records are correct
 
 3. **Check Logs**
