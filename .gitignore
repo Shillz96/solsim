@@ -1,13 +1,20 @@
-# Ignore backup backend folder
+# Backup folders
 backend.backup/
+*.backup
+
 # Dependencies
 node_modules/
 .pnp
 .pnp.js
+package-lock.json  # Only if using different package managers
+.npmrc
 
 # Testing
 coverage/
 *.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
 # Production
 build/
@@ -15,17 +22,19 @@ dist/
 .next/
 out/
 
-# Environment variables
+# Environment variables (keep only .env.example files)
 .env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
+.env.*
+!.env.example
+!.env.local.example
 
 # Security files
 **/jwt_secret.txt
 **/jwt_secret
 **/*secret*.txt
+**/*.pem
+**/*.key
+**/credentials.json
 
 # IDE
 .vscode/
@@ -33,22 +42,48 @@ out/
 *.swp
 *.swo
 *~
+.cursor/
+.claude/settings.local.json
 
 # OS
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
 
 # Database
 *.db
 *.db-journal
+*.sqlite
+*.sqlite3
 prisma/dev.db
-prisma/prisma/dev.db
+prisma/migrations/**/migration.sql.backup
 
 # Uploads
 backend/uploads/
+**/uploads/temp/
 
-# Misc
-*.pem
+# Deployment platforms
 .vercel
 .railway
+.netlify
+
+# Temporary files
+*.tmp
+*.temp
+.temp
+*.swp
+*~
+.DS_Store
+
+# Debug
+*.log
+logs/
+pids/
+*.pid
+*.seed
+*.pid.lock
 

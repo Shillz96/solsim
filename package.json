@@ -12,10 +12,26 @@
   "scripts": {
     "dev:backend": "cd backend && npm run dev",
     "dev:frontend": "cd frontend && npm run dev",
+    "dev": "echo 'Run dev:backend and dev:frontend in separate terminals'",
     "build:backend": "cd backend && npx prisma generate && npm run build",
     "build:frontend": "cd frontend && npm run build",
     "build": "npm run build:backend && npm run build:frontend",
-  "start": "cd backend && npx prisma migrate deploy && node --max-old-space-size=6144 dist/index.js"
+    "start": "cd backend && npx prisma migrate deploy && node --max-old-space-size=6144 dist/index.js",
+    "test:backend": "cd backend && npm test",
+    "test:frontend": "cd frontend && npm test",
+    "test": "npm run test:backend && npm run test:frontend",
+    "lint:frontend": "cd frontend && npm run lint",
+    "lint:fix": "cd frontend && npm run lint:fix",
+    "type-check:frontend": "cd frontend && npm run type-check",
+    "db:migrate": "cd backend && npm run prisma:migrate",
+    "db:generate": "cd backend && npm run prisma:generate",
+    "db:studio": "cd backend && npx prisma studio",
+    "deploy:backend": "cd backend && railway up",
+    "deploy:frontend": "cd frontend && npx vercel --prod",
+    "deploy:frontend:preview": "cd frontend && npx vercel",
+    "clean": "rm -rf node_modules backend/node_modules frontend/node_modules backend/dist frontend/.next",
+    "clean:backend": "cd backend && rm -rf node_modules dist",
+    "clean:frontend": "cd frontend && rm -rf node_modules .next"
   },
   "dependencies": {
     "@modelcontextprotocol/server-filesystem": "^2025.8.21",
