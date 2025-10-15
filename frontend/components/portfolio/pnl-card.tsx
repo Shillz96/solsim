@@ -415,7 +415,12 @@ export function PnLCard() {
         currentValue={totalValue}
         initialBalance={costBasis}
         userHandle={(userProfile as any)?.handle || undefined}
-        userAvatarUrl={(userProfile as any)?.avatarUrl || (userProfile as any)?.profileImage || (userProfile as any)?.avatar || undefined}
+        userAvatarUrl={
+          (userProfile as any)?.avatarUrl ||
+          (userProfile as any)?.profileImage ||
+          (userProfile as any)?.avatar ||
+          `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent((userProfile as any)?.handle || (userProfile as any)?.email || user?.email || 'User')}&backgroundColor=4f46e5`
+        }
         userEmail={(userProfile as any)?.email || user?.email || undefined}
       />
     </>

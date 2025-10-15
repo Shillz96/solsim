@@ -311,8 +311,17 @@ export function Leaderboard({
                     <TableCell>
                       <div className="flex items-center gap-3">
                         <Avatar className="h-8 w-8">
-                          <AvatarImage src={(entry as any).avatarUrl || (entry as any).profileImage || (entry as any).avatar || undefined} />
-                          <AvatarFallback className="text-xs">
+                          {(() => {
+                            const avatarUrl = (entry as any).avatarUrl || (entry as any).profileImage || (entry as any).avatar;
+                            const displayName = (entry as any).displayName || entry.handle || entry.userId.slice(0, 8);
+                            const initials = displayName.slice(0, 2).toUpperCase();
+
+                            // Use avatar URL if available, otherwise use DiceBear default avatar
+                            const imgSrc = avatarUrl || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(displayName)}&backgroundColor=4f46e5`;
+
+                            return <AvatarImage src={imgSrc} alt={displayName} />;
+                          })()}
+                          <AvatarFallback className="text-xs bg-primary/10 text-primary font-semibold">
                             {((entry as any).displayName || entry.handle || 'U')?.slice(0, 2).toUpperCase()}
                           </AvatarFallback>
                         </Avatar>

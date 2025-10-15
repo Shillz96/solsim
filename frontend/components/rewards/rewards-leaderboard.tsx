@@ -156,7 +156,14 @@ export function RewardsLeaderboard() {
             <CardHeader className="pb-3">
               <div className="flex items-center gap-3">
                 <Avatar className="h-12 w-12 border-2 border-primary/20">
-                  <AvatarImage src={(leader as any).avatarUrl || leader.avatar || (leader as any).profileImage} />
+                  <AvatarImage
+                    src={
+                      (leader as any).avatarUrl ||
+                      leader.avatar ||
+                      (leader as any).profileImage ||
+                      `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent((leader as any).displayName || leader.username || leader.userId)}&backgroundColor=4f46e5`
+                    }
+                  />
                   <AvatarFallback className="bg-primary/10">{((leader as any).displayName || leader.username || 'U')[0]}</AvatarFallback>
                 </Avatar>
                 <div>
@@ -211,7 +218,14 @@ export function RewardsLeaderboard() {
                     {getRankIcon(leader.rank)}
                   </div>
                   <Avatar className="h-10 w-10">
-                    <AvatarImage src={(leader as any).avatarUrl || leader.avatar || (leader as any).profileImage} />
+                    <AvatarImage
+                      src={
+                        (leader as any).avatarUrl ||
+                        leader.avatar ||
+                        (leader as any).profileImage ||
+                        `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent((leader as any).displayName || leader.username || leader.userId)}&backgroundColor=4f46e5`
+                      }
+                    />
                     <AvatarFallback className="bg-primary/10">{((leader as any).displayName || leader.username || 'U')[0]}</AvatarFallback>
                   </Avatar>
                   <div>

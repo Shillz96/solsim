@@ -138,7 +138,7 @@ export function NavBar() {
   const balanceNumber = balanceData ? parseFloat(balanceData.balance) : 0
   const profile = userProfile as any
   const displayName = profile?.displayName || profile?.username || user?.email?.split('@')[0] || 'User'
-  const avatarUrl = profile?.avatarUrl || profile?.profileImage || profile?.avatar
+  const avatarUrl = profile?.avatarUrl || profile?.profileImage || profile?.avatar || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(displayName)}&backgroundColor=4f46e5`
 
   // Enhanced search functionality
   const performSearch = useCallback(async (query: string) => {
