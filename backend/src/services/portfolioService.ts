@@ -100,7 +100,7 @@ export async function getPortfolio(userId: string): Promise<PortfolioResponse> {
 
       return await calculatePortfolioData(userId, positions);
     },
-    10000 // 10 second TTL - matches frontend polling interval + buffer for better cache hit rate
+    5000 // 5 second TTL - reduced for near real-time updates with stale-while-revalidate price caching
   );
 }
 
@@ -179,16 +179,44 @@ async function calculatePortfolioData(userId: string, positions: any[]): Promise
     totalUnrealizedUsd = totalUnrealizedUsd.add(unrealizedUsd);
   }
 
-  // Get total realized PnL and trading stats
-  const [realizedPnlResult, tradingStats] = await Promise.all([
-    prisma.realizedPnL.aggregate({
-      where: { userId },
-      _sum: { pnl: true }
-    }),
-    getPortfolioTradingStats(userId)
-  ]);
+  // Get total realized PnL and trading stats in a single batch
+  // OPTIMIZATION: Fetch realized PnL records once and calculate both aggregate and stats
+  const realizedPnlRecords = await prisma.realizedPnL.findMany({
+    where: { userId },
+    select: { pnl: true }
+  });
 
-  const totalRealizedUsd = D(realizedPnlResult._sum?.pnl?.toString() || "0");
+  // Calculate total realized PnL
+  const totalRealizedPnl = realizedPnlRecords.reduce((sum, record) => {
+    const pnl = record.pnl as Decimal;
+    return sum.add(pnl);
+  }, D(0));
+
+  // Calculate trading stats from the same data (no extra query needed)
+  const totalTrades = realizedPnlRecords.length;
+  const winningTrades = realizedPnlRecords.filter(record => {
+    const pnl = record.pnl as Decimal;
+    return pnl.gt(0);
+  }).length;
+  const losingTrades = totalTrades - winningTrades;
+  const winRate = totalTrades > 0 ? (winningTrades / totalTrades) * 100 : 0;
+
+  const tradingStats = {
+    totalTrades,
+    winningTrades,
+    losingTrades,
+    winRate
+  };
+
+  // Cache trading stats in Redis for 60 seconds (since we just calculated it)
+  try {
+    const cacheKey = `portfolio:stats:${userId}`;
+    await redis.setex(cacheKey, 60, JSON.stringify(tradingStats));
+  } catch (error) {
+    console.warn(`Failed to cache trading stats in Redis:`, error);
+  }
+
+  const totalRealizedUsd = totalRealizedPnl;
   const totalPnlUsd = totalUnrealizedUsd.add(totalRealizedUsd);
 
   return {

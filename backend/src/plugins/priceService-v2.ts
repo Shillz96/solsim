@@ -102,7 +102,7 @@ class CircuitBreaker {
 }
 
 class EventDrivenPriceService extends EventEmitter {
-  private priceCache = new LRUCache<string, PriceTick>(500); // LRU cache with max 500 entries
+  private priceCache = new LRUCache<string, PriceTick>(1000); // LRU cache with max 1000 entries (increased for better hit rate)
   private solPriceUsd = 100; // Default SOL price
   private updateIntervals: NodeJS.Timeout[] = [];
   private dexScreenerBreaker = new CircuitBreaker();
@@ -362,42 +362,61 @@ class EventDrivenPriceService extends EventEmitter {
     // Try memory cache first
     let tick = this.priceCache.get(mint);
 
-    // Check if cached price is stale (older than 30 seconds for near real-time updates)
-    const PRICE_FRESHNESS_THRESHOLD = 30 * 1000; // 30 seconds - faster price updates
+    // Check if cached price is stale (older than 10 seconds for near real-time updates)
+    const PRICE_FRESHNESS_THRESHOLD = 10 * 1000; // 10 seconds - much faster price updates
+    const PRICE_MAX_AGE = 60 * 1000; // 60 seconds - absolute maximum age
     const isStale = tick && (Date.now() - tick.timestamp) > PRICE_FRESHNESS_THRESHOLD;
+    const isTooOld = tick && (Date.now() - tick.timestamp) > PRICE_MAX_AGE;
 
-    if (isStale && tick) {
-      logger.debug({ mint, age: Date.now() - tick.timestamp }, "Cached price is stale, refetching");
-      tick = undefined; // Force refetch
+    // Stale-While-Revalidate pattern: Return stale data quickly, refresh in background
+    if (isStale && tick && !isTooOld) {
+      logger.debug({ mint, age: Date.now() - tick.timestamp }, "Cached price is stale but acceptable, returning stale data and refreshing in background");
+
+      // Return stale data immediately (non-blocking)
+      // Trigger background refresh without awaiting
+      this.fetchTokenPrice(mint).then(freshTick => {
+        if (freshTick) {
+          this.updatePrice(freshTick);
+        }
+      }).catch(err => {
+        logger.warn({ mint, error: err }, "Background refresh failed");
+      });
+
+      return tick; // Return stale data immediately for better UX
     }
 
-    if (!tick) {
-      // Try Redis cache
-      try {
-        const cached = await redis.get(`price:${mint}`);
-        if (cached) {
-          const redisTick = JSON.parse(cached);
-          const isRedisStale = redisTick && (Date.now() - redisTick.timestamp) > PRICE_FRESHNESS_THRESHOLD;
+    // If too old or not found, we must fetch now (blocking)
+    if (isTooOld || !tick) {
+      logger.debug({ mint, tooOld: isTooOld }, "Cached price too old or missing, fetching now");
 
-          if (!isRedisStale && redisTick) {
-            tick = redisTick;
-            if (tick) {
-              this.priceCache.set(mint, tick);
+      // Try Redis cache first
+      if (!tick) {
+        try {
+          const cached = await redis.get(`price:${mint}`);
+          if (cached) {
+            const redisTick = JSON.parse(cached);
+            const isRedisTooOld = redisTick && (Date.now() - redisTick.timestamp) > PRICE_MAX_AGE;
+
+            if (!isRedisTooOld && redisTick) {
+              tick = redisTick;
+              if (tick) {
+                this.priceCache.set(mint, tick);
+              }
             }
           }
+        } catch (error) {
+          logger.warn({ error }, "⚠️ Redis get failed");
         }
-      } catch (error) {
-        console.warn("⚠️ Redis get failed:", error);
       }
-    }
 
-    // If still not found or stale, fetch on-demand
-    if (!tick) {
-      logger.debug({ mint }, "Price not in cache or stale, fetching on-demand from getLastTick");
-      const fetchedTick = await this.fetchTokenPrice(mint);
-      if (fetchedTick) {
-        await this.updatePrice(fetchedTick);
-        tick = fetchedTick;
+      // If still not found or too old, fetch on-demand (blocking)
+      if (isTooOld || !tick) {
+        logger.debug({ mint }, "Fetching fresh price on-demand");
+        const fetchedTick = await this.fetchTokenPrice(mint);
+        if (fetchedTick) {
+          await this.updatePrice(fetchedTick);
+          tick = fetchedTick;
+        }
       }
     }
 
@@ -411,7 +430,9 @@ class EventDrivenPriceService extends EventEmitter {
   async getLastTicks(mints: string[]): Promise<Map<string, PriceTick>> {
     const result = new Map<string, PriceTick>();
     const toFetch: string[] = [];
-    const PRICE_FRESHNESS_THRESHOLD = 30 * 1000; // 30 seconds - faster price updates
+    const toRefreshInBackground: string[] = [];
+    const PRICE_FRESHNESS_THRESHOLD = 10 * 1000; // 10 seconds - much faster updates
+    const PRICE_MAX_AGE = 60 * 1000; // 60 seconds - absolute maximum
 
     // Check memory cache first for all mints
     for (const mint of mints) {
@@ -429,16 +450,40 @@ class EventDrivenPriceService extends EventEmitter {
       }
 
       const tick = this.priceCache.get(mint);
-      const isStale = tick && (Date.now() - tick.timestamp) > PRICE_FRESHNESS_THRESHOLD;
+      const age = tick ? Date.now() - tick.timestamp : Infinity;
+      const isStale = tick && age > PRICE_FRESHNESS_THRESHOLD;
+      const isTooOld = tick && age > PRICE_MAX_AGE;
 
       if (tick && !isStale) {
+        // Fresh data, use it
         result.set(mint, tick);
+      } else if (tick && isStale && !isTooOld) {
+        // Stale but acceptable, return it and refresh in background
+        result.set(mint, tick);
+        toRefreshInBackground.push(mint);
       } else {
+        // Too old or missing, must fetch now
         toFetch.push(mint);
       }
     }
 
-    // If all prices are cached, return early
+    // Trigger background refresh for stale data (non-blocking)
+    if (toRefreshInBackground.length > 0) {
+      logger.debug({ count: toRefreshInBackground.length }, "Refreshing stale prices in background");
+
+      // Fire and forget - don't await
+      Promise.all(
+        toRefreshInBackground.map(mint =>
+          this.fetchTokenPrice(mint).then(tick => {
+            if (tick) this.updatePrice(tick);
+          }).catch(err => {
+            logger.warn({ mint, error: err }, "Background refresh failed");
+          })
+        )
+      );
+    }
+
+    // If all prices are cached (fresh or stale), return early
     if (toFetch.length === 0) {
       return result;
     }
@@ -453,9 +498,11 @@ class EventDrivenPriceService extends EventEmitter {
         if (cached) {
           try {
             const tick = JSON.parse(cached);
-            const isStale = Date.now() - tick.timestamp > PRICE_FRESHNESS_THRESHOLD;
+            const age = Date.now() - tick.timestamp;
+            const isTooOld = age > PRICE_MAX_AGE;
 
-            if (!isStale && tick) {
+            // Use Redis data if it's not too old
+            if (!isTooOld && tick) {
               result.set(toFetch[i], tick);
               this.priceCache.set(toFetch[i], tick);
               // Remove from toFetch list
