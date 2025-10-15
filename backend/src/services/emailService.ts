@@ -2,15 +2,30 @@
 import { Resend } from 'resend';
 import crypto from 'crypto';
 
-const RESEND_API_KEY = process.env.RESEND_API_KEY;
-const FROM_EMAIL = process.env.FROM_EMAIL || 'VirtualSol <noreply@virtualsol.fun>';
-const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
+// Lazy initialization to allow environment variables to be loaded first
+let resend: Resend | null = null;
+let isInitialized = false;
 
-if (!RESEND_API_KEY) {
-  console.warn('⚠️  RESEND_API_KEY not configured - email functionality will be disabled');
+function getResendClient(): Resend | null {
+  if (!isInitialized) {
+    const RESEND_API_KEY = process.env.RESEND_API_KEY;
+
+    if (!RESEND_API_KEY) {
+      console.warn('⚠️  RESEND_API_KEY not configured - email functionality will be disabled');
+      isInitialized = true;
+      return null;
+    }
+
+    resend = new Resend(RESEND_API_KEY);
+    isInitialized = true;
+    console.log('✅ Resend email service initialized');
+  }
+
+  return resend;
 }
 
-const resend = RESEND_API_KEY ? new Resend(RESEND_API_KEY) : null;
+const FROM_EMAIL = process.env.FROM_EMAIL || 'VirtualSol <noreply@virtualsol.fun>';
+const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
 
 export class EmailService {
   /**
@@ -31,7 +46,8 @@ export class EmailService {
    * Send email verification email
    */
   static async sendVerificationEmail(email: string, token: string, username: string): Promise<boolean> {
-    if (!resend) {
+    const client = getResendClient();
+    if (!client) {
       console.warn('Email service not configured - skipping verification email');
       return false;
     }
@@ -39,7 +55,7 @@ export class EmailService {
     const verificationUrl = `${FRONTEND_URL}/verify-email?token=${token}`;
 
     try {
-      const { data, error } = await resend.emails.send({
+      const { data, error } = await client.emails.send({
         from: FROM_EMAIL,
         to: email,
         subject: 'Verify your VirtualSol account',
@@ -63,7 +79,8 @@ export class EmailService {
    * Send password reset email
    */
   static async sendPasswordResetEmail(email: string, token: string, username: string): Promise<boolean> {
-    if (!resend) {
+    const client = getResendClient();
+    if (!client) {
       console.warn('Email service not configured - skipping password reset email');
       return false;
     }
@@ -71,7 +88,7 @@ export class EmailService {
     const resetUrl = `${FRONTEND_URL}/reset-password?token=${token}`;
 
     try {
-      const { data, error } = await resend.emails.send({
+      const { data, error} = await client.emails.send({
         from: FROM_EMAIL,
         to: email,
         subject: 'Reset your VirtualSol password',
@@ -95,13 +112,14 @@ export class EmailService {
    * Send welcome email after successful verification
    */
   static async sendWelcomeEmail(email: string, username: string): Promise<boolean> {
-    if (!resend) {
+    const client = getResendClient();
+    if (!client) {
       console.warn('Email service not configured - skipping welcome email');
       return false;
     }
 
     try {
-      const { data, error } = await resend.emails.send({
+      const { data, error } = await client.emails.send({
         from: FROM_EMAIL,
         to: email,
         subject: 'Welcome to VirtualSol - Your paper trading journey begins!',

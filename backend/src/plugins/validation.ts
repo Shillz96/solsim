@@ -19,7 +19,7 @@ const commonPatterns = {
     type: 'string',
     minLength: 8,
     maxLength: 128,
-    pattern: '^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)[A-Za-z\\d@$!%*?&]+$'
+    pattern: '^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]+$'
   },
   uuid: {
     type: 'string',
@@ -54,6 +54,13 @@ export const authSchemas = {
     properties: {
       email: commonPatterns.email,
       password: commonPatterns.password,
+      username: {
+        type: 'string',
+        minLength: 3,
+        maxLength: 30,
+        pattern: '^[a-zA-Z0-9_-]+$',
+        nullable: true
+      },
       handle: { ...commonPatterns.handle, nullable: true },
       profileImage: { ...commonPatterns.url, nullable: true }
     },

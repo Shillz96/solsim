@@ -31,6 +31,10 @@ export function PasswordStrengthIndicator({ password, confirmPassword }: Passwor
       {
         label: "One number",
         met: /\d/.test(password)
+      },
+      {
+        label: "One special character (@$!%*?&)",
+        met: /[@$!%*?&]/.test(password)
       }
     ]
   }, [password])
@@ -132,6 +136,10 @@ export function validatePassword(password: string): { valid: boolean; errors: st
 
   if (!/\d/.test(password)) {
     errors.push("Password must contain at least one number")
+  }
+
+  if (!/[@$!%*?&]/.test(password)) {
+    errors.push("Password must contain at least one special character (@$!%*?&)")
   }
 
   return {

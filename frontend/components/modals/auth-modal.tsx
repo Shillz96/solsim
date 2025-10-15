@@ -70,13 +70,28 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
 
     try {
       await login(email, password)
-      // Close modal and force page refresh to ensure auth state is properly reflected
+      // Close modal - auth state will update automatically via auth context
       onOpenChange(false)
-      // Force a page refresh to ensure UI updates with new auth state
-      window.location.reload()
+      setSuccess('Login successful! Welcome back.')
+
+      // Clear form
+      const form = e.currentTarget
+      form.reset()
+
+      // Optional: Navigate to a specific page or just let the UI update naturally
+      // The useAuth hook should handle state updates automatically
     } catch (err) {
       const error = err as Error
-      setError(error.message || 'Login failed')
+      const errorMessage = error.message || 'Login failed'
+
+      // Handle specific error cases with helpful messages
+      if (errorMessage.includes('locked') || errorMessage.includes('too many')) {
+        setError('Your account has been temporarily locked due to multiple failed login attempts. Please try again in 15 minutes or reset your password.')
+      } else if (errorMessage.includes('credentials') || errorMessage.includes('password')) {
+        setError('Invalid email or password. Please check your credentials and try again.')
+      } else {
+        setError(errorMessage)
+      }
     } finally {
       setIsLoading(false)
     }
@@ -113,9 +128,9 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
     }
 
     // Validate password requirements
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d@$!%*?&]{8,}$/
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[a-zA-Z\d@$!%*?&]{8,}$/
     if (!passwordRegex.test(password)) {
-      setError('Password must be 8+ characters with uppercase, lowercase, and number')
+      setError('Password must be 8+ characters with uppercase, lowercase, number, and special character')
       setIsLoading(false)
       return
     }
@@ -130,10 +145,18 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
 
     try {
       await signup(email, password, username.trim())
-      // Close modal and force page refresh to ensure auth state is properly reflected
+      // Close modal - auth state will update automatically via auth context
       onOpenChange(false)
-      // Force a page refresh to ensure UI updates with new auth state
-      window.location.reload()
+      setSuccess('Account created successfully! Please check your email to verify your account.')
+
+      // Clear form
+      const form = e.currentTarget
+      form.reset()
+      setPassword('')
+      setConfirmPassword('')
+
+      // Optional: Navigate to a specific page or show verification reminder
+      // The useAuth hook should handle state updates automatically
     } catch (err) {
       const error = err as Error
       setError(error.message || 'Registration failed')

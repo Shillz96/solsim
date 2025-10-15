@@ -43,11 +43,12 @@ export default async function (app: FastifyInstance) {
       const sanitizedBody = sanitizeInput(req.body) as {
         email: string;
         password: string;
+        username?: string;
         handle?: string;
         profileImage?: string;
       };
 
-      const { email, password, handle, profileImage } = sanitizedBody;
+      const { email, password, username, handle, profileImage } = sanitizedBody;
 
       // Check if user already exists
       const existingUser = await prisma.user.findUnique({ where: { email } });
@@ -69,7 +70,7 @@ export default async function (app: FastifyInstance) {
       const user = await prisma.user.create({
         data: {
           email,
-          username: email.split('@')[0],
+          username: username || email.split('@')[0],
           passwordHash: hash,
           handle: handle || null,
           profileImage: profileImage || null,
@@ -136,21 +137,62 @@ export default async function (app: FastifyInstance) {
 
       const { email, password } = sanitizedBody;
 
+      // Check for account lockout (protection against brute force)
+      const lockoutKey = `lockout:${email}`;
+      const failedAttemptsKey = `failed_attempts:${email}`;
+
+      const isLockedOut = await redis.get(lockoutKey);
+      if (isLockedOut) {
+        const ttl = await redis.ttl(lockoutKey);
+        return reply.code(429).send({
+          error: "ACCOUNT_LOCKED",
+          message: `Too many failed login attempts. Please try again in ${Math.ceil(ttl / 60)} minutes.`
+        });
+      }
+
       const user = await prisma.user.findUnique({ where: { email } });
       if (!user || !user.passwordHash) {
-        return reply.code(401).send({ 
-          error: "INVALID_CREDENTIALS", 
-          message: "Invalid email or password" 
+        // Increment failed attempts even for non-existent users to prevent email enumeration timing attacks
+        const attempts = await redis.incr(failedAttemptsKey);
+        await redis.expire(failedAttemptsKey, 900); // 15 minutes
+
+        if (attempts >= 5) {
+          await redis.setex(lockoutKey, 900, '1'); // Lock for 15 minutes
+          await redis.del(failedAttemptsKey);
+        }
+
+        return reply.code(401).send({
+          error: "INVALID_CREDENTIALS",
+          message: "Invalid email or password"
         });
       }
 
       const isValidPassword = await bcrypt.compare(password, user.passwordHash);
       if (!isValidPassword) {
-        return reply.code(401).send({ 
-          error: "INVALID_CREDENTIALS", 
-          message: "Invalid email or password" 
+        // Track failed login attempts
+        const attempts = await redis.incr(failedAttemptsKey);
+        await redis.expire(failedAttemptsKey, 900); // 15 minutes
+
+        if (attempts >= 5) {
+          await redis.setex(lockoutKey, 900, '1'); // Lock for 15 minutes
+          await redis.del(failedAttemptsKey);
+          console.log(`🔒 Account locked due to too many failed attempts: ${email}`);
+
+          return reply.code(429).send({
+            error: "ACCOUNT_LOCKED",
+            message: "Too many failed login attempts. Your account has been locked for 15 minutes."
+          });
+        }
+
+        return reply.code(401).send({
+          error: "INVALID_CREDENTIALS",
+          message: "Invalid email or password"
         });
       }
+
+      // Clear failed attempts on successful login
+      await redis.del(failedAttemptsKey);
+      await redis.del(lockoutKey);
 
       // Create session and generate tokens
       const sessionId = await AuthService.createSession(user.id, user.userTier, {
