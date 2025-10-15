@@ -5,7 +5,10 @@ import { Decimal } from "@prisma/client/runtime/library";
 export interface LeaderboardEntry {
   userId: string;
   handle: string | null;
+  displayName: string | null;
   profileImage: string | null;
+  avatarUrl: string | null;
+  avatar: string | null;
   totalPnlUsd: string;
   totalTrades: number;
   winRate: number;
@@ -55,7 +58,10 @@ export async function getLeaderboard(limit: number = 50): Promise<LeaderboardEnt
     return {
       userId: user.id,
       handle: user.handle,
+      displayName: user.displayName,
       profileImage: user.profileImage,
+      avatarUrl: user.avatarUrl,
+      avatar: user.avatar,
       totalPnlUsd: totalPnlUsd.toFixed(8), // Increased precision for small values
       totalTrades,
       winRate: parseFloat(winRate.toFixed(4)), // Increased precision for percentage

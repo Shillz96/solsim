@@ -311,14 +311,14 @@ export function Leaderboard({
                     <TableCell>
                       <div className="flex items-center gap-3">
                         <Avatar className="h-8 w-8">
-                          <AvatarImage src={entry.profileImage || undefined} />
+                          <AvatarImage src={(entry as any).avatarUrl || (entry as any).profileImage || (entry as any).avatar || undefined} />
                           <AvatarFallback className="text-xs">
-                            {entry.handle?.slice(0, 2).toUpperCase() || 'U'}
+                            {((entry as any).displayName || entry.handle || 'U')?.slice(0, 2).toUpperCase()}
                           </AvatarFallback>
                         </Avatar>
                         <div className="flex flex-col">
                           <span className="font-medium truncate max-w-[150px]">
-                            {entry.handle || `User ${entry.userId.slice(0, 6)}`}
+                            {(entry as any).displayName || entry.handle || `User ${entry.userId.slice(0, 6)}`}
                           </span>
                         </div>
                       </div>

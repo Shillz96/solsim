@@ -174,7 +174,7 @@ export class NonceService {
       `${domainName} wants you to sign in with your Solana account:`,
       walletAddress,
       '',
-      'Welcome to SolSim - the ultimate Solana paper trading simulator!',
+      'Welcome to VirtualSol - the ultimate Solana paper trading simulator!',
       '',
       `URI: https://${domainName}`,
       `Version: 1`,

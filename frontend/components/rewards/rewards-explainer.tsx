@@ -103,7 +103,7 @@ export function RewardsExplainer() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Info className="h-5 w-5 text-primary" />
-            How VSOL Token Rewards Work
+            How vSOL Token Rewards Work
           </CardTitle>
           <CardDescription>
             Learn how to maximize your earnings on VirtualSol
@@ -112,7 +112,7 @@ export function RewardsExplainer() {
         <CardContent className="space-y-6">
           <div className="prose prose-sm max-w-none text-muted-foreground">
             <p>
-              VirtualSol rewards active traders with $VSOL tokens based on their trading activity and performance.
+              VirtualSol rewards active traders with $vSOL tokens based on their trading activity and performance.
               The more you trade and the better you perform, the more rewards you earn. Rewards are calculated
               weekly and distributed at the end of each epoch.
             </p>
@@ -121,7 +121,7 @@ export function RewardsExplainer() {
           <Alert className="border-primary/20 bg-primary/5 backdrop-blur-sm">
             <Gift className="h-4 w-4 text-primary" />
             <AlertDescription>
-              <strong>Important:</strong> $VSOL tokens are distributed on the Solana blockchain.
+              <strong>Important:</strong> $vSOL tokens are distributed on the Solana blockchain.
               You'll need a Solana wallet connected to claim your rewards. The rewards are sent
               directly to your wallet address once claimed.
             </AlertDescription>
@@ -271,7 +271,7 @@ export function RewardsExplainer() {
             <Alert>
               <Zap className="h-4 w-4" />
               <AlertDescription>
-                Points are converted to $VSOL tokens based on the total reward pool for each epoch.
+                Points are converted to $vSOL tokens based on the total reward pool for each epoch.
                 Your share of the pool depends on your points relative to all other traders.
               </AlertDescription>
             </Alert>

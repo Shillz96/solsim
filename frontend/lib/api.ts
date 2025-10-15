@@ -292,7 +292,7 @@ export async function getStocks(limit: number = 50): Promise<Backend.TrendingTok
 }
 
 /**
- * Claim VSOL rewards
+ * Claim vSOL rewards
  * POST /api/rewards/claim
  */
 export async function claimRewards(request: Backend.RewardsClaimRequest): Promise<Backend.RewardsClaimResponse> {

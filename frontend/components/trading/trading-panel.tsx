@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Separator } from "@/components/ui/separator"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Slider } from "@/components/ui/slider"
 import { TrendingUp, TrendingDown, Wallet, Settings, AlertCircle, CheckCircle, Loader2, RefreshCw } from "lucide-react"
 // Remove old hooks - use services directly
 import { usePriceStreamContext } from "@/lib/price-stream-provider"
@@ -145,13 +146,22 @@ function TradingPanelComponent({ tokenAddress: propTokenAddress }: TradingPanelP
         
         setLastTradeSuccess(true)
         setTimeout(() => setLastTradeSuccess(false), 3000)
-        
+
+        // Save last trade for repeat functionality
+        const tradeInfo = {
+          side: 'buy' as const,
+          amount: amount,
+          timestamp: Date.now()
+        }
+        setLastTrade(tradeInfo)
+        localStorage.setItem(`lastTrade_${tokenAddress}`, JSON.stringify(tradeInfo))
+
         // Reset form
         setSelectedSolAmount(null)
         setCustomSolAmount("")
         setShowCustomInput(false)
       }
-      
+
       return result
     } catch (err) {
       const errorMessage = (err as Error).message
@@ -229,13 +239,22 @@ function TradingPanelComponent({ tokenAddress: propTokenAddress }: TradingPanelP
         
         setLastTradeSuccess(true)
         setTimeout(() => setLastTradeSuccess(false), 3000)
-        
+
+        // Save last trade for repeat functionality
+        const tradeInfo = {
+          side: 'sell' as const,
+          amount: amount,
+          timestamp: Date.now()
+        }
+        setLastTrade(tradeInfo)
+        localStorage.setItem(`lastTrade_${tokenAddress}`, JSON.stringify(tradeInfo))
+
         // Reset form
         setSelectedPercentage(null)
         setCustomSolAmount("")
         setShowCustomInput(false)
       }
-      
+
       return result
     } catch (err) {
       const errorMessage = (err as Error).message
@@ -274,9 +293,42 @@ function TradingPanelComponent({ tokenAddress: propTokenAddress }: TradingPanelP
   const [selectedPercentage, setSelectedPercentage] = useState<number | null>(null)
   const [showCustomInput, setShowCustomInput] = useState(false)
   const [lastTradeSuccess, setLastTradeSuccess] = useState(false)
+  const [customSellPercentage, setCustomSellPercentage] = useState("")
+  const [lastTrade, setLastTrade] = useState<{side: 'buy' | 'sell', amount: number, timestamp: number} | null>(null)
 
   const presetSolAmounts = [1, 5, 10, 20]
+  const presetBalancePercentages = [1, 5, 10, 25] // % of balance
   const sellPercentages = [25, 50, 75, 100]
+
+  // Load last trade from localStorage on mount
+  useEffect(() => {
+    const stored = localStorage.getItem(`lastTrade_${tokenAddress}`)
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored)
+        // Only use if less than 24 hours old
+        if (Date.now() - parsed.timestamp < 24 * 60 * 60 * 1000) {
+          setLastTrade(parsed)
+        }
+      } catch (e) {
+        // Invalid data, ignore
+      }
+    }
+  }, [tokenAddress])
+
+  // Handle URL params for quick sell (from portfolio quick actions)
+  useEffect(() => {
+    const action = searchParams.get('action')
+    const percent = searchParams.get('percent')
+
+    if (action === 'sell' && percent) {
+      const percentNum = parseInt(percent)
+      if (!isNaN(percentNum) && percentNum > 0 && percentNum <= 100) {
+        setSelectedPercentage(percentNum)
+        setCustomSellPercentage(percentNum.toString())
+      }
+    }
+  }, [searchParams])
 
   // Load token details - use proper token details API
   const loadTokenDetails = useCallback(async (isRefresh = false) => {
@@ -619,7 +671,7 @@ function TradingPanelComponent({ tokenAddress: propTokenAddress }: TradingPanelP
         )}
       </div>
 
-      <Tabs defaultValue="buy" className="w-full">
+      <Tabs defaultValue={searchParams.get('action') === 'sell' ? 'sell' : 'buy'} className="w-full">
         <TabsList className="grid w-full grid-cols-2 h-14 sm:h-12 gap-1">
           <TabsTrigger value="buy" className="tab-buy font-bold text-base sm:text-sm h-12 sm:h-auto">
             Buy
@@ -632,6 +684,35 @@ function TradingPanelComponent({ tokenAddress: propTokenAddress }: TradingPanelP
             Sell
           </TabsTrigger>
         </TabsList>
+
+        {/* Repeat Last Trade Button - Shows for both tabs */}
+        {lastTrade && (
+          <div className="mt-3">
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full border-primary/30 hover:bg-primary/10 text-xs"
+              onClick={() => {
+                if (lastTrade.side === 'buy') {
+                  // Set the buy amount and trigger buy
+                  const solAmount = lastTrade.amount * solPrice / (tokenDetails?.price || 1)
+                  setSelectedSolAmount(solAmount)
+                  setCustomSolAmount("")
+                } else {
+                  // Set the sell percentage and trigger sell
+                  // lastTrade.amount is token quantity, need to calculate percentage
+                  if (tokenHolding) {
+                    const percentage = (lastTrade.amount / parseFloat(tokenHolding.qty)) * 100
+                    setSelectedPercentage(Math.min(100, Math.round(percentage)))
+                  }
+                }
+              }}
+            >
+              <RefreshCw className="h-3 w-3 mr-2" />
+              Repeat Last {lastTrade.side === 'buy' ? 'Buy' : 'Sell'}
+            </Button>
+          </div>
+        )}
 
         <TabsContent value="buy" className="space-y-6 mt-4">
           {/* Amount selection */}
@@ -684,6 +765,39 @@ function TradingPanelComponent({ tokenAddress: propTokenAddress }: TradingPanelP
                   )}
                 </Button>
               ))}
+            </div>
+
+            {/* Balance Percentage Presets */}
+            <div className="pt-2 border-t border-border/50">
+              <Label className="text-xs text-muted-foreground mb-2 block">Or % of balance</Label>
+              <div className="grid grid-cols-4 gap-2">
+                {presetBalancePercentages.map((percent) => {
+                  const solAmount = (balance * percent) / 100
+                  return (
+                    <Button
+                      key={`balance-${percent}`}
+                      size="sm"
+                      variant={selectedSolAmount === solAmount ? "default" : "outline"}
+                      className={cn(
+                        "h-10 text-xs font-semibold transition-all active:scale-95",
+                        selectedSolAmount === solAmount
+                          ? "bg-accent/80 text-accent-foreground"
+                          : "bg-card hover:bg-muted"
+                      )}
+                      onClick={() => {
+                        setSelectedSolAmount(solAmount)
+                        setCustomSolAmount("")
+                      }}
+                      disabled={solAmount <= 0}
+                    >
+                      {percent}%
+                      <span className="block text-xs opacity-70 font-normal">
+                        {solAmount.toFixed(1)}
+                      </span>
+                    </Button>
+                  )
+                })}
+              </div>
             </div>
 
             {showCustomInput && (
@@ -871,11 +985,58 @@ function TradingPanelComponent({ tokenAddress: propTokenAddress }: TradingPanelP
                           ? "bg-destructive text-destructive-foreground hover:bg-destructive/90 ring-2 ring-destructive ring-offset-2"
                           : "bg-card hover:bg-muted"
                       )}
-                      onClick={() => setSelectedPercentage(percent)}
+                      onClick={() => {
+                        setSelectedPercentage(percent)
+                        setCustomSellPercentage("")
+                      }}
                     >
                       {percent === 100 ? "ALL" : `${percent}%`}
                     </Button>
                   ))}
+                </div>
+
+                {/* Custom Percentage Slider */}
+                <div className="pt-3 border-t border-border/50">
+                  <div className="flex items-center justify-between mb-3">
+                    <Label className="text-xs text-muted-foreground">Custom Percentage</Label>
+                    <div className="flex items-center gap-2">
+                      <Input
+                        type="number"
+                        min="0"
+                        max="100"
+                        step="1"
+                        value={customSellPercentage}
+                        onChange={(e) => {
+                          const val = e.target.value
+                          setCustomSellPercentage(val)
+                          if (val && !isNaN(parseFloat(val))) {
+                            setSelectedPercentage(Math.min(100, Math.max(0, parseFloat(val))))
+                          }
+                        }}
+                        placeholder="0"
+                        className="w-16 h-8 text-xs text-center font-mono"
+                      />
+                      <span className="text-xs text-muted-foreground">%</span>
+                    </div>
+                  </div>
+                  <Slider
+                    value={[selectedPercentage || 0]}
+                    onValueChange={(value) => {
+                      setSelectedPercentage(value[0])
+                      setCustomSellPercentage(value[0].toString())
+                    }}
+                    min={0}
+                    max={100}
+                    step={1}
+                    className="w-full"
+                  />
+                  <div className="flex justify-between text-xs text-muted-foreground mt-1">
+                    <span>0%</span>
+                    <span className="font-semibold">
+                      {selectedPercentage || 0}% = {formatTokenQuantity((tokenBalance * (selectedPercentage || 0)) / 100)} tokens
+                    </span>
+                    <span>100%</span>
+                  </div>
                 </div>
               </div>
 

@@ -1,4 +1,4 @@
--- High-frequency query optimization indexes for SolSim
+-- High-frequency query optimization indexes for VirtualSol
 -- These indexes target the most common query patterns in the application
 
 -- Index for trades by user, mint, and timestamp (descending for recent trades first)

@@ -28,7 +28,7 @@ const features = [
   {
     icon: Gift,
     title: "Rewards System",
-    description: "Earn rewards for trading activity, daily streaks, and achievements. Future $VSOL token airdrops.",
+    description: "Earn rewards for trading activity, daily streaks, and achievements. Future $vSOL token airdrops.",
   },
   {
     icon: BarChart3,

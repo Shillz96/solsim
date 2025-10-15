@@ -2,7 +2,7 @@ import type React from "react"
 import type { Metadata } from "next"
 import { IBM_Plex_Sans, JetBrains_Mono } from "next/font/google"
 import localFont from "next/font/local"
-
+import { Analytics } from "@vercel/analytics/next"
 import { NavBar } from "@/components/navigation/nav-bar"
 import { BottomNavBar } from "@/components/navigation/bottom-nav-bar"
 import { RealtimeTradeStrip } from "@/components/trading/realtime-trade-strip"

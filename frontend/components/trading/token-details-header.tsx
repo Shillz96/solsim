@@ -25,6 +25,7 @@ import { useTokenMetadata } from "@/hooks/use-token-metadata"
 import { PriceCell, MoneyCell } from "@/components/ui/table-cells"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
+import { RecentTokensDropdown } from "./recent-tokens-dropdown"
 import {
   Tooltip,
   TooltipContent,
@@ -147,6 +148,11 @@ export function TokenDetailsHeader({ tokenAddress }: TokenDetailsHeaderProps) {
       <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-blue-500"></div>
       
       <div className="relative z-10 p-6">
+        {/* Recent Tokens Dropdown - Top Right */}
+        <div className="absolute top-4 right-4 z-20">
+          <RecentTokensDropdown currentTokenAddress={tokenAddress} />
+        </div>
+
         <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
           <div className="flex items-center flex-shrink-0">
             <div className="relative flex-shrink-0">

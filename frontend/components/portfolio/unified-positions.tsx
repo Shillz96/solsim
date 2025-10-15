@@ -5,22 +5,33 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { AnimatedNumber } from "@/components/ui/animated-number"
 import { formatUSD, formatPriceUSD, formatNumber, safePercent, formatTokenQuantity } from "@/lib/format"
 import { UsdWithSol } from "@/lib/sol-equivalent"
-import { 
-  TrendingUp, 
-  TrendingDown, 
-  Loader2, 
-  AlertCircle, 
-  RefreshCw, 
+import {
+  TrendingUp,
+  TrendingDown,
+  Loader2,
+  AlertCircle,
+  RefreshCw,
   Wallet,
   ChevronRight,
   ExternalLink,
-  BarChart3
+  BarChart3,
+  MoreVertical,
+  ArrowDownToLine
 } from "lucide-react"
 import { motion } from "framer-motion"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { usePriceStreamContext } from "@/lib/price-stream-provider"
 import { useTokenMetadataBatch } from "@/hooks/use-token-metadata"
 import { useCallback, useState, useEffect } from "react"
@@ -66,6 +77,7 @@ export const UnifiedPositions = memo(function UnifiedPositions({
   className
 }: UnifiedPositionsProps) {
   const { user, isAuthenticated } = useAuth()
+  const router = useRouter()
   const [isRefreshing, setIsRefreshing] = useState(false)
 
   // Use centralized portfolio hook
@@ -539,6 +551,7 @@ export const UnifiedPositions = memo(function UnifiedPositions({
                 <th className="text-right p-2">Current Value</th>
                 <th className="text-right p-2">PnL</th>
                 <th className="text-right p-2">PnL %</th>
+                <th className="text-center p-2">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -618,7 +631,7 @@ export const UnifiedPositions = memo(function UnifiedPositions({
                       />
                     </td>
                     <td className="text-right p-2">
-                      <Badge 
+                      <Badge
                         variant={pnlPercent >= 0 ? "default" : "destructive"}
                         className={cn(
                           "tabular-nums",
@@ -627,6 +640,37 @@ export const UnifiedPositions = memo(function UnifiedPositions({
                       >
                         {pnlPercent.toFixed(2)}%
                       </Badge>
+                    </td>
+                    <td className="text-center p-2">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                            <MoreVertical className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuLabel>Quick Sell</DropdownMenuLabel>
+                          <DropdownMenuSeparator />
+                          {[25, 50, 75, 100].map((percent) => (
+                            <DropdownMenuItem
+                              key={percent}
+                              onClick={() => {
+                                // Navigate to trade page with sell tab and percentage pre-selected
+                                router.push(
+                                  `/trade?token=${position.mint}&symbol=${position.tokenSymbol}&name=${position.tokenName}&action=sell&percent=${percent}`
+                                )
+                              }}
+                              className="cursor-pointer"
+                            >
+                              <ArrowDownToLine className="h-4 w-4 mr-2 text-red-500" />
+                              Sell {percent}%
+                              <span className="ml-auto text-xs text-muted-foreground">
+                                {formatTokenQuantity((parseFloat(position.qty) * percent) / 100)}
+                              </span>
+                            </DropdownMenuItem>
+                          ))}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </td>
                   </motion.tr>
                 )

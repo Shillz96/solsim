@@ -125,7 +125,7 @@ export function RewardsLeaderboard() {
                 Top Reward Earners
               </CardTitle>
               <CardDescription className="mt-1">
-                The traders earning the most $VSOL tokens
+                The traders earning the most $vSOL tokens
               </CardDescription>
             </div>
             <Tabs value={timeframe} onValueChange={(v) => setTimeframe(v as any)} className="w-full sm:w-auto">
@@ -156,11 +156,11 @@ export function RewardsLeaderboard() {
             <CardHeader className="pb-3">
               <div className="flex items-center gap-3">
                 <Avatar className="h-12 w-12 border-2 border-primary/20">
-                  <AvatarImage src={leader.avatar} />
-                  <AvatarFallback className="bg-primary/10">{leader.username[0]}</AvatarFallback>
+                  <AvatarImage src={(leader as any).avatarUrl || leader.avatar || (leader as any).profileImage} />
+                  <AvatarFallback className="bg-primary/10">{((leader as any).displayName || leader.username || 'U')[0]}</AvatarFallback>
                 </Avatar>
                 <div>
-                  <div className="font-semibold">{leader.username}</div>
+                  <div className="font-semibold">{(leader as any).displayName || leader.username}</div>
                   <div className="flex items-center gap-2">
                     <span className={cn("text-sm font-medium", leader.tierColor)}>
                       {leader.tierIcon} {leader.tier}
@@ -173,11 +173,11 @@ export function RewardsLeaderboard() {
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Weekly Rewards</span>
-                  <span className="font-semibold">{formatNumber(leader.weeklyRewards)} $VSOL</span>
+                  <span className="font-semibold">{formatNumber(leader.weeklyRewards)} $vSOL</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Total Earned</span>
-                  <span className="font-semibold">{formatNumber(leader.totalRewards)} $VSOL</span>
+                  <span className="font-semibold">{formatNumber(leader.totalRewards)} $vSOL</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Win Rate</span>
@@ -211,12 +211,12 @@ export function RewardsLeaderboard() {
                     {getRankIcon(leader.rank)}
                   </div>
                   <Avatar className="h-10 w-10">
-                    <AvatarImage src={leader.avatar} />
-                    <AvatarFallback className="bg-primary/10">{leader.username[0]}</AvatarFallback>
+                    <AvatarImage src={(leader as any).avatarUrl || leader.avatar || (leader as any).profileImage} />
+                    <AvatarFallback className="bg-primary/10">{((leader as any).displayName || leader.username || 'U')[0]}</AvatarFallback>
                   </Avatar>
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="font-semibold">{leader.username}</span>
+                      <span className="font-semibold">{(leader as any).displayName || leader.username}</span>
                       {user?.id === leader.userId && (
                         <Badge variant="secondary" className="text-xs">You</Badge>
                       )}
@@ -232,7 +232,7 @@ export function RewardsLeaderboard() {
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="font-semibold">{formatNumber(leader.weeklyRewards)} $VSOL</div>
+                  <div className="font-semibold">{formatNumber(leader.weeklyRewards)} $vSOL</div>
                   <div className="text-sm text-muted-foreground">This week</div>
                 </div>
               </div>
@@ -247,7 +247,7 @@ export function RewardsLeaderboard() {
                 <h3 className="text-lg font-semibold mb-2">Rewards Leaderboard Coming Soon</h3>
                 <p className="text-sm text-muted-foreground text-center max-w-md">
                   Start trading now to prepare for the rewards leaderboard launch.
-                  Your trading performance will be tracked and rewarded with $VSOL tokens.
+                  Your trading performance will be tracked and rewarded with $vSOL tokens.
                 </p>
               </div>
             </div>
@@ -269,7 +269,7 @@ export function RewardsLeaderboard() {
               <div className="text-3xl font-bold mb-1">
                 {formatNumber(leaders?.reduce((sum, l) => sum + l.weeklyRewards, 0) || 0)}
               </div>
-              <p className="text-sm text-muted-foreground">Total Weekly $VSOL</p>
+              <p className="text-sm text-muted-foreground">Total Weekly $vSOL</p>
             </div>
             <div>
               <div className="text-3xl font-bold mb-1">

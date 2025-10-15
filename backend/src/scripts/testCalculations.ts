@@ -45,7 +45,7 @@ const scenarios = [
 ];
 
 console.log("=".repeat(80));
-console.log("SOLSIM TRADING CALCULATION VERIFICATION");
+console.log("VIRTUALSOL TRADING CALCULATION VERIFICATION");
 console.log("Testing with realistic low-cap Solana coin scenarios");
 console.log("=".repeat(80));
 console.log("");

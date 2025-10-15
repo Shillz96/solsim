@@ -66,17 +66,17 @@ function PortfolioPageContent() {
             >
               <Tabs defaultValue="positions" className="w-full">
                 <TabsList className="grid w-full grid-cols-3 mb-6 bg-muted/50 backdrop-blur-sm border border-border/50">
-                  <TabsTrigger value="positions" className="gap-2 data-[state=active]:bg-primary/20">
+                  <TabsTrigger value="positions" className="gap-1.5 sm:gap-2 data-[state=active]:bg-primary/20 text-xs sm:text-sm">
                     <TrendingUp className="h-4 w-4" />
-                    <span className="hidden sm:inline">Positions</span>
+                    <span>Positions</span>
                   </TabsTrigger>
-                  <TabsTrigger value="performance" className="gap-2 data-[state=active]:bg-primary/20">
+                  <TabsTrigger value="performance" className="gap-1.5 sm:gap-2 data-[state=active]:bg-primary/20 text-xs sm:text-sm">
                     <BarChart3 className="h-4 w-4" />
-                    <span className="hidden sm:inline">Performance</span>
+                    <span>Performance</span>
                   </TabsTrigger>
-                  <TabsTrigger value="history" className="gap-2 data-[state=active]:bg-primary/20">
+                  <TabsTrigger value="history" className="gap-1.5 sm:gap-2 data-[state=active]:bg-primary/20 text-xs sm:text-sm">
                     <History className="h-4 w-4" />
-                    <span className="hidden sm:inline">History</span>
+                    <span>History</span>
                   </TabsTrigger>
                 </TabsList>
 

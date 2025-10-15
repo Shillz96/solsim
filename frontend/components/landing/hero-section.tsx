@@ -64,22 +64,22 @@ export function HeroSection() {
             </motion.div>
 
             <motion.div
-              className="grid grid-cols-3 gap-6 pt-8"
+              className="grid grid-cols-3 gap-3 sm:gap-6 pt-8"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6 }}
             >
               <div className="space-y-1">
-                <div className="text-3xl font-bold text-[#00ff85]">100 SOL</div>
-                <p className="text-sm text-background/60">Starting balance</p>
+                <div className="text-xl sm:text-2xl md:text-3xl font-bold text-[#00ff85]">100 SOL</div>
+                <p className="text-xs sm:text-sm text-background/60">Starting balance</p>
               </div>
               <div className="space-y-1">
-                <div className="text-3xl font-bold">Rewards</div>
-                <p className="text-sm text-background/60">Earn while learning</p>
+                <div className="text-xl sm:text-2xl md:text-3xl font-bold">Rewards</div>
+                <p className="text-xs sm:text-sm text-background/60">Earn while learning</p>
               </div>
               <div className="space-y-1">
-                <div className="text-3xl font-bold">Zero Risk</div>
-                <p className="text-sm text-background/60">Practice safely</p>
+                <div className="text-xl sm:text-2xl md:text-3xl font-bold">Zero Risk</div>
+                <p className="text-xs sm:text-sm text-background/60">Practice safely</p>
               </div>
             </motion.div>
           </motion.div>
@@ -99,7 +99,7 @@ export function HeroSection() {
                 playsInline
                 className="w-full h-auto object-contain"
               >
-                <source src="/demo-video.mp4" type="video/mp4" />
+                <source src="/demo-video.mp4?v=2" type="video/mp4" />
                 Your browser does not support the video tag.
               </video>
             </div>

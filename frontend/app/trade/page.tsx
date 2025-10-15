@@ -4,6 +4,7 @@ import { Suspense } from "react"
 import dynamic from "next/dynamic"
 import { useSearchParams } from "next/navigation"
 import { motion } from "framer-motion"
+import { TrendingUp, Wallet, BarChart3 } from "lucide-react"
 import { AuthGuard } from "@/components/auth/auth-guard"
 import { TokenSearch } from "@/components/trading/token-search"
 import { EnhancedTrendingList } from "@/components/leaderboard/enhanced-trending-list"
@@ -15,6 +16,7 @@ import { TokenDetailsHeader } from "@/components/trading/token-details-header"
 import { UnifiedPositions } from "@/components/portfolio/unified-positions"
 import { EnhancedCard, CardGrid, CardSection } from "@/components/ui/enhanced-card-system"
 import { TradeEmptyState } from "@/components/trading/trade-empty-state"
+import { TradeTimeline } from "@/components/trading/trade-timeline"
 
 const DexScreenerChart = dynamic(
   () => import("@/components/trading/dexscreener-chart").then((mod) => ({ default: mod.DexScreenerChart })),
@@ -50,17 +52,30 @@ function TradePageContent() {
 
         {/* MOBILE-OPTIMIZED LAYOUT: Chart + Trading Panel Adjacent */}
         <div className="lg:hidden space-y-4">
+          {/* Mobile Search Bar */}
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+            className="bg-card border border-border/50 rounded-lg p-3"
+          >
+            <TokenSearch />
+          </motion.div>
+
           {/* Chart Section - Mobile */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
+            className="space-y-4"
           >
             <div className="h-[380px] sm:h-[420px] border border-border/50 rounded-lg overflow-hidden bg-card">
               <Suspense fallback={<ChartSkeleton />}>
                 <DexScreenerChart tokenAddress={currentTokenAddress} />
               </Suspense>
             </div>
+            {/* Trade Timeline - Mobile */}
+            <TradeTimeline tokenAddress={currentTokenAddress} maxTrades={5} />
           </motion.div>
 
           {/* Trading Panel - Mobile (Immediately Below Chart) */}
@@ -87,16 +102,24 @@ function TradePageContent() {
 
           {/* Collapsible Secondary Content - Mobile */}
           <motion.div
-            className="space-y-4"
+            className="space-y-3"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.3 }}
           >
-            <details className="group">
-              <summary className="flex items-center justify-between p-4 bg-card border border-border/50 rounded-lg cursor-pointer hover:bg-card/80 transition-colors">
-                <span className="font-semibold text-sm">Search & Trending Tokens</span>
+            <details className="group bg-gradient-to-br from-primary/5 to-primary/10 border-2 border-primary/20 rounded-xl overflow-hidden shadow-sm">
+              <summary className="flex items-center justify-between p-4 cursor-pointer hover:bg-primary/5 transition-all active:scale-[0.99] list-none">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-lg bg-primary/20 flex items-center justify-center">
+                    <TrendingUp className="h-5 w-5 text-primary" />
+                  </div>
+                  <div>
+                    <span className="font-bold text-sm text-foreground">Trending Tokens</span>
+                    <p className="text-xs text-muted-foreground">Popular picks right now</p>
+                  </div>
+                </div>
                 <svg
-                  className="w-5 h-5 transition-transform group-open:rotate-180"
+                  className="w-5 h-5 transition-transform group-open:rotate-180 text-primary"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -104,17 +127,24 @@ function TradePageContent() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
               </summary>
-              <div className="mt-2 space-y-4">
-                <TokenSearch />
+              <div className="px-4 pb-4 pt-2">
                 <EnhancedTrendingList />
               </div>
             </details>
 
-            <details className="group">
-              <summary className="flex items-center justify-between p-4 bg-card border border-border/50 rounded-lg cursor-pointer hover:bg-card/80 transition-colors">
-                <span className="font-semibold text-sm">Your Positions</span>
+            <details className="group bg-gradient-to-br from-blue-500/5 to-blue-500/10 border-2 border-blue-500/20 rounded-xl overflow-hidden shadow-sm">
+              <summary className="flex items-center justify-between p-4 cursor-pointer hover:bg-blue-500/5 transition-all active:scale-[0.99] list-none">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-lg bg-blue-500/20 flex items-center justify-center">
+                    <Wallet className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                  </div>
+                  <div>
+                    <span className="font-bold text-sm text-foreground">Your Positions</span>
+                    <p className="text-xs text-muted-foreground">View all holdings</p>
+                  </div>
+                </div>
                 <svg
-                  className="w-5 h-5 transition-transform group-open:rotate-180"
+                  className="w-5 h-5 transition-transform group-open:rotate-180 text-blue-600 dark:text-blue-400"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -122,7 +152,7 @@ function TradePageContent() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
               </summary>
-              <div className="mt-2">
+              <div className="px-4 pb-4 pt-2">
                 <UnifiedPositions
                   variant="compact"
                   maxPositions={5}
@@ -131,11 +161,19 @@ function TradePageContent() {
               </div>
             </details>
 
-            <details className="group">
-              <summary className="flex items-center justify-between p-4 bg-card border border-border/50 rounded-lg cursor-pointer hover:bg-card/80 transition-colors">
-                <span className="font-semibold text-sm">Trade History</span>
+            <details className="group bg-gradient-to-br from-purple-500/5 to-purple-500/10 border-2 border-purple-500/20 rounded-xl overflow-hidden shadow-sm">
+              <summary className="flex items-center justify-between p-4 cursor-pointer hover:bg-purple-500/5 transition-all active:scale-[0.99] list-none">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-lg bg-purple-500/20 flex items-center justify-center">
+                    <BarChart3 className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                  </div>
+                  <div>
+                    <span className="font-bold text-sm text-foreground">Trade History</span>
+                    <p className="text-xs text-muted-foreground">Recent transactions</p>
+                  </div>
+                </div>
                 <svg
-                  className="w-5 h-5 transition-transform group-open:rotate-180"
+                  className="w-5 h-5 transition-transform group-open:rotate-180 text-purple-600 dark:text-purple-400"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -143,7 +181,7 @@ function TradePageContent() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
               </summary>
-              <div className="mt-2">
+              <div className="px-4 pb-4 pt-2">
                 <TradeDetails
                   tokenAddress={currentTokenAddress}
                   tokenSymbol={tokenSymbol}
@@ -197,6 +235,9 @@ function TradePageContent() {
                   <DexScreenerChart tokenAddress={currentTokenAddress} />
                 </Suspense>
               </div>
+
+              {/* Trade Timeline - Desktop */}
+              <TradeTimeline tokenAddress={currentTokenAddress} maxTrades={8} />
 
               {/* Position P&L - Full Width Under Chart */}
               <TokenPositionPnL

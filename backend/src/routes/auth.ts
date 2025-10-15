@@ -526,18 +526,26 @@ export default async function (app: FastifyInstance) {
 
       const updatedUser = await prisma.user.update({
         where: { id: userId },
-        data: { handle, profileImage, bio, displayName }
+        data: {
+          handle,
+          profileImage,
+          avatarUrl: profileImage, // Sync with avatarUrl
+          avatar: profileImage,    // Sync with avatar
+          bio,
+          displayName
+        }
       });
 
-      return { 
-        success: true, 
-        user: { 
-          id: updatedUser.id, 
-          handle: updatedUser.handle, 
-          profileImage: updatedUser.profileImage, 
+      return {
+        success: true,
+        user: {
+          id: updatedUser.id,
+          handle: updatedUser.handle,
+          profileImage: updatedUser.profileImage,
+          avatarUrl: updatedUser.avatarUrl,
           bio: updatedUser.bio,
           displayName: updatedUser.displayName
-        } 
+        }
       };
     } catch (error: any) {
       return reply.code(500).send({
@@ -738,16 +746,17 @@ export default async function (app: FastifyInstance) {
 
       const user = await prisma.user.update({
         where: { id: userId },
-        data: { 
-          avatarUrl: avatarUrl.slice(0, 2048), // Limit URL length
-          avatar: avatarUrl.slice(0, 2048)
+        data: {
+          avatarUrl: avatarUrl, // Full base64 string (no truncation)
+          avatar: avatarUrl,
+          profileImage: avatarUrl // Sync with profileImage
         }
       });
 
-      return { 
-        success: true, 
+      return {
+        success: true,
         avatarUrl: user.avatarUrl,
-        message: "Avatar updated successfully" 
+        message: "Avatar updated successfully"
       };
 
     } catch (error: any) {
@@ -783,9 +792,10 @@ export default async function (app: FastifyInstance) {
 
       await prisma.user.update({
         where: { id: userId },
-        data: { 
+        data: {
           avatarUrl: null,
-          avatar: null
+          avatar: null,
+          profileImage: null // Sync with profileImage
         }
       });
 

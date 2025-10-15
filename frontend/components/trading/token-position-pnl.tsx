@@ -34,7 +34,8 @@ import {
   Globe,
   MessageCircle,
   BarChart3,
-  Zap
+  Zap,
+  Share2
 } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { usePriceStreamContext } from "@/lib/price-stream-provider"
@@ -48,6 +49,7 @@ import { UsdWithSol } from "@/lib/sol-equivalent"
 import { cn } from "@/lib/utils"
 import { motion } from "framer-motion"
 import { formatDistanceToNow } from "date-fns"
+import { SharePnLDialog } from "@/components/modals/share-pnl-dialog"
 
 interface TokenPositionPnLProps {
   tokenAddress: string
@@ -156,6 +158,7 @@ export function TokenPositionPnL({ tokenAddress, tokenSymbol, tokenName }: Token
   const { user } = useAuth()
   const { prices } = usePriceStreamContext()
   const [isRefreshing, setIsRefreshing] = useState(false)
+  const [shareDialogOpen, setShareDialogOpen] = useState(false)
 
   const {
     data: portfolio,
@@ -312,15 +315,27 @@ export function TokenPositionPnL({ tokenAddress, tokenSymbol, tokenName }: Token
               </Badge>
             )}
           </div>
-          
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleRefresh}
-            disabled={isRefreshing}
-          >
-            <RefreshCw className={cn("h-4 w-4", isRefreshing && "animate-spin")} />
-          </Button>
+
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShareDialogOpen(true)}
+              className="gap-2 h-8"
+            >
+              <Share2 className="h-3.5 w-3.5" />
+              <span className="hidden sm:inline text-xs">Share</span>
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleRefresh}
+              disabled={isRefreshing}
+              className="h-8 w-8"
+            >
+              <RefreshCw className={cn("h-4 w-4", isRefreshing && "animate-spin")} />
+            </Button>
+          </div>
         </div>
       </CardHeader>
 
@@ -566,6 +581,22 @@ export function TokenPositionPnL({ tokenAddress, tokenSymbol, tokenName }: Token
           </>
         )}
       </CardContent>
+
+      {/* Share Dialog - Token Specific */}
+      <SharePnLDialog
+        open={shareDialogOpen}
+        onOpenChange={setShareDialogOpen}
+        totalPnL={safeUnrealizedPnL}
+        totalPnLPercent={parseFloat(pnlPercent.replace(/[^0-9.-]/g, '')) || 0}
+        currentValue={safeCurrentValue}
+        initialBalance={safeCostBasis}
+        userHandle={(user as any)?.handle}
+        userAvatarUrl={(user as any)?.avatarUrl || (user as any)?.profileImage}
+        userEmail={user?.email}
+        tokenSymbol={tokenSymbol}
+        tokenName={tokenName}
+        isTokenSpecific={true}
+      />
     </Card>
   )
 }

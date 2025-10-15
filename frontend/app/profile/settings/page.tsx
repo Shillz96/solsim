@@ -151,17 +151,18 @@ function UserSettingsPage() {
       return api.updateProfile({
         userId: user.id,
         handle: data.handle || undefined,
-        bio: data.bio || undefined
+        bio: data.bio || undefined,
+        displayName: data.displayName || undefined
       })
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       toast({
         title: "Success",
         description: "Profile updated successfully",
       })
-      // Invalidate with the correct query key that includes user ID
-      queryClient.invalidateQueries({ queryKey: ['userProfile', user?.id] })
-      queryClient.invalidateQueries({ queryKey: ['userProfile'] })
+      // Force immediate refetch by invalidating and refetching
+      await queryClient.invalidateQueries({ queryKey: ['userProfile', user?.id], refetchType: 'active' })
+      await queryClient.refetchQueries({ queryKey: ['userProfile', user?.id] })
     },
     onError: (error: any) => {
       toast({
@@ -247,14 +248,14 @@ function UserSettingsPage() {
         reader.readAsDataURL(file)
       })
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       toast({
         title: "Success",
         description: "Avatar updated successfully",
       })
-      // Invalidate with the correct query key that includes user ID
-      queryClient.invalidateQueries({ queryKey: ['userProfile', user?.id] })
-      queryClient.invalidateQueries({ queryKey: ['userProfile'] })
+      // Force immediate refetch by invalidating and refetching
+      await queryClient.invalidateQueries({ queryKey: ['userProfile', user?.id], refetchType: 'active' })
+      await queryClient.refetchQueries({ queryKey: ['userProfile', user?.id] })
     },
     onError: (error: any) => {
       toast({
@@ -271,14 +272,14 @@ function UserSettingsPage() {
       if (!user?.id) throw new Error('User not authenticated')
       return api.removeAvatar(user.id)
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       toast({
         title: "Success",
         description: "Avatar removed successfully",
       })
-      // Invalidate with the correct query key that includes user ID
-      queryClient.invalidateQueries({ queryKey: ['userProfile', user?.id] })
-      queryClient.invalidateQueries({ queryKey: ['userProfile'] })
+      // Force immediate refetch by invalidating and refetching
+      await queryClient.invalidateQueries({ queryKey: ['userProfile', user?.id], refetchType: 'active' })
+      await queryClient.refetchQueries({ queryKey: ['userProfile', user?.id] })
     },
     onError: (error: any) => {
       toast({
@@ -957,12 +958,22 @@ function UserSettingsPage() {
 
 // Purchase History Component
 function PurchaseHistorySection({ userId }: { userId: string }) {
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, error } = useQuery({
     queryKey: ['purchaseHistory', userId],
     queryFn: () => api.getPurchaseHistory(userId, 5, 0),
     enabled: !!userId,
     staleTime: 60 * 1000, // 1 minute
+    retry: false, // Don't retry if table doesn't exist
   });
+
+  // If there's an error (e.g., table doesn't exist), show a friendly message
+  if (error) {
+    return (
+      <div className="text-sm text-muted-foreground text-center py-4">
+        Purchase history is currently unavailable. Please contact support if this persists.
+      </div>
+    );
+  }
 
   return (
     <PurchaseHistoryTable

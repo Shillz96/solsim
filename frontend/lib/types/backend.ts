@@ -236,7 +236,10 @@ export interface PortfolioPerformanceResponse {
 export interface LeaderboardEntry {
   userId: string;
   handle: string | null;
+  displayName: string | null;
   profileImage: string | null;
+  avatarUrl: string | null;
+  avatar: string | null;
   totalPnlUsd: string;
   totalTrades: number;
   winRate: number;
@@ -338,6 +341,7 @@ export interface RewardsClaimResponse {
 export interface AuthSignupRequest {
   email: string;
   password: string;
+  username?: string;
   handle?: string;
   profileImage?: string;
 }
@@ -379,6 +383,7 @@ export interface ProfileUpdateRequest {
   handle?: string;
   profileImage?: string;
   bio?: string;
+  displayName?: string;
 }
 
 // ================================
