@@ -312,6 +312,11 @@ export async function fillTrade({
   portfolioCoalescer.invalidate(`portfolio:${userId}`);
   console.log(`[Trade] Invalidated portfolio cache for user ${userId}`);
 
+  // Eagerly fetch price to ensure it's cached for the next portfolio request
+  // This prevents the portfolio endpoint from having to refetch from DexScreener
+  await priceService.getPrice(mint);
+  console.log(`[Trade] Prefetched and cached price for ${mint.substring(0, 8)}...`);
+
   // Calculate portfolio totals
   const portfolioTotals = await calculatePortfolioTotals(userId);
 
@@ -335,6 +340,16 @@ export async function fillTrade({
   // Check for trade milestones
   const tradeCount = await prisma.trade.count({ where: { userId } });
   await notificationService.notifyTradeMilestone(userId, tradeCount);
+
+  // OPTIMIZATION: Warm up portfolio cache immediately after trade
+  // This ensures the next frontend poll hits cache instead of recalculating
+  // Import getPortfolio to trigger cache warming
+  const { getPortfolio } = await import("./portfolioService.js");
+  // Fire and forget - don't await to avoid blocking trade response
+  getPortfolio(userId).catch(err =>
+    console.error(`[Trade] Failed to warm portfolio cache:`, err)
+  );
+  console.log(`[Trade] Triggered portfolio cache warm-up for user ${userId}`);
 
   return {
     trade: result.trade,
