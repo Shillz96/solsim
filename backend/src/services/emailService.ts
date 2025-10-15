@@ -48,13 +48,23 @@ export class EmailService {
   static async sendVerificationEmail(email: string, token: string, username: string): Promise<boolean> {
     const client = getResendClient();
     if (!client) {
-      console.warn('Email service not configured - skipping verification email');
+      console.error('❌ Email service not configured - RESEND_API_KEY is missing');
+      console.error('⚠️  Please set RESEND_API_KEY environment variable to enable email functionality');
+      return false;
+    }
+
+    // Validate email format
+    if (!email || !this.isValidEmailFormat(email)) {
+      console.error(`❌ Invalid email format: ${email}`);
       return false;
     }
 
     const verificationUrl = `${FRONTEND_URL}/verify-email?token=${token}`;
 
     try {
+      console.log(`📤 Sending verification email to: ${email}`);
+      console.log(`🔗 Verification URL: ${verificationUrl.substring(0, 50)}...`);
+
       const { data, error } = await client.emails.send({
         from: FROM_EMAIL,
         to: email,
@@ -63,16 +73,27 @@ export class EmailService {
       });
 
       if (error) {
-        console.error('Failed to send verification email:', error);
+        console.error('❌ Resend API error:', error);
+        console.error('Error details:', JSON.stringify(error, null, 2));
         return false;
       }
 
-      console.log(`✅ Verification email sent to ${email} (ID: ${data?.id})`);
+      console.log(`✅ Verification email sent successfully to ${email}`);
+      console.log(`📧 Resend email ID: ${data?.id}`);
       return true;
-    } catch (error) {
-      console.error('Error sending verification email:', error);
+    } catch (error: any) {
+      console.error('❌ Exception sending verification email:', error.message);
+      console.error('Error stack:', error.stack);
       return false;
     }
+  }
+
+  /**
+   * Validate email format
+   */
+  private static isValidEmailFormat(email: string): boolean {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email) && email.length <= 254 && !email.includes('@wallet.virtualsol.fun');
   }
 
   /**

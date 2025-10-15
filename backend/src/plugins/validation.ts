@@ -145,6 +145,12 @@ export const authSchemas = {
     type: 'object',
     properties: {},
     additionalProperties: false
+  } as ValidationSchema,
+
+  resendVerification: {
+    type: 'object',
+    properties: {},
+    additionalProperties: false
   } as ValidationSchema
 };
 

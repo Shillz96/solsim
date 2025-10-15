@@ -919,12 +919,15 @@ export default async function (app: FastifyInstance) {
 
   // Resend verification email
   app.post("/resend-verification", {
-    preHandler: [authenticateToken, authRateLimit]
+    preHandler: [authenticateToken, authRateLimit, validateBody(authSchemas.resendVerification)]
   }, async (req: AuthenticatedRequest, reply) => {
     try {
       const userId = req.user?.id;
 
+      console.log(`📧 Resend verification requested for userId: ${userId}`);
+
       if (!userId) {
+        console.warn('❌ Resend verification failed: No userId in token');
         return reply.code(401).send({
           error: "UNAUTHORIZED",
           message: "Authentication required"
@@ -932,10 +935,19 @@ export default async function (app: FastifyInstance) {
       }
 
       const user = await prisma.user.findUnique({
-        where: { id: userId }
+        where: { id: userId },
+        select: {
+          id: true,
+          email: true,
+          username: true,
+          emailVerified: true,
+          emailVerificationToken: true,
+          emailVerificationExpiry: true
+        }
       });
 
       if (!user) {
+        console.warn(`❌ Resend verification failed: User not found (userId: ${userId})`);
         return reply.code(404).send({
           error: "USER_NOT_FOUND",
           message: "User not found"
@@ -943,15 +955,26 @@ export default async function (app: FastifyInstance) {
       }
 
       if (user.emailVerified) {
+        console.log(`⚠️  Resend verification skipped: Email already verified (${user.email})`);
         return reply.code(400).send({
           error: "ALREADY_VERIFIED",
           message: "Email is already verified"
         });
       }
 
+      if (!user.email || user.email.includes('@wallet.virtualsol.fun')) {
+        console.warn(`❌ Resend verification failed: Invalid email for wallet user (${user.email})`);
+        return reply.code(400).send({
+          error: "INVALID_EMAIL",
+          message: "This account does not have a valid email address"
+        });
+      }
+
       // Generate new verification token
       const verificationToken = EmailService.generateToken();
       const verificationExpiry = EmailService.generateTokenExpiry(24);
+
+      console.log(`🔄 Generating new verification token for: ${user.email}`);
 
       // Update user with new token
       await prisma.user.update({
@@ -963,6 +986,8 @@ export default async function (app: FastifyInstance) {
       });
 
       // Send verification email
+      console.log(`📤 Attempting to send verification email to: ${user.email}`);
+
       const emailSent = await EmailService.sendVerificationEmail(
         user.email,
         verificationToken,
@@ -970,13 +995,14 @@ export default async function (app: FastifyInstance) {
       );
 
       if (!emailSent) {
+        console.error(`❌ Failed to send verification email to: ${user.email}`);
         return reply.code(500).send({
           error: "EMAIL_SEND_FAILED",
-          message: "Failed to send verification email"
+          message: "Failed to send verification email. Please try again later or contact support if the problem persists."
         });
       }
 
-      console.log(`✅ Verification email resent to: ${user.email} (${user.id})`);
+      console.log(`✅ Verification email resent successfully to: ${user.email} (${user.id})`);
 
       return {
         success: true,
@@ -984,10 +1010,11 @@ export default async function (app: FastifyInstance) {
       };
 
     } catch (error: any) {
-      console.error('Resend verification error:', error);
+      console.error('❌ Resend verification error:', error);
+      console.error('Error stack:', error.stack);
       return reply.code(500).send({
         error: "RESEND_FAILED",
-        message: "Failed to resend verification email"
+        message: "Failed to resend verification email. Please try again later."
       });
     }
   });
