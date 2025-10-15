@@ -1,5 +1,5 @@
 -- CreateEnum
-CREATE TYPE "UserTier" AS ENUM ('EMAIL_USER', 'WALLET_USER', 'SIM_HOLDER', 'ADMINISTRATOR');
+CREATE TYPE "UserTier" AS ENUM ('EMAIL_USER', 'WALLET_USER', 'VSOL_HOLDER', 'ADMINISTRATOR');
 
 -- CreateTable
 CREATE TABLE "User" (
@@ -24,8 +24,8 @@ CREATE TABLE "User" (
     "walletAddress" TEXT,
     "walletNonce" TEXT,
     "walletVerified" BOOLEAN NOT NULL DEFAULT false,
-    "simTokenBalance" DECIMAL(65,30),
-    "simBalanceUpdated" TIMESTAMP(3),
+    "vsolTokenBalance" DECIMAL(65,30),
+    "vsolBalanceUpdated" TIMESTAMP(3),
     "monthlyConversions" DECIMAL(65,30) NOT NULL DEFAULT 0,
     "conversionResetAt" TIMESTAMP(3),
     "premiumFeatures" TEXT DEFAULT '[]',
@@ -134,7 +134,7 @@ CREATE TABLE "ConversionHistory" (
     "id" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
     "virtualSolAmount" DECIMAL(65,30) NOT NULL,
-    "simTokensReceived" DECIMAL(65,30) NOT NULL,
+    "vsolTokensReceived" DECIMAL(65,30) NOT NULL,
     "conversionRate" DECIMAL(65,30) NOT NULL,
     "transactionHash" TEXT,
     "status" TEXT NOT NULL,
