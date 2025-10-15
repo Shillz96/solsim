@@ -5,6 +5,7 @@ import { flushSync } from 'react-dom'
 import { useQueryClient } from '@tanstack/react-query'
 import * as api from '@/lib/api'
 import type { User } from '@/lib/types/backend'
+import { isTokenValid } from '@/lib/jwt-utils'
 
 // Simplified user type for authentication context
 interface AuthUser {
@@ -30,24 +31,49 @@ export function useAuth() {
     isAuthenticated: false
   })
 
-  // Load user from localStorage on mount
+  // Load user from localStorage on mount with token validation
   useEffect(() => {
     const savedUserId = localStorage.getItem('userId')
     const savedUser = localStorage.getItem('user')
-    
-    if (savedUserId && savedUser) {
+    const accessToken = localStorage.getItem('accessToken')
+
+    if (savedUserId && savedUser && accessToken) {
       try {
+        // Validate token before setting auth state
+        if (!isTokenValid(accessToken)) {
+          console.log('[Auth] Token expired, clearing session')
+          // Token expired - clear all auth data
+          localStorage.removeItem('userId')
+          localStorage.removeItem('user')
+          localStorage.removeItem('accessToken')
+          localStorage.removeItem('refreshToken')
+          setAuthState({
+            user: null,
+            isLoading: false,
+            isAuthenticated: false
+          })
+          return
+        }
+
+        // Token is valid - restore session
         const user = JSON.parse(savedUser)
         setAuthState({
           user: { id: savedUserId, ...user },
           isLoading: false,
           isAuthenticated: true
         })
-      } catch {
+      } catch (error) {
+        console.error('[Auth] Error validating token:', error)
         // Clear invalid data
         localStorage.removeItem('userId')
         localStorage.removeItem('user')
-        setAuthState(prev => ({ ...prev, isLoading: false }))
+        localStorage.removeItem('accessToken')
+        localStorage.removeItem('refreshToken')
+        setAuthState({
+          user: null,
+          isLoading: false,
+          isAuthenticated: false
+        })
       }
     } else {
       setAuthState(prev => ({ ...prev, isLoading: false }))
@@ -125,7 +151,8 @@ export function useAuth() {
     localStorage.removeItem('userId')
     localStorage.removeItem('user')
     localStorage.removeItem('accessToken')
-    
+    localStorage.removeItem('refreshToken')
+
     setAuthState({
       user: null,
       isLoading: false,

@@ -12,6 +12,7 @@ import { authRateLimit, walletRateLimit, sensitiveRateLimit } from "../plugins/r
 import { NonceService } from "../plugins/nonce.js";
 import { EmailService } from "../services/emailService.js";
 import * as notificationService from "../services/notificationService.js";
+import { validatePasswordStrength, getPasswordErrorMessage } from "../utils/password-validator.js";
 
 // Check if wallet holds VSOL tokens and upgrade balance
 async function checkAndUpgradeVSOLHolder(userId: string, walletAddress: string) {
@@ -50,12 +51,22 @@ export default async function (app: FastifyInstance) {
 
       const { email, password, username, handle, profileImage } = sanitizedBody;
 
+      // Validate password strength
+      const passwordValidation = validatePasswordStrength(password);
+      if (!passwordValidation.isValid) {
+        return reply.code(400).send({
+          error: "WEAK_PASSWORD",
+          message: getPasswordErrorMessage(passwordValidation),
+          details: passwordValidation.errors
+        });
+      }
+
       // Check if user already exists
       const existingUser = await prisma.user.findUnique({ where: { email } });
       if (existingUser) {
-        return reply.code(409).send({ 
-          error: "USER_EXISTS", 
-          message: "An account with this email already exists" 
+        return reply.code(409).send({
+          error: "USER_EXISTS",
+          message: "An account with this email already exists"
         });
       }
 
@@ -637,21 +648,31 @@ export default async function (app: FastifyInstance) {
         });
       }
 
+      // Validate new password strength
+      const passwordValidation = validatePasswordStrength(newPassword);
+      if (!passwordValidation.isValid) {
+        return reply.code(400).send({
+          error: "WEAK_PASSWORD",
+          message: getPasswordErrorMessage(passwordValidation),
+          details: passwordValidation.errors
+        });
+      }
+
       const user = await prisma.user.findUnique({ where: { id: userId } });
-      
+
       if (!user || !user.passwordHash) {
-        return reply.code(404).send({ 
-          error: "USER_NOT_FOUND", 
-          message: "User not found or no password set" 
+        return reply.code(404).send({
+          error: "USER_NOT_FOUND",
+          message: "User not found or no password set"
         });
       }
 
       // Verify current password
       const isValid = await bcrypt.compare(currentPassword, user.passwordHash);
       if (!isValid) {
-        return reply.code(401).send({ 
-          error: "INVALID_CURRENT_PASSWORD", 
-          message: "Current password is incorrect" 
+        return reply.code(401).send({
+          error: "INVALID_CURRENT_PASSWORD",
+          message: "Current password is incorrect"
         });
       }
 
@@ -1104,10 +1125,13 @@ export default async function (app: FastifyInstance) {
         });
       }
 
-      if (newPassword.length < 8) {
+      // Validate new password strength
+      const passwordValidation = validatePasswordStrength(newPassword);
+      if (!passwordValidation.isValid) {
         return reply.code(400).send({
           error: "WEAK_PASSWORD",
-          message: "Password must be at least 8 characters long"
+          message: getPasswordErrorMessage(passwordValidation),
+          details: passwordValidation.errors
         });
       }
 

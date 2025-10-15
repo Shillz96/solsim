@@ -7,6 +7,7 @@ import { simulateFees } from "../utils/decimal-helpers.js";
 import { addTradePoints } from "./rewardService.js";
 import { portfolioCoalescer } from "../utils/requestCoalescer.js";
 import * as notificationService from "./notificationService.js";
+import redlock from "../plugins/redlock.js";
 
 // Helper for market cap VWAP
 function mcVwapUpdate(oldQty: Decimal, oldMcVwap: Decimal, buyQty: Decimal, mcAtFillUsd: Decimal | null) {
@@ -47,6 +48,48 @@ export async function fillTrade({
 
   // Debug logging for trade execution
   console.log(`[Trade] ${side} order: userId=${userId}, mint=${mint.substring(0, 8)}..., qty=${qty}`);
+
+  // Acquire distributed lock to prevent race conditions on concurrent trades
+  // Lock key format: trade:{userId}:{mint}
+  const lockKey = `trade:${userId}:${mint}`;
+  const lockTTL = 5000; // 5 seconds - sufficient for trade execution
+
+  let lock;
+  try {
+    lock = await redlock.acquire([lockKey], lockTTL);
+    console.log(`[Trade] Lock acquired for ${lockKey}`);
+  } catch (error) {
+    console.error(`[Trade] Failed to acquire lock for ${lockKey}:`, error);
+    throw new Error("Trade is already in progress for this token. Please wait and try again.");
+  }
+
+  try {
+    // Execute trade within lock
+    return await executeTradeLogic({ userId, mint, side, qty: q });
+  } finally {
+    // Always release the lock
+    try {
+      await lock.release();
+      console.log(`[Trade] Lock released for ${lockKey}`);
+    } catch (error) {
+      console.error(`[Trade] Failed to release lock for ${lockKey}:`, error);
+      // Non-critical error - lock will expire automatically
+    }
+  }
+}
+
+// Internal function containing the actual trade logic
+async function executeTradeLogic({
+  userId,
+  mint,
+  side,
+  qty: q
+}: {
+  userId: string;
+  mint: string;
+  side: "BUY" | "SELL";
+  qty: Decimal;
+}): Promise<TradeResult> {
 
   // Get user to check SOL balance
   const user = await prisma.user.findUnique({ where: { id: userId } });

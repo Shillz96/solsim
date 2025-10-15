@@ -17,9 +17,8 @@ export default {
     '!src/**/*.d.ts',
     '!src/index.ts'
   ],
-  moduleNameMapping: {
+  moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1'
   },
-  setupFilesAfterEnv: ['<rootDir>/tests/setup.ts'],
   testTimeout: 10000
 };
