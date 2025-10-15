@@ -18,6 +18,7 @@
     "db:clear": "tsx scripts/clear-database.ts",
     "db:verify": "tsx scripts/verify-database.ts",
     "db:optimize": "tsx src/scripts/create-performance-indexes.ts",
+    "db:fix-enum": "tsx scripts/fix-enum-migration.ts",
     "test": "jest"
   },
   "dependencies": {
