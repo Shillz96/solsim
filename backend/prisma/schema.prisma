@@ -89,6 +89,7 @@ model Trade {
   @@index([userId, tokenAddress, timestamp(sort: Desc)], map: "user_token_history")
   @@index([userId, action, timestamp(sort: Desc)], map: "user_trade_type")
   @@index([timestamp(sort: Desc)], map: "trades_chronological")
+  @@index([userId, side, createdAt(sort: Desc)], map: "user_trade_side")  // PERFORMANCE: For buy/sell history queries
 }
 
 model Holding {
@@ -229,6 +230,7 @@ model Position {
 
   @@unique([userId, mint])
   @@index([userId, mint])
+  @@index([userId, qty(sort: Desc)], map: "user_positions_by_qty")  // PERFORMANCE: For portfolio queries filtering by qty > 0
 }
 
 model PositionLot {
@@ -259,7 +261,7 @@ model RealizedPnL {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, createdAt])
-  @@index([mint])
+  @@index([mint, createdAt(sort: Desc)], map: "mint_pnl_chronological")  // PERFORMANCE: For mint-specific PnL queries
   @@index([tradeId])
 }
 

@@ -6,15 +6,16 @@ const globalForPrisma = globalThis as unknown as {
 };
 
 // Calculate optimal connection pool based on environment
-// Railway Postgres Starter: 20 connections, reserve 5 for admin/migrations
+// Railway Postgres Starter: 20 connections total
+// OPTIMIZED: Increased from 15 to 20 connections, reduced timeout for faster failure
 const getConnectionPoolConfig = () => {
   const isProduction = process.env.NODE_ENV === "production";
 
   if (isProduction) {
     return {
-      connection_limit: 15, // Max concurrent connections
-      pool_timeout: 60,     // Connection timeout (seconds)
-      statement_cache_size: 500
+      connection_limit: 20,        // Increased from 15 (use full Railway allocation)
+      pool_timeout: 30,            // Reduced from 60 (fail faster)
+      statement_cache_size: 1000   // Increased from 500 (better query caching)
     };
   }
 
@@ -60,10 +61,15 @@ prisma.$use(async (params, next) => {
   activeConnections++;
   peakConnections = Math.max(peakConnections, activeConnections);
 
-  // Warn if approaching connection limit
+  // OPTIMIZED: Alert at 60% instead of 80% for earlier warning
   const config = getConnectionPoolConfig();
-  if (activeConnections > config.connection_limit * 0.8) {
-    console.warn(`⚠️ High DB connection usage: ${activeConnections}/${config.connection_limit}`);
+  const utilization = activeConnections / config.connection_limit;
+
+  if (utilization > 0.8) {
+    console.error(`🚨 CRITICAL DB CONNECTION ALERT: ${activeConnections}/${config.connection_limit} (${(utilization * 100).toFixed(0)}%)`);
+    // TODO: Send to monitoring service (Sentry, Datadog, etc.)
+  } else if (utilization > 0.6) {
+    console.warn(`⚠️ High DB connection usage: ${activeConnections}/${config.connection_limit} (${(utilization * 100).toFixed(0)}%)`);
   }
 
   try {

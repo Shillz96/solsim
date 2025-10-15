@@ -60,6 +60,131 @@ interface UnifiedPositionsProps {
   className?: string
 }
 
+// PERFORMANCE: Memoized position row to prevent unnecessary re-renders
+const PositionRow = memo(function PositionRow({
+  position,
+  index,
+  onNavigate
+}: {
+  position: LiveEnhancedPosition
+  index: number
+  onNavigate: (mint: string, symbol?: string, name?: string, action?: string, percent?: number) => void
+}) {
+  const pnl = position.liveUnrealizedUsd || 0
+  const pnlPercent = position.liveUnrealizedPercent || 0
+
+  return (
+    <motion.tr
+      key={position.mint}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: index * 0.1 }}
+      className="border-b hover:bg-muted/50 transition-colors"
+    >
+      <td className="p-2">
+        <Link
+          href={`/trade?token=${position.mint}&symbol=${position.tokenSymbol}&name=${position.tokenName}`}
+          className="flex items-center space-x-2 hover:text-primary transition-colors"
+        >
+          {position.tokenImage ? (
+            <img
+              src={position.tokenImage}
+              alt={position.tokenSymbol || 'Token'}
+              className="w-8 h-8 rounded-full"
+              onError={(e) => {
+                (e.target as HTMLImageElement).style.display = 'none'
+              }}
+            />
+          ) : (
+            <div className="w-8 h-8 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full flex items-center justify-center text-xs font-bold text-white">
+              {position.tokenSymbol?.slice(0, 2) || '??'}
+            </div>
+          )}
+          <div>
+            <p className="font-medium">{position.tokenSymbol}</p>
+            <p className="text-xs text-muted-foreground">
+              {position.mint.slice(0, 6)}...{position.mint.slice(-4)}
+            </p>
+          </div>
+        </Link>
+      </td>
+      <td className="text-right p-2">
+        {formatAmount(position.qty)}
+      </td>
+      <td className="text-right p-2">
+        <UsdWithSol
+          usd={parseFloat(position.avgCostUsd)}
+          className="text-sm"
+          solClassName="text-xs"
+        />
+      </td>
+      <td className="text-right p-2">
+        {position.livePriceNumber ? (
+          <UsdWithSol
+            usd={position.livePriceNumber}
+            className="text-sm"
+            solClassName="text-xs"
+          />
+        ) : (
+          <span className="text-muted-foreground">N/A</span>
+        )}
+      </td>
+      <td className="text-right p-2 font-medium">
+        <UsdWithSol
+          usd={position.currentValueUsd || 0}
+          className="font-medium"
+          solClassName="text-xs"
+        />
+      </td>
+      <td className={`text-right p-2 font-medium ${pnl >= 0 ? 'text-profit' : 'text-loss'}`}>
+        <UsdWithSol
+          usd={pnl}
+          prefix={pnl >= 0 ? '+' : ''}
+          className="font-medium"
+          solClassName="text-xs"
+        />
+      </td>
+      <td className="text-right p-2">
+        <Badge
+          variant={pnlPercent >= 0 ? "default" : "destructive"}
+          className={cn(
+            "tabular-nums",
+            pnlPercent >= 0 ? "bg-profit/10 text-profit border-profit/20" : ""
+          )}
+        >
+          {pnlPercent.toFixed(2)}%
+        </Badge>
+      </td>
+      <td className="text-center p-2">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+              <MoreVertical className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuLabel>Quick Sell</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            {[25, 50, 75, 100].map((percent) => (
+              <DropdownMenuItem
+                key={percent}
+                onClick={() => onNavigate(position.mint, position.tokenSymbol, position.tokenName, 'sell', percent)}
+                className="cursor-pointer"
+              >
+                <ArrowDownToLine className="h-4 w-4 mr-2 text-red-500" />
+                Sell {percent}%
+                <span className="ml-auto text-xs text-muted-foreground">
+                  {formatTokenQuantity((parseFloat(position.qty) * percent) / 100)}
+                </span>
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </td>
+    </motion.tr>
+  )
+})
+
 // Helper functions
 const formatAmount = (amount: string): string => {
   const num = parseFloat(amount)
@@ -210,6 +335,24 @@ export const UnifiedPositions = memo(function UnifiedPositions({
       setIsRefreshing(false)
     }
   }, [refetch])
+
+  // PERFORMANCE: Memoized navigation handler to prevent row re-renders
+  const handleNavigate = useCallback((
+    mint: string,
+    symbol?: string,
+    name?: string,
+    action?: string,
+    percent?: number
+  ) => {
+    const params = new URLSearchParams({
+      token: mint,
+      ...(symbol && { symbol }),
+      ...(name && { name }),
+      ...(action && { action }),
+      ...(percent && { percent: percent.toString() })
+    })
+    router.push(`/trade?${params.toString()}`)
+  }, [router])
 
   // Auth guard
   if (!isAuthenticated) {
@@ -555,126 +698,14 @@ export const UnifiedPositions = memo(function UnifiedPositions({
               </tr>
             </thead>
             <tbody>
-              {enhancedPositions.map((position, index) => {
-                const pnl = position.liveUnrealizedUsd || 0
-                const pnlPercent = position.liveUnrealizedPercent || 0
-                
-                return (
-                  <motion.tr
-                    key={position.mint}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.1 }}
-                    className="border-b hover:bg-muted/50 transition-colors"
-                  >
-                    <td className="p-2">
-                      <Link 
-                        href={`/trade?token=${position.mint}&symbol=${position.tokenSymbol}&name=${position.tokenName}`}
-                        className="flex items-center space-x-2 hover:text-primary transition-colors"
-                      >
-                        {position.tokenImage ? (
-                          <img 
-                            src={position.tokenImage} 
-                            alt={position.tokenSymbol || 'Token'} 
-                            className="w-8 h-8 rounded-full"
-                            onError={(e) => {
-                              (e.target as HTMLImageElement).style.display = 'none'
-                            }}
-                          />
-                        ) : (
-                          <div className="w-8 h-8 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full flex items-center justify-center text-xs font-bold text-white">
-                            {position.tokenSymbol?.slice(0, 2) || '??'}
-                          </div>
-                        )}
-                        <div>
-                          <p className="font-medium">{position.tokenSymbol}</p>
-                          <p className="text-xs text-muted-foreground">
-                            {position.mint.slice(0, 6)}...{position.mint.slice(-4)}
-                          </p>
-                        </div>
-                      </Link>
-                    </td>
-                    <td className="text-right p-2">
-                      {formatAmount(position.qty)}
-                    </td>
-                    <td className="text-right p-2">
-                      <UsdWithSol 
-                        usd={parseFloat(position.avgCostUsd)}
-                        className="text-sm"
-                        solClassName="text-xs"
-                      />
-                    </td>
-                    <td className="text-right p-2">
-                      {position.livePriceNumber ? (
-                        <UsdWithSol 
-                          usd={position.livePriceNumber}
-                          className="text-sm"
-                          solClassName="text-xs"
-                        />
-                      ) : (
-                        <span className="text-muted-foreground">N/A</span>
-                      )}
-                    </td>
-                    <td className="text-right p-2 font-medium">
-                      <UsdWithSol 
-                        usd={position.currentValueUsd || 0}
-                        className="font-medium"
-                        solClassName="text-xs"
-                      />
-                    </td>
-                    <td className={`text-right p-2 font-medium ${pnl >= 0 ? 'text-profit' : 'text-loss'}`}>
-                      <UsdWithSol 
-                        usd={pnl}
-                        prefix={pnl >= 0 ? '+' : ''}
-                        className="font-medium"
-                        solClassName="text-xs"
-                      />
-                    </td>
-                    <td className="text-right p-2">
-                      <Badge
-                        variant={pnlPercent >= 0 ? "default" : "destructive"}
-                        className={cn(
-                          "tabular-nums",
-                          pnlPercent >= 0 ? "bg-profit/10 text-profit border-profit/20" : ""
-                        )}
-                      >
-                        {pnlPercent.toFixed(2)}%
-                      </Badge>
-                    </td>
-                    <td className="text-center p-2">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                            <MoreVertical className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuLabel>Quick Sell</DropdownMenuLabel>
-                          <DropdownMenuSeparator />
-                          {[25, 50, 75, 100].map((percent) => (
-                            <DropdownMenuItem
-                              key={percent}
-                              onClick={() => {
-                                // Navigate to trade page with sell tab and percentage pre-selected
-                                router.push(
-                                  `/trade?token=${position.mint}&symbol=${position.tokenSymbol}&name=${position.tokenName}&action=sell&percent=${percent}`
-                                )
-                              }}
-                              className="cursor-pointer"
-                            >
-                              <ArrowDownToLine className="h-4 w-4 mr-2 text-red-500" />
-                              Sell {percent}%
-                              <span className="ml-auto text-xs text-muted-foreground">
-                                {formatTokenQuantity((parseFloat(position.qty) * percent) / 100)}
-                              </span>
-                            </DropdownMenuItem>
-                          ))}
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </td>
-                  </motion.tr>
-                )
-              })}
+              {enhancedPositions.map((position, index) => (
+                <PositionRow
+                  key={position.mint}
+                  position={position}
+                  index={index}
+                  onNavigate={handleNavigate}
+                />
+              ))}
             </tbody>
           </table>
         </div>
