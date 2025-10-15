@@ -320,9 +320,13 @@ export async function getPortfolioWithRealTimePrices(userId: string): Promise<Po
   // Use cached prices from Redis for real-time updates
   const portfolio = await getPortfolio(userId);
 
+  // Batch fetch all latest prices at once (OPTIMIZED: no more N+1 queries!)
+  const mints = portfolio.positions.map(p => p.mint);
+  const latestPrices = await priceService.getPrices(mints);
+
   // Update with the most recent prices if available using Decimal for precision
   for (const position of portfolio.positions) {
-    const latestPrice = await priceService.getPrice(position.mint);
+    const latestPrice = latestPrices[position.mint];
     if (latestPrice && latestPrice > 0) {
       const qty = D(position.qty);
       const avgCost = D(position.avgCostUsd);

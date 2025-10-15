@@ -305,8 +305,19 @@ export async function fillTradeV2({
   portfolioCoalescer.invalidate(`portfolio:${userId}`);
   console.log(`[TradeV2] Invalidated portfolio cache for user ${userId}`);
 
+  // Eagerly fetch price to ensure it's cached for the next portfolio request
+  await priceService.getPrice(mint);
+  console.log(`[TradeV2] Prefetched and cached price for ${mint.substring(0, 8)}...`);
+
   // Calculate portfolio totals
   const portfolioTotals = await calculatePortfolioTotals(userId);
+
+  // OPTIMIZATION: Warm up portfolio cache immediately after trade
+  const { getPortfolio } = await import("./portfolioService.js");
+  getPortfolio(userId).catch(err =>
+    console.error(`[TradeV2] Failed to warm portfolio cache:`, err)
+  );
+  console.log(`[TradeV2] Triggered portfolio cache warm-up for user ${userId}`);
 
   return {
     trade: result.trade,
