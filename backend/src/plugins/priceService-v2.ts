@@ -209,7 +209,7 @@ class EventDrivenPriceService extends EventEmitter {
             signal: controller.signal,
             headers: {
               'Accept': 'application/json',
-              'User-Agent': 'SolSim/1.0'
+              'User-Agent': 'VirtualSol/1.0'
             }
           });
           clearTimeout(timeoutId);
@@ -275,7 +275,7 @@ class EventDrivenPriceService extends EventEmitter {
             signal: controller.signal,
             headers: {
               'Accept': 'application/json',
-              'User-Agent': 'SolSim/1.0'
+              'User-Agent': 'VirtualSol/1.0'
             }
           });
           clearTimeout(timeoutId);
@@ -362,8 +362,8 @@ class EventDrivenPriceService extends EventEmitter {
     // Try memory cache first
     let tick = this.priceCache.get(mint);
 
-    // Check if cached price is stale (older than 90 seconds for near real-time updates)
-    const PRICE_FRESHNESS_THRESHOLD = 90 * 1000; // 90 seconds
+    // Check if cached price is stale (older than 30 seconds for near real-time updates)
+    const PRICE_FRESHNESS_THRESHOLD = 30 * 1000; // 30 seconds - faster price updates
     const isStale = tick && (Date.now() - tick.timestamp) > PRICE_FRESHNESS_THRESHOLD;
 
     if (isStale && tick) {
@@ -411,7 +411,7 @@ class EventDrivenPriceService extends EventEmitter {
   async getLastTicks(mints: string[]): Promise<Map<string, PriceTick>> {
     const result = new Map<string, PriceTick>();
     const toFetch: string[] = [];
-    const PRICE_FRESHNESS_THRESHOLD = 90 * 1000; // 90 seconds (near real-time updates)
+    const PRICE_FRESHNESS_THRESHOLD = 30 * 1000; // 30 seconds - faster price updates
 
     // Check memory cache first for all mints
     for (const mint of mints) {

@@ -100,7 +100,7 @@ export async function getPortfolio(userId: string): Promise<PortfolioResponse> {
 
       return await calculatePortfolioData(userId, positions);
     },
-    5000 // 5 second TTL - balance between freshness and deduplication
+    10000 // 10 second TTL - matches frontend polling interval + buffer for better cache hit rate
   );
 }
 

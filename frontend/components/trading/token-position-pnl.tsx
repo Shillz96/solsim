@@ -38,7 +38,7 @@ import {
 } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { usePriceStreamContext } from "@/lib/price-stream-provider"
-import { usePortfolio } from "@/hooks/use-react-query-hooks"
+import { usePortfolio } from "@/hooks/use-portfolio"
 import { useAuth } from "@/hooks/use-auth"
 import { useQuery } from "@tanstack/react-query"
 import * as Backend from "@/lib/types/backend"
@@ -162,7 +162,7 @@ export function TokenPositionPnL({ tokenAddress, tokenSymbol, tokenName }: Token
     isLoading,
     error,
     refetch
-  } = usePortfolio(user?.id)
+  } = usePortfolio()
 
   // Fetch user's trade history for this specific token
   const { data: userTradesData } = useQuery({

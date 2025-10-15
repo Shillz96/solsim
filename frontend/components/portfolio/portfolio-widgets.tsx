@@ -22,12 +22,12 @@ import {
 import { motion } from "framer-motion"
 import Link from "next/link"
 import { useAuth } from "@/hooks/use-auth"
-import { usePortfolio } from "@/hooks/use-react-query-hooks"
+import { usePortfolio } from "@/hooks/use-portfolio"
 import { AnimatedNumber } from "@/components/ui/animated-number"
 
 export function PortfolioStatsWidget() {
   const { user } = useAuth()
-  const { data: portfolio } = usePortfolio(user?.id)
+  const { data: portfolio } = usePortfolio()
 
   if (!portfolio) {
     return (

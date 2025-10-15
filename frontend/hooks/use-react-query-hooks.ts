@@ -16,23 +16,11 @@ export function useTrendingTokens(limit = 10, sortBy: 'rank' | 'volume24hUSD' | 
   });
 }
 
-/**
- * Hook for fetching user portfolio with React Query
- */
-export function usePortfolio(userId?: string) {
-  return useQuery({
-    queryKey: ['portfolio', userId],
-    queryFn: async () => {
-      const userIdToUse = userId || getUserId();
-      return api.getPortfolio(userIdToUse);
-    },
-    enabled: !!userId || (typeof window !== 'undefined' && !!localStorage.getItem('userId')),
-    staleTime: 1000 * 5, // 5 seconds (faster with optimized backend)
-    refetchInterval: 1000 * 15, // 15 seconds (more responsive updates)
-  });
-}
+// NOTE: usePortfolio hook has been moved to ./use-portfolio.ts
+// Import from there instead: import { usePortfolio } from './use-portfolio'
+// This prevents duplicate hooks and ensures consistent behavior
 
-// Helper function to get user ID (you may need to adjust this based on your auth system)
+// Helper function to get user ID (used by legacy hooks)
 function getUserId(): string {
   if (typeof window !== 'undefined') {
     const stored = localStorage.getItem('userId');
@@ -42,7 +30,7 @@ function getUserId(): string {
 }
 
 /**
- * Hook for executing trades with React Query
+ * Hook for executing trades with React Query (with optimistic updates)
  */
 export function useExecuteTrade() {
   const queryClient = useQueryClient();
@@ -66,16 +54,28 @@ export function useExecuteTrade() {
         qty
       });
     },
-    onSuccess: async () => {
-      // Invalidate and immediately refetch to ensure fresh data
-      // The backend now invalidates its cache, so this will get fresh data
+    onSuccess: async (tradeResult, variables) => {
+      // Optimistically update portfolio data immediately for perceived speed
+      queryClient.setQueryData(['portfolio', variables.userId], (old: any) => {
+        if (!old) return old;
+
+        // The actual values will be corrected when the refetch completes
+        // This is just for instant visual feedback
+        return {
+          ...old,
+          // Mark data as pending update
+          _optimistic: true,
+        };
+      });
+
+      // Then invalidate and refetch for accurate data
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ['portfolio'] }),
         queryClient.invalidateQueries({ queryKey: ['balance'] }),
         queryClient.invalidateQueries({ queryKey: ['transactions'] })
       ]);
 
-      // Force immediate refetch for portfolio to show updated PnL
+      // Force immediate refetch for portfolio to show accurate PnL
       await queryClient.refetchQueries({ queryKey: ['portfolio'] });
     },
   });
