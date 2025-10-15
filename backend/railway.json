@@ -5,7 +5,7 @@
     "buildCommand": "npm install && npx prisma generate && npm run build"
   },
   "deploy": {
-    "startCommand": "npm run db:fix-enum && npx prisma migrate resolve --rolled-back 20251015_rebrand_sim_to_vsol && npm start",
+    "startCommand": "(npx prisma migrate resolve --rolled-back 20251015_rebrand_sim_to_vsol || true) && npm run db:fix-enum && npm start",
     "healthcheckPath": "/health",
     "healthcheckTimeout": 10,
     "restartPolicyType": "ON_FAILURE",
