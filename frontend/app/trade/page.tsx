@@ -67,15 +67,12 @@ function TradePageContent() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="space-y-4"
           >
             <div className="h-[380px] sm:h-[420px] border border-border/50 rounded-lg overflow-hidden bg-card">
               <Suspense fallback={<ChartSkeleton />}>
                 <DexScreenerChart tokenAddress={currentTokenAddress} />
               </Suspense>
             </div>
-            {/* Trade Timeline - Mobile */}
-            <TradeTimeline tokenAddress={currentTokenAddress} maxTrades={5} />
           </motion.div>
 
           {/* Trading Panel - Mobile (Immediately Below Chart) */}
@@ -83,8 +80,15 @@ function TradePageContent() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
+            className="space-y-4"
           >
             <TradingPanel tokenAddress={currentTokenAddress} />
+            {/* Trade Timeline - Mobile (Compact under trading panel) */}
+            <TradeTimeline
+              tokenAddress={currentTokenAddress}
+              maxTrades={5}
+              variant="compact"
+            />
           </motion.div>
 
           {/* Position P&L - Mobile */}
@@ -236,9 +240,6 @@ function TradePageContent() {
                 </Suspense>
               </div>
 
-              {/* Trade Timeline - Desktop */}
-              <TradeTimeline tokenAddress={currentTokenAddress} maxTrades={8} />
-
               {/* Position P&L - Full Width Under Chart */}
               <TokenPositionPnL
                 tokenAddress={currentTokenAddress}
@@ -248,15 +249,20 @@ function TradePageContent() {
             </div>
           </motion.div>
 
-          {/* Right Sidebar - Trading Panel */}
+          {/* Right Sidebar - Trading Panel + Recent Trades */}
           <motion.aside
             className="lg:col-span-2"
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
           >
-            <div className="lg:sticky lg:top-4 lg:h-[calc(100vh-8rem)]">
+            <div className="lg:sticky lg:top-4 space-y-4">
               <TradingPanel tokenAddress={currentTokenAddress} />
+              <TradeTimeline
+                tokenAddress={currentTokenAddress}
+                maxTrades={5}
+                variant="compact"
+              />
             </div>
           </motion.aside>
         </div>
