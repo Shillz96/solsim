@@ -13,7 +13,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { TrendingUp, TrendingDown, AlertCircle, Loader2, XCircle } from "lucide-react"
 import * as api from "@/lib/api"
 import { useToast } from "@/hooks/use-toast"
-import { TokenSearch } from "@/components/trading/token-search"
+import { PerpTokenSelector } from "@/components/trading/perp-token-selector"
 import { useSearchParams } from "next/navigation"
 
 export default function PerpsPage() {
@@ -37,12 +37,6 @@ function PerpsContent() {
   const [loading, setLoading] = useState(false)
   const [positionsLoading, setPositionsLoading] = useState(false)
   const [balance, setBalance] = useState(0)
-  const [whitelist, setWhitelist] = useState<string[]>([])
-
-  // Load whitelist
-  useEffect(() => {
-    api.getPerpWhitelist().then(setWhitelist).catch(console.error)
-  }, [])
 
   // Load user balance
   useEffect(() => {
@@ -79,16 +73,6 @@ function PerpsContent() {
       toast({
         title: "Error",
         description: "Please select a token and enter margin amount",
-        variant: "destructive",
-      })
-      return
-    }
-
-    // Check if token is whitelisted
-    if (!whitelist.includes(selectedToken)) {
-      toast({
-        title: "Token Not Supported",
-        description: "This token is not available for perpetual trading. Only high market cap tokens (SOL and top memecoins) are supported.",
         variant: "destructive",
       })
       return
@@ -180,7 +164,7 @@ function PerpsContent() {
         <Alert className="border-blue-500 bg-blue-50 dark:bg-blue-950/20">
           <AlertCircle className="h-4 w-4 text-blue-600" />
           <AlertDescription className="text-blue-900 dark:text-blue-100">
-            <strong>Supported Tokens:</strong> Only SOL and top market cap tokens (BONK, WIF, POPCAT, etc.) are available for perp trading. High liquidity tokens only.
+            <strong>Supported Tokens:</strong> Only SOL and established high market cap tokens are available for perpetual trading. Select from the dropdown to see all available tokens.
           </AlertDescription>
         </Alert>
 
@@ -195,7 +179,10 @@ function PerpsContent() {
               {/* Token Selection */}
               <div className="space-y-2">
                 <Label>Token</Label>
-                <TokenSearch />
+                <PerpTokenSelector
+                  value={selectedToken}
+                  onChange={setSelectedToken}
+                />
               </div>
 
               {/* Side Selection */}
