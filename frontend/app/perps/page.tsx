@@ -161,14 +161,20 @@ function PerpsContent() {
   }, [positions])
 
   // Calculate estimated liquidation price
+  // Using maintenance margin of 2.5% (matches backend)
   const estimatedLiqPrice = useMemo(() => {
     if (!selectedTokenMeta?.priceUsd || !marginAmount || !leverage) return null
 
     const price = selectedTokenMeta.priceUsd
+    const maintenanceMargin = 0.025 // 2.5%
+    const leverageFactor = 1 / leverage
+
     if (side === "LONG") {
-      return price * (1 - 1/leverage + 0.05)
+      // liquidationPrice = entryPrice * (1 - (1/leverage - maintenanceMargin))
+      return price * (1 - (leverageFactor - maintenanceMargin))
     } else {
-      return price * (1 + 1/leverage - 0.05)
+      // liquidationPrice = entryPrice * (1 + (1/leverage - maintenanceMargin))
+      return price * (1 + (leverageFactor - maintenanceMargin))
     }
   }, [selectedTokenMeta, marginAmount, leverage, side])
 

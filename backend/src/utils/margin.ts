@@ -4,7 +4,12 @@ import { Decimal } from "@prisma/client/runtime/library";
 export const D = (x: Decimal | number | string) => new Decimal(x);
 
 // Constants for margin calculations
-export const MAINTENANCE_MARGIN_RATIO = D(0.05); // 5% maintenance margin
+// Maintenance margin is set at 2.5% - this allows safe buffer for all leverage levels:
+// - 2x leverage: 50% initial → 2.5% maintenance (20x buffer)
+// - 5x leverage: 20% initial → 2.5% maintenance (8x buffer)
+// - 10x leverage: 10% initial → 2.5% maintenance (4x buffer)
+// - 20x leverage: 5% initial → 2.5% maintenance (2x buffer)
+export const MAINTENANCE_MARGIN_RATIO = D(0.025); // 2.5% maintenance margin
 export const INITIAL_MARGIN_RATIO = D(0.10); // 10% initial margin for 10x leverage
 
 /**
@@ -25,9 +30,12 @@ export function calculateInitialMargin(
 
 /**
  * Calculate liquidation price for a LONG position
+ * Formula: liquidationPrice = entryPrice * (1 - (1/leverage - maintenanceMarginRatio))
+ * This gives the price at which margin balance falls to maintenance margin level
+ *
  * @param entryPrice - Entry price of position
  * @param leverage - Leverage multiplier
- * @param maintenanceMarginRatio - Maintenance margin ratio (default 5%)
+ * @param maintenanceMarginRatio - Maintenance margin ratio (default 2.5%)
  * @returns Liquidation price
  */
 export function calculateLiquidationPriceLong(
@@ -35,16 +43,21 @@ export function calculateLiquidationPriceLong(
   leverage: Decimal,
   maintenanceMarginRatio: Decimal = MAINTENANCE_MARGIN_RATIO
 ): Decimal {
-  // For LONG: liquidationPrice = entryPrice * (1 - (1/leverage) + maintenanceMarginRatio)
+  // For LONG: liquidationPrice = entryPrice * (1 - (1/leverage - maintenanceMarginRatio))
+  // Example with 10x leverage at $1 entry:
+  // liquidationPrice = 1 * (1 - (0.1 - 0.025)) = 1 * (1 - 0.075) = $0.925
   const leverageFactor = D(1).div(leverage);
-  return entryPrice.mul(D(1).sub(leverageFactor).add(maintenanceMarginRatio));
+  return entryPrice.mul(D(1).sub(leverageFactor.sub(maintenanceMarginRatio)));
 }
 
 /**
  * Calculate liquidation price for a SHORT position
+ * Formula: liquidationPrice = entryPrice * (1 + (1/leverage - maintenanceMarginRatio))
+ * This gives the price at which margin balance falls to maintenance margin level
+ *
  * @param entryPrice - Entry price of position
  * @param leverage - Leverage multiplier
- * @param maintenanceMarginRatio - Maintenance margin ratio (default 5%)
+ * @param maintenanceMarginRatio - Maintenance margin ratio (default 2.5%)
  * @returns Liquidation price
  */
 export function calculateLiquidationPriceShort(
@@ -52,9 +65,11 @@ export function calculateLiquidationPriceShort(
   leverage: Decimal,
   maintenanceMarginRatio: Decimal = MAINTENANCE_MARGIN_RATIO
 ): Decimal {
-  // For SHORT: liquidationPrice = entryPrice * (1 + (1/leverage) - maintenanceMarginRatio)
+  // For SHORT: liquidationPrice = entryPrice * (1 + (1/leverage - maintenanceMarginRatio))
+  // Example with 10x leverage at $1 entry:
+  // liquidationPrice = 1 * (1 + (0.1 - 0.025)) = 1 * (1 + 0.075) = $1.075
   const leverageFactor = D(1).div(leverage);
-  return entryPrice.mul(D(1).add(leverageFactor).sub(maintenanceMarginRatio));
+  return entryPrice.mul(D(1).add(leverageFactor.sub(maintenanceMarginRatio)));
 }
 
 /**
@@ -126,7 +141,9 @@ export function shouldLiquidate(
   if (positionValue.eq(0)) return false;
 
   const maintenanceMargin = positionValue.mul(MAINTENANCE_MARGIN_RATIO);
-  return marginBalance.lte(maintenanceMargin);
+  // Use strict less-than (<) instead of less-than-or-equal (<=)
+  // This prevents edge case where initial margin exactly equals maintenance margin
+  return marginBalance.lt(maintenanceMargin);
 }
 
 /**

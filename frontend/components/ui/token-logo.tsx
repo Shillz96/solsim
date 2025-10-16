@@ -1,19 +1,45 @@
 "use client"
 
 import { useState } from "react"
-import { getTokenLogoAlternatives } from "@/lib/token-logos"
+import { getTokenLogoFallback, getTokenLogoAlternatives } from "@/lib/token-logos"
 
 interface TokenLogoProps {
+  /** Primary logo URL from API */
   src?: string
+  /** Alt text (usually token symbol) */
   alt: string
+  /** Token mint address for fallback lookup */
   mint?: string
+  /** Custom className for styling */
   className?: string
+  /** Fallback className for letter avatar */
   fallbackClassName?: string
 }
 
 /**
- * Enhanced token logo component with automatic fallback handling
- * Tries alternative logo URLs if primary fails
+ * Consolidated Token Logo Component
+ *
+ * Handles token logos with intelligent fallback chain:
+ * 1. API-provided logo URL (src prop)
+ * 2. Curated fallback from token-logos.ts
+ * 3. Alternative CDN URLs
+ * 4. First letter avatar with gradient
+ *
+ * Features:
+ * - Automatic error handling with fallback cascade
+ * - Lazy loading for performance
+ * - Consistent styling across app
+ * - Colored avatars for missing logos
+ *
+ * @example
+ * ```tsx
+ * <TokenLogo
+ *   src={token.logoURI}
+ *   alt={token.symbol}
+ *   mint={token.mint}
+ *   className="w-10 h-10 rounded-full"
+ * />
+ * ```
  */
 export function TokenLogo({
   src,
@@ -22,7 +48,8 @@ export function TokenLogo({
   className = "",
   fallbackClassName = "bg-gradient-to-br from-purple-500 to-pink-500"
 }: TokenLogoProps) {
-  const [currentSrc, setCurrentSrc] = useState(src)
+  // Initialize with src or curated fallback
+  const [currentSrc, setCurrentSrc] = useState(src || (mint ? getTokenLogoFallback(mint) : undefined))
   const [attemptIndex, setAttemptIndex] = useState(0)
   const [hasError, setHasError] = useState(false)
 
@@ -48,8 +75,9 @@ export function TokenLogo({
 
     return (
       <div
-        className={`flex items-center justify-center text-white font-bold ${fallbackClassName} ${className}`}
+        className={`flex items-center justify-center text-white font-bold rounded-full ${fallbackClassName} ${className}`}
         aria-label={alt}
+        title={alt}
       >
         {firstLetter}
       </div>
@@ -60,9 +88,15 @@ export function TokenLogo({
     <img
       src={currentSrc}
       alt={alt}
-      className={className}
+      title={alt}
+      className={`rounded-full object-cover ${className}`}
       onError={handleError}
       loading="lazy"
     />
   )
 }
+
+/**
+ * Re-export as TokenImage for flexibility
+ */
+export const TokenImage = TokenLogo
