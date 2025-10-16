@@ -40,16 +40,6 @@ function TradePageContent() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
       <main className="w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-6 max-w-page-xl mx-auto">
-        {/* Token details header */}
-        <motion.div
-          className="mb-6"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          <TokenDetailsHeader tokenAddress={currentTokenAddress} />
-        </motion.div>
-
         {/* MOBILE-OPTIMIZED LAYOUT: Chart + Trading Panel Adjacent */}
         <div className="lg:hidden space-y-4">
           {/* Mobile Search Bar */}
@@ -60,6 +50,15 @@ function TradePageContent() {
             className="bg-card border border-border/50 rounded-lg p-3"
           >
             <TokenSearch />
+          </motion.div>
+
+          {/* Token details header - Mobile */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <TokenDetailsHeader tokenAddress={currentTokenAddress} />
           </motion.div>
 
           {/* Chart Section - Mobile */}
@@ -199,7 +198,17 @@ function TradePageContent() {
         </div>
 
         {/* DESKTOP LAYOUT: Original 3-Column Grid */}
-        <div className="hidden lg:grid lg:grid-cols-12 gap-4 lg:gap-6 min-h-[calc(100vh-10rem)]">
+        <div className="hidden lg:block space-y-6">
+          {/* Token details header - Desktop */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <TokenDetailsHeader tokenAddress={currentTokenAddress} />
+          </motion.div>
+
+          <div className="lg:grid lg:grid-cols-12 gap-4 lg:gap-6 min-h-[calc(100vh-10rem)]">
           {/* Left Sidebar */}
           <motion.aside
             className="lg:col-span-2 space-y-4"
@@ -265,6 +274,7 @@ function TradePageContent() {
               />
             </div>
           </motion.aside>
+          </div>
         </div>
 
         {/* Decorative Elements */}
