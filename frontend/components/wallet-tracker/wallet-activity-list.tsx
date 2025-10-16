@@ -3,7 +3,6 @@
 import { useState, useRef, useCallback, useMemo } from "react"
 import { motion } from "framer-motion"
 import Link from "next/link"
-import Image from "next/image"
 import {
   TrendingUp,
   TrendingDown,
@@ -22,6 +21,7 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/enhanced-skeleton"
+import { TokenLogo } from "@/components/ui/token-logo"
 import {
   Tooltip,
   TooltipContent,
@@ -51,7 +51,6 @@ export function WalletActivityList({
   getWalletLabel
 }: WalletActivityListProps) {
   const [copyingTrades, setCopyingTrades] = useState<Set<string>>(new Set())
-  const [failedImages, setFailedImages] = useState<Set<string>>(new Set())
   const loadMoreRef = useRef<HTMLDivElement>(null)
 
   // Infinite scroll trigger
@@ -171,26 +170,13 @@ export function WalletActivityList({
                     href={`/trade?token=${tokenMint}`}
                     className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0 hover:opacity-80 transition-opacity"
                   >
-                    {/* Token Logo - LARGER */}
-                    <div className="relative h-10 w-10 sm:h-12 sm:w-12 rounded-full overflow-hidden bg-muted flex-shrink-0 border border-border">
-                      {tokenLogoURI && !failedImages.has(activity.id) ? (
-                        <Image
-                          src={tokenLogoURI}
-                          alt={tokenSymbol}
-                          fill
-                          className="object-cover"
-                          unoptimized
-                          onError={() => {
-                            // Track failed image loads
-                            setFailedImages(prev => new Set(prev).add(activity.id));
-                          }}
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/20 to-primary/5">
-                          <Coins className="h-5 w-5 sm:h-6 sm:w-6 text-muted-foreground" />
-                        </div>
-                      )}
-                    </div>
+                    {/* Token Logo - LARGER with fallback support */}
+                    <TokenLogo
+                      src={tokenLogoURI || undefined}
+                      alt={tokenSymbol}
+                      mint={tokenMint}
+                      className="h-10 w-10 sm:h-12 sm:w-12 border border-border"
+                    />
 
                     {/* Token Symbol & Price Change - PROMINENT */}
                     <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 min-w-0">
