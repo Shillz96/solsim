@@ -40,7 +40,12 @@
       "Bash(railway shell:*)",
       "Bash(railway run:*)",
       "Bash(move .env .env.temp)",
-      "Bash(mv:*)"
+      "Bash(mv:*)",
+      "Bash(echo:*)",
+      "Bash(for i in 1 2 3)",
+      "Bash(do echo -e \"\\n--- Request $i ---\")",
+      "Bash(time curl:*)",
+      "Bash(done)"
     ],
     "deny": [],
     "ask": []
