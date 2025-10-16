@@ -13,6 +13,63 @@ const JUPITER = "https://price.jup.ag/v6";
 const REDIS_TOKEN_META_TTL = 3600;
 const REDIS_TOKEN_META_VERSION = 'v3'; // Increment to invalidate old cache (v3: added Jupiter "all" list + logo fallback)
 
+// In-memory cache for Jupiter token lists (refreshed every hour)
+let jupiterStrictCache: Map<string, any> | null = null;
+let jupiterAllCache: Map<string, any> | null = null;
+let jupiterCacheExpiry = 0;
+const JUPITER_CACHE_TTL = 3600000; // 1 hour in milliseconds
+
+// Helper function to get Jupiter token lists with caching
+async function getJupiterToken(mint: string, useAllList: boolean = false): Promise<any | null> {
+  const now = Date.now();
+
+  // Check if cache is expired
+  if (now > jupiterCacheExpiry) {
+    jupiterStrictCache = null;
+    jupiterAllCache = null;
+  }
+
+  const cache = useAllList ? jupiterAllCache : jupiterStrictCache;
+
+  // Return from cache if available
+  if (cache) {
+    return cache.get(mint) || null;
+  }
+
+  // Fetch and cache the token list
+  try {
+    const url = useAllList ? 'https://token.jup.ag/all' : 'https://token.jup.ag/strict';
+    const tokenList = await fetchJSON<any[]>(url, {
+      timeout: 15000, // Increased timeout for large list
+      retries: 1,
+      retryDelay: 500
+    });
+
+    // Build cache map
+    const cacheMap = new Map<string, any>();
+    tokenList.forEach(token => {
+      if (token.address) {
+        cacheMap.set(token.address, token);
+      }
+    });
+
+    // Store cache
+    if (useAllList) {
+      jupiterAllCache = cacheMap;
+    } else {
+      jupiterStrictCache = cacheMap;
+    }
+    jupiterCacheExpiry = now + JUPITER_CACHE_TTL;
+
+    console.log(`[TokenService] Cached ${cacheMap.size} tokens from Jupiter ${useAllList ? 'all' : 'strict'} list`);
+
+    return cacheMap.get(mint) || null;
+  } catch (e: any) {
+    console.warn(`Failed to fetch Jupiter ${useAllList ? 'all' : 'strict'} list:`, e.message);
+    return null;
+  }
+}
+
 // Enrich token metadata (caches in Redis -> DB -> external APIs)
 // Wrapped with request coalescing to prevent duplicate concurrent API calls
 export async function getTokenMeta(mint: string) {
@@ -50,12 +107,7 @@ async function getTokenMetaUncached(mint: string) {
   // 1. Try Jupiter token list first (fastest and most reliable)
   // Try strict list first (verified tokens with logos)
   try {
-    const tokenList = await fetchJSON<any[]>(`https://token.jup.ag/strict`, {
-      timeout: 8000,
-      retries: 1, // Reduced from 2 - fail faster on DNS errors
-      retryDelay: 500
-    });
-    const jupiterToken = tokenList.find(t => t.address === mint);
+    const jupiterToken = await getJupiterToken(mint, false); // Use strict list with caching
 
     if (jupiterToken) {
       token = await prisma.token.upsert({
@@ -92,12 +144,7 @@ async function getTokenMetaUncached(mint: string) {
 
   // 1b. Try Jupiter "all" list (includes unverified tokens)
   try {
-    const tokenList = await fetchJSON<any[]>(`https://token.jup.ag/all`, {
-      timeout: 8000,
-      retries: 1,
-      retryDelay: 500
-    });
-    const jupiterToken = tokenList.find(t => t.address === mint);
+    const jupiterToken = await getJupiterToken(mint, true); // Use "all" list with caching
 
     if (jupiterToken) {
       token = await prisma.token.upsert({
@@ -230,12 +277,7 @@ async function getTokenMetaUncached(mint: string) {
   // 4. Final fallback: If we have token data but NO logo, try Jupiter one more time for just the image
   if (token && !token.logoURI) {
     try {
-      const tokenList = await fetchJSON<any[]>(`https://token.jup.ag/all`, {
-        timeout: 5000,
-        retries: 1,
-        retryDelay: 300
-      });
-      const jupiterToken = tokenList.find(t => t.address === mint);
+      const jupiterToken = await getJupiterToken(mint, true); // Use cached "all" list
 
       if (jupiterToken && jupiterToken.logoURI) {
         token = await prisma.token.update({
