@@ -146,8 +146,129 @@ export function TokenDetailsHeader({ tokenAddress }: TokenDetailsHeaderProps) {
       {/* Animated Background */}
       <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-blue-500/5 opacity-50"></div>
       <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-blue-500"></div>
-      
-      <div className="relative z-10 p-6">
+
+      {/* Mobile Compact Layout */}
+      <div className="relative z-10 p-3 md:p-6 lg:hidden">
+        {/* Recent Tokens Dropdown - Top Right */}
+        <div className="absolute top-2 right-2 z-20">
+          <RecentTokensDropdown currentTokenAddress={tokenAddress} />
+        </div>
+
+        <div className="flex items-start gap-2">
+          {/* Token Image - Smaller on Mobile */}
+          <div className="relative flex-shrink-0">
+            <TokenImage
+              src={tokenDetails.imageUrl || tokenDetails.logoURI}
+              alt={tokenDetails.name || 'Token'}
+              size={40}
+              className="ring-1 ring-primary/20"
+            />
+            {(tokenDetails.isNew || tokenDetails.isTrending) && (
+              <div className="absolute -top-1 -right-1 w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+            )}
+          </div>
+
+          {/* Token Info - Compact */}
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h1 className="text-lg font-bold">
+                {tokenDetails.symbol}
+              </h1>
+              <span className="text-xs text-muted-foreground truncate max-w-[120px]">
+                {tokenDetails.name}
+              </span>
+            </div>
+
+            {/* Contract Address - Super Compact */}
+            <div className="text-xs text-muted-foreground font-mono mt-1">
+              {tokenAddress.slice(0, 6)}...{tokenAddress.slice(-4)}
+            </div>
+
+            {/* Social Links - Compact Icons Only */}
+            <div className="flex gap-1 mt-1.5">
+              <TooltipProvider>
+                {socials.slice(0, 1).map((social: string, index: number) => (
+                  <Link
+                    key={`social-${index}`}
+                    href={social}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+                      {getSocialIcon(social)}
+                    </Button>
+                  </Link>
+                ))}
+                <Link
+                  href={`https://dexscreener.com/solana/${tokenAddress}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+                    <ExternalLink className="h-3 w-3" />
+                  </Button>
+                </Link>
+              </TooltipProvider>
+            </div>
+          </div>
+        </div>
+
+        {/* Metrics - Compact Grid */}
+        <div className="grid grid-cols-2 gap-2 mt-3">
+          <div className="text-left p-2 bg-muted/30 rounded">
+            <div className="text-xs text-muted-foreground mb-0.5">Price</div>
+            <div className="flex items-center gap-1">
+              <PriceCell
+                priceUSD={currentPrice}
+                priceChangePercent={priceChange ?? undefined}
+                className="text-sm font-mono font-bold"
+                showSolEquiv={false}
+              />
+              {priceChange !== undefined && priceChange !== null && (
+                <span className={`text-xs ${isPositiveChange ? 'text-green-400' : isNegativeChange ? 'text-red-400' : 'text-muted-foreground'}`}>
+                  {priceChange >= 0 ? '+' : ''}{priceChange.toFixed(1)}%
+                </span>
+              )}
+            </div>
+          </div>
+
+          {tokenDetails.marketCapUsd && (
+            <div className="text-left p-2 bg-muted/30 rounded">
+              <div className="text-xs text-muted-foreground mb-0.5">MCap</div>
+              <MoneyCell
+                usd={Number(tokenDetails.marketCapUsd)}
+                className="text-sm font-mono font-bold"
+                hideSolEquiv={true}
+              />
+            </div>
+          )}
+
+          {tokenDetails.volume24h && (
+            <div className="text-left p-2 bg-muted/30 rounded">
+              <div className="text-xs text-muted-foreground mb-0.5">24h Vol</div>
+              <MoneyCell
+                usd={Number(tokenDetails.volume24h)}
+                className="text-sm font-mono font-bold"
+                hideSolEquiv={true}
+              />
+            </div>
+          )}
+
+          {tokenDetails.liquidityUsd && (
+            <div className="text-left p-2 bg-muted/30 rounded">
+              <div className="text-xs text-muted-foreground mb-0.5">Liquidity</div>
+              <MoneyCell
+                usd={Number(tokenDetails.liquidityUsd)}
+                className="text-sm font-mono font-bold"
+                hideSolEquiv={true}
+              />
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Desktop Layout - Unchanged */}
+      <div className="relative z-10 p-6 hidden lg:block">
         {/* Recent Tokens Dropdown - Top Right */}
         <div className="absolute top-4 right-4 z-20">
           <RecentTokensDropdown currentTokenAddress={tokenAddress} />
@@ -169,7 +290,7 @@ export function TokenDetailsHeader({ tokenAddress }: TokenDetailsHeaderProps) {
                 <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
               )}
             </div>
-            
+
             <div>
               <div className="flex items-center gap-3 flex-wrap">
                 <h1 className="text-2xl font-bold bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text">
@@ -178,33 +299,33 @@ export function TokenDetailsHeader({ tokenAddress }: TokenDetailsHeaderProps) {
                 <Badge variant="outline" className="h-7 px-3 font-medium bg-muted/50 backdrop-blur-sm">
                   {tokenDetails.name}
                 </Badge>
-                
+
                 {tokenDetails.isNew && (
                   <Badge variant="default" className="bg-blue-600 hover:bg-blue-700 animate-pulse">
                     🔥 New
                   </Badge>
                 )}
-                
+
                 {tokenDetails.isTrending && (
                   <Badge variant="default" className="bg-green-600 hover:bg-green-700 animate-pulse">
                     📈 Trending
                   </Badge>
                 )}
               </div>
-              
+
               <div className="text-sm text-muted-foreground font-mono truncate max-w-[300px] mt-2 bg-muted/30 px-2 py-1 rounded">
                 {tokenAddress}
               </div>
-              
+
               {/* Enhanced Social Links */}
               <div className="flex gap-2 mt-3">
                 <TooltipProvider>
                   {websites.slice(0, 1).map((website: string, index: number) => (
                     <Tooltip key={index}>
                       <TooltipTrigger asChild>
-                        <Link 
-                          href={website} 
-                          target="_blank" 
+                        <Link
+                          href={website}
+                          target="_blank"
                           rel="noopener noreferrer"
                         >
                           <Button variant="outline" size="sm" className="h-8 w-8 p-0 bg-background/50 hover:bg-primary/20 transition-all duration-200">
@@ -217,13 +338,13 @@ export function TokenDetailsHeader({ tokenAddress }: TokenDetailsHeaderProps) {
                       </TooltipContent>
                     </Tooltip>
                   ))}
-                  
+
                   {socials.slice(0, 2).map((social: string, index: number) => (
                     <Tooltip key={`social-${index}`}>
                       <TooltipTrigger asChild>
-                        <Link 
-                          href={social} 
-                          target="_blank" 
+                        <Link
+                          href={social}
+                          target="_blank"
                           rel="noopener noreferrer"
                         >
                           <Button variant="outline" size="sm" className="h-8 w-8 p-0 bg-background/50 hover:bg-primary/20 transition-all duration-200">
@@ -232,17 +353,17 @@ export function TokenDetailsHeader({ tokenAddress }: TokenDetailsHeaderProps) {
                         </Link>
                       </TooltipTrigger>
                       <TooltipContent>
-                        <p>{social.includes('twitter.com') || social.includes('x.com') ? 'Twitter' : 
+                        <p>{social.includes('twitter.com') || social.includes('x.com') ? 'Twitter' :
                            social.includes('t.me') ? 'Telegram' : 'Social'}</p>
                       </TooltipContent>
                     </Tooltip>
                   ))}
-                  
+
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <Link 
+                      <Link
                         href={`https://solscan.io/token/${tokenAddress}`}
-                        target="_blank" 
+                        target="_blank"
                         rel="noopener noreferrer"
                       >
                         <Button variant="outline" size="sm" className="h-8 w-8 p-0 bg-background/50 hover:bg-primary/20 transition-all duration-200">
@@ -258,7 +379,7 @@ export function TokenDetailsHeader({ tokenAddress }: TokenDetailsHeaderProps) {
               </div>
             </div>
           </div>
-          
+
           {/* ✅ Enhanced Metrics Section with Standardized Components */}
           <div className="flex flex-wrap items-center gap-6 ml-auto">
             <div className="text-center p-4 bg-muted/30 rounded-lg backdrop-blur-sm">
@@ -273,10 +394,10 @@ export function TokenDetailsHeader({ tokenAddress }: TokenDetailsHeaderProps) {
                 />
                 {priceChange !== undefined && priceChange !== null && (
                   <div className={`flex items-center text-sm px-2 py-1 rounded-full ${
-                    isPositiveChange 
-                      ? 'text-green-400 bg-green-500/10' 
-                      : isNegativeChange 
-                        ? 'text-red-400 bg-red-500/10' 
+                    isPositiveChange
+                      ? 'text-green-400 bg-green-500/10'
+                      : isNegativeChange
+                        ? 'text-red-400 bg-red-500/10'
                         : 'text-muted-foreground bg-muted/20'
                   }`}>
                     {isPositiveChange && <TrendingUp className="h-3 w-3 mr-1" />}
@@ -292,36 +413,36 @@ export function TokenDetailsHeader({ tokenAddress }: TokenDetailsHeaderProps) {
                 )}
               </div>
             </div>
-            
+
             {tokenDetails.marketCapUsd && (
               <div className="text-center p-4 bg-muted/30 rounded-lg backdrop-blur-sm">
                 <div className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Market Cap</div>
                 {/* ✅ Use MoneyCell for market cap with SOL equivalent */}
-                <MoneyCell 
+                <MoneyCell
                   usd={Number(tokenDetails.marketCapUsd)}
                   className="text-lg font-mono font-bold"
                   hideSolEquiv={false}
                 />
               </div>
             )}
-            
+
             {tokenDetails.volume24h && (
               <div className="text-center p-4 bg-muted/30 rounded-lg backdrop-blur-sm">
                 <div className="text-xs text-muted-foreground uppercase tracking-wide mb-1">24h Volume</div>
                 {/* ✅ Use MoneyCell for volume with SOL equivalent */}
-                <MoneyCell 
+                <MoneyCell
                   usd={Number(tokenDetails.volume24h)}
                   className="text-lg font-mono font-bold"
                   hideSolEquiv={false}
                 />
               </div>
             )}
-            
+
             {tokenDetails.liquidityUsd && (
               <div className="text-center p-4 bg-muted/30 rounded-lg backdrop-blur-sm">
                 <div className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Liquidity</div>
                 {/* ✅ Use MoneyCell for liquidity with SOL equivalent */}
-                <MoneyCell 
+                <MoneyCell
                   usd={Number(tokenDetails.liquidityUsd)}
                   className="text-lg font-mono font-bold"
                   hideSolEquiv={false}
@@ -330,7 +451,7 @@ export function TokenDetailsHeader({ tokenAddress }: TokenDetailsHeaderProps) {
             )}
           </div>
         </div>
-        
+
         {/* Enhanced Additional Details Section */}
         <div className="mt-6 pt-4 border-t border-border/50 flex flex-wrap gap-x-8 gap-y-3 text-sm">
           {tokenDetails.holderCount && (
@@ -340,7 +461,7 @@ export function TokenDetailsHeader({ tokenAddress }: TokenDetailsHeaderProps) {
               <span className="font-semibold">{Number(tokenDetails.holderCount).toLocaleString()}</span>
             </div>
           )}
-          
+
           {tokenDetails.firstSeenAt && (
             <div className="flex items-center gap-2 px-3 py-2 bg-muted/20 rounded-lg">
               <Clock className="h-4 w-4 text-primary" />
@@ -348,14 +469,14 @@ export function TokenDetailsHeader({ tokenAddress }: TokenDetailsHeaderProps) {
               <span className="font-semibold">{formatTimestamp(tokenDetails.firstSeenAt)}</span>
             </div>
           )}
-          
+
           {websites.length > 0 && websites[0] && (
             <div className="flex items-center gap-2 px-3 py-2 bg-muted/20 rounded-lg">
               <Globe className="h-4 w-4 text-primary" />
               <span className="text-muted-foreground">Website:</span>
-              <Link 
-                href={websites[0]} 
-                target="_blank" 
+              <Link
+                href={websites[0]}
+                target="_blank"
                 rel="noopener noreferrer"
                 className="text-primary hover:underline truncate max-w-[200px] font-semibold"
               >
@@ -363,11 +484,11 @@ export function TokenDetailsHeader({ tokenAddress }: TokenDetailsHeaderProps) {
               </Link>
             </div>
           )}
-          
+
           <div className="ml-auto">
-            <Link 
-              href={`https://dexscreener.com/solana/${tokenAddress}`} 
-              target="_blank" 
+            <Link
+              href={`https://dexscreener.com/solana/${tokenAddress}`}
+              target="_blank"
               rel="noopener noreferrer"
             >
               <Badge variant="secondary" className="flex items-center gap-2 px-4 py-2 cursor-pointer hover:bg-secondary/80 transition-colors bg-primary/10 hover:bg-primary/20">
