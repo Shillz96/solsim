@@ -37,6 +37,12 @@ function PerpsContent() {
   const [loading, setLoading] = useState(false)
   const [positionsLoading, setPositionsLoading] = useState(false)
   const [balance, setBalance] = useState(0)
+  const [whitelist, setWhitelist] = useState<string[]>([])
+
+  // Load whitelist
+  useEffect(() => {
+    api.getPerpWhitelist().then(setWhitelist).catch(console.error)
+  }, [])
 
   // Load user balance
   useEffect(() => {
@@ -73,6 +79,16 @@ function PerpsContent() {
       toast({
         title: "Error",
         description: "Please select a token and enter margin amount",
+        variant: "destructive",
+      })
+      return
+    }
+
+    // Check if token is whitelisted
+    if (!whitelist.includes(selectedToken)) {
+      toast({
+        title: "Token Not Supported",
+        description: "This token is not available for perpetual trading. Only high market cap tokens (SOL and top memecoins) are supported.",
         variant: "destructive",
       })
       return
@@ -153,11 +169,18 @@ function PerpsContent() {
           </div>
         </div>
 
-        {/* Warning */}
+        {/* Warnings */}
         <Alert>
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
-            Leverage trading is high risk. You can lose all your margin if the position is liquidated.
+            <strong>High Risk:</strong> Leverage trading can result in liquidation and loss of all margin.
+          </AlertDescription>
+        </Alert>
+
+        <Alert className="border-blue-500 bg-blue-50 dark:bg-blue-950/20">
+          <AlertCircle className="h-4 w-4 text-blue-600" />
+          <AlertDescription className="text-blue-900 dark:text-blue-100">
+            <strong>Supported Tokens:</strong> Only SOL and top market cap tokens (BONK, WIF, POPCAT, etc.) are available for perp trading. High liquidity tokens only.
           </AlertDescription>
         </Alert>
 

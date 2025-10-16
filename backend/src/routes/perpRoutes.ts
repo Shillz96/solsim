@@ -2,6 +2,7 @@
 import { FastifyPluginAsync } from "fastify";
 import * as perpTradeService from "../services/perpTradeService.js";
 import * as liquidationEngine from "../services/liquidationEngine.js";
+import { getPerpWhitelist } from "../config/perpWhitelist.js";
 import { z } from "zod";
 
 // Validation schemas
@@ -181,6 +182,24 @@ const perpRoutes: FastifyPluginAsync = async (fastify) => {
       return reply.code(200).send({
         success: true,
         result,
+      });
+    } catch (error) {
+      const err = error as Error;
+      return reply.code(500).send({
+        success: false,
+        error: err.message,
+      });
+    }
+  });
+
+  // Get whitelist of tokens allowed for perp trading
+  fastify.get("/whitelist", async (request, reply) => {
+    try {
+      const whitelist = getPerpWhitelist();
+
+      return reply.code(200).send({
+        success: true,
+        tokens: whitelist,
       });
     } catch (error) {
       const err = error as Error;

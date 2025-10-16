@@ -15,6 +15,7 @@ import {
   calculateMaxPositionSize,
 } from "../utils/margin.js";
 import redlock from "../plugins/redlock.js";
+import { isTokenWhitelisted } from "../config/perpWhitelist.js";
 
 interface OpenPerpPositionParams {
   userId: string;
@@ -33,6 +34,10 @@ export async function openPerpPosition(params: OpenPerpPositionParams) {
   const { userId, mint, side, leverage, marginAmount } = params;
 
   // Validation
+  if (!isTokenWhitelisted(mint)) {
+    throw new Error("This token is not available for perpetual trading. Only high market cap tokens are supported.");
+  }
+
   if (!isValidLeverage(leverage)) {
     throw new Error("Invalid leverage. Must be 2, 5, 10, or 20");
   }

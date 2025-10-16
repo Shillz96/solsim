@@ -230,7 +230,7 @@ export function BottomNavBar() {
             </div>
           </div>
 
-          {/* Right: Wallet Tracker, Theme Toggle & Quick Trade */}
+          {/* Right: Wallet Tracker, Perps, Theme Toggle & Quick Trade */}
           <div className="flex items-center gap-4">
             {/* Wallet Tracker Button */}
             <Link href="/wallet-tracker">
@@ -241,6 +241,17 @@ export function BottomNavBar() {
               >
                 <Eye className="h-4 w-4" />
                 Wallet Tracker
+              </Button>
+            </Link>
+            {/* Perps Button */}
+            <Link href="/perps">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-xs font-medium hover:text-primary transition-colors flex items-center gap-1.5 h-8"
+              >
+                <Zap className="h-4 w-4" />
+                Perps
               </Button>
             </Link>
             {/* Theme Toggle Button - Skeleton prevents layout shift */}

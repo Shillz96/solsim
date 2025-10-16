@@ -961,6 +961,25 @@ export async function getPerpTradeHistory(userId: string, limit?: number): Promi
   return data.trades || [];
 }
 
+/**
+ * Get whitelist of tokens allowed for perp trading
+ * GET /api/perp/whitelist
+ */
+export async function getPerpWhitelist(): Promise<string[]> {
+  const response = await fetch(`${API}/api/perp/whitelist`, {
+    method: 'GET',
+    headers: getAuthHeaders(),
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ message: 'Failed to fetch whitelist' }));
+    throw new Error(error.message || `HTTP ${response.status}`);
+  }
+
+  const data = await response.json();
+  return data.tokens || [];
+}
+
 export default {
   trade,
   getPortfolio,
@@ -1000,6 +1019,7 @@ export default {
   closePerpPosition,
   getPerpPositions,
   getPerpTradeHistory,
+  getPerpWhitelist,
   apiCall,
 };
 
