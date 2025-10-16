@@ -87,10 +87,9 @@ export function BottomNavBar() {
   const navItems = [
     { href: "/", icon: Home, label: "Home" },
     { href: "/trade", icon: TrendingUp, label: "Trade" },
-    { href: "/perps", icon: Zap, label: "Perps" },
     { href: "/portfolio", icon: Wallet, label: "Portfolio" },
-    { href: "/rewards", icon: Gift, label: "Rewards" },
     { href: "/leaderboard", icon: Trophy, label: "Leaderboard" },
+    { href: "/rewards", icon: Gift, label: "Rewards" },
   ]
 
   return (
@@ -230,7 +229,7 @@ export function BottomNavBar() {
             </div>
           </div>
 
-          {/* Right: Wallet Tracker, Perps, Theme Toggle & Quick Trade */}
+          {/* Right: Wallet Tracker, Leaderboard, Theme Toggle & Quick Trade */}
           <div className="flex items-center gap-4">
             {/* Wallet Tracker Button */}
             <Link href="/wallet-tracker">
@@ -243,15 +242,15 @@ export function BottomNavBar() {
                 Wallet Tracker
               </Button>
             </Link>
-            {/* Perps Button */}
-            <Link href="/perps">
+            {/* Leaderboard Button */}
+            <Link href="/leaderboard">
               <Button
                 variant="ghost"
                 size="sm"
                 className="text-xs font-medium hover:text-primary transition-colors flex items-center gap-1.5 h-8"
               >
-                <Zap className="h-4 w-4" />
-                Perps
+                <Trophy className="h-4 w-4" />
+                Leaderboard
               </Button>
             </Link>
             {/* Theme Toggle Button - Skeleton prevents layout shift */}

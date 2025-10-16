@@ -49,7 +49,7 @@ const navigationItems = [
   {
     name: "Trade",
     href: "/trade",
-    icon: Zap,
+    icon: TrendingUp,
     description: "Buy and sell tokens"
   },
   // {
@@ -65,10 +65,10 @@ const navigationItems = [
     description: "Track your positions and P&L"
   },
   {
-    name: "Leaderboard",
-    href: "/leaderboard",
-    icon: Target,
-    description: "See top traders and compete"
+    name: "Perps",
+    href: "/perps",
+    icon: Zap,
+    description: "Leverage trading with perpetual futures"
   },
   {
     name: "Trending",
