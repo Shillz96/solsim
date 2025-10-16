@@ -11,7 +11,7 @@ const JUPITER = "https://price.jup.ag/v6";
 
 // Redis cache TTL: 1 hour for metadata (logos, names rarely change)
 const REDIS_TOKEN_META_TTL = 3600;
-const REDIS_TOKEN_META_VERSION = 'v2'; // Increment to invalidate old cache
+const REDIS_TOKEN_META_VERSION = 'v3'; // Increment to invalidate old cache (v3: added Jupiter "all" list + logo fallback)
 
 // Enrich token metadata (caches in Redis -> DB -> external APIs)
 // Wrapped with request coalescing to prevent duplicate concurrent API calls
@@ -48,6 +48,7 @@ async function getTokenMetaUncached(mint: string) {
   }
 
   // 1. Try Jupiter token list first (fastest and most reliable)
+  // Try strict list first (verified tokens with logos)
   try {
     const tokenList = await fetchJSON<any[]>(`https://token.jup.ag/strict`, {
       timeout: 8000,
@@ -85,7 +86,49 @@ async function getTokenMetaUncached(mint: string) {
   } catch (e: any) {
     // Only log non-DNS errors to reduce noise
     if (e.code !== 'ENOTFOUND') {
-      console.warn(`Jupiter token list failed (${e.code || e.message}):`, e.message);
+      console.warn(`Jupiter strict list failed (${e.code || e.message}):`, e.message);
+    }
+  }
+
+  // 1b. Try Jupiter "all" list (includes unverified tokens)
+  try {
+    const tokenList = await fetchJSON<any[]>(`https://token.jup.ag/all`, {
+      timeout: 8000,
+      retries: 1,
+      retryDelay: 500
+    });
+    const jupiterToken = tokenList.find(t => t.address === mint);
+
+    if (jupiterToken) {
+      token = await prisma.token.upsert({
+        where: { address: mint },
+        update: {
+          symbol: jupiterToken.symbol || null,
+          name: jupiterToken.name || null,
+          logoURI: jupiterToken.logoURI || null,
+          lastUpdated: new Date()
+        },
+        create: {
+          address: mint,
+          symbol: jupiterToken.symbol || null,
+          name: jupiterToken.name || null,
+          logoURI: jupiterToken.logoURI || null,
+        }
+      });
+
+      // Cache in Redis with version key
+      try {
+        await redis.setex(`token:meta:${REDIS_TOKEN_META_VERSION}:${mint}`, REDIS_TOKEN_META_TTL, safeStringify(token));
+      } catch (error) {
+        console.warn(`Failed to cache token metadata in Redis:`, error);
+      }
+
+      return token;
+    }
+  } catch (e: any) {
+    // Only log non-DNS errors to reduce noise
+    if (e.code !== 'ENOTFOUND') {
+      console.warn(`Jupiter all list failed (${e.code || e.message}):`, e.message);
     }
   }
 
@@ -182,6 +225,39 @@ async function getTokenMetaUncached(mint: string) {
     }
   } catch (e: any) {
     console.warn(`DexScreener metadata failed (${e.code || e.message}):`, e.message);
+  }
+
+  // 4. Final fallback: If we have token data but NO logo, try Jupiter one more time for just the image
+  if (token && !token.logoURI) {
+    try {
+      const tokenList = await fetchJSON<any[]>(`https://token.jup.ag/all`, {
+        timeout: 5000,
+        retries: 1,
+        retryDelay: 300
+      });
+      const jupiterToken = tokenList.find(t => t.address === mint);
+
+      if (jupiterToken && jupiterToken.logoURI) {
+        token = await prisma.token.update({
+          where: { address: mint },
+          data: {
+            logoURI: jupiterToken.logoURI,
+            lastUpdated: new Date()
+          }
+        });
+
+        // Cache in Redis
+        try {
+          await redis.setex(`token:meta:${REDIS_TOKEN_META_VERSION}:${mint}`, REDIS_TOKEN_META_TTL, safeStringify(token));
+        } catch (error) {
+          console.warn(`Failed to cache token metadata in Redis:`, error);
+        }
+
+        console.log(`✓ Found missing logo for ${token.symbol || mint} on Jupiter`);
+      }
+    } catch (e: any) {
+      // Silent fail - this is just a bonus attempt
+    }
   }
 
   return token;
