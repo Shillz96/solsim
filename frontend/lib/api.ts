@@ -995,7 +995,7 @@ export async function getTokenMetadata(mint: string): Promise<{
   return {
     symbol: token.symbol || 'UNKNOWN',
     name: token.name || 'Unknown Token',
-    logoURI: token.logoURI || token.imageUrl,
+    logoURI: token.logoURI || token.imageUrl || undefined,
     priceUsd: token.price,
     priceChange24h: token.priceChange24h,
   };
