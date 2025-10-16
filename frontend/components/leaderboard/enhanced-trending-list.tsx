@@ -80,7 +80,7 @@ export function EnhancedTrendingList() {
           >
           <div className="flex items-start gap-3">
             <TokenLogo
-              src={token.logoURI}
+              src={token.logoURI || undefined}
               alt={token.name || 'Unknown Token'}
               mint={token.mint}
               className="w-10 h-10 flex-shrink-0"

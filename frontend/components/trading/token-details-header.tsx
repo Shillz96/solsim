@@ -158,7 +158,7 @@ export function TokenDetailsHeader({ tokenAddress }: TokenDetailsHeaderProps) {
           {/* Token Image - Smaller on Mobile */}
           <div className="relative flex-shrink-0">
             <TokenLogo
-              src={tokenDetails.imageUrl || tokenDetails.logoURI}
+              src={tokenDetails.imageUrl || tokenDetails.logoURI || undefined}
               alt={tokenDetails.name || 'Token'}
               mint={tokenAddress}
               className="w-10 h-10 ring-1 ring-primary/20"
@@ -278,7 +278,7 @@ export function TokenDetailsHeader({ tokenAddress }: TokenDetailsHeaderProps) {
           <div className="flex items-center flex-shrink-0">
             <div className="relative flex-shrink-0">
               <TokenLogo
-                src={tokenDetails.imageUrl || tokenDetails.logoURI}
+                src={tokenDetails.imageUrl || tokenDetails.logoURI || undefined}
                 alt={tokenDetails.name || 'Token'}
                 mint={tokenAddress}
                 className="w-14 h-14 mr-4 ring-2 ring-primary/20 ring-offset-2 ring-offset-background"
