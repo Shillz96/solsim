@@ -79,11 +79,12 @@ export function EnhancedTrendingList() {
             onClick={() => handleTokenClick(token.mint)}
           >
           <div className="flex items-start gap-3">
-            <TokenImage 
-              src={token.logoURI} 
-              alt={token.name || 'Unknown Token'} 
+            <TokenImage
+              src={token.logoURI}
+              alt={token.name || 'Unknown Token'}
+              mint={token.mint}
               size={40}
-              className="flex-shrink-0" 
+              className="flex-shrink-0"
             />
 
             <div className="flex-1 min-w-0">

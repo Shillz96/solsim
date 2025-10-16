@@ -160,6 +160,7 @@ export function TokenDetailsHeader({ tokenAddress }: TokenDetailsHeaderProps) {
             <TokenImage
               src={tokenDetails.imageUrl || tokenDetails.logoURI}
               alt={tokenDetails.name || 'Token'}
+              mint={tokenAddress}
               size={40}
               className="ring-1 ring-primary/20"
             />
@@ -280,6 +281,7 @@ export function TokenDetailsHeader({ tokenAddress }: TokenDetailsHeaderProps) {
               <TokenImage
                 src={tokenDetails.imageUrl || tokenDetails.logoURI}
                 alt={tokenDetails.name || 'Token'}
+                mint={tokenAddress}
                 size={56}
                 className="mr-4 ring-2 ring-primary/20 ring-offset-2 ring-offset-background"
               />
