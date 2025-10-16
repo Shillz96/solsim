@@ -980,6 +980,27 @@ export async function getPerpWhitelist(): Promise<string[]> {
   return data.tokens || [];
 }
 
+/**
+ * Get token metadata (wrapper for getTokenDetails)
+ * GET /api/search/token/{mint}
+ */
+export async function getTokenMetadata(mint: string): Promise<{
+  symbol: string;
+  name: string;
+  logoURI?: string;
+  priceUsd?: number;
+  priceChange24h?: number;
+}> {
+  const token = await getTokenDetails(mint);
+  return {
+    symbol: token.symbol || 'UNKNOWN',
+    name: token.name || 'Unknown Token',
+    logoURI: token.logoURI || token.imageUrl,
+    priceUsd: token.price,
+    priceChange24h: token.priceChange24h,
+  };
+}
+
 export default {
   trade,
   getPortfolio,
@@ -991,6 +1012,7 @@ export default {
   getTrending,
   getStocks,
   getTokenDetails,
+  getTokenMetadata,
   searchTokens,
   claimRewards,
   getUserRewardClaims,
