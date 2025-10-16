@@ -3,14 +3,13 @@
 
 export const PERP_WHITELIST = [
   // Solana
-  "So11111111111111111111111111111111111111112",
+  "So11111111111111111111111111111111111111112", // SOL
 
-  // Top established memecoins and blue chips (update periodically)
-  // These are examples - replace with actual top market cap tokens from DexScreener
+  // Top established memecoins and blue chips (verified addresses)
   "DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263", // BONK
   "ukHH6c7mMyiWCf1b9pnWe25TSpkDDt3H5pQZgZ74J82", // BOME
   "EKpQGSJtjMFqKZ9KQanSqYXRcF8fBopzLHYxdM65zcjm", // WIF (dogwifhat)
-  "CATaowyxcQ3NdJCkt5KxsN5bJyqQqjJFrKN7VfBXw6oE", // POPCAT
+  "7GCihgDB8fe6KNjn2MYtkzZcRjQy3t9GHdC8uHYmW2hr", // POPCAT (FIXED - was wrong address!)
   "MEW1gQWJ3nEXg2qgERiKu7FAFj79PHvQVREQUzScPP5", // MEW
   "3S8qX1MsMqRbiwKg2cQyx7nis1oHMgaCuc9c4VfvVdPN", // MOTHER
   "GJa4HMvGJbvCkBXKSUxvYwVvJPYXBBxNhkBBCjC9pump", // GIGA
