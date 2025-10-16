@@ -51,6 +51,9 @@ export const TOKEN_LOGO_FALLBACKS: Record<string, string> = {
 
   // ORCA
   "orcaEKTdK7LKz57vaAYr9QeNsVEPfiu6QeMU1kektZE": "https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/orcaEKTdK7LKz57vaAYr9QeNsVEPfiu6QeMU1kektZE/logo.png",
+
+  // GOLD
+  "GoLDppdjB1vDTPSGxyMJFqdnj134yH6Prg9eqsGDiw6A": "https://raw.githubusercontent.com/oroweb3/gold/de58e6cdc6531d2a65fba2a3f5c708a5c0d5c777/GOLD.png",
 };
 
 /**
