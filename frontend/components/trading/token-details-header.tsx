@@ -18,7 +18,7 @@ import {
 } from "lucide-react"
 import { AnimatedNumber } from "@/components/ui/animated-number"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { TokenImage } from "@/components/ui/token-image"
+import { TokenLogo } from "@/components/ui/token-logo"
 import { usePriceStreamContext } from "@/lib/price-stream-provider"
 import { useTokenMetadata } from "@/hooks/use-token-metadata"
 // ✅ Import standardized components instead of manual formatting
@@ -157,12 +157,11 @@ export function TokenDetailsHeader({ tokenAddress }: TokenDetailsHeaderProps) {
         <div className="flex items-start gap-2">
           {/* Token Image - Smaller on Mobile */}
           <div className="relative flex-shrink-0">
-            <TokenImage
+            <TokenLogo
               src={tokenDetails.imageUrl || tokenDetails.logoURI}
               alt={tokenDetails.name || 'Token'}
               mint={tokenAddress}
-              size={40}
-              className="ring-1 ring-primary/20"
+              className="w-10 h-10 ring-1 ring-primary/20"
             />
             {(tokenDetails.isNew || tokenDetails.isTrending) && (
               <div className="absolute -top-1 -right-1 w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
@@ -278,12 +277,11 @@ export function TokenDetailsHeader({ tokenAddress }: TokenDetailsHeaderProps) {
         <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
           <div className="flex items-center flex-shrink-0">
             <div className="relative flex-shrink-0">
-              <TokenImage
+              <TokenLogo
                 src={tokenDetails.imageUrl || tokenDetails.logoURI}
                 alt={tokenDetails.name || 'Token'}
                 mint={tokenAddress}
-                size={56}
-                className="mr-4 ring-2 ring-primary/20 ring-offset-2 ring-offset-background"
+                className="w-14 h-14 mr-4 ring-2 ring-primary/20 ring-offset-2 ring-offset-background"
               />
               {tokenDetails.isNew && (
                 <div className="absolute -top-1 -right-1 w-3 h-3 bg-blue-500 rounded-full animate-pulse"></div>

@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { AnimatedNumber, Sparkline } from "@/components/ui/animated-number"
-import { TokenImage } from "@/components/ui/token-image"
+import { TokenLogo } from "@/components/ui/token-logo"
 // Use backend types and hooks
 import { useTrendingTokens } from "@/hooks/use-react-query-hooks"
 
@@ -79,12 +79,11 @@ export function EnhancedTrendingList() {
             onClick={() => handleTokenClick(token.mint)}
           >
           <div className="flex items-start gap-3">
-            <TokenImage
+            <TokenLogo
               src={token.logoURI}
               alt={token.name || 'Unknown Token'}
               mint={token.mint}
-              size={40}
-              className="flex-shrink-0"
+              className="w-10 h-10 flex-shrink-0"
             />
 
             <div className="flex-1 min-w-0">
