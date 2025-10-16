@@ -175,38 +175,71 @@ export class WalletActivityService {
           ? await this.getTokenMetadata(parsedSwap.tokenOutMint)
           : null;
 
-        // Fetch logo URIs from DexScreener metadata (preferred) or database
+        // Fetch logo URIs with aggressive fallback strategy
         let tokenInLogoURI: string | null = null;
         let tokenOutLogoURI: string | null = null;
 
-        // Use logoURI from DexScreener metadata if available
-        if (tokenInMeta?.logoURI) {
-          tokenInLogoURI = tokenInMeta.logoURI;
-        } else if (parsedSwap.tokenInMint) {
-          // Fallback to database
-          try {
-            const tokenInData = await prisma.token.findUnique({
-              where: { address: parsedSwap.tokenInMint },
-              select: { logoURI: true, imageUrl: true }
-            });
-            tokenInLogoURI = tokenInData?.logoURI || tokenInData?.imageUrl || null;
-          } catch (err) {
-            // Ignore if token not found in DB
+        // Token In Logo
+        if (parsedSwap.tokenInMint) {
+          // 1. Try metadata from API
+          if (tokenInMeta?.logoURI) {
+            tokenInLogoURI = tokenInMeta.logoURI;
+            this.logger?.info(`TokenIn logo from API: ${tokenInLogoURI}`);
+          }
+
+          // 2. Fallback to database
+          if (!tokenInLogoURI) {
+            try {
+              const tokenInData = await prisma.token.findUnique({
+                where: { address: parsedSwap.tokenInMint },
+                select: { logoURI: true, imageUrl: true }
+              });
+              tokenInLogoURI = tokenInData?.logoURI || tokenInData?.imageUrl || null;
+              if (tokenInLogoURI) {
+                this.logger?.info(`TokenIn logo from DB: ${tokenInLogoURI}`);
+              }
+            } catch (err) {
+              // Ignore if token not found in DB
+            }
+          }
+
+          // 3. Fallback to Solana Token List CDN
+          if (!tokenInLogoURI) {
+            const solanaTokenListUrl = `https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/${parsedSwap.tokenInMint}/logo.png`;
+            tokenInLogoURI = solanaTokenListUrl;
+            this.logger?.info(`TokenIn logo from Solana Token List (may 404): ${tokenInLogoURI}`);
           }
         }
 
-        if (tokenOutMeta?.logoURI) {
-          tokenOutLogoURI = tokenOutMeta.logoURI;
-        } else if (parsedSwap.tokenOutMint) {
-          // Fallback to database
-          try {
-            const tokenOutData = await prisma.token.findUnique({
-              where: { address: parsedSwap.tokenOutMint },
-              select: { logoURI: true, imageUrl: true }
-            });
-            tokenOutLogoURI = tokenOutData?.logoURI || tokenOutData?.imageUrl || null;
-          } catch (err) {
-            // Ignore if token not found in DB
+        // Token Out Logo
+        if (parsedSwap.tokenOutMint) {
+          // 1. Try metadata from API
+          if (tokenOutMeta?.logoURI) {
+            tokenOutLogoURI = tokenOutMeta.logoURI;
+            this.logger?.info(`TokenOut logo from API: ${tokenOutLogoURI}`);
+          }
+
+          // 2. Fallback to database
+          if (!tokenOutLogoURI) {
+            try {
+              const tokenOutData = await prisma.token.findUnique({
+                where: { address: parsedSwap.tokenOutMint },
+                select: { logoURI: true, imageUrl: true }
+              });
+              tokenOutLogoURI = tokenOutData?.logoURI || tokenOutData?.imageUrl || null;
+              if (tokenOutLogoURI) {
+                this.logger?.info(`TokenOut logo from DB: ${tokenOutLogoURI}`);
+              }
+            } catch (err) {
+              // Ignore if token not found in DB
+            }
+          }
+
+          // 3. Fallback to Solana Token List CDN
+          if (!tokenOutLogoURI) {
+            const solanaTokenListUrl = `https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/${parsedSwap.tokenOutMint}/logo.png`;
+            tokenOutLogoURI = solanaTokenListUrl;
+            this.logger?.info(`TokenOut logo from Solana Token List (may 404): ${tokenOutLogoURI}`);
           }
         }
 
@@ -467,7 +500,7 @@ export class WalletActivityService {
   }
 
   /**
-   * Get token metadata from DexScreener or cache
+   * Get token metadata with logo from multiple sources
    */
   private async getTokenMetadata(mint: string): Promise<TokenMetadata | null> {
     // Check cache first
@@ -475,46 +508,107 @@ export class WalletActivityService {
       return this.tokenCache.get(mint)!;
     }
 
-    // Known tokens
+    // Known tokens with hardcoded logos
     if (mint === this.SOL_MINT) {
-      return { symbol: "SOL", name: "Solana" };
+      return {
+        symbol: "SOL",
+        name: "Solana",
+        logoURI: "https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/So11111111111111111111111111111111111111112/logo.png"
+      };
     }
     if (mint === this.USDC_MINT) {
-      return { symbol: "USDC", name: "USD Coin" };
+      return {
+        symbol: "USDC",
+        name: "USD Coin",
+        logoURI: "https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v/logo.png"
+      };
     }
     if (mint === this.USDT_MINT) {
-      return { symbol: "USDT", name: "Tether" };
+      return {
+        symbol: "USDT",
+        name: "Tether",
+        logoURI: "https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB/logo.svg"
+      };
     }
 
+    let metadata: TokenMetadata | null = null;
+
+    // Try Jupiter Token List API first (best logo coverage)
     try {
-      // Try DexScreener API
+      const jupResponse = await fetch(`https://tokens.jup.ag/token/${mint}`);
+      if (jupResponse.ok) {
+        const jupData = await jupResponse.json();
+        if (jupData) {
+          metadata = {
+            symbol: jupData.symbol || "Unknown",
+            name: jupData.name || "Unknown Token",
+            logoURI: jupData.logoURI || null
+          };
+
+          this.logger?.info(`Jupiter logo for ${mint}: ${jupData.logoURI}`);
+        }
+      }
+    } catch (error) {
+      this.logger?.warn(`Jupiter API failed for ${mint}: ${error}`);
+    }
+
+    // Try DexScreener API for price data and fallback logo
+    try {
       const response = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${mint}`);
       if (response.ok) {
         const data = await response.json();
         if (data.pairs && data.pairs.length > 0) {
           const pair = data.pairs[0];
-          const metadata: TokenMetadata = {
-            symbol: pair.baseToken.symbol,
-            name: pair.baseToken.name,
-            logoURI: pair.info?.imageUrl || pair.baseToken.imageUrl || pair.info?.socials?.website || null,
-            price: parseFloat(pair.priceUsd || 0),
-            marketCap: parseFloat(pair.fdv || 0),
-            volume24h: parseFloat(pair.volume?.h24 || 0),
-            priceChange24h: parseFloat(pair.priceChange?.h24 || 0)
-          };
 
-          // Cache for 5 minutes
-          this.tokenCache.set(mint, metadata);
-          setTimeout(() => this.tokenCache.delete(mint), 5 * 60 * 1000);
+          // Extract logo from DexScreener (check multiple possible locations)
+          let dexLogo = null;
+          if (pair.info?.imageUrl) {
+            dexLogo = pair.info.imageUrl;
+          } else if (pair.info?.icon) {
+            dexLogo = pair.info.icon;
+          }
 
-          return metadata;
+          // Merge with existing metadata or create new
+          if (metadata) {
+            // Add price data to Jupiter metadata
+            metadata.price = parseFloat(pair.priceUsd || 0);
+            metadata.marketCap = parseFloat(pair.fdv || 0);
+            metadata.volume24h = parseFloat(pair.volume?.h24 || 0);
+            metadata.priceChange24h = parseFloat(pair.priceChange?.h24 || 0);
+            // Use DexScreener logo as fallback if Jupiter didn't provide one
+            if (!metadata.logoURI && dexLogo) {
+              metadata.logoURI = dexLogo;
+              this.logger?.info(`Using DexScreener logo for ${mint}: ${dexLogo}`);
+            }
+          } else {
+            // Create new metadata from DexScreener
+            metadata = {
+              symbol: pair.baseToken?.symbol || "Unknown",
+              name: pair.baseToken?.name || "Unknown Token",
+              logoURI: dexLogo,
+              price: parseFloat(pair.priceUsd || 0),
+              marketCap: parseFloat(pair.fdv || 0),
+              volume24h: parseFloat(pair.volume?.h24 || 0),
+              priceChange24h: parseFloat(pair.priceChange?.h24 || 0)
+            };
+
+            this.logger?.info(`DexScreener data for ${mint}, logo: ${dexLogo}`);
+          }
         }
       }
     } catch (error) {
-      this.logger?.warn(`Failed to fetch metadata for token ${mint}: ${error}`);
+      this.logger?.warn(`DexScreener API failed for ${mint}: ${error}`);
     }
 
-    return null;
+    // Cache result for 5 minutes if we got metadata
+    if (metadata) {
+      this.tokenCache.set(mint, metadata);
+      setTimeout(() => this.tokenCache.delete(mint), 5 * 60 * 1000);
+    } else {
+      this.logger?.warn(`No metadata found for token ${mint}`);
+    }
+
+    return metadata;
   }
 
   /**
