@@ -121,6 +121,10 @@ export async function openPerpPosition(params: OpenPerpPositionParams) {
         },
       });
 
+      // Calculate initial margin ratio based on leverage
+      // For Nx leverage: marginRatio = (1/N) / maintenanceMargin = (1/N) / 0.025 = 40/N
+      const initialMarginRatio = D(40).div(leverage);
+
       // Create position
       const position = await tx.perpPosition.create({
         data: {
@@ -133,7 +137,7 @@ export async function openPerpPosition(params: OpenPerpPositionParams) {
           positionSize,
           marginAmount: margin,
           unrealizedPnL: D(0),
-          marginRatio: D(1), // Start at 1.0 (healthy)
+          marginRatio: initialMarginRatio, // Correct initial ratio based on leverage
           liquidationPrice,
           status: "OPEN",
         },
@@ -213,9 +217,10 @@ export async function closePerpPosition(params: ClosePerpPositionParams) {
       position.positionSize as Decimal
     );
 
-    // Calculate final margin balance (margin + PnL)
+    // CRITICAL FIX: Convert margin from SOL to USD before calculating balance
+    const marginAmountUsd = (position.marginAmount as Decimal).mul(solPrice);
     const marginBalance = calculateMarginBalance(
-      position.marginAmount as Decimal,
+      marginAmountUsd,
       unrealizedPnL
     );
 
@@ -299,6 +304,8 @@ export async function getUserPerpPositions(userId: string) {
   });
 
   // Update positions with current prices
+  const solPrice = priceService.getSolPrice();
+
   const updatedPositions = await Promise.all(
     positions.map(async (position) => {
       try {
@@ -313,8 +320,10 @@ export async function getUserPerpPositions(userId: string) {
           position.positionSize as Decimal
         );
 
+        // CRITICAL FIX: Convert marginAmount from SOL to USD before calculating balance
+        const marginAmountUsd = (position.marginAmount as Decimal).mul(solPrice);
         const marginBalance = calculateMarginBalance(
-          position.marginAmount as Decimal,
+          marginAmountUsd,
           unrealizedPnL
         );
 

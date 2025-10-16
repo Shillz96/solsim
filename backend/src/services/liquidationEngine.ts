@@ -78,6 +78,9 @@ export async function checkAndLiquidatePositions() {
 
     let liquidatedCount = 0;
 
+    // Get SOL price for unit conversion
+    const solPrice = priceService.getSolPrice();
+
     // Check each position
     for (const position of openPositions) {
       try {
@@ -95,9 +98,10 @@ export async function checkAndLiquidatePositions() {
           position.positionSize as Decimal
         );
 
-        // Calculate margin balance
+        // CRITICAL FIX: Convert marginAmount from SOL to USD before calculating balance
+        const marginAmountUsd = (position.marginAmount as Decimal).mul(solPrice);
         const marginBalance = calculateMarginBalance(
-          position.marginAmount as Decimal,
+          marginAmountUsd,
           unrealizedPnL
         );
 
