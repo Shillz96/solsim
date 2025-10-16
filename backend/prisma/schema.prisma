@@ -52,6 +52,9 @@ model User {
   transactions       TransactionHistory[]
   trackedWallets     WalletTrack[]
   solPurchases       SolPurchase[]
+  perpPositions      PerpPosition[]
+  perpTrades         PerpTrade[]
+  liquidations       Liquidation[]
 }
 
 model Trade {
@@ -432,4 +435,73 @@ enum NotificationCategory {
   ACHIEVEMENT
   SYSTEM
   GENERAL
+}
+
+// Perpetual Trading Models
+model PerpPosition {
+  id                String        @id @default(uuid())
+  userId            String
+  mint              String
+  side              String        // 'LONG' or 'SHORT'
+  leverage          Decimal
+  entryPrice        Decimal
+  currentPrice      Decimal
+  positionSize      Decimal       // Token quantity
+  marginAmount      Decimal       // Collateral in SOL
+  unrealizedPnL     Decimal       @default(0)
+  marginRatio       Decimal       @default(0) // Current margin / maintenance margin
+  liquidationPrice  Decimal
+  status            String        @default("OPEN") // 'OPEN', 'CLOSED', 'LIQUIDATED'
+  openedAt          DateTime      @default(now())
+  closedAt          DateTime?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  user              User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  perpTrades        PerpTrade[]
+
+  @@index([userId])
+  @@index([status])
+  @@index([status, marginRatio])
+  @@index([userId, mint, status])
+}
+
+model PerpTrade {
+  id            String      @id @default(uuid())
+  userId        String
+  positionId    String?
+  mint          String
+  side          String      // 'LONG' or 'SHORT'
+  action        String      // 'OPEN', 'CLOSE', 'LIQUIDATE', 'INCREASE', 'DECREASE'
+  leverage      Decimal
+  quantity      Decimal     // Position size change
+  entryPrice    Decimal
+  exitPrice     Decimal?
+  marginUsed    Decimal
+  pnl           Decimal?
+  fees          Decimal     @default(0)
+  timestamp     DateTime    @default(now())
+  createdAt     DateTime    @default(now())
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  position      PerpPosition? @relation(fields: [positionId], references: [id])
+
+  @@index([userId, timestamp(sort: Desc)])
+  @@index([mint, timestamp(sort: Desc)])
+  @@index([positionId])
+}
+
+model Liquidation {
+  id                String   @id @default(uuid())
+  userId            String
+  positionId        String
+  mint              String
+  side              String
+  liquidationPrice  Decimal
+  positionSize      Decimal
+  marginLost        Decimal
+  timestamp         DateTime @default(now())
+  createdAt         DateTime @default(now())
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, timestamp(sort: Desc)])
+  @@index([positionId])
 }

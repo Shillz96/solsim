@@ -3,7 +3,7 @@
 import Link from "next/link"
 import Image from "next/image"
 import { usePathname } from "next/navigation"
-import { Home, TrendingUp, Wallet, Trophy, Twitter, Plus, Moon, Sun, Gift, Eye } from "lucide-react"
+import { Home, TrendingUp, Wallet, Trophy, Twitter, Plus, Moon, Sun, Gift, Eye, Zap } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useState, useEffect } from "react"
 import { useTheme } from "next-themes"
@@ -87,6 +87,7 @@ export function BottomNavBar() {
   const navItems = [
     { href: "/", icon: Home, label: "Home" },
     { href: "/trade", icon: TrendingUp, label: "Trade" },
+    { href: "/perps", icon: Zap, label: "Perps" },
     { href: "/portfolio", icon: Wallet, label: "Portfolio" },
     { href: "/rewards", icon: Gift, label: "Rewards" },
     { href: "/leaderboard", icon: Trophy, label: "Leaderboard" },
