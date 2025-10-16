@@ -203,11 +203,10 @@ export class WalletActivityService {
             }
           }
 
-          // 3. Fallback to Solana Token List CDN
+          // 3. Final attempt: leave as null if no logo found
+          // Don't use Solana Token List as it has very limited coverage
           if (!tokenInLogoURI) {
-            const solanaTokenListUrl = `https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/${parsedSwap.tokenInMint}/logo.png`;
-            tokenInLogoURI = solanaTokenListUrl;
-            this.logger?.info(`TokenIn logo from Solana Token List (may 404): ${tokenInLogoURI}`);
+            this.logger?.warn(`No logo found for tokenIn ${parsedSwap.tokenInMint}`);
           }
         }
 
@@ -235,11 +234,10 @@ export class WalletActivityService {
             }
           }
 
-          // 3. Fallback to Solana Token List CDN
+          // 3. Final attempt: leave as null if no logo found
+          // Don't use Solana Token List as it has very limited coverage
           if (!tokenOutLogoURI) {
-            const solanaTokenListUrl = `https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/${parsedSwap.tokenOutMint}/logo.png`;
-            tokenOutLogoURI = solanaTokenListUrl;
-            this.logger?.info(`TokenOut logo from Solana Token List (may 404): ${tokenOutLogoURI}`);
+            this.logger?.warn(`No logo found for tokenOut ${parsedSwap.tokenOutMint}`);
           }
         }
 
@@ -533,26 +531,7 @@ export class WalletActivityService {
 
     let metadata: TokenMetadata | null = null;
 
-    // Try Jupiter Token List API first (best logo coverage)
-    try {
-      const jupResponse = await fetch(`https://tokens.jup.ag/token/${mint}`);
-      if (jupResponse.ok) {
-        const jupData = await jupResponse.json();
-        if (jupData) {
-          metadata = {
-            symbol: jupData.symbol || "Unknown",
-            name: jupData.name || "Unknown Token",
-            logoURI: jupData.logoURI || null
-          };
-
-          this.logger?.info(`Jupiter logo for ${mint}: ${jupData.logoURI}`);
-        }
-      }
-    } catch (error) {
-      this.logger?.warn(`Jupiter API failed for ${mint}: ${error}`);
-    }
-
-    // Try DexScreener API for price data and fallback logo
+    // Use DexScreener API for both logo and price data
     try {
       const response = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${mint}`);
       if (response.ok) {
@@ -560,44 +539,31 @@ export class WalletActivityService {
         if (data.pairs && data.pairs.length > 0) {
           const pair = data.pairs[0];
 
-          // Extract logo from DexScreener (check multiple possible locations)
-          let dexLogo = null;
-          if (pair.info?.imageUrl) {
-            dexLogo = pair.info.imageUrl;
-          } else if (pair.info?.icon) {
-            dexLogo = pair.info.icon;
-          }
+          // Extract logo from DexScreener info.imageUrl (primary location)
+          const logoURI = pair.info?.imageUrl || null;
 
-          // Merge with existing metadata or create new
-          if (metadata) {
-            // Add price data to Jupiter metadata
-            metadata.price = parseFloat(pair.priceUsd || 0);
-            metadata.marketCap = parseFloat(pair.fdv || 0);
-            metadata.volume24h = parseFloat(pair.volume?.h24 || 0);
-            metadata.priceChange24h = parseFloat(pair.priceChange?.h24 || 0);
-            // Use DexScreener logo as fallback if Jupiter didn't provide one
-            if (!metadata.logoURI && dexLogo) {
-              metadata.logoURI = dexLogo;
-              this.logger?.info(`Using DexScreener logo for ${mint}: ${dexLogo}`);
-            }
+          // Create metadata from DexScreener
+          metadata = {
+            symbol: pair.baseToken?.symbol || "Unknown",
+            name: pair.baseToken?.name || "Unknown Token",
+            logoURI,
+            price: parseFloat(pair.priceUsd || 0),
+            marketCap: parseFloat(pair.fdv || 0),
+            volume24h: parseFloat(pair.volume?.h24 || 0),
+            priceChange24h: parseFloat(pair.priceChange?.h24 || 0)
+          };
+
+          if (logoURI) {
+            this.logger?.info(`✓ Logo found for ${mint}: ${logoURI}`);
           } else {
-            // Create new metadata from DexScreener
-            metadata = {
-              symbol: pair.baseToken?.symbol || "Unknown",
-              name: pair.baseToken?.name || "Unknown Token",
-              logoURI: dexLogo,
-              price: parseFloat(pair.priceUsd || 0),
-              marketCap: parseFloat(pair.fdv || 0),
-              volume24h: parseFloat(pair.volume?.h24 || 0),
-              priceChange24h: parseFloat(pair.priceChange?.h24 || 0)
-            };
-
-            this.logger?.info(`DexScreener data for ${mint}, logo: ${dexLogo}`);
+            this.logger?.warn(`✗ No logo in DexScreener for ${mint}`);
           }
+        } else {
+          this.logger?.warn(`✗ No pairs found in DexScreener for ${mint}`);
         }
       }
     } catch (error) {
-      this.logger?.warn(`DexScreener API failed for ${mint}: ${error}`);
+      this.logger?.error(`DexScreener API failed for ${mint}: ${error}`);
     }
 
     // Cache result for 5 minutes if we got metadata
