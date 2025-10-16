@@ -45,7 +45,9 @@
       "Bash(for i in 1 2 3)",
       "Bash(do echo -e \"\\n--- Request $i ---\")",
       "Bash(time curl:*)",
-      "Bash(done)"
+      "Bash(done)",
+      "WebSearch",
+      "Bash(timeout 5 bash:*)"
     ],
     "deny": [],
     "ask": []

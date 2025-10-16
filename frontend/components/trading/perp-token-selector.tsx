@@ -5,6 +5,7 @@ import { ChevronDown, Loader2, Search } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
+import { TokenLogo } from "@/components/ui/token-logo"
 import * as api from "@/lib/api"
 
 interface TokenInfo {
@@ -120,16 +121,12 @@ export function PerpTokenSelector({ value, onChange }: PerpTokenSelectorProps) {
       >
         {selectedToken ? (
           <div className="flex items-center gap-3 flex-1">
-            {selectedToken.logoURI && (
-              <img
-                src={selectedToken.logoURI}
-                alt={selectedToken.symbol}
-                className="w-8 h-8 rounded-full"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).style.display = 'none'
-                }}
-              />
-            )}
+            <TokenLogo
+              src={selectedToken.logoURI}
+              alt={selectedToken.symbol}
+              mint={selectedToken.mint}
+              className="w-8 h-8 rounded-full"
+            />
             <div className="text-left flex-1">
               <div className="font-semibold text-base">{selectedToken.symbol}</div>
               <div className="text-xs text-muted-foreground">
@@ -204,16 +201,12 @@ export function PerpTokenSelector({ value, onChange }: PerpTokenSelectorProps) {
                   onClick={() => handleSelect(token)}
                 >
                   <div className="flex items-center gap-3 w-full">
-                    {token.logoURI && (
-                      <img
-                        src={token.logoURI}
-                        alt={token.symbol}
-                        className="w-8 h-8 rounded-full"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).style.display = 'none'
-                        }}
-                      />
-                    )}
+                    <TokenLogo
+                      src={token.logoURI}
+                      alt={token.symbol}
+                      mint={token.mint}
+                      className="w-8 h-8 rounded-full"
+                    />
                     <div className="flex-1 text-left">
                       <div className="font-medium">{token.symbol}</div>
                       <div className="text-sm text-muted-foreground truncate">

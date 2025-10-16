@@ -991,11 +991,17 @@ export async function getTokenMetadata(mint: string): Promise<{
   priceUsd?: number;
   priceChange24h?: number;
 }> {
+  const { getTokenLogoFallback } = await import('./token-logos');
+
   const token = await getTokenDetails(mint);
+
+  // Try API logo first, then fallback to our curated list
+  const logoURI = token.logoURI || token.imageUrl || getTokenLogoFallback(mint) || undefined;
+
   return {
     symbol: token.symbol || 'UNKNOWN',
     name: token.name || 'Unknown Token',
-    logoURI: token.logoURI || token.imageUrl || undefined,
+    logoURI,
     priceUsd: token.price ?? undefined,
     priceChange24h: token.priceChange24h ? parseFloat(token.priceChange24h) : undefined,
   };

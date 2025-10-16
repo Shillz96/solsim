@@ -15,6 +15,7 @@ import * as api from "@/lib/api"
 import { useToast } from "@/hooks/use-toast"
 import { PerpTokenSelector } from "@/components/trading/perp-token-selector"
 import { DexScreenerChart } from "@/components/trading/dexscreener-chart"
+import { TokenLogo } from "@/components/ui/token-logo"
 import { useSearchParams } from "next/navigation"
 
 export default function PerpsPage() {
@@ -43,14 +44,35 @@ function PerpsContent() {
   const [balance, setBalance] = useState(0)
   const [activeTab, setActiveTab] = useState<"positions" | "history">("positions")
   const [tokenMetadataCache, setTokenMetadataCache] = useState<Record<string, any>>({})
+  const [solPrice, setSolPrice] = useState(180) // Will be fetched from API
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
-  // Load user balance
+  // Load user balance and SOL price
   useEffect(() => {
     if (user?.id) {
       api.getWalletBalance(user.id).then(data => {
         setBalance(parseFloat(data.balance))
       }).catch(console.error)
     }
+
+    // Fetch SOL price
+    const solMint = "So11111111111111111111111111111111111111112"
+    api.getTokenMetadata(solMint).then(meta => {
+      if (meta.priceUsd) {
+        setSolPrice(meta.priceUsd)
+      }
+    }).catch(console.error)
+
+    // Refresh SOL price every 30 seconds
+    const priceInterval = setInterval(() => {
+      api.getTokenMetadata(solMint).then(meta => {
+        if (meta.priceUsd) {
+          setSolPrice(meta.priceUsd)
+        }
+      }).catch(console.error)
+    }, 30000)
+
+    return () => clearInterval(priceInterval)
   }, [user])
 
   // Load token metadata when selected token changes
@@ -152,18 +174,77 @@ function PerpsContent() {
 
   // Calculate position size in tokens
   const estimatedPositionSize = useMemo(() => {
-    if (!selectedTokenMeta?.priceUsd || !marginAmount || !balance) return null
+    if (!selectedTokenMeta?.priceUsd || !marginAmount) return null
 
-    const SOL_PRICE = 180 // Approximate, would be better to fetch this
-    const marginInUsd = parseFloat(marginAmount) * SOL_PRICE * leverage
+    const marginInUsd = parseFloat(marginAmount) * solPrice * leverage
     return marginInUsd / selectedTokenMeta.priceUsd
-  }, [selectedTokenMeta, marginAmount, leverage, balance])
+  }, [selectedTokenMeta, marginAmount, leverage, solPrice])
+
+  // Calculate estimated PnL for different price movements
+  const estimatedPnlScenarios = useMemo(() => {
+    if (!selectedTokenMeta?.priceUsd || !marginAmount || !estimatedPositionSize) return null
+
+    const currentPrice = selectedTokenMeta.priceUsd
+    const scenarios = [
+      { label: "+10%", priceChange: 0.10 },
+      { label: "+25%", priceChange: 0.25 },
+      { label: "-10%", priceChange: -0.10 },
+      { label: "-25%", priceChange: -0.25 },
+    ]
+
+    return scenarios.map(scenario => {
+      const newPrice = currentPrice * (1 + scenario.priceChange)
+      const priceDiff = newPrice - currentPrice
+      const pnl = priceDiff * estimatedPositionSize * (side === "SHORT" ? -1 : 1)
+      return { ...scenario, pnl }
+    })
+  }, [selectedTokenMeta, marginAmount, estimatedPositionSize, side])
 
   const handleOpenPosition = async () => {
+    // Clear previous errors
+    setErrorMessage(null)
+
+    // Validation
     if (!user?.id || !selectedToken || !marginAmount) {
+      const error = "Please select a token and enter margin amount"
+      setErrorMessage(error)
       toast({
         title: "Error",
-        description: "Please select a token and enter margin amount",
+        description: error,
+        variant: "destructive",
+      })
+      return
+    }
+
+    const marginNum = parseFloat(marginAmount)
+    if (isNaN(marginNum) || marginNum <= 0) {
+      const error = "Please enter a valid margin amount"
+      setErrorMessage(error)
+      toast({
+        title: "Invalid Amount",
+        description: error,
+        variant: "destructive",
+      })
+      return
+    }
+
+    if (marginNum > balance) {
+      const error = `Insufficient balance. You have ${balance.toFixed(2)} SOL available`
+      setErrorMessage(error)
+      toast({
+        title: "Insufficient Balance",
+        description: error,
+        variant: "destructive",
+      })
+      return
+    }
+
+    if (marginNum < 0.01) {
+      const error = "Minimum margin is 0.01 SOL"
+      setErrorMessage(error)
+      toast({
+        title: "Amount Too Low",
+        description: error,
         variant: "destructive",
       })
       return
@@ -181,7 +262,7 @@ function PerpsContent() {
 
       toast({
         title: "Position Opened!",
-        description: `Opened ${leverage}x ${side} position`,
+        description: `Opened ${leverage}x ${side} position with ${marginAmount} SOL margin`,
       })
 
       // Reload positions and balance
@@ -191,10 +272,13 @@ function PerpsContent() {
 
       // Reset form
       setMarginAmount("")
+      setErrorMessage(null)
     } catch (error: any) {
+      const errorMsg = error.message || "Failed to open position"
+      setErrorMessage(errorMsg)
       toast({
         title: "Failed to Open Position",
-        description: error.message,
+        description: errorMsg,
         variant: "destructive",
       })
     } finally {
@@ -248,14 +332,19 @@ function PerpsContent() {
           </div>
           <div className="text-right">
             <div className="text-xs text-muted-foreground">Available Balance</div>
-            <div className="text-xl sm:text-2xl font-bold">{balance.toFixed(2)} SOL</div>
+            <div className="text-xl sm:text-2xl font-bold">
+              {balance.toFixed(4)} SOL
+              <span className="text-sm text-muted-foreground ml-2">
+                (${(balance * solPrice).toFixed(2)})
+              </span>
+            </div>
           </div>
         </div>
 
         {/* Portfolio Stats */}
         {positions.length > 0 && (
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <Card>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 animate-in fade-in slide-in-from-top-4 duration-500">
+            <Card className="transition-all hover:shadow-md">
               <CardContent className="p-4">
                 <div className="flex items-center gap-2">
                   <Activity className="h-4 w-4 text-muted-foreground" />
@@ -264,7 +353,7 @@ function PerpsContent() {
                 <div className="text-2xl font-bold mt-1">{portfolioStats.positionCount}</div>
               </CardContent>
             </Card>
-            <Card>
+            <Card className="transition-all hover:shadow-md">
               <CardContent className="p-4">
                 <div className="flex items-center gap-2">
                   <DollarSign className="h-4 w-4 text-muted-foreground" />
@@ -273,7 +362,7 @@ function PerpsContent() {
                 <div className="text-2xl font-bold mt-1">{portfolioStats.totalMargin.toFixed(2)} SOL</div>
               </CardContent>
             </Card>
-            <Card>
+            <Card className="transition-all hover:shadow-md">
               <CardContent className="p-4">
                 <div className="flex items-center gap-2">
                   <TrendingUp className="h-4 w-4 text-muted-foreground" />
@@ -282,13 +371,13 @@ function PerpsContent() {
                 <div className="text-2xl font-bold mt-1">${portfolioStats.totalPositionValue.toFixed(2)}</div>
               </CardContent>
             </Card>
-            <Card>
+            <Card className="transition-all hover:shadow-md">
               <CardContent className="p-4">
                 <div className="flex items-center gap-2">
                   <DollarSign className="h-4 w-4 text-muted-foreground" />
                   <span className="text-xs text-muted-foreground">Total PnL</span>
                 </div>
-                <div className={`text-2xl font-bold mt-1 ${portfolioStats.totalPnL >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                <div className={`text-2xl font-bold mt-1 transition-colors ${portfolioStats.totalPnL >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                   {portfolioStats.totalPnL >= 0 ? '+' : ''}${portfolioStats.totalPnL.toFixed(2)}
                 </div>
               </CardContent>
@@ -302,28 +391,27 @@ function PerpsContent() {
           <div className="lg:col-span-8 space-y-4">
             {/* Price Ticker */}
             {selectedTokenMeta && (
-              <Card>
+              <Card className="transition-all hover:shadow-md animate-in fade-in slide-in-from-top-2 duration-300">
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      {selectedTokenMeta.logoURI && (
-                        <img
-                          src={selectedTokenMeta.logoURI}
-                          alt={selectedTokenMeta.symbol}
-                          className="w-10 h-10 rounded-full"
-                        />
-                      )}
+                      <TokenLogo
+                        src={selectedTokenMeta.logoURI}
+                        alt={selectedTokenMeta.symbol}
+                        mint={selectedToken}
+                        className="w-10 h-10 rounded-full"
+                      />
                       <div>
                         <div className="text-xl font-bold">{selectedTokenMeta.symbol}</div>
                         <div className="text-sm text-muted-foreground">{selectedTokenMeta.name}</div>
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="text-2xl font-bold">
+                      <div className="text-2xl font-bold font-mono">
                         ${selectedTokenMeta.priceUsd?.toFixed(selectedTokenMeta.priceUsd < 1 ? 6 : 2) || 'N/A'}
                       </div>
                       {selectedTokenMeta.priceChange24h !== undefined && (
-                        <div className={`flex items-center justify-end gap-1 text-sm font-semibold ${selectedTokenMeta.priceChange24h >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                        <div className={`flex items-center justify-end gap-1 text-sm font-semibold transition-colors ${selectedTokenMeta.priceChange24h >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                           {selectedTokenMeta.priceChange24h >= 0 ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
                           {selectedTokenMeta.priceChange24h >= 0 ? '+' : ''}
                           {selectedTokenMeta.priceChange24h.toFixed(2)}% (24h)
@@ -420,21 +508,69 @@ function PerpsContent() {
 
               {/* Margin Amount */}
               <div className="space-y-2">
-                <Label>Margin (SOL)</Label>
+                <Label className="flex items-center justify-between">
+                  <span>Margin (SOL)</span>
+                  <span className="text-xs text-muted-foreground font-normal">
+                    Balance: {balance.toFixed(4)} SOL
+                  </span>
+                </Label>
                 <Input
                   type="number"
                   placeholder="0.00"
                   value={marginAmount}
-                  onChange={(e) => setMarginAmount(e.target.value)}
+                  onChange={(e) => {
+                    setMarginAmount(e.target.value)
+                    setErrorMessage(null)
+                  }}
                   step="0.01"
                   min="0"
+                  className={errorMessage ? "border-red-500" : ""}
                 />
+
+                {/* Quick presets */}
+                <div className="grid grid-cols-4 gap-1.5">
+                  {[25, 50, 75, 100].map((percent) => (
+                    <Button
+                      key={percent}
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="h-7 text-xs"
+                      onClick={() => {
+                        const amount = (balance * percent / 100).toFixed(4)
+                        setMarginAmount(amount)
+                        setErrorMessage(null)
+                      }}
+                    >
+                      {percent}%
+                    </Button>
+                  ))}
+                </div>
+
+                {/* Position info */}
                 {estimatedPositionSize && (
-                  <div className="text-xs text-muted-foreground">
-                    Position Size: ~{estimatedPositionSize.toFixed(2)} {selectedTokenMeta?.symbol}
+                  <div className="space-y-1 text-xs">
+                    <div className="flex justify-between text-muted-foreground">
+                      <span>Position Size:</span>
+                      <span className="font-mono">~{estimatedPositionSize.toFixed(2)} {selectedTokenMeta?.symbol}</span>
+                    </div>
+                    <div className="flex justify-between text-muted-foreground">
+                      <span>Position Value:</span>
+                      <span className="font-mono">${(estimatedPositionSize * (selectedTokenMeta?.priceUsd || 0)).toFixed(2)}</span>
+                    </div>
                   </div>
                 )}
               </div>
+
+              {/* Error Message */}
+              {errorMessage && (
+                <Alert variant="destructive" className="animate-in fade-in slide-in-from-top-2 duration-300">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription className="text-xs">
+                    {errorMessage}
+                  </AlertDescription>
+                </Alert>
+              )}
 
               {/* Estimated Liquidation Price */}
               {estimatedLiqPrice && (
@@ -446,22 +582,67 @@ function PerpsContent() {
                 </Alert>
               )}
 
+              {/* PnL Scenarios */}
+              {estimatedPnlScenarios && marginAmount && (
+                <div className="space-y-2">
+                  <Label className="text-xs text-muted-foreground">Estimated PnL Scenarios</Label>
+                  <div className="grid grid-cols-2 gap-2 text-xs">
+                    {estimatedPnlScenarios.map((scenario, idx) => (
+                      <div
+                        key={idx}
+                        className={`p-2 rounded-lg border ${
+                          scenario.pnl >= 0
+                            ? "bg-green-50 dark:bg-green-950/20 border-green-200"
+                            : "bg-red-50 dark:bg-red-950/20 border-red-200"
+                        }`}
+                      >
+                        <div className="text-muted-foreground">{scenario.label}</div>
+                        <div
+                          className={`font-mono font-semibold ${
+                            scenario.pnl >= 0 ? "text-green-600" : "text-red-600"
+                          }`}
+                        >
+                          {scenario.pnl >= 0 ? "+" : ""}${scenario.pnl.toFixed(2)}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {/* Submit Button */}
               <Button
-                className="w-full"
+                className={`w-full transition-all duration-200 ${
+                  side === "LONG"
+                    ? "bg-green-600 hover:bg-green-700 text-white"
+                    : "bg-red-600 hover:bg-red-700 text-white"
+                }`}
                 size="lg"
                 onClick={handleOpenPosition}
-                disabled={loading || !selectedToken || !marginAmount}
+                disabled={loading || !selectedToken || !marginAmount || parseFloat(marginAmount || "0") <= 0}
               >
                 {loading ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Opening...
+                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                    Opening Position...
                   </>
                 ) : (
-                  `Open ${side} Position`
+                  <>
+                    {side === "LONG" ? <TrendingUp className="mr-2 h-5 w-5" /> : <TrendingDown className="mr-2 h-5 w-5" />}
+                    Open {leverage}x {side} Position
+                  </>
                 )}
               </Button>
+
+              {/* High leverage warning */}
+              {leverage >= 10 && (
+                <Alert className="bg-yellow-50 dark:bg-yellow-950/20 border-yellow-200">
+                  <AlertCircle className="h-4 w-4 text-yellow-600" />
+                  <AlertDescription className="text-xs text-yellow-800 dark:text-yellow-200">
+                    <strong>High Leverage Warning:</strong> {leverage}x leverage carries extreme risk of liquidation.
+                  </AlertDescription>
+                </Alert>
+              )}
             </CardContent>
           </Card>
         </div>
@@ -502,17 +683,16 @@ function PerpsContent() {
                     return (
                       <div
                         key={pos.id}
-                        className={`border rounded-lg p-4 space-y-3 ${isNearLiquidation ? 'border-red-500 bg-red-50 dark:bg-red-950/20' : ''}`}
+                        className={`border rounded-lg p-4 space-y-3 transition-all duration-200 hover:shadow-md ${isNearLiquidation ? 'border-red-500 bg-red-50 dark:bg-red-950/20 animate-pulse' : 'hover:border-primary/50'}`}
                       >
                         <div className="flex items-center justify-between flex-wrap gap-2">
                           <div className="flex items-center gap-2">
-                            {tokenMeta?.logoURI && (
-                              <img
-                                src={tokenMeta.logoURI}
-                                alt={tokenMeta.symbol}
-                                className="w-8 h-8 rounded-full"
-                              />
-                            )}
+                            <TokenLogo
+                              src={tokenMeta?.logoURI}
+                              alt={tokenMeta?.symbol || pos.mint.substring(0, 8)}
+                              mint={pos.mint}
+                              className="w-8 h-8 rounded-full"
+                            />
                             <div>
                               <div className="font-semibold">
                                 {tokenMeta?.symbol || pos.mint.substring(0, 8)}
@@ -635,13 +815,12 @@ function PerpsContent() {
                       <div key={trade.id} className="border rounded-lg p-4">
                         <div className="flex items-center justify-between mb-3">
                           <div className="flex items-center gap-2">
-                            {tokenMeta?.logoURI && (
-                              <img
-                                src={tokenMeta.logoURI}
-                                alt={tokenMeta.symbol}
-                                className="w-6 h-6 rounded-full"
-                              />
-                            )}
+                            <TokenLogo
+                              src={tokenMeta?.logoURI}
+                              alt={tokenMeta?.symbol || trade.mint.substring(0, 8)}
+                              mint={trade.mint}
+                              className="w-6 h-6 rounded-full"
+                            />
                             <span className="font-semibold">
                               {tokenMeta?.symbol || trade.mint.substring(0, 8)}
                             </span>
