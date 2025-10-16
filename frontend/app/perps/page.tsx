@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { useAuth } from "@/hooks/use-auth"
 import { AuthGuard } from "@/components/auth/auth-guard"
 import { Button } from "@/components/ui/button"
@@ -10,10 +10,11 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { TrendingUp, TrendingDown, AlertCircle, Loader2, XCircle } from "lucide-react"
+import { TrendingUp, TrendingDown, AlertCircle, Loader2, XCircle, Timer, DollarSign, Activity } from "lucide-react"
 import * as api from "@/lib/api"
 import { useToast } from "@/hooks/use-toast"
 import { PerpTokenSelector } from "@/components/trading/perp-token-selector"
+import { DexScreenerChart } from "@/components/trading/dexscreener-chart"
 import { useSearchParams } from "next/navigation"
 
 export default function PerpsPage() {
@@ -30,13 +31,18 @@ function PerpsContent() {
   const searchParams = useSearchParams()
 
   const [selectedToken, setSelectedToken] = useState(searchParams.get("token") || "")
+  const [selectedTokenMeta, setSelectedTokenMeta] = useState<any>(null)
   const [side, setSide] = useState<"LONG" | "SHORT">("LONG")
   const [leverage, setLeverage] = useState(10)
   const [marginAmount, setMarginAmount] = useState("")
   const [positions, setPositions] = useState<any[]>([])
+  const [tradeHistory, setTradeHistory] = useState<any[]>([])
   const [loading, setLoading] = useState(false)
   const [positionsLoading, setPositionsLoading] = useState(false)
+  const [historyLoading, setHistoryLoading] = useState(false)
   const [balance, setBalance] = useState(0)
+  const [activeTab, setActiveTab] = useState<"positions" | "history">("positions")
+  const [tokenMetadataCache, setTokenMetadataCache] = useState<Record<string, any>>({})
 
   // Load user balance
   useEffect(() => {
@@ -47,6 +53,20 @@ function PerpsContent() {
     }
   }, [user])
 
+  // Load token metadata when selected token changes
+  useEffect(() => {
+    if (selectedToken) {
+      if (tokenMetadataCache[selectedToken]) {
+        setSelectedTokenMeta(tokenMetadataCache[selectedToken])
+      } else {
+        api.getTokenMetadata(selectedToken).then(meta => {
+          setSelectedTokenMeta(meta)
+          setTokenMetadataCache(prev => ({ ...prev, [selectedToken]: meta }))
+        }).catch(console.error)
+      }
+    }
+  }, [selectedToken])
+
   // Load positions
   const loadPositions = async () => {
     if (!user?.id) return
@@ -54,10 +74,37 @@ function PerpsContent() {
     try {
       const data = await api.getPerpPositions(user.id)
       setPositions(data)
+
+      // Load metadata for all position tokens
+      const uniqueMints = [...new Set(data.map((p: any) => p.mint))] as string[]
+      for (const mint of uniqueMints) {
+        if (!tokenMetadataCache[mint]) {
+          try {
+            const meta = await api.getTokenMetadata(mint)
+            setTokenMetadataCache(prev => ({ ...prev, [mint]: meta }))
+          } catch (error) {
+            console.error(`Failed to load metadata for ${mint}:`, error)
+          }
+        }
+      }
     } catch (error) {
       console.error("Failed to load positions:", error)
     } finally {
       setPositionsLoading(false)
+    }
+  }
+
+  // Load trade history
+  const loadTradeHistory = async () => {
+    if (!user?.id) return
+    setHistoryLoading(true)
+    try {
+      const data = await api.getPerpTradeHistory(user.id, 50)
+      setTradeHistory(data)
+    } catch (error) {
+      console.error("Failed to load trade history:", error)
+    } finally {
+      setHistoryLoading(false)
     }
   }
 
@@ -67,6 +114,50 @@ function PerpsContent() {
     const interval = setInterval(loadPositions, 10000)
     return () => clearInterval(interval)
   }, [user])
+
+  // Load trade history when tab is opened
+  useEffect(() => {
+    if (activeTab === "history" && user?.id) {
+      loadTradeHistory()
+    }
+  }, [activeTab, user])
+
+  // Calculate portfolio stats
+  const portfolioStats = useMemo(() => {
+    const totalPnL = positions.reduce((sum, pos) => sum + parseFloat(pos.unrealizedPnL || 0), 0)
+    const totalMargin = positions.reduce((sum, pos) => sum + parseFloat(pos.marginAmount || 0), 0)
+    const totalPositionValue = positions.reduce((sum, pos) =>
+      sum + (parseFloat(pos.positionSize || 0) * parseFloat(pos.currentPrice || 0)), 0
+    )
+
+    return {
+      totalPnL,
+      totalMargin,
+      totalPositionValue,
+      positionCount: positions.length,
+    }
+  }, [positions])
+
+  // Calculate estimated liquidation price
+  const estimatedLiqPrice = useMemo(() => {
+    if (!selectedTokenMeta?.priceUsd || !marginAmount || !leverage) return null
+
+    const price = selectedTokenMeta.priceUsd
+    if (side === "LONG") {
+      return price * (1 - 1/leverage + 0.05)
+    } else {
+      return price * (1 + 1/leverage - 0.05)
+    }
+  }, [selectedTokenMeta, marginAmount, leverage, side])
+
+  // Calculate position size in tokens
+  const estimatedPositionSize = useMemo(() => {
+    if (!selectedTokenMeta?.priceUsd || !marginAmount || !balance) return null
+
+    const SOL_PRICE = 180 // Approximate, would be better to fetch this
+    const marginInUsd = parseFloat(marginAmount) * SOL_PRICE * leverage
+    return marginInUsd / selectedTokenMeta.priceUsd
+  }, [selectedTokenMeta, marginAmount, leverage, balance])
 
   const handleOpenPosition = async () => {
     if (!user?.id || !selectedToken || !marginAmount) {
@@ -138,39 +229,136 @@ function PerpsContent() {
     }
   }
 
+  // Get leverage risk color
+  const getLeverageRiskColor = (lev: number) => {
+    if (lev <= 2) return "bg-green-600 hover:bg-green-700"
+    if (lev <= 5) return "bg-yellow-600 hover:bg-yellow-700"
+    if (lev <= 10) return "bg-orange-600 hover:bg-orange-700"
+    return "bg-red-600 hover:bg-red-700"
+  }
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 p-4 sm:p-6">
-      <div className="max-w-7xl mx-auto space-y-6">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 p-2 sm:p-4">
+      <div className="max-w-[1800px] mx-auto space-y-4">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold">Perpetual Trading</h1>
-            <p className="text-muted-foreground">Trade with up to 20x leverage</p>
+            <h1 className="text-2xl sm:text-3xl font-bold">Perpetual Trading</h1>
+            <p className="text-muted-foreground text-sm">Trade with up to 20x leverage</p>
           </div>
           <div className="text-right">
-            <div className="text-sm text-muted-foreground">Available Balance</div>
-            <div className="text-2xl font-bold">{balance.toFixed(2)} SOL</div>
+            <div className="text-xs text-muted-foreground">Available Balance</div>
+            <div className="text-xl sm:text-2xl font-bold">{balance.toFixed(2)} SOL</div>
           </div>
         </div>
 
-        {/* Warnings */}
-        <Alert>
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription>
-            <strong>High Risk:</strong> Leverage trading can result in liquidation and loss of all margin.
-          </AlertDescription>
-        </Alert>
+        {/* Portfolio Stats */}
+        {positions.length > 0 && (
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center gap-2">
+                  <Activity className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-xs text-muted-foreground">Open Positions</span>
+                </div>
+                <div className="text-2xl font-bold mt-1">{portfolioStats.positionCount}</div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center gap-2">
+                  <DollarSign className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-xs text-muted-foreground">Total Margin</span>
+                </div>
+                <div className="text-2xl font-bold mt-1">{portfolioStats.totalMargin.toFixed(2)} SOL</div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center gap-2">
+                  <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-xs text-muted-foreground">Position Value</span>
+                </div>
+                <div className="text-2xl font-bold mt-1">${portfolioStats.totalPositionValue.toFixed(2)}</div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center gap-2">
+                  <DollarSign className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-xs text-muted-foreground">Total PnL</span>
+                </div>
+                <div className={`text-2xl font-bold mt-1 ${portfolioStats.totalPnL >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                  {portfolioStats.totalPnL >= 0 ? '+' : ''}${portfolioStats.totalPnL.toFixed(2)}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
 
-        <Alert className="border-blue-500 bg-blue-50 dark:bg-blue-950/20">
-          <AlertCircle className="h-4 w-4 text-blue-600" />
-          <AlertDescription className="text-blue-900 dark:text-blue-100">
-            <strong>Supported Tokens:</strong> Only SOL and established high market cap tokens are available for perpetual trading. Select from the dropdown to see all available tokens.
-          </AlertDescription>
-        </Alert>
+        {/* Main Trading Interface */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+          {/* Chart Section - Left (8 columns on desktop) */}
+          <div className="lg:col-span-8 space-y-4">
+            {/* Price Ticker */}
+            {selectedTokenMeta && (
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      {selectedTokenMeta.logoURI && (
+                        <img
+                          src={selectedTokenMeta.logoURI}
+                          alt={selectedTokenMeta.symbol}
+                          className="w-10 h-10 rounded-full"
+                        />
+                      )}
+                      <div>
+                        <div className="text-xl font-bold">{selectedTokenMeta.symbol}</div>
+                        <div className="text-sm text-muted-foreground">{selectedTokenMeta.name}</div>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-2xl font-bold">
+                        ${selectedTokenMeta.priceUsd?.toFixed(selectedTokenMeta.priceUsd < 1 ? 6 : 2) || 'N/A'}
+                      </div>
+                      {selectedTokenMeta.priceChange24h !== undefined && (
+                        <div className={`flex items-center justify-end gap-1 text-sm font-semibold ${selectedTokenMeta.priceChange24h >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                          {selectedTokenMeta.priceChange24h >= 0 ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
+                          {selectedTokenMeta.priceChange24h >= 0 ? '+' : ''}
+                          {selectedTokenMeta.priceChange24h.toFixed(2)}% (24h)
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Trading Panel */}
-          <Card className="lg:col-span-1">
+            {/* Chart */}
+            <Card className="overflow-hidden">
+              <div className="h-[400px] sm:h-[500px]">
+                {selectedToken ? (
+                  <DexScreenerChart tokenAddress={selectedToken} />
+                ) : (
+                  <div className="h-full flex items-center justify-center text-muted-foreground">
+                    Select a token to view chart
+                  </div>
+                )}
+              </div>
+            </Card>
+
+            {/* Risk Warning */}
+            <Alert>
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription className="text-xs">
+                <strong>High Risk:</strong> Leverage trading can result in liquidation and loss of all margin. Only trade with funds you can afford to lose.
+              </AlertDescription>
+            </Alert>
+          </div>
+
+          {/* Trading Panel - Right (4 columns on desktop) */}
+          <Card className="lg:col-span-4">
             <CardHeader>
               <CardTitle>Open Position</CardTitle>
               <CardDescription>Select token and parameters</CardDescription>
@@ -190,11 +378,11 @@ function PerpsContent() {
                 <Label>Direction</Label>
                 <Tabs value={side} onValueChange={(v) => setSide(v as "LONG" | "SHORT")}>
                   <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="LONG" className="data-[state=active]:bg-green-600">
+                    <TabsTrigger value="LONG" className="data-[state=active]:bg-green-600 data-[state=active]:text-white">
                       <TrendingUp className="mr-2 h-4 w-4" />
                       LONG
                     </TabsTrigger>
-                    <TabsTrigger value="SHORT" className="data-[state=active]:bg-red-600">
+                    <TabsTrigger value="SHORT" className="data-[state=active]:bg-red-600 data-[state=active]:text-white">
                       <TrendingDown className="mr-2 h-4 w-4" />
                       SHORT
                     </TabsTrigger>
@@ -202,9 +390,19 @@ function PerpsContent() {
                 </Tabs>
               </div>
 
-              {/* Leverage Selection */}
+              {/* Leverage Selection with Risk Indicators */}
               <div className="space-y-2">
-                <Label>Leverage: {leverage}x</Label>
+                <Label className="flex items-center justify-between">
+                  <span>Leverage: {leverage}x</span>
+                  <span className={`text-xs px-2 py-0.5 rounded ${
+                    leverage <= 2 ? 'bg-green-100 text-green-700' :
+                    leverage <= 5 ? 'bg-yellow-100 text-yellow-700' :
+                    leverage <= 10 ? 'bg-orange-100 text-orange-700' :
+                    'bg-red-100 text-red-700'
+                  }`}>
+                    {leverage <= 2 ? 'Low Risk' : leverage <= 5 ? 'Medium Risk' : leverage <= 10 ? 'High Risk' : 'Very High Risk'}
+                  </span>
+                </Label>
                 <div className="grid grid-cols-4 gap-2">
                   {[2, 5, 10, 20].map((lev) => (
                     <Button
@@ -212,6 +410,7 @@ function PerpsContent() {
                       variant={leverage === lev ? "default" : "outline"}
                       onClick={() => setLeverage(lev)}
                       size="sm"
+                      className={leverage === lev ? getLeverageRiskColor(lev) : ""}
                     >
                       {lev}x
                     </Button>
@@ -230,12 +429,22 @@ function PerpsContent() {
                   step="0.01"
                   min="0"
                 />
-                <div className="text-xs text-muted-foreground">
-                  Position Size: {marginAmount && !isNaN(parseFloat(marginAmount))
-                    ? (parseFloat(marginAmount) * leverage).toFixed(2)
-                    : "0.00"} SOL
-                </div>
+                {estimatedPositionSize && (
+                  <div className="text-xs text-muted-foreground">
+                    Position Size: ~{estimatedPositionSize.toFixed(2)} {selectedTokenMeta?.symbol}
+                  </div>
+                )}
               </div>
+
+              {/* Estimated Liquidation Price */}
+              {estimatedLiqPrice && (
+                <Alert className="bg-orange-50 dark:bg-orange-950/20 border-orange-200">
+                  <Timer className="h-4 w-4 text-orange-600" />
+                  <AlertDescription className="text-xs">
+                    <strong>Est. Liquidation Price:</strong> ${estimatedLiqPrice.toFixed(6)}
+                  </AlertDescription>
+                </Alert>
+              )}
 
               {/* Submit Button */}
               <Button
@@ -255,103 +464,232 @@ function PerpsContent() {
               </Button>
             </CardContent>
           </Card>
+        </div>
 
-          {/* Positions Table */}
-          <Card className="lg:col-span-2">
-            <CardHeader>
-              <CardTitle>Open Positions</CardTitle>
-              <CardDescription>
-                {positions.length} position{positions.length !== 1 ? "s" : ""}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {positionsLoading ? (
-                <div className="flex items-center justify-center py-8">
-                  <Loader2 className="h-6 w-6 animate-spin" />
+        {/* Positions & History Section */}
+        <Card>
+          <CardHeader>
+            <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)} className="w-full">
+              <TabsList className="grid w-full max-w-md grid-cols-2">
+                <TabsTrigger value="positions">
+                  Open Positions ({positions.length})
+                </TabsTrigger>
+                <TabsTrigger value="history">
+                  Trade History
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
+          </CardHeader>
+          <CardContent>
+            {activeTab === "positions" ? (
+              positionsLoading ? (
+                <div className="flex items-center justify-center py-12">
+                  <Loader2 className="h-8 w-8 animate-spin" />
                 </div>
               ) : positions.length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground">
-                  No open positions
+                <div className="text-center py-12 text-muted-foreground">
+                  <Activity className="h-12 w-12 mx-auto mb-3 opacity-20" />
+                  <p>No open positions</p>
+                  <p className="text-sm">Open your first perpetual position to get started</p>
                 </div>
               ) : (
                 <div className="space-y-3">
-                  {positions.map((pos) => (
-                    <div
-                      key={pos.id}
-                      className="border rounded-lg p-4 space-y-3"
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <Badge
-                            variant={pos.side === "LONG" ? "default" : "destructive"}
-                          >
-                            {pos.side}
-                          </Badge>
-                          <span className="font-mono text-sm">
-                            {pos.mint.substring(0, 8)}...
-                          </span>
-                          <Badge variant="outline">{pos.leverage.toString()}x</Badge>
-                        </div>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleClosePosition(pos.id)}
-                        >
-                          <XCircle className="h-4 w-4 mr-1" />
-                          Close
-                        </Button>
-                      </div>
+                  {positions.map((pos) => {
+                    const tokenMeta = tokenMetadataCache[pos.mint]
+                    const roe = ((parseFloat(pos.unrealizedPnL) / parseFloat(pos.marginAmount)) * 100)
+                    const isNearLiquidation = parseFloat(pos.marginRatio) < 2.0
 
-                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm">
-                        <div>
-                          <div className="text-muted-foreground">Entry</div>
-                          <div className="font-mono">
-                            ${parseFloat(pos.entryPrice).toFixed(6)}
+                    return (
+                      <div
+                        key={pos.id}
+                        className={`border rounded-lg p-4 space-y-3 ${isNearLiquidation ? 'border-red-500 bg-red-50 dark:bg-red-950/20' : ''}`}
+                      >
+                        <div className="flex items-center justify-between flex-wrap gap-2">
+                          <div className="flex items-center gap-2">
+                            {tokenMeta?.logoURI && (
+                              <img
+                                src={tokenMeta.logoURI}
+                                alt={tokenMeta.symbol}
+                                className="w-8 h-8 rounded-full"
+                              />
+                            )}
+                            <div>
+                              <div className="font-semibold">
+                                {tokenMeta?.symbol || pos.mint.substring(0, 8)}
+                              </div>
+                              <div className="text-xs text-muted-foreground">
+                                {tokenMeta?.name || 'Unknown Token'}
+                              </div>
+                            </div>
+                            <Badge
+                              variant={pos.side === "LONG" ? "default" : "destructive"}
+                              className={pos.side === "LONG" ? "bg-green-600" : "bg-red-600"}
+                            >
+                              {pos.side}
+                            </Badge>
+                            <Badge variant="outline">{pos.leverage.toString()}x</Badge>
                           </div>
-                        </div>
-                        <div>
-                          <div className="text-muted-foreground">Current</div>
-                          <div className="font-mono">
-                            ${parseFloat(pos.currentPrice).toFixed(6)}
-                          </div>
-                        </div>
-                        <div>
-                          <div className="text-muted-foreground">Size</div>
-                          <div className="font-mono">
-                            {parseFloat(pos.positionSize).toFixed(2)}
-                          </div>
-                        </div>
-                        <div>
-                          <div className="text-muted-foreground">PnL</div>
-                          <div
-                            className={`font-mono ${
-                              parseFloat(pos.unrealizedPnL) >= 0
-                                ? "text-green-600"
-                                : "text-red-600"
-                            }`}
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleClosePosition(pos.id)}
+                            className="hover:bg-red-100 dark:hover:bg-red-950"
                           >
-                            ${parseFloat(pos.unrealizedPnL).toFixed(2)}
+                            <XCircle className="h-4 w-4 mr-1" />
+                            Close
+                          </Button>
+                        </div>
+
+                        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 text-sm">
+                          <div>
+                            <div className="text-muted-foreground text-xs">Entry Price</div>
+                            <div className="font-mono font-semibold">
+                              ${parseFloat(pos.entryPrice).toFixed(6)}
+                            </div>
+                          </div>
+                          <div>
+                            <div className="text-muted-foreground text-xs">Current Price</div>
+                            <div className="font-mono font-semibold">
+                              ${parseFloat(pos.currentPrice).toFixed(6)}
+                            </div>
+                          </div>
+                          <div>
+                            <div className="text-muted-foreground text-xs">Position Size</div>
+                            <div className="font-mono font-semibold">
+                              {parseFloat(pos.positionSize).toFixed(2)}
+                            </div>
+                          </div>
+                          <div>
+                            <div className="text-muted-foreground text-xs">Unrealized PnL</div>
+                            <div
+                              className={`font-mono font-bold ${
+                                parseFloat(pos.unrealizedPnL) >= 0
+                                  ? "text-green-600"
+                                  : "text-red-600"
+                              }`}
+                            >
+                              {parseFloat(pos.unrealizedPnL) >= 0 ? '+' : ''}${parseFloat(pos.unrealizedPnL).toFixed(2)}
+                            </div>
+                          </div>
+                          <div>
+                            <div className="text-muted-foreground text-xs">ROE</div>
+                            <div
+                              className={`font-mono font-bold ${
+                                roe >= 0 ? "text-green-600" : "text-red-600"
+                              }`}
+                            >
+                              {roe >= 0 ? '+' : ''}{roe.toFixed(2)}%
+                            </div>
+                          </div>
+                          <div>
+                            <div className="text-muted-foreground text-xs">Liq. Price</div>
+                            <div className="font-mono font-semibold text-orange-600">
+                              ${parseFloat(pos.liquidationPrice).toFixed(6)}
+                            </div>
                           </div>
                         </div>
-                      </div>
 
-                      {/* Margin Ratio Warning */}
-                      {parseFloat(pos.marginRatio) < 1.5 && (
-                        <Alert variant="destructive">
-                          <AlertCircle className="h-4 w-4" />
-                          <AlertDescription>
-                            Warning: Close to liquidation! Margin ratio:{" "}
-                            {parseFloat(pos.marginRatio).toFixed(2)}
-                          </AlertDescription>
-                        </Alert>
-                      )}
-                    </div>
-                  ))}
+                        {/* Enhanced Liquidation Warning */}
+                        {isNearLiquidation && (
+                          <Alert variant="destructive">
+                            <AlertCircle className="h-4 w-4" />
+                            <AlertDescription className="flex items-center justify-between">
+                              <span>
+                                <strong>LIQUIDATION WARNING!</strong> Margin ratio: {parseFloat(pos.marginRatio).toFixed(2)}x
+                                {parseFloat(pos.marginRatio) < 1.5 && " - Liquidation imminent!"}
+                              </span>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="ml-2"
+                                onClick={() => handleClosePosition(pos.id)}
+                              >
+                                Close Now
+                              </Button>
+                            </AlertDescription>
+                          </Alert>
+                        )}
+                      </div>
+                    )
+                  })}
                 </div>
-              )}
-            </CardContent>
-          </Card>
-        </div>
+              )
+            ) : (
+              historyLoading ? (
+                <div className="flex items-center justify-center py-12">
+                  <Loader2 className="h-8 w-8 animate-spin" />
+                </div>
+              ) : tradeHistory.length === 0 ? (
+                <div className="text-center py-12 text-muted-foreground">
+                  <Activity className="h-12 w-12 mx-auto mb-3 opacity-20" />
+                  <p>No trade history</p>
+                  <p className="text-sm">Your closed positions will appear here</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {tradeHistory.map((trade) => {
+                    const tokenMeta = tokenMetadataCache[trade.mint]
+                    const pnl = trade.pnl ? parseFloat(trade.pnl) : null
+
+                    return (
+                      <div key={trade.id} className="border rounded-lg p-4">
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="flex items-center gap-2">
+                            {tokenMeta?.logoURI && (
+                              <img
+                                src={tokenMeta.logoURI}
+                                alt={tokenMeta.symbol}
+                                className="w-6 h-6 rounded-full"
+                              />
+                            )}
+                            <span className="font-semibold">
+                              {tokenMeta?.symbol || trade.mint.substring(0, 8)}
+                            </span>
+                            <Badge
+                              variant={trade.side === "LONG" ? "default" : "destructive"}
+                              className={trade.side === "LONG" ? "bg-green-600" : "bg-red-600"}
+                            >
+                              {trade.side}
+                            </Badge>
+                            <Badge variant="outline">{trade.action}</Badge>
+                          </div>
+                          <div className="text-xs text-muted-foreground">
+                            {new Date(trade.timestamp).toLocaleDateString()}
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm">
+                          <div>
+                            <div className="text-muted-foreground text-xs">Entry</div>
+                            <div className="font-mono">${parseFloat(trade.entryPrice).toFixed(6)}</div>
+                          </div>
+                          {trade.exitPrice && (
+                            <div>
+                              <div className="text-muted-foreground text-xs">Exit</div>
+                              <div className="font-mono">${parseFloat(trade.exitPrice).toFixed(6)}</div>
+                            </div>
+                          )}
+                          <div>
+                            <div className="text-muted-foreground text-xs">Size</div>
+                            <div className="font-mono">{parseFloat(trade.quantity).toFixed(2)}</div>
+                          </div>
+                          {pnl !== null && (
+                            <div>
+                              <div className="text-muted-foreground text-xs">PnL</div>
+                              <div className={`font-mono font-bold ${pnl >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                {pnl >= 0 ? '+' : ''}${pnl.toFixed(2)}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              )
+            )}
+          </CardContent>
+        </Card>
       </div>
     </div>
   )

@@ -1,9 +1,10 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { ChevronDown, Loader2 } from "lucide-react"
+import { useState, useEffect, useMemo } from "react"
+import { ChevronDown, Loader2, Search } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
 import * as api from "@/lib/api"
 
 interface TokenInfo {
@@ -25,6 +26,7 @@ export function PerpTokenSelector({ value, onChange }: PerpTokenSelectorProps) {
   const [tokens, setTokens] = useState<TokenInfo[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedToken, setSelectedToken] = useState<TokenInfo | null>(null)
+  const [searchQuery, setSearchQuery] = useState("")
 
   // Load whitelisted tokens and their metadata
   useEffect(() => {
@@ -85,7 +87,20 @@ export function PerpTokenSelector({ value, onChange }: PerpTokenSelectorProps) {
     setSelectedToken(token)
     onChange(token.mint)
     setIsOpen(false)
+    setSearchQuery("") // Clear search on select
   }
+
+  // Filter tokens based on search query
+  const filteredTokens = useMemo(() => {
+    if (!searchQuery.trim()) return tokens
+
+    const query = searchQuery.toLowerCase()
+    return tokens.filter(token =>
+      token.symbol.toLowerCase().includes(query) ||
+      token.name.toLowerCase().includes(query) ||
+      token.mint.toLowerCase().includes(query)
+    )
+  }, [tokens, searchQuery])
 
   if (loading) {
     return (
@@ -156,9 +171,30 @@ export function PerpTokenSelector({ value, onChange }: PerpTokenSelectorProps) {
           />
 
           {/* Dropdown */}
-          <Card className="absolute top-full mt-2 w-full z-50 max-h-96 overflow-y-auto glass-overlay">
-            <div className="p-2 space-y-1">
-              {tokens.map((token) => (
+          <Card className="absolute top-full mt-2 w-full z-50 max-h-96 overflow-hidden glass-overlay">
+            {/* Search Input */}
+            <div className="p-3 border-b sticky top-0 bg-card">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  type="text"
+                  placeholder="Search tokens..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-9"
+                  autoFocus
+                />
+              </div>
+            </div>
+
+            {/* Token List */}
+            <div className="p-2 space-y-1 max-h-80 overflow-y-auto">
+              {filteredTokens.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground text-sm">
+                  No tokens found
+                </div>
+              ) : (
+                filteredTokens.map((token) => (
                 <Button
                   key={token.mint}
                   variant="ghost"
@@ -204,7 +240,8 @@ export function PerpTokenSelector({ value, onChange }: PerpTokenSelectorProps) {
                     )}
                   </div>
                 </Button>
-              ))}
+              ))
+              )}
             </div>
           </Card>
         </>
