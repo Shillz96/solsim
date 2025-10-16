@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef, useCallback } from "react"
+import { useState, useRef, useCallback, useMemo } from "react"
 import { motion } from "framer-motion"
 import Link from "next/link"
 import Image from "next/image"
@@ -51,6 +51,7 @@ export function WalletActivityList({
   getWalletLabel
 }: WalletActivityListProps) {
   const [copyingTrades, setCopyingTrades] = useState<Set<string>>(new Set())
+  const [failedImages, setFailedImages] = useState<Set<string>>(new Set())
   const loadMoreRef = useRef<HTMLDivElement>(null)
 
   // Infinite scroll trigger
@@ -113,200 +114,192 @@ export function WalletActivityList({
   return (
     <TooltipProvider>
       <Card className="overflow-hidden">
-        <div className="divide-y divide-border/50">
-          {activities.map((activity, index) => (
-            <motion.div
-              key={activity.id}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.02 }}
-              className="group hover:bg-muted/30 transition-colors"
-            >
-              <div className="flex items-center gap-3 p-3">
-                {/* Time Column */}
-                <div className="w-10 text-xs text-muted-foreground text-center flex-shrink-0">
-                  {activity.timeAgo}
-                </div>
+        <div className="divide-y divide-border/30">
+          {activities.map((activity, index) => {
+            // Filter out SWAP types - only show BUY/SELL
+            if (activity.type === 'SWAP') return null;
 
-                {/* BUY/SELL Badge - PROMINENT */}
-                <Badge
-                  className={cn(
-                    "font-bold text-xs px-3 py-1 flex-shrink-0 min-w-[50px] justify-center",
-                    activity.type === 'BUY'
-                      ? "bg-green-500/20 text-green-500 hover:bg-green-500/30 border-green-500/50"
-                      : activity.type === 'SELL'
-                      ? "bg-red-500/20 text-red-500 hover:bg-red-500/30 border-red-500/50"
-                      : "bg-blue-500/20 text-blue-500 hover:bg-blue-500/30 border-blue-500/50"
-                  )}
-                  variant="outline"
-                >
-                  {activity.type}
-                </Badge>
+            // Get the main token (non-SOL token)
+            const mainToken = activity.type === 'BUY'
+              ? activity.tokenOut
+              : activity.tokenIn;
 
-                {/* Token Info */}
-                <div className="flex-1 min-w-0">
-                  {(() => {
-                    // Get the main token (non-SOL token)
-                    const mainToken = activity.type === 'BUY'
-                      ? activity.tokenOut
-                      : activity.tokenIn;
+            const tokenMint = mainToken.mint;
+            const tokenSymbol = mainToken.symbol || 'Unknown';
+            const tokenLogoURI = mainToken.logoURI;
+            const walletLabel = getWalletLabel(activity.walletAddress);
+            const priceChange = activity.priceChange24h ? parseFloat(activity.priceChange24h) : null;
+            const isPositiveChange = priceChange !== null && priceChange >= 0;
 
-                    const tokenMint = mainToken.mint;
-                    const tokenSymbol = mainToken.symbol || 'Unknown';
-                    const tokenAmount = mainToken.amount;
-                    const walletLabel = getWalletLabel(activity.walletAddress);
+            // Skip if no mint (invalid data)
+            if (!tokenMint) {
+              console.warn('Skipping activity without mint:', activity.id);
+              return null;
+            }
 
-                    return (
-                      <>
-                        <div className="flex items-center gap-2">
-                          {/* Wallet Label Badge */}
-                          <Badge variant="outline" className="text-xs font-medium text-muted-foreground border-muted-foreground/30 flex-shrink-0">
-                            {walletLabel}
-                          </Badge>
-
-                          <Link
-                            href={`/trade?token=${tokenMint}`}
-                            className="flex items-center gap-2 hover:opacity-80 transition-opacity"
-                          >
-                            {/* Token Image */}
-                            <div className="relative h-8 w-8 rounded-full overflow-hidden bg-muted flex-shrink-0">
-                              {activity.tokenOut.logoURI || activity.tokenIn.logoURI ? (
-                                <Image
-                                  src={activity.type === 'BUY' ? activity.tokenOut.logoURI! : activity.tokenIn.logoURI!}
-                                  alt={tokenSymbol}
-                                  fill
-                                  className="object-cover"
-                                  unoptimized
-                                />
-                              ) : (
-                                <div className="w-full h-full flex items-center justify-center">
-                                  <Coins className="h-4 w-4 text-muted-foreground" />
-                                </div>
-                              )}
-                            </div>
-
-                            {/* Token Symbol */}
-                            <span className="font-semibold text-base">
-                              {tokenSymbol}
-                            </span>
-                          </Link>
-
-                          {/* Token Amount */}
-                          {tokenAmount && (
-                            <span className="text-xs text-muted-foreground">
-                              {formatNumber(parseFloat(tokenAmount))}
-                            </span>
-                          )}
-
-                          {/* SOL Amount */}
-                          {activity.solAmount && (
-                            <span className="text-xs font-medium text-purple-400">
-                              {parseFloat(activity.solAmount).toFixed(2)} SOL
-                            </span>
-                          )}
-
-                          {/* DEX/Program badge */}
-                          {activity.program && activity.program !== 'Unknown' && (
-                            <Badge variant="secondary" className="text-xs">
-                              {activity.program}
-                            </Badge>
-                          )}
-                        </div>
-
-                        {/* Wallet actions row (smaller, below) */}
-                        <div className="flex items-center gap-2 mt-1">
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <button
-                                onClick={() => copyToClipboard(activity.walletAddress, "Wallet address")}
-                                className="text-muted-foreground hover:text-foreground transition-colors"
-                              >
-                                <Copy className="h-3 w-3" />
-                              </button>
-                            </TooltipTrigger>
-                            <TooltipContent>Copy wallet address</TooltipContent>
-                          </Tooltip>
-
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <a
-                                href={`https://solscan.io/tx/${activity.signature}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-muted-foreground hover:text-foreground transition-colors"
-                              >
-                                <ExternalLink className="h-3 w-3" />
-                              </a>
-                            </TooltipTrigger>
-                            <TooltipContent>View on Solscan</TooltipContent>
-                          </Tooltip>
-
-                          <span className="text-xs text-muted-foreground/60">
-                            {activity.signature.slice(0, 8)}...
-                          </span>
-                        </div>
-                      </>
-                    );
-                  })()}
-                </div>
-
-                {/* Price & Stats */}
-                <div className="text-right">
-                  {/* USD Value */}
-                  {activity.priceUsd && (
-                    <div className="font-semibold text-sm">
-                      {formatUSD(parseFloat(activity.priceUsd))}
-                    </div>
-                  )}
-
-                  {/* Market Cap */}
-                  {activity.marketCap && (
-                    <div className="text-xs text-muted-foreground">
-                      MC: {formatUSD(parseFloat(activity.marketCap))}
-                    </div>
-                  )}
-
-                  {/* Price Change */}
-                  {activity.priceChange24h && (
-                    <div className={cn(
-                      "text-xs font-medium flex items-center justify-end gap-0.5",
-                      parseFloat(activity.priceChange24h) >= 0 ? "text-green-500" : "text-red-500"
-                    )}>
-                      {parseFloat(activity.priceChange24h) >= 0 ? (
-                        <TrendingUp className="h-3 w-3" />
-                      ) : (
-                        <TrendingDown className="h-3 w-3" />
-                      )}
-                      {Math.abs(parseFloat(activity.priceChange24h)).toFixed(1)}%
-                    </div>
-                  )}
-                </div>
-
-                {/* Copy Trade Button */}
-                {activity.type === 'BUY' && (
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => handleCopyTrade(activity)}
-                    disabled={copyingTrades.has(activity.id)}
-                    className="gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity"
-                  >
-                    {copyingTrades.has(activity.id) ? (
-                      <Loader2 className="h-3 w-3 animate-spin" />
-                    ) : (
-                      <Copy className="h-3 w-3" />
-                    )}
-                    Copy
-                  </Button>
+            return (
+              <motion.div
+                key={activity.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.02 }}
+                className={cn(
+                  "group hover:bg-muted/20 transition-all",
+                  activity.type === 'BUY' && "border-l-2 border-l-green-500/30",
+                  activity.type === 'SELL' && "border-l-2 border-l-red-500/30"
                 )}
-              </div>
-            </motion.div>
-          ))}
+              >
+                <div className="flex items-center gap-3 sm:gap-4 px-3 sm:px-4 py-4">
+                  {/* Time Column - Simplified */}
+                  <div className="hidden sm:block w-12 text-xs text-muted-foreground flex-shrink-0">
+                    {activity.timeAgo}
+                  </div>
+
+                  {/* Wallet Identifier - Small and subtle */}
+                  <div className="hidden sm:flex items-center gap-1.5 flex-shrink-0">
+                    <div className={cn(
+                      "h-2 w-2 rounded-full flex-shrink-0",
+                      activity.type === 'BUY' ? "bg-green-500" : "bg-red-500"
+                    )} />
+                    <span className="text-xs text-muted-foreground font-medium">
+                      {walletLabel}
+                    </span>
+                  </div>
+
+                  {/* Main Token Section - PROMINENT */}
+                  <Link
+                    href={`/trade?token=${tokenMint}`}
+                    className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0 hover:opacity-80 transition-opacity"
+                  >
+                    {/* Token Logo - LARGER */}
+                    <div className="relative h-10 w-10 sm:h-12 sm:w-12 rounded-full overflow-hidden bg-muted flex-shrink-0 border border-border">
+                      {tokenLogoURI && !failedImages.has(activity.id) ? (
+                        <Image
+                          src={tokenLogoURI}
+                          alt={tokenSymbol}
+                          fill
+                          className="object-cover"
+                          unoptimized
+                          onError={() => {
+                            // Track failed image loads
+                            setFailedImages(prev => new Set(prev).add(activity.id));
+                          }}
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/20 to-primary/5">
+                          <Coins className="h-5 w-5 sm:h-6 sm:w-6 text-muted-foreground" />
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Token Symbol & Price Change - PROMINENT */}
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 min-w-0">
+                      <div className="flex items-center gap-2">
+                        {/* Mobile: Show dot indicator */}
+                        <div className={cn(
+                          "sm:hidden h-1.5 w-1.5 rounded-full flex-shrink-0",
+                          activity.type === 'BUY' ? "bg-green-500" : "bg-red-500"
+                        )} />
+                        <span className="font-bold text-base sm:text-lg truncate">
+                          {tokenSymbol}
+                        </span>
+                      </div>
+
+                      {/* Price Change - Prominent & Color Coded */}
+                      {priceChange !== null && (
+                        <div className={cn(
+                          "flex items-center gap-1 font-semibold text-xs sm:text-sm px-1.5 sm:px-2 py-0.5 rounded",
+                          isPositiveChange
+                            ? "text-green-500 bg-green-500/10"
+                            : "text-red-500 bg-red-500/10"
+                        )}>
+                          {isPositiveChange ? (
+                            <TrendingUp className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+                          ) : (
+                            <TrendingDown className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+                          )}
+                          {isPositiveChange ? '+' : ''}{priceChange.toFixed(1)}%
+                        </div>
+                      )}
+                    </div>
+                  </Link>
+
+                  {/* USD Amount - RIGHT ALIGNED & PROMINENT */}
+                  <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+                    {activity.priceUsd && (
+                      <div className="text-right">
+                        <div className="font-bold text-sm sm:text-base">
+                          {formatUSD(parseFloat(activity.priceUsd))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Actions - Cleaner */}
+                    <div className="hidden sm:flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              copyToClipboard(activity.walletAddress, "Wallet address");
+                            }}
+                          >
+                            <Copy className="h-3.5 w-3.5" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>Copy wallet</TooltipContent>
+                      </Tooltip>
+
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              window.open(`https://solscan.io/tx/${activity.signature}`, '_blank');
+                            }}
+                          >
+                            <ExternalLink className="h-3.5 w-3.5" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>View transaction</TooltipContent>
+                      </Tooltip>
+
+                      {activity.type === 'BUY' && (
+                        <Button
+                          size="sm"
+                          variant="default"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handleCopyTrade(activity);
+                          }}
+                          disabled={copyingTrades.has(activity.id)}
+                          className="gap-1.5 ml-1 h-8"
+                        >
+                          {copyingTrades.has(activity.id) ? (
+                            <Loader2 className="h-3 w-3 animate-spin" />
+                          ) : (
+                            <Copy className="h-3 w-3" />
+                          )}
+                          Copy
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            );
+          })}
         </div>
 
         {/* Load More Trigger */}
         {hasMore && (
-          <div ref={loadMoreRef} className="p-4 text-center">
+          <div ref={loadMoreRef} className="p-4 text-center border-t border-border/30">
             {isLoading ? (
               <Loader2 className="h-5 w-5 animate-spin mx-auto text-muted-foreground" />
             ) : (
