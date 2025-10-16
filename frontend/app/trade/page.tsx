@@ -1,6 +1,6 @@
 "use client"
 
-import { Suspense } from "react"
+import { Suspense, useState, useEffect } from "react"
 import dynamic from "next/dynamic"
 import { useSearchParams } from "next/navigation"
 import { motion } from "framer-motion"
@@ -31,6 +31,37 @@ function TradePageContent() {
   const currentTokenAddress = searchParams.get("token")
   const tokenSymbol = searchParams.get("symbol") || undefined
   const tokenName = searchParams.get("name") || undefined
+
+  // Collapsible section state with localStorage persistence
+  const [expandedSections, setExpandedSections] = useState({
+    trending: false,
+    positions: false,
+    history: false
+  })
+
+  // Load expanded state from localStorage on mount
+  useEffect(() => {
+    const stored = localStorage.getItem('trade-page-expanded-sections')
+    if (stored) {
+      try {
+        setExpandedSections(JSON.parse(stored))
+      } catch (e) {
+        console.warn('Failed to parse stored expanded sections:', e)
+      }
+    }
+  }, [])
+
+  // Save expanded state to localStorage when it changes
+  useEffect(() => {
+    localStorage.setItem('trade-page-expanded-sections', JSON.stringify(expandedSections))
+  }, [expandedSections])
+
+  const toggleSection = (section: 'trending' | 'positions' | 'history') => {
+    setExpandedSections(prev => ({
+      ...prev,
+      [section]: !prev[section]
+    }))
+  }
 
   // Show empty state if no token is selected
   if (!currentTokenAddress) {
@@ -67,7 +98,7 @@ function TradePageContent() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <div className="h-[380px] sm:h-[420px] border border-border/50 rounded-lg overflow-hidden bg-card">
+            <div className="h-[300px] sm:h-[380px] md:h-[420px] border border-border/50 rounded-lg overflow-hidden bg-card">
               <Suspense fallback={<ChartSkeleton />}>
                 <DexScreenerChart tokenAddress={currentTokenAddress} />
               </Suspense>
@@ -110,8 +141,11 @@ function TradePageContent() {
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.3 }}
           >
-            <details className="group bg-gradient-to-br from-primary/5 to-primary/10 border-2 border-primary/20 rounded-xl overflow-hidden shadow-sm">
-              <summary className="flex items-center justify-between p-4 cursor-pointer hover:bg-primary/5 transition-all active:scale-[0.99] list-none">
+            <div className="bg-gradient-to-br from-primary/5 to-primary/10 border-2 border-primary/20 rounded-xl overflow-hidden shadow-sm">
+              <button
+                onClick={() => toggleSection('trending')}
+                className="flex items-center justify-between p-4 cursor-pointer hover:bg-primary/5 transition-all active:scale-[0.99] w-full"
+              >
                 <div className="flex items-center gap-3">
                   <div className="h-10 w-10 rounded-lg bg-primary/20 flex items-center justify-center">
                     <TrendingUp className="h-5 w-5 text-primary" />
@@ -122,21 +156,26 @@ function TradePageContent() {
                   </div>
                 </div>
                 <svg
-                  className="w-5 h-5 transition-transform group-open:rotate-180 text-primary"
+                  className={`w-5 h-5 transition-transform ${expandedSections.trending ? 'rotate-180' : ''} text-primary`}
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
                 >
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
-              </summary>
-              <div className="px-4 pb-4 pt-2">
-                <EnhancedTrendingList />
-              </div>
-            </details>
+              </button>
+              {expandedSections.trending && (
+                <div className="px-4 pb-4 pt-2">
+                  <EnhancedTrendingList />
+                </div>
+              )}
+            </div>
 
-            <details className="group bg-gradient-to-br from-blue-500/5 to-blue-500/10 border-2 border-blue-500/20 rounded-xl overflow-hidden shadow-sm">
-              <summary className="flex items-center justify-between p-4 cursor-pointer hover:bg-blue-500/5 transition-all active:scale-[0.99] list-none">
+            <div className="bg-gradient-to-br from-blue-500/5 to-blue-500/10 border-2 border-blue-500/20 rounded-xl overflow-hidden shadow-sm">
+              <button
+                onClick={() => toggleSection('positions')}
+                className="flex items-center justify-between p-4 cursor-pointer hover:bg-blue-500/5 transition-all active:scale-[0.99] w-full"
+              >
                 <div className="flex items-center gap-3">
                   <div className="h-10 w-10 rounded-lg bg-blue-500/20 flex items-center justify-center">
                     <Wallet className="h-5 w-5 text-blue-600 dark:text-blue-400" />
@@ -147,25 +186,30 @@ function TradePageContent() {
                   </div>
                 </div>
                 <svg
-                  className="w-5 h-5 transition-transform group-open:rotate-180 text-blue-600 dark:text-blue-400"
+                  className={`w-5 h-5 transition-transform ${expandedSections.positions ? 'rotate-180' : ''} text-blue-600 dark:text-blue-400`}
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
                 >
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
-              </summary>
-              <div className="px-4 pb-4 pt-2">
-                <UnifiedPositions
-                  variant="compact"
-                  maxPositions={5}
-                  showViewAllButton={true}
-                />
-              </div>
-            </details>
+              </button>
+              {expandedSections.positions && (
+                <div className="px-4 pb-4 pt-2">
+                  <UnifiedPositions
+                    variant="compact"
+                    maxPositions={5}
+                    showViewAllButton={true}
+                  />
+                </div>
+              )}
+            </div>
 
-            <details className="group bg-gradient-to-br from-purple-500/5 to-purple-500/10 border-2 border-purple-500/20 rounded-xl overflow-hidden shadow-sm">
-              <summary className="flex items-center justify-between p-4 cursor-pointer hover:bg-purple-500/5 transition-all active:scale-[0.99] list-none">
+            <div className="bg-gradient-to-br from-purple-500/5 to-purple-500/10 border-2 border-purple-500/20 rounded-xl overflow-hidden shadow-sm">
+              <button
+                onClick={() => toggleSection('history')}
+                className="flex items-center justify-between p-4 cursor-pointer hover:bg-purple-500/5 transition-all active:scale-[0.99] w-full"
+              >
                 <div className="flex items-center gap-3">
                   <div className="h-10 w-10 rounded-lg bg-purple-500/20 flex items-center justify-center">
                     <BarChart3 className="h-5 w-5 text-purple-600 dark:text-purple-400" />
@@ -176,24 +220,26 @@ function TradePageContent() {
                   </div>
                 </div>
                 <svg
-                  className="w-5 h-5 transition-transform group-open:rotate-180 text-purple-600 dark:text-purple-400"
+                  className={`w-5 h-5 transition-transform ${expandedSections.history ? 'rotate-180' : ''} text-purple-600 dark:text-purple-400`}
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
                 >
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
-              </summary>
-              <div className="px-4 pb-4 pt-2">
-                <TradeDetails
-                  tokenAddress={currentTokenAddress}
-                  tokenSymbol={tokenSymbol}
-                  tokenName={tokenName}
-                  variant="sidebar"
-                  maxTrades={20}
-                />
-              </div>
-            </details>
+              </button>
+              {expandedSections.history && (
+                <div className="px-4 pb-4 pt-2">
+                  <TradeDetails
+                    tokenAddress={currentTokenAddress}
+                    tokenSymbol={tokenSymbol}
+                    tokenName={tokenName}
+                    variant="sidebar"
+                    maxTrades={20}
+                  />
+                </div>
+              )}
+            </div>
           </motion.div>
         </div>
 

@@ -3,7 +3,8 @@
 import Link from "next/link"
 import Image from "next/image"
 import { usePathname } from "next/navigation"
-import { Home, TrendingUp, Wallet, Trophy, Twitter, Plus, Moon, Sun, Gift, Eye, Zap } from "lucide-react"
+import { Home, TrendingUp, Wallet, Trophy, Moon, Sun, Gift, Eye, Zap } from "lucide-react"
+import { Twitter as XIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useState, useEffect } from "react"
 import { useTheme } from "next-themes"
@@ -27,7 +28,6 @@ export function BottomNavBar() {
   const [marketPrices, setMarketPrices] = useState<MarketPrice[]>([
     { symbol: "SOL", price: 250, change24h: 0 }, // Default to reasonable price instead of 0
   ])
-  const [simTokenCA] = useState<string>("Fp5eoESAMXWiAZuifsAYjxY4yX82K2fG5mLNar2wpump")
 
   // Prevent hydration mismatch by only rendering theme toggle after mount
   useEffect(() => {
@@ -179,7 +179,7 @@ export function BottomNavBar() {
               rel="noopener noreferrer"
               className="text-muted-foreground hover:text-primary transition-colors"
             >
-              <Twitter className="h-4 w-4 hover:glow-primary" />
+              <XIcon className="h-4 w-4 hover:glow-primary" />
             </a>
             <span className="text-xs text-muted-foreground">© 2025 VirtualSol</span>
           </div>

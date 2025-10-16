@@ -810,14 +810,31 @@ function TradingPanelComponent({ tokenAddress: propTokenAddress }: TradingPanelP
                     setCustomSolAmount(e.target.value)
                     setSelectedSolAmount(null)
                   }}
-                  className="font-mono"
+                  className={cn(
+                    "font-mono transition-colors",
+                    customSolAmount && parseFloat(customSolAmount) > 0 && parseFloat(customSolAmount) <= balance && "border-green-500 focus:ring-green-500",
+                    customSolAmount && (parseFloat(customSolAmount) <= 0 || parseFloat(customSolAmount) > balance) && "border-red-500 focus:ring-red-500"
+                  )}
                   max={balance}
                   step="0.1"
                   aria-label="Custom SOL amount to spend"
                   aria-describedby="custom-amount-help"
+                  aria-invalid={customSolAmount ? (parseFloat(customSolAmount) <= 0 || parseFloat(customSolAmount) > balance) : false}
                 />
-                <div id="custom-amount-help" className="sr-only">
-                  Enter the amount of SOL you want to spend. Maximum available: {balance.toFixed(2)} SOL
+                <div id="custom-amount-help" className={cn(
+                  "text-xs mt-1 transition-colors",
+                  customSolAmount && parseFloat(customSolAmount) > 0 && parseFloat(customSolAmount) <= balance && "text-green-600",
+                  customSolAmount && (parseFloat(customSolAmount) <= 0 || parseFloat(customSolAmount) > balance) && "text-red-600",
+                  !customSolAmount && "text-muted-foreground"
+                )}>
+                  {customSolAmount && parseFloat(customSolAmount) > balance
+                    ? `Insufficient balance. Maximum: ${balance.toFixed(2)} SOL`
+                    : customSolAmount && parseFloat(customSolAmount) <= 0
+                    ? "Amount must be greater than 0"
+                    : customSolAmount && parseFloat(customSolAmount) > 0
+                    ? `Valid amount: ${parseFloat(customSolAmount).toFixed(2)} SOL`
+                    : `Enter amount (Max: ${balance.toFixed(2)} SOL)`
+                  }
                 </div>
               </div>
             )}
@@ -1014,7 +1031,12 @@ function TradingPanelComponent({ tokenAddress: propTokenAddress }: TradingPanelP
                           }
                         }}
                         placeholder="0"
-                        className="w-16 h-8 text-xs text-center font-mono"
+                        className={cn(
+                          "w-16 h-8 text-xs text-center font-mono transition-colors",
+                          customSellPercentage && parseFloat(customSellPercentage) > 0 && parseFloat(customSellPercentage) <= 100 && "border-green-500",
+                          customSellPercentage && (parseFloat(customSellPercentage) <= 0 || parseFloat(customSellPercentage) > 100) && "border-red-500"
+                        )}
+                        aria-invalid={customSellPercentage ? (parseFloat(customSellPercentage) <= 0 || parseFloat(customSellPercentage) > 100) : false}
                       />
                       <span className="text-xs text-muted-foreground">%</span>
                     </div>
