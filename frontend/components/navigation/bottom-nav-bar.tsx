@@ -213,7 +213,7 @@ export function BottomNavBar() {
             {/* VSOL Token Info */}
             <div className="flex items-center gap-2 px-2 py-1 rounded-lg bg-muted">
               <div className="flex items-center gap-1.5">
-                <div className="relative h-4 w-4">
+                <div className="relative h-6 w-6">
                   <Image
                     src="/Socials PFP-1.png"
                     alt="VSOL Logo"
@@ -221,7 +221,7 @@ export function BottomNavBar() {
                     className="object-contain"
                   />
                 </div>
-                <span className="text-xs font-semibold text-primary">VSOL</span>
+                <span className="text-xs font-semibold text-primary">vSOL</span>
               </div>
               <span className="text-[10px] text-muted-foreground font-mono">
                 Coming Soon
