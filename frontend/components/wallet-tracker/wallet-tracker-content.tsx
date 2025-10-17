@@ -229,10 +229,16 @@ export function WalletTrackerContent() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container max-w-7xl mx-auto p-4 space-y-6">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
+      <main className="w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-6 max-w-page-xl mx-auto">
+        <div className="space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="flex items-center justify-between"
+        >
           <div className="space-y-1">
             <h1 className="text-2xl font-bold flex items-center gap-2">
               <Eye className="h-6 w-6 text-primary" />
@@ -271,13 +277,19 @@ export function WalletTrackerContent() {
               Manage Wallets
             </Button>
           </div>
-        </div>
+        </motion.div>
 
         {/* Stats Overview */}
-        <WalletStats
-          trackedWallets={trackedWallets || []}
-          activities={activities}
-        />
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+        >
+          <WalletStats
+            trackedWallets={trackedWallets || []}
+            activities={activities}
+          />
+        </motion.div>
 
         {/* Filters */}
         <Card className="p-4">
@@ -379,7 +391,15 @@ export function WalletTrackerContent() {
             />
           )}
         </AnimatePresence>
-      </div>
+
+        {/* Decorative Elements */}
+        <div className="fixed inset-0 pointer-events-none -z-20 overflow-hidden">
+          <div className="absolute top-1/3 left-1/5 w-96 h-96 bg-primary/3 rounded-full blur-3xl"></div>
+          <div className="absolute bottom-1/3 right-1/5 w-96 h-96 bg-green-500/3 rounded-full blur-3xl"></div>
+          <div className="absolute top-2/3 left-2/3 w-64 h-64 bg-blue-500/3 rounded-full blur-2xl"></div>
+        </div>
+        </div>
+      </main>
     </div>
   )
 }

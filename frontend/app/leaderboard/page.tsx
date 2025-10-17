@@ -12,6 +12,7 @@ import * as api from "@/lib/api"
 import type * as Backend from "@/lib/types/backend"
 import { UsdWithSol } from "@/lib/sol-equivalent"
 import { formatUSD, formatNumber } from "@/lib/format"
+import { motion } from "framer-motion"
 
 type TimeRange = "24h" | "7d" | "all"
 
@@ -115,9 +116,14 @@ export default function LeaderboardPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+      <main className="w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-6 max-w-page-xl mx-auto">
         {/* Header */}
-        <div className="mb-6">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="mb-6"
+        >
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-4xl md:text-5xl font-bold mb-4">
@@ -134,7 +140,7 @@ export default function LeaderboardPage() {
               <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
             </Button>
           </div>
-        </div>
+        </motion.div>
 
         {/* Error Message */}
         {error && (
@@ -144,7 +150,12 @@ export default function LeaderboardPage() {
         )}
 
         {/* Time Range Filter */}
-        <div className="mb-4">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+          className="mb-4"
+        >
           <div className="bg-card border border-border rounded-lg px-6 py-3 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
             <div className="flex items-center gap-4">
               <Tabs value={timeRange} onValueChange={(v) => setTimeRange(v as TimeRange)}>
@@ -164,7 +175,7 @@ export default function LeaderboardPage() {
               </Button>
             )}
           </div>
-        </div>
+        </motion.div>
 
         {/* Main Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -311,7 +322,14 @@ export default function LeaderboardPage() {
             </div>
           </div>
         </div>
-      </div>
+
+        {/* Decorative Elements */}
+        <div className="fixed inset-0 pointer-events-none -z-20 overflow-hidden">
+          <div className="absolute top-1/3 left-1/5 w-96 h-96 bg-primary/3 rounded-full blur-3xl"></div>
+          <div className="absolute bottom-1/3 right-1/5 w-96 h-96 bg-green-500/3 rounded-full blur-3xl"></div>
+          <div className="absolute top-2/3 left-2/3 w-64 h-64 bg-blue-500/3 rounded-full blur-2xl"></div>
+        </div>
+      </main>
     </div>
   )
 }

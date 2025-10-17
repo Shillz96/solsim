@@ -17,6 +17,7 @@ import { PerpTokenSelector } from "@/components/trading/perp-token-selector"
 import { DexScreenerChart } from "@/components/trading/dexscreener-chart"
 import { TokenLogo } from "@/components/ui/token-logo"
 import { useSearchParams } from "next/navigation"
+import { motion } from "framer-motion"
 
 export default function PerpsPage() {
   return (
@@ -506,10 +507,16 @@ function PerpsContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 p-2 sm:p-4">
-      <div className="max-w-[1800px] mx-auto space-y-4">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
+      <main className="w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-6 max-w-page-xl mx-auto">
+        <div className="space-y-4">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
+        >
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold">Perpetual Trading</h1>
             <p className="text-muted-foreground text-sm">Trade with up to 20x leverage</p>
@@ -523,11 +530,16 @@ function PerpsContent() {
               </span>
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Portfolio Stats */}
         {positions.length > 0 && (
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 animate-in fade-in slide-in-from-top-4 duration-500">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            className="grid grid-cols-2 sm:grid-cols-4 gap-3"
+          >
             <Card className="transition-all hover:shadow-md">
               <CardContent className="p-4">
                 <div className="flex items-center gap-2">
@@ -566,7 +578,7 @@ function PerpsContent() {
                 </div>
               </CardContent>
             </Card>
-          </div>
+          </motion.div>
         )}
 
         {/* Main Trading Interface */}
@@ -1087,7 +1099,15 @@ function PerpsContent() {
             )}
           </CardContent>
         </Card>
-      </div>
+
+        {/* Decorative Elements */}
+        <div className="fixed inset-0 pointer-events-none -z-20 overflow-hidden">
+          <div className="absolute top-1/3 left-1/5 w-96 h-96 bg-primary/3 rounded-full blur-3xl"></div>
+          <div className="absolute bottom-1/3 right-1/5 w-96 h-96 bg-green-500/3 rounded-full blur-3xl"></div>
+          <div className="absolute top-2/3 left-2/3 w-64 h-64 bg-blue-500/3 rounded-full blur-2xl"></div>
+        </div>
+        </div>
+      </main>
     </div>
   )
 }

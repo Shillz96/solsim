@@ -147,17 +147,20 @@ export function TokenDetailsHeader({ tokenAddress }: TokenDetailsHeaderProps) {
 
   // DexScreener Icon Component
   const DexScreenerIcon = ({ className }: { className?: string }) => (
-    <svg viewBox="0 0 24 24" className={className} fill="currentColor">
-      <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5zm0 18c-3.53-.87-6-4.42-6-8V8.3l6-3.27 6 3.27V12c0 3.58-2.47 7.13-6 8z"/>
-      <circle cx="12" cy="12" r="3"/>
-    </svg>
+    <img
+      src="https://images.seeklogo.com/logo-png/52/1/dex-screener-logo-png_seeklogo-527276.png"
+      alt="DexScreener"
+      className={className}
+    />
   );
 
   // Solscan Icon Component
   const SolscanIcon = ({ className }: { className?: string }) => (
-    <svg viewBox="0 0 24 24" className={className} fill="currentColor">
-      <path d="M4 12a8 8 0 0116 0 8 8 0 01-16 0zm8-10C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/>
-    </svg>
+    <img
+      src="/solscan-logo-dark.svg"
+      alt="Solscan"
+      className={className}
+    />
   );
 
   // Copy address to clipboard
