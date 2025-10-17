@@ -22,6 +22,39 @@ export default async function searchRoutes(app: FastifyInstance) {
         return reply.code(404).send({ error: "Token not found" });
       }
       
+      // Build socials array from individual fields and socials JSON
+      const socialsArray = [];
+      if (tokenInfo.twitter) socialsArray.push(tokenInfo.twitter);
+      if (tokenInfo.telegram) socialsArray.push(tokenInfo.telegram);
+
+      // Parse and merge socials JSON if it exists
+      try {
+        const parsedSocials = tokenInfo.socials ? JSON.parse(tokenInfo.socials) : [];
+        if (Array.isArray(parsedSocials)) {
+          socialsArray.push(...parsedSocials.filter((s: string) =>
+            s && !socialsArray.includes(s)
+          ));
+        }
+      } catch (e) {
+        // Ignore parse errors
+      }
+
+      // Build websites array from individual field and websites JSON
+      const websitesArray = [];
+      if (tokenInfo.website) websitesArray.push(tokenInfo.website);
+
+      // Parse and merge websites JSON if it exists
+      try {
+        const parsedWebsites = tokenInfo.websites ? JSON.parse(tokenInfo.websites) : [];
+        if (Array.isArray(parsedWebsites)) {
+          websitesArray.push(...parsedWebsites.filter((w: string) =>
+            w && !websitesArray.includes(w)
+          ));
+        }
+      } catch (e) {
+        // Ignore parse errors
+      }
+
       return {
         mint: tokenInfo.address,
         address: tokenInfo.address, // For compatibility
@@ -32,11 +65,18 @@ export default async function searchRoutes(app: FastifyInstance) {
         website: tokenInfo.website,
         twitter: tokenInfo.twitter,
         telegram: tokenInfo.telegram,
+        websites: JSON.stringify(websitesArray),
+        socials: JSON.stringify(socialsArray),
         lastPrice: tokenInfo.lastPrice,
         lastTs: tokenInfo.lastTs,
         volume24h: tokenInfo.volume24h,
         priceChange24h: tokenInfo.priceChange24h,
         marketCapUsd: tokenInfo.marketCapUsd,
+        liquidityUsd: tokenInfo.liquidityUsd,
+        holderCount: tokenInfo.holderCount,
+        firstSeenAt: tokenInfo.firstSeenAt,
+        isNew: tokenInfo.isNew,
+        isTrending: tokenInfo.isTrending,
         lastUpdated: tokenInfo.lastUpdated
       };
     } catch (error: any) {
