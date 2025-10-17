@@ -47,7 +47,9 @@
       "Bash(time curl:*)",
       "Bash(done)",
       "WebSearch",
-      "Bash(timeout 5 bash:*)"
+      "Bash(timeout 5 bash:*)",
+      "mcp__ide__getDiagnostics",
+      "WebFetch(domain:docs.helius.dev)"
     ],
     "deny": [],
     "ask": []

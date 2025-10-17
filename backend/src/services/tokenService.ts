@@ -311,6 +311,54 @@ async function getTokenMetaUncached(mint: string) {
     }
   }
 
+  // 5. FINAL fallback for pump.fun and low-cap tokens: Fetch on-chain Metaplex metadata
+  // This catches tokens that creators uploaded logos for but aren't indexed by aggregators yet
+  if (token && !token.logoURI) {
+    try {
+      // Use Helius DAS (Digital Asset Standard) API for Metaplex metadata
+      const dasData = await fetchJSON<any>(
+        `https://mainnet.helius-rpc.com/?api-key=${HELIUS}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            jsonrpc: '2.0',
+            id: 'metadata-fetch',
+            method: 'getAsset',
+            params: { id: mint }
+          }),
+          timeout: 5000,
+          retries: 1
+        }
+      );
+
+      const content = dasData.result?.content;
+      // Try multiple image sources: primary link, CDN-cached version, original file, or metadata JSON
+      const imageUri = content?.links?.image || content?.files?.[0]?.cdn_uri || content?.files?.[0]?.uri || content?.json_uri;
+
+      if (imageUri) {
+        token = await prisma.token.update({
+          where: { address: mint },
+          data: {
+            logoURI: imageUri,
+            lastUpdated: new Date()
+          }
+        });
+
+        // Cache in Redis
+        try {
+          await redis.setex(`token:meta:${REDIS_TOKEN_META_VERSION}:${mint}`, REDIS_TOKEN_META_TTL, safeStringify(token));
+        } catch (error) {
+          console.warn(`Failed to cache token metadata in Redis:`, error);
+        }
+
+        console.log(`✓ Found on-chain logo for ${token.symbol || mint}: ${imageUri}`);
+      }
+    } catch (e: any) {
+      // Silent fail - this is optional on-chain metadata
+    }
+  }
+
   return token;
 }
 
