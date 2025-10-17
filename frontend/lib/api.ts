@@ -193,7 +193,7 @@ export async function getTokenDetails(mint: string): Promise<Backend.Token> {
   }
   
   const data = await response.json();
-  
+
   // Map backend fields to the expected frontend fields
   return {
     ...data,
@@ -202,6 +202,12 @@ export async function getTokenDetails(mint: string): Promise<Backend.Token> {
     price: data.price || (data.lastPrice ? parseFloat(data.lastPrice) : 0), // Only parse for display
     isNew: data.isNew || false,
     isTrending: data.isTrending || false,
+    // Preserve social links and websites from backend
+    websites: data.websites || '[]',
+    socials: data.socials || '[]',
+    website: data.website || null,
+    twitter: data.twitter || null,
+    telegram: data.telegram || null,
   };
 }
 
