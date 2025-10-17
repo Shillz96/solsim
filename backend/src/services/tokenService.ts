@@ -11,7 +11,7 @@ const JUPITER = "https://price.jup.ag/v6";
 
 // Redis cache TTL: 1 hour for metadata (logos, names rarely change)
 const REDIS_TOKEN_META_TTL = 3600;
-const REDIS_TOKEN_META_VERSION = 'v3'; // Increment to invalidate old cache (v3: added Jupiter "all" list + logo fallback)
+const REDIS_TOKEN_META_VERSION = 'v4'; // Increment to invalidate old cache (v4: added Helius DAS API on-chain metadata + CDN URIs)
 
 // In-memory cache for Jupiter token lists (refreshed every hour)
 let jupiterStrictCache: Map<string, any> | null = null;
