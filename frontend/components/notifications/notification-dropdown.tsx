@@ -60,6 +60,12 @@ export function NotificationDropdown() {
     removeNotification(id)
   }
 
+  const handleMarkAllAsRead = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    markAllAsRead()
+  }
+
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger asChild>
@@ -79,7 +85,8 @@ export function NotificationDropdown() {
             <Button
               variant="ghost"
               size="sm"
-              onClick={markAllAsRead}
+              onClick={handleMarkAllAsRead}
+              onMouseDown={(e) => e.stopPropagation()}
               className="h-6 text-xs"
             >
               <CheckCheck className="h-3 w-3 mr-1" />
