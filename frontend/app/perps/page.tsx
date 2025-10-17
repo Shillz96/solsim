@@ -10,7 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { TrendingUp, TrendingDown, AlertCircle, Loader2, XCircle, Timer, DollarSign, Activity } from "lucide-react"
+import { TrendingUp, TrendingDown, AlertCircle, Loader2, XCircle, Timer, DollarSign, Activity, Download } from "lucide-react"
 import * as api from "@/lib/api"
 import { useToast } from "@/hooks/use-toast"
 import { PerpTokenSelector } from "@/components/trading/perp-token-selector"
@@ -43,9 +43,21 @@ function PerpsContent() {
   const [historyLoading, setHistoryLoading] = useState(false)
   const [balance, setBalance] = useState(0)
   const [activeTab, setActiveTab] = useState<"positions" | "history">("positions")
-  const [tokenMetadataCache, setTokenMetadataCache] = useState<Record<string, any>>({})
+  const [tokenMetadataCache, setTokenMetadataCache] = useState<Record<string, any>>(() => {
+    // Load from localStorage on mount
+    if (typeof window !== 'undefined') {
+      try {
+        const cached = localStorage.getItem('perpTokenMetadata')
+        return cached ? JSON.parse(cached) : {}
+      } catch {
+        return {}
+      }
+    }
+    return {}
+  })
   const [solPrice, setSolPrice] = useState(180) // Will be fetched from API
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const [closingPositionId, setClosingPositionId] = useState<string | null>(null)
 
   // Load user balance and SOL price
   useEffect(() => {
@@ -75,6 +87,17 @@ function PerpsContent() {
     return () => clearInterval(priceInterval)
   }, [user])
 
+  // Persist token metadata cache to localStorage
+  useEffect(() => {
+    if (typeof window !== 'undefined' && Object.keys(tokenMetadataCache).length > 0) {
+      try {
+        localStorage.setItem('perpTokenMetadata', JSON.stringify(tokenMetadataCache))
+      } catch (error) {
+        console.error('Failed to save token metadata cache:', error)
+      }
+    }
+  }, [tokenMetadataCache])
+
   // Load token metadata when selected token changes
   useEffect(() => {
     if (selectedToken) {
@@ -87,32 +110,58 @@ function PerpsContent() {
         }).catch(console.error)
       }
     }
-  }, [selectedToken])
+  }, [selectedToken, tokenMetadataCache])
 
-  // Load positions
-  const loadPositions = async () => {
+  // Load positions with abort controller for race condition prevention
+  const loadPositions = async (signal?: AbortSignal) => {
     if (!user?.id) return
     setPositionsLoading(true)
     try {
       const data = await api.getPerpPositions(user.id)
-      setPositions(data)
 
-      // Load metadata for all position tokens
+      // Check if request was aborted
+      if (signal?.aborted) return
+
+      // OPTIMIZATION: Batch load metadata for all position tokens
       const uniqueMints = [...new Set(data.map((p: any) => p.mint))] as string[]
-      for (const mint of uniqueMints) {
-        if (!tokenMetadataCache[mint]) {
-          try {
-            const meta = await api.getTokenMetadata(mint)
-            setTokenMetadataCache(prev => ({ ...prev, [mint]: meta }))
-          } catch (error) {
+      const mintsNeedingMetadata = uniqueMints.filter(mint => !tokenMetadataCache[mint])
+
+      if (mintsNeedingMetadata.length > 0) {
+        // Load all missing metadata in parallel
+        const metadataPromises = mintsNeedingMetadata.map(mint =>
+          api.getTokenMetadata(mint).catch(error => {
             console.error(`Failed to load metadata for ${mint}:`, error)
+            return null
+          })
+        )
+
+        const metadataResults = await Promise.all(metadataPromises)
+
+        // Update cache with successfully loaded metadata
+        const newMetadata: Record<string, any> = {}
+        mintsNeedingMetadata.forEach((mint, idx) => {
+          if (metadataResults[idx]) {
+            newMetadata[mint] = metadataResults[idx]
           }
+        })
+
+        if (Object.keys(newMetadata).length > 0) {
+          setTokenMetadataCache(prev => ({ ...prev, ...newMetadata }))
         }
       }
+
+      // Only update state if not aborted
+      if (!signal?.aborted) {
+        setPositions(data)
+      }
     } catch (error) {
-      console.error("Failed to load positions:", error)
+      if (!signal?.aborted) {
+        console.error("Failed to load positions:", error)
+      }
     } finally {
-      setPositionsLoading(false)
+      if (!signal?.aborted) {
+        setPositionsLoading(false)
+      }
     }
   }
 
@@ -130,12 +179,24 @@ function PerpsContent() {
     }
   }
 
+  // FIXED: Use AbortController to prevent race conditions and reduce poll frequency
   useEffect(() => {
-    loadPositions()
-    // Poll positions every 10 seconds
-    const interval = setInterval(loadPositions, 10000)
-    return () => clearInterval(interval)
-  }, [user])
+    if (!user?.id) return
+
+    const abortController = new AbortController()
+    loadPositions(abortController.signal)
+
+    // Reduced poll frequency to 30 seconds (was 10) to reduce server load
+    // Consider using WebSocket for real-time updates instead
+    const interval = setInterval(() => {
+      loadPositions(abortController.signal)
+    }, 30000)
+
+    return () => {
+      clearInterval(interval)
+      abortController.abort()
+    }
+  }, [user?.id])
 
   // Load trade history when tab is opened
   useEffect(() => {
@@ -295,6 +356,15 @@ function PerpsContent() {
   const handleClosePosition = async (positionId: string) => {
     if (!user?.id) return
 
+    // OPTIMISTIC UI: Mark position as closing
+    setClosingPositionId(positionId)
+
+    // Optimistically remove position from UI
+    const positionToClose = positions.find(p => p.id === positionId)
+    if (positionToClose) {
+      setPositions(prev => prev.filter(p => p.id !== positionId))
+    }
+
     try {
       const result = await api.closePerpPosition({
         userId: user.id,
@@ -306,16 +376,25 @@ function PerpsContent() {
         description: `PnL: ${parseFloat(result.pnl).toFixed(2)} USD`,
       })
 
-      // Reload
-      await loadPositions()
+      // Update balance optimistically
       const balanceData = await api.getWalletBalance(user.id)
       setBalance(parseFloat(balanceData.balance))
+
+      // Reload positions in background to sync state
+      loadPositions()
     } catch (error: any) {
+      // ROLLBACK: Restore position on error
+      if (positionToClose) {
+        setPositions(prev => [...prev, positionToClose])
+      }
+
       toast({
         title: "Failed to Close Position",
         description: error.message,
         variant: "destructive",
       })
+    } finally {
+      setClosingPositionId(null)
     }
   }
 
@@ -325,6 +404,105 @@ function PerpsContent() {
     if (lev <= 5) return "bg-yellow-600 hover:bg-yellow-700"
     if (lev <= 10) return "bg-orange-600 hover:bg-orange-700"
     return "bg-red-600 hover:bg-red-700"
+  }
+
+  // Export positions to CSV
+  const exportPositionsToCSV = () => {
+    if (positions.length === 0) {
+      toast({
+        title: "No Data",
+        description: "No positions to export",
+        variant: "destructive",
+      })
+      return
+    }
+
+    const headers = ["Token", "Side", "Leverage", "Entry Price", "Current Price", "Position Size", "Margin", "Unrealized PnL", "ROE %", "Liquidation Price", "Margin Ratio"]
+    const rows = positions.map(pos => {
+      const tokenMeta = tokenMetadataCache[pos.mint]
+      const roe = ((parseFloat(pos.unrealizedPnL) / parseFloat(pos.marginAmount)) * 100)
+      return [
+        tokenMeta?.symbol || pos.mint.substring(0, 8),
+        pos.side,
+        pos.leverage.toString(),
+        parseFloat(pos.entryPrice).toFixed(6),
+        parseFloat(pos.currentPrice).toFixed(6),
+        parseFloat(pos.positionSize).toFixed(2),
+        parseFloat(pos.marginAmount).toFixed(4) + " SOL",
+        parseFloat(pos.unrealizedPnL).toFixed(2) + " USD",
+        roe.toFixed(2),
+        parseFloat(pos.liquidationPrice).toFixed(6),
+        parseFloat(pos.marginRatio).toFixed(2)
+      ]
+    })
+
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
+    ].join('\n')
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+    const link = document.createElement('a')
+    const url = URL.createObjectURL(blob)
+    link.setAttribute('href', url)
+    link.setAttribute('download', `perp-positions-${new Date().toISOString().split('T')[0]}.csv`)
+    link.style.visibility = 'hidden'
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+
+    toast({
+      title: "Export Successful",
+      description: "Positions exported to CSV",
+    })
+  }
+
+  // Export trade history to CSV
+  const exportTradeHistoryToCSV = () => {
+    if (tradeHistory.length === 0) {
+      toast({
+        title: "No Data",
+        description: "No trade history to export",
+        variant: "destructive",
+      })
+      return
+    }
+
+    const headers = ["Date", "Token", "Side", "Action", "Entry Price", "Exit Price", "Size", "PnL", "Leverage"]
+    const rows = tradeHistory.map(trade => {
+      const tokenMeta = tokenMetadataCache[trade.mint]
+      return [
+        new Date(trade.timestamp).toLocaleString(),
+        tokenMeta?.symbol || trade.mint.substring(0, 8),
+        trade.side,
+        trade.action,
+        parseFloat(trade.entryPrice).toFixed(6),
+        trade.exitPrice ? parseFloat(trade.exitPrice).toFixed(6) : "N/A",
+        parseFloat(trade.quantity).toFixed(2),
+        trade.pnl ? parseFloat(trade.pnl).toFixed(2) + " USD" : "N/A",
+        trade.leverage?.toString() || "N/A"
+      ]
+    })
+
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
+    ].join('\n')
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+    const link = document.createElement('a')
+    const url = URL.createObjectURL(blob)
+    link.setAttribute('href', url)
+    link.setAttribute('download', `perp-trade-history-${new Date().toISOString().split('T')[0]}.csv`)
+    link.style.visibility = 'hidden'
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+
+    toast({
+      title: "Export Successful",
+      description: "Trade history exported to CSV",
+    })
   }
 
   return (
@@ -656,16 +834,27 @@ function PerpsContent() {
         {/* Positions & History Section */}
         <Card>
           <CardHeader>
-            <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)} className="w-full">
-              <TabsList className="grid w-full max-w-md grid-cols-2">
-                <TabsTrigger value="positions">
-                  Open Positions ({positions.length})
-                </TabsTrigger>
-                <TabsTrigger value="history">
-                  Trade History
-                </TabsTrigger>
-              </TabsList>
-            </Tabs>
+            <div className="flex items-center justify-between flex-wrap gap-4">
+              <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)} className="flex-1">
+                <TabsList className="grid w-full max-w-md grid-cols-2">
+                  <TabsTrigger value="positions">
+                    Open Positions ({positions.length})
+                  </TabsTrigger>
+                  <TabsTrigger value="history">
+                    Trade History
+                  </TabsTrigger>
+                </TabsList>
+              </Tabs>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={activeTab === "positions" ? exportPositionsToCSV : exportTradeHistoryToCSV}
+                className="gap-2"
+              >
+                <Download className="h-4 w-4" />
+                Export CSV
+              </Button>
+            </div>
           </CardHeader>
           <CardContent>
             {activeTab === "positions" ? (
@@ -684,12 +873,19 @@ function PerpsContent() {
                   {positions.map((pos) => {
                     const tokenMeta = tokenMetadataCache[pos.mint]
                     const roe = ((parseFloat(pos.unrealizedPnL) / parseFloat(pos.marginAmount)) * 100)
-                    const isNearLiquidation = parseFloat(pos.marginRatio) < 2.0
+                    const marginRatioValue = parseFloat(pos.marginRatio)
+                    const isNearLiquidation = marginRatioValue < 2.0
+                    const isCritical = marginRatioValue < 1.5
+
+                    // Calculate health percentage (0-100%) where 100% = safe, 0% = liquidated
+                    // marginRatio of 2.5% = 100% health, 0% = 0% health
+                    const healthPercent = Math.min(Math.max((marginRatioValue / 5) * 100, 0), 100)
+                    const healthColor = healthPercent > 60 ? 'bg-green-500' : healthPercent > 30 ? 'bg-yellow-500' : 'bg-red-500'
 
                     return (
                       <div
                         key={pos.id}
-                        className={`border rounded-lg p-4 space-y-3 transition-all duration-200 hover:shadow-md ${isNearLiquidation ? 'border-red-500 bg-red-50 dark:bg-red-950/20 animate-pulse' : 'hover:border-primary/50'}`}
+                        className={`border rounded-lg p-4 space-y-3 transition-all duration-300 hover:shadow-md ${isNearLiquidation ? 'border-red-500 bg-red-50 dark:bg-red-950/20' : 'hover:border-primary/50'} ${isCritical ? 'animate-pulse' : ''}`}
                       >
                         <div className="flex items-center justify-between flex-wrap gap-2">
                           <div className="flex items-center gap-2">
@@ -726,6 +922,22 @@ function PerpsContent() {
                           </Button>
                         </div>
 
+                        {/* Position Health Bar */}
+                        <div className="space-y-1">
+                          <div className="flex items-center justify-between text-xs">
+                            <span className="text-muted-foreground">Position Health</span>
+                            <span className={`font-semibold ${healthPercent > 60 ? 'text-green-600' : healthPercent > 30 ? 'text-yellow-600' : 'text-red-600'}`}>
+                              {healthPercent.toFixed(0)}%
+                            </span>
+                          </div>
+                          <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 overflow-hidden">
+                            <div
+                              className={`h-full transition-all duration-500 ${healthColor}`}
+                              style={{ width: `${healthPercent}%` }}
+                            />
+                          </div>
+                        </div>
+
                         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 text-sm">
                           <div>
                             <div className="text-muted-foreground text-xs">Entry Price</div>
@@ -735,7 +947,7 @@ function PerpsContent() {
                           </div>
                           <div>
                             <div className="text-muted-foreground text-xs">Current Price</div>
-                            <div className="font-mono font-semibold">
+                            <div className="font-mono font-semibold transition-colors duration-300">
                               ${parseFloat(pos.currentPrice).toFixed(6)}
                             </div>
                           </div>
@@ -748,7 +960,7 @@ function PerpsContent() {
                           <div>
                             <div className="text-muted-foreground text-xs">Unrealized PnL</div>
                             <div
-                              className={`font-mono font-bold ${
+                              className={`font-mono font-bold transition-all duration-500 ${
                                 parseFloat(pos.unrealizedPnL) >= 0
                                   ? "text-green-600"
                                   : "text-red-600"
@@ -760,7 +972,7 @@ function PerpsContent() {
                           <div>
                             <div className="text-muted-foreground text-xs">ROE</div>
                             <div
-                              className={`font-mono font-bold ${
+                              className={`font-mono font-bold transition-all duration-500 ${
                                 roe >= 0 ? "text-green-600" : "text-red-600"
                               }`}
                             >

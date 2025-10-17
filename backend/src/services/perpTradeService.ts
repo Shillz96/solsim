@@ -303,49 +303,57 @@ export async function getUserPerpPositions(userId: string) {
     },
   });
 
-  // Update positions with current prices
+  if (positions.length === 0) {
+    return [];
+  }
+
+  // OPTIMIZATION: Batch fetch all prices at once
+  const uniqueMints = [...new Set(positions.map((p) => p.mint))];
+  const prices = await priceService.getPrices(uniqueMints);
   const solPrice = priceService.getSolPrice();
 
-  const updatedPositions = await Promise.all(
-    positions.map(async (position) => {
-      try {
-        const tick = await priceService.getLastTick(position.mint);
-        if (!tick || !tick.priceUsd) return position;
-
-        const currentPrice = D(tick.priceUsd);
-        const unrealizedPnL = calculateUnrealizedPnL(
-          position.side as "LONG" | "SHORT",
-          position.entryPrice as Decimal,
-          currentPrice,
-          position.positionSize as Decimal
-        );
-
-        // CRITICAL FIX: Convert marginAmount from SOL to USD before calculating balance
-        const marginAmountUsd = (position.marginAmount as Decimal).mul(solPrice);
-        const marginBalance = calculateMarginBalance(
-          marginAmountUsd,
-          unrealizedPnL
-        );
-
-        const positionValue = (position.positionSize as Decimal).mul(currentPrice);
-        const marginRatio = calculateMarginRatio(
-          marginBalance,
-          positionValue,
-          position.leverage as Decimal
-        );
-
-        return {
-          ...position,
-          currentPrice,
-          unrealizedPnL,
-          marginRatio,
-        };
-      } catch (error) {
-        console.error(`Failed to update position ${position.id}:`, error);
+  // Process all positions with batched prices
+  const updatedPositions = positions.map((position) => {
+    try {
+      const currentPriceValue = prices[position.mint];
+      if (!currentPriceValue || currentPriceValue <= 0) {
+        console.warn(`No price available for ${position.mint}, returning stale position`);
         return position;
       }
-    })
-  );
+
+      const currentPrice = D(currentPriceValue);
+      const unrealizedPnL = calculateUnrealizedPnL(
+        position.side as "LONG" | "SHORT",
+        position.entryPrice as Decimal,
+        currentPrice,
+        position.positionSize as Decimal
+      );
+
+      // Convert marginAmount from SOL to USD before calculating balance
+      const marginAmountUsd = (position.marginAmount as Decimal).mul(solPrice);
+      const marginBalance = calculateMarginBalance(
+        marginAmountUsd,
+        unrealizedPnL
+      );
+
+      const positionValue = (position.positionSize as Decimal).mul(currentPrice);
+      const marginRatio = calculateMarginRatio(
+        marginBalance,
+        positionValue,
+        position.leverage as Decimal
+      );
+
+      return {
+        ...position,
+        currentPrice,
+        unrealizedPnL,
+        marginRatio,
+      };
+    } catch (error) {
+      console.error(`Failed to update position ${position.id}:`, error);
+      return position;
+    }
+  });
 
   return updatedPositions;
 }
