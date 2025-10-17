@@ -91,10 +91,15 @@ async function getTokenMetaUncached(mint: string) {
 
   // Try DB cache second
   let token = await prisma.token.findUnique({ where: { address: mint } });
-  const fresh = token && token.lastUpdated && Date.now() - token.lastUpdated.getTime() < 86400000; // 24h cache
-  const hasImage = token && token.logoURI; // Only use cache if we have an image
+  const hasImage = token && token.logoURI; // Check if we have an image
 
-  if (token && fresh && hasImage) {
+  // Only use cache if:
+  // 1. Token has an image (hasImage), OR
+  // 2. Token was updated in last 24h AND we've already tried Jupiter "all" list (cache v3+)
+  // This ensures tokens without logos get re-checked with the new Jupiter lists
+  const isCacheValid = token && token.lastUpdated && Date.now() - token.lastUpdated.getTime() < 86400000;
+
+  if (token && hasImage && isCacheValid) {
     // Store in Redis for next time
     try {
       await redis.setex(`token:meta:${REDIS_TOKEN_META_VERSION}:${mint}`, REDIS_TOKEN_META_TTL, safeStringify(token));
@@ -103,6 +108,10 @@ async function getTokenMetaUncached(mint: string) {
     }
     return token;
   }
+
+  // If token exists but has no logo and cache is still valid (fresh but no image),
+  // we'll fall through and try fetching from Jupiter again
+  // This allows us to backfill logos for tokens that were cached before Jupiter "all" list was added
 
   // 1. Try Jupiter token list first (fastest and most reliable)
   // Try strict list first (verified tokens with logos)
