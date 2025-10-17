@@ -23,7 +23,7 @@ export default async function searchRoutes(app: FastifyInstance) {
       }
       
       // Build socials array from individual fields and socials JSON
-      const socialsArray = [];
+      const socialsArray: string[] = [];
       if (tokenInfo.twitter) socialsArray.push(tokenInfo.twitter);
       if (tokenInfo.telegram) socialsArray.push(tokenInfo.telegram);
 
@@ -40,7 +40,7 @@ export default async function searchRoutes(app: FastifyInstance) {
       }
 
       // Build websites array from individual field and websites JSON
-      const websitesArray = [];
+      const websitesArray: string[] = [];
       if (tokenInfo.website) websitesArray.push(tokenInfo.website);
 
       // Parse and merge websites JSON if it exists
