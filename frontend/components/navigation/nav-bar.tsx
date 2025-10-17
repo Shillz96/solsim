@@ -21,6 +21,7 @@ import {
   ChevronDown, Command, Gift, Building2
 } from "lucide-react"
 import { useState, useCallback, useEffect, useRef } from "react"
+import { createPortal } from "react-dom"
 import { AuthModal } from "@/components/modals/auth-modal"
 import { PurchaseModal } from "@/components/modals/purchase-modal"
 import { NotificationDropdown } from "@/components/notifications/notification-dropdown"
@@ -105,6 +106,7 @@ export function NavBar() {
   const searchRef = useRef<HTMLDivElement>(null)
   const abortControllerRef = useRef<AbortController | null>(null)
   const debouncedQuery = useDebounce(searchQuery, 300)
+  const [mounted, setMounted] = useState(false)
   
   // Auth and balance data
   const { user, isAuthenticated, logout } = useAuth()
@@ -178,6 +180,10 @@ export function NavBar() {
   useEffect(() => {
     performSearch(debouncedQuery)
   }, [debouncedQuery, performSearch])
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   // Close search results when clicking outside
   useEffect(() => {
@@ -255,21 +261,27 @@ export function NavBar() {
                 placeholder="Search tokens..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 pr-10 w-full !bg-card border border-border hover:border-foreground/20 focus:border-foreground transition-colors"
+                className="pl-10 pr-10 w-full border border-border hover:border-foreground/20 focus:border-foreground transition-colors"
               />
               {isSearching && (
                 <Loader2 className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 animate-spin text-muted-foreground" />
               )}
             </div>
 
-            {/* Enhanced Search Results */}
-            <AnimatePresence>
-              {showResults && searchResults.length > 0 && (
+            {/* Enhanced Search Results - Rendered in Portal */}
+            {mounted && showResults && searchResults.length > 0 && searchRef.current && createPortal(
+              <AnimatePresence>
                 <motion.div
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
-                  className="absolute top-full mt-2 w-full !bg-card border border-border rounded-[0.25rem] shadow-lg z-50 max-h-80 overflow-y-auto"
+                  style={{
+                    position: 'fixed',
+                    top: searchRef.current.getBoundingClientRect().bottom + 8,
+                    left: searchRef.current.getBoundingClientRect().left,
+                    width: searchRef.current.getBoundingClientRect().width,
+                  }}
+                  className="bg-card border border-border rounded-[0.25rem] shadow-lg z-[100] max-h-80 overflow-y-auto"
                 >
                   <div className="p-2">
                     <div className="text-xs text-muted-foreground px-2 py-2 font-semibold border-b border-border mb-1 uppercase tracking-wide">
@@ -317,8 +329,9 @@ export function NavBar() {
                     ))}
                   </div>
                 </motion.div>
-              )}
-            </AnimatePresence>
+              </AnimatePresence>,
+              document.body
+            )}
           </div>
 
           {/* Right Side Actions */}
