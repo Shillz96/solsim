@@ -27,7 +27,6 @@ import { useTokenMetadata } from "@/hooks/use-token-metadata"
 import { PriceCell, MoneyCell } from "@/components/ui/table-cells"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { RecentTokensDropdown } from "./recent-tokens-dropdown"
 import {
   Tooltip,
   TooltipContent,
@@ -146,6 +145,21 @@ export function TokenDetailsHeader({ tokenAddress }: TokenDetailsHeaderProps) {
     return <Globe className="h-4 w-4" />;
   };
 
+  // DexScreener Icon Component
+  const DexScreenerIcon = ({ className }: { className?: string }) => (
+    <svg viewBox="0 0 24 24" className={className} fill="currentColor">
+      <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5zm0 18c-3.53-.87-6-4.42-6-8V8.3l6-3.27 6 3.27V12c0 3.58-2.47 7.13-6 8z"/>
+      <circle cx="12" cy="12" r="3"/>
+    </svg>
+  );
+
+  // Solscan Icon Component
+  const SolscanIcon = ({ className }: { className?: string }) => (
+    <svg viewBox="0 0 24 24" className={className} fill="currentColor">
+      <path d="M4 12a8 8 0 0116 0 8 8 0 01-16 0zm8-10C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/>
+    </svg>
+  );
+
   // Copy address to clipboard
   const copyAddress = async () => {
     try {
@@ -165,11 +179,6 @@ export function TokenDetailsHeader({ tokenAddress }: TokenDetailsHeaderProps) {
 
       {/* Mobile Compact Layout */}
       <div className="relative z-10 p-3 md:p-6 lg:hidden">
-        {/* Recent Tokens Dropdown - Top Right */}
-        <div className="absolute top-2 right-2 z-20">
-          <RecentTokensDropdown currentTokenAddress={tokenAddress} />
-        </div>
-
         <div className="flex items-start gap-2">
           {/* Token Image - Smaller on Mobile */}
           <div className="relative flex-shrink-0">
@@ -285,11 +294,6 @@ export function TokenDetailsHeader({ tokenAddress }: TokenDetailsHeaderProps) {
 
       {/* Desktop Layout - Compact Design */}
       <div className="relative z-10 p-4 hidden lg:block">
-        {/* Recent Tokens Dropdown - Top Right */}
-        <div className="absolute top-3 right-3 z-20">
-          <RecentTokensDropdown currentTokenAddress={tokenAddress} />
-        </div>
-
         <div className="flex items-center justify-between gap-6">
           {/* Left: Token Info */}
           <div className="flex items-center gap-4 flex-shrink-0">
@@ -342,8 +346,8 @@ export function TokenDetailsHeader({ tokenAddress }: TokenDetailsHeaderProps) {
                         )}
                       </button>
                     </TooltipTrigger>
-                    <TooltipContent>
-                      <p>{copied ? 'Copied!' : 'Click to copy address'}</p>
+                    <TooltipContent className="bg-popover text-popover-foreground border border-border">
+                      <p className="font-medium">{copied ? 'Copied!' : 'Click to copy address'}</p>
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
@@ -360,7 +364,9 @@ export function TokenDetailsHeader({ tokenAddress }: TokenDetailsHeaderProps) {
                             </Button>
                           </Link>
                         </TooltipTrigger>
-                        <TooltipContent><p>Website</p></TooltipContent>
+                        <TooltipContent className="bg-popover text-popover-foreground border border-border">
+                          <p className="font-medium">Website</p>
+                        </TooltipContent>
                       </Tooltip>
                     ))}
 
@@ -373,8 +379,8 @@ export function TokenDetailsHeader({ tokenAddress }: TokenDetailsHeaderProps) {
                             </Button>
                           </Link>
                         </TooltipTrigger>
-                        <TooltipContent>
-                          <p>{social.includes('twitter.com') || social.includes('x.com') ? 'Twitter' :
+                        <TooltipContent className="bg-popover text-popover-foreground border border-border">
+                          <p className="font-medium">{social.includes('twitter.com') || social.includes('x.com') ? 'Twitter' :
                              social.includes('t.me') ? 'Telegram' : 'Social'}</p>
                         </TooltipContent>
                       </Tooltip>
@@ -384,22 +390,26 @@ export function TokenDetailsHeader({ tokenAddress }: TokenDetailsHeaderProps) {
                       <TooltipTrigger asChild>
                         <Link href={`https://dexscreener.com/solana/${tokenAddress}`} target="_blank" rel="noopener noreferrer">
                           <Button variant="ghost" size="sm" className="h-6 w-6 p-0 hover:bg-primary/10">
-                            <ExternalLink className="h-3.5 w-3.5" />
+                            <DexScreenerIcon className="h-3.5 w-3.5" />
                           </Button>
                         </Link>
                       </TooltipTrigger>
-                      <TooltipContent><p>DexScreener</p></TooltipContent>
+                      <TooltipContent className="bg-popover text-popover-foreground border border-border">
+                        <p className="font-medium">DexScreener</p>
+                      </TooltipContent>
                     </Tooltip>
 
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Link href={`https://solscan.io/token/${tokenAddress}`} target="_blank" rel="noopener noreferrer">
                           <Button variant="ghost" size="sm" className="h-6 w-6 p-0 hover:bg-primary/10">
-                            <ExternalLink className="h-3.5 w-3.5" />
+                            <SolscanIcon className="h-3.5 w-3.5" />
                           </Button>
                         </Link>
                       </TooltipTrigger>
-                      <TooltipContent><p>Solscan</p></TooltipContent>
+                      <TooltipContent className="bg-popover text-popover-foreground border border-border">
+                        <p className="font-medium">Solscan</p>
+                      </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
                 </div>
