@@ -136,7 +136,27 @@ async function calculatePortfolioData(userId: string, positions: any[]): Promise
   let totalUnrealizedUsd = D(0);
 
   for (const position of positions) {
-    const currentPrice = D(prices[position.mint] || 0);
+    let currentPrice = D(prices[position.mint] || 0);
+
+    // If price is missing from batch fetch, try individual fetch with retries
+    // This is critical for new tokens that may not be in the batch cache yet
+    if (currentPrice.eq(0)) {
+      console.warn(`[Portfolio] Price not in batch cache for ${position.mint}, fetching individually...`);
+      try {
+        const individualPrice = await priceService.getPrice(position.mint);
+        if (individualPrice && individualPrice > 0) {
+          currentPrice = D(individualPrice);
+          console.log(`[Portfolio] Successfully fetched price for ${position.mint}: $${currentPrice.toString()}`);
+        } else {
+          console.warn(`[Portfolio] No price data available for position ${position.mint}, using 0`);
+          // Don't skip - still show the position with 0 value
+        }
+      } catch (err) {
+        console.error(`[Portfolio] Failed to fetch price for ${position.mint}:`, err);
+        // Don't skip - still show the position with 0 value
+      }
+    }
+
     const qty = position.qty as Decimal;
     const costBasis = position.costBasis as Decimal;
     const metadata = metadataMap.get(position.mint);

@@ -386,13 +386,15 @@ async function executeTradeLogic({
 
   // OPTIMIZATION: Warm up portfolio cache immediately after trade
   // This ensures the next frontend poll hits cache instead of recalculating
-  // Import getPortfolio to trigger cache warming
+  // IMPORTANT: We await this to ensure price is fully cached before responding
+  // This fixes the issue where PnL doesn't show immediately after first buy
   const { getPortfolio } = await import("./portfolioService.js");
-  // Fire and forget - don't await to avoid blocking trade response
-  getPortfolio(userId).catch(err =>
-    console.error(`[Trade] Failed to warm portfolio cache:`, err)
-  );
-  console.log(`[Trade] Triggered portfolio cache warm-up for user ${userId}`);
+  try {
+    await getPortfolio(userId);
+    console.log(`[Trade] Portfolio cache warmed up successfully for user ${userId}`);
+  } catch (err) {
+    console.error(`[Trade] Failed to warm portfolio cache:`, err);
+  }
 
   return {
     trade: result.trade,
@@ -418,10 +420,24 @@ async function calculatePortfolioTotals(userId: string) {
 
   // Calculate current value of all positions
   for (const pos of positions) {
-    const currentPrice = D(prices[pos.mint] || 0);
+    let currentPrice = D(prices[pos.mint] || 0);
+
+    // If price is missing from batch fetch, try individual fetch with retries
     if (currentPrice.eq(0)) {
-      console.warn(`No price data available for position ${pos.mint}, skipping...`);
-      continue;
+      console.warn(`[Portfolio] Price not in batch cache for ${pos.mint}, fetching individually...`);
+      try {
+        const individualPrice = await priceService.getPrice(pos.mint);
+        if (individualPrice && individualPrice > 0) {
+          currentPrice = D(individualPrice);
+          console.log(`[Portfolio] Successfully fetched price for ${pos.mint}: $${currentPrice.toString()}`);
+        } else {
+          console.warn(`[Portfolio] No price data available for position ${pos.mint}, skipping...`);
+          continue;
+        }
+      } catch (err) {
+        console.error(`[Portfolio] Failed to fetch price for ${pos.mint}:`, err);
+        continue;
+      }
     }
 
     const positionQty = pos.qty as Decimal;
