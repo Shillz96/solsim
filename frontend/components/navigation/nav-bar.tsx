@@ -249,13 +249,13 @@ export function NavBar() {
 
           {/* Enhanced Search Bar - Hidden on mobile, visible on md+ */}
           <div className="hidden md:flex flex-1 max-w-sm mx-4 relative" ref={searchRef}>
-            <div className="relative">
+            <div className="relative w-full">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder="Search tokens..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 pr-4 w-full bg-background border border-border focus:ring-2 focus:ring-primary/20"
+                className="pl-10 pr-10 w-full bg-background border border-border hover:border-foreground/20 focus:border-foreground transition-colors"
               />
               {isSearching && (
                 <Loader2 className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 animate-spin text-muted-foreground" />
@@ -269,17 +269,17 @@ export function NavBar() {
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
-                  className="absolute top-full mt-2 w-full bg-white dark:bg-gray-900 text-foreground border-2 border-gray-300 dark:border-gray-700 rounded-lg shadow-2xl z-50 max-h-80 overflow-y-auto"
+                  className="absolute top-full mt-2 w-full bg-card border border-border rounded-[0.25rem] shadow-lg z-50 max-h-80 overflow-y-auto"
                 >
                   <div className="p-2">
-                    <div className="text-xs text-gray-600 dark:text-gray-400 px-2 py-1 font-semibold border-b border-gray-200 dark:border-gray-700 mb-1">
+                    <div className="text-xs text-muted-foreground px-2 py-2 font-semibold border-b border-border mb-1 uppercase tracking-wide">
                       Search Results
                     </div>
                     {searchResults.map((token) => (
                       <button
                         key={token.mint}
                         onClick={() => handleTokenSelect(token)}
-                        className="w-full text-left px-3 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200 focus:bg-gray-100 dark:focus:bg-gray-800 focus:outline-none"
+                        className="w-full text-left px-3 py-2.5 rounded-sm hover:bg-muted transition-colors duration-150 focus:bg-muted focus:outline-none"
                       >
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-3">
@@ -287,26 +287,26 @@ export function NavBar() {
                               <img
                                 src={token.logoURI}
                                 alt={token.symbol}
-                                className="w-6 h-6 rounded-full flex-shrink-0"
+                                className="w-7 h-7 rounded-sm flex-shrink-0"
                                 onError={(e) => {
                                   (e.target as HTMLImageElement).style.display = 'none'
                                 }}
                               />
                             )}
                             <div className="min-w-0">
-                              <div className="font-semibold text-sm text-gray-900 dark:text-gray-100">{token.symbol}</div>
-                              <div className="text-xs text-gray-600 dark:text-gray-400 truncate max-w-[200px]">
+                              <div className="font-semibold text-sm text-foreground">{token.symbol}</div>
+                              <div className="text-xs text-muted-foreground truncate max-w-[200px]">
                                 {token.name}
                               </div>
                             </div>
                           </div>
                           {token.price && (
                             <div className="text-right flex-shrink-0 ml-2">
-                              <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                              <div className="text-sm font-medium text-foreground tabular-nums">
                                 ${parseFloat(token.price.toString()).toFixed(6)}
                               </div>
                               {solPrice > 0 && (
-                                <div className="text-xs text-gray-600 dark:text-gray-400">
+                                <div className="text-xs text-muted-foreground tabular-nums">
                                   {formatSolEquivalent(parseFloat(token.price.toString()), solPrice)}
                                 </div>
                               )}
@@ -354,9 +354,9 @@ export function NavBar() {
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" className="flex items-center gap-2 px-3">
-                        <Avatar className="h-7 w-7">
-                          <AvatarImage src={avatarUrl} alt={displayName} />
-                          <AvatarFallback className="bg-primary/10 text-xs">
+                        <Avatar className="h-6 w-6 rounded-md border border-border">
+                          <AvatarImage src={avatarUrl} alt={displayName} className="rounded-md" />
+                          <AvatarFallback className="bg-primary/10 text-xs rounded-md">
                             {displayName?.[0]?.toUpperCase() || 'U'}
                           </AvatarFallback>
                         </Avatar>
