@@ -1,7 +1,7 @@
 // Wallet tracker service with enhanced swap detection
 import prisma from "../plugins/prisma.js";
 import { robustFetch } from "../utils/fetch.js";
-import { getTokenMeta } from "./tokenService.js";
+import { getTokenMetaBatch } from "./tokenService.js";
 import priceService from "../plugins/priceService.js";
 
 const HELIUS_API = process.env.HELIUS_API!;
@@ -160,40 +160,39 @@ export async function getWalletTrades(address: string, limit = 25): Promise<Wall
 
 /**
  * Enrich wallet trades with token metadata and current prices
- * Uses our existing tokenService and priceService for consistency
+ * Uses batch API for massive performance improvement (1 call instead of N calls)
  */
 async function enrichWalletTrades(trades: WalletTrade[]): Promise<void> {
   // Get unique mints
   const mints = [...new Set(trades.map(t => t.tokenMint))];
 
-  // Fetch metadata and prices in parallel for all unique tokens
-  const metadataPromises = mints.map(mint => 
-    getTokenMeta(mint).catch(err => {
-      console.warn(`Failed to fetch metadata for ${mint}:`, err);
-      return null;
-    })
-  );
-
-  const pricePromises = mints.map(mint =>
-    priceService.getPrice(mint).catch(err => {
-      console.warn(`Failed to fetch price for ${mint}:`, err);
-      return null;
-    })
-  );
-
+  // Fetch metadata and prices in parallel - using BATCH API for metadata
   const [metadataResults, priceResults] = await Promise.all([
-    Promise.all(metadataPromises),
-    Promise.all(pricePromises)
+    getTokenMetaBatch(mints).catch(err => {
+      console.warn(`Batch metadata fetch failed:`, err);
+      return [];
+    }),
+    Promise.all(mints.map(mint =>
+      priceService.getPrice(mint).catch(err => {
+        console.warn(`Failed to fetch price for ${mint}:`, err);
+        return null;
+      })
+    ))
   ]);
 
   // Create lookup maps
   const metadataMap = new Map<string, any>();
   const priceMap = new Map<string, number>();
 
-  mints.forEach((mint, idx) => {
-    if (metadataResults[idx]) {
-      metadataMap.set(mint, metadataResults[idx]);
+  // Map metadata results by address
+  metadataResults.forEach(token => {
+    if (token?.address) {
+      metadataMap.set(token.address, token);
     }
+  });
+
+  // Map price results
+  mints.forEach((mint, idx) => {
     if (priceResults[idx]) {
       priceMap.set(mint, priceResults[idx]);
     }

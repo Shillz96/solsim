@@ -362,6 +362,138 @@ async function getTokenMetaUncached(mint: string) {
   return token;
 }
 
+// Batch fetch token metadata for multiple mints using Helius DAS API
+// Up to 1000 tokens per call - massive performance improvement over individual fetches
+export async function getTokenMetaBatch(mints: string[]) {
+  if (!mints || mints.length === 0) return [];
+
+  try {
+    // Check Redis cache first for all mints
+    const cacheKeys = mints.map(mint => `token:meta:${REDIS_TOKEN_META_VERSION}:${mint}`);
+    const cachedResults = await Promise.allSettled(
+      cacheKeys.map(key => redis.get(key))
+    );
+
+    const results: any[] = [];
+    const uncachedMints: string[] = [];
+
+    // Separate cached vs uncached
+    mints.forEach((mint, index) => {
+      const cached = cachedResults[index];
+      if (cached.status === 'fulfilled' && cached.value) {
+        results[index] = safeParse(cached.value);
+      } else {
+        uncachedMints.push(mint);
+      }
+    });
+
+    // If all cached, return early
+    if (uncachedMints.length === 0) {
+      return results.filter(Boolean);
+    }
+
+    // Try DB cache for uncached mints
+    const dbTokens = await prisma.token.findMany({
+      where: { address: { in: uncachedMints } }
+    });
+
+    const dbTokensMap = new Map(dbTokens.map(t => [t.address, t]));
+    const missingMints: string[] = [];
+
+    uncachedMints.forEach(mint => {
+      const dbToken = dbTokensMap.get(mint);
+      const hasImage = dbToken && dbToken.logoURI;
+      const isCacheValid = dbToken && dbToken.lastUpdated && Date.now() - dbToken.lastUpdated.getTime() < 86400000;
+
+      if (dbToken && hasImage && isCacheValid) {
+        const index = mints.indexOf(mint);
+        results[index] = dbToken;
+
+        // Cache in Redis
+        redis.setex(`token:meta:${REDIS_TOKEN_META_VERSION}:${mint}`, REDIS_TOKEN_META_TTL, safeStringify(dbToken)).catch(() => {});
+      } else {
+        missingMints.push(mint);
+      }
+    });
+
+    // If nothing missing from cache/DB, return
+    if (missingMints.length === 0) {
+      return results.filter(Boolean);
+    }
+
+    console.log(`[TokenService] Batch fetching ${missingMints.length} tokens from Helius DAS API`);
+
+    // Batch fetch missing tokens from Helius DAS API (max 1000 per call)
+    const dasResponse = await fetchJSON<any>(
+      `https://mainnet.helius-rpc.com/?api-key=${HELIUS}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          id: 'batch-meta',
+          method: 'getAssetBatch',
+          params: {
+            ids: missingMints,
+            displayOptions: {
+              showFungible: true
+            }
+          }
+        }),
+        timeout: 15000,
+        retries: 1
+      }
+    );
+
+    const assets = dasResponse.result || [];
+
+    // Process batch results
+    const upsertPromises = assets.map(async (asset: any) => {
+      if (!asset) return null;
+
+      const mint = asset.id;
+      const content = asset.content;
+      const metadata = content?.metadata;
+
+      const token = await prisma.token.upsert({
+        where: { address: mint },
+        update: {
+          symbol: metadata?.symbol || null,
+          name: metadata?.name || null,
+          logoURI: content?.links?.image || content?.files?.[0]?.cdn_uri || content?.files?.[0]?.uri || null,
+          lastUpdated: new Date()
+        },
+        create: {
+          address: mint,
+          symbol: metadata?.symbol || null,
+          name: metadata?.name || null,
+          logoURI: content?.links?.image || content?.files?.[0]?.cdn_uri || content?.files?.[0]?.uri || null,
+        }
+      });
+
+      // Cache in Redis
+      redis.setex(`token:meta:${REDIS_TOKEN_META_VERSION}:${mint}`, REDIS_TOKEN_META_TTL, safeStringify(token)).catch(() => {});
+
+      const index = mints.indexOf(mint);
+      results[index] = token;
+
+      return token;
+    });
+
+    await Promise.all(upsertPromises);
+
+    console.log(`[TokenService] ✓ Batch fetched ${assets.length} tokens (${mints.length - uncachedMints.length} from cache)`);
+
+    return results.filter(Boolean);
+  } catch (e: any) {
+    console.error(`Batch metadata fetch failed:`, e.message);
+
+    // Fallback to individual fetches
+    console.log(`[TokenService] Falling back to individual token fetches for ${mints.length} tokens`);
+    return Promise.all(mints.map(mint => getTokenMeta(mint)));
+  }
+}
+
 // Get comprehensive token information with price data
 export async function getTokenInfo(mint: string) {
   const [metadata, priceData] = await Promise.all([

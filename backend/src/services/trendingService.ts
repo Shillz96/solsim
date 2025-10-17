@@ -1,7 +1,7 @@
 // Trending service for popular tokens
 import prisma from "../plugins/prisma.js";
 import priceService from "../plugins/priceService.js";
-import { getTokenMeta } from "./tokenService.js";
+import { getTokenMetaBatch } from "./tokenService.js";
 import { robustFetch, fetchJSON } from "../utils/fetch.js";
 import redis from "../plugins/redis.js";
 import { safeStringify, safeParse } from "../utils/json.js";
@@ -207,15 +207,16 @@ async function enrichWithInternalData(tokens: TrendingToken[]): Promise<Trending
     traderCountMap.set(mint, (traderCountMap.get(mint) || 0) + 1);
   }
 
-  // Batch fetch metadata for all tokens (parallel)
-  const metadataResults = await Promise.allSettled(
-    mints.map(mint => getTokenMeta(mint))
-  );
+  // Batch fetch metadata for all tokens (single API call - massive speedup!)
+  const metadataResults = await getTokenMetaBatch(mints).catch(err => {
+    console.warn(`Batch metadata fetch failed:`, err);
+    return [];
+  });
 
   const metadataMap = new Map();
-  mints.forEach((mint, i) => {
-    if (metadataResults[i].status === 'fulfilled') {
-      metadataMap.set(mint, (metadataResults[i] as PromiseFulfilledResult<any>).value);
+  metadataResults.forEach(token => {
+    if (token?.address) {
+      metadataMap.set(token.address, token);
     }
   });
 
@@ -451,15 +452,16 @@ async function getInternalTrendingTokens(limit: number): Promise<TrendingToken[]
   // Batch fetch current prices (uses priceService batch method)
   const pricesMap = await priceService.getPrices(mints);
 
-  // Batch fetch metadata (parallel)
-  const metadataResults = await Promise.allSettled(
-    mints.map(mint => getTokenMeta(mint))
-  );
+  // Batch fetch metadata (single API call - massive speedup!)
+  const metadataResults = await getTokenMetaBatch(mints).catch(err => {
+    console.warn(`Batch metadata fetch failed:`, err);
+    return [];
+  });
 
   const metadataMap = new Map();
-  mints.forEach((mint, i) => {
-    if (metadataResults[i].status === 'fulfilled') {
-      metadataMap.set(mint, (metadataResults[i] as PromiseFulfilledResult<any>).value);
+  metadataResults.forEach(token => {
+    if (token?.address) {
+      metadataMap.set(token.address, token);
     }
   });
 

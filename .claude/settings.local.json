@@ -49,7 +49,8 @@
       "WebSearch",
       "Bash(timeout 5 bash:*)",
       "mcp__ide__getDiagnostics",
-      "WebFetch(domain:docs.helius.dev)"
+      "WebFetch(domain:docs.helius.dev)",
+      "WebFetch(domain:www.helius.dev)"
     ],
     "deny": [],
     "ask": []
