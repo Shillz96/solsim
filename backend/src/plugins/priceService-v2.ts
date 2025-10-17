@@ -199,6 +199,7 @@ class EventDrivenPriceService extends EventEmitter {
     logger.debug({ mint }, "Fetching price for token");
 
     // Try DexScreener first (best for SPL tokens) with circuit breaker
+    // CRITICAL: Don't let DexScreener circuit breaker failures block Jupiter attempts
     try {
       const dexResult = await this.dexScreenerBreaker.execute(async () => {
         const controller = new AbortController();
@@ -259,12 +260,16 @@ class EventDrivenPriceService extends EventEmitter {
 
       if (dexResult) return dexResult;
     } catch (error: any) {
+      // Log all errors except circuit breaker OPEN (that's expected behavior)
       if (error.message !== 'Circuit breaker is OPEN') {
         logger.warn({ mint, error: error.message }, "DexScreener fetch failed");
+      } else {
+        logger.debug({ mint }, "DexScreener circuit breaker is OPEN, will try Jupiter");
       }
     }
 
     // Try Jupiter as fallback with circuit breaker
+    // IMPORTANT: Even if DexScreener circuit is open, still try Jupiter
     try {
       const jupResult = await this.jupiterBreaker.execute(async () => {
         const controller = new AbortController();
@@ -318,7 +323,52 @@ class EventDrivenPriceService extends EventEmitter {
       // Don't log if circuit breaker is open or if it's a 204 (handled above)
       if (error.message !== 'Circuit breaker is OPEN' && !error.message.includes('204')) {
         logger.warn({ mint, error: error.message }, "Jupiter fetch failed");
+      } else if (error.message === 'Circuit breaker is OPEN') {
+        logger.debug({ mint }, "Jupiter circuit breaker is OPEN");
       }
+    }
+
+    // Try pump.fun API as last resort for newly launched tokens
+    // pump.fun tokens often aren't on DexScreener/Jupiter yet
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+      const response = await fetch(`https://frontend-api.pump.fun/coins/${mint}`, {
+        signal: controller.signal,
+        headers: {
+          'Accept': 'application/json',
+          'User-Agent': 'VirtualSol/1.0'
+        }
+      });
+      clearTimeout(timeoutId);
+
+      if (response.ok) {
+        const data = await response.json();
+
+        // pump.fun returns market_cap and liquidity
+        if (data && data.usd_market_cap) {
+          // Calculate price from market cap and supply
+          // pump.fun uses 1 billion supply for all tokens
+          const supply = 1_000_000_000;
+          const priceUsd = data.usd_market_cap / supply;
+
+          if (priceUsd > 0) {
+            logger.info({ mint, priceUsd, source: "pump.fun", marketCap: data.usd_market_cap }, "Price fetched from pump.fun");
+            return {
+              mint,
+              priceUsd,
+              priceSol: priceUsd / this.solPriceUsd,
+              solUsd: this.solPriceUsd,
+              timestamp: Date.now(),
+              source: "pump.fun",
+              marketCapUsd: data.usd_market_cap
+            };
+          }
+        }
+      }
+    } catch (error: any) {
+      logger.debug({ mint, error: error.message }, "Pump.fun fetch failed (expected for non-pump tokens)");
     }
 
     // This is normal for new/unlisted tokens - DexScreener and Jupiter may not have them yet
