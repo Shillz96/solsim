@@ -2,7 +2,7 @@
 import prisma from "../plugins/prisma.js";
 import priceService from "../plugins/priceService.js";
 import redis from "../plugins/redis.js";
-import { getTokenMeta } from "./tokenService.js";
+import { getTokenMetaBatch } from "./tokenService.js";
 import { portfolioCoalescer } from "../utils/requestCoalescer.js";
 import { Decimal } from "@prisma/client/runtime/library";
 
@@ -113,16 +113,17 @@ async function calculatePortfolioData(userId: string, positions: any[]): Promise
   // Get full price ticks for market cap and other data (batch operation - much faster!)
   const priceTickMap = await priceService.getLastTicks(mints);
 
-  // Fetch metadata for all tokens concurrently
-  const metadataPromises = mints.map(mint => getTokenMeta(mint));
-  const metadataResults = await Promise.allSettled(metadataPromises);
+  // Fetch metadata for all tokens using batch API (1 call instead of N calls!)
+  const metadataResults = await getTokenMetaBatch(mints).catch(err => {
+    console.warn(`Batch metadata fetch failed in portfolio:`, err);
+    return [];
+  });
 
   // Create metadata lookup map
   const metadataMap = new Map();
-  mints.forEach((mint, index) => {
-    const result = metadataResults[index];
-    if (result.status === 'fulfilled' && result.value) {
-      metadataMap.set(mint, result.value);
+  metadataResults.forEach(token => {
+    if (token?.address) {
+      metadataMap.set(token.address, token);
     }
   });
 

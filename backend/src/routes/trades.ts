@@ -1,7 +1,7 @@
 // Recent trades routes
 import { FastifyInstance } from "fastify";
 import prisma from "../plugins/prisma.js";
-import { getTokenMeta } from "../services/tokenService.js";
+import { getTokenMeta, getTokenMetaBatch } from "../services/tokenService.js";
 
 export default async function tradesRoutes(app: FastifyInstance) {
   // Get recent trades (global feed)
@@ -23,19 +23,28 @@ export default async function tradesRoutes(app: FastifyInstance) {
           }
         }
       });
-      
-      // Enrich with token metadata
-      const enriched = [];
-      for (const trade of trades) {
-        const meta = await getTokenMeta(trade.mint);
-        enriched.push({
+
+      // Enrich with token metadata using batch API
+      const uniqueMints = [...new Set(trades.map(t => t.mint))];
+      const metadataResults = await getTokenMetaBatch(uniqueMints);
+
+      const metadataMap = new Map();
+      metadataResults.forEach(token => {
+        if (token?.address) {
+          metadataMap.set(token.address, token);
+        }
+      });
+
+      const enriched = trades.map(trade => {
+        const meta = metadataMap.get(trade.mint);
+        return {
           ...trade,
           symbol: meta?.symbol,
           name: meta?.name,
           logoURI: meta?.logoURI,
-        });
-      }
-      
+        };
+      });
+
       return { trades: enriched };
     } catch (error: any) {
       app.log.error(error);
@@ -55,19 +64,28 @@ export default async function tradesRoutes(app: FastifyInstance) {
         skip: parseInt(offset),
         orderBy: { createdAt: "desc" }
       });
-      
-      // Enrich with token metadata
-      const enriched = [];
-      for (const trade of trades) {
-        const meta = await getTokenMeta(trade.mint);
-        enriched.push({
+
+      // Enrich with token metadata using batch API
+      const uniqueMints = [...new Set(trades.map(t => t.mint))];
+      const metadataResults = await getTokenMetaBatch(uniqueMints);
+
+      const metadataMap = new Map();
+      metadataResults.forEach(token => {
+        if (token?.address) {
+          metadataMap.set(token.address, token);
+        }
+      });
+
+      const enriched = trades.map(trade => {
+        const meta = metadataMap.get(trade.mint);
+        return {
           ...trade,
           symbol: meta?.symbol,
           name: meta?.name,
           logoURI: meta?.logoURI,
-        });
-      }
-      
+        };
+      });
+
       return { trades: enriched };
     } catch (error: any) {
       app.log.error(error);
