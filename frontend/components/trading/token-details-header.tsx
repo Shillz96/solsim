@@ -110,8 +110,11 @@ export function TokenDetailsHeader({ tokenAddress }: TokenDetailsHeaderProps) {
   const parseSocials = () => {
     if (!tokenDetails.socials) return [];
     try {
-      return JSON.parse(tokenDetails.socials);
-    } catch {
+      const parsed = JSON.parse(tokenDetails.socials);
+      console.log('Parsed socials:', parsed);
+      return parsed;
+    } catch (e) {
+      console.error('Failed to parse socials:', tokenDetails.socials, e);
       return [];
     }
   };
@@ -120,14 +123,20 @@ export function TokenDetailsHeader({ tokenAddress }: TokenDetailsHeaderProps) {
   const parseWebsites = () => {
     if (!tokenDetails.websites) return [];
     try {
-      return JSON.parse(tokenDetails.websites);
-    } catch {
+      const parsed = JSON.parse(tokenDetails.websites);
+      console.log('Parsed websites:', parsed);
+      return parsed;
+    } catch (e) {
+      console.error('Failed to parse websites:', tokenDetails.websites, e);
       return [];
     }
   };
 
   const websites = parseWebsites();
   const socials = parseSocials();
+
+  // Debug: Log the final arrays
+  console.log('Token:', tokenDetails.symbol, '| Websites array:', websites, '| Socials array:', socials);
   
   const formatTimestamp = (timestamp: string | null) => {
     if (!timestamp) return 'Unknown';
@@ -349,7 +358,7 @@ export function TokenDetailsHeader({ tokenAddress }: TokenDetailsHeaderProps) {
                         )}
                       </button>
                     </TooltipTrigger>
-                    <TooltipContent className="bg-popover text-popover-foreground border border-border">
+                    <TooltipContent side="bottom" className="bg-popover text-popover-foreground border border-border">
                       <p className="font-medium">{copied ? 'Copied!' : 'Click to copy address'}</p>
                     </TooltipContent>
                   </Tooltip>
@@ -358,7 +367,7 @@ export function TokenDetailsHeader({ tokenAddress }: TokenDetailsHeaderProps) {
                 {/* Social Links - Inline and Compact */}
                 <div className="flex gap-1.5">
                   <TooltipProvider>
-                    {websites.slice(0, 1).map((website: string, index: number) => (
+                    {websites.length > 0 && websites.slice(0, 1).map((website: string, index: number) => (
                       <Tooltip key={index}>
                         <TooltipTrigger asChild>
                           <Link href={website} target="_blank" rel="noopener noreferrer">
@@ -367,13 +376,13 @@ export function TokenDetailsHeader({ tokenAddress }: TokenDetailsHeaderProps) {
                             </Button>
                           </Link>
                         </TooltipTrigger>
-                        <TooltipContent className="bg-popover text-popover-foreground border border-border">
+                        <TooltipContent side="bottom" className="bg-popover text-popover-foreground border border-border">
                           <p className="font-medium">Website</p>
                         </TooltipContent>
                       </Tooltip>
                     ))}
 
-                    {socials.slice(0, 2).map((social: string, index: number) => (
+                    {socials.length > 0 && socials.slice(0, 2).map((social: string, index: number) => (
                       <Tooltip key={`social-${index}`}>
                         <TooltipTrigger asChild>
                           <Link href={social} target="_blank" rel="noopener noreferrer">
@@ -382,7 +391,7 @@ export function TokenDetailsHeader({ tokenAddress }: TokenDetailsHeaderProps) {
                             </Button>
                           </Link>
                         </TooltipTrigger>
-                        <TooltipContent className="bg-popover text-popover-foreground border border-border">
+                        <TooltipContent side="bottom" className="bg-popover text-popover-foreground border border-border">
                           <p className="font-medium">{social.includes('twitter.com') || social.includes('x.com') ? 'Twitter' :
                              social.includes('t.me') ? 'Telegram' : 'Social'}</p>
                         </TooltipContent>
@@ -397,7 +406,7 @@ export function TokenDetailsHeader({ tokenAddress }: TokenDetailsHeaderProps) {
                           </Button>
                         </Link>
                       </TooltipTrigger>
-                      <TooltipContent className="bg-popover text-popover-foreground border border-border">
+                      <TooltipContent side="bottom" className="bg-popover text-popover-foreground border border-border">
                         <p className="font-medium">DexScreener</p>
                       </TooltipContent>
                     </Tooltip>
@@ -410,7 +419,7 @@ export function TokenDetailsHeader({ tokenAddress }: TokenDetailsHeaderProps) {
                           </Button>
                         </Link>
                       </TooltipTrigger>
-                      <TooltipContent className="bg-popover text-popover-foreground border border-border">
+                      <TooltipContent side="bottom" className="bg-popover text-popover-foreground border border-border">
                         <p className="font-medium">Solscan</p>
                       </TooltipContent>
                     </Tooltip>
