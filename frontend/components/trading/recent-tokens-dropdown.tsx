@@ -58,7 +58,7 @@ export function RecentTokensDropdown({ currentTokenAddress }: { currentTokenAddr
       mint: currentTokenAddress,
       symbol: tokenMetadata.symbol || 'Unknown',
       name: tokenMetadata.name || 'Unknown Token',
-      imageUrl: tokenMetadata.imageUrl || tokenMetadata.logoURI,
+      imageUrl: tokenMetadata.imageUrl || tokenMetadata.logoURI || undefined,
       lastTraded: Date.now()
     }
 
