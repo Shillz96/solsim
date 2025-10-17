@@ -281,6 +281,11 @@ class EventDrivenPriceService extends EventEmitter {
           clearTimeout(timeoutId);
 
           if (!response.ok) {
+            // 204 No Content is expected when Jupiter doesn't have price data for this token
+            // This is normal for new/low-cap/pump.fun tokens - not an error
+            if (response.status === 204) {
+              return null; // Silently return null without logging
+            }
             throw new Error(`HTTP ${response.status}`);
           }
 
@@ -310,12 +315,15 @@ class EventDrivenPriceService extends EventEmitter {
 
       if (jupResult) return jupResult;
     } catch (error: any) {
-      if (error.message !== 'Circuit breaker is OPEN') {
+      // Don't log if circuit breaker is open or if it's a 204 (handled above)
+      if (error.message !== 'Circuit breaker is OPEN' && !error.message.includes('204')) {
         logger.warn({ mint, error: error.message }, "Jupiter fetch failed");
       }
     }
 
-    logger.warn({ mint }, "No price found from any source");
+    // This is normal for new/unlisted tokens - DexScreener and Jupiter may not have them yet
+    // Only log at debug level to reduce noise
+    logger.debug({ mint }, "No price found from any source (token may be too new or unlisted)");
     return null;
   }
 
