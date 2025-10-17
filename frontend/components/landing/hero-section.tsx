@@ -70,8 +70,8 @@ export function HeroSection() {
               transition={{ delay: 0.6 }}
             >
               <div className="space-y-1">
-                <div className="text-xl sm:text-2xl md:text-3xl font-bold text-[#00ff85]">100 SOL</div>
-                <p className="text-xs sm:text-sm text-background/60">Starting balance</p>
+                <div className="text-xl sm:text-2xl md:text-3xl font-bold text-[#00ff85]">10-100 SOL</div>
+                <p className="text-xs sm:text-sm text-background/60">Starting balance (10 SOL standard, 100 SOL for vSOL holders)</p>
               </div>
               <div className="space-y-1">
                 <div className="text-xl sm:text-2xl md:text-3xl font-bold">Rewards</div>

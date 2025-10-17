@@ -93,7 +93,7 @@ export default function AboutPage() {
                 </div>
                 <h3 className="font-semibold text-xl">Zero Financial Risk</h3>
                 <p className="text-muted-foreground leading-relaxed">
-                  Practice with 100 SOL virtual balance. No real money involved, no deposits required, and no risk of
+                  Practice with virtual balance (10 SOL for standard users, 100 SOL for vSOL holders). No real money involved, no deposits required, and no risk of
                   losing your hard-earned capital while you learn.
                 </p>
               </div>

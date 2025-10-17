@@ -51,7 +51,7 @@ export default function DocumentationPage() {
                   <span className="font-medium text-foreground">Sign Up:</span> Create your account with email or connect your Solana wallet
                 </li>
                 <li className="leading-relaxed">
-                  <span className="font-medium text-foreground">Get Virtual Balance:</span> Receive 100 SOL virtual balance instantly to start trading
+                  <span className="font-medium text-foreground">Get Virtual Balance:</span> Receive virtual balance instantly to start trading (10 SOL for standard users, 100 SOL for vSOL holders)
                 </li>
                 <li className="leading-relaxed">
                   <span className="font-medium text-foreground">Explore Tokens:</span> Browse trending tokens from Birdeye and Pump.fun on the Trending page
@@ -95,7 +95,7 @@ export default function DocumentationPage() {
                 <div className="space-y-2">
                   <h3 className="font-semibold text-lg">Virtual Balance</h3>
                   <p className="text-muted-foreground text-sm">
-                    Start with 100 SOL virtual balance. Trade without losing real money while you learn. Top up anytime to continue trading.
+                    Start with virtual balance (10 SOL for standard users, 100 SOL for vSOL holders). Trade without losing real money while you learn. Top up anytime to continue trading.
                   </p>
                 </div>
               </div>
@@ -212,7 +212,7 @@ export default function DocumentationPage() {
           className="text-center space-y-4 py-8"
         >
           <h2 className="font-heading text-2xl font-bold">Ready to Start Trading?</h2>
-          <p className="text-muted-foreground">Get 100 SOL virtual balance and start practicing today.</p>
+          <p className="text-muted-foreground">Get virtual balance (10 SOL for standard users, 100 SOL for vSOL holders) and start practicing today.</p>
           <Link href="/trade">
             <Button size="lg" className="gap-2">
               <TrendingUp className="h-5 w-5" />

@@ -4,7 +4,7 @@ const steps = [
   {
     icon: UserPlus,
     title: "Sign up & connect",
-    description: "Create your account and get 100 SOL virtual balance instantly.",
+    description: "Create your account and get virtual balance instantly (10 SOL for standard users, 100 SOL for vSOL holders).",
   },
   {
     icon: Search,

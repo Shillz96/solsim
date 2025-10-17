@@ -13,7 +13,7 @@ const features = [
   {
     icon: Wallet,
     title: "Virtual SOL Balance",
-    description: "Start with 100 SOL virtual balance. Trade without losing real money while you learn.",
+    description: "Start with virtual balance (10 SOL for standard users, 100 SOL for vSOL holders). Trade without losing real money while you learn.",
   },
   {
     icon: Eye,

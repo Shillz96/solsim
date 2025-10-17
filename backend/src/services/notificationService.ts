@@ -590,7 +590,7 @@ export async function notifyWelcome(userId: string, username: string) {
     type: NotificationType.WELCOME,
     category: NotificationCategory.SYSTEM,
     title: '👋 Welcome to VirtualSol!',
-    message: `Hey ${username}! Ready to master Solana trading? Start with 100 SOL and trade with zero risk! 🚀`,
+    message: `Hey ${username}! Ready to master Solana trading? Start with virtual balance (10 SOL for standard users, 100 SOL for vSOL holders) and trade with zero risk! 🚀`,
     metadata: {
       username,
     },
