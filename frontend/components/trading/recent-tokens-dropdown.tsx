@@ -13,6 +13,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { cn } from "@/lib/utils"
+import { useTokenMetadata } from "@/hooks/use-token-metadata"
 
 interface RecentToken {
   mint: string
@@ -28,6 +29,9 @@ const STORAGE_KEY = 'recentTokens'
 export function RecentTokensDropdown({ currentTokenAddress }: { currentTokenAddress?: string }) {
   const router = useRouter()
   const [recentTokens, setRecentTokens] = useState<RecentToken[]>([])
+
+  // Fetch token metadata for current token
+  const { data: tokenMetadata } = useTokenMetadata(currentTokenAddress, !!currentTokenAddress)
 
   // Load recent tokens from localStorage
   useEffect(() => {
@@ -46,19 +50,15 @@ export function RecentTokensDropdown({ currentTokenAddress }: { currentTokenAddr
     }
   }, [])
 
-  // Save token to recent list
+  // Save token to recent list when metadata is loaded
   useEffect(() => {
-    if (!currentTokenAddress) return
-
-    // Get current token info from URL params or other sources
-    const urlParams = new URLSearchParams(window.location.search)
-    const symbol = urlParams.get('symbol') || 'Unknown'
-    const name = urlParams.get('name') || 'Unknown Token'
+    if (!currentTokenAddress || !tokenMetadata) return
 
     const newToken: RecentToken = {
       mint: currentTokenAddress,
-      symbol,
-      name,
+      symbol: tokenMetadata.symbol || 'Unknown',
+      name: tokenMetadata.name || 'Unknown Token',
+      imageUrl: tokenMetadata.imageUrl || tokenMetadata.logoURI,
       lastTraded: Date.now()
     }
 
@@ -71,7 +71,7 @@ export function RecentTokensDropdown({ currentTokenAddress }: { currentTokenAddr
       localStorage.setItem(STORAGE_KEY, JSON.stringify(updated))
       return updated
     })
-  }, [currentTokenAddress])
+  }, [currentTokenAddress, tokenMetadata])
 
   if (recentTokens.length === 0) {
     return null

@@ -1,20 +1,22 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { formatNumber } from "@/lib/format"
 import { EnhancedCard, CardGrid, CardSection } from "@/components/ui/enhanced-card-system"
 import { Badge } from "@/components/ui/badge"
-import { 
-  ExternalLink, 
-  TrendingUp, 
-  TrendingDown, 
-  Loader2, 
+import {
+  ExternalLink,
+  TrendingUp,
+  TrendingDown,
+  Loader2,
   AlertCircle,
-  Globe, 
-  Twitter, 
+  Globe,
+  Twitter,
   MessageSquare,
   Clock,
   Users,
+  Copy,
+  Check,
 } from "lucide-react"
 import { AnimatedNumber } from "@/components/ui/animated-number"
 import { Alert, AlertDescription } from "@/components/ui/alert"
@@ -40,9 +42,12 @@ interface TokenDetailsHeaderProps {
 export function TokenDetailsHeader({ tokenAddress }: TokenDetailsHeaderProps) {
   // Fetch token details using the token metadata hook
   const { data: tokenDetails, isLoading, error } = useTokenMetadata(tokenAddress, !!tokenAddress)
-  
+
   // Real-time price stream integration
   const { connected: wsConnected, prices: livePrices, subscribe, unsubscribe } = usePriceStreamContext()
+
+  // Copy to clipboard state
+  const [copied, setCopied] = useState(false)
   
   // Subscribe to price updates for this token
   useEffect(() => {
@@ -139,6 +144,17 @@ export function TokenDetailsHeader({ tokenAddress }: TokenDetailsHeaderProps) {
     if (url.includes('twitter.com') || url.includes('x.com')) return <Twitter className="h-4 w-4" />;
     if (url.includes('t.me') || url.includes('telegram')) return <MessageSquare className="h-4 w-4" />;
     return <Globe className="h-4 w-4" />;
+  };
+
+  // Copy address to clipboard
+  const copyAddress = async () => {
+    try {
+      await navigator.clipboard.writeText(tokenAddress);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy address:', err);
+    }
   };
 
   return (
@@ -267,235 +283,178 @@ export function TokenDetailsHeader({ tokenAddress }: TokenDetailsHeaderProps) {
         </div>
       </div>
 
-      {/* Desktop Layout - Unchanged */}
-      <div className="relative z-10 p-6 hidden lg:block">
+      {/* Desktop Layout - Compact Design */}
+      <div className="relative z-10 p-4 hidden lg:block">
         {/* Recent Tokens Dropdown - Top Right */}
-        <div className="absolute top-4 right-4 z-20">
+        <div className="absolute top-3 right-3 z-20">
           <RecentTokensDropdown currentTokenAddress={tokenAddress} />
         </div>
 
-        <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
-          <div className="flex items-center flex-shrink-0">
+        <div className="flex items-center justify-between gap-6">
+          {/* Left: Token Info */}
+          <div className="flex items-center gap-4 flex-shrink-0">
             <div className="relative flex-shrink-0">
               <TokenLogo
                 src={tokenDetails.imageUrl || tokenDetails.logoURI || undefined}
                 alt={tokenDetails.name || 'Token'}
                 mint={tokenAddress}
-                className="w-14 h-14 mr-4 ring-2 ring-primary/20 ring-offset-2 ring-offset-background"
+                className="w-12 h-12 ring-2 ring-primary/20"
               />
-              {tokenDetails.isNew && (
-                <div className="absolute -top-1 -right-1 w-3 h-3 bg-blue-500 rounded-full animate-pulse"></div>
-              )}
-              {tokenDetails.isTrending && (
-                <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+              {(tokenDetails.isNew || tokenDetails.isTrending) && (
+                <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse"></div>
               )}
             </div>
 
-            <div>
-              <div className="flex items-center gap-3 flex-wrap">
-                <h1 className="text-2xl font-bold bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text">
+            <div className="flex flex-col gap-1">
+              <div className="flex items-center gap-2">
+                <h1 className="text-xl font-bold">
                   {tokenDetails.symbol}
                 </h1>
-                <Badge variant="outline" className="h-7 px-3 font-medium bg-muted/50 backdrop-blur-sm">
+                <span className="text-sm text-muted-foreground">
                   {tokenDetails.name}
-                </Badge>
-
+                </span>
                 {tokenDetails.isNew && (
-                  <Badge variant="default" className="bg-blue-600 hover:bg-blue-700 animate-pulse">
-                    🔥 New
+                  <Badge variant="default" className="text-xs bg-blue-600 h-5 px-2">
+                    New
                   </Badge>
                 )}
-
                 {tokenDetails.isTrending && (
-                  <Badge variant="default" className="bg-green-600 hover:bg-green-700 animate-pulse">
-                    📈 Trending
+                  <Badge variant="default" className="text-xs bg-green-600 h-5 px-2">
+                    Trending
                   </Badge>
                 )}
               </div>
 
-              <div className="text-sm text-muted-foreground font-mono truncate max-w-[300px] mt-2 bg-muted/30 px-2 py-1 rounded">
-                {tokenAddress}
-              </div>
-
-              {/* Enhanced Social Links */}
-              <div className="flex gap-2 mt-3">
+              <div className="flex items-center gap-2">
+                {/* Click-to-copy Contract Address */}
                 <TooltipProvider>
-                  {websites.slice(0, 1).map((website: string, index: number) => (
-                    <Tooltip key={index}>
-                      <TooltipTrigger asChild>
-                        <Link
-                          href={website}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          <Button variant="outline" size="sm" className="h-8 w-8 p-0 bg-background/50 hover:bg-primary/20 transition-all duration-200">
-                            <Globe className="h-4 w-4" />
-                          </Button>
-                        </Link>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>Website</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  ))}
-
-                  {socials.slice(0, 2).map((social: string, index: number) => (
-                    <Tooltip key={`social-${index}`}>
-                      <TooltipTrigger asChild>
-                        <Link
-                          href={social}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          <Button variant="outline" size="sm" className="h-8 w-8 p-0 bg-background/50 hover:bg-primary/20 transition-all duration-200">
-                            {getSocialIcon(social)}
-                          </Button>
-                        </Link>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>{social.includes('twitter.com') || social.includes('x.com') ? 'Twitter' :
-                           social.includes('t.me') ? 'Telegram' : 'Social'}</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  ))}
-
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <Link
-                        href={`https://solscan.io/token/${tokenAddress}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
+                      <button
+                        onClick={copyAddress}
+                        className="flex items-center gap-1.5 text-xs text-muted-foreground font-mono bg-muted/30 px-2 py-1 rounded hover:bg-muted/50 transition-colors group"
                       >
-                        <Button variant="outline" size="sm" className="h-8 w-8 p-0 bg-background/50 hover:bg-primary/20 transition-all duration-200">
-                          <ExternalLink className="h-4 w-4" />
-                        </Button>
-                      </Link>
+                        <span>{tokenAddress.slice(0, 4)}...{tokenAddress.slice(-4)}</span>
+                        {copied ? (
+                          <Check className="h-3 w-3 text-green-500" />
+                        ) : (
+                          <Copy className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        )}
+                      </button>
                     </TooltipTrigger>
                     <TooltipContent>
-                      <p>View on Solscan</p>
+                      <p>{copied ? 'Copied!' : 'Click to copy address'}</p>
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
+
+                {/* Social Links - Inline and Compact */}
+                <div className="flex gap-1">
+                  <TooltipProvider>
+                    {websites.slice(0, 1).map((website: string, index: number) => (
+                      <Tooltip key={index}>
+                        <TooltipTrigger asChild>
+                          <Link href={website} target="_blank" rel="noopener noreferrer">
+                            <Button variant="ghost" size="sm" className="h-6 w-6 p-0 hover:bg-primary/10">
+                              <Globe className="h-3.5 w-3.5" />
+                            </Button>
+                          </Link>
+                        </TooltipTrigger>
+                        <TooltipContent><p>Website</p></TooltipContent>
+                      </Tooltip>
+                    ))}
+
+                    {socials.slice(0, 2).map((social: string, index: number) => (
+                      <Tooltip key={`social-${index}`}>
+                        <TooltipTrigger asChild>
+                          <Link href={social} target="_blank" rel="noopener noreferrer">
+                            <Button variant="ghost" size="sm" className="h-6 w-6 p-0 hover:bg-primary/10">
+                              {getSocialIcon(social)}
+                            </Button>
+                          </Link>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>{social.includes('twitter.com') || social.includes('x.com') ? 'Twitter' :
+                             social.includes('t.me') ? 'Telegram' : 'Social'}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    ))}
+
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Link href={`https://dexscreener.com/solana/${tokenAddress}`} target="_blank" rel="noopener noreferrer">
+                          <Button variant="ghost" size="sm" className="h-6 w-6 p-0 hover:bg-primary/10">
+                            <ExternalLink className="h-3.5 w-3.5" />
+                          </Button>
+                        </Link>
+                      </TooltipTrigger>
+                      <TooltipContent><p>DexScreener</p></TooltipContent>
+                    </Tooltip>
+
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Link href={`https://solscan.io/token/${tokenAddress}`} target="_blank" rel="noopener noreferrer">
+                          <Button variant="ghost" size="sm" className="h-6 w-6 p-0 hover:bg-primary/10">
+                            <ExternalLink className="h-3.5 w-3.5" />
+                          </Button>
+                        </Link>
+                      </TooltipTrigger>
+                      <TooltipContent><p>Solscan</p></TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
               </div>
             </div>
           </div>
 
-          {/* ✅ Enhanced Metrics Section with Standardized Components */}
-          <div className="flex flex-wrap items-center gap-6 ml-auto">
-            <div className="text-center p-4 bg-muted/30 rounded-lg backdrop-blur-sm">
-              <div className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Price</div>
-              <div className="flex items-center gap-2">
-                {/* ✅ Use PriceCell for standardized price display with SOL equivalent */}
+          {/* Right: Metrics - Compact Grid */}
+          <div className="flex items-center gap-3 ml-auto">
+            <div className="text-center p-2.5 bg-muted/30 rounded-lg min-w-[120px]">
+              <div className="text-[10px] text-muted-foreground uppercase tracking-wide mb-0.5">Price</div>
+              <div className="flex flex-col items-center gap-0.5">
                 <PriceCell
                   priceUSD={currentPrice}
                   priceChangePercent={priceChange ?? undefined}
-                  className="text-xl font-mono font-bold"
-                  showSolEquiv={true}
+                  className="text-base font-mono font-bold"
+                  showSolEquiv={false}
                 />
                 {priceChange !== undefined && priceChange !== null && (
-                  <div className={`flex items-center text-sm px-2 py-1 rounded-full ${
+                  <div className={`flex items-center text-xs px-1.5 py-0.5 rounded ${
                     isPositiveChange
                       ? 'text-green-400 bg-green-500/10'
                       : isNegativeChange
                         ? 'text-red-400 bg-red-500/10'
                         : 'text-muted-foreground bg-muted/20'
                   }`}>
-                    {isPositiveChange && <TrendingUp className="h-3 w-3 mr-1" />}
-                    {isNegativeChange && <TrendingDown className="h-3 w-3 mr-1" />}
-                    <AnimatedNumber
-                      value={priceChange}
-                      prefix={priceChange >= 0 ? "+" : ""}
-                      suffix="%"
-                      decimals={2}
-                      colorize={false}
-                    />
+                    {isPositiveChange && <TrendingUp className="h-2.5 w-2.5 mr-0.5" />}
+                    {isNegativeChange && <TrendingDown className="h-2.5 w-2.5 mr-0.5" />}
+                    {priceChange >= 0 ? '+' : ''}{priceChange.toFixed(2)}%
                   </div>
                 )}
               </div>
             </div>
 
             {tokenDetails.marketCapUsd && (
-              <div className="text-center p-4 bg-muted/30 rounded-lg backdrop-blur-sm">
-                <div className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Market Cap</div>
-                {/* ✅ Use MoneyCell for market cap with SOL equivalent */}
+              <div className="text-center p-2.5 bg-muted/30 rounded-lg min-w-[100px]">
+                <div className="text-[10px] text-muted-foreground uppercase tracking-wide mb-0.5">MCap</div>
                 <MoneyCell
                   usd={Number(tokenDetails.marketCapUsd)}
-                  className="text-lg font-mono font-bold"
-                  hideSolEquiv={false}
+                  className="text-sm font-mono font-bold"
+                  hideSolEquiv={true}
                 />
               </div>
             )}
 
             {tokenDetails.volume24h && (
-              <div className="text-center p-4 bg-muted/30 rounded-lg backdrop-blur-sm">
-                <div className="text-xs text-muted-foreground uppercase tracking-wide mb-1">24h Volume</div>
-                {/* ✅ Use MoneyCell for volume with SOL equivalent */}
+              <div className="text-center p-2.5 bg-muted/30 rounded-lg min-w-[100px]">
+                <div className="text-[10px] text-muted-foreground uppercase tracking-wide mb-0.5">24h Vol</div>
                 <MoneyCell
                   usd={Number(tokenDetails.volume24h)}
-                  className="text-lg font-mono font-bold"
-                  hideSolEquiv={false}
+                  className="text-sm font-mono font-bold"
+                  hideSolEquiv={true}
                 />
               </div>
             )}
-
-            {tokenDetails.liquidityUsd && (
-              <div className="text-center p-4 bg-muted/30 rounded-lg backdrop-blur-sm">
-                <div className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Liquidity</div>
-                {/* ✅ Use MoneyCell for liquidity with SOL equivalent */}
-                <MoneyCell
-                  usd={Number(tokenDetails.liquidityUsd)}
-                  className="text-lg font-mono font-bold"
-                  hideSolEquiv={false}
-                />
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Enhanced Additional Details Section */}
-        <div className="mt-6 pt-4 border-t border-border/50 flex flex-wrap gap-x-8 gap-y-3 text-sm">
-          {tokenDetails.holderCount && (
-            <div className="flex items-center gap-2 px-3 py-2 bg-muted/20 rounded-lg">
-              <Users className="h-4 w-4 text-primary" />
-              <span className="text-muted-foreground">Holders:</span>
-              <span className="font-semibold">{Number(tokenDetails.holderCount).toLocaleString()}</span>
-            </div>
-          )}
-
-          {tokenDetails.firstSeenAt && (
-            <div className="flex items-center gap-2 px-3 py-2 bg-muted/20 rounded-lg">
-              <Clock className="h-4 w-4 text-primary" />
-              <span className="text-muted-foreground">First Seen:</span>
-              <span className="font-semibold">{formatTimestamp(tokenDetails.firstSeenAt)}</span>
-            </div>
-          )}
-
-          {websites.length > 0 && websites[0] && (
-            <div className="flex items-center gap-2 px-3 py-2 bg-muted/20 rounded-lg">
-              <Globe className="h-4 w-4 text-primary" />
-              <span className="text-muted-foreground">Website:</span>
-              <Link
-                href={websites[0]}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-primary hover:underline truncate max-w-[200px] font-semibold"
-              >
-                {websites[0].replace(/https?:\/\/(www\.)?/, '')}
-              </Link>
-            </div>
-          )}
-
-          <div className="ml-auto">
-            <Link
-              href={`https://dexscreener.com/solana/${tokenAddress}`}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <Badge variant="secondary" className="flex items-center gap-2 px-4 py-2 cursor-pointer hover:bg-secondary/80 transition-colors bg-primary/10 hover:bg-primary/20">
-                <ExternalLink className="h-4 w-4" />
-                View on DexScreener
-              </Badge>
-            </Link>
           </div>
         </div>
       </div>
