@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { getTokenLogoFallback, getTokenLogoAlternatives } from "@/lib/token-logos"
 
 interface TokenLogoProps {
@@ -52,6 +52,14 @@ export function TokenLogo({
   const [currentSrc, setCurrentSrc] = useState(src || (mint ? getTokenLogoFallback(mint) : undefined))
   const [attemptIndex, setAttemptIndex] = useState(0)
   const [hasError, setHasError] = useState(false)
+
+  // CRITICAL FIX: Reset state when src or mint changes
+  useEffect(() => {
+    const newSrc = src || (mint ? getTokenLogoFallback(mint) : undefined)
+    setCurrentSrc(newSrc)
+    setAttemptIndex(0)
+    setHasError(false)
+  }, [src, mint])
 
   const handleError = () => {
     if (mint) {
