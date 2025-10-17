@@ -138,7 +138,10 @@ export function useNotifications() {
   }, [isAuthenticated, fetchNotifications]);
 
   const markAllAsRead = useCallback(async () => {
-    if (!isAuthenticated) return;
+    if (!isAuthenticated || !user?.id) return;
+
+    // Store previous state for potential revert
+    const previousState = state;
 
     // Optimistic update
     setState(prev => ({
@@ -148,13 +151,17 @@ export function useNotifications() {
     }));
 
     try {
-      await api.patch('/api/notifications/read-all');
+      const response = await api.patch(`/api/notifications/read-all`);
+      console.log('Mark all as read response:', response);
+
+      // Fetch fresh data to ensure sync
+      await fetchNotifications();
     } catch (error) {
       console.error('Failed to mark all notifications as read:', error);
-      // Revert on error
-      fetchNotifications();
+      // Revert to previous state on error
+      setState(previousState);
     }
-  }, [isAuthenticated, fetchNotifications]);
+  }, [isAuthenticated, user?.id, state, fetchNotifications]);
 
   const addNotification = useCallback((notification: Omit<Notification, 'id' | 'timestamp'>) => {
     const newNotification: Notification = {
