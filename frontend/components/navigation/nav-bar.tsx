@@ -279,9 +279,8 @@ export function NavBar() {
                   top: searchRef.current.getBoundingClientRect().bottom + 8,
                   left: searchRef.current.getBoundingClientRect().left,
                   width: searchRef.current.getBoundingClientRect().width,
-                  backgroundColor: 'hsl(var(--card))',
                 }}
-                className="border border-border rounded-[0.25rem] shadow-lg z-[100] max-h-80 overflow-y-auto"
+                className="bg-background/95 backdrop-blur-md supports-[backdrop-filter]:bg-background/90 text-foreground border rounded-[0.25rem] shadow-md z-[100] max-h-80 overflow-y-auto"
               >
                   <div className="p-2">
                     <div className="text-xs text-muted-foreground px-2 py-2 font-semibold border-b border-border mb-1 uppercase tracking-wide">
