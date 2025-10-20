@@ -291,15 +291,148 @@ class OptimizedPriceService extends EventEmitter {
       const signature = logData.value?.signature;
       const logs = logData.value?.logs || [];
 
-      logger.debug({ signature: signature?.slice(0, 16) }, "DEX activity detected");
+      // Parse logs for swap activity
+      const swapSignal = this.detectSwapActivity(logs);
 
-      // TODO: Parse logs to extract token swaps and update prices
-      // For now, the WebSocket infrastructure is ready but we continue
-      // using fallback APIs for actual price data
+      if (swapSignal.isSwap) {
+        logger.debug({
+          signature: signature?.slice(0, 16),
+          dex: swapSignal.dex
+        }, "Swap detected - triggering price refresh");
+
+        // Use swap as a signal to refresh prices for involved tokens
+        // This gives us near-instant price updates (1-2s latency)
+        if (swapSignal.involvedTokens.length > 0) {
+          this.triggerPriceRefresh(swapSignal.involvedTokens);
+        }
+      }
 
     } catch (error) {
       logger.error({ error }, "Failed to process log notification");
     }
+  }
+
+  /**
+   * Detect swap activity from transaction logs
+   * Returns signals indicating a swap occurred and which DEX
+   */
+  private detectSwapActivity(logs: string[]): {
+    isSwap: boolean;
+    dex: string | null;
+    involvedTokens: string[];
+  } {
+    let isSwap = false;
+    let dex: string | null = null;
+    const involvedTokens: string[] = [];
+
+    for (const log of logs) {
+      // Raydium swap detection
+      if (log.includes('ray_log:')) {
+        isSwap = true;
+        dex = 'Raydium';
+
+        // Try to parse Raydium ray_log for swap amounts
+        const rayLogMatch = log.match(/ray_log:\s*([A-Za-z0-9+/=]+)/);
+        if (rayLogMatch) {
+          try {
+            const rayLogData = Buffer.from(rayLogMatch[1], 'base64');
+            // Raydium ray_log structure: [type:u8, amountIn:u64, amountOut:u64, ...]
+            if (rayLogData.length >= 17) {
+              const amountIn = rayLogData.readBigUInt64LE(1);
+              const amountOut = rayLogData.readBigUInt64LE(9);
+
+              logger.debug({
+                amountIn: amountIn.toString(),
+                amountOut: amountOut.toString()
+              }, "Raydium swap amounts");
+            }
+          } catch (err) {
+            // Parsing failed, but we still know a swap occurred
+            logger.debug({ error: err }, "Failed to parse ray_log details");
+          }
+        }
+      }
+
+      // Pump.fun swap detection
+      if (log.includes('Program 6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P')) {
+        if (log.includes('invoke') || log.includes('success')) {
+          isSwap = true;
+          dex = 'Pump.fun';
+        }
+      }
+
+      // Generic swap indicators (works for Orca, Jupiter, etc.)
+      if (log.includes('Instruction: Swap') ||
+          log.includes('Instruction: SwapBaseIn') ||
+          log.includes('Instruction: SwapBaseOut')) {
+        isSwap = true;
+        if (!dex) dex = 'Unknown DEX';
+      }
+
+      // Extract token mint addresses from logs
+      // SPL Token Transfer logs include mint addresses
+      const mintMatch = log.match(/([1-9A-HJ-NP-Za-km-z]{32,44})/g);
+      if (mintMatch) {
+        mintMatch.forEach(address => {
+          // Filter out common non-token addresses
+          if (address.length >= 32 &&
+              !address.startsWith('11111') && // System program
+              !address.startsWith('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA') && // Token program
+              !involvedTokens.includes(address)) {
+            involvedTokens.push(address);
+          }
+        });
+      }
+    }
+
+    return { isSwap, dex, involvedTokens };
+  }
+
+  /**
+   * Trigger immediate price refresh for tokens involved in a swap
+   * This is called when we detect real-time swap activity
+   */
+  private triggerPriceRefresh(tokenAddresses: string[]) {
+    // Known quote tokens - we don't need to refresh their prices
+    const quoteTokens = new Set([
+      'So11111111111111111111111111111111111111112', // SOL
+      'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v', // USDC
+      'Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB'  // USDT
+    ]);
+
+    // Filter to only target tokens (non-quote tokens)
+    const targetTokens = tokenAddresses.filter(addr => !quoteTokens.has(addr));
+
+    // Limit to first 3 tokens to avoid overwhelming APIs
+    const tokensToRefresh = targetTokens.slice(0, 3);
+
+    if (tokensToRefresh.length === 0) {
+      return; // Only quote tokens involved
+    }
+
+    logger.debug({
+      count: tokensToRefresh.length,
+      tokens: tokensToRefresh.map(t => t.slice(0, 8))
+    }, "Triggering price refresh from swap signal");
+
+    // Trigger async price refresh for each token (non-blocking)
+    tokensToRefresh.forEach(mint => {
+      this.fetchTokenPrice(mint)
+        .then(tick => {
+          if (tick) {
+            this.updatePrice(tick);
+            logger.info({
+              mint: mint.slice(0, 8),
+              price: tick.priceUsd.toFixed(6),
+              source: tick.source
+            }, "Price refreshed from swap signal");
+          }
+        })
+        .catch(err => {
+          // Silent fail - this is a bonus feature, shouldn't cause errors
+          logger.debug({ mint: mint.slice(0, 8), error: err }, "Swap-triggered refresh failed");
+        });
+    });
   }
 
   private reconnect() {
