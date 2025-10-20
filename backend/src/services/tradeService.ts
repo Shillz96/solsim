@@ -96,7 +96,15 @@ async function executeTradeLogic({
   if (!user) throw new Error("User not found");
 
   // Grab latest tick from cache with validation
-  const tick = await priceService.getLastTick(mint);
+  let tick = await priceService.getLastTick(mint);
+
+  // For SELL orders, if no price found, force a fresh fetch (bypass negative cache)
+  // This handles cases where token was cached as "not found" but now has liquidity
+  if (!tick && side === 'sell') {
+    logger.warn({ mint: mint.slice(0, 8), side }, "No cached price for SELL order, forcing fresh fetch");
+    tick = await priceService.fetchTokenPrice(mint);
+  }
+
   if (!tick) {
     throw new Error(`Price data unavailable for token ${mint}`);
   }
