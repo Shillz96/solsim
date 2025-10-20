@@ -105,7 +105,7 @@ export function RealtimeTradeStrip({
       )}
       style={style}
     >
-      <div className="flex items-center py-3 px-2 space-x-6 overflow-x-auto scrollbar-none">
+      <div className="flex items-center py-4 px-2 space-x-6 overflow-x-auto scrollbar-none">
         {positions.length === 0 ? (
           <div className="flex items-center justify-center w-full text-sm text-muted-foreground">
             No open positions
