@@ -237,7 +237,7 @@ class EventDrivenPriceService extends EventEmitter {
             const priceUsd = parseFloat(pair.priceUsd || "0");
 
             if (priceUsd > 0) {
-              logger.info({ mint, priceUsd, source: "dexscreener", liquidity: pair.liquidity?.usd }, "Price fetched successfully");
+              logger.debug({ mint, priceUsd, source: "dexscreener", liquidity: pair.liquidity?.usd }, "Price fetched successfully");
               return {
                 mint,
                 priceUsd,
@@ -299,7 +299,7 @@ class EventDrivenPriceService extends EventEmitter {
           if (data.data && data.data[mint] && data.data[mint].price) {
             const priceUsd = parseFloat(data.data[mint].price);
             if (priceUsd > 0) {
-              logger.info({ mint, priceUsd, source: "jupiter" }, "Price fetched successfully");
+              logger.debug({ mint, priceUsd, source: "jupiter" }, "Price fetched successfully");
 
               return {
                 mint,

@@ -70,7 +70,10 @@ export async function checkAndLiquidatePositions() {
       return { checked: 0, liquidated: 0 };
     }
 
-    console.log(`[LiquidationEngine] Checking ${openPositions.length} positions`);
+    // Only log if there are multiple positions or if we haven't logged recently
+    if (openPositions.length > 5) {
+      console.log(`[LiquidationEngine] Checking ${openPositions.length} positions`);
+    }
 
     // Get all unique mints for batch price fetching
     const mints = [...new Set(openPositions.map((p) => p.mint))];

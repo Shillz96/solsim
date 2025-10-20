@@ -46,7 +46,8 @@ export default async function wsPlugin(app: FastifyInstance) {
       }
     }
     
-    if (sent > 0) {
+    // Only log broadcasts if there are many clients (reduced log noise)
+    if (sent > 10) {
       console.log(`📊 Broadcasted price update for ${tick.mint} to ${sent} clients`);
     }
   });
@@ -71,9 +72,7 @@ export default async function wsPlugin(app: FastifyInstance) {
 
   // Enhanced WebSocket route for price updates with new contract format
   app.get("/ws/prices", { websocket: true }, (socket, req) => {
-      console.log("🔌 Client connected to price WebSocket");
-      console.log("🌐 Client IP:", req.ip);
-      console.log("🌐 Client headers:", req.headers['user-agent']);
+      console.log("🔌 Client connected to price WebSocket from", req.ip);
       
       // @ts-ignore
       socket.isAlive = true;
@@ -99,18 +98,15 @@ export default async function wsPlugin(app: FastifyInstance) {
       socket.on("message", (message) => {
         try {
           const data = JSON.parse(message.toString());
-          console.log("📨 Received:", data.type || data.t, data.mint ? `(${data.mint})` : '');
+          // Reduced logging - only log for debugging if needed
 
           if (data.type === "subscribe" && data.mint) {
             subscribedTokens.add(data.mint);
-            console.log(`📡 Subscribed to ${data.mint}`);
-            console.log(`🔍 Checking if SOL: ${data.mint} === 'So11111111111111111111111111111111111111112'? ${data.mint === 'So11111111111111111111111111111111111111112'}`);
 
             // Send current cached price immediately if available
             if (data.mint === 'So11111111111111111111111111111111111111112') {
               // Special handling for SOL - always send current price
               const solPrice = priceService.getSolPrice();
-              console.log(`💰 Sending SOL price directly: $${solPrice}`);
 
               socket.send(JSON.stringify({
                 type: "price",
@@ -130,7 +126,7 @@ export default async function wsPlugin(app: FastifyInstance) {
                     change24h: tick.change24h || 0,
                     timestamp: tick.timestamp
                   }));
-                  console.log(`💰 Sent cached price for ${data.mint}: $${tick.priceUsd}`);
+                  // Cached price sent successfully (log removed to reduce noise)
                 } else {
                   // Send a placeholder response when no price is available
                   socket.send(JSON.stringify({
@@ -140,7 +136,7 @@ export default async function wsPlugin(app: FastifyInstance) {
                     change24h: 0,
                     timestamp: Date.now()
                   }));
-                  console.log(`⚠️ No cached price available for ${data.mint}`);
+                  // No cached price (log removed to reduce noise)
                 }
               }).catch(err => {
                 console.error(`❌ Failed to get price for ${data.mint}:`, err);
@@ -156,7 +152,6 @@ export default async function wsPlugin(app: FastifyInstance) {
             }
 
             // Subscribe to real-time price updates for this token using manual subscription
-            console.log(`🔌 Setting up subscription for ${data.mint}`);
             const unsubscribe = priceService.subscribe((tick) => {
               if (tick.mint === data.mint && subscribedTokens.has(data.mint)) {
                 try {
@@ -178,7 +173,6 @@ export default async function wsPlugin(app: FastifyInstance) {
 
           } else if (data.type === "unsubscribe" && data.mint) {
             subscribedTokens.delete(data.mint);
-            console.log(`📡 Unsubscribed from ${data.mint}`);
 
             // Remove price service subscription
             const unsubscribe = priceSubscriptions.get(data.mint);
@@ -195,8 +189,7 @@ export default async function wsPlugin(app: FastifyInstance) {
               console.error("❌ Failed to send pong:", err);
             }
           } else if (data.type === "pong") {
-            // Client responded to our ping - connection is healthy
-            console.log("💓 Received pong from client - connection healthy");
+            // Client responded to our ping - connection is healthy (log removed to reduce noise)
           }
         } catch (error) {
           console.error("❌ Error parsing message:", error);
