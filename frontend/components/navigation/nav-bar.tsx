@@ -245,10 +245,13 @@ export function NavBar() {
         <div className="flex h-16 items-center justify-between">
           {/* Logo and Brand */}
           <div className="flex items-center gap-6">
-            <Link href="/" className="flex items-center">
+            <Link href="/" className="flex items-center gap-2">
               <span className="font-bold text-xl">
                 <span className="hidden sm:inline">Virtual<span className="text-primary">Sol</span></span>
                 <span className="sm:hidden text-primary">vSOL</span>
+              </span>
+              <span className="hidden sm:inline text-[10px] text-muted-foreground font-normal">
+                Powered by @heliuslabs
               </span>
             </Link>
 
