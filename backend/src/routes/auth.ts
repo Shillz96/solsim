@@ -85,7 +85,7 @@ export default async function (app: FastifyInstance) {
           passwordHash: hash,
           handle: handle || null,
           profileImage: profileImage || null,
-          virtualSolBalance: 10,
+          virtualSolBalance: 100,
           userTier: 'EMAIL_USER',
           emailVerified: false,
           emailVerificationToken: verificationToken,
@@ -264,7 +264,7 @@ export default async function (app: FastifyInstance) {
           passwordHash: '',
           walletAddress,
           walletNonce: null,
-          virtualSolBalance: 10,
+          virtualSolBalance: 100,
           userTier: 'WALLET_USER'
         }
       });
