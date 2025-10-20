@@ -253,14 +253,14 @@ export function NavBar() {
                 <Image
                   src={resolvedTheme === 'dark' ? '/helius-dark.svg' : '/helius-light.svg'}
                   alt="Helius"
-                  width={120}
-                  height={37}
+                  width={150}
+                  height={46}
                   priority
-                  className="h-7 w-auto"
+                  className="h-9 w-auto"
                 />
               )}
               {!mounted && (
-                <div className="h-7 w-[120px]" />
+                <div className="h-9 w-[150px]" />
               )}
             </Link>
 
