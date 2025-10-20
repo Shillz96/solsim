@@ -82,13 +82,13 @@ const navigationItems = [
     href: "/rewards",
     icon: Gift,
     description: "Earn points and claim rewards"
-  },
-  {
-    name: "Monitoring",
-    href: "/monitoring",
-    icon: BarChart3,
-    description: "System status and metrics"
   }
+  // {
+  //   name: "Monitoring",
+  //   href: "/monitoring",
+  //   icon: BarChart3,
+  //   description: "System status and metrics"
+  // }
 ]
 
 export function NavBar() {
@@ -230,7 +230,7 @@ export function NavBar() {
 
             {/* Desktop Navigation */}
             <nav className="hidden md:flex items-center space-x-1">
-              {navigationItems.slice(0, 6).map((item) => {
+              {navigationItems.slice(0, 7).map((item) => {
                 const Icon = item.icon
                 const isActive = pathname === item.href
                 
