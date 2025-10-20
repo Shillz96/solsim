@@ -21,7 +21,12 @@ export function connectPrices(onTick: (t: PriceTick) => void, url: string): Clos
   const open = () => {
     if (closed) return;
     
-    console.log(`🔌 Connecting to ${url} (attempt ${tries + 1})`);
+    // Production-safe logging - don't expose URL
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`🔌 Connecting to ${url} (attempt ${tries + 1})`);
+    } else {
+      console.log(`🔌 Connecting to WebSocket (attempt ${tries + 1})`);
+    }
     ws = new WebSocket(url);
     
     ws.onopen = () => {
@@ -32,7 +37,10 @@ export function connectPrices(onTick: (t: PriceTick) => void, url: string): Clos
       heartbeat = setInterval(() => {
         if (ws?.readyState === WebSocket.OPEN) {
           ws.send('{"t":"pong"}');
-          console.log('💓 Heartbeat sent');
+          // Heartbeat logging disabled in production for security
+          if (process.env.NODE_ENV === 'development') {
+            console.log('💓 Heartbeat sent');
+          }
         }
       }, 25000); // 25s is safe for most proxies including Railway
     };

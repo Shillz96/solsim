@@ -36,7 +36,7 @@ import { motion } from "framer-motion"
 import { SharePnLDialog } from "@/components/modals/share-pnl-dialog"
 import { memo, useState, useCallback } from "react"
 import { useAuth } from "@/hooks/use-auth"
-import { usePortfolio } from "@/hooks/use-portfolio"
+import { useRealtimePortfolio } from "@/hooks/use-realtime-portfolio"
 import { useQuery } from "@tanstack/react-query"
 import * as Backend from "@/lib/types/backend"
 import * as api from "@/lib/api"
@@ -184,14 +184,15 @@ export function PnLCard() {
   const [shareDialogOpen, setShareDialogOpen] = useState(false);
   const { user, isAuthenticated } = useAuth();
 
-  // Use centralized portfolio hook
+  // Use real-time portfolio hook with WebSocket prices
   const {
     data: portfolio,
     isLoading,
     error,
     refetch,
-    isRefetching
-  } = usePortfolio();
+    isRefetching,
+    isLiveUpdating
+  } = useRealtimePortfolio();
 
   // Fetch user profile for share dialog
   const { data: userProfile } = useQuery({
@@ -293,7 +294,15 @@ export function PnLCard() {
                 )} />
               </div>
               <div>
-                <h3 className="text-lg font-semibold">Profit & Loss</h3>
+                <div className="flex items-center gap-2">
+                  <h3 className="text-lg font-semibold">Profit & Loss</h3>
+                  {isLiveUpdating && (
+                    <Badge variant="outline" className="gap-1 text-[10px] px-1.5 py-0 h-5 border-green-500/30 text-green-400 bg-green-500/5">
+                      <div className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+                      LIVE
+                    </Badge>
+                  )}
+                </div>
                 <p className="text-sm text-muted-foreground">
                   {totalTrades} trade{totalTrades !== 1 ? 's' : ''} • {winRate.toFixed(1)}% win rate
                 </p>
