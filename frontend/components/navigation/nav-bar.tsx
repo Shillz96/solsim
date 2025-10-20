@@ -190,18 +190,27 @@ export function NavBar() {
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Node
-      const isOutsideSearchInput = searchRef.current && !searchRef.current.contains(target)
-      const isOutsideSearchResults = searchResultsRef.current && !searchResultsRef.current.contains(target)
 
-      // Only close if click is outside both the search input AND the results dropdown
-      if (isOutsideSearchInput && isOutsideSearchResults) {
+      // Check if click is inside search input or search results
+      const isInsideSearchInput = searchRef.current?.contains(target)
+      const isInsideSearchResults = searchResultsRef.current?.contains(target)
+
+      // Only close if click is outside both elements
+      if (!isInsideSearchInput && !isInsideSearchResults) {
         setShowResults(false)
       }
     }
 
     if (showResults) {
-      document.addEventListener('mousedown', handleClickOutside)
-      return () => document.removeEventListener('mousedown', handleClickOutside)
+      // Small delay to prevent immediate closure on the same click that opened results
+      const timeoutId = setTimeout(() => {
+        document.addEventListener('mousedown', handleClickOutside)
+      }, 0)
+
+      return () => {
+        clearTimeout(timeoutId)
+        document.removeEventListener('mousedown', handleClickOutside)
+      }
     }
   }, [showResults])
 
