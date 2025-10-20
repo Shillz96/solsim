@@ -12,7 +12,7 @@ import { usePriceStreamContext } from "@/lib/price-stream-provider"
 interface RealtimeTradeStripProps {
   className?: string
   style?: React.CSSProperties
-  maxTrades?: number
+  maxTrades?: number // Maximum number of trades to display in the strip
 }
 
 export function RealtimeTradeStrip({
