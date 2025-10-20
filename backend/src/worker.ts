@@ -179,15 +179,28 @@ async function startWorker() {
   logger.info("✅ Price service connected");
 
   // Test database connection
-  await prisma.$connect();
-  logger.info("✅ Database connected");
+  try {
+    await prisma.$connect();
+    logger.info("✅ Database connected");
+  } catch (dbError) {
+    const errorMsg = dbError instanceof Error ? dbError.message : String(dbError);
+    logger.error({ error: dbError }, "❌ Database connection failed");
+    throw new Error(`Database connection failed: ${errorMsg}`);
+  }
 
   // Run initial jobs immediately
   logger.info("Running initial jobs...");
-  await Promise.all([
-    prewarmPriceCache(),
-    calculateTrendingScores()
-  ]);
+  try {
+    await Promise.all([
+      prewarmPriceCache(),
+      calculateTrendingScores()
+    ]);
+    logger.info("✅ Initial jobs completed");
+  } catch (jobError) {
+    const errorMsg = jobError instanceof Error ? jobError.message : String(jobError);
+    logger.error({ error: jobError }, "❌ Initial jobs failed");
+    throw new Error(`Initial jobs failed: ${errorMsg}`);
+  }
 
   // Schedule recurring jobs
   logger.info({
@@ -221,6 +234,13 @@ process.on('SIGINT', async () => {
 
 // Start the worker
 startWorker().catch((error) => {
-  logger.error({ error }, "❌ Worker service failed to start");
+  console.error("❌ Worker service failed to start:");
+  console.error("Error message:", error.message);
+  console.error("Error stack:", error.stack);
+  logger.error({
+    message: error.message,
+    stack: error.stack,
+    name: error.name
+  }, "❌ Worker service failed to start");
   process.exit(1);
 });
