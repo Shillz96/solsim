@@ -67,8 +67,8 @@ export function RealtimeTradeStrip({
 
   if (loading) {
     return (
-      <div className={cn("w-full bg-background backdrop-blur-md border-t border-b py-1.5", className)} style={style}>
-        <div className="flex items-center space-x-6 animate-pulse">
+      <div className={cn("w-full bg-background backdrop-blur-md border-t border-b py-2", className)} style={style}>
+        <div className="flex items-center space-x-6 animate-pulse px-2">
           {[...Array(6)].map((_, i) => (
             <div key={i} className="flex items-center space-x-2">
               <div className="w-12 h-3 bg-muted rounded" />
@@ -105,9 +105,9 @@ export function RealtimeTradeStrip({
       )}
       style={style}
     >
-      <div className="flex items-center py-1 px-2 space-x-6 overflow-x-auto scrollbar-none">
+      <div className="flex items-center py-2 px-2 space-x-6 overflow-x-auto scrollbar-none">
         {positions.length === 0 ? (
-          <div className="flex items-center justify-center w-full py-1 text-sm text-muted-foreground">
+          <div className="flex items-center justify-center w-full text-sm text-muted-foreground">
             No open positions
           </div>
         ) : (
