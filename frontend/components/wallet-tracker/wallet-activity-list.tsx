@@ -33,6 +33,17 @@ import { formatUSD, formatNumber } from "@/lib/format"
 import { useIntersectionObserver } from "@/hooks/use-intersection-observer"
 import type { WalletActivity } from "./types"
 
+// Format market cap with K/M suffix
+function formatMarketCap(mc: number): string {
+  if (mc >= 1000000) {
+    return `$${(mc / 1000000).toFixed(2)}M`
+  }
+  if (mc >= 1000) {
+    return `$${(mc / 1000).toFixed(1)}K`
+  }
+  return `$${mc.toFixed(0)}`
+}
+
 interface WalletActivityListProps {
   activities: WalletActivity[]
   isLoading: boolean
@@ -210,12 +221,24 @@ export function WalletActivityList({
                     </div>
                   </Link>
 
-                  {/* USD Amount - RIGHT ALIGNED & PROMINENT */}
-                  <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+                  {/* Trade Size & Market Cap - RIGHT ALIGNED & PROMINENT */}
+                  <div className="flex items-center gap-3 sm:gap-4 flex-shrink-0">
+                    {/* Trade Size (USD Amount) */}
                     {activity.priceUsd && (
-                      <div className="text-right">
+                      <div className="text-right min-w-[80px]">
+                        <div className="text-xs text-muted-foreground mb-0.5">Amount</div>
                         <div className="font-bold text-sm sm:text-base">
                           {formatUSD(parseFloat(activity.priceUsd))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Market Cap - PROMINENT */}
+                    {activity.marketCap && (
+                      <div className="text-right min-w-[80px]">
+                        <div className="text-xs text-muted-foreground mb-0.5">$MC</div>
+                        <div className="font-semibold text-sm sm:text-base text-primary">
+                          {formatMarketCap(parseFloat(activity.marketCap))}
                         </div>
                       </div>
                     )}

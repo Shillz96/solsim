@@ -114,6 +114,23 @@ export class WalletActivityService {
   private readonly USDC_MINT = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v";
   private readonly USDT_MINT = "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB";
 
+  // Minimum filters for quality meme coins
+  private readonly MIN_TRADE_SIZE_USD = 100;
+  private readonly MIN_MARKET_CAP_USD = 10000; // $10K minimum
+  private readonly MAX_MARKET_CAP_USD = 10000000; // $10M max for memes
+
+  // Tokens to exclude (not meme coins)
+  private readonly EXCLUDED_TOKENS = new Set([
+    "So11111111111111111111111111111111111111112", // SOL
+    "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v", // USDC
+    "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB", // USDT
+    "7vfCXTUXx5WJV5JADk17DUJ4ksgau7utNKj4b963voxs", // WETH
+    "mSoLzYCxHdYgdzU16g5QSh3i5K3z3KZK7ytfqcJm7So", // mSOL
+    "7dHbWXmci3dT8UFYWYZweBLXgycu7Y3iL6trKn1Y7ARj", // stSOL
+    "J1toso1uCk3RLmjorhTtrVwY9HJ7X8V9yYac6Y7kGCPn", // jitoSOL
+    "bSo13r4TkiE4KumL71LsHTPpL2euBYLFx6h9HP3piy1", // bSOL
+  ]);
+
   constructor(logger?: FastifyBaseLogger) {
     this.logger = logger;
   }
@@ -157,6 +174,16 @@ export class WalletActivityService {
         const parsedSwap = this.parseSwapActivity(tx);
         if (!parsedSwap) continue;
 
+        // Determine the main token (the non-SOL/USDC/USDT token)
+        const mainTokenMint = this.getMainTokenMint(parsedSwap);
+        if (!mainTokenMint) continue;
+
+        // Skip excluded tokens (stables, wrapped tokens, etc.)
+        if (this.EXCLUDED_TOKENS.has(mainTokenMint)) {
+          this.logger?.debug(`Skipping excluded token: ${mainTokenMint}`);
+          continue;
+        }
+
         // Check if activity already exists
         const existing = await prisma.walletActivity.findUnique({
           where: { signature: tx.signature }
@@ -167,13 +194,41 @@ export class WalletActivityService {
           continue;
         }
 
-        // Get token metadata
+        // Get token metadata with REQUIRED image and market data
         const tokenInMeta = parsedSwap.tokenInMint
           ? await this.getTokenMetadata(parsedSwap.tokenInMint)
           : null;
         const tokenOutMeta = parsedSwap.tokenOutMint
           ? await this.getTokenMetadata(parsedSwap.tokenOutMint)
           : null;
+
+        // Get the main token metadata
+        const mainTokenMeta = mainTokenMint === parsedSwap.tokenInMint ? tokenInMeta : tokenOutMeta;
+
+        // CRITICAL: Skip if no image found for main token
+        if (!mainTokenMeta?.logoURI) {
+          this.logger?.warn(`Skipping ${mainTokenMint} - no image available`);
+          continue;
+        }
+
+        // CRITICAL: Skip if no market cap data
+        if (!mainTokenMeta.marketCap || mainTokenMeta.marketCap < this.MIN_MARKET_CAP_USD) {
+          this.logger?.debug(`Skipping ${mainTokenMint} - market cap too low: ${mainTokenMeta.marketCap}`);
+          continue;
+        }
+
+        // Skip if market cap too high (not a meme coin)
+        if (mainTokenMeta.marketCap > this.MAX_MARKET_CAP_USD) {
+          this.logger?.debug(`Skipping ${mainTokenMint} - market cap too high: ${mainTokenMeta.marketCap}`);
+          continue;
+        }
+
+        // Calculate trade size in USD
+        const tradeUsd = parsedSwap.priceUsd || 0;
+        if (tradeUsd < this.MIN_TRADE_SIZE_USD) {
+          this.logger?.debug(`Skipping small trade: $${tradeUsd}`);
+          continue;
+        }
 
         // Fetch logo URIs with aggressive fallback strategy
         let tokenInLogoURI: string | null = null;
@@ -275,6 +330,25 @@ export class WalletActivityService {
       this.logger?.error(`Failed to sync wallet activities: ${error}`);
       throw error;
     }
+  }
+
+  /**
+   * Get the main token mint from a parsed swap (the non-base token)
+   */
+  private getMainTokenMint(parsedSwap: ParsedSwap): string | null {
+    const baseMints = new Set([this.SOL_MINT, this.USDC_MINT, this.USDT_MINT]);
+
+    // For BUY: tokenOut is the main token
+    if (parsedSwap.type === 'BUY' && parsedSwap.tokenOutMint && !baseMints.has(parsedSwap.tokenOutMint)) {
+      return parsedSwap.tokenOutMint;
+    }
+
+    // For SELL: tokenIn is the main token
+    if (parsedSwap.type === 'SELL' && parsedSwap.tokenInMint && !baseMints.has(parsedSwap.tokenInMint)) {
+      return parsedSwap.tokenInMint;
+    }
+
+    return null;
   }
 
   /**
@@ -498,7 +572,8 @@ export class WalletActivityService {
   }
 
   /**
-   * Get token metadata with logo from multiple sources
+   * Get token metadata with ROBUST image fetching using Helius DAS API + fallbacks
+   * Ensures images are ALWAYS available for meme coins
    */
   private async getTokenMetadata(mint: string): Promise<TokenMetadata | null> {
     // Check cache first
@@ -530,8 +605,66 @@ export class WalletActivityService {
     }
 
     let metadata: TokenMetadata | null = null;
+    let logoURI: string | undefined = undefined;
 
-    // Use DexScreener API for both logo and price data
+    // STEP 1: Try Helius DAS API (best coverage for images)
+    try {
+      const apiKey = process.env.HELIUS_API || process.env.HELIUS_API_KEY;
+      if (apiKey) {
+        const heliusResponse = await fetch(`https://mainnet.helius-rpc.com/?api-key=${apiKey}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            jsonrpc: '2.0',
+            id: 'metadata-fetch',
+            method: 'getAsset',
+            params: {
+              id: mint,
+              options: {
+                showFungible: true
+              }
+            }
+          })
+        });
+
+        if (heliusResponse.ok) {
+          const dasData = await heliusResponse.json();
+          const asset = dasData?.result;
+
+          if (asset) {
+            // Extract comprehensive metadata from DAS
+            const symbol = asset.content?.metadata?.symbol || asset.token_info?.symbol;
+            const name = asset.content?.metadata?.name || asset.token_info?.name;
+
+            // Try multiple image sources in DAS response
+            logoURI = asset.content?.links?.image ||
+                     asset.content?.files?.[0]?.uri ||
+                     asset.content?.json_uri ||
+                     undefined;
+
+            const price = asset.token_info?.price_info?.price_per_token;
+
+            metadata = {
+              symbol: symbol || "Unknown",
+              name: name || "Unknown Token",
+              logoURI,
+              price: price ? parseFloat(price) : undefined,
+              marketCap: undefined, // Will get from DexScreener
+              volume24h: undefined,
+              priceChange24h: undefined
+            };
+
+            if (logoURI) {
+              this.logger?.info(`✓ DAS Logo found for ${mint}: ${logoURI}`);
+            }
+          }
+        }
+      }
+    } catch (error) {
+      this.logger?.warn(`Helius DAS API failed for ${mint}: ${error}`);
+    }
+
+    // STEP 2: Get price/market data from DexScreener (always try this)
     try {
       const response = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${mint}`);
       if (response.ok) {
@@ -539,24 +672,35 @@ export class WalletActivityService {
         if (data.pairs && data.pairs.length > 0) {
           const pair = data.pairs[0];
 
-          // Extract logo from DexScreener info.imageUrl (primary location)
-          const logoURI = pair.info?.imageUrl || null;
+          const dexLogoURI = pair.info?.imageUrl || null;
 
-          // Create metadata from DexScreener
-          metadata = {
-            symbol: pair.baseToken?.symbol || "Unknown",
-            name: pair.baseToken?.name || "Unknown Token",
-            logoURI,
-            price: parseFloat(pair.priceUsd || 0),
-            marketCap: parseFloat(pair.fdv || 0),
-            volume24h: parseFloat(pair.volume?.h24 || 0),
-            priceChange24h: parseFloat(pair.priceChange?.h24 || 0)
-          };
+          // If we don't have metadata from DAS, create from DexScreener
+          if (!metadata) {
+            metadata = {
+              symbol: pair.baseToken?.symbol || "Unknown",
+              name: pair.baseToken?.name || "Unknown Token",
+              logoURI: dexLogoURI,
+              price: parseFloat(pair.priceUsd || 0),
+              marketCap: parseFloat(pair.fdv || pair.marketCap || 0),
+              volume24h: parseFloat(pair.volume?.h24 || 0),
+              priceChange24h: parseFloat(pair.priceChange?.h24 || 0)
+            };
 
-          if (logoURI) {
-            this.logger?.info(`✓ Logo found for ${mint}: ${logoURI}`);
+            if (dexLogoURI) {
+              this.logger?.info(`✓ DexScreener Logo found for ${mint}: ${dexLogoURI}`);
+            }
           } else {
-            this.logger?.warn(`✗ No logo in DexScreener for ${mint}`);
+            // Enrich existing DAS metadata with DexScreener market data
+            metadata.price = parseFloat(pair.priceUsd || metadata.price || 0);
+            metadata.marketCap = parseFloat(pair.fdv || pair.marketCap || 0);
+            metadata.volume24h = parseFloat(pair.volume?.h24 || 0);
+            metadata.priceChange24h = parseFloat(pair.priceChange?.h24 || 0);
+
+            // Use DexScreener logo if DAS didn't have one
+            if (!metadata.logoURI && dexLogoURI) {
+              metadata.logoURI = dexLogoURI;
+              this.logger?.info(`✓ Fallback DexScreener logo for ${mint}`);
+            }
           }
         } else {
           this.logger?.warn(`✗ No pairs found in DexScreener for ${mint}`);
@@ -566,12 +710,41 @@ export class WalletActivityService {
       this.logger?.error(`DexScreener API failed for ${mint}: ${error}`);
     }
 
+    // STEP 3: Final fallback - check our database
+    if (metadata && !metadata.logoURI) {
+      try {
+        const tokenData = await prisma.token.findUnique({
+          where: { address: mint },
+          select: { logoURI: true, imageUrl: true, symbol: true, name: true }
+        });
+
+        if (tokenData) {
+          metadata.logoURI = tokenData.logoURI || tokenData.imageUrl || undefined;
+          metadata.symbol = metadata.symbol === "Unknown" ? (tokenData.symbol || metadata.symbol) : metadata.symbol;
+          metadata.name = metadata.name === "Unknown Token" ? (tokenData.name || metadata.name) : metadata.name;
+
+          if (metadata.logoURI) {
+            this.logger?.info(`✓ Database logo found for ${mint}`);
+          }
+        }
+      } catch (error) {
+        this.logger?.warn(`Database lookup failed for ${mint}: ${error}`);
+      }
+    }
+
     // Cache result for 5 minutes if we got metadata
     if (metadata) {
       this.tokenCache.set(mint, metadata);
       setTimeout(() => this.tokenCache.delete(mint), 5 * 60 * 1000);
+
+      // Log final result
+      if (metadata.logoURI) {
+        this.logger?.info(`✅ Final metadata for ${mint}: ${metadata.symbol} - Image: YES - MC: $${metadata.marketCap || 'N/A'}`);
+      } else {
+        this.logger?.warn(`⚠️ No image found for ${mint} (${metadata.symbol}) despite all attempts`);
+      }
     } else {
-      this.logger?.warn(`No metadata found for token ${mint}`);
+      this.logger?.warn(`❌ No metadata found for token ${mint}`);
     }
 
     return metadata;
