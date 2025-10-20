@@ -128,6 +128,12 @@ class OptimizedPriceService extends EventEmitter {
   private isReconnecting = false;
   private shouldReconnect = true;
 
+  // Rate limiting for swap-triggered refreshes
+  private lastRefreshTime = new Map<string, number>(); // Track last refresh per token
+  private readonly MIN_REFRESH_INTERVAL = 5000; // 5 seconds minimum between refreshes per token
+  private refreshQueue = new Set<string>(); // Tokens queued for refresh
+  private isProcessingQueue = false;
+
   // DEX programs to monitor via WebSocket (Standard API - FREE!)
   private readonly DEX_PROGRAMS = [
     "675kPX9MHTjS2zt1qfr1NYHuzeLXfQM9H24wFSUt1Mp8", // Raydium V4 (most active)
@@ -391,6 +397,8 @@ class OptimizedPriceService extends EventEmitter {
   /**
    * Trigger immediate price refresh for tokens involved in a swap
    * This is called when we detect real-time swap activity
+   *
+   * CRITICAL: Rate-limited to prevent DexScreener/Jupiter 429 errors
    */
   private triggerPriceRefresh(tokenAddresses: string[]) {
     // Known quote tokens - we don't need to refresh their prices
@@ -403,36 +411,92 @@ class OptimizedPriceService extends EventEmitter {
     // Filter to only target tokens (non-quote tokens)
     const targetTokens = tokenAddresses.filter(addr => !quoteTokens.has(addr));
 
-    // Limit to first 3 tokens to avoid overwhelming APIs
-    const tokensToRefresh = targetTokens.slice(0, 3);
-
-    if (tokensToRefresh.length === 0) {
+    if (targetTokens.length === 0) {
       return; // Only quote tokens involved
     }
 
-    logger.debug({
-      count: tokensToRefresh.length,
-      tokens: tokensToRefresh.map(t => t.slice(0, 8))
-    }, "Triggering price refresh from swap signal");
+    const now = Date.now();
 
-    // Trigger async price refresh for each token (non-blocking)
-    tokensToRefresh.forEach(mint => {
-      this.fetchTokenPrice(mint)
-        .then(tick => {
+    // Add tokens to queue with rate limiting
+    for (const mint of targetTokens) {
+      const lastRefresh = this.lastRefreshTime.get(mint) || 0;
+      const timeSinceRefresh = now - lastRefresh;
+
+      // Skip if refreshed recently (within MIN_REFRESH_INTERVAL)
+      if (timeSinceRefresh < this.MIN_REFRESH_INTERVAL) {
+        logger.debug({
+          mint: mint.slice(0, 8),
+          timeSinceRefresh: Math.round(timeSinceRefresh / 1000)
+        }, "Skipping swap-triggered refresh (too recent)");
+        continue;
+      }
+
+      // Add to queue for processing
+      this.refreshQueue.add(mint);
+    }
+
+    // Process queue with rate limiting
+    this.processRefreshQueue();
+  }
+
+  /**
+   * Process refresh queue with strict rate limiting
+   * Processes 1 token per second to respect API rate limits
+   */
+  private async processRefreshQueue() {
+    // Prevent concurrent queue processing
+    if (this.isProcessingQueue || this.refreshQueue.size === 0) {
+      return;
+    }
+
+    this.isProcessingQueue = true;
+
+    try {
+      const tokensToProcess = Array.from(this.refreshQueue).slice(0, 1); // Process 1 at a time
+
+      for (const mint of tokensToProcess) {
+        this.refreshQueue.delete(mint);
+        this.lastRefreshTime.set(mint, Date.now());
+
+        logger.debug({
+          mint: mint.slice(0, 8),
+          queueRemaining: this.refreshQueue.size
+        }, "Processing swap-triggered refresh");
+
+        try {
+          const tick = await this.fetchTokenPrice(mint);
           if (tick) {
-            this.updatePrice(tick);
+            await this.updatePrice(tick);
             logger.info({
               mint: mint.slice(0, 8),
               price: tick.priceUsd.toFixed(6),
               source: tick.source
             }, "Price refreshed from swap signal");
           }
-        })
-        .catch(err => {
-          // Silent fail - this is a bonus feature, shouldn't cause errors
+        } catch (err) {
           logger.debug({ mint: mint.slice(0, 8), error: err }, "Swap-triggered refresh failed");
-        });
-    });
+        }
+
+        // Wait 1 second between refreshes to respect rate limits
+        if (this.refreshQueue.size > 0) {
+          await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+      }
+
+      // Continue processing if queue has more items
+      if (this.refreshQueue.size > 0) {
+        setTimeout(() => {
+          this.isProcessingQueue = false;
+          this.processRefreshQueue();
+        }, 1000);
+      } else {
+        this.isProcessingQueue = false;
+      }
+
+    } catch (error) {
+      logger.error({ error }, "Error processing refresh queue");
+      this.isProcessingQueue = false;
+    }
   }
 
   private reconnect() {
