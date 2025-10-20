@@ -105,7 +105,7 @@ export function RealtimeTradeStrip({
       )}
       style={style}
     >
-      <div className="flex items-center py-2 px-2 space-x-6 overflow-x-auto scrollbar-none">
+      <div className="flex items-center py-1 px-2 space-x-6 overflow-x-auto scrollbar-none">
         {positions.length === 0 ? (
           <div className="flex items-center justify-center w-full py-1 text-sm text-muted-foreground">
             No open positions
@@ -137,15 +137,12 @@ export function RealtimeTradeStrip({
                 </span>
 
                 <span className={cn(
-                  "text-xs font-medium px-2 py-1 rounded flex items-center gap-1",
+                  "text-xs font-medium px-2 py-0.5 rounded",
                   isProfit
                     ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300"
                     : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300"
                 )}>
-                  <span>{isProfit ? '+' : ''}{formatUSD(pnl.unrealizedUsd)}</span>
-                  <span className="text-[10px]">
-                    ({isProfit ? '+' : ''}{pnl.unrealizedPercent.toFixed(2)}%)
-                  </span>
+                  {isProfit ? '+' : ''}{formatUSD(pnl.unrealizedUsd)}
                 </span>
               </button>
             )
