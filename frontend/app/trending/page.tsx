@@ -135,29 +135,32 @@ export default function TrendingPage() {
     )
   }
 
-  // Helper function to get rank badge styling
+  // Helper function to get rank badge styling - Professional minimalist design
   const getRankBadge = (rank: number) => {
     switch (rank) {
       case 1:
         return {
-          bg: "bg-gradient-to-r from-yellow-400 to-yellow-600",
-          text: "text-white",
-          glow: "shadow-lg shadow-yellow-500/50",
-          icon: "🥇"
+          bg: "bg-gradient-to-br from-amber-400 via-yellow-500 to-amber-600",
+          text: "text-amber-950",
+          border: "border-2 border-amber-300/50",
+          shadow: "shadow-[0_0_20px_rgba(251,191,36,0.3)]",
+          ring: "ring-2 ring-amber-400/20 ring-offset-2 ring-offset-background"
         }
       case 2:
         return {
-          bg: "bg-gradient-to-r from-gray-300 to-gray-500",
-          text: "text-white",
-          glow: "shadow-lg shadow-gray-400/50",
-          icon: "🥈"
+          bg: "bg-gradient-to-br from-slate-300 via-gray-400 to-slate-500",
+          text: "text-slate-900",
+          border: "border-2 border-slate-200/50",
+          shadow: "shadow-[0_0_20px_rgba(148,163,184,0.3)]",
+          ring: "ring-2 ring-slate-300/20 ring-offset-2 ring-offset-background"
         }
       case 3:
         return {
-          bg: "bg-gradient-to-r from-orange-400 to-orange-600",
-          text: "text-white",
-          glow: "shadow-lg shadow-orange-500/50",
-          icon: "🥉"
+          bg: "bg-gradient-to-br from-orange-400 via-amber-500 to-orange-600",
+          text: "text-orange-950",
+          border: "border-2 border-orange-300/50",
+          shadow: "shadow-[0_0_20px_rgba(251,146,60,0.3)]",
+          ring: "ring-2 ring-orange-400/20 ring-offset-2 ring-offset-background"
         }
       default:
         return null
@@ -348,7 +351,7 @@ export default function TrendingPage() {
                           boxShadow: isHovered ? '0 8px 16px rgba(0, 0, 0, 0.15)' : 'none',
                         }}
                       >
-                        {/* Glassmorphism hover effect */}
+                        {/* Subtle elegant hover effect */}
                         <td
                           colSpan={8}
                           className="absolute inset-0 pointer-events-none"
@@ -356,11 +359,11 @@ export default function TrendingPage() {
                           <div
                             className={`absolute inset-0 transition-all duration-300 ${
                               isHovered
-                                ? 'bg-gradient-to-r from-primary/5 via-primary/10 to-primary/5 backdrop-blur-sm'
+                                ? 'bg-gradient-to-r from-primary/[0.02] via-primary/[0.04] to-primary/[0.02]'
                                 : 'bg-transparent'
                             }`}
                             style={{
-                              borderLeft: isHovered ? '2px solid rgba(var(--primary), 0.3)' : 'none',
+                              borderLeft: isHovered ? '3px solid hsl(var(--primary) / 0.4)' : 'none',
                             }}
                           />
                         </td>
@@ -368,9 +371,13 @@ export default function TrendingPage() {
                         {/* Rank */}
                         <td className="p-5 relative z-10">
                           {rankBadge ? (
-                            <div className={`inline-flex items-center justify-center w-8 h-8 rounded-full ${rankBadge.bg} ${rankBadge.text} ${rankBadge.glow} font-bold text-sm`}>
-                              {rankBadge.icon}
-                            </div>
+                            <motion.div
+                              className={`inline-flex items-center justify-center w-9 h-9 rounded-lg ${rankBadge.bg} ${rankBadge.text} ${rankBadge.border} ${rankBadge.shadow} ${rankBadge.ring} font-bold text-base transition-all duration-300`}
+                              whileHover={{ scale: 1.1, rotate: 5 }}
+                              transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                            >
+                              {index + 1}
+                            </motion.div>
                           ) : (
                             <span className="text-sm font-medium text-muted-foreground">{index + 1}</span>
                           )}
