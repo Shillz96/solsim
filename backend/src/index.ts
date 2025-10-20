@@ -32,7 +32,8 @@ import perpRoutes from "./routes/perpRoutes.js";
 import wsPlugin from "./plugins/ws.js";
 import wsTestPlugin from "./plugins/wsTest.js";
 import wsWalletTrackerPlugin from "./plugins/wsWalletTracker.js";
-import priceService from "./plugins/priceService.js";
+// import priceService from "./plugins/priceService.js"; // Old service
+import priceService from "./plugins/priceService-optimized.js"; // Optimized with WebSocket monitoring
 import { generalRateLimit } from "./plugins/rateLimiting.js";
 import { NonceCleanupService } from "./plugins/nonce.js";
 import { RateLimitCleanupService } from "./plugins/rateLimiting.js";
