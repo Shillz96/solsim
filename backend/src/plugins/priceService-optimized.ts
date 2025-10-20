@@ -69,20 +69,36 @@ class LRUCache<K, V> {
   forEach(callback: (value: V, key: K) => void): void {
     this.cache.forEach((value, key) => callback(value, key));
   }
+
+  clear(): void {
+    this.cache.clear();
+  }
 }
 
-// Circuit breaker for external API calls
+// Negative cache entry (for tokens that don't exist)
+interface NegativeCacheEntry {
+  timestamp: number;
+  reason: string; // '404', '204', 'no-data', etc.
+}
+
+// Circuit breaker for external API calls (improved to handle expected failures)
 class CircuitBreaker {
   private failureCount = 0;
   private lastFailureTime = 0;
   private state: 'CLOSED' | 'OPEN' | 'HALF_OPEN' = 'CLOSED';
   private readonly threshold = 5;
   private readonly timeout = 60000;
+  private readonly name: string;
+
+  constructor(name: string = 'unknown') {
+    this.name = name;
+  }
 
   async execute<T>(fn: () => Promise<T>): Promise<T | null> {
     if (this.state === 'OPEN') {
       if (Date.now() - this.lastFailureTime > this.timeout) {
         this.state = 'HALF_OPEN';
+        logger.info({ breaker: this.name }, 'Circuit breaker entering HALF_OPEN state');
       } else {
         throw new Error('Circuit breaker is OPEN');
       }
@@ -93,18 +109,44 @@ class CircuitBreaker {
       if (this.state === 'HALF_OPEN') {
         this.state = 'CLOSED';
         this.failureCount = 0;
+        logger.info({ breaker: this.name }, 'Circuit breaker returned to CLOSED state');
       }
       return result;
-    } catch (error) {
+    } catch (error: any) {
+      // Don't count expected "not found" responses as failures
+      const isExpectedFailure =
+        error.message?.includes('404') ||
+        error.message?.includes('204') ||
+        error.message?.includes('No Content') ||
+        error.message?.includes('Not Found') ||
+        error.message?.includes('Token not found');
+
+      if (isExpectedFailure) {
+        logger.debug({ breaker: this.name, error: error.message }, 'Expected failure - not counting toward circuit breaker');
+        throw error;
+      }
+
+      // Count only unexpected failures
       this.failureCount++;
       this.lastFailureTime = Date.now();
 
       if (this.failureCount >= this.threshold) {
         this.state = 'OPEN';
-        logger.error('Circuit breaker opened after 5 failures');
+        logger.error({ breaker: this.name }, 'Circuit breaker opened after 5 unexpected failures');
       }
       throw error;
     }
+  }
+
+  getState(): string {
+    return this.state;
+  }
+
+  reset(): void {
+    this.state = 'CLOSED';
+    this.failureCount = 0;
+    this.lastFailureTime = 0;
+    logger.info({ breaker: this.name }, 'Circuit breaker manually reset');
   }
 }
 
@@ -112,13 +154,17 @@ class CircuitBreaker {
  * Optimized Price Service using Standard WebSockets (free on Developer plan!)
  */
 class OptimizedPriceService extends EventEmitter {
-  private priceCache = new LRUCache<string, PriceTick>(2000); // Larger cache for better hit rate
+  private priceCache = new LRUCache<string, PriceTick>(5000); // Increased from 2000 to 5000 for better hit rate
+  private negativeCache = new LRUCache<string, NegativeCacheEntry>(2000); // Cache for tokens that don't exist
   private solPriceUsd = 100;
   private ws: WebSocket | null = null;
   private pingInterval: NodeJS.Timeout | null = null;
   private updateIntervals: NodeJS.Timeout[] = [];
-  private dexScreenerBreaker = new CircuitBreaker();
-  private jupiterBreaker = new CircuitBreaker();
+  private dexScreenerBreaker = new CircuitBreaker('DexScreener');
+  private jupiterBreaker = new CircuitBreaker('Jupiter');
+
+  // Request coalescing to prevent duplicate concurrent requests
+  private pendingRequests = new Map<string, Promise<PriceTick | null>>();
 
   // WebSocket reconnection
   private reconnectAttempts = 0;
@@ -566,9 +612,165 @@ class OptimizedPriceService extends EventEmitter {
     }
   }
 
+  /**
+   * Batch fetch token prices from DexScreener (up to 30 tokens at once)
+   * This reduces API calls by ~30x compared to individual requests
+   */
+  async fetchTokenPricesBatch(mints: string[]): Promise<Map<string, PriceTick>> {
+    const result = new Map<string, PriceTick>();
+
+    if (mints.length === 0) return result;
+
+    // DexScreener supports up to 30 tokens per request
+    const BATCH_SIZE = 30;
+    const batches: string[][] = [];
+
+    for (let i = 0; i < mints.length; i += BATCH_SIZE) {
+      batches.push(mints.slice(i, i + BATCH_SIZE));
+    }
+
+    for (const batch of batches) {
+      try {
+        const dexResult = await this.dexScreenerBreaker.execute(async () => {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s for batch
+
+          try {
+            // Use DexScreener batch endpoint: /tokens/v1/{chainId}/{addresses}
+            const addressesParam = batch.join(',');
+            const response = await fetch(
+              `https://api.dexscreener.com/tokens/v1/solana/${addressesParam}`,
+              {
+                signal: controller.signal,
+                headers: {
+                  'Accept': 'application/json',
+                  'User-Agent': 'VirtualSol/1.0'
+                }
+              }
+            );
+            clearTimeout(timeoutId);
+
+            if (!response.ok) {
+              if (response.status === 429) {
+                logger.warn({ batchSize: batch.length }, "DexScreener batch rate limit hit");
+                throw new Error('Rate limited');
+              }
+              throw new Error(`HTTP ${response.status}`);
+            }
+
+            const data = await response.json();
+
+            // Process pairs from batch response
+            if (data.pairs && Array.isArray(data.pairs)) {
+              // Group pairs by token address
+              const pairsByToken = new Map<string, any[]>();
+
+              for (const pair of data.pairs) {
+                const baseAddress = pair.baseToken?.address;
+                if (!baseAddress) continue;
+
+                if (!pairsByToken.has(baseAddress)) {
+                  pairsByToken.set(baseAddress, []);
+                }
+                pairsByToken.get(baseAddress)!.push(pair);
+              }
+
+              // Create PriceTick for each token (use highest liquidity pair)
+              for (const [mint, pairs] of pairsByToken.entries()) {
+                const sortedPairs = pairs.sort((a: any, b: any) => {
+                  const liqA = parseFloat(a.liquidity?.usd || "0");
+                  const liqB = parseFloat(b.liquidity?.usd || "0");
+                  return liqB - liqA;
+                });
+
+                const pair = sortedPairs[0];
+                const priceUsd = parseFloat(pair.priceUsd || "0");
+
+                if (priceUsd > 0) {
+                  const tick: PriceTick = {
+                    mint,
+                    priceUsd,
+                    priceSol: priceUsd / this.solPriceUsd,
+                    solUsd: this.solPriceUsd,
+                    timestamp: Date.now(),
+                    source: "dexscreener-batch",
+                    change24h: parseFloat(pair.priceChange?.h24 || "0"),
+                    volume: parseFloat(pair.volume?.h24 || "0"),
+                    marketCapUsd: parseFloat(pair.marketCap || "0")
+                  };
+                  result.set(mint, tick);
+                }
+              }
+            }
+
+            return result;
+          } catch (err) {
+            clearTimeout(timeoutId);
+            throw err;
+          }
+        });
+
+        if (dexResult) {
+          // Merge batch results
+          for (const [mint, tick] of dexResult.entries()) {
+            result.set(mint, tick);
+          }
+        }
+      } catch (error: any) {
+        if (error.message !== 'Circuit breaker is OPEN') {
+          logger.warn({ batchSize: batch.length, error: error.message }, "DexScreener batch fetch failed");
+        }
+      }
+
+      // Small delay between batches to respect rate limits (300 req/min = 5 req/s)
+      if (batches.length > 1) {
+        await new Promise(resolve => setTimeout(resolve, 250));
+      }
+    }
+
+    logger.info({ requested: mints.length, found: result.size }, "Batch price fetch completed");
+    return result;
+  }
+
   async fetchTokenPrice(mint: string): Promise<PriceTick | null> {
     logger.debug({ mint }, "Fetching price for token");
 
+    // Check negative cache first (tokens we know don't exist)
+    const negativeCacheEntry = this.negativeCache.get(mint);
+    if (negativeCacheEntry) {
+      const age = Date.now() - negativeCacheEntry.timestamp;
+      const NEGATIVE_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
+      if (age < NEGATIVE_CACHE_TTL) {
+        logger.debug({ mint, reason: negativeCacheEntry.reason, age: Math.round(age / 1000) }, "Token in negative cache");
+        return null;
+      } else {
+        // Expired, remove from cache
+        this.negativeCache.set(mint, { timestamp: 0, reason: '' }); // Clear by setting invalid entry
+      }
+    }
+
+    // Request coalescing - check if already fetching this token
+    const pending = this.pendingRequests.get(mint);
+    if (pending) {
+      logger.debug({ mint }, "Coalescing concurrent request");
+      return pending;
+    }
+
+    // Create promise and store in pending map
+    const fetchPromise = this._fetchTokenPriceInternal(mint);
+    this.pendingRequests.set(mint, fetchPromise);
+
+    try {
+      const result = await fetchPromise;
+      return result;
+    } finally {
+      // Clean up pending request
+      this.pendingRequests.delete(mint);
+    }
+  }
+
+  private async _fetchTokenPriceInternal(mint: string): Promise<PriceTick | null> {
     // Try DexScreener first (best for SPL tokens)
     try {
       const dexResult = await this.dexScreenerBreaker.execute(async () => {
@@ -727,7 +929,13 @@ class OptimizedPriceService extends EventEmitter {
       logger.debug({ mint, error: error.message }, "Pump.fun fetch failed");
     }
 
-    logger.debug({ mint }, "No price found from any source");
+    // No price found from any source - add to negative cache
+    logger.debug({ mint }, "No price found from any source - adding to negative cache");
+    this.negativeCache.set(mint, {
+      timestamp: Date.now(),
+      reason: 'not-found'
+    });
+
     return null;
   }
 
@@ -879,18 +1087,54 @@ class OptimizedPriceService extends EventEmitter {
     const stillToFetch = toFetch.filter(mint => mint !== '');
 
     if (stillToFetch.length > 0) {
-      const BATCH_SIZE = 5;
-      for (let i = 0; i < stillToFetch.length; i += BATCH_SIZE) {
-        const batch = stillToFetch.slice(i, i + BATCH_SIZE);
-        const fetchPromises = batch.map(mint => this.fetchTokenPrice(mint));
-        const ticks = await Promise.allSettled(fetchPromises);
+      // Use batch fetching if we have multiple tokens (much more efficient!)
+      if (stillToFetch.length >= 3) {
+        logger.debug({ count: stillToFetch.length }, "Using batch fetch for multiple tokens");
 
-        for (let j = 0; j < batch.length; j++) {
-          const tickResult = ticks[j];
-          if (tickResult.status === 'fulfilled' && tickResult.value) {
-            const tick = tickResult.value;
+        try {
+          const batchResults = await this.fetchTokenPricesBatch(stillToFetch);
+
+          for (const [mint, tick] of batchResults.entries()) {
             await this.updatePrice(tick);
-            result.set(batch[j], tick);
+            result.set(mint, tick);
+          }
+
+          // For tokens not found in batch, add to negative cache
+          for (const mint of stillToFetch) {
+            if (!batchResults.has(mint)) {
+              this.negativeCache.set(mint, {
+                timestamp: Date.now(),
+                reason: 'batch-not-found'
+              });
+            }
+          }
+        } catch (error) {
+          logger.warn({ count: stillToFetch.length, error }, "Batch fetch failed, falling back to individual");
+
+          // Fallback to individual fetching
+          for (const mint of stillToFetch) {
+            try {
+              const tick = await this.fetchTokenPrice(mint);
+              if (tick) {
+                await this.updatePrice(tick);
+                result.set(mint, tick);
+              }
+            } catch (err) {
+              logger.debug({ mint, error: err }, "Individual fetch failed in fallback");
+            }
+          }
+        }
+      } else {
+        // For small batches (< 3 tokens), use individual fetching
+        for (const mint of stillToFetch) {
+          try {
+            const tick = await this.fetchTokenPrice(mint);
+            if (tick) {
+              await this.updatePrice(tick);
+              result.set(mint, tick);
+            }
+          } catch (err) {
+            logger.debug({ mint, error: err }, "Individual fetch failed");
           }
         }
       }
@@ -947,10 +1191,16 @@ class OptimizedPriceService extends EventEmitter {
     return {
       solPrice: this.solPriceUsd,
       cachedPrices: this.priceCache.size,
+      negativeCached: this.negativeCache.size,
+      pendingRequests: this.pendingRequests.size,
       priceSubscribers: this.listenerCount('price'),
       wsConnected: this.ws?.readyState === WebSocket.OPEN,
       reconnectAttempts: this.reconnectAttempts,
-      plan: "Developer (optimized)",
+      circuitBreakers: {
+        dexscreener: this.dexScreenerBreaker.getState(),
+        jupiter: this.jupiterBreaker.getState()
+      },
+      plan: "Developer (optimized v2)",
       lastUpdate: Date.now()
     };
   }
