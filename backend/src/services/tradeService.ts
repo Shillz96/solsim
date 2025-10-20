@@ -424,18 +424,20 @@ async function calculatePortfolioTotals(userId: string) {
 
     // If price is missing from batch fetch, try individual fetch with retries
     if (currentPrice.eq(0)) {
-      console.warn(`[Portfolio] Price not in batch cache for ${pos.mint}, fetching individually...`);
+      // Silent retry - don't log to reduce noise
       try {
         const individualPrice = await priceService.getPrice(pos.mint);
         if (individualPrice && individualPrice > 0) {
           currentPrice = D(individualPrice);
-          console.log(`[Portfolio] Successfully fetched price for ${pos.mint}: $${currentPrice.toString()}`);
         } else {
-          console.warn(`[Portfolio] No price data available for position ${pos.mint}, skipping...`);
+          // Skip positions with no price data
           continue;
         }
       } catch (err) {
-        console.error(`[Portfolio] Failed to fetch price for ${pos.mint}:`, err);
+        // Only log unexpected errors
+        if (!err.message?.includes('aborted') && !err.message?.includes('404')) {
+          console.error(`[Portfolio] Unexpected error for ${pos.mint.slice(0, 8)}:`, err);
+        }
         continue;
       }
     }

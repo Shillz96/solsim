@@ -141,19 +141,18 @@ async function calculatePortfolioData(userId: string, positions: any[]): Promise
     // If price is missing from batch fetch, try individual fetch with retries
     // This is critical for new tokens that may not be in the batch cache yet
     if (currentPrice.eq(0)) {
-      console.warn(`[Portfolio] Price not in batch cache for ${position.mint}, fetching individually...`);
+      // Silent retry - don't log to reduce noise (price service handles logging)
       try {
         const individualPrice = await priceService.getPrice(position.mint);
         if (individualPrice && individualPrice > 0) {
           currentPrice = D(individualPrice);
-          console.log(`[Portfolio] Successfully fetched price for ${position.mint}: $${currentPrice.toString()}`);
-        } else {
-          console.warn(`[Portfolio] No price data available for position ${position.mint}, using 0`);
-          // Don't skip - still show the position with 0 value
         }
+        // If still 0, it's cached in negative cache - no need to log
       } catch (err) {
-        console.error(`[Portfolio] Failed to fetch price for ${position.mint}:`, err);
-        // Don't skip - still show the position with 0 value
+        // Only log unexpected errors
+        if (!err.message?.includes('aborted') && !err.message?.includes('404')) {
+          console.error(`[Portfolio] Unexpected error fetching price for ${position.mint.slice(0, 8)}:`, err);
+        }
       }
     }
 
