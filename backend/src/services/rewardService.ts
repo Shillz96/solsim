@@ -5,14 +5,46 @@ import { Connection, Keypair, PublicKey, SystemProgram, Transaction } from "@sol
 import { createTransferInstruction, getAssociatedTokenAddress, TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import bs58 from "bs58";
 
-// Optional reward system configuration - disabled for now
-const SIM_MINT: PublicKey | null = null;
-const REWARDS_WALLET: Keypair | null = null;
-const RPC_URL = process.env.SOLANA_RPC || "https://api.mainnet-beta.solana.com";
+// Initialize reward system configuration from environment variables
+let SIM_MINT: PublicKey | null = null;
+let REWARDS_WALLET: Keypair | null = null;
+
+// Initialize from environment variables
+try {
+  if (process.env.VSOL_TOKEN_MINT) {
+    SIM_MINT = new PublicKey(process.env.VSOL_TOKEN_MINT);
+    console.log('✅ VSOL Token Mint configured:', SIM_MINT.toBase58());
+  } else {
+    console.warn('⚠️  VSOL_TOKEN_MINT not configured - reward claiming disabled');
+  }
+
+  if (process.env.REWARDS_WALLET_SECRET) {
+    const secretKeyArray = JSON.parse(process.env.REWARDS_WALLET_SECRET);
+    REWARDS_WALLET = Keypair.fromSecretKey(Uint8Array.from(secretKeyArray));
+    console.log('✅ Rewards Wallet configured:', REWARDS_WALLET.publicKey.toBase58());
+  } else {
+    console.warn('⚠️  REWARDS_WALLET_SECRET not configured - reward claiming disabled');
+  }
+
+  // Validate both are set together
+  if ((SIM_MINT && !REWARDS_WALLET) || (!SIM_MINT && REWARDS_WALLET)) {
+    console.error('❌ Both VSOL_TOKEN_MINT and REWARDS_WALLET_SECRET must be configured together');
+    SIM_MINT = null;
+    REWARDS_WALLET = null;
+  }
+} catch (error) {
+  console.error('❌ Failed to initialize reward system:', error);
+  SIM_MINT = null;
+  REWARDS_WALLET = null;
+}
+
+const RPC_URL = process.env.HELIUS_RPC_URL || process.env.SOLANA_RPC || "https://api.mainnet-beta.solana.com";
 const connection = new Connection(RPC_URL, "confirmed");
 
-// Note: Reward token distribution is currently disabled
-// To enable: Set VSOL_TOKEN_MINT and REWARDS_WALLET_SECRET environment variables
+// Check if reward system is enabled
+export function isRewardSystemEnabled(): boolean {
+  return SIM_MINT !== null && REWARDS_WALLET !== null;
+}
 
 // --- 1. Add points whenever a trade is made ---
 export async function addTradePoints(userId: string, tradeVolumeUsd: Decimal) {
