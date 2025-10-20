@@ -1,7 +1,9 @@
 "use client"
 
 import Link from "next/link"
+import Image from "next/image"
 import { usePathname } from "next/navigation"
+import { useTheme } from "next-themes"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -97,7 +99,8 @@ export function NavBar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const pathname = usePathname()
   const router = useRouter()
-  
+  const { theme, resolvedTheme } = useTheme()
+
   // Search functionality state
   const [searchQuery, setSearchQuery] = useState("")
   const [searchResults, setSearchResults] = useState<TokenSearchResult[]>([])
@@ -245,14 +248,20 @@ export function NavBar() {
         <div className="flex h-16 items-center justify-between">
           {/* Logo and Brand */}
           <div className="flex items-center gap-6">
-            <Link href="/" className="flex items-center gap-2">
-              <span className="font-bold text-xl">
-                <span className="hidden sm:inline">Virtual<span className="text-primary">Sol</span></span>
-                <span className="sm:hidden text-primary">vSOL</span>
-              </span>
-              <span className="hidden sm:inline text-[10px] text-muted-foreground font-normal">
-                Powered by @heliuslabs
-              </span>
+            <Link href="/" className="flex items-center">
+              {mounted && (
+                <Image
+                  src={resolvedTheme === 'dark' ? '/helius.svg' : '/helius light mode.svg'}
+                  alt="Helius"
+                  width={120}
+                  height={37}
+                  priority
+                  className="h-7 w-auto"
+                />
+              )}
+              {!mounted && (
+                <div className="h-7 w-[120px]" />
+              )}
             </Link>
 
             {/* Desktop Navigation */}
