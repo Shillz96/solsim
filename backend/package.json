@@ -5,9 +5,12 @@
   "packageManager": "npm@10.2.4",
   "scripts": {
     "dev": "tsx src/index.ts",
+    "dev:worker": "tsx src/worker.ts",
     "build": "npx prisma generate && tsc",
     "start": "node --max-old-space-size=6144 dist/index.js",
+    "start:worker": "node --max-old-space-size=2048 dist/worker.js",
     "railway:start": "npx prisma migrate deploy && node --max-old-space-size=6144 dist/index.js",
+    "railway:worker": "npx prisma generate && node --max-old-space-size=2048 dist/worker.js",
     "prisma:setup": "prisma generate && prisma migrate deploy",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate deploy",
