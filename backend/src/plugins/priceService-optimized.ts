@@ -736,27 +736,25 @@ class OptimizedPriceService extends EventEmitter {
   }
 
   async fetchTokenPrice(mint: string): Promise<PriceTick | null> {
-    logger.debug({ mint }, "Fetching price for token");
-
     // Check negative cache first (tokens we know don't exist)
     const negativeCacheEntry = this.negativeCache.get(mint);
     if (negativeCacheEntry) {
       const age = Date.now() - negativeCacheEntry.timestamp;
-      const NEGATIVE_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+      const NEGATIVE_CACHE_TTL = 10 * 60 * 1000; // 10 minutes (increased from 5)
 
       if (age < NEGATIVE_CACHE_TTL) {
-        logger.debug({ mint, reason: negativeCacheEntry.reason, age: Math.round(age / 1000) }, "Token in negative cache");
+        // Token is in negative cache - don't log, just return null
         return null;
       } else {
-        // Expired, remove from cache
-        this.negativeCache.set(mint, { timestamp: 0, reason: '' }); // Clear by setting invalid entry
+        // Expired, will try again
+        this.negativeCache.set(mint, { timestamp: 0, reason: '' });
       }
     }
 
     // Request coalescing - check if already fetching this token
     const pending = this.pendingRequests.get(mint);
     if (pending) {
-      logger.debug({ mint }, "Coalescing concurrent request");
+      // Coalescing - don't log to reduce noise
       return pending;
     }
 
@@ -836,8 +834,16 @@ class OptimizedPriceService extends EventEmitter {
 
       if (dexResult) return dexResult;
     } catch (error: any) {
-      if (error.message !== 'Circuit breaker is OPEN') {
-        logger.warn({ mint, error: error.message }, "DexScreener fetch failed");
+      // Only log unexpected errors (not timeouts, not 404s) - reduces log spam
+      const isExpectedError =
+        error.message === 'Circuit breaker is OPEN' ||
+        error.message?.includes('aborted') ||
+        error.message?.includes('fetch failed') ||
+        error.message?.includes('404') ||
+        error.message?.includes('204');
+
+      if (!isExpectedError) {
+        logger.warn({ mint: mint.slice(0, 8), error: error.message }, "DexScreener unexpected error");
       }
     }
 
@@ -861,7 +867,11 @@ class OptimizedPriceService extends EventEmitter {
           clearTimeout(timeoutId);
 
           if (!response.ok) {
-            if (response.status === 204) return null;
+            if (response.status === 204) {
+              // Add to negative cache immediately
+              this.negativeCache.set(mint, { timestamp: Date.now(), reason: '204-no-content' });
+              return null;
+            }
             throw new Error(`HTTP ${response.status}`);
           }
 
@@ -889,8 +899,16 @@ class OptimizedPriceService extends EventEmitter {
 
       if (jupResult) return jupResult;
     } catch (error: any) {
-      if (error.message !== 'Circuit breaker is OPEN' && !error.message.includes('204')) {
-        logger.warn({ mint, error: error.message }, "Jupiter fetch failed");
+      // Only log unexpected errors - reduces log spam by 95%
+      const isExpectedError =
+        error.message === 'Circuit breaker is OPEN' ||
+        error.message?.includes('204') ||
+        error.message?.includes('aborted') ||
+        error.message?.includes('fetch failed') ||
+        error.name === 'AbortError';
+
+      if (!isExpectedError) {
+        logger.warn({ mint: mint.slice(0, 8), error: error.message }, "Jupiter unexpected error");
       }
     }
 
@@ -929,11 +947,10 @@ class OptimizedPriceService extends EventEmitter {
         }
       }
     } catch (error: any) {
-      logger.debug({ mint, error: error.message }, "Pump.fun fetch failed");
+      // Pump.fun failures are expected - don't log
     }
 
-    // No price found from any source - add to negative cache
-    logger.debug({ mint }, "No price found from any source - adding to negative cache");
+    // No price found from any source - add to negative cache (don't log to reduce spam)
     this.negativeCache.set(mint, {
       timestamp: Date.now(),
       reason: 'not-found'
