@@ -359,6 +359,30 @@ async function getTokenMetaUncached(mint: string) {
     }
   }
 
+  // If still no token data, create a minimal entry to prevent repeated lookups
+  if (!token) {
+    try {
+      token = await prisma.token.create({
+        data: {
+          address: mint,
+          symbol: mint.substring(0, 8), // Use truncated address as fallback symbol
+          name: `Unknown Token (${mint.substring(0, 8)}...)`,
+          logoURI: null,
+          lastUpdated: new Date()
+        }
+      });
+
+      // Cache minimal entry for 1 hour to prevent repeated failed lookups
+      try {
+        await redis.setex(`token:meta:${REDIS_TOKEN_META_VERSION}:${mint}`, REDIS_TOKEN_META_TTL, safeStringify(token));
+      } catch (error) {
+        console.warn(`Failed to cache token metadata in Redis:`, error);
+      }
+    } catch (e: any) {
+      console.warn(`Failed to create minimal token entry for ${mint}:`, e.message);
+    }
+  }
+
   return token;
 }
 
@@ -496,17 +520,33 @@ export async function getTokenMetaBatch(mints: string[]) {
 
 // Get comprehensive token information with price data
 export async function getTokenInfo(mint: string) {
-  const [metadata, priceData] = await Promise.all([
-    getTokenMeta(mint),
-    getTokenPriceData(mint)
-  ]);
+  try {
+    const [metadata, priceData] = await Promise.all([
+      getTokenMeta(mint).catch(err => {
+        console.warn(`getTokenMeta failed for ${mint}:`, err.message);
+        return null;
+      }),
+      getTokenPriceData(mint).catch(err => {
+        console.warn(`getTokenPriceData failed for ${mint}:`, err.message);
+        return { lastPrice: null, lastTs: null };
+      })
+    ]);
 
-  return {
-    ...metadata,
-    ...priceData,
-    address: mint,
-    mint // Include both for compatibility
-  };
+    // If metadata is completely missing, return null (token not found)
+    if (!metadata) {
+      return null;
+    }
+
+    return {
+      ...metadata,
+      ...priceData,
+      address: mint,
+      mint // Include both for compatibility
+    };
+  } catch (error: any) {
+    console.error(`getTokenInfo failed for ${mint}:`, error);
+    return null;
+  }
 }
 
 // Get token price data from multiple sources
