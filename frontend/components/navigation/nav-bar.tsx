@@ -104,6 +104,7 @@ export function NavBar() {
   const [isSearching, setIsSearching] = useState(false)
   const [showResults, setShowResults] = useState(false)
   const searchRef = useRef<HTMLDivElement>(null)
+  const searchResultsRef = useRef<HTMLDivElement>(null)
   const abortControllerRef = useRef<AbortController | null>(null)
   const debouncedQuery = useDebounce(searchQuery, 300)
   const [mounted, setMounted] = useState(false)
@@ -188,7 +189,12 @@ export function NavBar() {
   // Close search results when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+      const target = event.target as Node
+      const isOutsideSearchInput = searchRef.current && !searchRef.current.contains(target)
+      const isOutsideSearchResults = searchResultsRef.current && !searchResultsRef.current.contains(target)
+
+      // Only close if click is outside both the search input AND the results dropdown
+      if (isOutsideSearchInput && isOutsideSearchResults) {
         setShowResults(false)
       }
     }
@@ -271,6 +277,7 @@ export function NavBar() {
             {/* Enhanced Search Results - Rendered in Portal */}
             {mounted && showResults && searchResults.length > 0 && searchRef.current && createPortal(
               <motion.div
+                ref={searchResultsRef}
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
