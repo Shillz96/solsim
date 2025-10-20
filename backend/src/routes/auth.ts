@@ -547,6 +547,20 @@ export default async function (app: FastifyInstance) {
         }
       });
 
+      // Invalidate leaderboard cache when profile is updated (handle, displayName, or avatar changed)
+      try {
+        const redis = app.redis;
+        // Delete all leaderboard cache keys (pattern: leaderboard:*)
+        const keys = await redis.keys('leaderboard:*');
+        if (keys.length > 0) {
+          await redis.del(...keys);
+          console.log(`[PROFILE UPDATE] Invalidated ${keys.length} leaderboard cache keys`);
+        }
+      } catch (cacheError) {
+        console.warn('[PROFILE UPDATE] Failed to invalidate leaderboard cache:', cacheError);
+        // Non-critical error, continue
+      }
+
       return {
         success: true,
         user: {
@@ -774,6 +788,18 @@ export default async function (app: FastifyInstance) {
         }
       });
 
+      // Invalidate leaderboard cache when avatar is updated
+      try {
+        const redis = app.redis;
+        const keys = await redis.keys('leaderboard:*');
+        if (keys.length > 0) {
+          await redis.del(...keys);
+          console.log(`[AVATAR UPDATE] Invalidated ${keys.length} leaderboard cache keys`);
+        }
+      } catch (cacheError) {
+        console.warn('[AVATAR UPDATE] Failed to invalidate leaderboard cache:', cacheError);
+      }
+
       return {
         success: true,
         avatarUrl: user.avatarUrl,
@@ -819,6 +845,18 @@ export default async function (app: FastifyInstance) {
           profileImage: null // Sync with profileImage
         }
       });
+
+      // Invalidate leaderboard cache when avatar is removed
+      try {
+        const redis = app.redis;
+        const keys = await redis.keys('leaderboard:*');
+        if (keys.length > 0) {
+          await redis.del(...keys);
+          console.log(`[AVATAR REMOVE] Invalidated ${keys.length} leaderboard cache keys`);
+        }
+      } catch (cacheError) {
+        console.warn('[AVATAR REMOVE] Failed to invalidate leaderboard cache:', cacheError);
+      }
 
       return {
         success: true,

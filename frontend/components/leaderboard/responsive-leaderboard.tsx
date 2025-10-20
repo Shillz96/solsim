@@ -146,14 +146,40 @@ export function ResponsiveLeaderboard({
                     </div>
                   </td>
                   <td className="px-6 py-4">
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium">{entry.handle || 'Anonymous'}</span>
-                      {isCurrentUser && (
-                        <Badge variant="secondary" className="text-xs">
-                          You
-                        </Badge>
-                      )}
-                      {entry.rank! <= 3 && <Sparkles className="h-4 w-4 text-yellow-500" />}
+                    <div className="flex items-center gap-3">
+                      {/* Avatar */}
+                      {entry.avatar || entry.avatarUrl || entry.profileImage ? (
+                        <img
+                          src={entry.avatar || entry.avatarUrl || entry.profileImage || undefined}
+                          alt={entry.handle || entry.displayName || 'User'}
+                          className="w-8 h-8 rounded-full object-cover border border-border"
+                          onError={(e) => {
+                            // Fallback to initials on error
+                            const target = e.target as HTMLImageElement;
+                            target.style.display = 'none';
+                            const fallback = target.nextElementSibling as HTMLElement;
+                            if (fallback) fallback.style.display = 'flex';
+                          }}
+                        />
+                      ) : null}
+                      {/* Fallback initials avatar */}
+                      <div
+                        className={cn(
+                          "w-8 h-8 rounded-full bg-gradient-to-br from-primary to-blue-500 flex items-center justify-center text-white font-bold text-xs border border-border",
+                          (entry.avatar || entry.avatarUrl || entry.profileImage) && "hidden"
+                        )}
+                      >
+                        {(entry.handle?.[0] || entry.displayName?.[0] || 'A').toUpperCase()}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium">{entry.handle || entry.displayName || 'Anonymous'}</span>
+                        {isCurrentUser && (
+                          <Badge variant="secondary" className="text-xs">
+                            You
+                          </Badge>
+                        )}
+                        {entry.rank! <= 3 && <Sparkles className="h-4 w-4 text-yellow-500" />}
+                      </div>
                     </div>
                   </td>
                   <td className="px-6 py-4 text-right">
@@ -216,13 +242,38 @@ export function ResponsiveLeaderboard({
               </div>
 
               <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-2">
-                  <span className="font-medium">{entry.handle || 'Anonymous'}</span>
-                  {isCurrentUser && (
-                    <Badge variant="secondary" className="text-xs">
-                      You
-                    </Badge>
-                  )}
+                <div className="flex items-center gap-3">
+                  {/* Avatar */}
+                  {entry.avatar || entry.avatarUrl || entry.profileImage ? (
+                    <img
+                      src={entry.avatar || entry.avatarUrl || entry.profileImage || undefined}
+                      alt={entry.handle || entry.displayName || 'User'}
+                      className="w-8 h-8 rounded-full object-cover border border-border"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.style.display = 'none';
+                        const fallback = target.nextElementSibling as HTMLElement;
+                        if (fallback) fallback.style.display = 'flex';
+                      }}
+                    />
+                  ) : null}
+                  {/* Fallback initials avatar */}
+                  <div
+                    className={cn(
+                      "w-8 h-8 rounded-full bg-gradient-to-br from-primary to-blue-500 flex items-center justify-center text-white font-bold text-xs border border-border",
+                      (entry.avatar || entry.avatarUrl || entry.profileImage) && "hidden"
+                    )}
+                  >
+                    {(entry.handle?.[0] || entry.displayName?.[0] || 'A').toUpperCase()}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="font-medium">{entry.handle || entry.displayName || 'Anonymous'}</span>
+                    {isCurrentUser && (
+                      <Badge variant="secondary" className="text-xs">
+                        You
+                      </Badge>
+                    )}
+                  </div>
                 </div>
                 <div className="text-right">
                   <UsdWithSol 

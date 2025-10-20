@@ -201,7 +201,8 @@ export function PnLCard() {
       return api.getUserProfile(user.id);
     },
     enabled: !!user?.id,
-    staleTime: 5 * 60 * 1000,
+    staleTime: 30000, // 30 seconds - fresher data for avatar updates
+    refetchOnMount: 'always', // Always refetch when component mounts
   });
 
   const handleRefresh = useCallback(() => {
@@ -414,12 +415,12 @@ export function PnLCard() {
         totalPnLPercent={parseFloat(totalPnLPercent.replace(/[^0-9.-]/g, '')) || 0}
         currentValue={totalValue}
         initialBalance={costBasis}
-        userHandle={(userProfile as any)?.handle || undefined}
+        userHandle={(userProfile as any)?.handle || (userProfile as any)?.username || (userProfile as any)?.displayName || undefined}
         userAvatarUrl={
+          (userProfile as any)?.avatar ||
           (userProfile as any)?.avatarUrl ||
           (userProfile as any)?.profileImage ||
-          (userProfile as any)?.avatar ||
-          `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent((userProfile as any)?.handle || (userProfile as any)?.email || user?.email || 'User')}&backgroundColor=4f46e5`
+          undefined
         }
         userEmail={(userProfile as any)?.email || user?.email || undefined}
       />
