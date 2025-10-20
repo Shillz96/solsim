@@ -100,8 +100,8 @@ async function executeTradeLogic({
 
   // For SELL orders, if no price found, force a fresh fetch (bypass negative cache)
   // This handles cases where token was cached as "not found" but now has liquidity
-  if (!tick && side === 'sell') {
-    logger.warn({ mint: mint.slice(0, 8), side }, "No cached price for SELL order, forcing fresh fetch");
+  if (!tick && side === 'SELL') {
+    console.warn(`No cached price for SELL order (${mint.slice(0, 8)}), forcing fresh fetch`);
     tick = await priceService.fetchTokenPrice(mint);
   }
 
@@ -443,8 +443,9 @@ async function calculatePortfolioTotals(userId: string) {
         }
       } catch (err) {
         // Only log unexpected errors
-        if (!err.message?.includes('aborted') && !err.message?.includes('404')) {
-          console.error(`[Portfolio] Unexpected error for ${pos.mint.slice(0, 8)}:`, err);
+        const error = err as Error;
+        if (!error.message?.includes('aborted') && !error.message?.includes('404')) {
+          console.error(`[Portfolio] Unexpected error for ${pos.mint.slice(0, 8)}:`, error);
         }
         continue;
       }

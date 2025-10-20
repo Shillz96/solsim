@@ -150,8 +150,9 @@ async function calculatePortfolioData(userId: string, positions: any[]): Promise
         // If still 0, it's cached in negative cache - no need to log
       } catch (err) {
         // Only log unexpected errors
-        if (!err.message?.includes('aborted') && !err.message?.includes('404')) {
-          console.error(`[Portfolio] Unexpected error fetching price for ${position.mint.slice(0, 8)}:`, err);
+        const error = err as Error;
+        if (!error.message?.includes('aborted') && !error.message?.includes('404')) {
+          console.error(`[Portfolio] Unexpected error fetching price for ${position.mint.slice(0, 8)}:`, error);
         }
       }
     }
