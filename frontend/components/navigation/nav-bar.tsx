@@ -251,7 +251,7 @@ export function NavBar() {
             <Link href="/" className="flex items-center">
               {mounted && (
                 <Image
-                  src={resolvedTheme === 'dark' ? '/helius.svg' : '/helius light mode.svg'}
+                  src={resolvedTheme === 'dark' ? '/helius-dark.svg' : '/helius-light.svg'}
                   alt="Helius"
                   width={120}
                   height={37}
