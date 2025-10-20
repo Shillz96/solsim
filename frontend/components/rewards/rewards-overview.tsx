@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { useWallet } from '@solana/wallet-adapter-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -27,6 +27,7 @@ export function RewardsOverview() {
   const { user, isAuthenticated } = useAuth()
   const { connected, publicKey } = useWallet()
   const [isClaimingAll, setIsClaimingAll] = useState(false)
+  const [timeUntilNextClaim, setTimeUntilNextClaim] = useState("")
 
   // Get user's reward claims
   const { data: rewardClaims, isLoading: claimsLoading } = useQuery({
@@ -122,32 +123,45 @@ export function RewardsOverview() {
     })
   }
 
-  // Calculate current epoch (weekly)
+  // Calculate current epoch (daily)
   const getCurrentEpoch = () => {
     const now = new Date()
     const startOfYear = new Date(now.getFullYear(), 0, 1)
-    const weekNumber = Math.ceil(((now.getTime() - startOfYear.getTime()) / (1000 * 60 * 60 * 24)) / 7)
-    return weekNumber
+    const dayNumber = Math.ceil((now.getTime() - startOfYear.getTime()) / (1000 * 60 * 60 * 24))
+    return dayNumber
   }
 
-  // Get current week date range for display
-  const getCurrentWeekRange = () => {
+  // Get current day for display
+  const getCurrentDayDisplay = () => {
     const now = new Date()
-    const dayOfWeek = now.getDay()
-    const startOfWeek = new Date(now)
-    startOfWeek.setDate(now.getDate() - dayOfWeek)
-    const endOfWeek = new Date(startOfWeek)
-    endOfWeek.setDate(startOfWeek.getDate() + 6)
-
-    const formatDate = (date: Date) => {
-      return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-    }
-
-    return `${formatDate(startOfWeek)} - ${formatDate(endOfWeek)}`
+    return now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
   }
 
   const currentEpoch = getCurrentEpoch()
-  const currentWeekRange = getCurrentWeekRange()
+  const currentDayDisplay = getCurrentDayDisplay()
+
+  // Countdown timer for next claim
+  useEffect(() => {
+    const updateCountdown = () => {
+      const now = new Date()
+      const tomorrow = new Date(now)
+      tomorrow.setDate(tomorrow.getDate() + 1)
+      tomorrow.setHours(0, 0, 0, 0)
+
+      const diff = tomorrow.getTime() - now.getTime()
+      const hours = Math.floor(diff / (1000 * 60 * 60))
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
+      const seconds = Math.floor((diff % (1000 * 60)) / 1000)
+
+      setTimeUntilNextClaim(`${hours}h ${minutes}m ${seconds}s`)
+    }
+
+    updateCountdown()
+    const interval = setInterval(updateCountdown, 1000)
+
+    return () => clearInterval(interval)
+  }, [])
+
   const unclaimedRewards = rewardClaims?.filter(claim => claim.status === 'PENDING' || !claim.claimedAt) || []
   const claimedRewards = rewardClaims?.filter(claim => claim.status === 'COMPLETED' && claim.claimedAt) || []
   const totalUnclaimed = unclaimedRewards.reduce((sum, claim) => sum + parseFloat(claim.amount), 0)
@@ -274,14 +288,18 @@ export function RewardsOverview() {
           <CardHeader className="pb-4">
             <div className="flex items-center justify-between">
               <Calendar className="h-5 w-5" />
-              <Badge>This Week</Badge>
+              <Badge>Today</Badge>
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold mb-2">{currentWeekRange}</div>
-            <p className="text-sm text-muted-foreground">
-              Resets in {7 - new Date().getDay()} days
+            <div className="text-2xl font-bold mb-2">{currentDayDisplay}</div>
+            <p className="text-sm text-muted-foreground mb-2">
+              Day {currentEpoch} of the year
             </p>
+            <div className="flex items-center gap-2 text-xs text-muted-foreground pt-2 border-t">
+              <Clock className="h-3 w-3" />
+              <span>Next claim in: <span className="font-mono font-semibold text-foreground">{timeUntilNextClaim}</span></span>
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -309,7 +327,7 @@ export function RewardsOverview() {
                       <div>
                         <div className="font-semibold text-lg">{formatNumber(parseFloat(claim.amount))} $vSOL</div>
                         <div className="text-xs text-muted-foreground">
-                          Week {claim.epoch}
+                          Day {claim.epoch}
                         </div>
                       </div>
                     </div>

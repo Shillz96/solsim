@@ -1,4 +1,4 @@
-// Snapshot worker for weekly reward distribution
+// Snapshot worker for daily reward distribution
 import { Decimal } from "@prisma/client/runtime/library";
 import { snapshotRewards } from "../src/services/rewardService.js";
 import prisma from "../src/plugins/prisma.js";
@@ -15,28 +15,28 @@ function validateEnvironment() {
 
 async function calculatePoolAmount(): Promise<Decimal> {
   try {
-    // Get total trading volume for the week to calculate pool size
-    const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-    
-    const weeklyVolume = await prisma.trade.aggregate({
+    // Get total trading volume for the day to calculate pool size
+    const dayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+
+    const dailyVolume = await prisma.trade.aggregate({
       where: {
-        createdAt: { gte: weekAgo }
+        createdAt: { gte: dayAgo }
       },
       _sum: { costUsd: true }
     });
-    
-    const volumeUsd = parseFloat(weeklyVolume._sum.costUsd?.toString() || "0");
-    
-    // Pool = 0.1% of weekly volume, minimum 100 VSOL, maximum 10,000 VSOL
-    const poolFromVolume = volumeUsd * 0.001;
-    const poolAmount = Math.max(100, Math.min(10000, poolFromVolume));
 
-    console.log(`📊 Weekly volume: $${volumeUsd.toFixed(2)} → Pool: ${poolAmount} VSOL`);
-    
+    const volumeUsd = parseFloat(dailyVolume._sum.costUsd?.toString() || "0");
+
+    // Pool = 0.1% of daily volume, minimum 10 VSOL, maximum 1,000 VSOL
+    const poolFromVolume = volumeUsd * 0.001;
+    const poolAmount = Math.max(10, Math.min(1000, poolFromVolume));
+
+    console.log(`📊 Daily volume: $${volumeUsd.toFixed(2)} → Pool: ${poolAmount} VSOL`);
+
     return new Decimal(poolAmount);
   } catch (error) {
     console.warn("Failed to calculate dynamic pool, using default:", error);
-    return new Decimal(1000); // Default fallback
+    return new Decimal(100); // Default fallback for daily
   }
 }
 
@@ -47,9 +47,10 @@ async function main() {
     // Validate environment
     validateEnvironment();
     
-    // Simple epoch calculation: weeks since Unix epoch
+    // Simple epoch calculation: days since start of year
     const now = new Date();
-    const epoch = Math.floor(now.getTime() / (7 * 24 * 60 * 60 * 1000));
+    const startOfYear = new Date(now.getFullYear(), 0, 1);
+    const epoch = Math.ceil((now.getTime() - startOfYear.getTime()) / (24 * 60 * 60 * 1000));
     
     // Check if snapshot already exists for this epoch
     const existingSnapshot = await prisma.rewardSnapshot.findFirst({

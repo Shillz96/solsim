@@ -114,7 +114,7 @@ export function RewardsExplainer() {
             <p>
               VirtualSol rewards active traders with $vSOL tokens based on their trading activity and performance.
               The more you trade and the better you perform, the more rewards you earn. Rewards are calculated
-              weekly and distributed at the end of each epoch.
+              daily and distributed at the end of each epoch.
             </p>
           </div>
 
@@ -137,7 +137,7 @@ export function RewardsExplainer() {
             How to Earn Reward Points
           </CardTitle>
           <CardDescription>
-            Multiple ways to accumulate points throughout each week
+            Multiple ways to accumulate points throughout each day
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -233,20 +233,20 @@ export function RewardsExplainer() {
               <h4 className="font-semibold">Example: Gold Tier Trader</h4>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Weekly Trading Volume:</span>
-                  <span className="font-medium">$250,000</span>
+                  <span className="text-muted-foreground">Daily Trading Volume:</span>
+                  <span className="font-medium">$35,000</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Base Points (1 per $100):</span>
-                  <span className="font-medium">2,500 points</span>
+                  <span className="font-medium">350 points</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Profitable Trades Bonus:</span>
-                  <span className="font-medium">+1,250 points (50%)</span>
+                  <span className="font-medium">+175 points (50%)</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Daily Trading Bonus (7 days):</span>
-                  <span className="font-medium">+70 points</span>
+                  <span className="text-muted-foreground">Daily Trading Bonus:</span>
+                  <span className="font-medium">+10 points</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Portfolio Diversity Bonus:</span>
@@ -255,7 +255,7 @@ export function RewardsExplainer() {
                 <Separator />
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Subtotal:</span>
-                  <span className="font-medium">3,870 points</span>
+                  <span className="font-medium">585 points</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Gold Tier Multiplier:</span>
@@ -263,7 +263,7 @@ export function RewardsExplainer() {
                 </div>
                 <div className="flex justify-between text-lg font-semibold">
                   <span>Final Points:</span>
-                  <span className="text-primary">5,805 points</span>
+                  <span className="text-primary">878 points</span>
                 </div>
               </div>
             </div>
@@ -296,9 +296,9 @@ export function RewardsExplainer() {
               <div className="flex items-center gap-3">
                 <div className="w-2 h-2 rounded-full bg-primary"></div>
                 <div>
-                  <p className="font-medium">Weekly Epochs</p>
+                  <p className="font-medium">Daily Epochs</p>
                   <p className="text-sm text-muted-foreground">
-                    Each epoch runs from Monday 00:00 UTC to Sunday 23:59 UTC
+                    Each epoch runs from 00:00 UTC to 23:59 UTC each day
                   </p>
                 </div>
               </div>
@@ -307,7 +307,7 @@ export function RewardsExplainer() {
                 <div>
                   <p className="font-medium">Calculation Period</p>
                   <p className="text-sm text-muted-foreground">
-                    Rewards are calculated on Monday morning after epoch ends
+                    Rewards are calculated at midnight UTC after each day ends
                   </p>
                 </div>
               </div>

@@ -61,14 +61,14 @@ export default async function rewardsRoutes(app: FastifyInstance) {
       const winRatePercent = totalTrades > 0 ? (winRate._count.id / totalTrades) * 100 : 0;
       const volumeUsd = parseFloat(totalVolume._sum.totalCost?.toString() || "0");
       
-      // Complex reward calculation based on multiple factors
+      // Daily reward calculation based on multiple factors (scaled down from weekly)
       let rewardAmount = 0;
-      rewardAmount += tradeCount * 5; // Base reward per trade
-      rewardAmount += Math.floor(volumeUsd / 100) * 10; // Volume bonus
-      rewardAmount += Math.floor(winRatePercent / 10) * 50; // Win rate bonus
-      
-      // Cap at 2000 VSOL per epoch
-      rewardAmount = Math.min(rewardAmount, 2000);
+      rewardAmount += tradeCount * 1; // Base reward per trade (reduced for daily)
+      rewardAmount += Math.floor(volumeUsd / 100) * 2; // Volume bonus (reduced)
+      rewardAmount += Math.floor(winRatePercent / 10) * 10; // Win rate bonus (reduced)
+
+      // Cap at 200 VSOL per day (scaled down from 2000/week)
+      rewardAmount = Math.min(rewardAmount, 200);
       
       // Create reward claim record
       const claim = await prisma.rewardClaim.create({
@@ -129,7 +129,7 @@ export default async function rewardsRoutes(app: FastifyInstance) {
           trades: {
             where: {
               createdAt: {
-                gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) // Last 7 days
+                gte: new Date(Date.now() - 24 * 60 * 60 * 1000) // Last 24 hours
               }
             }
           },
@@ -151,8 +151,8 @@ export default async function rewardsRoutes(app: FastifyInstance) {
         totalPoints += userPoints;
       }
       
-      // Default pool amount (can be configured)
-      const poolAmount = 10000; // 10,000 VSOL tokens per epoch
+      // Default pool amount (can be configured) - scaled for daily
+      const poolAmount = 1000; // 1,000 VSOL tokens per day
       
       // Store snapshot for this epoch
       await prisma.rewardSnapshot.create({
