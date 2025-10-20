@@ -6,10 +6,10 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Search, TrendingUp, Filter, Loader2, AlertCircle, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react"
+import { Search, TrendingUp, Filter, Loader2, AlertCircle, ArrowUpDown, ArrowUp, ArrowDown, Flame, TrendingDown } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
-import { motion } from "framer-motion"
+import { motion, AnimatePresence } from "framer-motion"
 // Use backend types
 import type * as Backend from "@/lib/types/backend"
 import { useTrendingTokens } from "@/hooks/use-react-query-hooks"
@@ -59,6 +59,7 @@ export default function TrendingPage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [sortField, setSortField] = useState<SortField>("volume24h")
   const [sortDirection, setSortDirection] = useState<SortDirection>("desc")
+  const [hoveredRow, setHoveredRow] = useState<string | null>(null)
 
   // Use the API hook to fetch trending tokens with Birdeye sort
   const { data: trendingTokens, isLoading: loading, error, refetch: refresh } = useTrendingTokens(50, birdeyeSortBy)
@@ -133,6 +134,38 @@ export default function TrendingPage() {
       <ArrowDown className="h-3 w-3 ml-1" />
     )
   }
+
+  // Helper function to get rank badge styling
+  const getRankBadge = (rank: number) => {
+    switch (rank) {
+      case 1:
+        return {
+          bg: "bg-gradient-to-r from-yellow-400 to-yellow-600",
+          text: "text-white",
+          glow: "shadow-lg shadow-yellow-500/50",
+          icon: "🥇"
+        }
+      case 2:
+        return {
+          bg: "bg-gradient-to-r from-gray-300 to-gray-500",
+          text: "text-white",
+          glow: "shadow-lg shadow-gray-400/50",
+          icon: "🥈"
+        }
+      case 3:
+        return {
+          bg: "bg-gradient-to-r from-orange-400 to-orange-600",
+          text: "text-white",
+          glow: "shadow-lg shadow-orange-500/50",
+          icon: "🥉"
+        }
+      default:
+        return null
+    }
+  }
+
+  // Helper function to determine if token is a big mover
+  const isBigMover = (priceChange: number) => Math.abs(priceChange) > 50
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
@@ -289,99 +322,185 @@ export default function TrendingPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredAndSortedTokens.map((token, index) => (
-                    <tr key={token.mint} className="border-b border-border hover:bg-muted/20 transition-colors">
-                      {/* Rank */}
-                      <td className="p-4">
-                        <span className="text-sm font-medium text-muted-foreground">{index + 1}</span>
-                      </td>
+                  {filteredAndSortedTokens.map((token, index) => {
+                    const rankBadge = getRankBadge(index + 1)
+                    const bigMover = isBigMover(token.priceChange24h)
+                    const isHovered = hoveredRow === token.mint
 
-                      {/* Token Info */}
-                      <td className="p-4">
-                        <Link
-                          href={`/trade?token=${token.mint}`}
-                          className="flex items-center gap-3 hover:opacity-80 transition-opacity"
+                    return (
+                      <motion.tr
+                        key={token.mint}
+                        className="border-b border-border transition-all duration-300 relative group"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{
+                          duration: 0.4,
+                          delay: index * 0.05,
+                          ease: "easeOut"
+                        }}
+                        whileHover={{
+                          y: -4,
+                          transition: { duration: 0.2, ease: "easeOut" }
+                        }}
+                        onMouseEnter={() => setHoveredRow(token.mint)}
+                        onMouseLeave={() => setHoveredRow(null)}
+                        style={{
+                          boxShadow: isHovered ? '0 8px 16px rgba(0, 0, 0, 0.15)' : 'none',
+                        }}
+                      >
+                        {/* Glassmorphism hover effect */}
+                        <td
+                          colSpan={8}
+                          className="absolute inset-0 pointer-events-none"
                         >
-                          <Image
-                            src={token.logoURI || "/placeholder-token.svg"}
-                            alt={token.name || 'Unknown Token'}
-                            width={32}
-                            height={32}
-                            className="rounded-full"
-                            onError={(e) => {
-                              e.currentTarget.src = "/placeholder-token.svg"
+                          <div
+                            className={`absolute inset-0 transition-all duration-300 ${
+                              isHovered
+                                ? 'bg-gradient-to-r from-primary/5 via-primary/10 to-primary/5 backdrop-blur-sm'
+                                : 'bg-transparent'
+                            }`}
+                            style={{
+                              borderLeft: isHovered ? '2px solid rgba(var(--primary), 0.3)' : 'none',
                             }}
                           />
-                          <div>
-                            <div className="font-semibold text-sm">{token.name || 'Unknown'}</div>
-                            <div className="text-xs text-muted-foreground">{token.symbol || 'N/A'}</div>
-                          </div>
-                        </Link>
-                      </td>
+                        </td>
 
-                      {/* Price */}
-                      <td className="p-4">
-                        <UsdWithSol 
-                          usd={token.priceUsd} 
-                          className="text-sm font-medium"
-                          solClassName="text-xs"
-                        />
-                      </td>
+                        {/* Rank */}
+                        <td className="p-5 relative z-10">
+                          {rankBadge ? (
+                            <div className={`inline-flex items-center justify-center w-8 h-8 rounded-full ${rankBadge.bg} ${rankBadge.text} ${rankBadge.glow} font-bold text-sm`}>
+                              {rankBadge.icon}
+                            </div>
+                          ) : (
+                            <span className="text-sm font-medium text-muted-foreground">{index + 1}</span>
+                          )}
+                        </td>
 
-                      {/* 24h Change */}
-                      <td className="p-4">
-                        <div
-                          className={`text-sm font-medium font-mono ${
-                            token.priceChange24h >= 0 ? "text-green-400" : "text-red-400"
-                          }`}
-                        >
-                          {token.priceChange24h >= 0 ? "+" : ""}
-                          {token.priceChange24h.toFixed(2)}%
-                        </div>
-                      </td>
+                        {/* Token Info */}
+                        <td className="p-5 relative z-10">
+                          <Link
+                            href={`/trade?token=${token.mint}`}
+                            className="flex items-center gap-3 hover:opacity-80 transition-opacity"
+                          >
+                            <motion.div
+                              whileHover={{ scale: 1.15 }}
+                              transition={{ duration: 0.2 }}
+                            >
+                              <Image
+                                src={token.logoURI || "/placeholder-token.svg"}
+                                alt={token.name || 'Unknown Token'}
+                                width={36}
+                                height={36}
+                                className="rounded-full ring-2 ring-border group-hover:ring-primary/50 transition-all duration-300"
+                                onError={(e) => {
+                                  e.currentTarget.src = "/placeholder-token.svg"
+                                }}
+                              />
+                            </motion.div>
+                            <div>
+                              <div className="font-semibold text-sm flex items-center gap-2">
+                                {token.name || 'Unknown'}
+                                {bigMover && (
+                                  <motion.div
+                                    animate={{ scale: [1, 1.2, 1] }}
+                                    transition={{ duration: 1.5, repeat: Infinity }}
+                                  >
+                                    <Flame className="h-4 w-4 text-orange-500" />
+                                  </motion.div>
+                                )}
+                              </div>
+                              <div className="text-xs text-muted-foreground">{token.symbol || 'N/A'}</div>
+                            </div>
+                          </Link>
+                        </td>
 
-                      {/* Market Cap */}
-                      <td className="p-4">
-                        {token.marketCapUsd ? (
-                          <UsdWithSol 
-                            usd={token.marketCapUsd} 
+                        {/* Price */}
+                        <td className="p-5 relative z-10">
+                          <UsdWithSol
+                            usd={token.priceUsd}
                             className="text-sm font-medium"
+                            solClassName="text-xs"
+                          />
+                        </td>
+
+                        {/* 24h Change with visual indicator */}
+                        <td className="p-5 relative z-10">
+                          <div className="flex items-center gap-2">
+                            <motion.div
+                              className={`text-sm font-medium font-mono ${
+                                token.priceChange24h >= 0 ? "text-green-400" : "text-red-400"
+                              }`}
+                              animate={bigMover ? {
+                                opacity: [1, 0.6, 1],
+                              } : {}}
+                              transition={bigMover ? {
+                                duration: 2,
+                                repeat: Infinity,
+                                ease: "easeInOut"
+                              } : {}}
+                            >
+                              {token.priceChange24h >= 0 ? "+" : ""}
+                              {token.priceChange24h.toFixed(2)}%
+                            </motion.div>
+                            {bigMover && (
+                              token.priceChange24h >= 0 ? (
+                                <TrendingUp className="h-4 w-4 text-green-400" />
+                              ) : (
+                                <TrendingDown className="h-4 w-4 text-red-400" />
+                              )
+                            )}
+                          </div>
+                        </td>
+
+                        {/* Market Cap */}
+                        <td className="p-5 relative z-10">
+                          {token.marketCapUsd ? (
+                            <UsdWithSol
+                              usd={token.marketCapUsd}
+                              className="text-sm font-medium"
+                              solClassName="text-xs"
+                              compact
+                            />
+                          ) : (
+                            <div className="text-sm font-medium text-muted-foreground">N/A</div>
+                          )}
+                        </td>
+
+                        {/* Volume */}
+                        <td className="p-5 relative z-10">
+                          <UsdWithSol
+                            usd={token.volume24h}
+                            className="text-sm"
                             solClassName="text-xs"
                             compact
                           />
-                        ) : (
-                          <div className="text-sm font-medium text-muted-foreground">N/A</div>
-                        )}
-                      </td>
+                        </td>
 
-                      {/* Volume */}
-                      <td className="p-4">
-                        <UsdWithSol 
-                          usd={token.volume24h} 
-                          className="text-sm"
-                          solClassName="text-xs"
-                          compact
-                        />
-                      </td>
+                        {/* Trend Score */}
+                        <td className="p-5 relative z-10">
+                          <Badge
+                            variant="secondary"
+                            className={`text-xs ${bigMover ? 'bg-orange-500/20 text-orange-400 border-orange-500/30' : ''}`}
+                          >
+                            {Math.abs(token.priceChange24h).toFixed(1)}
+                          </Badge>
+                        </td>
 
-                      {/* Trend Score */}
-                      <td className="p-4">
-                        <Badge variant="secondary" className="text-xs">
-                          {/* Use absolute value of 24h change as trend score */}
-                          {Math.abs(token.priceChange24h).toFixed(1)}
-                        </Badge>
-                      </td>
-
-                      {/* Action */}
-                      <td className="p-4 text-right">
-                        <Link href={`/trade?token=${token.mint}`}>
-                          <Button size="sm" variant="outline">
-                            Trade
-                          </Button>
-                        </Link>
-                      </td>
-                    </tr>
-                  ))}
+                        {/* Action */}
+                        <td className="p-5 text-right relative z-10">
+                          <Link href={`/trade?token=${token.mint}`}>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300"
+                            >
+                              Trade
+                            </Button>
+                          </Link>
+                        </td>
+                      </motion.tr>
+                    )
+                  })}
                 </tbody>
               </table>
             </div>
