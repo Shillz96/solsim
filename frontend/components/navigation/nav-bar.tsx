@@ -189,15 +189,29 @@ export function NavBar() {
   // Close search results when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as Node
+      const target = event.target as HTMLElement
 
       // Check if click is inside search input or search results
       const isInsideSearchInput = searchRef.current?.contains(target)
       const isInsideSearchResults = searchResultsRef.current?.contains(target)
 
-      // Only close if click is outside both elements
-      if (!isInsideSearchInput && !isInsideSearchResults) {
+      // Also check if clicking on a button (token result)
+      const isClickingButton = target.closest('button') !== null
+
+      console.log('🖱️ Click detected:', {
+        isInsideSearchInput,
+        isInsideSearchResults,
+        isClickingButton,
+        targetElement: target.tagName,
+        hasSearchResultsRef: !!searchResultsRef.current
+      })
+
+      // Don't close if clicking inside search area or on a button
+      if (!isInsideSearchInput && !isInsideSearchResults && !isClickingButton) {
+        console.log('❌ Closing search results - click was outside')
         setShowResults(false)
+      } else if (isClickingButton) {
+        console.log('✅ Button click detected - letting onClick handle it')
       }
     }
 
@@ -215,6 +229,8 @@ export function NavBar() {
   }, [showResults])
 
   const handleTokenSelect = useCallback((token: TokenSearchResult) => {
+    console.log('🔍 handleTokenSelect called for:', token.symbol)
+    console.log('📍 Navigating to:', `/trade?token=${token.mint}&symbol=${token.symbol}&name=${encodeURIComponent(token.name)}`)
     router.push(`/trade?token=${token.mint}&symbol=${token.symbol}&name=${encodeURIComponent(token.name)}`)
     setSearchQuery('')
     setShowResults(false)
@@ -305,7 +321,11 @@ export function NavBar() {
                     {searchResults.map((token) => (
                       <button
                         key={token.mint}
-                        onClick={() => handleTokenSelect(token)}
+                        onMouseDown={(e) => {
+                          e.preventDefault() // Prevent default to avoid focus issues
+                          console.log('👆 Button onMouseDown for:', token.symbol)
+                          handleTokenSelect(token)
+                        }}
                         className="w-full text-left px-3 py-2.5 rounded-sm hover:bg-muted transition-colors duration-150 focus:bg-muted focus:outline-none"
                       >
                         <div className="flex items-center justify-between">
