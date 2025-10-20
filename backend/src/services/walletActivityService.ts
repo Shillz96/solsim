@@ -190,6 +190,32 @@ export class WalletActivityService {
         });
 
         if (existing) {
+          // CRITICAL FIX: Only include existing activities that have images and meet our criteria
+          const existingMainMint = this.getMainTokenMint({
+            type: existing.type as 'BUY' | 'SELL',
+            tokenInMint: existing.tokenInMint || undefined,
+            tokenOutMint: existing.tokenOutMint || undefined
+          });
+
+          const existingMainLogoURI = existingMainMint === existing.tokenInMint
+            ? existing.tokenInLogoURI
+            : existing.tokenOutLogoURI;
+
+          // Skip existing activities without images
+          if (!existingMainLogoURI) {
+            this.logger?.warn(`Skipping existing activity ${tx.signature} - no image in DB`);
+            continue;
+          }
+
+          // Skip if market cap doesn't meet criteria (for existing activities)
+          if (existing.marketCap) {
+            const mcValue = existing.marketCap.toNumber();
+            if (mcValue < this.MIN_MARKET_CAP_USD || mcValue > this.MAX_MARKET_CAP_USD) {
+              this.logger?.debug(`Skipping existing activity - MC out of range: $${mcValue}`);
+              continue;
+            }
+          }
+
           activities.push(existing);
           continue;
         }
@@ -768,6 +794,7 @@ export class WalletActivityService {
 
   /**
    * Get activities with filtering
+   * CRITICAL: Filters out activities without images
    */
   async getFilteredActivities(params: {
     walletAddresses?: string[];
@@ -801,12 +828,48 @@ export class WalletActivityService {
       if (params.endTime) where.timestamp.lte = params.endTime;
     }
 
-    return await prisma.walletActivity.findMany({
+    // CRITICAL FIX: Fetch extra activities to account for filtering
+    const fetchLimit = (params.limit || 100) * 2; // Fetch 2x to ensure we have enough after filtering
+
+    const activities = await prisma.walletActivity.findMany({
       where,
       orderBy: { timestamp: 'desc' },
-      take: params.limit || 100,
+      take: fetchLimit,
       skip: params.offset || 0
     });
+
+    // Filter out activities without images (belt and suspenders approach)
+    const filteredActivities = activities.filter(activity => {
+      // Determine main token based on type
+      let mainLogoURI: string | null = null;
+
+      if (activity.type === 'BUY') {
+        mainLogoURI = activity.tokenOutLogoURI;
+      } else if (activity.type === 'SELL') {
+        mainLogoURI = activity.tokenInLogoURI;
+      } else {
+        // For SWAP, check if either has a logo
+        mainLogoURI = activity.tokenOutLogoURI || activity.tokenInLogoURI;
+      }
+
+      // Skip if no image
+      if (!mainLogoURI) {
+        return false;
+      }
+
+      // Apply market cap filtering if available
+      if (activity.marketCap) {
+        const mcValue = activity.marketCap.toNumber();
+        if (mcValue < this.MIN_MARKET_CAP_USD || mcValue > this.MAX_MARKET_CAP_USD) {
+          return false;
+        }
+      }
+
+      return true;
+    });
+
+    // Return only the requested limit
+    return filteredActivities.slice(0, params.limit || 100);
   }
 
   /**
