@@ -195,23 +195,16 @@ export function NavBar() {
       const isInsideSearchInput = searchRef.current?.contains(target)
       const isInsideSearchResults = searchResultsRef.current?.contains(target)
 
-      // Also check if clicking on a button (token result)
-      const isClickingButton = target.closest('button') !== null
-
       console.log('🖱️ Click detected:', {
         isInsideSearchInput,
         isInsideSearchResults,
-        isClickingButton,
-        targetElement: target.tagName,
-        hasSearchResultsRef: !!searchResultsRef.current
+        targetElement: target.tagName
       })
 
-      // Don't close if clicking inside search area or on a button
-      if (!isInsideSearchInput && !isInsideSearchResults && !isClickingButton) {
+      // Only close if click is outside both elements
+      if (!isInsideSearchInput && !isInsideSearchResults) {
         console.log('❌ Closing search results - click was outside')
         setShowResults(false)
-      } else if (isClickingButton) {
-        console.log('✅ Button click detected - letting onClick handle it')
       }
     }
 
@@ -322,8 +315,9 @@ export function NavBar() {
                       <button
                         key={token.mint}
                         onMouseDown={(e) => {
-                          e.preventDefault() // Prevent default to avoid focus issues
                           console.log('👆 Button onMouseDown for:', token.symbol)
+                          e.preventDefault() // Prevent default to avoid focus issues
+                          e.stopPropagation() // Stop event from bubbling to document
                           handleTokenSelect(token)
                         }}
                         className="w-full text-left px-3 py-2.5 rounded-sm hover:bg-muted transition-colors duration-150 focus:bg-muted focus:outline-none"
