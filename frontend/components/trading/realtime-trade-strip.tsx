@@ -8,6 +8,8 @@ import { formatNumber, formatUSD, formatPriceUSD, formatTokenQuantity } from "@/
 import { useAuth } from "@/hooks/use-auth"
 import { usePortfolio } from "@/hooks/use-portfolio"
 import { usePriceStreamContext } from "@/lib/price-stream-provider"
+import { ChevronDown, ChevronUp } from "lucide-react"
+import { motion, AnimatePresence } from "framer-motion"
 
 interface RealtimeTradeStripProps {
   className?: string
@@ -23,6 +25,7 @@ export function RealtimeTradeStrip({
   const { user } = useAuth()
   const { prices: livePrices } = usePriceStreamContext()
   const router = useRouter()
+  const [isExpanded, setIsExpanded] = useState(true)
 
   // Use centralized portfolio hook
   const {
@@ -100,55 +103,84 @@ export function RealtimeTradeStrip({
   return (
     <div
       className={cn(
-        "w-full bg-background backdrop-blur-md border-t border-b overflow-hidden",
+        "w-full bg-background backdrop-blur-md border-t border-b overflow-visible relative transition-all duration-300",
+        !isExpanded && "h-10",
         className
       )}
       style={style}
     >
-      <div className="flex items-center py-4 px-2 space-x-6 overflow-x-auto scrollbar-none">
-        {positions.length === 0 ? (
-          <div className="flex items-center justify-center w-full text-sm text-muted-foreground">
-            No open positions
-          </div>
-        ) : (
-          positions.slice(0, maxTrades).map((position) => {
-            const pnl = getRealtimePnL(position)
-            const isProfit = pnl.unrealizedUsd >= 0
+      <AnimatePresence initial={false}>
+        {isExpanded && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+            className="overflow-hidden"
+          >
+            <div className="flex items-center py-4 px-2 pr-12 space-x-6 overflow-x-auto scrollbar-none">
+              {positions.length === 0 ? (
+                <div className="flex items-center justify-center w-full text-sm text-muted-foreground">
+                  No open positions
+                </div>
+              ) : (
+                positions.slice(0, maxTrades).map((position) => {
+                  const pnl = getRealtimePnL(position)
+                  const isProfit = pnl.unrealizedUsd >= 0
 
-            return (
-              <button
-                key={position.mint}
-                onClick={() => router.push(`/trade?token=${position.mint}`)}
-                className="flex items-center space-x-3 whitespace-nowrap flex-shrink-0 hover:opacity-80 transition-opacity cursor-pointer"
-              >
-                {position.tokenImage && (
-                  <img
-                    src={position.tokenImage}
-                    alt={position.tokenSymbol || 'Token'}
-                    className="w-4 h-4 rounded-full"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).style.display = 'none'
-                    }}
-                  />
-                )}
+                  return (
+                    <button
+                      key={position.mint}
+                      onClick={() => router.push(`/trade?token=${position.mint}`)}
+                      className="flex items-center space-x-3 whitespace-nowrap flex-shrink-0 hover:opacity-80 transition-opacity cursor-pointer"
+                    >
+                      {position.tokenImage && (
+                        <img
+                          src={position.tokenImage}
+                          alt={position.tokenSymbol || 'Token'}
+                          className="w-4 h-4 rounded-full"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).style.display = 'none'
+                          }}
+                        />
+                      )}
 
-                <span className="font-medium text-sm">
-                  {position.tokenSymbol || 'Unknown'}
-                </span>
+                      <span className="font-medium text-sm">
+                        {position.tokenSymbol || 'Unknown'}
+                      </span>
 
-                <span className={cn(
-                  "text-xs font-medium px-2 py-0.5 rounded",
-                  isProfit
-                    ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300"
-                    : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300"
-                )}>
-                  {isProfit ? '+' : ''}{formatUSD(pnl.unrealizedUsd)}
-                </span>
-              </button>
-            )
-          })
+                      <span className={cn(
+                        "text-xs font-medium px-2 py-0.5 rounded",
+                        isProfit
+                          ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300"
+                          : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300"
+                      )}>
+                        {isProfit ? '+' : ''}{formatUSD(pnl.unrealizedUsd)}
+                      </span>
+                    </button>
+                  )
+                })
+              )}
+            </div>
+          </motion.div>
         )}
-      </div>
+      </AnimatePresence>
+
+      {/* Toggle Button */}
+      <button
+        onClick={() => setIsExpanded(!isExpanded)}
+        className={cn(
+          "absolute right-4 p-1.5 rounded-full bg-muted hover:bg-muted/80 transition-all duration-200 hover:scale-110 z-10",
+          isExpanded ? "top-1/2 -translate-y-1/2" : "top-1/2 -translate-y-1/2"
+        )}
+        aria-label={isExpanded ? "Collapse trade strip" : "Expand trade strip"}
+      >
+        {isExpanded ? (
+          <ChevronUp className="h-3.5 w-3.5 text-muted-foreground" />
+        ) : (
+          <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
+        )}
+      </button>
     </div>
   )
 }
