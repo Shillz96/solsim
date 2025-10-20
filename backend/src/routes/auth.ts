@@ -549,7 +549,6 @@ export default async function (app: FastifyInstance) {
 
       // Invalidate leaderboard cache when profile is updated (handle, displayName, or avatar changed)
       try {
-        const redis = app.redis;
         // Delete all leaderboard cache keys (pattern: leaderboard:*)
         const keys = await redis.keys('leaderboard:*');
         if (keys.length > 0) {
@@ -790,7 +789,6 @@ export default async function (app: FastifyInstance) {
 
       // Invalidate leaderboard cache when avatar is updated
       try {
-        const redis = app.redis;
         const keys = await redis.keys('leaderboard:*');
         if (keys.length > 0) {
           await redis.del(...keys);
@@ -848,7 +846,6 @@ export default async function (app: FastifyInstance) {
 
       // Invalidate leaderboard cache when avatar is removed
       try {
-        const redis = app.redis;
         const keys = await redis.keys('leaderboard:*');
         if (keys.length > 0) {
           await redis.del(...keys);
