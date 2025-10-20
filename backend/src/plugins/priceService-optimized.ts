@@ -113,26 +113,29 @@ class CircuitBreaker {
       }
       return result;
     } catch (error: any) {
-      // Don't count expected "not found" responses as failures
+      // Don't count expected "not found" responses or timeouts as failures
       const isExpectedFailure =
         error.message?.includes('404') ||
         error.message?.includes('204') ||
         error.message?.includes('No Content') ||
         error.message?.includes('Not Found') ||
-        error.message?.includes('Token not found');
+        error.message?.includes('Token not found') ||
+        error.message?.includes('aborted') ||        // AbortController timeout
+        error.message?.includes('fetch failed') ||    // Generic fetch failure (often timeout)
+        error.name === 'AbortError';                  // AbortController error type
 
       if (isExpectedFailure) {
-        logger.debug({ breaker: this.name, error: error.message }, 'Expected failure - not counting toward circuit breaker');
+        logger.debug({ breaker: this.name, error: error.message, type: error.name }, 'Expected failure - not counting toward circuit breaker');
         throw error;
       }
 
-      // Count only unexpected failures
+      // Count only unexpected failures (network errors, 500s, etc.)
       this.failureCount++;
       this.lastFailureTime = Date.now();
 
       if (this.failureCount >= this.threshold) {
         this.state = 'OPEN';
-        logger.error({ breaker: this.name }, 'Circuit breaker opened after 5 unexpected failures');
+        logger.error({ breaker: this.name, error: error.message }, 'Circuit breaker opened after 5 unexpected failures');
       }
       throw error;
     }
