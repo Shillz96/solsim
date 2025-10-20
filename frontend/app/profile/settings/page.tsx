@@ -150,6 +150,7 @@ function UserSettingsPage() {
       if (!user?.id) throw new Error('User not authenticated')
       return api.updateProfile({
         userId: user.id,
+        username: data.handle || undefined, // UI "Username" field maps to username in DB
         handle: data.handle || undefined,
         bio: data.bio || undefined,
         displayName: data.displayName || undefined

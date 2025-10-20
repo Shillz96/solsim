@@ -519,13 +519,14 @@ export default async function (app: FastifyInstance) {
     try {
       const sanitizedBody = sanitizeInput(req.body) as {
         userId: string;
+        username?: string;
         handle?: string;
         profileImage?: string;
         bio?: string;
         displayName?: string;
       };
 
-      const { userId, handle, profileImage, bio, displayName } = sanitizedBody;
+      const { userId, username, handle, profileImage, bio, displayName } = sanitizedBody;
 
       // Verify user can only update their own profile
       if (req.user?.id !== userId) {
@@ -538,6 +539,7 @@ export default async function (app: FastifyInstance) {
       const updatedUser = await prisma.user.update({
         where: { id: userId },
         data: {
+          username,
           handle,
           profileImage,
           avatarUrl: profileImage, // Sync with avatarUrl
@@ -564,6 +566,7 @@ export default async function (app: FastifyInstance) {
         success: true,
         user: {
           id: updatedUser.id,
+          username: updatedUser.username,
           handle: updatedUser.handle,
           profileImage: updatedUser.profileImage,
           avatarUrl: updatedUser.avatarUrl,

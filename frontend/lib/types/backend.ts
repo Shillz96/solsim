@@ -50,6 +50,7 @@ export interface User {
 export interface Trade {
   id: string;
   userId: string;
+  username?: string;
   tokenAddress: string;
   tokenSymbol: string | null;
   tokenName: string | null;
@@ -65,6 +66,7 @@ export interface Trade {
 export interface Holding {
   id: string;
   userId: string;
+  username?: string;
   tokenAddress: string;
   tokenSymbol: string | null;
   tokenName: string | null;
@@ -78,6 +80,7 @@ export interface Holding {
 export interface TransactionHistory {
   id: string;
   userId: string;
+  username?: string;
   tokenAddress: string;
   tokenSymbol: string | null;
   tokenName: string | null;
@@ -147,6 +150,7 @@ export interface Token {
 export interface ConversionHistory {
   id: string;
   userId: string;
+  username?: string;
   virtualSolAmount: string; // Decimal as string
   vsolTokensReceived: string; // Decimal as string
   conversionRate: string; // Decimal as string
@@ -235,6 +239,7 @@ export interface PortfolioPerformanceResponse {
 
 export interface LeaderboardEntry {
   userId: string;
+  username?: string;
   handle: string | null;
   displayName: string | null;
   profileImage: string | null;
@@ -280,6 +285,7 @@ export interface TrendingTokenResponse extends TrendingToken {
 
 export interface TradeRequest {
   userId: string;
+  username?: string;
   mint: string;
   side: 'BUY' | 'SELL';
   qty: string;
@@ -290,6 +296,7 @@ export interface TradeResponse {
   trade: {
     id: string;
     userId: string;
+  username?: string;
     tokenAddress: string;
     side: 'BUY' | 'SELL';
     quantity: string;
@@ -329,6 +336,7 @@ export interface TradeStats {
 
 export interface RewardsClaimRequest {
   userId: string;
+  username?: string;
   epoch: number;
   wallet: string;
 }
@@ -353,6 +361,7 @@ export interface AuthLoginRequest {
 
 export interface AuthResponse {
   userId: string;
+  username?: string;
   accessToken: string;
   refreshToken: string;
   user: {
@@ -380,6 +389,7 @@ export interface WalletVerifyRequest {
 
 export interface ProfileUpdateRequest {
   userId: string;
+  username?: string;
   handle?: string;
   profileImage?: string;
   bio?: string;
@@ -467,6 +477,7 @@ export interface SearchResponse {
 
 export interface WalletBalance {
   userId: string;
+  username?: string;
   balance: string;
   currency: string;
 }
@@ -483,6 +494,7 @@ export interface WalletTransaction {
 
 export interface WalletStats {
   userId: string;
+  username?: string;
   balance: string;
   totalTradeVolume: string;
   totalTrades: number;
@@ -497,6 +509,7 @@ export interface WalletStats {
 export interface RewardClaim {
   id: string;
   userId: string;
+  username?: string;
   epoch: number;
   wallet: string;
   amount: string; // Decimal as string from backend
@@ -527,6 +540,7 @@ export interface RewardStats {
 export interface TrackedWallet {
   id: string;
   userId: string;
+  username?: string;
   walletAddress: string;
   label: string | null;
   isActive: boolean;
@@ -548,6 +562,7 @@ export interface WalletActivity {
 export interface CopyTrade {
   id: string;
   userId: string;
+  username?: string;
   originalWallet: string;
   originalSignature: string;
   copyTradeId: string;
@@ -571,6 +586,7 @@ export interface PurchaseTier {
 
 export interface PurchaseRequest {
   userId: string;
+  username?: string;
   amount: number;
   walletAddress: string;
 }
@@ -585,6 +601,7 @@ export interface PurchaseInitiateResponse {
 
 export interface PurchaseVerifyRequest {
   userId: string;
+  username?: string;
   transactionSignature: string;
   walletAddress: string;
 }
@@ -672,6 +689,7 @@ export interface NotificationMetadata {
 export interface Notification {
   id: string;
   userId: string;
+  username?: string;
   type: NotificationType;
   category: NotificationCategory;
   title: string;

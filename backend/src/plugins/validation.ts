@@ -104,12 +104,19 @@ export const authSchemas = {
     required: ['userId'],
     properties: {
       userId: commonPatterns.uuid,
+      username: {
+        type: 'string',
+        minLength: 3,
+        maxLength: 30,
+        pattern: '^[a-zA-Z0-9_-]+$',
+        nullable: true
+      },
       handle: { ...commonPatterns.handle, nullable: true },
       profileImage: { ...commonPatterns.url, nullable: true },
-      bio: { 
-        type: 'string', 
-        maxLength: 500, 
-        nullable: true 
+      bio: {
+        type: 'string',
+        maxLength: 500,
+        nullable: true
       },
       displayName: {
         type: 'string',
