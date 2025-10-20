@@ -169,10 +169,10 @@ export function ResponsiveLeaderboard({
                           (entry.avatar || entry.avatarUrl || entry.profileImage) && "hidden"
                         )}
                       >
-                        {(entry.handle?.[0] || entry.displayName?.[0] || 'A').toUpperCase()}
+                        {(entry.handle?.[0] || entry.displayName?.[0] || entry.username?.[0] || 'A').toUpperCase()}
                       </div>
                       <div className="flex items-center gap-2">
-                        <span className="font-medium">{entry.handle || entry.displayName || 'Anonymous'}</span>
+                        <span className="font-medium">{entry.handle || entry.displayName || entry.username || 'Anonymous'}</span>
                         {isCurrentUser && (
                           <Badge variant="secondary" className="text-xs">
                             You
@@ -264,10 +264,10 @@ export function ResponsiveLeaderboard({
                       (entry.avatar || entry.avatarUrl || entry.profileImage) && "hidden"
                     )}
                   >
-                    {(entry.handle?.[0] || entry.displayName?.[0] || 'A').toUpperCase()}
+                    {(entry.handle?.[0] || entry.displayName?.[0] || entry.username?.[0] || 'A').toUpperCase()}
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="font-medium">{entry.handle || entry.displayName || 'Anonymous'}</span>
+                    <span className="font-medium">{entry.handle || entry.displayName || entry.username || 'Anonymous'}</span>
                     {isCurrentUser && (
                       <Badge variant="secondary" className="text-xs">
                         You

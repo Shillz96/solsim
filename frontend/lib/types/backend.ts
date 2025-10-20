@@ -239,7 +239,7 @@ export interface PortfolioPerformanceResponse {
 
 export interface LeaderboardEntry {
   userId: string;
-  username?: string;
+  username: string;
   handle: string | null;
   displayName: string | null;
   profileImage: string | null;
