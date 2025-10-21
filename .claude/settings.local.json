@@ -51,7 +51,11 @@
       "mcp__ide__getDiagnostics",
       "WebFetch(domain:docs.helius.dev)",
       "WebFetch(domain:www.helius.dev)",
-      "Bash(git reset:*)"
+      "Bash(git reset:*)",
+      "mcp__helius__SearchHeliusDocs",
+      "WebFetch(domain:docs.dexscreener.com)",
+      "WebFetch(domain:station.jup.ag)",
+      "WebFetch(domain:dev.jup.ag)"
     ],
     "deny": [],
     "ask": []

@@ -13,6 +13,7 @@ import { EventEmitter } from "events";
 import WebSocket from "ws";
 import redis from "./redis.js";
 import { loggers } from "../utils/logger.js";
+import { PumpPortalWebSocketClient, PumpFunPrice } from "./pumpPortalWs.js";
 
 const logger = loggers.priceService;
 
@@ -169,6 +170,9 @@ class OptimizedPriceService extends EventEmitter {
   // Request coalescing to prevent duplicate concurrent requests
   private pendingRequests = new Map<string, Promise<PriceTick | null>>();
 
+  // PumpPortal WebSocket for real-time pump.fun prices
+  private pumpPortalWs: PumpPortalWebSocketClient | null = null;
+
   // WebSocket reconnection
   private reconnectAttempts = 0;
   private readonly MAX_RECONNECT_ATTEMPTS = 10;
@@ -207,7 +211,7 @@ class OptimizedPriceService extends EventEmitter {
   }
 
   async start() {
-    logger.info("Starting Optimized Price Service");
+    logger.info("Starting Optimized Price Service with pump.fun integration");
 
     // Get initial SOL price
     await this.updateSolPrice();
@@ -219,7 +223,10 @@ class OptimizedPriceService extends EventEmitter {
     // Connect to Helius Standard WebSocket (no credit cost!)
     await this.connectWebSocket();
 
-    logger.info("✅ Price service started with WebSocket streaming (Developer plan optimized)");
+    // Connect to PumpPortal WebSocket for real-time pump.fun prices
+    await this.connectPumpPortalWebSocket();
+
+    logger.info("✅ Price service started with multi-source streaming (Helius + PumpPortal)");
   }
 
   private async connectWebSocket() {
@@ -598,6 +605,11 @@ class OptimizedPriceService extends EventEmitter {
 
         logger.info({ oldPrice, newPrice: this.solPriceUsd }, "SOL price updated");
 
+        // Update PumpPortal WebSocket with new SOL price
+        if (this.pumpPortalWs) {
+          this.pumpPortalWs.updateSolPrice(this.solPriceUsd);
+        }
+
         const solTick: PriceTick = {
           mint: "So11111111111111111111111111111111111111112",
           priceUsd: this.solPriceUsd,
@@ -612,6 +624,156 @@ class OptimizedPriceService extends EventEmitter {
       }
     } catch (error) {
       logger.error({ error }, "Failed to update SOL price");
+    }
+  }
+
+  /**
+   * Connect to PumpPortal WebSocket for real-time pump.fun price streaming
+   */
+  private async connectPumpPortalWebSocket() {
+    try {
+      this.pumpPortalWs = new PumpPortalWebSocketClient(this.solPriceUsd);
+
+      // Listen for price updates from PumpPortal
+      this.pumpPortalWs.on('price', async (pumpPrice: PumpFunPrice) => {
+        const tick: PriceTick = {
+          mint: pumpPrice.mint,
+          priceUsd: pumpPrice.priceUsd,
+          priceSol: pumpPrice.priceSol,
+          solUsd: this.solPriceUsd,
+          timestamp: pumpPrice.timestamp,
+          source: pumpPrice.source,
+          marketCapUsd: pumpPrice.marketCapUsd
+        };
+
+        await this.updatePrice(tick);
+      });
+
+      await this.pumpPortalWs.connect();
+
+      // Subscribe to new token creation events (to catch brand new memecoins)
+      this.pumpPortalWs.subscribeToNewTokens();
+
+      logger.info("✅ PumpPortal WebSocket connected for real-time pump.fun prices");
+    } catch (error) {
+      logger.error({ error }, "Failed to connect to PumpPortal WebSocket");
+    }
+  }
+
+  /**
+   * Subscribe to real-time price updates for a specific token
+   * Used by portfolio service to get real-time updates
+   */
+  public subscribeToPumpFunToken(mint: string) {
+    if (!this.pumpPortalWs || !this.pumpPortalWs.isConnected()) {
+      logger.warn({ mint }, "Cannot subscribe - PumpPortal WebSocket not connected");
+      return;
+    }
+
+    if (this.isPumpFunToken(mint)) {
+      this.pumpPortalWs.subscribeToToken(mint);
+      logger.debug({ mint: mint.slice(0, 8) }, "Subscribed to pump.fun token real-time updates");
+    }
+  }
+
+  /**
+   * Unsubscribe from real-time price updates for a specific token
+   */
+  public unsubscribeFromPumpFunToken(mint: string) {
+    if (!this.pumpPortalWs || !this.pumpPortalWs.isConnected()) {
+      return;
+    }
+
+    if (this.isPumpFunToken(mint)) {
+      this.pumpPortalWs.unsubscribeFromToken(mint);
+      logger.debug({ mint: mint.slice(0, 8) }, "Unsubscribed from pump.fun token updates");
+    }
+  }
+
+  /**
+   * Detect if a token is likely a pump.fun token
+   * Heuristic: pump.fun tokens typically end with "pump"
+   */
+  private isPumpFunToken(mint: string): boolean {
+    return mint.endsWith('pump');
+  }
+
+  /**
+   * Get dynamic negative cache TTL based on token type
+   * - Pump.fun tokens: 2 minutes (can gain liquidity quickly)
+   * - Other tokens: 10 minutes (established tokens won't appear suddenly)
+   */
+  private getNegativeCacheTTL(mint: string): number {
+    return this.isPumpFunToken(mint)
+      ? 2 * 60 * 1000  // 2 minutes for pump.fun tokens
+      : 10 * 60 * 1000; // 10 minutes for other tokens
+  }
+
+  /**
+   * Fetch price from pump.fun API
+   * Used as PRIMARY source for pump.fun tokens, LAST RESORT for others
+   */
+  private async fetchPumpFunPrice(mint: string): Promise<PriceTick | null> {
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 3000); // 3s timeout (fast!)
+
+      const response = await fetch(
+        `https://frontend-api.pump.fun/coins/${mint}`,
+        {
+          signal: controller.signal,
+          headers: {
+            'Accept': 'application/json',
+            'User-Agent': 'VirtualSol/1.0'
+          }
+        }
+      );
+
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        if (response.status === 404) {
+          // Token doesn't exist on pump.fun
+          return null;
+        }
+        throw new Error(`HTTP ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      // Calculate price from bonding curve reserves
+      if (data && data.virtual_sol_reserves && data.virtual_token_reserves) {
+        const virtualSolReserves = data.virtual_sol_reserves / 1e9; // lamports → SOL
+        const virtualTokenReserves = data.virtual_token_reserves / 1e6; // Assuming 6 decimals
+        const tokenPriceInSol = virtualSolReserves / virtualTokenReserves;
+        const tokenPriceInUsd = tokenPriceInSol * this.solPriceUsd;
+
+        if (tokenPriceInUsd > 0) {
+          return {
+            mint,
+            priceUsd: tokenPriceInUsd,
+            priceSol: tokenPriceInSol,
+            solUsd: this.solPriceUsd,
+            timestamp: Date.now(),
+            source: "pumpfun",
+            marketCapUsd: data.usd_market_cap
+          };
+        }
+      }
+
+      return null;
+    } catch (error: any) {
+      // Don't log expected failures (404, timeouts)
+      const isExpectedError =
+        error.message?.includes('404') ||
+        error.message?.includes('aborted') ||
+        error.name === 'AbortError';
+
+      if (!isExpectedError) {
+        logger.warn({ mint: mint.slice(0, 8), error: error.message }, "PumpFun API error");
+      }
+
+      return null;
     }
   }
 
@@ -740,7 +902,8 @@ class OptimizedPriceService extends EventEmitter {
     const negativeCacheEntry = this.negativeCache.get(mint);
     if (negativeCacheEntry) {
       const age = Date.now() - negativeCacheEntry.timestamp;
-      const NEGATIVE_CACHE_TTL = 10 * 60 * 1000; // 10 minutes (increased from 5)
+      // Dynamic TTL: 2 minutes for pump.fun tokens, 10 minutes for others
+      const NEGATIVE_CACHE_TTL = this.getNegativeCacheTTL(mint);
 
       if (age < NEGATIVE_CACHE_TTL) {
         // Token is in negative cache - don't log, just return null
@@ -772,7 +935,19 @@ class OptimizedPriceService extends EventEmitter {
   }
 
   private async _fetchTokenPriceInternal(mint: string): Promise<PriceTick | null> {
-    // Try DexScreener first (best for SPL tokens)
+    // SMART ROUTING: Check if it's a pump.fun token and route accordingly
+    if (this.isPumpFunToken(mint)) {
+      // For pump.fun tokens, try pump.fun API FIRST (fastest & most accurate)
+      const pumpPrice = await this.fetchPumpFunPrice(mint);
+      if (pumpPrice) {
+        await this.updatePrice(pumpPrice);
+        return pumpPrice;
+      }
+      // If not found on pump.fun, it might have graduated to Raydium
+      // Fall through to try DexScreener/Jupiter
+    }
+
+    // Try DexScreener first (best for SPL tokens and graduated pump.fun tokens)
     try {
       const dexResult = await this.dexScreenerBreaker.execute(async () => {
         const controller = new AbortController();
@@ -912,48 +1087,20 @@ class OptimizedPriceService extends EventEmitter {
       }
     }
 
-    // Try pump.fun as last resort
-    try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 5000);
-
-      const response = await fetch(`https://frontend-api.pump.fun/coins/${mint}`, {
-        signal: controller.signal,
-        headers: {
-          'Accept': 'application/json',
-          'User-Agent': 'VirtualSol/1.0'
-        }
-      });
-      clearTimeout(timeoutId);
-
-      if (response.ok) {
-        const data = await response.json();
-
-        if (data && data.usd_market_cap) {
-          const supply = 1_000_000_000;
-          const priceUsd = data.usd_market_cap / supply;
-
-          if (priceUsd > 0) {
-            return {
-              mint,
-              priceUsd,
-              priceSol: priceUsd / this.solPriceUsd,
-              solUsd: this.solPriceUsd,
-              timestamp: Date.now(),
-              source: "pump.fun",
-              marketCapUsd: data.usd_market_cap
-            };
-          }
-        }
+    // For non-pump.fun tokens, try pump.fun as last resort
+    // (some tokens might be on pump.fun but don't have "pump" suffix)
+    if (!this.isPumpFunToken(mint)) {
+      const pumpPrice = await this.fetchPumpFunPrice(mint);
+      if (pumpPrice) {
+        await this.updatePrice(pumpPrice);
+        return pumpPrice;
       }
-    } catch (error: any) {
-      // Pump.fun failures are expected - don't log
     }
 
-    // No price found from any source - add to negative cache (don't log to reduce spam)
+    // No price found from any source - add to negative cache with dynamic TTL
     this.negativeCache.set(mint, {
       timestamp: Date.now(),
-      reason: 'not-found'
+      reason: 'not-found-all-sources'
     });
 
     return null;
