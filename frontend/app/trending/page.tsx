@@ -489,7 +489,7 @@ export default function TrendingPage() {
                             </Button>
                           </Link>
                         </td>
-                      </motion.tr>
+                      </tr>
                     )
                   })}
                 </tbody>
