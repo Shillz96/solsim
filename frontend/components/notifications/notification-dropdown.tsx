@@ -81,7 +81,7 @@ export function NotificationDropdown() {
           )}
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-80 max-h-96 overflow-y-auto bg-card border-2 border-border">
+      <DropdownMenuContent align="end" className="w-80 max-h-96 overflow-y-auto bg-gray-800 dark:bg-gray-800 border-2 border-gray-600">
         <DropdownMenuLabel className="flex items-center justify-between">
           <span>Notifications</span>
           {unreadCount > 0 && (

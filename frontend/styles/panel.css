@@ -130,14 +130,14 @@
   z-index: var(--z-nav);
 }
 
-/* Dropdown menus */
+/* Dropdown menus - DISABLED TO PREVENT CONFLICTS
 .dropdown {
   z-index: var(--z-dropdown);
   background: var(--popover);
   border: 1px solid var(--border);
   border-radius: 0.5rem;
   box-shadow: 0 10px 15px -3px color-mix(in oklab, black 10%, transparent 90%);
-}
+} */
 
 /* Sidebar panels */
 .sidebar {
@@ -146,7 +146,7 @@
   border-right: 1px solid var(--border);
 }
 
-/* Modal components */
+/* Modal components - DISABLED TO PREVENT CONFLICTS
 .modal-backdrop {
   z-index: var(--z-modal-backdrop);
   background: color-mix(in oklab, black 50%, transparent 50%);
@@ -162,14 +162,13 @@
   box-shadow: 0 25px 50px -12px color-mix(in oklab, black 25%, transparent 75%);
 }
 
-/* Popover components */
 .popover {
   z-index: var(--z-popover);
   background: var(--popover);
   border: 1px solid var(--border);
   border-radius: 0.5rem;
   box-shadow: 0 10px 15px -3px color-mix(in oklab, black 10%, transparent 90%);
-}
+} */
 
 /* Tooltip components */
 .tooltip {
