@@ -636,6 +636,7 @@ class OptimizedPriceService extends EventEmitter {
    */
   private async connectPumpPortalWebSocket() {
     try {
+      logger.info("🔌 Initializing PumpPortal WebSocket client...");
       this.pumpPortalWs = new PumpPortalWebSocketClient(this.solPriceUsd);
 
       // Listen for price updates from PumpPortal
@@ -653,14 +654,21 @@ class OptimizedPriceService extends EventEmitter {
         await this.updatePrice(tick);
       });
 
+      logger.info("🔌 Connecting to PumpPortal WebSocket (wss://pumpportal.fun/api/data)...");
       await this.pumpPortalWs.connect();
 
       // Subscribe to new token creation events (to catch brand new memecoins)
+      logger.info("📡 Subscribing to PumpPortal new token events...");
       this.pumpPortalWs.subscribeToNewTokens();
 
-      logger.info("✅ PumpPortal WebSocket connected for real-time pump.fun prices");
+      logger.info("✅ PumpPortal WebSocket connected and subscribed for real-time pump.fun prices");
     } catch (error) {
-      logger.error({ error }, "Failed to connect to PumpPortal WebSocket");
+      logger.error({ 
+        error, 
+        message: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined
+      }, "❌ Failed to connect to PumpPortal WebSocket - pump.fun real-time prices will not be available");
+      // Don't throw - allow the service to continue without PumpPortal
     }
   }
 

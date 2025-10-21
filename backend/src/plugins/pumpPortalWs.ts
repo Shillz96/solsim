@@ -81,54 +81,59 @@ export class PumpPortalWebSocketClient extends EventEmitter {
       return;
     }
 
-    try {
-      logger.info("🔌 Connecting to PumpPortal WebSocket...");
-      this.ws = new WebSocket(this.WS_URL);
+    return new Promise((resolve, reject) => {
+      try {
+        logger.info("🔌 Connecting to PumpPortal WebSocket...");
+        this.ws = new WebSocket(this.WS_URL);
 
-      this.ws.on('open', () => {
-        logger.info("✅ PumpPortal WebSocket connected");
+        this.ws.on('open', () => {
+          logger.info("✅ PumpPortal WebSocket connected");
 
-        // Reset reconnection state
-        this.reconnectAttempts = 0;
-        this.reconnectDelay = 1000;
-        this.isReconnecting = false;
+          // Reset reconnection state
+          this.reconnectAttempts = 0;
+          this.reconnectDelay = 1000;
+          this.isReconnecting = false;
 
-        // Re-subscribe to previous subscriptions
-        this.resubscribe();
+          // Re-subscribe to previous subscriptions
+          this.resubscribe();
 
-        // Start ping/pong health checks
-        this.startHealthChecks();
-      });
+          // Start ping/pong health checks
+          this.startHealthChecks();
 
-      this.ws.on('message', (data: WebSocket.Data) => {
-        this.handleMessage(data);
-      });
+          resolve();
+        });
 
-      this.ws.on('error', (error: Error) => {
-        logger.error({ error: error.message }, "PumpPortal WebSocket error");
-      });
+        this.ws.on('message', (data: WebSocket.Data) => {
+          this.handleMessage(data);
+        });
 
-      this.ws.on('close', (code: number, reason: Buffer) => {
-        logger.warn({ code, reason: reason.toString() }, "PumpPortal WebSocket closed");
+        this.ws.on('error', (error: Error) => {
+          logger.error({ error: error.message }, "PumpPortal WebSocket error");
+          reject(error);
+        });
 
-        if (this.pingInterval) {
-          clearInterval(this.pingInterval);
-          this.pingInterval = null;
-        }
+        this.ws.on('close', (code: number, reason: Buffer) => {
+          logger.warn({ code, reason: reason.toString() }, "PumpPortal WebSocket closed");
 
-        if (this.shouldReconnect) {
-          this.reconnect();
-        }
-      });
+          if (this.pingInterval) {
+            clearInterval(this.pingInterval);
+            this.pingInterval = null;
+          }
 
-      this.ws.on('pong', () => {
-        logger.debug("PumpPortal pong received");
-      });
+          if (this.shouldReconnect) {
+            this.reconnect();
+          }
+        });
 
-    } catch (error) {
-      logger.error({ error }, "Failed to create PumpPortal WebSocket connection");
-      this.reconnect();
-    }
+        this.ws.on('pong', () => {
+          logger.debug("PumpPortal pong received");
+        });
+
+      } catch (error) {
+        logger.error({ error }, "Failed to create PumpPortal WebSocket connection");
+        reject(error);
+      }
+    });
   }
 
   /**
