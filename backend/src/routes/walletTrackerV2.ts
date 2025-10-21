@@ -24,13 +24,42 @@ export default async function walletTrackerV2Routes(app: FastifyInstance) {
 
       const walletAddresses = trackedWallets.map(w => w.address);
 
+      // Get user's settings (with defaults if not exists)
+      let settings = await prisma.walletTrackerSettings.findUnique({
+        where: { userId }
+      });
+
+      // Create default settings if they don't exist
+      if (!settings) {
+        settings = await prisma.walletTrackerSettings.create({
+          data: {
+            userId,
+            showBuys: true,
+            showSells: true,
+            showFirstBuyOnly: false,
+            requireImages: false,
+          }
+        });
+      }
+
       // Get filtered activities
       const activities = await activityService.getFilteredActivities({
         walletAddresses,
         tokenMint,
         type,
         limit: parseInt(limit) + 1, // Get one extra to check if there's more
-        offset: parseInt(offset)
+        offset: parseInt(offset),
+        // Apply user settings
+        settings: {
+          showBuys: settings.showBuys,
+          showSells: settings.showSells,
+          showFirstBuyOnly: settings.showFirstBuyOnly,
+          minMarketCap: settings.minMarketCap ? parseFloat(settings.minMarketCap.toString()) : undefined,
+          maxMarketCap: settings.maxMarketCap ? parseFloat(settings.maxMarketCap.toString()) : undefined,
+          minTransactionUsd: settings.minTransactionUsd ? parseFloat(settings.minTransactionUsd.toString()) : undefined,
+          maxTransactionUsd: settings.maxTransactionUsd ? parseFloat(settings.maxTransactionUsd.toString()) : undefined,
+          requireImages: settings.requireImages,
+        }
       });
 
       const hasMore = activities.length > parseInt(limit);

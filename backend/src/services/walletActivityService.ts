@@ -761,8 +761,7 @@ export class WalletActivityService {
   }
 
   /**
-   * Get activities with filtering
-   * CRITICAL: Filters out activities without images
+   * Get activities with filtering based on user settings
    */
   async getFilteredActivities(params: {
     walletAddresses?: string[];
@@ -772,6 +771,16 @@ export class WalletActivityService {
     endTime?: Date;
     limit?: number;
     offset?: number;
+    settings?: {
+      showBuys?: boolean;
+      showSells?: boolean;
+      showFirstBuyOnly?: boolean;
+      minMarketCap?: number;
+      maxMarketCap?: number;
+      minTransactionUsd?: number;
+      maxTransactionUsd?: number;
+      requireImages?: boolean;
+    };
   }): Promise<WalletActivity[]> {
     const where: any = {};
 
@@ -796,8 +805,8 @@ export class WalletActivityService {
       if (params.endTime) where.timestamp.lte = params.endTime;
     }
 
-    // CRITICAL FIX: Fetch extra activities to account for filtering
-    const fetchLimit = (params.limit || 100) * 2; // Fetch 2x to ensure we have enough after filtering
+    // Fetch 3x the requested limit to ensure we have enough after client-side filtering
+    const fetchLimit = (params.limit || 100) * 3;
 
     const activities = await prisma.walletActivity.findMany({
       where,
@@ -806,9 +815,68 @@ export class WalletActivityService {
       skip: params.offset || 0
     });
 
-    // NOTE: Filtering removed - now handled by user settings in frontend/API layer
-    // Return the activities as-is (up to requested limit)
-    return activities.slice(0, params.limit || 100);
+    // Apply user settings filters
+    let filtered = activities;
+
+    if (params.settings) {
+      const {
+        showBuys = true,
+        showSells = true,
+        showFirstBuyOnly = false,
+        minMarketCap,
+        maxMarketCap,
+        minTransactionUsd,
+        maxTransactionUsd,
+        requireImages = false
+      } = params.settings;
+
+      filtered = filtered.filter(activity => {
+        // Filter by transaction type
+        if (!showBuys && activity.type === 'BUY') return false;
+        if (!showSells && activity.type === 'SELL') return false;
+
+        // Filter by market cap (if available)
+        if (activity.marketCap) {
+          const mc = parseFloat(activity.marketCap.toString());
+          if (minMarketCap !== undefined && mc < minMarketCap) return false;
+          if (maxMarketCap !== undefined && mc > maxMarketCap) return false;
+        }
+
+        // Filter by transaction USD amount (if available)
+        if (activity.priceUsd) {
+          const txUsd = parseFloat(activity.priceUsd.toString());
+          if (minTransactionUsd !== undefined && txUsd < minTransactionUsd) return false;
+          if (maxTransactionUsd !== undefined && txUsd > maxTransactionUsd) return false;
+        }
+
+        // Filter by images
+        if (requireImages) {
+          const hasImage = activity.tokenInLogoURI || activity.tokenOutLogoURI;
+          if (!hasImage) return false;
+        }
+
+        return true;
+      });
+
+      // Handle first buy only filter (requires tracking seen tokens)
+      if (showFirstBuyOnly) {
+        const seenTokens = new Set<string>();
+        filtered = filtered.filter(activity => {
+          if (activity.type !== 'BUY') return true;
+
+          const tokenMint = activity.tokenOutMint;
+          if (!tokenMint) return true;
+
+          if (seenTokens.has(tokenMint)) return false;
+
+          seenTokens.add(tokenMint);
+          return true;
+        });
+      }
+    }
+
+    // Return up to requested limit
+    return filtered.slice(0, params.limit || 100);
   }
 
   /**
