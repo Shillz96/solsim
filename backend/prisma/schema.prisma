@@ -8,82 +8,83 @@ datasource db {
 }
 
 model User {
-  id                 String               @id @default(uuid())
-  email              String               @unique
-  username           String
-  passwordHash       String
-  displayName        String?
-  bio                String?
-  avatar             String?
-  avatarUrl          String?
-  handle             String?
-  profileImage       String?
-  twitter            String?
-  discord            String?
-  telegram           String?
-  website            String?
-  virtualSolBalance  Decimal              @default(100)
-  isProfilePublic    Boolean              @default(true)
-  solanaWallet       String?
-  userTier           UserTier             @default(EMAIL_USER)
-  walletAddress      String?              @unique
-  walletNonce        String?
-  walletVerified     Boolean              @default(false)
-  vsolTokenBalance   Decimal?
-  vsolBalanceUpdated DateTime?
-  monthlyConversions Decimal              @default(0)
-  conversionResetAt  DateTime?
-  premiumFeatures    String?              @default("[]")
-  rewardPoints       Decimal              @default(0)
-  emailVerified      Boolean              @default(false)
-  emailVerificationToken String?          @unique
+  id                      String                 @id @default(uuid())
+  email                   String                 @unique
+  username                String
+  passwordHash            String
+  displayName             String?
+  bio                     String?
+  avatar                  String?
+  avatarUrl               String?
+  handle                  String?
+  profileImage            String?
+  twitter                 String?
+  discord                 String?
+  telegram                String?
+  website                 String?
+  virtualSolBalance       Decimal                @default(100)
+  isProfilePublic         Boolean                @default(true)
+  solanaWallet            String?
+  userTier                UserTier               @default(EMAIL_USER)
+  walletAddress           String?                @unique
+  walletNonce             String?
+  walletVerified          Boolean                @default(false)
+  vsolTokenBalance        Decimal?
+  vsolBalanceUpdated      DateTime?
+  monthlyConversions      Decimal                @default(0)
+  conversionResetAt       DateTime?
+  premiumFeatures         String?                @default("[]")
+  rewardPoints            Decimal                @default(0)
+  emailVerified           Boolean                @default(false)
+  emailVerificationToken  String?                @unique
   emailVerificationExpiry DateTime?
-  passwordResetToken String?              @unique
-  passwordResetExpiry DateTime?
-  createdAt          DateTime             @default(now())
-  updatedAt          DateTime             @updatedAt
-  conversions        ConversionHistory[]
-  copyTrades         CopyTrade[]
-  holdings           Holding[]
-  positions          Position[]
-  realizedPnls       RealizedPnL[]
-  rewardClaims       RewardClaim[]
-  trades             Trade[]
-  transactions       TransactionHistory[]
-  trackedWallets     WalletTrack[]
-  solPurchases       SolPurchase[]
-  perpPositions      PerpPosition[]
-  perpTrades         PerpTrade[]
-  liquidations       Liquidation[]
+  passwordResetToken      String?                @unique
+  passwordResetExpiry     DateTime?
+  createdAt               DateTime               @default(now())
+  updatedAt               DateTime               @updatedAt
+  conversions             ConversionHistory[]
+  copyTrades              CopyTrade[]
+  holdings                Holding[]
+  positions               Position[]
+  realizedPnls            RealizedPnL[]
+  rewardClaims            RewardClaim[]
+  trades                  Trade[]
+  transactions            TransactionHistory[]
+  trackedWallets          WalletTrack[]
+  walletTrackerSettings   WalletTrackerSettings?
+  solPurchases            SolPurchase[]
+  perpPositions           PerpPosition[]
+  perpTrades              PerpTrade[]
+  liquidations            Liquidation[]
 }
 
 model Trade {
-  id             String               @id @default(uuid())
-  userId         String
-  tokenAddress   String
-  mint           String
-  tokenSymbol    String?
-  tokenName      String?
-  action         String
-  side           String
-  quantity       Decimal
-  price          Decimal
-  totalCost      Decimal
-  costUsd        Decimal?
-  proceedsUsd    Decimal?             // SELL: netSOL * solUsdAtFill
-  realizedPnL    Decimal?
-  marketCapUsd   Decimal?
+  id               String               @id @default(uuid())
+  userId           String
+  tokenAddress     String
+  mint             String
+  tokenSymbol      String?
+  tokenName        String?
+  action           String
+  side             String
+  quantity         Decimal
+  price            Decimal
+  totalCost        Decimal
+  costUsd          Decimal?
+  proceedsUsd      Decimal? // SELL: netSOL * solUsdAtFill
+  realizedPnL      Decimal?
+  marketCapUsd     Decimal?
   // Enhanced fields for proper PnL tracking
-  solUsdAtFill   Decimal?             // SOL→USD FX rate at fill time
-  grossSol       Decimal?             // Gross SOL before fees
-  feesSol        Decimal?             // Total fees (DEX + L1 + priority)
-  netSol         Decimal?             // Net SOL after fees (gross + fees for buy, gross - fees for sell)
-  route          String?              // Trading route (Raydium/Orca/Jupiter/Pumpfun)
-  priceSOLPerToken Decimal?           // Token price in SOL terms
-  timestamp      DateTime             @default(now())
-  createdAt      DateTime             @default(now())
-  user           User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
-  transactions   TransactionHistory[]
+  solUsdAtFill     Decimal? // SOL→USD FX rate at fill time
+  grossSol         Decimal? // Gross SOL before fees
+  feesSol          Decimal? // Total fees (DEX + L1 + priority)
+  netSol           Decimal? // Net SOL after fees (gross + fees for buy, gross - fees for sell)
+  route            String? // Trading route (Raydium/Orca/Jupiter/Pumpfun)
+  priceSOLPerToken Decimal? // Token price in SOL terms
+  timestamp        DateTime             @default(now())
+  createdAt        DateTime             @default(now())
+  user             User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions     TransactionHistory[]
 
   @@index([userId, timestamp(sort: Desc)], map: "user_trades_recent")
   @@index([userId, createdAt(sort: Desc)], map: "user_trades_created")
@@ -92,7 +93,7 @@ model Trade {
   @@index([userId, tokenAddress, timestamp(sort: Desc)], map: "user_token_history")
   @@index([userId, action, timestamp(sort: Desc)], map: "user_trade_type")
   @@index([timestamp(sort: Desc)], map: "trades_chronological")
-  @@index([userId, side, createdAt(sort: Desc)], map: "user_trade_side")  // PERFORMANCE: For buy/sell history queries
+  @@index([userId, side, createdAt(sort: Desc)], map: "user_trade_side") // PERFORMANCE: For buy/sell history queries
 }
 
 model Holding {
@@ -177,16 +178,16 @@ model Token {
 }
 
 model ConversionHistory {
-  id                String   @id @default(uuid())
-  userId            String
-  virtualSolAmount  Decimal
+  id                 String   @id @default(uuid())
+  userId             String
+  virtualSolAmount   Decimal
   vsolTokensReceived Decimal
-  conversionRate    Decimal
-  transactionHash   String?
-  status            String
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  conversionRate     Decimal
+  transactionHash    String?
+  status             String
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, createdAt(sort: Desc)], map: "user_conversions_recent")
   @@index([status, createdAt(sort: Desc)], map: "conversions_by_status")
@@ -233,7 +234,7 @@ model Position {
 
   @@unique([userId, mint])
   @@index([userId, mint])
-  @@index([userId, qty(sort: Desc)], map: "user_positions_by_qty")  // PERFORMANCE: For portfolio queries filtering by qty > 0
+  @@index([userId, qty(sort: Desc)], map: "user_positions_by_qty") // PERFORMANCE: For portfolio queries filtering by qty > 0
 }
 
 model PositionLot {
@@ -256,32 +257,32 @@ model RealizedPnL {
   id        String   @id @default(uuid())
   userId    String
   mint      String
-  pnl       Decimal  // Legacy: USD PnL
+  pnl       Decimal // Legacy: USD PnL
   pnlUsd    Decimal? // Explicit USD PnL (frozen at sell time)
   pnlSol    Decimal? // SOL PnL (frozen at sell time)
-  tradeId   String?  // Reference to the sell trade
+  tradeId   String? // Reference to the sell trade
   createdAt DateTime @default(now())
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, createdAt])
-  @@index([mint, createdAt(sort: Desc)], map: "mint_pnl_chronological")  // PERFORMANCE: For mint-specific PnL queries
+  @@index([mint, createdAt(sort: Desc)], map: "mint_pnl_chronological") // PERFORMANCE: For mint-specific PnL queries
   @@index([tradeId])
 }
 
 model LotClosure {
-  id               String   @id @default(uuid())
-  lotId            String
-  sellTradeId      String
-  userId           String
-  mint             String
-  qtyClosedUnits   Decimal  // Token quantity closed (in base units or decimal)
-  costSOL          Decimal  // SOL cost of this piece
-  costUSD          Decimal  // USD cost of this piece (frozen at buy)
-  proceedsSOL      Decimal  // SOL proceeds from this piece
-  proceedsUSD      Decimal  // USD proceeds (frozen at sell)
-  realizedPnlSOL   Decimal  // Realized PnL in SOL
-  realizedPnlUSD   Decimal  // Realized PnL in USD
-  createdAt        DateTime @default(now())
+  id             String   @id @default(uuid())
+  lotId          String
+  sellTradeId    String
+  userId         String
+  mint           String
+  qtyClosedUnits Decimal // Token quantity closed (in base units or decimal)
+  costSOL        Decimal // SOL cost of this piece
+  costUSD        Decimal // USD cost of this piece (frozen at buy)
+  proceedsSOL    Decimal // SOL proceeds from this piece
+  proceedsUSD    Decimal // USD proceeds (frozen at sell)
+  realizedPnlSOL Decimal // Realized PnL in SOL
+  realizedPnlUSD Decimal // Realized PnL in USD
+  createdAt      DateTime @default(now())
 
   @@index([lotId])
   @@index([sellTradeId])
@@ -311,6 +312,34 @@ model WalletTrack {
   @@index([address])
 }
 
+model WalletTrackerSettings {
+  id     String @id @default(uuid())
+  userId String @unique
+
+  // Transaction Type Filters
+  showBuys         Boolean @default(true)
+  showSells        Boolean @default(true)
+  showFirstBuyOnly Boolean @default(false)
+
+  // Market Cap Filters (USD)
+  minMarketCap Decimal? // Null = no minimum
+  maxMarketCap Decimal? // Null = no maximum
+
+  // Transaction Amount Filters (USD)
+  minTransactionUsd Decimal? // Null = no minimum
+  maxTransactionUsd Decimal? // Null = no maximum
+
+  // Image Filter
+  requireImages Boolean @default(false) // If true, only show trades with token images
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
 model CopyTrade {
   id            String    @id @default(uuid())
   userId        String
@@ -330,29 +359,29 @@ model CopyTrade {
 }
 
 model WalletActivity {
-  id                String    @id @default(uuid())
-  walletAddress     String
-  signature         String    @unique
-  type              String    // SWAP, BUY, SELL, TRANSFER
-  tokenInMint       String?   // Token being sold/sent
-  tokenInSymbol     String?
-  tokenInAmount     Decimal?
-  tokenInLogoURI    String?   // Token logo image URL
-  tokenOutMint      String?   // Token being bought/received
-  tokenOutSymbol    String?
-  tokenOutAmount    Decimal?
-  tokenOutLogoURI   String?   // Token logo image URL
-  priceUsd          Decimal?  // USD value of the trade
-  solAmount         Decimal?  // SOL involved in the trade
-  program           String?   // DEX program (Raydium, Pump.fun, etc)
-  fee               Decimal?  // Transaction fee in SOL
-  profitLoss        Decimal?  // P&L if this is a sell
-  marketCap         Decimal?  // Market cap at time of trade
-  volume24h         Decimal?  // 24h volume at time of trade
-  priceChange24h    Decimal?  // 24h price change percentage
-  timestamp         DateTime
-  blockTime         BigInt?
-  createdAt         DateTime  @default(now())
+  id              String   @id @default(uuid())
+  walletAddress   String
+  signature       String   @unique
+  type            String // SWAP, BUY, SELL, TRANSFER
+  tokenInMint     String? // Token being sold/sent
+  tokenInSymbol   String?
+  tokenInAmount   Decimal?
+  tokenInLogoURI  String? // Token logo image URL
+  tokenOutMint    String? // Token being bought/received
+  tokenOutSymbol  String?
+  tokenOutAmount  Decimal?
+  tokenOutLogoURI String? // Token logo image URL
+  priceUsd        Decimal? // USD value of the trade
+  solAmount       Decimal? // SOL involved in the trade
+  program         String? // DEX program (Raydium, Pump.fun, etc)
+  fee             Decimal? // Transaction fee in SOL
+  profitLoss      Decimal? // P&L if this is a sell
+  marketCap       Decimal? // Market cap at time of trade
+  volume24h       Decimal? // 24h volume at time of trade
+  priceChange24h  Decimal? // 24h price change percentage
+  timestamp       DateTime
+  blockTime       BigInt?
+  createdAt       DateTime @default(now())
 
   @@index([walletAddress, timestamp(sort: Desc)])
   @@index([signature])
@@ -365,12 +394,12 @@ model WalletActivity {
 model SolPurchase {
   id                   String    @id @default(uuid())
   userId               String
-  realSolAmount        Decimal   // Amount of real SOL spent
-  simulatedSolAmount   Decimal   // Amount of simulated SOL received
+  realSolAmount        Decimal // Amount of real SOL spent
+  simulatedSolAmount   Decimal // Amount of simulated SOL received
   transactionSignature String    @unique // Solana transaction signature
-  walletAddress        String    // User's wallet address that made the payment
+  walletAddress        String // User's wallet address that made the payment
   status               String    @default("PENDING") // PENDING, COMPLETED, FAILED
-  tierLabel            String?   // e.g., "Tier 1", "Tier 3 - Popular"
+  tierLabel            String? // e.g., "Tier 1", "Tier 3 - Popular"
   createdAt            DateTime  @default(now())
   completedAt          DateTime?
   user                 User      @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -381,16 +410,16 @@ model SolPurchase {
 }
 
 model Notification {
-  id          String              @id @default(uuid())
-  userId      String
-  type        NotificationType
-  category    NotificationCategory @default(GENERAL)
-  title       String
-  message     String
-  read        Boolean             @default(false)
-  metadata    String?             @default("{}") // JSON string for additional data
-  actionUrl   String?             // Optional URL to navigate to
-  createdAt   DateTime            @default(now())
+  id        String               @id @default(uuid())
+  userId    String
+  type      NotificationType
+  category  NotificationCategory @default(GENERAL)
+  title     String
+  message   String
+  read      Boolean              @default(false)
+  metadata  String?              @default("{}") // JSON string for additional data
+  actionUrl String? // Optional URL to navigate to
+  createdAt DateTime             @default(now())
 
   @@index([userId, createdAt(sort: Desc)])
   @@index([userId, read, createdAt(sort: Desc)])
@@ -405,25 +434,25 @@ enum UserTier {
 }
 
 enum NotificationType {
-  TRADE_EXECUTED        // Trade completed
-  TRADE_MILESTONE       // 10th, 50th, 100th trade
-  POSITION_GAIN         // Position up 10%, 25%, 50%, 100%
-  POSITION_MOON         // 2x, 5x, 10x gains
-  POSITION_LOSS         // Position down significantly
-  DAILY_PNL             // Daily profit milestone
-  PORTFOLIO_ATH         // Portfolio all-time high
-  PORTFOLIO_RECOVERY    // Recovered from loss
-  LEADERBOARD_RANK      // Entered top 100, top 10
-  LEADERBOARD_MOVE      // Moved up ranks
-  REWARD_AVAILABLE      // Rewards to claim
-  REWARD_CLAIMED        // Reward claimed
-  WALLET_TRACKER_TRADE  // KOL made a trade
-  WALLET_TRACKER_GAIN   // KOL position mooning
-  ACHIEVEMENT           // Fun achievements
-  PRICE_ALERT           // Price target hit
-  TRENDING_TOKEN        // Token you hold is trending
-  SYSTEM                // System announcements
-  WELCOME               // Welcome message
+  TRADE_EXECUTED // Trade completed
+  TRADE_MILESTONE // 10th, 50th, 100th trade
+  POSITION_GAIN // Position up 10%, 25%, 50%, 100%
+  POSITION_MOON // 2x, 5x, 10x gains
+  POSITION_LOSS // Position down significantly
+  DAILY_PNL // Daily profit milestone
+  PORTFOLIO_ATH // Portfolio all-time high
+  PORTFOLIO_RECOVERY // Recovered from loss
+  LEADERBOARD_RANK // Entered top 100, top 10
+  LEADERBOARD_MOVE // Moved up ranks
+  REWARD_AVAILABLE // Rewards to claim
+  REWARD_CLAIMED // Reward claimed
+  WALLET_TRACKER_TRADE // KOL made a trade
+  WALLET_TRACKER_GAIN // KOL position mooning
+  ACHIEVEMENT // Fun achievements
+  PRICE_ALERT // Price target hit
+  TRENDING_TOKEN // Token you hold is trending
+  SYSTEM // System announcements
+  WELCOME // Welcome message
 }
 
 enum NotificationCategory {
@@ -439,25 +468,25 @@ enum NotificationCategory {
 
 // Perpetual Trading Models
 model PerpPosition {
-  id                String        @id @default(uuid())
-  userId            String
-  mint              String
-  side              String        // 'LONG' or 'SHORT'
-  leverage          Decimal
-  entryPrice        Decimal
-  currentPrice      Decimal
-  positionSize      Decimal       // Token quantity
-  marginAmount      Decimal       // Collateral in SOL
-  unrealizedPnL     Decimal       @default(0)
-  marginRatio       Decimal       @default(0) // Current margin / maintenance margin
-  liquidationPrice  Decimal
-  status            String        @default("OPEN") // 'OPEN', 'CLOSED', 'LIQUIDATED'
-  openedAt          DateTime      @default(now())
-  closedAt          DateTime?
-  createdAt         DateTime      @default(now())
-  updatedAt         DateTime      @updatedAt
-  user              User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  perpTrades        PerpTrade[]
+  id               String      @id @default(uuid())
+  userId           String
+  mint             String
+  side             String // 'LONG' or 'SHORT'
+  leverage         Decimal
+  entryPrice       Decimal
+  currentPrice     Decimal
+  positionSize     Decimal // Token quantity
+  marginAmount     Decimal // Collateral in SOL
+  unrealizedPnL    Decimal     @default(0)
+  marginRatio      Decimal     @default(0) // Current margin / maintenance margin
+  liquidationPrice Decimal
+  status           String      @default("OPEN") // 'OPEN', 'CLOSED', 'LIQUIDATED'
+  openedAt         DateTime    @default(now())
+  closedAt         DateTime?
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+  user             User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  perpTrades       PerpTrade[]
 
   @@index([userId])
   @@index([status])
@@ -466,23 +495,23 @@ model PerpPosition {
 }
 
 model PerpTrade {
-  id            String      @id @default(uuid())
-  userId        String
-  positionId    String?
-  mint          String
-  side          String      // 'LONG' or 'SHORT'
-  action        String      // 'OPEN', 'CLOSE', 'LIQUIDATE', 'INCREASE', 'DECREASE'
-  leverage      Decimal
-  quantity      Decimal     // Position size change
-  entryPrice    Decimal
-  exitPrice     Decimal?
-  marginUsed    Decimal
-  pnl           Decimal?
-  fees          Decimal     @default(0)
-  timestamp     DateTime    @default(now())
-  createdAt     DateTime    @default(now())
-  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  position      PerpPosition? @relation(fields: [positionId], references: [id])
+  id         String        @id @default(uuid())
+  userId     String
+  positionId String?
+  mint       String
+  side       String // 'LONG' or 'SHORT'
+  action     String // 'OPEN', 'CLOSE', 'LIQUIDATE', 'INCREASE', 'DECREASE'
+  leverage   Decimal
+  quantity   Decimal // Position size change
+  entryPrice Decimal
+  exitPrice  Decimal?
+  marginUsed Decimal
+  pnl        Decimal?
+  fees       Decimal       @default(0)
+  timestamp  DateTime      @default(now())
+  createdAt  DateTime      @default(now())
+  user       User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  position   PerpPosition? @relation(fields: [positionId], references: [id])
 
   @@index([userId, timestamp(sort: Desc)])
   @@index([mint, timestamp(sort: Desc)])
@@ -490,17 +519,17 @@ model PerpTrade {
 }
 
 model Liquidation {
-  id                String   @id @default(uuid())
-  userId            String
-  positionId        String
-  mint              String
-  side              String
-  liquidationPrice  Decimal
-  positionSize      Decimal
-  marginLost        Decimal
-  timestamp         DateTime @default(now())
-  createdAt         DateTime @default(now())
-  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id               String   @id @default(uuid())
+  userId           String
+  positionId       String
+  mint             String
+  side             String
+  liquidationPrice Decimal
+  positionSize     Decimal
+  marginLost       Decimal
+  timestamp        DateTime @default(now())
+  createdAt        DateTime @default(now())
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, timestamp(sort: Desc)])
   @@index([positionId])
