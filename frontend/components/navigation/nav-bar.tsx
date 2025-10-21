@@ -320,7 +320,7 @@ export function NavBar() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
                 transition={{ duration: 0.15 }}
-                className="absolute top-full left-0 right-0 mt-2 bg-background border-2 border-border rounded-lg shadow-xl z-[100] max-h-80 overflow-y-auto"
+                className="absolute top-full left-0 right-0 mt-2 bg-popover text-popover-foreground border-2 border-border rounded-lg shadow-xl z-[100] max-h-80 overflow-y-auto"
               >
                   <div className="p-2">
                     <div className="text-xs text-muted-foreground px-2 py-2 font-semibold border-b-2 border-border mb-1 uppercase tracking-wide">
