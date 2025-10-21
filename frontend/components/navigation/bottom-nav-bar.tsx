@@ -3,7 +3,7 @@
 import Link from "next/link"
 import Image from "next/image"
 import { usePathname } from "next/navigation"
-import { Home, TrendingUp, Wallet, Trophy, Moon, Sun, Gift, Eye, Zap } from "lucide-react"
+import { Home, TrendingUp, Wallet, Trophy, Moon, Sun, Gift, Eye, Zap, BookOpen } from "lucide-react"
 import { Twitter as XIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useState, useEffect } from "react"
@@ -92,8 +92,8 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
     { href: "/", icon: Home, label: "Home" },
     { href: "/trade", icon: TrendingUp, label: "Trade" },
     { href: "/portfolio", icon: Wallet, label: "Portfolio" },
-    { href: "/leaderboard", icon: Trophy, label: "Leaderboard" },
     { href: "/rewards", icon: Gift, label: "Rewards" },
+    { href: "/docs", icon: BookOpen, label: "Docs" },
   ]
 
   return (
