@@ -19,10 +19,11 @@ interface SharePnLDialogProps {
   // Optional token-specific data
   tokenSymbol?: string
   tokenName?: string
+  tokenImageUrl?: string
   isTokenSpecific?: boolean
 }
 
-export function SharePnLDialog({ totalPnL, totalPnLPercent, currentValue, initialBalance, open: externalOpen, onOpenChange: externalOnOpenChange, userHandle, userAvatarUrl, userEmail, tokenSymbol, tokenName, isTokenSpecific }: SharePnLDialogProps) {
+export function SharePnLDialog({ totalPnL, totalPnLPercent, currentValue, initialBalance, open: externalOpen, onOpenChange: externalOnOpenChange, userHandle, userAvatarUrl, userEmail, tokenSymbol, tokenName, tokenImageUrl, isTokenSpecific }: SharePnLDialogProps) {
   const [internalOpen, setInternalOpen] = useState(false)
   const open = externalOpen !== undefined ? externalOpen : internalOpen
   const setOpen = externalOnOpenChange || setInternalOpen
@@ -169,8 +170,21 @@ export function SharePnLDialog({ totalPnL, totalPnLPercent, currentValue, initia
                       : "bg-gradient-to-br from-red-500/10 via-red-500/5 to-transparent border-red-500/30"
                   } backdrop-blur-sm`}>
                     <div className="relative">
-                      <div className="text-[10px] font-semibold text-white/60 mb-1 uppercase tracking-wider">
-                        {isTokenSpecific && tokenSymbol ? `${tokenSymbol}` : 'PNL'}
+                      <div className="flex items-center gap-2 mb-1">
+                        {isTokenSpecific && tokenImageUrl && (
+                          <img
+                            src={tokenImageUrl}
+                            alt={tokenSymbol || 'Token'}
+                            className="w-5 h-5 rounded-full object-cover"
+                            onError={(e) => {
+                              // Hide image if it fails to load
+                              (e.target as HTMLImageElement).style.display = 'none'
+                            }}
+                          />
+                        )}
+                        <div className="text-[10px] font-semibold text-white/60 uppercase tracking-wider">
+                          {isTokenSpecific && tokenSymbol ? `${tokenSymbol} PNL` : 'PNL'}
+                        </div>
                       </div>
                       <div className={`text-3xl font-black font-mono mb-1.5 ${
                         totalPnL >= 0 ? "text-green-400" : "text-red-400"

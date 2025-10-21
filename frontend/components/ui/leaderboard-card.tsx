@@ -24,16 +24,12 @@ function LeaderboardRow({
   avatar,
   subtitle,
   animate = true,
+  onDrag,
+  onDragStart,
+  onDragEnd,
+  onAnimationStart,
   ...props
 }: LeaderboardRowProps) {
-  const RowWrapper = animate ? motion.div : 'div'
-  const animationProps = animate ? {
-    initial: { opacity: 0, x: -20 },
-    animate: { opacity: 1, x: 0 },
-    transition: { duration: 0.3, delay: rank * 0.05 },
-    whileHover: { x: 4 }
-  } : {}
-
   const getRankBadge = () => {
     if (rank === 1) return (
       <div className="rank-badge rank-1">
@@ -51,17 +47,15 @@ function LeaderboardRow({
     return <Minus className="h-4 w-4 text-muted-foreground" />
   }
 
-  return (
-    <RowWrapper
-      className={cn(
-        'leaderboard-row',
-        isCurrentUser && 'user-row',
-        'flex items-center gap-4',
-        className
-      )}
-      {...(animate ? animationProps : {})}
-      {...props}
-    >
+  const rowClassName = cn(
+    'leaderboard-row',
+    isCurrentUser && 'user-row',
+    'flex items-center gap-4',
+    className
+  )
+
+  const content = (
+    <>
       <div className="flex items-center gap-3">
         {getRankBadge()}
         {change && (
@@ -94,7 +88,35 @@ function LeaderboardRow({
       <div className="text-right">
         <div className="font-bold text-lg number-display">{value}</div>
       </div>
-    </RowWrapper>
+    </>
+  )
+
+  if (animate) {
+    return (
+      <motion.div
+        className={rowClassName}
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.3, delay: rank * 0.05 }}
+        whileHover={{ x: 4 }}
+        {...props}
+      >
+        {content}
+      </motion.div>
+    )
+  }
+
+  return (
+    <div
+      className={rowClassName}
+      onDrag={onDrag}
+      onDragStart={onDragStart}
+      onDragEnd={onDragEnd}
+      onAnimationStart={onAnimationStart}
+      {...props}
+    >
+      {content}
+    </div>
   )
 }
 

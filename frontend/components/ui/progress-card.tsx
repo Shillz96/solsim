@@ -25,6 +25,10 @@ function ProgressCard({
   color = 'primary',
   showPercentage = true,
   animate = true,
+  onDrag,
+  onDragStart,
+  onDragEnd,
+  onAnimationStart,
   ...props
 }: ProgressCardProps) {
   const percentage = Math.min((current / max) * 100, 100)
@@ -36,22 +40,10 @@ function ProgressCard({
     danger: 'bg-loss'
   }
 
-  const CardWrapper = animate ? motion.div : 'div'
-  const animationProps = animate ? {
-    initial: { opacity: 0, scale: 0.95 },
-    animate: { opacity: 1, scale: 1 },
-    transition: { duration: 0.3 }
-  } : {}
+  const cardClassName = cn('stat-card', className)
 
-  return (
-    <CardWrapper
-      className={cn(
-        'stat-card',
-        className
-      )}
-      {...(animate ? animationProps : {})}
-      {...props}
-    >
+  const content = (
+    <>
       <div className="flex items-start justify-between mb-4">
         <div>
           <h4 className="font-medium text-sm text-muted-foreground">{title}</h4>
@@ -88,7 +80,34 @@ function ProgressCard({
           </div>
         )}
       </div>
-    </CardWrapper>
+    </>
+  )
+
+  if (animate) {
+    return (
+      <motion.div
+        className={cardClassName}
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.3 }}
+        {...props}
+      >
+        {content}
+      </motion.div>
+    )
+  }
+
+  return (
+    <div
+      className={cardClassName}
+      onDrag={onDrag}
+      onDragStart={onDragStart}
+      onDragEnd={onDragEnd}
+      onAnimationStart={onAnimationStart}
+      {...props}
+    >
+      {content}
+    </div>
   )
 }
 
@@ -111,6 +130,10 @@ function AchievementBadge({
   progress,
   maxProgress,
   rarity = 'common',
+  onDrag,
+  onDragStart,
+  onDragEnd,
+  onAnimationStart,
   ...props
 }: AchievementBadgeProps) {
   const rarityColors = {
