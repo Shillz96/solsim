@@ -691,6 +691,18 @@ class OptimizedPriceService extends EventEmitter {
   }
 
   /**
+   * Clear negative cache entry for a specific token
+   * Used when we need to force a fresh price fetch (e.g., SELL orders for owned tokens)
+   */
+  public clearNegativeCache(mint: string): void {
+    const wasInCache = this.negativeCache.has(mint);
+    if (wasInCache) {
+      this.negativeCache.delete(mint);
+      logger.debug({ mint: mint.slice(0, 8) }, "Cleared negative cache entry");
+    }
+  }
+
+  /**
    * Detect if a token is likely a pump.fun token
    * Heuristic: pump.fun tokens typically end with "pump"
    */
@@ -716,7 +728,7 @@ class OptimizedPriceService extends EventEmitter {
   private async fetchPumpFunPrice(mint: string): Promise<PriceTick | null> {
     try {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 3000); // 3s timeout (fast!)
+      const timeoutId = setTimeout(() => controller.abort(), 5000); // 5s timeout (more reliable for pump.fun API)
 
       const response = await fetch(
         `https://frontend-api.pump.fun/coins/${mint}`,

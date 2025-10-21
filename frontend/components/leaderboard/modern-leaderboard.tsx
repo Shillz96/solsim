@@ -205,7 +205,24 @@ export function ModernLeaderboard({
                     whileHover={{ scale: 1.1, rotate: 360 }}
                     transition={{ duration: 0.5 }}
                   >
-                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary via-purple-500 to-accent flex items-center justify-center text-white font-bold text-lg shadow-lg relative overflow-hidden">
+                    {entry.avatarUrl || entry.profileImage || entry.avatar ? (
+                      <img
+                        src={entry.avatarUrl || entry.profileImage || entry.avatar || ''}
+                        alt={entry.handle || entry.displayName || entry.username || 'User avatar'}
+                        className="w-12 h-12 rounded-full shadow-lg border-2 border-primary/20 object-cover"
+                        onError={(e) => {
+                          // Fallback to gradient circle if image fails to load
+                          const target = e.target as HTMLImageElement;
+                          target.style.display = 'none';
+                          const fallback = target.nextElementSibling as HTMLElement;
+                          if (fallback) fallback.style.display = 'flex';
+                        }}
+                      />
+                    ) : null}
+                    <div
+                      className="w-12 h-12 rounded-full bg-gradient-to-br from-primary via-purple-500 to-accent flex items-center justify-center text-white font-bold text-lg shadow-lg relative overflow-hidden"
+                      style={{ display: entry.avatarUrl || entry.profileImage || entry.avatar ? 'none' : 'flex' }}
+                    >
                       <div className="absolute inset-0 bg-gradient-to-t from-white/0 via-white/20 to-white/0 animate-pulse"></div>
                       <span className="relative z-10">{entry.username?.charAt(0).toUpperCase() || '?'}</span>
                     </div>
