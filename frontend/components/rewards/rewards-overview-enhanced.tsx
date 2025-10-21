@@ -148,19 +148,27 @@ export function RewardsOverviewEnhanced() {
   const totalUnclaimed = unclaimedRewards.reduce((sum, claim) => sum + parseFloat(claim.amount), 0)
   const totalClaimed = claimedRewards.reduce((sum, claim) => sum + parseFloat(claim.amount), 0)
 
-  // Calculate user tier based on trading volume
+  // Calculate user tier based on total value or trades
   const getUserTier = () => {
-    const totalVolume = portfolio?.totals?.totalVolume || 0
-    if (totalVolume >= 1000000) return { name: "Diamond", level: "platinum", icon: "💎", multiplier: 2.0, nextTier: 0 }
-    if (totalVolume >= 500000) return { name: "Platinum", level: "platinum", icon: "🔮", multiplier: 1.75, nextTier: 1000000 }
-    if (totalVolume >= 100000) return { name: "Gold", level: "gold", icon: "🏆", multiplier: 1.5, nextTier: 500000 }
-    if (totalVolume >= 50000) return { name: "Silver", level: "silver", icon: "🥈", multiplier: 1.25, nextTier: 100000 }
-    if (totalVolume >= 10000) return { name: "Bronze", level: "bronze", icon: "🥉", multiplier: 1.1, nextTier: 50000 }
-    return { name: "Novice", level: "bronze", icon: "🌟", multiplier: 1.0, nextTier: 10000 }
+    // Use total value as a proxy for trading activity
+    const totalValue = parseFloat(portfolio?.totals?.totalValueUsd || "0")
+    const totalTrades = portfolio?.totals?.totalTrades || 0
+
+    // Calculate an activity score based on value and number of trades
+    const activityScore = totalValue + (totalTrades * 100) // Each trade adds weight
+
+    if (activityScore >= 1000000) return { name: "Diamond", level: "platinum", icon: "💎", multiplier: 2.0, nextTier: 0 }
+    if (activityScore >= 500000) return { name: "Platinum", level: "platinum", icon: "🔮", multiplier: 1.75, nextTier: 1000000 }
+    if (activityScore >= 100000) return { name: "Gold", level: "gold", icon: "🏆", multiplier: 1.5, nextTier: 500000 }
+    if (activityScore >= 50000) return { name: "Silver", level: "silver", icon: "🥈", multiplier: 1.25, nextTier: 100000 }
+    if (activityScore >= 10000) return { name: "Bronze", level: "bronze", icon: "🥉", multiplier: 1.1, nextTier: 50000 }
+    return { name: "Novice", level: "bronze", icon: "🌟", multiplier: 1.0, nextTier: 10000, currentScore: activityScore }
   }
 
   const userTier = getUserTier()
-  const totalVolume = portfolio?.totals?.totalVolume || 0
+  const totalValue = parseFloat(portfolio?.totals?.totalValueUsd || "0")
+  const totalTrades = portfolio?.totals?.totalTrades || 0
+  const activityScore = totalValue + (totalTrades * 100)
 
   if (!isAuthenticated || !user) {
     return (
@@ -375,9 +383,9 @@ export function RewardsOverviewEnhanced() {
       {userTier.nextTier > 0 && (
         <ProgressCard
           title="Progress to Next Tier"
-          current={totalVolume}
+          current={activityScore}
           max={userTier.nextTier}
-          unit="USD"
+          unit="points"
           icon={<Target className="h-5 w-5" />}
           color="primary"
         />
