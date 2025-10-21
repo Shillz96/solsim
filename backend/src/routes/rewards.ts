@@ -9,32 +9,9 @@ import { claimReward, isRewardSystemEnabled } from "../services/rewardService.js
 const RPC_URL = process.env.HELIUS_RPC_URL || process.env.SOLANA_RPC || "https://api.mainnet-beta.solana.com";
 const connection = new Connection(RPC_URL, "confirmed");
 
-// Function to verify if wallet holds vSOL tokens
-async function verifyTokenHolder(walletAddress: string): Promise<{ isHolder: boolean; balance: number }> {
-  try {
-    const vsolMint = process.env.VSOL_TOKEN_MINT;
-    if (!vsolMint) {
-      console.warn("⚠️  VSOL_TOKEN_MINT not configured, skipping holder verification");
-      return { isHolder: true, balance: 0 }; // Allow claims if not configured
-    }
-
-    const walletPubkey = new PublicKey(walletAddress);
-    const mintPubkey = new PublicKey(vsolMint);
-    const tokenAccount = await getAssociatedTokenAddress(mintPubkey, walletPubkey);
-    
-    const accountInfo = await connection.getTokenAccountBalance(tokenAccount);
-    const balance = parseFloat(accountInfo.value.amount) / Math.pow(10, accountInfo.value.decimals);
-    
-    // Require at least 0.01 vSOL tokens to be considered a holder
-    const isHolder = balance >= 0.01;
-    
-    return { isHolder, balance };
-  } catch (error) {
-    console.error("Error verifying token holder:", error);
-    // If token account doesn't exist or other error, user is not a holder
-    return { isHolder: false, balance: 0 };
-  }
-}
+// REMOVED: Token holder verification requirement
+// Users no longer need to hold vSOL tokens to claim their earned rewards
+// This was creating a barrier where users needed to buy tokens before claiming rewards
 
 export default async function rewardsRoutes(app: FastifyInstance) {
   // Claim VSOL rewards
@@ -78,16 +55,6 @@ export default async function rewardsRoutes(app: FastifyInstance) {
             nextClaimTime: new Date(user.lastClaimTime.getTime() + fiveMinutesInMs).toISOString()
           });
         }
-      }
-
-      // Verify wallet holds vSOL tokens
-      const holderCheck = await verifyTokenHolder(wallet);
-      if (!holderCheck.isHolder) {
-        return reply.code(403).send({
-          error: "Token holder verification failed",
-          message: "You must hold at least 0.01 vSOL tokens to claim rewards. Purchase vSOL tokens first.",
-          currentBalance: holderCheck.balance
-        });
       }
 
       // Check if already claimed for this epoch

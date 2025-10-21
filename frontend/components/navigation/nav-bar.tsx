@@ -74,12 +74,12 @@ const navigationItems = [
     icon: Wallet,
     description: "Track your positions and P&L"
   },
-  // {
-  //   name: "Perps",
-  //   href: "/perps",
-  //   icon: Zap,
-  //   description: "Leverage trading with perpetual futures"
-  // },
+  {
+    name: "Perps",
+    href: "/perps",
+    icon: Zap,
+    description: "Leverage trading with perpetual futures"
+  },
   {
     name: "Trending",
     href: "/trending",

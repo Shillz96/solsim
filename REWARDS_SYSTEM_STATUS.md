@@ -25,9 +25,9 @@
 ### ✅ Working Components:
 1. **Frontend UI** - Claim button visible in Portfolio page
 2. **Cooldown System** - 5-minute cooldown between claims  
-3. **Holder Verification** - Requires 0.01+ vSOL to claim
-4. **Token Transfer** - Auto sends tokens on-chain when claiming
-5. **Reward Calculation** - Based on trades, volume, win rate
+3. **Token Transfer** - Auto sends tokens on-chain when claiming
+4. **Reward Calculation** - Based on trades, volume, win rate
+5. **No Barriers** - Anyone with trading activity can claim rewards
 
 ### ⚠️ Requires Configuration:
 1. **VSOL_TOKEN_MINT** environment variable
@@ -52,9 +52,8 @@
 ### Requirements to Claim:
 - ✅ Email verified
 - ✅ Wallet connected  
-- ✅ Hold at least 0.01 vSOL tokens
 - ✅ 5 minutes since last claim
-- ✅ Have some trading activity
+- ✅ Have some trading activity (trades, volume, or win rate)
 
 ## 🚀 Required Environment Variables
 
