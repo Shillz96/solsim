@@ -279,6 +279,51 @@ export function RewardsCard({ userId, walletAddress }: RewardsCardProps) {
 
         <Separator />
 
+        {/* Main Claim Button - Always visible when wallet connected */}
+        {walletAddress && (
+          <div className="space-y-4">
+            <Button
+              size="lg"
+              className="w-full"
+              onClick={() => {
+                // Get current epoch
+                const now = new Date()
+                const startOfYear = new Date(now.getFullYear(), 0, 1)
+                const dayNumber = Math.ceil((now.getTime() - startOfYear.getTime()) / (1000 * 60 * 60 * 24))
+                
+                claimMutation.mutate({
+                  userId,
+                  epoch: dayNumber,
+                  wallet: walletAddress,
+                })
+              }}
+              disabled={claimMutation.isPending || !canClaim}
+            >
+              {claimMutation.isPending ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                  Claiming Rewards...
+                </>
+              ) : !canClaim ? (
+                <>
+                  <Timer className="h-4 w-4 mr-2" />
+                  Wait {cooldownRemaining}
+                </>
+              ) : (
+                <>
+                  <Gift className="h-4 w-4 mr-2" />
+                  Claim Rewards Now
+                </>
+              )}
+            </Button>
+            <p className="text-xs text-center text-muted-foreground">
+              Rewards are calculated based on your trading activity, volume, and win rate.
+            </p>
+          </div>
+        )}
+
+        <Separator />
+
         {/* Unclaimed Rewards */}
         {unclaimedRewards.length > 0 && (
           <div className="space-y-4">
