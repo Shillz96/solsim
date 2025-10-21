@@ -866,11 +866,14 @@ class OptimizedPriceService extends EventEmitter {
             const data = await response.json();
 
             // Process pairs from batch response
-            if (data.pairs && Array.isArray(data.pairs)) {
+            // NOTE: DexScreener /tokens/v1/ endpoint returns array directly, not {pairs: [...]}
+            const pairs = Array.isArray(data) ? data : (data.pairs || []);
+
+            if (Array.isArray(pairs) && pairs.length > 0) {
               // Group pairs by token address
               const pairsByToken = new Map<string, any[]>();
 
-              for (const pair of data.pairs) {
+              for (const pair of pairs) {
                 const baseAddress = pair.baseToken?.address;
                 if (!baseAddress) continue;
 
