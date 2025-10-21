@@ -1,5 +1,19 @@
 # 🎁 Rewards System Status & Setup Guide
 
+## 🆕 Latest Update - New Reward Scale (1 Point = 1,000 vSOL)
+
+**What Changed:**
+- Rewards now use a points-based system with 1 point = 1,000 vSOL tokens
+- This makes rewards much more substantial and attractive!
+
+**New Calculation:**
+- 1 trade = 1 point = **1,000 vSOL** (was 1 vSOL)
+- $100 volume = 2 points = **2,000 vSOL** (was 2 vSOL)
+- 10% win rate = 10 points = **10,000 vSOL** (was 10 vSOL)
+- Maximum per claim: 200 points = **200,000 vSOL** (was 200 vSOL)
+
+**Example:** A trader with 10 trades, $5,000 volume, and 65% win rate now earns **170,000 vSOL** instead of 170 vSOL!
+
 ## ✅ What's Fixed
 
 ### Critical Fix - Tokens Now Send Automatically!
@@ -26,11 +40,11 @@
 1. User goes to Portfolio page
 2. Connects Solana wallet
 3. Clicks "Claim Rewards Now" button
-4. Backend calculates rewards:
-   - **1 vSOL per trade**
-   - **2 vSOL per $100 volume**
-   - **10 vSOL per 10% win rate**
-   - **Max 200 vSOL per claim**
+4. Backend calculates rewards using point system:
+   - **1 point per trade** (= 1,000 vSOL)
+   - **2 points per $100 volume** (= 2,000 vSOL)
+   - **10 points per 10% win rate** (= 10,000 vSOL)
+   - **Max 200 points per claim** (= 200,000 vSOL)
 5. Backend **immediately sends tokens** on-chain
 6. User receives transaction signature
 7. 5-minute cooldown starts
@@ -66,11 +80,12 @@ cat ~/.config/solana/id.json
 
 ## 💰 Fund the Rewards Wallet
 
-The rewards wallet needs to have vSOL tokens to distribute:
+The rewards wallet needs to have vSOL tokens to distribute. With the new scale (1 point = 1,000 vSOL):
 
 1. Get your rewards wallet address from Railway logs (it prints on startup)
 2. Send vSOL tokens to that wallet
-3. Test with a small amount first (e.g., 1000 vSOL)
+3. Recommended minimum: 1,000,000 vSOL (enough for ~5 max claims of 200,000 each)
+4. Test with smaller amounts first
 
 ## 🧪 Testing Checklist
 
