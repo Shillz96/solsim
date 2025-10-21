@@ -103,24 +103,25 @@ export function RealtimeTradeStrip({
   return (
     <div
       className={cn(
-        "w-full bg-background backdrop-blur-md border-t border-b overflow-visible relative transition-all duration-300",
-        !isExpanded && "h-10",
+        "w-full bg-background/95 backdrop-blur-md border-b relative transition-all duration-300 ease-in-out overflow-hidden",
+        isExpanded ? "h-auto" : "h-0 border-b-0",
         className
       )}
       style={style}
     >
+      {/* Main Content */}
       <AnimatePresence initial={false}>
         {isExpanded && (
           <motion.div
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.3, ease: "easeInOut" }}
+            transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
             className="overflow-hidden"
           >
-            <div className="flex items-center py-4 px-2 pr-12 space-x-6 overflow-x-auto scrollbar-none">
+            <div className="flex items-center py-2.5 px-4 pr-16 gap-4 overflow-x-auto scrollbar-none">
               {positions.length === 0 ? (
-                <div className="flex items-center justify-center w-full text-sm text-muted-foreground">
+                <div className="flex items-center justify-center w-full text-xs text-muted-foreground py-1">
                   No open positions
                 </div>
               ) : (
@@ -132,30 +133,37 @@ export function RealtimeTradeStrip({
                     <button
                       key={position.mint}
                       onClick={() => router.push(`/trade?token=${position.mint}`)}
-                      className="flex items-center space-x-3 whitespace-nowrap flex-shrink-0 hover:opacity-80 transition-opacity cursor-pointer"
+                      className="flex items-center gap-2 whitespace-nowrap flex-shrink-0 hover:bg-muted/50 transition-all duration-200 rounded-md px-2.5 py-1.5 group"
                     >
                       {position.tokenImage && (
                         <img
                           src={position.tokenImage}
                           alt={position.tokenSymbol || 'Token'}
-                          className="w-4 h-4 rounded-full"
+                          className="w-5 h-5 rounded-full ring-1 ring-border group-hover:ring-2 transition-all"
                           onError={(e) => {
                             (e.target as HTMLImageElement).style.display = 'none'
                           }}
                         />
                       )}
 
-                      <span className="font-medium text-sm">
+                      <span className="font-semibold text-sm text-foreground">
                         {position.tokenSymbol || 'Unknown'}
                       </span>
 
                       <span className={cn(
-                        "text-xs font-medium px-2 py-0.5 rounded",
+                        "text-xs font-bold px-2 py-0.5 rounded-md transition-all",
                         isProfit
-                          ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300"
-                          : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300"
+                          ? "bg-profit/10 text-profit ring-1 ring-profit/20"
+                          : "bg-loss/10 text-loss ring-1 ring-loss/20"
                       )}>
                         {isProfit ? '+' : ''}{formatUSD(pnl.unrealizedUsd)}
+                      </span>
+
+                      <span className={cn(
+                        "text-[10px] font-medium",
+                        isProfit ? "text-profit/70" : "text-loss/70"
+                      )}>
+                        {isProfit ? '+' : ''}{pnl.unrealizedPercent.toFixed(2)}%
                       </span>
                     </button>
                   )
@@ -166,19 +174,19 @@ export function RealtimeTradeStrip({
         )}
       </AnimatePresence>
 
-      {/* Toggle Button */}
+      {/* Toggle Button - Always visible */}
       <button
         onClick={() => setIsExpanded(!isExpanded)}
         className={cn(
-          "absolute right-4 p-1.5 rounded-full bg-muted hover:bg-muted/80 transition-all duration-200 hover:scale-110 z-10",
-          isExpanded ? "top-1/2 -translate-y-1/2" : "top-1/2 -translate-y-1/2"
+          "absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-md bg-muted/80 hover:bg-muted transition-all duration-200 hover:scale-105 z-20 ring-1 ring-border/50",
+          !isExpanded && "top-0 translate-y-0 rounded-b-md rounded-t-none shadow-md"
         )}
         aria-label={isExpanded ? "Collapse trade strip" : "Expand trade strip"}
       >
         {isExpanded ? (
-          <ChevronUp className="h-3.5 w-3.5 text-muted-foreground" />
+          <ChevronUp className="h-3 w-3 text-muted-foreground" />
         ) : (
-          <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
+          <ChevronDown className="h-3 w-3 text-muted-foreground" />
         )}
       </button>
     </div>

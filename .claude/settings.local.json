@@ -56,7 +56,8 @@
       "WebFetch(domain:docs.dexscreener.com)",
       "WebFetch(domain:station.jup.ag)",
       "WebFetch(domain:dev.jup.ag)",
-      "WebFetch(domain:www.virtualsol.fun)"
+      "WebFetch(domain:www.virtualsol.fun)",
+      "WebFetch(domain:kolscan.io)"
     ],
     "deny": [],
     "ask": []

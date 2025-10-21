@@ -52,14 +52,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <AppProviders>
           <NavBar aria-label="Primary navigation" />
           <RealtimeTradeStrip
-            className="fixed left-0 right-0 z-40 border-b bg-background"
+            className="sticky left-0 right-0 z-40"
             style={{ top: 'var(--navbar-height)' }}
             maxTrades={15}
           />
           <main
             className="min-h-screen"
             style={{
-              paddingTop: 'calc(var(--navbar-height) + var(--trade-strip-height))',
               paddingBottom: 'var(--bottom-nav-height)'
             }}
             role="main"
