@@ -30,7 +30,7 @@ export function TradeTimeline({ tokenAddress, maxTrades = 10, variant = 'default
 
   // Filter trades for this specific token
   const tokenTrades = (userTradesData?.trades?.filter(
-    (trade) => trade.tokenAddress === tokenAddress
+    (trade) => trade.mint === tokenAddress
   ) || []).slice(0, maxTrades)
 
   if (!user || tokenTrades.length === 0) {

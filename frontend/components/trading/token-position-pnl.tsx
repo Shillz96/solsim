@@ -213,7 +213,7 @@ export function TokenPositionPnL({ tokenAddress, tokenSymbol, tokenName }: Token
     avgTradeSize: tokenTrades.reduce((sum, t) =>
       sum + parseFloat(t.totalCost), 0
     ) / tokenTrades.length,
-    lastTradeTime: tokenTrades[0]?.timestamp,
+    lastTradeTime: tokenTrades[0]?.createdAt,
   } : null
 
   // Data validation diagnostic
