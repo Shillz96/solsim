@@ -87,7 +87,7 @@ function DataCard({
   if (animate) {
     return (
       <motion.div
-        className={cn(variantClasses[variant], className)}
+        className={cn(variantClasses[variant], 'h-full flex flex-col', className)}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
@@ -104,7 +104,7 @@ function DataCard({
 
   return (
     <div
-      className={cn(variantClasses[variant], className)}
+      className={cn(variantClasses[variant], 'h-full flex flex-col', className)}
       onClick={onClick}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}

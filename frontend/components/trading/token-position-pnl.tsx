@@ -614,8 +614,8 @@ export function TokenPositionPnL({ tokenAddress, tokenSymbol, tokenName }: Token
           undefined
         }
         userEmail={(userProfile as any)?.email || user?.email || undefined}
-        tokenSymbol={tokenSymbol || tokenMetadata?.symbol}
-        tokenName={tokenName || tokenMetadata?.name}
+        tokenSymbol={tokenSymbol || tokenMetadata?.symbol || undefined}
+        tokenName={tokenName || tokenMetadata?.name || undefined}
         tokenImageUrl={
           (tokenMetadata as any)?.logoURI ||
           (tokenMetadata as any)?.imageUrl ||

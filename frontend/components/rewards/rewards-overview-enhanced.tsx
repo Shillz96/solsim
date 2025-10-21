@@ -209,7 +209,7 @@ export function RewardsOverviewEnhanced() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
           whileHover={{ scale: 1.02 }}
-          className="relative"
+          className="relative h-full"
         >
           <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-purple-500/20 blur-xl rounded-2xl"></div>
           <DataCard
@@ -223,19 +223,19 @@ export function RewardsOverviewEnhanced() {
                 className="flex items-baseline gap-2"
               >
                 <motion.span
-                  className="text-3xl font-bold bg-gradient-to-r from-primary to-purple-500 bg-clip-text text-transparent"
+                  className="text-3xl font-bold text-primary"
                   animate={{
                     textShadow: [
-                      "0 0 20px rgba(139, 92, 246, 0.5)",
-                      "0 0 40px rgba(139, 92, 246, 0.8)",
-                      "0 0 20px rgba(139, 92, 246, 0.5)"
+                      "0 0 20px rgba(139, 92, 246, 0.3)",
+                      "0 0 30px rgba(139, 92, 246, 0.5)",
+                      "0 0 20px rgba(139, 92, 246, 0.3)"
                     ]
                   }}
                   transition={{ duration: 2, repeat: Infinity }}
                 >
                   {formatNumber(totalUnclaimed)}
                 </motion.span>
-                <span className="text-sm text-muted-foreground">vSOL</span>
+                <span className="text-sm font-semibold text-foreground/80">vSOL</span>
               </motion.div>
             }
             icon={
@@ -276,6 +276,7 @@ export function RewardsOverviewEnhanced() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
           whileHover={{ scale: 1.02 }}
+          className="h-full"
         >
           <DataCard
             variant="stat"
@@ -312,7 +313,7 @@ export function RewardsOverviewEnhanced() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
           whileHover={{ scale: 1.02 }}
-          className="relative"
+          className="relative h-full"
         >
           <div className={cn(
             "absolute inset-0 rounded-2xl blur-xl",
@@ -348,6 +349,7 @@ export function RewardsOverviewEnhanced() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
           whileHover={{ scale: 1.02 }}
+          className="h-full"
         >
           <DataCard
             variant="info"
@@ -373,7 +375,7 @@ export function RewardsOverviewEnhanced() {
                 <Clock className="h-3 w-3" />
                 <div className="absolute inset-0 bg-green-500 rounded-full blur-md opacity-50"></div>
               </motion.div>
-              <span>Resets in: <span className="font-mono font-bold text-sm text-foreground bg-gradient-to-r from-primary to-purple-500 bg-clip-text text-transparent">{timeUntilNextClaim}</span></span>
+              <span>Resets in: <span className="font-mono font-bold text-sm text-primary">{timeUntilNextClaim}</span></span>
             </div>
           </DataCard>
         </motion.div>
@@ -457,10 +459,10 @@ export function RewardsOverviewEnhanced() {
                           </motion.div>
                           <div>
                             <div className="font-bold text-lg">
-                              <span className="bg-gradient-to-r from-primary to-purple-500 bg-clip-text text-transparent">
+                              <span className="text-primary">
                                 {formatNumber(parseFloat(claim.amount))}
                               </span>
-                              <span className="ml-2 text-sm text-muted-foreground">vSOL</span>
+                              <span className="ml-2 text-sm font-semibold text-foreground/70">vSOL</span>
                             </div>
                             <div className="flex items-center gap-2 text-xs text-muted-foreground">
                               <Calendar className="h-3 w-3" />

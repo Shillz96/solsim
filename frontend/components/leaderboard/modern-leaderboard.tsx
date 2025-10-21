@@ -212,13 +212,13 @@ export function ModernLeaderboard({
                     {/* Status Indicator */}
                     <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-background animate-pulse"></div>
                   </motion.div>
-                  <div>
-                    <div className="font-semibold text-lg bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
-                      {entry.username || 'Anonymous'}
+                  <div className="flex-1 min-w-0">
+                    <div className="font-bold text-lg text-foreground truncate">
+                      {entry.handle || entry.displayName || entry.username || 'Anonymous Trader'}
                     </div>
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <span className="flex items-center gap-1">
-                        <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                        <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
                         {entry.totalTrades} trades
                       </span>
                     </div>
