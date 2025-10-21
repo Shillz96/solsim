@@ -1193,3 +1193,41 @@
     transform: none !important;
   }
 }
+
+/* ============================================================
+   PERFORMANCE OPTIMIZATIONS - FAST TRANSITIONS
+   ============================================================ */
+
+/*
+ * Override slow transitions for better performance and snappier feel.
+ * Targets common slow transitions (300ms+) and speeds them up to 150-200ms.
+ */
+
+/* Fast hover transitions - Override slow defaults */
+.fast-hover {
+  transition-duration: 0.15s !important;
+}
+
+/* Card hover effects - Optimized */
+[class*="hover:"] {
+  transition-duration: 0.2s;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Prevent layout thrashing on hover - only transform and opacity */
+.card-hover {
+  transition-property: transform, opacity, box-shadow, border-color;
+  transition-duration: 0.2s;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
+}
+
+.card-hover:hover {
+  transform: translateY(-2px);
+}
+
+/* Tab transitions - instant feel */
+[role="tab"],
+[data-state] {
+  transition-duration: 0.15s !important;
+}

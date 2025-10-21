@@ -36,36 +36,38 @@ function RewardsPageContent() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
+          transition={{ duration: 0.3, delay: 0.1 }}
         >
           <Tabs defaultValue="how-it-works" className="w-full">
-            <TabsList className="grid w-full grid-cols-3 mb-8 bg-muted/50 backdrop-blur-sm border border-border/50">
-              <TabsTrigger value="how-it-works" className="gap-2 data-[state=active]:bg-primary/20">
-                <Info className="h-4 w-4" />
-                <span className="hidden sm:inline">How It Works</span>
-                <span className="sm:hidden">Info</span>
-              </TabsTrigger>
-              <TabsTrigger value="history" className="gap-2 data-[state=active]:bg-primary/20">
-                <History className="h-4 w-4" />
-                <span className="hidden sm:inline">History</span>
-                <span className="sm:hidden">History</span>
-              </TabsTrigger>
-              <TabsTrigger value="leaderboard" className="gap-2 data-[state=active]:bg-primary/20">
-                <Trophy className="h-4 w-4" />
-                <span className="hidden sm:inline">Top Earners</span>
-                <span className="sm:hidden">Top</span>
-              </TabsTrigger>
-            </TabsList>
+            <div className="sticky top-[calc(var(--navbar-height)+2rem)] z-30 bg-background/80 backdrop-blur-md pb-4 -mx-4 px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
+              <TabsList className="grid w-full grid-cols-3 bg-muted/50 backdrop-blur-sm border border-border/50 fast-hover">
+                <TabsTrigger value="how-it-works" className="gap-2 data-[state=active]:bg-primary/20 fast-hover">
+                  <Info className="h-4 w-4" />
+                  <span className="hidden sm:inline">How It Works</span>
+                  <span className="sm:hidden">Info</span>
+                </TabsTrigger>
+                <TabsTrigger value="history" className="gap-2 data-[state=active]:bg-primary/20 fast-hover">
+                  <History className="h-4 w-4" />
+                  <span className="hidden sm:inline">History</span>
+                  <span className="sm:hidden">History</span>
+                </TabsTrigger>
+                <TabsTrigger value="leaderboard" className="gap-2 data-[state=active]:bg-primary/20 fast-hover">
+                  <Trophy className="h-4 w-4" />
+                  <span className="hidden sm:inline">Top Earners</span>
+                  <span className="sm:hidden">Top</span>
+                </TabsTrigger>
+              </TabsList>
+            </div>
 
-            <TabsContent value="how-it-works" className="mt-0">
+            <TabsContent value="how-it-works" className="mt-4">
               <RewardsExplainer />
             </TabsContent>
 
-            <TabsContent value="history" className="mt-0">
+            <TabsContent value="history" className="mt-4">
               <RewardsHistory />
             </TabsContent>
 
-            <TabsContent value="leaderboard" className="mt-0">
+            <TabsContent value="leaderboard" className="mt-4">
               <RewardsLeaderboard />
             </TabsContent>
           </Tabs>

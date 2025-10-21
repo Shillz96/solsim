@@ -305,20 +305,15 @@ export function NavBar() {
               )}
             </div>
 
-            {/* Enhanced Search Results - Rendered in Portal */}
-            {mounted && showResults && searchResults.length > 0 && searchRef.current && createPortal(
+            {/* Enhanced Search Results - Positioned relative to search input */}
+            {showResults && searchResults.length > 0 && (
               <motion.div
                 ref={searchResultsRef}
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
-                style={{
-                  position: 'fixed',
-                  top: searchRef.current.getBoundingClientRect().bottom + 8,
-                  left: searchRef.current.getBoundingClientRect().left,
-                  width: searchRef.current.getBoundingClientRect().width,
-                }}
-                className="bg-background/95 backdrop-blur-md supports-[backdrop-filter]:bg-background/90 text-foreground border rounded-[0.25rem] shadow-md z-[100] max-h-80 overflow-y-auto"
+                transition={{ duration: 0.15 }}
+                className="absolute top-full left-0 right-0 mt-2 bg-background/95 backdrop-blur-md supports-[backdrop-filter]:bg-background/90 text-foreground border rounded-lg shadow-lg z-[100] max-h-80 overflow-y-auto"
               >
                   <div className="p-2">
                     <div className="text-xs text-muted-foreground px-2 py-2 font-semibold border-b border-border mb-1 uppercase tracking-wide">
@@ -370,8 +365,7 @@ export function NavBar() {
                       </button>
                     ))}
                   </div>
-                </motion.div>,
-              document.body
+              </motion.div>
             )}
           </div>
 
