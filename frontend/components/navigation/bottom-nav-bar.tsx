@@ -247,7 +247,7 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
             </div>
           </div>
 
-          {/* Right: Wallet Tracker, Leaderboard, Theme Toggle & Quick Trade */}
+          {/* Right: Wallet Tracker, Leaderboard, Docs, Theme Toggle & Quick Trade */}
           <div className="flex items-center gap-4">
             {/* Wallet Tracker Button */}
             <Link href="/wallet-tracker">
@@ -269,6 +269,17 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
               >
                 <Trophy className="h-4 w-4" />
                 Leaderboard
+              </Button>
+            </Link>
+            {/* Docs Button */}
+            <Link href="/docs">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-xs font-medium hover:text-primary transition-colors flex items-center gap-1.5 h-8"
+              >
+                <BookOpen className="h-4 w-4" />
+                Docs
               </Button>
             </Link>
             {/* Theme Toggle Button - Skeleton prevents layout shift */}
