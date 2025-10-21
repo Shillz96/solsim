@@ -191,6 +191,11 @@ class OptimizedPriceService extends EventEmitter {
   private refreshQueue = new Set<string>(); // Tokens queued for refresh
   private isProcessingQueue = false;
 
+  // Health check monitoring
+  private lastPriceUpdate = Date.now(); // Track last time ANY price was updated (WebSocket or API)
+  private lastHeliusWsMessage = Date.now(); // Track last Helius WebSocket message
+  private lastPumpPortalWsMessage = Date.now(); // Track last PumpPortal WebSocket message
+
   // DEX programs to monitor via WebSocket (Standard API - FREE!)
   private readonly DEX_PROGRAMS = [
     "675kPX9MHTjS2zt1qfr1NYHuzeLXfQM9H24wFSUt1Mp8", // Raydium V4 (most active)
@@ -335,6 +340,9 @@ class OptimizedPriceService extends EventEmitter {
     try {
       const messageStr = data.toString('utf8');
       const message = JSON.parse(messageStr);
+
+      // Update health check timestamp
+      this.lastHeliusWsMessage = Date.now();
 
       // Handle subscription confirmation
       if (message.result !== undefined && message.id) {
@@ -641,6 +649,9 @@ class OptimizedPriceService extends EventEmitter {
 
       // Listen for price updates from PumpPortal
       this.pumpPortalWs.on('price', async (pumpPrice: PumpFunPrice) => {
+        // Update health check timestamp
+        this.lastPumpPortalWsMessage = Date.now();
+
         const tick: PriceTick = {
           mint: pumpPrice.mint,
           priceUsd: pumpPrice.priceUsd,
@@ -1160,6 +1171,9 @@ class OptimizedPriceService extends EventEmitter {
   private async updatePrice(tick: PriceTick) {
     this.priceCache.set(tick.mint, tick);
 
+    // Update health check timestamp whenever we update ANY price
+    this.lastPriceUpdate = Date.now();
+
     try {
       await redis.setex(`price:${tick.mint}`, 60, JSON.stringify(tick));
       await redis.publish("prices", JSON.stringify(tick));
@@ -1406,6 +1420,11 @@ class OptimizedPriceService extends EventEmitter {
   }
 
   getStats() {
+    const now = Date.now();
+    const heliusWsAge = now - this.lastHeliusWsMessage;
+    const pumpPortalWsAge = now - this.lastPumpPortalWsMessage;
+    const lastPriceAge = now - this.lastPriceUpdate;
+
     return {
       solPrice: this.solPriceUsd,
       cachedPrices: this.priceCache.size,
@@ -1418,8 +1437,19 @@ class OptimizedPriceService extends EventEmitter {
         dexscreener: this.dexScreenerBreaker.getState(),
         jupiter: this.jupiterBreaker.getState()
       },
+      // Health check metrics
+      health: {
+        lastPriceUpdateAgo: lastPriceAge,
+        lastHeliusWsMessageAgo: heliusWsAge,
+        lastPumpPortalWsMessageAgo: pumpPortalWsAge,
+        heliusWsStale: heliusWsAge > 60000, // > 1 minute
+        pumpPortalWsStale: pumpPortalWsAge > 60000, // > 1 minute
+        priceUpdatesStale: lastPriceAge > 30000, // > 30 seconds
+        isHealthy: lastPriceAge < 60000 && this.ws?.readyState === WebSocket.OPEN
+      },
+      pumpPortal: this.pumpPortalWs?.getStats() || null,
       plan: "Developer (optimized v2)",
-      lastUpdate: Date.now()
+      lastUpdate: now
     };
   }
 

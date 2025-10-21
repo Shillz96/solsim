@@ -11,7 +11,9 @@
 
 import { PrismaClient } from "@prisma/client";
 import { Decimal } from "@prisma/client/runtime/library";
-import priceService from "./plugins/priceService-optimized.js";
+// IMPORTANT: Worker uses lightweight Redis-only client to avoid duplicate WebSocket connections
+// The main backend service (index.ts) handles all WebSocket connections and cache population
+import priceService from "./plugins/priceServiceClient.js";
 import { loggers } from "./utils/logger.js";
 
 const logger = loggers.priceService;
