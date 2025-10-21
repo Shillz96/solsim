@@ -50,12 +50,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         className={`${radnikaNext.variable} ${ibmPlexSans.variable} ${jetBrainsMono.variable} font-sans`}
       >
         <AppProviders>
-          <NavBar aria-label="Primary navigation" />
-          <RealtimeTradeStrip
-            className="sticky left-0 right-0 z-40"
-            style={{ top: 'var(--navbar-height)' }}
-            maxTrades={15}
-          />
+          <div className="sticky top-0 z-50">
+            <NavBar aria-label="Primary navigation" />
+            <RealtimeTradeStrip
+              className="w-full"
+              maxTrades={15}
+            />
+          </div>
           <main
             className="min-h-screen"
             style={{
@@ -65,7 +66,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           >
             {children}
           </main>
-          <BottomNavBar aria-label="Mobile navigation" />
+          <BottomNavBar aria-label="Mobile navigation" className="sticky bottom-0 z-50" />
         </AppProviders>
         <Analytics />
         <SpeedInsights />

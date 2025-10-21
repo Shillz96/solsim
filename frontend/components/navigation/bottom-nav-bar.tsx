@@ -20,7 +20,11 @@ interface MarketPrice {
   change24h: number
 }
 
-export function BottomNavBar() {
+interface BottomNavBarProps {
+  className?: string
+}
+
+export function BottomNavBar({ className }: BottomNavBarProps = {}) {
   const pathname = usePathname()
   const { theme, setTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
@@ -95,7 +99,10 @@ export function BottomNavBar() {
   return (
     <>
       {/* Mobile Bottom Nav */}
-      <nav className="fixed bottom-0 left-0 right-0 z-50 border-t-2 border-border bg-background/95 backdrop-blur-md supports-[backdrop-filter]:bg-background/80 shadow-none md:hidden">
+      <nav className={cn(
+        "fixed bottom-0 left-0 right-0 z-50 border-t-2 border-border bg-background/95 backdrop-blur-md supports-[backdrop-filter]:bg-background/80 shadow-none md:hidden",
+        className
+      )}>
         <div className="flex items-center justify-around h-16">
           {navItems.map((item, index) => {
             const Icon = item.icon
@@ -168,7 +175,10 @@ export function BottomNavBar() {
       </motion.div>
 
       {/* Desktop/Tablet Bottom Info Bar */}
-      <div className="hidden md:block fixed bottom-0 left-0 right-0 z-40 border-t-2 border-border bg-background/95 backdrop-blur-md supports-[backdrop-filter]:bg-background/80 shadow-none">
+      <div className={cn(
+        "hidden md:block fixed bottom-0 left-0 right-0 z-40 border-t-2 border-border bg-background/95 backdrop-blur-md supports-[backdrop-filter]:bg-background/80 shadow-none",
+        className
+      )}>
         <div className="mx-auto flex h-12 items-center justify-between px-4 max-w-content">
           {/* Left: Social Links */}
           <div className="flex items-center gap-4">
