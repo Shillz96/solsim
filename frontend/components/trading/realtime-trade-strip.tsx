@@ -103,8 +103,8 @@ export function RealtimeTradeStrip({
   return (
     <div
       className={cn(
-        "w-full bg-background/95 backdrop-blur-md border-b relative transition-all duration-300 ease-in-out overflow-hidden",
-        isExpanded ? "h-auto" : "h-0 border-b-0",
+        "w-full bg-background/95 backdrop-blur-md relative transition-all duration-300 ease-in-out",
+        isExpanded ? "h-auto border-b" : "h-8 border-b-0",
         className
       )}
       style={style}
@@ -178,15 +178,15 @@ export function RealtimeTradeStrip({
       <button
         onClick={() => setIsExpanded(!isExpanded)}
         className={cn(
-          "absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-md bg-muted/80 hover:bg-muted transition-all duration-200 hover:scale-105 z-20 ring-1 ring-border/50",
-          !isExpanded && "top-0 translate-y-0 rounded-b-md rounded-t-none shadow-md"
+          "absolute right-3 p-1.5 rounded-md bg-muted/80 hover:bg-muted transition-all duration-200 hover:scale-105 z-20 ring-1 ring-border/50",
+          isExpanded ? "top-1/2 -translate-y-1/2" : "top-1/2 -translate-y-1/2"
         )}
         aria-label={isExpanded ? "Collapse trade strip" : "Expand trade strip"}
       >
         {isExpanded ? (
-          <ChevronUp className="h-3 w-3 text-muted-foreground" />
+          <ChevronUp className="h-3.5 w-3.5 text-muted-foreground" />
         ) : (
-          <ChevronDown className="h-3 w-3 text-muted-foreground" />
+          <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
         )}
       </button>
     </div>
