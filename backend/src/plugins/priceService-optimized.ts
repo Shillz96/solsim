@@ -763,14 +763,23 @@ class OptimizedPriceService extends EventEmitter {
 
       return null;
     } catch (error: any) {
-      // Don't log expected failures (404, timeouts)
+      // Don't log expected failures (404, timeouts, fetch errors)
       const isExpectedError =
         error.message?.includes('404') ||
         error.message?.includes('aborted') ||
+        error.message?.includes('fetch failed') ||
+        error.message?.includes('ECONNRESET') ||
+        error.message?.includes('ETIMEDOUT') ||
+        error.message?.includes('ENOTFOUND') ||
         error.name === 'AbortError';
 
       if (!isExpectedError) {
-        logger.warn({ mint: mint.slice(0, 8), error: error.message }, "PumpFun API error");
+        // Only log truly unexpected errors with more context
+        logger.debug({
+          mint: mint.slice(0, 8),
+          error: error.message,
+          statusCode: error.statusCode || 'unknown'
+        }, "PumpFun API unexpected error");
       }
 
       return null;
