@@ -365,8 +365,41 @@ All environment variables are documented in **ENVIRONMENT_SETUP.md**.
 
 **Important**: Never commit `.env` files. Only `.env.example` templates are tracked.
 
+## 2025 Modernization
+
+VirtualSol has been modernized with cutting-edge web platform features:
+
+### View Transitions API
+- **Enabled in** `frontend/next.config.mjs` (`experimental.viewTransition: true`)
+- **Customized in** `frontend/app/globals.css` (smooth fade transitions)
+- **Browser support**: Chrome 111+, Safari 18+, Firefox 129+
+- **Fallback**: Instant navigation (no animation)
+
+### Display-P3 Wide-Gamut Colors
+- **OKLCH base colors** - Perceptually uniform on all displays
+- **P3 enhancements** - Vivid colors on modern displays (MacBooks, iPhones)
+- **Defined in** `frontend/app/globals.css` (`@media (color-gamut: p3)`)
+- **Automatic fallback** - Works on sRGB displays seamlessly
+
+### Tailwind v4 CSS Theme
+- **Theme tokens** - Defined in `frontend/app/theme.css` using `@theme` syntax
+- **CSS-first** - No JavaScript build step for tokens
+- **Works everywhere** - Both Tailwind utilities AND raw CSS custom properties
+- **P3 enhancement** - Automatically upgrades on capable displays
+
+### Rollback Safety
+- **Backup branch**: `pre-modernization-2025-backup` (remote + local)
+- **Rollback guide**: See `ROLLBACK_GUIDE.md` for detailed recovery procedures
+- **Easy revert**: `git checkout pre-modernization-2025-backup` restores everything
+
+### Documentation
+- **MODERNIZATION_2025.md** - Comprehensive modernization plan and implementation guide
+- **ROLLBACK_GUIDE.md** - Emergency recovery procedures
+
 ## Additional Resources
 
+- **MODERNIZATION_2025.md** - 2025 modernization plan and implementation guide
+- **ROLLBACK_GUIDE.md** - Emergency rollback and recovery procedures
 - **WORKFLOW.md** - Complete development workflow and deployment guide
 - **QUICK_START.md** - Quick reference for common commands
 - **ENVIRONMENT_SETUP.md** - Environment variable configuration guide

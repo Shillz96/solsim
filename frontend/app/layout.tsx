@@ -8,6 +8,7 @@ import { BottomNavBar } from "@/components/navigation/bottom-nav-bar"
 import { RealtimeTradeStrip } from "@/components/trading/realtime-trade-strip"
 import { AppProviders } from "@/components/providers"
 
+import "./theme.css"
 import "./globals.css"
 import "./wallet-modal-override.css"
 

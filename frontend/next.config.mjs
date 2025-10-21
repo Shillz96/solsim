@@ -10,14 +10,17 @@ const nextConfig = {
   // Disable strict mode for now to prevent WebSocket double-mounting issues in production
   // TODO: Re-enable once WebSocket provider is more resilient to rapid mount/unmount cycles
   reactStrictMode: false,
-  
-  // React Compiler (Experimental) - Auto-optimizes components
-  // Temporarily disabled to fix build issues
-  // experimental: {
-  //   reactCompiler: {
-  //     compilationMode: 'annotation',
-  //   },
-  // },
+
+  // Experimental features - 2025 Modernization
+  experimental: {
+    // View Transitions API - Buttery smooth page transitions
+    viewTransition: true,
+
+    // React Compiler - Auto-optimizes components (disabled for now to fix build issues)
+    // reactCompiler: {
+    //   compilationMode: 'annotation',
+    // },
+  },
 
   // Production optimizations
   compiler: {

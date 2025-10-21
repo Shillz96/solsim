@@ -266,6 +266,64 @@
 }
 
 /* ---------------------------
+   WIDE-GAMUT COLOR ENHANCEMENT (Display-P3) - 2025
+--------------------------- */
+/* Enhanced colors for modern wide-gamut displays (MacBooks, iPhones, high-end monitors) */
+@media (color-gamut: p3) {
+  :root {
+    /* Enhanced profit/loss colors for trading UI */
+    --profit: color(display-p3 0.12 0.85 0.45);
+    --profit-oklch: oklch(72% 0.20 142);
+    --profit-foreground: #ffffff;
+    --profit-foreground-oklch: oklch(1 0 0);
+
+    --loss: color(display-p3 0.92 0.20 0.18);
+    --loss-oklch: oklch(62% 0.22 27);
+    --loss-foreground: #ffffff;
+    --loss-foreground-oklch: oklch(1 0 0);
+
+    /* Enhanced chart colors - more vivid on P3 displays */
+    --chart-2: color(display-p3 0 1 0.52); /* Profit green */
+    --chart-2-oklch: oklch(85% 0.30 150);
+
+    --chart-3: color(display-p3 1 0.30 0.30); /* Loss red */
+    --chart-3-oklch: oklch(65% 0.25 27);
+
+    /* Update color references for P3 */
+    --color-profit: var(--profit-oklch, var(--profit));
+    --color-loss: var(--loss-oklch, var(--loss));
+    --color-chart-2: var(--chart-2-oklch, var(--chart-2));
+    --color-chart-3: var(--chart-3-oklch, var(--chart-3));
+  }
+
+  .dark {
+    /* Enhanced dark mode colors for P3 displays */
+    --profit: color(display-p3 0.15 0.90 0.50);
+    --profit-oklch: oklch(75% 0.20 142);
+    --profit-foreground: #000000;
+    --profit-foreground-oklch: oklch(0 0 0);
+
+    --loss: color(display-p3 0.95 0.25 0.22);
+    --loss-oklch: oklch(65% 0.22 27);
+    --loss-foreground: #000000;
+    --loss-foreground-oklch: oklch(0 0 0);
+
+    /* Enhanced chart colors for dark mode */
+    --chart-2: color(display-p3 0 1 0.52);
+    --chart-2-oklch: oklch(85% 0.30 150);
+
+    --chart-3: color(display-p3 1 0.30 0.30);
+    --chart-3-oklch: oklch(65% 0.25 27);
+
+    /* Update color references for P3 */
+    --color-profit: var(--profit-oklch, var(--profit));
+    --color-loss: var(--loss-oklch, var(--loss));
+    --color-chart-2: var(--chart-2-oklch, var(--chart-2));
+    --color-chart-3: var(--chart-3-oklch, var(--chart-3));
+  }
+}
+
+/* ---------------------------
    PERFORMANCE OPTIMIZATIONS - 2025
 --------------------------- */
 /* Global GPU acceleration for common animated elements */
@@ -1002,4 +1060,59 @@
 .tier-card:hover {
   transform: translateY(-4px);
   box-shadow: 0 12px 24px color-mix(in srgb, black 8%, transparent);
+}
+
+/* ============================================================
+   VIEW TRANSITIONS API - 2025 MODERNIZATION
+   ============================================================ */
+
+/*
+ * Smooth, native-feeling page transitions using the View Transitions API.
+ * Supported in Chrome 111+, Safari 18+, Firefox 129+
+ * Fallback: Instant navigation (no animation)
+ */
+
+/* Customize the default page transition */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.3s;
+  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Fade out the old page */
+::view-transition-old(root) {
+  animation-name: fade-out-transition;
+}
+
+/* Fade in the new page */
+::view-transition-new(root) {
+  animation-name: fade-in-transition;
+}
+
+@keyframes fade-out-transition {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes fade-in-transition {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Accessibility: Respect reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+    animation-duration: 0.01ms !important;
+  }
 }
