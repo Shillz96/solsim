@@ -5,6 +5,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Button } from "@/components/ui/button"
 import { Share2, Download, Copy, Check, Loader2 } from "lucide-react"
 import { toPng, toBlob } from "html-to-image"
+import { useToast } from "@/hooks/use-toast"
 
 interface SharePnLDialogProps {
   totalPnL: number
@@ -30,27 +31,70 @@ export function SharePnLDialog({ totalPnL, totalPnLPercent, currentValue, initia
   const [copied, setCopied] = useState(false)
   const [isGenerating, setIsGenerating] = useState(false)
   const cardRef = useRef<HTMLDivElement>(null)
+  const { toast } = useToast()
+
+  // Helper function to wait for all images to load
+  const waitForImagesToLoad = async (element: HTMLElement): Promise<void> => {
+    const images = Array.from(element.querySelectorAll('img'))
+    const imagePromises = images.map((img) => {
+      if (img.complete && img.naturalWidth > 0) {
+        return Promise.resolve()
+      }
+      return new Promise<void>((resolve, reject) => {
+        const timeout = setTimeout(() => {
+          // If image takes too long, resolve anyway (might be broken)
+          resolve()
+        }, 3000)
+        
+        img.onload = () => {
+          clearTimeout(timeout)
+          resolve()
+        }
+        img.onerror = () => {
+          clearTimeout(timeout)
+          // Resolve even on error - we'll use fallback
+          resolve()
+        }
+      })
+    })
+    
+    await Promise.all(imagePromises)
+    // Extra buffer for rendering
+    await new Promise(resolve => setTimeout(resolve, 100))
+  }
 
   const handleDownload = async () => {
     if (!cardRef.current || isGenerating) return
 
     try {
       setIsGenerating(true)
-      // Give more time for animations to settle
-      await new Promise((resolve) => setTimeout(resolve, 300))
+      
+      // Wait for all images to load
+      await waitForImagesToLoad(cardRef.current)
 
       const dataUrl = await toPng(cardRef.current, {
         cacheBust: true,
         pixelRatio: 2,
         backgroundColor: "#0a0a0a",
+        skipAutoScale: true,
       })
 
       const link = document.createElement("a")
       link.download = `virtualsol-pnl-${Date.now()}.png`
       link.href = dataUrl
       link.click()
+      
+      toast({
+        title: "Download successful",
+        description: "Your PnL card has been downloaded",
+      })
     } catch (error) {
       console.error('Failed to download PnL image:', error)
+      toast({
+        title: "Download failed",
+        description: "Failed to generate PnL image. Please try again.",
+        variant: "destructive"
+      })
       import('@/lib/error-logger').then(({ errorLogger }) => {
         errorLogger.error('Failed to download PnL image', {
           error: error as Error,
@@ -68,13 +112,15 @@ export function SharePnLDialog({ totalPnL, totalPnLPercent, currentValue, initia
 
     try {
       setIsGenerating(true)
-      // Give more time for animations to settle
-      await new Promise((resolve) => setTimeout(resolve, 300))
+      
+      // Wait for all images to load
+      await waitForImagesToLoad(cardRef.current)
 
       const blob = await toBlob(cardRef.current, {
         cacheBust: true,
         pixelRatio: 2,
         backgroundColor: "#0a0a0a",
+        skipAutoScale: true,
       })
 
       if (blob) {
@@ -85,9 +131,21 @@ export function SharePnLDialog({ totalPnL, totalPnLPercent, currentValue, initia
         ])
         setCopied(true)
         setTimeout(() => setCopied(false), 2000)
+        
+        toast({
+          title: "Copied to clipboard",
+          description: "Your PnL card is ready to paste",
+        })
+      } else {
+        throw new Error("Failed to generate image blob")
       }
     } catch (error) {
       console.error('Failed to copy PnL image:', error)
+      toast({
+        title: "Copy failed",
+        description: "Failed to copy PnL image. Please try again.",
+        variant: "destructive"
+      })
       import('@/lib/error-logger').then(({ errorLogger }) => {
         errorLogger.error('Failed to copy PnL image', {
           error: error as Error,
@@ -176,9 +234,15 @@ export function SharePnLDialog({ totalPnL, totalPnLPercent, currentValue, initia
                             src={tokenImageUrl}
                             alt={tokenSymbol || 'Token'}
                             className="w-5 h-5 rounded-full object-cover"
+                            crossOrigin="anonymous"
+                            loading="eager"
                             onError={(e) => {
-                              // Hide image if it fails to load
-                              (e.target as HTMLImageElement).style.display = 'none'
+                              // Silently hide image if it fails to load
+                              const img = e.target as HTMLImageElement
+                              img.style.display = 'none'
+                              // Prevent error from propagating
+                              e.preventDefault()
+                              e.stopPropagation()
                             }}
                           />
                         )}
@@ -225,6 +289,19 @@ export function SharePnLDialog({ totalPnL, totalPnLPercent, currentValue, initia
                       src={userAvatarUrl}
                       alt={userHandle || 'User'}
                       className="w-7 h-7 rounded-full object-cover border border-white/20"
+                      crossOrigin="anonymous"
+                      loading="eager"
+                      onError={(e) => {
+                        // Replace with fallback div on error
+                        const img = e.target as HTMLImageElement
+                        const fallbackDiv = document.createElement('div')
+                        fallbackDiv.className = 'w-7 h-7 rounded-full bg-gradient-to-br from-primary to-blue-500 flex items-center justify-center text-white font-black text-xs border border-white/20'
+                        fallbackDiv.textContent = (userHandle?.[0] || userEmail?.[0] || 'U').toUpperCase()
+                        img.parentNode?.replaceChild(fallbackDiv, img)
+                        // Prevent error from propagating
+                        e.preventDefault()
+                        e.stopPropagation()
+                      }}
                     />
                   ) : (
                     <div className="w-7 h-7 rounded-full bg-gradient-to-br from-primary to-blue-500 flex items-center justify-center text-white font-black text-xs border border-white/20">
