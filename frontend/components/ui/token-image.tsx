@@ -77,14 +77,14 @@ export function TokenImage({
         className="object-cover rounded-full"
         onError={(e) => {
           console.warn(`Failed to load token image: ${src}`, e);
-          // Try direct load with unoptimized image if it failed
           setHasError(true);
           setIsLoading(false);
         }}
         onLoad={() => setIsLoading(false)}
         priority={false}
-        unoptimized={true} // Disable Next.js image optimization for all token images to avoid potential issues
-        referrerPolicy="no-referrer" // Don't send referrer info to external domains
+        quality={85}
+        sizes={`${finalWidth}px`}
+        referrerPolicy="no-referrer"
       />
     </div>
   )

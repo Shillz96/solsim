@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import Image from "next/image"
 import { getTokenLogoFallback, getTokenLogoAlternatives } from "@/lib/token-logos"
 
 interface TokenLogoProps {
@@ -92,14 +93,22 @@ export function TokenLogo({
     )
   }
 
+  // Extract size from className if possible, default to 40px
+  const sizeMatch = className.match(/w-(\d+)|h-(\d+)/)
+  const size = sizeMatch ? parseInt(sizeMatch[1] || sizeMatch[2]) * 4 : 40
+
   return (
-    <img
+    <Image
       src={currentSrc}
       alt={alt}
       title={alt}
+      width={size}
+      height={size}
       className={`rounded-full object-cover ${className}`}
       onError={handleError}
-      loading="lazy"
+      quality={85}
+      sizes={`${size}px`}
+      referrerPolicy="no-referrer"
     />
   )
 }

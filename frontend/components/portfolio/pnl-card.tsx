@@ -2,7 +2,7 @@
 
 /**
  * PnL Card Component (Production Ready - Refactored)
- * 
+ *
  * Key improvements:
  * - All USD values include SOL equivalents
  * - Proper colorization (green-400/red-400) for P&L
@@ -15,6 +15,7 @@
  * - Compact 2-column responsive layout
  */
 
+import dynamic from "next/dynamic"
 import { EnhancedCard } from "@/components/ui/enhanced-card-system"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -33,8 +34,12 @@ import {
   DollarSign
 } from "lucide-react"
 import { motion } from "framer-motion"
-import { SharePnLDialog } from "@/components/modals/share-pnl-dialog"
 import { memo, useState, useCallback } from "react"
+
+// Dynamic import for SharePnLDialog to reduce initial bundle size
+const SharePnLDialog = dynamic(() => import("@/components/modals/share-pnl-dialog").then(mod => ({ default: mod.SharePnLDialog })), {
+  ssr: false
+})
 import { useAuth } from "@/hooks/use-auth"
 import { useRealtimePortfolio } from "@/hooks/use-realtime-portfolio"
 import { useQuery } from "@tanstack/react-query"

@@ -1,8 +1,13 @@
 "use client"
 
+import dynamic from "next/dynamic"
 import { useAuth } from "@/hooks/use-auth"
-import { AuthModal } from "@/components/modals/auth-modal"
 import { useState, useEffect } from "react"
+
+// Dynamic import for AuthModal to reduce initial bundle size
+const AuthModal = dynamic(() => import("@/components/modals/auth-modal").then(mod => ({ default: mod.AuthModal })), {
+  ssr: false
+})
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Lock, TrendingUp } from "lucide-react"

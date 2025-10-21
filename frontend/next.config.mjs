@@ -20,6 +20,15 @@ const nextConfig = {
     // reactCompiler: {
     //   compilationMode: 'annotation',
     // },
+
+    // Optimize package imports for better tree-shaking
+    optimizePackageImports: [
+      'lucide-react',
+      'date-fns',
+      'recharts',
+      'framer-motion',
+      '@radix-ui/react-icons',
+    ],
   },
 
   // Production optimizations

@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useMemo, useCallback } from "react"
+import dynamic from "next/dynamic"
 import { motion, AnimatePresence } from "framer-motion"
 import {
   Eye,
@@ -49,8 +50,12 @@ import { useWalletTrackerWebSocket } from "@/hooks/use-wallet-tracker-ws"
 import { WalletActivityList } from "./wallet-activity-list"
 import { WalletManager } from "./wallet-manager"
 import { WalletStats } from "./wallet-stats"
-import { WalletTrackerSettingsModal } from "./wallet-tracker-settings-modal"
 import type { WalletActivity } from "./types"
+
+// Dynamic import for WalletTrackerSettingsModal to reduce initial bundle size
+const WalletTrackerSettingsModal = dynamic(() => import("./wallet-tracker-settings-modal").then(mod => ({ default: mod.WalletTrackerSettingsModal })), {
+  ssr: false
+})
 
 interface TrackedWallet {
   id: string

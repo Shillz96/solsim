@@ -2,6 +2,7 @@
 
 import Link from "next/link"
 import Image from "next/image"
+import dynamic from "next/dynamic"
 import { usePathname } from "next/navigation"
 import { useTheme } from "next-themes"
 import { Button } from "@/components/ui/button"
@@ -24,8 +25,14 @@ import {
 } from "lucide-react"
 import { useState, useCallback, useEffect, useRef } from "react"
 import { createPortal } from "react-dom"
-import { AuthModal } from "@/components/modals/auth-modal"
-import { PurchaseModal } from "@/components/modals/purchase-modal"
+
+// Dynamic imports for modals to reduce initial bundle size
+const AuthModal = dynamic(() => import("@/components/modals/auth-modal").then(mod => ({ default: mod.AuthModal })), {
+  ssr: false
+})
+const PurchaseModal = dynamic(() => import("@/components/modals/purchase-modal").then(mod => ({ default: mod.PurchaseModal })), {
+  ssr: false
+})
 import { NotificationDropdown } from "@/components/notifications/notification-dropdown"
 import { cn } from "@/lib/utils"
 import { motion, AnimatePresence } from "framer-motion"

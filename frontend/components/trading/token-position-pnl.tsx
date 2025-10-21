@@ -15,6 +15,7 @@
  */
 
 import { useState, useEffect } from "react"
+import dynamic from "next/dynamic"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -49,8 +50,12 @@ import { UsdWithSol } from "@/lib/sol-equivalent"
 import { cn } from "@/lib/utils"
 import { motion } from "framer-motion"
 import { formatDistanceToNow } from "date-fns"
-import { SharePnLDialog } from "@/components/modals/share-pnl-dialog"
 import { useTokenMetadata } from "@/hooks/use-token-metadata"
+
+// Dynamic import for SharePnLDialog to reduce initial bundle size
+const SharePnLDialog = dynamic(() => import("@/components/modals/share-pnl-dialog").then(mod => ({ default: mod.SharePnLDialog })), {
+  ssr: false
+})
 
 interface TokenPositionPnLProps {
   tokenAddress: string

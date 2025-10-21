@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useMemo } from "react"
+import dynamic from "next/dynamic"
 import { useAuth } from "@/hooks/use-auth"
 import { AuthGuard } from "@/components/auth/auth-guard"
 import { Button } from "@/components/ui/button"
@@ -14,8 +15,17 @@ import { TrendingUp, TrendingDown, AlertCircle, Loader2, XCircle, Timer, DollarS
 import * as api from "@/lib/api"
 import { useToast } from "@/hooks/use-toast"
 import { PerpTokenSelector } from "@/components/trading/perp-token-selector"
-import { DexScreenerChart } from "@/components/trading/dexscreener-chart"
 import { TokenLogo } from "@/components/ui/token-logo"
+
+// Dynamic import for DexScreener chart to reduce initial bundle size
+const DexScreenerChart = dynamic(() => import("@/components/trading/dexscreener-chart").then(mod => ({ default: mod.DexScreenerChart })), {
+  ssr: false,
+  loading: () => (
+    <Card className="h-full flex items-center justify-center">
+      <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+    </Card>
+  )
+})
 import { useSearchParams } from "next/navigation"
 import { motion } from "framer-motion"
 
