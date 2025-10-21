@@ -129,7 +129,7 @@ export function useNotifications() {
     }));
 
     try {
-      await api.patch(`/api/notifications/${notificationId}/read`);
+      await api.patch(`/api/notifications/${notificationId}/read`, {});
     } catch (error) {
       console.error('Failed to mark notification as read:', error);
       // Revert on error
@@ -151,7 +151,7 @@ export function useNotifications() {
     }));
 
     try {
-      const response = await api.patch(`/api/notifications/read-all`);
+      const response = await api.patch(`/api/notifications/read-all`, {});
       console.log('Mark all as read response:', response);
 
       // Fetch fresh data to ensure sync
