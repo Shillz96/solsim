@@ -3,7 +3,7 @@ import { FastifyInstance } from "fastify";
 import prisma from "../plugins/prisma.js";
 import { Connection, PublicKey } from "@solana/web3.js";
 import { getAssociatedTokenAddress } from "@solana/spl-token";
-import { claimReward } from "../services/rewardService.js";
+import { claimReward, isRewardSystemEnabled } from "../services/rewardService.js";
 
 // Initialize Solana connection
 const RPC_URL = process.env.HELIUS_RPC_URL || process.env.SOLANA_RPC || "https://api.mainnet-beta.solana.com";
@@ -169,12 +169,34 @@ export default async function rewardsRoutes(app: FastifyInstance) {
       } catch (claimError: any) {
         app.log.error("Failed to process claim on-chain:", claimError);
         
-        // Return success but indicate tokens are pending
+        // Check if it's a configuration error
+        const isConfigError = claimError.message?.includes("not configured") || 
+                             claimError.message?.includes("VSOL_TOKEN_MINT") ||
+                             claimError.message?.includes("REWARDS_WALLET");
+        
+        if (isConfigError) {
+          // Delete the claim since it can't be processed
+          await prisma.rewardClaim.delete({ where: { id: claim.id } });
+          
+          // Reset lastClaimTime so they can try again later
+          await prisma.user.update({
+            where: { id: userId },
+            data: { lastClaimTime: null }
+          });
+          
+          return reply.code(503).send({
+            error: "Reward system not configured",
+            message: "The reward distribution system is not yet set up. Please contact support or try again later.",
+            details: claimError.message
+          });
+        }
+        
+        // Return success but indicate tokens are pending for other errors
         return {
           claimId: claim.id,
           amount: rewardAmount.toString(),
           status: "PENDING",
-          message: "Reward claim created but token transfer is pending. Please check back later."
+          message: "Reward claim created but token transfer failed. Our team will process this manually. Error: " + claimError.message
         };
       }
       
@@ -286,6 +308,29 @@ export default async function rewardsRoutes(app: FastifyInstance) {
     } catch (error: any) {
       app.log.error(error);
       return reply.code(500).send({ error: "Failed to fetch reward stats" });
+    }
+  });
+
+  // Check reward system configuration status
+  app.get("/system-status", async (req, reply) => {
+    try {
+      const isConfigured = isRewardSystemEnabled();
+      const hasMint = !!process.env.VSOL_TOKEN_MINT;
+      const hasWallet = !!process.env.REWARDS_WALLET_SECRET;
+      
+      return {
+        enabled: isConfigured,
+        configured: {
+          tokenMint: hasMint,
+          rewardsWallet: hasWallet
+        },
+        message: isConfigured 
+          ? "Reward system is fully configured and operational"
+          : "Reward system requires configuration. Set VSOL_TOKEN_MINT and REWARDS_WALLET_SECRET environment variables."
+      };
+    } catch (error: any) {
+      app.log.error(error);
+      return reply.code(500).send({ error: "Failed to check system status" });
     }
   });
 }
