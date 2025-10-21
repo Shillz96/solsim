@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { ResponsiveLeaderboard } from "@/components/leaderboard/responsive-leaderboard"
+import { ModernLeaderboard } from "@/components/leaderboard/modern-leaderboard"
 import { Trophy, ArrowUp, ArrowDown, Minus, Target, RefreshCw } from "lucide-react"
 import { useAuth } from "@/hooks/use-auth"
 import { useQuery } from "@tanstack/react-query"
@@ -181,12 +181,19 @@ export default function LeaderboardPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left: Leaderboard Table */}
           <div className="lg:col-span-2">
-            <ResponsiveLeaderboard 
-              timeRange={timeRange} 
-              currentUserId={currentUserId || undefined} 
+            <ModernLeaderboard
+              timeRange={timeRange}
+              currentUserId={currentUserId || undefined}
               userRowRef={userRowRef}
               loading={loading}
               data={leaderboardData}
+              userStats={currentUser ? {
+                rank: currentUser.rank || 0,
+                totalPnl: parseFloat(currentUser.totalPnlUsd),
+                trades: currentUser.totalTrades,
+                winRate: currentUser.winRate,
+                balance: parseFloat(currentUser.balance)
+              } : undefined}
             />
           </div>
 

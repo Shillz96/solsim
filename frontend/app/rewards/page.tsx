@@ -2,7 +2,7 @@
 
 import { Suspense } from "react"
 import { AuthGuard } from "@/components/auth/auth-guard"
-import { RewardsOverview } from "@/components/rewards/rewards-overview"
+import { RewardsOverviewEnhanced } from "@/components/rewards/rewards-overview-enhanced"
 import { RewardsExplainer } from "@/components/rewards/rewards-explainer"
 import { RewardsHistory } from "@/components/rewards/rewards-history"
 import { RewardsLeaderboard } from "@/components/rewards/rewards-leaderboard"
@@ -29,7 +29,7 @@ function RewardsPageContent() {
           transition={{ duration: 0.5, delay: 0.1 }}
           className="mb-8"
         >
-          <RewardsOverview />
+          <RewardsOverviewEnhanced />
         </motion.div>
 
         {/* Enhanced Tabbed Content - Full Width */}
