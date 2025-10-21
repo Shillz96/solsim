@@ -41,56 +41,8 @@ export default async function rewardsRoutes(app: FastifyInstance) {
         });
       }
 
-      // REMOVED: 5-minute cooldown
-      // Users can now claim rewards whenever they have earned them
-
-      // Check if already claimed for this epoch
-      const existingClaim = await prisma.rewardClaim.findUnique({
-        where: {
-        userId_epoch: {
-          userId,
-          epoch: parseInt(epoch.toString())
-        }
-        }
-      });
-      
-      if (existingClaim) {
-        // If claim exists and is completed, return error
-        if (existingClaim.status === "COMPLETED" && existingClaim.txSig) {
-          return reply.code(409).send({ 
-            error: "Already claimed for this epoch",
-            txSig: existingClaim.txSig,
-            amount: existingClaim.amount.toString()
-          });
-        }
-        
-        // If claim exists but is PENDING or FAILED, retry it
-        if (existingClaim.status === "PENDING" || existingClaim.status === "FAILED") {
-          app.log.info(`Retrying existing PENDING/FAILED claim for user ${userId}, epoch ${epoch}`);
-          
-          try {
-            const result = await claimReward(userId, parseInt(epoch.toString()), wallet);
-            
-            return {
-              claimId: existingClaim.id,
-              amount: existingClaim.amount.toString(),
-              status: "COMPLETED",
-              txSig: result.sig,
-              message: "Rewards claimed successfully! Tokens have been sent to your wallet."
-            };
-          } catch (retryError: any) {
-            app.log.error("Failed to retry existing claim:", retryError);
-            return reply.code(500).send({
-              error: "Claim exists but token transfer failed",
-              message: retryError.message,
-              claimId: existingClaim.id
-            });
-          }
-        }
-        
-        // Fallback - claim exists with unknown status
-        return reply.code(409).send({ error: "Already claimed for this epoch" });
-      }
+      // REMOVED: 5-minute cooldown and epoch restrictions
+      // Users can now claim rewards whenever they have earned them, multiple times per day
       
       // Calculate reward amount based on user's performance metrics
       const [tradeCount, totalVolume, winRate] = await Promise.all([
@@ -129,12 +81,15 @@ export default async function rewardsRoutes(app: FastifyInstance) {
         });
       }
       
-      // Create reward claim record and update lastClaimTime in a transaction
+      // Create reward claim record using timestamp to avoid unique constraint issues
+      // Since we removed epoch restrictions, use timestamp as epoch for uniqueness
+      const timestampEpoch = Date.now();
+      
       const [claim] = await prisma.$transaction([
         prisma.rewardClaim.create({
           data: {
             userId,
-            epoch: parseInt(epoch.toString()),
+            epoch: timestampEpoch, // Use timestamp to ensure uniqueness
             wallet,
             amount: cappedRewardAmount,
             status: "PENDING"
