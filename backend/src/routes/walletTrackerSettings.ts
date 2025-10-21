@@ -87,7 +87,7 @@ const walletTrackerSettingsPlugin: FastifyPluginAsync = async (fastify) => {
         });
       }
 
-      fastify.log.error('Error fetching wallet tracker settings', error);
+      fastify.log.error({ error }, 'Error fetching wallet tracker settings');
       return reply.code(500).send({
         success: false,
         error: 'Failed to fetch wallet tracker settings',
@@ -185,7 +185,7 @@ const walletTrackerSettingsPlugin: FastifyPluginAsync = async (fastify) => {
         });
       }
 
-      fastify.log.error('Error updating wallet tracker settings', error);
+      fastify.log.error({ error }, 'Error updating wallet tracker settings');
       return reply.code(500).send({
         success: false,
         error: 'Failed to update wallet tracker settings',

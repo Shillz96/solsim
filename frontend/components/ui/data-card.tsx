@@ -70,7 +70,7 @@ function DataCard({
           {change !== undefined && (
             <div className={cn(
               "flex items-center gap-1 text-xs font-medium",
-              trendColors[trend]
+              trendClasses[trend]
             )}>
               {trend === 'up' && '↑'}
               {trend === 'down' && '↓'}
