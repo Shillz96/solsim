@@ -170,7 +170,7 @@ app.register(cors, {
   credentials: true,
   // Add WebSocket-specific headers and cache control headers
   allowedHeaders: ['Content-Type', 'Authorization', 'Upgrade', 'Connection', 'Sec-WebSocket-Key', 'Sec-WebSocket-Version', 'Sec-WebSocket-Protocol', 'Cache-Control', 'Pragma'],
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   // Explicitly set preflight to continue so OPTIONS requests get proper responses
   preflightContinue: false,
   optionsSuccessStatus: 204
