@@ -3,6 +3,7 @@ import { FastifyInstance } from "fastify";
 import prisma from "../plugins/prisma.js";
 import { Connection, PublicKey } from "@solana/web3.js";
 import { getAssociatedTokenAddress } from "@solana/spl-token";
+import { claimReward } from "../services/rewardService.js";
 
 // Initialize Solana connection
 const RPC_URL = process.env.HELIUS_RPC_URL || process.env.SOLANA_RPC || "https://api.mainnet-beta.solana.com";
@@ -129,6 +130,14 @@ export default async function rewardsRoutes(app: FastifyInstance) {
       // Cap at 200 VSOL per day (scaled down from 2000/week)
       rewardAmount = Math.min(rewardAmount, 200);
       
+      // If reward amount is 0, return error
+      if (rewardAmount === 0) {
+        return reply.code(400).send({
+          error: "No rewards available",
+          message: "You don't have enough trading activity to claim rewards yet. Start trading to earn rewards!"
+        });
+      }
+      
       // Create reward claim record and update lastClaimTime in a transaction
       const [claim] = await prisma.$transaction([
         prisma.rewardClaim.create({
@@ -137,7 +146,7 @@ export default async function rewardsRoutes(app: FastifyInstance) {
             epoch: parseInt(epoch.toString()),
             wallet,
             amount: rewardAmount,
-            status: "PENDING" // Processed by blockchain service
+            status: "PENDING"
           }
         }),
         prisma.user.update({
@@ -145,13 +154,30 @@ export default async function rewardsRoutes(app: FastifyInstance) {
           data: { lastClaimTime: new Date() }
         })
       ]);
+
+      // Immediately process the claim by sending tokens on-chain
+      try {
+        const result = await claimReward(userId, parseInt(epoch.toString()), wallet);
+        
+        return {
+          claimId: claim.id,
+          amount: rewardAmount.toString(),
+          status: "COMPLETED",
+          txSig: result.sig,
+          message: "Rewards claimed successfully! Tokens have been sent to your wallet."
+        };
+      } catch (claimError: any) {
+        app.log.error("Failed to process claim on-chain:", claimError);
+        
+        // Return success but indicate tokens are pending
+        return {
+          claimId: claim.id,
+          amount: rewardAmount.toString(),
+          status: "PENDING",
+          message: "Reward claim created but token transfer is pending. Please check back later."
+        };
+      }
       
-      return {
-        claimId: claim.id,
-        amount: rewardAmount,
-        status: "PENDING",
-        message: "Reward claim submitted for processing"
-      };
     } catch (error: any) {
       app.log.error(error);
       return reply.code(500).send({ error: "Failed to claim rewards" });
