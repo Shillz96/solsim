@@ -47,6 +47,7 @@ import { useWalletTrackerWebSocket } from "@/hooks/use-wallet-tracker-ws"
 import { WalletActivityList } from "./wallet-activity-list"
 import { WalletManager } from "./wallet-manager"
 import { WalletStats } from "./wallet-stats"
+import { WalletTrackerSettingsModal } from "./wallet-tracker-settings-modal"
 import type { WalletActivity } from "./types"
 
 interface TrackedWallet {
@@ -68,6 +69,7 @@ export function WalletTrackerContent() {
   const [filterType, setFilterType] = useState<'all' | 'buy' | 'sell' | 'swap'>('all')
   const [selectedWallets, setSelectedWallets] = useState<string[]>([])
   const [showWalletManager, setShowWalletManager] = useState(false)
+  const [showSettings, setShowSettings] = useState(false)
   const [activities, setActivities] = useState<WalletActivity[]>([])
   const [isLoadingMore, setIsLoadingMore] = useState(false)
   const [hasMore, setHasMore] = useState(true)
@@ -268,6 +270,16 @@ export function WalletTrackerContent() {
             </Button>
 
             <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowSettings(true)}
+              className="gap-2"
+            >
+              <Settings className="h-4 w-4" />
+              Filters
+            </Button>
+
+            <Button
               variant="default"
               size="sm"
               onClick={() => setShowWalletManager(true)}
@@ -391,6 +403,12 @@ export function WalletTrackerContent() {
             />
           )}
         </AnimatePresence>
+
+        {/* Settings Modal */}
+        <WalletTrackerSettingsModal
+          isOpen={showSettings}
+          onClose={() => setShowSettings(false)}
+        />
 
         {/* Decorative Elements */}
         <div className="fixed inset-0 pointer-events-none -z-20 overflow-hidden">
