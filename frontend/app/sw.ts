@@ -23,7 +23,7 @@ declare global {
 declare const self: ServiceWorkerGlobalScope
 
 // Cache version - increment this to force cache refresh
-const CACHE_VERSION = 'v1.0.3-modal-positioning'
+const CACHE_VERSION = 'v1.0.4-dropdown-visibility'
 
 // Initialize Serwist with precaching and default runtime caching
 const serwist = new Serwist({
