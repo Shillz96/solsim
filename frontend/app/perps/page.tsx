@@ -473,7 +473,7 @@ function PerpsContent() {
     const rows = tradeHistory.map(trade => {
       const tokenMeta = tokenMetadataCache[trade.mint]
       return [
-        new Date(trade.timestamp).toLocaleString(),
+        new Date(trade.createdAt).toLocaleString(),
         tokenMeta?.symbol || trade.mint.substring(0, 8),
         trade.side,
         trade.action,
@@ -1063,7 +1063,7 @@ function PerpsContent() {
                             <Badge variant="outline">{trade.action}</Badge>
                           </div>
                           <div className="text-xs text-muted-foreground">
-                            {new Date(trade.timestamp).toLocaleDateString()}
+                            {new Date(trade.createdAt).toLocaleDateString()}
                           </div>
                         </div>
 

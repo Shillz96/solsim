@@ -107,7 +107,7 @@ export function TradeTimeline({ tokenAddress, maxTrades = 10, variant = 'default
                         </Badge>
                         {!isCompact && (
                           <span className="text-xs text-muted-foreground">
-                            {formatDistanceToNow(new Date(trade.timestamp), { addSuffix: true })}
+                            {formatDistanceToNow(new Date(trade.createdAt), { addSuffix: true })}
                           </span>
                         )}
                       </div>

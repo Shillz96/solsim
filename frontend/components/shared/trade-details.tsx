@@ -300,7 +300,7 @@ export function TradeDetails({
 
               {trades.slice(0, isSidebar ? 15 : 5).map((trade, index) => {
                 const isRecent = index < 2 // Highlight the 2 most recent trades
-                const timeAgo = formatDistanceToNow(new Date(trade.timestamp), { addSuffix: true })
+                const timeAgo = formatDistanceToNow(new Date(trade.createdAt), { addSuffix: true })
                 const isBuy = trade.action === 'BUY'
                 
                 return (
