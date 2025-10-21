@@ -274,7 +274,7 @@ export default function LeaderboardPage() {
                             {index + 1}
                           </div>
                           <div>
-                            <p className="font-medium">{performer.handle || performer.displayName || performer.username || `User ${performer.userId.slice(0, 8)}`}</p>
+                            <p className="font-medium">{performer.handle || performer.displayName || `User ${performer.userId.slice(0, 8)}`}</p>
                             <p className="text-xs text-muted-foreground">{performer.totalTrades} trades</p>
                           </div>
                         </div>
