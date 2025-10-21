@@ -221,7 +221,15 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
             ))}
             
             {/* VSOL Token Info */}
-            <div className="flex items-center gap-2 px-2 py-1 rounded-lg bg-muted">
+            <div
+              className="flex items-center gap-2 px-2 py-1 rounded-lg bg-muted cursor-pointer hover:bg-muted/80 transition-colors"
+              onClick={() => {
+                const ca = "2mksd9Ci9XzBV4CrZ6Fo2SuAtHfrUg3cmdKRjZeApump"
+                navigator.clipboard.writeText(ca)
+                // Optional: You could add a toast notification here
+              }}
+              title="Click to copy contract address"
+            >
               <div className="flex items-center gap-1.5">
                 <div className="relative h-6 w-6">
                   <Image
@@ -233,8 +241,8 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
                 </div>
                 <span className="text-xs font-semibold text-primary">vSOL</span>
               </div>
-              <span className="text-[10px] text-muted-foreground font-mono">
-                Coming Soon
+              <span className="text-[10px] text-muted-foreground font-mono hover:text-foreground transition-colors">
+                2mks...pump
               </span>
             </div>
           </div>
