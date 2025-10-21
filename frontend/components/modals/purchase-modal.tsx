@@ -245,11 +245,11 @@ export function PurchaseModal({ open, onOpenChange, userId }: PurchaseModalProps
                 <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-lg">
                   <Sparkles className="h-6 w-6 text-primary-foreground" />
                 </div>
-                <DialogTitle className="text-3xl font-black text-white dark:text-white">
+                <DialogTitle className="text-3xl font-black text-modal-foreground">
                   Purchase Simulated SOL
                 </DialogTitle>
               </div>
-              <DialogDescription className="text-base text-center text-gray-300 dark:text-gray-300">
+              <DialogDescription className="text-base text-center text-muted-foreground">
                 Choose your tier and boost your trading balance instantly
               </DialogDescription>
             </DialogHeader>
@@ -333,11 +333,11 @@ export function PurchaseModal({ open, onOpenChange, userId }: PurchaseModalProps
                 <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-lg">
                   <CheckCircle className="h-6 w-6 text-primary-foreground" />
                 </div>
-                <DialogTitle className="text-3xl font-black text-white dark:text-white">
+                <DialogTitle className="text-3xl font-black text-modal-foreground">
                   Confirm Purchase
                 </DialogTitle>
               </div>
-              <DialogDescription className="text-base text-center text-gray-300 dark:text-gray-300">
+              <DialogDescription className="text-base text-center text-muted-foreground">
                 Review your purchase details before proceeding
               </DialogDescription>
             </DialogHeader>
@@ -593,7 +593,7 @@ export function PurchaseModal({ open, onOpenChange, userId }: PurchaseModalProps
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-w-[95vw] lg:max-w-7xl overflow-y-auto p-8">
+      <DialogContent className="max-w-[90vw] lg:max-w-6xl max-h-[90vh] overflow-y-auto p-8 bg-modal border-2 border-modal-border shadow-2xl">
         {renderContent()}
       </DialogContent>
     </Dialog>

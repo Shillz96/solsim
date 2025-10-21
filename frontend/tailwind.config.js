@@ -104,6 +104,16 @@ module.exports = {
           DEFAULT: "hsl(var(--popover))",
           foreground: "hsl(var(--popover-foreground))",
         },
+        dropdown: {
+          DEFAULT: "hsl(var(--dropdown))",
+          foreground: "hsl(var(--dropdown-foreground))",
+          border: "hsl(var(--dropdown-border))",
+        },
+        modal: {
+          DEFAULT: "hsl(var(--modal))",
+          foreground: "hsl(var(--modal-foreground))",
+          border: "hsl(var(--modal-border))",
+        },
       },
       
       // Typography Scale
