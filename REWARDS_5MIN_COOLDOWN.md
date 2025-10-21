@@ -85,11 +85,21 @@ const fiveMinutesInMs = 5 * 60 * 1000; // Change 5 to desired minutes
 ### Reward Amount
 Current reward calculation in `backend/src/routes/rewards.ts`:
 ```typescript
-rewardAmount += tradeCount * 1; // Base reward per trade
-rewardAmount += Math.floor(volumeUsd / 100) * 2; // Volume bonus
-rewardAmount += Math.floor(winRatePercent / 10) * 10; // Win rate bonus
-rewardAmount = Math.min(rewardAmount, 200); // Cap at 200 VSOL per claim
+// Points-based system: 1 point = 1,000 vSOL
+let rewardPoints = 0;
+rewardPoints += tradeCount * 1; // 1 point per trade
+rewardPoints += Math.floor(volumeUsd / 100) * 2; // 2 points per $100 volume
+rewardPoints += Math.floor(winRatePercent / 10) * 10; // 10 points per 10% win rate
+
+const rewardAmount = rewardPoints * 1000; // Convert to vSOL
+const cappedRewardAmount = Math.min(rewardAmount, 200000); // Cap at 200,000 vSOL (200 points)
 ```
+
+**Reward Scale:**
+- 1 trade = 1 point = 1,000 vSOL
+- $100 volume = 2 points = 2,000 vSOL
+- 10% win rate = 10 points = 10,000 vSOL
+- Maximum per claim: 200 points = 200,000 vSOL
 
 ## Testing
 

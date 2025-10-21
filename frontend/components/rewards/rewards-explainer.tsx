@@ -72,27 +72,27 @@ const tiers = [
 const rewardActivities = [
   {
     activity: "Executing Trades",
-    points: "1 point per $100 volume",
+    points: "1 point per trade",
     icon: TrendingUp,
-    description: "Earn points for every trade you execute, buy or sell"
+    description: "Earn 1 point for every trade you execute (1 point = 1,000 vSOL)"
   },
   {
-    activity: "Profitable Trades",
-    points: "Bonus 0.5x multiplier",
+    activity: "Trading Volume",
+    points: "2 points per $100 volume",
+    icon: DollarSign,
+    description: "Earn 2 points for every $100 in trading volume (= 2,000 vSOL)"
+  },
+  {
+    activity: "Win Rate Bonus",
+    points: "10 points per 10% win rate",
     icon: Trophy,
-    description: "Get bonus points when your trades are profitable"
+    description: "Earn 10 points for every 10% win rate milestone (= 10,000 vSOL)"
   },
   {
-    activity: "Daily Trading",
-    points: "10 bonus points",
-    icon: Calendar,
-    description: "Trade at least once per day to earn daily bonus"
-  },
-  {
-    activity: "Portfolio Diversity",
-    points: "Up to 50 bonus points",
+    activity: "Maximum Reward",
+    points: "200 points max (200,000 vSOL)",
     icon: Star,
-    description: "Hold 5+ different tokens for diversity bonus"
+    description: "Rewards are capped at 200,000 vSOL (200 points) per claim"
   }
 ]
 
@@ -268,40 +268,42 @@ export function RewardsExplainer() {
         <CardContent>
           <div className="space-y-4">
             <div className="p-4 rounded-lg bg-muted/50 space-y-3">
-              <h4 className="font-semibold">Example: Gold Tier Trader</h4>
+              <h4 className="font-semibold">Example Trader Rewards</h4>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Daily Trading Volume:</span>
-                  <span className="font-medium">$35,000</span>
+                  <span className="text-muted-foreground">Number of Trades:</span>
+                  <span className="font-medium">10 trades</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Base Points (1 per $100):</span>
-                  <span className="font-medium">350 points</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Profitable Trades Bonus:</span>
-                  <span className="font-medium">+175 points (50%)</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Daily Trading Bonus:</span>
-                  <span className="font-medium">+10 points</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Portfolio Diversity Bonus:</span>
-                  <span className="font-medium">+50 points</span>
+                  <span className="text-muted-foreground">Trade Points (1 per trade):</span>
+                  <span className="font-medium">10 points</span>
                 </div>
                 <Separator />
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Subtotal:</span>
-                  <span className="font-medium">585 points</span>
+                  <span className="text-muted-foreground">Trading Volume:</span>
+                  <span className="font-medium">$5,000</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Gold Tier Multiplier:</span>
-                  <span className="font-medium">×1.5</span>
+                  <span className="text-muted-foreground">Volume Points (2 per $100):</span>
+                  <span className="font-medium">100 points</span>
                 </div>
+                <Separator />
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Win Rate:</span>
+                  <span className="font-medium">65%</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Win Rate Points (10 per 10%):</span>
+                  <span className="font-medium">60 points</span>
+                </div>
+                <Separator />
                 <div className="flex justify-between text-lg font-semibold">
-                  <span>Final Points:</span>
-                  <span className="text-primary">878 points</span>
+                  <span>Total Points:</span>
+                  <span className="text-primary">170 points</span>
+                </div>
+                <div className="flex justify-between text-lg font-semibold text-green-500">
+                  <span>vSOL Reward:</span>
+                  <span>170,000 vSOL</span>
                 </div>
               </div>
             </div>
@@ -309,8 +311,8 @@ export function RewardsExplainer() {
             <Alert className="border-primary/20 bg-primary/5">
               <Zap className="h-4 w-4 text-primary" />
               <AlertDescription>
-                Points are converted to $vSOL tokens based on the total reward pool for each epoch.
-                Your share of the pool depends on your points relative to all other traders.
+                <strong>Conversion Rate:</strong> 1 point = 1,000 vSOL tokens.
+                Your rewards are calculated based on your trading activity and capped at 200,000 vSOL (200 points) per claim.
               </AlertDescription>
             </Alert>
           </div>

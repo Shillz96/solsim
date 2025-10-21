@@ -196,7 +196,7 @@ export function RewardsCard({ userId, walletAddress }: RewardsCardProps) {
           vSOL Token Rewards
         </CardTitle>
         <CardDescription>
-          Earn $vSOL tokens based on your trading activity. Claimable every 5 minutes.
+          Earn $vSOL tokens based on your trading activity. 1 point = 1,000 vSOL. Claimable every 5 minutes.
         </CardDescription>
         {/* Wallet Status in Header */}
         {!walletAddress && (
@@ -395,7 +395,7 @@ export function RewardsCard({ userId, walletAddress }: RewardsCardProps) {
           <Alert>
             <TrendingUp className="h-4 w-4" />
             <AlertDescription>
-              Start trading to earn $vSOL token rewards! Your trading activity generates points that are converted to rewards each week.
+              Start trading to earn $vSOL token rewards! Trade more to earn points (1 point = 1,000 vSOL). Rewards are claimable every 5 minutes.
             </AlertDescription>
           </Alert>
         )}

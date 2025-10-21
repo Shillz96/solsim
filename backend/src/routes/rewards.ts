@@ -155,17 +155,20 @@ export default async function rewardsRoutes(app: FastifyInstance) {
       const winRatePercent = totalTrades > 0 ? (winRate._count.id / totalTrades) * 100 : 0;
       const volumeUsd = parseFloat(totalVolume._sum.totalCost?.toString() || "0");
       
-      // Daily reward calculation based on multiple factors (scaled down from weekly)
-      let rewardAmount = 0;
-      rewardAmount += tradeCount * 1; // Base reward per trade (reduced for daily)
-      rewardAmount += Math.floor(volumeUsd / 100) * 2; // Volume bonus (reduced)
-      rewardAmount += Math.floor(winRatePercent / 10) * 10; // Win rate bonus (reduced)
+      // Reward calculation: 1 point = 1000 vSOL
+      let rewardPoints = 0;
+      rewardPoints += tradeCount * 1; // 1 point per trade
+      rewardPoints += Math.floor(volumeUsd / 100) * 2; // 2 points per $100 volume
+      rewardPoints += Math.floor(winRatePercent / 10) * 10; // 10 points per 10% win rate
 
-      // Cap at 200 VSOL per day (scaled down from 2000/week)
-      rewardAmount = Math.min(rewardAmount, 200);
+      // Calculate vSOL amount: points * 1000
+      const rewardAmount = rewardPoints * 1000;
+
+      // Cap at 200,000 vSOL per claim (200 points * 1000)
+      const cappedRewardAmount = Math.min(rewardAmount, 200000);
       
       // If reward amount is 0, return error
-      if (rewardAmount === 0) {
+      if (cappedRewardAmount === 0) {
         return reply.code(400).send({
           error: "No rewards available",
           message: "You don't have enough trading activity to claim rewards yet. Start trading to earn rewards!"
@@ -179,7 +182,7 @@ export default async function rewardsRoutes(app: FastifyInstance) {
             userId,
             epoch: parseInt(epoch.toString()),
             wallet,
-            amount: rewardAmount,
+            amount: cappedRewardAmount,
             status: "PENDING"
           }
         }),
@@ -191,20 +194,21 @@ export default async function rewardsRoutes(app: FastifyInstance) {
 
       // Immediately process the claim by sending tokens on-chain
       try {
-        app.log.info(`Attempting to send ${rewardAmount} vSOL to wallet ${wallet}`);
+        app.log.info(`Attempting to send ${cappedRewardAmount} vSOL (${rewardPoints} points) to wallet ${wallet}`);
         const result = await claimReward(userId, parseInt(epoch.toString()), wallet);
         app.log.info(`Successfully sent tokens! Transaction: ${result.sig}`);
         
         return {
           claimId: claim.id,
-          amount: rewardAmount.toString(),
+          amount: cappedRewardAmount.toString(),
+          points: rewardPoints,
           status: "COMPLETED",
           txSig: result.sig,
           message: "Rewards claimed successfully! Tokens have been sent to your wallet."
         };
       } catch (claimError: any) {
         app.log.error("Failed to process claim on-chain:", claimError);
-        app.log.error(`Error details - User: ${userId}, Wallet: ${wallet}, Amount: ${rewardAmount}, Message: ${claimError.message}`);
+        app.log.error(`Error details - User: ${userId}, Wallet: ${wallet}, Amount: ${cappedRewardAmount}, Points: ${rewardPoints}, Message: ${claimError.message}`);
         
         // Check if it's a configuration error
         const isConfigError = claimError.message?.includes("not configured") || 
@@ -231,7 +235,8 @@ export default async function rewardsRoutes(app: FastifyInstance) {
         // Return success but indicate tokens are pending for other errors
         return {
           claimId: claim.id,
-          amount: rewardAmount.toString(),
+          amount: cappedRewardAmount.toString(),
+          points: rewardPoints,
           status: "PENDING",
           message: "Reward claim created but token transfer failed. Our team will process this manually. Error: " + claimError.message
         };
