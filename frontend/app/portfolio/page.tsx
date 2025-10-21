@@ -16,9 +16,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { TrendingUp, History, BarChart3, Wallet, Target, Loader2 } from "lucide-react"
 import { motion } from "framer-motion"
 import { useAuth } from "@/hooks/use-auth"
+import { useWallet } from "@solana/wallet-adapter-react"
 
 function PortfolioPageContent() {
   const { user, isAuthenticated } = useAuth()
+  const { publicKey } = useWallet()
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
@@ -134,7 +136,7 @@ function PortfolioPageContent() {
                 >
                   <RewardsCard
                     userId={user.id}
-                    walletAddress={undefined}
+                    walletAddress={publicKey?.toBase58()}
                   />
                 </motion.div>
               )}

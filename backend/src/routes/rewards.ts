@@ -30,6 +30,22 @@ export default async function rewardsRoutes(app: FastifyInstance) {
         });
       }
 
+      // Check if 5 minutes have passed since last claim
+      if (user.lastClaimTime) {
+        const fiveMinutesInMs = 5 * 60 * 1000;
+        const timeSinceLastClaim = Date.now() - user.lastClaimTime.getTime();
+        
+        if (timeSinceLastClaim < fiveMinutesInMs) {
+          const timeRemaining = Math.ceil((fiveMinutesInMs - timeSinceLastClaim) / 1000);
+          return reply.code(429).send({
+            error: "Claim cooldown active",
+            message: `Please wait ${Math.floor(timeRemaining / 60)} minutes and ${timeRemaining % 60} seconds before claiming again`,
+            timeRemaining,
+            nextClaimTime: new Date(user.lastClaimTime.getTime() + fiveMinutesInMs).toISOString()
+          });
+        }
+      }
+
       // Check if already claimed for this epoch
       const existingClaim = await prisma.rewardClaim.findUnique({
         where: {
@@ -70,16 +86,22 @@ export default async function rewardsRoutes(app: FastifyInstance) {
       // Cap at 200 VSOL per day (scaled down from 2000/week)
       rewardAmount = Math.min(rewardAmount, 200);
       
-      // Create reward claim record
-      const claim = await prisma.rewardClaim.create({
-        data: {
-          userId,
-          epoch: parseInt(epoch.toString()),
-          wallet,
-          amount: rewardAmount,
-          status: "PENDING" // Processed by blockchain service
-        }
-      });
+      // Create reward claim record and update lastClaimTime in a transaction
+      const [claim] = await prisma.$transaction([
+        prisma.rewardClaim.create({
+          data: {
+            userId,
+            epoch: parseInt(epoch.toString()),
+            wallet,
+            amount: rewardAmount,
+            status: "PENDING" // Processed by blockchain service
+          }
+        }),
+        prisma.user.update({
+          where: { id: userId },
+          data: { lastClaimTime: new Date() }
+        })
+      ]);
       
       return {
         claimId: claim.id,

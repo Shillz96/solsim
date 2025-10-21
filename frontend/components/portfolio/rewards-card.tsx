@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Gift, Coins, TrendingUp, Calendar, CheckCircle, Clock, AlertCircle } from "lucide-react"
+import { Gift, Coins, TrendingUp, Calendar, CheckCircle, Clock, AlertCircle, Timer } from "lucide-react"
 import * as api from "@/lib/api"
 import * as Backend from "@/lib/types/backend"
 import { useToast } from "@/hooks/use-toast"
@@ -23,6 +23,8 @@ export function RewardsCard({ userId, walletAddress }: RewardsCardProps) {
   const { toast } = useToast()
   const queryClient = useQueryClient()
   const [selectedClaim, setSelectedClaim] = useState<Backend.RewardClaim | null>(null)
+  const [cooldownRemaining, setCooldownRemaining] = useState<string>("")
+  const [canClaim, setCanClaim] = useState(true)
 
   // Get user's reward claims
   const { data: rewardClaims, isLoading: claimsLoading } = useQuery({
@@ -46,18 +48,73 @@ export function RewardsCard({ userId, walletAddress }: RewardsCardProps) {
         title: "Rewards Claimed!",
         description: `Successfully claimed ${data.amount} $vSOL tokens`,
       })
-      // Refresh claims data
+      // Refresh claims data and user data
       queryClient.invalidateQueries({ queryKey: ['reward-claims', userId] })
+      queryClient.invalidateQueries({ queryKey: ['user', userId] })
       setSelectedClaim(null)
+      setCanClaim(false) // Start cooldown
     },
     onError: (error: any) => {
-      toast({
-        title: "Claim Failed",
-        description: error.message || "Failed to claim rewards",
-        variant: "destructive",
-      })
+      // Handle cooldown error specifically
+      if (error.message?.includes("cooldown") || error.message?.includes("wait")) {
+        toast({
+          title: "Claim Cooldown Active",
+          description: error.message || "Please wait before claiming again",
+          variant: "destructive",
+        })
+      } else {
+        toast({
+          title: "Claim Failed",
+          description: error.message || "Failed to claim rewards",
+          variant: "destructive",
+        })
+      }
     },
   })
+
+  // Cooldown timer - updates every second
+  useEffect(() => {
+    const updateCooldown = () => {
+      // Check if there are any recent claims
+      if (!rewardClaims || rewardClaims.length === 0) {
+        setCooldownRemaining("")
+        setCanClaim(true)
+        return
+      }
+
+      // Find the most recent claimed reward
+      const recentClaim = rewardClaims
+        .filter(claim => claim.claimedAt)
+        .sort((a, b) => new Date(b.claimedAt!).getTime() - new Date(a.claimedAt!).getTime())[0]
+
+      if (!recentClaim?.claimedAt) {
+        setCooldownRemaining("")
+        setCanClaim(true)
+        return
+      }
+
+      const lastClaimTime = new Date(recentClaim.claimedAt).getTime()
+      const now = Date.now()
+      const fiveMinutes = 5 * 60 * 1000
+      const timeSinceClaim = now - lastClaimTime
+      const timeRemaining = fiveMinutes - timeSinceClaim
+
+      if (timeRemaining <= 0) {
+        setCooldownRemaining("")
+        setCanClaim(true)
+        return
+      }
+
+      const minutes = Math.floor(timeRemaining / 60000)
+      const seconds = Math.floor((timeRemaining % 60000) / 1000)
+      setCooldownRemaining(`${minutes}:${seconds.toString().padStart(2, '0')}`)
+      setCanClaim(false)
+    }
+
+    updateCooldown()
+    const interval = setInterval(updateCooldown, 1000)
+    return () => clearInterval(interval)
+  }, [rewardClaims])
 
   const handleClaim = (claim: Backend.RewardClaim) => {
     if (!walletAddress) {
@@ -132,10 +189,20 @@ export function RewardsCard({ userId, walletAddress }: RewardsCardProps) {
           vSOL Token Rewards
         </CardTitle>
         <CardDescription>
-          Earn $vSOL tokens based on your trading activity. Rewards are distributed weekly.
+          Earn $vSOL tokens based on your trading activity. Claimable every 5 minutes.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
+        {/* Cooldown Timer */}
+        {!canClaim && cooldownRemaining && (
+          <Alert className="border-amber-500/50 bg-amber-500/10">
+            <Timer className="h-4 w-4 text-amber-500" />
+            <AlertDescription className="text-amber-600 dark:text-amber-400">
+              Next claim available in <span className="font-mono font-bold">{cooldownRemaining}</span>
+            </AlertDescription>
+          </Alert>
+        )}
+
         {/* Reward Summary */}
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
@@ -150,10 +217,18 @@ export function RewardsCard({ userId, walletAddress }: RewardsCardProps) {
           <div className="space-y-2">
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Calendar className="h-4 w-4" />
-              This Week
+              Claim Status
             </div>
-            <div className="text-xl font-bold">
-              {currentWeekRange}
+            <div className="text-lg font-bold flex items-center gap-2">
+              {canClaim ? (
+                <Badge variant="default" className="bg-green-500/20 text-green-600 border-green-500/30">
+                  Ready
+                </Badge>
+              ) : (
+                <Badge variant="secondary" className="bg-amber-500/20 text-amber-600 border-amber-500/30">
+                  Cooldown
+                </Badge>
+              )}
             </div>
           </div>
         </div>
@@ -203,9 +278,9 @@ export function RewardsCard({ userId, walletAddress }: RewardsCardProps) {
                   <Button 
                     size="sm" 
                     onClick={() => handleClaim(claim)}
-                    disabled={claimMutation.isPending || !walletAddress}
+                    disabled={claimMutation.isPending || !walletAddress || !canClaim}
                   >
-                    {claimMutation.isPending ? "Claiming..." : "Claim"}
+                    {claimMutation.isPending ? "Claiming..." : !canClaim ? `Wait ${cooldownRemaining}` : "Claim"}
                   </Button>
                 </div>
               ))}
