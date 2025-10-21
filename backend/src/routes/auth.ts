@@ -44,12 +44,11 @@ export default async function (app: FastifyInstance) {
       const sanitizedBody = sanitizeInput(req.body) as {
         email: string;
         password: string;
-        username?: string;
         handle?: string;
-        profileImage?: string;
+        avatarUrl?: string;
       };
 
-      const { email, password, username, handle, profileImage } = sanitizedBody;
+      const { email, password, handle, avatarUrl } = sanitizedBody;
 
       // Validate password strength
       const passwordValidation = validatePasswordStrength(password);
@@ -81,10 +80,9 @@ export default async function (app: FastifyInstance) {
       const user = await prisma.user.create({
         data: {
           email,
-          username: username || email.split('@')[0],
           passwordHash: hash,
-          handle: handle || null,
-          profileImage: profileImage || null,
+          handle: handle || email.split('@')[0],
+          avatarUrl: avatarUrl || null,
           virtualSolBalance: 100,
           userTier: 'EMAIL_USER',
           emailVerified: false,
@@ -94,12 +92,12 @@ export default async function (app: FastifyInstance) {
       });
 
       // Send verification email (non-blocking)
-      EmailService.sendVerificationEmail(email, verificationToken, user.username).catch(error => {
+      EmailService.sendVerificationEmail(email, verificationToken, user.handle || email).catch(error => {
         console.error('Failed to send verification email:', error);
       });
 
       // Send welcome notification (non-blocking)
-      notificationService.notifyWelcome(user.id, user.username).catch(error => {
+      notificationService.notifyWelcome(user.id, user.handle || email).catch(error => {
         console.error('Failed to send welcome notification:', error);
       });
 
@@ -260,7 +258,7 @@ export default async function (app: FastifyInstance) {
         },
         create: {
           email: `${walletAddress.slice(0, 8)}@wallet.virtualsol.fun`,
-          username: walletAddress.slice(0, 16),
+          handle: walletAddress.slice(0, 16),
           passwordHash: '',
           walletAddress,
           walletNonce: null,
@@ -273,7 +271,7 @@ export default async function (app: FastifyInstance) {
       // Check if this is a new user by checking if they just got created
       const isNewUser = await prisma.user.count({ where: { walletAddress } }) === 1;
       if (isNewUser) {
-        notificationService.notifyWelcome(walletUser.id, walletUser.username).catch(error => {
+        notificationService.notifyWelcome(walletUser.id, walletUser.handle || walletAddress).catch(error => {
           console.error('Failed to send welcome notification:', error);
         });
       }
@@ -519,14 +517,13 @@ export default async function (app: FastifyInstance) {
     try {
       const sanitizedBody = sanitizeInput(req.body) as {
         userId: string;
-        username?: string;
         handle?: string;
-        profileImage?: string;
+        avatarUrl?: string;
         bio?: string;
         displayName?: string;
       };
 
-      const { userId, username, handle, profileImage, bio, displayName } = sanitizedBody;
+      const { userId, handle, avatarUrl, bio, displayName } = sanitizedBody;
 
       // Verify user can only update their own profile
       if (req.user?.id !== userId) {
@@ -539,11 +536,8 @@ export default async function (app: FastifyInstance) {
       const updatedUser = await prisma.user.update({
         where: { id: userId },
         data: {
-          username,
           handle,
-          profileImage,
-          avatarUrl: profileImage, // Sync with avatarUrl
-          avatar: profileImage,    // Sync with avatar
+          avatarUrl,
           bio,
           displayName
         }
@@ -566,9 +560,7 @@ export default async function (app: FastifyInstance) {
         success: true,
         user: {
           id: updatedUser.id,
-          username: updatedUser.username,
           handle: updatedUser.handle,
-          profileImage: updatedUser.profileImage,
           avatarUrl: updatedUser.avatarUrl,
           bio: updatedUser.bio,
           displayName: updatedUser.displayName
@@ -601,10 +593,8 @@ export default async function (app: FastifyInstance) {
         select: {
           id: true,
           email: true,
-          username: true,
           displayName: true,
           bio: true,
-          avatar: true,
           avatarUrl: true,
           twitter: true,
           discord: true,
@@ -614,7 +604,6 @@ export default async function (app: FastifyInstance) {
           userTier: true,
           walletAddress: true,
           handle: true,
-          profileImage: true,
           createdAt: true,
           updatedAt: true
         }
@@ -784,9 +773,7 @@ export default async function (app: FastifyInstance) {
       const user = await prisma.user.update({
         where: { id: userId },
         data: {
-          avatarUrl: avatarUrl, // Full base64 string (no truncation)
-          avatar: avatarUrl,
-          profileImage: avatarUrl // Sync with profileImage
+          avatarUrl: avatarUrl // Full base64 string (no truncation)
         }
       });
 
@@ -841,9 +828,7 @@ export default async function (app: FastifyInstance) {
       await prisma.user.update({
         where: { id: userId },
         data: {
-          avatarUrl: null,
-          avatar: null,
-          profileImage: null // Sync with profileImage
+          avatarUrl: null
         }
       });
 
@@ -961,7 +946,7 @@ export default async function (app: FastifyInstance) {
       });
 
       // Send welcome email (non-blocking)
-      EmailService.sendWelcomeEmail(userWithToken.email, userWithToken.username).catch(error => {
+      EmailService.sendWelcomeEmail(userWithToken.email, userWithToken.handle || userWithToken.email).catch(error => {
         console.error('Failed to send welcome email:', error);
       });
 
@@ -1008,7 +993,7 @@ export default async function (app: FastifyInstance) {
         select: {
           id: true,
           email: true,
-          username: true,
+          handle: true,
           emailVerified: true,
           emailVerificationToken: true,
           emailVerificationExpiry: true
@@ -1060,7 +1045,7 @@ export default async function (app: FastifyInstance) {
       const emailSent = await EmailService.sendVerificationEmail(
         user.email,
         verificationToken,
-        user.username
+        user.handle || user.email
       );
 
       if (!emailSent) {
@@ -1130,7 +1115,7 @@ export default async function (app: FastifyInstance) {
       });
 
       // Send password reset email
-      await EmailService.sendPasswordResetEmail(user.email, resetToken, user.username);
+      await EmailService.sendPasswordResetEmail(user.email, resetToken, user.handle || user.email);
 
       console.log(`✅ Password reset email sent to: ${email} (${user.id})`);
 

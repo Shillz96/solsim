@@ -10,28 +10,27 @@ export type UserTier = 'EMAIL_USER' | 'WALLET_USER' | 'VSOL_HOLDER' | 'ADMINISTR
 export interface User {
   id: string;
   email: string;
-  username: string;
   passwordHash: string;
-  
+
   // Profile information
+  handle: string | null;
   displayName: string | null;
   bio: string | null;
-  avatar: string | null;
   avatarUrl: string | null;
-  
+
   // Social media links
   twitter: string | null;
   discord: string | null;
   telegram: string | null;
   website: string | null;
-  
+
   // Trading preferences
   virtualSolBalance: string; // Decimal as string
   isProfilePublic: boolean;
-  
+
   // Creator rewards
   solanaWallet: string | null;
-  
+
   // Tier system and wallet verification
   userTier: UserTier;
   walletAddress: string | null;
@@ -41,7 +40,7 @@ export interface User {
   monthlyConversions: string; // Decimal as string
   conversionResetAt: string | null; // DateTime as ISO string
   premiumFeatures: string | null; // JSON array as string
-  
+
   // Timestamps
   createdAt: string; // DateTime as ISO string
   updatedAt: string; // DateTime as ISO string
@@ -50,8 +49,7 @@ export interface User {
 export interface Trade {
   id: string;
   userId: string;
-  username?: string;
-  tokenAddress: string;
+  mint: string;
   tokenSymbol: string | null;
   tokenName: string | null;
   action: string; // 'BUY' or 'SELL'
@@ -60,46 +58,33 @@ export interface Trade {
   totalCost: string; // Decimal as string - Total cost in SOL
   realizedPnL: string | null; // Decimal as string - For sell trades only
   marketCapUsd: string | null; // Decimal as string
-  timestamp: string; // DateTime as ISO string
+  createdAt: string; // DateTime as ISO string
 }
 
-export interface Holding {
-  id: string;
-  userId: string;
-  username?: string;
-  tokenAddress: string;
-  tokenSymbol: string | null;
-  tokenName: string | null;
-  tokenImageUrl: string | null;
-  entryPrice: string; // Decimal as string - Entry price in USD per token
-  quantity: string; // Decimal as string
-  avgBuyMarketCap: string | null; // Decimal as string
-  updatedAt: string; // DateTime as ISO string
-}
+// Note: Holding table has been deprecated - use Position instead
 
 export interface TransactionHistory {
   id: string;
   userId: string;
-  username?: string;
   tokenAddress: string;
   tokenSymbol: string | null;
   tokenName: string | null;
-  
+
   // Transaction details
   action: string; // 'BUY', 'SELL', 'MIGRATED'
   quantity: string; // Decimal as string
   pricePerTokenSol: string; // Decimal as string
   totalCostSol: string; // Decimal as string
   feesSol: string; // Decimal as string
-  
+
   // FIFO tracking
   remainingQuantity: string; // Decimal as string
   costBasisSol: string; // Decimal as string
   realizedPnLSol: string | null; // Decimal as string
-  
+
   // Reference to original trade
   tradeId: string | null;
-  
+
   // Timestamps
   executedAt: string; // DateTime as ISO string
   createdAt: string; // DateTime as ISO string
@@ -239,12 +224,9 @@ export interface PortfolioPerformanceResponse {
 
 export interface LeaderboardEntry {
   userId: string;
-  username: string;
   handle: string | null;
   displayName: string | null;
-  profileImage: string | null;
   avatarUrl: string | null;
-  avatar: string | null;
   totalPnlUsd: string;
   totalTrades: number;
   winRate: number;
@@ -349,9 +331,8 @@ export interface RewardsClaimResponse {
 export interface AuthSignupRequest {
   email: string;
   password: string;
-  username?: string;
   handle?: string;
-  profileImage?: string;
+  avatarUrl?: string;
 }
 
 export interface AuthLoginRequest {
@@ -361,7 +342,6 @@ export interface AuthLoginRequest {
 
 export interface AuthResponse {
   userId: string;
-  username?: string;
   accessToken: string;
   refreshToken: string;
   user: {
@@ -389,9 +369,8 @@ export interface WalletVerifyRequest {
 
 export interface ProfileUpdateRequest {
   userId: string;
-  username?: string;
   handle?: string;
-  profileImage?: string;
+  avatarUrl?: string;
   bio?: string;
   displayName?: string;
 }

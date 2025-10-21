@@ -45,6 +45,10 @@ const nextConfig = {
         hostname: '**', // Allow all HTTP domains (for development)
       }
     ],
+    // Add dangerouslyAllowSVG for token logos that might be SVG
+    dangerouslyAllowSVG: true,
+    contentDispositionType: 'attachment',
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
 
   // TypeScript and ESLint configuration

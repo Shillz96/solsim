@@ -6,12 +6,9 @@ import { Decimal } from "@prisma/client/runtime/library";
 
 export interface LeaderboardEntry {
   userId: string;
-  username: string;
   handle: string | null;
   displayName: string | null;
-  profileImage: string | null;
   avatarUrl: string | null;
-  avatar: string | null;
   totalPnlUsd: string;
   totalTrades: number;
   winRate: number;
@@ -75,12 +72,9 @@ async function calculateLeaderboard(limit: number): Promise<LeaderboardEntry[]> 
   const users = await prisma.user.findMany({
     select: {
       id: true,
-      username: true,
       handle: true,
       displayName: true,
-      profileImage: true,
-      avatarUrl: true,
-      avatar: true
+      avatarUrl: true
     }
   });
 
@@ -122,12 +116,9 @@ async function calculateLeaderboard(limit: number): Promise<LeaderboardEntry[]> 
 
     leaderboardData.push({
       userId: user.id,
-      username: user.username,
       handle: user.handle,
       displayName: user.displayName,
-      profileImage: user.profileImage,
       avatarUrl: user.avatarUrl,
-      avatar: user.avatar,
       totalPnlUsd: totalPnl.toFixed(8),
       totalTrades,
       winRate: parseFloat(winRate.toFixed(4)),
