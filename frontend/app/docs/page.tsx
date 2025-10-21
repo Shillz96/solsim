@@ -163,6 +163,21 @@ export default function DocumentationPage() {
                   both unrealized P&L (current positions) and realized P&L (completed trades).
                 </p>
               </div>
+
+              <div className="space-y-2">
+                <h3 className="font-semibold text-lg flex items-center gap-2">
+                  <Trophy className="h-5 w-5 text-primary" />
+                  Rewards System
+                </h3>
+                <div className="space-y-2 text-muted-foreground pl-7">
+                  <p><strong className="text-foreground">Earn Real vSOL Tokens:</strong> Trade with virtual balance and earn real cryptocurrency rewards!</p>
+                  <p><strong className="text-foreground">1 point = 1,000 vSOL:</strong> Every trade, dollar of volume, and percentage of win rate earns you points.</p>
+                  <p className="text-sm">• 1 trade = 1 point = 1,000 vSOL</p>
+                  <p className="text-sm">• $100 volume = 2 points = 2,000 vSOL</p>
+                  <p className="text-sm">• 10% win rate = 10 points = 10,000 vSOL</p>
+                  <p><strong className="text-foreground">Claim Anytime:</strong> No cooldowns or restrictions. Maximum 200,000 vSOL per claim (200 points).</p>
+                </div>
+              </div>
             </div>
           </EnhancedCard>
         </motion.section>

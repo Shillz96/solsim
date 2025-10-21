@@ -21,7 +21,7 @@ import { Input } from "@/components/ui/input"
 import {
   Menu, User, Settings, LogOut, Bell, Search, Loader2,
   TrendingUp, Wallet, Target, BarChart3, Home, Zap,
-  ChevronDown, Command, Gift, Building2
+  ChevronDown, Command, Gift, Building2, BookOpen
 } from "lucide-react"
 import { useState, useCallback, useEffect, useRef } from "react"
 import { createPortal } from "react-dom"
@@ -91,6 +91,12 @@ const navigationItems = [
     href: "/rewards",
     icon: Gift,
     description: "Earn points and claim rewards"
+  },
+  {
+    name: "Docs",
+    href: "/docs",
+    icon: BookOpen,
+    description: "Learn how VirtualSol works"
   }
   // {
   //   name: "Monitoring",
