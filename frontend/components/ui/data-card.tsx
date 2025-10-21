@@ -41,21 +41,11 @@ function DataCard({
     neutral: 'text-muted-foreground'
   }
 
-  const CardWrapper = animate ? motion.div : 'div'
-  const animationProps = animate ? {
-    initial: { opacity: 0, y: 20 },
-    animate: { opacity: 1, y: 0 },
-    transition: { duration: 0.3 },
-    whileHover: { scale: 1.02 },
-    whileTap: { scale: 0.98 }
-  } : {}
+  // Separate out props that might conflict with motion.div
+  const { onClick, onMouseEnter, onMouseLeave, ...restProps } = props
 
-  return (
-    <CardWrapper
-      className={cn(variantClasses[variant], className)}
-      {...(animate ? animationProps : {})}
-      {...props}
-    >
+  const renderContent = () => (
+    <>
       {(icon || title || subtitle) && (
         <div className="flex items-start justify-between mb-4">
           <div className="flex-1">
@@ -67,28 +57,61 @@ function DataCard({
             )}
           </div>
           {icon && (
-            <div className="text-muted-foreground/50 ml-3">{icon}</div>
+            <div className="text-muted-foreground">{icon}</div>
           )}
         </div>
       )}
 
       {value && (
-        <div className="flex items-baseline gap-2">
-          <div className="text-2xl font-bold tracking-tight number-display">
+        <div className="space-y-1">
+          <div className="text-2xl font-bold">
             {value}
           </div>
           {change !== undefined && (
-            <span className={cn("text-sm font-medium", trendClasses[trend])}>
+            <div className={cn(
+              "flex items-center gap-1 text-xs font-medium",
+              trendColors[trend]
+            )}>
               {trend === 'up' && '↑'}
               {trend === 'down' && '↓'}
               {change > 0 ? '+' : ''}{change}%
-            </span>
+            </div>
           )}
         </div>
       )}
 
       {children}
-    </CardWrapper>
+    </>
+  )
+
+  if (animate) {
+    return (
+      <motion.div
+        className={cn(variantClasses[variant], className)}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+        whileHover={{ scale: 1.02 }}
+        whileTap={{ scale: 0.98 }}
+        onClick={onClick}
+        onMouseEnter={onMouseEnter}
+        onMouseLeave={onMouseLeave}
+      >
+        {renderContent()}
+      </motion.div>
+    )
+  }
+
+  return (
+    <div
+      className={cn(variantClasses[variant], className)}
+      onClick={onClick}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+      {...restProps}
+    >
+      {renderContent()}
+    </div>
   )
 }
 
