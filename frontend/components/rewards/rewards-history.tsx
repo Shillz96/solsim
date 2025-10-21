@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { useQuery } from "@tanstack/react-query"
+import { motion } from "framer-motion"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -158,59 +159,41 @@ export function RewardsHistory() {
     <div className="space-y-6">
       {/* Statistics Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Total Claimed
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{formatNumber(stats.totalClaimed)}</div>
-            <p className="text-xs text-muted-foreground">$vSOL tokens</p>
-          </CardContent>
-        </Card>
-
-        <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Pending Rewards
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-yellow-500">
-              {formatNumber(stats.totalPending)}
-            </div>
-            <p className="text-xs text-muted-foreground">$vSOL tokens</p>
-          </CardContent>
-        </Card>
-
-        <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Total Claims
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.totalClaims}</div>
-            <p className="text-xs text-muted-foreground">successful</p>
-          </CardContent>
-        </Card>
-
-        <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Average Claim
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{formatNumber(stats.avgClaimSize)}</div>
-            <p className="text-xs text-muted-foreground">$vSOL per claim</p>
-          </CardContent>
-        </Card>
+        {[
+          { label: "Total Claimed", value: formatNumber(stats.totalClaimed), subtitle: "$vSOL tokens", color: "text-foreground" },
+          { label: "Pending Rewards", value: formatNumber(stats.totalPending), subtitle: "$vSOL tokens", color: "text-yellow-500" },
+          { label: "Total Claims", value: stats.totalClaims, subtitle: "successful", color: "text-foreground" },
+          { label: "Average Claim", value: formatNumber(stats.avgClaimSize), subtitle: "$vSOL per claim", color: "text-foreground" }
+        ].map((stat, index) => (
+          <motion.div
+            key={stat.label}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: index * 0.05 }}
+            whileHover={{ scale: 1.02 }}
+          >
+            <Card className="border-border/50 bg-card/95 backdrop-blur-sm shadow-card hover:shadow-card-hover transition-all duration-300 h-full">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">
+                  {stat.label}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className={cn("text-2xl font-bold", stat.color)}>{stat.value}</div>
+                <p className="text-xs text-muted-foreground">{stat.subtitle}</p>
+              </CardContent>
+            </Card>
+          </motion.div>
+        ))}
       </div>
 
       {/* History Table */}
-      <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+      >
+      <Card className="border-border/50 bg-card/95 backdrop-blur-sm shadow-card hover:shadow-card-hover transition-all duration-300">
         <CardHeader>
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
@@ -348,6 +331,7 @@ export function RewardsHistory() {
           )}
         </CardContent>
       </Card>
+      </motion.div>
     </div>
   )
 }

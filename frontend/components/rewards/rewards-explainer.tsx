@@ -10,6 +10,7 @@ import {
   Coins, ArrowRight, Star, Award
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { motion } from "framer-motion"
 
 const tiers = [
   {
@@ -99,7 +100,12 @@ export function RewardsExplainer() {
   return (
     <div className="space-y-6">
       {/* Introduction */}
-      <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+      <Card className="border-border/50 bg-card/95 backdrop-blur-sm shadow-card hover:shadow-card-hover transition-all duration-300">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Info className="h-5 w-5 text-primary" />
@@ -128,9 +134,15 @@ export function RewardsExplainer() {
           </Alert>
         </CardContent>
       </Card>
+      </motion.div>
 
       {/* Earning Points */}
-      <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.1 }}
+      >
+      <Card className="border-border/50 bg-card/95 backdrop-blur-sm shadow-card hover:shadow-card-hover transition-all duration-300">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Coins className="h-5 w-5 text-primary" />
@@ -143,7 +155,14 @@ export function RewardsExplainer() {
         <CardContent>
           <div className="grid gap-4 md:grid-cols-2">
             {rewardActivities.map((activity, index) => (
-              <div key={index} className="flex gap-4 p-4 rounded-lg border border-border/50 bg-muted/30 hover:bg-muted/50 transition-colors">
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: index * 0.05 }}
+                whileHover={{ scale: 1.02 }}
+                className="flex gap-4 p-4 rounded-lg border border-border/50 bg-muted/30 hover:bg-muted/50 hover:shadow-sm transition-all duration-300"
+              >
                 <div className="p-2 rounded-full bg-primary/10 h-fit">
                   <activity.icon className="h-5 w-5 text-primary" />
                 </div>
@@ -156,14 +175,20 @@ export function RewardsExplainer() {
                     {activity.description}
                   </p>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
         </CardContent>
       </Card>
+      </motion.div>
 
       {/* Tier System */}
-      <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.2 }}
+      >
+      <Card className="border-border/50 bg-card/95 backdrop-blur-sm shadow-card hover:shadow-card-hover transition-all duration-300">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Award className="h-5 w-5 text-primary" />
@@ -176,20 +201,27 @@ export function RewardsExplainer() {
         <CardContent>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {tiers.map((tier, index) => (
-              <div key={index} className={cn(
-                "p-4 rounded-lg border border-border/50 transition-all",
-                "hover:shadow-md hover:border-primary/20 hover:scale-105",
-                tier.bgColor
-              )}>
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: index * 0.05 }}
+                whileHover={{ scale: 1.03, y: -4 }}
+                className={cn(
+                  "p-4 rounded-lg border border-border/50 transition-all duration-300",
+                  "hover:shadow-lg hover:border-primary/30 cursor-default",
+                  tier.bgColor
+                )}
+              >
                 <div className="flex items-start justify-between">
                   <div className="space-y-2">
                     <div className="flex items-center gap-3">
                       <span className="text-2xl">{tier.icon}</span>
                       <div>
-                        <h4 className={cn("font-semibold text-lg", tier.color)}>
+                        <h4 className={cn("font-bold text-lg", tier.color)}>
                           {tier.name}
                         </h4>
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-sm text-muted-foreground font-medium">
                           ${tier.minVolume.toLocaleString()}+
                         </p>
                       </div>
@@ -210,14 +242,20 @@ export function RewardsExplainer() {
                     <p className="text-xs text-muted-foreground">multiplier</p>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
         </CardContent>
       </Card>
+      </motion.div>
 
       {/* Calculation Example */}
-      <Card>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.3 }}
+      >
+      <Card className="border-border/50 bg-card/95 backdrop-blur-sm shadow-card hover:shadow-card-hover transition-all duration-300">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Calculator className="h-5 w-5" />
@@ -268,8 +306,8 @@ export function RewardsExplainer() {
               </div>
             </div>
 
-            <Alert>
-              <Zap className="h-4 w-4" />
+            <Alert className="border-primary/20 bg-primary/5">
+              <Zap className="h-4 w-4 text-primary" />
               <AlertDescription>
                 Points are converted to $vSOL tokens based on the total reward pool for each epoch.
                 Your share of the pool depends on your points relative to all other traders.
@@ -278,9 +316,15 @@ export function RewardsExplainer() {
           </div>
         </CardContent>
       </Card>
+      </motion.div>
 
       {/* Distribution Schedule */}
-      <Card>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.4 }}
+      >
+      <Card className="border-border/50 bg-card/95 backdrop-blur-sm shadow-card hover:shadow-card-hover transition-all duration-300">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Calendar className="h-5 w-5" />
@@ -341,6 +385,7 @@ export function RewardsExplainer() {
           </div>
         </CardContent>
       </Card>
+      </motion.div>
     </div>
   )
 }

@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { useQuery } from "@tanstack/react-query"
+import { motion } from "framer-motion"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -116,7 +117,12 @@ export function RewardsLeaderboard() {
   return (
     <div className="space-y-8">
       {/* Leaderboard Header */}
-      <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+      <Card className="border-border/50 bg-card/95 backdrop-blur-sm shadow-card hover:shadow-card-hover transition-all duration-300">
         <CardHeader>
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
@@ -138,6 +144,7 @@ export function RewardsLeaderboard() {
           </div>
         </CardHeader>
       </Card>
+      </motion.div>
 
       {/* Top 3 Showcase */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -198,7 +205,12 @@ export function RewardsLeaderboard() {
       </div>
 
       {/* Full Leaderboard */}
-      <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.2 }}
+      >
+      <Card className="border-border/50 bg-card/95 backdrop-blur-sm shadow-card hover:shadow-card-hover transition-all duration-300">
         <CardHeader>
           <CardTitle className="text-xl flex items-center gap-2">
             <Users className="h-5 w-5 text-primary" />
@@ -268,9 +280,15 @@ export function RewardsLeaderboard() {
           )}
         </CardContent>
       </Card>
+      </motion.div>
 
       {/* Stats Summary */}
-      <Card>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.3 }}
+      >
+      <Card className="border-border/50 bg-card/95 backdrop-blur-sm shadow-card hover:shadow-card-hover transition-all duration-300">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-lg">
             <Zap className="h-5 w-5" />

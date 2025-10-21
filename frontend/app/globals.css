@@ -266,6 +266,18 @@
 }
 
 /* ---------------------------
+   PERFORMANCE OPTIMIZATIONS - 2025
+--------------------------- */
+/* Global GPU acceleration for common animated elements */
+@media (prefers-reduced-motion: no-preference) {
+  :root {
+    /* Enable GPU compositing for smooth animations */
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+  }
+}
+
+/* ---------------------------
    BASE STYLES
 --------------------------- */
 @layer base {
@@ -282,6 +294,8 @@
     font-family: var(--font-sans);
     position: relative;
     line-height: 1.65; /* Enhanced readability */
+    /* GPU optimization for scrolling performance */
+    transform: translate3d(0, 0, 0);
   }
 
   /* Paper texture implementation removed */
@@ -355,13 +369,18 @@
     border-radius: var(--radius);
     box-shadow: 0 1px 3px color-mix(in srgb, black 6%, transparent);
     padding: 1.25rem; /* Enhanced padding for better spacing */
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    /* GPU optimization: only transition specific properties */
+    will-change: transform;
+    transform: translate3d(0, 0, 0);
+    transition: box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+                transform 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+                border-color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     border: 1px solid color-mix(in srgb, var(--border) 50%, transparent);
   }
 
   .card:hover {
     box-shadow: 0 4px 12px color-mix(in srgb, black 10%, transparent);
-    transform: translateY(-2px); /* Subtle lift effect */
+    transform: translate3d(0, -2px, 0); /* GPU-accelerated lift effect */
     border-color: var(--border);
   }
 
@@ -395,15 +414,21 @@
     box-shadow: 0 4px 12px color-mix(in srgb, black 12%, transparent);
   }
 
-  /* Modern glass morphism effects - 2025 style */
+  /* Modern glass morphism effects - 2025 style - GPU Optimized */
   .glass,
   .glass-overlay,
   .glass-solid {
     background: color-mix(in srgb, var(--card) 95%, transparent);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(8px); /* Reduced from 10px for better performance */
+    -webkit-backdrop-filter: blur(8px);
     border: 1px solid color-mix(in srgb, var(--border) 60%, transparent);
-    transition: all 0.25s ease;
+    /* GPU acceleration hints */
+    will-change: transform, opacity;
+    transform: translate3d(0, 0, 0);
+    /* Only transition specific properties, not all */
+    transition: background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+                border-color 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+                opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .glass:hover,
@@ -411,6 +436,7 @@
   .glass-solid:hover {
     background: var(--card);
     border-color: var(--border);
+    /* No backdrop-filter change on hover - keeps it smooth */
   }
 
   /* Navigation specific styling - flat */
@@ -460,19 +486,24 @@
      FLAT CARD SYSTEM - MINIMAL BLACK/WHITE
   --------------------------- */
   
-  /* Modern card with refined shadows - 2025 style */
+  /* Modern card with refined shadows - 2025 style - GPU Optimized */
   .card-enhanced {
     background: var(--card);
     border: 1px solid color-mix(in srgb, var(--border) 50%, transparent);
     box-shadow: 0 1px 3px color-mix(in srgb, black 5%, transparent);
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     padding: 1.25rem;
+    /* GPU optimization */
+    will-change: transform;
+    transform: translate3d(0, 0, 0);
+    transition: box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+                transform 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+                border-color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .card-enhanced:hover {
     border-color: var(--border);
     box-shadow: 0 4px 12px color-mix(in srgb, black 8%, transparent);
-    transform: translateY(-1px);
+    transform: translate3d(0, -1px, 0);
   }
 
   /* Bento-style grid cards - flat and minimal */
@@ -496,22 +527,26 @@
      INTERACTIVE ELEMENTS
   --------------------------- */
 
-  /* Enhanced button hover effects - 2025 micro-interactions */
+  /* Enhanced button hover effects - 2025 micro-interactions - GPU Optimized */
   .btn-enhanced {
     position: relative;
     overflow: hidden;
     isolation: isolate;
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    /* GPU optimization */
+    will-change: transform, opacity;
+    transform: translate3d(0, 0, 0);
+    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+                opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   /* Modern button hover with subtle scale */
   .btn-enhanced:hover {
-    transform: scale(1.02);
+    transform: scale3d(1.02, 1.02, 1);
     opacity: 0.95;
   }
 
   .btn-enhanced:active {
-    transform: scale(0.98);
+    transform: scale3d(0.98, 0.98, 1);
     transition: transform 0.1s ease;
   }
 
