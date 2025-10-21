@@ -101,6 +101,40 @@ export default async function rewardsRoutes(app: FastifyInstance) {
       });
       
       if (existingClaim) {
+        // If claim exists and is completed, return error
+        if (existingClaim.status === "COMPLETED" && existingClaim.txSig) {
+          return reply.code(409).send({ 
+            error: "Already claimed for this epoch",
+            txSig: existingClaim.txSig,
+            amount: existingClaim.amount.toString()
+          });
+        }
+        
+        // If claim exists but is PENDING or FAILED, retry it
+        if (existingClaim.status === "PENDING" || existingClaim.status === "FAILED") {
+          app.log.info(`Retrying existing PENDING/FAILED claim for user ${userId}, epoch ${epoch}`);
+          
+          try {
+            const result = await claimReward(userId, parseInt(epoch.toString()), wallet);
+            
+            return {
+              claimId: existingClaim.id,
+              amount: existingClaim.amount.toString(),
+              status: "COMPLETED",
+              txSig: result.sig,
+              message: "Rewards claimed successfully! Tokens have been sent to your wallet."
+            };
+          } catch (retryError: any) {
+            app.log.error("Failed to retry existing claim:", retryError);
+            return reply.code(500).send({
+              error: "Claim exists but token transfer failed",
+              message: retryError.message,
+              claimId: existingClaim.id
+            });
+          }
+        }
+        
+        // Fallback - claim exists with unknown status
         return reply.code(409).send({ error: "Already claimed for this epoch" });
       }
       
@@ -157,7 +191,9 @@ export default async function rewardsRoutes(app: FastifyInstance) {
 
       // Immediately process the claim by sending tokens on-chain
       try {
+        app.log.info(`Attempting to send ${rewardAmount} vSOL to wallet ${wallet}`);
         const result = await claimReward(userId, parseInt(epoch.toString()), wallet);
+        app.log.info(`Successfully sent tokens! Transaction: ${result.sig}`);
         
         return {
           claimId: claim.id,
@@ -168,6 +204,7 @@ export default async function rewardsRoutes(app: FastifyInstance) {
         };
       } catch (claimError: any) {
         app.log.error("Failed to process claim on-chain:", claimError);
+        app.log.error(`Error details - User: ${userId}, Wallet: ${wallet}, Amount: ${rewardAmount}, Message: ${claimError.message}`);
         
         // Check if it's a configuration error
         const isConfigError = claimError.message?.includes("not configured") || 
@@ -331,6 +368,70 @@ export default async function rewardsRoutes(app: FastifyInstance) {
     } catch (error: any) {
       app.log.error(error);
       return reply.code(500).send({ error: "Failed to check system status" });
+    }
+  });
+
+  // Retry failed/pending claims
+  app.post("/retry-claim", async (req, reply) => {
+    const { userId, epoch, wallet } = req.body as {
+      userId: string;
+      epoch: number;
+      wallet: string;
+    };
+
+    if (!userId || !epoch || !wallet) {
+      return reply.code(400).send({ error: "userId, epoch, and wallet required" });
+    }
+
+    try {
+      // Find the existing claim
+      const claim = await prisma.rewardClaim.findUnique({
+        where: {
+          userId_epoch: {
+            userId,
+            epoch: parseInt(epoch.toString())
+          }
+        }
+      });
+
+      if (!claim) {
+        return reply.code(404).send({ error: "No claim found for this epoch" });
+      }
+
+      // If already completed, return the existing transaction
+      if (claim.status === "COMPLETED" && claim.txSig) {
+        return {
+          message: "Claim already completed",
+          txSig: claim.txSig,
+          amount: claim.amount.toString(),
+          status: "COMPLETED"
+        };
+      }
+
+      // Retry the claim
+      app.log.info(`Retrying claim for user ${userId}, epoch ${epoch}`);
+      
+      try {
+        const result = await claimReward(userId, epoch, wallet);
+        
+        return {
+          message: "Claim processed successfully!",
+          txSig: result.sig,
+          amount: claim.amount.toString(),
+          status: "COMPLETED"
+        };
+      } catch (retryError: any) {
+        app.log.error("Retry claim failed:", retryError);
+        return reply.code(500).send({
+          error: "Failed to process claim",
+          message: retryError.message,
+          details: "The claim exists but token transfer failed. Please contact support."
+        });
+      }
+
+    } catch (error: any) {
+      app.log.error(error);
+      return reply.code(500).send({ error: "Failed to retry claim" });
     }
   });
 }
