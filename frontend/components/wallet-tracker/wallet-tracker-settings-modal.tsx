@@ -15,6 +15,7 @@ import { Card } from "@/components/ui/card"
 interface SettingsModalProps {
   isOpen: boolean
   onClose: () => void
+  onSettingsSaved?: () => void
 }
 
 interface WalletTrackerSettings {
@@ -34,7 +35,7 @@ interface WalletTrackerSettings {
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
 
-export function WalletTrackerSettingsModal({ isOpen, onClose }: SettingsModalProps) {
+export function WalletTrackerSettingsModal({ isOpen, onClose, onSettingsSaved }: SettingsModalProps) {
   const { user } = useAuth()
   const { toast } = useToast()
   const queryClient = useQueryClient()
@@ -111,6 +112,11 @@ export function WalletTrackerSettingsModal({ isOpen, onClose }: SettingsModalPro
       // Invalidate queries to refetch with new settings
       queryClient.invalidateQueries({ queryKey: ['wallet-activities'] })
       queryClient.invalidateQueries({ queryKey: ['wallet-tracker-settings'] })
+      queryClient.invalidateQueries({ queryKey: ['activity-feed'] })
+      // Call the callback to refresh activities
+      if (onSettingsSaved) {
+        onSettingsSaved()
+      }
       onClose()
     },
     onError: (error: Error) => {

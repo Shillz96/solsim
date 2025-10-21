@@ -192,7 +192,7 @@ export default function LeaderboardPage() {
                 totalPnl: parseFloat(currentUser.totalPnlUsd),
                 trades: currentUser.totalTrades,
                 winRate: currentUser.winRate,
-                balance: parseFloat(currentUser.balance)
+                balance: balanceData ? parseFloat(balanceData.balance) : 0
               } : undefined}
             />
           </div>

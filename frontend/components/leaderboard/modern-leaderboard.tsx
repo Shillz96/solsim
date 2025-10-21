@@ -234,13 +234,13 @@ export function ModernLeaderboard({
                     <motion.span
                       className={cn(
                         "font-bold text-lg",
-                        entry.totalPnl > 0 ? "text-green-500" : "text-red-500"
+                        parseFloat(entry.totalPnlUsd) > 0 ? "text-green-500" : "text-red-500"
                       )}
                       initial={{ scale: 0 }}
                       animate={{ scale: 1 }}
                       transition={{ delay: 0.3 + index * 0.1 }}
                     >
-                      {formatUSD(entry.totalPnl)}
+                      {formatUSD(parseFloat(entry.totalPnlUsd))}
                     </motion.span>
                   </div>
                 </div>
@@ -265,8 +265,8 @@ export function ModernLeaderboard({
 
                 <div className="space-y-1">
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Balance</span>
-                    <span className="font-semibold">{formatUSD(entry.balance)}</span>
+                    <span className="text-sm text-muted-foreground">Volume</span>
+                    <span className="font-semibold">{formatUSD(parseFloat(entry.totalVolumeUsd))}</span>
                   </div>
                 </div>
               </div>
@@ -303,7 +303,7 @@ export function ModernLeaderboard({
                     <LeaderboardRow
                       rank={entry.rank!}
                       name={entry.username || 'Anonymous'}
-                      value={formatUSD(entry.totalPnl)}
+                      value={formatUSD(parseFloat(entry.totalPnlUsd))}
                       subtitle={`${entry.totalTrades} trades • ${entry.winRate.toFixed(1)}% win rate`}
                       change={getChangeTrend(entry.rank!)}
                       isCurrentUser={isCurrentUser}
@@ -329,8 +329,8 @@ export function ModernLeaderboard({
                     <LeaderboardRow
                       rank={entry.rank!}
                       name={entry.username || 'Anonymous'}
-                      value={formatUSD(entry.totalPnl)}
-                      subtitle={`${entry.totalTrades} trades • ${entry.winRate.toFixed(1)}% win rate • Balance: ${formatUSD(entry.balance)}`}
+                      value={formatUSD(parseFloat(entry.totalPnlUsd))}
+                      subtitle={`${entry.totalTrades} trades • ${entry.winRate.toFixed(1)}% win rate • Volume: ${formatUSD(parseFloat(entry.totalVolumeUsd))}`}
                       change={getChangeTrend(entry.rank!)}
                       isCurrentUser={isCurrentUser}
                       avatar={

@@ -138,3 +138,71 @@ export async function getTrackingStats(
 
   return response.json();
 }
+
+/**
+ * Get activity feed from V2 endpoint with filtering
+ * GET /api/wallet-tracker/v2/feed/{userId}
+ */
+export async function getActivityFeed(
+  userId: string,
+  params?: {
+    limit?: number;
+    offset?: number;
+    type?: string;
+    tokenMint?: string;
+  }
+): Promise<{
+  activities: any[];
+  hasMore: boolean;
+  nextOffset: number | null;
+}> {
+  const queryParams = new URLSearchParams();
+  if (params?.limit) queryParams.set('limit', params.limit.toString());
+  if (params?.offset) queryParams.set('offset', params.offset.toString());
+  if (params?.type) queryParams.set('type', params.type);
+  if (params?.tokenMint) queryParams.set('tokenMint', params.tokenMint);
+
+  const response = await fetch(
+    `${API}/api/wallet-tracker/v2/feed/${encodeURIComponent(userId)}?${queryParams}`,
+    {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+    }
+  );
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ message: 'Failed to fetch activity feed' }));
+    throw new Error(error.error || error.message || `HTTP ${response.status}`);
+  }
+
+  return response.json();
+}
+
+/**
+ * Sync wallet activities from blockchain
+ * POST /api/wallet-tracker/v2/sync/{walletAddress}
+ */
+export async function syncWalletActivities(
+  walletAddress: string,
+  limit?: number
+): Promise<{
+  message: string;
+  activitiesCount: number;
+  latestActivity: { signature: string; timestamp: string } | null;
+}> {
+  const response = await fetch(
+    `${API}/api/wallet-tracker/v2/sync/${encodeURIComponent(walletAddress)}`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ limit: limit?.toString() || '100' }),
+    }
+  );
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ message: 'Failed to sync wallet' }));
+    throw new Error(error.error || error.message || `HTTP ${response.status}`);
+  }
+
+  return response.json();
+}

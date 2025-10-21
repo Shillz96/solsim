@@ -18,7 +18,9 @@ import {
   RefreshCw,
   Settings,
   ChevronDown,
-  Loader2
+  Loader2,
+  Sparkles,
+  Zap
 } from "lucide-react"
 import { useAuth } from "@/hooks/use-auth"
 import { useQuery, useMutation } from "@tanstack/react-query"
@@ -408,6 +410,7 @@ export function WalletTrackerContent() {
         <WalletTrackerSettingsModal
           isOpen={showSettings}
           onClose={() => setShowSettings(false)}
+          onSettingsSaved={() => fetchActivities(true)}
         />
 
         {/* Decorative Elements */}

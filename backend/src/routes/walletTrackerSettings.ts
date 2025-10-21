@@ -1,6 +1,6 @@
 import { FastifyPluginAsync } from 'fastify';
 import { z } from 'zod';
-import prisma from '../prisma';
+import prisma from '../plugins/prisma.js';
 import { Decimal } from '@prisma/client/runtime/library';
 
 /**
@@ -83,11 +83,11 @@ const walletTrackerSettingsPlugin: FastifyPluginAsync = async (fastify) => {
         return reply.code(400).send({
           success: false,
           error: 'Invalid request parameters',
-          details: error.errors,
+          details: error.issues,
         });
       }
 
-      fastify.log.error('Error fetching wallet tracker settings:', error);
+      fastify.log.error('Error fetching wallet tracker settings:', error as Error);
       return reply.code(500).send({
         success: false,
         error: 'Failed to fetch wallet tracker settings',
@@ -181,11 +181,11 @@ const walletTrackerSettingsPlugin: FastifyPluginAsync = async (fastify) => {
         return reply.code(400).send({
           success: false,
           error: 'Invalid request body',
-          details: error.errors,
+          details: error.issues,
         });
       }
 
-      fastify.log.error('Error updating wallet tracker settings:', error);
+      fastify.log.error('Error updating wallet tracker settings:', error as Error);
       return reply.code(500).send({
         success: false,
         error: 'Failed to update wallet tracker settings',
