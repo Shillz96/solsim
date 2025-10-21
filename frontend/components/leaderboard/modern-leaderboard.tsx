@@ -205,10 +205,10 @@ export function ModernLeaderboard({
                     whileHover={{ scale: 1.1, rotate: 360 }}
                     transition={{ duration: 0.5 }}
                   >
-                    {entry.avatarUrl || entry.profileImage || entry.avatar ? (
+                    {entry.avatarUrl ? (
                       <img
-                        src={entry.avatarUrl || entry.profileImage || entry.avatar || ''}
-                        alt={entry.handle || entry.displayName || entry.username || 'User avatar'}
+                        src={entry.avatarUrl}
+                        alt={entry.handle || entry.displayName || 'User avatar'}
                         className="w-12 h-12 rounded-full shadow-lg border-2 border-primary/20 object-cover"
                         onError={(e) => {
                           // Fallback to gradient circle if image fails to load
@@ -221,17 +221,17 @@ export function ModernLeaderboard({
                     ) : null}
                     <div
                       className="w-12 h-12 rounded-full bg-gradient-to-br from-primary via-purple-500 to-accent flex items-center justify-center text-white font-bold text-lg shadow-lg relative overflow-hidden"
-                      style={{ display: entry.avatarUrl || entry.profileImage || entry.avatar ? 'none' : 'flex' }}
+                      style={{ display: entry.avatarUrl ? 'none' : 'flex' }}
                     >
                       <div className="absolute inset-0 bg-gradient-to-t from-white/0 via-white/20 to-white/0 animate-pulse"></div>
-                      <span className="relative z-10">{entry.username?.charAt(0).toUpperCase() || '?'}</span>
+                      <span className="relative z-10">{(entry.handle || entry.displayName || '?').charAt(0).toUpperCase()}</span>
                     </div>
                     {/* Status Indicator */}
                     <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-background animate-pulse"></div>
                   </motion.div>
                   <div className="flex-1 min-w-0">
                     <div className="font-bold text-lg text-foreground truncate">
-                      {entry.handle || entry.displayName || entry.username || 'Anonymous Trader'}
+                      {entry.handle || entry.displayName || 'Anonymous Trader'}
                     </div>
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <span className="flex items-center gap-1">
@@ -319,14 +319,14 @@ export function ModernLeaderboard({
                   >
                     <LeaderboardRow
                       rank={entry.rank!}
-                      name={entry.username || 'Anonymous'}
+                      name={entry.handle || entry.displayName || 'Anonymous'}
                       value={formatUSD(parseFloat(entry.totalPnlUsd))}
                       subtitle={`${entry.totalTrades} trades • ${entry.winRate.toFixed(1)}% win rate`}
                       change={getChangeTrend(entry.rank!)}
                       isCurrentUser={isCurrentUser}
                       avatar={
                         <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center font-bold">
-                          {entry.username?.charAt(0).toUpperCase() || '?'}
+                          {entry.handle?.charAt(0).toUpperCase() || entry.displayName?.charAt(0).toUpperCase() || '?'}
                         </div>
                       }
                     />
@@ -345,14 +345,14 @@ export function ModernLeaderboard({
                   >
                     <LeaderboardRow
                       rank={entry.rank!}
-                      name={entry.username || 'Anonymous'}
+                      name={entry.handle || entry.displayName || 'Anonymous'}
                       value={formatUSD(parseFloat(entry.totalPnlUsd))}
                       subtitle={`${entry.totalTrades} trades • ${entry.winRate.toFixed(1)}% win rate • Volume: ${formatUSD(parseFloat(entry.totalVolumeUsd))}`}
                       change={getChangeTrend(entry.rank!)}
                       isCurrentUser={isCurrentUser}
                       avatar={
                         <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center font-bold">
-                          {entry.username?.charAt(0).toUpperCase() || '?'}
+                          {entry.handle?.charAt(0).toUpperCase() || entry.displayName?.charAt(0).toUpperCase() || '?'}
                         </div>
                       }
                     />

@@ -150,7 +150,6 @@ function UserSettingsPage() {
       if (!user?.id) throw new Error('User not authenticated')
       return api.updateProfile({
         userId: user.id,
-        username: data.handle || undefined, // UI "Username" field maps to username in DB
         handle: data.handle || undefined,
         bio: data.bio || undefined,
         displayName: data.displayName || undefined
@@ -333,7 +332,7 @@ function UserSettingsPage() {
   const profile = userProfile as any
   const displayEmail = profile?.email || user?.email || ''
   const displayHandle = profile?.handle || (user as any)?.handle || ''
-  const avatarUrl = profile?.avatarUrl || profile?.profileImage || (user as any)?.profileImage
+  const avatarUrl = profile?.avatarUrl
 
   return (
     <div className="container max-w-4xl mx-auto py-8 pb-24 space-y-6">

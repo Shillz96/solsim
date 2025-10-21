@@ -106,10 +106,10 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
     const email = formData.get('email') as string
     const password = formData.get('password') as string
     const confirmPassword = formData.get('confirmPassword') as string
-    const username = formData.get('username') as string
+    const handle = formData.get('handle') as string
 
     // Client-side validation
-    if (!email || !password || !username) {
+    if (!email || !password || !handle) {
       setError('Please fill in all fields')
       setIsLoading(false)
       return
@@ -121,8 +121,8 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
       return
     }
 
-    if (username.trim().length < 3) {
-      setError('Username must be at least 3 characters long')
+    if (handle.trim().length < 3) {
+      setError('Handle must be at least 3 characters long')
       setIsLoading(false)
       return
     }
@@ -144,7 +144,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
     }
 
     try {
-      await signup(email, password, username.trim())
+      await signup(email, password, handle.trim())
       // Close modal - auth state will update automatically via auth context
       onOpenChange(false)
       setSuccess('Account created successfully! Please check your email to verify your account.')
@@ -380,14 +380,14 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
               <TabsContent value="register" className="space-y-4 mt-6">
                 <form onSubmit={handleRegister} className="space-y-3 sm:space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="register-username" className="text-foreground font-medium">Username</Label>
+                    <Label htmlFor="register-handle" className="text-foreground font-medium">Username</Label>
                     <div className="relative">
                       <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                      <Input 
-                        id="register-username" 
-                        name="username"
-                        type="text" 
-                        placeholder="trader123" 
+                      <Input
+                        id="register-handle"
+                        name="handle"
+                        type="text"
+                        placeholder="trader123"
                         className="pl-10 bg-background border-border h-11"
                         required
                         minLength={3}

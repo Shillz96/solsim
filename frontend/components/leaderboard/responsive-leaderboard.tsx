@@ -148,9 +148,9 @@ export function ResponsiveLeaderboard({
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
                       {/* Avatar */}
-                      {entry.avatar || entry.avatarUrl || entry.profileImage ? (
+                      {entry.avatarUrl ? (
                         <img
-                          src={entry.avatar || entry.avatarUrl || entry.profileImage || undefined}
+                          src={entry.avatarUrl}
                           alt={entry.handle || entry.displayName || 'User'}
                           className="w-8 h-8 rounded-full object-cover border border-border"
                           onError={(e) => {
@@ -166,13 +166,13 @@ export function ResponsiveLeaderboard({
                       <div
                         className={cn(
                           "w-8 h-8 rounded-full bg-gradient-to-br from-primary to-blue-500 flex items-center justify-center text-white font-bold text-xs border border-border",
-                          (entry.avatar || entry.avatarUrl || entry.profileImage) && "hidden"
+                          entry.avatarUrl && "hidden"
                         )}
                       >
-                        {(entry.handle?.[0] || entry.displayName?.[0] || entry.username?.[0] || 'A').toUpperCase()}
+                        {(entry.handle?.[0] || entry.displayName?.[0] || 'A').toUpperCase()}
                       </div>
                       <div className="flex items-center gap-2">
-                        <span className="font-medium">{entry.handle || entry.displayName || entry.username || 'Anonymous'}</span>
+                        <span className="font-medium">{entry.handle || entry.displayName || 'Anonymous'}</span>
                         {isCurrentUser && (
                           <Badge variant="secondary" className="text-xs">
                             You
@@ -244,9 +244,9 @@ export function ResponsiveLeaderboard({
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-3">
                   {/* Avatar */}
-                  {entry.avatar || entry.avatarUrl || entry.profileImage ? (
+                  {entry.avatarUrl ? (
                     <img
-                      src={entry.avatar || entry.avatarUrl || entry.profileImage || undefined}
+                      src={entry.avatarUrl}
                       alt={entry.handle || entry.displayName || 'User'}
                       className="w-8 h-8 rounded-full object-cover border border-border"
                       onError={(e) => {
@@ -261,13 +261,13 @@ export function ResponsiveLeaderboard({
                   <div
                     className={cn(
                       "w-8 h-8 rounded-full bg-gradient-to-br from-primary to-blue-500 flex items-center justify-center text-white font-bold text-xs border border-border",
-                      (entry.avatar || entry.avatarUrl || entry.profileImage) && "hidden"
+                      entry.avatarUrl && "hidden"
                     )}
                   >
-                    {(entry.handle?.[0] || entry.displayName?.[0] || entry.username?.[0] || 'A').toUpperCase()}
+                    {(entry.handle?.[0] || entry.displayName?.[0] || 'A').toUpperCase()}
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="font-medium">{entry.handle || entry.displayName || entry.username || 'Anonymous'}</span>
+                    <span className="font-medium">{entry.handle || entry.displayName || 'Anonymous'}</span>
                     {isCurrentUser && (
                       <Badge variant="secondary" className="text-xs">
                         You

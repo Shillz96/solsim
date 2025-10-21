@@ -10,14 +10,11 @@ datasource db {
 model User {
   id                      String                 @id @default(uuid())
   email                   String                 @unique
-  username                String
+  handle                  String                 // Consolidated from username/handle - now required
   passwordHash            String
   displayName             String?
   bio                     String?
-  avatar                  String?
-  avatarUrl               String?
-  handle                  String?
-  profileImage            String?
+  avatarUrl               String?                // Consolidated from avatar/avatarUrl/profileImage
   twitter                 String?
   discord                 String?
   telegram                String?
@@ -44,7 +41,6 @@ model User {
   updatedAt               DateTime               @updatedAt
   conversions             ConversionHistory[]
   copyTrades              CopyTrade[]
-  holdings                Holding[]
   positions               Position[]
   realizedPnls            RealizedPnL[]
   rewardClaims            RewardClaim[]
@@ -96,24 +92,7 @@ model Trade {
   @@index([userId, side, createdAt(sort: Desc)], map: "user_trade_side") // PERFORMANCE: For buy/sell history queries
 }
 
-model Holding {
-  id              String   @id @default(uuid())
-  userId          String
-  tokenAddress    String
-  tokenSymbol     String?
-  tokenName       String?
-  tokenImageUrl   String?
-  entryPrice      Decimal
-  quantity        Decimal  @default(0)
-  avgBuyMarketCap Decimal?
-  updatedAt       DateTime @updatedAt
-  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, tokenAddress], name: "user_token_position")
-  @@index([userId, quantity(sort: Desc)], map: "user_holdings_by_size")
-  @@index([tokenAddress, quantity(sort: Desc)], map: "token_holders_by_size")
-  @@index([userId, updatedAt(sort: Desc)], map: "user_recent_holdings")
-}
+// REMOVED: Holding model (deprecated - use Position model instead)
 
 model TransactionHistory {
   id                String   @id @default(uuid())
@@ -216,7 +195,6 @@ model RewardClaim {
   user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, epoch], name: "userId_epoch")
-  @@index([userId, epoch])
   @@index([epoch, claimedAt])
   @@index([status])
 }
@@ -233,7 +211,6 @@ model Position {
   lots      PositionLot[]
 
   @@unique([userId, mint])
-  @@index([userId, mint])
   @@index([userId, qty(sort: Desc)], map: "user_positions_by_qty") // PERFORMANCE: For portfolio queries filtering by qty > 0
 }
 

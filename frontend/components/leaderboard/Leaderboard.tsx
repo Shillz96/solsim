@@ -312,7 +312,7 @@ export function Leaderboard({
                       <div className="flex items-center gap-3">
                         <Avatar className="h-8 w-8">
                           {(() => {
-                            const avatarUrl = (entry as any).avatarUrl || (entry as any).profileImage || (entry as any).avatar;
+                            const avatarUrl = (entry as any).avatarUrl;
                             const displayName = (entry as any).displayName || entry.handle || entry.userId.slice(0, 8);
                             const initials = displayName.slice(0, 2).toUpperCase();
 

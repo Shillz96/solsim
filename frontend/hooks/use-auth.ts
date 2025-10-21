@@ -13,7 +13,6 @@ interface AuthUser {
   email: string
   handle?: string
   emailVerified?: boolean
-  profileImage?: string
   avatarUrl?: string
 }
 
@@ -113,12 +112,12 @@ export function useAuth() {
     return response
   }, [queryClient])
 
-  const signup = useCallback(async (email: string, password: string, username?: string) => {
-    const response = await api.signupEmail({ email, password, username })
+  const signup = useCallback(async (email: string, password: string, handle?: string) => {
+    const response = await api.signupEmail({ email, password, handle })
     const user: AuthUser = {
       id: response.userId,
       email,
-      handle: username,
+      handle: handle,
       emailVerified: response.user.emailVerified
     }
 
@@ -160,24 +159,24 @@ export function useAuth() {
     })
   }, [])
 
-  const updateProfile = useCallback(async (updates: { 
-    handle?: string; 
-    profileImage?: string; 
+  const updateProfile = useCallback(async (updates: {
+    handle?: string;
+    avatarUrl?: string;
     bio?: string;
     displayName?: string;
-    avatar?: string;
     twitter?: string;
     discord?: string;
     telegram?: string;
     website?: string;
   }) => {
     if (!authState.user) throw new Error('Not authenticated')
-    
+
     await api.updateProfile({
       userId: authState.user.id,
       handle: updates.handle,
-      profileImage: updates.profileImage,
+      avatarUrl: updates.avatarUrl,
       bio: updates.bio,
+      displayName: updates.displayName,
     })
     
     const updatedUser = { ...authState.user, ...updates }

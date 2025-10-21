@@ -606,13 +606,8 @@ export function TokenPositionPnL({ tokenAddress, tokenSymbol, tokenName }: Token
         totalPnLPercent={parseFloat(pnlPercent.replace(/[^0-9.-]/g, '')) || 0}
         currentValue={safeCurrentValue}
         initialBalance={safeCostBasis}
-        userHandle={(userProfile as any)?.handle || (userProfile as any)?.username || (userProfile as any)?.displayName || undefined}
-        userAvatarUrl={
-          (userProfile as any)?.avatar ||
-          (userProfile as any)?.avatarUrl ||
-          (userProfile as any)?.profileImage ||
-          undefined
-        }
+        userHandle={(userProfile as any)?.handle || (userProfile as any)?.displayName || undefined}
+        userAvatarUrl={(userProfile as any)?.avatarUrl || undefined}
         userEmail={(userProfile as any)?.email || user?.email || undefined}
         tokenSymbol={tokenSymbol || tokenMetadata?.symbol || undefined}
         tokenName={tokenName || tokenMetadata?.name || undefined}

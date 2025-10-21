@@ -424,13 +424,8 @@ export function PnLCard() {
         totalPnLPercent={parseFloat(totalPnLPercent.replace(/[^0-9.-]/g, '')) || 0}
         currentValue={totalValue}
         initialBalance={costBasis}
-        userHandle={(userProfile as any)?.handle || (userProfile as any)?.username || (userProfile as any)?.displayName || undefined}
-        userAvatarUrl={
-          (userProfile as any)?.avatar ||
-          (userProfile as any)?.avatarUrl ||
-          (userProfile as any)?.profileImage ||
-          undefined
-        }
+        userHandle={(userProfile as any)?.handle || (userProfile as any)?.displayName || undefined}
+        userAvatarUrl={(userProfile as any)?.avatarUrl || undefined}
         userEmail={(userProfile as any)?.email || user?.email || undefined}
       />
     </>

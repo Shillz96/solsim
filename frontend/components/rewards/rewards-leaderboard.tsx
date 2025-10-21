@@ -19,8 +19,9 @@ import { cn } from "@/lib/utils"
 
 interface RewardLeader {
   userId: string
-  username: string
-  avatar?: string
+  handle: string | null
+  displayName?: string | null
+  avatarUrl?: string | null
   totalRewards: number
   weeklyRewards: number
   tier: string
@@ -165,16 +166,14 @@ export function RewardsLeaderboard() {
                 <Avatar className="h-12 w-12 border-2 border-primary/20">
                   <AvatarImage
                     src={
-                      (leader as any).avatarUrl ||
-                      leader.avatar ||
-                      (leader as any).profileImage ||
-                      `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent((leader as any).displayName || leader.username || leader.userId)}&backgroundColor=4f46e5`
+                      leader.avatarUrl ||
+                      `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(leader.displayName || leader.handle || leader.userId)}&backgroundColor=4f46e5`
                     }
                   />
-                  <AvatarFallback className="bg-primary/10">{((leader as any).displayName || leader.username || 'U')[0]}</AvatarFallback>
+                  <AvatarFallback className="bg-primary/10">{(leader.displayName || leader.handle || 'U')[0]}</AvatarFallback>
                 </Avatar>
                 <div>
-                  <div className="font-semibold">{(leader as any).displayName || leader.username}</div>
+                  <div className="font-semibold">{leader.displayName || leader.handle}</div>
                   <div className="flex items-center gap-2">
                     <span className={cn("text-sm font-medium", leader.tierColor)}>
                       {leader.tierIcon} {leader.tier}
@@ -232,17 +231,15 @@ export function RewardsLeaderboard() {
                   <Avatar className="h-10 w-10">
                     <AvatarImage
                       src={
-                        (leader as any).avatarUrl ||
-                        leader.avatar ||
-                        (leader as any).profileImage ||
-                        `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent((leader as any).displayName || leader.username || leader.userId)}&backgroundColor=4f46e5`
+                        leader.avatarUrl ||
+                        `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(leader.displayName || leader.handle || leader.userId)}&backgroundColor=4f46e5`
                       }
                     />
-                    <AvatarFallback className="bg-primary/10">{((leader as any).displayName || leader.username || 'U')[0]}</AvatarFallback>
+                    <AvatarFallback className="bg-primary/10">{(leader.displayName || leader.handle || 'U')[0]}</AvatarFallback>
                   </Avatar>
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="font-semibold">{(leader as any).displayName || leader.username}</span>
+                      <span className="font-semibold">{leader.displayName || leader.handle}</span>
                       {user?.id === leader.userId && (
                         <Badge variant="secondary" className="text-xs">You</Badge>
                       )}
