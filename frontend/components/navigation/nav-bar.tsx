@@ -320,10 +320,10 @@ export function NavBar() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
                 transition={{ duration: 0.15 }}
-                className="absolute top-full left-0 right-0 mt-2 bg-background/95 backdrop-blur-md supports-[backdrop-filter]:bg-background/90 text-foreground border rounded-lg shadow-lg z-[100] max-h-80 overflow-y-auto"
+                className="absolute top-full left-0 right-0 mt-2 bg-popover text-popover-foreground border-2 border-border rounded-lg shadow-xl z-[100] max-h-80 overflow-y-auto"
               >
                   <div className="p-2">
-                    <div className="text-xs text-muted-foreground px-2 py-2 font-semibold border-b border-border mb-1 uppercase tracking-wide">
+                    <div className="text-xs text-muted-foreground px-2 py-2 font-semibold border-b-2 border-border mb-1 uppercase tracking-wide">
                       Search Results
                     </div>
                     {searchResults.map((token) => (
@@ -335,7 +335,7 @@ export function NavBar() {
                           e.stopPropagation() // Stop event from bubbling to document
                           handleTokenSelect(token)
                         }}
-                        className="w-full text-left px-3 py-2.5 rounded-sm hover:bg-muted transition-colors duration-150 focus:bg-muted focus:outline-none"
+                        className="w-full text-left px-3 py-2.5 rounded-md hover:bg-accent hover:text-accent-foreground transition-colors duration-150 focus:bg-accent focus:text-accent-foreground focus:outline-none"
                       >
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-3">

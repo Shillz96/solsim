@@ -63,7 +63,10 @@ export function NotificationDropdown() {
   const handleMarkAllAsRead = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
+    // Keep dropdown open while marking all as read
     markAllAsRead()
+    // Don't close the dropdown
+    return false
   }
 
   return (
@@ -86,7 +89,10 @@ export function NotificationDropdown() {
               variant="ghost"
               size="sm"
               onClick={handleMarkAllAsRead}
-              onMouseDown={(e) => e.stopPropagation()}
+              onMouseDown={(e) => {
+                e.preventDefault()
+                e.stopPropagation()
+              }}
               className="h-6 text-xs"
             >
               <CheckCheck className="h-3 w-3 mr-1" />
