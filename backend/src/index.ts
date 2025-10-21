@@ -54,7 +54,9 @@ const config = getConfig();
 initSentry();
 
 const app = Fastify({
-  logger: { transport: { target: "pino-pretty" } }
+  logger: isProduction() 
+    ? { level: 'warn' } // Only log warnings and errors in production
+    : { transport: { target: "pino-pretty" } } // Pretty logs in development
 });
 
 // Add global error handler for Sentry
@@ -140,24 +142,24 @@ app.register(cors, {
   origin: (origin, cb) => {
     // Allow requests with no origin (mobile apps, postman, etc.)
     if (!origin) {
-      console.log('✅ CORS accepted: no origin (mobile/postman)');
+      if (!isProduction()) console.log('✅ CORS accepted: no origin (mobile/postman)');
       return cb(null, true);
     }
     
     if (allowedOrigins.includes(origin)) {
-      console.log('✅ CORS accepted from allowedOrigins:', origin);
+      if (!isProduction()) console.log('✅ CORS accepted from allowedOrigins:', origin);
       return cb(null, true);
     }
     
     // Allow any subdomain of virtualsol.fun in production
     if (origin.endsWith('.virtualsol.fun') || origin === 'https://virtualsol.fun') {
-      console.log('✅ CORS accepted (virtualsol.fun domain):', origin);
+      if (!isProduction()) console.log('✅ CORS accepted (virtualsol.fun domain):', origin);
       return cb(null, true);
     }
     
     // Allow Vercel preview deployments
     if (origin.includes('vercel.app')) {
-      console.log('✅ CORS accepted (Vercel deployment):', origin);
+      if (!isProduction()) console.log('✅ CORS accepted (Vercel deployment):', origin);
       return cb(null, true);
     }
     

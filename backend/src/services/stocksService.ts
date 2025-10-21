@@ -83,7 +83,6 @@ export async function getStockTokens(limit: number = 50): Promise<StockToken[]> 
   try {
     const cached = await redis.get(cacheKey);
     if (cached) {
-      console.log(`[STOCKS CACHE HIT] Returning cached stock tokens`);
       return safeParse(cached);
     }
   } catch (error) {
@@ -91,8 +90,6 @@ export async function getStockTokens(limit: number = 50): Promise<StockToken[]> 
   }
 
   try {
-    console.log(`Fetching tokenized stocks with limit: ${limit}`);
-
     // Fetch all xStocks tokens using their mint addresses
     const tokensToFetch = XSTOCKS_TOKENS.slice(0, limit);
     const stockPromises = tokensToFetch.map(token =>

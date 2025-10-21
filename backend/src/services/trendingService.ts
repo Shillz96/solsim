@@ -30,7 +30,6 @@ export async function getTrendingTokens(limit: number = 20, sortBy: BirdeyeSortB
   try {
     const cached = await redis.get(cacheKey);
     if (cached) {
-      console.log(`[TRENDING CACHE HIT] Returning cached trending tokens`);
       return safeParse(cached);
     }
   } catch (error) {
@@ -38,14 +37,10 @@ export async function getTrendingTokens(limit: number = 20, sortBy: BirdeyeSortB
   }
 
   try {
-    console.log(`Fetching trending tokens with limit: ${limit}, sortBy: ${sortBy}`);
-
     // Use Birdeye for trending data first
     const birdeyeTrending = await getBirdeyeTrending(limit, sortBy);
-    console.log(`Birdeye returned ${birdeyeTrending.length} tokens`);
 
     if (birdeyeTrending.length > 0) {
-      console.log('Using Birdeye data for trending tokens');
       // Birdeye already provides all necessary data - return directly for speed
       // Internal stats (tradeCount, uniqueTraders) are mostly 0 for trending tokens anyway
       console.log(`Returning ${birdeyeTrending.length} Birdeye trending tokens (fast mode)`);
