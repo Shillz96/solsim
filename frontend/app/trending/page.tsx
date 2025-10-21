@@ -331,33 +331,22 @@ export default function TrendingPage() {
                     const isHovered = hoveredRow === token.mint
 
                     return (
-                      <motion.tr
+                      <tr
                         key={token.mint}
-                        className="border-b border-border transition-all duration-300 relative group"
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{
-                          duration: 0.4,
-                          delay: index * 0.05,
-                          ease: "easeOut"
-                        }}
-                        whileHover={{
-                          y: -4,
-                          transition: { duration: 0.2, ease: "easeOut" }
-                        }}
+                        className="border-b border-border transition-[transform,box-shadow] duration-200 relative group hover:-translate-y-0.5"
                         onMouseEnter={() => setHoveredRow(token.mint)}
                         onMouseLeave={() => setHoveredRow(null)}
                         style={{
-                          boxShadow: isHovered ? '0 8px 16px rgba(0, 0, 0, 0.15)' : 'none',
+                          boxShadow: isHovered ? '0 4px 8px rgba(0, 0, 0, 0.1)' : 'none',
                         }}
                       >
-                        {/* Subtle elegant hover effect */}
+                        {/* Subtle hover effect */}
                         <td
                           colSpan={8}
                           className="absolute inset-0 pointer-events-none"
                         >
                           <div
-                            className={`absolute inset-0 transition-all duration-300 ${
+                            className={`absolute inset-0 transition-[background-color,border-left] duration-150 ${
                               isHovered
                                 ? 'bg-gradient-to-r from-primary/[0.02] via-primary/[0.04] to-primary/[0.02]'
                                 : 'bg-transparent'
@@ -371,13 +360,11 @@ export default function TrendingPage() {
                         {/* Rank */}
                         <td className="p-5 relative z-10">
                           {rankBadge ? (
-                            <motion.div
-                              className={`inline-flex items-center justify-center w-9 h-9 rounded-lg ${rankBadge.bg} ${rankBadge.text} ${rankBadge.border} ${rankBadge.shadow} ${rankBadge.ring} font-bold text-base transition-all duration-300`}
-                              whileHover={{ scale: 1.1, rotate: 5 }}
-                              transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                            <div
+                              className={`inline-flex items-center justify-center w-9 h-9 rounded-lg ${rankBadge.bg} ${rankBadge.text} ${rankBadge.border} ${rankBadge.shadow} ${rankBadge.ring} font-bold text-base transition-transform duration-150 hover:scale-105`}
                             >
                               {index + 1}
-                            </motion.div>
+                            </div>
                           ) : (
                             <span className="text-sm font-medium text-muted-foreground">{index + 1}</span>
                           )}
@@ -387,23 +374,20 @@ export default function TrendingPage() {
                         <td className="p-5 relative z-10">
                           <Link
                             href={`/trade?token=${token.mint}`}
-                            className="flex items-center gap-3 hover:opacity-80 transition-opacity"
+                            className="flex items-center gap-3 hover:opacity-80 transition-opacity duration-150"
                           >
-                            <motion.div
-                              whileHover={{ scale: 1.15 }}
-                              transition={{ duration: 0.2 }}
-                            >
+                            <div className="transition-transform duration-150 hover:scale-110">
                               <Image
                                 src={token.logoURI || "/placeholder-token.svg"}
                                 alt={token.name || 'Unknown Token'}
                                 width={36}
                                 height={36}
-                                className="rounded-full ring-2 ring-border group-hover:ring-primary/50 transition-all duration-300"
+                                className="rounded-full ring-2 ring-border group-hover:ring-primary/50 transition-[box-shadow] duration-150"
                                 onError={(e) => {
                                   e.currentTarget.src = "/placeholder-token.svg"
                                 }}
                               />
-                            </motion.div>
+                            </div>
                             <div>
                               <div className="font-semibold text-sm flex items-center gap-2">
                                 {token.name || 'Unknown'}

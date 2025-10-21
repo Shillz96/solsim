@@ -105,7 +105,7 @@ export function RewardsExplainer() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-      <Card className="border-border/50 bg-card/95 backdrop-blur-sm shadow-card hover:shadow-card-hover transition-all duration-300">
+      <Card className="border-border/50 bg-card/95 backdrop-blur-sm shadow-card hover:shadow-card-hover transition-[box-shadow,border-color] duration-200">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Info className="h-5 w-5 text-primary" />
@@ -142,7 +142,7 @@ export function RewardsExplainer() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.1 }}
       >
-      <Card className="border-border/50 bg-card/95 backdrop-blur-sm shadow-card hover:shadow-card-hover transition-all duration-300">
+      <Card className="border-border/50 bg-card/95 backdrop-blur-sm shadow-card hover:shadow-card-hover transition-[box-shadow,border-color] duration-200">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Coins className="h-5 w-5 text-primary" />
@@ -161,7 +161,7 @@ export function RewardsExplainer() {
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: index * 0.05 }}
                 whileHover={{ scale: 1.02 }}
-                className="flex gap-4 p-4 rounded-lg border border-border/50 bg-muted/30 hover:bg-muted/50 hover:shadow-sm transition-all duration-300"
+                className="flex gap-4 p-4 rounded-lg border border-border/50 bg-muted/30 hover:bg-muted/50 hover:shadow-sm transition-[box-shadow,border-color] duration-200"
               >
                 <div className="p-2 rounded-full bg-primary/10 h-fit">
                   <activity.icon className="h-5 w-5 text-primary" />
@@ -188,7 +188,7 @@ export function RewardsExplainer() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.2 }}
       >
-      <Card className="border-border/50 bg-card/95 backdrop-blur-sm shadow-card hover:shadow-card-hover transition-all duration-300">
+      <Card className="border-border/50 bg-card/95 backdrop-blur-sm shadow-card hover:shadow-card-hover transition-[box-shadow,border-color] duration-200">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Award className="h-5 w-5 text-primary" />
@@ -205,13 +205,13 @@ export function RewardsExplainer() {
                 key={index}
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: index * 0.05 }}
-                whileHover={{ scale: 1.03, y: -4 }}
+                transition={{ delay: index * 0.05, duration: 0.3 }}
                 className={cn(
-                  "p-4 rounded-lg border border-border/50 transition-all duration-300",
-                  "hover:shadow-lg hover:border-primary/30 cursor-default",
+                  "p-4 rounded-lg border border-border/50 transition-[box-shadow,border-color] duration-200",
+                  "hover:shadow-lg hover:border-primary/30 hover:-translate-y-1 cursor-default",
                   tier.bgColor
                 )}
+                style={{ transition: 'box-shadow 0.2s ease, border-color 0.2s ease, transform 0.2s ease' }}
               >
                 <div className="flex items-start justify-between">
                   <div className="space-y-2">
@@ -255,7 +255,7 @@ export function RewardsExplainer() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.3 }}
       >
-      <Card className="border-border/50 bg-card/95 backdrop-blur-sm shadow-card hover:shadow-card-hover transition-all duration-300">
+      <Card className="border-border/50 bg-card/95 backdrop-blur-sm shadow-card hover:shadow-card-hover transition-[box-shadow,border-color] duration-200">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Calculator className="h-5 w-5" />
@@ -324,7 +324,7 @@ export function RewardsExplainer() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.4 }}
       >
-      <Card className="border-border/50 bg-card/95 backdrop-blur-sm shadow-card hover:shadow-card-hover transition-all duration-300">
+      <Card className="border-border/50 bg-card/95 backdrop-blur-sm shadow-card hover:shadow-card-hover transition-[box-shadow,border-color] duration-200">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Calendar className="h-5 w-5" />
