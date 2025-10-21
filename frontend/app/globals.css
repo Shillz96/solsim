@@ -86,8 +86,8 @@
   --chart-5: #999999; /* Light Gray */
   --chart-5-oklch: oklch(0.65 0 0);
   
-  /* UI Elements - Minimal border radius for boxy minimalism */
-  --radius: 0.25rem;
+  /* UI Elements - Modern border radius for 2025 aesthetic */
+  --radius: 0.625rem; /* 10px - balanced modern radius */
   --sidebar: #ffffff;
   --sidebar-oklch: oklch(1 0 0);
   --sidebar-foreground: #000000;
@@ -189,8 +189,8 @@
   --chart-5: #666666; /* Dark Gray */
   --chart-5-oklch: oklch(0.45 0 0);
 
-  /* UI Elements - Minimal border radius for boxy minimalism */
-  --radius: 0.25rem;
+  /* UI Elements - Modern border radius for 2025 aesthetic */
+  --radius: 0.625rem; /* 10px - balanced modern radius */
   --sidebar: #000000;
   --sidebar-oklch: oklch(0 0 0);
   --sidebar-foreground: #ffffff;
@@ -281,6 +281,7 @@
     -moz-osx-font-smoothing: grayscale;
     font-family: var(--font-sans);
     position: relative;
+    line-height: 1.65; /* Enhanced readability */
   }
 
   /* Paper texture implementation removed */
@@ -317,7 +318,8 @@
     font-family: var(--font-ibm-plex-sans), var(--font-heading), sans-serif;
     font-weight: 700;
     color: var(--foreground);
-    letter-spacing: -0.02em;
+    letter-spacing: -0.015em; /* Refined letter spacing for 2025 */
+    line-height: 1.3;
   }
 
   p,
@@ -351,13 +353,16 @@
     background-color: var(--card);
     color: var(--foreground);
     border-radius: var(--radius);
-    box-shadow: 0 4px 12px color-mix(in srgb, black 10%, transparent);
-    padding: 1rem;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 1px 3px color-mix(in srgb, black 6%, transparent);
+    padding: 1.25rem; /* Enhanced padding for better spacing */
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid color-mix(in srgb, var(--border) 50%, transparent);
   }
 
   .card:hover {
-    box-shadow: 0 8px 24px color-mix(in srgb, black 15%, transparent);
+    box-shadow: 0 4px 12px color-mix(in srgb, black 10%, transparent);
+    transform: translateY(-2px); /* Subtle lift effect */
+    border-color: var(--border);
   }
 
   /* ---------------------------
@@ -390,12 +395,22 @@
     box-shadow: 0 4px 12px color-mix(in srgb, black 12%, transparent);
   }
 
-  /* Flat cards - no shadows, solid borders */
+  /* Modern glass morphism effects - 2025 style */
   .glass,
   .glass-overlay,
   .glass-solid {
+    background: color-mix(in srgb, var(--card) 95%, transparent);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid color-mix(in srgb, var(--border) 60%, transparent);
+    transition: all 0.25s ease;
+  }
+
+  .glass:hover,
+  .glass-overlay:hover,
+  .glass-solid:hover {
     background: var(--card);
-    border: 2px solid var(--border);
+    border-color: var(--border);
   }
 
   /* Navigation specific styling - flat */
@@ -445,15 +460,19 @@
      FLAT CARD SYSTEM - MINIMAL BLACK/WHITE
   --------------------------- */
   
-  /* Flat card - no shadows, minimal border */
+  /* Modern card with refined shadows - 2025 style */
   .card-enhanced {
     background: var(--card);
-    border: 2px solid var(--border);
-    transition: border-color 0.2s ease;
+    border: 1px solid color-mix(in srgb, var(--border) 50%, transparent);
+    box-shadow: 0 1px 3px color-mix(in srgb, black 5%, transparent);
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    padding: 1.25rem;
   }
 
   .card-enhanced:hover {
-    border-color: var(--foreground);
+    border-color: var(--border);
+    box-shadow: 0 4px 12px color-mix(in srgb, black 8%, transparent);
+    transform: translateY(-1px);
   }
 
   /* Bento-style grid cards - flat and minimal */
@@ -477,17 +496,23 @@
      INTERACTIVE ELEMENTS
   --------------------------- */
 
-  /* Enhanced button hover effects */
+  /* Enhanced button hover effects - 2025 micro-interactions */
   .btn-enhanced {
     position: relative;
     overflow: hidden;
     isolation: isolate;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
-  /* Flat button hover - minimal effect */
+  /* Modern button hover with subtle scale */
   .btn-enhanced:hover {
-    opacity: 0.9;
+    transform: scale(1.02);
+    opacity: 0.95;
+  }
+
+  .btn-enhanced:active {
+    transform: scale(0.98);
+    transition: transform 0.1s ease;
   }
 
   /* Input focus states */
@@ -640,6 +665,38 @@
 
 .animate-shimmer {
   animation: shimmer 2s infinite;
+}
+
+/* Modern live dot pulse animation */
+@keyframes live-pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(1.2);
+  }
+}
+
+.live-indicator {
+  animation: live-pulse 2s ease-in-out infinite;
+}
+
+/* Smooth number change animation */
+@keyframes smooth-number {
+  0% {
+    opacity: 0.7;
+    transform: translateY(2px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.number-update {
+  animation: smooth-number 0.3s ease-out;
 }
 
 /* Tab Triggers - Subtle Glow */

@@ -129,11 +129,13 @@ module.exports = {
         extrabold: '800',
       },
       
-      // Border Radius Scale
+      // Border Radius Scale - Updated for 2025
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+        xl: "calc(var(--radius) + 2px)",
+        "2xl": "calc(var(--radius) + 4px)",
       },
       
       // Animation Timing
@@ -201,25 +203,28 @@ module.exports = {
         'notification': '420px',  // Notification containers
       },
       
-      // Standardized Border Radius Scale
+      // Standardized Border Radius Scale - Modern 2025
       borderRadius: {
         'none': '0',
-        'xs': '0.125rem',      // 2px - Very small radius
-        'sm': '0.25rem',       // 4px - Small radius (buttons, inputs)
-        'DEFAULT': '0.375rem', // 6px - Default radius
-        'md': '0.5rem',        // 8px - Medium radius (cards, panels)
+        'xs': '0.25rem',       // 4px - Very small radius
+        'sm': '0.375rem',      // 6px - Small radius
+        'DEFAULT': '0.5rem',   // 8px - Default radius
+        'md': '0.625rem',      // 10px - Medium radius (cards, panels)
         'lg': '0.75rem',       // 12px - Large radius (dialogs, modals)
         'xl': '1rem',          // 16px - Extra large radius
         'xxl': '1.5rem',       // 24px - Very large radius
         'full': '9999px',      // Full circle/pill shape
       },
       
-      // Box Shadows for UI Depth
+      // Box Shadows for UI Depth - Refined 2025
       boxShadow: {
-        'card': '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
-        'card-hover': '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
-        'button': '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
-        'dropdown': '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+        'xs': '0 1px 2px 0 rgba(0, 0, 0, 0.03)',
+        'sm': '0 1px 3px 0 rgba(0, 0, 0, 0.05)',
+        'card': '0 2px 4px 0 rgba(0, 0, 0, 0.04), 0 1px 2px 0 rgba(0, 0, 0, 0.03)',
+        'card-hover': '0 4px 8px 0 rgba(0, 0, 0, 0.06), 0 2px 4px 0 rgba(0, 0, 0, 0.04)',
+        'button': '0 1px 2px 0 rgba(0, 0, 0, 0.04)',
+        'dropdown': '0 8px 16px -4px rgba(0, 0, 0, 0.08), 0 4px 8px -2px rgba(0, 0, 0, 0.04)',
+        'modal': '0 20px 40px -8px rgba(0, 0, 0, 0.15)',
       },
       
       // Z-index Scale for Proper Layering
