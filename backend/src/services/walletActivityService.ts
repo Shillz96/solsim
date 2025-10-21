@@ -114,10 +114,8 @@ export class WalletActivityService {
   private readonly USDC_MINT = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v";
   private readonly USDT_MINT = "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB";
 
-  // Minimum filters for quality meme coins
-  private readonly MIN_TRADE_SIZE_USD = 100;
-  private readonly MIN_MARKET_CAP_USD = 10000; // $10K minimum
-  private readonly MAX_MARKET_CAP_USD = 10000000; // $10M max for memes
+  // NOTE: These are removed in favor of user-configurable settings
+  // Filters are now set per-user via WalletTrackerSettings table
 
   // Tokens to exclude (not meme coins)
   private readonly EXCLUDED_TOKENS = new Set([
@@ -201,19 +199,9 @@ export class WalletActivityService {
             ? existing.tokenInLogoURI
             : existing.tokenOutLogoURI;
 
-          // Skip existing activities without images
+          // Just log if no image, but include it (user can filter)
           if (!existingMainLogoURI) {
-            this.logger?.warn(`Skipping existing activity ${tx.signature} - no image in DB`);
-            continue;
-          }
-
-          // Skip if market cap doesn't meet criteria (for existing activities)
-          if (existing.marketCap) {
-            const mcValue = existing.marketCap.toNumber();
-            if (mcValue < this.MIN_MARKET_CAP_USD || mcValue > this.MAX_MARKET_CAP_USD) {
-              this.logger?.debug(`Skipping existing activity - MC out of range: $${mcValue}`);
-              continue;
-            }
+            this.logger?.debug(`Existing activity ${tx.signature} - no image in DB`);
           }
 
           activities.push(existing);
@@ -231,29 +219,9 @@ export class WalletActivityService {
         // Get the main token metadata
         const mainTokenMeta = mainTokenMint === parsedSwap.tokenInMint ? tokenInMeta : tokenOutMeta;
 
-        // CRITICAL: Skip if no image found for main token
+        // Optional: Log if no image found but continue (user can filter via settings)
         if (!mainTokenMeta?.logoURI) {
-          this.logger?.warn(`Skipping ${mainTokenMint} - no image available`);
-          continue;
-        }
-
-        // CRITICAL: Skip if no market cap data
-        if (!mainTokenMeta.marketCap || mainTokenMeta.marketCap < this.MIN_MARKET_CAP_USD) {
-          this.logger?.debug(`Skipping ${mainTokenMint} - market cap too low: ${mainTokenMeta.marketCap}`);
-          continue;
-        }
-
-        // Skip if market cap too high (not a meme coin)
-        if (mainTokenMeta.marketCap > this.MAX_MARKET_CAP_USD) {
-          this.logger?.debug(`Skipping ${mainTokenMint} - market cap too high: ${mainTokenMeta.marketCap}`);
-          continue;
-        }
-
-        // Calculate trade size in USD
-        const tradeUsd = parsedSwap.priceUsd || 0;
-        if (tradeUsd < this.MIN_TRADE_SIZE_USD) {
-          this.logger?.debug(`Skipping small trade: $${tradeUsd}`);
-          continue;
+          this.logger?.debug(`No image found for ${mainTokenMint} - will save anyway`);
         }
 
         // Fetch logo URIs with aggressive fallback strategy
@@ -838,38 +806,9 @@ export class WalletActivityService {
       skip: params.offset || 0
     });
 
-    // Filter out activities without images (belt and suspenders approach)
-    const filteredActivities = activities.filter(activity => {
-      // Determine main token based on type
-      let mainLogoURI: string | null = null;
-
-      if (activity.type === 'BUY') {
-        mainLogoURI = activity.tokenOutLogoURI;
-      } else if (activity.type === 'SELL') {
-        mainLogoURI = activity.tokenInLogoURI;
-      } else {
-        // For SWAP, check if either has a logo
-        mainLogoURI = activity.tokenOutLogoURI || activity.tokenInLogoURI;
-      }
-
-      // Skip if no image
-      if (!mainLogoURI) {
-        return false;
-      }
-
-      // Apply market cap filtering if available
-      if (activity.marketCap) {
-        const mcValue = activity.marketCap.toNumber();
-        if (mcValue < this.MIN_MARKET_CAP_USD || mcValue > this.MAX_MARKET_CAP_USD) {
-          return false;
-        }
-      }
-
-      return true;
-    });
-
-    // Return only the requested limit
-    return filteredActivities.slice(0, params.limit || 100);
+    // NOTE: Filtering removed - now handled by user settings in frontend/API layer
+    // Return the activities as-is (up to requested limit)
+    return activities.slice(0, params.limit || 100);
   }
 
   /**
