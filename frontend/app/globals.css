@@ -671,3 +671,243 @@
 .dark .btn-sell {
   color: #ffffff;
 }
+
+/* ============================================================
+   DATA-HEAVY PAGE ENHANCEMENTS - 2025 STYLE
+   ============================================================ */
+
+/* Modern data display cards */
+.data-card {
+  background: color-mix(in srgb, var(--card) 98%, transparent);
+  border: 1px solid color-mix(in srgb, var(--border) 30%, transparent);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.data-card:hover {
+  background: var(--card);
+  border-color: color-mix(in srgb, var(--border) 50%, transparent);
+  box-shadow: 0 4px 12px color-mix(in srgb, black 5%, transparent);
+  transform: translateY(-1px);
+}
+
+/* Stat cards with modern design */
+.stat-card {
+  background: var(--card);
+  border: 1px solid color-mix(in srgb, var(--border) 25%, transparent);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.stat-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--primary), var(--accent));
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.stat-card:hover {
+  border-color: color-mix(in srgb, var(--border) 45%, transparent);
+  box-shadow: 0 8px 24px color-mix(in srgb, black 6%, transparent);
+  transform: translateY(-3px);
+}
+
+.stat-card:hover::before {
+  opacity: 1;
+}
+
+/* Leaderboard row styles */
+.leaderboard-row {
+  background: var(--card);
+  border: 1px solid color-mix(in srgb, var(--border) 20%, transparent);
+  border-radius: var(--radius-md);
+  padding: 1rem 1.25rem;
+  transition: all 0.25s ease;
+  position: relative;
+}
+
+.leaderboard-row:hover {
+  background: color-mix(in srgb, var(--accent) 5%, var(--card));
+  border-color: color-mix(in srgb, var(--border) 40%, transparent);
+  transform: translateX(4px);
+}
+
+.leaderboard-row.user-row {
+  background: linear-gradient(135deg,
+    color-mix(in srgb, var(--primary) 5%, transparent),
+    color-mix(in srgb, var(--accent) 5%, transparent)
+  );
+  border: 2px solid var(--primary);
+  box-shadow: 0 4px 16px color-mix(in srgb, var(--primary) 10%, transparent);
+}
+
+/* Rank badges */
+.rank-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.5rem;
+  height: 2.5rem;
+  border-radius: var(--radius-md);
+  font-weight: 700;
+  font-size: 1.125rem;
+  transition: all 0.3s ease;
+}
+
+.rank-badge.rank-1 {
+  background: linear-gradient(135deg, #FFD700, #FFA500);
+  color: #000;
+  box-shadow: 0 4px 12px color-mix(in srgb, #FFD700 40%, transparent);
+  animation: pulse-gold 2s infinite;
+}
+
+.rank-badge.rank-2 {
+  background: linear-gradient(135deg, #C0C0C0, #A8A8A8);
+  color: #000;
+  box-shadow: 0 4px 12px color-mix(in srgb, #C0C0C0 40%, transparent);
+}
+
+.rank-badge.rank-3 {
+  background: linear-gradient(135deg, #CD7F32, #B87333);
+  color: #fff;
+  box-shadow: 0 4px 12px color-mix(in srgb, #CD7F32 40%, transparent);
+}
+
+@keyframes pulse-gold {
+  0%, 100% {
+    box-shadow: 0 4px 12px color-mix(in srgb, #FFD700 40%, transparent);
+  }
+  50% {
+    box-shadow: 0 6px 20px color-mix(in srgb, #FFD700 60%, transparent);
+  }
+}
+
+/* Progress bars - modern style */
+.progress-bar {
+  height: 0.5rem;
+  background: var(--muted);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  position: relative;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary), var(--accent));
+  border-radius: var(--radius-sm);
+  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.progress-bar-fill::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
+  animation: shimmer 2s infinite;
+}
+
+/* Rank animation */
+@keyframes rank-up {
+  0% {
+    transform: translateY(4px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.rank-change-up {
+  animation: rank-up 0.5s ease-out;
+  color: var(--profit);
+}
+
+.rank-change-down {
+  animation: rank-up 0.5s ease-out reverse;
+  color: var(--loss);
+}
+
+/* Info cards for rewards page */
+.info-card {
+  background: linear-gradient(135deg,
+    color-mix(in srgb, var(--card) 97%, transparent),
+    color-mix(in srgb, var(--muted) 97%, transparent)
+  );
+  border: 1px solid color-mix(in srgb, var(--border) 20%, transparent);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.info-card:hover {
+  border-color: color-mix(in srgb, var(--border) 40%, transparent);
+  box-shadow: 0 6px 16px color-mix(in srgb, black 4%, transparent);
+  transform: scale(1.02);
+}
+
+/* Rewards tier card */
+.tier-card {
+  background: var(--card);
+  border: 2px solid transparent;
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  position: relative;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.tier-card.bronze {
+  border-color: #CD7F32;
+  background: linear-gradient(135deg,
+    color-mix(in srgb, #CD7F32 5%, var(--card)),
+    var(--card)
+  );
+}
+
+.tier-card.silver {
+  border-color: #C0C0C0;
+  background: linear-gradient(135deg,
+    color-mix(in srgb, #C0C0C0 5%, var(--card)),
+    var(--card)
+  );
+}
+
+.tier-card.gold {
+  border-color: #FFD700;
+  background: linear-gradient(135deg,
+    color-mix(in srgb, #FFD700 5%, var(--card)),
+    var(--card)
+  );
+}
+
+.tier-card.platinum {
+  border-color: #E5E4E2;
+  background: linear-gradient(135deg,
+    color-mix(in srgb, #E5E4E2 10%, var(--card)),
+    var(--card)
+  );
+}
+
+.tier-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px color-mix(in srgb, black 8%, transparent);
+}
