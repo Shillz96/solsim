@@ -131,66 +131,133 @@ export async function claimReward(userId: string, epoch: number, wallet: string)
 
   try {
     const userWallet = new PublicKey(wallet);
-    const userAta = await getAssociatedTokenAddress(SIM_MINT, userWallet);
-    const rewardsAta = await getAssociatedTokenAddress(SIM_MINT, REWARDS_WALLET.publicKey);
     
-    // Check if user's ATA exists, create if needed
-    const userAtaInfo = await connection.getAccountInfo(userAta);
-    const tx = new Transaction();
-    
-    if (!userAtaInfo) {
-      const { createAssociatedTokenAccountInstruction } = await import("@solana/spl-token");
+    // Try to send vSOL tokens first
+    try {
+      const userAta = await getAssociatedTokenAddress(SIM_MINT, userWallet);
+      const rewardsAta = await getAssociatedTokenAddress(SIM_MINT, REWARDS_WALLET.publicKey);
+      
+      // Check rewards wallet token balance
+      const rewardsAtaInfo = await connection.getTokenAccountBalance(rewardsAta);
+      const rewardsBalance = parseFloat(rewardsAtaInfo.value.amount) / Math.pow(10, rewardsAtaInfo.value.decimals);
+      const claimAmount = claim.amount.toNumber();
+      
+      console.log(`Rewards wallet vSOL balance: ${rewardsBalance}, Claim amount: ${claimAmount}`);
+      
+      if (rewardsBalance < claimAmount) {
+        throw new Error(`Insufficient vSOL tokens in rewards wallet. Balance: ${rewardsBalance}, Required: ${claimAmount}`);
+      }
+      
+      // Check if user's ATA exists, create if needed
+      const userAtaInfo = await connection.getAccountInfo(userAta);
+      const tx = new Transaction();
+      
+      if (!userAtaInfo) {
+        const { createAssociatedTokenAccountInstruction } = await import("@solana/spl-token");
+        tx.add(
+          createAssociatedTokenAccountInstruction(
+            REWARDS_WALLET.publicKey, // payer
+            userAta,
+            userWallet,
+            SIM_MINT
+          )
+        );
+      }
+      
+      // Add transfer instruction
+      const transferAmount = Math.floor(claimAmount * 10 ** 6); // 6 decimals
       tx.add(
-        createAssociatedTokenAccountInstruction(
-          REWARDS_WALLET.publicKey, // payer
+        createTransferInstruction(
+          rewardsAta,
           userAta,
-          userWallet,
-          SIM_MINT
+          REWARDS_WALLET.publicKey,
+          transferAmount
         )
       );
-    }
-    
-    // Add transfer instruction
-    const transferAmount = Math.floor(claim.amount.toNumber() * 10 ** 6); // 6 decimals
-    tx.add(
-      createTransferInstruction(
-        rewardsAta,
-        userAta,
-        REWARDS_WALLET.publicKey,
-        transferAmount
-      )
-    );
 
-    // Set recent blockhash and fee payer
-    const { blockhash } = await connection.getLatestBlockhash();
-    tx.recentBlockhash = blockhash;
-    tx.feePayer = REWARDS_WALLET.publicKey;
-    
-    // Send and confirm transaction
-    const sig = await connection.sendTransaction(tx, [REWARDS_WALLET], {
-      skipPreflight: false,
-      preflightCommitment: "confirmed"
-    });
-    
-    // Wait for confirmation
-    await connection.confirmTransaction({
-      signature: sig,
-      blockhash,
-      lastValidBlockHeight: (await connection.getLatestBlockhash()).lastValidBlockHeight
-    });
+      // Set recent blockhash and fee payer
+      const { blockhash } = await connection.getLatestBlockhash();
+      tx.recentBlockhash = blockhash;
+      tx.feePayer = REWARDS_WALLET.publicKey;
+      
+      // Send and confirm transaction
+      const sig = await connection.sendTransaction(tx, [REWARDS_WALLET], {
+        skipPreflight: false,
+        preflightCommitment: "confirmed"
+      });
+      
+      // Wait for confirmation
+      await connection.confirmTransaction({
+        signature: sig,
+        blockhash,
+        lastValidBlockHeight: (await connection.getLatestBlockhash()).lastValidBlockHeight
+      });
 
-    // Update claim record
-    await prisma.rewardClaim.update({
-      where: { id: claim.id },
-      data: { 
-        claimedAt: new Date(), 
-        txSig: sig,
-        status: "COMPLETED"
+      // Update claim record
+      await prisma.rewardClaim.update({
+        where: { id: claim.id },
+        data: { 
+          claimedAt: new Date(), 
+          txSig: sig,
+          status: "COMPLETED"
+        }
+      });
+
+      console.log(`✅ Reward claimed (vSOL): ${claim.amount} vSOL to ${wallet} (${sig})`);
+      return { sig, amount: claim.amount };
+      
+    } catch (vsolError: any) {
+      // If vSOL transfer failed, fallback to sending native SOL
+      console.warn(`vSOL transfer failed, falling back to native SOL: ${vsolError.message}`);
+      
+      // Send native SOL instead (convert vSOL amount to SOL lamports)
+      const solAmountLamports = Math.floor(claim.amount.toNumber() * 1_000_000_000); // Convert to lamports
+      
+      // Check SOL balance
+      const solBalance = await connection.getBalance(REWARDS_WALLET.publicKey);
+      if (solBalance < solAmountLamports) {
+        throw new Error(`Insufficient SOL in rewards wallet. Balance: ${solBalance / 1_000_000_000} SOL, Required: ${claim.amount.toNumber()} SOL`);
       }
-    });
+      
+      const solTx = new Transaction().add(
+        SystemProgram.transfer({
+          fromPubkey: REWARDS_WALLET.publicKey,
+          toPubkey: userWallet,
+          lamports: solAmountLamports
+        })
+      );
 
-    console.log(`✅ Reward claimed: ${claim.amount} VSOL to ${wallet} (${sig})`);
-    return { sig, amount: claim.amount };
+      // Set recent blockhash and fee payer
+      const { blockhash } = await connection.getLatestBlockhash();
+      solTx.recentBlockhash = blockhash;
+      solTx.feePayer = REWARDS_WALLET.publicKey;
+      
+      // Send and confirm transaction
+      const solSig = await connection.sendTransaction(solTx, [REWARDS_WALLET], {
+        skipPreflight: false,
+        preflightCommitment: "confirmed"
+      });
+      
+      // Wait for confirmation
+      await connection.confirmTransaction({
+        signature: solSig,
+        blockhash,
+        lastValidBlockHeight: (await connection.getLatestBlockhash()).lastValidBlockHeight
+      });
+
+      // Update claim record
+      await prisma.rewardClaim.update({
+        where: { id: claim.id },
+        data: { 
+          claimedAt: new Date(), 
+          txSig: solSig,
+          status: "COMPLETED"
+        }
+      });
+
+      console.log(`✅ Reward claimed (SOL fallback): ${claim.amount} SOL to ${wallet} (${solSig})`);
+      return { sig: solSig, amount: claim.amount };
+    }
     
   } catch (error: any) {
     // Mark claim as failed
