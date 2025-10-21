@@ -63,6 +63,10 @@ class LRUCache<K, V> {
     return this.cache.has(key);
   }
 
+  delete(key: K): boolean {
+    return this.cache.delete(key);
+  }
+
   get size(): number {
     return this.cache.size;
   }
@@ -724,8 +728,11 @@ class OptimizedPriceService extends EventEmitter {
   /**
    * Fetch price from pump.fun API
    * Used as PRIMARY source for pump.fun tokens, LAST RESORT for others
+   * Includes retry logic for transient failures
    */
-  private async fetchPumpFunPrice(mint: string): Promise<PriceTick | null> {
+  private async fetchPumpFunPrice(mint: string, retryCount: number = 0): Promise<PriceTick | null> {
+    const MAX_RETRIES = 1; // Try twice total (initial + 1 retry)
+
     try {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 5000); // 5s timeout (more reliable for pump.fun API)
@@ -745,7 +752,7 @@ class OptimizedPriceService extends EventEmitter {
 
       if (!response.ok) {
         if (response.status === 404) {
-          // Token doesn't exist on pump.fun
+          // Token doesn't exist on pump.fun - don't retry
           return null;
         }
         throw new Error(`HTTP ${response.status}`);
@@ -775,9 +782,8 @@ class OptimizedPriceService extends EventEmitter {
 
       return null;
     } catch (error: any) {
-      // Don't log expected failures (404, timeouts, fetch errors)
-      const isExpectedError =
-        error.message?.includes('404') ||
+      // Check if this is a transient error that should be retried
+      const isTransientError =
         error.message?.includes('aborted') ||
         error.message?.includes('fetch failed') ||
         error.message?.includes('ECONNRESET') ||
@@ -785,12 +791,25 @@ class OptimizedPriceService extends EventEmitter {
         error.message?.includes('ENOTFOUND') ||
         error.name === 'AbortError';
 
+      // Retry logic for transient errors
+      if (isTransientError && retryCount < MAX_RETRIES) {
+        logger.debug({ mint: mint.slice(0, 8), retryCount: retryCount + 1 }, "Retrying pump.fun API call");
+        await new Promise(resolve => setTimeout(resolve, 500)); // Brief delay before retry
+        return this.fetchPumpFunPrice(mint, retryCount + 1);
+      }
+
+      // Don't log expected failures (404, timeouts, fetch errors)
+      const isExpectedError =
+        error.message?.includes('404') ||
+        isTransientError;
+
       if (!isExpectedError) {
         // Only log truly unexpected errors with more context
         logger.debug({
           mint: mint.slice(0, 8),
           error: error.message,
-          statusCode: error.statusCode || 'unknown'
+          statusCode: error.statusCode || 'unknown',
+          retryCount
         }, "PumpFun API unexpected error");
       }
 

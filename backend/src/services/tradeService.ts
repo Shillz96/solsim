@@ -102,6 +102,9 @@ async function executeTradeLogic({
   // This handles cases where token was cached as "not found" but now has liquidity
   if (!tick && side === 'SELL') {
     console.warn(`No cached price for SELL order (${mint.slice(0, 8)}), forcing fresh fetch`);
+    // Clear negative cache to ensure we actually try to fetch
+    // If user has a position, they must have bought it, so price should be available
+    priceService.clearNegativeCache(mint);
     tick = await priceService.fetchTokenPrice(mint);
   }
 
@@ -367,6 +370,13 @@ async function executeTradeLogic({
   // This prevents the portfolio endpoint from having to refetch from DexScreener
   await priceService.getPrice(mint);
   console.log(`[Trade] Prefetched and cached price for ${mint.substring(0, 8)}...`);
+
+  // For BUY orders on pump.fun tokens, subscribe to WebSocket for real-time price updates
+  // This ensures we have fresh prices when user tries to sell
+  if (side === "BUY") {
+    priceService.subscribeToPumpFunToken(mint);
+    console.log(`[Trade] Subscribed to pump.fun WebSocket updates for ${mint.substring(0, 8)}...`);
+  }
 
   // Calculate portfolio totals
   const portfolioTotals = await calculatePortfolioTotals(userId);
