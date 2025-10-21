@@ -593,7 +593,7 @@ export function PurchaseModal({ open, onOpenChange, userId }: PurchaseModalProps
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-w-[90vw] lg:max-w-6xl max-h-[90vh] overflow-y-auto p-8 bg-modal border-2 border-modal-border shadow-2xl">
+      <DialogContent className="max-w-[90vw] lg:max-w-6xl max-h-[90vh] overflow-y-auto p-8">
         {renderContent()}
       </DialogContent>
     </Dialog>

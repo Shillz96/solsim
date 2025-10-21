@@ -26,19 +26,19 @@
   --popover-foreground-oklch: oklch(0 0 0);
 
   /* Dropdown Menu Colors - OPAQUE (Not Transparent) */
-  --dropdown: #ffffff;
+  --dropdown: 0 0% 100%; /* White - for HSL */
   --dropdown-oklch: oklch(1 0 0);
-  --dropdown-foreground: #000000;
+  --dropdown-foreground: 0 0% 0%; /* Black - for HSL */
   --dropdown-foreground-oklch: oklch(0 0 0);
-  --dropdown-border: #e5e5e5;
+  --dropdown-border: 0 0% 90%; /* Light gray - for HSL */
   --dropdown-border-oklch: oklch(0.92 0 0);
 
   /* Modal Colors - OPAQUE (Not Transparent) */
-  --modal: #ffffff;
+  --modal: 0 0% 100%; /* White - for HSL */
   --modal-oklch: oklch(1 0 0);
-  --modal-foreground: #000000;
+  --modal-foreground: 0 0% 0%; /* Black - for HSL */
   --modal-foreground-oklch: oklch(0 0 0);
-  --modal-border: #e5e5e5;
+  --modal-border: 0 0% 90%; /* Light gray - for HSL */
   --modal-border-oklch: oklch(0.92 0 0);
 
   /* Primary - Subtle Gray */
@@ -145,19 +145,19 @@
   --popover-foreground-oklch: oklch(1 0 0);
 
   /* Dropdown Menu Colors - OPAQUE (Not Transparent) */
-  --dropdown: #1a1a1a;
+  --dropdown: 0 0% 10%; /* Dark gray - for HSL */
   --dropdown-oklch: oklch(0.15 0 0);
-  --dropdown-foreground: #ffffff;
+  --dropdown-foreground: 0 0% 100%; /* White - for HSL */
   --dropdown-foreground-oklch: oklch(1 0 0);
-  --dropdown-border: #333333;
+  --dropdown-border: 0 0% 20%; /* Gray border - for HSL */
   --dropdown-border-oklch: oklch(0.25 0 0);
 
   /* Modal Colors - OPAQUE (Not Transparent) */
-  --modal: #0a0a0a;
+  --modal: 0 0% 4%; /* Very dark gray - for HSL */
   --modal-oklch: oklch(0.08 0 0);
-  --modal-foreground: #ffffff;
+  --modal-foreground: 0 0% 100%; /* White - for HSL */
   --modal-foreground-oklch: oklch(1 0 0);
-  --modal-border: #333333;
+  --modal-border: 0 0% 20%; /* Gray border - for HSL */
   --modal-border-oklch: oklch(0.25 0 0);
 
   /* Primary - Subtle Gray */
