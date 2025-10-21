@@ -50,6 +50,7 @@ import { cn } from "@/lib/utils"
 import { motion } from "framer-motion"
 import { formatDistanceToNow } from "date-fns"
 import { SharePnLDialog } from "@/components/modals/share-pnl-dialog"
+import { useTokenMetadata } from "@/hooks/use-token-metadata"
 
 interface TokenPositionPnLProps {
   tokenAddress: string
@@ -166,6 +167,9 @@ export function TokenPositionPnL({ tokenAddress, tokenSymbol, tokenName }: Token
     error,
     refetch
   } = usePortfolio()
+
+  // Fetch token metadata for image and other details
+  const { data: tokenMetadata } = useTokenMetadata(tokenAddress, !!tokenAddress)
 
   // Fetch user profile for share dialog
   const { data: userProfile } = useQuery({
@@ -610,8 +614,15 @@ export function TokenPositionPnL({ tokenAddress, tokenSymbol, tokenName }: Token
           undefined
         }
         userEmail={(userProfile as any)?.email || user?.email || undefined}
-        tokenSymbol={tokenSymbol}
-        tokenName={tokenName}
+        tokenSymbol={tokenSymbol || tokenMetadata?.symbol}
+        tokenName={tokenName || tokenMetadata?.name}
+        tokenImageUrl={
+          (tokenMetadata as any)?.logoURI ||
+          (tokenMetadata as any)?.imageUrl ||
+          (tokenPosition as any)?.logoURI ||
+          (tokenPosition as any)?.imageUrl ||
+          undefined
+        }
         isTokenSpecific={true}
       />
     </Card>
