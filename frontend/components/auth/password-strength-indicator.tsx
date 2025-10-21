@@ -17,8 +17,8 @@ export function PasswordStrengthIndicator({ password, confirmPassword }: Passwor
   const requirements: PasswordRequirement[] = useMemo(() => {
     return [
       {
-        label: "At least 8 characters",
-        met: password.length >= 8
+        label: "At least 12 characters",
+        met: password.length >= 12
       },
       {
         label: "One uppercase letter",
@@ -33,8 +33,8 @@ export function PasswordStrengthIndicator({ password, confirmPassword }: Passwor
         met: /\d/.test(password)
       },
       {
-        label: "One special character (@$!%*?&)",
-        met: /[@$!%*?&]/.test(password)
+        label: "One special character",
+        met: /[^A-Za-z0-9]/.test(password)
       }
     ]
   }, [password])
@@ -122,8 +122,8 @@ export function PasswordStrengthIndicator({ password, confirmPassword }: Passwor
 export function validatePassword(password: string): { valid: boolean; errors: string[] } {
   const errors: string[] = []
 
-  if (password.length < 8) {
-    errors.push("Password must be at least 8 characters long")
+  if (password.length < 12) {
+    errors.push("Password must be at least 12 characters long")
   }
 
   if (!/[A-Z]/.test(password)) {
@@ -138,8 +138,8 @@ export function validatePassword(password: string): { valid: boolean; errors: st
     errors.push("Password must contain at least one number")
   }
 
-  if (!/[@$!%*?&]/.test(password)) {
-    errors.push("Password must contain at least one special character (@$!%*?&)")
+  if (!/[^A-Za-z0-9]/.test(password)) {
+    errors.push("Password must contain at least one special character")
   }
 
   return {

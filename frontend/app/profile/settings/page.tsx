@@ -182,13 +182,13 @@ function UserSettingsPage() {
         throw new Error('Passwords do not match')
       }
 
-      if (passwordData.newPassword.length < 8) {
-        throw new Error('Password must be at least 8 characters')
+      if (passwordData.newPassword.length < 12) {
+        throw new Error('Password must be at least 12 characters')
       }
 
-      const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d@$!%*?&]{8,}$/
+      const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{12,}$/
       if (!passwordRegex.test(passwordData.newPassword)) {
-        throw new Error('Password must contain uppercase, lowercase, and number')
+        throw new Error('Password must contain uppercase, lowercase, number, and special character')
       }
 
       return api.changePassword({
