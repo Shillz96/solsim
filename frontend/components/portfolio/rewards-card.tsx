@@ -7,12 +7,13 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Gift, Coins, TrendingUp, Calendar, CheckCircle, Clock, AlertCircle, Timer } from "lucide-react"
+import { Gift, Coins, TrendingUp, Calendar, CheckCircle, Clock, AlertCircle, Timer, Wallet } from "lucide-react"
 import * as api from "@/lib/api"
 import * as Backend from "@/lib/types/backend"
 import { useToast } from "@/hooks/use-toast"
 import { cn } from "@/lib/utils"
 import { formatUSD, formatNumber } from "@/lib/format"
+import { WalletConnectButton } from "@/components/wallet/wallet-connect-button"
 
 interface RewardsCardProps {
   userId: string
@@ -60,6 +61,12 @@ export function RewardsCard({ userId, walletAddress }: RewardsCardProps) {
         toast({
           title: "Claim Cooldown Active",
           description: error.message || "Please wait before claiming again",
+          variant: "destructive",
+        })
+      } else if (error.message?.includes("holder") || error.message?.includes("vSOL tokens")) {
+        toast({
+          title: "Token Holder Verification Failed",
+          description: error.message || "You must hold vSOL tokens to claim rewards",
           variant: "destructive",
         })
       } else {
@@ -191,6 +198,22 @@ export function RewardsCard({ userId, walletAddress }: RewardsCardProps) {
         <CardDescription>
           Earn $vSOL tokens based on your trading activity. Claimable every 5 minutes.
         </CardDescription>
+        {/* Wallet Status in Header */}
+        {!walletAddress && (
+          <div className="pt-2">
+            <WalletConnectButton 
+              size="sm"
+              variant="outline"
+              className="w-full"
+              onWalletConnected={(address) => {
+                toast({
+                  title: "Wallet Connected!",
+                  description: "You can now claim your rewards",
+                })
+              }}
+            />
+          </div>
+        )}
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Cooldown Timer */}
@@ -334,11 +357,26 @@ export function RewardsCard({ userId, walletAddress }: RewardsCardProps) {
 
         {/* Wallet Connection Warning */}
         {!walletAddress && unclaimedRewards.length > 0 && (
-          <Alert variant="destructive">
-            <AlertCircle className="h-4 w-4" />
-            <AlertDescription>
-              Connect your Solana wallet to claim your rewards.
-            </AlertDescription>
+          <Alert variant="destructive" className="space-y-3">
+            <div className="flex items-start gap-2">
+              <AlertCircle className="h-4 w-4 mt-0.5" />
+              <div className="flex-1">
+                <AlertDescription className="mb-3">
+                  Connect your Solana wallet to claim your rewards.
+                </AlertDescription>
+                <WalletConnectButton 
+                  size="sm"
+                  variant="default"
+                  className="w-full"
+                  onWalletConnected={(address) => {
+                    toast({
+                      title: "Wallet Connected!",
+                      description: "You can now claim your rewards",
+                    })
+                  }}
+                />
+              </div>
+            </div>
           </Alert>
         )}
       </CardContent>
