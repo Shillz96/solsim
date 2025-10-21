@@ -62,12 +62,12 @@ const navigationItems = [
     icon: TrendingUp,
     description: "Buy and sell tokens"
   },
-  // {
-  //   name: "Stocks",
-  //   href: "/stocks",
-  //   icon: Building2,
-  //   description: "Trade tokenized stocks"
-  // },
+  {
+    name: "Stocks",
+    href: "/stocks",
+    icon: Building2,
+    description: "Trade tokenized stocks"
+  },
   {
     name: "Portfolio",
     href: "/portfolio",
