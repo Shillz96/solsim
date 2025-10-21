@@ -160,7 +160,7 @@ export function WalletTrackerSettingsModal({ isOpen, onClose, onSettingsSaved }:
             onClick={(e) => e.stopPropagation()}
             className="w-full max-w-md max-h-[90vh] overflow-y-auto"
           >
-            <Card className="p-6 bg-gray-800 dark:bg-gray-800 text-white border-2 border-gray-600">
+            <Card className="p-6 bg-modal text-modal-foreground border border-modal-border">
             {/* Header */}
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-2">

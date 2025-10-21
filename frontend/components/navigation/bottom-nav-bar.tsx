@@ -211,7 +211,7 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
                       ? "text-green-600 bg-green-100 dark:bg-green-900 dark:text-green-400" 
                       : market.change24h < 0 
                       ? "text-red-600 bg-red-100 dark:bg-red-900 dark:text-red-400" 
-                      : "text-gray-500 bg-gray-100 dark:bg-gray-800",
+                      : "text-muted-foreground bg-muted",
                   )}
                 >
                   {market.change24h > 0 ? "+" : ""}
