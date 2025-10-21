@@ -37,7 +37,10 @@ export function SimplePageHeader({
                 </div>
               )}
               <div>
-                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text">
+                <h1
+                  className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text"
+                  style={{ viewTransitionName: 'page-title' } as React.CSSProperties}
+                >
                   {title}
                 </h1>
                 <p className="text-sm sm:text-lg text-muted-foreground">{subtitle}</p>

@@ -63,12 +63,9 @@ export function FeaturesSection() {
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {features.map((feature, index) => (
-            <motion.div
+            <div
               key={index}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: index * 0.1, duration: 0.5 }}
+              className={index % 2 === 0 ? "animate-on-scroll" : "animate-on-scroll-delay"}
             >
               <EnhancedCard className="p-6 bg-card border-2 border-foreground hover:border-foreground transition-all duration-300 group h-full">
                 <div className="space-y-4">
@@ -81,7 +78,7 @@ export function FeaturesSection() {
                   </div>
                 </div>
               </EnhancedCard>
-            </motion.div>
+            </div>
           ))}
         </div>
       </div>

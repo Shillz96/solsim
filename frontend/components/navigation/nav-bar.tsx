@@ -239,16 +239,17 @@ export function NavBar() {
   }, [logout])
 
   return (
-    <motion.header 
+    <motion.header
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur-md supports-[backdrop-filter]:bg-background/80"
+      style={{ viewTransitionName: 'main-nav' } as React.CSSProperties}
     >
       <div className="w-full px-6">
         <div className="flex h-16 items-center justify-between">
           {/* Logo and Brand */}
           <div className="flex items-center gap-6">
-            <Link href="/" className="flex items-center">
+            <Link href="/" className="flex items-center" style={{ viewTransitionName: 'logo' } as React.CSSProperties}>
               {mounted && (
                 <Image
                   src={resolvedTheme === 'dark' ? '/helius-dark.svg' : '/helius-light.svg'}
