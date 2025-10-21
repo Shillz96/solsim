@@ -193,7 +193,7 @@ export function TokenPositionPnL({ tokenAddress, tokenSymbol, tokenName }: Token
 
   // Filter trades for this specific token and calculate metrics
   const tokenTrades = userTradesData?.trades?.filter(
-    (trade) => trade.tokenAddress === tokenAddress
+    (trade) => trade.mint === tokenAddress
   ) || []
 
   const tradeMetrics = tokenTrades.length > 0 ? {

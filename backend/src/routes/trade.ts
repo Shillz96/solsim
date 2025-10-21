@@ -116,7 +116,7 @@ export default async function (app: FastifyInstance) {
             select: {
               id: true,
               handle: true,
-              profileImage: true
+              avatarUrl: true
             }
           }
         }

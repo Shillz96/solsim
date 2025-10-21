@@ -18,7 +18,7 @@ export default async function tradesRoutes(app: FastifyInstance) {
             select: {
               id: true,
               handle: true,
-              profileImage: true
+              avatarUrl: true
             }
           }
         }
@@ -109,7 +109,7 @@ export default async function tradesRoutes(app: FastifyInstance) {
             select: {
               id: true,
               handle: true,
-              profileImage: true
+              avatarUrl: true
             }
           }
         }
