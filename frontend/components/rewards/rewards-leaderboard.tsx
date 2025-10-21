@@ -327,6 +327,7 @@ export function RewardsLeaderboard() {
           </div>
         </CardContent>
       </Card>
+      </motion.div>
     </div>
   )
 }
