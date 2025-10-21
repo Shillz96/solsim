@@ -41,21 +41,8 @@ export default async function rewardsRoutes(app: FastifyInstance) {
         });
       }
 
-      // Check if 5 minutes have passed since last claim
-      if (user.lastClaimTime) {
-        const fiveMinutesInMs = 5 * 60 * 1000;
-        const timeSinceLastClaim = Date.now() - user.lastClaimTime.getTime();
-        
-        if (timeSinceLastClaim < fiveMinutesInMs) {
-          const timeRemaining = Math.ceil((fiveMinutesInMs - timeSinceLastClaim) / 1000);
-          return reply.code(429).send({
-            error: "Claim cooldown active",
-            message: `Please wait ${Math.floor(timeRemaining / 60)} minutes and ${timeRemaining % 60} seconds before claiming again`,
-            timeRemaining,
-            nextClaimTime: new Date(user.lastClaimTime.getTime() + fiveMinutesInMs).toISOString()
-          });
-        }
-      }
+      // REMOVED: 5-minute cooldown
+      // Users can now claim rewards whenever they have earned them
 
       // Check if already claimed for this epoch
       const existingClaim = await prisma.rewardClaim.findUnique({

@@ -79,48 +79,11 @@ export function RewardsCard({ userId, walletAddress }: RewardsCardProps) {
     },
   })
 
-  // Cooldown timer - updates every second
+  // REMOVED: Cooldown timer - Users can now claim anytime
+  // Always enable claiming if wallet is connected
   useEffect(() => {
-    const updateCooldown = () => {
-      // Check if there are any recent claims
-      if (!rewardClaims || rewardClaims.length === 0) {
-        setCooldownRemaining("")
-        setCanClaim(true)
-        return
-      }
-
-      // Find the most recent claimed reward
-      const recentClaim = rewardClaims
-        .filter(claim => claim.claimedAt)
-        .sort((a, b) => new Date(b.claimedAt!).getTime() - new Date(a.claimedAt!).getTime())[0]
-
-      if (!recentClaim?.claimedAt) {
-        setCooldownRemaining("")
-        setCanClaim(true)
-        return
-      }
-
-      const lastClaimTime = new Date(recentClaim.claimedAt).getTime()
-      const now = Date.now()
-      const fiveMinutes = 5 * 60 * 1000
-      const timeSinceClaim = now - lastClaimTime
-      const timeRemaining = fiveMinutes - timeSinceClaim
-
-      if (timeRemaining <= 0) {
-        setCooldownRemaining("")
-        setCanClaim(true)
-        return
-      }
-
-      const minutes = Math.floor(timeRemaining / 60000)
-      const seconds = Math.floor((timeRemaining % 60000) / 1000)
-      setCooldownRemaining(`${minutes}:${seconds.toString().padStart(2, '0')}`)
-      setCanClaim(false)
-    }
-
-    updateCooldown()
-    const interval = setInterval(updateCooldown, 1000)
-    return () => clearInterval(interval)
+    setCanClaim(true)
+    setCooldownRemaining("")
   }, [rewardClaims])
 
   const handleClaim = (claim: Backend.RewardClaim) => {
@@ -196,7 +159,7 @@ export function RewardsCard({ userId, walletAddress }: RewardsCardProps) {
           vSOL Token Rewards
         </CardTitle>
         <CardDescription>
-          Earn $vSOL tokens based on your trading activity. 1 point = 1,000 vSOL. Claimable every 5 minutes.
+          Earn $vSOL tokens based on your trading activity. 1 point = 1,000 vSOL. Claim anytime!
         </CardDescription>
         {/* Wallet Status in Header */}
         {!walletAddress && (
@@ -216,16 +179,6 @@ export function RewardsCard({ userId, walletAddress }: RewardsCardProps) {
         )}
       </CardHeader>
       <CardContent className="space-y-6">
-        {/* Cooldown Timer */}
-        {!canClaim && cooldownRemaining && (
-          <Alert className="border-amber-500/50 bg-amber-500/10">
-            <Timer className="h-4 w-4 text-amber-500" />
-            <AlertDescription className="text-amber-600 dark:text-amber-400">
-              Next claim available in <span className="font-mono font-bold">{cooldownRemaining}</span>
-            </AlertDescription>
-          </Alert>
-        )}
-
         {/* Reward Summary */}
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
@@ -243,15 +196,9 @@ export function RewardsCard({ userId, walletAddress }: RewardsCardProps) {
               Claim Status
             </div>
             <div className="text-lg font-bold flex items-center gap-2">
-              {canClaim ? (
-                <Badge variant="default" className="bg-green-500/20 text-green-600 border-green-500/30">
-                  Ready
-                </Badge>
-              ) : (
-                <Badge variant="secondary" className="bg-amber-500/20 text-amber-600 border-amber-500/30">
-                  Cooldown
-                </Badge>
-              )}
+              <Badge variant="default" className="bg-green-500/20 text-green-600 border-green-500/30">
+                Ready
+              </Badge>
             </div>
           </div>
         </div>
@@ -346,9 +293,9 @@ export function RewardsCard({ userId, walletAddress }: RewardsCardProps) {
                   <Button 
                     size="sm" 
                     onClick={() => handleClaim(claim)}
-                    disabled={claimMutation.isPending || !walletAddress || !canClaim}
+                    disabled={claimMutation.isPending || !walletAddress}
                   >
-                    {claimMutation.isPending ? "Claiming..." : !canClaim ? `Wait ${cooldownRemaining}` : "Claim"}
+                    {claimMutation.isPending ? "Claiming..." : "Claim"}
                   </Button>
                 </div>
               ))}
@@ -395,7 +342,7 @@ export function RewardsCard({ userId, walletAddress }: RewardsCardProps) {
           <Alert>
             <TrendingUp className="h-4 w-4" />
             <AlertDescription>
-              Start trading to earn $vSOL token rewards! Trade more to earn points (1 point = 1,000 vSOL). Rewards are claimable every 5 minutes.
+              Start trading to earn $vSOL token rewards! Trade more to earn points (1 point = 1,000 vSOL). Claim your rewards anytime!
             </AlertDescription>
           </Alert>
         )}
