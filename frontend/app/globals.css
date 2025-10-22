@@ -433,27 +433,20 @@
   /* Shimmer removed - use simple opacity pulse for loading states */
 
   /* ---------------------------
-     FLAT CARD SYSTEM - MINIMAL BLACK/WHITE
+     FLAT CARD SYSTEM - BOLD BLACK OUTLINES
   --------------------------- */
-  
-  /* Mario-style card with hard shadows */
+
+  /* Enhanced Mario-style card - bold black outline */
   .card-enhanced {
     background: var(--card);
-    border: 3px solid var(--outline-black);
-    box-shadow: 4px 4px 0 var(--outline-black);
-    padding: 1.25rem;
-    /* GPU optimization */
-    will-change: transform;
-    transform: translate3d(0, 0, 0);
-    transition: box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1),
-                transform 0.2s cubic-bezier(0.4, 0, 0.2, 1),
-                border-color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 4px solid var(--outline-black);
+    border-radius: 16px;
+    padding: 1.5rem;
+    transition: transform 0.2s ease;
   }
 
   .card-enhanced:hover {
-    border-color: var(--outline-black);
-    box-shadow: 6px 6px 0 var(--outline-black);
-    transform: translate3d(0, -2px, 0);
+    transform: translateY(-2px);
   }
 
   /* Bento-style grid cards - bold black outline */
@@ -720,79 +713,49 @@
    DATA-HEAVY PAGE ENHANCEMENTS - 2025 STYLE
    ============================================================ */
 
-/* Mario-style data display cards */
+/* Mario-style data display cards - bold black outline */
 .data-card {
   background: var(--card);
-  border: 3px solid var(--outline-black);
-  border-radius: var(--radius);
-  padding: 1.25rem;
-  box-shadow: 3px 3px 0 var(--outline-black);
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 4px solid var(--outline-black);
+  border-radius: 16px;
+  padding: 1.5rem;
+  transition: transform 0.2s ease;
 }
 
 .data-card:hover {
-  background: var(--card);
-  border-color: var(--outline-black);
-  box-shadow: 5px 5px 0 var(--outline-black);
   transform: translateY(-2px);
 }
 
-/* Stat cards with Mario-style design */
+/* Stat cards with Mario-style design - bold black outline */
 .stat-card {
   background: var(--card);
-  border: 3px solid var(--outline-black);
-  border-radius: var(--radius);
+  border: 4px solid var(--outline-black);
+  border-radius: 16px;
   padding: 1.5rem;
-  position: relative;
-  overflow: hidden;
-  box-shadow: 4px 4px 0 var(--outline-black);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.stat-card::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: var(--star-yellow);
-  opacity: 0;
-  transition: opacity 0.3s ease;
+  transition: transform 0.2s ease;
 }
 
 .stat-card:hover {
-  border-color: var(--outline-black);
-  box-shadow: 6px 6px 0 var(--outline-black);
-  transform: translateY(-3px);
+  transform: translateY(-2px);
 }
 
-.stat-card:hover::before {
-  opacity: 1;
-}
-
-/* Leaderboard row styles - Mario theme */
+/* Leaderboard row styles - Mario theme with bold outline */
 .leaderboard-row {
   background: var(--card);
-  border: 3px solid var(--outline-black);
-  border-radius: var(--radius-md);
+  border: 4px solid var(--outline-black);
+  border-radius: 16px;
   padding: 1rem 1.25rem;
-  box-shadow: 3px 3px 0 var(--outline-black);
-  transition: all 0.25s ease;
+  transition: transform 0.2s ease;
   position: relative;
 }
 
 .leaderboard-row:hover {
-  background: var(--card);
-  border-color: var(--outline-black);
-  box-shadow: 5px 5px 0 var(--outline-black);
-  transform: translate(4px, -2px);
+  transform: translateY(-2px);
 }
 
 .leaderboard-row.user-row {
   background: var(--star-yellow);
   border: 4px solid var(--outline-black);
-  box-shadow: 5px 5px 0 var(--outline-black);
 }
 
 /* Rank badges */
@@ -897,67 +860,47 @@
   color: var(--loss);
 }
 
-/* Info cards for rewards page - Mario style */
+/* Info cards for rewards page - bold black outline */
 .info-card {
   background: var(--card);
-  border: 3px solid var(--outline-black);
-  border-radius: var(--radius);
+  border: 4px solid var(--outline-black);
+  border-radius: 16px;
   padding: 1.5rem;
-  box-shadow: 4px 4px 0 var(--outline-black);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.2s ease;
 }
 
 .info-card:hover {
-  border-color: var(--outline-black);
-  box-shadow: 6px 6px 0 var(--outline-black);
-  transform: translateY(-2px) scale(1.02);
+  transform: translateY(-2px);
 }
 
-/* Rewards tier card */
+/* Rewards tier card - bold black outline with color variants */
 .tier-card {
   background: var(--card);
-  border: 2px solid transparent;
-  border-radius: var(--radius);
+  border: 4px solid var(--outline-black);
+  border-radius: 16px;
   padding: 1.5rem;
   position: relative;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.2s ease;
 }
 
 .tier-card.bronze {
-  border-color: #CD7F32;
-  background: linear-gradient(135deg,
-    color-mix(in srgb, #CD7F32 5%, var(--card)),
-    var(--card)
-  );
+  background: color-mix(in srgb, #CD7F32 5%, var(--card));
 }
 
 .tier-card.silver {
-  border-color: #C0C0C0;
-  background: linear-gradient(135deg,
-    color-mix(in srgb, #C0C0C0 5%, var(--card)),
-    var(--card)
-  );
+  background: color-mix(in srgb, #C0C0C0 5%, var(--card));
 }
 
 .tier-card.gold {
-  border-color: #FFD700;
-  background: linear-gradient(135deg,
-    color-mix(in srgb, #FFD700 5%, var(--card)),
-    var(--card)
-  );
+  background: color-mix(in srgb, #FFD700 5%, var(--card));
 }
 
 .tier-card.platinum {
-  border-color: #E5E4E2;
-  background: linear-gradient(135deg,
-    color-mix(in srgb, #E5E4E2 10%, var(--card)),
-    var(--card)
-  );
+  background: color-mix(in srgb, #E5E4E2 10%, var(--card));
 }
 
 .tier-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 6px 6px 0 var(--outline-black);
+  transform: translateY(-2px);
 }
 
 /* ============================================================
