@@ -96,7 +96,7 @@ export function EnhancedCard({
   const baseStyles = cn(
     "transition-all duration-200 ease-in-out",
     "border-4 border-outline-black bg-card text-card-foreground",
-    "rounded-xl overflow-hidden"
+    "rounded-xl overflow-hidden shadow-md hover:shadow-lg"
   )
 
   // Variant styles

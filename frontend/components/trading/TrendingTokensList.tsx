@@ -198,8 +198,8 @@ export function TrendingTokensList({
               <div
                 key={token.mint}
                 className={cn(
-                  "flex items-center justify-between p-4 rounded-xl border-4 border-outline-black bg-card",
-                  onSelectToken ? "cursor-pointer hover:-translate-y-0.5 transition-transform duration-200" : ""
+                  "flex items-center justify-between p-4 rounded-xl border-4 border-outline-black bg-card shadow-md",
+                  onSelectToken ? "cursor-pointer hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200" : ""
                 )}
                 onClick={() => handleTokenSelect(token.mint)}
               >
@@ -267,7 +267,7 @@ export function TrendingTokensList({
 // Skeleton loader for tokens
 function TokenSkeleton() {
   return (
-    <div className="flex items-center justify-between p-4 border-4 border-outline-black rounded-xl bg-card animate-pulse">
+    <div className="flex items-center justify-between p-4 border-4 border-outline-black rounded-xl bg-card shadow-md animate-pulse">
       <div className="flex items-center">
         <div className="h-8 w-8 rounded-full mr-3 bg-muted" />
         <div>
