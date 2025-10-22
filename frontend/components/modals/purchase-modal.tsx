@@ -242,14 +242,14 @@ export function PurchaseModal({ open, onOpenChange, userId }: PurchaseModalProps
           <>
             <DialogHeader className="space-y-4 pb-6">
               <div className="flex items-center justify-center gap-3">
-                <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-lg">
-                  <Sparkles className="h-6 w-6 text-primary-foreground" />
+                <div className="h-12 w-12 rounded-lg bg-[var(--star-yellow)] border-3 border-[var(--outline-black)] flex items-center justify-center shadow-[3px_3px_0_var(--outline-black)]">
+                  <Sparkles className="h-6 w-6 text-[var(--outline-black)]" />
                 </div>
-                <DialogTitle className="text-3xl font-black text-modal-foreground">
+                <DialogTitle className="text-3xl font-mario text-[var(--outline-black)]">
                   Purchase Simulated SOL
                 </DialogTitle>
               </div>
-              <DialogDescription className="text-base text-center text-muted-foreground">
+              <DialogDescription className="text-base text-center text-[var(--outline-black)] font-semibold">
                 Choose your tier and boost your trading balance instantly
               </DialogDescription>
             </DialogHeader>
@@ -274,33 +274,33 @@ export function PurchaseModal({ open, onOpenChange, userId }: PurchaseModalProps
               )}
 
               {error && (
-                <Alert variant="destructive" className="animate-in slide-in-from-top-2 border-2">
+                <Alert variant="destructive" className="animate-in slide-in-from-top-2 border-3 border-[var(--mario-red)] bg-white shadow-[3px_3px_0_var(--mario-red)]">
                   <AlertCircle className="h-4 w-4" />
-                  <AlertDescription className="font-medium">{error}</AlertDescription>
+                  <AlertDescription className="font-semibold">{error}</AlertDescription>
                 </Alert>
               )}
 
               {!connected && (
-                <Alert className="bg-gradient-to-r from-primary/10 to-primary/5 border-2 border-primary/20 animate-in slide-in-from-bottom-2">
-                  <Wallet className="h-5 w-5 text-primary" />
-                  <AlertDescription className="text-foreground font-medium">
-                    <strong className="font-bold text-foreground">Connect your wallet</strong> to purchase simulated SOL and start trading
+                <Alert className="bg-[var(--sky-blue)] border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] animate-in slide-in-from-bottom-2">
+                  <Wallet className="h-5 w-5 text-[var(--outline-black)]" />
+                  <AlertDescription className="text-[var(--outline-black)] font-semibold">
+                    <strong className="font-bold text-[var(--outline-black)]">Connect your wallet</strong> to purchase simulated SOL and start trading
                   </AlertDescription>
                 </Alert>
               )}
 
-              <div className="flex gap-3 justify-end pt-4 border-t border-border/50">
-                <Button 
-                  variant="outline" 
+              <div className="flex gap-3 justify-end pt-4 border-t-4 border-[var(--outline-black)]">
+                <Button
+                  variant="outline"
                   onClick={handleClose}
-                  className="px-8"
+                  className="px-8 mario-btn bg-white border-3 border-[var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)]"
                 >
                   Cancel
                 </Button>
                 <Button
                   onClick={handleContinue}
                   disabled={!selectedTier || isConnecting}
-                  className="min-w-[180px] bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary shadow-lg font-bold"
+                  className="min-w-[180px] mario-btn bg-[var(--luigi-green)] text-white border-3 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)] hover:shadow-[6px_6px_0_var(--outline-black)] font-mario disabled:opacity-50"
                   size="lg"
                 >
                   {isConnecting ? (
@@ -330,61 +330,58 @@ export function PurchaseModal({ open, onOpenChange, userId }: PurchaseModalProps
           <>
             <DialogHeader className="space-y-4 pb-6">
               <div className="flex items-center justify-center gap-3">
-                <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-lg">
-                  <CheckCircle className="h-6 w-6 text-primary-foreground" />
+                <div className="h-12 w-12 rounded-lg bg-[var(--luigi-green)] border-3 border-[var(--outline-black)] flex items-center justify-center shadow-[3px_3px_0_var(--outline-black)]">
+                  <CheckCircle className="h-6 w-6 text-white" />
                 </div>
-                <DialogTitle className="text-3xl font-black text-modal-foreground">
+                <DialogTitle className="text-3xl font-mario text-[var(--outline-black)]">
                   Confirm Purchase
                 </DialogTitle>
               </div>
-              <DialogDescription className="text-base text-center text-muted-foreground">
+              <DialogDescription className="text-base text-center text-[var(--outline-black)] font-semibold">
                 Review your purchase details before proceeding
               </DialogDescription>
             </DialogHeader>
 
             <div className="space-y-6">
               <div className="relative">
-                {/* Decorative background */}
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/5 rounded-2xl" />
-                
-                <div className="relative bg-gradient-to-br from-muted/80 to-muted/40 rounded-2xl p-8 space-y-6 border-2 border-border/50 backdrop-blur-sm">
+                <div className="relative bg-white rounded-2xl p-8 space-y-6 border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)]">
                   {/* Tier badge */}
                   <div className="flex justify-center">
-                    <Badge className="text-base px-4 py-1.5 bg-gradient-to-r from-primary/20 to-primary/10 border-2 border-primary/30 text-primary font-bold">
+                    <Badge className="text-base px-4 py-1.5 bg-[var(--star-yellow)] border-3 border-[var(--outline-black)] text-[var(--outline-black)] font-mario shadow-[2px_2px_0_var(--outline-black)]">
                       {selectedTier?.label} TIER
                     </Badge>
                   </div>
-                  
+
                   {/* Main transaction details */}
                   <div className="space-y-4">
                     {/* You pay */}
-                    <div className="flex justify-between items-center p-4 rounded-xl bg-background/80 border border-border/50">
-                      <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">You Pay</span>
+                    <div className="flex justify-between items-center p-4 rounded-xl bg-[var(--sky-blue)] border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)]">
+                      <span className="text-sm font-bold text-[var(--outline-black)] uppercase tracking-wide">You Pay</span>
                       <div className="flex items-baseline gap-2">
-                        <span className="text-3xl font-black text-primary">
+                        <span className="text-3xl font-mario text-[var(--outline-black)]">
                           {selectedTier?.realSol}
                         </span>
-                        <span className="text-lg font-bold text-primary/70">SOL</span>
+                        <span className="text-lg font-bold text-[var(--outline-black)]">SOL</span>
                       </div>
                     </div>
 
                     {/* Arrow */}
                     <div className="flex justify-center">
-                      <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
-                        <svg className="h-5 w-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <div className="h-8 w-8 rounded-lg bg-[var(--star-yellow)] border-3 border-[var(--outline-black)] flex items-center justify-center shadow-[2px_2px_0_var(--outline-black)]">
+                        <svg className="h-5 w-5 text-[var(--outline-black)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
                         </svg>
                       </div>
                     </div>
 
                     {/* You receive */}
-                    <div className="flex justify-between items-center p-4 rounded-xl bg-gradient-to-br from-green-500/10 to-emerald-500/5 border-2 border-green-500/30">
-                      <span className="text-sm font-semibold text-green-700 uppercase tracking-wide">You Receive</span>
+                    <div className="flex justify-between items-center p-4 rounded-xl bg-[var(--luigi-green)] border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)]">
+                      <span className="text-sm font-bold text-white uppercase tracking-wide">You Receive</span>
                       <div className="flex items-baseline gap-2">
-                        <span className="text-3xl font-black text-green-600">
+                        <span className="text-3xl font-mario text-white">
                           {selectedTier?.simulatedSol}
                         </span>
-                        <span className="text-lg font-bold text-green-600/70">SIM SOL</span>
+                        <span className="text-lg font-bold text-white">SIM SOL</span>
                       </div>
                     </div>
                   </div>
@@ -392,10 +389,10 @@ export function PurchaseModal({ open, onOpenChange, userId }: PurchaseModalProps
                   {/* Bonus */}
                   {selectedTier && selectedTier.bonus > 0 && (
                     <div className="flex justify-center">
-                      <div className="px-6 py-3 rounded-full bg-gradient-to-r from-green-500/20 to-emerald-500/20 border-2 border-green-500/40">
+                      <div className="px-6 py-3 rounded-full bg-[var(--star-yellow)] border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)]">
                         <div className="flex items-center gap-2">
-                          <Sparkles className="h-4 w-4 text-green-600" />
-                          <span className="text-base font-bold text-green-700">
+                          <Sparkles className="h-4 w-4 text-[var(--outline-black)]" />
+                          <span className="text-base font-mario text-[var(--outline-black)]">
                             +{selectedTier.bonus}% BONUS INCLUDED
                           </span>
                         </div>
@@ -404,15 +401,15 @@ export function PurchaseModal({ open, onOpenChange, userId }: PurchaseModalProps
                   )}
 
                   {/* Transaction details */}
-                  <div className="pt-4 border-t border-border/50">
+                  <div className="pt-4 border-t-3 border-[var(--outline-black)]">
                     <div className="space-y-3 text-xs">
                       <div className="flex items-center justify-between">
-                        <span className="text-muted-foreground font-medium">Network:</span>
-                        <span className="text-foreground/80 font-semibold">Solana Mainnet</span>
+                        <span className="text-[var(--outline-black)] font-semibold">Network:</span>
+                        <span className="text-[var(--outline-black)] font-bold">Solana Mainnet</span>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-muted-foreground font-medium">Recipient:</span>
-                        <code className="text-foreground/80 bg-background/80 px-2 py-1 rounded font-mono text-xs">
+                        <span className="text-[var(--outline-black)] font-semibold">Recipient:</span>
+                        <code className="text-[var(--outline-black)] bg-[var(--sky-blue)] px-2 py-1 rounded-lg border-2 border-[var(--outline-black)] font-mono text-xs font-bold">
                           8i6H...xf1iL
                         </code>
                       </div>
@@ -422,23 +419,23 @@ export function PurchaseModal({ open, onOpenChange, userId }: PurchaseModalProps
               </div>
 
               {error && (
-                <Alert variant="destructive" className="border-2 animate-in slide-in-from-top-2">
+                <Alert variant="destructive" className="border-3 border-[var(--mario-red)] bg-white shadow-[3px_3px_0_var(--mario-red)] animate-in slide-in-from-top-2">
                   <AlertCircle className="h-4 w-4" />
-                  <AlertDescription className="font-medium">{error}</AlertDescription>
+                  <AlertDescription className="font-semibold">{error}</AlertDescription>
                 </Alert>
               )}
 
-              <div className="flex gap-3 justify-end pt-4 border-t border-border/50">
-                <Button 
-                  variant="outline" 
+              <div className="flex gap-3 justify-end pt-4 border-t-4 border-[var(--outline-black)]">
+                <Button
+                  variant="outline"
                   onClick={handleCancel}
-                  className="px-8"
+                  className="px-8 mario-btn bg-white border-3 border-[var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)]"
                 >
                   Back
                 </Button>
-                <Button 
+                <Button
                   onClick={handlePurchase}
-                  className="min-w-[200px] bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary shadow-lg font-bold"
+                  className="min-w-[200px] mario-btn bg-[var(--luigi-green)] text-white border-3 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)] hover:shadow-[6px_6px_0_var(--outline-black)] font-mario"
                   size="lg"
                 >
                   <Wallet className="h-4 w-4 mr-2" />
@@ -593,7 +590,7 @@ export function PurchaseModal({ open, onOpenChange, userId }: PurchaseModalProps
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-w-[90vw] lg:max-w-6xl max-h-[90vh] overflow-y-auto p-8">
+      <DialogContent className="max-w-[90vw] lg:max-w-6xl max-h-[90vh] overflow-y-auto p-8 bg-white border-4 border-[var(--outline-black)] shadow-[8px_8px_0_var(--outline-black)]">
         {renderContent()}
       </DialogContent>
     </Dialog>
