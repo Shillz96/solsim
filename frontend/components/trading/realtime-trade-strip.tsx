@@ -70,7 +70,7 @@ export function RealtimeTradeStrip({
 
   if (loading) {
     return (
-      <div className={cn("w-full bg-[#FFFAE9] opacity-95 border-t-4 border-b-4 border-outline-black shadow-[0_4px_0_0_rgba(28,28,28,1)] py-2", className)} style={style}>
+      <div className={cn("w-full bg-[#FFFAE9] opacity-95 border-t border-b border-border/20 py-2", className)} style={style}>
         <div className="flex items-center space-x-6 animate-pulse px-2">
           {[...Array(6)].map((_, i) => (
             <div key={i} className="flex items-center space-x-2">
@@ -86,7 +86,7 @@ export function RealtimeTradeStrip({
 
   if (error) {
     return (
-      <div className={cn("w-full bg-[#FFFAE9] opacity-95 border-t-4 border-b-4 border-outline-black shadow-[0_4px_0_0_rgba(28,28,28,1)] py-2", className)} style={style}>
+      <div className={cn("w-full bg-[#FFFAE9] opacity-95 border-t border-b border-border/20 py-2", className)} style={style}>
         <div className="flex items-center justify-center text-sm text-muted-foreground">
           <span>Unable to load positions</span>
           <button
@@ -103,8 +103,8 @@ export function RealtimeTradeStrip({
   return (
     <div
       className={cn(
-        "w-full bg-[#FFFAE9] opacity-95 border-outline-black shadow-[0_4px_0_0_rgba(28,28,28,1)] relative transition-all duration-300 ease-in-out",
-        isExpanded ? "h-auto border-t-4 border-b-4" : "h-8 border-t-4 border-b-0",
+        "w-full bg-[#FFFAE9] opacity-95 border-border/20 relative transition-all duration-300 ease-in-out",
+        isExpanded ? "h-auto border-t border-b" : "h-8 border-t border-b-0",
         className
       )}
       style={style}
