@@ -100,7 +100,7 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
     <>
       {/* Mobile Bottom Nav */}
       <nav className={cn(
-        "fixed bottom-0 left-0 right-0 z-50 border-t-2 border-border bg-background/95 backdrop-blur-md supports-[backdrop-filter]:bg-background/80 shadow-none md:hidden",
+        "fixed bottom-0 left-0 right-0 z-50 border-t-2 border-mario-yellow/30 bg-background/95 backdrop-blur-md supports-[backdrop-filter]:bg-background/80 shadow-none md:hidden",
         className
       )}>
         <div className="flex items-center justify-around h-16">
