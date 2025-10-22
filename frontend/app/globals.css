@@ -281,10 +281,10 @@
     background-image: url('/Paper-Texture-7.jpg');
     background-repeat: repeat;
     background-size: 1200px 1200px; /* Larger size reduces visible repetition */
-    opacity: 0.9; /* 90% opacity for strong multiply effect */
+    opacity: 0.12; /* 12% opacity - subtle grain effect without overwhelming */
     pointer-events: none;
     z-index: 9999; /* Highest z-index - appears in front of everything */
-    mix-blend-mode: multiply; /* Strong paper grain effect */
+    mix-blend-mode: multiply; /* Subtle paper grain effect */
     /* Slight rotation breaks up grid pattern */
     transform: rotate(0.5deg) scale(1.02);
   }
