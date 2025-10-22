@@ -116,7 +116,7 @@ export function LeaderboardPreview() {
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-2">
                             {trader.rank === 1 && <Trophy className="h-5 w-5 text-mario-yellow" strokeWidth={2.5} />}
-                            {trader.rank === 2 && <Trophy className="h-5 w-5 text-gray-400" strokeWidth={2} />}
+                            {trader.rank === 2 && <Trophy className="h-5 w-5 text-pipe-400" strokeWidth={2} />}
                             {trader.rank === 3 && <Trophy className="h-5 w-5 text-mario-orange" strokeWidth={1.5} />}
                             <span className={`text-lg font-bold ${trader.rank <= 3 ? 'text-mario-red' : 'font-medium'}`}>#{trader.rank}</span>
                           </div>

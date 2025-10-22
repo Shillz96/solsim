@@ -3,35 +3,36 @@
 import { UserPlus, Search, TrendingUp, BarChart2, Star } from "lucide-react"
 import { MarioPageHeader } from "@/components/shared/mario-page-header"
 import { motion } from "framer-motion"
+import Image from "next/image"
 
 const steps = [
   {
     icon: UserPlus,
-    emoji: "👤",
+    iconSrc: "/icons/mario/user.png",
     title: "Sign up & start",
     description: "Create your account and get 10 SOL instantly (100 SOL for $UP holders). No wallet needed!",
   },
   {
     icon: Search,
-    emoji: "🔍",
+    iconSrc: "/icons/mario/magnifying-glass.png",
     title: "Explore & learn",
     description: "Browse trending tokens and track successful wallets to learn winning strategies.",
   },
   {
     icon: TrendingUp,
-    emoji: "📈",
+    iconSrc: "/icons/mario/arrow-up.png",
     title: "Trade & earn XP",
     description: "Buy and sell tokens with virtual SOL. Earn XP from every trade!",
   },
   {
     icon: Star,
-    emoji: "⭐",
+    iconSrc: "/icons/mario/star.png",
     title: "Level up",
     description: "Unlock achievements, progress through 20 levels, and earn exclusive titles!",
   },
   {
     icon: BarChart2,
-    emoji: "🏆",
+    iconSrc: "/icons/mario/trophey.png",
     title: "Compete & dominate",
     description: "Monitor your portfolio, climb the leaderboard, and become a trading legend!",
   },
@@ -52,8 +53,9 @@ export function HowItWorksSection() {
             />
           </div>
 
-          <h2 className="font-mario text-4xl md:text-5xl font-bold text-[var(--mario-red)]" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.3)' }}>
-            How to Play the Game 🎮
+          <h2 className="font-mario text-4xl md:text-5xl font-bold text-[var(--mario-red)] flex items-center justify-center gap-3" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.3)' }}>
+            How to Play the Game
+            <Image src="/icons/mario/controller.png" alt="" width={40} height={40} className="object-contain inline-block" />
           </h2>
           <p className="text-xl text-foreground max-w-2xl mx-auto font-bold" style={{ textShadow: '1px 1px 2px rgba(255,255,255,0.8)' }}>
             Start trading, leveling up, and earning in minutes. No wallet connection required!
@@ -78,7 +80,7 @@ export function HowItWorksSection() {
                   {/* Step icon */}
                   <div className="relative">
                     <div className="h-20 w-20 rounded-full bg-gradient-to-br from-[var(--star-yellow)] to-[var(--coin-gold)] border-4 border-[var(--outline-black)] flex items-center justify-center shadow-lg hover:scale-110 transition-transform">
-                      <span className="text-4xl">{step.emoji}</span>
+                      <Image src={step.iconSrc} alt="" width={40} height={40} className="object-contain" />
                     </div>
                     <div className="absolute -top-2 -right-2 h-10 w-10 rounded-full bg-[var(--mario-red)] text-white border-3 border-[var(--outline-black)] flex items-center justify-center text-lg font-mario shadow-xl">
                       {index + 1}

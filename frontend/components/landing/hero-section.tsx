@@ -1,7 +1,7 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { ArrowRight, Star, Zap, Trophy } from "lucide-react"
+import { Star, Zap, Trophy } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 import { motion } from "framer-motion"
@@ -14,25 +14,25 @@ export function HeroSection() {
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-20">
         <motion.div
-          className="absolute top-10 left-10 text-6xl"
+          className="absolute top-10 left-10"
           animate={{ y: [0, -20, 0] }}
           transition={{ duration: 3, repeat: Infinity }}
         >
-          🍄
+          <Image src="/icons/mario/mushroom.png" alt="" width={60} height={60} className="object-contain" />
         </motion.div>
         <motion.div
-          className="absolute top-20 right-20 text-5xl"
+          className="absolute top-20 right-20"
           animate={{ y: [0, 20, 0], rotate: [0, 10, 0] }}
           transition={{ duration: 2.5, repeat: Infinity }}
         >
-          ⭐
+          <Image src="/icons/mario/star.png" alt="" width={50} height={50} className="object-contain" />
         </motion.div>
         <motion.div
-          className="absolute bottom-20 left-1/4 text-7xl"
+          className="absolute bottom-20 left-1/4"
           animate={{ y: [0, -15, 0] }}
           transition={{ duration: 2, repeat: Infinity }}
         >
-          🪙
+          <Image src="/icons/mario/money-bag.png" alt="" width={70} height={70} className="object-contain" />
         </motion.div>
       </div>
 
@@ -59,8 +59,9 @@ export function HeroSection() {
               <h1 className="mario-title text-5xl md:text-6xl lg:text-7xl leading-tight text-balance">
                 1UP Your Solana Trading Skills!
               </h1>
-              <p className="text-xl text-[var(--outline-black)] max-w-xl leading-relaxed font-bold drop-shadow-lg">
-                Trade real Solana tokens with zero risk. Level up through trades, earn XP, unlock achievements, and compete on the leaderboard - just like your favorite game! 🎮
+              <p className="text-xl text-[var(--outline-black)] max-w-xl leading-relaxed font-bold drop-shadow-lg flex items-center gap-2">
+                Trade real Solana tokens with zero risk. Level up through trades, earn XP, unlock achievements, and compete on the leaderboard - just like your favorite game!
+                <Image src="/icons/mario/controller.png" alt="" width={24} height={24} className="object-contain inline-block" />
               </p>
             </div>
 
@@ -73,8 +74,9 @@ export function HeroSection() {
               <Link href="/trade">
                 <button className="mario-btn mario-btn-lg bg-mario-green hover:bg-mario-green/90 w-full sm:w-auto group">
                   <span className="flex items-center justify-center gap-2">
-                    Start Trading 🎮
-                    <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                    Start Trading
+                    <Image src="/icons/mario/controller.png" alt="" width={20} height={20} className="object-contain inline-block" />
+                    <Image src="/icons/mario/right-arrow.png" alt="" width={20} height={20} className="object-contain inline-block group-hover:translate-x-1 transition-transform" />
                   </span>
                 </button>
               </Link>
@@ -82,7 +84,10 @@ export function HeroSection() {
                 className="mario-btn mario-btn-lg mario-btn-outline border-2 border-white text-white hover:bg-white hover:text-mario-red w-full sm:w-auto"
                 onClick={() => document.getElementById("features")?.scrollIntoView({ behavior: "smooth" })}
               >
-                Learn More 📚
+                <span className="flex items-center justify-center gap-2">
+                  Learn More
+                  <Image src="/icons/mario/game.png" alt="" width={20} height={20} className="object-contain inline-block" />
+                </span>
               </button>
             </motion.div>
 
@@ -142,18 +147,18 @@ export function HeroSection() {
 
             {/* Floating Mario elements */}
             <motion.div
-              className="absolute -top-8 -right-8 text-7xl z-10"
+              className="absolute -top-8 -right-8 z-10"
               animate={{ rotate: [0, 10, -10, 0] }}
               transition={{ duration: 3, repeat: Infinity }}
             >
-              🍄
+              <Image src="/icons/mario/mushroom.png" alt="" width={70} height={70} className="object-contain" />
             </motion.div>
             <motion.div
-              className="absolute -bottom-6 -left-6 text-6xl z-10"
+              className="absolute -bottom-6 -left-6 z-10"
               animate={{ y: [0, -10, 0] }}
               transition={{ duration: 2, repeat: Infinity }}
             >
-              ⭐
+              <Image src="/icons/mario/star.png" alt="" width={60} height={60} className="object-contain" />
             </motion.div>
           </motion.div>
         </div>

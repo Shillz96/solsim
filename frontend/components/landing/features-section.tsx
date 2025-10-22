@@ -3,54 +3,55 @@
 import { EnhancedCard } from "@/components/ui/enhanced-card-system"
 import { TrendingUp, Wallet, BarChart3, Trophy, Eye, Star, LineChart, Zap } from "lucide-react"
 import { motion } from "framer-motion"
+import Image from "next/image"
 import { MarioPageHeader } from "@/components/shared/mario-page-header"
 
 const features = [
   {
     icon: TrendingUp,
-    emoji: "📈",
+    iconSrc: "/icons/mario/arrow-up.png",
     title: "Hybrid Trending System",
     description: "Real-time trending tokens from Birdeye and Pump.fun. Stay ahead of the market with live data.",
   },
   {
     icon: Wallet,
-    emoji: "💰",
+    iconSrc: "/icons/mario/money-bag.png",
     title: "Virtual SOL Balance",
     description: "Start with 10 SOL (100 SOL for $UP holders). Trade without losing real money while you level up!",
   },
   {
     icon: Eye,
-    emoji: "👁️",
+    iconSrc: "/icons/mario/eyes.png",
     title: "Wallet Tracker",
     description: "Track any Solana wallet's holdings and performance in real-time. Learn from the pros and copy their trades!",
   },
   {
     icon: LineChart,
-    emoji: "📊",
+    iconSrc: "/icons/mario/game.png",
     title: "Portfolio Analytics",
     description: "Advanced portfolio statistics, PnL tracking, win rates, and detailed performance metrics.",
   },
   {
     icon: Star,
-    emoji: "⭐",
+    iconSrc: "/icons/mario/star.png",
     title: "XP & Level System",
     description: "Earn XP from every trade! Progress through 20 levels from Goomba to Legendary Luigi. Unlock achievements and titles!",
   },
   {
     icon: BarChart3,
-    emoji: "📉",
+    iconSrc: "/icons/mario/arrow-down.png",
     title: "Real Market Data",
     description: "Practice with live prices and charts. Experience real market conditions without the risk.",
   },
   {
     icon: Trophy,
-    emoji: "🏆",
+    iconSrc: "/icons/mario/trophey.png",
     title: "Competitive Leaderboards",
     description: "Compete with traders worldwide! Climb the rankings to earn XP bonuses and show off your trading prowess.",
   },
   {
     icon: Zap,
-    emoji: "⚡",
+    iconSrc: "/icons/mario/lightning.png",
     title: "Achievement System",
     description: "Unlock special achievements like Diamond Hands, 10-Bagger, and Portfolio ATH for massive XP rewards!",
   },
@@ -77,8 +78,9 @@ export function FeaturesSection() {
             />
           </div>
 
-          <h2 className="font-mario text-4xl md:text-5xl font-bold text-balance text-mario-red" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.3)' }}>
-            Power-Up Your Trading Skills! 🍄
+          <h2 className="font-mario text-4xl md:text-5xl font-bold text-balance text-mario-red flex items-center justify-center gap-3" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.3)' }}>
+            Power-Up Your Trading Skills!
+            <Image src="/icons/mario/mushroom.png" alt="" width={40} height={40} className="object-contain inline-block" />
           </h2>
           <p className="text-xl text-foreground max-w-2xl mx-auto leading-relaxed font-bold" style={{ textShadow: '1px 1px 2px rgba(255,255,255,0.8)' }}>
             Professional-grade tools and features to help you level up your Solana trading game!
@@ -96,8 +98,8 @@ export function FeaturesSection() {
             >
               <div className="mario-card p-6 bg-gradient-to-br from-white/90 to-white/70 border-3 border-mario-yellow/40 hover:border-mario-yellow transition-all duration-300 group h-full hover:shadow-xl hover:-translate-y-1">
                 <div className="space-y-4">
-                  <div className="text-5xl group-hover:scale-110 transition-transform duration-300">
-                    {feature.emoji}
+                  <div className="group-hover:scale-110 transition-transform duration-300">
+                    <Image src={feature.iconSrc} alt="" width={50} height={50} className="object-contain" />
                   </div>
                   <div className="space-y-2">
                     <h3 className="font-mario text-lg text-mario-red">{feature.title}</h3>

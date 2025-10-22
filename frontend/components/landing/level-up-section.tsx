@@ -8,35 +8,35 @@ import { MarioPageHeader } from "@/components/shared/mario-page-header"
 const levelUpFeatures = [
   {
     icon: TrendingUp,
-    emoji: "📈",
+    iconSrc: "/icons/mario/arrow-up.png",
     title: "Trade to Earn XP",
     description: "Every trade earns you XP! Bigger trades = more XP. Profitable trades earn bonus XP multipliers.",
   },
   {
     icon: Star,
-    emoji: "⭐",
+    iconSrc: "/icons/mario/star.png",
     title: "20 Unique Levels",
     description: "Progress from Goomba Trader to Legendary Luigi! Each level unlocks new titles and achievements.",
   },
   {
     icon: Zap,
-    emoji: "⚡",
+    iconSrc: "/icons/mario/lightning.png",
     title: "Achievement Bonuses",
     description: "Unlock special achievements for 10x trades, Diamond Hands, portfolio ATHs, and more. Each worth massive XP!",
   },
   {
     icon: Trophy,
-    emoji: "🏆",
+    iconSrc: "/icons/mario/trophey.png",
     title: "Leaderboard Rankings",
     description: "Top traders earn XP bonuses! Reach Top 100, Top 10, or #1 for huge XP rewards and bragging rights.",
   },
 ]
 
 const levelExamples = [
-  { level: 1, title: "Goomba Trader", icon: "🍄", xp: "0 XP", color: "text-[var(--brick-brown)]" },
-  { level: 5, title: "Super Trader", icon: "⭐", xp: "1,000 XP", color: "text-[var(--star-yellow)]" },
-  { level: 10, title: "Wing Cap", icon: "🦅", xp: "20,000 XP", color: "text-[var(--super-blue)]" },
-  { level: 20, title: "Legendary Luigi", icon: "💚🔥", xp: "570,000 XP", color: "text-[var(--luigi-green)]" },
+  { level: 1, title: "Goomba Trader", iconSrc: "/icons/mario/mushroom.png", xp: "0 XP", color: "text-[var(--brick-brown)]" },
+  { level: 5, title: "Super Trader", iconSrc: "/icons/mario/star.png", xp: "1,000 XP", color: "text-[var(--star-yellow)]" },
+  { level: 10, title: "Wing Cap", iconSrc: "/icons/mario/play.png", xp: "20,000 XP", color: "text-[var(--super-blue)]" },
+  { level: 20, title: "Legendary Luigi", iconSrc: "/icons/mario/fire.png", xp: "570,000 XP", color: "text-[var(--luigi-green)]" },
 ]
 
 export function LevelUpSection() {
@@ -65,8 +65,9 @@ export function LevelUpSection() {
             />
           </div>
 
-          <h2 className="font-mario text-4xl md:text-5xl font-bold text-balance text-[var(--mario-red)]" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.3)' }}>
-            Level Up Your Trading Game! 🎮
+          <h2 className="font-mario text-4xl md:text-5xl font-bold text-balance text-[var(--mario-red)] flex items-center justify-center gap-3" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.3)' }}>
+            Level Up Your Trading Game!
+            <img src="/icons/mario/controller.png" alt="" className="w-10 h-10 object-contain inline-block" />
           </h2>
           <p className="text-xl text-foreground max-w-2xl mx-auto leading-relaxed font-bold" style={{ textShadow: '1px 1px 2px rgba(255,255,255,0.8)' }}>
             Earn XP with every trade, unlock achievements, and climb through 20 epic levels - from Goomba to Legendary!
@@ -85,8 +86,8 @@ export function LevelUpSection() {
             >
               <div className="mario-card p-6 bg-gradient-to-br from-white/90 to-white/70 border-4 border-[var(--mario-yellow)]/50 hover:border-[var(--mario-yellow)] transition-all duration-300 group h-full hover:shadow-xl hover:-translate-y-1">
                 <div className="space-y-4">
-                  <div className="text-5xl mb-2 group-hover:scale-110 transition-transform duration-300">
-                    {feature.emoji}
+                  <div className="mb-2 group-hover:scale-110 transition-transform duration-300">
+                    <img src={feature.iconSrc} alt="" className="w-12 h-12 object-contain" />
                   </div>
                   <div className="space-y-2">
                     <h3 className="font-mario text-xl text-[var(--mario-red)]">{feature.title}</h3>
@@ -107,7 +108,10 @@ export function LevelUpSection() {
           className="mb-12"
         >
           <div className="max-w-5xl mx-auto">
-            <h3 className="font-mario text-3xl text-center text-[var(--mario-red)] mb-8" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.3)' }}>Level Progression 🌟</h3>
+            <h3 className="font-mario text-3xl text-center text-[var(--mario-red)] mb-8 flex items-center justify-center gap-3" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.3)' }}>
+            Level Progression
+            <img src="/icons/mario/star.png" alt="" className="w-8 h-8 object-contain inline-block" />
+          </h3>
             <div className="grid gap-4 md:grid-cols-4">
               {levelExamples.map((example, index) => (
                 <motion.div
@@ -118,7 +122,9 @@ export function LevelUpSection() {
                   transition={{ delay: index * 0.1, duration: 0.4 }}
                   className="mario-card bg-gradient-to-br from-[var(--star-yellow)]/90 to-[var(--coin-gold)]/80 border-4 border-[var(--outline-black)] p-5 text-center hover:scale-105 transition-transform shadow-xl"
                 >
-                  <div className="text-5xl mb-3">{example.icon}</div>
+                  <div className="mb-3">
+                    <img src={example.iconSrc} alt="" className="w-12 h-12 object-contain mx-auto" />
+                  </div>
                   <div className="font-mario text-xl text-[var(--outline-black)] mb-2" style={{ textShadow: '1px 1px 3px rgba(255,255,255,0.8)' }}>
                     LEVEL {example.level}
                   </div>
@@ -143,7 +149,9 @@ export function LevelUpSection() {
         >
           <div className="max-w-4xl mx-auto mario-card p-8 bg-gradient-to-br from-[var(--mario-yellow)]/10 via-[var(--mario-orange)]/10 to-[var(--mario-red)]/10 border-4 border-[var(--mario-yellow)]/60">
             <div className="text-center space-y-4">
-              <div className="text-7xl mb-4">🎮</div>
+              <div className="mb-4">
+                <img src="/icons/mario/controller.png" alt="" className="w-16 h-16 object-contain mx-auto" />
+              </div>
               <h3 className="font-mario text-2xl md:text-3xl text-[var(--mario-red)]">
                 How to Level Up
               </h3>
@@ -158,8 +166,10 @@ export function LevelUpSection() {
                   <span className="font-bold text-[var(--luigi-green)]">3. Dominate the Leaderboard:</span> Reach Top 100 for +200 XP, Top 10 for +1,500 XP, or #1 for a whopping +5,000 XP!
                 </p>
                 <p className="pt-4 border-t-2 border-[var(--mario-yellow)]/50">
-                  <span className="font-mario text-xl text-[var(--star-yellow)]" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.6)' }}>
-                    🍄 From Goomba to Legend - Start Your Journey Today! 🏆
+                  <span className="font-mario text-xl text-[var(--star-yellow)] flex items-center justify-center gap-2" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.6)' }}>
+                    <img src="/icons/mario/mushroom.png" alt="" className="w-6 h-6 object-contain inline-block" />
+                    From Goomba to Legend - Start Your Journey Today!
+                    <img src="/icons/mario/trophey.png" alt="" className="w-6 h-6 object-contain inline-block" />
                   </span>
                 </p>
               </div>
@@ -168,7 +178,10 @@ export function LevelUpSection() {
               <div className="pt-4">
                 <a href="/trade">
                   <button className="mario-btn mario-btn-lg bg-[var(--luigi-green)] hover:bg-[var(--luigi-green)]/90 text-white">
-                    Start Earning XP Now! 🎮
+                    <span className="flex items-center justify-center gap-2">
+                      Start Earning XP Now!
+                      <img src="/icons/mario/controller.png" alt="" className="w-5 h-5 object-contain inline-block" />
+                    </span>
                   </button>
                 </a>
               </div>
