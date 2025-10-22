@@ -182,7 +182,7 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
             >
               <XIcon className="h-4 w-4 hover:glow-primary" />
             </a>
-            <span className="text-xs text-muted-foreground">© 2025 1UP SOL</span>
+            <span className="text-xs font-mario text-muted-foreground">© 2025 1UP SOL</span>
           </div>
 
           {/* Center: Market Prices */}
