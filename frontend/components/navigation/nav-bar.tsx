@@ -104,6 +104,7 @@ export function NavBar() {
   const [authModalOpen, setAuthModalOpen] = useState(false)
   const [purchaseModalOpen, setPurchaseModalOpen] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [mounted, setMounted] = useState(false)
   const pathname = usePathname()
   const router = useRouter()
 
