@@ -171,7 +171,7 @@ export function ModernLeaderboard({
               "hover:shadow-[0_20px_70px_-15px_rgba(0,0,0,0.3)]",
               "group"
             )}>
-              {/* Animated Rank Badge with Pulse Effect */}
+              {/* Animated Rank Badge with Trophy Image */}
               <motion.div
                 className="absolute top-2 right-2"
                 animate={{
@@ -184,17 +184,11 @@ export function ModernLeaderboard({
                   repeatType: "reverse",
                 }}
               >
-                <div className={cn(
-                  "w-14 h-14 rounded-full flex items-center justify-center font-bold text-xl",
-                  "shadow-lg relative overflow-hidden",
-                  index === 0 && "bg-gradient-to-br from-yellow-300 via-yellow-400 to-amber-500 text-black",
-                  index === 1 && "bg-gradient-to-br from-pipe-200 via-pipe-300 to-pipe-400 text-black",
-                  index === 2 && "bg-gradient-to-br from-orange-300 via-orange-400 to-red-500 text-white",
-                  "before:absolute before:inset-0 before:bg-gradient-to-t before:from-white/0 before:via-white/30 before:to-white/0",
-                  "before:translate-y-full before:group-hover:translate-y-[-100%] before:transition-transform before:duration-700"
-                )}>
-                  <span className="relative z-10">{index + 1}</span>
-                </div>
+                <img
+                  src={index === 0 ? '/icons/mario/1st.png' : index === 1 ? '/icons/mario/2nd-place.png' : '/icons/mario/3rd.png'}
+                  alt={`${index + 1} place trophy`}
+                  className="w-16 h-16 drop-shadow-lg"
+                />
               </motion.div>
 
               {/* Enhanced User Info with Animated Avatar */}

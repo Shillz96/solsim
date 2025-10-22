@@ -135,32 +135,29 @@ export default function TrendingPage() {
     )
   }
 
-  // Helper function to get rank badge styling - Professional minimalist design
+  // Helper function to get rank badge styling - Mario themed
   const getRankBadge = (rank: number) => {
     switch (rank) {
       case 1:
         return {
-          bg: "bg-gradient-to-br from-amber-400 via-yellow-500 to-amber-600",
-          text: "text-amber-950",
-          border: "border-2 border-amber-300/50",
-          shadow: "shadow-[0_0_20px_rgba(251,191,36,0.3)]",
-          ring: "ring-2 ring-amber-400/20 ring-offset-2 ring-offset-background"
+          bg: "bg-coin-yellow-500",
+          text: "text-black",
+          border: "border-3 border-black",
+          shadow: "shadow-mario"
         }
       case 2:
         return {
-          bg: "bg-gradient-to-br from-pipe-300 via-pipe-400 to-pipe-500",
-          text: "text-pipe-900",
-          border: "border-2 border-pipe-200/50",
-          shadow: "shadow-[0_0_20px_rgba(148,163,184,0.3)]",
-          ring: "ring-2 ring-pipe-300/20 ring-offset-2 ring-offset-background"
+          bg: "bg-pipe-400",
+          text: "text-white",
+          border: "border-3 border-black",
+          shadow: "shadow-mario"
         }
       case 3:
         return {
-          bg: "bg-gradient-to-br from-orange-400 via-amber-500 to-orange-600",
-          text: "text-orange-950",
-          border: "border-2 border-orange-300/50",
-          shadow: "shadow-[0_0_20px_rgba(251,146,60,0.3)]",
-          ring: "ring-2 ring-orange-400/20 ring-offset-2 ring-offset-background"
+          bg: "bg-orange-500",
+          text: "text-white",
+          border: "border-3 border-black",
+          shadow: "shadow-mario"
         }
       default:
         return null
@@ -171,20 +168,26 @@ export default function TrendingPage() {
   const isBigMover = (priceChange: number) => Math.abs(priceChange) > 50
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
-      <main className="w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-6 max-w-page-xl mx-auto">
-        {/* Header */}
-        <motion.div 
-          className="mb-6"
+    <div className="min-h-screen bg-white">
+      <main className="w-full px-4 sm:px-6 lg:px-8 py-8 max-w-page-xl mx-auto">
+        {/* Header - Mario themed with colorful text */}
+        <motion.div
+          className="mb-8 text-center"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <div className="flex items-center gap-2 mb-2">
-            <TrendingUp className="h-6 w-6 text-primary" />
-            <h1 className="text-3xl font-bold gradient-text">Trending Tokens</h1>
+          <div className="mb-4">
+            <Image
+              src="/Trending-tokens-header.png"
+              alt="Trending Tokens"
+              width={800}
+              height={140}
+              className="mx-auto"
+              priority
+            />
           </div>
-          <p className="text-muted-foreground">Discover the hottest tokens on Solana with real-time market data</p>
+          <p className="text-lg text-foreground font-semibold">Discover the hottest tokens on Solana with real-time market data</p>
         </motion.div>
 
         {/* Filters & Search */}
@@ -194,14 +197,14 @@ export default function TrendingPage() {
           transition={{ duration: 0.5, delay: 0.1 }}
           className="mb-4"
         >
-          <EnhancedCard className="!py-4">
-          <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between px-6">
+          <div className="mario-card bg-white border-4 border-pipe-700 shadow-mario p-6">
+          <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
             {/* Birdeye Sort Filters */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
               <div className="flex items-center gap-2">
-                <Filter className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm text-muted-foreground mr-2">Sort by:</span>
-                <div className="flex gap-1">
+                <Filter className="h-5 w-5 text-pipe-700" />
+                <span className="text-sm font-bold text-pipe-900 mr-2">Sort by:</span>
+                <div className="flex gap-2">
                   {[
                     { value: "rank" as BirdeyeSortBy, label: "Rank" },
                     { value: "volume24hUSD" as BirdeyeSortBy, label: "Volume" },
@@ -209,10 +212,10 @@ export default function TrendingPage() {
                   ].map((option) => (
                     <Button
                       key={option.value}
-                      variant={birdeyeSortBy === option.value ? "default" : "ghost"}
+                      variant={birdeyeSortBy === option.value ? "default" : "outline"}
                       size="sm"
                       onClick={() => setBirdeyeSortBy(option.value)}
-                      className={birdeyeSortBy === option.value ? "glow" : ""}
+                      className={birdeyeSortBy === option.value ? "mario-btn mario-btn-red" : "border-3 border-pipe-500"}
                     >
                       {option.label}
                     </Button>
@@ -223,16 +226,16 @@ export default function TrendingPage() {
 
             {/* Search */}
             <div className="relative w-full md:w-64">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-pipe-700" />
               <Input
                 placeholder="Search tokens..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9"
+                className="pl-9 border-3 border-pipe-500 focus:border-mario-red"
               />
             </div>
           </div>
-        </EnhancedCard>
+        </div>
         </motion.div>
 
         {/* Trending Tokens Table */}
@@ -241,7 +244,7 @@ export default function TrendingPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
         >
-          <EnhancedCard className="overflow-hidden">
+          <div className="mario-card bg-white border-4 border-pipe-700 shadow-mario overflow-hidden">
           {loading && (
             <div className="flex items-center justify-center h-64">
               <Loader2 className="h-8 w-8 animate-spin" />
@@ -272,56 +275,56 @@ export default function TrendingPage() {
           {!loading && !error && filteredAndSortedTokens.length > 0 && (
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="border-b border-border bg-muted/30">
+                <thead className="border-b-3 border-pipe-700 bg-sky-100">
                   <tr>
-                    <th className="text-left p-4 text-sm font-semibold text-muted-foreground">#</th>
-                    <th className="text-left p-4 text-sm font-semibold text-muted-foreground">Token</th>
-                    <th className="text-left p-4 text-sm font-semibold text-muted-foreground">
+                    <th className="text-left p-4 text-sm font-bold text-pipe-900">#</th>
+                    <th className="text-left p-4 text-sm font-bold text-pipe-900">Token</th>
+                    <th className="text-left p-4 text-sm font-bold text-pipe-900">
                       <button
                         onClick={() => handleSort("price")}
-                        className="flex items-center hover:text-foreground transition-colors"
+                        className="flex items-center hover:text-mario-red transition-colors"
                       >
                         Price
                         <SortIcon field="price" />
                       </button>
                     </th>
-                    <th className="text-left p-4 text-sm font-semibold text-muted-foreground">
+                    <th className="text-left p-4 text-sm font-bold text-pipe-900">
                       <button
                         onClick={() => handleSort("priceChange24h")}
-                        className="flex items-center hover:text-foreground transition-colors"
+                        className="flex items-center hover:text-mario-red transition-colors"
                       >
                         24h Change
                         <SortIcon field="priceChange24h" />
                       </button>
                     </th>
-                    <th className="text-left p-4 text-sm font-semibold text-muted-foreground">
+                    <th className="text-left p-4 text-sm font-bold text-pipe-900">
                       <button
                         onClick={() => handleSort("marketCapUsd")}
-                        className="flex items-center hover:text-foreground transition-colors"
+                        className="flex items-center hover:text-mario-red transition-colors"
                       >
                         Market Cap
                         <SortIcon field="marketCapUsd" />
                       </button>
                     </th>
-                    <th className="text-left p-4 text-sm font-semibold text-muted-foreground">
+                    <th className="text-left p-4 text-sm font-bold text-pipe-900">
                       <button
                         onClick={() => handleSort("volume24h")}
-                        className="flex items-center hover:text-foreground transition-colors"
+                        className="flex items-center hover:text-mario-red transition-colors"
                       >
                         Volume
                         <SortIcon field="volume24h" />
                       </button>
                     </th>
-                    <th className="text-left p-4 text-sm font-semibold text-muted-foreground">
+                    <th className="text-left p-4 text-sm font-bold text-pipe-900">
                       <button
                         onClick={() => handleSort("trendScore")}
-                        className="flex items-center hover:text-foreground transition-colors"
+                        className="flex items-center hover:text-mario-red transition-colors"
                       >
                         Trend Score
                         <SortIcon field="trendScore" />
                       </button>
                     </th>
-                    <th className="text-right p-4 text-sm font-semibold text-muted-foreground">Action</th>
+                    <th className="text-right p-4 text-sm font-bold text-pipe-900">Action</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -333,63 +336,44 @@ export default function TrendingPage() {
                     return (
                       <tr
                         key={token.mint}
-                        className="border-b border-border transition-[transform,box-shadow] duration-200 relative group hover:-translate-y-0.5"
+                        className="border-b-2 border-pipe-300 transition-all duration-200 relative group hover:bg-sky-50"
                         onMouseEnter={() => setHoveredRow(token.mint)}
                         onMouseLeave={() => setHoveredRow(null)}
-                        style={{
-                          boxShadow: isHovered ? '0 4px 8px rgba(0, 0, 0, 0.1)' : 'none',
-                        }}
                       >
-                        {/* Subtle hover effect */}
-                        <td
-                          colSpan={8}
-                          className="absolute inset-0 pointer-events-none"
-                        >
-                          <div
-                            className={`absolute inset-0 transition-[background-color,border-left] duration-150 ${
-                              isHovered
-                                ? 'bg-gradient-to-r from-primary/[0.02] via-primary/[0.04] to-primary/[0.02]'
-                                : 'bg-transparent'
-                            }`}
-                            style={{
-                              borderLeft: isHovered ? '3px solid hsl(var(--primary) / 0.4)' : 'none',
-                            }}
-                          />
-                        </td>
 
                         {/* Rank */}
-                        <td className="p-5 relative z-10">
+                        <td className="p-5">
                           {rankBadge ? (
                             <div
-                              className={`inline-flex items-center justify-center w-9 h-9 rounded-lg ${rankBadge.bg} ${rankBadge.text} ${rankBadge.border} ${rankBadge.shadow} ${rankBadge.ring} font-bold text-base transition-transform duration-150 hover:scale-105`}
+                              className={`inline-flex items-center justify-center w-10 h-10 rounded-lg ${rankBadge.bg} ${rankBadge.text} ${rankBadge.border} ${rankBadge.shadow} font-bold text-base`}
                             >
                               {index + 1}
                             </div>
                           ) : (
-                            <span className="text-sm font-medium text-muted-foreground">{index + 1}</span>
+                            <span className="text-sm font-bold text-pipe-900">{index + 1}</span>
                           )}
                         </td>
 
                         {/* Token Info */}
-                        <td className="p-5 relative z-10">
+                        <td className="p-5">
                           <Link
                             href={`/trade?token=${token.mint}`}
-                            className="flex items-center gap-3 hover:opacity-80 transition-opacity duration-150"
+                            className="flex items-center gap-3 hover:opacity-80 transition-opacity"
                           >
-                            <div className="transition-transform duration-150 hover:scale-110">
+                            <div>
                               <Image
                                 src={token.logoURI || "/placeholder-token.svg"}
                                 alt={token.name || 'Unknown Token'}
-                                width={36}
-                                height={36}
-                                className="rounded-full ring-2 ring-border group-hover:ring-primary/50 transition-[box-shadow] duration-150"
+                                width={40}
+                                height={40}
+                                className="rounded-full border-2 border-pipe-700"
                                 onError={(e) => {
                                   e.currentTarget.src = "/placeholder-token.svg"
                                 }}
                               />
                             </div>
                             <div>
-                              <div className="font-semibold text-sm flex items-center gap-2">
+                              <div className="font-bold text-sm flex items-center gap-2">
                                 {token.name || 'Unknown'}
                                 {bigMover && (
                                   <motion.div
@@ -400,26 +384,26 @@ export default function TrendingPage() {
                                   </motion.div>
                                 )}
                               </div>
-                              <div className="text-xs text-muted-foreground">{token.symbol || 'N/A'}</div>
+                              <div className="text-xs text-pipe-700">{token.symbol || 'N/A'}</div>
                             </div>
                           </Link>
                         </td>
 
                         {/* Price */}
-                        <td className="p-5 relative z-10">
+                        <td className="p-5">
                           <UsdWithSol
                             usd={token.priceUsd}
-                            className="text-sm font-medium"
+                            className="text-sm font-bold"
                             solClassName="text-xs"
                           />
                         </td>
 
                         {/* 24h Change with visual indicator */}
-                        <td className="p-5 relative z-10">
+                        <td className="p-5">
                           <div className="flex items-center gap-2">
                             <motion.div
-                              className={`text-sm font-medium font-mono ${
-                                token.priceChange24h >= 0 ? "text-green-400" : "text-red-400"
+                              className={`text-sm font-bold font-mono ${
+                                token.priceChange24h >= 0 ? "text-[#00ff85]" : "text-[#ff4d4d]"
                               }`}
                               animate={bigMover ? {
                                 opacity: [1, 0.6, 1],
@@ -435,55 +419,54 @@ export default function TrendingPage() {
                             </motion.div>
                             {bigMover && (
                               token.priceChange24h >= 0 ? (
-                                <TrendingUp className="h-4 w-4 text-green-400" />
+                                <TrendingUp className="h-4 w-4 text-[#00ff85]" />
                               ) : (
-                                <TrendingDown className="h-4 w-4 text-red-400" />
+                                <TrendingDown className="h-4 w-4 text-[#ff4d4d]" />
                               )
                             )}
                           </div>
                         </td>
 
                         {/* Market Cap */}
-                        <td className="p-5 relative z-10">
+                        <td className="p-5">
                           {token.marketCapUsd ? (
                             <UsdWithSol
                               usd={token.marketCapUsd}
-                              className="text-sm font-medium"
+                              className="text-sm font-bold"
                               solClassName="text-xs"
                               compact
                             />
                           ) : (
-                            <div className="text-sm font-medium text-muted-foreground">N/A</div>
+                            <div className="text-sm font-bold text-pipe-700">N/A</div>
                           )}
                         </td>
 
                         {/* Volume */}
-                        <td className="p-5 relative z-10">
+                        <td className="p-5">
                           <UsdWithSol
                             usd={token.volume24h}
-                            className="text-sm"
+                            className="text-sm font-bold"
                             solClassName="text-xs"
                             compact
                           />
                         </td>
 
                         {/* Trend Score */}
-                        <td className="p-5 relative z-10">
+                        <td className="p-5">
                           <Badge
                             variant="secondary"
-                            className={`text-xs ${bigMover ? 'bg-orange-500/20 text-orange-400 border-orange-500/30' : ''}`}
+                            className={`text-xs font-bold border-2 ${bigMover ? 'bg-orange-500 text-white border-black' : 'bg-pipe-200 text-pipe-900 border-pipe-700'}`}
                           >
                             {Math.abs(token.priceChange24h).toFixed(1)}
                           </Badge>
                         </td>
 
                         {/* Action */}
-                        <td className="p-5 text-right relative z-10">
+                        <td className="p-5 text-right">
                           <Link href={`/trade?token=${token.mint}`}>
                             <Button
                               size="sm"
-                              variant="outline"
-                              className="group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300"
+                              className="mario-btn mario-btn-green text-white"
                             >
                               Trade
                             </Button>
@@ -496,15 +479,9 @@ export default function TrendingPage() {
               </table>
             </div>
           )}
-        </EnhancedCard>
+        </div>
         </motion.div>
 
-        {/* Decorative Elements */}
-        <div className="fixed inset-0 pointer-events-none -z-20 overflow-hidden">
-          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/3 rounded-full blur-3xl"></div>
-          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-blue-500/3 rounded-full blur-3xl"></div>
-          <div className="absolute top-3/4 left-3/4 w-64 h-64 bg-accent/3 rounded-full blur-2xl"></div>
-        </div>
       </main>
     </div>
   )
