@@ -247,7 +247,7 @@
     transform: translate3d(0, 0, 0);
   }
 
-  /* Paper texture overlay - warm cream aesthetic */
+  /* Paper texture overlay - warm cream aesthetic with seamless blending */
   body::before {
     content: "";
     position: fixed;
@@ -257,10 +257,13 @@
     height: 100%;
     background-image: url('/Paper-Texture-7.jpg');
     background-repeat: repeat;
-    background-size: 512px 512px; /* Optimal tiling size */
-    opacity: 0.4; /* Subtle texture overlay */
+    background-size: 1200px 1200px; /* Larger size reduces visible repetition */
+    opacity: 0.2; /* Lower opacity masks seams better */
+    filter: blur(0.5px); /* Subtle blur softens edges and seams */
     pointer-events: none;
     z-index: 0;
+    /* Slight rotation breaks up grid pattern */
+    transform: rotate(0.5deg) scale(1.02);
   }
 
   /* Dark mode texture styling removed */
