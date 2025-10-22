@@ -137,14 +137,14 @@ function AchievementBadge({
   ...props
 }: AchievementBadgeProps) {
   const rarityColors = {
-    common: 'border-gray-400',
+    common: 'border-pipe-400',
     rare: 'border-blue-500',
     epic: 'border-purple-500',
     legendary: 'border-yellow-500'
   }
 
   const rarityBg = {
-    common: 'bg-gray-400/10',
+    common: 'bg-pipe-400/10',
     rare: 'bg-blue-500/10',
     epic: 'bg-purple-500/10',
     legendary: 'bg-yellow-500/10'

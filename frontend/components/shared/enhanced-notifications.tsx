@@ -196,33 +196,33 @@ export const NotificationBanner: React.FC<{
       case 'trade-success':
         return {
           icon: CheckCircle,
-          className: "border-green-200 bg-green-50 text-green-800 dark:border-green-800 dark:bg-green-900/20 dark:text-green-400"
+          className: "border-green-200 bg-green-50 text-green-800"
         }
       case 'error':
       case 'trade-error':
         return {
           icon: AlertCircle,
-          className: "border-red-200 bg-red-50 text-red-800 dark:border-red-800 dark:bg-red-900/20 dark:text-red-400"
+          className: "border-red-200 bg-red-50 text-red-800"
         }
       case 'warning':
         return {
           icon: AlertTriangle,
-          className: "border-yellow-200 bg-yellow-50 text-yellow-800 dark:border-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400"
+          className: "border-yellow-200 bg-yellow-50 text-yellow-800"
         }
       case 'portfolio-update':
         return {
           icon: Wallet,
-          className: "border-blue-200 bg-blue-50 text-blue-800 dark:border-blue-800 dark:bg-blue-900/20 dark:text-blue-400"
+          className: "border-blue-200 bg-blue-50 text-blue-800"
         }
       case 'price-alert':
         return {
           icon: TrendingUp,
-          className: "border-purple-200 bg-purple-50 text-purple-800 dark:border-purple-800 dark:bg-purple-900/20 dark:text-purple-400"
+          className: "border-purple-200 bg-purple-50 text-purple-800"
         }
       default:
         return {
           icon: Info,
-          className: "border-blue-200 bg-blue-50 text-blue-800 dark:border-blue-800 dark:bg-blue-900/20 dark:text-blue-400"
+          className: "border-blue-200 bg-blue-50 text-blue-800"
         }
     }
   }

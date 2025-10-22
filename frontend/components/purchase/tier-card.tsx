@@ -63,7 +63,7 @@ export function TierCard({ tier, selected, onSelect }: TierCardProps) {
               {tier.label}
             </div>
             {tier.bonus > 0 && (
-              <Badge variant="secondary" className="bg-green-500/20 text-green-600 dark:text-green-400 border-green-500/30 text-[10px] font-bold px-2 py-0.5">
+              <Badge variant="secondary" className="bg-green-500/20 text-green-600 border-green-500/30 text-[10px] font-bold px-2 py-0.5">
                 +{tier.bonus}%
               </Badge>
             )}
@@ -105,7 +105,7 @@ export function TierCard({ tier, selected, onSelect }: TierCardProps) {
               </div>
               <div className="text-xs text-foreground/60 min-h-[20px]">
                 {tier.bonus > 0 ? (
-                  <span className="font-semibold text-green-600 dark:text-green-400">
+                  <span className="font-semibold text-green-600">
                     💰 Save {(tier.realSol * tier.bonus / 100).toFixed(3)} SOL
                   </span>
                 ) : (

@@ -174,9 +174,9 @@ export function RewardsOverview() {
     if (totalVolume >= 1000000) return { name: "Diamond", color: "text-cyan-500", icon: "💎", multiplier: 2.0 }
     if (totalVolume >= 500000) return { name: "Platinum", color: "text-purple-500", icon: "🔮", multiplier: 1.75 }
     if (totalVolume >= 100000) return { name: "Gold", color: "text-yellow-500", icon: "🏆", multiplier: 1.5 }
-    if (totalVolume >= 50000) return { name: "Silver", color: "text-gray-400", icon: "🥈", multiplier: 1.25 }
+    if (totalVolume >= 50000) return { name: "Silver", color: "text-pipe-400", icon: "🥈", multiplier: 1.25 }
     if (totalVolume >= 10000) return { name: "Bronze", color: "text-amber-600", icon: "🥉", multiplier: 1.1 }
-    return { name: "Novice", color: "text-gray-500", icon: "🌟", multiplier: 1.0 }
+    return { name: "Novice", color: "text-pipe-500", icon: "🌟", multiplier: 1.0 }
   }
 
   const userTier = getUserTier()

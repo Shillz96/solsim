@@ -780,7 +780,7 @@ function PerpsContent() {
 
               {/* Estimated Liquidation Price */}
               {estimatedLiqPrice && (
-                <Alert className="bg-orange-50 dark:bg-orange-950/20 border-orange-200">
+                <Alert className="bg-orange-50 border-orange-200">
                   <Timer className="h-4 w-4 text-orange-600" />
                   <AlertDescription className="text-xs">
                     <strong>Est. Liquidation Price:</strong> ${estimatedLiqPrice.toFixed(6)}
@@ -798,8 +798,8 @@ function PerpsContent() {
                         key={idx}
                         className={`p-2 rounded-lg border ${
                           scenario.pnl >= 0
-                            ? "bg-green-50 dark:bg-green-950/20 border-green-200"
-                            : "bg-red-50 dark:bg-red-950/20 border-red-200"
+                            ? "bg-green-50 border-green-200"
+                            : "bg-red-50 border-red-200"
                         }`}
                       >
                         <div className="text-muted-foreground">{scenario.label}</div>
@@ -842,9 +842,9 @@ function PerpsContent() {
 
               {/* High leverage warning */}
               {leverage >= 10 && (
-                <Alert className="bg-yellow-50 dark:bg-yellow-950/20 border-yellow-200">
+                <Alert className="bg-yellow-50 border-yellow-200">
                   <AlertCircle className="h-4 w-4 text-yellow-600" />
-                  <AlertDescription className="text-xs text-yellow-800 dark:text-yellow-200">
+                  <AlertDescription className="text-xs text-yellow-800">
                     <strong>High Leverage Warning:</strong> {leverage}x leverage carries extreme risk of liquidation.
                   </AlertDescription>
                 </Alert>
@@ -907,7 +907,7 @@ function PerpsContent() {
                     return (
                       <div
                         key={pos.id}
-                        className={`border rounded-lg p-4 space-y-3 transition-all duration-300 hover:shadow-md ${isNearLiquidation ? 'border-red-500 bg-red-50 dark:bg-red-950/20' : 'hover:border-primary/50'} ${isCritical ? 'animate-pulse' : ''}`}
+                        className={`border rounded-lg p-4 space-y-3 transition-all duration-300 hover:shadow-md ${isNearLiquidation ? 'border-red-500 bg-red-50' : 'hover:border-primary/50'} ${isCritical ? 'animate-pulse' : ''}`}
                       >
                         <div className="flex items-center justify-between flex-wrap gap-2">
                           <div className="flex items-center gap-2">
@@ -937,7 +937,7 @@ function PerpsContent() {
                             variant="ghost"
                             size="sm"
                             onClick={() => handleClosePosition(pos.id)}
-                            className="hover:bg-red-100 dark:hover:bg-red-950"
+                            className="hover:bg-red-100"
                           >
                             <XCircle className="h-4 w-4 mr-1" />
                             Close
@@ -952,7 +952,7 @@ function PerpsContent() {
                               {healthPercent.toFixed(0)}%
                             </span>
                           </div>
-                          <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 overflow-hidden">
+                          <div className="w-full bg-pipe-200 rounded-full h-2 overflow-hidden">
                             <div
                               className={`h-full transition-all duration-500 ${healthColor}`}
                               style={{ width: `${healthPercent}%` }}

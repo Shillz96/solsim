@@ -26,7 +26,7 @@ const levelUpFeatures = [
   },
   {
     icon: Trophy,
-    iconSrc: "/icons/mario/trophey.png",
+    iconSrc: "/icons/mario/trophy.png",
     title: "Leaderboard Rankings",
     description: "Top traders earn XP bonuses! Reach Top 100, Top 10, or #1 for huge XP rewards and bragging rights.",
   },
@@ -169,7 +169,7 @@ export function LevelUpSection() {
                   <span className="font-mario text-xl text-[var(--star-yellow)] flex items-center justify-center gap-2" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.6)' }}>
                     <img src="/icons/mario/mushroom.png" alt="" className="w-6 h-6 object-contain inline-block" />
                     From Goomba to Legend - Start Your Journey Today!
-                    <img src="/icons/mario/trophey.png" alt="" className="w-6 h-6 object-contain inline-block" />
+                    <img src="/icons/mario/trophy.png" alt="" className="w-6 h-6 object-contain inline-block" />
                   </span>
                 </p>
               </div>

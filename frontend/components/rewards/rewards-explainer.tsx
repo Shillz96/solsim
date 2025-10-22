@@ -17,8 +17,8 @@ const tiers = [
     name: "Novice",
     minVolume: 0,
     multiplier: 1.0,
-    color: "text-gray-500",
-    bgColor: "bg-gray-500/10",
+    color: "text-pipe-500",
+    bgColor: "bg-pipe-500/10",
     icon: "🌟",
     benefits: ["Base rewards rate", "Access to all features"]
   },
@@ -35,8 +35,8 @@ const tiers = [
     name: "Silver",
     minVolume: 50000,
     multiplier: 1.25,
-    color: "text-gray-400",
-    bgColor: "bg-gray-400/10",
+    color: "text-pipe-400",
+    bgColor: "bg-pipe-400/10",
     icon: "🥈",
     benefits: ["25% bonus rewards", "Early access features"]
   },

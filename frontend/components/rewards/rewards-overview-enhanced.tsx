@@ -319,7 +319,7 @@ export function RewardsOverviewEnhanced() {
             "absolute inset-0 rounded-2xl blur-xl",
             userTier.level === "platinum" && "bg-gradient-to-r from-purple-500/20 to-pink-500/20",
             userTier.level === "gold" && "bg-gradient-to-r from-yellow-500/20 to-orange-500/20",
-            userTier.level === "silver" && "bg-gradient-to-r from-gray-400/20 to-slate-500/20",
+            userTier.level === "silver" && "bg-gradient-to-r from-pipe-400/20 to-pipe-500/20",
             userTier.level === "bronze" && "bg-gradient-to-r from-orange-600/20 to-red-500/20"
           )}></div>
           <DataCard

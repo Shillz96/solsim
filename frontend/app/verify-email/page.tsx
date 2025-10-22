@@ -70,13 +70,13 @@ function VerifyEmailContent() {
               <Loader2 className="h-16 w-16 text-primary animate-spin" />
             )}
             {status === 'success' && (
-              <div className="h-16 w-16 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
-                <CheckCircle className="h-10 w-10 text-green-600 dark:text-green-400" />
+              <div className="h-16 w-16 rounded-full bg-green-100 flex items-center justify-center">
+                <CheckCircle className="h-10 w-10 text-green-600" />
               </div>
             )}
             {status === 'error' && (
-              <div className="h-16 w-16 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
-                <AlertCircle className="h-10 w-10 text-red-600 dark:text-red-400" />
+              <div className="h-16 w-16 rounded-full bg-red-100 flex items-center justify-center">
+                <AlertCircle className="h-10 w-10 text-red-600" />
               </div>
             )}
           </div>

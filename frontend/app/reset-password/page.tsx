@@ -99,8 +99,8 @@ function ResetPasswordContent() {
         <Card className="w-full max-w-md border-2">
           <CardHeader className="text-center">
             <div className="flex justify-center mb-4">
-              <div className="h-16 w-16 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
-                <CheckCircle className="h-10 w-10 text-green-600 dark:text-green-400" />
+              <div className="h-16 w-16 rounded-full bg-green-100 flex items-center justify-center">
+                <CheckCircle className="h-10 w-10 text-green-600" />
               </div>
             </div>
             <CardTitle className="text-2xl">Password Reset!</CardTitle>

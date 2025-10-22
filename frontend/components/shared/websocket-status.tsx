@@ -22,7 +22,7 @@ export function WebSocketStatus({ className, showDetails = false }: WebSocketSta
         return 'text-red-500'
       case ConnectionState.Disconnected:
       default:
-        return 'text-gray-500'
+        return 'text-pipe-500'
     }
   }
 
@@ -88,7 +88,7 @@ export function WebSocketStatus({ className, showDetails = false }: WebSocketSta
         </div>
       )}
       
-      <div className="text-gray-600">
+      <div className="text-pipe-600">
         Real-time price updates
       </div>
     </div>

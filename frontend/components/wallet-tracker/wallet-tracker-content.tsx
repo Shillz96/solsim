@@ -259,7 +259,7 @@ export function WalletTrackerContent() {
             <Badge variant={connected ? "default" : "secondary"} className="gap-1">
               <div className={cn(
                 "h-2 w-2 rounded-full",
-                connected ? "bg-green-500 animate-pulse" : "bg-gray-500"
+                connected ? "bg-green-500 animate-pulse" : "bg-pipe-500"
               )} />
               {connected ? "Live" : "Offline"}
             </Badge>

@@ -157,8 +157,8 @@ export function TradeHistory({
               <div className="flex items-center gap-3">
                 <div className={`flex h-8 w-8 items-center justify-center rounded-full ${
                   trade.side === "BUY"
-                    ? "bg-green-100 text-green-600 dark:bg-green-900/20"
-                    : "bg-red-100 text-red-600 dark:bg-red-900/20"
+                    ? "bg-green-100 text-green-600"
+                    : "bg-red-100 text-red-600"
                 }`}>
                   {trade.side === "BUY" ? (
                     <ArrowUpRight className="h-4 w-4" />

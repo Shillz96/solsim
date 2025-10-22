@@ -148,11 +148,11 @@ export default function TrendingPage() {
         }
       case 2:
         return {
-          bg: "bg-gradient-to-br from-slate-300 via-gray-400 to-slate-500",
-          text: "text-slate-900",
-          border: "border-2 border-slate-200/50",
+          bg: "bg-gradient-to-br from-pipe-300 via-pipe-400 to-pipe-500",
+          text: "text-pipe-900",
+          border: "border-2 border-pipe-200/50",
           shadow: "shadow-[0_0_20px_rgba(148,163,184,0.3)]",
-          ring: "ring-2 ring-slate-300/20 ring-offset-2 ring-offset-background"
+          ring: "ring-2 ring-pipe-300/20 ring-offset-2 ring-offset-background"
         }
       case 3:
         return {

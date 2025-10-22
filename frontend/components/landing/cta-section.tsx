@@ -39,7 +39,7 @@ export function CTASection() {
             </motion.div>
             <h2 className="font-mario text-4xl md:text-5xl font-bold text-white flex items-center justify-center gap-3" style={{ textShadow: '3px 3px 6px rgba(0,0,0,0.9), 0px 0px 10px rgba(0,0,0,0.5)' }}>
               Ready to Level Up?
-              <img src="/icons/mario/trophey.png" alt="" className="w-10 h-10 object-contain inline-block" />
+              <img src="/icons/mario/trophy.png" alt="" className="w-10 h-10 object-contain inline-block" />
             </h2>
             <p className="text-xl text-white max-w-2xl mx-auto font-bold flex items-center justify-center gap-2" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.9), 0px 0px 8px rgba(0,0,0,0.6)' }}>
               Join traders leveling up with 1UP SOL! Earn XP, unlock achievements, and compete on leaderboards - all risk-free!

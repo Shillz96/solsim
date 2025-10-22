@@ -4,13 +4,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-VirtualSol is a full-stack Solana paper trading platform with real-time price tracking, PnL calculations, leaderboards, and rewards. It uses a monorepo structure with a Next.js frontend and Fastify backend.
+1UP SOL (formerly VirtualSol) is a full-stack Solana paper trading platform with real-time price tracking, PnL calculations, leaderboards, and rewards. It features a **Mario-themed retro game aesthetic** with vibrant colors, bold borders, and nostalgic design patterns. The platform uses a monorepo structure with a Next.js frontend and Fastify backend.
 
 ## Project Structure
 
 ```
-VirtualSol/
-├── frontend/          # Next.js 14+ (App Router)
+SolSim/ (1UP SOL)
+├── frontend/          # Next.js 14+ (App Router) - Mario-themed UI
 ├── backend/           # Fastify + Prisma
 ├── packages/types/    # Shared TypeScript types
 └── ARCHITECTURE.md    # Detailed system architecture
@@ -154,7 +154,8 @@ The price service streams real-time swap events from Solana DEXes (Raydium, Pump
 - **State Management**: TanStack Query (React Query) for server state
 - **Real-time Updates**: WebSocket connection to backend price stream
 - **Optimistic Updates**: UI updates before server confirmation for better UX
-- **Context Providers**: Auth, PriceStream, Theme, Query (see `frontend/lib/`)
+- **Context Providers**: Auth, PriceStream, Theme (light mode only), Query (see `frontend/lib/`)
+- **Design System**: Mario-themed retro aesthetic with OKLCH colors and Display-P3 support
 
 **Query Configuration**:
 ```typescript
@@ -365,9 +366,18 @@ All environment variables are documented in **ENVIRONMENT_SETUP.md**.
 
 **Important**: Never commit `.env` files. Only `.env.example` templates are tracked.
 
-## 2025 Modernization
+## 2025 Modernization & Mario Theme
 
-VirtualSol has been modernized with cutting-edge web platform features:
+1UP SOL has been modernized with cutting-edge web platform features and a complete Mario-themed redesign:
+
+### Mario Theme Design System
+- **Branding**: 1UP SOL with Mario retro game aesthetic
+- **Light Mode Only**: No dark mode support - bright, vibrant colors on white backgrounds
+- **Color Palette**: Mario Red, Luigi Green, Star Yellow, Coin Yellow, Sky Blue, Pipe Green
+- **OKLCH Colors**: Perceptually uniform color system with Display-P3 wide gamut support
+- **Typography**: Press Start 2P pixel font for headers, system fonts for body text
+- **Components**: Bold 3-4px borders, 3D block shadows, flat design aesthetic
+- **Design System**: See `frontend/MARIO_THEME_DESIGN_SYSTEM.md` for complete documentation
 
 ### View Transitions API
 - **Enabled in** `frontend/next.config.mjs` (`experimental.viewTransition: true`)
@@ -377,34 +387,95 @@ VirtualSol has been modernized with cutting-edge web platform features:
 
 ### Display-P3 Wide-Gamut Colors
 - **OKLCH base colors** - Perceptually uniform on all displays
-- **P3 enhancements** - Vivid colors on modern displays (MacBooks, iPhones)
+- **P3 enhancements** - Vivid Mario colors on modern displays (MacBooks, iPhones, iPads)
 - **Defined in** `frontend/app/globals.css` (`@media (color-gamut: p3)`)
 - **Automatic fallback** - Works on sRGB displays seamlessly
+- **Chroma boost**: 20-30% more vibrant on P3-capable displays
 
 ### Tailwind v4 CSS Theme
 - **Theme tokens** - Defined in `frontend/app/theme.css` using `@theme` syntax
 - **CSS-first** - No JavaScript build step for tokens
 - **Works everywhere** - Both Tailwind utilities AND raw CSS custom properties
 - **P3 enhancement** - Automatically upgrades on capable displays
+- **Mario colors** - All theme colors defined in `tailwind.config.js`
+
+### Theme Consistency
+- **100% Mario theme** - All components use consistent Mario-themed styling
+- **Zero dark mode** - All dark mode references removed for simplicity
+- **No old colors** - All gray/slate/zinc colors migrated to Mario pipe-* colors
+- **Archived themes** - Old theme files archived in `frontend/_archive/`
 
 ### Rollback Safety
 - **Backup branch**: `pre-modernization-2025-backup` (remote + local)
 - **Rollback guide**: See `ROLLBACK_GUIDE.md` for detailed recovery procedures
 - **Easy revert**: `git checkout pre-modernization-2025-backup` restores everything
 
-### Documentation
+### Theme Documentation
+- **MARIO_THEME_DESIGN_SYSTEM.md** - Complete Mario theme design system and guidelines
+- **THEME_CLEANUP_SUMMARY.md** - Theme migration and cleanup documentation
 - **MODERNIZATION_2025.md** - Comprehensive modernization plan and implementation guide
 - **ROLLBACK_GUIDE.md** - Emergency recovery procedures
+- **_archive/MIGRATION_NOTES.md** - Migration history and archived files
 
 ## Additional Resources
 
+### Design & Theme
+- **frontend/MARIO_THEME_DESIGN_SYSTEM.md** - Complete Mario theme design system and component patterns
+- **frontend/THEME_CLEANUP_SUMMARY.md** - Theme migration and cleanup documentation
+- **frontend/_archive/MIGRATION_NOTES.md** - Theme migration history and archived files
+
+### Development & Architecture
 - **MODERNIZATION_2025.md** - 2025 modernization plan and implementation guide
 - **ROLLBACK_GUIDE.md** - Emergency rollback and recovery procedures
 - **WORKFLOW.md** - Complete development workflow and deployment guide
 - **QUICK_START.md** - Quick reference for common commands
-- **ENVIRONMENT_SETUP.md** - Environment variable configuration guide
-- **GITHUB_DEPLOYMENT_SETUP.md** - GitHub auto-deployment setup with Railway/Vercel
 - **ARCHITECTURE.md** - Comprehensive system architecture documentation
 - **README.md** - General project overview and setup instructions
+
+### Configuration & Deployment
+- **ENVIRONMENT_SETUP.md** - Environment variable configuration guide
+- **GITHUB_DEPLOYMENT_SETUP.md** - GitHub auto-deployment setup with Railway/Vercel
 - **Prisma Schema** (`backend/prisma/schema.prisma`) - Complete database schema with comments
+
+### AI Assistant Guidelines
 - **Cursor Rules** (`.cursor/rules/`) - AI assistant guidelines for architecture, services, code quality
+
+## Mario Theme Development Guidelines
+
+When working on frontend components, follow these Mario theme guidelines:
+
+### Color Usage
+- **Primary Actions**: Use `bg-mario-red-500` for Buy buttons and CTAs
+- **Success States**: Use `bg-luigi-green-500` or profit green `#00ff85`
+- **Highlights**: Use `bg-star-yellow-500` or `bg-coin-yellow-500`
+- **Backgrounds**: Use `bg-white`, `bg-sky-50`, or `bg-sky-100`
+- **Neutral Elements**: Use `bg-pipe-*`, `text-pipe-*`, `border-pipe-*`
+
+### Typography
+- **Headers**: Use `.font-mario` (Press Start 2P pixel font) with text shadows
+- **Body Text**: Use system fonts (default)
+- **Numbers/Prices**: Use `.font-mono` for alignment
+
+### Components
+- **Cards**: Use `.mario-card` with bold borders (3-4px)
+- **Buttons**: Use `.mario-btn` with 3D block shadows
+- **Borders**: Use `border-3` or `border-4` for Mario aesthetic
+- **Shadows**: Use `shadow-mario` for 3D block effect
+- **Rounded Corners**: Use `rounded-lg` or `rounded-xl` (not too soft)
+
+### What NOT to Do
+- ❌ Don't use dark mode classes (`dark:*`)
+- ❌ Don't use old color scales (`gray-*`, `slate-*`, `zinc-*`)
+- ❌ Don't use thin borders (< 2px)
+- ❌ Don't use soft shadows (use 3D block shadows)
+- ❌ Don't use pixel font for body text (hard to read)
+- ❌ Don't create new color variants outside Mario palette
+
+### Testing Your Changes
+- Test on both sRGB and Display-P3 capable displays if possible
+- Ensure WCAG AA contrast ratios (4.5:1 for text, 3:1 for large text)
+- Check that components look good on white backgrounds
+- Verify bold borders render correctly
+- Test hover and active states
+
+For complete design system documentation, see `frontend/MARIO_THEME_DESIGN_SYSTEM.md`.

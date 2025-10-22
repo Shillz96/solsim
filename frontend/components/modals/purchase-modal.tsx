@@ -379,12 +379,12 @@ export function PurchaseModal({ open, onOpenChange, userId }: PurchaseModalProps
 
                     {/* You receive */}
                     <div className="flex justify-between items-center p-4 rounded-xl bg-gradient-to-br from-green-500/10 to-emerald-500/5 border-2 border-green-500/30">
-                      <span className="text-sm font-semibold text-green-700 dark:text-green-400 uppercase tracking-wide">You Receive</span>
+                      <span className="text-sm font-semibold text-green-700 uppercase tracking-wide">You Receive</span>
                       <div className="flex items-baseline gap-2">
-                        <span className="text-3xl font-black text-green-600 dark:text-green-400">
+                        <span className="text-3xl font-black text-green-600">
                           {selectedTier?.simulatedSol}
                         </span>
-                        <span className="text-lg font-bold text-green-600/70 dark:text-green-400/70">SIM SOL</span>
+                        <span className="text-lg font-bold text-green-600/70">SIM SOL</span>
                       </div>
                     </div>
                   </div>
@@ -394,8 +394,8 @@ export function PurchaseModal({ open, onOpenChange, userId }: PurchaseModalProps
                     <div className="flex justify-center">
                       <div className="px-6 py-3 rounded-full bg-gradient-to-r from-green-500/20 to-emerald-500/20 border-2 border-green-500/40">
                         <div className="flex items-center gap-2">
-                          <Sparkles className="h-4 w-4 text-green-600 dark:text-green-400" />
-                          <span className="text-base font-bold text-green-700 dark:text-green-400">
+                          <Sparkles className="h-4 w-4 text-green-600" />
+                          <span className="text-base font-bold text-green-700">
                             +{selectedTier.bonus}% BONUS INCLUDED
                           </span>
                         </div>
@@ -497,7 +497,7 @@ export function PurchaseModal({ open, onOpenChange, userId }: PurchaseModalProps
         return (
           <>
             <DialogHeader>
-              <DialogTitle className="flex items-center gap-2 text-green-600 dark:text-green-400">
+              <DialogTitle className="flex items-center gap-2 text-green-600">
                 <CheckCircle className="h-5 w-5" />
                 Purchase Successful!
               </DialogTitle>
@@ -507,11 +507,11 @@ export function PurchaseModal({ open, onOpenChange, userId }: PurchaseModalProps
             </DialogHeader>
 
             <div className="space-y-6">
-              <div className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 rounded-lg p-8 text-center space-y-4">
-                <Sparkles className="h-12 w-12 mx-auto text-green-600 dark:text-green-400" />
+              <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg p-8 text-center space-y-4">
+                <Sparkles className="h-12 w-12 mx-auto text-green-600" />
                 <div>
                   <div className="text-sm text-muted-foreground mb-2">New Balance</div>
-                  <div className="text-4xl font-bold text-green-600 dark:text-green-400">
+                  <div className="text-4xl font-bold text-green-600">
                     {newBalance ? parseFloat(newBalance).toFixed(2) : '0'} SOL
                   </div>
                 </div>

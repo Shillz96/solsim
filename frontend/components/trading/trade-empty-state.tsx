@@ -61,9 +61,9 @@ function StockCardPreview({ token, onClick }: { token: Backend.TrendingToken; on
             className={cn(
               "text-sm font-medium flex items-center gap-1",
               priceChange > 0
-                ? "text-green-600 dark:text-green-400"
+                ? "text-green-600"
                 : priceChange < 0
-                ? "text-red-600 dark:text-red-400"
+                ? "text-red-600"
                 : "text-muted-foreground"
             )}
           >
@@ -241,9 +241,9 @@ export function TradeEmptyState() {
                             className={cn(
                               "text-sm font-medium flex items-center gap-1",
                               priceChange > 0
-                                ? "text-green-600 dark:text-green-400"
+                                ? "text-green-600"
                                 : priceChange < 0
-                                ? "text-red-600 dark:text-red-400"
+                                ? "text-red-600"
                                 : "text-muted-foreground"
                             )}
                           >
@@ -318,7 +318,7 @@ export function TradeEmptyState() {
           <EnhancedCard className="p-6 border-2">
             <div className="space-y-3">
               <div className="h-12 w-12 rounded-full bg-green-500/10 flex items-center justify-center">
-                <TrendingUp className="h-6 w-6 text-green-600 dark:text-green-400" />
+                <TrendingUp className="h-6 w-6 text-green-600" />
               </div>
               <h3 className="font-semibold text-lg">Real-Time Data</h3>
               <p className="text-sm text-muted-foreground">
@@ -330,7 +330,7 @@ export function TradeEmptyState() {
           <EnhancedCard className="p-6 border-2">
             <div className="space-y-3">
               <div className="h-12 w-12 rounded-full bg-blue-500/10 flex items-center justify-center">
-                <Sparkles className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                <Sparkles className="h-6 w-6 text-blue-600" />
               </div>
               <h3 className="font-semibold text-lg">Zero Risk Trading</h3>
               <p className="text-sm text-muted-foreground">
@@ -342,7 +342,7 @@ export function TradeEmptyState() {
           <EnhancedCard className="p-6 border-2">
             <div className="space-y-3">
               <div className="h-12 w-12 rounded-full bg-purple-500/10 flex items-center justify-center">
-                <Search className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+                <Search className="h-6 w-6 text-purple-600" />
               </div>
               <h3 className="font-semibold text-lg">Discover Tokens</h3>
               <p className="text-sm text-muted-foreground">

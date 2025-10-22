@@ -165,7 +165,7 @@ export function ModernLeaderboard({
               "relative overflow-hidden rounded-2xl p-6 transition-all duration-500",
               "backdrop-blur-xl bg-gradient-to-br shadow-2xl",
               index === 0 && "from-yellow-500/20 via-amber-500/10 to-orange-500/5 border border-yellow-500/50",
-              index === 1 && "from-gray-400/20 via-slate-500/10 to-zinc-500/5 border border-gray-400/50",
+              index === 1 && "from-pipe-400/20 via-pipe-500/10 to-pipe-600/5 border border-pipe-400/50",
               index === 2 && "from-orange-600/20 via-amber-600/10 to-red-500/5 border border-orange-600/50",
               "before:absolute before:inset-0 before:bg-gradient-to-br before:from-white/5 before:to-transparent",
               "hover:shadow-[0_20px_70px_-15px_rgba(0,0,0,0.3)]",
@@ -188,7 +188,7 @@ export function ModernLeaderboard({
                   "w-14 h-14 rounded-full flex items-center justify-center font-bold text-xl",
                   "shadow-lg relative overflow-hidden",
                   index === 0 && "bg-gradient-to-br from-yellow-300 via-yellow-400 to-amber-500 text-black",
-                  index === 1 && "bg-gradient-to-br from-gray-200 via-gray-300 to-slate-400 text-black",
+                  index === 1 && "bg-gradient-to-br from-pipe-200 via-pipe-300 to-pipe-400 text-black",
                   index === 2 && "bg-gradient-to-br from-orange-300 via-orange-400 to-red-500 text-white",
                   "before:absolute before:inset-0 before:bg-gradient-to-t before:from-white/0 before:via-white/30 before:to-white/0",
                   "before:translate-y-full before:group-hover:translate-y-[-100%] before:transition-transform before:duration-700"

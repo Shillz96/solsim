@@ -57,7 +57,10 @@
       "WebFetch(domain:station.jup.ag)",
       "WebFetch(domain:dev.jup.ag)",
       "WebFetch(domain:www.virtualsol.fun)",
-      "WebFetch(domain:kolscan.io)"
+      "WebFetch(domain:kolscan.io)",
+      "Bash(mkdir:*)",
+      "WebFetch(domain:www.flaticon.com)",
+      "Bash(move:*)"
     ],
     "deny": [],
     "ask": []

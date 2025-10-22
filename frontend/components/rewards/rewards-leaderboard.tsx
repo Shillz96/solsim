@@ -52,7 +52,7 @@ export function RewardsLeaderboard() {
       case 1:
         return <Crown className="h-5 w-5 text-yellow-500" />
       case 2:
-        return <Medal className="h-5 w-5 text-gray-400" />
+        return <Medal className="h-5 w-5 text-pipe-400" />
       case 3:
         return <Medal className="h-5 w-5 text-amber-600" />
       default:
@@ -70,7 +70,7 @@ export function RewardsLeaderboard() {
         )
       case 2:
         return (
-          <Badge className="bg-gradient-to-r from-gray-400 to-gray-500 text-white border-0">
+          <Badge className="bg-gradient-to-r from-pipe-400 to-pipe-500 text-white border-0">
             2nd Place
           </Badge>
         )
@@ -153,7 +153,7 @@ export function RewardsLeaderboard() {
           <Card key={leader.userId} className={cn(
             "relative overflow-hidden border-border/50 bg-card/50 backdrop-blur-sm transition-all hover:shadow-lg hover:scale-105",
             leader.rank === 1 && "border-yellow-500/50 bg-gradient-to-br from-yellow-500/5 to-transparent",
-            leader.rank === 2 && "border-gray-400/50 bg-gradient-to-br from-gray-400/5 to-transparent",
+            leader.rank === 2 && "border-pipe-400/50 bg-gradient-to-br from-pipe-400/5 to-transparent",
             leader.rank === 3 && "border-amber-600/50 bg-gradient-to-br from-amber-600/5 to-transparent"
           )}>
             {leader.rank === 1 && (

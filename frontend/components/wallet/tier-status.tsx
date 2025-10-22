@@ -25,8 +25,8 @@ const TIER_CONFIG = {
   EMAIL_USER: {
     label: 'Email User',
     icon: Mail,
-    color: 'bg-gray-500',
-    textColor: 'text-gray-700 dark:text-gray-300',
+    color: 'bg-pipe-500',
+    textColor: 'text-pipe-700',
     description: 'Basic access with email registration',
     defaultBenefits: [
       { name: '10 SOL Starting Balance', description: 'Practice trading with 10 virtual SOL', available: true },
@@ -38,7 +38,7 @@ const TIER_CONFIG = {
     label: 'Wallet User',
     icon: Shield,
     color: 'bg-blue-500',
-    textColor: 'text-blue-700 dark:text-blue-300',
+    textColor: 'text-blue-700',
     description: 'Enhanced access with wallet verification',
     defaultBenefits: [
       { name: '50 SOL Starting Balance', description: 'More capital for trading practice', available: true },
@@ -50,7 +50,7 @@ const TIER_CONFIG = {
     label: '$vSOL Holder',
     icon: Crown,
     color: 'bg-gradient-to-r from-yellow-400 to-orange-500',
-    textColor: 'text-yellow-700 dark:text-yellow-300',
+    textColor: 'text-yellow-700',
     description: 'Premium access for $vSOL token holders',
     defaultBenefits: [
       { name: '100 SOL Starting Balance', description: 'Maximum starting capital', available: true },
@@ -63,7 +63,7 @@ const TIER_CONFIG = {
     label: 'Administrator',
     icon: Star,
     color: 'bg-gradient-to-r from-purple-500 to-pink-500',
-    textColor: 'text-purple-700 dark:text-purple-300',
+    textColor: 'text-purple-700',
     description: 'Full administrative access',
     defaultBenefits: [
       { name: 'Unlimited Access', description: 'All platform features', available: true },
@@ -137,7 +137,7 @@ export function TierStatus({
                 <TrendingUp className="h-4 w-4 text-yellow-500" />
                 <span className="text-sm font-medium">$vSOL Tokens</span>
               </div>
-              <p className="text-lg font-semibold text-yellow-600 dark:text-yellow-400">
+              <p className="text-lg font-semibold text-yellow-600">
                 {vsolTokenBalance.toLocaleString()} $vSOL
               </p>
             </div>
@@ -157,7 +157,7 @@ export function TierStatus({
               >
                 <div className={cn(
                   'mt-0.5 h-2 w-2 rounded-full',
-                  benefit.available ? 'bg-green-500' : 'bg-gray-400'
+                  benefit.available ? 'bg-green-500' : 'bg-pipe-400'
                 )} />
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-foreground">

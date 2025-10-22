@@ -50,7 +50,7 @@ export function PasswordStrengthIndicator({ password, confirmPassword }: Passwor
     const total = requirements.length
     const percentage = (metCount / total) * 100
 
-    if (percentage === 0) return { label: "", color: "bg-gray-200" }
+    if (percentage === 0) return { label: "", color: "bg-muted" }
     if (percentage < 50) return { label: "Weak", color: "bg-red-500" }
     if (percentage < 75) return { label: "Fair", color: "bg-orange-500" }
     if (percentage < 100) return { label: "Good", color: "bg-yellow-500" }
@@ -89,7 +89,7 @@ export function PasswordStrengthIndicator({ password, confirmPassword }: Passwor
             ) : (
               <X className="h-4 w-4 text-muted-foreground/50 flex-shrink-0" />
             )}
-            <span className={req.met ? "text-green-700 dark:text-green-400" : "text-muted-foreground"}>
+            <span className={req.met ? "text-green-700" : "text-muted-foreground"}>
               {req.label}
             </span>
           </div>
@@ -101,12 +101,12 @@ export function PasswordStrengthIndicator({ password, confirmPassword }: Passwor
             {passwordsMatch ? (
               <>
                 <Check className="h-4 w-4 text-green-500 flex-shrink-0" />
-                <span className="text-green-700 dark:text-green-400">Passwords match</span>
+                <span className="text-green-700">Passwords match</span>
               </>
             ) : (
               <>
                 <X className="h-4 w-4 text-red-500 flex-shrink-0" />
-                <span className="text-red-700 dark:text-red-400">Passwords do not match</span>
+                <span className="text-red-700">Passwords do not match</span>
               </>
             )}
           </div>

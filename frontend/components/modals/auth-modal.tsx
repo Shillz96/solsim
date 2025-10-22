@@ -234,7 +234,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
         )}
 
                 {success && (
-          <Alert className="border-green-500 bg-green-500/10 text-green-700 dark:text-green-400">
+          <Alert className="border-green-500 bg-green-500/10 text-green-700">
             <CheckCircle className="h-4 w-4" />
             <AlertDescription className="font-medium">{success}</AlertDescription>
           </Alert>
@@ -292,8 +292,8 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
           <Card className="border-border" style={{ backgroundColor: 'var(--background)', opacity: 1 }}>
             <CardHeader className="text-center space-y-4">
               <div className="flex justify-center">
-                <div className="h-16 w-16 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
-                  <CheckCircle className="h-8 w-8 text-green-600 dark:text-green-400" />
+                <div className="h-16 w-16 rounded-full bg-green-100 flex items-center justify-center">
+                  <CheckCircle className="h-8 w-8 text-green-600" />
                 </div>
               </div>
               <CardTitle className="text-xl font-semibold text-foreground">Check your email</CardTitle>
@@ -472,8 +472,8 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
                         className="w-full"
                       />
                       {walletConnected && (
-                        <div className="mt-2 p-2 sm:p-3 bg-green-50 dark:bg-green-900/20 rounded border border-green-200 dark:border-green-800">
-                          <p className="text-xs sm:text-sm text-green-700 dark:text-green-400">
+                        <div className="mt-2 p-2 sm:p-3 bg-green-50 rounded border border-green-200">
+                          <p className="text-xs sm:text-sm text-green-700">
                             ✓ Wallet connected - You'll receive enhanced tier benefits!
                           </p>
                         </div>

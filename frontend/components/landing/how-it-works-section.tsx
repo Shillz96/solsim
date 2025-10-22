@@ -32,7 +32,7 @@ const steps = [
   },
   {
     icon: BarChart2,
-    iconSrc: "/icons/mario/trophey.png",
+    iconSrc: "/icons/mario/trophy.png",
     title: "Compete & dominate",
     description: "Monitor your portfolio, climb the leaderboard, and become a trading legend!",
   },

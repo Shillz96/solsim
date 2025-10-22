@@ -45,7 +45,7 @@ const features = [
   },
   {
     icon: Trophy,
-    iconSrc: "/icons/mario/trophey.png",
+    iconSrc: "/icons/mario/trophy.png",
     title: "Competitive Leaderboards",
     description: "Compete with traders worldwide! Climb the rankings to earn XP bonuses and show off your trading prowess.",
   },
