@@ -50,10 +50,10 @@ export function HowItWorksSection() {
             />
           </div>
 
-          <h2 className="font-mario text-4xl md:text-5xl font-bold text-mario-red text-shadow-sm">
+          <h2 className="font-mario text-4xl md:text-5xl font-bold text-mario-red" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.3)' }}>
             How to Play the Game 🎮
           </h2>
-          <p className="text-xl text-foreground/80 max-w-2xl mx-auto font-medium">
+          <p className="text-xl text-foreground max-w-2xl mx-auto font-bold" style={{ textShadow: '1px 1px 2px rgba(255,255,255,0.8)' }}>
             Start trading, leveling up, and earning in minutes. No wallet connection required!
           </p>
         </div>
@@ -84,8 +84,8 @@ export function HowItWorksSection() {
                   </div>
 
                   <div className="space-y-2">
-                    <h3 className="font-mario text-xl text-mario-red">{step.title}</h3>
-                    <p className="text-base text-foreground/70 leading-relaxed max-w-xs">{step.description}</p>
+                    <h3 className="font-mario text-xl text-mario-red font-bold" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.2)' }}>{step.title}</h3>
+                    <p className="text-base text-foreground font-semibold leading-relaxed max-w-xs">{step.description}</p>
                   </div>
                 </div>
               </motion.div>

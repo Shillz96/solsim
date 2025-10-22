@@ -65,10 +65,10 @@ export function LevelUpSection() {
             />
           </div>
 
-          <h2 className="font-mario text-4xl md:text-5xl font-bold text-balance text-mario-red text-shadow-sm">
+          <h2 className="font-mario text-4xl md:text-5xl font-bold text-balance text-mario-red" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.3)' }}>
             Level Up Your Trading Game! 🎮
           </h2>
-          <p className="text-xl text-foreground/80 max-w-2xl mx-auto leading-relaxed font-medium">
+          <p className="text-xl text-foreground max-w-2xl mx-auto leading-relaxed font-bold" style={{ textShadow: '1px 1px 2px rgba(255,255,255,0.8)' }}>
             Earn XP with every trade, unlock achievements, and climb through 20 epic levels - from Goomba to Legendary!
           </p>
         </motion.div>
@@ -116,12 +116,18 @@ export function LevelUpSection() {
                   whileInView={{ opacity: 1, scale: 1 }}
                   viewport={{ once: true }}
                   transition={{ delay: index * 0.1, duration: 0.4 }}
-                  className="mario-badge bg-gradient-to-br from-mario-yellow/20 to-mario-orange/20 border-3 border-mario-yellow/60 p-4 text-center hover:scale-105 transition-transform"
+                  className="mario-badge bg-gradient-to-br from-mario-yellow/30 to-mario-orange/30 border-3 border-mario-yellow/80 p-5 text-center hover:scale-105 transition-transform shadow-lg"
                 >
-                  <div className="text-4xl mb-2">{example.icon}</div>
-                  <div className="font-mario text-lg text-mario-red mb-1">Level {example.level}</div>
-                  <div className="text-sm font-bold text-foreground mb-1">{example.title}</div>
-                  <div className={`text-xs font-bold ${example.color}`}>{example.xp}</div>
+                  <div className="text-5xl mb-3">{example.icon}</div>
+                  <div className="font-mario text-xl text-mario-red mb-2" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.3)' }}>
+                    Level {example.level}
+                  </div>
+                  <div className="text-sm font-bold text-foreground mb-2 leading-tight px-1" style={{ textShadow: '1px 1px 2px rgba(255,255,255,0.5)' }}>
+                    {example.title}
+                  </div>
+                  <div className={`text-xs font-bold ${example.color}`} style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.3)' }}>
+                    {example.xp}
+                  </div>
                 </motion.div>
               ))}
             </div>
