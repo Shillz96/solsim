@@ -255,7 +255,7 @@ export function NavBar() {
     <motion.header
       initial={{ y: -100 }}
       animate={{ y: 0 }}
-      className="sticky top-0 z-50 w-full border-b border-border/20 bg-[#FFFAE9] opacity-95"
+      className="sticky top-0 z-50 w-full border-b border-border/20 bg-[#FFFAE9]"
       style={{ viewTransitionName: 'main-nav' } as React.CSSProperties}
     >
       <div className="w-full px-6">
