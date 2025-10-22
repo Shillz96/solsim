@@ -36,26 +36,26 @@ export function HeroSection() {
         </motion.div>
       </div>
 
-      <div className="container relative mx-auto px-4">
-        <div className="flex flex-col items-center text-center space-y-8">
-          {/* Hero GIF */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.6 }}
-            className="w-full max-w-4xl"
-          >
-            <Image
-              src="/1UP-Your-Solana-Trading-Skill-10-22-2025.gif"
-              alt="1UP Your Solana Trading Skills"
-              width={1920}
-              height={1080}
-              className="w-full h-auto rounded-2xl shadow-2xl"
-              priority
-              unoptimized
-            />
-          </motion.div>
+      {/* Hero GIF - Floating over background */}
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8 }}
+        className="absolute top-8 left-1/2 transform -translate-x-1/2 z-10 w-full max-w-5xl px-4"
+      >
+        <Image
+          src="/1UP-Your-Solana-Trading-Skill-10-22-2025.gif"
+          alt="1UP Your Solana Trading Skills"
+          width={1920}
+          height={1080}
+          className="w-full h-auto"
+          priority
+          unoptimized
+        />
+      </motion.div>
 
+      <div className="container relative mx-auto px-4 pt-64">
+        <div className="flex flex-col items-center text-center space-y-8">
           {/* Content below hero */}
           <motion.div
             className="space-y-8 max-w-3xl"
