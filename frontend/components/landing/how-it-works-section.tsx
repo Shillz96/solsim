@@ -39,7 +39,7 @@ const steps = [
 
 export function HowItWorksSection() {
   return (
-    <section className="py-20 md:py-32 bg-gradient-to-b from-mario-yellow/10 via-mario-blue/5 to-background border-t-4 border-mario-yellow/30">
+    <section className="py-20 md:py-32 bg-gradient-to-b from-[var(--mario-yellow)]/10 via-[var(--super-blue)]/5 to-background border-t-4 border-[var(--mario-yellow)]/30">
       <div className="container mx-auto px-4">
         <div className="text-center space-y-4 mb-16">
           {/* Mario header */}
@@ -52,7 +52,7 @@ export function HowItWorksSection() {
             />
           </div>
 
-          <h2 className="font-mario text-4xl md:text-5xl font-bold text-mario-red" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.3)' }}>
+          <h2 className="font-mario text-4xl md:text-5xl font-bold text-[var(--mario-red)]" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.3)' }}>
             How to Play the Game 🎮
           </h2>
           <p className="text-xl text-foreground max-w-2xl mx-auto font-bold" style={{ textShadow: '1px 1px 2px rgba(255,255,255,0.8)' }}>
@@ -62,7 +62,7 @@ export function HowItWorksSection() {
 
         <div className="relative">
           {/* Connection line */}
-          <div className="hidden lg:block absolute top-1/2 left-0 right-0 h-1 bg-gradient-to-r from-mario-red via-mario-yellow to-mario-green rounded-full opacity-30" />
+          <div className="hidden lg:block absolute top-1/2 left-0 right-0 h-1 bg-gradient-to-r from-[var(--mario-red)] via-[var(--mario-yellow)] to-[var(--luigi-green)] rounded-full opacity-30" />
 
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-5 relative">
             {steps.map((step, index) => (
@@ -86,7 +86,7 @@ export function HowItWorksSection() {
                   </div>
 
                   <div className="space-y-2">
-                    <h3 className="font-mario text-xl text-mario-red font-bold" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.2)' }}>{step.title}</h3>
+                    <h3 className="font-mario text-xl text-[var(--mario-red)] font-bold" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.2)' }}>{step.title}</h3>
                     <p className="text-base text-foreground font-semibold leading-relaxed max-w-xs">{step.description}</p>
                   </div>
                 </div>

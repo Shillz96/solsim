@@ -141,24 +141,24 @@ export function LevelUpSection() {
           viewport={{ once: true }}
           transition={{ delay: 0.4, duration: 0.6 }}
         >
-          <div className="max-w-4xl mx-auto mario-card p-8 bg-gradient-to-br from-mario-yellow/10 via-mario-orange/10 to-mario-red/10 border-4 border-mario-yellow/60">
+          <div className="max-w-4xl mx-auto mario-card p-8 bg-gradient-to-br from-[var(--mario-yellow)]/10 via-[var(--mario-orange)]/10 to-[var(--mario-red)]/10 border-4 border-[var(--mario-yellow)]/60">
             <div className="text-center space-y-4">
               <div className="text-7xl mb-4">🎮</div>
-              <h3 className="font-mario text-2xl md:text-3xl text-mario-red">
+              <h3 className="font-mario text-2xl md:text-3xl text-[var(--mario-red)]">
                 How to Level Up
               </h3>
               <div className="space-y-3 text-base md:text-lg text-foreground/80 max-w-2xl mx-auto">
                 <p>
-                  <span className="font-bold text-mario-red">1. Trade to Earn XP:</span> Every trade earns base XP + volume bonuses. Profitable trades earn 2x XP multipliers!
+                  <span className="font-bold text-[var(--mario-red)]">1. Trade to Earn XP:</span> Every trade earns base XP + volume bonuses. Profitable trades earn 2x XP multipliers!
                 </p>
                 <p>
-                  <span className="font-bold text-mario-blue">2. Unlock Achievements:</span> Hit milestones like "10-Bagger" (10x return) or "Diamond Hands" (hold for 7+ days) for massive XP bonuses!
+                  <span className="font-bold text-[var(--super-blue)]">2. Unlock Achievements:</span> Hit milestones like "10-Bagger" (10x return) or "Diamond Hands" (hold for 7+ days) for massive XP bonuses!
                 </p>
                 <p>
-                  <span className="font-bold text-mario-green">3. Dominate the Leaderboard:</span> Reach Top 100 for +200 XP, Top 10 for +1,500 XP, or #1 for a whopping +5,000 XP!
+                  <span className="font-bold text-[var(--luigi-green)]">3. Dominate the Leaderboard:</span> Reach Top 100 for +200 XP, Top 10 for +1,500 XP, or #1 for a whopping +5,000 XP!
                 </p>
-                <p className="pt-4 border-t-2 border-mario-yellow/50">
-                  <span className="font-mario text-xl text-mario-yellow text-shadow-sm">
+                <p className="pt-4 border-t-2 border-[var(--mario-yellow)]/50">
+                  <span className="font-mario text-xl text-[var(--star-yellow)]" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.6)' }}>
                     🍄 From Goomba to Legend - Start Your Journey Today! 🏆
                   </span>
                 </p>
@@ -167,7 +167,7 @@ export function LevelUpSection() {
               {/* CTA button */}
               <div className="pt-4">
                 <a href="/trade">
-                  <button className="mario-btn mario-btn-lg bg-mario-green hover:bg-mario-green/90 text-white">
+                  <button className="mario-btn mario-btn-lg bg-[var(--luigi-green)] hover:bg-[var(--luigi-green)]/90 text-white">
                     Start Earning XP Now! 🎮
                   </button>
                 </a>
