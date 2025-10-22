@@ -14,8 +14,8 @@ export function Footer() {
       <div className="container mx-auto px-4 py-12 relative z-10">
         <div className="grid gap-8 md:grid-cols-4">
           <div className="space-y-4">
-            <Link href="/" className="flex items-center group">
-              <span className="font-mario text-3xl tracking-tight group-hover:scale-110 transition-transform duration-200 text-mario-yellow text-shadow-sm">
+            <Link href="/" className="flex items-center gap-3 group">
+              <span className="font-mario text-3xl tracking-tight group-hover:scale-110 transition-transform duration-200 text-mario-yellow" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.8)' }}>
                 1UP SOL
               </span>
             </Link>
