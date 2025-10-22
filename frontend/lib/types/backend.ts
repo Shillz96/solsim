@@ -40,6 +40,7 @@ export interface User {
   monthlyConversions: string; // Decimal as string
   conversionResetAt: string | null; // DateTime as ISO string
   premiumFeatures: string | null; // JSON array as string
+  rewardPoints: string; // Decimal as string
 
   // Timestamps
   createdAt: string; // DateTime as ISO string

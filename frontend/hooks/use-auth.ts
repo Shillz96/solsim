@@ -14,6 +14,7 @@ interface AuthUser {
   handle?: string
   emailVerified?: boolean
   avatarUrl?: string
+  rewardPoints?: string
 }
 
 interface AuthState {

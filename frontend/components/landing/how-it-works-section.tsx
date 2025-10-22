@@ -1,3 +1,5 @@
+"use client"
+
 import { UserPlus, Search, TrendingUp, BarChart2, Star } from "lucide-react"
 import { MarioHeaderPlaceholder } from "@/components/placeholders/mario-header-placeholder"
 import { motion } from "framer-motion"
