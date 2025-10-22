@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -11,6 +12,7 @@ import { useWalletModal } from '@solana/wallet-adapter-react-ui';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
 import { TierCard } from '@/components/purchase/tier-card';
+import { MarioPageHeader } from '@/components/shared/mario-page-header';
 import * as api from '@/lib/api';
 import * as purchaseTransaction from '@/lib/purchase-transaction';
 import type { PurchaseTier } from '@/lib/types/backend';
@@ -241,13 +243,14 @@ export function PurchaseModal({ open, onOpenChange, userId }: PurchaseModalProps
         return (
           <>
             <DialogHeader className="space-y-4 pb-6">
-              <div className="flex items-center justify-center gap-3">
-                <div className="h-12 w-12 rounded-lg bg-[var(--star-yellow)] border-3 border-[var(--outline-black)] flex items-center justify-center shadow-[3px_3px_0_var(--outline-black)]">
-                  <Sparkles className="h-6 w-6 text-[var(--outline-black)]" />
-                </div>
-                <DialogTitle className="text-3xl font-mario text-[var(--outline-black)]">
-                  Purchase Simulated SOL
-                </DialogTitle>
+              <div className="flex justify-center">
+                <MarioPageHeader
+                  src="/icons/mario/Purchase-Simulated-SOL-10-22-2025-header.png"
+                  alt="Purchase Simulated SOL"
+                  width={600}
+                  height={100}
+                  priority
+                />
               </div>
               <DialogDescription className="text-base text-center text-[var(--outline-black)] font-semibold">
                 Choose your tier and boost your trading balance instantly
@@ -329,13 +332,13 @@ export function PurchaseModal({ open, onOpenChange, userId }: PurchaseModalProps
         return (
           <>
             <DialogHeader className="space-y-4 pb-6">
-              <div className="flex items-center justify-center gap-3">
+              <div className="flex justify-center items-center gap-3">
                 <div className="h-12 w-12 rounded-lg bg-[var(--luigi-green)] border-3 border-[var(--outline-black)] flex items-center justify-center shadow-[3px_3px_0_var(--outline-black)]">
                   <CheckCircle className="h-6 w-6 text-white" />
                 </div>
-                <DialogTitle className="text-3xl font-mario text-[var(--outline-black)]">
+                <h2 className="text-3xl font-mario text-[var(--outline-black)]">
                   Confirm Purchase
-                </DialogTitle>
+                </h2>
               </div>
               <DialogDescription className="text-base text-center text-[var(--outline-black)] font-semibold">
                 Review your purchase details before proceeding
