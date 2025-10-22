@@ -13,7 +13,6 @@ import { UnifiedPositions } from "@/components/portfolio/unified-positions"
 import { EnhancedCard, CardGrid, CardSection } from "@/components/ui/enhanced-card-system"
 import { TradeEmptyState } from "@/components/trading/trade-empty-state"
 import { TradeTimeline } from "@/components/trading/trade-timeline"
-import { MarioPageHeader } from "@/components/shared/mario-page-header"
 // Mario-themed components
 import { SlidingTrendingTicker } from "@/components/trading/sliding-trending-ticker"
 import { MarioPositionPnL } from "@/components/trading/mario-position-pnl"
@@ -72,28 +71,13 @@ function TradePageContent() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
       <main className="w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-6 max-w-page-xl mx-auto">
-        {/* Mario Page Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="mb-6"
-        >
-          <MarioPageHeader
-            src="/trade-header.png"
-            alt="Trade"
-            width={600}
-            height={120}
-            priority
-          />
-        </motion.div>
         {/* MOBILE-OPTIMIZED LAYOUT: Chart + Trading Panel Adjacent */}
         <div className="lg:hidden space-y-4">
-          {/* Sliding Trending Ticker - Mobile */}
+          {/* Sliding Trending Ticker - Mobile (Moved to Top) */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: 0.1 }}
+            transition={{ duration: 0.3 }}
           >
             <SlidingTrendingTicker />
           </motion.div>
@@ -196,7 +180,7 @@ function TradePageContent() {
 
         {/* DESKTOP LAYOUT: Original 3-Column Grid */}
         <div className="hidden lg:block space-y-6">
-          {/* Sliding Trending Ticker - Desktop */}
+          {/* Sliding Trending Ticker - Desktop (Moved to Top) */}
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
