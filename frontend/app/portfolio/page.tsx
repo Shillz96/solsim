@@ -44,7 +44,7 @@ function PortfolioPageContent() {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <div className="bg-mario-red-500 p-3 rounded-lg border-4 border-mario-red-700 shadow-[4px_4px_0_0_rgba(0,0,0,0.3)]">
-                  <Wallet className="h-8 w-8 text-white" />
+                  <Image src="/icons/mario/money-bag.png" alt="Portfolio" width={32} height={32} />
                 </div>
                 <div>
                   <h1 className="text-3xl font-bold text-pipe-900" style={{ fontFamily: "'Press Start 2P', monospace", textShadow: '3px 3px 6px rgba(0,0,0,0.2)' }}>

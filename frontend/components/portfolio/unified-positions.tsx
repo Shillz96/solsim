@@ -578,19 +578,22 @@ export const UnifiedPositions = memo(function UnifiedPositions({
   // Render full variant (for portfolio page)
   return (
     <div className={cn("space-y-6", className)}>
-      {/* Portfolio Summary */}
+      {/* Portfolio Summary - Mario Theme */}
       {showSummary && liveTotals && (
-        <Card className="p-6 trading-card">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-bold flex items-center gap-2">
-              <BarChart3 className="h-6 w-6 text-primary" />
-              Portfolio Overview
-            </h2>
+        <div className="bg-white border-4 border-pipe-700 rounded-xl shadow-[6px_6px_0_0_rgba(0,0,0,0.3)] p-6">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-3">
+              <div className="bg-star-yellow-500 p-2 rounded-lg border-3 border-star-yellow-700 shadow-[3px_3px_0_0_rgba(0,0,0,0.3)]">
+                <BarChart3 className="h-6 w-6 text-white" />
+              </div>
+              <h2 className="text-xl font-bold text-pipe-900">Portfolio Overview</h2>
+            </div>
             <Button
               variant="outline"
               size="sm"
               onClick={handleRefresh}
               disabled={isRefreshing || isRefetching}
+              className="border-3 border-pipe-600 hover:bg-pipe-100"
             >
               {(isRefreshing || isRefetching) ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -600,28 +603,34 @@ export const UnifiedPositions = memo(function UnifiedPositions({
             </Button>
           </div>
 
+          {/* Main Stats - Mario Block Style */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <div className="text-center p-4 bg-muted/50 rounded-lg">
-              <p className="text-sm text-muted-foreground">Total Value</p>
-              <div className="text-2xl font-bold">
-                <UsdWithSol 
+            <div className="text-center p-4 bg-sky-100 border-3 border-pipe-600 rounded-lg shadow-[3px_3px_0_0_rgba(0,0,0,0.2)]">
+              <p className="text-sm font-bold text-pipe-700 uppercase mb-2">Total Value</p>
+              <div className="text-2xl font-bold text-pipe-900">
+                <UsdWithSol
                   usd={liveTotals.totalValueUsd}
                   className="text-2xl font-bold"
                   solClassName="text-sm"
                 />
               </div>
             </div>
-            
-            <div className="text-center p-4 bg-muted/50 rounded-lg">
-              <p className="text-sm text-muted-foreground">Total PnL</p>
-              <div className="flex items-center justify-center space-x-1">
+
+            <div className={cn(
+              "text-center p-4 border-3 rounded-lg shadow-[3px_3px_0_0_rgba(0,0,0,0.2)]",
+              liveTotals.totalPnlUsd >= 0
+                ? "bg-luigi-green-100 border-luigi-green-600"
+                : "bg-mario-red-100 border-mario-red-600"
+            )}>
+              <p className="text-sm font-bold text-pipe-700 uppercase mb-2">Total PnL</p>
+              <div className="flex items-center justify-center gap-2">
                 {liveTotals.totalPnlUsd >= 0 ? (
-                  <TrendingUp className="h-4 w-4 text-profit" />
+                  <TrendingUp className="h-5 w-5 text-[#00ff85]" />
                 ) : (
-                  <TrendingDown className="h-4 w-4 text-loss" />
+                  <TrendingDown className="h-5 w-5 text-[#ff4444]" />
                 )}
-                <div className={`text-2xl font-bold ${liveTotals.totalPnlUsd >= 0 ? 'text-profit' : 'text-loss'}`}>
-                  <UsdWithSol 
+                <div className={liveTotals.totalPnlUsd >= 0 ? 'text-[#00ff85]' : 'text-[#ff4444]'}>
+                  <UsdWithSol
                     usd={liveTotals.totalPnlUsd}
                     prefix={liveTotals.totalPnlUsd >= 0 ? '+' : ''}
                     className="text-2xl font-bold"
@@ -629,56 +638,71 @@ export const UnifiedPositions = memo(function UnifiedPositions({
                   />
                 </div>
               </div>
-              <p className={`text-sm ${liveTotals.totalPnlPercent >= 0 ? 'text-profit' : 'text-loss'}`}>
-                {liveTotals.totalPnlPercent.toFixed(2)}%
+              <p className={cn(
+                "text-sm font-bold mt-1",
+                liveTotals.totalPnlPercent >= 0 ? 'text-[#00ff85]' : 'text-[#ff4444]'
+              )}>
+                {liveTotals.totalPnlPercent >= 0 ? '+' : ''}{liveTotals.totalPnlPercent.toFixed(2)}%
               </p>
             </div>
 
-            <div className="text-center p-4 bg-muted/50 rounded-lg">
-              <p className="text-sm text-muted-foreground">Active Positions</p>
-              <p className="text-2xl font-bold">{liveTotals.positionCount}</p>
+            <div className="text-center p-4 bg-star-yellow-100 border-3 border-star-yellow-600 rounded-lg shadow-[3px_3px_0_0_rgba(0,0,0,0.2)]">
+              <p className="text-sm font-bold text-pipe-700 uppercase mb-2">Active Positions</p>
+              <p className="text-2xl font-bold text-pipe-900">{liveTotals.positionCount}</p>
             </div>
           </div>
 
-          {/* PnL Breakdown */}
+          {/* PnL Breakdown - Mario Pipe Style */}
           <div className="grid grid-cols-2 gap-4">
-            <div className="text-center p-3 bg-profit/10 rounded-lg">
-              <p className="text-sm text-muted-foreground">Realized PnL</p>
-              <div className={`text-lg font-semibold ${liveTotals.totalRealizedUsd >= 0 ? 'text-profit' : 'text-loss'}`}>
-                <UsdWithSol 
+            <div className={cn(
+              "text-center p-3 border-2 rounded-lg",
+              liveTotals.totalRealizedUsd >= 0
+                ? "bg-[#00ff85]/10 border-green-500"
+                : "bg-[#ff4444]/10 border-red-500"
+            )}>
+              <p className="text-sm font-bold text-pipe-700 uppercase">Realized PnL</p>
+              <div className={liveTotals.totalRealizedUsd >= 0 ? 'text-[#00ff85]' : 'text-[#ff4444]'}>
+                <UsdWithSol
                   usd={liveTotals.totalRealizedUsd}
                   prefix={liveTotals.totalRealizedUsd >= 0 ? '+' : ''}
-                  className="text-lg font-semibold"
+                  className="text-lg font-bold"
                   solClassName="text-xs"
                 />
               </div>
             </div>
-            
-            <div className="text-center p-3 bg-muted/10 rounded-lg">
-              <p className="text-sm text-muted-foreground">Unrealized PnL</p>
-              <div className={`text-lg font-semibold ${liveTotals.totalUnrealizedUsd >= 0 ? 'text-profit' : 'text-loss'}`}>
-                <UsdWithSol 
+
+            <div className={cn(
+              "text-center p-3 border-2 rounded-lg",
+              liveTotals.totalUnrealizedUsd >= 0
+                ? "bg-[#00ff85]/10 border-green-500"
+                : "bg-[#ff4444]/10 border-red-500"
+            )}>
+              <p className="text-sm font-bold text-pipe-700 uppercase">Unrealized PnL</p>
+              <div className={liveTotals.totalUnrealizedUsd >= 0 ? 'text-[#00ff85]' : 'text-[#ff4444]'}>
+                <UsdWithSol
                   usd={liveTotals.totalUnrealizedUsd}
                   prefix={liveTotals.totalUnrealizedUsd >= 0 ? '+' : ''}
-                  className="text-lg font-semibold"
+                  className="text-lg font-bold"
                   solClassName="text-xs"
                 />
               </div>
             </div>
           </div>
-        </Card>
+        </div>
       )}
 
-      {/* Positions Table */}
-      <Card className="p-6 trading-card">
+      {/* Positions Table - Mario Theme */}
+      <div className="bg-white border-4 border-pipe-700 rounded-xl shadow-[6px_6px_0_0_rgba(0,0,0,0.3)] p-6">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold flex items-center gap-2">
-            <Wallet className="h-5 w-5" />
-            Active Positions
-          </h3>
+          <div className="flex items-center gap-3">
+            <div className="bg-mario-red-500 p-2 rounded-lg border-3 border-mario-red-700 shadow-[3px_3px_0_0_rgba(0,0,0,0.3)]">
+              <Wallet className="h-5 w-5 text-white" />
+            </div>
+            <h3 className="text-xl font-bold text-pipe-900">Active Positions</h3>
+          </div>
           {wsConnected && (
-            <Badge variant="outline" className="text-xs bg-green-500/10 text-green-600 border-green-500/20">
-              Live Prices
+            <Badge variant="outline" className="text-xs bg-luigi-green-100 text-luigi-green-700 border-luigi-green-500 border-2 font-bold">
+              LIVE PRICES
             </Badge>
           )}
         </div>
@@ -709,7 +733,7 @@ export const UnifiedPositions = memo(function UnifiedPositions({
             </tbody>
           </table>
         </div>
-      </Card>
+      </div>
     </div>
   )
 })

@@ -42,7 +42,8 @@ import Image from 'next/image';
 interface StatCardProps {
   title: string;
   value: number | string;
-  icon: React.ElementType;
+  icon?: React.ElementType;
+  iconSrc?: string; // Mario PNG icon path
   description?: string;
   change?: number;
   showSolEquiv?: boolean;
@@ -59,6 +60,7 @@ function StatCard({
   title,
   value,
   icon: Icon,
+  iconSrc,
   description,
   change,
   showSolEquiv = true,
@@ -89,7 +91,7 @@ function StatCard({
   };
 
   const changeColor = change !== undefined
-    ? change >= 0 ? 'text-luigi-green-600' : 'text-mario-red-600'
+    ? change >= 0 ? 'text-[#00ff85]' : 'text-[#ff4444]'
     : 'text-pipe-600';
 
   const ChangeIcon = change !== undefined
@@ -126,9 +128,14 @@ function StatCard({
               "p-3 rounded-lg border-3",
               style.iconBg,
               "border-black/30",
-              "shadow-[3px_3px_0_0_rgba(0,0,0,0.3)]"
+              "shadow-[3px_3px_0_0_rgba(0,0,0,0.3)]",
+              "flex items-center justify-center"
             )}>
-              <Icon className={cn("h-6 w-6", style.iconColor)} />
+              {iconSrc ? (
+                <Image src={iconSrc} alt={title} width={24} height={24} />
+              ) : Icon ? (
+                <Icon className={cn("h-6 w-6", style.iconColor)} />
+              ) : null}
             </div>
             {change !== undefined && ChangeIcon && (
               <div className={cn(
@@ -324,7 +331,7 @@ export function PortfolioMetrics({ isLoading: externalLoading = false }: Portfol
         <StatCard
           title="Portfolio Value"
           value={totalValue}
-          icon={DollarSign}
+          iconSrc="/icons/mario/money-bag.png"
           description={`${activePositions} active position${activePositions !== 1 ? 's' : ''}`}
           isLoading={isLoading}
           showSolEquiv={true}
@@ -336,7 +343,7 @@ export function PortfolioMetrics({ isLoading: externalLoading = false }: Portfol
         <StatCard
           title="Total P&L"
           value={totalPnL}
-          icon={totalPnL >= 0 ? TrendingUp : TrendingDown}
+          iconSrc={totalPnL >= 0 ? "/icons/mario/star.png" : "/icons/mario/fire.png"}
           description="Realized + unrealized profit/loss"
           change={totalPnLChange}
           isLoading={isLoading}
@@ -349,7 +356,7 @@ export function PortfolioMetrics({ isLoading: externalLoading = false }: Portfol
         <StatCard
           title="Unrealized P&L"
           value={unrealizedPnL}
-          icon={unrealizedPnL >= 0 ? TrendingUp : TrendingDown}
+          iconSrc={unrealizedPnL >= 0 ? "/icons/mario/mushroom.png" : "/icons/mario/carnivorous-plant.png"}
           description="Open position gains/losses"
           change={unrealizedPnLChange}
           isLoading={isLoading}
@@ -362,7 +369,7 @@ export function PortfolioMetrics({ isLoading: externalLoading = false }: Portfol
         <StatCard
           title="Win Rate"
           value={winRate}
-          icon={Percent}
+          iconSrc="/icons/mario/trophey.png"
           description={`${totalTrades} total trade${totalTrades !== 1 ? 's' : ''}`}
           isLoading={isLoading}
           showSolEquiv={false}
@@ -380,8 +387,8 @@ export function PortfolioMetrics({ isLoading: externalLoading = false }: Portfol
       >
         {/* Active Positions */}
         <div className="bg-white border-3 border-pipe-600 rounded-lg shadow-[3px_3px_0_0_rgba(0,0,0,0.2)] p-3 flex items-center gap-3">
-          <div className="bg-star-yellow-500 p-2 rounded-lg border-2 border-star-yellow-700">
-            <Target className="h-4 w-4 text-white" />
+          <div className="bg-star-yellow-500 p-2 rounded-lg border-2 border-star-yellow-700 flex items-center justify-center">
+            <Image src="/icons/mario/mushroom.png" alt="Active" width={16} height={16} />
           </div>
           <div>
             <p className="text-xs font-bold text-pipe-700 uppercase">Active</p>
@@ -391,8 +398,8 @@ export function PortfolioMetrics({ isLoading: externalLoading = false }: Portfol
 
         {/* Total Trades */}
         <div className="bg-white border-3 border-pipe-600 rounded-lg shadow-[3px_3px_0_0_rgba(0,0,0,0.2)] p-3 flex items-center gap-3">
-          <div className="bg-mario-red-500 p-2 rounded-lg border-2 border-mario-red-700">
-            <Activity className="h-4 w-4 text-white" />
+          <div className="bg-mario-red-500 p-2 rounded-lg border-2 border-mario-red-700 flex items-center justify-center">
+            <Image src="/icons/mario/game.png" alt="Trades" width={16} height={16} />
           </div>
           <div>
             <p className="text-xs font-bold text-pipe-700 uppercase">Trades</p>
@@ -403,16 +410,21 @@ export function PortfolioMetrics({ isLoading: externalLoading = false }: Portfol
         {/* Realized PnL */}
         <div className="bg-white border-3 border-pipe-600 rounded-lg shadow-[3px_3px_0_0_rgba(0,0,0,0.2)] p-3 flex items-center gap-3">
           <div className={cn(
-            "p-2 rounded-lg border-2",
-            realizedPnL >= 0 ? "bg-luigi-green-500 border-luigi-green-700" : "bg-mario-red-500 border-mario-red-700"
+            "p-2 rounded-lg border-2 flex items-center justify-center",
+            realizedPnL >= 0 ? "bg-[#00ff85] border-green-700" : "bg-[#ff4444] border-red-700"
           )}>
-            <TrendingUp className="h-4 w-4 text-white" />
+            <Image
+              src={realizedPnL >= 0 ? "/icons/mario/star.png" : "/icons/mario/fire.png"}
+              alt="Realized PnL"
+              width={16}
+              height={16}
+            />
           </div>
           <div>
             <p className="text-xs font-bold text-pipe-700 uppercase">Realized</p>
             <UsdWithSol
               usd={realizedPnL}
-              className="text-lg font-bold text-pipe-900"
+              className={cn("text-lg font-bold", realizedPnL >= 0 ? "text-[#00ff85]" : "text-[#ff4444]")}
               solClassName="text-xs text-pipe-600"
             />
           </div>
@@ -420,14 +432,14 @@ export function PortfolioMetrics({ isLoading: externalLoading = false }: Portfol
 
         {/* Avg P&L */}
         <div className="bg-white border-3 border-pipe-600 rounded-lg shadow-[3px_3px_0_0_rgba(0,0,0,0.2)] p-3 flex items-center gap-3">
-          <div className="bg-pipe-500 p-2 rounded-lg border-2 border-pipe-700">
-            <Wallet className="h-4 w-4 text-white" />
+          <div className="bg-pipe-500 p-2 rounded-lg border-2 border-pipe-700 flex items-center justify-center">
+            <Image src="/icons/mario/money-bag.png" alt="Avg PnL" width={16} height={16} />
           </div>
           <div>
             <p className="text-xs font-bold text-pipe-700 uppercase">Avg P&L</p>
             <UsdWithSol
               usd={totalTrades > 0 ? totalPnL / totalTrades : 0}
-              className="text-lg font-bold text-pipe-900"
+              className={cn("text-lg font-bold", (totalTrades > 0 ? totalPnL / totalTrades : 0) >= 0 ? "text-[#00ff85]" : "text-[#ff4444]")}
               solClassName="text-xs text-pipe-600"
             />
           </div>
