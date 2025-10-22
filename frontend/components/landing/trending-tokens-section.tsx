@@ -12,16 +12,17 @@ import { useTrendingTokens } from "@/hooks/use-react-query-hooks"
 import { usePriceStreamContext } from "@/lib/price-stream-provider"
 import { formatSolEquivalent } from "@/lib/sol-equivalent-utils"
 import { formatPriceUSD, formatNumber } from "@/lib/format"
+import { MarioHeaderPlaceholder } from "@/components/placeholders/mario-header-placeholder"
 
 export function TrendingTokensSection() {
   const { data: trendingTokens, isLoading: loading } = useTrendingTokens(6) // Increased to 6 for better showcase
   const { prices: livePrices } = usePriceStreamContext()
-  
+
   // Get SOL price for equivalents
   const solPrice = livePrices.get('So11111111111111111111111111111111111111112')?.price || 0
 
   return (
-    <section className="py-20 md:py-32 bg-background border-t border-b border-border">
+    <section className="py-20 md:py-32 bg-gradient-to-b from-mario-red/10 via-mario-yellow/10 to-mario-green/10 border-t-4 border-b-4 border-mario-red/30">
       <div className="container mx-auto px-4">
         <motion.div
           className="text-center space-y-4 mb-12"
@@ -29,11 +30,16 @@ export function TrendingTokensSection() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
         >
-          <h2 className="font-heading text-4xl md:text-5xl font-bold text-balance">
-            Trending Tokens
+          {/* Mario header placeholder */}
+          <div className="mb-6 max-w-3xl mx-auto">
+            <MarioHeaderPlaceholder filename="trending-tokens-header.png" width={800} height={140} colorScheme="rainbow" />
+          </div>
+
+          <h2 className="font-mario text-4xl md:text-5xl font-bold text-balance text-mario-red text-shadow-sm">
+            Hot Tokens Right Now! 🔥
           </h2>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            Live market data from the hottest Solana tokens. Start trading now.
+          <p className="text-xl text-foreground/80 max-w-2xl mx-auto leading-relaxed font-medium">
+            Live market data from the hottest Solana tokens. Jump in and start trading!
           </p>
         </motion.div>
 
@@ -48,7 +54,7 @@ export function TrendingTokensSection() {
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1 }}
               >
-                <EnhancedCard className="p-6 bg-card border-2 border-foreground h-full">
+                <div className="mario-card p-6 bg-gradient-to-br from-white/90 to-white/70 border-3 border-mario-yellow/40 h-full">
                   <div className="space-y-4">
                     <div className="flex items-center gap-3">
                       <div className="h-12 w-12 rounded-full bg-muted animate-pulse" />
@@ -67,7 +73,7 @@ export function TrendingTokensSection() {
                     </div>
                     <div className="h-10 w-full bg-muted animate-pulse rounded" />
                   </div>
-                </EnhancedCard>
+                </div>
               </motion.div>
             ))
           ) : (
@@ -80,7 +86,7 @@ export function TrendingTokensSection() {
                 transition={{ delay: index * 0.1 }}
               >
                 <Link href={`/trade?token=${token.mint}`}>
-                  <EnhancedCard className="p-6 bg-card border-2 border-foreground hover:border-foreground transition-all duration-300 group cursor-pointer h-full">
+                  <div className="mario-card p-6 bg-gradient-to-br from-white/95 to-white/85 border-3 border-mario-yellow/50 hover:border-mario-yellow transition-all duration-300 group cursor-pointer h-full hover:shadow-xl hover:-translate-y-1">
                     <div className="space-y-4">
                       <div className="flex items-center gap-3">
                         <div className="relative h-12 w-12 rounded-full overflow-hidden bg-muted">
@@ -163,15 +169,14 @@ export function TrendingTokensSection() {
                       </div>
                     </div>
 
-                    <Button
-                      variant="default"
-                      className="w-full bg-foreground text-background hover:bg-foreground/90"
-                    >
-                      View Trade
-                      <ArrowRight className="ml-2 h-4 w-4" />
-                    </Button>
+                    <button className="mario-btn mario-btn-green w-full text-white">
+                      <span className="flex items-center justify-center gap-2">
+                        Trade Now! 🎮
+                        <ArrowRight className="h-4 w-4" />
+                      </span>
+                    </button>
                   </div>
-                </EnhancedCard>
+                </div>
               </Link>
             </motion.div>
           ))
@@ -185,10 +190,12 @@ export function TrendingTokensSection() {
           viewport={{ once: true }}
         >
           <Link href="/trade">
-            <Button size="lg" className="group bg-foreground text-background hover:bg-foreground/90">
-              View All Tokens
-              <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-            </Button>
+            <button className="mario-btn mario-btn-lg bg-mario-yellow hover:bg-mario-yellow/90 text-black group">
+              <span className="flex items-center justify-center gap-2">
+                View All Tokens 🔍
+                <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+              </span>
+            </button>
           </Link>
         </motion.div>
       </div>

@@ -16,6 +16,7 @@ import { UnifiedPositions } from "@/components/portfolio/unified-positions"
 import { EnhancedCard, CardGrid, CardSection } from "@/components/ui/enhanced-card-system"
 import { TradeEmptyState } from "@/components/trading/trade-empty-state"
 import { TradeTimeline } from "@/components/trading/trade-timeline"
+import { MarioPageHeader } from "@/components/shared/mario-page-header"
 
 const DexScreenerChart = dynamic(
   () => import("@/components/trading/dexscreener-chart").then((mod) => ({ default: mod.DexScreenerChart })),
@@ -70,6 +71,21 @@ function TradePageContent() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
       <main className="w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-6 max-w-page-xl mx-auto">
+        {/* Mario Page Header */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="mb-6"
+        >
+          <MarioPageHeader
+            src="/trade-header.png"
+            alt="Trade"
+            width={600}
+            height={120}
+            priority
+          />
+        </motion.div>
         {/* MOBILE-OPTIMIZED LAYOUT: Chart + Trading Panel Adjacent */}
         <div className="lg:hidden space-y-4">
           {/* Mobile Search Bar */}

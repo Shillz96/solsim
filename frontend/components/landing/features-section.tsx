@@ -3,6 +3,7 @@
 import { EnhancedCard } from "@/components/ui/enhanced-card-system"
 import { TrendingUp, Wallet, BarChart3, Trophy, Eye, Star, LineChart, Zap } from "lucide-react"
 import { motion } from "framer-motion"
+import { MarioPageHeader } from "@/components/shared/mario-page-header"
 import { MarioHeaderPlaceholder } from "@/components/placeholders/mario-header-placeholder"
 
 const features = [

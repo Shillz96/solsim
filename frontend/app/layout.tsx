@@ -37,10 +37,7 @@ export const metadata: Metadata = {
 }
 
 export const viewport = {
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
-    { media: "(prefers-color-scheme: dark)", color: "#0a0a0a" },
-  ],
+  themeColor: "#A6D8FF", // Mario Sky Blue - light mode only!
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

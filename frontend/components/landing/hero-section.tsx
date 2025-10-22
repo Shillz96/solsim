@@ -3,8 +3,8 @@
 import { Button } from "@/components/ui/button"
 import { ArrowRight, Star, Zap, Trophy } from "lucide-react"
 import Link from "next/link"
+import Image from "next/image"
 import { motion } from "framer-motion"
-import { MarioHeaderPlaceholder } from "@/components/placeholders/mario-header-placeholder"
 
 export function HeroSection() {
   return (
@@ -115,11 +115,15 @@ export function HeroSection() {
             transition={{ delay: 0.3, duration: 0.6 }}
           >
             <div className="relative rounded-2xl overflow-hidden border-4 border-white/40 shadow-2xl bg-gradient-to-br from-mario-red via-mario-yellow to-mario-green p-1">
-              <div className="bg-white rounded-xl overflow-hidden">
-                {/* Mario-themed demo placeholder */}
-                <MarioHeaderPlaceholder
-                  variant="start-trading"
-                  className="w-full h-auto"
+              <div className="bg-white rounded-xl overflow-hidden flex items-center justify-center p-8">
+                {/* 1UP SOL Logo */}
+                <Image
+                  src="/logo-2.png"
+                  alt="1UP SOL"
+                  width={400}
+                  height={120}
+                  priority
+                  className="w-full h-auto max-w-md"
                 />
                 {/* Uncomment when video is ready:
                 <video

@@ -25,7 +25,7 @@ interface AppProvidersProps {
  * 3. SolanaWalletProvider - Wallet connectivity
  * 4. PriceStreamProvider - Real-time price updates
  * 5. NotificationProvider - Enhanced notification system
- * 6. ThemeProvider - Dark/light mode theming
+ * 6. ThemeProvider - LIGHT MODE ONLY (Mario theme!)
  */
 export function AppProviders({ children }: AppProvidersProps) {
   return (
@@ -36,8 +36,7 @@ export function AppProviders({ children }: AppProvidersProps) {
             <NotificationProvider>
               <ThemeProvider
                 attribute="class"
-                defaultTheme="dark"
-                enableSystem
+                forcedTheme="light"
                 disableTransitionOnChange
               >
                 {children}
