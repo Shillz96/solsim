@@ -69,7 +69,7 @@ export function FeaturesSection() {
         >
           {/* Mario header placeholder */}
           <div className="mb-6 max-w-3xl mx-auto">
-            <MarioHeaderPlaceholder variant="features" className="w-full h-auto rounded-xl shadow-lg border-4 border-mario-yellow/50" />
+            <MarioHeaderPlaceholder filename="features-header.png" width={650} height={140} colorScheme="rainbow" />
           </div>
 
           <h2 className="font-mario text-4xl md:text-5xl font-bold text-balance text-mario-red text-shadow-sm">

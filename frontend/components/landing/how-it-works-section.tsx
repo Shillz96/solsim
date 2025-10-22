@@ -42,7 +42,7 @@ export function HowItWorksSection() {
         <div className="text-center space-y-4 mb-16">
           {/* Mario header placeholder */}
           <div className="mb-6 max-w-3xl mx-auto">
-            <MarioHeaderPlaceholder variant="how-it-works" className="w-full h-auto rounded-xl shadow-lg border-4 border-mario-yellow/50" />
+            <MarioHeaderPlaceholder filename="how-it-works-header.png" width={800} height={140} colorScheme="blue" />
           </div>
 
           <h2 className="font-mario text-4xl md:text-5xl font-bold text-mario-red text-shadow-sm">

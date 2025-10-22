@@ -57,7 +57,7 @@ export function LevelUpSection() {
 
           {/* Mario header placeholder */}
           <div className="mb-6 max-w-3xl mx-auto">
-            <MarioHeaderPlaceholder variant="level-up" className="w-full h-auto rounded-xl shadow-2xl border-4 border-mario-yellow" />
+            <MarioHeaderPlaceholder filename="level-up-header.png" width={700} height={150} colorScheme="yellow" />
           </div>
 
           <h2 className="font-mario text-4xl md:text-5xl font-bold text-balance text-mario-red text-shadow-sm">
