@@ -46,7 +46,7 @@ export function HowItWorksSection() {
           {/* Mario header */}
           <div className="mb-6 max-w-3xl mx-auto">
             <MarioPageHeader
-              src="/how-it-works-header.png"
+              src="/how-it-works-header.svg"
               alt="How It Works"
               width={800}
               height={140}

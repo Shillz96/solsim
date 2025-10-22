@@ -71,7 +71,7 @@ export function FeaturesSection() {
           {/* Mario header */}
           <div className="mb-6 max-w-3xl mx-auto">
             <MarioPageHeader
-              src="/features-header.png"
+              src="/features-header.svg"
               alt="Features"
               width={650}
               height={140}

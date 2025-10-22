@@ -58,7 +58,7 @@ export function LevelUpSection() {
           {/* Mario header */}
           <div className="mb-6 max-w-3xl mx-auto">
             <MarioPageHeader
-              src="/level-up-header.png"
+              src="/level-up-header.svg"
               alt="Level Up"
               width={700}
               height={150}

@@ -58,15 +58,14 @@ export function HeroSection() {
           >
             <div className="relative w-full flex justify-center">
               <Image
-                src="/1UP-Your-Solana-Trading-Skill-10-22-2025.png"
+                src="/1UP-Your-Solana-Trading-Skill-10-22-2025.svg"
                 alt="1UP Your Solana Trading Skills"
                 width={1200}
                 height={300}
                 className="object-contain w-full h-auto drop-shadow-2xl"
                 priority
                 style={{
-                  filter: 'drop-shadow(0 4px 20px rgba(0,0,0,0.3))',
-                  imageRendering: 'crisp-edges'
+                  filter: 'drop-shadow(0 4px 20px rgba(0,0,0,0.3))'
                 }}
               />
             </div>
