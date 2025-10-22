@@ -178,9 +178,9 @@ function TradePageContent() {
           </motion.div>
         </div>
 
-        {/* DESKTOP LAYOUT: Original 3-Column Grid */}
-        <div className="hidden lg:block space-y-6">
-          {/* Sliding Trending Ticker - Desktop (Moved to Top) */}
+        {/* DESKTOP LAYOUT: Optimized for Viewport Fit */}
+        <div className="hidden lg:block space-y-3">
+          {/* Sliding Trending Ticker - Desktop (Compact) */}
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -189,7 +189,7 @@ function TradePageContent() {
             <SlidingTrendingTicker />
           </motion.div>
 
-          {/* Token details header - Desktop */}
+          {/* Token details header - Desktop (Compact) */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -198,15 +198,25 @@ function TradePageContent() {
             <TokenDetailsHeader tokenAddress={currentTokenAddress} />
           </motion.div>
 
-          <div className="lg:grid lg:grid-cols-12 gap-4 lg:gap-6 min-h-[calc(100vh-10rem)]">
-          {/* Left Sidebar */}
+          <div className="lg:grid lg:grid-cols-12 gap-4 h-[calc(100vh-240px)]">
+          {/* Left Sidebar - PnL Above Trade Activity */}
           <motion.aside
-            className="lg:col-span-2 space-y-4"
+            className="lg:col-span-3 flex flex-col gap-3 h-full overflow-hidden"
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
           >
-            <div className="lg:sticky lg:top-4 lg:h-[calc(100vh-8rem)] lg:overflow-y-auto space-y-4">
+            {/* Mario Position P&L - Top Priority */}
+            <div className="flex-shrink-0">
+              <MarioPositionPnL
+                tokenAddress={currentTokenAddress}
+                tokenSymbol={tokenSymbol}
+                tokenName={tokenName}
+              />
+            </div>
+
+            {/* Trade Activity - Scrollable Below PnL */}
+            <div className="flex-1 overflow-y-auto">
               <TradeDetails
                 tokenAddress={currentTokenAddress}
                 tokenSymbol={tokenSymbol}
@@ -217,42 +227,34 @@ function TradePageContent() {
             </div>
           </motion.aside>
 
-          {/* Main Content Area */}
+          {/* Chart - Matches Right Panel Height */}
           <motion.div
-            className="lg:col-span-8"
+            className="lg:col-span-7 h-full"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
           >
-            <div className="space-y-6">
-              {/* Chart Section */}
-              <div className="h-[600px] overflow-hidden">
-                <Suspense fallback={<ChartSkeleton />}>
-                  <DexScreenerChart tokenAddress={currentTokenAddress} />
-                </Suspense>
-              </div>
-
-              {/* Mario Position P&L - Compact & Gamified Under Chart */}
-              <MarioPositionPnL
-                tokenAddress={currentTokenAddress}
-                tokenSymbol={tokenSymbol}
-                tokenName={tokenName}
-              />
+            <div className="h-full overflow-hidden">
+              <Suspense fallback={<ChartSkeleton />}>
+                <DexScreenerChart tokenAddress={currentTokenAddress} />
+              </Suspense>
             </div>
           </motion.div>
 
-          {/* Right Sidebar - Mario Trading Panel + Recent Trades */}
+          {/* Right Sidebar - Trading Panel + Timeline */}
           <motion.aside
-            className="lg:col-span-2"
+            className="lg:col-span-2 flex flex-col gap-3 h-full overflow-hidden"
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
           >
-            <div className="lg:sticky lg:top-4 space-y-4">
+            <div className="flex-shrink-0">
               <MarioTradingPanel tokenAddress={currentTokenAddress} />
+            </div>
+            <div className="flex-1 overflow-y-auto">
               <TradeTimeline
                 tokenAddress={currentTokenAddress}
-                maxTrades={5}
+                maxTrades={10}
                 variant="compact"
               />
             </div>
