@@ -143,10 +143,10 @@ export default function LeaderboardPage() {
         >
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-4xl md:text-5xl font-bold mb-4">
+              <h1 className="text-4xl md:text-5xl font-bold font-mario mb-4 text-foreground" style={{ textShadow: '1px 1px 2px rgba(255,255,255,0.5)' }}>
                 Top Traders
               </h1>
-              <p className="text-lg text-muted-foreground">Compete with traders worldwide and climb the ranks</p>
+              <p className="text-lg text-foreground font-semibold">Compete with traders worldwide and climb the ranks</p>
             </div>
             <Button
               variant="outline"

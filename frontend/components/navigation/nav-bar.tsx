@@ -255,18 +255,15 @@ export function NavBar() {
         <div className="flex h-16 items-center justify-between">
           {/* Logo and Brand */}
           <div className="flex items-center gap-6">
-            <Link href="/" className="flex items-center gap-3 group" style={{ viewTransitionName: 'logo' } as React.CSSProperties}>
+            <Link href="/" className="flex items-center" style={{ viewTransitionName: 'logo' } as React.CSSProperties}>
               <Image
-                src="/logo.png"
+                src="/logo-2.png"
                 alt="1UP SOL"
-                width={50}
-                height={50}
+                width={180}
+                height={54}
                 priority
-                className="group-hover:scale-110 transition-transform duration-200"
+                className="h-10 w-auto hover:scale-105 transition-transform duration-200"
               />
-              <span className="font-mario text-2xl md:text-3xl text-mario-red hidden sm:block group-hover:scale-105 transition-transform duration-200" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.2)' }}>
-                1UP SOL
-              </span>
             </Link>
 
             {/* Desktop Navigation */}
@@ -450,11 +447,6 @@ export function NavBar() {
                 Sign In
               </Button>
             )}
-
-            {/* Mobile Logo Text (visible on mobile when logo is just icon) */}
-            <Link href="/" className="sm:hidden">
-              <span className="font-mario text-xl text-mario-red" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.2)' }}>1UP SOL</span>
-            </Link>
 
             {/* Mobile Menu */}
             <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
