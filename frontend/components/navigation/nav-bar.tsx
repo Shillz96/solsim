@@ -57,9 +57,8 @@ const navigationItems = [
     name: "Dashboard",
     href: "/",
     icon: Home,
-    iconSrc: "/Dashboard-10-22-2025.png",
-    description: "Overview of your trading activity",
-    isImageOnly: true
+    iconSrc: "/icons/mario/home.png",
+    description: "Overview of your trading activity"
   },
   {
     name: "Trade",
@@ -293,14 +292,8 @@ export function NavBar() {
                         isActive && "bg-primary/10 text-primary"
                       )}
                     >
-                      {item.isImageOnly ? (
-                        <Image src={item.iconSrc} alt={item.name} width={100} height={24} className="object-contain" />
-                      ) : (
-                        <>
-                          <Image src={item.iconSrc} alt={item.name} width={16} height={16} className="object-contain" />
-                          <span className="hidden lg:inline">{item.name}</span>
-                        </>
-                      )}
+                      <Image src={item.iconSrc} alt={item.name} width={16} height={16} className="object-contain" />
+                      <span className="hidden lg:inline">{item.name}</span>
                     </Button>
                   </Link>
                 )
