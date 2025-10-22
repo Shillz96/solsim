@@ -257,7 +257,7 @@ export function NavBar() {
           <div className="flex items-center gap-6">
             <Link href="/" className="flex items-center" style={{ viewTransitionName: 'logo' } as React.CSSProperties}>
               <Image
-                src="/logo-2.png"
+                src="/navbarlogo.svg"
                 alt="1UP SOL"
                 width={180}
                 height={54}
