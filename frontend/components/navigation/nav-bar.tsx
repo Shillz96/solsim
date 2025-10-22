@@ -32,6 +32,9 @@ const AuthModal = dynamic(() => import("@/components/modals/auth-modal").then(mo
 const PurchaseModal = dynamic(() => import("@/components/modals/purchase-modal").then(mod => ({ default: mod.PurchaseModal })), {
   ssr: false
 })
+const LevelProgressModal = dynamic(() => import("@/components/level/level-progress-modal").then(mod => ({ default: mod.LevelProgressModal })), {
+  ssr: false
+})
 import { NotificationDropdown } from "@/components/notifications/notification-dropdown"
 import { cn } from "@/lib/utils"
 import { motion, AnimatePresence } from "framer-motion"
@@ -110,6 +113,7 @@ const navigationItems = [
 export function NavBar() {
   const [authModalOpen, setAuthModalOpen] = useState(false)
   const [purchaseModalOpen, setPurchaseModalOpen] = useState(false)
+  const [levelModalOpen, setLevelModalOpen] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [mounted, setMounted] = useState(false)
   const pathname = usePathname()
@@ -383,16 +387,16 @@ export function NavBar() {
                 {/* Balance Display - Clickable */}
                 <button
                   onClick={() => setPurchaseModalOpen(true)}
-                  className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-2 rounded-lg bg-muted hover:bg-muted/80 transition-colors cursor-pointer group"
+                  className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white border-3 border-pipe-700 hover:border-mario-red-500 transition-all cursor-pointer group shadow-[3px_3px_0px_0px_rgba(0,0,0,0.2)] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,0.3)] hover:-translate-y-0.5"
                   aria-label="Purchase simulated SOL"
                 >
-                  <Wallet className="h-4 w-4 text-primary group-hover:scale-110 transition-transform" />
+                  <Image src="/icons/mario/wallet.png" alt="Wallet" width={20} height={20} className="group-hover:scale-110 transition-transform" />
                   <div className="text-sm">
-                    <div className="font-semibold text-foreground">
+                    <div className="font-bold text-foreground font-mario text-xs">
                       {balanceData ? `${parseFloat(balanceData.balance).toFixed(2)} SOL` : 'Loading...'}
                     </div>
                     {solPrice > 0 && balanceData && (
-                      <div className="hidden sm:block text-xs text-foreground/60">
+                      <div className="hidden sm:block text-[10px] text-foreground/60 font-semibold">
                         {formatUSD(parseFloat(balanceData.balance) * solPrice)}
                       </div>
                     )}
@@ -402,10 +406,15 @@ export function NavBar() {
                 {/* XP Badge - Hidden on mobile */}
                 {user && (
                   <div className="hidden md:block">
-                    <XPBadge
-                      currentXP={parseFloat(user.rewardPoints?.toString() || '0')}
-                      className="px-3 py-2 bg-gradient-to-r from-mario-yellow/20 to-mario-orange/20 border-2 border-mario-yellow/50 hover:border-mario-yellow transition-all hover:scale-105"
-                    />
+                    <button
+                      onClick={() => setLevelModalOpen(true)}
+                      className="cursor-pointer"
+                    >
+                      <XPBadge
+                        currentXP={parseFloat(user.rewardPoints?.toString() || '0')}
+                        className="px-4 py-2.5 bg-gradient-to-r from-star-yellow-400 to-coin-yellow-500 border-3 border-star-yellow-600 hover:border-star-yellow-700 transition-all hover:scale-105 shadow-[3px_3px_0px_0px_rgba(0,0,0,0.2)] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,0.3)] rounded-lg"
+                      />
+                    </button>
                   </div>
                 )}
 
@@ -418,17 +427,13 @@ export function NavBar() {
                 <div className="hidden md:block">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" className="flex items-center gap-2 px-3">
-                        <Avatar className="h-6 w-6 rounded-md border border-border">
-                          <AvatarImage src={avatarUrl} alt={displayName} className="rounded-md" />
-                          <AvatarFallback className="bg-primary/10 text-xs rounded-md">
+                      <Button variant="ghost" className="p-1 hover:bg-muted/50 rounded-lg">
+                        <Avatar className="h-10 w-10 rounded-lg border-3 border-pipe-700 hover:border-mario-red-500 transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,0.15)]">
+                          <AvatarImage src={avatarUrl} alt={displayName} className="rounded-lg" />
+                          <AvatarFallback className="bg-primary/10 text-sm font-bold rounded-lg">
                             {displayName?.[0]?.toUpperCase() || 'U'}
                           </AvatarFallback>
                         </Avatar>
-                        <span className="hidden sm:inline font-mario text-sm">
-                          {displayName}
-                        </span>
-                        <ChevronDown className="h-3 w-3" />
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-56">
@@ -602,11 +607,18 @@ export function NavBar() {
       {/* Modals */}
       <AuthModal open={authModalOpen} onOpenChange={setAuthModalOpen} />
       {isAuthenticated && user && (
-        <PurchaseModal 
-          open={purchaseModalOpen} 
-          onOpenChange={setPurchaseModalOpen}
-          userId={user.id}
-        />
+        <>
+          <PurchaseModal
+            open={purchaseModalOpen}
+            onOpenChange={setPurchaseModalOpen}
+            userId={user.id}
+          />
+          <LevelProgressModal
+            open={levelModalOpen}
+            onOpenChange={setLevelModalOpen}
+            currentXP={parseFloat(user.rewardPoints?.toString() || '0')}
+          />
+        </>
       )}
     </motion.header>
   )

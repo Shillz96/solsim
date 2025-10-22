@@ -152,13 +152,13 @@ export function XPBadge({ currentXP, className = '' }: { currentXP: number; clas
   const levelInfo = calculateLevel(currentXP);
 
   return (
-    <div className={`mario-badge inline-flex items-center gap-2 ${className}`}>
-      <span className="text-xl" role="img" aria-label="Level icon">
+    <div className={`inline-flex items-center gap-2 ${className}`}>
+      <span className="text-2xl" role="img" aria-label="Level icon">
         {levelInfo.icon}
       </span>
       <div className="flex flex-col leading-tight">
-        <span className="text-xs font-bold text-white/90">LVL {levelInfo.level}</span>
-        <span className="text-[10px] text-white/60">{formatXP(currentXP)} XP</span>
+        <span className="text-xs font-bold text-pipe-900 drop-shadow-sm">LVL {levelInfo.level}</span>
+        <span className="text-[10px] text-pipe-700 font-semibold">{formatXP(currentXP)} XP</span>
       </div>
     </div>
   );
