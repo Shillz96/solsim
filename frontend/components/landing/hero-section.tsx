@@ -118,8 +118,10 @@ export function HeroSection() {
               <div className="bg-white rounded-xl overflow-hidden">
                 {/* Mario-themed demo placeholder */}
                 <MarioHeaderPlaceholder
-                  variant="start-trading"
-                  className="w-full h-auto"
+                  filename="start-trading-header.png"
+                  width={800}
+                  height={140}
+                  colorScheme="red"
                 />
                 {/* Uncomment when video is ready:
                 <video
