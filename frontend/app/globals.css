@@ -236,8 +236,8 @@
   }
 
   body {
-    background-color: hsl(var(--background));
-    color: hsl(var(--foreground));
+    background-color: var(--background);
+    color: var(--foreground);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     font-family: var(--font-sans);
@@ -260,18 +260,15 @@
     background-size: 1200px 1200px; /* Larger size reduces visible repetition */
     opacity: 0.15; /* Lower opacity for subtle texture */
     pointer-events: none;
-    z-index: 0;
+    z-index: 9999;
     /* Slight rotation breaks up grid pattern */
     transform: rotate(0.5deg) scale(1.02);
   }
 
   /* Dark mode texture styling removed */
 
-  /* Ensure content stays above texture */
-  body > * {
-    position: relative;
-    z-index: 1;
-  }
+  /* Paper texture now appears above content with pointer-events: none */
+  /* Removed z-index from body > * to allow texture to float above */
 
 
   /* ---------------------------
