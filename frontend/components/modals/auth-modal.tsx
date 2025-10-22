@@ -3,6 +3,7 @@
 import type React from "react"
 
 import { useState } from "react"
+import Image from "next/image"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Button } from "@/components/ui/button"
@@ -212,11 +213,16 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
       <DialogContent className="w-[90vw] max-w-md mx-auto border-2 border-border shadow-none rounded-md max-h-[85vh] overflow-y-auto p-4 sm:p-6" style={{ backgroundColor: 'var(--background)', opacity: 1 }}>
         <div className="relative z-10">
         <DialogHeader className="space-y-3">
-          <div className="flex items-center justify-center gap-3 mb-4">
-            <div className="flex h-12 w-12 items-center justify-center rounded-none bg-foreground shadow-none">
-              <TrendingUp className="h-7 w-7 text-background" />
-            </div>
-            <DialogTitle className="text-2xl md:text-3xl font-bold">VirtualSol</DialogTitle>
+          <div className="flex items-center justify-center mb-4">
+            <DialogTitle className="sr-only">1UP SOL</DialogTitle>
+            <Image
+              src="/navbarlogo.svg"
+              alt="1UP SOL"
+              width={220}
+              height={66}
+              priority
+              className="h-auto w-auto max-w-[220px]"
+            />
           </div>
           <DialogDescription className="text-center text-sm md:text-base text-muted-foreground">
             {currentView === 'forgot-password' && 'Reset your password'}
