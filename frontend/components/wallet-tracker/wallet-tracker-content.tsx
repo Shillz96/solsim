@@ -219,17 +219,20 @@ export function WalletTrackerContent() {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <Card className="p-8 text-center max-w-md">
-          <Wallet className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-          <h2 className="text-xl font-semibold mb-2">Sign In Required</h2>
-          <p className="text-muted-foreground mb-4">
+      <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 flex items-center justify-center p-4">
+        <div className="mario-card bg-white border-4 border-pipe-700 shadow-mario p-8 text-center max-w-md">
+          <Wallet className="h-16 w-16 text-mario-red mx-auto mb-4" />
+          <h2 className="text-2xl font-bold mb-3 text-pipe-900">Sign In Required</h2>
+          <p className="text-pipe-700 font-semibold mb-6">
             Please sign in to track wallet activities
           </p>
-          <Button onClick={() => window.location.href = '/auth/signin'}>
+          <Button
+            onClick={() => window.location.href = '/auth/signin'}
+            className="mario-btn mario-btn-red text-white font-bold"
+          >
             Sign In
           </Button>
-        </Card>
+        </div>
       </div>
     )
   }
@@ -238,28 +241,34 @@ export function WalletTrackerContent() {
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
       <main className="w-full px-4 sm:px-6 lg:px-8 py-2 sm:py-4 max-w-page-xl mx-auto">
         <div className="space-y-6">
-        {/* Header */}
+        {/* Header - Mario themed */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
           className="flex items-center justify-between"
         >
-          <div className="space-y-1">
-            <h1 className="text-2xl font-bold flex items-center gap-2">
-              <Eye className="h-6 w-6 text-primary" />
+          <div className="space-y-2">
+            <h1 className="text-3xl font-bold flex items-center gap-3 text-pipe-900">
+              <Eye className="h-8 w-8 text-mario-red" />
               Wallet Tracker
             </h1>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-base font-semibold text-pipe-700">
               Track and copy trades from top Solana wallets in real-time
             </p>
           </div>
 
           <div className="flex items-center gap-2">
-            <Badge variant={connected ? "default" : "secondary"} className="gap-1">
+            <Badge
+              variant={connected ? "default" : "secondary"}
+              className={cn(
+                "gap-1 border-2 font-bold",
+                connected ? "bg-luigi-green-500 text-white border-black" : "bg-pipe-200 text-pipe-900 border-pipe-700"
+              )}
+            >
               <div className={cn(
                 "h-2 w-2 rounded-full",
-                connected ? "bg-green-500 animate-pulse" : "bg-pipe-500"
+                connected ? "bg-white animate-pulse" : "bg-pipe-700"
               )} />
               {connected ? "Live" : "Offline"}
             </Badge>
@@ -269,6 +278,7 @@ export function WalletTrackerContent() {
               size="sm"
               onClick={() => fetchActivities(true)}
               disabled={isLoadingMore}
+              className="border-3 border-pipe-700 hover:bg-sky-100"
             >
               <RefreshCw className={cn("h-4 w-4", isLoadingMore && "animate-spin")} />
             </Button>
@@ -277,17 +287,16 @@ export function WalletTrackerContent() {
               variant="outline"
               size="sm"
               onClick={() => setShowSettings(true)}
-              className="gap-2"
+              className="gap-2 border-3 border-pipe-700 hover:bg-sky-100 font-bold"
             >
               <Settings className="h-4 w-4" />
               Filters
             </Button>
 
             <Button
-              variant="default"
               size="sm"
               onClick={() => setShowWalletManager(true)}
-              className="gap-2"
+              className="gap-2 mario-btn mario-btn-red font-bold text-white"
             >
               <Plus className="h-4 w-4" />
               Manage Wallets
@@ -308,24 +317,24 @@ export function WalletTrackerContent() {
         </motion.div>
 
         {/* Filters */}
-        <Card className="p-4">
+        <div className="mario-card bg-white border-4 border-pipe-700 shadow-mario p-4">
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-pipe-700" />
               <Input
                 placeholder="Search token symbol or wallet..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-9"
+                className="pl-9 border-3 border-pipe-500 focus:border-mario-red font-semibold"
               />
             </div>
 
             <Select value={filterType} onValueChange={(v: any) => setFilterType(v)}>
-              <SelectTrigger className="w-[140px]">
+              <SelectTrigger className="w-[140px] border-3 border-pipe-500 font-bold">
                 <Filter className="h-4 w-4 mr-2" />
                 <SelectValue placeholder="Filter" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="border-3 border-pipe-700">
                 <SelectItem value="all">All Trades</SelectItem>
                 <SelectItem value="buy">Buys Only</SelectItem>
                 <SelectItem value="sell">Sells Only</SelectItem>
@@ -336,7 +345,7 @@ export function WalletTrackerContent() {
             {trackedWallets && trackedWallets.length > 0 && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline" size="sm" className="border-3 border-pipe-500 font-bold">
                     <Wallet className="h-4 w-4 mr-2" />
                     {selectedWallets.length === 0
                       ? "All Wallets"
@@ -344,7 +353,7 @@ export function WalletTrackerContent() {
                     <ChevronDown className="h-4 w-4 ml-2" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-64">
+                <DropdownMenuContent align="end" className="w-64 border-3 border-pipe-700">
                   <DropdownMenuItem onClick={() => setSelectedWallets([])}>
                     All Wallets
                   </DropdownMenuItem>
@@ -374,7 +383,7 @@ export function WalletTrackerContent() {
               </DropdownMenu>
             )}
           </div>
-        </Card>
+        </div>
 
         {/* Activity List */}
         <WalletActivityList
@@ -415,12 +424,6 @@ export function WalletTrackerContent() {
           onSettingsSaved={() => fetchActivities(true)}
         />
 
-        {/* Decorative Elements */}
-        <div className="fixed inset-0 pointer-events-none -z-20 overflow-hidden">
-          <div className="absolute top-1/3 left-1/5 w-96 h-96 bg-primary/3 rounded-full blur-3xl"></div>
-          <div className="absolute bottom-1/3 right-1/5 w-96 h-96 bg-green-500/3 rounded-full blur-3xl"></div>
-          <div className="absolute top-2/3 left-2/3 w-64 h-64 bg-blue-500/3 rounded-full blur-2xl"></div>
-        </div>
         </div>
       </main>
     </div>

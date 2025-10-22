@@ -187,24 +187,24 @@ export function WalletManager({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[80vh] overflow-hidden flex flex-col">
+      <DialogContent className="max-w-2xl max-h-[80vh] overflow-hidden flex flex-col border-4 border-pipe-700 shadow-mario">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Eye className="h-5 w-5 text-primary" />
+          <DialogTitle className="flex items-center gap-2 text-2xl font-bold text-pipe-900">
+            <Eye className="h-6 w-6 text-mario-red" />
             Manage Tracked Wallets
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="font-semibold text-pipe-700">
             Add, remove, and manage the wallets you're tracking
           </DialogDescription>
         </DialogHeader>
 
         <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)} className="flex-1 overflow-hidden">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="tracked" className="gap-2">
+          <TabsList className="grid w-full grid-cols-2 border-3 border-pipe-700 bg-sky-100">
+            <TabsTrigger value="tracked" className="gap-2 font-bold data-[state=active]:bg-mario-red data-[state=active]:text-white">
               <Eye className="h-4 w-4" />
               Tracked ({trackedWallets.length})
             </TabsTrigger>
-            <TabsTrigger value="add" className="gap-2">
+            <TabsTrigger value="add" className="gap-2 font-bold data-[state=active]:bg-mario-red data-[state=active]:text-white">
               <UserPlus className="h-4 w-4" />
               Add Wallet
             </TabsTrigger>
@@ -214,55 +214,58 @@ export function WalletManager({
             {/* Search */}
             {trackedWallets.length > 0 && (
               <div className="relative mb-4">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-pipe-700" />
                 <Input
                   placeholder="Search wallets..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-9"
+                  className="pl-9 border-3 border-pipe-500 focus:border-mario-red font-semibold"
                 />
               </div>
             )}
 
             {/* Wallet List */}
             {filteredWallets.length === 0 ? (
-              <Card className="p-8 text-center">
-                <Eye className="h-8 w-8 text-muted-foreground mx-auto mb-3" />
-                <p className="text-sm text-muted-foreground">
+              <div className="mario-card bg-sky-50 border-4 border-pipe-700 shadow-mario p-8 text-center">
+                <Eye className="h-12 w-12 text-mario-red mx-auto mb-4" />
+                <p className="text-sm font-bold text-pipe-900">
                   {searchTerm ? "No wallets found" : "No wallets tracked yet"}
                 </p>
                 {!searchTerm && (
                   <Button
                     onClick={() => setActiveTab("add")}
                     size="sm"
-                    className="mt-4 gap-2"
+                    className="mt-4 gap-2 mario-btn mario-btn-red text-white font-bold"
                   >
                     <Plus className="h-4 w-4" />
                     Track Your First Wallet
                   </Button>
                 )}
-              </Card>
+              </div>
             ) : (
               <div className="space-y-2">
                 {filteredWallets.map((wallet) => (
-                  <Card key={wallet.id} className="p-3">
+                  <div key={wallet.id} className="mario-card bg-white border-3 border-pipe-700 shadow-md p-3">
                     <div className="flex items-center justify-between">
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
                           {wallet.label && (
-                            <Badge variant="secondary" className="text-xs">
+                            <Badge variant="secondary" className="text-xs font-bold border-2 border-pipe-700 bg-star-yellow-400 text-black">
                               {wallet.label}
                             </Badge>
                           )}
                           <Badge
                             variant={wallet.isActive ? "default" : "outline"}
-                            className="text-xs"
+                            className={cn(
+                              "text-xs font-bold border-2",
+                              wallet.isActive ? "bg-luigi-green-500 text-white border-black" : "border-pipe-700 bg-pipe-200 text-pipe-900"
+                            )}
                           >
                             {wallet.isActive ? "Active" : "Inactive"}
                           </Badge>
                         </div>
                         <div className="flex items-center gap-2">
-                          <code className="text-xs font-mono text-muted-foreground truncate">
+                          <code className="text-xs font-mono font-bold text-pipe-700 truncate">
                             {wallet.walletAddress}
                           </code>
                           <button
@@ -288,6 +291,7 @@ export function WalletManager({
                           size="sm"
                           onClick={() => handleSyncWallet(wallet.walletAddress)}
                           disabled={syncingWallets.has(wallet.walletAddress)}
+                          className="border-2 border-pipe-500 hover:bg-sky-100"
                         >
                           <RefreshCw className={cn(
                             "h-4 w-4",
@@ -299,7 +303,7 @@ export function WalletManager({
                           size="sm"
                           onClick={() => handleRemoveWallet(wallet.id)}
                           disabled={removingWallets.has(wallet.id)}
-                          className="text-destructive hover:bg-destructive/10"
+                          className="text-mario-red hover:bg-mario-red/10 border-2 border-mario-red"
                         >
                           {removingWallets.has(wallet.id) ? (
                             <Loader2 className="h-4 w-4 animate-spin" />
@@ -309,53 +313,54 @@ export function WalletManager({
                         </Button>
                       </div>
                     </div>
-                  </Card>
+                  </div>
                 ))}
               </div>
             )}
           </TabsContent>
 
           <TabsContent value="add" className="mt-4">
-            <Card className="p-6">
+            <div className="mario-card bg-white border-4 border-pipe-700 shadow-mario p-6">
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="wallet-address">Wallet Address *</Label>
+                  <Label htmlFor="wallet-address" className="font-bold text-pipe-900">Wallet Address *</Label>
                   <Input
                     id="wallet-address"
                     placeholder="Enter Solana wallet address..."
                     value={newWalletAddress}
                     onChange={(e) => setNewWalletAddress(e.target.value)}
-                    className="font-mono"
+                    className="font-mono border-3 border-pipe-500 focus:border-mario-red"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="wallet-label">Label (Optional)</Label>
+                  <Label htmlFor="wallet-label" className="font-bold text-pipe-900">Label (Optional)</Label>
                   <Input
                     id="wallet-label"
                     placeholder="e.g., 'Ansem', 'Top Trader'..."
                     value={newWalletLabel}
                     onChange={(e) => setNewWalletLabel(e.target.value)}
+                    className="border-3 border-pipe-500 focus:border-mario-red"
                   />
                 </div>
 
-                <div className="bg-muted/50 rounded-lg p-4 text-sm text-muted-foreground">
-                  <p className="font-medium mb-2">Popular KOL Wallets:</p>
+                <div className="bg-sky-100 rounded-lg border-3 border-pipe-500 p-4 text-sm">
+                  <p className="font-bold mb-2 text-pipe-900">Popular KOL Wallets:</p>
                   <div className="space-y-1">
                     <div className="flex items-center justify-between">
-                      <span>Example Wallet 1</span>
+                      <span className="font-semibold text-pipe-700">Example Wallet 1</span>
                       <button
                         onClick={() => setNewWalletAddress("11111111111111111111111111111111")}
-                        className="text-primary hover:underline text-xs"
+                        className="text-mario-red hover:underline text-xs font-bold"
                       >
                         Use
                       </button>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span>Example Wallet 2</span>
+                      <span className="font-semibold text-pipe-700">Example Wallet 2</span>
                       <button
                         onClick={() => setNewWalletAddress("22222222222222222222222222222222")}
-                        className="text-primary hover:underline text-xs"
+                        className="text-mario-red hover:underline text-xs font-bold"
                       >
                         Use
                       </button>
@@ -366,7 +371,7 @@ export function WalletManager({
                 <Button
                   onClick={handleAddWallet}
                   disabled={isAddingWallet || !newWalletAddress.trim()}
-                  className="w-full gap-2"
+                  className="w-full gap-2 mario-btn mario-btn-green text-white font-bold"
                 >
                   {isAddingWallet ? (
                     <>
@@ -381,7 +386,7 @@ export function WalletManager({
                   )}
                 </Button>
               </div>
-            </Card>
+            </div>
           </TabsContent>
         </Tabs>
       </DialogContent>

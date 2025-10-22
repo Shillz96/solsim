@@ -73,20 +73,20 @@ export function WalletStats({ trackedWallets, activities }: WalletStatsProps) {
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
       {stats.map((stat, index) => (
-        <Card key={index} className="p-4">
+        <div key={index} className="mario-card bg-white border-4 border-pipe-700 shadow-mario p-4">
           <div className="flex items-start justify-between">
             <div className="space-y-1">
-              <p className="text-xs text-muted-foreground">{stat.label}</p>
-              <p className="text-lg font-semibold">{stat.value}</p>
+              <p className="text-xs font-bold text-pipe-700">{stat.label}</p>
+              <p className="text-xl font-bold text-pipe-900">{stat.value}</p>
             </div>
             <div className={cn(
-              "p-2 rounded-lg",
+              "p-2 rounded-lg border-2 border-black",
               stat.bgColor
             )}>
-              <stat.icon className={cn("h-4 w-4", stat.color)} />
+              <stat.icon className={cn("h-5 w-5", stat.color)} />
             </div>
           </div>
-        </Card>
+        </div>
       ))}
     </div>
   )

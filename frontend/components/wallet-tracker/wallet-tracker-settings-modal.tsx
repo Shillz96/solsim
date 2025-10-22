@@ -150,7 +150,7 @@ export function WalletTrackerSettingsModal({ isOpen, onClose, onSettingsSaved }:
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[60] flex items-center justify-center p-4"
+          className="fixed inset-0 bg-black/80 z-[60] flex items-center justify-center p-4"
           onClick={onClose}
         >
           <motion.div
@@ -160,18 +160,18 @@ export function WalletTrackerSettingsModal({ isOpen, onClose, onSettingsSaved }:
             onClick={(e) => e.stopPropagation()}
             className="w-full max-w-md max-h-[90vh] overflow-y-auto"
           >
-            <Card className="p-6">
+            <div className="mario-card bg-white border-4 border-pipe-700 shadow-mario p-6">
             {/* Header */}
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-2">
-                <Settings className="h-5 w-5 text-primary" />
-                <h2 className="text-xl font-bold">Live Trades Filters</h2>
+                <Settings className="h-6 w-6 text-mario-red" />
+                <h2 className="text-2xl font-bold text-pipe-900">Live Trades Filters</h2>
               </div>
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={onClose}
-                className="h-8 w-8 p-0"
+                className="h-8 w-8 p-0 border-2 border-pipe-500 hover:bg-sky-100"
               >
                 <X className="h-4 w-4" />
               </Button>
@@ -179,23 +179,24 @@ export function WalletTrackerSettingsModal({ isOpen, onClose, onSettingsSaved }:
 
             {isLoading ? (
               <div className="flex items-center justify-center py-12">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                <Loader2 className="h-8 w-8 animate-spin text-mario-red" />
               </div>
             ) : (
               <div className="space-y-6">
                 {/* Transaction Types */}
                 <div className="space-y-3">
-                  <Label className="text-sm font-semibold">Transaction Types</Label>
+                  <Label className="text-sm font-bold text-pipe-900">Transaction Types</Label>
                   <div className="space-y-2">
                     <div className="flex items-center space-x-2">
                       <Checkbox
                         id="showBuys"
                         checked={showBuys}
                         onCheckedChange={(checked) => setShowBuys(checked as boolean)}
+                        className="border-2 border-pipe-700"
                       />
                       <label
                         htmlFor="showBuys"
-                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                        className="text-sm font-bold leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-pipe-900"
                       >
                         Buy
                       </label>
@@ -205,10 +206,11 @@ export function WalletTrackerSettingsModal({ isOpen, onClose, onSettingsSaved }:
                         id="showSells"
                         checked={showSells}
                         onCheckedChange={(checked) => setShowSells(checked as boolean)}
+                        className="border-2 border-pipe-700"
                       />
                       <label
                         htmlFor="showSells"
-                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                        className="text-sm font-bold leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-pipe-900"
                       >
                         Sell
                       </label>
@@ -218,10 +220,11 @@ export function WalletTrackerSettingsModal({ isOpen, onClose, onSettingsSaved }:
                         id="showFirstBuyOnly"
                         checked={showFirstBuyOnly}
                         onCheckedChange={(checked) => setShowFirstBuyOnly(checked as boolean)}
+                        className="border-2 border-pipe-700"
                       />
                       <label
                         htmlFor="showFirstBuyOnly"
-                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                        className="text-sm font-bold leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-pipe-900"
                       >
                         First Buy Only
                       </label>
@@ -231,14 +234,14 @@ export function WalletTrackerSettingsModal({ isOpen, onClose, onSettingsSaved }:
 
                 {/* Market Cap Filter */}
                 <div className="space-y-3">
-                  <Label className="text-sm font-semibold">Market Cap (USD)</Label>
+                  <Label className="text-sm font-bold text-pipe-900">Market Cap (USD)</Label>
                   <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-1">
-                      <Label htmlFor="minMarketCap" className="text-xs text-muted-foreground">
+                      <Label htmlFor="minMarketCap" className="text-xs font-bold text-pipe-700">
                         Min
                       </Label>
                       <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-bold text-pipe-700">
                           $
                         </span>
                         <Input
@@ -247,16 +250,16 @@ export function WalletTrackerSettingsModal({ isOpen, onClose, onSettingsSaved }:
                           placeholder="0"
                           value={minMarketCap ? formatNumberInput(minMarketCap) : ''}
                           onChange={(e) => handleNumberChange(e.target.value, setMinMarketCap)}
-                          className="pl-7"
+                          className="pl-7 border-3 border-pipe-500 focus:border-mario-red font-semibold"
                         />
                       </div>
                     </div>
                     <div className="space-y-1">
-                      <Label htmlFor="maxMarketCap" className="text-xs text-muted-foreground">
+                      <Label htmlFor="maxMarketCap" className="text-xs font-bold text-pipe-700">
                         Max
                       </Label>
                       <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-bold text-pipe-700">
                           $
                         </span>
                         <Input
@@ -265,7 +268,7 @@ export function WalletTrackerSettingsModal({ isOpen, onClose, onSettingsSaved }:
                           placeholder="No limit"
                           value={maxMarketCap ? formatNumberInput(maxMarketCap) : ''}
                           onChange={(e) => handleNumberChange(e.target.value, setMaxMarketCap)}
-                          className="pl-7"
+                          className="pl-7 border-3 border-pipe-500 focus:border-mario-red font-semibold"
                         />
                       </div>
                     </div>
@@ -274,14 +277,14 @@ export function WalletTrackerSettingsModal({ isOpen, onClose, onSettingsSaved }:
 
                 {/* Transaction Amount Filter */}
                 <div className="space-y-3">
-                  <Label className="text-sm font-semibold">Transaction Amount (USD)</Label>
+                  <Label className="text-sm font-bold text-pipe-900">Transaction Amount (USD)</Label>
                   <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-1">
-                      <Label htmlFor="minTransactionUsd" className="text-xs text-muted-foreground">
+                      <Label htmlFor="minTransactionUsd" className="text-xs font-bold text-pipe-700">
                         Min
                       </Label>
                       <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-bold text-pipe-700">
                           $
                         </span>
                         <Input
@@ -290,16 +293,16 @@ export function WalletTrackerSettingsModal({ isOpen, onClose, onSettingsSaved }:
                           placeholder="0"
                           value={minTransactionUsd ? formatNumberInput(minTransactionUsd) : ''}
                           onChange={(e) => handleNumberChange(e.target.value, setMinTransactionUsd)}
-                          className="pl-7"
+                          className="pl-7 border-3 border-pipe-500 focus:border-mario-red font-semibold"
                         />
                       </div>
                     </div>
                     <div className="space-y-1">
-                      <Label htmlFor="maxTransactionUsd" className="text-xs text-muted-foreground">
+                      <Label htmlFor="maxTransactionUsd" className="text-xs font-bold text-pipe-700">
                         Max
                       </Label>
                       <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-bold text-pipe-700">
                           $
                         </span>
                         <Input
@@ -308,7 +311,7 @@ export function WalletTrackerSettingsModal({ isOpen, onClose, onSettingsSaved }:
                           placeholder="No limit"
                           value={maxTransactionUsd ? formatNumberInput(maxTransactionUsd) : ''}
                           onChange={(e) => handleNumberChange(e.target.value, setMaxTransactionUsd)}
-                          className="pl-7"
+                          className="pl-7 border-3 border-pipe-500 focus:border-mario-red font-semibold"
                         />
                       </div>
                     </div>
@@ -317,16 +320,17 @@ export function WalletTrackerSettingsModal({ isOpen, onClose, onSettingsSaved }:
 
                 {/* Require Images */}
                 <div className="space-y-3">
-                  <Label className="text-sm font-semibold">Display Options</Label>
+                  <Label className="text-sm font-bold text-pipe-900">Display Options</Label>
                   <div className="flex items-center space-x-2">
                     <Checkbox
                       id="requireImages"
                       checked={requireImages}
                       onCheckedChange={(checked) => setRequireImages(checked as boolean)}
+                      className="border-2 border-pipe-700"
                     />
                     <label
                       htmlFor="requireImages"
-                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                      className="text-sm font-bold leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-pipe-900"
                     >
                       Only show tokens with images
                     </label>
@@ -338,14 +342,14 @@ export function WalletTrackerSettingsModal({ isOpen, onClose, onSettingsSaved }:
                   <Button
                     variant="outline"
                     onClick={onClose}
-                    className="flex-1"
+                    className="flex-1 border-3 border-pipe-700 font-bold hover:bg-sky-100"
                   >
                     Cancel
                   </Button>
                   <Button
                     onClick={() => saveMutation.mutate()}
                     disabled={saveMutation.isPending}
-                    className="flex-1"
+                    className="flex-1 mario-btn mario-btn-green text-white font-bold"
                   >
                     {saveMutation.isPending ? (
                       <>
@@ -359,7 +363,7 @@ export function WalletTrackerSettingsModal({ isOpen, onClose, onSettingsSaved }:
                 </div>
               </div>
             )}
-          </Card>
+          </div>
         </motion.div>
       </motion.div>
       )}
