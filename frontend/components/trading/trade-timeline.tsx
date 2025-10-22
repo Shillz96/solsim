@@ -40,15 +40,15 @@ export function TradeTimeline({ tokenAddress, maxTrades = 10, variant = 'default
   const isCompact = variant === 'compact'
 
   return (
-    <div className={cn("mario-card bg-white", isCompact ? "p-3" : "p-4")}>
-      <div className={cn("flex items-center gap-2", isCompact ? "mb-3" : "mb-4")}>
+    <div className={cn("mario-card bg-white", isCompact ? "p-3 h-full flex flex-col" : "p-4")}>
+      <div className={cn("flex items-center gap-2 flex-shrink-0", isCompact ? "mb-3" : "mb-4")}>
         <Clock className={cn(isCompact ? "h-3.5 w-3.5" : "h-4 w-4", "text-primary")} />
         <h3 className={cn("font-semibold", isCompact ? "text-xs" : "text-sm")}>Trade Activity</h3>
         <Badge variant="outline" className="text-xs ml-auto">{tokenTrades.length}</Badge>
       </div>
 
       {/* Timeline */}
-      <div className="relative">
+      <div className={cn("relative", isCompact && "flex-1 overflow-y-auto")}>
         {/* Vertical line */}
         <div className={cn(
           "absolute top-0 bottom-0 w-0.5 bg-gradient-to-b from-primary/50 via-primary/30 to-transparent",

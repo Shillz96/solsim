@@ -123,7 +123,7 @@ export function TradeDetails({
 
   if (isLoading) {
     return (
-      <Card className="relative overflow-hidden">
+      <Card className={cn("relative overflow-hidden", isSidebar && "h-full")}>
         <AnimatedBackground hasActivity={false} />
         <div className="relative z-10 p-6 text-center">
           <div className="flex items-center gap-2 text-muted-foreground justify-center">
@@ -137,7 +137,7 @@ export function TradeDetails({
 
   if (error) {
     return (
-      <Card className="relative overflow-hidden">
+      <Card className={cn("relative overflow-hidden", isSidebar && "h-full")}>
         <div className="relative z-10 p-6">
           <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
@@ -155,7 +155,7 @@ export function TradeDetails({
   }
 
   return (
-    <Card className="relative overflow-hidden">
+    <Card className={cn("relative overflow-hidden", isSidebar && "h-full flex flex-col")}>
       <AnimatedBackground hasActivity={trades.length > 0} />
       
       <CardHeader className={cn("relative z-10", isSidebar ? "pb-2" : "pb-4")}>
@@ -189,7 +189,7 @@ export function TradeDetails({
         </div>
       </CardHeader>
 
-      <CardContent className="relative z-10 pt-0">
+      <CardContent className={cn("relative z-10 pt-0", isSidebar && "flex-1 overflow-y-auto")}>
         {trades.length === 0 ? (
           <div className="text-center py-8">
             <div className="p-4 rounded-lg bg-muted/30 inline-block mb-4">
