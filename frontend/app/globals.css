@@ -258,12 +258,16 @@
     width: 100%;
     height: 100%;
     background-image: url('/papertexturre-2.avif');
-    background-repeat: repeat;
-    background-size: 800px 800px;
-    opacity: 0.2; /* Visible base texture */
+    background-repeat: space; /* Add spacing to prevent clipping and reduce visible repetition */
+    background-size: 1400px 1400px; /* Larger size for more seamless appearance */
+    background-position: center center; /* Center positioning for better distribution */
+    opacity: 0.3; /* 30% opacity as requested */
     pointer-events: none;
     z-index: 1;
     mix-blend-mode: multiply; /* Realistic paper texture blending */
+    /* Subtle transformations to break up grid pattern */
+    transform: rotate(0.3deg) scale(1.01);
+    filter: blur(0.3px); /* Tiny blur to soften edges and reduce pattern visibility */
   }
 
   /* Top texture layer - Paper-Texture-7.jpg (highest z-index, in front of everything) */
