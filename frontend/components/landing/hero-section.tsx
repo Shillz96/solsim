@@ -38,23 +38,22 @@ export function HeroSection() {
 
       <div className="container relative mx-auto px-4">
         <div className="flex flex-col items-center text-center space-y-8">
-          {/* Hero Video */}
+          {/* Hero GIF */}
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.6 }}
             className="w-full max-w-4xl"
           >
-            <video
-              autoPlay
-              loop
-              muted
-              playsInline
+            <Image
+              src="/1UP-Your-Solana-Trading-Skill-10-22-2025.gif"
+              alt="1UP Your Solana Trading Skills"
+              width={1920}
+              height={1080}
               className="w-full h-auto rounded-2xl shadow-2xl"
-            >
-              <source src="/1UP-Your-Solana-Trading-Skill-10-22-2025.webm" type="video/webm" />
-              Your browser does not support the video tag.
-            </video>
+              priority
+              unoptimized
+            />
           </motion.div>
 
           {/* Content below hero */}
