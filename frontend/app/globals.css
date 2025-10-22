@@ -243,8 +243,8 @@
     font-family: var(--font-sans);
     position: relative;
     line-height: 1.65; /* Enhanced readability */
-    /* GPU optimization for scrolling performance */
-    transform: translate3d(0, 0, 0);
+    /* Note: transform removed - it breaks position: fixed for modals/dropdowns */
+    /* Use will-change sparingly for GPU optimization only when needed */
   }
 
   /* Paper texture overlay - warm cream aesthetic with seamless blending */
