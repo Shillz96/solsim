@@ -34,6 +34,14 @@ export const metadata: Metadata = {
   title: "1UP SOL - Solana Paper Trading Game",
   description: "Level up your trading skills! Practice Solana trading, earn XP, compete on leaderboards. Real-time market data, zero financial risk.",
   generator: "v0.app",
+  icons: {
+    icon: [
+      { url: '/navbarlogo.svg', type: 'image/svg+xml' },
+      { url: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
+      { url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
+    ],
+    apple: { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
+  },
 }
 
 export const viewport = {

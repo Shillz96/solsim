@@ -246,19 +246,19 @@ export default function TrendingPage() {
         >
           <div className="mario-card bg-white border-4 border-pipe-700 shadow-mario overflow-hidden">
           {loading && (
-            <div className="flex items-center justify-center h-64">
-              <Loader2 className="h-8 w-8 animate-spin" />
-              <span className="ml-2">Loading trending tokens...</span>
+            <div className="flex items-center justify-center h-64 bg-sky-50">
+              <Loader2 className="h-8 w-8 animate-spin text-mario-red" />
+              <span className="ml-3 font-bold text-pipe-900">Loading trending tokens...</span>
             </div>
           )}
 
           {error && (
             <div className="p-6">
-              <Alert variant="destructive">
-                <AlertCircle className="h-4 w-4" />
-                <AlertDescription>
+              <Alert variant="destructive" className="border-3 border-mario-red bg-red-50">
+                <AlertCircle className="h-5 w-5" />
+                <AlertDescription className="font-bold">
                   Failed to load trending tokens: {error?.message || 'Unknown error'}
-                  <Button variant="outline" size="sm" className="ml-2" onClick={() => refresh()}>
+                  <Button size="sm" className="ml-3 mario-btn mario-btn-red" onClick={() => refresh()}>
                     Try Again
                   </Button>
                 </AlertDescription>
@@ -267,8 +267,9 @@ export default function TrendingPage() {
           )}
 
           {!loading && !error && filteredAndSortedTokens.length === 0 && (
-            <div className="p-6 text-center text-muted-foreground">
-              No trending tokens found
+            <div className="p-8 text-center bg-sky-50">
+              <p className="text-lg font-bold text-pipe-900">No trending tokens found</p>
+              <p className="text-sm text-pipe-700 mt-2">Try adjusting your search or filters</p>
             </div>
           )}
 
