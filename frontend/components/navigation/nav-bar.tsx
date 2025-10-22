@@ -57,8 +57,9 @@ const navigationItems = [
     name: "Dashboard",
     href: "/",
     icon: Home,
-    iconSrc: "/icons/mario/home.png",
-    description: "Overview of your trading activity"
+    iconSrc: "/Dashboard-10-22-2025.png",
+    description: "Overview of your trading activity",
+    isImageOnly: true
   },
   {
     name: "Trade",
@@ -263,10 +264,10 @@ export function NavBar() {
       style={{ viewTransitionName: 'main-nav' } as React.CSSProperties}
     >
       <div className="w-full px-6">
-        <div className="flex h-16 items-center justify-between">
+        <div className="flex h-16 items-center justify-between gap-6">
           {/* Logo and Brand */}
-          <div className="flex items-center gap-6">
-            <Link href="/" className="flex items-center" style={{ viewTransitionName: 'logo' } as React.CSSProperties}>
+          <div className="flex items-center gap-8">
+            <Link href="/" className="flex items-center flex-shrink-0" style={{ viewTransitionName: 'logo' } as React.CSSProperties}>
               <Image
                 src="/navbarlogo.svg"
                 alt="1UP SOL"
@@ -278,7 +279,7 @@ export function NavBar() {
             </Link>
 
             {/* Desktop Navigation */}
-            <nav className="hidden md:flex items-center space-x-1">
+            <nav className="hidden lg:flex items-center space-x-2">
               {navigationItems.slice(0, 7).map((item) => {
                 const isActive = pathname === item.href
 
@@ -288,12 +289,18 @@ export function NavBar() {
                       variant={isActive ? "secondary" : "ghost"}
                       size="sm"
                       className={cn(
-                        "flex items-center gap-2 px-3 py-2 transition-all duration-200 font-mario text-xs",
+                        "flex items-center gap-1.5 px-3 py-2 transition-all duration-200 font-mario text-xs h-9",
                         isActive && "bg-primary/10 text-primary"
                       )}
                     >
-                      <Image src={item.iconSrc} alt={item.name} width={16} height={16} className="object-contain" />
-                      <span className="hidden lg:inline">{item.name}</span>
+                      {item.isImageOnly ? (
+                        <Image src={item.iconSrc} alt={item.name} width={100} height={24} className="object-contain" />
+                      ) : (
+                        <>
+                          <Image src={item.iconSrc} alt={item.name} width={16} height={16} className="object-contain" />
+                          <span className="hidden lg:inline">{item.name}</span>
+                        </>
+                      )}
                     </Button>
                   </Link>
                 )
@@ -302,14 +309,14 @@ export function NavBar() {
           </div>
 
           {/* Enhanced Search Bar - Hidden on mobile, visible on md+ */}
-          <div className="hidden md:flex flex-1 max-w-sm mx-4 relative" ref={searchRef}>
+          <div className="hidden md:flex flex-1 max-w-md mx-6 relative" ref={searchRef}>
             <div className="relative w-full">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder="Search tokens..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 pr-10 w-full border border-border hover:border-foreground/20 focus:border-foreground transition-colors"
+                className="pl-10 pr-10 w-full h-9 border border-border hover:border-foreground/20 focus:border-foreground transition-colors"
               />
               {isSearching && (
                 <Loader2 className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 animate-spin text-muted-foreground" />
@@ -381,7 +388,7 @@ export function NavBar() {
           </div>
 
           {/* Right Side Actions */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-4 flex-shrink-0">
             {isAuthenticated ? (
               <>
                 {/* Balance Display - Clickable */}
@@ -453,7 +460,7 @@ export function NavBar() {
                 </div>
               </>
             ) : (
-              <Button onClick={() => setAuthModalOpen(true)} className="font-semibold">
+              <Button onClick={() => setAuthModalOpen(true)} className="font-semibold h-9 px-4">
                 Sign In
               </Button>
             )}
@@ -464,7 +471,7 @@ export function NavBar() {
                 <Button
                   variant="outline"
                   size="sm"
-                  className="md:hidden border-2 border-border bg-background hover:bg-muted"
+                  className="lg:hidden border-2 border-border bg-background hover:bg-muted h-9 w-9 p-0"
                   aria-label="Open navigation menu"
                 >
                   <Menu className="h-5 w-5" />
