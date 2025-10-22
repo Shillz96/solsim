@@ -91,7 +91,7 @@ function StatCard({
   };
 
   const changeColor = change !== undefined
-    ? change >= 0 ? 'text-[#00ff85]' : 'text-[#ff4444]'
+    ? change >= 0 ? 'text-profit' : 'text-loss'
     : 'text-pipe-600';
 
   const ChangeIcon = change !== undefined
@@ -411,7 +411,7 @@ export function PortfolioMetrics({ isLoading: externalLoading = false }: Portfol
         <div className="bg-white border-3 border-pipe-600 rounded-lg shadow-[3px_3px_0_0_rgba(0,0,0,0.2)] p-3 flex items-center gap-3">
           <div className={cn(
             "p-2 rounded-lg border-2 flex items-center justify-center",
-            realizedPnL >= 0 ? "bg-[#00ff85] border-green-700" : "bg-[#ff4444] border-red-700"
+            realizedPnL >= 0 ? "bg-profit border-luigi-green-700" : "bg-loss border-mario-red-700"
           )}>
             <Image
               src={realizedPnL >= 0 ? "/icons/mario/star.png" : "/icons/mario/fire.png"}
@@ -424,7 +424,7 @@ export function PortfolioMetrics({ isLoading: externalLoading = false }: Portfol
             <p className="text-xs font-bold text-pipe-700 uppercase">Realized</p>
             <UsdWithSol
               usd={realizedPnL}
-              className={cn("text-lg font-bold", realizedPnL >= 0 ? "text-[#00ff85]" : "text-[#ff4444]")}
+              className={cn("text-lg font-bold", realizedPnL >= 0 ? "text-profit" : "text-loss")}
               solClassName="text-xs text-pipe-600"
             />
           </div>
@@ -439,7 +439,7 @@ export function PortfolioMetrics({ isLoading: externalLoading = false }: Portfol
             <p className="text-xs font-bold text-pipe-700 uppercase">Avg P&L</p>
             <UsdWithSol
               usd={totalTrades > 0 ? totalPnL / totalTrades : 0}
-              className={cn("text-lg font-bold", (totalTrades > 0 ? totalPnL / totalTrades : 0) >= 0 ? "text-[#00ff85]" : "text-[#ff4444]")}
+              className={cn("text-lg font-bold", (totalTrades > 0 ? totalPnL / totalTrades : 0) >= 0 ? "text-profit" : "text-loss")}
               solClassName="text-xs text-pipe-600"
             />
           </div>

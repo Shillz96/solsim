@@ -625,11 +625,11 @@ export const UnifiedPositions = memo(function UnifiedPositions({
               <p className="text-sm font-bold text-pipe-700 uppercase mb-2">Total PnL</p>
               <div className="flex items-center justify-center gap-2">
                 {liveTotals.totalPnlUsd >= 0 ? (
-                  <TrendingUp className="h-5 w-5 text-[#00ff85]" />
+                  <TrendingUp className="h-5 w-5 text-profit" />
                 ) : (
-                  <TrendingDown className="h-5 w-5 text-[#ff4444]" />
+                  <TrendingDown className="h-5 w-5 text-loss" />
                 )}
-                <div className={liveTotals.totalPnlUsd >= 0 ? 'text-[#00ff85]' : 'text-[#ff4444]'}>
+                <div className={liveTotals.totalPnlUsd >= 0 ? 'text-profit' : 'text-loss'}>
                   <UsdWithSol
                     usd={liveTotals.totalPnlUsd}
                     prefix={liveTotals.totalPnlUsd >= 0 ? '+' : ''}
@@ -640,7 +640,7 @@ export const UnifiedPositions = memo(function UnifiedPositions({
               </div>
               <p className={cn(
                 "text-sm font-bold mt-1",
-                liveTotals.totalPnlPercent >= 0 ? 'text-[#00ff85]' : 'text-[#ff4444]'
+                liveTotals.totalPnlPercent >= 0 ? 'text-profit' : 'text-loss'
               )}>
                 {liveTotals.totalPnlPercent >= 0 ? '+' : ''}{liveTotals.totalPnlPercent.toFixed(2)}%
               </p>
@@ -657,11 +657,11 @@ export const UnifiedPositions = memo(function UnifiedPositions({
             <div className={cn(
               "text-center p-3 border-2 rounded-lg",
               liveTotals.totalRealizedUsd >= 0
-                ? "bg-[#00ff85]/10 border-green-500"
-                : "bg-[#ff4444]/10 border-red-500"
+                ? "bg-profit/10 border-luigi-green-500"
+                : "bg-loss/10 border-mario-red-500"
             )}>
               <p className="text-sm font-bold text-pipe-700 uppercase">Realized PnL</p>
-              <div className={liveTotals.totalRealizedUsd >= 0 ? 'text-[#00ff85]' : 'text-[#ff4444]'}>
+              <div className={liveTotals.totalRealizedUsd >= 0 ? 'text-profit' : 'text-loss'}>
                 <UsdWithSol
                   usd={liveTotals.totalRealizedUsd}
                   prefix={liveTotals.totalRealizedUsd >= 0 ? '+' : ''}
@@ -674,11 +674,11 @@ export const UnifiedPositions = memo(function UnifiedPositions({
             <div className={cn(
               "text-center p-3 border-2 rounded-lg",
               liveTotals.totalUnrealizedUsd >= 0
-                ? "bg-[#00ff85]/10 border-green-500"
-                : "bg-[#ff4444]/10 border-red-500"
+                ? "bg-profit/10 border-luigi-green-500"
+                : "bg-loss/10 border-mario-red-500"
             )}>
               <p className="text-sm font-bold text-pipe-700 uppercase">Unrealized PnL</p>
-              <div className={liveTotals.totalUnrealizedUsd >= 0 ? 'text-[#00ff85]' : 'text-[#ff4444]'}>
+              <div className={liveTotals.totalUnrealizedUsd >= 0 ? 'text-profit' : 'text-loss'}>
                 <UsdWithSol
                   usd={liveTotals.totalUnrealizedUsd}
                   prefix={liveTotals.totalUnrealizedUsd >= 0 ? '+' : ''}

@@ -60,18 +60,18 @@ const AnimatedBackground = memo(({ isPositive }: { isPositive: boolean }) => {
       animate={{
         background: isPositive
           ? [
-              "radial-gradient(circle at 0% 0%, rgb(34, 197, 94) 0%, transparent 50%)",
-              "radial-gradient(circle at 100% 0%, rgb(34, 197, 94) 0%, transparent 50%)",
-              "radial-gradient(circle at 100% 100%, rgb(34, 197, 94) 0%, transparent 50%)",
-              "radial-gradient(circle at 0% 100%, rgb(34, 197, 94) 0%, transparent 50%)",
-              "radial-gradient(circle at 0% 0%, rgb(34, 197, 94) 0%, transparent 50%)",
+              "radial-gradient(circle at 0% 0%, rgb(67, 176, 71) 0%, transparent 50%)",
+              "radial-gradient(circle at 100% 0%, rgb(67, 176, 71) 0%, transparent 50%)",
+              "radial-gradient(circle at 100% 100%, rgb(67, 176, 71) 0%, transparent 50%)",
+              "radial-gradient(circle at 0% 100%, rgb(67, 176, 71) 0%, transparent 50%)",
+              "radial-gradient(circle at 0% 0%, rgb(67, 176, 71) 0%, transparent 50%)",
             ]
           : [
-              "radial-gradient(circle at 0% 0%, rgb(239, 68, 68) 0%, transparent 50%)",
-              "radial-gradient(circle at 100% 0%, rgb(239, 68, 68) 0%, transparent 50%)",
-              "radial-gradient(circle at 100% 100%, rgb(239, 68, 68) 0%, transparent 50%)",
-              "radial-gradient(circle at 0% 100%, rgb(239, 68, 68) 0%, transparent 50%)",
-              "radial-gradient(circle at 0% 0%, rgb(239, 68, 68) 0%, transparent 50%)",
+              "radial-gradient(circle at 0% 0%, rgb(229, 37, 33) 0%, transparent 50%)",
+              "radial-gradient(circle at 100% 0%, rgb(229, 37, 33) 0%, transparent 50%)",
+              "radial-gradient(circle at 100% 100%, rgb(229, 37, 33) 0%, transparent 50%)",
+              "radial-gradient(circle at 0% 100%, rgb(229, 37, 33) 0%, transparent 50%)",
+              "radial-gradient(circle at 0% 0%, rgb(229, 37, 33) 0%, transparent 50%)",
             ],
       }}
       transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
