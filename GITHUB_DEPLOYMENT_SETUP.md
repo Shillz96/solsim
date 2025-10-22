@@ -255,7 +255,7 @@ git push origin main
 
 # ✅ Auto-deploys to production
 # Railway: production service
-# Vercel: production deployment (virtualsol.fun)
+# Vercel: production deployment (oneupsol.fun)
 
 # Monitor deployment in dashboards
 ```
@@ -281,7 +281,7 @@ After setup, verify:
 - [ ] Production branch is `main`
 - [ ] Preview branches enabled (staging, dev)
 - [ ] Environment variables set for production and preview
-- [ ] Domain connected (virtualsol.fun)
+- [ ] Domain connected (oneupsol.fun)
 
 ---
 

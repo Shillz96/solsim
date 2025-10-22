@@ -29,7 +29,7 @@ export default function DocumentationPage() {
               <h1 className="font-heading text-4xl md:text-5xl font-bold">Documentation</h1>
             </div>
             <p className="text-xl text-muted-foreground">
-              Everything you need to know about using VirtualSol
+              Everything you need to know about using 1UP SOL
             </p>
           </div>
         </motion.div>
@@ -198,7 +198,7 @@ export default function DocumentationPage() {
                 <h3 className="font-semibold text-lg">Important Information</h3>
                 <div className="space-y-2 text-muted-foreground text-sm">
                   <p>
-                    <strong className="text-foreground">No Real Money:</strong> VirtualSol is a paper trading simulator.
+                    <strong className="text-foreground">No Real Money:</strong> 1UP SOL is a paper trading game.
                     All trades use virtual SOL and no real cryptocurrency is involved.
                   </p>
                   <p>
@@ -210,7 +210,7 @@ export default function DocumentationPage() {
                     actual trading results may differ due to slippage, fees, and other market conditions.
                   </p>
                   <p>
-                    <strong className="text-foreground">Not Financial Advice:</strong> VirtualSol does not provide investment
+                    <strong className="text-foreground">Not Financial Advice:</strong> 1UP SOL does not provide investment
                     advice. Always do your own research before trading real cryptocurrency.
                   </p>
                 </div>

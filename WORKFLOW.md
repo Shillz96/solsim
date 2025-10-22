@@ -606,7 +606,7 @@ cd frontend && npx vercel --prod
 - Backend WS: ws://localhost:4000
 
 ### Production
-- Frontend: https://virtualsol.fun
+- Frontend: https://oneupsol.fun
 - Backend: https://your-railway-url.railway.app
 - Backend WS: wss://your-railway-url.railway.app
 

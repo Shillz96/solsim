@@ -310,7 +310,7 @@ export function SharePnLDialog({ totalPnL, totalPnLPercent, currentValue, initia
                   )}
                   <div>
                     <div className="text-white font-bold text-xs">@{userHandle || userEmail?.split('@')[0] || 'trader'}</div>
-                    <div className="text-[9px] text-primary font-medium">virtualsol.fun</div>
+                    <div className="text-[9px] text-primary font-medium">oneupsol.fun</div>
                   </div>
                 </div>
                 <div className="text-right">

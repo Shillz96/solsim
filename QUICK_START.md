@@ -284,7 +284,7 @@ See [ENVIRONMENT_SETUP.md](./ENVIRONMENT_SETUP.md) for complete details.
 - Prisma Studio: http://localhost:5555 (when running)
 
 ### Production
-- Frontend: https://virtualsol.fun
+- Frontend: https://oneupsol.fun
 - Backend: Your Railway URL
 - GitHub: https://github.com/Shillz96/solsim
 

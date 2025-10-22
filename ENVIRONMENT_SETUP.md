@@ -319,7 +319,7 @@ Backend WS: ws://localhost:4000
 
 ### Production URLs (update with your actual URLs)
 ```
-Frontend:  https://virtualsol.fun
+Frontend:  https://oneupsol.fun
 Backend:   https://virtualsol-production.up.railway.app
 Backend WS: wss://virtualsol-production.up.railway.app
 ```

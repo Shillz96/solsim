@@ -109,27 +109,27 @@ export function RewardsExplainer() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Info className="h-5 w-5 text-primary" />
-            How vSOL Token Rewards Work
+            How XP and Rewards Work
           </CardTitle>
           <CardDescription>
-            Learn how to maximize your earnings on VirtualSol
+            Learn how to earn XP and level up on 1UP SOL
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="prose prose-sm max-w-none text-muted-foreground">
             <p>
-              VirtualSol rewards active traders with $vSOL tokens based on their trading activity and performance.
-              The more you trade and the better you perform, the more rewards you earn. Rewards are calculated
-              daily and distributed at the end of each epoch.
+              1UP SOL rewards active traders with XP (experience points) based on their trading activity and performance.
+              The more you trade and the better you perform, the more XP you earn. Level up through 20 Mario-themed
+              ranks and compete on global leaderboards!
             </p>
           </div>
 
           <Alert className="border-primary/20 bg-primary/5 backdrop-blur-sm">
             <Gift className="h-4 w-4 text-primary" />
             <AlertDescription>
-              <strong>Important:</strong> $vSOL tokens are distributed on the Solana blockchain.
-              You'll need a Solana wallet connected to claim your rewards. The rewards are sent
-              directly to your wallet address once claimed.
+              <strong>Note:</strong> XP is earned automatically from your trading activity.
+              Track your progress in the nav bar and see your level status. Climb the leaderboards
+              to compete with traders globally!
             </AlertDescription>
           </Alert>
         </CardContent>

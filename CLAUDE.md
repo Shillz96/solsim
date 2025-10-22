@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-1UP SOL (formerly VirtualSol) is a full-stack Solana paper trading platform with real-time price tracking, PnL calculations, leaderboards, and rewards. It features a **Mario-themed retro game aesthetic** with vibrant colors, bold borders, and nostalgic design patterns. The platform uses a monorepo structure with a Next.js frontend and Fastify backend.
+1UP SOL is a full-stack Solana paper trading game with real-time price tracking, PnL calculations, leaderboards, and XP-based progression. It features a **Mario-themed retro game aesthetic** with vibrant colors, bold borders, and nostalgic design patterns inspired by classic Nintendo games. The platform uses a monorepo structure with a Next.js frontend and Fastify backend.
 
 ## Project Structure
 
@@ -107,7 +107,7 @@ Key services:
 - `tradeService.ts` - Trade execution and validation
 - `portfolioService.ts` - Position management and PnL calculations
 - `priceService.ts` / `priceService-v2.ts` - Real-time price streaming via Helius WebSocket
-- `rewardService.ts` - VSOL token reward distribution
+- `rewardService.ts` - XP and points-based reward distribution
 - `walletTrackerService.ts` - KOL wallet tracking for copy trading
 
 ### FIFO Position Tracking
@@ -229,7 +229,7 @@ The price service streams real-time swap events from Solana DEXes (Raydium, Pump
 - `HELIUS_API` - Helius API key for RPC and WebSocket
 - `HELIUS_RPC_URL` / `HELIUS_WS` - Helius endpoints
 - `SOLANA_RPC_URL` - Fallback Solana RPC
-- `VSOL_TOKEN_MINT` - VSOL token mint address for rewards
+- `VSOL_TOKEN_MINT` - Reward token mint address (legacy variable name)
 - `REWARDS_WALLET_SECRET` - Secret key for reward distribution
 - `JWT_SECRET` - JWT signing secret
 

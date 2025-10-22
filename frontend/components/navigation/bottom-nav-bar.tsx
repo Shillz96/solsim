@@ -175,7 +175,7 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
           {/* Left: Social Links */}
           <div className="flex items-center gap-4">
             <a
-              href="https://x.com/vsol_fun"
+              href="https://x.com/oneupsol"
               target="_blank"
               rel="noopener noreferrer"
               className="text-muted-foreground hover:text-primary transition-colors"

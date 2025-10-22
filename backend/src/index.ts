@@ -80,11 +80,13 @@ app.register(helmet, {
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
       scriptSrc: ["'self'", "'unsafe-eval'"], // unsafe-eval needed for JSON parsing in some cases
       connectSrc: [
-        "'self'", 
-        "wss:", 
+        "'self'",
+        "wss:",
         "https:",
         "https://api.birdeye.so",
         "https://api.dexscreener.com",
+        "https://oneupsol.fun",
+        "wss://oneupsol.fun",
         "https://virtualsol.fun",
         "wss://virtualsol.fun"
       ],
@@ -132,6 +134,8 @@ app.register(helmet, {
 // CORS for frontend - support multiple origins with WebSocket support
 const allowedOrigins = [
   "http://localhost:3000",
+  "https://oneupsol.fun",
+  "https://www.oneupsol.fun",
   "https://virtualsol.fun",
   "https://www.virtualsol.fun",
   "https://virtualsol-production.vercel.app", // Add your Vercel deployment URL
@@ -151,9 +155,10 @@ app.register(cors, {
       return cb(null, true);
     }
     
-    // Allow any subdomain of virtualsol.fun in production
-    if (origin.endsWith('.virtualsol.fun') || origin === 'https://virtualsol.fun') {
-      if (!isProduction()) console.log('✅ CORS accepted (virtualsol.fun domain):', origin);
+    // Allow any subdomain of oneupsol.fun or virtualsol.fun in production
+    if (origin.endsWith('.oneupsol.fun') || origin === 'https://oneupsol.fun' ||
+        origin.endsWith('.virtualsol.fun') || origin === 'https://virtualsol.fun') {
+      if (!isProduction()) console.log('✅ CORS accepted (1UP SOL/VirtualSol domain):', origin);
       return cb(null, true);
     }
     
