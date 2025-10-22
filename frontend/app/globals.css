@@ -315,28 +315,20 @@
   }
 
   /* ---------------------------
-     CARD STYLING
+     CARD STYLING - MARIO THEME (FLAT DESIGN)
   --------------------------- */
-  /* Note: .card class is legacy - prefer using Card component from @/components/ui/card */
+  /* Bold black outline cards - clean, modern look */
   .card {
     background-color: var(--card);
     color: var(--foreground);
-    border-radius: var(--radius);
-    box-shadow: 3px 3px 0 var(--outline-black);
-    padding: 1.25rem; /* Enhanced padding for better spacing */
-    /* GPU optimization: only transition specific properties */
-    will-change: transform;
-    transform: translate3d(0, 0, 0);
-    transition: box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1),
-                transform 0.2s cubic-bezier(0.4, 0, 0.2, 1),
-                border-color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    border: 3px solid var(--outline-black);
+    border-radius: 16px;
+    border: 4px solid var(--outline-black);
+    padding: 1.5rem;
+    transition: transform 0.2s ease;
   }
 
   .card:hover {
-    box-shadow: 5px 5px 0 var(--outline-black);
-    transform: translate3d(0, -2px, 0); /* GPU-accelerated lift effect */
-    border-color: var(--outline-black);
+    transform: translateY(-2px);
   }
 
   /* ---------------------------
@@ -464,21 +456,30 @@
     transform: translate3d(0, -2px, 0);
   }
 
-  /* Bento-style grid cards - flat and minimal */
+  /* Bento-style grid cards - bold black outline */
   .bento-card {
     background: var(--card);
-    border: 2px solid var(--border);
-    transition: border-color 0.2s ease;
+    border: 4px solid var(--outline-black);
+    border-radius: 16px;
+    padding: 1.5rem;
+    transition: transform 0.2s ease;
   }
 
   .bento-card:hover {
-    border-color: var(--foreground);
+    transform: translateY(-2px);
   }
 
-  /* Trading-specific card styles - flat and minimal */
+  /* Trading-specific card styles - bold black outline */
   .trading-card {
     background: var(--card);
-    border: 2px solid var(--border);
+    border: 4px solid var(--outline-black);
+    border-radius: 16px;
+    padding: 1.5rem;
+    transition: transform 0.2s ease;
+  }
+
+  .trading-card:hover {
+    transform: translateY(-2px);
   }
 
   /* ---------------------------
@@ -1235,18 +1236,17 @@
   box-shadow: 4px 4px 0 var(--outline-black);
 }
 
-/* Mario Card Style - Colorful borders with 3D effect */
+/* Mario Card Style - Bold black outline (flat design) */
 .mario-card {
   background: var(--card);
-  border: 3px solid var(--outline-black);
-  border-radius: 12px;
-  box-shadow: 4px 4px 0 var(--outline-black);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border: 4px solid var(--outline-black);
+  border-radius: 16px;
+  padding: 1.5rem;
+  transition: transform 0.2s ease;
 }
 
 .mario-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 6px 6px 0 var(--outline-black);
+  transform: translateY(-2px);
 }
 
 /* Mario Badge/Tag Style */
