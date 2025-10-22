@@ -141,31 +141,6 @@ export function TradeEmptyState() {
               Browse trending tokens, search for your favorites, or explore what's popular on Solana
             </p>
           </div>
-
-          {/* Search Prompt */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.2 }}
-            className="max-w-2xl mx-auto"
-          >
-            <div className="relative group">
-              <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-blue-500/20 rounded-lg blur-xl group-hover:blur-2xl transition-all"></div>
-              <div className="relative bg-card border-2 border-border rounded-lg p-6">
-                <div className="flex items-center gap-4">
-                  <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                    <Search className="h-6 w-6 text-primary" />
-                  </div>
-                  <div className="text-left flex-1">
-                    <h3 className="font-semibold text-lg">Use the search bar above</h3>
-                    <p className="text-sm text-muted-foreground">
-                      Search by token name, symbol, or mint address
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </motion.div>
         </motion.div>
 
         {/* Trending Tokens Grid */}
@@ -178,8 +153,12 @@ export function TradeEmptyState() {
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <TrendingUp className="h-6 w-6 text-primary" />
-                <h2 className="font-heading text-2xl md:text-3xl font-bold">Trending Now</h2>
+                <MarioPageHeader
+                  src="/Trending-now-10-22-2025-header.png"
+                  alt="Trending Now"
+                  width={600}
+                  height={100}
+                />
               </div>
               <Button
                 variant="ghost"
