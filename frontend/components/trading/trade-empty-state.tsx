@@ -12,6 +12,7 @@ import { usePriceStreamContext } from "@/lib/price-stream-provider"
 import { formatUSD } from "@/lib/format"
 import { cn } from "@/lib/utils"
 import type * as Backend from "@/lib/types/backend"
+import { MarioPageHeader } from "@/components/shared/mario-page-header"
 
 function StockCardPreview({ token, onClick }: { token: Backend.TrendingToken; onClick: () => void }) {
   const [imageError, setImageError] = React.useState(false)
@@ -127,9 +128,15 @@ export function TradeEmptyState() {
           </div>
 
           <div className="space-y-4">
-            <h1 className="font-heading text-4xl md:text-5xl lg:text-6xl font-bold">
-              Select a Token to Start Trading
-            </h1>
+            <div className="flex justify-center mb-4">
+              <MarioPageHeader
+                src="/Select-a-Token-to-Start-Tradin-header.png"
+                alt="Select a Token to Start Trading"
+                width={800}
+                height={150}
+                priority
+              />
+            </div>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
               Browse trending tokens, search for your favorites, or explore what's popular on Solana
             </p>

@@ -105,18 +105,44 @@ export function HeroSection() {
             </div>
 
             <div className="grid grid-cols-3 gap-3 sm:gap-6">
-              <div className="space-y-1 bg-black/40 backdrop-blur-md rounded-lg p-3 sm:p-4 border-3 border-[var(--outline-black)] shadow-lg">
-                <div className="text-xl sm:text-2xl md:text-3xl font-mario text-[var(--star-yellow)]" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.8)' }}>20 Levels</div>
-                <p className="text-xs sm:text-sm text-white font-bold" style={{ textShadow: '1px 1px 3px rgba(0,0,0,0.9)' }}>From Goomba to Legendary</p>
-              </div>
-              <div className="space-y-1 bg-black/40 backdrop-blur-md rounded-lg p-3 sm:p-4 border-3 border-[var(--outline-black)] shadow-lg">
-                <div className="text-xl sm:text-2xl md:text-3xl font-mario text-[var(--luigi-green)]" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.8)' }}>Earn XP</div>
-                <p className="text-xs sm:text-sm text-white font-semibold" style={{ textShadow: '1px 1px 3px rgba(0,0,0,0.9)' }}>Level up with trades</p>
-              </div>
-              <div className="space-y-1 bg-black/40 backdrop-blur-md rounded-lg p-3 sm:p-4 border-3 border-[var(--outline-black)] shadow-lg">
-                <div className="text-xl sm:text-2xl md:text-3xl font-mario text-[var(--super-blue)]" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.8)' }}>Zero Risk</div>
-                <p className="text-xs sm:text-sm text-white font-bold" style={{ textShadow: '1px 1px 3px rgba(0,0,0,0.9)' }}>Practice safely</p>
-              </div>
+              {/* Star Power Block - Yellow */}
+              <motion.div
+                className="relative space-y-2 bg-gradient-to-br from-[#FFD700] via-[#FFC700] to-[#FFB700] rounded-xl p-4 sm:p-6 border-4 border-[#8B6914] shadow-[4px_4px_0px_0px_rgba(139,105,20,0.8)] hover:shadow-[6px_6px_0px_0px_rgba(139,105,20,0.8)] hover:-translate-y-1 transition-all duration-200"
+                whileHover={{ scale: 1.05 }}
+              >
+                {/* Shine effect */}
+                <div className="absolute top-2 left-2 w-8 h-8 bg-white/40 rounded-full blur-sm"></div>
+                <div className="relative">
+                  <div className="text-xl sm:text-2xl md:text-3xl font-mario text-[#8B4513] drop-shadow-[2px_2px_0px_rgba(255,255,255,0.5)]">20 Levels</div>
+                  <p className="text-xs sm:text-sm text-[#654321] font-bold drop-shadow-sm">From Goomba to Legendary</p>
+                </div>
+              </motion.div>
+
+              {/* 1-Up Block - Green */}
+              <motion.div
+                className="relative space-y-2 bg-gradient-to-br from-[#00FF00] via-[#00DD00] to-[#00BB00] rounded-xl p-4 sm:p-6 border-4 border-[#006400] shadow-[4px_4px_0px_0px_rgba(0,100,0,0.8)] hover:shadow-[6px_6px_0px_0px_rgba(0,100,0,0.8)] hover:-translate-y-1 transition-all duration-200"
+                whileHover={{ scale: 1.05 }}
+              >
+                {/* Shine effect */}
+                <div className="absolute top-2 left-2 w-8 h-8 bg-white/40 rounded-full blur-sm"></div>
+                <div className="relative">
+                  <div className="text-xl sm:text-2xl md:text-3xl font-mario text-white drop-shadow-[2px_2px_0px_rgba(0,100,0,0.8)]">Earn XP</div>
+                  <p className="text-xs sm:text-sm text-white font-bold drop-shadow-[1px_1px_0px_rgba(0,100,0,0.8)]">Level up with trades</p>
+                </div>
+              </motion.div>
+
+              {/* Ice Flower Block - Blue */}
+              <motion.div
+                className="relative space-y-2 bg-gradient-to-br from-[#00BFFF] via-[#00A8FF] to-[#0090FF] rounded-xl p-4 sm:p-6 border-4 border-[#004B87] shadow-[4px_4px_0px_0px_rgba(0,75,135,0.8)] hover:shadow-[6px_6px_0px_0px_rgba(0,75,135,0.8)] hover:-translate-y-1 transition-all duration-200"
+                whileHover={{ scale: 1.05 }}
+              >
+                {/* Shine effect */}
+                <div className="absolute top-2 left-2 w-8 h-8 bg-white/40 rounded-full blur-sm"></div>
+                <div className="relative">
+                  <div className="text-xl sm:text-2xl md:text-3xl font-mario text-white drop-shadow-[2px_2px_0px_rgba(0,75,135,0.8)]">Zero Risk</div>
+                  <p className="text-xs sm:text-sm text-white font-bold drop-shadow-[1px_1px_0px_rgba(0,75,135,0.8)]">Practice safely</p>
+                </div>
+              </motion.div>
             </div>
           </motion.div>
         </div>
