@@ -39,6 +39,15 @@ const steps = [
 ]
 
 export function HowItWorksSection() {
+  // Colorful icon backgrounds to match "HOW IT WORKS" header
+  const iconColors = [
+    'bg-[var(--star-yellow)]',    // 1. Sign up - Yellow
+    'bg-[var(--super-blue)]',     // 2. Explore - Blue
+    'bg-[var(--luigi-green)]',    // 3. Trade - Green
+    'bg-[var(--star-yellow)]',    // 4. Level up - Yellow
+    'bg-[var(--super-blue)]',     // 5. Compete - Blue
+  ]
+
   return (
     <section className="py-20 md:py-32 bg-gradient-to-b from-[var(--mario-yellow)]/10 via-[var(--super-blue)]/5 to-background border-t-4 border-[var(--mario-yellow)]/30">
       <div className="container mx-auto px-4">
@@ -63,9 +72,6 @@ export function HowItWorksSection() {
         </div>
 
         <div className="relative">
-          {/* Connection line */}
-          <div className="hidden lg:block absolute top-1/2 left-0 right-0 h-1 bg-gradient-to-r from-[var(--mario-red)] via-[var(--mario-yellow)] to-[var(--luigi-green)] rounded-full opacity-30" />
-
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-5 relative">
             {steps.map((step, index) => (
               <motion.div
@@ -79,7 +85,7 @@ export function HowItWorksSection() {
                 <div className="flex flex-col items-center text-center space-y-4">
                   {/* Step icon */}
                   <div className="relative">
-                    <div className="h-20 w-20 rounded-lg bg-[var(--star-yellow)] border-4 border-[var(--outline-black)] flex items-center justify-center shadow-lg hover:scale-110 transition-transform">
+                    <div className={`h-20 w-20 rounded-lg ${iconColors[index]} border-4 border-[var(--outline-black)] flex items-center justify-center shadow-lg hover:scale-110 transition-transform`}>
                       <Image src={step.iconSrc} alt="" width={40} height={40} className="object-contain" />
                     </div>
                     <div className="absolute -top-2 -right-2 h-10 w-10 rounded-full bg-[var(--mario-red)] text-white border-3 border-[var(--outline-black)] flex items-center justify-center text-lg font-mario shadow-xl">
