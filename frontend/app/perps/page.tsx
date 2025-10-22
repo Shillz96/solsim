@@ -841,7 +841,7 @@ function PerpsContent() {
                   <AlertDescription className="text-xs text-yellow-800">
                     <strong>High Leverage Warning:</strong> {leverage}x leverage carries extreme risk of liquidation.
                   </AlertDescription>
-                </div>
+                </Alert>
               )}
             </div>
           </div>
