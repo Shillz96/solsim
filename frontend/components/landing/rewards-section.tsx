@@ -59,7 +59,7 @@ export function RewardsSection() {
               viewport={{ once: true }}
               transition={{ delay: index * 0.1, duration: 0.5 }}
             >
-              <EnhancedCard className="p-6 bg-card border-2 border-border hover:border-primary/50 transition-all duration-300 group h-full hover:shadow-lg hover:shadow-primary/10">
+              <EnhancedCard className="p-6 bg-card hover:border-primary/50 transition-all duration-300 group h-full">
                 <div className="space-y-4">
                   <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center group-hover:scale-110 group-hover:bg-primary/20 transition-all duration-300">
                     <reward.icon className="h-6 w-6 text-primary" />
@@ -81,7 +81,7 @@ export function RewardsSection() {
           viewport={{ once: true }}
           transition={{ delay: 0.4, duration: 0.6 }}
         >
-          <EnhancedCard className="max-w-4xl mx-auto p-8 bg-gradient-to-br from-primary/5 via-primary/10 to-primary/5 border-2 border-primary/30">
+          <EnhancedCard className="max-w-4xl mx-auto p-8 bg-gradient-to-br from-primary/5 via-primary/10 to-primary/5 border-4 border-primary/30">
             <div className="text-center space-y-4">
               <div className="inline-flex h-16 w-16 rounded-full bg-primary/20 items-center justify-center mb-2">
                 <Gift className="h-8 w-8 text-primary" />

@@ -95,17 +95,17 @@ export function EnhancedCard({
   // Base card styles
   const baseStyles = cn(
     "transition-all duration-200 ease-in-out",
-    "border border-border bg-card text-card-foreground shadow-sm",
-    "rounded-lg overflow-hidden"
+    "border-4 border-outline-black bg-card text-card-foreground",
+    "rounded-xl overflow-hidden"
   )
 
   // Variant styles
   const variantStyles = {
     default: "",
-    elevated: "shadow-md hover:shadow-lg",
-    bordered: "border-2 border-border hover:border-primary/50",
-    glass: "backdrop-blur-sm bg-card/95 border-border/50",
-    compact: "shadow-none border-border/50"
+    elevated: "",
+    bordered: "border-4 border-outline-black hover:border-primary/50",
+    glass: "backdrop-blur-sm bg-card/95 border-outline-black/50",
+    compact: "border-outline-black/50"
   }
 
   // Size styles
@@ -119,8 +119,8 @@ export function EnhancedCard({
   // Interactive styles
   const interactiveStyles = interactive ? cn(
     "cursor-pointer select-none",
-    "hover:shadow-md hover:scale-[1.02]",
-    "active:scale-[0.98] active:shadow-sm",
+    "hover:-translate-y-0.5",
+    "active:translate-y-0",
     "focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
   ) : ""
 

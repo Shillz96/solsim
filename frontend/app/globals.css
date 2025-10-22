@@ -324,11 +324,13 @@
     border-radius: 16px;
     border: 4px solid var(--outline-black);
     padding: 1.5rem;
-    transition: transform 0.2s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
   }
 
   .card:hover {
     transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   }
 
   /* ---------------------------
@@ -442,11 +444,13 @@
     border: 4px solid var(--outline-black);
     border-radius: 16px;
     padding: 1.5rem;
-    transition: transform 0.2s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
   }
 
   .card-enhanced:hover {
     transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   }
 
   /* Bento-style grid cards - bold black outline */
@@ -455,11 +459,13 @@
     border: 4px solid var(--outline-black);
     border-radius: 16px;
     padding: 1.5rem;
-    transition: transform 0.2s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
   }
 
   .bento-card:hover {
     transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   }
 
   /* Trading-specific card styles - bold black outline */
@@ -468,11 +474,13 @@
     border: 4px solid var(--outline-black);
     border-radius: 16px;
     padding: 1.5rem;
-    transition: transform 0.2s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
   }
 
   .trading-card:hover {
     transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   }
 
   /* ---------------------------
@@ -719,11 +727,13 @@
   border: 4px solid var(--outline-black);
   border-radius: 16px;
   padding: 1.5rem;
-  transition: transform 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .data-card:hover {
   transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 /* Stat cards with Mario-style design - bold black outline */
@@ -732,11 +742,13 @@
   border: 4px solid var(--outline-black);
   border-radius: 16px;
   padding: 1.5rem;
-  transition: transform 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .stat-card:hover {
   transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 /* Leaderboard row styles - Mario theme with bold outline */
@@ -745,12 +757,14 @@
   border: 4px solid var(--outline-black);
   border-radius: 16px;
   padding: 1rem 1.25rem;
-  transition: transform 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
   position: relative;
 }
 
 .leaderboard-row:hover {
   transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .leaderboard-row.user-row {
@@ -866,11 +880,13 @@
   border: 4px solid var(--outline-black);
   border-radius: 16px;
   padding: 1.5rem;
-  transition: transform 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .info-card:hover {
   transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 /* Rewards tier card - bold black outline with color variants */
@@ -880,7 +896,8 @@
   border-radius: 16px;
   padding: 1.5rem;
   position: relative;
-  transition: transform 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .tier-card.bronze {
@@ -901,6 +918,7 @@
 
 .tier-card:hover {
   transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 /* ============================================================
@@ -1185,11 +1203,13 @@
   border: 4px solid var(--outline-black);
   border-radius: 16px;
   padding: 1.5rem;
-  transition: transform 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .mario-card:hover {
   transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 /* Mario Badge/Tag Style */
