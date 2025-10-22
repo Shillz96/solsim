@@ -56,10 +56,10 @@ export function HeroSection() {
                 <span className="text-sm font-bold text-white">Level Up Your Trading Game</span>
               </motion.div>
 
-              <h1 className="font-mario text-5xl md:text-6xl lg:text-7xl font-bold leading-tight text-balance text-white text-shadow-mario">
+              <h1 className="mario-title text-5xl md:text-6xl lg:text-7xl leading-tight text-balance">
                 1UP Your Solana Trading Skills!
               </h1>
-              <p className="text-xl text-white/90 max-w-xl leading-relaxed font-medium">
+              <p className="text-xl text-[var(--outline-black)] max-w-xl leading-relaxed font-bold drop-shadow-lg">
                 Trade real Solana tokens with zero risk. Level up through trades, earn XP, unlock achievements, and compete on the leaderboard - just like your favorite game! 🎮
               </p>
             </div>
@@ -92,17 +92,17 @@ export function HeroSection() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6 }}
             >
-              <div className="space-y-1 bg-black/40 backdrop-blur-md rounded-lg p-3 sm:p-4 border-2 border-white/30 shadow-lg">
-                <div className="text-xl sm:text-2xl md:text-3xl font-mario text-mario-yellow text-shadow-sm" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.8)' }}>20 Levels</div>
-                <p className="text-xs sm:text-sm text-white font-semibold" style={{ textShadow: '1px 1px 3px rgba(0,0,0,0.9)' }}>From Goomba to Legendary</p>
+              <div className="space-y-1 bg-black/40 backdrop-blur-md rounded-lg p-3 sm:p-4 border-3 border-[var(--outline-black)] shadow-lg">
+                <div className="text-xl sm:text-2xl md:text-3xl font-mario text-[var(--star-yellow)]" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.8)' }}>20 Levels</div>
+                <p className="text-xs sm:text-sm text-white font-bold" style={{ textShadow: '1px 1px 3px rgba(0,0,0,0.9)' }}>From Goomba to Legendary</p>
               </div>
-              <div className="space-y-1 bg-black/40 backdrop-blur-md rounded-lg p-3 sm:p-4 border-2 border-white/30 shadow-lg">
-                <div className="text-xl sm:text-2xl md:text-3xl font-mario text-mario-green text-shadow-sm" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.8)' }}>Earn XP</div>
+              <div className="space-y-1 bg-black/40 backdrop-blur-md rounded-lg p-3 sm:p-4 border-3 border-[var(--outline-black)] shadow-lg">
+                <div className="text-xl sm:text-2xl md:text-3xl font-mario text-[var(--luigi-green)]" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.8)' }}>Earn XP</div>
                 <p className="text-xs sm:text-sm text-white font-semibold" style={{ textShadow: '1px 1px 3px rgba(0,0,0,0.9)' }}>Level up with trades</p>
               </div>
-              <div className="space-y-1 bg-black/40 backdrop-blur-md rounded-lg p-3 sm:p-4 border-2 border-white/30 shadow-lg">
-                <div className="text-xl sm:text-2xl md:text-3xl font-mario text-white text-shadow-sm" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.8)' }}>Zero Risk</div>
-                <p className="text-xs sm:text-sm text-white font-semibold" style={{ textShadow: '1px 1px 3px rgba(0,0,0,0.9)' }}>Practice safely</p>
+              <div className="space-y-1 bg-black/40 backdrop-blur-md rounded-lg p-3 sm:p-4 border-3 border-[var(--outline-black)] shadow-lg">
+                <div className="text-xl sm:text-2xl md:text-3xl font-mario text-[var(--super-blue)]" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.8)' }}>Zero Risk</div>
+                <p className="text-xs sm:text-sm text-white font-bold" style={{ textShadow: '1px 1px 3px rgba(0,0,0,0.9)' }}>Practice safely</p>
               </div>
             </motion.div>
           </motion.div>
