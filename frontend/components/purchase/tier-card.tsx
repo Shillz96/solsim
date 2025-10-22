@@ -25,7 +25,7 @@ export function TierCard({ tier, selected, onSelect }: TierCardProps) {
       <Card
         className={cn(
           'relative h-full transition-all duration-200 mario-card',
-          'border-4 border-[var(--outline-black)] bg-white',
+          'border-4 border-[var(--outline-black)] bg-card',
           'shadow-[4px_4px_0_var(--outline-black)]',
           selected
             ? 'bg-[var(--star-yellow)] border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)]'

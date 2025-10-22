@@ -34,7 +34,7 @@ function PortfolioPageContent() {
           className="mb-8 relative"
         >
           {/* Mario-themed header with coins and stars */}
-          <div className="bg-white border-4 border-pipe-800 rounded-xl p-6 shadow-[8px_8px_0_0_rgba(0,0,0,0.3)] relative overflow-hidden">
+          <div className="bg-card border-4 border-pipe-800 rounded-xl p-6 shadow-[8px_8px_0_0_rgba(0,0,0,0.3)] relative overflow-hidden">
             {/* Decorative Mario icons */}
             <div className="absolute top-2 right-2 flex gap-2">
               <Image src="/icons/mario/star.png" alt="Star" width={24} height={24} className="animate-pulse" />
@@ -121,7 +121,7 @@ function PortfolioPageContent() {
             >
               <Tabs defaultValue="positions" className="w-full">
                 {/* Mario-themed tab navigation */}
-                <TabsList className="grid w-full grid-cols-3 mb-6 bg-white border-4 border-pipe-700 rounded-xl p-2 shadow-[4px_4px_0_0_rgba(0,0,0,0.2)]">
+                <TabsList className="grid w-full grid-cols-3 mb-6 bg-card border-4 border-pipe-700 rounded-xl p-2 shadow-[4px_4px_0_0_rgba(0,0,0,0.2)]">
                   <TabsTrigger
                     value="positions"
                     className="gap-2 data-[state=active]:bg-mario-red-500 data-[state=active]:text-white data-[state=active]:border-3 data-[state=active]:border-mario-red-700 data-[state=active]:shadow-[2px_2px_0_0_rgba(0,0,0,0.3)] rounded-lg font-bold text-xs sm:text-sm transition-all"
@@ -155,7 +155,7 @@ function PortfolioPageContent() {
 
                 <TabsContent value="performance" className="mt-0">
                   <div className="space-y-6">
-                    <div className="bg-white border-4 border-pipe-700 rounded-xl shadow-[6px_6px_0_0_rgba(0,0,0,0.3)] p-6">
+                    <div className="bg-card border-4 border-pipe-700 rounded-xl shadow-[6px_6px_0_0_rgba(0,0,0,0.3)] p-6">
                       <div className="flex items-center gap-2 mb-4">
                         <Image src="/icons/mario/fire.png" alt="Fire" width={24} height={24} />
                         <h3 className="text-lg font-bold text-pipe-900">POWER-UP PERFORMANCE</h3>
@@ -169,7 +169,7 @@ function PortfolioPageContent() {
                 </TabsContent>
 
                 <TabsContent value="history" className="mt-0">
-                  <div className="bg-white border-4 border-pipe-700 rounded-xl shadow-[6px_6px_0_0_rgba(0,0,0,0.3)] p-6">
+                  <div className="bg-card border-4 border-pipe-700 rounded-xl shadow-[6px_6px_0_0_rgba(0,0,0,0.3)] p-6">
                     <div className="flex items-center gap-2 mb-4">
                       <Image src="/icons/mario/game.png" alt="Quest" width={24} height={24} />
                       <h3 className="text-lg font-bold text-pipe-900">QUEST LOG</h3>
@@ -190,7 +190,7 @@ function PortfolioPageContent() {
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.5, delay: 0.3 }}
               >
-                <div className="bg-white border-4 border-pipe-700 rounded-xl shadow-[6px_6px_0_0_rgba(0,0,0,0.3)] p-6">
+                <div className="bg-card border-4 border-pipe-700 rounded-xl shadow-[6px_6px_0_0_rgba(0,0,0,0.3)] p-6">
                   <div className="flex items-center gap-2 mb-4">
                     <Image src="/icons/mario/star.png" alt="Star" width={24} height={24} className="animate-pulse" />
                     <h3 className="text-lg font-bold text-pipe-900">ACHIEVEMENTS</h3>

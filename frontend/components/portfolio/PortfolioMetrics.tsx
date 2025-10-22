@@ -71,7 +71,7 @@ function StatCard({
   // Mario theme variant styles - bold borders and colors
   const variantStyles = {
     default: {
-      bg: 'bg-white',
+      bg: 'bg-card',
       border: 'border-pipe-700',
       iconBg: 'bg-pipe-500',
       iconColor: 'text-white'
@@ -191,7 +191,7 @@ function MetricsLoadingSkeleton() {
       {[1, 2, 3, 4].map((i) => (
         <div
           key={i}
-          className="bg-white border-4 border-pipe-700 rounded-xl shadow-[6px_6px_0_0_rgba(0,0,0,0.3)] p-6 animate-pulse"
+          className="bg-card border-4 border-pipe-700 rounded-xl shadow-[6px_6px_0_0_rgba(0,0,0,0.3)] p-6 animate-pulse"
         >
           <div className="flex items-center justify-between mb-4">
             <div className="w-12 h-12 bg-pipe-200 rounded-lg" />
@@ -210,7 +210,7 @@ function MetricsLoadingSkeleton() {
  */
 function EmptyMetricsState({ onAction }: { onAction: () => void }) {
   return (
-    <div className="bg-white border-4 border-pipe-700 rounded-xl shadow-[8px_8px_0_0_rgba(0,0,0,0.3)] p-12">
+    <div className="bg-card border-4 border-pipe-700 rounded-xl shadow-[8px_8px_0_0_rgba(0,0,0,0.3)] p-12">
       <div className="flex flex-col items-center space-y-6 text-center">
         {/* Mario Mushroom Icon */}
         <motion.div
@@ -386,7 +386,7 @@ export function PortfolioMetrics({ isLoading: externalLoading = false }: Portfol
         className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4"
       >
         {/* Active Positions */}
-        <div className="bg-white border-3 border-pipe-600 rounded-lg shadow-[3px_3px_0_0_rgba(0,0,0,0.2)] p-3 flex items-center gap-3">
+        <div className="bg-card border-3 border-pipe-600 rounded-lg shadow-[3px_3px_0_0_rgba(0,0,0,0.2)] p-3 flex items-center gap-3">
           <div className="bg-star-yellow-500 p-2 rounded-lg border-2 border-star-yellow-700 flex items-center justify-center">
             <Image src="/icons/mario/mushroom.png" alt="Active" width={16} height={16} />
           </div>
@@ -397,7 +397,7 @@ export function PortfolioMetrics({ isLoading: externalLoading = false }: Portfol
         </div>
 
         {/* Total Trades */}
-        <div className="bg-white border-3 border-pipe-600 rounded-lg shadow-[3px_3px_0_0_rgba(0,0,0,0.2)] p-3 flex items-center gap-3">
+        <div className="bg-card border-3 border-pipe-600 rounded-lg shadow-[3px_3px_0_0_rgba(0,0,0,0.2)] p-3 flex items-center gap-3">
           <div className="bg-mario-red-500 p-2 rounded-lg border-2 border-mario-red-700 flex items-center justify-center">
             <Image src="/icons/mario/game.png" alt="Trades" width={16} height={16} />
           </div>
@@ -408,7 +408,7 @@ export function PortfolioMetrics({ isLoading: externalLoading = false }: Portfol
         </div>
 
         {/* Realized PnL */}
-        <div className="bg-white border-3 border-pipe-600 rounded-lg shadow-[3px_3px_0_0_rgba(0,0,0,0.2)] p-3 flex items-center gap-3">
+        <div className="bg-card border-3 border-pipe-600 rounded-lg shadow-[3px_3px_0_0_rgba(0,0,0,0.2)] p-3 flex items-center gap-3">
           <div className={cn(
             "p-2 rounded-lg border-2 flex items-center justify-center",
             realizedPnL >= 0 ? "bg-profit border-luigi-green-700" : "bg-loss border-mario-red-700"
@@ -431,7 +431,7 @@ export function PortfolioMetrics({ isLoading: externalLoading = false }: Portfol
         </div>
 
         {/* Avg P&L */}
-        <div className="bg-white border-3 border-pipe-600 rounded-lg shadow-[3px_3px_0_0_rgba(0,0,0,0.2)] p-3 flex items-center gap-3">
+        <div className="bg-card border-3 border-pipe-600 rounded-lg shadow-[3px_3px_0_0_rgba(0,0,0,0.2)] p-3 flex items-center gap-3">
           <div className="bg-pipe-500 p-2 rounded-lg border-2 border-pipe-700 flex items-center justify-center">
             <Image src="/icons/mario/money-bag.png" alt="Avg PnL" width={16} height={16} />
           </div>

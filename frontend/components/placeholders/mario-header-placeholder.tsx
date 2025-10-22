@@ -54,7 +54,7 @@ export function MarioHeaderPlaceholder({
       {/* Content */}
       <div className="relative z-10 flex h-full flex-col items-center justify-center p-6 text-center">
         {/* File icon */}
-        <div className="mb-3 flex h-16 w-16 items-center justify-center rounded-full border-4 border-outline bg-white shadow-lg">
+        <div className="mb-3 flex h-16 w-16 items-center justify-center rounded-full border-4 border-outline bg-card shadow-lg">
           <svg
             className="h-8 w-8 text-outline"
             fill="none"
@@ -76,7 +76,7 @@ export function MarioHeaderPlaceholder({
         </h3>
 
         {/* Dimensions */}
-        <div className="mb-3 inline-flex items-center gap-2 rounded-full border-2 border-outline bg-white px-4 py-1 font-mono text-sm font-bold text-outline shadow-md">
+        <div className="mb-3 inline-flex items-center gap-2 rounded-full border-2 border-outline bg-card px-4 py-1 font-mono text-sm font-bold text-outline shadow-md">
           <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
           </svg>
@@ -85,14 +85,14 @@ export function MarioHeaderPlaceholder({
 
         {/* Instructions */}
         {instructions && (
-          <p className="max-w-md rounded-lg bg-white/90 px-4 py-2 text-sm font-medium text-outline shadow-md">
+          <p className="max-w-md rounded-lg bg-card/90 px-4 py-2 text-sm font-medium text-outline shadow-md">
             {instructions}
           </p>
         )}
 
         {/* Default style guide */}
         {!instructions && (
-          <div className="mt-2 max-w-md rounded-lg bg-white/90 px-4 py-3 text-xs text-outline shadow-md">
+          <div className="mt-2 max-w-md rounded-lg bg-card/90 px-4 py-3 text-xs text-outline shadow-md">
             <p className="font-bold">Style Guide:</p>
             <ul className="mt-1 space-y-1 text-left">
               <li>• Use <span className="font-mario uppercase">Luckiest Guy</span> font</li>

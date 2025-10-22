@@ -199,7 +199,7 @@ export function LevelUpToast({
         {onClose && (
           <button
             onClick={onClose}
-            className="mario-btn mario-btn-sm mt-4 bg-white text-mario-red"
+            className="mario-btn mario-btn-sm mt-4 bg-card text-mario-red"
           >
             Awesome!
           </button>

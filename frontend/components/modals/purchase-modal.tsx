@@ -277,7 +277,7 @@ export function PurchaseModal({ open, onOpenChange, userId }: PurchaseModalProps
               )}
 
               {error && (
-                <Alert variant="destructive" className="animate-in slide-in-from-top-2 border-3 border-[var(--mario-red)] bg-white shadow-[3px_3px_0_var(--mario-red)]">
+                <Alert variant="destructive" className="animate-in slide-in-from-top-2 border-3 border-[var(--mario-red)] bg-card shadow-[3px_3px_0_var(--mario-red)]">
                   <AlertCircle className="h-4 w-4" />
                   <AlertDescription className="font-semibold">{error}</AlertDescription>
                 </Alert>
@@ -296,7 +296,7 @@ export function PurchaseModal({ open, onOpenChange, userId }: PurchaseModalProps
                 <Button
                   variant="outline"
                   onClick={handleClose}
-                  className="px-8 mario-btn bg-white border-3 border-[var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)]"
+                  className="px-8 mario-btn bg-card border-3 border-[var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)]"
                 >
                   Cancel
                 </Button>
@@ -347,7 +347,7 @@ export function PurchaseModal({ open, onOpenChange, userId }: PurchaseModalProps
 
             <div className="space-y-6">
               <div className="relative">
-                <div className="relative bg-white rounded-2xl p-8 space-y-6 border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)]">
+                <div className="relative bg-card rounded-2xl p-8 space-y-6 border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)]">
                   {/* Tier badge */}
                   <div className="flex justify-center">
                     <Badge className="text-base px-4 py-1.5 bg-[var(--star-yellow)] border-3 border-[var(--outline-black)] text-[var(--outline-black)] font-mario shadow-[2px_2px_0_var(--outline-black)]">
@@ -422,7 +422,7 @@ export function PurchaseModal({ open, onOpenChange, userId }: PurchaseModalProps
               </div>
 
               {error && (
-                <Alert variant="destructive" className="border-3 border-[var(--mario-red)] bg-white shadow-[3px_3px_0_var(--mario-red)] animate-in slide-in-from-top-2">
+                <Alert variant="destructive" className="border-3 border-[var(--mario-red)] bg-card shadow-[3px_3px_0_var(--mario-red)] animate-in slide-in-from-top-2">
                   <AlertCircle className="h-4 w-4" />
                   <AlertDescription className="font-semibold">{error}</AlertDescription>
                 </Alert>
@@ -432,7 +432,7 @@ export function PurchaseModal({ open, onOpenChange, userId }: PurchaseModalProps
                 <Button
                   variant="outline"
                   onClick={handleCancel}
-                  className="px-8 mario-btn bg-white border-3 border-[var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)]"
+                  className="px-8 mario-btn bg-card border-3 border-[var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)]"
                 >
                   Back
                 </Button>
@@ -593,7 +593,7 @@ export function PurchaseModal({ open, onOpenChange, userId }: PurchaseModalProps
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-w-[90vw] lg:max-w-6xl max-h-[90vh] overflow-y-auto p-8 bg-white border-4 border-[var(--outline-black)] shadow-[8px_8px_0_var(--outline-black)]">
+      <DialogContent className="max-w-[90vw] lg:max-w-6xl max-h-[90vh] overflow-y-auto p-8 bg-card border-4 border-[var(--outline-black)] shadow-[8px_8px_0_var(--outline-black)]">
         {renderContent()}
       </DialogContent>
     </Dialog>
