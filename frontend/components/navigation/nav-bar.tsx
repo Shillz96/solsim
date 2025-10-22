@@ -47,6 +47,7 @@ import { usePriceStreamContext } from "@/lib/price-stream-provider"
 import { formatSolEquivalent } from "@/lib/sol-equivalent-utils"
 import { useNotifications } from "@/hooks/use-notifications"
 import { formatDistanceToNow } from "date-fns"
+import { XPBadge } from "@/components/level/xp-progress-bar"
 
 // Enhanced navigation items with better organization
 const navigationItems = [
@@ -399,6 +400,16 @@ export function NavBar() {
                   </div>
                 </button>
 
+                {/* XP Badge - Hidden on mobile */}
+                {user && (
+                  <div className="hidden md:block">
+                    <XPBadge
+                      currentXP={parseFloat(user.rewardPoints?.toString() || '0')}
+                      className="px-3 py-2 bg-gradient-to-r from-mario-yellow/20 to-mario-orange/20 border-2 border-mario-yellow/50 hover:border-mario-yellow transition-all hover:scale-105"
+                    />
+                  </div>
+                )}
+
                 {/* Notifications - Hidden on mobile */}
                 <div className="hidden md:block">
                   <NotificationDropdown />
@@ -458,6 +469,13 @@ export function NavBar() {
               </SheetTrigger>
               <SheetContent side="right" className="w-80 overflow-y-auto">
                 <div className="flex flex-col space-y-4 mt-4">
+                  {/* XP Display - Mobile */}
+                  {isAuthenticated && user && (
+                    <div className="px-3 py-2 bg-gradient-to-r from-mario-yellow/20 to-mario-orange/20 border-2 border-mario-yellow/50 rounded-lg">
+                      <XPBadge currentXP={parseFloat(user.rewardPoints?.toString() || '0')} />
+                    </div>
+                  )}
+
                   {/* Notifications Section */}
                   {isAuthenticated && (
                     <div className="space-y-2 pb-4 border-b">

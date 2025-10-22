@@ -1,50 +1,64 @@
 "use client"
 
 import { EnhancedCard } from "@/components/ui/enhanced-card-system"
-import { TrendingUp, Wallet, BarChart3, Trophy, Eye, Gift, LineChart } from "lucide-react"
+import { TrendingUp, Wallet, BarChart3, Trophy, Eye, Star, LineChart, Zap } from "lucide-react"
 import { motion } from "framer-motion"
+import { MarioHeaderPlaceholder } from "@/components/placeholders/mario-header-placeholder"
 
 const features = [
   {
     icon: TrendingUp,
+    emoji: "📈",
     title: "Hybrid Trending System",
     description: "Real-time trending tokens from Birdeye and Pump.fun. Stay ahead of the market with live data.",
   },
   {
     icon: Wallet,
+    emoji: "💰",
     title: "Virtual SOL Balance",
-    description: "Start with virtual balance (10 SOL for standard users, 100 SOL for vSOL holders). Trade without losing real money while you learn.",
+    description: "Start with 10 SOL (100 SOL for $UP holders). Trade without losing real money while you level up!",
   },
   {
     icon: Eye,
+    emoji: "👁️",
     title: "Wallet Tracker",
-    description: "Track any Solana wallet's holdings and performance in real-time. Learn from successful traders.",
+    description: "Track any Solana wallet's holdings and performance in real-time. Learn from the pros and copy their trades!",
   },
   {
     icon: LineChart,
+    emoji: "📊",
     title: "Portfolio Analytics",
     description: "Advanced portfolio statistics, PnL tracking, win rates, and detailed performance metrics.",
   },
   {
-    icon: Gift,
-    title: "Rewards System",
-    description: "Earn rewards for trading activity, daily streaks, and achievements. Future $vSOL token airdrops.",
+    icon: Star,
+    emoji: "⭐",
+    title: "XP & Level System",
+    description: "Earn XP from every trade! Progress through 20 levels from Goomba to Legendary Luigi. Unlock achievements and titles!",
   },
   {
     icon: BarChart3,
+    emoji: "📉",
     title: "Real Market Data",
     description: "Practice with live prices and charts. Experience real market conditions without the risk.",
   },
   {
     icon: Trophy,
+    emoji: "🏆",
     title: "Competitive Leaderboards",
-    description: "Track your PnL, compete with other traders, and climb the rankings to earn exclusive rewards.",
+    description: "Compete with traders worldwide! Climb the rankings to earn XP bonuses and show off your trading prowess.",
+  },
+  {
+    icon: Zap,
+    emoji: "⚡",
+    title: "Achievement System",
+    description: "Unlock special achievements like Diamond Hands, 10-Bagger, and Portfolio ATH for massive XP rewards!",
   },
 ]
 
 export function FeaturesSection() {
   return (
-    <section id="features" className="py-20 md:py-32 bg-background border-t border-b border-border">
+    <section id="features" className="py-20 md:py-32 bg-gradient-to-b from-background via-mario-blue/5 to-background border-t-4 border-b-4 border-mario-yellow/30">
       <div className="container mx-auto px-4">
         <motion.div
           className="text-center space-y-4 mb-16"
@@ -53,32 +67,40 @@ export function FeaturesSection() {
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
         >
-          <h2 className="font-heading text-4xl md:text-5xl font-bold text-balance">
-            Everything You Need to Master Trading
+          {/* Mario header placeholder */}
+          <div className="mb-6 max-w-3xl mx-auto">
+            <MarioHeaderPlaceholder variant="features" className="w-full h-auto rounded-xl shadow-lg border-4 border-mario-yellow/50" />
+          </div>
+
+          <h2 className="font-mario text-4xl md:text-5xl font-bold text-balance text-mario-red text-shadow-sm">
+            Power-Up Your Trading Skills! 🍄
           </h2>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            Professional-grade tools and features to help you practice and improve your Solana trading skills.
+          <p className="text-xl text-foreground/80 max-w-2xl mx-auto leading-relaxed font-medium">
+            Professional-grade tools and features to help you level up your Solana trading game!
           </p>
         </motion.div>
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {features.map((feature, index) => (
-            <div
+            <motion.div
               key={index}
-              className={index % 2 === 0 ? "animate-on-scroll" : "animate-on-scroll-delay"}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: index * 0.05, duration: 0.4 }}
             >
-              <EnhancedCard className="p-6 bg-card border-2 border-foreground hover:border-foreground transition-all duration-300 group h-full">
+              <div className="mario-card p-6 bg-gradient-to-br from-white/90 to-white/70 border-3 border-mario-yellow/40 hover:border-mario-yellow transition-all duration-300 group h-full hover:shadow-xl hover:-translate-y-1">
                 <div className="space-y-4">
-                  <div className="h-12 w-12 rounded-full bg-foreground flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                    <feature.icon className="h-6 w-6 text-background" />
+                  <div className="text-5xl group-hover:scale-110 transition-transform duration-300">
+                    {feature.emoji}
                   </div>
                   <div className="space-y-2">
-                    <h3 className="font-heading text-xl font-bold">{feature.title}</h3>
-                    <p className="text-base text-muted-foreground leading-relaxed">{feature.description}</p>
+                    <h3 className="font-mario text-lg text-mario-red">{feature.title}</h3>
+                    <p className="text-sm text-foreground/70 leading-relaxed">{feature.description}</p>
                   </div>
                 </div>
-              </EnhancedCard>
-            </div>
+              </div>
+            </motion.div>
           ))}
         </div>
       </div>

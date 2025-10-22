@@ -1,14 +1,40 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { ArrowRight, Sparkles } from "lucide-react"
+import { ArrowRight, Star, Zap, Trophy } from "lucide-react"
 import Link from "next/link"
 import { motion } from "framer-motion"
+import { MarioHeaderPlaceholder } from "@/components/placeholders/mario-header-placeholder"
 
 export function HeroSection() {
   return (
-    <section className="relative overflow-hidden py-20 md:py-32 bg-foreground text-background">
-      {/* Uses theme foreground (black in light, white in dark) */}
+    <section className="relative overflow-hidden py-20 md:py-32 bg-gradient-to-br from-mario-blue via-mario-red to-mario-yellow">
+      {/* Mario-themed gradient background */}
+
+      {/* Animated background elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-20">
+        <motion.div
+          className="absolute top-10 left-10 text-6xl"
+          animate={{ y: [0, -20, 0] }}
+          transition={{ duration: 3, repeat: Infinity }}
+        >
+          🍄
+        </motion.div>
+        <motion.div
+          className="absolute top-20 right-20 text-5xl"
+          animate={{ y: [0, 20, 0], rotate: [0, 10, 0] }}
+          transition={{ duration: 2.5, repeat: Infinity }}
+        >
+          ⭐
+        </motion.div>
+        <motion.div
+          className="absolute bottom-20 left-1/4 text-7xl"
+          animate={{ y: [0, -15, 0] }}
+          transition={{ duration: 2, repeat: Infinity }}
+        >
+          🪙
+        </motion.div>
+      </div>
 
       <div className="container relative mx-auto px-4">
         <div className="grid gap-12 lg:grid-cols-2 lg:gap-16 items-center">
@@ -24,17 +50,17 @@ export function HeroSection() {
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.2 }}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-background/10 border border-background/20"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/20 border-2 border-white/40 backdrop-blur-sm"
               >
-                <Sparkles className="h-4 w-4 text-background" />
-                <span className="text-sm font-medium text-background">Practice Trading Platform</span>
+                <Star className="h-4 w-4 text-mario-yellow animate-pulse" />
+                <span className="text-sm font-bold text-white">Level Up Your Trading Game</span>
               </motion.div>
 
-              <h1 className="font-heading text-5xl md:text-6xl lg:text-7xl font-bold leading-tight text-balance">
-                Trade Solana Without Risk
+              <h1 className="font-mario text-5xl md:text-6xl lg:text-7xl font-bold leading-tight text-balance text-white text-shadow-mario">
+                1UP Your Solana Trading Skills!
               </h1>
-              <p className="text-xl text-background/70 max-w-xl leading-relaxed">
-                Practice trading real Solana tokens with live market data. Track wallets, earn rewards, compete on leaderboards - all risk-free.
+              <p className="text-xl text-white/90 max-w-xl leading-relaxed font-medium">
+                Trade real Solana tokens with zero risk. Level up through trades, earn XP, unlock achievements, and compete on the leaderboard - just like your favorite game! 🎮
               </p>
             </div>
 
@@ -45,22 +71,19 @@ export function HeroSection() {
               transition={{ delay: 0.4 }}
             >
               <Link href="/trade">
-                <Button
-                  size="lg"
-                  className="w-full sm:w-auto bg-background text-foreground hover:bg-background/90 group"
-                >
-                  Start Trading
-                  <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-                </Button>
+                <button className="mario-btn mario-btn-lg bg-mario-green hover:bg-mario-green/90 w-full sm:w-auto group">
+                  <span className="flex items-center justify-center gap-2">
+                    Start Trading 🎮
+                    <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                  </span>
+                </button>
               </Link>
-              <Button
-                size="lg"
-                variant="outline"
-                className="w-full sm:w-auto border-2 border-background text-background hover:bg-background hover:text-foreground"
+              <button
+                className="mario-btn mario-btn-lg mario-btn-outline border-2 border-white text-white hover:bg-white hover:text-mario-red w-full sm:w-auto"
                 onClick={() => document.getElementById("features")?.scrollIntoView({ behavior: "smooth" })}
               >
-                Learn More
-              </Button>
+                Learn More 📚
+              </button>
             </motion.div>
 
             <motion.div
@@ -69,40 +92,65 @@ export function HeroSection() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6 }}
             >
-              <div className="space-y-1">
-                <div className="text-xl sm:text-2xl md:text-3xl font-bold text-[#00ff85]">10-100 SOL</div>
-                <p className="text-xs sm:text-sm text-background/60">Starting balance (10 SOL standard, 100 SOL for vSOL holders)</p>
+              <div className="space-y-1 bg-white/10 backdrop-blur-sm rounded-lg p-3 border-2 border-white/20">
+                <div className="text-xl sm:text-2xl md:text-3xl font-mario text-mario-yellow">20 Levels</div>
+                <p className="text-xs sm:text-sm text-white/80 font-medium">From Goomba to Legendary</p>
               </div>
-              <div className="space-y-1">
-                <div className="text-xl sm:text-2xl md:text-3xl font-bold">Rewards</div>
-                <p className="text-xs sm:text-sm text-background/60">Earn while learning</p>
+              <div className="space-y-1 bg-white/10 backdrop-blur-sm rounded-lg p-3 border-2 border-white/20">
+                <div className="text-xl sm:text-2xl md:text-3xl font-mario text-mario-green">Earn XP</div>
+                <p className="text-xs sm:text-sm text-white/80 font-medium">Level up with trades</p>
               </div>
-              <div className="space-y-1">
-                <div className="text-xl sm:text-2xl md:text-3xl font-bold">Zero Risk</div>
-                <p className="text-xs sm:text-sm text-background/60">Practice safely</p>
+              <div className="space-y-1 bg-white/10 backdrop-blur-sm rounded-lg p-3 border-2 border-white/20">
+                <div className="text-xl sm:text-2xl md:text-3xl font-mario text-white">Zero Risk</div>
+                <p className="text-xs sm:text-sm text-white/80 font-medium">Practice safely</p>
               </div>
             </motion.div>
           </motion.div>
 
-          {/* Right: Demo video */}
+          {/* Right: Demo video or Mario header */}
           <motion.div
             className="relative"
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.3, duration: 0.6 }}
           >
-            <div className="relative rounded-2xl overflow-hidden border border-background/20 shadow-lg bg-background/5">
-              <video
-                autoPlay
-                loop
-                muted
-                playsInline
-                className="w-full h-auto object-contain"
-              >
-                <source src="/demo-video.mp4?v=2" type="video/mp4" />
-                Your browser does not support the video tag.
-              </video>
+            <div className="relative rounded-2xl overflow-hidden border-4 border-white/40 shadow-2xl bg-gradient-to-br from-mario-red via-mario-yellow to-mario-green p-1">
+              <div className="bg-white rounded-xl overflow-hidden">
+                {/* Mario-themed demo placeholder */}
+                <MarioHeaderPlaceholder
+                  variant="start-trading"
+                  className="w-full h-auto"
+                />
+                {/* Uncomment when video is ready:
+                <video
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  className="w-full h-auto object-contain"
+                >
+                  <source src="/demo-video.mp4?v=2" type="video/mp4" />
+                  Your browser does not support the video tag.
+                </video>
+                */}
+              </div>
             </div>
+
+            {/* Floating Mario elements */}
+            <motion.div
+              className="absolute -top-8 -right-8 text-7xl z-10"
+              animate={{ rotate: [0, 10, -10, 0] }}
+              transition={{ duration: 3, repeat: Infinity }}
+            >
+              🍄
+            </motion.div>
+            <motion.div
+              className="absolute -bottom-6 -left-6 text-6xl z-10"
+              animate={{ y: [0, -10, 0] }}
+              transition={{ duration: 2, repeat: Infinity }}
+            >
+              ⭐
+            </motion.div>
           </motion.div>
         </div>
       </div>

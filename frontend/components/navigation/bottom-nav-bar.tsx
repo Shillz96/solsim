@@ -219,26 +219,6 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
                 </span>
               </div>
             ))}
-            
-            {/* UP Token Info */}
-            <div
-              className="flex items-center gap-2 px-2 py-1 rounded-lg bg-muted"
-            >
-              <div className="flex items-center gap-1.5">
-                <div className="relative h-6 w-6">
-                  <Image
-                    src="/Socials PFP-1.png"
-                    alt="UP Token Logo"
-                    fill
-                    className="object-contain"
-                  />
-                </div>
-                <span className="text-xs font-semibold text-star">$UP</span>
-              </div>
-              <span className="text-[10px] text-muted-foreground font-medium">
-                Coming Soon
-              </span>
-            </div>
           </div>
 
           {/* Right: Wallet Tracker, Leaderboard, Docs, Theme Toggle & Quick Trade */}
