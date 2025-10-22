@@ -41,11 +41,11 @@ const steps = [
 export function HowItWorksSection() {
   // Colorful icon backgrounds to match "HOW IT WORKS" header
   const iconColors = [
-    'bg-[var(--star-yellow)]',    // 1. Sign up - Yellow
-    'bg-[var(--super-blue)]',     // 2. Explore - Blue
-    'bg-[var(--luigi-green)]',    // 3. Trade - Green
-    'bg-[var(--star-yellow)]',    // 4. Level up - Yellow
-    'bg-[var(--super-blue)]',     // 5. Compete - Blue
+    'bg-mario-red-500',      // 1. Sign up - Red
+    'bg-super-blue-500',     // 2. Explore - Blue
+    'bg-luigi-green-500',    // 3. Trade - Green
+    'bg-mario-yellow-500',   // 4. Level up - Yellow
+    'bg-super-blue-500',     // 5. Compete - Blue
   ]
 
   return (

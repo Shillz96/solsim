@@ -166,7 +166,7 @@ export function LevelUpSection() {
                   <span className="font-bold text-[var(--luigi-green)]">3. Dominate the Leaderboard:</span> Reach Top 100 for +200 XP, Top 10 for +1,500 XP, or #1 for a whopping +5,000 XP!
                 </p>
                 <p className="pt-4 border-t-2 border-[var(--mario-yellow)]/50">
-                  <span className="font-mario text-xl text-[var(--star-yellow)] flex items-center justify-center gap-2" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.6)' }}>
+                  <span className="font-mario text-xl text-[var(--mario-red)] flex items-center justify-center gap-2" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.3)' }}>
                     <img src="/icons/mario/mushroom.png" alt="" className="w-6 h-6 object-contain inline-block" />
                     From Goomba to Legend - Start Your Journey Today!
                     <img src="/icons/mario/trophy.png" alt="" className="w-6 h-6 object-contain inline-block" />
