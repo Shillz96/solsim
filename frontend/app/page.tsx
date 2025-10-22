@@ -5,7 +5,6 @@ import { LevelUpSection } from "@/components/landing/level-up-section"
 import { TrendingTokensSection } from "@/components/landing/trending-tokens-section"
 import { LeaderboardPreview } from "@/components/landing/leaderboard-preview"
 import { CTASection } from "@/components/landing/cta-section"
-import { Footer } from "@/components/landing/footer"
 
 export default function Home() {
   return (
@@ -19,7 +18,6 @@ export default function Home() {
         <LeaderboardPreview />
         <CTASection />
       </main>
-      <Footer />
     </div>
   )
 }
