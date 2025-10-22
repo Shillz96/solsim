@@ -100,7 +100,7 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
     <>
       {/* Mobile Bottom Nav */}
       <nav className={cn(
-        "fixed bottom-0 left-0 right-0 z-50 border-t-2 border-mario-yellow/30 bg-background/95 backdrop-blur-md supports-[backdrop-filter]:bg-background/80 shadow-none md:hidden",
+        "fixed bottom-0 left-0 right-0 z-50 border-t-2 border-border bg-background/95 backdrop-blur-md supports-[backdrop-filter]:bg-background/80 shadow-none md:hidden",
         className
       )}>
         <div className="flex items-center justify-around h-16">
@@ -219,6 +219,32 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
                 </span>
               </div>
             ))}
+            
+            {/* UP Token Info */}
+            <div
+              className="flex items-center gap-2 px-2 py-1 rounded-lg bg-muted cursor-pointer hover:bg-muted/80 transition-colors"
+              onClick={() => {
+                const ca = "2mksd9Ci9XzBV4CrZ6Fo2SuAtHfrUg3cmdKRjZeApump"
+                navigator.clipboard.writeText(ca)
+                // Optional: You could add a toast notification here
+              }}
+              title="Click to copy contract address"
+            >
+              <div className="flex items-center gap-1.5">
+                <div className="relative h-6 w-6">
+                  <Image
+                    src="/Socials PFP-1.png"
+                    alt="UP Token Logo"
+                    fill
+                    className="object-contain"
+                  />
+                </div>
+                <span className="text-xs font-semibold text-star">$UP</span>
+              </div>
+              <span className="text-[10px] text-muted-foreground font-mono hover:text-foreground transition-colors">
+                Coming Soon
+              </span>
+            </div>
           </div>
 
           {/* Right: Wallet Tracker, Leaderboard, Docs, Theme Toggle & Quick Trade */}
