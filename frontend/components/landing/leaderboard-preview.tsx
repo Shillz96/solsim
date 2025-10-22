@@ -7,7 +7,7 @@ import Link from "next/link"
 import { motion } from "framer-motion"
 import { useQuery } from "@tanstack/react-query"
 import * as api from "@/lib/api"
-import { MarioHeaderPlaceholder } from "@/components/placeholders/mario-header-placeholder"
+import { MarioPageHeader } from "@/components/shared/mario-page-header"
 
 export function LeaderboardPreview() {
   // Fetch real leaderboard data from backend
@@ -61,9 +61,14 @@ export function LeaderboardPreview() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
         >
-          {/* Mario header placeholder */}
+          {/* Mario header */}
           <div className="mb-6 max-w-3xl mx-auto">
-            <MarioHeaderPlaceholder filename="leaderboard-header.png" width={750} height={150} colorScheme="blue" />
+            <MarioPageHeader
+              src="/leaderboard-header.png"
+              alt="Leaderboard"
+              width={750}
+              height={150}
+            />
           </div>
 
           <h2 className="font-mario text-4xl md:text-5xl font-bold text-balance text-white text-shadow-mario">

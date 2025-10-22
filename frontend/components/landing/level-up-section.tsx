@@ -3,7 +3,7 @@
 import { EnhancedCard } from "@/components/ui/enhanced-card-system"
 import { Star, Zap, Trophy, Target, TrendingUp, Award } from "lucide-react"
 import { motion } from "framer-motion"
-import { MarioHeaderPlaceholder } from "@/components/placeholders/mario-header-placeholder"
+import { MarioPageHeader } from "@/components/shared/mario-page-header"
 
 const levelUpFeatures = [
   {
@@ -55,9 +55,14 @@ export function LevelUpSection() {
             <span className="text-sm font-bold text-foreground">Level Up System</span>
           </div>
 
-          {/* Mario header placeholder */}
+          {/* Mario header */}
           <div className="mb-6 max-w-3xl mx-auto">
-            <MarioHeaderPlaceholder filename="level-up-header.png" width={700} height={150} colorScheme="yellow" />
+            <MarioPageHeader
+              src="/level-up-header.png"
+              alt="Level Up"
+              width={700}
+              height={150}
+            />
           </div>
 
           <h2 className="font-mario text-4xl md:text-5xl font-bold text-balance text-mario-red text-shadow-sm">

@@ -4,7 +4,6 @@ import { EnhancedCard } from "@/components/ui/enhanced-card-system"
 import { TrendingUp, Wallet, BarChart3, Trophy, Eye, Star, LineChart, Zap } from "lucide-react"
 import { motion } from "framer-motion"
 import { MarioPageHeader } from "@/components/shared/mario-page-header"
-import { MarioHeaderPlaceholder } from "@/components/placeholders/mario-header-placeholder"
 
 const features = [
   {
@@ -68,9 +67,14 @@ export function FeaturesSection() {
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
         >
-          {/* Mario header placeholder */}
+          {/* Mario header */}
           <div className="mb-6 max-w-3xl mx-auto">
-            <MarioHeaderPlaceholder filename="features-header.png" width={650} height={140} colorScheme="rainbow" />
+            <MarioPageHeader
+              src="/features-header.png"
+              alt="Features"
+              width={650}
+              height={140}
+            />
           </div>
 
           <h2 className="font-mario text-4xl md:text-5xl font-bold text-balance text-mario-red text-shadow-sm">

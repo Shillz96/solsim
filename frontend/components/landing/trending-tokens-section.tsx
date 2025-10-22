@@ -12,7 +12,7 @@ import { useTrendingTokens } from "@/hooks/use-react-query-hooks"
 import { usePriceStreamContext } from "@/lib/price-stream-provider"
 import { formatSolEquivalent } from "@/lib/sol-equivalent-utils"
 import { formatPriceUSD, formatNumber } from "@/lib/format"
-import { MarioHeaderPlaceholder } from "@/components/placeholders/mario-header-placeholder"
+import { MarioPageHeader } from "@/components/shared/mario-page-header"
 
 export function TrendingTokensSection() {
   const { data: trendingTokens, isLoading: loading } = useTrendingTokens(6) // Increased to 6 for better showcase
@@ -30,9 +30,14 @@ export function TrendingTokensSection() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
         >
-          {/* Mario header placeholder */}
+          {/* Mario header */}
           <div className="mb-6 max-w-3xl mx-auto">
-            <MarioHeaderPlaceholder filename="trending-tokens-header.png" width={800} height={140} colorScheme="rainbow" />
+            <MarioPageHeader
+              src="/Trending-tokens-header.png"
+              alt="Trending Tokens"
+              width={800}
+              height={140}
+            />
           </div>
 
           <h2 className="font-mario text-4xl md:text-5xl font-bold text-balance text-mario-red text-shadow-sm">
