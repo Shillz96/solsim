@@ -87,16 +87,10 @@ const navigationItems = [
     description: "Discover popular tokens"
   },
   {
-    name: "Rewards",
-    href: "/rewards",
-    icon: Gift,
-    description: "Earn points and claim rewards"
-  },
-  {
     name: "Docs",
     href: "/docs",
     icon: BookOpen,
-    description: "Learn how VirtualSol works"
+    description: "Learn how 1UP SOL works"
   }
   // {
   //   name: "Monitoring",

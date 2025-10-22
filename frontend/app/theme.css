@@ -1,8 +1,8 @@
 /**
- * VirtualSol 2025 Design System - Tailwind v4 CSS Theme
+ * 1UP SOL 2025 Design System - Tailwind v4 CSS Theme
  *
  * This file defines the core design tokens using Tailwind v4's @theme syntax.
- * Colors use OKLCH for perceptual uniformity with Display-P3 enhancements for wide-gamut displays.
+ * Mario-themed colors using OKLCH for perceptual uniformity with Display-P3 enhancements.
  *
  * Benefits:
  * - CSS-first approach (no JavaScript build step for tokens)
@@ -15,30 +15,52 @@
 
 @theme {
   /**
-   * CORE BRAND COLORS
-   * Using OKLCH color space for perceptually uniform colors across all displays
+   * MARIO THEME - CORE BRAND COLORS
+   * Using OKLCH color space for perceptually uniform Mario colors
    */
 
-  /* Primary brand color - Indigo/Blue */
-  --color-brand: oklch(72% 0.16 260);
-  --color-brand-hover: oklch(68% 0.18 260);
+  /* Mario Red - Primary brand color */
+  --color-brand: oklch(55% 0.22 27);        /* Mario Red #E52521 */
+  --color-brand-hover: oklch(50% 0.24 27);  /* Darker Mario Red */
 
-  /* Trading-specific colors - High contrast for visibility */
-  --color-profit: oklch(65% 0.12 155); /* Green - WCAG AA compliant */
-  --color-loss: oklch(60% 0.14 27);   /* Red - WCAG AA compliant */
+  /* Luigi Green - Secondary brand */
+  --color-luigi: oklch(62% 0.18 145);       /* Luigi Green #43B047 */
+
+  /* Super Star Yellow */
+  --color-star: oklch(88% 0.16 85);         /* Star Yellow #FFD800 */
+
+  /* Coin Gold */
+  --color-coin: oklch(82% 0.14 75);         /* Coin Gold #FFB915 */
+
+  /* Sky Blue */
+  --color-sky: oklch(85% 0.08 230);         /* Sky Blue #A6D8FF */
+
+  /* Super Blue */
+  --color-super: oklch(52% 0.20 265);       /* Super Blue #2B4EF9 */
+
+  /* Pipe Green */
+  --color-pipe: oklch(52% 0.16 160);        /* Pipe Green #00994C */
+
+  /* Brick Brown */
+  --color-brick: oklch(48% 0.10 45);        /* Brick Brown #9C5818 */
+
+  /* Trading-specific colors - Luigi Green for profit, Mario Red for loss */
+  --color-profit: oklch(62% 0.18 145);      /* Luigi Green - WCAG AA compliant */
+  --color-loss: oklch(55% 0.22 27);         /* Mario Red - WCAG AA compliant */
 
   /* Trading action colors - Vivid for attention-grabbing CTAs */
-  --color-buy: oklch(85% 0.30 150);   /* Bright neon green */
-  --color-sell: oklch(65% 0.25 27);   /* Bright red */
+  --color-buy: oklch(62% 0.18 145);         /* Luigi Green for buy */
+  --color-sell: oklch(55% 0.22 27);         /* Mario Red for sell */
 
   /**
-   * CHART COLORS
-   * Minimal palette for data visualization
+   * CHART COLORS - MARIO THEMED
+   * Colorful palette for data visualization
    */
-  --color-chart-primary: oklch(0 0 0);        /* Black/White (theme-aware) */
-  --color-chart-profit: oklch(85% 0.30 150);   /* Profit green */
-  --color-chart-loss: oklch(65% 0.25 27);      /* Loss red */
-  --color-chart-neutral: oklch(45% 0 0);       /* Gray */
+  --color-chart-primary: oklch(0 0 0);          /* Black/White (theme-aware) */
+  --color-chart-profit: oklch(62% 0.18 145);    /* Luigi Green */
+  --color-chart-loss: oklch(55% 0.22 27);       /* Mario Red */
+  --color-chart-neutral: oklch(45% 0 0);        /* Gray */
+  --color-chart-accent: oklch(88% 0.16 85);     /* Star Yellow */
 
   /**
    * UI TOKENS
@@ -74,7 +96,7 @@
 }
 
 /**
- * WIDE-GAMUT COLOR ENHANCEMENT (Display-P3)
+ * WIDE-GAMUT COLOR ENHANCEMENT (Display-P3) - MARIO THEME
  *
  * These colors are more vivid and saturated on modern displays that support P3 color space:
  * - MacBooks (2015+)
@@ -85,21 +107,40 @@
  */
 @media (color-gamut: p3) {
   @theme {
-    /* Enhanced brand colors with wider gamut */
-    --color-brand: color(display-p3 0.16 0.68 0.98);
-    --color-brand-hover: color(display-p3 0.14 0.64 0.94);
+    /* Enhanced Mario Red - More vivid on P3 displays */
+    --color-brand: color(display-p3 0.90 0.15 0.13);        /* Mario Red P3 */
+    --color-brand-hover: color(display-p3 0.70 0.11 0.10);  /* Darker Mario Red P3 */
+
+    /* Enhanced Luigi Green */
+    --color-luigi: color(display-p3 0.26 0.69 0.28);        /* Luigi Green P3 */
+
+    /* Enhanced Star Yellow */
+    --color-star: color(display-p3 1.0 0.85 0.0);           /* Star Yellow P3 */
+
+    /* Enhanced Coin Gold */
+    --color-coin: color(display-p3 1.0 0.72 0.08);          /* Coin Gold P3 */
+
+    /* Enhanced Sky Blue */
+    --color-sky: color(display-p3 0.65 0.85 1.0);           /* Sky Blue P3 */
+
+    /* Enhanced Super Blue */
+    --color-super: color(display-p3 0.17 0.31 0.98);        /* Super Blue P3 */
+
+    /* Enhanced Pipe Green */
+    --color-pipe: color(display-p3 0.0 0.60 0.30);          /* Pipe Green P3 */
 
     /* Enhanced trading colors - More vibrant on P3 displays */
-    --color-profit: color(display-p3 0.12 0.85 0.45);
-    --color-loss: color(display-p3 0.92 0.20 0.18);
+    --color-profit: color(display-p3 0.26 0.69 0.28);       /* Luigi Green P3 */
+    --color-loss: color(display-p3 0.90 0.15 0.13);         /* Mario Red P3 */
 
     /* Enhanced action colors - Maximum impact */
-    --color-buy: color(display-p3 0 1 0.52);      /* Pure vivid green */
-    --color-sell: color(display-p3 1 0.30 0.30);   /* Vivid red */
+    --color-buy: color(display-p3 0.26 0.69 0.28);          /* Luigi Green buy */
+    --color-sell: color(display-p3 0.90 0.15 0.13);         /* Mario Red sell */
 
     /* Enhanced chart colors */
-    --color-chart-profit: color(display-p3 0 1 0.52);
-    --color-chart-loss: color(display-p3 1 0.30 0.30);
+    --color-chart-profit: color(display-p3 0.26 0.69 0.28); /* Luigi Green chart */
+    --color-chart-loss: color(display-p3 0.90 0.15 0.13);   /* Mario Red chart */
+    --color-chart-accent: color(display-p3 1.0 0.85 0.0);   /* Star Yellow chart */
   }
 }
 

@@ -1,7 +1,7 @@
 /** @type {import('tailwindcss').Config} */
 
-// VirtualSol Design System - Tailwind Configuration
-// This file establishes the core design tokens for the VirtualSol Trading Platform
+// 1UP SOL Design System - Tailwind Configuration
+// Mario-themed trading platform with bold colors and gaming aesthetics
 
 module.exports = {
   darkMode: ["class"],
@@ -22,33 +22,79 @@ module.exports = {
     },
     extend: {
       colors: {
-        // Brand Core
-        primary: {
-          DEFAULT: "#6366F1", // Indigo 500 - Main brand color
-          50: "#EEF2FF", // Indigo 50
-          100: "#E0E7FF", // Indigo 100
-          200: "#C7D2FE", // Indigo 200
-          300: "#A5B4FC", // Indigo 300
-          400: "#818CF8", // Indigo 400
-          500: "#6366F1", // Indigo 500 - PRIMARY DEFAULT
-          600: "#4F46E5", // Indigo 600
-          700: "#4338CA", // Indigo 700
-          800: "#3730A3", // Indigo 800
-          900: "#312E81", // Indigo 900
-          950: "#1E1B4B", // Indigo 950
-          foreground: "#FFFFFF", // White text on primary backgrounds
+        // Mario Theme - Primary Colors
+        mario: {
+          DEFAULT: "#E52521", // Classic Mario red
+          light: "#FF6B6B", // Lighter red for hover states
+          dark: "#B31D1A", // Darker red for depth
         },
-        
-        // Trading Specific Colors - Used for PnL indications
+        luigi: {
+          DEFAULT: "#43B047", // Luigi green
+          light: "#5EC962", // Lighter green
+          dark: "#2E7A31", // Darker green
+        },
+        star: {
+          DEFAULT: "#FFD800", // Super Star yellow
+          light: "#FFEB3B", // Lighter yellow
+          dark: "#FFA000", // Darker/gold yellow
+        },
+        coin: {
+          DEFAULT: "#FFB915", // Coin gold
+          light: "#FFC947", // Lighter gold
+          dark: "#E69500", // Darker gold
+        },
+        sky: {
+          DEFAULT: "#A6D8FF", // Mario sky blue
+          light: "#D0EAFF", // Lighter sky
+          dark: "#5BA8E0", // Darker sky/water
+        },
+        brick: {
+          DEFAULT: "#9C5818", // Brick brown
+          light: "#C17842", // Lighter brown
+          dark: "#6B3D10", // Darker brown
+        },
+        pipe: {
+          DEFAULT: "#00994C", // Pipe green
+          light: "#00C95E", // Lighter pipe
+          dark: "#00662F", // Darker pipe
+        },
+        super: {
+          DEFAULT: "#2B4EF9", // Super mushroom blue
+          light: "#5B7BFF", // Lighter blue
+          dark: "#1A2E9C", // Darker blue
+        },
+        outline: {
+          DEFAULT: "#1C1C1C", // Black outline
+          light: "#3A3A3A", // Lighter black
+        },
+
+        // Brand Core (Mario Red as primary)
+        primary: {
+          DEFAULT: "#E52521", // Mario red as primary
+          50: "#FEF2F2",
+          100: "#FEE2E2",
+          200: "#FECACA",
+          300: "#FCA5A5",
+          400: "#F87171",
+          500: "#E52521", // PRIMARY DEFAULT
+          600: "#B31D1A",
+          700: "#991815",
+          800: "#7F1511",
+          900: "#65110E",
+          950: "#3A0A08",
+          foreground: "#FFFFFF",
+        },
+
+        // Trading Specific Colors - Luigi Green for profit, Mario Red for loss
         profit: {
-          DEFAULT: "#10B981", // Green 500 - Primary profit color
-          light: "#D1FAE5", // Green 100 - Background for positive indicators
-          foreground: "#FFFFFF", // White text on profit backgrounds
+          DEFAULT: "#43B047", // Luigi green
+          light: "#D5F5D7", // Light green background
+          foreground: "#FFFFFF",
         },
         loss: {
-          DEFAULT: "#EF4444", // Red 500 - Primary loss color
-          light: "#FEE2E2", // Red 100 - Background for negative indicators
-          foreground: "#FFFFFF", // White text on loss backgrounds
+          DEFAULT: "#E52521", // Mario red
+          light: "#FFE5E5", // Light red background
+          foreground: "#FFFFFF",
         },
         
         // UI Elements
@@ -116,6 +162,13 @@ module.exports = {
         },
       },
       
+      // Font Families - Mario Theme
+      fontFamily: {
+        mario: ['"Luckiest Guy"', 'cursive'],
+        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+        mono: ['JetBrains Mono', 'monospace'],
+      },
+
       // Typography Scale
       fontSize: {
         'xs': ['0.75rem', { lineHeight: '1rem' }],

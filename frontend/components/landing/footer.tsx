@@ -7,12 +7,12 @@ export function Footer() {
         <div className="grid gap-8 md:grid-cols-4">
           <div className="space-y-4">
             <Link href="/" className="flex items-center group">
-              <span className="font-heading text-2xl font-bold tracking-tight group-hover:scale-105 transition-transform duration-200">
-                VirtualSol
+              <span className="mario-font text-2xl tracking-tight group-hover:scale-105 transition-transform duration-200 text-star">
+                1UP SOL
               </span>
             </Link>
             <p className="text-sm text-background/60">
-              Practice Solana trading with real market data. No financial risk involved.
+              Level up your trading game! Practice Solana trading with real market data. Zero risk, maximum XP.
             </p>
           </div>
 
@@ -71,9 +71,9 @@ export function Footer() {
         </div>
 
         <div className="mt-12 pt-8 border-t border-border text-center">
-          <p className="text-sm text-background/60">© 2025 VirtualSol. All rights reserved.</p>
+          <p className="text-sm text-background/60">© 2025 1UP SOL. All rights reserved.</p>
           <p className="mt-2 text-xs text-background/40">
-            <strong>Disclaimer:</strong> VirtualSol is a simulator. No real financial risk is involved.
+            <strong>Disclaimer:</strong> 1UP SOL is a trading simulator game. No real financial risk is involved. Level up responsibly!
           </p>
         </div>
       </div>

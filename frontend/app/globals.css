@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Luckiest+Guy&display=swap');
 
 /* ---------------------------
    FONTS & THEME VARIABLES
@@ -1256,4 +1257,299 @@
 [role="tablist"] [role="tab"] {
   transition-duration: 0.15s;
   transition-property: background-color, border-color, color;
+}
+
+/* ============================================================
+   1UP SOL - MARIO THEME STYLES
+   ============================================================ */
+
+/* Mario Color Variables */
+:root {
+  --mario-red: #E52521;
+  --luigi-green: #43B047;
+  --super-blue: #2B4EF9;
+  --star-yellow: #FFD800;
+  --coin-gold: #FFB915;
+  --sky-blue: #A6D8FF;
+  --brick-brown: #9C5818;
+  --pipe-green: #00994C;
+  --outline-black: #1C1C1C;
+}
+
+/* Mario Font Base Class */
+.mario-font {
+  font-family: 'Luckiest Guy', cursive;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+/* Mario Title/Headline Style - Bold with outline and shadow */
+.mario-title {
+  font-family: 'Luckiest Guy', cursive;
+  color: var(--mario-red);
+  -webkit-text-stroke: 2px var(--outline-black);
+  text-shadow:
+    3px 3px 0 var(--outline-black),
+    6px 6px 0 rgba(0,0,0,0.25);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+/* Mario Button Style - 3D with bold outline */
+.mario-btn {
+  background: var(--star-yellow);
+  color: var(--outline-black);
+  border: 3px solid var(--outline-black);
+  border-radius: 8px;
+  font-family: 'Luckiest Guy', cursive;
+  padding: 0.6rem 1rem;
+  box-shadow: 3px 3px 0 var(--outline-black);
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.mario-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 4px 4px 0 var(--outline-black);
+}
+
+.mario-btn:active {
+  transform: translateY(1px);
+  box-shadow: 2px 2px 0 var(--outline-black);
+}
+
+/* Mario Button Variants */
+.mario-btn-red {
+  background: var(--mario-red);
+  color: #ffffff;
+  border: 3px solid var(--outline-black);
+  border-radius: 8px;
+  font-family: 'Luckiest Guy', cursive;
+  padding: 0.6rem 1rem;
+  box-shadow: 3px 3px 0 var(--outline-black);
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+  text-transform: uppercase;
+}
+
+.mario-btn-red:hover {
+  transform: translateY(-2px);
+  box-shadow: 4px 4px 0 var(--outline-black);
+}
+
+.mario-btn-green {
+  background: var(--luigi-green);
+  color: #ffffff;
+  border: 3px solid var(--outline-black);
+  border-radius: 8px;
+  font-family: 'Luckiest Guy', cursive;
+  padding: 0.6rem 1rem;
+  box-shadow: 3px 3px 0 var(--outline-black);
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+  text-transform: uppercase;
+}
+
+.mario-btn-green:hover {
+  transform: translateY(-2px);
+  box-shadow: 4px 4px 0 var(--outline-black);
+}
+
+.mario-btn-blue {
+  background: var(--super-blue);
+  color: #ffffff;
+  border: 3px solid var(--outline-black);
+  border-radius: 8px;
+  font-family: 'Luckiest Guy', cursive;
+  padding: 0.6rem 1rem;
+  box-shadow: 3px 3px 0 var(--outline-black);
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+  text-transform: uppercase;
+}
+
+.mario-btn-blue:hover {
+  transform: translateY(-2px);
+  box-shadow: 4px 4px 0 var(--outline-black);
+}
+
+/* Mario Card Style - Colorful borders with 3D effect */
+.mario-card {
+  background: var(--card);
+  border: 3px solid var(--outline-black);
+  border-radius: 12px;
+  box-shadow: 4px 4px 0 var(--outline-black);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.mario-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 6px 6px 0 var(--outline-black);
+}
+
+/* Mario Badge/Tag Style */
+.mario-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  background: var(--coin-gold);
+  border: 2px solid var(--outline-black);
+  border-radius: 20px;
+  font-family: 'Luckiest Guy', cursive;
+  font-size: 0.875rem;
+  color: var(--outline-black);
+  box-shadow: 2px 2px 0 var(--outline-black);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Mario Header Text - Colorful with outline */
+.mario-header-text {
+  font-family: 'Luckiest Guy', cursive;
+  background: linear-gradient(90deg,
+    var(--super-blue),
+    var(--mario-red),
+    var(--star-yellow),
+    var(--luigi-green)
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  -webkit-text-stroke: 2px var(--outline-black);
+  filter: drop-shadow(3px 3px 0 var(--outline-black));
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+/* Update Buy/Sell buttons with Mario theme */
+.btn-buy {
+  position: relative;
+  background: var(--luigi-green) !important;
+  color: #ffffff;
+  border: 3px solid var(--outline-black) !important;
+  box-shadow: 0 0 20px rgba(67, 176, 71, 0.3), 3px 3px 0 var(--outline-black);
+  transition: all 0.2s ease;
+  font-family: 'Luckiest Guy', cursive;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.btn-buy:hover:not(:disabled) {
+  background: var(--luigi-green) !important;
+  box-shadow: 0 0 30px rgba(67, 176, 71, 0.5), 4px 4px 0 var(--outline-black);
+  transform: translateY(-2px);
+}
+
+.btn-buy:active:not(:disabled) {
+  transform: translateY(1px);
+  box-shadow: 0 0 15px rgba(67, 176, 71, 0.4), 2px 2px 0 var(--outline-black);
+}
+
+.btn-sell {
+  position: relative;
+  background: var(--mario-red) !important;
+  color: #ffffff;
+  border: 3px solid var(--outline-black) !important;
+  box-shadow: 0 0 20px rgba(229, 37, 33, 0.3), 3px 3px 0 var(--outline-black);
+  transition: all 0.2s ease;
+  font-family: 'Luckiest Guy', cursive;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.btn-sell:hover:not(:disabled) {
+  background: var(--mario-red) !important;
+  box-shadow: 0 0 30px rgba(229, 37, 33, 0.5), 4px 4px 0 var(--outline-black);
+  transform: translateY(-2px);
+}
+
+.btn-sell:active:not(:disabled) {
+  transform: translateY(1px);
+  box-shadow: 0 0 15px rgba(229, 37, 33, 0.4), 2px 2px 0 var(--outline-black);
+}
+
+/* XP Progress Bar - Mario Coin Style */
+.xp-progress-bar {
+  background: var(--brick-brown);
+  border: 3px solid var(--outline-black);
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.xp-progress-fill {
+  background: linear-gradient(90deg, var(--coin-gold), var(--star-yellow));
+  height: 100%;
+  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+  position: relative;
+}
+
+.xp-progress-fill::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
+  animation: shimmer 2s infinite;
+}
+
+/* Level Badge - Mario Power-up Style */
+.level-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 3rem;
+  height: 3rem;
+  background: var(--star-yellow);
+  border: 3px solid var(--outline-black);
+  border-radius: 50%;
+  font-family: 'Luckiest Guy', cursive;
+  font-size: 1.25rem;
+  color: var(--outline-black);
+  box-shadow: 3px 3px 0 var(--outline-black), 0 0 15px rgba(255, 215, 0, 0.4);
+  transition: all 0.2s ease;
+}
+
+.level-badge:hover {
+  transform: rotate(5deg) scale(1.1);
+  box-shadow: 4px 4px 0 var(--outline-black), 0 0 20px rgba(255, 215, 0, 0.6);
+}
+
+/* Level-up Animation - Coin Pop */
+@keyframes level-up-pop {
+  0% {
+    transform: scale(0) rotate(0deg);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.2) rotate(180deg);
+  }
+  100% {
+    transform: scale(1) rotate(360deg);
+    opacity: 1;
+  }
+}
+
+.level-up-animation {
+  animation: level-up-pop 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+/* Coin Bounce Animation */
+@keyframes coin-bounce {
+  0%, 100% {
+    transform: translateY(0) rotateY(0deg);
+  }
+  50% {
+    transform: translateY(-10px) rotateY(180deg);
+  }
+}
+
+.coin-bounce {
+  animation: coin-bounce 1s ease-in-out infinite;
 }
