@@ -98,7 +98,7 @@ export function TrendingTokensSection() {
                 transition={{ delay: index * 0.1 }}
               >
                 <Link href={`/trade?token=${token.mint}`}>
-                  <div className="mario-card p-6 bg-gradient-to-br from-white/95 to-white/85 border-3 border-mario-yellow/50 hover:border-mario-yellow transition-all duration-300 group cursor-pointer h-full hover:shadow-xl hover:-translate-y-1">
+                  <div className="mario-card p-6 bg-gradient-to-br from-white/95 to-white/85 border-3 border-mario-yellow/50 hover:border-mario-yellow transition-all duration-300 group cursor-pointer h-full">
                     <div className="space-y-4">
                       <div className="flex items-center gap-3">
                         <div className="relative h-12 w-12 rounded-full overflow-hidden bg-muted">

@@ -85,7 +85,7 @@ export function LeaderboardPreview() {
           viewport={{ once: true }}
           transition={{ delay: 0.2 }}
         >
-          <div className="mario-card max-w-4xl mx-auto bg-white border-4 border-mario-yellow overflow-hidden shadow-2xl">
+          <div className="mario-card max-w-4xl mx-auto bg-white border-4 border-mario-yellow overflow-hidden">
             {isLoading ? (
               <div className="py-12 text-center">
                 <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-foreground"></div>

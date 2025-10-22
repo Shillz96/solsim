@@ -189,7 +189,7 @@ export function LevelUpToast({
 
   return (
     <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 animate-bounce-in">
-      <div className="mario-card bg-gradient-to-br from-mario-yellow via-mario-orange to-mario-red p-8 text-center shadow-2xl border-4 border-white">
+      <div className="mario-card bg-gradient-to-br from-mario-yellow via-mario-orange to-mario-red p-8 text-center border-4 border-white">
         <div className="text-7xl mb-4 animate-pulse">{newIcon}</div>
         <h2 className="font-mario text-4xl text-white mb-2 text-shadow-mario">
           LEVEL UP!

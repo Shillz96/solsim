@@ -84,7 +84,7 @@ export function LevelUpSection() {
               viewport={{ once: true }}
               transition={{ delay: index * 0.1, duration: 0.5 }}
             >
-              <div className="mario-card p-6 bg-gradient-to-br from-white/90 to-white/70 border-4 border-[var(--mario-yellow)]/50 hover:border-[var(--mario-yellow)] transition-all duration-300 group h-full hover:shadow-xl hover:-translate-y-1">
+              <div className="mario-card p-6 bg-gradient-to-br from-white/90 to-white/70 border-4 border-[var(--mario-yellow)]/50 hover:border-[var(--mario-yellow)] transition-all duration-300 group h-full">
                 <div className="space-y-4">
                   <div className="mb-2 group-hover:scale-110 transition-transform duration-300">
                     <img src={feature.iconSrc} alt="" className="w-12 h-12 object-contain" />
@@ -120,7 +120,7 @@ export function LevelUpSection() {
                   whileInView={{ opacity: 1, scale: 1 }}
                   viewport={{ once: true }}
                   transition={{ delay: index * 0.1, duration: 0.4 }}
-                  className="mario-card bg-gradient-to-br from-[var(--star-yellow)]/90 to-[var(--coin-gold)]/80 border-4 border-[var(--outline-black)] p-5 text-center hover:scale-105 transition-transform shadow-xl"
+                  className="mario-card bg-gradient-to-br from-[var(--star-yellow)]/90 to-[var(--coin-gold)]/80 border-4 border-[var(--outline-black)] p-5 text-center hover:scale-105 transition-transform"
                 >
                   <div className="mb-3">
                     <img src={example.iconSrc} alt="" className="w-12 h-12 object-contain mx-auto" />

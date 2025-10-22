@@ -123,7 +123,7 @@ function TradePageContent() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <div className="h-[300px] sm:h-[380px] md:h-[420px] border border-border/50 rounded-lg overflow-hidden bg-card">
+            <div className="h-[300px] sm:h-[380px] md:h-[420px] overflow-hidden">
               <Suspense fallback={<ChartSkeleton />}>
                 <DexScreenerChart tokenAddress={currentTokenAddress} />
               </Suspense>
@@ -294,7 +294,7 @@ function TradePageContent() {
           >
             <div className="space-y-6">
               {/* Chart Section */}
-              <div className="h-[600px] border border-border/50 rounded-lg overflow-hidden bg-card">
+              <div className="h-[600px] overflow-hidden">
                 <Suspense fallback={<ChartSkeleton />}>
                   <DexScreenerChart tokenAddress={currentTokenAddress} />
                 </Suspense>

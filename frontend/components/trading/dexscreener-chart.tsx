@@ -36,7 +36,7 @@ export function DexScreenerChart({
   }
 
   return (
-    <Card className="h-full overflow-hidden border border-border rounded-none shadow-none relative p-0">
+    <Card className="h-full overflow-hidden border-4 border-[var(--outline-black)] rounded-lg relative p-0" style={{ boxShadow: '6px 6px 0 var(--outline-black)' }}>
       {/* Preconnect to DexScreener for faster loading */}
       <link rel="preconnect" href="https://dexscreener.com" />
       <link rel="dns-prefetch" href="https://dexscreener.com" />
