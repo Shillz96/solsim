@@ -89,16 +89,6 @@ function TradePageContent() {
         </motion.div>
         {/* MOBILE-OPTIMIZED LAYOUT: Chart + Trading Panel Adjacent */}
         <div className="lg:hidden space-y-4">
-          {/* Mobile Search Bar */}
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-            className="mario-card p-3"
-          >
-            <TokenSearch />
-          </motion.div>
-
           {/* Sliding Trending Ticker - Mobile */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -166,40 +156,6 @@ function TradePageContent() {
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.3 }}
           >
-            <div className="mario-card bg-gradient-to-br from-[var(--luigi-green)]/10 to-[var(--luigi-green)]/5">
-              <button
-                onClick={() => toggleSection('positions')}
-                className="flex items-center justify-between p-4 cursor-pointer hover:bg-[var(--luigi-green)]/10 transition-all active:scale-[0.99] w-full"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="mario-badge px-2 py-2 bg-[var(--luigi-green)]">
-                    <Wallet className="h-5 w-5 text-white" />
-                  </div>
-                  <div>
-                    <span className="mario-font text-sm text-foreground">YOUR COINS</span>
-                    <p className="text-xs text-muted-foreground">View all holdings</p>
-                  </div>
-                </div>
-                <svg
-                  className={`w-5 h-5 transition-transform ${expandedSections.positions ? 'rotate-180' : ''} text-[var(--outline-black)]`}
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-              </button>
-              {expandedSections.positions && (
-                <div className="px-4 pb-4 pt-2">
-                  <UnifiedPositions
-                    variant="compact"
-                    maxPositions={5}
-                    showViewAllButton={true}
-                  />
-                </div>
-              )}
-            </div>
-
             <div className="mario-card bg-gradient-to-br from-[var(--super-blue)]/10 to-[var(--super-blue)]/5">
               <button
                 onClick={() => toggleSection('history')}
@@ -267,14 +223,6 @@ function TradePageContent() {
             transition={{ duration: 0.5, delay: 0.1 }}
           >
             <div className="lg:sticky lg:top-4 lg:h-[calc(100vh-8rem)] lg:overflow-y-auto space-y-4">
-              <div className="mario-card p-3">
-                <TokenSearch />
-              </div>
-              <UnifiedPositions
-                variant="compact"
-                maxPositions={5}
-                showViewAllButton={true}
-              />
               <TradeDetails
                 tokenAddress={currentTokenAddress}
                 tokenSymbol={tokenSymbol}

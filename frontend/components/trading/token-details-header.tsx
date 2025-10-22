@@ -74,23 +74,23 @@ export function TokenDetailsHeader({ tokenAddress }: TokenDetailsHeaderProps) {
 
   if (isLoading) {
     return (
-      <EnhancedCard className="p-4 mb-4 flex items-center justify-center">
+      <div className="mario-card p-4 mb-4 flex items-center justify-center">
         <Loader2 className="h-5 w-5 animate-spin text-muted-foreground mr-2" />
         <span className="text-muted-foreground">Loading token information...</span>
-      </EnhancedCard>
+      </div>
     )
   }
 
   if (error || !tokenDetails) {
     return (
-      <EnhancedCard className="p-4 mb-4">
+      <div className="mario-card p-4 mb-4">
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
             Failed to load token information: {error instanceof Error ? error.message : "Unknown error"}
           </AlertDescription>
         </Alert>
-      </EnhancedCard>
+      </div>
     )
   }
 
@@ -184,7 +184,7 @@ export function TokenDetailsHeader({ tokenAddress }: TokenDetailsHeaderProps) {
   };
 
   return (
-    <EnhancedCard className="relative overflow-hidden border border-border/50 bg-card/50 backdrop-blur-sm">
+    <div className="mario-card relative overflow-hidden bg-white">
       {/* Animated Background */}
       <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-blue-500/5 opacity-50"></div>
       <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-blue-500"></div>
@@ -480,6 +480,6 @@ export function TokenDetailsHeader({ tokenAddress }: TokenDetailsHeaderProps) {
           </div>
         </div>
       </div>
-    </EnhancedCard>
+    </div>
   )
 }
