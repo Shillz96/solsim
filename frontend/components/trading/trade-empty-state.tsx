@@ -114,7 +114,7 @@ export function TradeEmptyState() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
-      <main className="w-full px-4 sm:px-6 lg:px-8 py-8 sm:py-12 max-w-7xl mx-auto">
+      <main className="w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-6 max-w-7xl mx-auto">
         {/* Hero Section */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -122,11 +122,6 @@ export function TradeEmptyState() {
           transition={{ duration: 0.6 }}
           className="text-center space-y-6 mb-12"
         >
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20">
-            <Sparkles className="h-4 w-4 text-primary" />
-            <span className="text-sm font-medium">Paper Trading Platform</span>
-          </div>
-
           <div className="space-y-4">
             <div className="flex justify-center mb-4">
               <MarioPageHeader
