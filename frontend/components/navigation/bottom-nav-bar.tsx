@@ -3,11 +3,10 @@
 import Link from "next/link"
 import Image from "next/image"
 import { usePathname } from "next/navigation"
-import { Home, TrendingUp, Wallet, Trophy, Moon, Sun, Gift, Eye, Zap, BookOpen } from "lucide-react"
+import { Home, TrendingUp, Wallet, Trophy, Gift, Eye, Zap, BookOpen } from "lucide-react"
 import { Twitter as XIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useState, useEffect } from "react"
-import { useTheme } from "next-themes"
 import { motion, AnimatePresence } from "framer-motion"
 import { usePriceStreamContext } from "@/lib/price-stream-provider"
 import { Button } from "@/components/ui/button"
@@ -26,17 +25,10 @@ interface BottomNavBarProps {
 
 export function BottomNavBar({ className }: BottomNavBarProps = {}) {
   const pathname = usePathname()
-  const { theme, setTheme } = useTheme()
-  const [mounted, setMounted] = useState(false)
   const { prices, subscribe, unsubscribe } = usePriceStreamContext()
   const [marketPrices, setMarketPrices] = useState<MarketPrice[]>([
     { symbol: "SOL", price: 250, change24h: 0 }, // Default to reasonable price instead of 0
   ])
-
-  // Prevent hydration mismatch by only rendering theme toggle after mount
-  useEffect(() => {
-    setMounted(true)
-  }, [])
 
   // Subscribe to SOL price updates
   useEffect(() => {
@@ -207,10 +199,10 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
                 <span
                   className={cn(
                     "text-[10px] font-medium px-1.5 py-0.5 rounded",
-                    market.change24h > 0 
-                      ? "text-green-600 bg-green-100 dark:bg-green-900 dark:text-green-400" 
-                      : market.change24h < 0 
-                      ? "text-red-600 bg-red-100 dark:bg-red-900 dark:text-red-400" 
+                    market.change24h > 0
+                      ? "text-green-600 bg-green-100"
+                      : market.change24h < 0
+                      ? "text-red-600 bg-red-100"
                       : "text-muted-foreground bg-muted",
                   )}
                 >
@@ -282,18 +274,7 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
                 Docs
               </Button>
             </Link>
-            {/* Theme Toggle Button - Skeleton prevents layout shift */}
-            {mounted ? (
-              <button
-                onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-                className="text-muted-foreground hover:text-primary transition-colors"
-                aria-label="Toggle theme"
-              >
-                {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-              </button>
-            ) : (
-              <div className="w-4 h-4 bg-muted-foreground/20 rounded animate-pulse" />
-            )}
+            {/* Theme toggle removed - Light mode only! */}
             <Link
               href="/trade"
               className="text-xs font-medium text-primary hover:text-primary/80 transition-colors flex items-center gap-1"

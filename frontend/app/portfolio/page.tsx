@@ -17,6 +17,7 @@ import { TrendingUp, History, BarChart3, Wallet, Target, Loader2 } from "lucide-
 import { motion } from "framer-motion"
 import { useAuth } from "@/hooks/use-auth"
 import { useWallet } from "@solana/wallet-adapter-react"
+import { MarioPageHeader } from "@/components/shared/mario-page-header"
 
 function PortfolioPageContent() {
   const { user, isAuthenticated } = useAuth()
@@ -25,9 +26,25 @@ function PortfolioPageContent() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
       <main className="w-full px-4 sm:px-6 lg:px-8 py-2 sm:py-4 max-w-page-xl mx-auto">
+        {/* Mario Page Header */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="mb-6"
+        >
+          <MarioPageHeader
+            src="/portfolio-header.png"
+            alt="Portfolio"
+            width={700}
+            height={120}
+            priority
+          />
+        </motion.div>
+
         {/* Enhanced Header */}
         <SimplePageHeader
-          title="Portfolio"
+          title="Your Holdings"
           subtitle="Track your positions and performance"
           icon={<Wallet className="h-6 w-6 text-primary" />}
           actions={<PortfolioPageActions />}

@@ -4,7 +4,6 @@ import Link from "next/link"
 import Image from "next/image"
 import dynamic from "next/dynamic"
 import { usePathname } from "next/navigation"
-import { useTheme } from "next-themes"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -107,7 +106,6 @@ export function NavBar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const pathname = usePathname()
   const router = useRouter()
-  const { theme, resolvedTheme } = useTheme()
 
   // Search functionality state
   const [searchQuery, setSearchQuery] = useState("")
@@ -118,8 +116,7 @@ export function NavBar() {
   const searchResultsRef = useRef<HTMLDivElement>(null)
   const abortControllerRef = useRef<AbortController | null>(null)
   const debouncedQuery = useDebounce(searchQuery, 300)
-  const [mounted, setMounted] = useState(false)
-  
+
   // Auth and balance data
   const { user, isAuthenticated, logout } = useAuth()
   const { prices: livePrices } = usePriceStreamContext()
@@ -258,19 +255,14 @@ export function NavBar() {
           {/* Logo and Brand */}
           <div className="flex items-center gap-6">
             <Link href="/" className="flex items-center" style={{ viewTransitionName: 'logo' } as React.CSSProperties}>
-              {mounted && (
-                <Image
-                  src={resolvedTheme === 'dark' ? '/helius-dark.svg' : '/helius-light.svg'}
-                  alt="Helius"
-                  width={150}
-                  height={46}
-                  priority
-                  className="h-9 w-auto"
-                />
-              )}
-              {!mounted && (
-                <div className="h-9 w-[150px]" />
-              )}
+              <Image
+                src="/logo-2.png"
+                alt="1UP SOL"
+                width={200}
+                height={60}
+                priority
+                className="h-12 w-auto"
+              />
             </Link>
 
             {/* Desktop Navigation */}

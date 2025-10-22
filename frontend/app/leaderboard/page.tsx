@@ -13,6 +13,7 @@ import type * as Backend from "@/lib/types/backend"
 import { UsdWithSol } from "@/lib/sol-equivalent"
 import { formatUSD, formatNumber } from "@/lib/format"
 import { motion } from "framer-motion"
+import { MarioPageHeader } from "@/components/shared/mario-page-header"
 
 type TimeRange = "24h" | "7d" | "all"
 
@@ -117,6 +118,22 @@ export default function LeaderboardPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
       <main className="w-full px-4 sm:px-6 lg:px-8 py-2 sm:py-4 max-w-page-xl mx-auto">
+        {/* Mario Page Header */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="mb-6"
+        >
+          <MarioPageHeader
+            src="/leaderboard-header.png"
+            alt="Leaderboard"
+            width={750}
+            height={120}
+            priority
+          />
+        </motion.div>
+
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -127,7 +144,7 @@ export default function LeaderboardPage() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-4xl md:text-5xl font-bold mb-4">
-                Leaderboard
+                Top Traders
               </h1>
               <p className="text-lg text-muted-foreground">Compete with traders worldwide and climb the ranks</p>
             </div>

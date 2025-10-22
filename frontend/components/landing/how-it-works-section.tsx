@@ -1,7 +1,7 @@
 "use client"
 
 import { UserPlus, Search, TrendingUp, BarChart2, Star } from "lucide-react"
-import { MarioHeaderPlaceholder } from "@/components/placeholders/mario-header-placeholder"
+import { MarioPageHeader } from "@/components/shared/mario-page-header"
 import { motion } from "framer-motion"
 
 const steps = [
@@ -42,9 +42,14 @@ export function HowItWorksSection() {
     <section className="py-20 md:py-32 bg-gradient-to-b from-mario-yellow/10 via-mario-blue/5 to-background border-t-4 border-mario-yellow/30">
       <div className="container mx-auto px-4">
         <div className="text-center space-y-4 mb-16">
-          {/* Mario header placeholder */}
+          {/* Mario header */}
           <div className="mb-6 max-w-3xl mx-auto">
-            <MarioHeaderPlaceholder filename="how-it-works-header.png" width={800} height={140} colorScheme="blue" />
+            <MarioPageHeader
+              src="/how-it-works-header.png"
+              alt="How It Works"
+              width={800}
+              height={140}
+            />
           </div>
 
           <h2 className="font-mario text-4xl md:text-5xl font-bold text-mario-red text-shadow-sm">

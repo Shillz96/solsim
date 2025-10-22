@@ -5,12 +5,12 @@
    FONTS & THEME VARIABLES
 --------------------------- */
 :root {
-  /* VirtualSol Trading Platform Design System - Light Mode */
-  /* Minimal Black/White Aesthetic */
-  
-  /* Base UI Colors */
-  --background: #ffffff;
-  --background-oklch: oklch(1 0 0);
+  /* 1UP SOL Design System - Mario Light Mode Only! */
+  /* Fun, Colorful Mario Aesthetic */
+
+  /* Base UI Colors - Mario Sky Blue Background */
+  --background: #A6D8FF; /* Mario Sky Blue */
+  --background-oklch: oklch(0.85 0.08 230);
   --foreground: #000000;
   --foreground-oklch: oklch(0 0 0);
   
@@ -123,124 +123,7 @@
   --sidebar-ring-oklch: oklch(0 0 0);
 }
 
-.dark {
-  /* VirtualSol Trading Platform Design System - Dark Mode */
-  /* Minimal Black/White Aesthetic */
-  
-  /* Base UI Colors */
-  --background: #000000;
-  --background-oklch: oklch(0 0 0);
-  --foreground: #ffffff;
-  --foreground-oklch: oklch(1 0 0);
-  
-  /* Card and Surface Colors */
-  --card: #111111;
-  --card-oklch: oklch(0.10 0 0);
-  --card-foreground: #ffffff;
-  --card-foreground-oklch: oklch(1 0 0);
-  
-  /* Popover and Dialog Colors */
-  --popover: #111111;
-  --popover-oklch: oklch(0.10 0 0);
-  --popover-foreground: #ffffff;
-  --popover-foreground-oklch: oklch(1 0 0);
-
-  /* Dropdown Menu Colors - OPAQUE (Not Transparent) */
-  --dropdown: 0 0% 10%; /* Dark gray - for HSL */
-  --dropdown-oklch: oklch(0.15 0 0);
-  --dropdown-foreground: 0 0% 100%; /* White - for HSL */
-  --dropdown-foreground-oklch: oklch(1 0 0);
-  --dropdown-border: 0 0% 20%; /* Gray border - for HSL */
-  --dropdown-border-oklch: oklch(0.25 0 0);
-
-  /* Modal Colors - OPAQUE (Not Transparent) */
-  --modal: 0 0% 4%; /* Very dark gray - for HSL */
-  --modal-oklch: oklch(0.08 0 0);
-  --modal-foreground: 0 0% 100%; /* White - for HSL */
-  --modal-foreground-oklch: oklch(1 0 0);
-  --modal-border: 0 0% 20%; /* Gray border - for HSL */
-  --modal-border-oklch: oklch(0.25 0 0);
-
-  /* Primary - Subtle Gray */
-  --primary: #cccccc;
-  --primary-oklch: oklch(0.82 0 0);
-  --primary-foreground: #000000;
-  --primary-foreground-oklch: oklch(0 0 0);
-
-  /* Secondary UI Colors */
-  --secondary: #1a1a1a;
-  --secondary-oklch: oklch(0.15 0 0);
-  --secondary-foreground: #ffffff;
-  --secondary-foreground-oklch: oklch(1 0 0);
-  
-  /* Muted UI Elements - WCAG AA Compliant */
-  --muted: #1a1a1a;
-  --muted-oklch: oklch(0.15 0 0);
-  --muted-foreground: #b3b3b3; /* WCAG AA 7:1 contrast ratio on dark */
-  --muted-foreground-oklch: oklch(0.75 0 0); /* Lighter for accessibility */
-
-  /* Accent - White */
-  --accent: #ffffff;
-  --accent-oklch: oklch(1 0 0);
-  --accent-foreground: #000000;
-  --accent-foreground-oklch: oklch(0 0 0);
-
-  /* Destructive/Error Elements - Flat Red */
-  --destructive: #ff4d4d;
-  --destructive-oklch: oklch(0.65 0.25 27);
-  --destructive-foreground: #000000;
-  --destructive-foreground-oklch: oklch(0 0 0);
-  
-  /* Borders and Inputs */
-  --border: #333333;
-  --border-oklch: oklch(0.25 0 0);
-  --input: #333333;
-  --input-oklch: oklch(0.25 0 0);
-  --ring: #ffffff;
-  --ring-oklch: oklch(1 0 0);
-
-  /* Trading-Specific Colors - WCAG AA Compliant */
-  --profit: #22c55e; /* WCAG AA compliant green for dark */
-  --profit-oklch: oklch(0.72 0.20 142);
-  --profit-foreground: #000000;
-  --profit-foreground-oklch: oklch(0 0 0);
-  
-  --loss: #ef4444; /* WCAG AA compliant red for dark */
-  --loss-oklch: oklch(0.62 0.22 27);
-  --loss-foreground: #000000;
-  --loss-foreground-oklch: oklch(0 0 0);
-  
-  /* Chart Colors - Minimal Palette */
-  --chart-1: #ffffff; /* Primary/White */
-  --chart-1-oklch: oklch(1 0 0);
-  --chart-2: #00ff85; /* Profit/Green */
-  --chart-2-oklch: oklch(0.85 0.30 150);
-  --chart-3: #ff4d4d; /* Loss/Red */
-  --chart-3-oklch: oklch(0.65 0.25 27);
-  --chart-4: #999999; /* Neutral Gray */
-  --chart-4-oklch: oklch(0.65 0 0);
-  --chart-5: #666666; /* Dark Gray */
-  --chart-5-oklch: oklch(0.45 0 0);
-
-  /* UI Elements - Modern border radius for 2025 aesthetic */
-  --radius: 0.625rem; /* 10px - balanced modern radius */
-  --sidebar: #000000;
-  --sidebar-oklch: oklch(0 0 0);
-  --sidebar-foreground: #ffffff;
-  --sidebar-foreground-oklch: oklch(1 0 0);
-  --sidebar-primary: #ffffff;
-  --sidebar-primary-oklch: oklch(1 0 0);
-  --sidebar-primary-foreground: #000000;
-  --sidebar-primary-foreground-oklch: oklch(0 0 0);
-  --sidebar-accent: #1a1a1a;
-  --sidebar-accent-oklch: oklch(0.15 0 0);
-  --sidebar-accent-foreground: #ffffff;
-  --sidebar-accent-foreground-oklch: oklch(1 0 0);
-  --sidebar-border: #333333;
-  --sidebar-border-oklch: oklch(0.25 0 0);
-  --sidebar-ring: #ffffff;
-  --sidebar-ring-oklch: oklch(1 0 0);
-}
+/* Dark mode removed - 1UP SOL is light mode only! */
 
 /* Tailwind theme extensions */
 :root {
@@ -329,31 +212,6 @@
     --color-chart-3: var(--chart-3-oklch, var(--chart-3));
   }
 
-  .dark {
-    /* Enhanced dark mode colors for P3 displays */
-    --profit: color(display-p3 0.15 0.90 0.50);
-    --profit-oklch: oklch(75% 0.20 142);
-    --profit-foreground: #000000;
-    --profit-foreground-oklch: oklch(0 0 0);
-
-    --loss: color(display-p3 0.95 0.25 0.22);
-    --loss-oklch: oklch(65% 0.22 27);
-    --loss-foreground: #000000;
-    --loss-foreground-oklch: oklch(0 0 0);
-
-    /* Enhanced chart colors for dark mode */
-    --chart-2: color(display-p3 0 1 0.52);
-    --chart-2-oklch: oklch(85% 0.30 150);
-
-    --chart-3: color(display-p3 1 0.30 0.30);
-    --chart-3-oklch: oklch(65% 0.25 27);
-
-    /* Update color references for P3 */
-    --color-profit: var(--profit-oklch, var(--profit));
-    --color-loss: var(--loss-oklch, var(--loss));
-    --color-chart-2: var(--chart-2-oklch, var(--chart-2));
-    --color-chart-3: var(--chart-3-oklch, var(--chart-3));
-  }
 }
 
 /* ---------------------------
@@ -846,14 +704,7 @@
   box-shadow: 0 0 15px rgba(255, 77, 77, 0.3);
 }
 
-/* Dark mode adjustments */
-.dark .btn-buy {
-  color: #000000;
-}
-
-.dark .btn-sell {
-  color: #ffffff;
-}
+/* Dark mode removed - light mode only! */
 
 /* ============================================================
    DATA-HEAVY PAGE ENHANCEMENTS - 2025 STYLE
