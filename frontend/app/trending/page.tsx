@@ -135,30 +135,15 @@ export default function TrendingPage() {
     )
   }
 
-  // Helper function to get rank badge styling - Mario themed
-  const getRankBadge = (rank: number) => {
+  // Helper function to get rank image for top 3
+  const getRankImage = (rank: number) => {
     switch (rank) {
       case 1:
-        return {
-          bg: "bg-coin-yellow-500",
-          text: "text-black",
-          border: "border-3 border-black",
-          shadow: "shadow-mario"
-        }
+        return "/icons/mario/1st.png"
       case 2:
-        return {
-          bg: "bg-pipe-400",
-          text: "text-white",
-          border: "border-3 border-black",
-          shadow: "shadow-mario"
-        }
+        return "/icons/mario/2nd-place.png"
       case 3:
-        return {
-          bg: "bg-orange-500",
-          text: "text-white",
-          border: "border-3 border-black",
-          shadow: "shadow-mario"
-        }
+        return "/icons/mario/3rd.png"
       default:
         return null
     }
@@ -168,7 +153,7 @@ export default function TrendingPage() {
   const isBigMover = (priceChange: number) => Math.abs(priceChange) > 50
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
       <main className="w-full px-4 sm:px-6 lg:px-8 py-8 max-w-page-xl mx-auto">
         {/* Header - Mario themed with colorful text */}
         <motion.div
@@ -330,7 +315,7 @@ export default function TrendingPage() {
                 </thead>
                 <tbody>
                   {filteredAndSortedTokens.map((token, index) => {
-                    const rankBadge = getRankBadge(index + 1)
+                    const rankImage = getRankImage(index + 1)
                     const bigMover = isBigMover(token.priceChange24h)
                     const isHovered = hoveredRow === token.mint
 
@@ -344,12 +329,14 @@ export default function TrendingPage() {
 
                         {/* Rank */}
                         <td className="p-5">
-                          {rankBadge ? (
-                            <div
-                              className={`inline-flex items-center justify-center w-10 h-10 rounded-lg ${rankBadge.bg} ${rankBadge.text} ${rankBadge.border} ${rankBadge.shadow} font-bold text-base`}
-                            >
-                              {index + 1}
-                            </div>
+                          {rankImage ? (
+                            <Image
+                              src={rankImage}
+                              alt={`${index + 1} place`}
+                              width={48}
+                              height={48}
+                              className="object-contain"
+                            />
                           ) : (
                             <span className="text-sm font-bold text-pipe-900">{index + 1}</span>
                           )}
