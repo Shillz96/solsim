@@ -127,8 +127,8 @@ export function TradeEmptyState() {
               <MarioPageHeader
                 src="/Select-a-Token-to-Start-Tradin-header.png"
                 alt="Select a Token to Start Trading"
-                width={800}
-                height={150}
+                width={1000}
+                height={180}
                 priority
               />
             </div>
@@ -151,8 +151,8 @@ export function TradeEmptyState() {
                 <MarioPageHeader
                   src="/Trending-now-10-22-2025-header.png"
                   alt="Trending Now"
-                  width={600}
-                  height={100}
+                  width={450}
+                  height={80}
                 />
               </div>
               <Button
