@@ -258,8 +258,7 @@
     background-image: url('/Paper-Texture-7.jpg');
     background-repeat: repeat;
     background-size: 1200px 1200px; /* Larger size reduces visible repetition */
-    opacity: 0.2; /* Lower opacity masks seams better */
-    filter: blur(0.5px); /* Subtle blur softens edges and seams */
+    opacity: 0.15; /* Lower opacity for subtle texture */
     pointer-events: none;
     z-index: 0;
     /* Slight rotation breaks up grid pattern */
@@ -323,7 +322,7 @@
     background-color: var(--card);
     color: var(--foreground);
     border-radius: var(--radius);
-    box-shadow: 0 1px 3px color-mix(in srgb, black 6%, transparent);
+    box-shadow: 3px 3px 0 var(--outline-black);
     padding: 1.25rem; /* Enhanced padding for better spacing */
     /* GPU optimization: only transition specific properties */
     will-change: transform;
@@ -331,13 +330,13 @@
     transition: box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1),
                 transform 0.2s cubic-bezier(0.4, 0, 0.2, 1),
                 border-color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    border: 1px solid color-mix(in srgb, var(--border) 50%, transparent);
+    border: 3px solid var(--outline-black);
   }
 
   .card:hover {
-    box-shadow: 0 4px 12px color-mix(in srgb, black 10%, transparent);
+    box-shadow: 5px 5px 0 var(--outline-black);
     transform: translate3d(0, -2px, 0); /* GPU-accelerated lift effect */
-    border-color: var(--border);
+    border-color: var(--outline-black);
   }
 
   /* ---------------------------
@@ -351,48 +350,51 @@
      ENHANCED EFFECTS & ANIMATIONS
   --------------------------- */
   
-  /* Flat effects - no glows */
+  /* Hard shadows - Mario style */
   .glow-primary {
-    box-shadow: 0 2px 8px color-mix(in srgb, black 8%, transparent);
-    transition: box-shadow 0.3s ease;
+    box-shadow: 3px 3px 0 var(--outline-black);
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
   }
 
   .glow-primary:hover {
-    box-shadow: 0 4px 12px color-mix(in srgb, black 12%, transparent);
+    box-shadow: 4px 4px 0 var(--outline-black);
+    transform: translateY(-1px);
   }
 
   .glow-accent {
-    box-shadow: 0 2px 8px color-mix(in srgb, black 8%, transparent);
-    transition: box-shadow 0.3s ease;
+    box-shadow: 3px 3px 0 var(--outline-black);
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
   }
 
   .glow-accent:hover {
-    box-shadow: 0 4px 12px color-mix(in srgb, black 12%, transparent);
+    box-shadow: 4px 4px 0 var(--outline-black);
+    transform: translateY(-1px);
   }
 
-  /* Modern glass morphism effects - 2025 style - GPU Optimized */
+  /* Opaque card effects - No glass morphism */
   .glass,
   .glass-overlay,
   .glass-solid {
-    background: color-mix(in srgb, var(--card) 95%, transparent);
-    backdrop-filter: blur(8px); /* Reduced from 10px for better performance */
-    -webkit-backdrop-filter: blur(8px);
-    border: 1px solid color-mix(in srgb, var(--border) 60%, transparent);
+    background: var(--card);
+    border: 3px solid var(--outline-black);
+    box-shadow: 4px 4px 0 var(--outline-black);
     /* GPU acceleration hints */
     will-change: transform, opacity;
     transform: translate3d(0, 0, 0);
     /* Only transition specific properties, not all */
     transition: background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1),
                 border-color 0.2s cubic-bezier(0.4, 0, 0.2, 1),
-                opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+                opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+                box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .glass:hover,
   .glass-overlay:hover,
   .glass-solid:hover {
     background: var(--card);
-    border-color: var(--border);
-    /* No backdrop-filter change on hover - keeps it smooth */
+    border-color: var(--outline-black);
+    box-shadow: 6px 6px 0 var(--outline-black);
+    transform: translateY(-2px);
   }
 
   /* Navigation specific styling - flat */
@@ -442,11 +444,11 @@
      FLAT CARD SYSTEM - MINIMAL BLACK/WHITE
   --------------------------- */
   
-  /* Modern card with refined shadows - 2025 style - GPU Optimized */
+  /* Mario-style card with hard shadows */
   .card-enhanced {
     background: var(--card);
-    border: 1px solid color-mix(in srgb, var(--border) 50%, transparent);
-    box-shadow: 0 1px 3px color-mix(in srgb, black 5%, transparent);
+    border: 3px solid var(--outline-black);
+    box-shadow: 4px 4px 0 var(--outline-black);
     padding: 1.25rem;
     /* GPU optimization */
     will-change: transform;
@@ -457,9 +459,9 @@
   }
 
   .card-enhanced:hover {
-    border-color: var(--border);
-    box-shadow: 0 4px 12px color-mix(in srgb, black 8%, transparent);
-    transform: translate3d(0, -1px, 0);
+    border-color: var(--outline-black);
+    box-shadow: 6px 6px 0 var(--outline-black);
+    transform: translate3d(0, -2px, 0);
   }
 
   /* Bento-style grid cards - flat and minimal */
@@ -509,8 +511,8 @@
   /* Input focus states */
   .glass-solid:focus,
   input.bg-card:focus {
-    border-color: var(--foreground);
-    box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 20%, transparent);
+    border-color: var(--outline-black);
+    box-shadow: 0 0 0 3px var(--star-yellow);
   }
 
   /* Minimal icon hover */
@@ -717,30 +719,32 @@
    DATA-HEAVY PAGE ENHANCEMENTS - 2025 STYLE
    ============================================================ */
 
-/* Modern data display cards */
+/* Mario-style data display cards */
 .data-card {
-  background: color-mix(in srgb, var(--card) 98%, transparent);
-  border: 1px solid color-mix(in srgb, var(--border) 30%, transparent);
+  background: var(--card);
+  border: 3px solid var(--outline-black);
   border-radius: var(--radius);
   padding: 1.25rem;
+  box-shadow: 3px 3px 0 var(--outline-black);
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .data-card:hover {
   background: var(--card);
-  border-color: color-mix(in srgb, var(--border) 50%, transparent);
-  box-shadow: 0 4px 12px color-mix(in srgb, black 5%, transparent);
-  transform: translateY(-1px);
+  border-color: var(--outline-black);
+  box-shadow: 5px 5px 0 var(--outline-black);
+  transform: translateY(-2px);
 }
 
-/* Stat cards with modern design */
+/* Stat cards with Mario-style design */
 .stat-card {
   background: var(--card);
-  border: 1px solid color-mix(in srgb, var(--border) 25%, transparent);
+  border: 3px solid var(--outline-black);
   border-radius: var(--radius);
   padding: 1.5rem;
   position: relative;
   overflow: hidden;
+  box-shadow: 4px 4px 0 var(--outline-black);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -750,15 +754,15 @@
   top: 0;
   left: 0;
   right: 0;
-  height: 3px;
-  background: linear-gradient(90deg, var(--primary), var(--accent));
+  height: 4px;
+  background: var(--star-yellow);
   opacity: 0;
   transition: opacity 0.3s ease;
 }
 
 .stat-card:hover {
-  border-color: color-mix(in srgb, var(--border) 45%, transparent);
-  box-shadow: 0 8px 24px color-mix(in srgb, black 6%, transparent);
+  border-color: var(--outline-black);
+  box-shadow: 6px 6px 0 var(--outline-black);
   transform: translateY(-3px);
 }
 
@@ -766,29 +770,28 @@
   opacity: 1;
 }
 
-/* Leaderboard row styles */
+/* Leaderboard row styles - Mario theme */
 .leaderboard-row {
   background: var(--card);
-  border: 1px solid color-mix(in srgb, var(--border) 20%, transparent);
+  border: 3px solid var(--outline-black);
   border-radius: var(--radius-md);
   padding: 1rem 1.25rem;
+  box-shadow: 3px 3px 0 var(--outline-black);
   transition: all 0.25s ease;
   position: relative;
 }
 
 .leaderboard-row:hover {
-  background: color-mix(in srgb, var(--accent) 5%, var(--card));
-  border-color: color-mix(in srgb, var(--border) 40%, transparent);
-  transform: translateX(4px);
+  background: var(--card);
+  border-color: var(--outline-black);
+  box-shadow: 5px 5px 0 var(--outline-black);
+  transform: translate(4px, -2px);
 }
 
 .leaderboard-row.user-row {
-  background: linear-gradient(135deg,
-    color-mix(in srgb, var(--primary) 5%, transparent),
-    color-mix(in srgb, var(--accent) 5%, transparent)
-  );
-  border: 2px solid var(--primary);
-  box-shadow: 0 4px 16px color-mix(in srgb, var(--primary) 10%, transparent);
+  background: var(--star-yellow);
+  border: 4px solid var(--outline-black);
+  box-shadow: 5px 5px 0 var(--outline-black);
 }
 
 /* Rank badges */
@@ -807,28 +810,33 @@
 .rank-badge.rank-1 {
   background: linear-gradient(135deg, #FFD700, #FFA500);
   color: #000;
-  box-shadow: 0 4px 12px color-mix(in srgb, #FFD700 40%, transparent);
+  box-shadow: 4px 4px 0 var(--outline-black);
+  border: 3px solid var(--outline-black);
   animation: pulse-gold 2s infinite;
 }
 
 .rank-badge.rank-2 {
   background: linear-gradient(135deg, #C0C0C0, #A8A8A8);
   color: #000;
-  box-shadow: 0 4px 12px color-mix(in srgb, #C0C0C0 40%, transparent);
+  box-shadow: 4px 4px 0 var(--outline-black);
+  border: 3px solid var(--outline-black);
 }
 
 .rank-badge.rank-3 {
   background: linear-gradient(135deg, #CD7F32, #B87333);
   color: #fff;
-  box-shadow: 0 4px 12px color-mix(in srgb, #CD7F32 40%, transparent);
+  box-shadow: 4px 4px 0 var(--outline-black);
+  border: 3px solid var(--outline-black);
 }
 
 @keyframes pulse-gold {
   0%, 100% {
-    box-shadow: 0 4px 12px color-mix(in srgb, #FFD700 40%, transparent);
+    box-shadow: 4px 4px 0 var(--outline-black);
+    transform: scale(1);
   }
   50% {
-    box-shadow: 0 6px 20px color-mix(in srgb, #FFD700 60%, transparent);
+    box-shadow: 5px 5px 0 var(--outline-black);
+    transform: scale(1.05);
   }
 }
 
@@ -888,22 +896,20 @@
   color: var(--loss);
 }
 
-/* Info cards for rewards page */
+/* Info cards for rewards page - Mario style */
 .info-card {
-  background: linear-gradient(135deg,
-    color-mix(in srgb, var(--card) 97%, transparent),
-    color-mix(in srgb, var(--muted) 97%, transparent)
-  );
-  border: 1px solid color-mix(in srgb, var(--border) 20%, transparent);
+  background: var(--card);
+  border: 3px solid var(--outline-black);
   border-radius: var(--radius);
   padding: 1.5rem;
+  box-shadow: 4px 4px 0 var(--outline-black);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .info-card:hover {
-  border-color: color-mix(in srgb, var(--border) 40%, transparent);
-  box-shadow: 0 6px 16px color-mix(in srgb, black 4%, transparent);
-  transform: scale(1.02);
+  border-color: var(--outline-black);
+  box-shadow: 6px 6px 0 var(--outline-black);
+  transform: translateY(-2px) scale(1.02);
 }
 
 /* Rewards tier card */
@@ -950,7 +956,7 @@
 
 .tier-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 12px 24px color-mix(in srgb, black 8%, transparent);
+  box-shadow: 6px 6px 0 var(--outline-black);
 }
 
 /* ============================================================
@@ -1337,7 +1343,6 @@
   background: linear-gradient(90deg, var(--coin-gold), var(--star-yellow));
   height: 100%;
   transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
   position: relative;
 }
 
@@ -1370,13 +1375,13 @@
   font-family: 'Luckiest Guy', cursive;
   font-size: 1.25rem;
   color: var(--outline-black);
-  box-shadow: 3px 3px 0 var(--outline-black), 0 0 15px rgba(255, 215, 0, 0.4);
+  box-shadow: 3px 3px 0 var(--outline-black);
   transition: all 0.2s ease;
 }
 
 .level-badge:hover {
   transform: rotate(5deg) scale(1.1);
-  box-shadow: 4px 4px 0 var(--outline-black), 0 0 20px rgba(255, 215, 0, 0.6);
+  box-shadow: 4px 4px 0 var(--outline-black);
 }
 
 /* Level-up Animation - Coin Pop */

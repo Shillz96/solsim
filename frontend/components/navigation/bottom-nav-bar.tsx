@@ -92,7 +92,7 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
     <>
       {/* Mobile Bottom Nav */}
       <nav className={cn(
-        "fixed bottom-0 left-0 right-0 z-50 border-t-2 border-border bg-background/95 backdrop-blur-md supports-[backdrop-filter]:bg-background/80 shadow-none md:hidden",
+        "fixed bottom-0 left-0 right-0 z-50 border-t-4 border-outline-black bg-background shadow-[0_-4px_0_0_rgba(28,28,28,1)] md:hidden",
         className
       )}>
         <div className="flex items-center justify-around h-16">
@@ -137,7 +137,7 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
                     </AnimatePresence>
                   </motion.div>
                   <span className={cn(
-                    "text-xs font-medium transition-all duration-300",
+                    "text-xs font-mario transition-all duration-300",
                     isActive && "font-semibold"
                   )}>
                     {item.label}
@@ -168,7 +168,7 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
 
       {/* Desktop/Tablet Bottom Info Bar */}
       <div className={cn(
-        "hidden md:block fixed bottom-0 left-0 right-0 z-40 border-t-2 border-border bg-background/95 backdrop-blur-md supports-[backdrop-filter]:bg-background/80 shadow-none",
+        "hidden md:block fixed bottom-0 left-0 right-0 z-40 border-t-4 border-outline-black bg-background shadow-[0_-4px_0_0_rgba(28,28,28,1)]",
         className
       )}>
         <div className="mx-auto flex h-12 items-center justify-between px-4 max-w-content">

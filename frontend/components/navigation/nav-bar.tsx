@@ -248,7 +248,7 @@ export function NavBar() {
     <motion.header
       initial={{ y: -100 }}
       animate={{ y: 0 }}
-      className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur-md supports-[backdrop-filter]:bg-background/80"
+      className="sticky top-0 z-50 w-full border-b-4 border-outline-black bg-background shadow-[0_4px_0_0_rgba(28,28,28,1)]"
       style={{ viewTransitionName: 'main-nav' } as React.CSSProperties}
     >
       <div className="w-full px-6">
@@ -278,8 +278,8 @@ export function NavBar() {
                       variant={isActive ? "secondary" : "ghost"}
                       size="sm"
                       className={cn(
-                        "flex items-center gap-2 px-3 py-2 transition-all duration-200",
-                        isActive && "bg-primary/10 text-primary font-semibold"
+                        "flex items-center gap-2 px-3 py-2 transition-all duration-200 font-mario text-xs",
+                        isActive && "bg-primary/10 text-primary"
                       )}
                     >
                       <Icon className="h-4 w-4" />
@@ -419,7 +419,7 @@ export function NavBar() {
                             {displayName?.[0]?.toUpperCase() || 'U'}
                           </AvatarFallback>
                         </Avatar>
-                        <span className="hidden sm:inline font-medium">
+                        <span className="hidden sm:inline font-mario text-sm">
                           {displayName}
                         </span>
                         <ChevronDown className="h-3 w-3" />
