@@ -517,7 +517,7 @@ function PerpsContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
+    <div className="min-h-screen bg-background">
       <main className="w-full px-4 sm:px-6 lg:px-8 py-2 sm:py-4 max-w-page-xl mx-auto">
         <div className="space-y-4">
         {/* Header */}
@@ -528,14 +528,14 @@ function PerpsContent() {
           className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
         >
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold">Perpetual Trading</h1>
-            <p className="text-muted-foreground text-sm">Trade with up to 20x leverage</p>
+            <h1 className="text-2xl sm:text-3xl font-mario text-[var(--outline-black)]">Perpetual Trading</h1>
+            <p className="text-[var(--outline-black)] text-sm font-semibold">Trade with up to 20x leverage</p>
           </div>
-          <div className="text-right">
-            <div className="text-xs text-muted-foreground">Available Balance</div>
-            <div className="text-xl sm:text-2xl font-bold">
+          <div className="mario-card bg-white p-3 border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)]">
+            <div className="text-xs text-[var(--outline-black)] font-bold">Available Balance</div>
+            <div className="text-xl sm:text-2xl font-mario text-[var(--outline-black)]">
               {balance.toFixed(4)} SOL
-              <span className="text-sm text-muted-foreground ml-2">
+              <span className="text-sm text-[var(--outline-black)] ml-2 font-normal">
                 (${(balance * solPrice).toFixed(2)})
               </span>
             </div>
@@ -550,44 +550,36 @@ function PerpsContent() {
             transition={{ duration: 0.5, delay: 0.1 }}
             className="grid grid-cols-2 sm:grid-cols-4 gap-3"
           >
-            <Card className="transition-all hover:shadow-md">
-              <CardContent className="p-4">
-                <div className="flex items-center gap-2">
-                  <Activity className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-xs text-muted-foreground">Open Positions</span>
-                </div>
-                <div className="text-2xl font-bold mt-1">{portfolioStats.positionCount}</div>
-              </CardContent>
-            </Card>
-            <Card className="transition-all hover:shadow-md">
-              <CardContent className="p-4">
-                <div className="flex items-center gap-2">
-                  <DollarSign className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-xs text-muted-foreground">Total Margin</span>
-                </div>
-                <div className="text-2xl font-bold mt-1">{portfolioStats.totalMargin.toFixed(2)} SOL</div>
-              </CardContent>
-            </Card>
-            <Card className="transition-all hover:shadow-md">
-              <CardContent className="p-4">
-                <div className="flex items-center gap-2">
-                  <TrendingUp className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-xs text-muted-foreground">Position Value</span>
-                </div>
-                <div className="text-2xl font-bold mt-1">${portfolioStats.totalPositionValue.toFixed(2)}</div>
-              </CardContent>
-            </Card>
-            <Card className="transition-all hover:shadow-md">
-              <CardContent className="p-4">
-                <div className="flex items-center gap-2">
-                  <DollarSign className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-xs text-muted-foreground">Total PnL</span>
-                </div>
-                <div className={`text-2xl font-bold mt-1 transition-colors ${portfolioStats.totalPnL >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                  {portfolioStats.totalPnL >= 0 ? '+' : ''}${portfolioStats.totalPnL.toFixed(2)}
-                </div>
-              </CardContent>
-            </Card>
+            <div className="mario-card bg-white p-4 border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all">
+              <div className="flex items-center gap-2">
+                <Activity className="h-4 w-4 text-[var(--outline-black)]" />
+                <span className="text-xs text-[var(--outline-black)] font-bold">Open Positions</span>
+              </div>
+              <div className="text-2xl font-mario text-[var(--outline-black)] mt-1">{portfolioStats.positionCount}</div>
+            </div>
+            <div className="mario-card bg-white p-4 border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all">
+              <div className="flex items-center gap-2">
+                <DollarSign className="h-4 w-4 text-[var(--outline-black)]" />
+                <span className="text-xs text-[var(--outline-black)] font-bold">Total Margin</span>
+              </div>
+              <div className="text-2xl font-mario text-[var(--outline-black)] mt-1">{portfolioStats.totalMargin.toFixed(2)} SOL</div>
+            </div>
+            <div className="mario-card bg-white p-4 border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all">
+              <div className="flex items-center gap-2">
+                <TrendingUp className="h-4 w-4 text-[var(--outline-black)]" />
+                <span className="text-xs text-[var(--outline-black)] font-bold">Position Value</span>
+              </div>
+              <div className="text-2xl font-mario text-[var(--outline-black)] mt-1">${portfolioStats.totalPositionValue.toFixed(2)}</div>
+            </div>
+            <div className="mario-card bg-white p-4 border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all">
+              <div className="flex items-center gap-2">
+                <DollarSign className="h-4 w-4 text-[var(--outline-black)]" />
+                <span className="text-xs text-[var(--outline-black)] font-bold">Total PnL</span>
+              </div>
+              <div className={`text-2xl font-mario mt-1 transition-colors ${portfolioStats.totalPnL >= 0 ? 'text-[var(--luigi-green)]' : 'text-[var(--mario-red)]'}`}>
+                {portfolioStats.totalPnL >= 0 ? '+' : ''}${portfolioStats.totalPnL.toFixed(2)}
+              </div>
+            </div>
           </motion.div>
         )}
 
@@ -597,8 +589,8 @@ function PerpsContent() {
           <div className="lg:col-span-8 space-y-4">
             {/* Price Ticker */}
             {selectedTokenMeta && (
-              <Card className="transition-all hover:shadow-md animate-in fade-in slide-in-from-top-2 duration-300">
-                <CardContent className="p-4">
+              <div className="mario-card bg-white border-4 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)] transition-all hover:shadow-[6px_6px_0_var(--outline-black)] animate-in fade-in slide-in-from-top-2 duration-300">
+                <div className="p-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <TokenLogo
@@ -625,39 +617,41 @@ function PerpsContent() {
                       )}
                     </div>
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             )}
 
             {/* Chart */}
-            <Card className="overflow-hidden">
+            <div className="mario-card bg-white border-4 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)] overflow-hidden">
               <div className="h-[400px] sm:h-[500px]">
                 {selectedToken ? (
                   <DexScreenerChart tokenAddress={selectedToken} />
                 ) : (
-                  <div className="h-full flex items-center justify-center text-muted-foreground">
+                  <div className="h-full flex items-center justify-center text-[var(--outline-black)] font-bold">
                     Select a token to view chart
                   </div>
                 )}
               </div>
-            </Card>
+            </div>
 
             {/* Risk Warning */}
-            <Alert>
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription className="text-xs">
-                <strong>High Risk:</strong> Leverage trading can result in liquidation and loss of all margin. Only trade with funds you can afford to lose.
-              </AlertDescription>
-            </Alert>
+            <div className="mario-card bg-[var(--mario-red)] border-4 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] p-4">
+              <div className="flex items-start gap-2">
+                <AlertCircle className="h-4 w-4 text-white flex-shrink-0 mt-0.5" />
+                <div className="text-xs text-white">
+                  <strong>High Risk:</strong> Leverage trading can result in liquidation and loss of all margin. Only trade with funds you can afford to lose.
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Trading Panel - Right (4 columns on desktop) */}
-          <Card className="lg:col-span-4">
-            <CardHeader>
-              <CardTitle>Open Position</CardTitle>
-              <CardDescription>Select token and parameters</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
+          <div className="lg:col-span-4 mario-card bg-white border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)]">
+            <div className="p-6 border-b-3 border-[var(--outline-black)]">
+              <h2 className="text-xl font-mario text-[var(--outline-black)]">Open Position</h2>
+              <p className="text-sm text-[var(--outline-black)] font-semibold">Select token and parameters</p>
+            </div>
+            <div className="p-6 space-y-4">
               {/* Token Selection */}
               <div className="space-y-2">
                 <Label>Token</Label>
@@ -847,15 +841,15 @@ function PerpsContent() {
                   <AlertDescription className="text-xs text-yellow-800">
                     <strong>High Leverage Warning:</strong> {leverage}x leverage carries extreme risk of liquidation.
                   </AlertDescription>
-                </Alert>
+                </div>
               )}
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </div>
 
         {/* Positions & History Section */}
-        <Card>
-          <CardHeader>
+        <div className="mario-card bg-white border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)]">
+          <div className="p-6 border-b-3 border-[var(--outline-black)]">
             <div className="flex items-center justify-between flex-wrap gap-4">
               <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)} className="flex-1">
                 <TabsList className="grid w-full max-w-md grid-cols-2">
@@ -871,14 +865,14 @@ function PerpsContent() {
                 variant="outline"
                 size="sm"
                 onClick={activeTab === "positions" ? exportPositionsToCSV : exportTradeHistoryToCSV}
-                className="gap-2"
+                className="gap-2 mario-btn bg-white border-3 border-[var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)]"
               >
                 <Download className="h-4 w-4" />
                 Export CSV
               </Button>
             </div>
-          </CardHeader>
-          <CardContent>
+          </div>
+          <div className="p-6">
             {activeTab === "positions" ? (
               positionsLoading ? (
                 <div className="flex items-center justify-center py-12">
@@ -1107,14 +1101,7 @@ function PerpsContent() {
                 </div>
               )
             )}
-          </CardContent>
-        </Card>
-
-        {/* Decorative Elements */}
-        <div className="fixed inset-0 pointer-events-none -z-20 overflow-hidden">
-          <div className="absolute top-1/3 left-1/5 w-96 h-96 bg-primary/3 rounded-full blur-3xl"></div>
-          <div className="absolute bottom-1/3 right-1/5 w-96 h-96 bg-green-500/3 rounded-full blur-3xl"></div>
-          <div className="absolute top-2/3 left-2/3 w-64 h-64 bg-blue-500/3 rounded-full blur-2xl"></div>
+          </div>
         </div>
         </div>
       </main>
