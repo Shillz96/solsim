@@ -77,10 +77,10 @@ export function FeaturesSection() {
             />
           </div>
 
-          <h2 className="font-mario text-4xl md:text-5xl font-bold text-balance text-mario-red text-shadow-sm">
+          <h2 className="font-mario text-4xl md:text-5xl font-bold text-balance text-mario-red" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.3)' }}>
             Power-Up Your Trading Skills! 🍄
           </h2>
-          <p className="text-xl text-foreground/80 max-w-2xl mx-auto leading-relaxed font-medium">
+          <p className="text-xl text-foreground max-w-2xl mx-auto leading-relaxed font-bold" style={{ textShadow: '1px 1px 2px rgba(255,255,255,0.8)' }}>
             Professional-grade tools and features to help you level up your Solana trading game!
           </p>
         </motion.div>

@@ -71,10 +71,10 @@ export function LeaderboardPreview() {
             />
           </div>
 
-          <h2 className="font-mario text-4xl md:text-5xl font-bold text-balance text-white text-shadow-mario">
+          <h2 className="font-mario text-4xl md:text-5xl font-bold text-balance text-white" style={{ textShadow: '3px 3px 6px rgba(0,0,0,0.9), 0px 0px 10px rgba(0,0,0,0.5)' }}>
             Top Traders Hall of Fame! 🏆
           </h2>
-          <p className="text-xl text-white/90 max-w-2xl mx-auto leading-relaxed font-medium">
+          <p className="text-xl text-white max-w-2xl mx-auto leading-relaxed font-bold" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.9), 0px 0px 8px rgba(0,0,0,0.6)' }}>
             Compete with traders worldwide. Climb the ranks and prove your trading skills!
           </p>
         </motion.div>

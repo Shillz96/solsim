@@ -92,17 +92,17 @@ export function HeroSection() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6 }}
             >
-              <div className="space-y-1 bg-white/10 backdrop-blur-sm rounded-lg p-3 border-2 border-white/20">
-                <div className="text-xl sm:text-2xl md:text-3xl font-mario text-mario-yellow">20 Levels</div>
-                <p className="text-xs sm:text-sm text-white/80 font-medium">From Goomba to Legendary</p>
+              <div className="space-y-1 bg-black/40 backdrop-blur-md rounded-lg p-3 sm:p-4 border-2 border-white/30 shadow-lg">
+                <div className="text-xl sm:text-2xl md:text-3xl font-mario text-mario-yellow text-shadow-sm" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.8)' }}>20 Levels</div>
+                <p className="text-xs sm:text-sm text-white font-semibold" style={{ textShadow: '1px 1px 3px rgba(0,0,0,0.9)' }}>From Goomba to Legendary</p>
               </div>
-              <div className="space-y-1 bg-white/10 backdrop-blur-sm rounded-lg p-3 border-2 border-white/20">
-                <div className="text-xl sm:text-2xl md:text-3xl font-mario text-mario-green">Earn XP</div>
-                <p className="text-xs sm:text-sm text-white/80 font-medium">Level up with trades</p>
+              <div className="space-y-1 bg-black/40 backdrop-blur-md rounded-lg p-3 sm:p-4 border-2 border-white/30 shadow-lg">
+                <div className="text-xl sm:text-2xl md:text-3xl font-mario text-mario-green text-shadow-sm" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.8)' }}>Earn XP</div>
+                <p className="text-xs sm:text-sm text-white font-semibold" style={{ textShadow: '1px 1px 3px rgba(0,0,0,0.9)' }}>Level up with trades</p>
               </div>
-              <div className="space-y-1 bg-white/10 backdrop-blur-sm rounded-lg p-3 border-2 border-white/20">
-                <div className="text-xl sm:text-2xl md:text-3xl font-mario text-white">Zero Risk</div>
-                <p className="text-xs sm:text-sm text-white/80 font-medium">Practice safely</p>
+              <div className="space-y-1 bg-black/40 backdrop-blur-md rounded-lg p-3 sm:p-4 border-2 border-white/30 shadow-lg">
+                <div className="text-xl sm:text-2xl md:text-3xl font-mario text-white text-shadow-sm" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.8)' }}>Zero Risk</div>
+                <p className="text-xs sm:text-sm text-white font-semibold" style={{ textShadow: '1px 1px 3px rgba(0,0,0,0.9)' }}>Practice safely</p>
               </div>
             </motion.div>
           </motion.div>
