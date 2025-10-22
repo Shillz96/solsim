@@ -281,13 +281,16 @@ module.exports = {
       
       // Box Shadows for UI Depth - Refined 2025
       boxShadow: {
-        'xs': '0 1px 2px 0 rgba(0, 0, 0, 0.03)',
-        'sm': '0 1px 3px 0 rgba(0, 0, 0, 0.05)',
-        'card': '0 2px 4px 0 rgba(0, 0, 0, 0.04), 0 1px 2px 0 rgba(0, 0, 0, 0.03)',
-        'card-hover': '0 4px 8px 0 rgba(0, 0, 0, 0.06), 0 2px 4px 0 rgba(0, 0, 0, 0.04)',
-        'button': '0 1px 2px 0 rgba(0, 0, 0, 0.04)',
-        'dropdown': '0 8px 16px -4px rgba(0, 0, 0, 0.08), 0 4px 8px -2px rgba(0, 0, 0, 0.04)',
-        'modal': '0 20px 40px -8px rgba(0, 0, 0, 0.15)',
+        'xs': '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+        'sm': '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+        'DEFAULT': '0 2px 8px rgba(0, 0, 0, 0.15)',
+        'md': '0 2px 8px rgba(0, 0, 0, 0.15)', // Stronger shadow for cards
+        'lg': '0 4px 12px rgba(0, 0, 0, 0.2)', // Stronger hover shadow
+        'card': '0 2px 8px rgba(0, 0, 0, 0.15)', // Stronger card shadow
+        'card-hover': '0 4px 12px rgba(0, 0, 0, 0.2)', // Stronger hover
+        'button': '0 1px 2px 0 rgba(0, 0, 0, 0.1)',
+        'dropdown': '0 8px 16px -4px rgba(0, 0, 0, 0.12), 0 4px 8px -2px rgba(0, 0, 0, 0.08)',
+        'modal': '0 20px 40px -8px rgba(0, 0, 0, 0.2)',
       },
       
       // Z-index Scale for Proper Layering
