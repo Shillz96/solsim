@@ -54,10 +54,16 @@ function PortfolioPageContent() {
                 </div>
               </div>
 
-              {/* Level Badge */}
+              {/* Level Badge with User Avatar */}
               <div className="bg-star-yellow-500 border-4 border-star-yellow-600 rounded-lg px-4 py-2 shadow-[4px_4px_0_0_rgba(0,0,0,0.3)]">
                 <div className="flex items-center gap-2">
-                  <Image src="/icons/mario/trophey.png" alt="Trophy" width={20} height={20} />
+                  {user?.avatarUrl ? (
+                    <div className="w-10 h-10 rounded-full border-3 border-pipe-900 overflow-hidden bg-white">
+                      <img src={user.avatarUrl} alt="Profile" className="w-full h-full object-cover" />
+                    </div>
+                  ) : (
+                    <Image src="/icons/mario/user.png" alt="Profile" width={40} height={40} className="rounded-full" />
+                  )}
                   <div className="text-right">
                     <div className="text-xs font-bold text-pipe-900">LEVEL</div>
                     <div className="text-lg font-bold text-pipe-900">1</div>
@@ -134,7 +140,7 @@ function PortfolioPageContent() {
                     value="history"
                     className="gap-2 data-[state=active]:bg-star-yellow-500 data-[state=active]:text-pipe-900 data-[state=active]:border-3 data-[state=active]:border-star-yellow-700 data-[state=active]:shadow-[2px_2px_0_0_rgba(0,0,0,0.3)] rounded-lg font-bold text-xs sm:text-sm transition-all"
                   >
-                    <Image src="/icons/mario/trophey.png" alt="History" width={16} height={16} />
+                    <Image src="/icons/mario/trophy.png" alt="History" width={16} height={16} />
                     <span>QUEST LOG</span>
                   </TabsTrigger>
                 </TabsList>
@@ -193,7 +199,7 @@ function PortfolioPageContent() {
                   {/* Achievement badges */}
                   <div className="space-y-3">
                     <div className="bg-star-yellow-100 border-3 border-star-yellow-500 rounded-lg p-3 flex items-center gap-3">
-                      <Image src="/icons/mario/trophey.png" alt="Trophy" width={32} height={32} />
+                      <Image src="/icons/mario/trophy.png" alt="Trophy" width={32} height={32} />
                       <div>
                         <div className="text-sm font-bold text-pipe-900">First Trade!</div>
                         <div className="text-xs text-pipe-600">Started your journey</div>
@@ -237,16 +243,6 @@ function PortfolioPageContent() {
           </aside>
         </CardGrid>
 
-        {/* Mario Decorative Elements - Floating Coins and Stars */}
-        <div className="fixed inset-0 pointer-events-none -z-10 overflow-hidden">
-          {/* Subtle Mario background elements */}
-          <div className="absolute top-20 left-10 opacity-10">
-            <Image src="/icons/mario/mushroom.png" alt="" width={60} height={60} />
-          </div>
-          <div className="absolute bottom-20 right-10 opacity-10">
-            <Image src="/icons/mario/star.png" alt="" width={50} height={50} />
-          </div>
-        </div>
       </main>
     </div>
   )

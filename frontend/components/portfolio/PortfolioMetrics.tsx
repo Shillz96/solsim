@@ -369,7 +369,7 @@ export function PortfolioMetrics({ isLoading: externalLoading = false }: Portfol
         <StatCard
           title="Win Rate"
           value={winRate}
-          iconSrc="/icons/mario/trophey.png"
+          iconSrc="/icons/mario/trophy.png"
           description={`${totalTrades} total trade${totalTrades !== 1 ? 's' : ''}`}
           isLoading={isLoading}
           showSolEquiv={false}
