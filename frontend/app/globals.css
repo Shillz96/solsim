@@ -1401,3 +1401,26 @@
 .coin-bounce {
   animation: coin-bounce 1s ease-in-out infinite;
 }
+
+/* ----------------------------
+   VIEWPORT-AWARE UTILITIES (2025)
+   - Modern dvh/svh/lvh units with vh fallback
+   - Ensures proper layout on mobile browsers
+--------------------------- */
+@layer utilities {
+  /* Dynamic Viewport Height (dvh) - Best for scrollable layouts */
+  .h-dvh-screen {
+    height: 100vh; /* Fallback for older browsers */
+    height: 100dvh; /* Modern dynamic viewport height */
+  }
+
+  .min-h-dvh-screen {
+    min-height: 100vh; /* Fallback */
+    min-height: 100dvh; /* Modern */
+  }
+
+  .max-h-dvh-screen {
+    max-height: 100vh; /* Fallback */
+    max-height: 100dvh; /* Modern */
+  }
+}
