@@ -54,42 +54,49 @@ const navigationItems = [
     name: "Dashboard",
     href: "/",
     icon: Home,
+    iconSrc: "/icons/mario/home.png",
     description: "Overview of your trading activity"
   },
   {
     name: "Trade",
     href: "/trade",
     icon: TrendingUp,
+    iconSrc: "/icons/mario/trade.png",
     description: "Buy and sell tokens"
   },
   {
     name: "Stocks",
     href: "/stocks",
     icon: Building2,
+    iconSrc: "/icons/mario/stocks.png",
     description: "Trade tokenized stocks"
   },
   {
     name: "Portfolio",
     href: "/portfolio",
     icon: Wallet,
+    iconSrc: "/icons/mario/wallet.png",
     description: "Track your positions and P&L"
   },
   {
     name: "Perps",
     href: "/perps",
     icon: Zap,
+    iconSrc: "/icons/mario/thunder.png",
     description: "Leverage trading with perpetual futures"
   },
   {
     name: "Trending",
     href: "/trending",
     icon: TrendingUp,
+    iconSrc: "/icons/mario/trending.png",
     description: "Discover popular tokens"
   },
   {
     name: "Docs",
     href: "/docs",
     icon: BookOpen,
+    iconSrc: "/icons/mario/game.png",
     description: "Learn how 1UP SOL works"
   }
   // {
@@ -269,9 +276,8 @@ export function NavBar() {
             {/* Desktop Navigation */}
             <nav className="hidden md:flex items-center space-x-1">
               {navigationItems.slice(0, 7).map((item) => {
-                const Icon = item.icon
                 const isActive = pathname === item.href
-                
+
                 return (
                   <Link key={item.href} href={item.href}>
                     <Button
@@ -282,7 +288,7 @@ export function NavBar() {
                         isActive && "bg-primary/10 text-primary"
                       )}
                     >
-                      <Icon className="h-4 w-4" />
+                      <Image src={item.iconSrc} alt={item.name} width={16} height={16} className="object-contain" />
                       <span className="hidden lg:inline">{item.name}</span>
                     </Button>
                   </Link>
@@ -540,7 +546,6 @@ export function NavBar() {
                     {navigationItems
                       .filter(item => item.href !== '/monitoring')
                       .map((item) => {
-                        const Icon = item.icon
                         const isActive = pathname === item.href
 
                         return (
@@ -549,7 +554,7 @@ export function NavBar() {
                               "flex items-center gap-3 px-3 py-3 rounded-lg transition-colors",
                               isActive ? "bg-primary/10 text-primary" : "hover:bg-muted"
                             )}>
-                              <Icon className="h-5 w-5" />
+                              <Image src={item.iconSrc} alt={item.name} width={20} height={20} className="object-contain" />
                               <div>
                                 <div className="font-medium">{item.name}</div>
                                 <div className="text-xs text-muted-foreground">{item.description}</div>
