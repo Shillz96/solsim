@@ -24,7 +24,7 @@ function PortfolioPageContent() {
   const { publicKey } = useWallet()
 
   return (
-    <div className="min-h-screen bg-sky-100">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
       <main className="w-full px-4 sm:px-6 lg:px-8 py-2 sm:py-4 max-w-page-xl mx-auto">
         {/* Mario Page Header with Pixel Art */}
         <motion.div
@@ -252,7 +252,7 @@ export default function PortfolioPage() {
   return (
     <AuthGuard>
       <Suspense fallback={
-        <div className="min-h-screen bg-sky-100">
+        <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
           <div className="flex items-center justify-center min-h-screen">
             <div className="text-center space-y-4">
               {/* Mario-themed loading spinner */}
