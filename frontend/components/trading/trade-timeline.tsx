@@ -43,7 +43,7 @@ export function TradeTimeline({ tokenAddress, maxTrades = 10, variant = 'default
     <div className={cn("mario-card bg-white", isCompact ? "p-3 h-full flex flex-col" : "p-4")}>
       <div className={cn("flex items-center gap-2 flex-shrink-0", isCompact ? "mb-3" : "mb-4")}>
         <Clock className={cn(isCompact ? "h-3.5 w-3.5" : "h-4 w-4", "text-primary")} />
-        <h3 className={cn("font-semibold", isCompact ? "text-xs" : "text-sm")}>Trade Activity</h3>
+        <h3 className={cn("font-semibold", isCompact ? "text-xs" : "text-sm")}>Your Trades</h3>
         <Badge variant="outline" className="text-xs ml-auto">{tokenTrades.length}</Badge>
       </div>
 

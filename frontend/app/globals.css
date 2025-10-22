@@ -136,6 +136,8 @@
   --navbar-height: 3.5rem;
   --trade-strip-height: 2rem;
   --bottom-nav-height: 4rem;
+  --trending-ticker-height: 3.75rem;
+  --token-header-compact-height: 4rem;
   --bottom-nav-desktop-height: 3rem;
 
   /* Standardized content max-width */
