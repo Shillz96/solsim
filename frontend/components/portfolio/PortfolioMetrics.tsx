@@ -1,35 +1,34 @@
 'use client';
 
 /**
- * Portfolio Metrics Component (Production Ready - Refactored)
- * 
- * Key improvements:
- * - Compact responsive layout (4 cols desktop, 2 tablet, 1 mobile)
- * - All USD values include SOL equivalents
- * - Proper colorization for P&L (green-400/red-400)
- * - Guards against Infinity%, NaN, undefined
- * - Enhanced empty state with contextual actions
- * - Loading shimmer placeholders
- * - Gradient accent borders for active metrics
- * - Data validation diagnostics
- * - Hover animations with framer-motion
+ * Portfolio Metrics Component - Mario Theme Edition
+ *
+ * Mario-themed trading stats with:
+ * - Question block style cards with 3D shadows
+ * - Power-up icons and coin imagery
+ * - Bold borders (4px) and vibrant Mario colors
+ * - Pixel font headers with text shadows
+ * - Game-inspired stat display
  */
 
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { 
-  Wallet, 
-  TrendingUp, 
-  TrendingDown, 
-  Activity, 
-  DollarSign, 
-  Target, 
+import {
+  Wallet,
+  TrendingUp,
+  TrendingDown,
+  Activity,
+  DollarSign,
+  Target,
   Percent,
   RefreshCw,
   AlertCircle,
-  Sparkles
+  Sparkles,
+  Star,
+  Trophy,
+  Zap
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import * as Backend from '@/lib/types/backend';
@@ -38,6 +37,7 @@ import { UsdWithSol } from '@/lib/sol-equivalent';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/use-auth';
 import { usePortfolio } from '@/hooks/use-portfolio';
+import Image from 'next/image';
 
 interface StatCardProps {
   title: string;
@@ -52,162 +52,189 @@ interface StatCardProps {
 }
 
 /**
- * Stat Card Component with gradient accents and hover effects
+ * Mario Question Block Style Stat Card
+ * Bold borders, 3D shadows, vibrant colors
  */
-function StatCard({ 
-  title, 
-  value, 
-  icon: Icon, 
-  description, 
+function StatCard({
+  title,
+  value,
+  icon: Icon,
+  description,
   change,
   showSolEquiv = true,
   isLoading = false,
   variant = 'default',
   format = 'currency'
 }: StatCardProps) {
+  // Mario theme variant styles - bold borders and colors
   const variantStyles = {
-    default: 'from-primary/10 to-primary/5',
-    success: 'from-green-500/10 to-green-500/5',
-    danger: 'from-red-500/10 to-red-500/5'
+    default: {
+      bg: 'bg-white',
+      border: 'border-pipe-700',
+      iconBg: 'bg-pipe-500',
+      iconColor: 'text-white'
+    },
+    success: {
+      bg: 'bg-luigi-green-50',
+      border: 'border-luigi-green-700',
+      iconBg: 'bg-luigi-green-500',
+      iconColor: 'text-white'
+    },
+    danger: {
+      bg: 'bg-mario-red-50',
+      border: 'border-mario-red-700',
+      iconBg: 'bg-mario-red-500',
+      iconColor: 'text-white'
+    }
   };
 
-  const iconColorStyles = {
-    default: 'text-primary',
-    success: 'text-profit',
-    danger: 'text-loss'
-  };
+  const changeColor = change !== undefined
+    ? change >= 0 ? 'text-luigi-green-600' : 'text-mario-red-600'
+    : 'text-pipe-600';
 
-  const changeColor = change !== undefined 
-    ? change >= 0 ? 'text-profit' : 'text-loss'
-    : 'text-muted-foreground';
-
-  const ChangeIcon = change !== undefined 
+  const ChangeIcon = change !== undefined
     ? change >= 0 ? TrendingUp : TrendingDown
     : null;
 
   // Format value based on type
-  const formattedValue = typeof value === 'number' 
+  const formattedValue = typeof value === 'number'
     ? format === 'currency' ? formatUSD(value)
     : format === 'percent' ? `${value.toFixed(2)}%`
     : value.toLocaleString()
     : value;
 
+  const style = variantStyles[variant];
+
   return (
     <motion.div
-      whileHover={{ scale: 1.02, y: -2 }}
-      transition={{ type: "spring", stiffness: 400, damping: 17 }}
+      whileHover={{ scale: 1.03, y: -4 }}
+      whileTap={{ scale: 0.98 }}
+      transition={{ type: "spring", stiffness: 300, damping: 20 }}
     >
-      <Card className="relative overflow-hidden border-border/50 hover:border-border transition-colors">
-        {/* Gradient accent */}
-        <div className={cn(
-          "absolute inset-0 bg-gradient-to-br opacity-30",
-          variantStyles[variant]
-        )} />
-        
+      {/* Mario Question Block Style Card */}
+      <div className={cn(
+        "relative overflow-hidden rounded-xl border-4 transition-all",
+        style.bg,
+        style.border,
+        "shadow-[6px_6px_0_0_rgba(0,0,0,0.3)]",
+        "hover:shadow-[8px_8px_0_0_rgba(0,0,0,0.4)]"
+      )}>
         <CardContent className="relative p-6">
-          {/* Header */}
-          <div className="flex items-center justify-between mb-4">
+          {/* Icon Badge */}
+          <div className="flex items-center justify-between mb-3">
             <div className={cn(
-              "p-2.5 rounded-lg bg-muted/50",
-              "border border-border/30"
+              "p-3 rounded-lg border-3",
+              style.iconBg,
+              "border-black/30",
+              "shadow-[3px_3px_0_0_rgba(0,0,0,0.3)]"
             )}>
-              <Icon className={cn("h-5 w-5", iconColorStyles[variant])} />
+              <Icon className={cn("h-6 w-6", style.iconColor)} />
             </div>
             {change !== undefined && ChangeIcon && (
-              <Badge 
-                variant="outline" 
-                className={cn("gap-1", changeColor)}
-              >
+              <div className={cn(
+                "flex items-center gap-1 px-2 py-1 rounded-lg border-2",
+                change >= 0 ? "bg-luigi-green-100 border-luigi-green-500" : "bg-mario-red-100 border-mario-red-500",
+                "font-bold text-xs"
+              )}>
                 <ChangeIcon className="h-3 w-3" />
-                {Math.abs(change).toFixed(2)}%
-              </Badge>
+                <span className={changeColor}>{Math.abs(change).toFixed(2)}%</span>
+              </div>
             )}
           </div>
 
-          {/* Title */}
-          <p className="text-sm text-muted-foreground mb-1">{title}</p>
+          {/* Title - Pixel Font */}
+          <p className="text-xs font-bold text-pipe-700 mb-2 uppercase tracking-wide">{title}</p>
 
           {/* Value */}
           {isLoading ? (
             <div className="space-y-2">
-              <div className="h-7 bg-muted rounded animate-pulse w-3/4" />
-              <div className="h-4 bg-muted rounded animate-pulse w-1/2" />
+              <div className="h-8 bg-pipe-200 rounded animate-pulse w-3/4" />
+              <div className="h-4 bg-pipe-200 rounded animate-pulse w-1/2" />
             </div>
           ) : (
             <>
               {format === 'currency' && showSolEquiv && typeof value === 'number' ? (
-                <UsdWithSol 
-                  usd={value} 
-                  className="text-2xl font-bold"
-                  solClassName="text-xs"
+                <UsdWithSol
+                  usd={value}
+                  className="text-2xl font-bold text-pipe-900"
+                  solClassName="text-xs text-pipe-600"
                 />
               ) : (
-                <p className="text-2xl font-bold mb-2">{formattedValue}</p>
+                <p className="text-2xl font-bold text-pipe-900 mb-1">{formattedValue}</p>
               )}
             </>
           )}
 
           {/* Description */}
           {description && !isLoading && (
-            <p className="text-xs text-muted-foreground mt-2">{description}</p>
+            <p className="text-xs text-pipe-600 mt-2">{description}</p>
           )}
         </CardContent>
-      </Card>
+      </div>
     </motion.div>
   );
 }
 
 /**
- * Loading skeleton for metrics grid
+ * Mario-themed loading skeleton
  */
 function MetricsLoadingSkeleton() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
       {[1, 2, 3, 4].map((i) => (
-        <Card key={i} className="animate-pulse">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between mb-4">
-              <div className="w-10 h-10 bg-muted rounded-lg" />
-            </div>
-            <div className="h-4 bg-muted rounded w-1/2 mb-2" />
-            <div className="h-7 bg-muted rounded w-3/4 mb-2" />
-            <div className="h-3 bg-muted rounded w-2/3" />
-          </CardContent>
-        </Card>
+        <div
+          key={i}
+          className="bg-white border-4 border-pipe-700 rounded-xl shadow-[6px_6px_0_0_rgba(0,0,0,0.3)] p-6 animate-pulse"
+        >
+          <div className="flex items-center justify-between mb-4">
+            <div className="w-12 h-12 bg-pipe-200 rounded-lg" />
+          </div>
+          <div className="h-4 bg-pipe-200 rounded w-1/2 mb-2" />
+          <div className="h-8 bg-pipe-300 rounded w-3/4 mb-2" />
+          <div className="h-3 bg-pipe-200 rounded w-2/3" />
+        </div>
       ))}
     </div>
   );
 }
 
 /**
- * Empty state for when no portfolio data exists
+ * Mario-themed empty state - Start your adventure!
  */
 function EmptyMetricsState({ onAction }: { onAction: () => void }) {
   return (
-    <Card className="border-dashed">
-      <CardContent className="p-12 text-center">
-        <div className="flex flex-col items-center space-y-4">
-          <div className="relative">
-            <div className="p-4 rounded-full bg-primary/10">
-              <Wallet className="h-8 w-8 text-primary" />
-            </div>
-            <Sparkles className="h-4 w-4 text-primary absolute -top-1 -right-1 animate-pulse" />
+    <div className="bg-white border-4 border-pipe-700 rounded-xl shadow-[8px_8px_0_0_rgba(0,0,0,0.3)] p-12">
+      <div className="flex flex-col items-center space-y-6 text-center">
+        {/* Mario Mushroom Icon */}
+        <motion.div
+          animate={{ y: [0, -10, 0] }}
+          transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+          className="relative"
+        >
+          <Image src="/icons/mario/mushroom.png" alt="Power Up" width={80} height={80} />
+          <div className="absolute -top-2 -right-2">
+            <Star className="h-6 w-6 text-star-yellow-500 animate-pulse" />
           </div>
-          
-          <div className="space-y-2">
-            <h3 className="font-semibold text-lg">Start Your Trading Journey</h3>
-            <p className="text-sm text-muted-foreground max-w-md">
-              Begin paper trading to track your portfolio performance and compete on the leaderboard.
-            </p>
-          </div>
-          
-          <Button onClick={onAction} className="gap-2">
-            <TrendingUp className="h-4 w-4" />
-            Make Your First Trade
-          </Button>
+        </motion.div>
+
+        <div className="space-y-3">
+          <h3 className="text-2xl font-bold text-pipe-900" style={{ fontFamily: "'Press Start 2P', monospace" }}>
+            GAME START!
+          </h3>
+          <p className="text-sm text-pipe-600 max-w-md">
+            Power up your trading journey! Begin collecting coins and leveling up on the leaderboard.
+          </p>
         </div>
-      </CardContent>
-    </Card>
+
+        <Button
+          onClick={onAction}
+          className="gap-2 bg-mario-red-500 hover:bg-mario-red-600 text-white border-4 border-mario-red-700 rounded-lg px-6 py-3 font-bold shadow-[4px_4px_0_0_rgba(0,0,0,0.3)] hover:shadow-[2px_2px_0_0_rgba(0,0,0,0.3)] transition-all"
+        >
+          <Image src="/icons/mario/star.png" alt="Start" width={20} height={20} />
+          START ADVENTURE
+        </Button>
+      </div>
+    </div>
   );
 }
 
@@ -344,60 +371,67 @@ export function PortfolioMetrics({ isLoading: externalLoading = false }: Portfol
         />
       </div>
 
-      {/* Additional compact metrics row */}
+      {/* Additional compact metrics row - Mario Pipe Style */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: 0.1 }}
-        className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-3"
+        className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4"
       >
-        <Card className="border-border/50">
-          <CardContent className="p-4 flex items-center gap-3">
-            <Target className="h-4 w-4 text-muted-foreground" />
-            <div>
-              <p className="text-xs text-muted-foreground">Active</p>
-              <p className="text-lg font-semibold">{activePositions}</p>
-            </div>
-          </CardContent>
-        </Card>
+        {/* Active Positions */}
+        <div className="bg-white border-3 border-pipe-600 rounded-lg shadow-[3px_3px_0_0_rgba(0,0,0,0.2)] p-3 flex items-center gap-3">
+          <div className="bg-star-yellow-500 p-2 rounded-lg border-2 border-star-yellow-700">
+            <Target className="h-4 w-4 text-white" />
+          </div>
+          <div>
+            <p className="text-xs font-bold text-pipe-700 uppercase">Active</p>
+            <p className="text-xl font-bold text-pipe-900">{activePositions}</p>
+          </div>
+        </div>
 
-        <Card className="border-border/50">
-          <CardContent className="p-4 flex items-center gap-3">
-            <Activity className="h-4 w-4 text-muted-foreground" />
-            <div>
-              <p className="text-xs text-muted-foreground">Trades</p>
-              <p className="text-lg font-semibold">{totalTrades}</p>
-            </div>
-          </CardContent>
-        </Card>
+        {/* Total Trades */}
+        <div className="bg-white border-3 border-pipe-600 rounded-lg shadow-[3px_3px_0_0_rgba(0,0,0,0.2)] p-3 flex items-center gap-3">
+          <div className="bg-mario-red-500 p-2 rounded-lg border-2 border-mario-red-700">
+            <Activity className="h-4 w-4 text-white" />
+          </div>
+          <div>
+            <p className="text-xs font-bold text-pipe-700 uppercase">Trades</p>
+            <p className="text-xl font-bold text-pipe-900">{totalTrades}</p>
+          </div>
+        </div>
 
-        <Card className="border-border/50">
-          <CardContent className="p-4 flex items-center gap-3">
-            <TrendingUp className="h-4 w-4 text-profit" />
-            <div>
-              <p className="text-xs text-muted-foreground">Realized</p>
-              <UsdWithSol 
-                usd={realizedPnL}
-                className="text-lg font-semibold"
-                solClassName="text-xs"
-              />
-            </div>
-          </CardContent>
-        </Card>
+        {/* Realized PnL */}
+        <div className="bg-white border-3 border-pipe-600 rounded-lg shadow-[3px_3px_0_0_rgba(0,0,0,0.2)] p-3 flex items-center gap-3">
+          <div className={cn(
+            "p-2 rounded-lg border-2",
+            realizedPnL >= 0 ? "bg-luigi-green-500 border-luigi-green-700" : "bg-mario-red-500 border-mario-red-700"
+          )}>
+            <TrendingUp className="h-4 w-4 text-white" />
+          </div>
+          <div>
+            <p className="text-xs font-bold text-pipe-700 uppercase">Realized</p>
+            <UsdWithSol
+              usd={realizedPnL}
+              className="text-lg font-bold text-pipe-900"
+              solClassName="text-xs text-pipe-600"
+            />
+          </div>
+        </div>
 
-        <Card className="border-border/50">
-          <CardContent className="p-4 flex items-center gap-3">
-            <Wallet className="h-4 w-4 text-primary" />
-            <div>
-              <p className="text-xs text-muted-foreground">Avg P&L</p>
-              <UsdWithSol 
-                usd={totalTrades > 0 ? totalPnL / totalTrades : 0}
-                className="text-lg font-semibold"
-                solClassName="text-xs"
-              />
-            </div>
-          </CardContent>
-        </Card>
+        {/* Avg P&L */}
+        <div className="bg-white border-3 border-pipe-600 rounded-lg shadow-[3px_3px_0_0_rgba(0,0,0,0.2)] p-3 flex items-center gap-3">
+          <div className="bg-pipe-500 p-2 rounded-lg border-2 border-pipe-700">
+            <Wallet className="h-4 w-4 text-white" />
+          </div>
+          <div>
+            <p className="text-xs font-bold text-pipe-700 uppercase">Avg P&L</p>
+            <UsdWithSol
+              usd={totalTrades > 0 ? totalPnL / totalTrades : 0}
+              className="text-lg font-bold text-pipe-900"
+              solClassName="text-xs text-pipe-600"
+            />
+          </div>
+        </div>
       </motion.div>
     </motion.div>
   );
