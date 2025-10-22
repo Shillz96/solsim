@@ -153,11 +153,11 @@ export function XPBadge({ currentXP, className = '' }: { currentXP: number; clas
 
   return (
     <div className={`inline-flex items-center gap-2 ${className}`}>
-      <span className="text-2xl" role="img" aria-label="Level icon">
+      <span className="text-xl" role="img" aria-label="Level icon">
         {levelInfo.icon}
       </span>
-      <div className="flex flex-col leading-tight">
-        <span className="text-xs font-bold text-pipe-900 drop-shadow-sm">LVL {levelInfo.level}</span>
+      <div className="flex flex-col leading-none">
+        <span className="text-xs font-bold text-pipe-900 drop-shadow-sm mb-0.5">LVL {levelInfo.level}</span>
         <span className="text-[10px] text-pipe-700 font-semibold">{formatXP(currentXP)} XP</span>
       </div>
     </div>

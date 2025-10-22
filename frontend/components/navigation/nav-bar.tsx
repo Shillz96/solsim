@@ -381,22 +381,22 @@ export function NavBar() {
           </div>
 
           {/* Right Side Actions */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             {isAuthenticated ? (
               <>
                 {/* Balance Display - Clickable */}
                 <button
                   onClick={() => setPurchaseModalOpen(true)}
-                  className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white border-3 border-pipe-700 hover:border-mario-red-500 transition-all cursor-pointer group shadow-[3px_3px_0px_0px_rgba(0,0,0,0.2)] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,0.3)] hover:-translate-y-0.5"
+                  className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white border-2 border-pipe-600 hover:border-mario-red-500 transition-all cursor-pointer group shadow-sm hover:shadow-md"
                   aria-label="Purchase simulated SOL"
                 >
-                  <Image src="/icons/mario/wallet.png" alt="Wallet" width={20} height={20} className="group-hover:scale-110 transition-transform" />
+                  <Image src="/icons/mario/wallet.png" alt="Wallet" width={18} height={18} className="group-hover:scale-110 transition-transform" />
                   <div className="text-sm">
-                    <div className="font-bold text-foreground font-mario text-xs">
+                    <div className="font-bold text-foreground font-mario text-xs leading-tight">
                       {balanceData ? `${parseFloat(balanceData.balance).toFixed(2)} SOL` : 'Loading...'}
                     </div>
                     {solPrice > 0 && balanceData && (
-                      <div className="hidden sm:block text-[10px] text-foreground/60 font-semibold">
+                      <div className="hidden sm:block text-[10px] text-foreground/60 font-semibold leading-tight">
                         {formatUSD(parseFloat(balanceData.balance) * solPrice)}
                       </div>
                     )}
@@ -408,11 +408,10 @@ export function NavBar() {
                   <div className="hidden md:block">
                     <button
                       onClick={() => setLevelModalOpen(true)}
-                      className="cursor-pointer"
+                      className="cursor-pointer px-3 py-1.5 bg-gradient-to-r from-star-yellow-400 to-coin-yellow-500 border-2 border-star-yellow-600 hover:border-star-yellow-700 transition-all hover:scale-105 shadow-sm hover:shadow-md rounded-lg"
                     >
                       <XPBadge
                         currentXP={parseFloat(user.rewardPoints?.toString() || '0')}
-                        className="px-4 py-2.5 bg-gradient-to-r from-star-yellow-400 to-coin-yellow-500 border-3 border-star-yellow-600 hover:border-star-yellow-700 transition-all hover:scale-105 shadow-[3px_3px_0px_0px_rgba(0,0,0,0.2)] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,0.3)] rounded-lg"
                       />
                     </button>
                   </div>
@@ -427,8 +426,8 @@ export function NavBar() {
                 <div className="hidden md:block">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" className="p-1 hover:bg-muted/50 rounded-lg">
-                        <Avatar className="h-10 w-10 rounded-lg border-3 border-pipe-700 hover:border-mario-red-500 transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,0.15)]">
+                      <Button variant="ghost" className="p-0 hover:opacity-80 rounded-lg transition-opacity">
+                        <Avatar className="h-9 w-9 rounded-lg border-2 border-pipe-600 hover:border-mario-red-500 transition-all shadow-sm">
                           <AvatarImage src={avatarUrl} alt={displayName} className="rounded-lg" />
                           <AvatarFallback className="bg-primary/10 text-sm font-bold rounded-lg">
                             {displayName?.[0]?.toUpperCase() || 'U'}
