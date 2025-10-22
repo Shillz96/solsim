@@ -2,7 +2,7 @@
 
 import { EnhancedCard, CardGrid, CardSection } from "@/components/ui/enhanced-card-system"
 import { Button } from "@/components/ui/button"
-import { TrendingUp, ArrowRight, TrendingDown, Loader2 } from "lucide-react"
+import { Loader2 } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 import { motion } from "framer-motion"
@@ -40,8 +40,15 @@ export function TrendingTokensSection() {
             />
           </div>
 
-          <h2 className="font-mario text-4xl md:text-5xl font-bold text-balance text-mario-red" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.3)' }}>
-            Hot Tokens Right Now! 🔥
+          <h2 className="font-mario text-4xl md:text-5xl font-bold text-balance text-mario-red flex items-center justify-center gap-3" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.3)' }}>
+            Hot Tokens Right Now!
+            <Image
+              src="/icons/mario/fire.png"
+              alt=""
+              width={40}
+              height={40}
+              className="object-contain inline-block"
+            />
           </h2>
           <p className="text-xl text-foreground max-w-2xl mx-auto leading-relaxed font-bold" style={{ textShadow: '1px 1px 2px rgba(255,255,255,0.8)' }}>
             Live market data from the hottest Solana tokens. Jump in and start trading!
@@ -113,9 +120,25 @@ export function TrendingTokensSection() {
                               const change = token.priceChange24h || 0;
                               // Add threshold to prevent flickering on near-zero values
                               if (change > 0.01) {
-                                return <TrendingUp className="h-4 w-4 text-[#00ff85]" />;
+                                return (
+                                  <Image
+                                    src="/icons/mario/arrow-up.png"
+                                    alt="Trending up"
+                                    width={16}
+                                    height={16}
+                                    className="object-contain"
+                                  />
+                                );
                               } else if (change < -0.01) {
-                                return <TrendingDown className="h-4 w-4 text-[#ff4d4d]" />;
+                                return (
+                                  <Image
+                                    src="/icons/mario/arrow-down.png"
+                                    alt="Trending down"
+                                    width={16}
+                                    height={16}
+                                    className="object-contain"
+                                  />
+                                );
                               }
                               // For values between -0.01 and 0.01, show neutral (no icon or dash)
                               return null;
@@ -176,8 +199,21 @@ export function TrendingTokensSection() {
 
                     <button className="mario-btn mario-btn-green w-full text-white">
                       <span className="flex items-center justify-center gap-2">
-                        Trade Now! 🎮
-                        <ArrowRight className="h-4 w-4" />
+                        Trade Now!
+                        <Image
+                          src="/icons/mario/controller.png"
+                          alt=""
+                          width={16}
+                          height={16}
+                          className="object-contain inline-block"
+                        />
+                        <Image
+                          src="/icons/mario/right-arrow.png"
+                          alt=""
+                          width={16}
+                          height={16}
+                          className="object-contain inline-block"
+                        />
                       </span>
                     </button>
                   </div>
@@ -197,8 +233,21 @@ export function TrendingTokensSection() {
           <Link href="/trade">
             <button className="mario-btn mario-btn-lg bg-mario-yellow hover:bg-mario-yellow/90 text-black group">
               <span className="flex items-center justify-center gap-2">
-                View All Tokens 🔍
-                <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                View All Tokens
+                <Image
+                  src="/icons/mario/star.png"
+                  alt=""
+                  width={20}
+                  height={20}
+                  className="object-contain inline-block"
+                />
+                <Image
+                  src="/icons/mario/right-arrow.png"
+                  alt=""
+                  width={20}
+                  height={20}
+                  className="object-contain inline-block group-hover:translate-x-1 transition-transform"
+                />
               </span>
             </button>
           </Link>
