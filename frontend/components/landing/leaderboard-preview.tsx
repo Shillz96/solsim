@@ -71,10 +71,10 @@ export function LeaderboardPreview() {
             />
           </div>
 
-          <h2 className="font-mario text-4xl md:text-5xl font-bold text-balance text-white" style={{ textShadow: '3px 3px 6px rgba(0,0,0,0.9), 0px 0px 10px rgba(0,0,0,0.5)' }}>
+          <h2 className="font-mario text-4xl md:text-5xl font-bold text-balance text-pipe-900">
             Top Traders Hall of Fame! 🏆
           </h2>
-          <p className="text-xl text-white max-w-2xl mx-auto leading-relaxed font-bold" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.9), 0px 0px 8px rgba(0,0,0,0.6)' }}>
+          <p className="text-xl text-pipe-900 max-w-2xl mx-auto leading-relaxed font-bold">
             Compete with traders worldwide. Climb the ranks and prove your trading skills!
           </p>
         </motion.div>
@@ -115,9 +115,9 @@ export function LeaderboardPreview() {
                       >
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-2">
-                            {trader.rank === 1 && <Trophy className="h-5 w-5 text-mario-yellow" strokeWidth={2.5} />}
-                            {trader.rank === 2 && <Trophy className="h-5 w-5 text-pipe-400" strokeWidth={2} />}
-                            {trader.rank === 3 && <Trophy className="h-5 w-5 text-mario-orange" strokeWidth={1.5} />}
+                            {trader.rank === 1 && <img src="/icons/mario/1st.png" alt="1st place" className="h-6 w-6 drop-shadow-md" />}
+                            {trader.rank === 2 && <img src="/icons/mario/2nd-place.png" alt="2nd place" className="h-6 w-6 drop-shadow-md" />}
+                            {trader.rank === 3 && <img src="/icons/mario/3rd.png" alt="3rd place" className="h-6 w-6 drop-shadow-md" />}
                             <span className={`text-lg font-bold ${trader.rank <= 3 ? 'text-mario-red' : 'font-medium'}`}>#{trader.rank}</span>
                           </div>
                         </td>
