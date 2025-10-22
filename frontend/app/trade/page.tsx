@@ -198,8 +198,8 @@ function TradePageContent() {
             <TokenDetailsHeader tokenAddress={currentTokenAddress} />
           </motion.div>
 
-          {/* Grid height: 100dvh - (navbar + padding-top + ticker + token-header + 2×spacing + padding-bottom) */}
-          <div className="lg:grid lg:grid-cols-12 lg:items-stretch gap-3 h-[calc(100dvh-var(--navbar-height)-0.75rem-var(--trending-ticker-height)-var(--token-header-compact-height)-1rem-0.75rem)]">
+          {/* Grid height: 100dvh minus all overhead (navbar, padding, ticker, header, spacing) */}
+          <div className="lg:grid lg:grid-cols-12 lg:items-stretch gap-3 h-[calc(100dvh-20rem)]">
           {/* Left Sidebar - PnL Above Trade Activity */}
           <motion.aside
             className="lg:col-span-3 flex flex-col gap-3 min-h-0 overflow-hidden"
