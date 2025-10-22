@@ -167,7 +167,7 @@ export function MarioPositionPnL({ tokenAddress, tokenSymbol, tokenName }: Mario
   const pnlPercent = safePercent(safeUnrealizedPnL, safeCostBasis)
 
   return (
-    <div className="mario-card relative overflow-hidden bg-gradient-to-br from-white to-gray-50">
+    <div className="mario-card relative overflow-hidden">
       {/* Animated Coin Background */}
       <AnimatePresence>
         {showCoinAnimation && (
@@ -257,20 +257,20 @@ export function MarioPositionPnL({ tokenAddress, tokenSymbol, tokenName }: Mario
 
       {/* Quick Stats - Mario Block Style */}
       <div className="grid grid-cols-2 gap-2 mb-3">
-        <div className="bg-[var(--coin-gold)]/20 border-2 border-[var(--outline-black)] rounded-lg p-2">
+        <div className="bg-white border-3 border-[var(--outline-black)] rounded-lg p-2 shadow-sm">
           <div className="flex items-center gap-1 mb-1">
             <Star className="h-3 w-3 text-[var(--star-yellow)]" />
-            <span className="text-xs text-muted-foreground">Value</span>
+            <span className="text-xs font-semibold text-[var(--outline-black)]">Value</span>
           </div>
-          <UsdWithSol usd={safeCurrentValue} className="text-sm font-bold" solClassName="text-xs" />
+          <UsdWithSol usd={safeCurrentValue} className="text-sm font-bold text-[var(--outline-black)]" solClassName="text-xs" />
         </div>
 
-        <div className="bg-[var(--coin-gold)]/20 border-2 border-[var(--outline-black)] rounded-lg p-2">
+        <div className="bg-white border-3 border-[var(--outline-black)] rounded-lg p-2 shadow-sm">
           <div className="flex items-center gap-1 mb-1">
             <Target className="h-3 w-3 text-[var(--super-blue)]" />
-            <span className="text-xs text-muted-foreground">Cost</span>
+            <span className="text-xs font-semibold text-[var(--outline-black)]">Cost</span>
           </div>
-          <UsdWithSol usd={safeCostBasis} className="text-sm font-bold" solClassName="text-xs" />
+          <UsdWithSol usd={safeCostBasis} className="text-sm font-bold text-[var(--outline-black)]" solClassName="text-xs" />
         </div>
       </div>
 

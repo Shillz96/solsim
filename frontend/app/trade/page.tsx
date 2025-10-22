@@ -6,9 +6,6 @@ import { useSearchParams } from "next/navigation"
 import { motion } from "framer-motion"
 import { TrendingUp, Wallet, BarChart3, Coins } from "lucide-react"
 import { TokenSearch } from "@/components/trading/token-search"
-import { EnhancedTrendingList } from "@/components/leaderboard/enhanced-trending-list"
-import { TradingPanel } from "@/components/trading/trading-panel"
-import { TokenPositionPnL } from "@/components/trading/token-position-pnl"
 import { TradeDetails } from "@/components/shared/trade-details"
 import { ChartSkeleton } from "@/components/shared/chart-skeleton"
 import { TokenDetailsHeader } from "@/components/trading/token-details-header"
@@ -169,36 +166,6 @@ function TradePageContent() {
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.3 }}
           >
-            <div className="mario-card bg-gradient-to-br from-[var(--coin-gold)]/10 to-[var(--star-yellow)]/5">
-              <button
-                onClick={() => toggleSection('trending')}
-                className="flex items-center justify-between p-4 cursor-pointer hover:bg-[var(--coin-gold)]/10 transition-all active:scale-[0.99] w-full"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="mario-badge px-2 py-2">
-                    <Coins className="h-5 w-5" />
-                  </div>
-                  <div>
-                    <span className="mario-font text-sm text-foreground">TRENDING TOKENS</span>
-                    <p className="text-xs text-muted-foreground">Hot picks right now</p>
-                  </div>
-                </div>
-                <svg
-                  className={`w-5 h-5 transition-transform ${expandedSections.trending ? 'rotate-180' : ''} text-[var(--outline-black)]`}
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-              </button>
-              {expandedSections.trending && (
-                <div className="px-4 pb-4 pt-2">
-                  <EnhancedTrendingList />
-                </div>
-              )}
-            </div>
-
             <div className="mario-card bg-gradient-to-br from-[var(--luigi-green)]/10 to-[var(--luigi-green)]/5">
               <button
                 onClick={() => toggleSection('positions')}
@@ -300,8 +267,9 @@ function TradePageContent() {
             transition={{ duration: 0.5, delay: 0.1 }}
           >
             <div className="lg:sticky lg:top-4 lg:h-[calc(100vh-8rem)] lg:overflow-y-auto space-y-4">
-              <TokenSearch />
-              <EnhancedTrendingList />
+              <div className="mario-card p-3">
+                <TokenSearch />
+              </div>
               <UnifiedPositions
                 variant="compact"
                 maxPositions={5}
