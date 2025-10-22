@@ -37,40 +37,38 @@ export function HeroSection() {
       </div>
 
       <div className="container relative mx-auto px-4">
-        <div className="grid gap-12 lg:grid-cols-2 lg:gap-16 items-center">
-          {/* Left: Headline + CTA */}
+        <div className="flex flex-col items-center text-center space-y-8">
+          {/* Hero GIF/Logo */}
           <motion.div
-            className="space-y-8"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.6 }}
+            className="w-full max-w-3xl"
+          >
+            <Image
+              src="/landingpage-hero.gif"
+              alt="1UP SOL"
+              width={800}
+              height={300}
+              priority
+              className="w-full h-auto"
+              unoptimized
+            />
+          </motion.div>
+
+          {/* Content below hero */}
+          <motion.div
+            className="space-y-8 max-w-3xl"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
           >
-            <div className="space-y-4">
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.2 }}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/20 border-2 border-white/40 backdrop-blur-sm"
-              >
-                <Star className="h-4 w-4 text-mario-yellow animate-pulse" />
-                <span className="text-sm font-bold text-white">Level Up Your Trading Game</span>
-              </motion.div>
+            <p className="text-xl text-[var(--outline-black)] leading-relaxed font-bold drop-shadow-lg flex items-center justify-center gap-2 flex-wrap">
+              Trade real Solana tokens with zero risk. Level up through trades, earn XP, unlock achievements, and compete on the leaderboard - just like your favorite game!
+              <Image src="/icons/mario/controller.png" alt="" width={24} height={24} className="object-contain inline-block" />
+            </p>
 
-              <h1 className="mario-title text-5xl md:text-6xl lg:text-7xl leading-tight text-balance">
-                1UP Your Solana Trading Skills!
-              </h1>
-              <p className="text-xl text-[var(--outline-black)] max-w-xl leading-relaxed font-bold drop-shadow-lg flex items-center gap-2">
-                Trade real Solana tokens with zero risk. Level up through trades, earn XP, unlock achievements, and compete on the leaderboard - just like your favorite game!
-                <Image src="/icons/mario/controller.png" alt="" width={24} height={24} className="object-contain inline-block" />
-              </p>
-            </div>
-
-            <motion.div
-              className="flex flex-col sm:flex-row gap-4"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.4 }}
-            >
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link href="/trade">
                 <button className="mario-btn mario-btn-lg bg-mario-green hover:bg-mario-green/90 w-full sm:w-auto group">
                   <span className="flex items-center justify-center gap-2">
@@ -89,14 +87,9 @@ export function HeroSection() {
                   <Image src="/icons/mario/game.png" alt="" width={20} height={20} className="object-contain inline-block" />
                 </span>
               </button>
-            </motion.div>
+            </div>
 
-            <motion.div
-              className="grid grid-cols-3 gap-3 sm:gap-6 pt-8"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6 }}
-            >
+            <div className="grid grid-cols-3 gap-3 sm:gap-6">
               <div className="space-y-1 bg-black/40 backdrop-blur-md rounded-lg p-3 sm:p-4 border-3 border-[var(--outline-black)] shadow-lg">
                 <div className="text-xl sm:text-2xl md:text-3xl font-mario text-[var(--star-yellow)]" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.8)' }}>20 Levels</div>
                 <p className="text-xs sm:text-sm text-white font-bold" style={{ textShadow: '1px 1px 3px rgba(0,0,0,0.9)' }}>From Goomba to Legendary</p>
@@ -109,57 +102,7 @@ export function HeroSection() {
                 <div className="text-xl sm:text-2xl md:text-3xl font-mario text-[var(--super-blue)]" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.8)' }}>Zero Risk</div>
                 <p className="text-xs sm:text-sm text-white font-bold" style={{ textShadow: '1px 1px 3px rgba(0,0,0,0.9)' }}>Practice safely</p>
               </div>
-            </motion.div>
-          </motion.div>
-
-          {/* Right: Demo video or Mario header */}
-          <motion.div
-            className="relative"
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.3, duration: 0.6 }}
-          >
-            <div className="relative rounded-2xl overflow-hidden border-4 border-white/40 shadow-2xl bg-gradient-to-br from-mario-red via-mario-yellow to-mario-green p-1">
-              <div className="bg-white rounded-xl overflow-hidden flex items-center justify-center p-8">
-                {/* 1UP SOL Logo */}
-                <Image
-                  src="/logo-2.png"
-                  alt="1UP SOL"
-                  width={400}
-                  height={120}
-                  priority
-                  className="w-full h-auto max-w-md"
-                />
-                {/* Uncomment when video is ready:
-                <video
-                  autoPlay
-                  loop
-                  muted
-                  playsInline
-                  className="w-full h-auto object-contain"
-                >
-                  <source src="/demo-video.mp4?v=2" type="video/mp4" />
-                  Your browser does not support the video tag.
-                </video>
-                */}
-              </div>
             </div>
-
-            {/* Floating Mario elements */}
-            <motion.div
-              className="absolute -top-8 -right-8 z-10"
-              animate={{ rotate: [0, 10, -10, 0] }}
-              transition={{ duration: 3, repeat: Infinity }}
-            >
-              <Image src="/icons/mario/mushroom.png" alt="" width={70} height={70} className="object-contain" />
-            </motion.div>
-            <motion.div
-              className="absolute -bottom-6 -left-6 z-10"
-              animate={{ y: [0, -10, 0] }}
-              transition={{ duration: 2, repeat: Infinity }}
-            >
-              <Image src="/icons/mario/star.png" alt="" width={60} height={60} className="object-contain" />
-            </motion.div>
           </motion.div>
         </div>
       </div>
