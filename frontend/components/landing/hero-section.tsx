@@ -38,22 +38,38 @@ export function HeroSection() {
 
       <div className="container relative mx-auto px-4">
         <div className="flex flex-col items-center text-center space-y-8">
-          {/* Hero GIF */}
+          {/* Hero Text with Breathing Effect */}
           <motion.div
             initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="w-full max-w-2xl mb-4"
+            animate={{
+              opacity: 1,
+              y: 0,
+              scale: [1, 1.05, 1] // Breathing effect
+            }}
+            transition={{
+              duration: 0.8,
+              scale: {
+                duration: 3,
+                repeat: Infinity,
+                ease: "easeInOut"
+              }
+            }}
+            className="w-full max-w-4xl mb-8"
           >
-            <Image
-              src="/gif.gif"
-              alt="1UP Your Solana Trading Skills"
-              width={1920}
-              height={1080}
-              className="w-full h-auto"
-              priority
-              unoptimized
-            />
+            <div className="relative w-full flex justify-center">
+              <Image
+                src="/1UP-Your-Solana-Trading-Skill-10-22-2025.png"
+                alt="1UP Your Solana Trading Skills"
+                width={1200}
+                height={300}
+                className="object-contain w-full h-auto drop-shadow-2xl"
+                priority
+                style={{
+                  filter: 'drop-shadow(0 4px 20px rgba(0,0,0,0.3))',
+                  imageRendering: 'crisp-edges'
+                }}
+              />
+            </div>
           </motion.div>
           {/* Content below hero */}
           <motion.div
