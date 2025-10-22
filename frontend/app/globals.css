@@ -261,7 +261,7 @@
     background-repeat: repeat; /* Full coverage without gaps */
     background-size: 2000px 2000px; /* Much larger size to reduce visible repetition */
     background-position: 15% 25%; /* Offset positioning to break up pattern alignment */
-    opacity: 0.3; /* 30% opacity as requested */
+    opacity: 0.45; /* 45% opacity for more visible texture */
     pointer-events: none;
     z-index: 1;
     mix-blend-mode: multiply; /* Realistic paper texture blending */
