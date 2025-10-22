@@ -248,7 +248,7 @@ export function NavBar() {
     <motion.header
       initial={{ y: -100 }}
       animate={{ y: 0 }}
-      className="sticky top-0 z-50 w-full border-b-4 border-outline-black bg-background shadow-[0_4px_0_0_rgba(28,28,28,1)]"
+      className="sticky top-0 z-50 w-full border-b-4 border-outline-black bg-[#FFFAE9] opacity-100 shadow-[0_4px_0_0_rgba(28,28,28,1)]"
       style={{ viewTransitionName: 'main-nav' } as React.CSSProperties}
     >
       <div className="w-full px-6">
