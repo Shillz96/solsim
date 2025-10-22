@@ -161,7 +161,7 @@ export function NavBar() {
   const balanceNumber = balanceData ? parseFloat(balanceData.balance) : 0
   const profile = userProfile as any
   const displayName = profile?.displayName || profile?.handle || user?.email?.split('@')[0] || 'User'
-  const avatarUrl = profile?.avatarUrl || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(displayName)}&backgroundColor=4f46e5`
+  const avatarUrl = profile?.avatarUrl || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(displayName)}&backgroundColor=ef4444&backgroundType=solid&fontFamily=Arial&fontSize=40`
 
   // Enhanced search functionality
   const performSearch = useCallback(async (query: string) => {
@@ -427,9 +427,9 @@ export function NavBar() {
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" className="p-0 hover:opacity-80 rounded-lg transition-opacity">
-                        <Avatar className="h-9 w-9 rounded-lg border-2 border-pipe-600 hover:border-mario-red-500 transition-all shadow-sm">
-                          <AvatarImage src={avatarUrl} alt={displayName} className="rounded-lg" />
-                          <AvatarFallback className="bg-primary/10 text-sm font-bold rounded-lg">
+                        <Avatar className="h-9 w-9 rounded-lg border-2 border-pipe-600 hover:border-mario-red-500 transition-all shadow-sm bg-mario-red-500">
+                          <AvatarImage src={avatarUrl} alt={displayName} className="rounded-lg object-cover" />
+                          <AvatarFallback className="bg-mario-red-500 text-white text-sm font-bold rounded-lg">
                             {displayName?.[0]?.toUpperCase() || 'U'}
                           </AvatarFallback>
                         </Avatar>

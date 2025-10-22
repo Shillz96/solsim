@@ -20,56 +20,61 @@ export function LevelProgressModal({ open, onOpenChange, currentXP }: LevelProgr
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-white border-4 border-pipe-800 shadow-mario">
-        <DialogHeader>
-          <DialogTitle className="font-mario text-2xl text-mario-red-500 text-center mb-4">
-            Level Progression
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-[#FFFAE9] border-3 border-pipe-800 shadow-xl">
+        <DialogHeader className="border-b-2 border-pipe-300 pb-4">
+          <DialogTitle className="font-mario text-xl text-mario-red-500 text-center">
+            🏆 Level Progression 🏆
           </DialogTitle>
         </DialogHeader>
 
         {/* Current Level Display */}
-        <div className="mb-6 p-6 bg-gradient-to-r from-star-yellow-400 to-coin-yellow-500 rounded-lg border-4 border-star-yellow-600 shadow-[4px_4px_0px_0px_rgba(0,0,0,0.2)]">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-4">
-              <div className="text-6xl">{levelInfo.icon}</div>
+        <div className="mb-4 p-5 bg-gradient-to-br from-star-yellow-400 to-coin-yellow-500 rounded-xl border-3 border-star-yellow-600 shadow-lg">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-3">
+              <div className="text-5xl">{levelInfo.icon}</div>
               <div>
-                <div className="font-mario text-3xl text-white drop-shadow-[2px_2px_0px_rgba(0,0,0,0.3)]">
+                <div className="font-mario text-2xl text-pipe-900 drop-shadow-sm">
                   Level {levelInfo.level}
                 </div>
-                <div className="text-xl text-white/90 font-bold">
+                <div className="text-base text-pipe-800 font-bold">
                   {levelInfo.title}
                 </div>
               </div>
             </div>
-            <div className="text-right">
-              <div className="text-sm text-white/80 font-bold">Total XP</div>
-              <div className="font-mario text-2xl text-white drop-shadow-[2px_2px_0px_rgba(0,0,0,0.3)]">
+            <div className="text-right bg-white/40 backdrop-blur-sm px-3 py-2 rounded-lg border-2 border-white/60">
+              <div className="text-xs text-pipe-700 font-bold">Total XP</div>
+              <div className="font-mario text-xl text-pipe-900">
                 {formatXP(currentXP)}
               </div>
             </div>
           </div>
 
           {/* Progress to Next Level */}
-          <div className="bg-white/30 backdrop-blur-sm rounded-lg p-4 border-2 border-white/50">
+          <div className="bg-white rounded-lg p-3 border-2 border-pipe-300 shadow-sm">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-bold text-white">Progress to Level {levelInfo.level + 1}</span>
-              <span className="text-sm font-bold text-white">{Math.floor(progressPercent)}%</span>
+              <span className="text-sm font-bold text-pipe-800">Progress to Level {levelInfo.level + 1}</span>
+              <span className="text-sm font-bold text-mario-red-500">{Math.floor(progressPercent)}%</span>
             </div>
-            <Progress value={progressPercent} className="h-4 bg-white/50 border-2 border-white/70" />
-            <div className="flex items-center justify-between mt-2 text-xs text-white/90">
+            <div className="h-3 bg-pipe-200 rounded-full border-2 border-pipe-400 overflow-hidden">
+              <div
+                className="h-full bg-gradient-to-r from-luigi-green-500 to-luigi-green-600 transition-all duration-500"
+                style={{ width: `${progressPercent}%` }}
+              />
+            </div>
+            <div className="flex items-center justify-between mt-2 text-xs text-pipe-700">
               <span className="font-semibold">{formatXP(xpIntoLevel)} XP</span>
-              <span className="font-semibold">{formatXP(xpNeededForNext - xpIntoLevel)} XP needed</span>
+              <span className="font-semibold">{formatXP(xpNeededForNext - xpIntoLevel)} needed</span>
             </div>
           </div>
         </div>
 
         {/* All Levels Grid */}
-        <div>
-          <h3 className="font-mario text-lg text-foreground mb-4 flex items-center gap-2">
-            <Trophy className="h-5 w-5 text-mario-yellow-500" />
+        <div className="bg-white rounded-lg p-4 border-2 border-pipe-300">
+          <h3 className="font-mario text-base text-pipe-900 mb-3 flex items-center gap-2 border-b-2 border-pipe-200 pb-2">
+            <Trophy className="h-4 w-4 text-coin-yellow-600" />
             All Levels
           </h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-h-[400px] overflow-y-auto pr-2">
             {LEVEL_THRESHOLDS.map((threshold) => {
               const isUnlocked = currentXP >= threshold.xpRequired
               const isCurrent = threshold.level === levelInfo.level
@@ -79,34 +84,34 @@ export function LevelProgressModal({ open, onOpenChange, currentXP }: LevelProgr
                 <div
                   key={threshold.level}
                   className={cn(
-                    "p-4 rounded-lg border-3 transition-all",
-                    isCurrent && "bg-gradient-to-r from-star-yellow-400/30 to-coin-yellow-500/30 border-star-yellow-600 shadow-[3px_3px_0px_0px_rgba(0,0,0,0.15)]",
-                    isNext && "bg-gradient-to-r from-luigi-green-400/20 to-luigi-green-500/20 border-luigi-green-600 shadow-[2px_2px_0px_0px_rgba(0,0,0,0.1)]",
-                    !isCurrent && !isNext && isUnlocked && "bg-white border-pipe-700",
-                    !isUnlocked && "bg-pipe-100 border-pipe-400 opacity-60"
+                    "p-3 rounded-lg border-2 transition-all",
+                    isCurrent && "bg-gradient-to-r from-star-yellow-400/40 to-coin-yellow-500/40 border-star-yellow-600 shadow-md",
+                    isNext && "bg-gradient-to-r from-luigi-green-400/30 to-luigi-green-500/30 border-luigi-green-600 shadow-sm",
+                    !isCurrent && !isNext && isUnlocked && "bg-sky-50 border-pipe-400",
+                    !isUnlocked && "bg-pipe-100/50 border-pipe-300 opacity-50"
                   )}
                 >
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2.5">
                       <div className={cn(
-                        "text-3xl",
-                        !isUnlocked && "grayscale opacity-50"
+                        "text-2xl",
+                        !isUnlocked && "grayscale opacity-40"
                       )}>
                         {threshold.icon}
                       </div>
                       <div>
                         <div className={cn(
-                          "font-mario text-sm",
-                          isCurrent && "text-star-yellow-700",
-                          isNext && "text-luigi-green-700",
-                          !isCurrent && !isNext && isUnlocked && "text-foreground",
-                          !isUnlocked && "text-muted-foreground"
+                          "font-mario text-xs",
+                          isCurrent && "text-star-yellow-800",
+                          isNext && "text-luigi-green-800",
+                          !isCurrent && !isNext && isUnlocked && "text-pipe-900",
+                          !isUnlocked && "text-pipe-600"
                         )}>
                           Level {threshold.level}
                         </div>
                         <div className={cn(
-                          "text-xs font-semibold",
-                          isUnlocked ? "text-foreground/80" : "text-muted-foreground"
+                          "text-[11px] font-semibold leading-tight",
+                          isUnlocked ? "text-pipe-700" : "text-pipe-500"
                         )}>
                           {threshold.title}
                         </div>
@@ -115,27 +120,27 @@ export function LevelProgressModal({ open, onOpenChange, currentXP }: LevelProgr
                     <div className="text-right">
                       {isUnlocked ? (
                         isCurrent ? (
-                          <div className="flex items-center gap-1 text-star-yellow-600">
-                            <Star className="h-4 w-4 fill-current" />
-                            <span className="text-xs font-bold">Current</span>
+                          <div className="flex items-center gap-1 text-star-yellow-700 bg-star-yellow-200 px-1.5 py-0.5 rounded">
+                            <Star className="h-3 w-3 fill-current" />
+                            <span className="text-[10px] font-bold">Current</span>
                           </div>
                         ) : isNext ? (
-                          <div className="text-xs font-bold text-luigi-green-600">
-                            Next Level
+                          <div className="text-[10px] font-bold text-luigi-green-700 bg-luigi-green-200 px-1.5 py-0.5 rounded">
+                            Next
                           </div>
                         ) : (
-                          <div className="flex items-center gap-1 text-green-600">
-                            <Trophy className="h-4 w-4" />
-                            <span className="text-xs font-bold">Unlocked</span>
+                          <div className="flex items-center gap-1 text-luigi-green-700">
+                            <Trophy className="h-3 w-3" />
+                            <span className="text-[10px] font-bold">Done</span>
                           </div>
                         )
                       ) : (
-                        <div className="flex items-center gap-1 text-muted-foreground">
-                          <Lock className="h-4 w-4" />
-                          <span className="text-xs font-bold">Locked</span>
+                        <div className="flex items-center gap-1 text-pipe-500">
+                          <Lock className="h-3 w-3" />
+                          <span className="text-[10px] font-bold">Locked</span>
                         </div>
                       )}
-                      <div className="text-xs text-muted-foreground mt-1 font-mono">
+                      <div className="text-[10px] text-pipe-600 mt-0.5 font-mono">
                         {formatXP(threshold.xpRequired)} XP
                       </div>
                     </div>
@@ -147,38 +152,38 @@ export function LevelProgressModal({ open, onOpenChange, currentXP }: LevelProgr
         </div>
 
         {/* XP Guide Section */}
-        <div className="mt-6 p-4 bg-sky-50 rounded-lg border-3 border-sky-200">
-          <h4 className="font-mario text-sm text-foreground mb-3 flex items-center gap-2">
-            <Zap className="h-4 w-4 text-coin-yellow-500" />
+        <div className="mt-4 p-4 bg-sky-50 rounded-lg border-2 border-sky-300">
+          <h4 className="font-mario text-sm text-pipe-900 mb-3 flex items-center gap-2 border-b-2 border-sky-200 pb-2">
+            <Zap className="h-4 w-4 text-coin-yellow-600" />
             How to Earn XP
           </h4>
-          <div className="grid grid-cols-2 gap-2 text-xs">
-            <div className="flex items-start gap-2">
-              <div className="text-lg">💰</div>
+          <div className="grid grid-cols-2 gap-3 text-xs">
+            <div className="flex items-start gap-2 bg-white p-2 rounded border border-sky-200">
+              <div className="text-base">💰</div>
               <div>
-                <div className="font-bold text-foreground">Trading Volume</div>
-                <div className="text-muted-foreground">10 XP per $100 traded</div>
+                <div className="font-bold text-pipe-900">Trading Volume</div>
+                <div className="text-pipe-600 text-[11px]">10 XP per $100 traded</div>
               </div>
             </div>
-            <div className="flex items-start gap-2">
-              <div className="text-lg">📈</div>
+            <div className="flex items-start gap-2 bg-white p-2 rounded border border-sky-200">
+              <div className="text-base">📈</div>
               <div>
-                <div className="font-bold text-foreground">Profitable Trades</div>
-                <div className="text-muted-foreground">25 XP + 50 XP per $100 profit</div>
+                <div className="font-bold text-pipe-900">Profitable Trades</div>
+                <div className="text-pipe-600 text-[11px]">25 XP + 50 XP per $100 profit</div>
               </div>
             </div>
-            <div className="flex items-start gap-2">
-              <div className="text-lg">🏆</div>
+            <div className="flex items-start gap-2 bg-white p-2 rounded border border-sky-200">
+              <div className="text-base">🏆</div>
               <div>
-                <div className="font-bold text-foreground">Leaderboard</div>
-                <div className="text-muted-foreground">Up to 5,000 XP for #1</div>
+                <div className="font-bold text-pipe-900">Leaderboard</div>
+                <div className="text-pipe-600 text-[11px]">Up to 5,000 XP for #1</div>
               </div>
             </div>
-            <div className="flex items-start gap-2">
-              <div className="text-lg">🎯</div>
+            <div className="flex items-start gap-2 bg-white p-2 rounded border border-sky-200">
+              <div className="text-base">🎯</div>
               <div>
-                <div className="font-bold text-foreground">Achievements</div>
-                <div className="text-muted-foreground">500-1,000 XP each</div>
+                <div className="font-bold text-pipe-900">Achievements</div>
+                <div className="text-pipe-600 text-[11px]">500-1,000 XP each</div>
               </div>
             </div>
           </div>
