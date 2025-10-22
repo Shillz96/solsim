@@ -198,10 +198,10 @@ function TradePageContent() {
             <TokenDetailsHeader tokenAddress={currentTokenAddress} />
           </motion.div>
 
-          <div className="lg:grid lg:grid-cols-12 gap-3 h-[calc(100dvh-220px)]">
+          <div className="lg:grid lg:grid-cols-12 lg:items-stretch gap-3 h-[calc(100dvh-220px)]">
           {/* Left Sidebar - PnL Above Trade Activity */}
           <motion.aside
-            className="lg:col-span-3 flex flex-col gap-3 h-full min-h-0 overflow-hidden"
+            className="lg:col-span-3 flex flex-col gap-3 min-h-0 overflow-hidden"
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
@@ -229,7 +229,7 @@ function TradePageContent() {
 
           {/* Chart - Matches Right Panel Height */}
           <motion.div
-            className="lg:col-span-7 h-full flex flex-col"
+            className="lg:col-span-7 flex flex-col min-h-0"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
@@ -243,7 +243,7 @@ function TradePageContent() {
 
           {/* Right Sidebar - Trading Panel + Timeline */}
           <motion.aside
-            className="lg:col-span-2 flex flex-col gap-3 h-full min-h-0 overflow-hidden"
+            className="lg:col-span-2 flex flex-col gap-3 min-h-0 overflow-hidden"
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
