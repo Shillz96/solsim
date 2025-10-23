@@ -379,30 +379,30 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
       <AlertDialog open={showModeConfirm} onOpenChange={setShowModeConfirm}>
         <AlertDialogContent className="bg-white border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] rounded-xl">
           <AlertDialogHeader>
-            <AlertDialogTitle className="font-mario text-base text-pipe-900 flex items-center gap-2 pb-3 border-b-3 border-pipe-300">
-              {pendingMode === 'REAL' && <AlertTriangle className="w-5 h-5 text-mario-red-500" />}
-              Switch to {pendingMode === 'REAL' ? 'Real' : 'Paper'} Trading?
+            <AlertDialogTitle className="font-mario text-base text-[var(--outline-black)] flex items-center gap-2 pb-3 border-b-3 border-[var(--color-border)]">
+              {pendingMode === 'REAL' && <AlertTriangle className="w-5 h-5 text-[var(--mario-red)]" />}
+              Switch to {pendingMode === 'REAL' ? 'Mainnet' : 'Paper'} Trading?
             </AlertDialogTitle>
-            <AlertDialogDescription className="pt-4 text-pipe-900 text-sm leading-relaxed">
+            <AlertDialogDescription className="pt-4 text-[var(--outline-black)] text-sm leading-relaxed">
               {pendingMode === 'REAL' ? (
                 <div className="space-y-3">
-                  <div className="flex items-start gap-2 p-3 bg-white border-3 border-mario-red-500 rounded-lg shadow-[2px_2px_0_rgba(0,0,0,0.1)]">
-                    <AlertTriangle className="w-5 h-5 text-mario-red-500 mt-0.5 flex-shrink-0" />
+                  <div className="flex items-start gap-2 p-3 bg-white border-3 border-[var(--mario-red)] rounded-lg shadow-[2px_2px_0_rgba(0,0,0,0.1)]">
+                    <AlertTriangle className="w-5 h-5 text-[var(--mario-red)] mt-0.5 flex-shrink-0" />
                     <div>
-                      <strong className="text-mario-red-600 font-bold block mb-1">Warning: Real Money Trading</strong>
-                      <p className="text-pipe-900 text-xs">
-                        You are about to switch to REAL trading mode. All trades will use real SOL and execute on Solana mainnet.
+                      <strong className="text-[var(--mario-red)] font-bold block mb-1">Warning: Real Money Trading</strong>
+                      <p className="text-[var(--outline-black)] text-xs">
+                        You are about to switch to MAINNET trading mode. All trades will use real SOL and execute on Solana mainnet.
                         This cannot be simulated or undone.
                       </p>
                     </div>
                   </div>
-                  <p className="text-xs text-pipe-800">
+                  <p className="text-xs text-[var(--outline-black)] opacity-80">
                     Make sure you understand the risks before proceeding.
                   </p>
                 </div>
               ) : (
-                <div className="p-3 bg-white border-3 border-luigi-green-500 rounded-lg shadow-[2px_2px_0_rgba(0,0,0,0.1)]">
-                  <p className="text-pipe-900 text-xs">
+                <div className="p-3 bg-white border-3 border-[var(--luigi-green)] rounded-lg shadow-[2px_2px_0_rgba(0,0,0,0.1)]">
+                  <p className="text-[var(--outline-black)] text-xs">
                     You are about to switch to PAPER trading mode. All trades will be simulated using virtual SOL.
                     Your real trading positions will remain separate and unchanged.
                   </p>
@@ -413,20 +413,20 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
           <AlertDialogFooter className="gap-3 pt-4">
             <AlertDialogCancel
               onClick={handleCancelModeSwitch}
-              className="font-mario font-bold bg-white text-pipe-900 border-3 border-pipe-900 shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[2px_2px_0_var(--outline-black)] hover:translate-x-[1px] hover:translate-y-[1px] transition-all"
+              className="font-mario font-bold bg-white text-[var(--outline-black)] border-4 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-[1px] transition-all"
             >
               Cancel
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleConfirmModeSwitch}
               className={cn(
-                "font-mario font-bold border-3 shadow-[3px_3px_0_rgba(0,0,0,0.3)] hover:shadow-[2px_2px_0_rgba(0,0,0,0.2)] hover:translate-x-[1px] hover:translate-y-[1px] transition-all",
+                "font-mario font-bold border-4 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-[1px] transition-all text-white",
                 pendingMode === 'REAL'
-                  ? "bg-mario-red-500 hover:bg-mario-red-600 text-white border-mario-red-700"
-                  : "bg-luigi-green-500 hover:bg-luigi-green-600 text-white border-luigi-green-700"
+                  ? "bg-[var(--mario-red)] hover:bg-[var(--mario-red)]"
+                  : "bg-[var(--luigi-green)] hover:bg-[var(--luigi-green)]"
               )}
             >
-              {isSwitchingMode ? 'Switching...' : `Switch to ${pendingMode}`}
+              {isSwitchingMode ? 'Switching...' : `Switch to ${pendingMode === 'REAL' ? 'Mainnet' : 'Paper'}`}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
