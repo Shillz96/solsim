@@ -1,8 +1,9 @@
 {
-  "buildCommand": "npm run build",
+  "buildCommand": "npm install && npm run build",
   "outputDirectory": ".next",
   "framework": "nextjs",
   "regions": ["sfo1"],
+  "installCommand": "npm install --legacy-peer-deps",
   "functions": {
     "app/**/*.ts": {
       "maxDuration": 10

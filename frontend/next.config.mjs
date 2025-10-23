@@ -38,6 +38,9 @@ const nextConfig = {
       exclude: ['error', 'warn'],
     } : false,
   },
+  
+  // Generate source maps in production for better debugging
+  productionBrowserSourceMaps: false,
 
   // Image optimization
   images: {

@@ -15,6 +15,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { cn } from "@/lib/utils"
 import { motion } from "framer-motion"
 import { ExternalLink } from "lucide-react"
@@ -196,11 +197,17 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
                         href={data.twitter.startsWith('http') ? data.twitter : `https://twitter.com/${data.twitter}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-[14px] hover:text-mario-red-500 transition-colors"
+                        className="hover:opacity-70 transition-opacity"
                         onClick={(e) => e.stopPropagation()}
                         title="Twitter/X"
                       >
-                        𝕏
+                        <Image 
+                          src="/icons/social/x-icon.svg" 
+                          alt="X/Twitter" 
+                          width={16} 
+                          height={16}
+                          className="inline-block"
+                        />
                       </a>
                     )}
                     {data.telegram && (
@@ -208,11 +215,17 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
                         href={data.telegram.startsWith('http') ? data.telegram : `https://t.me/${data.telegram}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-[14px] hover:text-mario-red-500 transition-colors"
+                        className="hover:opacity-70 transition-opacity"
                         onClick={(e) => e.stopPropagation()}
                         title="Telegram"
                       >
-                        ✈️
+                        <Image 
+                          src="/icons/social/telegram-icon.svg" 
+                          alt="Telegram" 
+                          width={16} 
+                          height={16}
+                          className="inline-block"
+                        />
                       </a>
                     )}
                     {data.website && (
@@ -220,11 +233,17 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
                         href={data.website.startsWith('http') ? data.website : `https://${data.website}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-[14px] hover:text-mario-red-500 transition-colors"
+                        className="hover:opacity-70 transition-opacity"
                         onClick={(e) => e.stopPropagation()}
                         title="Website"
                       >
-                        🌐
+                        <Image 
+                          src="/icons/social/globe-icon.svg" 
+                          alt="Website" 
+                          width={16} 
+                          height={16}
+                          className="inline-block"
+                        />
                       </a>
                     )}
                   </div>

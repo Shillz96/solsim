@@ -587,6 +587,18 @@ model TokenDiscovery {
   txCount24h       Int?      // 24h transaction count
   holderCount      Int?      // Number of token holders
 
+  // Enhanced trading metrics
+  lastTradeTs      DateTime? // Timestamp of last trade (for liveness detection)
+  volume24hSol     Decimal?  @default(0) // 24h volume in SOL terms
+  buys24h          Int?      @default(0) // Number of buy transactions in 24h
+  sells24h         Int?      @default(0) // Number of sell transactions in 24h
+  uniqueTraders24h Int?      @default(0) // Unique traders in 24h
+  ath              Decimal?  // All-time high price
+
+  // Bonding curve specifics
+  solRaised        Decimal?  @default(0) // Total SOL raised in bonding curve
+  solToGraduate    Decimal?  @default(0) // SOL needed to reach graduation
+
   // Creator data
   creatorWallet    String?   // Token creator wallet address
 
@@ -596,9 +608,19 @@ model TokenDiscovery {
   priceImpact1Pct  Decimal?  // Price impact for 1% swap
   creatorVerified  Boolean   @default(false)
 
+  // Holder concentration & safety
+  top1HolderPct    Decimal?  // Top holder concentration percentage
+  top5HolderPct    Decimal?  // Top 5 holders concentration percentage
+  mintAuthorityRevoked Boolean @default(false) // Whether mint authority is revoked
+  sellable         Boolean   @default(true)    // Whether token is sellable (no honeypot)
+  tradeFailRate    Decimal?  @default(0)       // Percentage of failed trades
+
   // Trending metrics
   hotScore         Decimal   @default(0)
   watcherCount     Int       @default(0)
+
+  // Status classification (lifecycle state)
+  status           String    @default("LAUNCHING") // LAUNCHING | ACTIVE | ABOUT_TO_BOND | BONDED | DEAD
 
   // Timestamps
   firstSeenAt      DateTime  @default(now())
@@ -611,6 +633,8 @@ model TokenDiscovery {
   @@index([volume24h(sort: Desc)], map: "token_discovery_volume")
   @@index([marketCapUsd(sort: Desc)], map: "token_discovery_market_cap")
   @@index([holderCount(sort: Desc)], map: "token_discovery_holder_count")
+  @@index([status, lastUpdatedAt(sort: Desc)], map: "token_discovery_status_updated")
+  @@index([lastTradeTs(sort: Desc)], map: "token_discovery_last_trade")
 }
 
 model TokenWatch {

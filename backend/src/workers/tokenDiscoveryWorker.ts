@@ -93,11 +93,20 @@ async function fetchTokenMetadata(uri: string): Promise<{
 }
 
 /**
- * Handle swap event → Update transaction count
+ * Handle swap event → Update transaction count and last trade timestamp
  */
 async function handleSwap(event: SwapEvent): Promise<void> {
   try {
     const { mint, timestamp } = event;
+    
+    // Update last trade timestamp in database
+    await prisma.tokenDiscovery.updateMany({
+      where: { mint },
+      data: {
+        lastTradeTs: new Date(timestamp * 1000),
+        lastUpdatedAt: new Date(),
+      }
+    });
     
     // Use timestamp as unique identifier (in real scenario, use signature)
     const txId = `${mint}-${timestamp}`;
@@ -427,6 +436,54 @@ async function updateState(mint: string, newState: string, oldState?: string): P
 }
 
 /**
+ * Classify token into lifecycle state based on trading activity and bonding progress
+ */
+function classifyTokenState(token: {
+  bondingCurveProgress?: Decimal | null;
+  isGraduated?: boolean;
+  lastTradeTs?: Date | null;
+  volume24hSol?: Decimal | null;
+  holderCount?: number | null;
+  hasFirstTrade?: boolean;
+}): string {
+  const now = Date.now();
+  
+  // Graduated tokens
+  const progress = token.bondingCurveProgress ? parseFloat(token.bondingCurveProgress.toString()) : 0;
+  if (progress >= 100 || token.isGraduated) {
+    return 'BONDED';
+  }
+  
+  // Check if token has any trades
+  if (!token.hasFirstTrade || !token.lastTradeTs) {
+    return 'LAUNCHING';
+  }
+  
+  const timeSinceLastTrade = now - token.lastTradeTs.getTime();
+  const volume24h = token.volume24hSol ? parseFloat(token.volume24hSol.toString()) : 0;
+  const holders = token.holderCount || 0;
+  
+  // About to bond
+  if (progress >= 90 && timeSinceLastTrade < 20 * 60 * 1000) {
+    return 'ABOUT_TO_BOND';
+  }
+  
+  // Dead tokens
+  const isDead = timeSinceLastTrade > 2 * 60 * 60 * 1000 || volume24h < 0.5;
+  if (isDead) {
+    return 'DEAD';
+  }
+  
+  // Active tokens (alive and trading)
+  const MIN_ACTIVE_VOLUME = 2; // SOL
+  const MIN_HOLDERS = 25;
+  const isFresh = timeSinceLastTrade < 60 * 60 * 1000;
+  const isAlive = isFresh && volume24h >= MIN_ACTIVE_VOLUME && holders >= MIN_HOLDERS;
+  
+  return isAlive ? 'ACTIVE' : 'LAUNCHING';
+}
+
+/**
  * Enrich token with health capsule data + metadata + market data (async, batched)
  */
 async function enrichHealthData(mint: string): Promise<void> {
@@ -626,6 +683,93 @@ async function cacheTokenRow(mint: string): Promise<void> {
 // ============================================================================
 
 /**
+ * Update market data and classify token states every 30 seconds
+ */
+async function updateMarketDataAndStates() {
+  try {
+    const twelveHoursAgo = new Date(Date.now() - 12 * 60 * 60 * 1000);
+    
+    // Fetch recent tokens (exclude DEAD to save API calls)
+    const activeTokens = await prisma.tokenDiscovery.findMany({
+      where: {
+        status: { not: 'DEAD' },
+        OR: [
+          { state: 'bonded', stateChangedAt: { gte: twelveHoursAgo } },
+          { state: 'graduating' },
+          { state: 'new', firstSeenAt: { gte: twelveHoursAgo } }
+        ]
+      },
+      select: {
+        mint: true,
+        bondingCurveProgress: true,
+        lastTradeTs: true,
+        volume24hSol: true,
+        holderCount: true,
+      },
+      take: 100,
+      orderBy: { lastUpdatedAt: 'asc' } // Update oldest first
+    });
+
+    console.log(`[TokenDiscovery] Updating market data for ${activeTokens.length} tokens...`);
+
+    // Batch update with rate limiting
+    let updated = 0;
+    for (const token of activeTokens) {
+      try {
+        // Fetch fresh market data from DexScreener
+        const marketData = await tokenMetadataService.fetchMarketData(token.mint);
+        
+        // Calculate new state
+        const newStatus = classifyTokenState({
+          bondingCurveProgress: token.bondingCurveProgress,
+          lastTradeTs: token.lastTradeTs,
+          volume24hSol: token.volume24hSol,
+          holderCount: token.holderCount,
+          hasFirstTrade: !!token.lastTradeTs,
+        });
+        
+        // Build update object
+        const updateData: any = {
+          status: newStatus,
+          lastUpdatedAt: new Date(),
+        };
+        
+        // Market data fields
+        if (marketData.marketCapUsd) updateData.marketCapUsd = new Decimal(marketData.marketCapUsd);
+        if (marketData.volume24h) {
+          updateData.volume24h = new Decimal(marketData.volume24h);
+          // Convert USD volume to SOL volume
+          const solPrice = priceServiceClient.getSolPrice();
+          if (solPrice > 0) {
+            updateData.volume24hSol = new Decimal(marketData.volume24h / solPrice);
+          }
+        }
+        if (marketData.volumeChange24h) updateData.volumeChange24h = new Decimal(marketData.volumeChange24h);
+        if (marketData.priceUsd) updateData.priceUsd = new Decimal(marketData.priceUsd);
+        if (marketData.priceChange24h) updateData.priceChange24h = new Decimal(marketData.priceChange24h);
+        if (marketData.txCount24h) updateData.txCount24h = marketData.txCount24h;
+        
+        await prisma.tokenDiscovery.update({
+          where: { mint: token.mint },
+          data: updateData
+        });
+        
+        updated++;
+      } catch (error) {
+        console.error(`[TokenDiscovery] Error updating token ${token.mint.slice(0, 8)}:`, error);
+      }
+      
+      // Rate limit: 50ms delay between requests
+      await new Promise(resolve => setTimeout(resolve, 50));
+    }
+    
+    console.log(`[TokenDiscovery] Updated market data for ${updated}/${activeTokens.length} tokens`);
+  } catch (error) {
+    console.error('[TokenDiscovery] Error in updateMarketDataAndStates:', error);
+  }
+}
+
+/**
  * Recalculate hot scores for all active tokens
  */
 async function recalculateHotScores(): Promise<void> {
@@ -778,6 +922,9 @@ async function startWorker(): Promise<void> {
     // Schedule background jobs
     console.log('⏰ Scheduling background jobs...');
 
+    // Market data + state classification update (every 30 seconds)
+    setInterval(updateMarketDataAndStates, 30_000);
+    
     setInterval(recalculateHotScores, HOT_SCORE_UPDATE_INTERVAL);
     setInterval(syncWatcherCounts, WATCHER_SYNC_INTERVAL);
     setInterval(cleanupOldTokens, CLEANUP_INTERVAL);
@@ -787,9 +934,10 @@ async function startWorker(): Promise<void> {
     console.log('🎮 Token Discovery Worker is running!');
     console.log('   - Listening to PumpPortal (bonded, migration)');
     console.log('   - Listening to Raydium (new pools)');
+    console.log('   - Market data updates: every 30 seconds');
     console.log('   - Hot score updates: every 5 minutes');
     console.log('   - Watcher sync: every 1 minute');
-    console.log('   - Cleanup: every 1 hour');
+    console.log('   - Cleanup: every 5 minutes');
   } catch (error) {
     console.error('❌ Token Discovery Worker failed to start:', error);
     throw error;

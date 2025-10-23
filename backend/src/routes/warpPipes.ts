@@ -25,6 +25,7 @@ const FeedQuerySchema = z.object({
   onlyWatched: z.coerce.boolean().optional().default(false),
   requireSecurity: z.coerce.boolean().optional().default(true),
   limit: z.coerce.number().min(1).max(100).optional().default(50),
+  status: z.enum(['LAUNCHING', 'ACTIVE', 'ABOUT_TO_BOND', 'BONDED', 'DEAD']).optional(),
 });
 
 const AddWatchSchema = z.object({
@@ -59,14 +60,17 @@ const warpPipesRoutes: FastifyPluginAsync = async (fastify) => {
     '/feed',
     async (request: AuthenticatedRequest, reply) => {
       try {
-        const { searchQuery, sortBy, minLiquidity, onlyWatched, requireSecurity, limit } =
+        const { searchQuery, sortBy, minLiquidity, onlyWatched, requireSecurity, limit, status } =
           FeedQuerySchema.parse(request.query);
 
         // Get userId from JWT if authenticated (optional)
         const userId = request.user?.id;
 
         // Build base query
-        const baseWhere: any = {};
+        const baseWhere: any = {
+          // Exclude DEAD tokens by default unless explicitly requested
+          status: status ? status : { not: 'DEAD' }
+        };
 
         // Filter by search query (symbol or name)
         if (searchQuery) {
@@ -180,6 +184,7 @@ const warpPipesRoutes: FastifyPluginAsync = async (fastify) => {
           creatorWallet: token.creatorWallet,
           holderCount: token.holderCount,
           state: token.state,
+          status: token.status, // Lifecycle status
           liqUsd: token.liquidityUsd ? parseFloat(token.liquidityUsd.toString()) : undefined,
           poolAgeMin: token.poolCreatedAt
             ? Math.floor((Date.now() - token.poolCreatedAt.getTime()) / 60000)
@@ -189,6 +194,7 @@ const warpPipesRoutes: FastifyPluginAsync = async (fastify) => {
             : undefined,
           marketCapUsd: token.marketCapUsd ? parseFloat(token.marketCapUsd.toString()) : undefined,
           volume24h: token.volume24h ? parseFloat(token.volume24h.toString()) : undefined,
+          volume24hSol: token.volume24hSol ? parseFloat(token.volume24hSol.toString()) : undefined,
           volumeChange24h: token.volumeChange24h
             ? parseFloat(token.volumeChange24h.toString())
             : undefined,
@@ -203,6 +209,7 @@ const warpPipesRoutes: FastifyPluginAsync = async (fastify) => {
           bondingCurveProgress: token.bondingCurveProgress
             ? parseFloat(token.bondingCurveProgress.toString())
             : undefined,
+          solToGraduate: token.solToGraduate ? parseFloat(token.solToGraduate.toString()) : undefined,
           hotScore: parseFloat(token.hotScore.toString()),
           watcherCount: token.watcherCount,
           isWatched: watchedMints.has(token.mint),
