@@ -1,13 +1,14 @@
 "use client"
 
 import { useRouter } from "next/navigation"
-import { TrendingUp, TrendingDown, Loader2, AlertCircle, Flame } from "lucide-react"
+import { TrendingUp, TrendingDown, Loader2, AlertCircle, Flame, ChevronUp, ChevronDown } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { AnimatedNumber } from "@/components/ui/animated-number"
 import { TokenLogo } from "@/components/ui/token-logo"
 import { useTrendingTokens } from "@/hooks/use-react-query-hooks"
 import { cn } from "@/lib/utils"
+import { useState, useEffect } from "react"
 import "@/styles/ticker.css"
 
 /**
@@ -19,15 +20,39 @@ import "@/styles/ticker.css"
  * - Pause on hover
  * - Click to navigate to token
  * - Infinite smooth animation
+ * - Collapsible with Mario-styled dropdown arrow
+ * - Persistent visibility setting
  *
  * 2025 Design: Gamified ticker reminiscent of classic Mario level displays
  */
 export function SlidingTrendingTicker() {
   const { data: trendingTokens, isLoading, error, refetch } = useTrendingTokens(20)
   const router = useRouter()
+  const [isCollapsed, setIsCollapsed] = useState(false)
+  const [isVisible, setIsVisible] = useState(true)
+
+  // Load visibility setting from localStorage
+  useEffect(() => {
+    const savedVisibility = localStorage.getItem('ticker-visible')
+    if (savedVisibility !== null) {
+      setIsVisible(JSON.parse(savedVisibility))
+    }
+  }, [])
+
+  // Save visibility setting to localStorage
+  const handleToggleVisibility = () => {
+    const newVisibility = !isVisible
+    setIsVisible(newVisibility)
+    localStorage.setItem('ticker-visible', JSON.stringify(newVisibility))
+  }
 
   const handleTokenClick = (tokenAddress: string) => {
-    router.push(`/trade?token=${tokenAddress}`)
+    router.push(`/room/${tokenAddress}`)
+  }
+
+  // Don't render if not visible
+  if (!isVisible) {
+    return null
   }
 
   if (isLoading && !trendingTokens) {
@@ -37,6 +62,18 @@ export function SlidingTrendingTicker() {
           <Loader2 className="h-4 w-4 animate-spin text-[var(--star-yellow)]" />
           <span className="text-sm mario-font text-white">Loading Trending...</span>
         </div>
+        {/* Mario-styled dropdown arrow */}
+        <button
+          onClick={() => setIsCollapsed(!isCollapsed)}
+          className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 bg-[var(--coin-gold)] border-3 border-[var(--outline-black)] rounded-full shadow-mario hover:scale-110 transition-all duration-200 flex items-center justify-center"
+          aria-label={isCollapsed ? "Expand ticker" : "Collapse ticker"}
+        >
+          {isCollapsed ? (
+            <ChevronDown className="h-4 w-4 text-[var(--outline-black)]" />
+          ) : (
+            <ChevronUp className="h-4 w-4 text-[var(--outline-black)]" />
+          )}
+        </button>
       </div>
     )
   }
@@ -53,6 +90,18 @@ export function SlidingTrendingTicker() {
             </Button>
           </AlertDescription>
         </Alert>
+        {/* Mario-styled dropdown arrow */}
+        <button
+          onClick={() => setIsCollapsed(!isCollapsed)}
+          className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 bg-[var(--coin-gold)] border-3 border-[var(--outline-black)] rounded-full shadow-mario hover:scale-110 transition-all duration-200 flex items-center justify-center"
+          aria-label={isCollapsed ? "Expand ticker" : "Collapse ticker"}
+        >
+          {isCollapsed ? (
+            <ChevronDown className="h-4 w-4 text-[var(--outline-black)]" />
+          ) : (
+            <ChevronUp className="h-4 w-4 text-[var(--outline-black)]" />
+          )}
+        </button>
       </div>
     )
   }

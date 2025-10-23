@@ -26,6 +26,34 @@ export function RealtimeTradeStrip({
   const { prices: livePrices } = usePriceStreamContext()
   const router = useRouter()
   const [isExpanded, setIsExpanded] = useState(true)
+  const [isVisible, setIsVisible] = useState(true)
+
+  // Load visibility setting from localStorage
+  useEffect(() => {
+    const savedVisibility = localStorage.getItem('trade-strip-visible')
+    if (savedVisibility !== null) {
+      setIsVisible(JSON.parse(savedVisibility))
+    }
+  }, [])
+
+  // Listen for changes to the setting from other components
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'trade-strip-visible' && e.newValue !== null) {
+        setIsVisible(JSON.parse(e.newValue))
+      }
+    }
+
+    window.addEventListener('storage', handleStorageChange)
+    return () => window.removeEventListener('storage', handleStorageChange)
+  }, [])
+
+  // Save visibility setting to localStorage
+  const handleToggleVisibility = () => {
+    const newVisibility = !isVisible
+    setIsVisible(newVisibility)
+    localStorage.setItem('trade-strip-visible', JSON.stringify(newVisibility))
+  }
 
   // Use centralized portfolio hook
   const {
@@ -68,6 +96,11 @@ export function RealtimeTradeStrip({
     return null // Don't show anything if user is not logged in
   }
 
+  // Don't render if not visible
+  if (!isVisible) {
+    return null
+  }
+
   if (loading) {
     return (
       <div className={cn("w-full bg-[#FFFAE9] border-t border-b border-border/20 py-2", className)} style={style}>
@@ -104,7 +137,7 @@ export function RealtimeTradeStrip({
     <div
       className={cn(
         "w-full bg-[#FFFAE9] border-border/20 relative transition-all duration-300 ease-in-out",
-        isExpanded ? "h-auto border-t border-b" : "h-8 border-t border-b-0",
+        isExpanded ? "h-auto border-t border-b" : "h-0 border-0 overflow-hidden",
         className
       )}
       style={style}
@@ -132,7 +165,7 @@ export function RealtimeTradeStrip({
                   return (
                     <button
                       key={position.mint}
-                      onClick={() => router.push(`/trade?token=${position.mint}`)}
+                      onClick={() => router.push(`/room/${position.mint}`)}
                       className="flex items-center gap-2 whitespace-nowrap flex-shrink-0 hover:bg-muted/50 transition-all duration-200 rounded-md px-2.5 py-1.5 group"
                     >
                       {position.tokenImage && (
@@ -174,19 +207,19 @@ export function RealtimeTradeStrip({
         )}
       </AnimatePresence>
 
-      {/* Toggle Button - Always visible */}
+      {/* Mario-styled Toggle Button - Always visible */}
       <button
         onClick={() => setIsExpanded(!isExpanded)}
         className={cn(
-          "absolute right-3 p-1.5 rounded-md bg-muted/80 hover:bg-muted transition-all duration-200 hover:scale-105 z-20 ring-1 ring-border/50",
+          "absolute right-3 w-8 h-8 bg-[var(--coin-gold)] border-3 border-[var(--outline-black)] rounded-full shadow-mario hover:scale-110 transition-all duration-200 flex items-center justify-center z-20",
           isExpanded ? "top-1/2 -translate-y-1/2" : "top-1/2 -translate-y-1/2"
         )}
         aria-label={isExpanded ? "Collapse trade strip" : "Expand trade strip"}
       >
         {isExpanded ? (
-          <ChevronUp className="h-3.5 w-3.5 text-muted-foreground" />
+          <ChevronUp className="h-4 w-4 text-[var(--outline-black)]" />
         ) : (
-          <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
+          <ChevronDown className="h-4 w-4 text-[var(--outline-black)]" />
         )}
       </button>
     </div>

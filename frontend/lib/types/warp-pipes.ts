@@ -141,6 +141,62 @@ export interface FeedFilters {
   minLiquidity?: number;
   onlyWatched?: boolean;
   requireSecurity?: boolean;
+  
+  // Advanced filters
+  audit?: AuditFilters;
+  metrics?: MetricFilters;
+  socials?: SocialFilters;
+  bonding?: BondingFilters;
+}
+
+/**
+ * Audit-related filters for token security and age
+ */
+export interface AuditFilters {
+  dexPaid?: boolean;
+  minAge?: number; // minutes
+  maxAge?: number; // minutes
+  maxTop10Holders?: number; // percentage
+  maxDevHolding?: number; // percentage
+  maxSnipers?: number; // percentage
+}
+
+/**
+ * Financial metrics filters
+ */
+export interface MetricFilters {
+  minLiquidityUsd?: number;
+  maxLiquidityUsd?: number;
+  minVolume24h?: number;
+  maxVolume24h?: number;
+  minMarketCap?: number;
+  maxMarketCap?: number;
+}
+
+/**
+ * Social media presence filters
+ */
+export interface SocialFilters {
+  requireTwitter?: boolean;
+  requireTelegram?: boolean;
+  requireWebsite?: boolean;
+}
+
+/**
+ * Bonding curve progress filters
+ */
+export interface BondingFilters {
+  minBondingProgress?: number;
+  maxBondingProgress?: number;
+  minSolToGraduate?: number;
+  maxSolToGraduate?: number;
+}
+
+/**
+ * Combined advanced filters interface
+ */
+export interface AdvancedFilters extends AuditFilters, MetricFilters, SocialFilters, BondingFilters {
+  // Combined type for all filters
 }
 
 /**

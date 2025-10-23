@@ -59,6 +59,7 @@ type UserSettings = {
     confirmTrades: boolean
     defaultSlippage: number
     autoRefresh: boolean
+    showTradeStrip: boolean
   }
 }
 
@@ -103,7 +104,8 @@ function UserSettingsPage() {
     trading: {
       confirmTrades: true,
       defaultSlippage: 1.0,
-      autoRefresh: true
+      autoRefresh: true,
+      showTradeStrip: true
     }
   })
 
@@ -820,6 +822,24 @@ function UserSettingsPage() {
                       trading: { ...prev.trading, autoRefresh: checked }
                     }))
                   }
+                />
+              </div>
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label htmlFor="show-trade-strip">Show Trade Strip</Label>
+                  <p className="text-xs text-muted-foreground">Display the real-time trade strip at the top of pages</p>
+                </div>
+                <Switch
+                  id="show-trade-strip"
+                  checked={settingsData.trading.showTradeStrip}
+                  onCheckedChange={(checked) => {
+                    setSettingsData(prev => ({
+                      ...prev,
+                      trading: { ...prev.trading, showTradeStrip: checked }
+                    }))
+                    // Update localStorage immediately
+                    localStorage.setItem('trade-strip-visible', JSON.stringify(checked))
+                  }}
                 />
               </div>
               <div className="space-y-2">

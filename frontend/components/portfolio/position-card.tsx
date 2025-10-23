@@ -55,7 +55,7 @@ export function PositionCard({ position }: PositionCardProps) {
         </div>
 
         {/* Action Button */}
-        <Link href={`/trade?token=${position.mint}`}>
+        <Link href={`/room/${position.mint}`}>
           <Button variant="outline" size="sm">
             Trade
           </Button>

@@ -19,6 +19,7 @@ const redis = new Redis(process.env.REDIS_URL || '');
 // ============================================================================
 
 const FeedQuerySchema = z.object({
+  // Existing filters
   searchQuery: z.string().optional(),
   sortBy: z.enum(['hot', 'new', 'watched', 'alphabetical', 'volume']).optional().default('volume'),
   minLiquidity: z.coerce.number().optional().default(2000),
@@ -26,6 +27,33 @@ const FeedQuerySchema = z.object({
   requireSecurity: z.coerce.boolean().optional().default(true),
   limit: z.coerce.number().min(1).max(100).optional().default(50),
   status: z.enum(['LAUNCHING', 'ACTIVE', 'ABOUT_TO_BOND', 'BONDED', 'DEAD']).optional(),
+  
+  // NEW AUDIT FILTERS
+  dexPaid: z.coerce.boolean().optional(), // mintRenounced && freezeRevoked
+  minAge: z.coerce.number().optional(), // Minutes since creation
+  maxAge: z.coerce.number().optional(),
+  maxTop10Holders: z.coerce.number().optional(), // Percentage (e.g., 25 = 25%)
+  maxDevHolding: z.coerce.number().optional(), // Percentage
+  maxSnipers: z.coerce.number().optional(), // Percentage (if data available)
+  
+  // NEW $ METRICS FILTERS
+  minLiquidityUsd: z.coerce.number().optional(),
+  maxLiquidityUsd: z.coerce.number().optional(),
+  minVolume24h: z.coerce.number().optional(),
+  maxVolume24h: z.coerce.number().optional(),
+  minMarketCap: z.coerce.number().optional(),
+  maxMarketCap: z.coerce.number().optional(),
+  
+  // NEW SOCIAL FILTERS
+  requireTwitter: z.coerce.boolean().optional(),
+  requireTelegram: z.coerce.boolean().optional(),
+  requireWebsite: z.coerce.boolean().optional(),
+  
+  // BONDING CURVE FILTERS (for graduating tokens)
+  minBondingProgress: z.coerce.number().optional(), // 0-100
+  maxBondingProgress: z.coerce.number().optional(),
+  minSolToGraduate: z.coerce.number().optional(),
+  maxSolToGraduate: z.coerce.number().optional(),
 });
 
 const AddWatchSchema = z.object({
@@ -60,8 +88,17 @@ const warpPipesRoutes: FastifyPluginAsync = async (fastify) => {
     '/feed',
     async (request: AuthenticatedRequest, reply) => {
       try {
-        const { searchQuery, sortBy, minLiquidity, onlyWatched, requireSecurity, limit, status } =
-          FeedQuerySchema.parse(request.query);
+        const { 
+          searchQuery, sortBy, minLiquidity, onlyWatched, requireSecurity, limit, status,
+          // Audit filters
+          dexPaid, minAge, maxAge, maxTop10Holders, maxDevHolding, maxSnipers,
+          // $ Metrics filters
+          minLiquidityUsd, maxLiquidityUsd, minVolume24h, maxVolume24h, minMarketCap, maxMarketCap,
+          // Social filters
+          requireTwitter, requireTelegram, requireWebsite,
+          // Bonding curve filters
+          minBondingProgress, maxBondingProgress, minSolToGraduate, maxSolToGraduate
+        } = FeedQuerySchema.parse(request.query);
 
         // Get userId from JWT if authenticated (optional)
         const userId = request.user?.id;
@@ -108,6 +145,86 @@ const warpPipesRoutes: FastifyPluginAsync = async (fastify) => {
             select: { mint: true },
           });
           baseWhere.mint = { in: watchedMints.map((w) => w.mint) };
+        }
+
+        // ============================================================================
+        // NEW ADVANCED FILTERS
+        // ============================================================================
+
+        // Audit filters
+        if (dexPaid) {
+          baseWhere.freezeRevoked = true;
+          baseWhere.mintRenounced = true;
+        }
+
+        if (minAge || maxAge) {
+          const now = new Date();
+          if (maxAge) {
+            const minDate = new Date(now.getTime() - maxAge * 60000);
+            baseWhere.firstSeenAt = { gte: minDate };
+          }
+          if (minAge) {
+            const maxDate = new Date(now.getTime() - minAge * 60000);
+            baseWhere.firstSeenAt = { ...baseWhere.firstSeenAt, lte: maxDate };
+          }
+        }
+
+        if (maxTop10Holders) {
+          baseWhere.top5HolderPct = { lte: maxTop10Holders };
+        }
+
+        if (maxDevHolding) {
+          // Note: This would need a devHoldingPct field in the schema
+          // For now, we'll use creatorWallet as a proxy
+          baseWhere.creatorWallet = { not: null };
+        }
+
+        // $ Metrics filters
+        if (minLiquidityUsd || maxLiquidityUsd) {
+          baseWhere.liquidityUsd = {
+            ...(minLiquidityUsd ? { gte: minLiquidityUsd } : {}),
+            ...(maxLiquidityUsd ? { lte: maxLiquidityUsd } : {}),
+          };
+        }
+
+        if (minVolume24h || maxVolume24h) {
+          baseWhere.volume24h = {
+            ...(minVolume24h ? { gte: minVolume24h } : {}),
+            ...(maxVolume24h ? { lte: maxVolume24h } : {}),
+          };
+        }
+
+        if (minMarketCap || maxMarketCap) {
+          baseWhere.marketCapUsd = {
+            ...(minMarketCap ? { gte: minMarketCap } : {}),
+            ...(maxMarketCap ? { lte: maxMarketCap } : {}),
+          };
+        }
+
+        // Social filters
+        if (requireTwitter) {
+          baseWhere.twitter = { not: null };
+        }
+        if (requireTelegram) {
+          baseWhere.telegram = { not: null };
+        }
+        if (requireWebsite) {
+          baseWhere.website = { not: null };
+        }
+
+        // Bonding curve filters
+        if (minBondingProgress || maxBondingProgress) {
+          baseWhere.bondingCurveProgress = {
+            ...(minBondingProgress ? { gte: minBondingProgress } : {}),
+            ...(maxBondingProgress ? { lte: maxBondingProgress } : {}),
+          };
+        }
+
+        if (minSolToGraduate || maxSolToGraduate) {
+          baseWhere.solToGraduate = {
+            ...(minSolToGraduate ? { gte: minSolToGraduate } : {}),
+            ...(maxSolToGraduate ? { lte: maxSolToGraduate } : {}),
+          };
         }
 
         // Determine sort order

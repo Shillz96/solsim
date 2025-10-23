@@ -83,7 +83,7 @@ const PositionRow = memo(function PositionRow({
     >
       <td className="p-2">
         <Link
-          href={`/trade?token=${position.mint}&symbol=${position.tokenSymbol}&name=${position.tokenName}`}
+          href={`/room/${position.mint}`}
           className="flex items-center space-x-2 hover:text-primary transition-colors"
         >
           {position.tokenImage ? (
@@ -501,7 +501,7 @@ export const UnifiedPositions = memo(function UnifiedPositions({
                   transition={{ delay: index * 0.05 }}
                 >
                   <Link 
-                    href={`/trade?token=${position.mint}&symbol=${position.tokenSymbol}&name=${position.tokenName}`}
+                    href={`/room/${position.mint}`}
                     className="block"
                   >
                     <div className="p-3 rounded-lg border border-border hover:border-primary/50 transition-colors group">

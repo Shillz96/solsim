@@ -7,7 +7,7 @@
 
 "use client"
 
-import { useMemo } from "react"
+import { useState, useMemo } from "react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Loader2, AlertCircle, RefreshCw } from "lucide-react"
@@ -15,14 +15,25 @@ import { Button } from "@/components/ui/button"
 import { TokenColumn } from "./token-column"
 import { useWarpPipesFeed, useAddTokenWatch, useRemoveTokenWatch } from "@/hooks/use-warp-pipes"
 import { useAuth } from "@/hooks/use-auth"
+import type { AdvancedFilters } from "@/lib/types/warp-pipes"
+import { getDefaultFilters } from "@/lib/warp-pipes-filter-presets"
 
 export function WarpPipesHub() {
   const { isAuthenticated } = useAuth()
 
-  // Fetch feed data (using default 'volume' sort for Axiom-style ranking)
+  // Per-column filter state
+  const [newFilters, setNewFilters] = useState<AdvancedFilters>(getDefaultFilters('new'))
+  const [graduatingFilters, setGraduatingFilters] = useState<AdvancedFilters>(getDefaultFilters('graduating'))
+  const [bondedFilters, setBondedFilters] = useState<AdvancedFilters>(getDefaultFilters('bonded'))
+
+  // Fetch feed data with per-column filters
   const { data, isLoading, error, refetch } = useWarpPipesFeed({
     searchQuery: "",
     sortBy: "volume",
+    // Merge all filters into a single API call
+    ...newFilters,
+    ...graduatingFilters,
+    ...bondedFilters,
   })
 
   // Watch mutations
@@ -66,7 +77,7 @@ export function WarpPipesHub() {
       {/* Error State */}
       {error && (
         <div className="px-4 pt-6 mb-6">
-          <Alert variant="destructive" className="border-4 border-mario-red-500 shadow-[6px_6px_0_rgba(0,0,0,0.3)] rounded-[16px] bg-white">
+          <Alert variant="destructive" className="border-4 border-mario-500 shadow-[6px_6px_0_rgba(0,0,0,0.3)] rounded-[16px] bg-white">
             <AlertCircle className="h-5 w-5" />
             <AlertDescription className="flex items-center justify-between">
               <span className="text-pipe-900 font-bold">Failed to load tokens. Please try again.</span>
@@ -74,7 +85,7 @@ export function WarpPipesHub() {
                 variant="outline"
                 size="sm"
                 onClick={() => refetch()}
-                className="ml-4 border-3 border-pipe-900 bg-star-yellow-500 text-pipe-900 shadow-[4px_4px_0_rgba(0,0,0,0.3)] hover:shadow-[6px_6px_0_rgba(0,0,0,0.3)] hover:-translate-y-[2px] rounded-[12px] font-bold transition-all"
+                className="ml-4 border-3 border-pipe-900 bg-star-500 text-pipe-900 shadow-[4px_4px_0_rgba(0,0,0,0.3)] hover:shadow-[6px_6px_0_rgba(0,0,0,0.3)] hover:-translate-y-[2px] rounded-[12px] font-bold transition-all"
               >
                 <RefreshCw className="h-4 w-4 mr-2" />
                 Retry
@@ -91,6 +102,7 @@ export function WarpPipesHub() {
           tokens={newTokens}
           isLoading={isLoading}
           onToggleWatch={handleToggleWatch}
+          onFiltersChange={setNewFilters}
           headerColor="new"
         />
         <TokenColumn
@@ -98,6 +110,7 @@ export function WarpPipesHub() {
           tokens={graduating}
           isLoading={isLoading}
           onToggleWatch={handleToggleWatch}
+          onFiltersChange={setGraduatingFilters}
           headerColor="graduating"
         />
         <TokenColumn
@@ -105,6 +118,7 @@ export function WarpPipesHub() {
           tokens={bonded}
           isLoading={isLoading}
           onToggleWatch={handleToggleWatch}
+          onFiltersChange={setBondedFilters}
           headerColor="bonded"
         />
       </div>
@@ -115,7 +129,7 @@ export function WarpPipesHub() {
           <TabsList className="grid w-full grid-cols-3 mb-4 border-4 border-pipe-900 shadow-[4px_4px_0_rgba(0,0,0,0.3)] rounded-[14px] bg-white p-1">
             <TabsTrigger
               value="new"
-              className="data-[state=active]:bg-luigi-green-500 data-[state=active]:text-white data-[state=active]:shadow-[2px_2px_0_rgba(0,0,0,0.3)] rounded-[10px] font-bold transition-all text-pipe-700"
+              className="data-[state=active]:bg-luigi-500 data-[state=active]:text-white data-[state=active]:shadow-[2px_2px_0_rgba(0,0,0,0.3)] rounded-[10px] font-bold transition-all text-pipe-700"
             >
               🆕 New ({newTokens.length})
             </TabsTrigger>
@@ -139,6 +153,7 @@ export function WarpPipesHub() {
               tokens={newTokens}
               isLoading={isLoading}
               onToggleWatch={handleToggleWatch}
+              onFiltersChange={setNewFilters}
               headerColor="new"
             />
           </TabsContent>
@@ -149,6 +164,7 @@ export function WarpPipesHub() {
               tokens={graduating}
               isLoading={isLoading}
               onToggleWatch={handleToggleWatch}
+              onFiltersChange={setGraduatingFilters}
               headerColor="graduating"
             />
           </TabsContent>
@@ -159,6 +175,7 @@ export function WarpPipesHub() {
               tokens={bonded}
               isLoading={isLoading}
               onToggleWatch={handleToggleWatch}
+              onFiltersChange={setBondedFilters}
               headerColor="bonded"
             />
           </TabsContent>

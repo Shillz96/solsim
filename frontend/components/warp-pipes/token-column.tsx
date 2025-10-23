@@ -2,13 +2,18 @@
  * Token Column Component - Container for token cards in each state
  *
  * Displays tokens in a vertical scrollable column with Mario-themed header
+ * Includes per-column filter panel functionality
  */
 
 "use client"
 
+import { useState, useEffect } from "react"
 import { cn } from "@/lib/utils"
 import { TokenCard, TokenCardSkeleton } from "./token-card"
-import type { TokenRow } from "@/lib/types/warp-pipes"
+import { FilterPanel } from "./filter-panel"
+import type { TokenRow, AdvancedFilters } from "@/lib/types/warp-pipes"
+import { getDefaultFilters, saveFilters, loadFilters } from "@/lib/warp-pipes-filter-presets"
+import { saveFilters as saveToStorage, loadFilters as loadFromStorage } from "@/lib/warp-pipes-storage"
 import Image from "next/image"
 
 interface TokenColumnProps {
@@ -16,6 +21,7 @@ interface TokenColumnProps {
   tokens: TokenRow[]
   isLoading?: boolean
   onToggleWatch: (mint: string, isWatched: boolean) => Promise<void>
+  onFiltersChange?: (filters: AdvancedFilters) => void
   className?: string
   headerColor?: "bonded" | "graduating" | "new"
 }
@@ -25,14 +31,55 @@ export function TokenColumn({
   tokens,
   isLoading,
   onToggleWatch,
+  onFiltersChange,
   className,
   headerColor = "bonded",
 }: TokenColumnProps) {
+  const [filtersOpen, setFiltersOpen] = useState(false)
+  const [filters, setFilters] = useState<AdvancedFilters>({})
+
+  // Load filters from localStorage on mount
+  useEffect(() => {
+    const savedFilters = loadFromStorage(headerColor)
+    if (savedFilters) {
+      setFilters(savedFilters)
+    } else {
+      // Use default filters for this category
+      const defaultFilters = getDefaultFilters(headerColor)
+      setFilters(defaultFilters)
+    }
+  }, [headerColor])
+
+  // Save filters to localStorage when they change
+  useEffect(() => {
+    if (Object.keys(filters).length > 0) {
+      saveToStorage(headerColor, filters)
+    }
+  }, [filters, headerColor])
+
+  // Notify parent component of filter changes
+  useEffect(() => {
+    if (onFiltersChange) {
+      onFiltersChange(filters)
+    }
+  }, [filters, onFiltersChange])
+
+  const handleFiltersChange = (newFilters: AdvancedFilters) => {
+    setFilters(newFilters)
+  }
+
+  const handleApplyFilters = () => {
+    // Trigger a refetch with new filters
+    if (onFiltersChange) {
+      onFiltersChange(filters)
+    }
+  }
+
   // Header colors based on column type
   const headerColors = {
-    bonded: "bg-coin-yellow-500 text-pipe-900", // Coin Yellow
-    graduating: "bg-star-yellow-500 text-pipe-900", // Star Yellow
-    new: "bg-luigi-green-500 text-white", // Luigi Green
+    bonded: "bg-coin-500 text-pipe-900", // Coin Yellow
+    graduating: "bg-star-500 text-pipe-900", // Star Yellow
+    new: "bg-luigi-500 text-white", // Luigi Green
   }
 
   // Header images based on column type
@@ -43,31 +90,51 @@ export function TokenColumn({
   }
 
   return (
-    <div className={cn("flex flex-col h-full border-4 border-pipe-900 rounded-[16px] shadow-[6px_6px_0_rgba(0,0,0,0.3)] overflow-hidden", className)}>
-      {/* Column Header */}
-      <div
-        className={cn(
-          "p-4 flex-shrink-0 text-center border-b-4 border-pipe-900",
-          "flex items-center justify-center",
-          headerColors[headerColor]
-        )}
-      >
-        <Image
-          src={headerImages[headerColor]}
-          alt={title}
-          width={400}
-          height={80}
-          className="h-16 w-auto object-contain drop-shadow-lg"
-          priority
+    <div className={cn("flex flex-col h-full", className)}>
+      {/* Filter Panel */}
+      <div className="mb-4">
+        <FilterPanel
+          filters={filters}
+          onFiltersChange={handleFiltersChange}
+          category={headerColor}
+          isOpen={filtersOpen}
+          onToggle={() => setFiltersOpen(!filtersOpen)}
+          onApply={handleApplyFilters}
         />
       </div>
 
-      {/* Column Body - Scrollable List */}
-      <div
-        className={cn(
-          "flex-1 overflow-y-auto bg-sky-50 p-4 space-y-4"
-        )}
-      >
+      {/* Token Column */}
+      <div className={cn("flex flex-col h-full border-4 border-pipe-900 rounded-[16px] shadow-[6px_6px_0_rgba(0,0,0,0.3)] overflow-hidden")}>
+        {/* Column Header */}
+        <div
+          className={cn(
+            "p-4 flex-shrink-0 text-center border-b-4 border-pipe-900",
+            "flex items-center justify-center",
+            headerColors[headerColor]
+          )}
+        >
+          <div className="relative">
+            <Image
+              src={headerImages[headerColor]}
+              alt={title}
+              width={400}
+              height={80}
+              className="h-16 w-auto object-contain drop-shadow-lg"
+              priority
+            />
+            {/* Add black bar for NEW PAIRS to match other sections */}
+            {headerColor === "new" && (
+              <div className="absolute bottom-0 left-0 right-0 h-1 bg-pipe-900 rounded-sm"></div>
+            )}
+          </div>
+        </div>
+
+        {/* Column Body - Scrollable List */}
+        <div
+          className={cn(
+            "flex-1 overflow-y-auto bg-sky-50 p-4 space-y-4"
+          )}
+        >
         {/* Loading State */}
         {isLoading && (
           <>

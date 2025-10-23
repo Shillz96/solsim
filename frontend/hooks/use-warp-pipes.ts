@@ -17,12 +17,12 @@ import {
   getTokenHealth,
   getTokenDetails,
 } from "@/lib/api/warp-pipes"
-import type { FeedFilters, AddWatchRequest, UpdateWatchRequest } from "@/lib/types/warp-pipes"
+import type { FeedFilters, AdvancedFilters, AddWatchRequest, UpdateWatchRequest } from "@/lib/types/warp-pipes"
 
 /**
- * Hook to fetch Warp Pipes feed
+ * Hook to fetch Warp Pipes feed with advanced filtering
  */
-export function useWarpPipesFeed(filters?: FeedFilters) {
+export function useWarpPipesFeed(filters?: FeedFilters & AdvancedFilters) {
   return useQuery({
     queryKey: ["warp-pipes-feed", filters],
     queryFn: () => getWarpPipesFeed(filters),
