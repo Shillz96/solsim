@@ -66,8 +66,13 @@ class HealthCapsuleService {
         freezeRevoked: mintInfo.freezeAuthority === null,
         mintRenounced: mintInfo.mintAuthority === null,
       };
-    } catch (error) {
-      console.error('[HealthCapsule] Error checking authorities for', mint, ':', error);
+    } catch (error: any) {
+      // TokenAccountNotFoundError is expected for brand new tokens
+      if (error?.name === 'TokenAccountNotFoundError') {
+        console.log('[HealthCapsule] Token not yet propagated:', mint, '(will retry later)');
+      } else {
+        console.error('[HealthCapsule] Error checking authorities for', mint, ':', error.message || error);
+      }
       return {
         freezeRevoked: false,
         mintRenounced: false,
@@ -92,7 +97,7 @@ class HealthCapsuleService {
         slippageBps: '50', // 0.5%
       });
 
-      const quoteUrl = `${this.jupiterApiBase}/quote?${params.toString()}`;
+      const quoteUrl = `${this.jupiterApiBase}/v6/quote?${params.toString()}`;
 
       const response = await fetch(quoteUrl, {
         signal: AbortSignal.timeout(5000),
@@ -118,8 +123,13 @@ class HealthCapsuleService {
       }
 
       return undefined;
-    } catch (error) {
-      console.error('[HealthCapsule] Error getting price impact for', mint, ':', error);
+    } catch (error: any) {
+      // DNS errors are expected if Jupiter API is unreachable
+      if (error?.code === 'ENOTFOUND') {
+        console.log('[HealthCapsule] Jupiter API unreachable (DNS error) - skipping price impact');
+      } else {
+        console.log('[HealthCapsule] Could not get price impact for', mint, '(token may be too new)');
+      }
       return undefined;
     }
   }
