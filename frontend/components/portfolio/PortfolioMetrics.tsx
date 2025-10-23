@@ -71,19 +71,19 @@ function StatCard({
   // Mario theme variant styles - bold borders and colors
   const variantStyles = {
     default: {
-      bg: 'bg-white',
+      bg: 'bg-[var(--sky-blue)]/20',
       border: 'border-[var(--outline-black)]',
       iconBg: 'bg-[var(--sky-blue)]',
       iconColor: 'text-white'
     },
     success: {
-      bg: 'bg-white',
+      bg: 'bg-[var(--luigi-green)]/10',
       border: 'border-[var(--outline-black)]',
       iconBg: 'bg-[var(--luigi-green)]',
       iconColor: 'text-white'
     },
     danger: {
-      bg: 'bg-white',
+      bg: 'bg-[var(--mario-red)]/10',
       border: 'border-[var(--outline-black)]',
       iconBg: 'bg-[var(--mario-red)]',
       iconColor: 'text-white'
@@ -191,7 +191,7 @@ function MetricsLoadingSkeleton() {
       {[1, 2, 3, 4].map((i) => (
         <div
           key={i}
-          className="bg-white border-4 border-[var(--outline-black)] rounded-xl shadow-[6px_6px_0_var(--outline-black)] p-6 animate-pulse"
+          className="bg-[var(--sky-blue)]/20 border-4 border-[var(--outline-black)] rounded-xl shadow-[6px_6px_0_var(--outline-black)] p-6 animate-pulse"
         >
           <div className="flex items-center justify-between mb-4">
             <div className="w-12 h-12 bg-muted border-2 border-[var(--outline-black)] rounded-lg" />

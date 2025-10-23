@@ -160,43 +160,43 @@ export function WalletTrackerSettingsModal({ isOpen, onClose, onSettingsSaved }:
             onClick={(e) => e.stopPropagation()}
             className="w-full max-w-md max-h-[90vh] overflow-y-auto"
           >
-            <div className="mario-card bg-white border-4 border-pipe-700 shadow-mario p-6">
+            <div className="bg-white rounded-2xl border-4 border-[var(--outline-black)] shadow-[8px_8px_0_var(--outline-black)] p-6">
             {/* Header */}
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-2">
-                <Settings className="h-6 w-6 text-mario-red" />
-                <h2 className="text-2xl font-bold text-pipe-900">Live Trades Filters</h2>
+                <div className="h-8 w-8 rounded-lg bg-[var(--mario-red)] border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] flex items-center justify-center">
+                  <Settings className="h-4 w-4 text-white" />
+                </div>
+                <h2 className="text-2xl font-mario text-[var(--outline-black)]">Live Trades Filters</h2>
               </div>
-              <Button
-                variant="ghost"
-                size="sm"
+              <button
                 onClick={onClose}
-                className="h-8 w-8 p-0 border-2 border-pipe-500 hover:bg-sky-100"
+                className="h-8 w-8 rounded-lg border-3 border-[var(--outline-black)] bg-white hover:bg-gray-50 shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all flex items-center justify-center"
               >
                 <X className="h-4 w-4" />
-              </Button>
+              </button>
             </div>
 
             {isLoading ? (
               <div className="flex items-center justify-center py-12">
-                <Loader2 className="h-8 w-8 animate-spin text-mario-red" />
+                <Loader2 className="h-8 w-8 animate-spin text-[var(--mario-red)]" />
               </div>
             ) : (
               <div className="space-y-6">
                 {/* Transaction Types */}
                 <div className="space-y-3">
-                  <Label className="text-sm font-bold text-pipe-900">Transaction Types</Label>
+                  <Label className="text-sm font-bold text-[var(--outline-black)]">Transaction Types</Label>
                   <div className="space-y-2">
                     <div className="flex items-center space-x-2">
                       <Checkbox
                         id="showBuys"
                         checked={showBuys}
                         onCheckedChange={(checked) => setShowBuys(checked as boolean)}
-                        className="border-2 border-pipe-700"
+                        className="border-3 border-[var(--outline-black)]"
                       />
                       <label
                         htmlFor="showBuys"
-                        className="text-sm font-bold leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-pipe-900"
+                        className="text-sm font-bold leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-[var(--outline-black)]"
                       >
                         Buy
                       </label>
@@ -206,11 +206,11 @@ export function WalletTrackerSettingsModal({ isOpen, onClose, onSettingsSaved }:
                         id="showSells"
                         checked={showSells}
                         onCheckedChange={(checked) => setShowSells(checked as boolean)}
-                        className="border-2 border-pipe-700"
+                        className="border-3 border-[var(--outline-black)]"
                       />
                       <label
                         htmlFor="showSells"
-                        className="text-sm font-bold leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-pipe-900"
+                        className="text-sm font-bold leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-[var(--outline-black)]"
                       >
                         Sell
                       </label>
@@ -220,11 +220,11 @@ export function WalletTrackerSettingsModal({ isOpen, onClose, onSettingsSaved }:
                         id="showFirstBuyOnly"
                         checked={showFirstBuyOnly}
                         onCheckedChange={(checked) => setShowFirstBuyOnly(checked as boolean)}
-                        className="border-2 border-pipe-700"
+                        className="border-3 border-[var(--outline-black)]"
                       />
                       <label
                         htmlFor="showFirstBuyOnly"
-                        className="text-sm font-bold leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-pipe-900"
+                        className="text-sm font-bold leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-[var(--outline-black)]"
                       >
                         First Buy Only
                       </label>
@@ -234,14 +234,14 @@ export function WalletTrackerSettingsModal({ isOpen, onClose, onSettingsSaved }:
 
                 {/* Market Cap Filter */}
                 <div className="space-y-3">
-                  <Label className="text-sm font-bold text-pipe-900">Market Cap (USD)</Label>
+                  <Label className="text-sm font-bold text-[var(--outline-black)]">Market Cap (USD)</Label>
                   <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-1">
-                      <Label htmlFor="minMarketCap" className="text-xs font-bold text-pipe-700">
+                      <Label htmlFor="minMarketCap" className="text-xs font-bold text-[var(--outline-black)]">
                         Min
                       </Label>
                       <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-bold text-pipe-700">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-bold text-[var(--outline-black)]">
                           $
                         </span>
                         <Input
@@ -250,16 +250,16 @@ export function WalletTrackerSettingsModal({ isOpen, onClose, onSettingsSaved }:
                           placeholder="0"
                           value={minMarketCap ? formatNumberInput(minMarketCap) : ''}
                           onChange={(e) => handleNumberChange(e.target.value, setMinMarketCap)}
-                          className="pl-7 border-3 border-pipe-500 focus:border-mario-red font-semibold"
+                          className="pl-7 bg-white border-3 border-[var(--outline-black)] rounded-lg shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)] font-bold"
                         />
                       </div>
                     </div>
                     <div className="space-y-1">
-                      <Label htmlFor="maxMarketCap" className="text-xs font-bold text-pipe-700">
+                      <Label htmlFor="maxMarketCap" className="text-xs font-bold text-[var(--outline-black)]">
                         Max
                       </Label>
                       <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-bold text-pipe-700">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-bold text-[var(--outline-black)]">
                           $
                         </span>
                         <Input
@@ -268,7 +268,7 @@ export function WalletTrackerSettingsModal({ isOpen, onClose, onSettingsSaved }:
                           placeholder="No limit"
                           value={maxMarketCap ? formatNumberInput(maxMarketCap) : ''}
                           onChange={(e) => handleNumberChange(e.target.value, setMaxMarketCap)}
-                          className="pl-7 border-3 border-pipe-500 focus:border-mario-red font-semibold"
+                          className="pl-7 bg-white border-3 border-[var(--outline-black)] rounded-lg shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)] font-bold"
                         />
                       </div>
                     </div>
@@ -277,14 +277,14 @@ export function WalletTrackerSettingsModal({ isOpen, onClose, onSettingsSaved }:
 
                 {/* Transaction Amount Filter */}
                 <div className="space-y-3">
-                  <Label className="text-sm font-bold text-pipe-900">Transaction Amount (USD)</Label>
+                  <Label className="text-sm font-bold text-[var(--outline-black)]">Transaction Amount (USD)</Label>
                   <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-1">
-                      <Label htmlFor="minTransactionUsd" className="text-xs font-bold text-pipe-700">
+                      <Label htmlFor="minTransactionUsd" className="text-xs font-bold text-[var(--outline-black)]">
                         Min
                       </Label>
                       <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-bold text-pipe-700">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-bold text-[var(--outline-black)]">
                           $
                         </span>
                         <Input
@@ -293,16 +293,16 @@ export function WalletTrackerSettingsModal({ isOpen, onClose, onSettingsSaved }:
                           placeholder="0"
                           value={minTransactionUsd ? formatNumberInput(minTransactionUsd) : ''}
                           onChange={(e) => handleNumberChange(e.target.value, setMinTransactionUsd)}
-                          className="pl-7 border-3 border-pipe-500 focus:border-mario-red font-semibold"
+                          className="pl-7 bg-white border-3 border-[var(--outline-black)] rounded-lg shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)] font-bold"
                         />
                       </div>
                     </div>
                     <div className="space-y-1">
-                      <Label htmlFor="maxTransactionUsd" className="text-xs font-bold text-pipe-700">
+                      <Label htmlFor="maxTransactionUsd" className="text-xs font-bold text-[var(--outline-black)]">
                         Max
                       </Label>
                       <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-bold text-pipe-700">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-bold text-[var(--outline-black)]">
                           $
                         </span>
                         <Input
@@ -311,7 +311,7 @@ export function WalletTrackerSettingsModal({ isOpen, onClose, onSettingsSaved }:
                           placeholder="No limit"
                           value={maxTransactionUsd ? formatNumberInput(maxTransactionUsd) : ''}
                           onChange={(e) => handleNumberChange(e.target.value, setMaxTransactionUsd)}
-                          className="pl-7 border-3 border-pipe-500 focus:border-mario-red font-semibold"
+                          className="pl-7 bg-white border-3 border-[var(--outline-black)] rounded-lg shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)] font-bold"
                         />
                       </div>
                     </div>
@@ -320,17 +320,17 @@ export function WalletTrackerSettingsModal({ isOpen, onClose, onSettingsSaved }:
 
                 {/* Require Images */}
                 <div className="space-y-3">
-                  <Label className="text-sm font-bold text-pipe-900">Display Options</Label>
+                  <Label className="text-sm font-bold text-[var(--outline-black)]">Display Options</Label>
                   <div className="flex items-center space-x-2">
                     <Checkbox
                       id="requireImages"
                       checked={requireImages}
                       onCheckedChange={(checked) => setRequireImages(checked as boolean)}
-                      className="border-2 border-pipe-700"
+                      className="border-3 border-[var(--outline-black)]"
                     />
                     <label
                       htmlFor="requireImages"
-                      className="text-sm font-bold leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-pipe-900"
+                      className="text-sm font-bold leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-[var(--outline-black)]"
                     >
                       Only show tokens with images
                     </label>
@@ -339,17 +339,16 @@ export function WalletTrackerSettingsModal({ isOpen, onClose, onSettingsSaved }:
 
                 {/* Action Buttons */}
                 <div className="flex gap-3 pt-4">
-                  <Button
-                    variant="outline"
+                  <button
                     onClick={onClose}
-                    className="flex-1 border-3 border-pipe-700 font-bold hover:bg-sky-100"
+                    className="flex-1 h-10 px-4 rounded-lg border-3 border-[var(--outline-black)] bg-white hover:bg-gray-50 shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all font-mario"
                   >
                     Cancel
-                  </Button>
-                  <Button
+                  </button>
+                  <button
                     onClick={() => saveMutation.mutate()}
                     disabled={saveMutation.isPending}
-                    className="flex-1 mario-btn mario-btn-green text-white font-bold"
+                    className="flex-1 h-10 px-4 rounded-lg border-3 border-[var(--outline-black)] bg-[var(--luigi-green)] text-white hover:bg-[var(--luigi-green)]/90 shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all font-mario disabled:opacity-50"
                   >
                     {saveMutation.isPending ? (
                       <>
@@ -359,7 +358,7 @@ export function WalletTrackerSettingsModal({ isOpen, onClose, onSettingsSaved }:
                     ) : (
                       'Apply Filters'
                     )}
-                  </Button>
+                  </button>
                 </div>
               </div>
             )}
