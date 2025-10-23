@@ -247,6 +247,45 @@
     line-height: 1.65; /* Enhanced readability */
     /* Note: transform removed - it breaks position: fixed for modals/dropdowns */
     /* Use will-change sparingly for GPU optimization only when needed */
+
+    /* iOS Safe Area Insets - Account for notch and home indicator */
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+
+    /* Touch interactions - Remove tap highlight and ensure smooth scrolling */
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    touch-action: manipulation; /* Prevent double-tap zoom delay */
+  }
+
+  /* Touch-optimized interactive elements */
+  button,
+  a,
+  [role="button"],
+  [role="tab"],
+  [role="link"] {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation; /* Disable double-tap zoom on buttons */
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  /* Minimum touch target size: 44x44px (iOS HIG) / 48x48px (Material Design) */
+  button,
+  [role="button"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Input fields should allow text selection */
+  input,
+  textarea,
+  [contenteditable] {
+    -webkit-user-select: text;
+    user-select: text;
+    touch-action: manipulation;
   }
 
   /* Dual-layer paper texture system */
@@ -606,9 +645,36 @@
     -ms-overflow-style: none;  /* IE and Edge */
     scrollbar-width: none;  /* Firefox */
   }
-  
+
   .scrollbar-none::-webkit-scrollbar {
     display: none;  /* Chrome, Safari and Opera */
+  }
+
+  /* Mobile-optimized table scrolling */
+  [data-slot="table-container"] {
+    -webkit-overflow-scrolling: touch; /* iOS momentum scrolling */
+    overscroll-behavior-x: contain; /* Prevent overscroll from affecting parent */
+    scroll-behavior: smooth;
+  }
+
+  /* Horizontal scroll hint for tables on mobile */
+  @media (max-width: 768px) {
+    [data-slot="table-container"]::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      width: 40px;
+      background: linear-gradient(to left, rgba(0, 0, 0, 0.05), transparent);
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    [data-slot="table-container"]:not(.scrolled-end)::after {
+      opacity: 1;
+    }
   }
 }
 

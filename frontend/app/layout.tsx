@@ -45,6 +45,11 @@ export const metadata: Metadata = {
 }
 
 export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  userScalable: true,
+  viewportFit: "cover", // iOS safe area insets (notch, home indicator)
   themeColor: "#A6D8FF", // Mario Sky Blue - light mode only!
 }
 

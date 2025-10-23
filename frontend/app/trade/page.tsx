@@ -69,7 +69,7 @@ function TradePageContent() {
   }
 
   return (
-    <div className="h-screen bg-gradient-to-br from-background via-background to-muted/20 overflow-hidden">
+    <div className="h-dvh-screen bg-gradient-to-br from-background via-background to-muted/20 overflow-hidden">
       <main className="w-full h-full px-2 sm:px-4 lg:px-6 py-2 sm:py-3 lg:py-4 max-w-page-xl mx-auto">
         {/* MOBILE LAYOUT: Fixed height with flexbox for viewport fit */}
         <div className="lg:hidden h-full flex flex-col">
@@ -222,8 +222,8 @@ function TradePageContent() {
 export default function TradePage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
-        <div className="flex items-center justify-center min-h-screen">
+      <div className="min-h-dvh-screen bg-gradient-to-br from-background via-background to-muted/20">
+        <div className="flex items-center justify-center min-h-dvh-screen">
           <div className="text-center space-y-4">
             <div className="relative">
               <div className="h-16 w-16 border-4 border-primary/20 border-t-primary rounded-full animate-spin mx-auto"></div>
