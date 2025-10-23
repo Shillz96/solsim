@@ -83,15 +83,15 @@ async function handleNewToken(event: NewTokenEvent): Promise<void> {
       bondingCurveProgress = new Decimal(vSolInBondingCurve).div(85).mul(100);
       const progress = parseFloat(bondingCurveProgress.toString());
 
-      // NEW: Brand new launches (< 80% progress, < 2 hours old)
-      if (progress < 80) {
+      // NEW: Brand new launches (< 50% progress)
+      if (progress < 50) {
         tokenState = 'new';
       }
-      // GRADUATING: About to complete bonding (80-100%)
-      else if (progress >= 80 && progress < 100) {
+      // GRADUATING: Actively progressing towards completion (50-99%)
+      else if (progress >= 50 && progress < 100) {
         tokenState = 'graduating';
       }
-      // BONDED: Completed bonding curve
+      // BONDED: Completed bonding curve (100%)
       else {
         tokenState = 'bonded';
       }
@@ -544,17 +544,19 @@ async function recalculateHotScores(): Promise<void> {
       const ageHours = (Date.now() - token.firstSeenAt.getTime()) / 3600000;
       const progress = token.bondingCurveProgress ? parseFloat(token.bondingCurveProgress.toString()) : 0;
       
-      // Age-based state transitions for NEW tokens (> 2 hours old)
-      if (token.state === 'new' && ageHours >= 2) {
-        if (progress >= 100 || token.poolAddress) {
-          // Has completed bonding or has LP → BONDED
-          await updateState(token.mint, 'bonded', token.state);
-          console.log(`[TokenDiscovery] Age transition: ${token.mint} NEW → BONDED (age: ${ageHours.toFixed(1)}h, progress: ${progress}%)`);
-        } else if (progress >= 80 && progress < 100) {
-          // About to complete bonding → GRADUATING
-          await updateState(token.mint, 'graduating', token.state);
-          console.log(`[TokenDiscovery] Age transition: ${token.mint} NEW → GRADUATING (age: ${ageHours.toFixed(1)}h, progress: ${progress}%)`);
-        }
+      // Progress-based state transitions (regardless of age)
+      if (token.state === 'new' && progress >= 50 && progress < 100) {
+        // Actively progressing → GRADUATING
+        await updateState(token.mint, 'graduating', token.state);
+        console.log(`[TokenDiscovery] Progress transition: ${token.mint} NEW → GRADUATING (progress: ${progress}%)`);
+      } else if (token.state === 'graduating' && (progress >= 100 || token.poolAddress)) {
+        // Completed bonding or has LP → BONDED
+        await updateState(token.mint, 'bonded', token.state);
+        console.log(`[TokenDiscovery] Completion transition: ${token.mint} GRADUATING → BONDED (progress: ${progress}%)`);
+      } else if (token.state === 'new' && (progress >= 100 || token.poolAddress)) {
+        // Skip graduating if already at 100% → BONDED
+        await updateState(token.mint, 'bonded', token.state);
+        console.log(`[TokenDiscovery] Fast completion: ${token.mint} NEW → BONDED (progress: ${progress}%)`);
       }
       
       // Calculate and update hot score
