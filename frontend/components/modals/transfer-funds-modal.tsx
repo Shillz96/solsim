@@ -20,7 +20,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { ArrowRightLeft, AlertTriangle, Wallet2, ArrowRight, Coins } from 'lucide-react';
 import api from '@/lib/api';
 import { useQueryClient } from '@tanstack/react-query';
-import { formatNumber } from '@/lib/utils/format';
+import { formatNumber } from '@/lib/format';
 import { useToast } from '@/hooks/use-toast';
 
 interface Wallet {
@@ -122,7 +122,8 @@ export function TransferFundsModal({
       toast({
         title: '🎉 Transfer Complete!',
         description: `Transferred ${formatNumber(transferAmount)} SOL from ${fromWallet?.name} to ${toWallet?.name}`,
-        variant: 'success',
+        // @ts-ignore - success variant exists in our toast
+        variant: 'success' as any,
       });
 
       // Reset and close
