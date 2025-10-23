@@ -10,7 +10,8 @@
  * - Market Data Panels
  */
 
-import { use } from 'react'
+import { useEffect, useState } from 'react'
+import { useParams } from 'next/navigation'
 import dynamic from 'next/dynamic'
 import { MarioTradingPanel } from '@/components/trading/mario-trading-panel'
 import { useAuth } from '@/hooks/use-auth'
@@ -34,14 +35,9 @@ const LightweightChart = dynamic(
   }
 )
 
-interface TradeRoomPageProps {
-  params: Promise<{
-    ca: string
-  }>
-}
-
-export default function TradeRoomPage({ params }: TradeRoomPageProps) {
-  const { ca } = use(params)
+export default function TradeRoomPage() {
+  const params = useParams()
+  const ca = params?.ca as string
   const { isAuthenticated } = useAuth()
 
   // Fetch token details
