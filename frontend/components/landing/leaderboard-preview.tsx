@@ -71,10 +71,10 @@ export function LeaderboardPreview() {
             />
           </div>
 
-          <h2 className="font-mario text-4xl md:text-5xl font-bold text-balance text-[var(--outline-black)]">
+          <h2 className="font-mario text-4xl md:text-5xl font-bold text-balance" style={{ color: 'var(--outline-black)' }}>
             Top Traders Hall of Fame! 🏆
           </h2>
-          <p className="text-xl text-[var(--outline-black)] max-w-2xl mx-auto leading-relaxed font-bold">
+          <p className="text-xl max-w-2xl mx-auto leading-relaxed font-bold" style={{ color: 'var(--outline-black)' }}>
             Compete with traders worldwide. Climb the ranks and prove your trading skills!
           </p>
         </motion.div>

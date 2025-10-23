@@ -30,6 +30,7 @@ import notificationsRoutes from "./routes/notifications.js";
 import perpRoutes from "./routes/perpRoutes.js";
 import realTradeRoutes from "./routes/realTrade.js";
 import userProfileRoutes from "./routes/userProfile.js";
+import warpPipesRoutes from "./routes/warpPipes.js";
 
 // Import plugins and services
 import wsPlugin from "./plugins/ws.js";
@@ -237,6 +238,7 @@ app.register(notificationsRoutes, { prefix: "/api/notifications" });
 app.register(perpRoutes, { prefix: "/api/perp" }); // Perpetual trading routes
 app.register(realTradeRoutes, { prefix: "/api/real-trade" }); // Real mainnet trading routes (Lightning & Local API)
 app.register(userProfileRoutes, { prefix: "/api/user-profile" }); // User profile and trading mode management
+app.register(warpPipesRoutes, { prefix: "/api/warp-pipes" }); // Warp Pipes Hub token discovery
 app.register(debugRoutes); // Debug routes for price service monitoring
 app.register(adminRoutes, { prefix: "/api/admin" }); // Admin maintenance routes (protected)
 app.register(sentryTestRoutes); // Sentry test routes (dev only)

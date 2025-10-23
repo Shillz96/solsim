@@ -94,22 +94,34 @@ Building a Mario-themed token discovery hub with real-time streaming from PumpPo
 
 ---
 
-### ⏳ Phase 4: Backend API Endpoints (PENDING)
+### ✅ Phase 4: Backend API Endpoints (COMPLETED)
 
-**Status**: ⏳ Pending
+**Status**: ✅ Done
 
-**Files to Create**:
-- `backend/src/routes/warpPipes.ts`
+**Files Created**:
+- `backend/src/routes/warpPipes.ts` (570 lines)
 
-**Endpoints to Implement**:
-- [ ] `GET /api/warp-pipes/feed` - Return bonded/graduating/new arrays
-- [ ] `POST /api/warp-pipes/watch` - Add token watch
-- [ ] `DELETE /api/warp-pipes/watch/:mint` - Remove watch
-- [ ] `GET /api/warp-pipes/watches` - Get user's watches
-- [ ] `GET /api/warp-pipes/health/:mint` - Get health details
+**Completed Endpoints**:
+- [x] `GET /api/warp-pipes/feed` - Return bonded/graduating/new arrays with filtering/sorting
+- [x] `POST /api/warp-pipes/watch` - Add token watch with preferences
+- [x] `DELETE /api/warp-pipes/watch/:mint` - Remove token watch
+- [x] `PATCH /api/warp-pipes/watch/:mint` - Update watch preferences
+- [x] `GET /api/warp-pipes/watches` - Get user's watches with token data
+- [x] `GET /api/warp-pipes/health/:mint` - Get detailed health data (cached 5min)
+- [x] `GET /api/warp-pipes/token/:mint` - Get detailed token information
 
 **Route Registration**:
-- [ ] Register in `backend/src/index.ts`
+- [x] Registered in `backend/src/index.ts` at `/api/warp-pipes`
+
+**Key Features**:
+- Zod validation for all inputs
+- JWT authentication for watch endpoints (optional for feed)
+- Redis caching for performance (5min health cache, 2h token cache)
+- Filtering & sorting (hot, new, watched, alphabetical)
+- Search by symbol/name
+- Minimum liquidity filter
+- User-specific watch status (isWatched flag)
+- Watcher count auto-increment/decrement
 
 ---
 

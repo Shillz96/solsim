@@ -152,10 +152,10 @@ export function LevelUpSection() {
               <div className="mb-4">
                 <img src="/icons/mario/controller.png" alt="" className="w-16 h-16 object-contain mx-auto" />
               </div>
-              <h3 className="font-mario text-2xl md:text-3xl text-[var(--outline-black)]">
+              <h3 className="font-mario text-2xl md:text-3xl" style={{ color: 'var(--outline-black)' }}>
                 How to Level Up
               </h3>
-              <div className="space-y-3 text-base md:text-lg text-[var(--outline-black)] max-w-2xl mx-auto">
+              <div className="space-y-3 text-base md:text-lg max-w-2xl mx-auto" style={{ color: 'var(--outline-black)' }}>
                 <p>
                   <span className="font-bold text-[var(--mario-red)]">1. Trade to Earn XP:</span> Every trade earns base XP + volume bonuses. Profitable trades earn 2x XP multipliers!
                 </p>
