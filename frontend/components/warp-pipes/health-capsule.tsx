@@ -137,9 +137,9 @@ export function HealthCapsule({ token, className }: HealthCapsuleProps) {
  * Compact Health Capsule - Single badge showing overall health
  */
 export function CompactHealthCapsule({ token, className }: HealthCapsuleProps) {
-  const liquidityHealth = getLiquidityHealth(token.liqUsd)
-  const priceImpactHealth = getPriceImpactHealth(token.priceImpactPctAt1pct)
-  const securityHealth = getSecurityHealth(token.freezeRevoked, token.mintRenounced)
+  const liquidityHealth = getLiquidityHealth(token.liqUsd ?? undefined)
+  const priceImpactHealth = getPriceImpactHealth(token.priceImpactPctAt1pct ?? undefined)
+  const securityHealth = getSecurityHealth(token.freezeRevoked ?? undefined, token.mintRenounced ?? undefined)
 
   const overall: HealthLevel =
     [liquidityHealth, priceImpactHealth, securityHealth].includes("red")
