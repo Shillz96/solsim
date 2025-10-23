@@ -18,11 +18,8 @@ const nextConfig = {
   // TODO: Re-enable once WebSocket provider is more resilient to rapid mount/unmount cycles
   reactStrictMode: false,
 
-  // Turbopack configuration (Next.js 16+)
-  turbopack: {
-    // Set root directory for monorepo compatibility (use process.cwd() in ES modules)
-    root: process.cwd(),
-  },
+  // Disable Turbopack for now - use webpack for monorepo compatibility
+  // turbopack: {},
 
   // Experimental features - 2025 Modernization
   experimental: {
