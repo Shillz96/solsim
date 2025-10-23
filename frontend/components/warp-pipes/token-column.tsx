@@ -9,9 +9,6 @@
 import { cn } from "@/lib/utils"
 import { TokenCard, TokenCardSkeleton } from "./token-card"
 import type { TokenRow } from "@/lib/types/warp-pipes"
-import { Scroll
-
-Text } from "lucide-react"
 
 interface TokenColumnProps {
   title: string
