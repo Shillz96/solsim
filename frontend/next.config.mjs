@@ -18,6 +18,9 @@ const nextConfig = {
   // TODO: Re-enable once WebSocket provider is more resilient to rapid mount/unmount cycles
   reactStrictMode: false,
 
+  // Turbopack configuration (Next.js 16+)
+  turbopack: {},
+
   // Experimental features - 2025 Modernization
   experimental: {
     // Optimize package imports for better tree-shaking
