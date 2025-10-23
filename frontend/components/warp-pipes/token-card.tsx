@@ -1,32 +1,32 @@
 /**
- * Token Card Component - Mario-themed compact token display card
+ * Token Card Component - Mario-themed horizontal token display card
  *
- * Information-dense card showing metrics similar to Axiom:
- * - Time ago, logo, name/symbol
- * - Contract address
- * - Security, liquidity, watchers metrics
- * - Hot score / bonding curve progress
+ * Pump.fun-inspired horizontal layout showing:
+ * - Large token logo
+ * - Symbol/name with time
+ * - Comprehensive metrics (security, liquidity, watchers, hot score)
+ * - Bonding curve progress
  * Uses Mario theme with bold borders and vibrant colors
  */
 
 "use client"
 
 import Link from "next/link"
-import Image from "next/image"
-import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { motion } from "framer-motion"
 import {
-  Lock,
   Droplet,
   Users,
   TrendingUp,
   Clock,
-  ExternalLink,
   Heart,
   Shield,
-  Zap
+  Zap,
+  Copy,
+  CheckCircle,
+  XCircle
 } from "lucide-react"
+import { useState } from "react"
 import type { TokenRow } from "@/lib/types/warp-pipes"
 import {
   getLiquidityHealth,
@@ -64,6 +64,9 @@ function formatCompact(num: number): string {
 }
 
 export function TokenCard({ token, onToggleWatch, rank, className }: TokenCardProps) {
+  const [imgError, setImgError] = useState(false)
+  const [copied, setCopied] = useState(false)
+
   // Health calculations
   const liquidityHealth = getLiquidityHealth(token.liqUsd)
   const priceImpactHealth = getPriceImpactHealth(token.priceImpactPctAt1pct)
@@ -82,6 +85,20 @@ export function TokenCard({ token, onToggleWatch, rank, className }: TokenCardPr
     new: "border-luigi-green-500",
   }
 
+  const stateGradients = {
+    bonded: "from-coin-yellow-50 to-white",
+    graduating: "from-star-yellow-50 to-white",
+    new: "from-luigi-green-50 to-white",
+  }
+
+  const handleCopyMint = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    navigator.clipboard.writeText(token.mint)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+
   return (
     <Link href={`/room/${token.mint}`}>
       <motion.div
@@ -89,55 +106,165 @@ export function TokenCard({ token, onToggleWatch, rank, className }: TokenCardPr
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.2 }}
         className={cn(
-          "bg-card rounded-lg border-2 shadow-sm hover:shadow-md cursor-pointer",
-          "transition-all duration-200 hover:border-mario-red-400",
+          "bg-gradient-to-r rounded-xl border-3 shadow-mario cursor-pointer",
+          "transition-all duration-200 hover:shadow-mario-lg hover:-translate-y-1",
+          "hover:border-mario-red-500",
           stateBorderColors[token.state],
+          stateGradients[token.state],
           className
         )}
       >
-        <div className="p-2.5">
-          {/* Top row: Time + Logo + Name + Watch */}
-          <div className="flex items-start gap-2 mb-2">
-            {/* Time ago */}
-            <div className="flex items-center gap-1 text-xs text-muted-foreground">
-              <Clock className="w-3 h-3" />
-              <span className="font-mono">{timeAgo}</span>
-            </div>
-
-            {/* Token Logo */}
+        <div className="p-4">
+          {/* Horizontal Layout */}
+          <div className="flex items-center gap-4">
+            {/* Large Token Logo */}
             <div className="flex-shrink-0">
-              {token.logoURI ? (
-                <Image
+              {!imgError && token.logoURI ? (
+                <img
                   src={token.logoURI}
                   alt={token.symbol || "Token"}
-                  width={32}
-                  height={32}
-                  className="rounded-full border-2 border-pipe-300"
-                  unoptimized
-                  onError={(e) => {
-                    const target = e.target as HTMLImageElement
-                    target.style.display = "none"
-                    const fallback = target.nextElementSibling as HTMLElement
-                    if (fallback) fallback.style.display = "flex"
-                  }}
+                  className="w-16 h-16 rounded-full border-3 border-pipe-400 bg-white object-cover"
+                  onError={() => setImgError(true)}
                 />
-              ) : null}
-              <div
-                className={`w-8 h-8 rounded-full bg-pipe-100 border-2 border-pipe-300 flex items-center justify-center ${
-                  token.logoURI ? "hidden" : "flex"
-                }`}
-              >
-                <span className="text-xs">🪙</span>
+              ) : (
+                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-pipe-200 to-pipe-300 border-3 border-pipe-400 flex items-center justify-center">
+                  <span className="text-2xl">🪙</span>
+                </div>
+              )}
+            </div>
+
+            {/* Token Info & Metrics */}
+            <div className="flex-1 min-w-0">
+              {/* Top Row: Symbol, Name, Time */}
+              <div className="flex items-center gap-2 mb-2">
+                <h3 className="font-bold text-lg text-pipe-900">
+                  {token.symbol || "UNKNOWN"}
+                </h3>
+                <span className="text-sm text-pipe-600 truncate max-w-[200px]">
+                  {token.name || "Unknown Token"}
+                </span>
+                <div className="flex items-center gap-1 text-xs text-pipe-500 ml-auto">
+                  <Clock className="w-3.5 h-3.5" />
+                  <span className="font-mono font-semibold">{timeAgo}</span>
+                </div>
+              </div>
+
+              {/* Metrics Row */}
+              <div className="flex items-center gap-4 mb-2">
+                {/* Security Status */}
+                <div
+                  className={cn(
+                    "flex items-center gap-1.5 px-2 py-1 rounded-lg border-2",
+                    securityHealth === "green" && "bg-green-50 border-green-500 text-green-700",
+                    securityHealth === "yellow" && "bg-yellow-50 border-yellow-500 text-yellow-700",
+                    securityHealth === "red" && "bg-red-50 border-red-500 text-red-700"
+                  )}
+                  title={`Freeze: ${token.freezeRevoked ? "Revoked" : "Active"} | Mint: ${token.mintRenounced ? "Renounced" : "Active"}`}
+                >
+                  {token.freezeRevoked && token.mintRenounced ? (
+                    <CheckCircle className="w-4 h-4" />
+                  ) : (
+                    <XCircle className="w-4 h-4" />
+                  )}
+                  <span className="text-xs font-bold">
+                    {token.freezeRevoked && token.mintRenounced ? "SAFE" : "RISK"}
+                  </span>
+                </div>
+
+                {/* Liquidity */}
+                {token.liqUsd !== undefined && (
+                  <div
+                    className={cn(
+                      "flex items-center gap-1.5 px-2 py-1 rounded-lg border-2",
+                      liquidityHealth === "green" && "bg-green-50 border-green-400",
+                      liquidityHealth === "yellow" && "bg-yellow-50 border-yellow-400",
+                      liquidityHealth === "red" && "bg-red-50 border-red-400"
+                    )}
+                    title={`Liquidity: ${formatCompact(token.liqUsd)}`}
+                  >
+                    <Droplet className="w-4 h-4 text-blue-600" />
+                    <span className="text-xs font-bold text-pipe-900">{formatCompact(token.liqUsd)}</span>
+                  </div>
+                )}
+
+                {/* Price Impact */}
+                {token.priceImpactPctAt1pct !== undefined && (
+                  <div
+                    className={cn(
+                      "flex items-center gap-1.5 px-2 py-1 rounded-lg border-2",
+                      priceImpactHealth === "green" && "bg-green-50 border-green-400",
+                      priceImpactHealth === "yellow" && "bg-yellow-50 border-yellow-400",
+                      priceImpactHealth === "red" && "bg-red-50 border-red-400"
+                    )}
+                    title={`Price Impact: ${token.priceImpactPctAt1pct.toFixed(2)}%`}
+                  >
+                    <Zap className="w-4 h-4 text-star-yellow-600" />
+                    <span className="text-xs font-bold text-pipe-900">{token.priceImpactPctAt1pct.toFixed(1)}%</span>
+                  </div>
+                )}
+
+                {/* Watchers */}
+                <div
+                  className="flex items-center gap-1.5 px-2 py-1 rounded-lg border-2 bg-sky-50 border-sky-400"
+                  title={`${token.watcherCount} watchers`}
+                >
+                  <Users className="w-4 h-4 text-sky-600" />
+                  <span className="text-xs font-bold text-pipe-900">{token.watcherCount}</span>
+                </div>
+
+                {/* Hot Score */}
+                <div
+                  className="flex items-center gap-1.5 px-2 py-1 rounded-lg border-2 bg-mario-red-50 border-mario-red-400"
+                  title={`Hot Score: ${token.hotScore}`}
+                >
+                  <TrendingUp className="w-4 h-4 text-mario-red-600" />
+                  <span className="text-xs font-bold text-pipe-900">{Math.floor(token.hotScore)}</span>
+                </div>
+              </div>
+
+              {/* Bottom Row: Contract Address + Progress Bar */}
+              <div className="flex items-center gap-3">
+                {/* Contract Address */}
+                <button
+                  onClick={handleCopyMint}
+                  className="flex items-center gap-1.5 px-2 py-1 rounded-lg border-2 border-pipe-300 bg-pipe-50 hover:bg-pipe-100 transition-colors"
+                  title="Click to copy full address"
+                >
+                  <span className="font-mono text-xs text-pipe-700">{shortMint}</span>
+                  {copied ? (
+                    <CheckCircle className="w-3 h-3 text-green-600" />
+                  ) : (
+                    <Copy className="w-3 h-3 text-pipe-500" />
+                  )}
+                </button>
+
+                {/* Bonding Progress Bar */}
+                {token.state === "bonded" && token.bondingCurveProgress !== undefined && (
+                  <div className="flex-1 flex items-center gap-2">
+                    <div className="flex-1 h-3 bg-pipe-200 rounded-full overflow-hidden border-2 border-pipe-400">
+                      <div
+                        className="h-full bg-gradient-to-r from-coin-yellow-400 to-coin-yellow-600 transition-all duration-500"
+                        style={{ width: `${Math.min(token.bondingCurveProgress, 100)}%` }}
+                      />
+                    </div>
+                    <span className="text-xs font-bold text-coin-yellow-700 min-w-[45px]">
+                      {token.bondingCurveProgress.toFixed(1)}%
+                    </span>
+                  </div>
+                )}
+
+                {/* Pool Age for New Tokens */}
+                {token.state === "new" && token.poolAgeMin !== undefined && (
+                  <div className="px-2 py-1 rounded-lg border-2 border-luigi-green-400 bg-luigi-green-50">
+                    <span className="text-xs font-bold text-luigi-green-700">
+                      Pool: {token.poolAgeMin}m old
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
 
-            {/* Token Name/Symbol */}
-            <div className="flex-1 min-w-0">
-              <h3 className="font-bold text-sm truncate">{token.symbol || "UNKNOWN"}</h3>
-              <p className="text-xs text-muted-foreground truncate">{token.name || "Unknown"}</p>
-            </div>
-
-            {/* Watch button */}
+            {/* Watch Button */}
             <button
               onClick={(e) => {
                 e.preventDefault()
@@ -145,104 +272,20 @@ export function TokenCard({ token, onToggleWatch, rank, className }: TokenCardPr
                 onToggleWatch(token.mint, token.isWatched || false)
               }}
               className={cn(
-                "flex-shrink-0 p-1 rounded-full transition-colors",
+                "flex-shrink-0 p-3 rounded-full transition-all border-3",
                 token.isWatched
-                  ? "text-mario-red-500 hover:text-mario-red-600"
-                  : "text-pipe-400 hover:text-pipe-600"
+                  ? "bg-mario-red-100 border-mario-red-500 hover:bg-mario-red-200"
+                  : "bg-pipe-100 border-pipe-400 hover:bg-pipe-200"
               )}
             >
-              <Heart className={cn("w-4 h-4", token.isWatched && "fill-current")} />
+              <Heart
+                className={cn(
+                  "w-6 h-6",
+                  token.isWatched ? "fill-mario-red-500 text-mario-red-500" : "text-pipe-500"
+                )}
+              />
             </button>
           </div>
-
-          {/* Metrics row: Icons with status */}
-          <div className="flex items-center gap-3 mb-2 text-xs">
-            {/* Security */}
-            <div
-              className={cn(
-                "flex items-center gap-1",
-                securityHealth === "green" && "text-green-600",
-                securityHealth === "yellow" && "text-yellow-600",
-                securityHealth === "red" && "text-red-600"
-              )}
-              title={`Freeze: ${token.freezeRevoked ? "✓" : "✗"} | Mint: ${token.mintRenounced ? "✓" : "✗"}`}
-            >
-              <Shield className="w-3.5 h-3.5" />
-              <span className="font-mono text-[10px]">
-                {token.freezeRevoked && token.mintRenounced ? "✓" : "⚠"}
-              </span>
-            </div>
-
-            {/* Liquidity */}
-            {token.liqUsd !== undefined && (
-              <div
-                className={cn(
-                  "flex items-center gap-1",
-                  liquidityHealth === "green" && "text-green-600",
-                  liquidityHealth === "yellow" && "text-yellow-600",
-                  liquidityHealth === "red" && "text-red-600"
-                )}
-                title={`Liquidity: ${formatCompact(token.liqUsd)}`}
-              >
-                <Droplet className="w-3.5 h-3.5" />
-                <span className="font-mono text-[10px]">{formatCompact(token.liqUsd)}</span>
-              </div>
-            )}
-
-            {/* Price Impact */}
-            {token.priceImpactPctAt1pct !== undefined && (
-              <div
-                className={cn(
-                  "flex items-center gap-1",
-                  priceImpactHealth === "green" && "text-green-600",
-                  priceImpactHealth === "yellow" && "text-yellow-600",
-                  priceImpactHealth === "red" && "text-red-600"
-                )}
-                title={`Price Impact: ${token.priceImpactPctAt1pct.toFixed(2)}%`}
-              >
-                <Zap className="w-3.5 h-3.5" />
-                <span className="font-mono text-[10px]">{token.priceImpactPctAt1pct.toFixed(1)}%</span>
-              </div>
-            )}
-
-            {/* Watchers */}
-            <div className="flex items-center gap-1 text-pipe-600" title={`${token.watcherCount} watchers`}>
-              <Users className="w-3.5 h-3.5" />
-              <span className="font-mono text-[10px]">{token.watcherCount}</span>
-            </div>
-
-            {/* Hot Score */}
-            <div className="flex items-center gap-1 text-star-yellow-600" title={`Hot Score: ${token.hotScore}`}>
-              <TrendingUp className="w-3.5 h-3.5" />
-              <span className="font-mono text-[10px]">{Math.floor(token.hotScore)}</span>
-            </div>
-          </div>
-
-          {/* Contract address */}
-          <div className="flex items-center gap-1 text-xs text-muted-foreground mb-2">
-            <span className="font-mono text-[10px]">{shortMint}</span>
-            <ExternalLink className="w-3 h-3" />
-          </div>
-
-          {/* Progress bar for bonding curve OR pool age for new tokens */}
-          {token.state === "bonded" && token.bondingCurveProgress !== undefined ? (
-            <div className="space-y-1">
-              <div className="flex justify-between text-[10px]">
-                <span className="text-muted-foreground">Bonding Progress</span>
-                <span className="font-bold text-coin-yellow-700">{token.bondingCurveProgress.toFixed(1)}%</span>
-              </div>
-              <div className="h-1.5 bg-pipe-100 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-coin-yellow-500 transition-all duration-300"
-                  style={{ width: `${Math.min(token.bondingCurveProgress, 100)}%` }}
-                />
-              </div>
-            </div>
-          ) : token.state === "new" && token.poolAgeMin !== undefined ? (
-            <div className="text-[10px] text-muted-foreground">
-              Pool Age: <span className="font-mono font-semibold">{token.poolAgeMin}m</span>
-            </div>
-          ) : null}
         </div>
       </motion.div>
     </Link>
@@ -254,29 +297,39 @@ export function TokenCard({ token, onToggleWatch, rank, className }: TokenCardPr
  */
 export function TokenCardSkeleton() {
   return (
-    <div className="bg-card rounded-lg border-2 border-pipe-300 shadow-sm p-2.5 animate-pulse">
-      {/* Top row */}
-      <div className="flex items-start gap-2 mb-2">
-        <div className="h-3 w-8 bg-pipe-200 rounded" />
-        <div className="w-8 h-8 rounded-full bg-pipe-200" />
+    <div className="bg-gradient-to-r from-pipe-50 to-white rounded-xl border-3 border-pipe-300 shadow-mario p-4 animate-pulse">
+      <div className="flex items-center gap-4">
+        {/* Large logo skeleton */}
+        <div className="w-16 h-16 rounded-full bg-pipe-200 border-3 border-pipe-300" />
+
+        {/* Content skeleton */}
         <div className="flex-1">
-          <div className="h-3 bg-pipe-200 rounded w-20 mb-1" />
-          <div className="h-2 bg-pipe-100 rounded w-24" />
+          {/* Top row */}
+          <div className="flex items-center gap-2 mb-2">
+            <div className="h-5 bg-pipe-200 rounded w-24" />
+            <div className="h-4 bg-pipe-100 rounded w-32" />
+            <div className="h-3 bg-pipe-100 rounded w-12 ml-auto" />
+          </div>
+
+          {/* Metrics row */}
+          <div className="flex items-center gap-3 mb-2">
+            <div className="h-6 bg-pipe-100 rounded-lg w-16" />
+            <div className="h-6 bg-pipe-100 rounded-lg w-16" />
+            <div className="h-6 bg-pipe-100 rounded-lg w-16" />
+            <div className="h-6 bg-pipe-100 rounded-lg w-16" />
+            <div className="h-6 bg-pipe-100 rounded-lg w-16" />
+          </div>
+
+          {/* Bottom row */}
+          <div className="flex items-center gap-3">
+            <div className="h-6 bg-pipe-100 rounded-lg w-20" />
+            <div className="flex-1 h-3 bg-pipe-200 rounded-full" />
+          </div>
         </div>
-        <div className="w-4 h-4 rounded-full bg-pipe-200" />
+
+        {/* Watch button skeleton */}
+        <div className="w-12 h-12 rounded-full bg-pipe-200 border-3 border-pipe-300" />
       </div>
-      {/* Metrics row */}
-      <div className="flex items-center gap-3 mb-2">
-        <div className="h-3 w-8 bg-pipe-100 rounded" />
-        <div className="h-3 w-10 bg-pipe-100 rounded" />
-        <div className="h-3 w-8 bg-pipe-100 rounded" />
-        <div className="h-3 w-6 bg-pipe-100 rounded" />
-        <div className="h-3 w-6 bg-pipe-100 rounded" />
-      </div>
-      {/* Address row */}
-      <div className="h-2 bg-pipe-100 rounded w-24 mb-2" />
-      {/* Progress bar */}
-      <div className="h-1.5 bg-pipe-100 rounded w-full" />
     </div>
   )
 }
