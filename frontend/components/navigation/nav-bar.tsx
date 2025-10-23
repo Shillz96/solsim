@@ -444,6 +444,11 @@ export function NavBar() {
                   </div>
                 </button>
 
+                {/* Notifications - Hidden on mobile */}
+                <div className="hidden md:block">
+                  <NotificationDropdown />
+                </div>
+
                 {/* XP Badge - Hidden on mobile */}
                 {user && (
                   <div className="hidden md:block">
@@ -454,15 +459,11 @@ export function NavBar() {
                     >
                       <XPBadge
                         currentXP={parseFloat(user.rewardPoints?.toString() || '0')}
+                        displayName={displayName}
                       />
                     </button>
                   </div>
                 )}
-
-                {/* Notifications - Hidden on mobile */}
-                <div className="hidden md:block">
-                  <NotificationDropdown />
-                </div>
 
                 {/* User Menu - Hidden on mobile */}
                 <div className="hidden md:block">

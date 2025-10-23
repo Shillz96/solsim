@@ -146,9 +146,9 @@ export function XPProgressBar({
 }
 
 /**
- * Mini XP Badge - For nav bars and compact displays
+ * XP Badge Component - Shows level and current XP with optional username
  */
-export function XPBadge({ currentXP, className = '' }: { currentXP: number; className?: string }) {
+export function XPBadge({ currentXP, displayName, className = '' }: { currentXP: number; displayName?: string; className?: string }) {
   const levelInfo = calculateLevel(currentXP);
 
   return (
@@ -159,6 +159,9 @@ export function XPBadge({ currentXP, className = '' }: { currentXP: number; clas
       <div className="flex flex-col leading-none">
         <span className="text-xs font-bold text-pipe-900 drop-shadow-sm mb-0.5">LVL {levelInfo.level}</span>
         <span className="text-[10px] text-pipe-700 font-semibold">{formatXP(currentXP)} XP</span>
+        {displayName && (
+          <span className="text-[10px] text-pipe-900 font-bold mt-0.5">{displayName}</span>
+        )}
       </div>
     </div>
   );

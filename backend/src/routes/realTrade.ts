@@ -11,6 +11,7 @@ import * as realTradeService from "../services/realTradeService.js";
 import * as lightningService from "../services/pumpPortalLightningService.js";
 import * as localService from "../services/pumpPortalLocalService.js";
 import prisma from "../plugins/prisma.js";
+import { generateDepositAddress, formatAddressForDisplay } from "../utils/depositAddressGenerator.js";
 
 export default async function (app: FastifyInstance) {
   /**
