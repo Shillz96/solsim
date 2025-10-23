@@ -473,12 +473,6 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
       <DepositModal
         open={showDepositModal}
         onOpenChange={setShowDepositModal}
-        depositAddress={depositAddress}
-        isLoadingAddress={!depositAddress}
-        onDepositDetected={(amount, signature) => {
-          console.log(`Deposit detected: ${amount} SOL, tx: ${signature}`)
-          // Balance will auto-refresh via trading mode context
-        }}
       />
     </>
   )
