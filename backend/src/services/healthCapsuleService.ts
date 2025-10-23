@@ -9,7 +9,7 @@
 
 import { Connection, PublicKey } from '@solana/web3.js';
 import { getMint } from '@solana/spl-token';
-import axios from 'axios';
+import fetch from 'node-fetch';
 
 export interface HealthData {
   freezeRevoked: boolean;
@@ -85,20 +85,24 @@ class HealthCapsuleService {
       const SOL_MINT = 'So11111111111111111111111111111111111111112';
       const amount = 1_000_000_000; // 1 SOL in lamports
 
-      const quoteUrl = `${this.jupiterApiBase}/quote`;
-      const params = {
+      const params = new URLSearchParams({
         inputMint: SOL_MINT,
         outputMint: mint,
         amount: amount.toString(),
-        slippageBps: 50, // 0.5%
-      };
-
-      const response = await axios.get(quoteUrl, {
-        params,
-        timeout: 5000,
+        slippageBps: '50', // 0.5%
       });
 
-      const quote = response.data;
+      const quoteUrl = `${this.jupiterApiBase}/quote?${params.toString()}`;
+
+      const response = await fetch(quoteUrl, {
+        signal: AbortSignal.timeout(5000),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Jupiter API error: ${response.status}`);
+      }
+
+      const quote = await response.json() as any;
 
       if (quote.priceImpactPct !== undefined) {
         // Jupiter returns price impact as decimal (0.01 = 1%)
@@ -127,11 +131,15 @@ class HealthCapsuleService {
     try {
       const url = `${this.dexScreenerBase}/dex/tokens/${mint}`;
 
-      const response = await axios.get(url, {
-        timeout: 5000,
+      const response = await fetch(url, {
+        signal: AbortSignal.timeout(5000),
       });
 
-      const data = response.data;
+      if (!response.ok) {
+        throw new Error(`DexScreener API error: ${response.status}`);
+      }
+
+      const data = await response.json() as any;
 
       // Get the pair with highest liquidity
       if (data.pairs && data.pairs.length > 0) {

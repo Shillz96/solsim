@@ -356,9 +356,9 @@ const warpPipesRoutes: FastifyPluginAsync = async (fastify) => {
         },
       },
     },
-    async (request, reply) => {
+    async (request: AuthenticatedRequest, reply) => {
       try {
-        const userId = (request.user as any).id;
+        const userId = request.user!.id;
         const { mint } = request.params as { mint: string };
         const { preferences } = UpdateWatchSchema.parse(request.body);
 
@@ -404,7 +404,7 @@ const warpPipesRoutes: FastifyPluginAsync = async (fastify) => {
             : null,
         });
       } catch (error) {
-        fastify.log.error('Error updating watch preferences:', error);
+        fastify.log.error({ error }, 'Error updating watch preferences');
         return reply.status(500).send({ error: 'Failed to update watch preferences' });
       }
     }
@@ -417,7 +417,7 @@ const warpPipesRoutes: FastifyPluginAsync = async (fastify) => {
   fastify.get(
     '/watches',
     {
-      preHandler: [fastify.authenticate],
+      preHandler: [authenticateToken],
       schema: {
         response: {
           200: z.object({
@@ -426,9 +426,9 @@ const warpPipesRoutes: FastifyPluginAsync = async (fastify) => {
         },
       },
     },
-    async (request, reply) => {
+    async (request: AuthenticatedRequest, reply) => {
       try {
-        const userId = (request.user as any).id;
+        const userId = request.user!.id;
 
         const watches = await prisma.tokenWatch.findMany({
           where: { userId },
@@ -473,7 +473,7 @@ const warpPipesRoutes: FastifyPluginAsync = async (fastify) => {
           watches: watchesWithTokens,
         });
       } catch (error) {
-        fastify.log.error('Error fetching user watches:', error);
+        fastify.log.error({ error }, 'Error fetching user watches');
         return reply.status(500).send({ error: 'Failed to fetch watches' });
       }
     }
@@ -538,7 +538,7 @@ const warpPipesRoutes: FastifyPluginAsync = async (fastify) => {
 
         return reply.send(response);
       } catch (error) {
-        fastify.log.error('Error fetching health data:', error);
+        fastify.log.error({ error }, 'Error fetching health data');
         return reply.status(500).send({ error: 'Failed to fetch health data' });
       }
     }
@@ -562,10 +562,10 @@ const warpPipesRoutes: FastifyPluginAsync = async (fastify) => {
         },
       },
     },
-    async (request, reply) => {
+    async (request: AuthenticatedRequest, reply) => {
       try {
         const { mint } = request.params as { mint: string };
-        const userId = (request.user as any)?.id;
+        const userId = request.user?.id;
 
         // Check cache first
         const cached = await redis.get(`token:${mint}`);
@@ -640,7 +640,7 @@ const warpPipesRoutes: FastifyPluginAsync = async (fastify) => {
 
         return reply.send({ token: tokenData });
       } catch (error) {
-        fastify.log.error('Error fetching token:', error);
+        fastify.log.error({ error }, 'Error fetching token');
         return reply.status(500).send({ error: 'Failed to fetch token' });
       }
     }
