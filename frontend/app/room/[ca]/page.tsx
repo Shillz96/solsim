@@ -24,7 +24,7 @@ import { Loader2 } from 'lucide-react'
 
 // Dynamically import chart component to prevent SSR issues
 const LightweightChart = dynamicImport(
-  () => import('@/components/trading/lightweight-chart'),
+  () => import('@/components/trading/lightweight-chart').then(mod => mod.LightweightChart),
   {
     ssr: false,
     loading: () => (
