@@ -86,7 +86,7 @@ const securityBadge = (freezeRevoked?: boolean | null, mintRenounced?: boolean |
 };
 
 export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
-  const img = data.logoURI || data.imageUrl || undefined;
+  const img = data.imageUrl || data.logoURI || undefined;
   const priceChg = data.priceChange24h ?? null;
   const [imageError, setImageError] = useState(false);
 
