@@ -15,6 +15,7 @@ import {
 import { clusterApiUrl } from '@solana/web3.js';
 
 // Import the default wallet adapter CSS for styling
+// This MUST be imported for the wallet modal to work
 import '@solana/wallet-adapter-react-ui/styles.css';
 
 interface SolanaWalletProviderProps {

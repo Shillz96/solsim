@@ -22,6 +22,7 @@ import { useToast } from '@/hooks/use-toast'
 import { usePortfolio, usePosition } from '@/hooks/use-portfolio'
 import { usePriceStreamContext } from '@/lib/price-stream-provider'
 import { formatTokenQuantity } from '@/lib/format'
+import { WalletDebugButton } from '@/components/wallet/wallet-debug-button'
 
 // Remove dynamic exports - they cause Vercel bundling issues
 // The page is already 'use client' so it will render dynamically
@@ -338,7 +339,8 @@ export default function TradeRoomPage() {
           {/* Chat Room Placeholder */}
           <div className="flex-1 flex flex-col p-3 overflow-y-auto">
             <div className="font-bold text-sm mb-2">Chat Room</div>
-            <div className="flex-1 border-3 border-[var(--outline-black)] rounded-lg bg-white p-3 flex items-center justify-center">
+            <div className="flex-1 border-3 border-[var(--outline-black)] rounded-lg bg-white p-3 flex flex-col gap-3">
+              <WalletDebugButton />
               <div className="text-xs text-muted-foreground text-center">
                 Chat coming soon...
               </div>
