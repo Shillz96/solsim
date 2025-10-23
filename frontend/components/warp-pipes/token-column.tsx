@@ -12,7 +12,7 @@ import { cn } from "@/lib/utils"
 import { TokenCard, TokenCardSkeleton } from "./token-card"
 import { FilterPanel } from "./filter-panel"
 import type { TokenRow, AdvancedFilters } from "@/lib/types/warp-pipes"
-import { getDefaultFilters, saveFilters, loadFilters } from "@/lib/warp-pipes-filter-presets"
+import { getDefaultFilters } from "@/lib/warp-pipes-filter-presets"
 import { saveFilters as saveToStorage, loadFilters as loadFromStorage } from "@/lib/warp-pipes-storage"
 import Image from "next/image"
 
