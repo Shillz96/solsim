@@ -28,49 +28,50 @@ export function MarketDataPanels({ tokenMint }: MarketDataPanelsProps) {
   return (
     <div className="flex flex-col h-full">
       {/* Tabs */}
-      <div className="border-b-3 border-[var(--outline-black)] bg-white px-4 py-2 flex gap-4 text-xs font-bold justify-center flex-shrink-0">
+      <div className="border-b-3 border-[var(--outline-black)] bg-white px-2 sm:px-4 py-2 flex gap-2 sm:gap-4 text-xs font-bold justify-center flex-shrink-0">
         <button
           onClick={() => setActiveTab('trades')}
           className={cn(
-            "px-3 py-1.5 rounded-md border-2 border-[var(--outline-black)] transition-all flex items-center gap-1.5",
+            "px-2 sm:px-3 py-1.5 rounded-md border-2 border-[var(--outline-black)] transition-all flex items-center gap-1 sm:gap-1.5",
             activeTab === 'trades'
               ? "bg-[var(--star-yellow)] shadow-[3px_3px_0_var(--outline-black)] -translate-y-[1px]"
               : "bg-white hover:bg-[var(--pipe-100)] shadow-[2px_2px_0_var(--outline-black)]"
           )}
         >
           <Activity className="h-3 w-3" />
-          Trades
+          <span className="hidden xs:inline">Trades</span>
         </button>
 
         <button
           onClick={() => setActiveTab('traders')}
           className={cn(
-            "px-3 py-1.5 rounded-md border-2 border-[var(--outline-black)] transition-all flex items-center gap-1.5",
+            "px-2 sm:px-3 py-1.5 rounded-md border-2 border-[var(--outline-black)] transition-all flex items-center gap-1 sm:gap-1.5",
             activeTab === 'traders'
               ? "bg-[var(--star-yellow)] shadow-[3px_3px_0_var(--outline-black)] -translate-y-[1px]"
               : "bg-white hover:bg-[var(--pipe-100)] shadow-[2px_2px_0_var(--outline-black)]"
           )}
         >
           <TrendingUp className="h-3 w-3" />
-          Top Traders
+          <span className="hidden sm:inline">Top Traders</span>
+          <span className="sm:hidden">Traders</span>
         </button>
 
         <button
           onClick={() => setActiveTab('holders')}
           className={cn(
-            "px-3 py-1.5 rounded-md border-2 border-[var(--outline-black)] transition-all flex items-center gap-1.5",
+            "px-2 sm:px-3 py-1.5 rounded-md border-2 border-[var(--outline-black)] transition-all flex items-center gap-1 sm:gap-1.5",
             activeTab === 'holders'
               ? "bg-[var(--star-yellow)] shadow-[3px_3px_0_var(--outline-black)] -translate-y-[1px]"
               : "bg-white hover:bg-[var(--pipe-100)] shadow-[2px_2px_0_var(--outline-black)]"
           )}
         >
           <Users className="h-3 w-3" />
-          Holders
+          <span className="hidden xs:inline">Holders</span>
         </button>
       </div>
 
       {/* Data Panel Content */}
-      <div className="flex-1 overflow-y-auto p-4">
+      <div className="flex-1 overflow-y-auto p-2 sm:p-4">
         {activeTab === 'trades' && <RecentTradesPanel tokenMint={tokenMint} />}
         {activeTab === 'traders' && <TopTradersPanel tokenMint={tokenMint} />}
         {activeTab === 'holders' && <HoldersPanel tokenMint={tokenMint} />}
@@ -136,7 +137,7 @@ function RecentTradesPanel({ tokenMint }: { tokenMint: string }) {
               </div>
               <div className="text-right">
                 <div className="text-xs font-bold">{formatNumber(trade.tokenAmount || 0)} tokens</div>
-                <div className="text-[10px] text-muted-foreground">{formatUSD((trade.solAmount || 0) * 100, 2)} SOL</div>
+                <div className="text-[10px] text-muted-foreground">{formatNumber((trade.solAmount || 0) * 100)} SOL</div>
               </div>
             </div>
           ))}
@@ -184,7 +185,7 @@ function TopTradersPanel({ tokenMint }: { tokenMint: string }) {
                   "text-xs font-bold",
                   trader.pnl > 0 ? "text-[var(--luigi-green)]" : "text-[var(--mario-red)]"
                 )}>
-                  {trader.pnl > 0 ? '+' : ''}{formatUSD(trader.pnl || 0, 2)}
+                  {trader.pnl > 0 ? '+' : ''}{formatUSD(trader.pnl || 0)}
                 </div>
                 <div className="text-[10px] text-muted-foreground">{trader.trades || 0} trades</div>
               </div>
