@@ -52,7 +52,7 @@ export default function TradeRoomPage({ params }: TradeRoomPageProps) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[var(--background)]">
         <div className="flex flex-col items-center gap-4">
-          <Loader2 className="h-8 w-8 animate-spin text-[var(--mario-red-500)]" />
+          <Loader2 className="h-8 w-8 animate-spin text-[var(--mario-red)]" />
           <div className="text-sm font-bold">Loading token data...</div>
         </div>
       </div>
@@ -63,7 +63,7 @@ export default function TradeRoomPage({ params }: TradeRoomPageProps) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[var(--background)]">
         <div className="text-center">
-          <div className="text-xl font-bold mb-2 text-[var(--mario-red-500)]">
+          <div className="text-xl font-bold mb-2 text-[var(--mario-red)]">
             Token Not Found
           </div>
           <div className="text-sm text-muted-foreground">
@@ -80,7 +80,7 @@ export default function TradeRoomPage({ params }: TradeRoomPageProps) {
       <header className="sticky top-0 z-40 border-b-4 border-[var(--outline-black)] bg-[var(--background)]/95 backdrop-blur-sm px-4 py-3">
         <div className="flex items-center justify-between w-full max-w-[2000px] mx-auto">
           <div className="flex items-center gap-3">
-            <div className="h-8 w-8 rounded-lg border-3 border-[var(--outline-black)] bg-[var(--mario-red-500)] flex items-center justify-center">
+            <div className="h-8 w-8 rounded-lg border-3 border-[var(--outline-black)] bg-[var(--mario-red)] flex items-center justify-center">
               <span className="text-white font-black text-xs">1UP</span>
             </div>
             <div className="font-black text-lg tracking-tight hidden sm:block">
@@ -95,8 +95,8 @@ export default function TradeRoomPage({ params }: TradeRoomPageProps) {
             {tokenDetails.priceChange24h && (
               <div className={`text-xs font-mono font-bold ${
                 parseFloat(tokenDetails.priceChange24h) >= 0
-                  ? 'text-[var(--luigi-green-500)]'
-                  : 'text-[var(--mario-red-500)]'
+                  ? 'text-[var(--luigi-green)]'
+                  : 'text-[var(--mario-red)]'
               }`}>
                 {parseFloat(tokenDetails.priceChange24h) >= 0 ? '+' : ''}
                 {parseFloat(tokenDetails.priceChange24h).toFixed(2)}%
@@ -137,7 +137,7 @@ export default function TradeRoomPage({ params }: TradeRoomPageProps) {
               <button className="text-xs px-3 py-1.5 rounded-lg border-2 border-[var(--outline-black)] bg-[var(--star-yellow)] font-extrabold hover:shadow-[2px_2px_0_var(--outline-black)] transition-all">
                 ★ Watch
               </button>
-              <button className="text-xs px-3 py-1.5 rounded-lg border-2 border-[var(--outline-black)] bg-[var(--sky-500)] font-extrabold hover:shadow-[2px_2px_0_var(--outline-black)] transition-all">
+              <button className="text-xs px-3 py-1.5 rounded-lg border-2 border-[var(--outline-black)] bg-[var(--sky-blue)] font-extrabold hover:shadow-[2px_2px_0_var(--outline-black)] transition-all">
                 Share
               </button>
             </div>
@@ -199,10 +199,10 @@ export default function TradeRoomPage({ params }: TradeRoomPageProps) {
           {tokenDetails.symbol} — ${parseFloat(tokenDetails.lastPrice || '0').toFixed(6)}
         </div>
         <div className="flex gap-2">
-          <button className="h-8 px-4 rounded-lg border-2 border-[var(--outline-black)] bg-[var(--luigi-green-500)] text-white font-bold hover:shadow-[2px_2px_0_var(--outline-black)] transition-all">
+          <button className="h-8 px-4 rounded-lg border-2 border-[var(--outline-black)] bg-[var(--luigi-green)] text-white font-bold hover:shadow-[2px_2px_0_var(--outline-black)] transition-all">
             Quick Buy
           </button>
-          <button className="h-8 px-4 rounded-lg border-2 border-[var(--outline-black)] bg-[var(--mario-red-500)] text-white font-bold hover:shadow-[2px_2px_0_var(--outline-black)] transition-all">
+          <button className="h-8 px-4 rounded-lg border-2 border-[var(--outline-black)] bg-[var(--mario-red)] text-white font-bold hover:shadow-[2px_2px_0_var(--outline-black)] transition-all">
             Quick Sell
           </button>
         </div>

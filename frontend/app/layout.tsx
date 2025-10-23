@@ -7,6 +7,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next"
 import { NavBar } from "@/components/navigation/nav-bar"
 import { BottomNavBar } from "@/components/navigation/bottom-nav-bar"
 import { RealtimeTradeStrip } from "@/components/trading/realtime-trade-strip"
+import { SlidingTrendingTicker } from "@/components/trading/sliding-trending-ticker"
 import { AppProviders } from "@/components/providers"
 
 import "./theme.css"

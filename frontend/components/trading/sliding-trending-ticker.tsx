@@ -60,7 +60,7 @@ export function SlidingTrendingTicker() {
   const duplicatedTokens = [...trendingTokens, ...trendingTokens, ...trendingTokens]
 
   return (
-    <div className="sticky top-[72px] z-40 overflow-hidden bg-gradient-to-r from-[var(--brick-brown)] to-[var(--brick-brown)]/80 border-b-4 border-[var(--outline-black)] shadow-md">
+    <div className="w-full overflow-hidden bg-gradient-to-r from-[var(--brick-brown)] to-[var(--brick-brown)]/80 border-b-4 border-[var(--outline-black)] shadow-md">
       {/* Scrolling Container - Pause on Hover */}
       <div className="group relative py-2">
         <div className="ticker-scroll-container">
