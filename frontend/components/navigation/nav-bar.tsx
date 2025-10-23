@@ -416,8 +416,8 @@ export function NavBar() {
           <div className="flex items-center gap-3 flex-shrink-0">
             {isAuthenticated ? (
               <>
-                {/* Mario cartridge-style balance pill */}
-                <WalletBalanceDisplay variant="mario" showDropdown={false} className="h-10 md:h-11" />
+                {/* Minimal balance pill */}
+                <WalletBalanceDisplay variant="minimal" showDropdown className="h-9" />
 
                 {/* Notifications - Hidden on mobile */}
                 <div className="hidden md:block">

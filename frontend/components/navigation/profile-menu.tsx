@@ -34,27 +34,43 @@ export function ProfileMenu({
         <motion.button
           whileHover={{ y: -1 }}
           className={cn(
-            "h-9 px-2.5 rounded-md border border-[var(--color-border)] bg-white",
-            "flex items-center gap-2 shadow-none transition-colors",
-            "hover:bg-[color-mix(in_oklab,white,black_3%)]"
+            "h-10 md:h-11 min-w-[200px]",
+            "px-3 md:px-3.5 rounded-[12px] md:rounded-[14px]",
+            "bg-[var(--star-yellow)]",
+            "border-4 border-[var(--outline-black)]",
+            "shadow-[4px_4px_0_var(--outline-black)]",
+            "flex items-center gap-3 md:gap-4",
+            "transition-transform"
           )}
           aria-label="Account menu"
         >
-          <Avatar className="h-7 w-7 rounded-md border border-[var(--color-border)]">
-            <AvatarImage src={avatarUrl} alt={displayName} className="rounded-md object-cover" />
-            <AvatarFallback className="rounded-md font-bold bg-[var(--mario-red)] text-white">
-              {displayName?.[0]?.toUpperCase() || "U"}
-            </AvatarFallback>
-          </Avatar>
+          {/* Red square badge on the left with avatar */}
+          <div
+            className={cn(
+              "grid place-items-center",
+              "h-7 w-7 md:h-8 md:w-8",
+              "rounded-[10px] md:rounded-[12px]",
+              "bg-[var(--mario-red)]",
+              "border-4 border-[var(--outline-black)]",
+              "overflow-hidden"
+            )}
+          >
+            <Avatar className="h-full w-full rounded-none border-0">
+              <AvatarImage src={avatarUrl} alt={displayName} className="rounded-none object-cover" />
+              <AvatarFallback className="rounded-none font-bold bg-[var(--mario-red)] text-white text-[11px] md:text-[12px]">
+                {displayName?.[0]?.toUpperCase() || "U"}
+              </AvatarFallback>
+            </Avatar>
+          </div>
 
-          <div className="leading-tight min-w-0">
-            <div className="flex items-center gap-1.5 min-w-0">
-              <span className="text-sm font-semibold truncate max-w-[140px]">{displayName}</span>
-              <span className="text-[10px] px-1 py-[2px] rounded border bg-[color-mix(in_oklab,white,var(--color-star)_12%)] uppercase tracking-wide">
-                LVL {level}
-              </span>
-            </div>
-            <span className="text-[11px] font-medium text-foreground/70 tabular-nums">{xp.toLocaleString()} XP</span>
+          {/* Name + Level info */}
+          <div className="flex flex-col leading-none -space-y-[1px] md:-space-y-[2px]">
+            <span className="font-extrabold text-[15px] md:text-[17px] tracking-tight text-[var(--outline-black)] truncate max-w-[140px]">
+              {displayName}
+            </span>
+            <span className="text-[10px] md:text-[11px] font-black uppercase text-foreground/80">
+              LVL {level} • {xp.toLocaleString()} XP
+            </span>
           </div>
         </motion.button>
       </DropdownMenuTrigger>
