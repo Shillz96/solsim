@@ -91,6 +91,7 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
     { href: "/trade", icon: TrendingUp, label: "Trade" },
     { href: "/portfolio", icon: Wallet, label: "Portfolio" },
     { href: "/leaderboard", icon: Trophy, label: "Ranks" },
+    { href: "/rewards", icon: Gift, label: "Rewards" },
   ]
 
   const infoItems = [
@@ -159,76 +160,6 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
               </motion.div>
             )
           })}
-          
-          {/* More Info Dropdown */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: navItems.length * 0.1 }}
-            className="relative"
-          >
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button
-                  className={cn(
-                    "flex flex-col items-center justify-center gap-1 px-4 py-2 transition-all duration-300 relative z-10",
-                    isInfoActive ? "text-primary" : "text-muted-foreground hover:text-foreground",
-                  )}
-                >
-                  <motion.div
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="relative"
-                  >
-                    <Info className={cn(
-                      "h-5 w-5 transition-all duration-300",
-                      isInfoActive && "glow-primary icon-morph"
-                    )} />
-                    <AnimatePresence>
-                      {isInfoActive && (
-                        <motion.div
-                          className="absolute -inset-2 rounded-full bg-primary/10 border border-primary/20"
-                          initial={{ opacity: 0, scale: 0.8 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          exit={{ opacity: 0, scale: 0.8 }}
-                          transition={{ duration: 0.2 }}
-                        />
-                      )}
-                    </AnimatePresence>
-                  </motion.div>
-                  <span className={cn(
-                    "text-xs font-mario transition-all duration-300",
-                    isInfoActive && "font-semibold"
-                  )}>
-                    More
-                  </span>
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent 
-                align="center" 
-                side="top"
-                className="mb-2 bg-[#FFFAE9] border-3 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)]"
-              >
-                {infoItems.map((item) => {
-                  const Icon = item.icon
-                  return (
-                    <DropdownMenuItem key={item.href} asChild>
-                      <Link
-                        href={item.href}
-                        className={cn(
-                          "flex items-center gap-2 px-3 py-2 cursor-pointer font-mario",
-                          pathname === item.href && "bg-primary/10"
-                        )}
-                      >
-                        <Icon className="h-4 w-4" />
-                        {item.label}
-                      </Link>
-                    </DropdownMenuItem>
-                  )
-                })}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </motion.div>
         </div>
       </nav>
 
