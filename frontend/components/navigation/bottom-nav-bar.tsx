@@ -34,6 +34,7 @@ import {
 import { EnhancedTradingModeToggle } from "@/components/navigation/enhanced-trading-mode-toggle"
 import { DepositModal } from "@/components/modals/deposit-modal"
 import { RealTradingOnboardingModal } from "@/components/modals/real-trading-onboarding-modal"
+import { CartridgePill } from "@/components/ui/cartridge-pill"
 
 // Percentage formatting now inline
 
@@ -169,7 +170,7 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
     <>
       {/* Mobile Bottom Nav */}
       <nav className={cn(
-        "fixed bottom-0 left-0 right-0 z-50 border-t border-border/20 bg-[#FFFAE9] opacity-95 md:hidden",
+        "fixed bottom-0 left-0 right-0 z-50 border-t border-[var(--color-border)] bg-[var(--background)] md:hidden",
         className
       )}>
         <div className="flex items-center justify-around h-16">
@@ -187,38 +188,23 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
                 <Link
                   href={item.href}
                   className={cn(
-                    "flex flex-col items-center justify-center gap-1 px-4 py-2 transition-all duration-300 relative z-10",
-                    isActive ? "text-primary" : "text-muted-foreground hover:text-foreground",
+                    "relative z-10",
+                    "flex flex-col items-center justify-center gap-1 px-2 py-1"
                   )}
                 >
-                  <motion.div
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="relative"
-                  >
-                    <Icon className={cn(
-                      "h-5 w-5 transition-all duration-300",
-                      isActive && "glow-primary icon-morph"
-                    )} />
-                    <AnimatePresence>
-                      {isActive && (
-                        <motion.div
-                          layoutId="bottomNavIndicator"
-                          className="absolute -inset-2 rounded-full bg-primary/10 border border-primary/20"
-                          initial={{ opacity: 0, scale: 0.8 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          exit={{ opacity: 0, scale: 0.8 }}
-                          transition={{ duration: 0.2 }}
-                        />
-                      )}
-                    </AnimatePresence>
-                  </motion.div>
-                  <span className={cn(
-                    "text-xs font-mario transition-all duration-300",
-                    isActive && "font-semibold"
-                  )}>
-                    {item.label}
-                  </span>
+                  {isActive ? (
+                    <CartridgePill
+                      size="sm"
+                      className="px-3"
+                      value={item.label}
+                      badgeText="•"
+                    />
+                  ) : (
+                    <>
+                      <Icon className="h-5 w-5 text-foreground/70 group-hover:text-foreground transition-colors" />
+                      <span className="text-[11px] font-mario text-foreground/70">{item.label}</span>
+                    </>
+                  )}
                 </Link>
               </motion.div>
             )
@@ -245,7 +231,7 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
 
       {/* Desktop/Tablet Bottom Info Bar */}
       <div className={cn(
-        "hidden md:block fixed bottom-0 left-0 right-0 z-40 border-t border-border/20 bg-[#FFFAE9] opacity-95",
+        "hidden md:block fixed bottom-0 left-0 right-0 z-40 border-t border-[var(--color-border)] bg-[var(--background)]",
         className
       )}>
         <div className="mx-auto flex h-12 items-center justify-between px-4 max-w-content">
@@ -265,7 +251,7 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
           {/* Center: Market Prices */}
           <div className="flex items-center gap-4">
             {marketPrices.map((market) => (
-              <div key={market.symbol} className="flex items-center gap-2 px-2 py-1 rounded-lg bg-muted">
+              <div key={market.symbol} className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white border-2 border-[var(--outline-black)]/20">
                 <div className="flex items-center gap-1.5">
                   <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div>
                   <span className="text-xs font-semibold text-foreground">{market.symbol}</span>
@@ -288,10 +274,10 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
                 </span>
               </div>
             ))}
-            
+
             {/* UP Token Info */}
             <div
-              className="flex items-center gap-2 px-2 py-1 rounded-lg bg-muted cursor-pointer hover:bg-muted/80 transition-colors"
+              className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white border-2 border-[var(--outline-black)]/20 cursor-pointer hover:border-[var(--outline-black)]/40 transition-colors"
               onClick={() => {
                 const ca = "2mksd9Ci9XzBV4CrZ6Fo2SuAtHfrUg3cmdKRjZeApump"
                 navigator.clipboard.writeText(ca)
@@ -373,9 +359,9 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
                   <ChevronDown className="h-3 w-3" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent 
+              <DropdownMenuContent
                 align="end"
-                className="bg-[#FFFAE9] border-3 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)]"
+                className="bg-white border-3 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)]"
               >
                 {infoItems.map((item) => {
                   const Icon = item.icon
@@ -397,20 +383,20 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
               </DropdownMenuContent>
             </DropdownMenu>
             {/* Theme toggle removed - Light mode only! */}
-            <Link
+            <CartridgePill
+              label="Quick"
+              value="Trade"
+              badgeText="GO"
               href="/trade"
-              className="text-xs font-medium text-primary hover:text-primary/80 transition-colors flex items-center gap-1"
-            >
-              <TrendingUp className="h-3 w-3" />
-              Quick Trade
-            </Link>
+              size="md"
+            />
           </div>
         </div>
       </div>
 
       {/* Trading Mode Confirmation Dialog */}
       <AlertDialog open={showModeConfirm} onOpenChange={setShowModeConfirm}>
-        <AlertDialogContent className="bg-[#FFFAE9] border-4 border-pipe-900 shadow-[6px_6px_0_var(--outline-black)] rounded-xl">
+        <AlertDialogContent className="bg-white border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] rounded-xl">
           <AlertDialogHeader>
             <AlertDialogTitle className="font-mario text-base text-pipe-900 flex items-center gap-2 pb-3 border-b-3 border-pipe-300">
               {pendingMode === 'REAL' && <AlertTriangle className="w-5 h-5 text-mario-red-500" />}

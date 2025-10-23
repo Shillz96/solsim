@@ -35,7 +35,6 @@ const PurchaseModal = dynamic(() => import("@/components/modals/purchase-modal")
 const LevelProgressModal = dynamic(() => import("@/components/level/level-progress-modal").then(mod => ({ default: mod.LevelProgressModal })), {
   ssr: false
 })
-import { NotificationDropdown } from "@/components/notifications/notification-dropdown"
 import { cn } from "@/lib/utils"
 import { motion, AnimatePresence } from "framer-motion"
 import { useRouter } from "next/navigation"
@@ -419,12 +418,7 @@ export function NavBar() {
                 {/* Minimal balance pill */}
                 <WalletBalanceDisplay variant="minimal" showDropdown className="h-9" />
 
-                {/* Notifications - Hidden on mobile */}
-                <div className="hidden md:block">
-                  <NotificationDropdown />
-                </div>
-
-                {/* New compact Profile Menu */}
+                {/* New compact Profile Menu with integrated notifications */}
                 {user && (
                   <div className="hidden md:block">
                     <ProfileMenu
@@ -434,6 +428,7 @@ export function NavBar() {
                       onLogout={handleLogout}
                       onOpenLevelModal={() => setLevelModalOpen(true)}
                       onStartOnboarding={startOnboarding}
+                      unreadNotificationCount={unreadCount}
                     />
                   </div>
                 )}

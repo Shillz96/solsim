@@ -3,7 +3,8 @@
 import Link from "next/link"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger, DropdownMenuLabel } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Settings, LogOut, HelpCircle, Zap } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
+import { Settings, LogOut, HelpCircle, Zap, Bell } from "lucide-react"
 import { motion } from "framer-motion"
 import { cn } from "@/lib/utils"
 
@@ -14,6 +15,7 @@ type ProfileMenuProps = {
   onLogout: () => void
   onOpenLevelModal: () => void
   onStartOnboarding: () => void
+  unreadNotificationCount?: number
 }
 
 export function ProfileMenu({
@@ -22,7 +24,8 @@ export function ProfileMenu({
   xp,
   onLogout,
   onOpenLevelModal,
-  onStartOnboarding
+  onStartOnboarding,
+  unreadNotificationCount = 0
 }: ProfileMenuProps) {
 
   // Level calc - simplified inline
@@ -34,49 +37,63 @@ export function ProfileMenu({
         <motion.button
           whileHover={{ y: -1 }}
           className={cn(
-            "h-12 md:h-14 min-w-[240px] md:min-w-[280px]",
-            "px-4 md:px-5 rounded-[14px] md:rounded-[16px]",
+            "h-10 min-w-[160px]",
+            "px-3 rounded-[12px]",
             "bg-[var(--star-yellow)]",
-            "border-4 border-[var(--outline-black)]",
-            "shadow-[6px_6px_0_var(--outline-black)]",
-            "hover:shadow-[7px_7px_0_var(--outline-black)]",
-            "flex items-center justify-between gap-4 md:gap-5",
-            "transition-all duration-200"
+            "border-3 border-[var(--outline-black)]",
+            "shadow-[4px_4px_0_var(--outline-black)]",
+            "hover:shadow-[5px_5px_0_var(--outline-black)]",
+            "flex items-center justify-between gap-2.5",
+            "transition-all duration-200",
+            "relative"
           )}
           aria-label="Account menu"
         >
-          {/* Name + Level info - LEFT SIDE with more space */}
-          <div className="flex flex-col items-start justify-center leading-tight space-y-0.5 md:space-y-1 flex-1 min-w-0">
-            <span className="font-extrabold text-[16px] md:text-[18px] tracking-tight text-[var(--outline-black)] truncate max-w-full">
+          {/* Name + Level info - LEFT SIDE compact */}
+          <div className="flex flex-col items-start justify-center leading-tight space-y-0 flex-1 min-w-0">
+            <span className="font-extrabold text-[13px] tracking-tight text-[var(--outline-black)] truncate max-w-full">
               {displayName}
             </span>
-            <div className="flex items-center gap-2 md:gap-3">
-              <span className="text-[11px] md:text-[12px] font-black uppercase text-foreground/90 whitespace-nowrap">
+            <div className="flex items-center gap-1.5">
+              <span className="text-[9px] font-black uppercase text-foreground/90 whitespace-nowrap">
                 LVL {level}
               </span>
-              <span className="text-[11px] md:text-[12px] font-black uppercase text-foreground/70 whitespace-nowrap">
+              <span className="text-[9px] font-black uppercase text-foreground/70 whitespace-nowrap">
                 {xp.toLocaleString()} XP
               </span>
             </div>
           </div>
 
-          {/* Larger profile picture on the RIGHT */}
-          <div
-            className={cn(
-              "grid place-items-center flex-shrink-0",
-              "h-10 w-10 md:h-12 md:w-12",
-              "rounded-[12px] md:rounded-[14px]",
-              "bg-[var(--mario-red)]",
-              "border-4 border-[var(--outline-black)]",
-              "overflow-hidden"
-            )}
-          >
-            <Avatar className="h-full w-full rounded-none border-0">
-              <AvatarImage src={avatarUrl} alt={displayName} className="rounded-none object-cover" />
-              <AvatarFallback className="rounded-none font-bold bg-[var(--mario-red)] text-white text-[14px] md:text-[16px]">
-                {displayName?.[0]?.toUpperCase() || "U"}
-              </AvatarFallback>
-            </Avatar>
+          {/* Profile picture + notification bell */}
+          <div className="flex items-center gap-1.5 flex-shrink-0">
+            {/* Notification bell with badge */}
+            <div className="relative">
+              <img src="/icons/mario/bell.png" alt="Notifications" className="h-4 w-4" />
+              {unreadNotificationCount > 0 && (
+                <Badge className="absolute -top-1.5 -right-1.5 h-3.5 w-3.5 flex items-center justify-center p-0 text-[8px] bg-mario-red-500 border border-white font-bold rounded-full">
+                  {unreadNotificationCount > 9 ? '9+' : unreadNotificationCount}
+                </Badge>
+              )}
+            </div>
+
+            {/* Compact profile picture */}
+            <div
+              className={cn(
+                "grid place-items-center flex-shrink-0",
+                "h-8 w-8",
+                "rounded-[10px]",
+                "bg-[var(--mario-red)]",
+                "border-3 border-[var(--outline-black)]",
+                "overflow-hidden"
+              )}
+            >
+              <Avatar className="h-full w-full rounded-none border-0">
+                <AvatarImage src={avatarUrl} alt={displayName} className="rounded-none object-cover" />
+                <AvatarFallback className="rounded-none font-bold bg-[var(--mario-red)] text-white text-[12px]">
+                  {displayName?.[0]?.toUpperCase() || "U"}
+                </AvatarFallback>
+              </Avatar>
+            </div>
           </div>
         </motion.button>
       </DropdownMenuTrigger>
