@@ -236,11 +236,11 @@ export async function creditDeposit(
       title: '💰 Deposit Confirmed',
       message: `Your deposit of ${amount.toFixed(4)} SOL has been confirmed and added to your account.`,
       actionUrl: `/wallet`,
-      metadata: JSON.stringify({
-        amount,
+      metadata: {
+        amount: amount.toString(),
         txSignature,
         depositId: result.deposit.id
-      })
+      }
     });
 
     return {

@@ -200,13 +200,13 @@ export async function executeWithdrawal(params: {
       title: '💸 Withdrawal Confirmed',
       message: `Your withdrawal of ${amount.toFixed(4)} SOL has been processed successfully.`,
       actionUrl: `/wallet`,
-      metadata: JSON.stringify({
-        amount,
+      metadata: {
+        amount: amount.toString(),
         fee: fee.toString(),
         toAddress,
         txSignature,
         withdrawalId: withdrawal.id
-      })
+      }
     });
 
     return {
