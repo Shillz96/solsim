@@ -199,7 +199,34 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
                     <span className="font-mono font-bold">{data.txCount24h}</span>
                   </div>
                 )}
+
+                {/* Buy/Sell Ratio - Commented out until data is available */}
+                {/* {data.buys24h != null && data.sells24h != null && (
+                  <div className="flex items-center gap-1 text-[12px]">
+                    <span className="text-luigi-green-600 font-mono font-bold">↗{data.buys24h}</span>
+                    <span className="text-pipe-400">/</span>
+                    <span className="text-mario-red-600 font-mono font-bold">↘{data.sells24h}</span>
+                  </div>
+                )} */}
               </div>
+
+              {/* SOL to Graduate Progress Bar - Only for ABOUT_TO_BOND */}
+              {data.status === 'ABOUT_TO_BOND' && data.bondingCurveProgress != null && data.solToGraduate != null && (
+                <div className="mt-2 relative">
+                  <div className="bg-pipe-200 border-3 border-pipe-900 rounded-full h-5 overflow-hidden relative shadow-[2px_2px_0_rgba(0,0,0,0.2)]">
+                    <div 
+                      className="bg-gradient-to-r from-star-yellow-500 to-star-yellow-400 h-full flex items-center justify-center border-r-3 border-pipe-900 transition-all duration-500 relative"
+                      style={{ width: `${Math.min(data.bondingCurveProgress, 100)}%` }}
+                    >
+                      {/* Glow effect */}
+                      <div className="absolute inset-0 bg-star-yellow-300 opacity-50 animate-pulse" />
+                      <span className="text-[10px] font-bold text-pipe-900 z-10 relative drop-shadow-sm">
+                        🎯 {data.solToGraduate.toFixed(1)} SOL to bond
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* Bottom Row: Social Links & Creator */}
               <div className="flex items-center gap-3 mt-1">
@@ -291,12 +318,17 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
                 </div>
               </div>
 
-              {/* Volume */}
+              {/* Volume - USD and SOL */}
               <div className="mb-2">
                 <div className="text-[11px] text-pipe-500 uppercase">Vol 24h</div>
                 <div className="text-[14px] font-bold text-pipe-700 font-mono">
                   {fmtCurrency(data.volume24h)}
                 </div>
+                {data.volume24hSol != null && data.volume24hSol > 0 && (
+                  <div className="text-[10px] text-pipe-500 font-mono">
+                    {data.volume24hSol.toFixed(2)} SOL
+                  </div>
+                )}
               </div>
 
               {/* 24h Change */}
