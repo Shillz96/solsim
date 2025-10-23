@@ -3,7 +3,7 @@
 import Link from "next/link"
 import Image from "next/image"
 import { usePathname } from "next/navigation"
-import { Home, TrendingUp, Wallet, Trophy, Gift, Eye, Zap, BookOpen } from "lucide-react"
+import { Home, TrendingUp, Wallet, Trophy, Gift, Eye, Zap, Map } from "lucide-react"
 import { Twitter as XIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useState, useEffect } from "react"
@@ -85,7 +85,7 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
     { href: "/trade", icon: TrendingUp, label: "Trade" },
     { href: "/portfolio", icon: Wallet, label: "Portfolio" },
     { href: "/leaderboard", icon: Trophy, label: "Ranks" },
-    { href: "/docs", icon: BookOpen, label: "Docs" },
+    { href: "/roadmap", icon: Map, label: "Roadmap" },
   ]
 
   return (
@@ -264,14 +264,14 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
               </Button>
             </Link>
             {/* Docs Button */}
-            <Link href="/docs">
+            <Link href="/roadmap">
               <Button
                 variant="ghost"
                 size="sm"
                 className="text-xs font-medium hover:text-primary transition-colors flex items-center gap-1.5 h-8"
               >
-                <BookOpen className="h-4 w-4" />
-                Docs
+                <Map className="h-4 w-4" />
+                Roadmap
               </Button>
             </Link>
             {/* Theme toggle removed - Light mode only! */}
