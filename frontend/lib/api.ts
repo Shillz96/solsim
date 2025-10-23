@@ -1075,6 +1075,176 @@ export async function getTokenMetadata(mint: string): Promise<{
   };
 }
 
+// ========================================
+// Multi-Wallet Management API Functions
+// ========================================
+
+/**
+ * Get all wallets for a user
+ */
+async function getUserWallets(userId: string) {
+  const response = await fetch(`${API}/api/wallet/list/${userId}`, {
+    headers: getAuthHeaders()
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to fetch wallets');
+  }
+
+  const data = await response.json();
+  return data.wallets;
+}
+
+/**
+ * Get active wallet for a user
+ */
+async function getActiveWallet(userId: string) {
+  const response = await fetch(`${API}/api/wallet/active/${userId}`, {
+    headers: getAuthHeaders()
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to fetch active wallet');
+  }
+
+  const data = await response.json();
+  return data.wallet;
+}
+
+/**
+ * Create a new platform-generated wallet
+ */
+async function createWallet(userId: string, name: string) {
+  const response = await fetch(`${API}/api/wallet/create`, {
+    method: 'POST',
+    headers: getAuthHeaders(),
+    body: JSON.stringify({ userId, name })
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Failed to create wallet');
+  }
+
+  const data = await response.json();
+  return data.wallet;
+}
+
+/**
+ * Import an external wallet with private key
+ */
+async function importWallet(userId: string, name: string, privateKey: number[] | string) {
+  const response = await fetch(`${API}/api/wallet/import`, {
+    method: 'POST',
+    headers: getAuthHeaders(),
+    body: JSON.stringify({ userId, name, privateKey })
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Failed to import wallet');
+  }
+
+  const data = await response.json();
+  return data.wallet;
+}
+
+/**
+ * Set active wallet for trading
+ */
+async function setActiveWallet(userId: string, walletId: string) {
+  const response = await fetch(`${API}/api/wallet/set-active/${walletId}`, {
+    method: 'POST',
+    headers: getAuthHeaders(),
+    body: JSON.stringify({ userId })
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Failed to set active wallet');
+  }
+
+  return response.json();
+}
+
+/**
+ * Rename a wallet
+ */
+async function renameWallet(userId: string, walletId: string, newName: string) {
+  const response = await fetch(`${API}/api/wallet/rename/${walletId}`, {
+    method: 'PUT',
+    headers: getAuthHeaders(),
+    body: JSON.stringify({ userId, newName })
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Failed to rename wallet');
+  }
+
+  const data = await response.json();
+  return data.wallet;
+}
+
+/**
+ * Export wallet private key
+ */
+async function exportWalletKey(userId: string, walletId: string, confirmExport: boolean = false) {
+  const response = await fetch(`${API}/api/wallet/export-key/${walletId}`, {
+    method: 'POST',
+    headers: getAuthHeaders(),
+    body: JSON.stringify({ userId, confirmExport })
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Failed to export wallet key');
+  }
+
+  return response.json();
+}
+
+/**
+ * Transfer funds between wallets
+ */
+async function transferBetweenWallets(
+  userId: string,
+  fromWalletId: string,
+  toWalletId: string,
+  amount: number | string
+) {
+  const response = await fetch(`${API}/api/wallet/transfer`, {
+    method: 'POST',
+    headers: getAuthHeaders(),
+    body: JSON.stringify({ userId, fromWalletId, toWalletId, amount })
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Failed to transfer funds');
+  }
+
+  return response.json();
+}
+
+/**
+ * Delete a wallet
+ */
+async function deleteWallet(userId: string, walletId: string) {
+  const response = await fetch(`${API}/api/wallet/delete/${walletId}`, {
+    method: 'DELETE',
+    headers: getAuthHeaders(),
+    body: JSON.stringify({ userId })
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Failed to delete wallet');
+  }
+
+  return response.json();
+}
+
 export default {
   trade,
   getPortfolio,
@@ -1117,5 +1287,15 @@ export default {
   getPerpTradeHistory,
   getPerpWhitelist,
   apiCall,
+  // Multi-Wallet Management
+  getUserWallets,
+  getActiveWallet,
+  createWallet,
+  importWallet,
+  setActiveWallet,
+  renameWallet,
+  exportWalletKey,
+  transferBetweenWallets,
+  deleteWallet,
 };
 

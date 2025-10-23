@@ -352,4 +352,268 @@ export default async function walletRoutes(app: FastifyInstance) {
       return reply.code(500).send({ error: "Failed to fetch withdrawal history" });
     }
   });
+
+  // ========================================
+  // Multi-Wallet Management Endpoints
+  // ========================================
+
+  // Get all wallets for a user
+  app.get("/list/:userId", async (req, reply) => {
+    const { userId } = req.params as { userId: string };
+
+    try {
+      const wallets = await walletManagementService.getUserWallets(userId);
+      return {
+        success: true,
+        wallets
+      };
+    } catch (error: any) {
+      app.log.error('Failed to get user wallets:', error);
+      return reply.code(500).send({
+        success: false,
+        error: error.message || 'Failed to get wallets'
+      });
+    }
+  });
+
+  // Get active wallet for a user
+  app.get("/active/:userId", async (req, reply) => {
+    const { userId } = req.params as { userId: string };
+
+    try {
+      const wallet = await walletManagementService.getActiveWallet(userId);
+      
+      if (!wallet) {
+        return reply.code(404).send({
+          success: false,
+          error: 'No active wallet found'
+        });
+      }
+
+      return {
+        success: true,
+        wallet: {
+          id: wallet.id,
+          name: wallet.name,
+          walletType: wallet.walletType,
+          address: wallet.address,
+          balance: wallet.balance.toString(),
+          isActive: wallet.isActive
+        }
+      };
+    } catch (error: any) {
+      app.log.error('Failed to get active wallet:', error);
+      return reply.code(500).send({
+        success: false,
+        error: error.message || 'Failed to get active wallet'
+      });
+    }
+  });
+
+  // Create a new platform wallet
+  app.post("/create", async (req, reply) => {
+    const { userId, name } = req.body as { userId: string; name: string };
+
+    if (!userId || !name) {
+      return reply.code(400).send({
+        success: false,
+        error: 'Missing required fields: userId, name'
+      });
+    }
+
+    try {
+      const wallet = await walletManagementService.createWallet(userId, name);
+      return {
+        success: true,
+        wallet
+      };
+    } catch (error: any) {
+      app.log.error('Failed to create wallet:', error);
+      return reply.code(500).send({
+        success: false,
+        error: error.message || 'Failed to create wallet'
+      });
+    }
+  });
+
+  // Import an external wallet
+  app.post("/import", async (req, reply) => {
+    const { userId, name, privateKey } = req.body as {
+      userId: string;
+      name: string;
+      privateKey: number[] | string;
+    };
+
+    if (!userId || !name || !privateKey) {
+      return reply.code(400).send({
+        success: false,
+        error: 'Missing required fields: userId, name, privateKey'
+      });
+    }
+
+    try {
+      const wallet = await walletManagementService.importWallet(userId, name, privateKey);
+      return {
+        success: true,
+        wallet
+      };
+    } catch (error: any) {
+      app.log.error('Failed to import wallet:', error);
+      return reply.code(400).send({
+        success: false,
+        error: error.message || 'Failed to import wallet'
+      });
+    }
+  });
+
+  // Set active wallet
+  app.post("/set-active/:walletId", async (req, reply) => {
+    const { walletId } = req.params as { walletId: string };
+    const { userId } = req.body as { userId: string };
+
+    if (!userId) {
+      return reply.code(400).send({
+        success: false,
+        error: 'Missing required field: userId'
+      });
+    }
+
+    try {
+      const result = await walletManagementService.setActiveWallet(userId, walletId);
+      return result;
+    } catch (error: any) {
+      app.log.error('Failed to set active wallet:', error);
+      return reply.code(400).send({
+        success: false,
+        error: error.message || 'Failed to set active wallet'
+      });
+    }
+  });
+
+  // Rename wallet
+  app.put("/rename/:walletId", async (req, reply) => {
+    const { walletId } = req.params as { walletId: string };
+    const { userId, newName } = req.body as { userId: string; newName: string };
+
+    if (!userId || !newName) {
+      return reply.code(400).send({
+        success: false,
+        error: 'Missing required fields: userId, newName'
+      });
+    }
+
+    try {
+      const wallet = await walletManagementService.renameWallet(userId, walletId, newName);
+      return {
+        success: true,
+        wallet
+      };
+    } catch (error: any) {
+      app.log.error('Failed to rename wallet:', error);
+      return reply.code(400).send({
+        success: false,
+        error: error.message || 'Failed to rename wallet'
+      });
+    }
+  });
+
+  // Export wallet private key
+  app.post("/export-key/:walletId", async (req, reply) => {
+    const { walletId } = req.params as { walletId: string };
+    const { userId, confirmExport } = req.body as {
+      userId: string;
+      confirmExport?: boolean;
+    };
+
+    if (!userId) {
+      return reply.code(400).send({
+        success: false,
+        error: 'Missing required field: userId'
+      });
+    }
+
+    if (!confirmExport) {
+      return reply.code(400).send({
+        success: false,
+        error: 'Export confirmation required',
+        requiresConfirmation: true
+      });
+    }
+
+    try {
+      const result = await walletManagementService.exportWalletKey(userId, walletId);
+      
+      app.log.warn(`🔑 Private key export for wallet ${walletId} by user ${userId}`);
+
+      return {
+        success: true,
+        ...result,
+        warning: 'SECURITY WARNING: Never share this private key with anyone. Anyone with access to this key can control all funds in this wallet.'
+      };
+    } catch (error: any) {
+      app.log.error('Failed to export wallet key:', error);
+      return reply.code(400).send({
+        success: false,
+        error: error.message || 'Failed to export wallet key'
+      });
+    }
+  });
+
+  // Transfer funds between wallets
+  app.post("/transfer", async (req, reply) => {
+    const { userId, fromWalletId, toWalletId, amount } = req.body as {
+      userId: string;
+      fromWalletId: string;
+      toWalletId: string;
+      amount: number | string;
+    };
+
+    if (!userId || !fromWalletId || !toWalletId || amount === undefined) {
+      return reply.code(400).send({
+        success: false,
+        error: 'Missing required fields: userId, fromWalletId, toWalletId, amount'
+      });
+    }
+
+    try {
+      const result = await walletManagementService.transferBetweenWallets(
+        userId,
+        fromWalletId,
+        toWalletId,
+        amount
+      );
+
+      return result;
+    } catch (error: any) {
+      app.log.error('Failed to transfer funds:', error);
+      return reply.code(400).send({
+        success: false,
+        error: error.message || 'Failed to transfer funds'
+      });
+    }
+  });
+
+  // Delete wallet
+  app.delete("/delete/:walletId", async (req, reply) => {
+    const { walletId } = req.params as { walletId: string };
+    const { userId } = req.body as { userId: string };
+
+    if (!userId) {
+      return reply.code(400).send({
+        success: false,
+        error: 'Missing required field: userId'
+      });
+    }
+
+    try {
+      const result = await walletManagementService.deleteWallet(userId, walletId);
+      return result;
+    } catch (error: any) {
+      app.log.error('Failed to delete wallet:', error);
+      return reply.code(400).send({
+        success: false,
+        error: error.message || 'Failed to delete wallet'
+      });
+    }
+  });
 }
