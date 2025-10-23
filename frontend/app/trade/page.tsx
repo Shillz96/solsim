@@ -70,9 +70,11 @@ function TradePageContent() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
-      <main className="w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-6 pb-8 sm:pb-12 lg:pt-3 lg:pb-0 max-w-page-xl mx-auto">
-        {/* MOBILE-OPTIMIZED LAYOUT: Chart + Trading Panel Adjacent */}
-        <div className="lg:hidden space-y-4 sm:space-y-6">
+      <main className="w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:pt-3 lg:pb-0 max-w-page-xl mx-auto">
+        {/* MOBILE-OPTIMIZED LAYOUT: Scrollable container with proper spacing */}
+        <div className="lg:hidden">
+          {/* Add padding bottom to account for bottom navigation on mobile */}
+          <div className="space-y-4 sm:space-y-6 pb-24">
           {/* Sliding Trending Ticker - Mobile (Moved to Top) */}
           <motion.div
             initial={{ opacity: 0, y: -10 }}
@@ -91,13 +93,13 @@ function TradePageContent() {
             <TokenDetailsHeader tokenAddress={currentTokenAddress} />
           </motion.div>
 
-          {/* Chart Section - Mobile */}
+          {/* Chart Section - Mobile - Adjusted height for better mobile viewing */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <div className="h-[280px] sm:h-[360px] md:h-[420px] overflow-hidden rounded-lg">
+            <div className="h-[250px] sm:h-[320px] md:h-[380px] overflow-hidden rounded-lg">
               <Suspense fallback={<ChartSkeleton />}>
                 <DexScreenerChart tokenAddress={currentTokenAddress} />
               </Suspense>
@@ -176,6 +178,7 @@ function TradePageContent() {
               )}
             </div>
           </motion.div>
+          </div>
         </div>
 
         {/* DESKTOP LAYOUT: Optimized for Viewport Fit */}
@@ -198,8 +201,8 @@ function TradePageContent() {
             <TokenDetailsHeader tokenAddress={currentTokenAddress} />
           </motion.div>
 
-          {/* Grid height: Responsive - no bottom padding on main, so less overhead needed */}
-          <div className="lg:grid lg:grid-cols-12 lg:items-stretch gap-3 h-[calc(100dvh-25rem)] xl:h-[calc(100dvh-24rem)] 2xl:h-[calc(100dvh-23rem)]">
+          {/* Grid height: Calculate based on viewport height minus top elements */}
+          <div className="lg:grid lg:grid-cols-12 lg:items-stretch gap-3 h-[calc(100vh-16rem)] xl:h-[calc(100vh-15rem)] 2xl:h-[calc(100vh-14rem)]">
           {/* Left Sidebar - PnL Above Trade Activity */}
           <motion.aside
             className="lg:col-span-3 flex flex-col gap-3 min-h-0 overflow-hidden"

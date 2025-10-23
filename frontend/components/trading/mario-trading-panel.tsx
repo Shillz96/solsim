@@ -283,7 +283,7 @@ function MarioTradingPanelComponent({ tokenAddress: propTokenAddress }: MarioTra
   const tokenBalance = tokenHolding ? parseFloat(tokenHolding.qty) : 0
 
   return (
-    <div className="mario-card p-3 sm:p-4 md:p-6 relative overflow-hidden">
+    <div className="mario-card p-3 sm:p-4 md:p-6 relative">
       {/* Power-up Animation */}
       <AnimatePresence>
         {showPowerUpAnimation && (
@@ -355,22 +355,22 @@ function MarioTradingPanelComponent({ tokenAddress: propTokenAddress }: MarioTra
           </div>
         )}
 
-        {/* Tabs */}
+        {/* Tabs - Ensure proper sizing on mobile */}
         <Tabs defaultValue="buy" className="w-full">
           <TabsList className="grid w-full grid-cols-2 gap-2 bg-transparent p-1">
             <TabsTrigger
               value="buy"
-              className="mario-btn mario-btn-green data-[state=active]:scale-105 transition-transform"
+              className="mario-btn mario-btn-green data-[state=active]:scale-105 transition-transform text-xs sm:text-sm"
             >
-              <TrendingUp className="h-4 w-4 mr-2" />
+              <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
               BUY
             </TabsTrigger>
             <TabsTrigger
               value="sell"
-              className="mario-btn mario-btn-red data-[state=active]:scale-105 transition-transform"
+              className="mario-btn mario-btn-red data-[state=active]:scale-105 transition-transform text-xs sm:text-sm"
               disabled={!tokenHolding || tokenBalance <= 0}
             >
-              <TrendingDown className="h-4 w-4 mr-2" />
+              <TrendingDown className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
               SELL
             </TabsTrigger>
           </TabsList>
