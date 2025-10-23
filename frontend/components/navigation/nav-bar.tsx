@@ -70,25 +70,11 @@ const navigationItems = [
     description: "Buy and sell tokens"
   },
   {
-    name: "Stocks",
-    href: "/stocks",
-    icon: Building2,
-    iconSrc: "/icons/mario/stocks.png",
-    description: "Trade tokenized stocks"
-  },
-  {
     name: "Portfolio",
     href: "/portfolio",
     icon: Wallet,
     iconSrc: "/icons/mario/wallet.png",
     description: "Track your positions and P&L"
-  },
-  {
-    name: "Perps",
-    href: "/perps",
-    icon: Zap,
-    iconSrc: "/icons/mario/thunder.png",
-    description: "Leverage trading with perpetual futures"
   },
   {
     name: "Trending",

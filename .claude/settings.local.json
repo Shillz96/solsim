@@ -65,7 +65,8 @@
       "WebFetch(domain:docs.pumpportal.fun)",
       "WebFetch(domain:nextstepjs.com)",
       "WebFetch(domain:www.onborda.dev)",
-      "Bash(git mv:*)"
+      "Bash(git mv:*)",
+      "Bash(git rm:*)"
     ],
     "deny": [],
     "ask": []
