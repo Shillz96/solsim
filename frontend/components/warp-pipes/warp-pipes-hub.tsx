@@ -1,33 +1,29 @@
 /**
  * Warp Pipes Hub - Main client component
  *
- * 3-column layout for token discovery (Bonded | Graduating | New)
+ * Full-width 3-column layout for token discovery (New Pairs | About to Graduate | Bonded)
  * Mobile: Tab-based layout
  */
 
 "use client"
 
-import { useState, useMemo } from "react"
+import { useMemo } from "react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Loader2, AlertCircle, RefreshCw } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { FilterBar, type SortBy } from "./filter-bar"
 import { TokenColumn } from "./token-column"
 import { useWarpPipesFeed, useAddTokenWatch, useRemoveTokenWatch } from "@/hooks/use-warp-pipes"
 import { useAuth } from "@/hooks/use-auth"
 import { motion } from "framer-motion"
-import { cn } from "@/lib/utils"
 
 export function WarpPipesHub() {
-  const [searchQuery, setSearchQuery] = useState("")
-  const [sortBy, setSortBy] = useState<SortBy>("hot")
   const { isAuthenticated } = useAuth()
 
-  // Fetch feed data
+  // Fetch feed data (using default 'hot' sort)
   const { data, isLoading, error, refetch } = useWarpPipesFeed({
-    searchQuery,
-    sortBy,
+    searchQuery: "",
+    sortBy: "hot",
   })
 
   // Watch mutations
@@ -67,7 +63,7 @@ export function WarpPipesHub() {
   }, [data])
 
   return (
-    <div className="container mx-auto px-4 py-6 max-w-[1600px]">
+    <div className="w-full px-4 py-6">
       {/* Page Header */}
       <div className="mb-6">
         <motion.h1
@@ -78,18 +74,9 @@ export function WarpPipesHub() {
           🎮 Warp Pipes Hub
         </motion.h1>
         <p className="text-muted-foreground">
-          Discover new tokens as they progress: Bonded → Graduating → New Pool
+          Discover new tokens as they progress: New Pairs → About to Graduate → Bonded
         </p>
       </div>
-
-      {/* Filter Bar */}
-      <FilterBar
-        searchQuery={searchQuery}
-        sortBy={sortBy}
-        onSearchChange={setSearchQuery}
-        onSortChange={setSortBy}
-        className="mb-6"
-      />
 
       {/* Error State */}
       {error && (
@@ -110,8 +97,22 @@ export function WarpPipesHub() {
         </Alert>
       )}
 
-      {/* Desktop: 3-Column Layout */}
-      <div className="hidden lg:grid lg:grid-cols-3 gap-4 h-[calc(100vh-320px)]">
+      {/* Desktop: 3-Column Layout - Reordered: New Pairs | About to Graduate | Bonded */}
+      <div className="hidden lg:grid lg:grid-cols-3 gap-4 h-[calc(100vh-240px)]">
+        <TokenColumn
+          title="🆕 New Pairs"
+          tokens={newTokens}
+          isLoading={isLoading}
+          onToggleWatch={handleToggleWatch}
+          headerColor="new"
+        />
+        <TokenColumn
+          title="⭐ About to Graduate"
+          tokens={graduating}
+          isLoading={isLoading}
+          onToggleWatch={handleToggleWatch}
+          headerColor="graduating"
+        />
         <TokenColumn
           title="🪙 Bonded"
           tokens={bonded}
@@ -119,59 +120,45 @@ export function WarpPipesHub() {
           onToggleWatch={handleToggleWatch}
           headerColor="bonded"
         />
-        <TokenColumn
-          title="⭐ Graduating"
-          tokens={graduating}
-          isLoading={isLoading}
-          onToggleWatch={handleToggleWatch}
-          headerColor="graduating"
-        />
-        <TokenColumn
-          title="🍄 New Pool"
-          tokens={newTokens}
-          isLoading={isLoading}
-          onToggleWatch={handleToggleWatch}
-          headerColor="new"
-        />
       </div>
 
       {/* Mobile: Tabs Layout */}
       <div className="lg:hidden">
-        <Tabs defaultValue="bonded" className="w-full">
+        <Tabs defaultValue="new" className="w-full">
           <TabsList className="grid w-full grid-cols-3 mb-4 border-3 border-pipe-400">
+            <TabsTrigger
+              value="new"
+              className="data-[state=active]:bg-luigi-green-500 data-[state=active]:text-white font-semibold"
+            >
+              🆕 New ({newTokens.length})
+            </TabsTrigger>
+            <TabsTrigger
+              value="graduating"
+              className="data-[state=active]:bg-star-yellow-500 data-[state=active]:text-black font-semibold"
+            >
+              ⭐ Graduate ({graduating.length})
+            </TabsTrigger>
             <TabsTrigger
               value="bonded"
               className="data-[state=active]:bg-coin-yellow-500 data-[state=active]:text-black font-semibold"
             >
               🪙 Bonded ({bonded.length})
             </TabsTrigger>
-            <TabsTrigger
-              value="graduating"
-              className="data-[state=active]:bg-star-yellow-500 data-[state=active]:text-black font-semibold"
-            >
-              ⭐ Graduating ({graduating.length})
-            </TabsTrigger>
-            <TabsTrigger
-              value="new"
-              className="data-[state=active]:bg-luigi-green-500 data-[state=active]:text-white font-semibold"
-            >
-              🍄 New ({newTokens.length})
-            </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="bonded">
+          <TabsContent value="new">
             <TokenColumn
-              title="🪙 Bonded Tokens"
-              tokens={bonded}
+              title="🆕 New Pairs"
+              tokens={newTokens}
               isLoading={isLoading}
               onToggleWatch={handleToggleWatch}
-              headerColor="bonded"
+              headerColor="new"
             />
           </TabsContent>
 
           <TabsContent value="graduating">
             <TokenColumn
-              title="⭐ Graduating Tokens"
+              title="⭐ About to Graduate"
               tokens={graduating}
               isLoading={isLoading}
               onToggleWatch={handleToggleWatch}
@@ -179,13 +166,13 @@ export function WarpPipesHub() {
             />
           </TabsContent>
 
-          <TabsContent value="new">
+          <TabsContent value="bonded">
             <TokenColumn
-              title="🍄 New Pools"
-              tokens={newTokens}
+              title="🪙 Bonded"
+              tokens={bonded}
               isLoading={isLoading}
               onToggleWatch={handleToggleWatch}
-              headerColor="new"
+              headerColor="bonded"
             />
           </TabsContent>
         </Tabs>

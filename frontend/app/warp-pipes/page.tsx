@@ -9,11 +9,11 @@ import { WarpPipesHub } from "@/components/warp-pipes/warp-pipes-hub"
 
 export const metadata: Metadata = {
   title: "Warp Pipes Hub | 1UP SOL",
-  description: "Discover new Solana tokens as they progress from bonded to graduating to new pools. Track token health, liquidity, and migration status in real-time.",
+  description: "Discover new Solana tokens as they progress from new pairs to about to graduate to bonded. Track token health, liquidity, and migration status in real-time.",
   openGraph: {
     title: "Warp Pipes Hub | 1UP SOL",
-    description: "Discover new Solana tokens in real-time. Watch tokens progress from bonded curve to AMM pools.",
-    images: ["/og-image.png"],
+    description: "Discover new Solana tokens in real-time. Watch tokens progress from new pairs to bonded curve.",
+    images: ["/og-image.svg"],
   },
 }
 

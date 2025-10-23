@@ -39,7 +39,7 @@ export function TokenColumn({
       {/* Column Header */}
       <div
         className={cn(
-          "p-4 rounded-t-xl border-4 border-b-0 font-bold text-center text-lg",
+          "p-3 rounded-t-lg border-3 border-b-0 font-bold text-center text-base",
           "shadow-md",
           headerColors[headerColor]
         )}
@@ -53,14 +53,14 @@ export function TokenColumn({
       {/* Column Body - Scrollable */}
       <div
         className={cn(
-          "flex-1 overflow-y-auto bg-sky-50 border-4 border-t-0 rounded-b-xl",
-          "shadow-md p-3 space-y-3",
+          "flex-1 overflow-y-auto bg-sky-50 border-3 border-t-0 rounded-b-lg",
+          "shadow-md p-2 space-y-2",
           headerColor === "bonded" && "border-coin-yellow-700",
           headerColor === "graduating" && "border-star-yellow-700",
           headerColor === "new" && "border-luigi-green-700"
         )}
         style={{
-          maxHeight: "calc(100vh - 280px)", // Adjust based on header/filter bar height
+          maxHeight: "calc(100vh - 200px)", // Adjust based on header height
           minHeight: "400px",
         }}
       >
