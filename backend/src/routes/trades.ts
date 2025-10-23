@@ -131,6 +131,43 @@ export default async function tradesRoutes(app: FastifyInstance) {
     }
   });
 
+  // Get trades for a specific user and token (for chart markers)
+  app.get("/user/:userId/token/:mint", async (req, reply) => {
+    const { userId, mint } = req.params as { userId: string; mint: string };
+
+    try {
+      const trades = await prisma.trade.findMany({
+        where: {
+          userId,
+          mint,
+        },
+        orderBy: { timestamp: 'asc' }, // Chronological order for chart markers
+        select: {
+          id: true,
+          side: true,
+          quantity: true,
+          price: true,
+          timestamp: true,
+          totalCost: true,
+          tradeMode: true,
+          tokenSymbol: true,
+          tokenName: true,
+        },
+      });
+
+      return {
+        success: true,
+        trades,
+      };
+    } catch (error: any) {
+      app.log.error(error);
+      return reply.code(500).send({
+        success: false,
+        error: "Failed to fetch user trades for token",
+      });
+    }
+  });
+
   // Get trade statistics
   app.get("/stats", async (req, reply) => {
     try {
@@ -144,7 +181,7 @@ export default async function tradesRoutes(app: FastifyInstance) {
           _count: { userId: true }
         })
       ]);
-      
+
       return {
         totalTrades,
         totalVolumeUsd: totalVolume._sum.costUsd?.toString() || "0",
