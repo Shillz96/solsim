@@ -32,14 +32,42 @@ function getAuthHeaders(): HeadersInit {
  * Get token discovery feed (bonded, graduating, new)
  */
 export async function getWarpPipesFeed(
-  filters?: FeedFilters
+  filters?: FeedFilters & Record<string, any>
 ): Promise<WarpPipesFeedResponse> {
   const params = new URLSearchParams()
 
+  // Basic filters
   if (filters?.searchQuery) params.append("searchQuery", filters.searchQuery)
   if (filters?.sortBy) params.append("sortBy", filters.sortBy)
   if (filters?.minLiquidity) params.append("minLiquidity", filters.minLiquidity.toString())
   if (filters?.onlyWatched) params.append("onlyWatched", "true")
+
+  // Advanced Audit Filters
+  if (filters?.dexPaid !== undefined) params.append("dexPaid", filters.dexPaid.toString())
+  if (filters?.minAge !== undefined) params.append("minAge", filters.minAge.toString())
+  if (filters?.maxAge !== undefined) params.append("maxAge", filters.maxAge.toString())
+  if (filters?.maxTop10Holders !== undefined) params.append("maxTop10Holders", filters.maxTop10Holders.toString())
+  if (filters?.maxDevHolding !== undefined) params.append("maxDevHolding", filters.maxDevHolding.toString())
+  if (filters?.maxSnipers !== undefined) params.append("maxSnipers", filters.maxSnipers.toString())
+
+  // Advanced Metric Filters
+  if (filters?.minLiquidityUsd !== undefined) params.append("minLiquidityUsd", filters.minLiquidityUsd.toString())
+  if (filters?.maxLiquidityUsd !== undefined) params.append("maxLiquidityUsd", filters.maxLiquidityUsd.toString())
+  if (filters?.minVolume24h !== undefined) params.append("minVolume24h", filters.minVolume24h.toString())
+  if (filters?.maxVolume24h !== undefined) params.append("maxVolume24h", filters.maxVolume24h.toString())
+  if (filters?.minMarketCap !== undefined) params.append("minMarketCap", filters.minMarketCap.toString())
+  if (filters?.maxMarketCap !== undefined) params.append("maxMarketCap", filters.maxMarketCap.toString())
+
+  // Advanced Social Filters
+  if (filters?.requireTwitter !== undefined) params.append("requireTwitter", filters.requireTwitter.toString())
+  if (filters?.requireTelegram !== undefined) params.append("requireTelegram", filters.requireTelegram.toString())
+  if (filters?.requireWebsite !== undefined) params.append("requireWebsite", filters.requireWebsite.toString())
+
+  // Advanced Bonding Filters
+  if (filters?.minBondingProgress !== undefined) params.append("minBondingProgress", filters.minBondingProgress.toString())
+  if (filters?.maxBondingProgress !== undefined) params.append("maxBondingProgress", filters.maxBondingProgress.toString())
+  if (filters?.minSolToGraduate !== undefined) params.append("minSolToGraduate", filters.minSolToGraduate.toString())
+  if (filters?.maxSolToGraduate !== undefined) params.append("maxSolToGraduate", filters.maxSolToGraduate.toString())
 
   const url = `${API_BASE_URL}/api/warp-pipes/feed${params.toString() ? `?${params}` : ""}`
 
