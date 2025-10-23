@@ -75,7 +75,7 @@ export function ProfileMenu({
             </div>
           </div>
 
-          {/* Compact profile picture with notification badge */}
+          {/* Compact profile picture */}
           <div className="relative flex-shrink-0">
             <div
               className={cn(
@@ -94,12 +94,6 @@ export function ProfileMenu({
                 </AvatarFallback>
               </Avatar>
             </div>
-            {/* Notification badge on avatar */}
-            {unreadNotificationCount > 0 && (
-              <Badge className="absolute -top-1 -right-1 h-4 w-4 flex items-center justify-center p-0 text-[8px] bg-mario-red-500 border-2 border-white font-bold rounded-full">
-                {unreadNotificationCount > 9 ? '9+' : unreadNotificationCount}
-              </Badge>
-            )}
           </div>
         </motion.button>
       </DropdownMenuTrigger>
