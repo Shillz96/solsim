@@ -287,41 +287,41 @@ export function TradeEmptyState() {
           transition={{ delay: 0.5, duration: 0.6 }}
           className="grid grid-cols-1 md:grid-cols-3 gap-6"
         >
-          <EnhancedCard className="p-6 shadow-md">
+          <div className="bg-white rounded-2xl border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] p-6">
             <div className="space-y-3">
-              <div className="h-12 w-12 rounded-full bg-green-500/10 flex items-center justify-center">
-                <TrendingUp className="h-6 w-6 text-green-600" />
+              <div className="h-12 w-12 rounded-xl bg-[var(--luigi-green)] border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] flex items-center justify-center">
+                <TrendingUp className="h-6 w-6 text-white" />
               </div>
-              <h3 className="font-semibold text-lg">Real-Time Data</h3>
-              <p className="text-sm text-muted-foreground">
+              <h3 className="font-mario text-lg">Real-Time Data</h3>
+              <p className="text-sm text-muted-foreground font-bold">
                 All prices are updated in real-time from Solana DEXes including Raydium and Pump.fun
               </p>
             </div>
-          </EnhancedCard>
+          </div>
 
-          <EnhancedCard className="p-6 shadow-md">
+          <div className="bg-white rounded-2xl border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] p-6">
             <div className="space-y-3">
-              <div className="h-12 w-12 rounded-full bg-blue-500/10 flex items-center justify-center">
-                <Sparkles className="h-6 w-6 text-blue-600" />
+              <div className="h-12 w-12 rounded-xl bg-[var(--sky-blue)] border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] flex items-center justify-center">
+                <Sparkles className="h-6 w-6 text-white" />
               </div>
-              <h3 className="font-semibold text-lg">Zero Risk Trading</h3>
-              <p className="text-sm text-muted-foreground">
+              <h3 className="font-mario text-lg">Zero Risk Trading</h3>
+              <p className="text-sm text-muted-foreground font-bold">
                 Practice with virtual SOL. No real money involved, perfect for learning and testing strategies
               </p>
             </div>
-          </EnhancedCard>
+          </div>
 
-          <EnhancedCard className="p-6 shadow-md">
+          <div className="bg-white rounded-2xl border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] p-6">
             <div className="space-y-3">
-              <div className="h-12 w-12 rounded-full bg-purple-500/10 flex items-center justify-center">
-                <Search className="h-6 w-6 text-purple-600" />
+              <div className="h-12 w-12 rounded-xl bg-[var(--mario-red)] border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] flex items-center justify-center">
+                <Search className="h-6 w-6 text-white" />
               </div>
-              <h3 className="font-semibold text-lg">Discover Tokens</h3>
-              <p className="text-sm text-muted-foreground">
+              <h3 className="font-mario text-lg">Discover Tokens</h3>
+              <p className="text-sm text-muted-foreground font-bold">
                 Browse trending tokens, search by name or symbol, and explore the Solana ecosystem
               </p>
             </div>
-          </EnhancedCard>
+          </div>
         </motion.div>
 
         {/* Decorative Elements */}

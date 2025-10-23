@@ -309,7 +309,7 @@ export function NavBar() {
                 placeholder="Search tokens..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 pr-10 w-full h-9 border border-border hover:border-foreground/20 focus:border-foreground transition-colors"
+                className="pl-10 pr-10 w-full h-9 border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)] transition-all font-bold"
               />
               {isSearching && (
                 <Loader2 className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 animate-spin text-muted-foreground" />
@@ -324,10 +324,10 @@ export function NavBar() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
                 transition={{ duration: 0.15 }}
-                className="absolute top-full left-0 right-0 mt-2 bg-dropdown text-dropdown-foreground border border-dropdown-border rounded-lg shadow-2xl z-[100] max-h-80 overflow-y-auto"
+                className="absolute top-full left-0 right-0 mt-2 bg-white border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] rounded-xl z-[100] max-h-80 overflow-y-auto"
               >
                   <div className="p-2">
-                    <div className="text-xs text-muted-foreground px-2 py-2 font-semibold border-b-2 border-border mb-1 uppercase tracking-wide">
+                    <div className="text-xs text-muted-foreground px-2 py-2 font-mario font-bold border-b-3 border-[var(--outline-black)] mb-1 uppercase tracking-wide">
                       Search Results
                     </div>
                     {searchResults.map((token) => (
@@ -339,7 +339,7 @@ export function NavBar() {
                           e.stopPropagation() // Stop event from bubbling to document
                           handleTokenSelect(token)
                         }}
-                        className="w-full text-left px-3 py-2.5 rounded-md hover:bg-accent hover:text-accent-foreground transition-colors duration-150 focus:bg-accent focus:text-accent-foreground focus:outline-none"
+                        className="w-full text-left px-3 py-2.5 rounded-lg hover:bg-[var(--star-yellow)]/20 border-2 border-transparent hover:border-[var(--outline-black)] transition-colors duration-150 focus:bg-[var(--star-yellow)]/20 focus:border-[var(--outline-black)] focus:outline-none"
                       >
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-3">
@@ -347,26 +347,26 @@ export function NavBar() {
                               <img
                                 src={token.logoURI}
                                 alt={token.symbol}
-                                className="w-7 h-7 rounded-sm flex-shrink-0"
+                                className="w-7 h-7 rounded-full border-2 border-[var(--outline-black)] flex-shrink-0"
                                 onError={(e) => {
                                   (e.target as HTMLImageElement).style.display = 'none'
                                 }}
                               />
                             )}
                             <div className="min-w-0">
-                              <div className="font-semibold text-sm text-foreground">{token.symbol}</div>
-                              <div className="text-xs text-muted-foreground truncate max-w-[200px]">
+                              <div className="font-mario text-sm text-foreground">{token.symbol}</div>
+                              <div className="text-xs text-muted-foreground truncate max-w-[200px] font-bold">
                                 {token.name}
                               </div>
                             </div>
                           </div>
                           {token.price && (
                             <div className="text-right flex-shrink-0 ml-2">
-                              <div className="text-sm font-medium text-foreground tabular-nums">
+                              <div className="text-sm font-bold text-foreground tabular-nums">
                                 ${parseFloat(token.price.toString()).toFixed(6)}
                               </div>
                               {solPrice > 0 && (
-                                <div className="text-xs text-muted-foreground tabular-nums">
+                                <div className="text-xs text-muted-foreground tabular-nums font-bold">
                                   {formatSolEquivalent(parseFloat(token.price.toString()), solPrice)}
                                 </div>
                               )}
@@ -387,7 +387,7 @@ export function NavBar() {
                 {/* Balance Display - Clickable */}
                 <button
                   onClick={() => setPurchaseModalOpen(true)}
-                  className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white border-2 border-pipe-600 hover:border-mario-red-500 transition-all cursor-pointer group shadow-sm hover:shadow-md"
+                  className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all cursor-pointer group"
                   aria-label="Purchase simulated SOL"
                 >
                   <Image src="/icons/mario/wallet.png" alt="Wallet" width={18} height={18} className="group-hover:scale-110 transition-transform" />
@@ -408,7 +408,7 @@ export function NavBar() {
                   <div className="hidden md:block">
                     <button
                       onClick={() => setLevelModalOpen(true)}
-                      className="cursor-pointer px-3 py-1.5 bg-gradient-to-r from-star-yellow-400 to-coin-yellow-500 border-2 border-star-yellow-600 hover:border-star-yellow-700 transition-all hover:scale-105 shadow-sm hover:shadow-md rounded-lg"
+                      className="cursor-pointer px-3 py-1.5 bg-gradient-to-r from-[var(--star-yellow)] to-[var(--coin-yellow)] border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all rounded-lg"
                     >
                       <XPBadge
                         currentXP={parseFloat(user.rewardPoints?.toString() || '0')}
@@ -427,24 +427,24 @@ export function NavBar() {
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" className="p-0 hover:opacity-80 rounded-lg transition-opacity">
-                        <Avatar className="h-9 w-9 rounded-lg border-2 border-pipe-600 hover:border-mario-red-500 transition-all shadow-sm bg-mario-red-500">
+                        <Avatar className="h-9 w-9 rounded-lg border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all bg-[var(--mario-red)]">
                           <AvatarImage src={avatarUrl} alt={displayName} className="rounded-lg object-cover" />
-                          <AvatarFallback className="bg-mario-red-500 text-white text-sm font-bold rounded-lg">
+                          <AvatarFallback className="bg-[var(--mario-red)] text-white text-sm font-bold rounded-lg">
                             {displayName?.[0]?.toUpperCase() || 'U'}
                           </AvatarFallback>
                         </Avatar>
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-56">
-                      <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                    <DropdownMenuContent align="end" className="w-56 bg-white border-3 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)]">
+                      <DropdownMenuLabel className="font-mario">My Account</DropdownMenuLabel>
                       <DropdownMenuItem asChild>
-                        <Link href="/profile/settings" className="flex items-center gap-2">
+                        <Link href="/profile/settings" className="flex items-center gap-2 font-bold">
                           <Settings className="h-4 w-4" />
                           Settings
                         </Link>
                       </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem onClick={handleLogout} className="text-red-600">
+                      <DropdownMenuSeparator className="bg-[var(--outline-black)]" />
+                      <DropdownMenuItem onClick={handleLogout} className="text-[var(--mario-red)] font-bold">
                         <LogOut className="h-4 w-4 mr-2" />
                         Logout
                       </DropdownMenuItem>
@@ -464,7 +464,7 @@ export function NavBar() {
                 <Button
                   variant="outline"
                   size="sm"
-                  className="lg:hidden border-2 border-border bg-background hover:bg-muted h-9 w-9 p-0"
+                  className="lg:hidden border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] bg-white hover:bg-[var(--star-yellow)]/20 h-9 w-9 p-0"
                   aria-label="Open navigation menu"
                 >
                   <Menu className="h-5 w-5" />
@@ -474,7 +474,7 @@ export function NavBar() {
                 <div className="flex flex-col space-y-4 mt-4">
                   {/* XP Display - Mobile */}
                   {isAuthenticated && user && (
-                    <div className="px-3 py-2 bg-gradient-to-r from-mario-yellow/20 to-mario-orange/20 border-2 border-mario-yellow/50 rounded-lg">
+                    <div className="px-3 py-2 bg-gradient-to-r from-[var(--star-yellow)]/20 to-[var(--coin-yellow)]/20 border-3 border-[var(--star-yellow)] shadow-[3px_3px_0_var(--outline-black)] rounded-lg">
                       <XPBadge currentXP={parseFloat(user.rewardPoints?.toString() || '0')} />
                     </div>
                   )}
