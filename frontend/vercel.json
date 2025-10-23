@@ -1,13 +1,12 @@
 {
-  "buildCommand": "npm run build -- --webpack",
+  "buildCommand": "npm run build",
   "outputDirectory": ".next",
   "framework": "nextjs",
   "regions": ["sfo1"],
-  "installCommand": "npm install --legacy-peer-deps",
+  "installCommand": "npm ci || npm install",
   "functions": {
     "app/**/*": {
-      "maxDuration": 10,
-      "includeFiles": "node_modules/styled-jsx/**"
+      "maxDuration": 10
     }
   },
   "headers": [
@@ -61,4 +60,3 @@
     }
   ]
 }
-

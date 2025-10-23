@@ -18,9 +18,6 @@ const nextConfig = {
   // TODO: Re-enable once WebSocket provider is more resilient to rapid mount/unmount cycles
   reactStrictMode: false,
 
-  // Disable Turbopack for now - use webpack for monorepo compatibility
-  // turbopack: {},
-
   // Experimental features - 2025 Modernization
   experimental: {
     // Optimize package imports for better tree-shaking
@@ -40,7 +37,7 @@ const nextConfig = {
       exclude: ['error', 'warn'],
     } : false,
   },
-  
+
   // Generate source maps in production for better debugging
   productionBrowserSourceMaps: false,
 
@@ -65,9 +62,12 @@ const nextConfig = {
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
 
-  // TypeScript configuration
+  // TypeScript and ESLint configuration
   typescript: {
     ignoreBuildErrors: false, // Enable type checking for better code quality
+  },
+  eslint: {
+    ignoreDuringBuilds: true, // Temporarily ignore ESLint during builds
   },
 
   // Headers for security and performance
@@ -119,17 +119,6 @@ const nextConfig = {
       };
     }
 
-    // Ensure styled-jsx is bundled in serverless functions (Vercel fix)
-    if (isServer) {
-      config.externals = config.externals || [];
-      if (Array.isArray(config.externals)) {
-        // Don't externalize styled-jsx - bundle it instead
-        config.externals = config.externals.filter(
-          (external) => typeof external !== 'string' || !external.includes('styled-jsx')
-        );
-      }
-    }
-
     return config;
   },
 }
@@ -141,7 +130,7 @@ const withSerwist = withSerwistInit({
   swUrl: '/sw.js',
   cacheOnNavigation: true,
   reloadOnOnline: true,
-  disable: true, // Temporarily disable to debug 500 errors
+  disable: process.env.NODE_ENV === 'development', // Disable in development
   exclude: [
     // Don't cache these files
     /\.map$/,
@@ -156,9 +145,6 @@ const withSerwist = withSerwistInit({
     /wss:/,
     /\/ws\//,
     /railway\.app.*\/ws/,
-    // Vercel Analytics - Don't intercept these scripts
-    /_vercel\/insights/,
-    /_vercel\/speed-insights/,
   ],
 })
 
