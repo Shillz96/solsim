@@ -442,40 +442,289 @@ All environment variables are documented in **ENVIRONMENT_SETUP.md**.
 
 ## Mario Theme Development Guidelines
 
-When working on frontend components, follow these Mario theme guidelines:
+When working on frontend components, follow these Mario theme guidelines to maintain visual consistency across the entire platform.
 
-### Color Usage
-- **Primary Actions**: Use `bg-mario-red-500` for Buy buttons and CTAs
-- **Success States**: Use `bg-luigi-green-500` or profit green `#00ff85`
-- **Highlights**: Use `bg-star-yellow-500` or `bg-coin-yellow-500`
-- **Backgrounds**: Use `bg-white`, `bg-sky-50`, or `bg-sky-100`
-- **Neutral Elements**: Use `bg-pipe-*`, `text-pipe-*`, `border-pipe-*`
+### CSS Custom Properties (Theme Tokens)
+
+**Always use CSS custom properties for colors** to ensure consistency and maintainability:
+
+```typescript
+// ✅ CORRECT - Use CSS custom properties
+<div className="bg-[var(--star-yellow)]">
+<div className="border-4 border-[var(--outline-black)]">
+<div className="text-[var(--mario-red)]">
+
+// ❌ WRONG - Don't use Tailwind color scales
+<div className="bg-yellow-400">
+<div className="border-gray-900">
+<div className="text-red-500">
+```
+
+**Available Mario Theme Tokens** (defined in `frontend/app/globals.css`):
+
+```css
+--mario-red: #E52521;        /* Mario Red - Primary actions, danger */
+--luigi-green: #43B047;      /* Luigi Green - Success, safe states */
+--star-yellow: #FFD800;      /* Star Yellow - Highlights, CTAs */
+--coin-yellow: #FFD700;      /* Coin Yellow - Gold elements */
+--sky-blue: #A6D8FF;         /* Sky Blue - Info, water elements */
+--pipe-green: #00994C;       /* Pipe Green - Neutral elements */
+--outline-black: #1C1C1C;    /* Outline Black - Borders, shadows */
+```
+
+**Common Backgrounds**:
+```css
+--background: #FFFAE9;       /* Warm Paper Cream - Main background */
+--card: #FFFAE9;             /* Card background */
+```
+
+### Button Patterns
+
+**CartridgePill Component** - The standard button pattern for 1UP SOL:
+
+```tsx
+import { CartridgePill } from "@/components/ui/cartridge-pill"
+
+// Small button (h-9, 14px text)
+<CartridgePill
+  value="Button Text"
+  size="sm"
+/>
+
+// Medium button (h-11, 16px text)
+<CartridgePill
+  value="Button Text"
+  size="md"
+/>
+
+// Custom colors
+<CartridgePill
+  value="Wallet Tracker"
+  bgColor="var(--sky-blue)"
+  size="sm"
+/>
+
+// With badge
+<CartridgePill
+  value="97.18 SOL"
+  badgeText="P"
+  badgeColor="var(--mario-red)"
+/>
+
+// As link
+<CartridgePill
+  value="Leaderboard"
+  href="/leaderboard"
+  bgColor="var(--luigi-green)"
+/>
+
+// With click handler
+<CartridgePill
+  value="Trade Now"
+  onClick={() => handleTrade()}
+/>
+```
+
+**CartridgePill Features**:
+- **Automatic styling**: Bold 4px black borders, block shadows, rounded corners
+- **Hover effects**: Lifts up slightly (-1px translateY) on hover
+- **Sizes**: `sm` (h-9) or `md` (h-11)
+- **Layouts**: `row` (default) or `col` (stacked label/value)
+- **Optional badge**: Red square with white text (customizable)
+- **Props**: `value`, `label`, `badgeText`, `href`, `onClick`, `size`, `bgColor`, `badgeColor`, `layout`
+
+**When to use CartridgePill**:
+- Navigation buttons (Wallet Tracker, Leaderboard, Trading Mode)
+- Primary CTAs
+- Mode toggles
+- Status indicators
+- Quick actions
+
+### Card Patterns
+
+**Standard Mario Card**:
+```tsx
+<div className="bg-white border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] rounded-[16px] p-6 hover:shadow-[8px_8px_0_var(--outline-black)] hover:-translate-y-[2px] transition-all">
+  {/* Card content */}
+</div>
+```
+
+**Card Anatomy**:
+- **Background**: `bg-white` or `bg-[var(--background)]`
+- **Border**: `border-4 border-[var(--outline-black)]` (chunky 4px black border)
+- **Shadow**: `shadow-[6px_6px_0_var(--outline-black)]` (offset block shadow)
+- **Corners**: `rounded-[16px]` or `rounded-[14px]`
+- **Hover**: Increase shadow and lift card (`-translate-y-[2px]`)
+- **Padding**: `p-6` (1.5rem) or `p-4` (1rem) for compact cards
+
+**Card Variants**:
+
+```tsx
+// Compact card
+<div className="bg-white border-3 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)] rounded-[12px] p-4">
+
+// Interactive card (clickable)
+<Link href="/details">
+  <div className="bg-white border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] rounded-[16px] p-6 cursor-pointer hover:shadow-[8px_8px_0_var(--outline-black)] hover:-translate-y-[2px] transition-all">
+    {/* Card content */}
+  </div>
+</Link>
+
+// Colored card (for special states)
+<div className="bg-[var(--luigi-green)] border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] rounded-[16px] p-6 text-white">
+  {/* Success card */}
+</div>
+```
 
 ### Typography
-- **Headers**: Use `.font-mario` (Press Start 2P pixel font) with text shadows
-- **Body Text**: Use system fonts (default)
-- **Numbers/Prices**: Use `.font-mono` for alignment
 
-### Components
-- **Cards**: Use `.mario-card` with bold borders (3-4px)
-- **Buttons**: Use `.mario-btn` with 3D block shadows
-- **Borders**: Use `border-3` or `border-4` for Mario aesthetic
-- **Shadows**: Use `shadow-mario` for 3D block effect
-- **Rounded Corners**: Use `rounded-lg` or `rounded-xl` (not too soft)
+**Headers**:
+```tsx
+// Large hero text
+<h1 className="font-mario text-[32px] text-[var(--mario-red)] drop-shadow-[3px_3px_0_var(--outline-black)]">
+  1UP SOL
+</h1>
+
+// Section headers
+<h2 className="font-mario text-[18px] text-[var(--outline-black)]">
+  Your Portfolio
+</h2>
+
+// Small headers
+<h3 className="font-mario text-[14px] text-[var(--outline-black)] uppercase">
+  Recent Trades
+</h3>
+```
+
+**Body Text**:
+```tsx
+// Regular text (default system font)
+<p className="text-[14px] text-[var(--outline-black)]">
+  Trade tokens on Solana with virtual SOL
+</p>
+
+// Muted text
+<span className="text-[12px] text-[var(--outline-black)] opacity-70">
+  Updated 5 minutes ago
+</span>
+```
+
+**Numbers/Prices** (use monospace for alignment):
+```tsx
+<span className="font-mono text-[16px] font-bold text-[var(--outline-black)]">
+  $1,234.56
+</span>
+
+// Profit/loss colors
+<span className="font-mono text-[16px] font-bold text-[var(--luigi-green)]">
+  +$123.45
+</span>
+<span className="font-mono text-[16px] font-bold text-[var(--mario-red)]">
+  -$123.45
+</span>
+```
+
+### Borders and Shadows
+
+**Border Thickness**:
+- **Thin**: `border-2` (2px) - Subtle dividers, list items
+- **Medium**: `border-3` (3px) - Standard elements, badges
+- **Thick**: `border-4` (4px) - Primary cards, buttons, CTAs
+
+**Block Shadows** (Mario 3D effect):
+```tsx
+// Small shadow (for compact elements)
+shadow-[3px_3px_0_var(--outline-black)]
+
+// Medium shadow (standard cards/buttons)
+shadow-[4px_4px_0_var(--outline-black)]
+
+// Large shadow (prominent cards)
+shadow-[6px_6px_0_var(--outline-black)]
+
+// Hover shadow (larger than resting state)
+hover:shadow-[8px_8px_0_var(--outline-black)]
+```
+
+**Always pair shadows with hover lift effect**:
+```tsx
+className="shadow-[6px_6px_0_var(--outline-black)] hover:shadow-[8px_8px_0_var(--outline-black)] hover:-translate-y-[2px] transition-all"
+```
+
+### Color Usage Guidelines
+
+**Primary Actions** (Buy, Confirm, Submit):
+```tsx
+bg-[var(--mario-red)]      // Background
+text-white                  // Text color
+border-[var(--outline-black)]
+```
+
+**Success States** (Profit, Complete, Safe):
+```tsx
+bg-[var(--luigi-green)]    // Background
+text-white                  // Text color
+border-[var(--outline-black)]
+```
+
+**Highlights** (Important info, CTAs):
+```tsx
+bg-[var(--star-yellow)]    // Background
+text-[var(--outline-black)] // Text color
+border-[var(--outline-black)]
+```
+
+**Neutral/Info** (Wallet Tracker, Info panels):
+```tsx
+bg-[var(--sky-blue)]       // Background
+text-[var(--outline-black)] // Text color
+border-[var(--outline-black)]
+```
+
+**Backgrounds**:
+```tsx
+bg-white                    // Primary surface color
+bg-[var(--background)]     // Warm cream (#FFFAE9)
+bg-[var(--card)]           // Card surface
+```
+
+### Rounded Corners
+
+**Standard Radii**:
+- **Small**: `rounded-[10px]` - Small badges, avatars
+- **Medium**: `rounded-[12px]` - Compact cards, sm buttons
+- **Large**: `rounded-[14px]` - Standard buttons
+- **Extra Large**: `rounded-[16px]` - Large cards, containers
+
+**DO NOT use**:
+- ❌ `rounded-sm`, `rounded-md`, `rounded-lg` (Tailwind defaults - too generic)
+- ❌ `rounded-full` (unless for circular badges/avatars)
+- ✅ Use explicit pixel values for consistency
 
 ### What NOT to Do
-- ❌ Don't use dark mode classes (`dark:*`)
-- ❌ Don't use old color scales (`gray-*`, `slate-*`, `zinc-*`)
-- ❌ Don't use thin borders (< 2px)
-- ❌ Don't use soft shadows (use 3D block shadows)
-- ❌ Don't use pixel font for body text (hard to read)
-- ❌ Don't create new color variants outside Mario palette
 
-### Testing Your Changes
-- Test on both sRGB and Display-P3 capable displays if possible
-- Ensure WCAG AA contrast ratios (4.5:1 for text, 3:1 for large text)
-- Check that components look good on white backgrounds
-- Verify bold borders render correctly
-- Test hover and active states
+**Color Anti-Patterns**:
+- ❌ Don't use Tailwind color scales (`red-500`, `green-600`, `blue-400`)
+- ❌ Don't use old neutral colors (`gray-*`, `slate-*`, `zinc-*`)
+- ❌ Don't use dark mode classes (`dark:*`)
+- ❌ Don't create new colors outside the Mario palette
+
+**Border/Shadow Anti-Patterns**:
+- ❌ Don't use thin borders (`border` or `border-1`)
+- ❌ Don't use soft shadows (`shadow-sm`, `shadow-md`, `shadow-lg`)
+- ❌ Don't use blur shadows (no blur in Mario theme)
+
+**Typography Anti-Patterns**:
+- ❌ Don't use pixel font (`.font-mario`) for body text (hard to read)
+- ❌ Don't use pixel font for long paragraphs
+- ❌ Don't mix font families within the same component
+
+### Quick Reference
+
+**Button**: Use `<CartridgePill>` component
+**Card**: `border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] rounded-[16px]`
+**Hover**: Add shadow + lift (`hover:shadow-[8px_8px_0_var(--outline-black)] hover:-translate-y-[2px]`)
+**Colors**: Always use `var(--mario-red)`, `var(--luigi-green)`, etc.
+**Borders**: Use `border-3` or `border-4` (never `border-1`)
 
 For complete design system documentation, see `frontend/MARIO_THEME_DESIGN_SYSTEM.md`.
