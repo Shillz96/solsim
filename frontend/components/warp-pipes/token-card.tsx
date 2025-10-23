@@ -113,7 +113,7 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
           <div className="flex items-center gap-4 p-4">
             
             {/* LEFT: Token Logo */}
-            <div className="relative shrink-0 w-16 h-16 rounded-[12px] overflow-hidden border-3 border-pipe-900 shadow-[2px_2px_0_rgba(0,0,0,0.2)]">
+            <div className="relative shrink-0 w-20 h-20 rounded-[14px] overflow-hidden border-4 border-pipe-900 shadow-[3px_3px_0_rgba(0,0,0,0.3)]">
               {img && !imageError ? (
                 <img
                   src={img}
@@ -123,7 +123,7 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
                   loading="lazy"
                 />
               ) : (
-                <div className="h-full w-full grid place-items-center bg-star-yellow-500 text-pipe-900 text-3xl font-bold">🪙</div>
+                <div className="h-full w-full grid place-items-center bg-star-yellow-500 text-pipe-900 text-4xl font-bold">🪙</div>
               )}
             </div>
 
@@ -218,7 +218,7 @@ export function TokenCardSkeleton() {
       <div className="rounded-[16px] overflow-hidden bg-white border-4 border-pipe-900 shadow-[6px_6px_0_rgba(0,0,0,0.3)] animate-pulse">
         <div className="flex items-center gap-4 p-4">
           {/* Logo skeleton */}
-          <div className="w-16 h-16 bg-pipe-200 rounded-[12px] border-3 border-pipe-900" />
+          <div className="w-20 h-20 bg-pipe-200 rounded-[14px] border-4 border-pipe-900" />
           
           {/* Middle content skeleton */}
           <div className="flex-1">

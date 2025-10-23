@@ -43,12 +43,12 @@ export function TokenColumn({
   }
 
   return (
-    <div className={cn("flex flex-col h-full", className)}>
+    <div className={cn("flex flex-col h-full border-4 border-pipe-900 rounded-[16px] shadow-[6px_6px_0_rgba(0,0,0,0.3)] overflow-hidden", className)}>
       {/* Column Header */}
       <div
         className={cn(
-          "p-4 rounded-t-[16px] border-4 border-b-0 border-pipe-900 text-center",
-          "flex items-center justify-center shadow-[4px_4px_0_rgba(0,0,0,0.2)]",
+          "p-4 flex-shrink-0 text-center border-b-4 border-pipe-900",
+          "flex items-center justify-center",
           headerColors[headerColor]
         )}
       >
@@ -65,8 +65,7 @@ export function TokenColumn({
       {/* Column Body - Scrollable List */}
       <div
         className={cn(
-          "flex-1 overflow-y-auto bg-sky-50 border-4 border-t-0 border-pipe-900 rounded-b-[16px]",
-          "shadow-[6px_6px_0_rgba(0,0,0,0.3)] p-4 space-y-4"
+          "flex-1 overflow-y-auto bg-sky-50 p-4 space-y-4"
         )}
       >
         {/* Loading State */}
