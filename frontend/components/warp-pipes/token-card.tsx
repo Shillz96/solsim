@@ -1,14 +1,14 @@
 /**
- * Token Card Component - Clean vertical stock-style layout
+ * Token Card Component - DexScreener-style horizontal layout
  *
- * Vertical token card matching stock card design:
- * - Large token logo
- * - Symbol and name
- * - Large market cap display
- * - 24h change percentage
- * - Volume and liquidity metrics
- * - Bonding curve progress
- * - Full-width action button
+ * Large horizontal card with blue gradient background:
+ * - Large token logo (64x64)
+ * - Symbol and name inline
+ * - Time indicator and metrics row
+ * - Percentage changes with color coding
+ * - Shortened address
+ * - Market data on right side
+ * - Action button top right
  */
 
 "use client"
@@ -16,7 +16,18 @@
 import Link from "next/link"
 import { cn } from "@/lib/utils"
 import { motion } from "framer-motion"
-import { TrendingUp, TrendingDown, ExternalLink } from "lucide-react"
+import {
+  TrendingUp,
+  TrendingDown,
+  Twitter,
+  MessageCircle,
+  Globe,
+  Users,
+  Droplet,
+  Calendar,
+  Flame,
+  Heart
+} from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import type { TokenRow } from "@/lib/types/warp-pipes"
@@ -87,9 +98,8 @@ const securityBadge = (freezeRevoked?: boolean | null, mintRenounced?: boolean |
 
 export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
   const img = data.logoURI || data.imageUrl || undefined;
-  const colors = stateColors(data.state);
   const priceChg = data.priceChange24h ?? null;
-  const isPriceUp = priceChg != null && priceChg >= 0;
+  const volChange = data.volumeChange24h ?? null;
 
   const handleToggleWatch = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -102,131 +112,192 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
   return (
     <Link href={`/room/${data.mint}`}>
       <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.2 }}
         className={cn("w-full", className)}
       >
-        {/* Main Card - Vertical Stock-style Layout */}
-        <div
-          className="relative rounded-xl p-4 border-3 bg-white shadow-[4px_4px_0_rgba(0,0,0,0.15)] hover:shadow-[6px_6px_0_rgba(0,0,0,0.2)] hover:-translate-y-1 transition-all duration-200"
-          style={{ borderColor: colors.ring }}
-        >
-          {/* State Badge - Top Right */}
-          <Badge
-            className="absolute top-3 right-3 text-[10px] font-bold uppercase border-2"
-            style={{
-              borderColor: colors.ring,
-              backgroundColor: `${colors.gradFrom}40`,
-              color: colors.ring
-            }}
-          >
-            {data.state}
-          </Badge>
+        {/* Main Card - DexScreener-style Horizontal Layout */}
+        <div className="relative rounded-xl p-5 bg-gradient-to-br from-sky-500/20 via-blue-500/15 to-indigo-500/20 backdrop-blur-sm border-3 border-sky-400/40 hover:border-sky-400/60 shadow-[4px_4px_0_rgba(56,189,248,0.25)] hover:shadow-[6px_6px_0_rgba(56,189,248,0.35)] hover:-translate-y-1 transition-all duration-200">
 
-          {/* Top Section: Logo + Symbol/Name */}
-          <div className="flex items-start gap-3 mb-4">
-            {/* Token Logo */}
-            <div
-              className="h-14 w-14 rounded-full overflow-hidden border-3 shadow-[2px_2px_0_rgba(0,0,0,0.15)] bg-white shrink-0"
-              style={{ borderColor: colors.ring }}
-            >
-              {img ? (
-                <img src={img} alt={data.symbol} className="h-full w-full object-cover" />
-              ) : (
-                <div className="h-full w-full grid place-items-center text-2xl">🪙</div>
-              )}
-            </div>
+          {/* Layout: Left Content | Right Stats */}
+          <div className="flex items-start justify-between gap-6">
 
-            {/* Symbol and Name */}
-            <div className="flex-1 min-w-0 pt-1">
-              <div className="font-bold text-lg tracking-tight text-pipe-900 truncate">
-                {data.symbol}
+            {/* LEFT SECTION */}
+            <div className="flex-1 min-w-0">
+              {/* Top Row: Logo + Symbol/Name + Time */}
+              <div className="flex items-center gap-4 mb-3">
+                {/* Large Token Logo */}
+                <div className="relative shrink-0">
+                  <div className="h-16 w-16 rounded-xl overflow-hidden border-3 border-sky-400 shadow-[3px_3px_0_rgba(0,0,0,0.2)] bg-white">
+                    {img ? (
+                      <img src={img} alt={data.symbol} className="h-full w-full object-cover" />
+                    ) : (
+                      <div className="h-full w-full grid place-items-center text-3xl">🪙</div>
+                    )}
+                  </div>
+                  {data.isWatched && (
+                    <div className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-mario-red-500 border-2 border-white grid place-items-center">
+                      <Heart className="h-3 w-3 text-white fill-white" />
+                    </div>
+                  )}
+                </div>
+
+                {/* Symbol, Name, Time */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-3 mb-1">
+                    <h3 className="font-bold text-2xl text-pipe-900 tracking-tight">
+                      {data.symbol}
+                    </h3>
+                    <Badge variant="outline" className="text-xs font-semibold bg-white/60 border-pipe-400">
+                      {data.name}
+                    </Badge>
+                  </div>
+                  <div className="text-sm text-pipe-700 font-medium">
+                    {timeAgo(data.firstSeenAt)}
+                  </div>
+                </div>
               </div>
-              <div className="text-sm text-pipe-600 truncate">
-                {data.name}
-              </div>
-            </div>
-          </div>
 
-          {/* Market Cap Display - Large */}
-          <div className="mb-2">
-            <div className="text-3xl font-bold text-pipe-900 tracking-tight">
-              {fmtCurrency(data.marketCapUsd)}
-            </div>
-            <div className="text-xs text-pipe-600 font-medium">Market Cap</div>
-          </div>
-
-          {/* 24h Change */}
-          {priceChg != null && (
-            <div className="flex items-center gap-2 mb-4">
-              <div
-                className={cn(
-                  "flex items-center gap-1 px-2.5 py-1 rounded-full font-bold text-sm",
-                  isPriceUp ? "bg-green-500 text-white" : "bg-red-500 text-white"
+              {/* Metrics Row: Social + Stats */}
+              <div className="flex flex-wrap items-center gap-2 mb-3">
+                {/* Social Links */}
+                {data.twitter && (
+                  <a
+                    href={data.twitter}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={(e) => e.stopPropagation()}
+                    className="p-1.5 rounded-lg bg-sky-500 hover:bg-sky-600 text-white transition-colors"
+                  >
+                    <Twitter className="h-3.5 w-3.5" />
+                  </a>
                 )}
+                {data.telegram && (
+                  <a
+                    href={data.telegram}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={(e) => e.stopPropagation()}
+                    className="p-1.5 rounded-lg bg-sky-500 hover:bg-sky-600 text-white transition-colors"
+                  >
+                    <MessageCircle className="h-3.5 w-3.5" />
+                  </a>
+                )}
+                {data.website && (
+                  <a
+                    href={data.website}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={(e) => e.stopPropagation()}
+                    className="p-1.5 rounded-lg bg-sky-500 hover:bg-sky-600 text-white transition-colors"
+                  >
+                    <Globe className="h-3.5 w-3.5" />
+                  </a>
+                )}
+
+                {/* Hot Score */}
+                {data.hotScore != null && (
+                  <Badge className="bg-orange-500 text-white border-0 font-bold">
+                    <Flame className="h-3.5 w-3.5 mr-1" />
+                    {Math.round(data.hotScore)}
+                  </Badge>
+                )}
+
+                {/* Liquidity */}
+                <Badge className="bg-blue-500 text-white border-0 font-bold">
+                  <Droplet className="h-3.5 w-3.5 mr-1" />
+                  {fmtCurrency(data.liqUsd)}
+                </Badge>
+
+                {/* Watchers */}
+                <Badge className="bg-purple-500 text-white border-0 font-bold">
+                  <Users className="h-3.5 w-3.5 mr-1" />
+                  {data.watcherCount ?? 0}
+                </Badge>
+
+                {/* State */}
+                <Badge className="bg-indigo-500 text-white border-0 font-bold uppercase text-xs">
+                  {data.state}
+                </Badge>
+              </div>
+
+              {/* Percentage Changes Row */}
+              <div className="flex flex-wrap items-center gap-3 mb-3">
+                {priceChg != null && (
+                  <div className={cn(
+                    "flex items-center gap-1 font-bold text-base",
+                    priceChg >= 0 ? "text-green-500" : "text-red-500"
+                  )}>
+                    {priceChg >= 0 ? "▲" : "▼"} {Math.abs(priceChg).toFixed(1)}%
+                  </div>
+                )}
+
+                {volChange != null && (
+                  <div className="flex items-center gap-1 text-sm font-medium text-pipe-700">
+                    <span className={cn(
+                      "font-bold",
+                      volChange >= 0 ? "text-green-500" : "text-red-500"
+                    )}>
+                      {volChange >= 0 ? "▲" : "▼"} {Math.abs(volChange).toFixed(0)}%
+                    </span>
+                    <span className="text-xs">7h</span>
+                  </div>
+                )}
+
+                {/* Bonding Curve Progress */}
+                {typeof data.bondingCurveProgress === "number" && (
+                  <div className={cn(
+                    "flex items-center gap-1 text-sm font-bold",
+                    data.bondingCurveProgress >= 95 ? "text-green-500" : "text-blue-600"
+                  )}>
+                    <TrendingUp className="h-4 w-4" />
+                    {data.bondingCurveProgress.toFixed(0)}%
+                  </div>
+                )}
+              </div>
+
+              {/* Bottom: Shortened Address */}
+              <div className="text-xs text-pipe-600 font-mono">
+                {shorten(data.mint, 6, 6)}
+              </div>
+            </div>
+
+            {/* RIGHT SECTION: Market Data + Button */}
+            <div className="flex flex-col items-end gap-3 shrink-0">
+              {/* Market Stats */}
+              <div className="text-right space-y-1">
+                <div className="flex items-center gap-2 justify-end">
+                  <span className="text-xs text-pipe-600 font-semibold">V</span>
+                  <span className="text-lg font-bold text-pipe-900">{fmtCurrency(data.volume24h)}</span>
+                </div>
+                <div className="flex items-center gap-2 justify-end">
+                  <span className="text-xs text-pipe-600 font-semibold">MC</span>
+                  <span className="text-lg font-bold text-green-600">{fmtCurrency(data.marketCapUsd)}</span>
+                </div>
+                <div className="flex items-center gap-4 text-xs text-pipe-700">
+                  <div className="flex items-center gap-1">
+                    <Flame className="h-3 w-3" />
+                    <span className="font-semibold">{data.hotScore ?? "—"}</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <span className="font-semibold">TX</span>
+                    <span>{data.txCount24h ?? "—"}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Action Button */}
+              <Button
+                className="px-6 py-2 rounded-full bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white font-bold border-3 border-sky-400 shadow-[3px_3px_0_rgba(0,0,0,0.2)] hover:-translate-y-0.5 hover:shadow-[4px_4px_0_rgba(0,0,0,0.25)] transition-all duration-200"
+                onClick={(e) => {
+                  e.preventDefault();
+                }}
               >
-                {isPriceUp ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
-                {isPriceUp ? "+" : ""}{fmtPct(priceChg, 2)}
-              </div>
-              <span className="text-xs text-pipe-600">24h Change</span>
-            </div>
-          )}
-
-          {/* Bonding Curve Progress */}
-          {typeof data.bondingCurveProgress === "number" && (
-            <div className="mb-4">
-              <div className="flex items-center justify-between text-xs text-pipe-700 mb-1.5">
-                <span className="font-semibold">Bonding Curve</span>
-                <span className="font-bold">{data.bondingCurveProgress.toFixed(1)}%</span>
-              </div>
-              <div className="h-2.5 rounded-full overflow-hidden border-2 border-pipe-400 bg-pipe-100">
-                <div
-                  className="h-full transition-all duration-500"
-                  style={{
-                    width: `${Math.max(0, Math.min(100, data.bondingCurveProgress))}%`,
-                    background: `linear-gradient(90deg, ${colors.gradFrom}, ${colors.gradTo})`
-                  }}
-                />
-              </div>
-            </div>
-          )}
-
-          {/* Bottom Metrics Row */}
-          <div className="grid grid-cols-2 gap-3 mb-4 pt-3 border-t-2 border-pipe-200">
-            {/* Volume 24h */}
-            <div>
-              <div className="text-xs text-pipe-600 mb-1">Volume 24h</div>
-              <div className="font-mono font-semibold text-sm text-pipe-900">
-                {fmtCurrency(data.volume24h)}
-              </div>
-            </div>
-
-            {/* Liquidity */}
-            <div className="text-right">
-              <div className="text-xs text-pipe-600 mb-1">Liquidity</div>
-              <div className="font-mono font-semibold text-sm text-pipe-900">
-                {fmtCurrency(data.liqUsd)}
-              </div>
+                ⚡ 0 SOL
+              </Button>
             </div>
           </div>
-
-          {/* Trade Now Button - Full Width */}
-          <Button
-            className="w-full h-11 rounded-full border-3 font-bold text-base shadow-[3px_3px_0_rgba(0,0,0,0.2)] hover:-translate-y-0.5 hover:shadow-[4px_4px_0_rgba(0,0,0,0.2)] transition-all duration-200"
-            style={{
-              borderColor: colors.ring,
-              backgroundColor: colors.gradTo,
-              color: data.state === "new" ? "white" : "black"
-            }}
-            onClick={(e) => {
-              e.preventDefault();
-              // Trade action will be handled by Link wrapper
-            }}
-          >
-            Trade Now
-            <ExternalLink className="ml-2 h-4 w-4" />
-          </Button>
         </div>
       </motion.div>
     </Link>
@@ -239,48 +310,48 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
 export function TokenCardSkeleton() {
   return (
     <div className="w-full">
-      <div className="rounded-xl p-4 border-3 border-pipe-300 bg-white shadow-[4px_4px_0_rgba(0,0,0,0.15)] animate-pulse">
-        {/* Logo + Title skeleton */}
-        <div className="flex items-start gap-3 mb-4">
-          <div className="h-14 w-14 rounded-full bg-pipe-200 border-3 border-pipe-300 shrink-0" />
-          <div className="flex-1 pt-1">
-            <div className="h-5 bg-pipe-200 rounded w-24 mb-2" />
-            <div className="h-4 bg-pipe-100 rounded w-32" />
+      <div className="rounded-xl p-5 bg-gradient-to-br from-sky-500/10 via-blue-500/5 to-indigo-500/10 border-3 border-sky-400/30 shadow-[4px_4px_0_rgba(56,189,248,0.15)] animate-pulse">
+        <div className="flex items-start justify-between gap-6">
+          {/* Left section skeleton */}
+          <div className="flex-1">
+            {/* Logo + Title */}
+            <div className="flex items-center gap-4 mb-3">
+              <div className="h-16 w-16 rounded-xl bg-sky-200 border-3 border-sky-300 shrink-0" />
+              <div className="flex-1">
+                <div className="h-7 bg-sky-200 rounded w-32 mb-2" />
+                <div className="h-4 bg-sky-100 rounded w-24" />
+              </div>
+            </div>
+
+            {/* Badges row */}
+            <div className="flex gap-2 mb-3">
+              <div className="h-7 w-12 bg-sky-100 rounded" />
+              <div className="h-7 w-16 bg-sky-100 rounded" />
+              <div className="h-7 w-20 bg-sky-100 rounded" />
+              <div className="h-7 w-14 bg-sky-100 rounded" />
+            </div>
+
+            {/* Percentages row */}
+            <div className="flex gap-3 mb-3">
+              <div className="h-5 bg-sky-100 rounded w-16" />
+              <div className="h-5 bg-sky-100 rounded w-20" />
+              <div className="h-5 bg-sky-100 rounded w-12" />
+            </div>
+
+            {/* Address */}
+            <div className="h-3 bg-sky-100 rounded w-28" />
+          </div>
+
+          {/* Right section skeleton */}
+          <div className="flex flex-col items-end gap-3">
+            <div className="space-y-1">
+              <div className="h-6 bg-sky-100 rounded w-24" />
+              <div className="h-6 bg-sky-100 rounded w-28" />
+              <div className="h-4 bg-sky-100 rounded w-20" />
+            </div>
+            <div className="h-10 w-24 rounded-full bg-sky-200 border-3 border-sky-300" />
           </div>
         </div>
-
-        {/* Market Cap skeleton */}
-        <div className="mb-2">
-          <div className="h-9 bg-pipe-200 rounded w-32 mb-1" />
-          <div className="h-3 bg-pipe-100 rounded w-20" />
-        </div>
-
-        {/* Change badge skeleton */}
-        <div className="h-7 bg-pipe-100 rounded-full w-24 mb-4" />
-
-        {/* Progress bar skeleton */}
-        <div className="mb-4">
-          <div className="flex justify-between mb-1.5">
-            <div className="h-3 bg-pipe-100 rounded w-24" />
-            <div className="h-3 bg-pipe-100 rounded w-12" />
-          </div>
-          <div className="h-2.5 rounded-full bg-pipe-200 border-2 border-pipe-300" />
-        </div>
-
-        {/* Metrics skeleton */}
-        <div className="grid grid-cols-2 gap-3 mb-4 pt-3 border-t-2 border-pipe-200">
-          <div>
-            <div className="h-3 bg-pipe-100 rounded w-16 mb-1" />
-            <div className="h-4 bg-pipe-200 rounded w-20" />
-          </div>
-          <div className="text-right">
-            <div className="h-3 bg-pipe-100 rounded w-16 mb-1 ml-auto" />
-            <div className="h-4 bg-pipe-200 rounded w-20 ml-auto" />
-          </div>
-        </div>
-
-        {/* Button skeleton */}
-        <div className="h-11 rounded-full bg-pipe-200 border-3 border-pipe-300" />
       </div>
     </div>
   );
