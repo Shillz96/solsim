@@ -94,12 +94,12 @@ function TradePageContent() {
             <TokenDetailsHeader tokenAddress={currentTokenAddress} />
           </motion.div>
 
-          {/* Chart Section - Mobile - Flexible height */}
+          {/* Chart Section - Mobile - Flexible height with larger minimum */}
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4 }}
-            className="flex-grow min-h-0"
+            className="flex-grow min-h-[400px]"
           >
             <div className="h-full overflow-hidden rounded-lg">
               <Suspense fallback={<ChartSkeleton />}>
