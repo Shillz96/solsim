@@ -84,7 +84,7 @@ async function fetchTokenMetadata(uri: string): Promise<{
       twitter: metadata.twitter || metadata.social?.twitter || undefined,
       telegram: metadata.telegram || metadata.social?.telegram || undefined,
       website: metadata.website || metadata.external_url || undefined,
-      image: metadata.image ? convertIPFStoHTTP(metadata.image) : undefined,
+      image: metadata.image ? (convertIPFStoHTTP(metadata.image) || undefined) : undefined,
     };
   } catch (error) {
     console.error('[TokenDiscovery] Error fetching metadata:', error);
