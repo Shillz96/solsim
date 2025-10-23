@@ -92,7 +92,6 @@ export function LightweightChart({
       },
       rightPriceScale: {
         borderColor: '#1C1C1C',
-        borderWidth: 2,
         scaleMargins: {
           top: 0.1,
           bottom: 0.3, // Make room for volume
@@ -100,7 +99,6 @@ export function LightweightChart({
       },
       timeScale: {
         borderColor: '#1C1C1C',
-        borderWidth: 2,
         timeVisible: true,
         secondsVisible: false,
         fixLeftEdge: true,
