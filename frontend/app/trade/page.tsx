@@ -70,9 +70,9 @@ function TradePageContent() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
-      <main className="w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:pt-3 lg:pb-0 max-w-page-xl mx-auto">
+      <main className="w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-6 pb-8 sm:pb-12 lg:pt-3 lg:pb-0 max-w-page-xl mx-auto">
         {/* MOBILE-OPTIMIZED LAYOUT: Chart + Trading Panel Adjacent */}
-        <div className="lg:hidden space-y-4">
+        <div className="lg:hidden space-y-4 sm:space-y-6">
           {/* Sliding Trending Ticker - Mobile (Moved to Top) */}
           <motion.div
             initial={{ opacity: 0, y: -10 }}
@@ -97,7 +97,7 @@ function TradePageContent() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <div className="h-[300px] sm:h-[380px] md:h-[420px] overflow-hidden">
+            <div className="h-[280px] sm:h-[360px] md:h-[420px] overflow-hidden rounded-lg">
               <Suspense fallback={<ChartSkeleton />}>
                 <DexScreenerChart tokenAddress={currentTokenAddress} />
               </Suspense>
@@ -109,7 +109,7 @@ function TradePageContent() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
-            className="space-y-4"
+            className="space-y-4 sm:space-y-5"
           >
             <MarioTradingPanel tokenAddress={currentTokenAddress} />
             {/* Trade Timeline - Mobile (Compact under trading panel) */}
