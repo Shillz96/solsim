@@ -23,8 +23,9 @@ import { Loader2 } from 'lucide-react'
 // The page is already 'use client' so it will render dynamically
 
 // Dynamically import chart component to prevent SSR issues
+// Using default import for better Vercel bundling compatibility
 const LightweightChart = dynamicImport(
-  () => import('@/components/trading/lightweight-chart').then(mod => mod.LightweightChart),
+  () => import('@/components/trading/lightweight-chart'),
   {
     ssr: false,
     loading: () => (

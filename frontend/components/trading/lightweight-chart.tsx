@@ -340,3 +340,6 @@ export function LightweightChart({
     </div>
   )
 }
+
+// Default export for better compatibility with Next.js dynamic imports
+export default LightweightChart
