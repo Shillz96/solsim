@@ -133,20 +133,20 @@ class PumpPortalStreamService extends EventEmitter {
     console.log('[PumpPortal] Subscribing to events...');
 
     // Subscribe to new token events (bonded tokens)
-    this.ws.send(
-      JSON.stringify({
-        method: 'subscribeNewToken',
-      })
-    );
+    const newTokenSub = {
+      method: 'subscribeNewToken',
+    };
+    console.log('[PumpPortal] Sending subscription:', JSON.stringify(newTokenSub));
+    this.ws.send(JSON.stringify(newTokenSub));
 
     // Subscribe to migration events (graduating → new)
-    this.ws.send(
-      JSON.stringify({
-        method: 'subscribeMigration',
-      })
-    );
+    const migrationSub = {
+      method: 'subscribeMigration',
+    };
+    console.log('[PumpPortal] Sending subscription:', JSON.stringify(migrationSub));
+    this.ws.send(JSON.stringify(migrationSub));
 
-    console.log('[PumpPortal] Subscribed to newToken and migration events');
+    console.log('[PumpPortal] Subscription requests sent. Waiting for events...');
   }
 
   /**
@@ -157,8 +157,30 @@ class PumpPortalStreamService extends EventEmitter {
       const raw = data.toString();
       const message = JSON.parse(raw);
 
-      // Handle new token events
-      if (message.type === 'newToken') {
+      // Debug: Log all incoming messages
+      console.log('[PumpPortal] Received message:', JSON.stringify(message).substring(0, 500));
+
+      // PumpPortal sends messages with different structures based on subscription
+      // Check for newToken events (could be direct fields or nested)
+      if (message.mint && (message.name || message.symbol)) {
+        const event: NewTokenEvent = {
+          type: 'newToken',
+          token: {
+            mint: message.mint,
+            name: message.name || '',
+            symbol: message.symbol || '',
+            uri: message.uri || message.image || '',
+            creator: message.creator || message.deployer || '',
+            bondingCurve: message.bondingCurve || message.bonding_curve || '',
+          },
+          timestamp: message.timestamp || Date.now(),
+        };
+
+        console.log('[PumpPortal] New token:', event.token.symbol || event.token.mint);
+        this.emit('newToken', event);
+      }
+      // Also check for type field (legacy format)
+      else if (message.type === 'newToken') {
         const event: NewTokenEvent = {
           type: 'newToken',
           token: {
@@ -172,12 +194,12 @@ class PumpPortalStreamService extends EventEmitter {
           timestamp: message.timestamp || Date.now(),
         };
 
-        console.log('[PumpPortal] New token:', event.token.mint, event.token.symbol);
+        console.log('[PumpPortal] New token (legacy format):', event.token.symbol || event.token.mint);
         this.emit('newToken', event);
       }
 
-      // Handle migration events
-      else if (message.type === 'migration') {
+      // Handle migration events - check multiple possible formats
+      else if (message.type === 'migration' || (message.signature && message.slot)) {
         const event: MigrationEvent = {
           type: 'migration',
           mint: message.mint,
