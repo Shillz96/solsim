@@ -73,12 +73,22 @@ function TradePageContent() {
       <main className="w-full h-full px-2 sm:px-4 lg:px-6 py-2 sm:py-3 lg:py-4 max-w-page-xl mx-auto">
         {/* MOBILE LAYOUT: Fixed height with flexbox for viewport fit */}
         <div className="lg:hidden h-full flex flex-col">
-          <div className="flex flex-col gap-2 sm:gap-3 h-full overflow-hidden">
+          <div className="flex flex-col gap-2 h-full overflow-hidden">
+          {/* Trending Ticker - Mobile - Compact */}
+          <motion.div
+            initial={{ opacity: 0, y: -5 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.2 }}
+            className="flex-shrink-0"
+          >
+            <SlidingTrendingTicker />
+          </motion.div>
+
           {/* Token details header - Mobile - Compact */}
           <motion.div
             initial={{ opacity: 0, y: -5 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
+            transition={{ duration: 0.3, delay: 0.05 }}
             className="flex-shrink-0"
           >
             <TokenDetailsHeader tokenAddress={currentTokenAddress} />
@@ -113,11 +123,21 @@ function TradePageContent() {
 
         {/* DESKTOP LAYOUT: Flexbox for viewport fit */}
         <div className="hidden lg:flex lg:flex-col lg:h-full lg:gap-2">
+          {/* Trending Ticker - Desktop - Compact */}
+          <motion.div
+            initial={{ opacity: 0, y: -5 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.2 }}
+            className="flex-shrink-0"
+          >
+            <SlidingTrendingTicker />
+          </motion.div>
+
           {/* Token details header - Desktop (Compact) */}
           <motion.div
             initial={{ opacity: 0, y: -5 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
+            transition={{ duration: 0.3, delay: 0.05 }}
             className="flex-shrink-0"
           >
             <TokenDetailsHeader tokenAddress={currentTokenAddress} />
