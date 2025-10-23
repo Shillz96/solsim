@@ -10,9 +10,9 @@
  * - Market Data Panels
  */
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import { useParams } from 'next/navigation'
-import dynamicImport from 'next/dynamic'
+import dynamic from 'next/dynamic'
 import { MarioTradingPanel } from '@/components/trading/mario-trading-panel'
 import { useAuth } from '@/hooks/use-auth'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
@@ -24,13 +24,10 @@ import { usePriceStreamContext } from '@/lib/price-stream-provider'
 import { formatTokenQuantity } from '@/lib/format'
 import { WalletDebugButton } from '@/components/wallet/wallet-debug-button'
 
-// Remove dynamic exports - they cause Vercel bundling issues
-// The page is already 'use client' so it will render dynamically
-
 // Dynamically import chart component to prevent SSR issues
-// Using default import for better Vercel bundling compatibility
-const LightweightChart = dynamicImport(
-  () => import('@/components/trading/lightweight-chart'),
+// Use dynamic from 'next/dynamic' directly
+const LightweightChart = dynamic(
+  () => import('@/components/trading/lightweight-chart').then(mod => ({ default: mod.default || mod.LightweightChart || mod })),
   {
     ssr: false,
     loading: () => (
@@ -44,7 +41,7 @@ const LightweightChart = dynamicImport(
   }
 )
 
-export default function TradeRoomPage() {
+function TradeRoomPage() {
   const params = useParams()
   const ca = params?.ca as string
   const { isAuthenticated, user, getUserId } = useAuth()
@@ -230,6 +227,14 @@ export default function TradeRoomPage() {
   }
 
   return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-[var(--background)]">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="h-8 w-8 animate-spin text-[var(--mario-red)]" />
+          <div className="text-sm font-bold">Loading...</div>
+        </div>
+      </div>
+    }>
     <div className="min-h-screen w-full bg-[var(--background)] flex flex-col">
       {/* Top App Bar */}
       <header className="sticky top-0 z-40 border-b-4 border-[var(--outline-black)] bg-[var(--background)]/95 backdrop-blur-sm px-4 py-3">
@@ -391,5 +396,8 @@ export default function TradeRoomPage() {
         </div>
       </footer>
     </div>
+    </Suspense>
   )
 }
+
+export default TradeRoomPage

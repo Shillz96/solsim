@@ -3,9 +3,9 @@
   "outputDirectory": ".next",
   "framework": "nextjs",
   "regions": ["sfo1"],
-  "installCommand": "npm install --legacy-peer-deps",
+  "installCommand": "npm install --force",
   "functions": {
-    "app/**/*.ts": {
+    "app/**/*": {
       "maxDuration": 10
     }
   },

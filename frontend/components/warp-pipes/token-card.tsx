@@ -245,7 +245,7 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
                             href={data.twitter.startsWith('http') ? data.twitter : `https://twitter.com/${data.twitter}`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="hover:opacity-70 transition-opacity"
+                            className="hover:scale-110 transition-transform"
                             onClick={(e) => e.stopPropagation()}
                           >
                             <Image 
@@ -258,7 +258,7 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
                           </a>
                         </HoverCardTrigger>
                         <HoverCardContent 
-                          className="w-80 p-4 bg-card border border-border shadow-lg" 
+                          className="w-80 p-4 bg-background border-2 border-border shadow-xl z-50" 
                           side="top"
                           onClick={(e) => e.stopPropagation()}
                         >
@@ -268,11 +268,11 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
                                 {data.symbol?.[0] || '?'}
                               </div>
                               <div className="flex-1 min-w-0">
-                                <div className="font-bold text-base truncate">{data.name || data.symbol}</div>
+                                <div className="font-bold text-base truncate text-foreground">{data.name || data.symbol}</div>
                                 <div className="text-sm text-muted-foreground truncate">@{data.twitter}</div>
                               </div>
                             </div>
-                            <p className="text-sm line-clamp-3">{data.description || 'No description available'}</p>
+                            <p className="text-sm line-clamp-3 text-foreground">{data.description || 'No description available'}</p>
                             <div className="flex gap-4 text-xs text-muted-foreground">
                               <span>Click to view on X →</span>
                             </div>
@@ -287,7 +287,7 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
                             href={data.telegram.startsWith('http') ? data.telegram : `https://t.me/${data.telegram}`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="hover:opacity-70 transition-opacity"
+                            className="hover:scale-110 transition-transform"
                             onClick={(e) => e.stopPropagation()}
                           >
                             <Image 
@@ -300,7 +300,7 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
                           </a>
                         </HoverCardTrigger>
                         <HoverCardContent 
-                          className="w-80 p-4 bg-card border border-border shadow-lg" 
+                          className="w-80 p-4 bg-background border-2 border-border shadow-xl z-50" 
                           side="top"
                           onClick={(e) => e.stopPropagation()}
                         >
@@ -310,11 +310,11 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
                                 ✈️
                               </div>
                               <div className="flex-1 min-w-0">
-                                <div className="font-bold text-base truncate">{data.name || data.symbol}</div>
+                                <div className="font-bold text-base truncate text-foreground">{data.name || data.symbol}</div>
                                 <div className="text-sm text-muted-foreground truncate">{data.telegram}</div>
                               </div>
                             </div>
-                            <p className="text-sm line-clamp-3">{data.description || 'Join the Telegram community'}</p>
+                            <p className="text-sm line-clamp-3 text-foreground">{data.description || 'Join the Telegram community'}</p>
                             <div className="flex gap-4 text-xs text-muted-foreground">
                               <span>Click to join Telegram →</span>
                             </div>
@@ -329,7 +329,7 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
                             href={data.website.startsWith('http') ? data.website : `https://${data.website}`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="hover:opacity-70 transition-opacity"
+                            className="hover:scale-110 transition-transform"
                             onClick={(e) => e.stopPropagation()}
                           >
                             <Image 
@@ -342,7 +342,7 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
                           </a>
                         </HoverCardTrigger>
                         <HoverCardContent 
-                          className="w-80 p-4 bg-card border border-border shadow-lg" 
+                          className="w-80 p-4 bg-background border-2 border-border shadow-xl z-50" 
                           side="top"
                           onClick={(e) => e.stopPropagation()}
                         >
@@ -352,11 +352,11 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
                                 🌐
                               </div>
                               <div className="flex-1 min-w-0">
-                                <div className="font-bold text-base truncate">{data.name || data.symbol}</div>
+                                <div className="font-bold text-base truncate text-foreground">{data.name || data.symbol}</div>
                                 <div className="text-sm text-muted-foreground truncate break-all">{data.website}</div>
                               </div>
                             </div>
-                            <p className="text-sm line-clamp-3">{data.description || 'Visit official website'}</p>
+                            <p className="text-sm line-clamp-3 text-foreground">{data.description || 'Visit official website'}</p>
                             <div className="flex gap-4 text-xs text-muted-foreground">
                               <span>Click to visit website →</span>
                             </div>
