@@ -91,18 +91,6 @@ export function TokenColumn({
 
   return (
     <div className={cn("flex flex-col h-full", className)}>
-      {/* Filter Panel */}
-      <div className="mb-4">
-        <FilterPanel
-          filters={filters}
-          onFiltersChange={handleFiltersChange}
-          category={headerColor}
-          isOpen={filtersOpen}
-          onToggle={() => setFiltersOpen(!filtersOpen)}
-          onApply={handleApplyFilters}
-        />
-      </div>
-
       {/* Token Column */}
       <div className={cn("flex flex-col h-full border-4 border-[var(--outline-black)] rounded-[16px] shadow-[6px_6px_0_var(--outline-black)] overflow-hidden")}>
         {/* Column Header */}
@@ -127,6 +115,19 @@ export function TokenColumn({
               <div className="absolute bottom-0 left-0 right-0 h-1 bg-[var(--outline-black)] rounded-sm"></div>
             )}
           </div>
+        </div>
+
+        {/* Filter Panel - Inside Column */}
+        <div className="px-3 pt-3">
+          <FilterPanel
+            filters={filters}
+            onFiltersChange={handleFiltersChange}
+            category={headerColor}
+            isOpen={filtersOpen}
+            onToggle={() => setFiltersOpen(!filtersOpen)}
+            onApply={handleApplyFilters}
+            headerColor={headerColor}
+          />
         </div>
 
         {/* Column Body - Scrollable List */}

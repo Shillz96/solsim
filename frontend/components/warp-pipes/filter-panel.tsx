@@ -40,6 +40,7 @@ interface FilterPanelProps {
   onToggle: () => void
   onApply: () => void
   className?: string
+  headerColor?: 'bonded' | 'graduating' | 'new'
 }
 
 export function FilterPanel({
@@ -49,10 +50,30 @@ export function FilterPanel({
   isOpen,
   onToggle,
   onApply,
-  className
+  className,
+  headerColor = 'bonded'
 }: FilterPanelProps) {
   const [activeTab, setActiveTab] = useState<'audit' | 'metrics' | 'socials'>('audit')
   const [importError, setImportError] = useState<string | null>(null)
+
+  // Color-coded styling based on column type
+  const buttonColors = {
+    bonded: "bg-[var(--coin-yellow)] hover:bg-[var(--coin-yellow)]",
+    graduating: "bg-[var(--star-yellow)] hover:bg-[var(--star-yellow)]",
+    new: "bg-[var(--luigi-green)] hover:bg-[var(--luigi-green)]",
+  }
+
+  const textColors = {
+    bonded: "text-[var(--outline-black)]",
+    graduating: "text-[var(--outline-black)]",
+    new: "text-white",
+  }
+
+  const panelBgColors = {
+    bonded: "bg-[var(--coin-yellow)]/5",
+    graduating: "bg-[var(--star-yellow)]/5",
+    new: "bg-[var(--luigi-green)]/5",
+  }
 
   // Count active filters for badge display
   const filterCounts = useMemo(() => {
@@ -140,7 +161,11 @@ export function FilterPanel({
         <Button
           onClick={onToggle}
           variant="outline"
-          className="flex items-center gap-2 border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-[1px] transition-all duration-200 bg-white text-[var(--outline-black)] font-bold"
+          className={cn(
+            "flex items-center gap-2 border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-[1px] transition-all duration-200 font-bold w-full justify-center",
+            buttonColors[headerColor],
+            textColors[headerColor]
+          )}
         >
           <Settings className="h-4 w-4" />
           🎛️ Filters
@@ -150,7 +175,7 @@ export function FilterPanel({
 
       {/* Collapsible Filter Panel */}
       {isOpen && (
-        <div className="bg-white border-4 border-[var(--outline-black)] rounded-[16px] shadow-[6px_6px_0_var(--outline-black)] overflow-hidden">
+        <div className={cn("border-4 border-[var(--outline-black)] rounded-[16px] shadow-[6px_6px_0_var(--outline-black)] overflow-hidden", panelBgColors[headerColor])}>
           {/* Tabbed Interface */}
           <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as any)} className="w-full">
             <TabsList className="grid w-full grid-cols-3 border-b-4 border-[var(--outline-black)] rounded-none bg-white p-0">
@@ -414,7 +439,7 @@ export function FilterPanel({
           </Tabs>
 
           {/* Action Buttons */}
-          <div className="flex items-center justify-between p-4 border-t-4 border-[var(--outline-black)] bg-white">
+          <div className="flex items-center justify-between p-4 border-t-4 border-[var(--outline-black)] bg-white/50">
             <div className="flex gap-2">
               <Button
                 onClick={handleImport}
@@ -446,7 +471,11 @@ export function FilterPanel({
 
             <Button
               onClick={onApply}
-              className="bg-[var(--mario-red)] hover:bg-[var(--mario-red)] text-white border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-[1px] transition-all duration-200 font-bold"
+              className={cn(
+                "border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-[1px] transition-all duration-200 font-bold",
+                buttonColors[headerColor],
+                textColors[headerColor]
+              )}
             >
               Apply All
             </Button>
