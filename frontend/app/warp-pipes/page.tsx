@@ -18,5 +18,7 @@ export const metadata: Metadata = {
 }
 
 export default function WarpPipesPage() {
-  return <WarpPipesHub />
+  return (
+    <WarpPipesHub />
+  )
 }
