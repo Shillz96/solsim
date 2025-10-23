@@ -125,55 +125,59 @@ Building a Mario-themed token discovery hub with real-time streaming from PumpPo
 
 ---
 
-### ⏳ Phase 5: Frontend - Warp Pipes Hub Page (PENDING)
+### ✅ Phase 5: Frontend - Warp Pipes Hub Page (COMPLETED)
 
-**Status**: ⏳ Pending
+**Status**: ✅ Done
 
-**Files to Create**:
-- `frontend/app/warp-pipes/page.tsx` (main page)
-- `frontend/components/warp-pipes/warp-pipes-hub.tsx` (client component)
-- `frontend/components/warp-pipes/token-card.tsx` (Mario styled)
-- `frontend/components/warp-pipes/token-column.tsx` (column container)
-- `frontend/components/warp-pipes/health-capsule.tsx` (color-coded badges)
-- `frontend/components/warp-pipes/watch-button.tsx` (heart icon)
-- `frontend/components/warp-pipes/filter-bar.tsx` (Mario buttons)
+**Files Created**:
+- [x] `frontend/components/warp-pipes/health-capsule.tsx` (165 lines) - Mario-themed health indicators
+- [x] `frontend/components/warp-pipes/watch-button.tsx` (145 lines) - Heart button with animations
+- [x] `frontend/components/warp-pipes/token-card.tsx` (180 lines) - Mario card with bold borders
+- [x] `frontend/components/warp-pipes/token-column.tsx` (95 lines) - Scrollable column container
+- [x] `frontend/components/warp-pipes/filter-bar.tsx` (75 lines) - Mario-themed filter controls
+- [x] `frontend/lib/api/warp-pipes.ts` (145 lines) - API client functions
+- [x] `frontend/hooks/use-warp-pipes.ts` (105 lines) - React Query hooks
+- [x] `frontend/components/warp-pipes/warp-pipes-hub.tsx` (175 lines) - Main hub with 3-column layout
+- [x] `frontend/app/warp-pipes/page.tsx` (25 lines) - Page wrapper with metadata
 
-**Tasks**:
-- [ ] Desktop: 3-column layout (Bonded | Graduating | New)
-- [ ] Mobile: Tabs layout
-- [ ] Token cards with Mario styling (border-4, shadow-mario)
-- [ ] Health capsules (green/yellow/red badges)
-- [ ] Watch button (heart icon, filled when watched)
-- [ ] Filter bar (hot/new/watched sort)
-- [ ] Search functionality
+**Total Frontend Code**: ~1,110 lines
 
-**Mario Theme Requirements**:
-- All cards use `.mario-card` class
-- Buttons use `.mario-btn-red`, `.mario-btn-green`, `.mario-btn-blue`
-- Health badges: Luigi Green (✅), Star Yellow (⚠️), Mario Red (🔥)
-- Bold borders: `border-4` for cards, `border-3` for buttons
+**Completed Features**:
+- ✅ Health capsule with Luigi Green/Star Yellow/Mario Red colors
+- ✅ Watch button with filled heart animation (Framer Motion)
+- ✅ Token cards with border-4, rounded-xl, shadow-md (Mario theme)
+- ✅ Scrollable columns with state-specific headers
+- ✅ Filter bar with Mario-themed buttons (🔥 Hot, ⏰ New, ❤️ Watched, 🔤 A-Z)
+- ✅ Hot score progress bars with color transitions
+- ✅ Responsive hover effects and transforms
+- ✅ Empty states with Mario emojis 🍄
+- ✅ Loading skeletons and overlays
+- ✅ Perfect color scheme consistency with existing pages
+- ✅ Desktop: 3-column layout (Bonded | Graduating | New)
+- ✅ Mobile: Tabs layout with state counts
+- ✅ Real-time feed updates (2s refetch interval)
+- ✅ Watch toggle with optimistic updates
+- ✅ Search and filtering
+- ✅ API client with proper error handling
+- ✅ React Query hooks with auth integration
+- ✅ SEO metadata and OpenGraph tags
+
+**Mario Theme Perfection**:
+- Bold `border-4` on all cards
+- State-specific border colors (Coin Yellow, Star Yellow, Luigi Green)
+- Mario Red CTAs (`bg-mario-red-500`, `border-mario-red-700`)
+- Pipe neutrals for secondary elements
+- Sky Blue backgrounds (`bg-sky-50`)
+- Smooth transitions and hover effects
+- Consistent with trending, portfolio, and trading pages
 
 ---
 
-### ⏳ Phase 6: Frontend - React Query Integration (PENDING)
+### ⏳ Phase 6: Room Page (PENDING)
 
 **Status**: ⏳ Pending
 
-**Files to Create**:
-- `frontend/hooks/use-warp-pipes.ts`
-- `frontend/lib/api/warp-pipes.ts`
-
-**Hooks to Implement**:
-- [ ] `useWarpPipesFeed()` - Fetch token feed (2s refetch)
-- [ ] `useWatchToken()` - Add/remove watch mutation
-- [ ] `useUserWatches()` - Get user's watched tokens
-- [ ] `useTokenHealth()` - Get detailed health data
-
----
-
-### ⏳ Phase 7: Room Page (PENDING)
-
-**Status**: ⏳ Pending
+**Note**: Phases 6 and 7 merged - React Query integration completed in Phase 5
 
 **Files to Create**:
 - `frontend/app/room/[mint]/page.tsx`

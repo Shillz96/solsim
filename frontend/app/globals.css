@@ -1471,6 +1471,20 @@
   animation: coin-bounce 1s ease-in-out infinite;
 }
 
+/* Pulse Ring Animation for Real Trading Zero Balance Alert */
+@keyframes pulse-ring {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(239, 68, 68, 0);
+  }
+}
+
+.animate-pulse-ring {
+  animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
 /* ----------------------------
    VIEWPORT-AWARE UTILITIES (2025)
    - Modern dvh/svh/lvh units with vh fallback
