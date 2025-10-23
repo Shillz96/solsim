@@ -12,7 +12,7 @@
 
 import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
-import dynamic from 'next/dynamic'
+import dynamicImport from 'next/dynamic'
 import { MarioTradingPanel } from '@/components/trading/mario-trading-panel'
 import { useAuth } from '@/hooks/use-auth'
 import { useQuery } from '@tanstack/react-query'
@@ -24,7 +24,7 @@ export const dynamic = 'force-dynamic'
 export const dynamicParams = true
 
 // Dynamically import chart component to prevent SSR issues
-const LightweightChart = dynamic(
+const LightweightChart = dynamicImport(
   () => import('@/components/trading/lightweight-chart').then(mod => ({ default: mod.LightweightChart })),
   {
     ssr: false,
