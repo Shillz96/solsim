@@ -33,7 +33,7 @@ const redis = new Redis(process.env.REDIS_URL || '');
 // Configuration
 const HOT_SCORE_UPDATE_INTERVAL = 300_000; // 5 minutes
 const WATCHER_SYNC_INTERVAL = 60_000; // 1 minute
-const CLEANUP_INTERVAL = 3600_000; // 1 hour
+const CLEANUP_INTERVAL = 300_000; // 5 minutes (more frequent for stale token cleanup)
 const TOKEN_TTL = 7200; // 2 hours cache
 const NEW_TOKEN_RETENTION_HOURS = 24; // Remove NEW tokens after 24h
 
@@ -602,22 +602,35 @@ async function syncWatcherCounts(): Promise<void> {
 }
 
 /**
- * Cleanup old NEW tokens (>24h old)
+ * Cleanup old tokens (>24h old for NEW, >10min no activity for BONDED)
  */
 async function cleanupOldTokens(): Promise<void> {
   try {
     console.log('[TokenDiscovery] Cleaning up old tokens...');
 
-    const cutoffDate = new Date(Date.now() - NEW_TOKEN_RETENTION_HOURS * 60 * 60 * 1000);
-
-    const result = await prisma.tokenDiscovery.deleteMany({
+    // Cleanup old NEW tokens (>24h old)
+    const newCutoffDate = new Date(Date.now() - NEW_TOKEN_RETENTION_HOURS * 60 * 60 * 1000);
+    const newResult = await prisma.tokenDiscovery.deleteMany({
       where: {
         state: 'new',
-        poolCreatedAt: { lt: cutoffDate },
+        firstSeenAt: { lt: newCutoffDate },
       },
     });
 
-    console.log(`[TokenDiscovery] Cleaned up ${result.count} old tokens`);
+    // Cleanup stale BONDED tokens with no recent activity (>10 min old, no volume)
+    const bondedCutoffDate = new Date(Date.now() - 10 * 60 * 1000); // 10 minutes
+    const bondedResult = await prisma.tokenDiscovery.deleteMany({
+      where: {
+        state: 'bonded',
+        lastUpdatedAt: { lt: bondedCutoffDate },
+        OR: [
+          { volume24h: { lte: 100 } }, // Less than $100 volume
+          { volume24h: null },
+        ],
+      },
+    });
+
+    console.log(`[TokenDiscovery] Cleaned up ${newResult.count} old NEW tokens, ${bondedResult.count} stale BONDED tokens`);
   } catch (error) {
     console.error('[TokenDiscovery] Error cleaning up old tokens:', error);
   }
