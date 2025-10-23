@@ -20,14 +20,6 @@ const nextConfig = {
 
   // Experimental features - 2025 Modernization
   experimental: {
-    // View Transitions API - Buttery smooth page transitions
-    viewTransition: true,
-
-    // React Compiler - Auto-optimizes components (disabled for now to fix build issues)
-    // reactCompiler: {
-    //   compilationMode: 'annotation',
-    // },
-
     // Optimize package imports for better tree-shaking
     optimizePackageImports: [
       'lucide-react',
