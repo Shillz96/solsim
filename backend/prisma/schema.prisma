@@ -585,6 +585,10 @@ model TokenDiscovery {
   priceUsd         Decimal?  // Current price in USD
   priceChange24h   Decimal?  // 24h price change percentage
   txCount24h       Int?      // 24h transaction count
+  holderCount      Int?      // Number of token holders
+
+  // Creator data
+  creatorWallet    String?   // Token creator wallet address
 
   // Health capsule data
   freezeRevoked    Boolean   @default(false)
@@ -606,6 +610,7 @@ model TokenDiscovery {
   @@index([state, lastUpdatedAt(sort: Desc)], map: "token_discovery_state_updated")
   @@index([volume24h(sort: Desc)], map: "token_discovery_volume")
   @@index([marketCapUsd(sort: Desc)], map: "token_discovery_market_cap")
+  @@index([holderCount(sort: Desc)], map: "token_discovery_holder_count")
 }
 
 model TokenWatch {

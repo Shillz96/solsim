@@ -127,10 +127,16 @@ const warpPipesRoutes: FastifyPluginAsync = async (fastify) => {
         }
 
         // Fetch tokens for each state
+        const twelveHoursAgo = new Date(Date.now() - 12 * 60 * 60 * 1000);
+        
         const [bonded, graduating, newTokens] = await Promise.all([
-          // Bonded tokens
+          // Bonded tokens - only last 12 hours
           prisma.tokenDiscovery.findMany({
-            where: { ...baseWhere, state: 'bonded' },
+            where: { 
+              ...baseWhere, 
+              state: 'bonded',
+              stateChangedAt: { gte: twelveHoursAgo }
+            },
             orderBy,
             take: limit,
           }),
@@ -171,6 +177,8 @@ const warpPipesRoutes: FastifyPluginAsync = async (fastify) => {
           twitter: token.twitter,
           telegram: token.telegram,
           website: token.website,
+          creatorWallet: token.creatorWallet,
+          holderCount: token.holderCount,
           state: token.state,
           liqUsd: token.liquidityUsd ? parseFloat(token.liquidityUsd.toString()) : undefined,
           poolAgeMin: token.poolCreatedAt

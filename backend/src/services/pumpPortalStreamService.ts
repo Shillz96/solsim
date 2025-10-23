@@ -27,7 +27,23 @@ export interface NewTokenEvent {
     marketCapSol?: number;
     vTokensInBondingCurve?: number;
     vSolInBondingCurve?: number;
+    // Holder and social data
+    holderCount?: number;
+    twitter?: string;
+    telegram?: string;
+    website?: string;
+    description?: string;
   };
+  timestamp: number;
+}
+
+export interface SwapEvent {
+  type: 'swap';
+  mint: string;
+  txType: 'buy' | 'sell';
+  solAmount?: number;
+  tokenAmount?: number;
+  user?: string;
   timestamp: number;
 }
 
@@ -42,7 +58,7 @@ export interface MigrationEvent {
   timestamp: number;
 }
 
-export type PumpPortalEvent = NewTokenEvent | MigrationEvent;
+export type PumpPortalEvent = NewTokenEvent | MigrationEvent | SwapEvent;
 
 class PumpPortalStreamService extends EventEmitter {
   private ws: WebSocket | null = null;
@@ -152,6 +168,14 @@ class PumpPortalStreamService extends EventEmitter {
     console.log('[PumpPortal] Sending subscription:', JSON.stringify(migrationSub));
     this.ws.send(JSON.stringify(migrationSub));
 
+    // Subscribe to token trades (for transaction counting)
+    const tokenTradeSub = {
+      method: 'subscribeTokenTrade',
+      keys: ['*'], // Subscribe to all token trades
+    };
+    console.log('[PumpPortal] Sending subscription:', JSON.stringify(tokenTradeSub));
+    this.ws.send(JSON.stringify(tokenTradeSub));
+
     console.log('[PumpPortal] Subscription requests sent. Waiting for events...');
   }
 
@@ -228,6 +252,23 @@ class PumpPortalStreamService extends EventEmitter {
 
         console.log('[PumpPortal] Migration event:', event.mint, event.data.status);
         this.emit('migration', event);
+      }
+      // Handle swap/trade events (buy/sell)
+      else if (message.txType === 'buy' || message.txType === 'sell' || message.type === 'swap') {
+        const event: SwapEvent = {
+          type: 'swap',
+          mint: message.mint,
+          txType: message.txType || 'buy',
+          solAmount: message.solAmount || message.sol,
+          tokenAmount: message.tokenAmount || message.tokens,
+          user: message.user || message.traderPublicKey,
+          timestamp: message.timestamp || Date.now(),
+        };
+
+        // Only emit if we have a mint address
+        if (event.mint) {
+          this.emit('swap', event);
+        }
       }
       // Also check for any other message types for debugging
       else if (process.env.NODE_ENV !== 'production') {

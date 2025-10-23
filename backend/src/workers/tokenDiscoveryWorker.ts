@@ -17,7 +17,7 @@
 import { PrismaClient, Prisma } from '@prisma/client';
 import { Decimal } from '@prisma/client/runtime/library';
 import Redis from 'ioredis';
-import { pumpPortalStreamService, NewTokenEvent, MigrationEvent } from '../services/pumpPortalStreamService.js';
+import { pumpPortalStreamService, NewTokenEvent, MigrationEvent, SwapEvent } from '../services/pumpPortalStreamService.js';
 import { raydiumStreamService, NewPoolEvent } from '../services/raydiumStreamService.js';
 import { healthCapsuleService } from '../services/healthCapsuleService.js';
 import { tokenMetadataService } from '../services/tokenMetadataService.js';
@@ -36,11 +36,81 @@ const WATCHER_SYNC_INTERVAL = 60_000; // 1 minute
 const CLEANUP_INTERVAL = 300_000; // 5 minutes (more frequent for stale token cleanup)
 const TOKEN_TTL = 7200; // 2 hours cache
 const NEW_TOKEN_RETENTION_HOURS = 24; // Remove NEW tokens after 24h
+const BONDED_TOKEN_RETENTION_HOURS = 12; // Remove BONDED tokens older than 12 hours
+
+// Transaction counting - track swap events per token
+const txCountMap = new Map<string, Set<string>>(); // mint -> Set of transaction signatures
 
 // Known mints to filter
 const SOL_MINT = 'So11111111111111111111111111111111111111112';
 const USDC_MINT = 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v';
 const USDT_MINT = 'Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB';
+
+// ============================================================================
+// HELPER FUNCTIONS
+// ============================================================================
+
+/**
+ * Fetch and parse token metadata from IPFS URI
+ */
+async function fetchTokenMetadata(uri: string): Promise<{
+  description?: string;
+  twitter?: string;
+  telegram?: string;
+  website?: string;
+  image?: string;
+}> {
+  try {
+    if (!uri) return {};
+
+    // Convert IPFS URI to HTTP gateway URL
+    const httpUri = uri.startsWith('ipfs://')
+      ? uri.replace('ipfs://', 'https://ipfs.io/ipfs/')
+      : uri;
+
+    const response = await fetch(httpUri, { 
+      signal: AbortSignal.timeout(5000) // 5 second timeout
+    });
+    
+    if (!response.ok) {
+      console.warn(`[TokenDiscovery] Failed to fetch metadata: ${response.status}`);
+      return {};
+    }
+
+    const metadata = await response.json();
+    
+    return {
+      description: metadata.description || undefined,
+      twitter: metadata.twitter || metadata.social?.twitter || undefined,
+      telegram: metadata.telegram || metadata.social?.telegram || undefined,
+      website: metadata.website || metadata.external_url || undefined,
+      image: metadata.image ? convertIPFStoHTTP(metadata.image) : undefined,
+    };
+  } catch (error) {
+    console.error('[TokenDiscovery] Error fetching metadata:', error);
+    return {};
+  }
+}
+
+/**
+ * Handle swap event → Update transaction count
+ */
+async function handleSwap(event: SwapEvent): Promise<void> {
+  try {
+    const { mint, timestamp } = event;
+    
+    // Use timestamp as unique identifier (in real scenario, use signature)
+    const txId = `${mint}-${timestamp}`;
+    
+    if (!txCountMap.has(mint)) {
+      txCountMap.set(mint, new Set());
+    }
+    
+    txCountMap.get(mint)!.add(txId);
+  } catch (error) {
+    console.error('[TokenDiscovery] Error handling swap event:', error);
+  }
+}
 
 // ============================================================================
 // EVENT HANDLERS
@@ -60,7 +130,12 @@ async function handleNewToken(event: NewTokenEvent): Promise<void> {
       bondingCurve,
       marketCapSol,
       vTokensInBondingCurve,
-      vSolInBondingCurve 
+      vSolInBondingCurve,
+      holderCount,
+      twitter,
+      telegram,
+      website,
+      description 
     } = event.token;
 
     console.log(`[TokenDiscovery] New bonded token: ${symbol || mint}`);
@@ -108,6 +183,15 @@ async function handleNewToken(event: NewTokenEvent): Promise<void> {
     // Convert IPFS URI to HTTP gateway URL
     const httpLogoURI = convertIPFStoHTTP(uri);
 
+    // Fetch additional metadata from URI if not provided directly
+    let metadata: Awaited<ReturnType<typeof fetchTokenMetadata>> = {};
+    if (uri && (!description || !twitter || !telegram || !website)) {
+      metadata = await fetchTokenMetadata(uri);
+    }
+
+    // Get current transaction count for this token
+    const txCount = txCountMap.get(mint)?.size || 0;
+
     // Upsert to database
     await prisma.tokenDiscovery.upsert({
       where: { mint },
@@ -116,6 +200,14 @@ async function handleNewToken(event: NewTokenEvent): Promise<void> {
         symbol: symbol || null,
         name: name || null,
         logoURI: httpLogoURI, // ✅ Convert ipfs:// to https://
+        imageUrl: metadata.image || null,
+        description: description || metadata.description || null,
+        twitter: twitter || metadata.twitter || null,
+        telegram: telegram || metadata.telegram || null,
+        website: website || metadata.website || null,
+        creatorWallet: creator || null,
+        holderCount: holderCount || null,
+        txCount24h: txCount > 0 ? txCount : null,
         state: tokenState,
         bondingCurveKey: bondingCurve || null,
         bondingCurveProgress: bondingCurveProgress,
@@ -132,6 +224,13 @@ async function handleNewToken(event: NewTokenEvent): Promise<void> {
       },
       update: {
         lastUpdatedAt: new Date(),
+        // Update metadata if available
+        ...(description && { description }),
+        ...(twitter && { twitter }),
+        ...(telegram && { telegram }),
+        ...(website && { website }),
+        ...(holderCount && { holderCount }),
+        ...(txCount > 0 && { txCount24h: txCount }),
         // Update progress and potentially state if available
         ...(bondingCurveProgress && {
           bondingCurveProgress,
@@ -604,7 +703,7 @@ async function syncWatcherCounts(): Promise<void> {
 }
 
 /**
- * Cleanup old tokens (>24h old for NEW, >10min no activity for BONDED)
+ * Cleanup old tokens (>24h old for NEW, >12h for BONDED)
  */
 async function cleanupOldTokens(): Promise<void> {
   try {
@@ -619,20 +718,16 @@ async function cleanupOldTokens(): Promise<void> {
       },
     });
 
-    // Cleanup stale BONDED tokens with no recent activity (>10 min old, no volume)
-    const bondedCutoffDate = new Date(Date.now() - 10 * 60 * 1000); // 10 minutes
+    // Cleanup BONDED tokens older than 12 hours (based on stateChangedAt)
+    const bondedCutoffDate = new Date(Date.now() - BONDED_TOKEN_RETENTION_HOURS * 60 * 60 * 1000);
     const bondedResult = await prisma.tokenDiscovery.deleteMany({
       where: {
         state: 'bonded',
-        lastUpdatedAt: { lt: bondedCutoffDate },
-        OR: [
-          { volume24h: { lte: 100 } }, // Less than $100 volume
-          { volume24h: null },
-        ],
+        stateChangedAt: { lt: bondedCutoffDate },
       },
     });
 
-    console.log(`[TokenDiscovery] Cleaned up ${newResult.count} old NEW tokens, ${bondedResult.count} stale BONDED tokens`);
+    console.log(`[TokenDiscovery] Cleaned up ${newResult.count} old NEW tokens, ${bondedResult.count} old BONDED tokens (>12h)`);
   } catch (error) {
     console.error('[TokenDiscovery] Error cleaning up old tokens:', error);
   }
@@ -675,6 +770,7 @@ async function startWorker(): Promise<void> {
 
     pumpPortalStreamService.on('newToken', handleNewToken);
     pumpPortalStreamService.on('migration', handleMigration);
+    pumpPortalStreamService.on('swap', handleSwap);
     raydiumStreamService.on('newPool', handleNewPool);
 
     console.log('✅ Event handlers registered');

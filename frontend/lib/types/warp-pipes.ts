@@ -60,6 +60,10 @@ export interface TokenRow {
   priceUsd?: number | null;
   priceChange24h?: number | null;
   txCount24h?: number | null;
+  holderCount?: number | null;
+
+  // 6.5) CREATOR DATA
+  creatorWallet?: string | null;
 
   // 7) BONDING CURVE
   bondingCurveProgress?: number | null;
