@@ -8,6 +8,12 @@
       "maxDuration": 10
     }
   },
+  "rewrites": [
+    {
+      "source": "/room/:ca",
+      "destination": "/room/:ca"
+    }
+  ],
   "headers": [
     {
       "source": "/(.*)",
