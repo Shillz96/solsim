@@ -1,7 +1,7 @@
 "use client"
 
 import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from "react"
-import { Onborda, useOnborda, type CardComponentProps } from "onborda"
+import { Onborda, OnbordaProvider as OnbordaLibProvider, type CardComponentProps } from "onborda"
 import { onboardingTours } from "./onboarding-config"
 import { WelcomeModal } from "@/components/onboarding/welcome-modal"
 
@@ -114,9 +114,10 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
         hasCompletedOnboarding,
       }}
     >
-      <Onborda
-        steps={onboardingTours}
-        showOnborda={isOnboardingActive}
+      <OnbordaLibProvider>
+        <Onborda
+          steps={onboardingTours}
+          showOnborda={isOnboardingActive}
         // Custom card styling with Mario theme
         cardComponent={(props: CardComponentProps) => {
           const isLastStep = props.currentStep === props.totalSteps - 1
@@ -195,16 +196,17 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
             </div>
           )
         }}
-      >
-        {children}
-      </Onborda>
+        >
+          {children}
+        </Onborda>
 
-      {/* Welcome Modal */}
-      <WelcomeModal
-        open={showWelcomeModal}
-        onClose={handleCloseWelcomeModal}
-        onStartTour={handleStartTour}
-      />
+        {/* Welcome Modal */}
+        <WelcomeModal
+          open={showWelcomeModal}
+          onClose={handleCloseWelcomeModal}
+          onStartTour={handleStartTour}
+        />
+      </OnbordaLibProvider>
     </OnboardingContext.Provider>
   )
 }
