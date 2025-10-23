@@ -295,7 +295,6 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
               href="/wallet-tracker"
               size="md"
               bgColor="var(--sky-blue)"
-              badgeText="👁"
             />
             {/* Leaderboard - Green CartridgePill */}
             <CartridgePill
@@ -303,7 +302,6 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
               href="/leaderboard"
               size="md"
               bgColor="var(--luigi-green)"
-              badgeText="🏆"
             />
             {/* Trading Mode as CartridgePill */}
             <CartridgePill
