@@ -293,21 +293,21 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
             <CartridgePill
               value="Wallet Tracker"
               href="/wallet-tracker"
-              size="md"
+              size="sm"
               bgColor="var(--sky-blue)"
             />
             {/* Leaderboard - Green CartridgePill */}
             <CartridgePill
               value="Leaderboard"
               href="/leaderboard"
-              size="md"
+              size="sm"
               bgColor="var(--luigi-green)"
             />
             {/* Trading Mode as CartridgePill */}
             <CartridgePill
               value={tradeMode === "REAL" ? "Mainnet" : "Paper"}
               onClick={() => handleToggleMode(tradeMode === "REAL" ? "PAPER" : "REAL")}
-              size="md"
+              size="sm"
             />
           </div>
         </div>
