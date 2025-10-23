@@ -84,7 +84,7 @@ const airdropPoints = [
 ]
 
 const Card = ({ children, className = "" }: { children: React.ReactNode; className?: string }) => (
-  <div className={`rounded-2xl border-[4px] border-[var(--outline-black)] bg-white shadow-[6px_6px_0_var(--outline-black)] ${className}`}>
+  <div className={`mario-card bg-white rounded-2xl border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] ${className}`}>
     {children}
   </div>
 )
@@ -122,18 +122,30 @@ export default function RoadmapPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="mb-10 text-center"
+          className="mb-10 space-y-4"
         >
-          <h1 className="font-mario text-3xl sm:text-4xl md:text-5xl tracking-tight text-[var(--outline-black)] font-black mb-3">
-            1UP SOL Roadmap
-          </h1>
-          <p className="mx-auto mt-3 max-w-2xl text-base sm:text-lg text-[var(--outline-black)] opacity-80 font-semibold">
+          <div className="flex items-center justify-center gap-3">
+            <div className="h-12 w-12 rounded-lg bg-[var(--star-yellow)] border-3 border-[var(--outline-black)] flex items-center justify-center shadow-[3px_3px_0_var(--outline-black)]">
+              <span className="text-2xl">🗺️</span>
+            </div>
+            <h1 className="font-mario text-4xl md:text-5xl text-[var(--outline-black)]">
+              1UP SOL Roadmap
+            </h1>
+          </div>
+          <p className="mx-auto mt-3 max-w-2xl text-xl text-[var(--outline-black)] font-semibold text-center">
             From paper trades to real rewards — every trade is a power‑up. 🍄💰
           </p>
         </motion.div>
 
         {/* Phases */}
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-3 mb-8">
+        <motion.section
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="space-y-6 mb-12"
+        >
+          <h2 className="font-mario text-3xl text-[var(--outline-black)]">Roadmap Phases</h2>
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
           {phases.map((p, i) => (
             <motion.div
               key={p.id}
@@ -159,19 +171,21 @@ export default function RoadmapPage() {
               </Card>
             </motion.div>
           ))}
-        </div>
+          </div>
+        </motion.section>
 
         {/* Airdrop Explainer */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.2 }}
-          transition={{ duration: 0.6, delay: 0.1 }}
+        <motion.section
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="space-y-6 mb-12"
         >
-          <Card className="mt-8 p-6">
+          <h2 className="font-mario text-3xl text-[var(--outline-black)]">Airdrop Details</h2>
+          <Card className="p-6">
             <div className="mb-4 flex items-center gap-3">
               <span className="text-2xl">💎</span>
-              <h2 className="text-xl font-extrabold text-[var(--outline-black)]">Airdrop — How It Works (2–3 weeks)</h2>
+              <h3 className="text-xl font-extrabold text-[var(--outline-black)]">Airdrop — How It Works (2–3 weeks)</h3>
             </div>
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
               <div>
@@ -200,14 +214,14 @@ export default function RoadmapPage() {
               TL;DR: Trade now, stay active for both snapshots, then claim your 1UP in Week 3. 🚀
             </div>
           </Card>
-        </motion.div>
+        </motion.section>
 
         {/* CTA */}
-        <motion.div
+        <motion.section
           initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.2 }}
-          transition={{ duration: 0.6, delay: 0.15 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="space-y-6"
         >
           <Card className="mt-8 bg-gradient-to-br from-[var(--mario-red)] via-[var(--star-yellow)] to-[var(--luigi-green)] p-6">
             <div className="flex flex-col items-center gap-3 text-center">
@@ -233,7 +247,7 @@ export default function RoadmapPage() {
               </div>
             </div>
           </Card>
-        </motion.div>
+        </motion.section>
       </div>
     </div>
   )

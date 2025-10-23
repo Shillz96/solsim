@@ -70,7 +70,7 @@ function TradePageContent() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
-      <main className="w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-3 max-w-page-xl mx-auto">
+      <main className="w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:pt-3 lg:pb-0 max-w-page-xl mx-auto">
         {/* MOBILE-OPTIMIZED LAYOUT: Chart + Trading Panel Adjacent */}
         <div className="lg:hidden space-y-4">
           {/* Sliding Trending Ticker - Mobile (Moved to Top) */}
@@ -198,8 +198,8 @@ function TradePageContent() {
             <TokenDetailsHeader tokenAddress={currentTokenAddress} />
           </motion.div>
 
-          {/* Grid height: Responsive across screen sizes - prevents overflow on any viewport */}
-          <div className="lg:grid lg:grid-cols-12 lg:items-stretch gap-3 h-[calc(100dvh-26rem)] xl:h-[calc(100dvh-25rem)] 2xl:h-[calc(100dvh-24rem)]">
+          {/* Grid height: Responsive - no bottom padding on main, so less overhead needed */}
+          <div className="lg:grid lg:grid-cols-12 lg:items-stretch gap-3 h-[calc(100dvh-25rem)] xl:h-[calc(100dvh-24rem)] 2xl:h-[calc(100dvh-23rem)]">
           {/* Left Sidebar - PnL Above Trade Activity */}
           <motion.aside
             className="lg:col-span-3 flex flex-col gap-3 min-h-0 overflow-hidden"

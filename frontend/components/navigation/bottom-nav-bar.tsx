@@ -3,13 +3,19 @@
 import Link from "next/link"
 import Image from "next/image"
 import { usePathname } from "next/navigation"
-import { Home, TrendingUp, Wallet, Trophy, Gift, Eye, Zap, Map } from "lucide-react"
+import { Home, TrendingUp, Wallet, Trophy, Gift, Eye, Zap, Map, Info, ChevronDown, BookOpen } from "lucide-react"
 import { Twitter as XIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { usePriceStreamContext } from "@/lib/price-stream-provider"
 import { Button } from "@/components/ui/button"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 // Percentage formatting now inline
 
@@ -85,8 +91,15 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
     { href: "/trade", icon: TrendingUp, label: "Trade" },
     { href: "/portfolio", icon: Wallet, label: "Portfolio" },
     { href: "/leaderboard", icon: Trophy, label: "Ranks" },
+  ]
+
+  const infoItems = [
+    { href: "/rewards", icon: Gift, label: "Rewards" },
+    { href: "/docs", icon: BookOpen, label: "Docs" },
     { href: "/roadmap", icon: Map, label: "Roadmap" },
   ]
+
+  const isInfoActive = infoItems.some(item => pathname === item.href)
 
   return (
     <>
@@ -146,6 +159,76 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
               </motion.div>
             )
           })}
+          
+          {/* More Info Dropdown */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: navItems.length * 0.1 }}
+            className="relative"
+          >
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  className={cn(
+                    "flex flex-col items-center justify-center gap-1 px-4 py-2 transition-all duration-300 relative z-10",
+                    isInfoActive ? "text-primary" : "text-muted-foreground hover:text-foreground",
+                  )}
+                >
+                  <motion.div
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="relative"
+                  >
+                    <Info className={cn(
+                      "h-5 w-5 transition-all duration-300",
+                      isInfoActive && "glow-primary icon-morph"
+                    )} />
+                    <AnimatePresence>
+                      {isInfoActive && (
+                        <motion.div
+                          className="absolute -inset-2 rounded-full bg-primary/10 border border-primary/20"
+                          initial={{ opacity: 0, scale: 0.8 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          exit={{ opacity: 0, scale: 0.8 }}
+                          transition={{ duration: 0.2 }}
+                        />
+                      )}
+                    </AnimatePresence>
+                  </motion.div>
+                  <span className={cn(
+                    "text-xs font-mario transition-all duration-300",
+                    isInfoActive && "font-semibold"
+                  )}>
+                    More
+                  </span>
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent 
+                align="center" 
+                side="top"
+                className="mb-2 bg-[#FFFAE9] border-3 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)]"
+              >
+                {infoItems.map((item) => {
+                  const Icon = item.icon
+                  return (
+                    <DropdownMenuItem key={item.href} asChild>
+                      <Link
+                        href={item.href}
+                        className={cn(
+                          "flex items-center gap-2 px-3 py-2 cursor-pointer font-mario",
+                          pathname === item.href && "bg-primary/10"
+                        )}
+                      >
+                        <Icon className="h-4 w-4" />
+                        {item.label}
+                      </Link>
+                    </DropdownMenuItem>
+                  )
+                })}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </motion.div>
         </div>
       </nav>
 
@@ -239,7 +322,7 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
             </div>
           </div>
 
-          {/* Right: Wallet Tracker, Leaderboard, Docs, Theme Toggle & Quick Trade */}
+          {/* Right: Wallet Tracker, Leaderboard, More Info Dropdown & Quick Trade */}
           <div className="flex items-center gap-4">
             {/* Wallet Tracker Button */}
             <Link href="/wallet-tracker">
@@ -263,17 +346,45 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
                 Leaderboard
               </Button>
             </Link>
-            {/* Docs Button */}
-            <Link href="/roadmap">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-xs font-medium hover:text-primary transition-colors flex items-center gap-1.5 h-8"
+            {/* More Info Dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className={cn(
+                    "text-xs font-medium transition-colors flex items-center gap-1.5 h-8",
+                    isInfoActive ? "text-primary" : "hover:text-primary"
+                  )}
+                >
+                  <Info className="h-4 w-4" />
+                  More Info
+                  <ChevronDown className="h-3 w-3" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent 
+                align="end"
+                className="bg-[#FFFAE9] border-3 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)]"
               >
-                <Map className="h-4 w-4" />
-                Roadmap
-              </Button>
-            </Link>
+                {infoItems.map((item) => {
+                  const Icon = item.icon
+                  return (
+                    <DropdownMenuItem key={item.href} asChild>
+                      <Link
+                        href={item.href}
+                        className={cn(
+                          "flex items-center gap-2 px-3 py-2 cursor-pointer font-mario",
+                          pathname === item.href && "bg-primary/10"
+                        )}
+                      >
+                        <Icon className="h-4 w-4" />
+                        {item.label}
+                      </Link>
+                    </DropdownMenuItem>
+                  )
+                })}
+              </DropdownMenuContent>
+            </DropdownMenu>
             {/* Theme toggle removed - Light mode only! */}
             <Link
               href="/trade"
