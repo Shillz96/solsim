@@ -181,7 +181,7 @@ async function handleNewToken(event: NewTokenEvent): Promise<void> {
     }
 
     // Convert IPFS URI to HTTP gateway URL
-    const httpLogoURI = convertIPFStoHTTP(uri);
+    const httpLogoURI = convertIPFStoHTTP(uri) || undefined;
 
     // Fetch additional metadata from URI if not provided directly
     let metadata: Awaited<ReturnType<typeof fetchTokenMetadata>> = {};
