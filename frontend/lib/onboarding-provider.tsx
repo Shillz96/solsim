@@ -30,9 +30,17 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
   const [showWelcomeModal, setShowWelcomeModal] = useState(false)
   const [isOnboardingActive, setIsOnboardingActive] = useState(false)
   const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState(false)
+  const [isMounted, setIsMounted] = useState(false)
+
+  // Check if component is mounted (client-side only)
+  useEffect(() => {
+    setIsMounted(true)
+  }, [])
 
   // Check if user has completed onboarding on mount
   useEffect(() => {
+    if (!isMounted) return
+
     const completed = localStorage.getItem(ONBOARDING_COMPLETED_KEY) === "true"
     setHasCompletedOnboarding(completed)
 
@@ -46,7 +54,7 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
       }, 500)
       return () => clearTimeout(timer)
     }
-  }, [])
+  }, [isMounted])
 
   /**
    * Start the onboarding tour manually
@@ -82,6 +90,21 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
     localStorage.setItem(ONBOARDING_COMPLETED_KEY, "true")
     setHasCompletedOnboarding(true)
   }, [])
+
+  // Don't render Onborda during SSR
+  if (!isMounted) {
+    return (
+      <OnboardingContext.Provider
+        value={{
+          startOnboarding,
+          isOnboardingActive,
+          hasCompletedOnboarding,
+        }}
+      >
+        {children}
+      </OnboardingContext.Provider>
+    )
+  }
 
   return (
     <OnboardingContext.Provider
