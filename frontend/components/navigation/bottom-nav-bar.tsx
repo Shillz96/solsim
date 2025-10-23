@@ -306,35 +306,32 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
           {/* Right: Trading Mode Toggle, Wallet Tracker, Leaderboard, More Info Dropdown & Quick Trade */}
           <div className="flex items-center gap-4">
             {/* Trading Mode Toggle */}
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white border-3 border-pipe-900 shadow-[2px_2px_0_var(--outline-black)]">
+            <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-[#FFFAE9] border-3 border-pipe-900 shadow-[2px_2px_0_var(--outline-black)]">
               <button
                 onClick={() => handleToggleMode('PAPER')}
                 disabled={isSwitchingMode}
                 className={cn(
-                  "px-3 py-1.5 rounded-md text-xs font-mario font-bold transition-all border-2",
+                  "px-2.5 py-1 rounded text-[10px] font-mario font-bold transition-all border-2 uppercase",
                   tradeMode === 'PAPER'
-                    ? "bg-luigi-green-500 text-white border-luigi-green-700 shadow-[2px_2px_0_rgba(0,0,0,0.2)]"
-                    : "bg-white text-pipe-700 border-pipe-300 hover:border-pipe-500"
+                    ? "bg-luigi-green-500 text-white border-luigi-green-700 shadow-[2px_2px_0_rgba(0,0,0,0.25)]"
+                    : "bg-[#FFFAE9] text-pipe-900 border-pipe-700 hover:bg-white"
                 )}
               >
-                PAPER
+                Paper
               </button>
               <button
                 onClick={() => handleToggleMode('REAL')}
                 disabled={isSwitchingMode}
                 className={cn(
-                  "px-3 py-1.5 rounded-md text-xs font-mario font-bold transition-all flex items-center gap-1 border-2",
+                  "px-2.5 py-1 rounded text-[10px] font-mario font-bold transition-all flex items-center gap-1 border-2 uppercase",
                   tradeMode === 'REAL'
-                    ? "bg-mario-red-500 text-white border-mario-red-700 shadow-[2px_2px_0_rgba(0,0,0,0.2)]"
-                    : "bg-white text-pipe-700 border-pipe-300 hover:border-pipe-500"
+                    ? "bg-mario-red-500 text-white border-mario-red-700 shadow-[2px_2px_0_rgba(0,0,0,0.25)]"
+                    : "bg-[#FFFAE9] text-pipe-900 border-pipe-700 hover:bg-white"
                 )}
               >
-                {tradeMode === 'REAL' && <AlertTriangle className="w-3 h-3" />}
-                REAL
+                {tradeMode === 'REAL' && <AlertTriangle className="w-2.5 h-2.5" />}
+                Real
               </button>
-              <div className="text-xs font-mono font-bold text-pipe-900 pl-3 border-l-2 border-pipe-400">
-                {activeBalance.toFixed(2)} SOL
-              </div>
             </div>
             {/* Wallet Tracker Button */}
             <Link href="/wallet-tracker">
@@ -411,32 +408,32 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
 
       {/* Trading Mode Confirmation Dialog */}
       <AlertDialog open={showModeConfirm} onOpenChange={setShowModeConfirm}>
-        <AlertDialogContent className="bg-white border-4 border-pipe-900 shadow-[6px_6px_0_var(--outline-black)] rounded-xl">
+        <AlertDialogContent className="bg-[#FFFAE9] border-4 border-pipe-900 shadow-[6px_6px_0_var(--outline-black)] rounded-xl">
           <AlertDialogHeader>
-            <AlertDialogTitle className="font-mario text-lg text-pipe-900 flex items-center gap-2 pb-2 border-b-3 border-pipe-200">
-              {pendingMode === 'REAL' && <AlertTriangle className="w-6 h-6 text-mario-red-500" />}
+            <AlertDialogTitle className="font-mario text-base text-pipe-900 flex items-center gap-2 pb-3 border-b-3 border-pipe-300">
+              {pendingMode === 'REAL' && <AlertTriangle className="w-5 h-5 text-mario-red-500" />}
               Switch to {pendingMode === 'REAL' ? 'Real' : 'Paper'} Trading?
             </AlertDialogTitle>
-            <AlertDialogDescription className="pt-4 text-pipe-800 text-sm leading-relaxed">
+            <AlertDialogDescription className="pt-4 text-pipe-900 text-sm leading-relaxed">
               {pendingMode === 'REAL' ? (
                 <div className="space-y-3">
-                  <div className="flex items-start gap-2 p-3 bg-mario-red-50 border-2 border-mario-red-300 rounded-lg">
-                    <AlertTriangle className="w-5 h-5 text-mario-red-600 mt-0.5 flex-shrink-0" />
+                  <div className="flex items-start gap-2 p-3 bg-white border-3 border-mario-red-500 rounded-lg shadow-[2px_2px_0_rgba(0,0,0,0.1)]">
+                    <AlertTriangle className="w-5 h-5 text-mario-red-500 mt-0.5 flex-shrink-0" />
                     <div>
-                      <strong className="text-mario-red-700 font-bold block mb-1">Warning: Real Money Trading</strong>
-                      <p className="text-pipe-900">
+                      <strong className="text-mario-red-600 font-bold block mb-1">Warning: Real Money Trading</strong>
+                      <p className="text-pipe-900 text-xs">
                         You are about to switch to REAL trading mode. All trades will use real SOL and execute on Solana mainnet.
                         This cannot be simulated or undone.
                       </p>
                     </div>
                   </div>
-                  <p className="text-xs text-pipe-700">
+                  <p className="text-xs text-pipe-800">
                     Make sure you understand the risks before proceeding.
                   </p>
                 </div>
               ) : (
-                <div className="p-3 bg-luigi-green-50 border-2 border-luigi-green-300 rounded-lg">
-                  <p className="text-pipe-900">
+                <div className="p-3 bg-white border-3 border-luigi-green-500 rounded-lg shadow-[2px_2px_0_rgba(0,0,0,0.1)]">
+                  <p className="text-pipe-900 text-xs">
                     You are about to switch to PAPER trading mode. All trades will be simulated using virtual SOL.
                     Your real trading positions will remain separate and unchanged.
                   </p>
@@ -447,14 +444,14 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
           <AlertDialogFooter className="gap-3 pt-4">
             <AlertDialogCancel
               onClick={handleCancelModeSwitch}
-              className="font-mario font-bold border-3 border-pipe-700 shadow-[2px_2px_0_var(--outline-black)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
+              className="font-mario font-bold bg-white text-pipe-900 border-3 border-pipe-900 shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[2px_2px_0_var(--outline-black)] hover:translate-x-[1px] hover:translate-y-[1px] transition-all"
             >
               Cancel
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleConfirmModeSwitch}
               className={cn(
-                "font-mario font-bold border-3 shadow-[3px_3px_0_rgba(0,0,0,0.3)] hover:shadow-[2px_2px_0_rgba(0,0,0,0.3)] hover:translate-x-[1px] hover:translate-y-[1px] transition-all",
+                "font-mario font-bold border-3 shadow-[3px_3px_0_rgba(0,0,0,0.3)] hover:shadow-[2px_2px_0_rgba(0,0,0,0.2)] hover:translate-x-[1px] hover:translate-y-[1px] transition-all",
                 pendingMode === 'REAL'
                   ? "bg-mario-red-500 hover:bg-mario-red-600 text-white border-mario-red-700"
                   : "bg-luigi-green-500 hover:bg-luigi-green-600 text-white border-luigi-green-700"
