@@ -121,24 +121,24 @@ function PortfolioPageContent() {
             >
               <Tabs defaultValue="positions" className="w-full">
                 {/* Mario-themed tab navigation */}
-                <TabsList className="grid w-full grid-cols-3 mb-6 bg-[var(--sky-blue)]/20 border-4 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)] rounded-xl p-2">
+                <TabsList className="inline-flex w-auto mb-6 bg-[var(--sky-blue)]/20 border-4 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)] rounded-xl p-2 gap-2">
                   <TabsTrigger
                     value="positions"
-                    className="gap-2 data-[state=active]:bg-[var(--mario-red)] data-[state=active]:text-white data-[state=active]:border-3 data-[state=active]:border-[var(--outline-black)] data-[state=active]:shadow-[2px_2px_0_var(--outline-black)] rounded-lg font-mario text-xs sm:text-sm transition-all"
+                    className="gap-2 data-[state=active]:bg-[var(--mario-red)] data-[state=active]:text-white data-[state=active]:border-3 data-[state=active]:border-[var(--outline-black)] data-[state=active]:shadow-[2px_2px_0_var(--outline-black)] rounded-lg font-mario text-xs sm:text-sm transition-all px-4 py-2"
                   >
                     <Image src="/icons/mario/mushroom.png" alt="Positions" width={16} height={16} />
                     <span>COINS</span>
                   </TabsTrigger>
                   <TabsTrigger
                     value="performance"
-                    className="gap-2 data-[state=active]:bg-[var(--luigi-green)] data-[state=active]:text-white data-[state=active]:border-3 data-[state=active]:border-[var(--outline-black)] data-[state=active]:shadow-[2px_2px_0_var(--outline-black)] rounded-lg font-mario text-xs sm:text-sm transition-all"
+                    className="gap-2 data-[state=active]:bg-[var(--luigi-green)] data-[state=active]:text-white data-[state=active]:border-3 data-[state=active]:border-[var(--outline-black)] data-[state=active]:shadow-[2px_2px_0_var(--outline-black)] rounded-lg font-mario text-xs sm:text-sm transition-all px-4 py-2"
                   >
                     <Image src="/icons/mario/star.png" alt="Performance" width={16} height={16} />
                     <span>STATS</span>
                   </TabsTrigger>
                   <TabsTrigger
                     value="history"
-                    className="gap-2 data-[state=active]:bg-[var(--star-yellow)] data-[state=active]:text-[var(--outline-black)] data-[state=active]:border-3 data-[state=active]:border-[var(--outline-black)] data-[state=active]:shadow-[2px_2px_0_var(--outline-black)] rounded-lg font-mario text-xs sm:text-sm transition-all"
+                    className="gap-2 data-[state=active]:bg-[var(--star-yellow)] data-[state=active]:text-[var(--outline-black)] data-[state=active]:border-3 data-[state=active]:border-[var(--outline-black)] data-[state=active]:shadow-[2px_2px_0_var(--outline-black)] rounded-lg font-mario text-xs sm:text-sm transition-all px-4 py-2"
                   >
                     <Image src="/icons/mario/trophy.png" alt="History" width={16} height={16} />
                     <span>QUEST LOG</span>
