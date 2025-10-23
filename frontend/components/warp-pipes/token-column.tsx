@@ -62,11 +62,11 @@ export function TokenColumn({
         />
       </div>
 
-      {/* Column Body - Scrollable */}
+      {/* Column Body - Scrollable Grid */}
       <div
         className={cn(
           "flex-1 overflow-y-auto bg-sky-50 border-3 border-t-0 rounded-b-lg",
-          "shadow-md p-2 space-y-2",
+          "shadow-md p-4",
           headerColor === "bonded" && "border-coin-yellow-700",
           headerColor === "graduating" && "border-star-yellow-700",
           headerColor === "new" && "border-luigi-green-700"
@@ -78,11 +78,11 @@ export function TokenColumn({
       >
         {/* Loading State */}
         {isLoading && (
-          <>
+          <div className="grid grid-cols-1 gap-4">
             <TokenCardSkeleton />
             <TokenCardSkeleton />
             <TokenCardSkeleton />
-          </>
+          </div>
         )}
 
         {/* Empty State */}
@@ -94,15 +94,18 @@ export function TokenColumn({
           </div>
         )}
 
-        {/* Token Cards */}
-        {!isLoading &&
-          tokens.map((token) => (
-            <TokenCard
-              key={token.mint}
-              data={token}
-              onToggleWatch={onToggleWatch}
-            />
-          ))}
+        {/* Token Cards - Vertical Grid */}
+        {!isLoading && tokens.length > 0 && (
+          <div className="grid grid-cols-1 gap-4">
+            {tokens.map((token) => (
+              <TokenCard
+                key={token.mint}
+                data={token}
+                onToggleWatch={onToggleWatch}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   )

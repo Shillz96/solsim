@@ -1,13 +1,14 @@
 /**
- * Token Card Component - Horizontal pump.fun-style layout
+ * Token Card Component - Clean vertical stock-style layout
  *
- * Comprehensive horizontal token display with:
+ * Vertical token card matching stock card design:
  * - Large token logo
- * - Inline metadata (time, socials, community)
- * - Security badges
- * - Market data (MC, Volume, Price change)
+ * - Symbol and name
+ * - Large market cap display
+ * - 24h change percentage
+ * - Volume and liquidity metrics
  * - Bonding curve progress
- * - Action button
+ * - Full-width action button
  */
 
 "use client"
@@ -15,18 +16,9 @@
 import Link from "next/link"
 import { cn } from "@/lib/utils"
 import { motion } from "framer-motion"
-import {
-  Droplet,
-  Heart,
-  Zap,
-  Twitter,
-  MessageCircle,
-  Globe,
-  Flame,
-  Info,
-  TrendingUp,
-  TrendingDown
-} from "lucide-react"
+import { TrendingUp, TrendingDown, ExternalLink } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
 import type { TokenRow } from "@/lib/types/warp-pipes"
 
 interface TokenCardProps {
@@ -96,9 +88,8 @@ const securityBadge = (freezeRevoked?: boolean | null, mintRenounced?: boolean |
 export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
   const img = data.logoURI || data.imageUrl || undefined;
   const colors = stateColors(data.state);
-  const sec = securityBadge(data.freezeRevoked, data.mintRenounced);
-  const volChange = data.volumeChange24h ?? null;
   const priceChg = data.priceChange24h ?? null;
+  const isPriceUp = priceChg != null && priceChg >= 0;
 
   const handleToggleWatch = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -111,222 +102,131 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
   return (
     <Link href={`/room/${data.mint}`}>
       <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.2 }}
-        className={cn("w-full p-3", className)}
+        className={cn("w-full", className)}
       >
-        {/* Main Card */}
+        {/* Main Card - Vertical Stock-style Layout */}
         <div
-          className="flex items-center justify-between gap-4 rounded-xl p-3 border-3 shadow-mario hover:shadow-mario-lg hover:-translate-y-0.5 transition-all duration-200"
-          style={{
-            borderColor: colors.ring,
-            background: `linear-gradient(180deg, ${colors.gradFrom}15, transparent)`
-          }}
+          className="relative rounded-xl p-4 border-3 bg-white shadow-[4px_4px_0_rgba(0,0,0,0.15)] hover:shadow-[6px_6px_0_rgba(0,0,0,0.2)] hover:-translate-y-1 transition-all duration-200"
+          style={{ borderColor: colors.ring }}
         >
-          {/* LEFT: Avatar */}
-          <div className="relative shrink-0">
+          {/* State Badge - Top Right */}
+          <Badge
+            className="absolute top-3 right-3 text-[10px] font-bold uppercase border-2"
+            style={{
+              borderColor: colors.ring,
+              backgroundColor: `${colors.gradFrom}40`,
+              color: colors.ring
+            }}
+          >
+            {data.state}
+          </Badge>
+
+          {/* Top Section: Logo + Symbol/Name */}
+          <div className="flex items-start gap-3 mb-4">
+            {/* Token Logo */}
             <div
-              className="h-12 w-12 rounded-lg overflow-hidden border-3 shadow-[2px_2px_0_rgba(0,0,0,0.2)] bg-white"
+              className="h-14 w-14 rounded-full overflow-hidden border-3 shadow-[2px_2px_0_rgba(0,0,0,0.15)] bg-white shrink-0"
               style={{ borderColor: colors.ring }}
             >
               {img ? (
                 <img src={img} alt={data.symbol} className="h-full w-full object-cover" />
               ) : (
-                <div className="h-full w-full grid place-items-center text-xs text-pipe-400">🪙</div>
+                <div className="h-full w-full grid place-items-center text-2xl">🪙</div>
               )}
             </div>
-            <div
-              className="absolute -left-1 -top-1 h-2.5 w-2.5 rounded-full ring-2 ring-white"
-              style={{ background: colors.ring }}
-            />
-          </div>
 
-          {/* MIDDLE: Title + meta */}
-          <div className="flex-1 min-w-0">
-            {/* Title row */}
-            <div className="flex items-center gap-2 min-w-0 mb-1">
-              <div className="truncate font-bold text-base tracking-wide text-pipe-900">
+            {/* Symbol and Name */}
+            <div className="flex-1 min-w-0 pt-1">
+              <div className="font-bold text-lg tracking-tight text-pipe-900 truncate">
                 {data.symbol}
               </div>
-              <div className="truncate text-xs text-pipe-600">
+              <div className="text-sm text-pipe-600 truncate">
                 {data.name}
               </div>
-              <div className="text-[10px] px-1.5 py-0.5 rounded bg-pipe-100 border border-pipe-300 ml-1 font-mono">
-                {shorten(data.mint, 4, 4)}
+            </div>
+          </div>
+
+          {/* Market Cap Display - Large */}
+          <div className="mb-2">
+            <div className="text-3xl font-bold text-pipe-900 tracking-tight">
+              {fmtCurrency(data.marketCapUsd)}
+            </div>
+            <div className="text-xs text-pipe-600 font-medium">Market Cap</div>
+          </div>
+
+          {/* 24h Change */}
+          {priceChg != null && (
+            <div className="flex items-center gap-2 mb-4">
+              <div
+                className={cn(
+                  "flex items-center gap-1 px-2.5 py-1 rounded-full font-bold text-sm",
+                  isPriceUp ? "bg-green-500 text-white" : "bg-red-500 text-white"
+                )}
+              >
+                {isPriceUp ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
+                {isPriceUp ? "+" : ""}{fmtPct(priceChg, 2)}
+              </div>
+              <span className="text-xs text-pipe-600">24h Change</span>
+            </div>
+          )}
+
+          {/* Bonding Curve Progress */}
+          {typeof data.bondingCurveProgress === "number" && (
+            <div className="mb-4">
+              <div className="flex items-center justify-between text-xs text-pipe-700 mb-1.5">
+                <span className="font-semibold">Bonding Curve</span>
+                <span className="font-bold">{data.bondingCurveProgress.toFixed(1)}%</span>
+              </div>
+              <div className="h-2.5 rounded-full overflow-hidden border-2 border-pipe-400 bg-pipe-100">
+                <div
+                  className="h-full transition-all duration-500"
+                  style={{
+                    width: `${Math.max(0, Math.min(100, data.bondingCurveProgress))}%`,
+                    background: `linear-gradient(90deg, ${colors.gradFrom}, ${colors.gradTo})`
+                  }}
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Bottom Metrics Row */}
+          <div className="grid grid-cols-2 gap-3 mb-4 pt-3 border-t-2 border-pipe-200">
+            {/* Volume 24h */}
+            <div>
+              <div className="text-xs text-pipe-600 mb-1">Volume 24h</div>
+              <div className="font-mono font-semibold text-sm text-pipe-900">
+                {fmtCurrency(data.volume24h)}
               </div>
             </div>
 
-            {/* Meta row: time + socials + counts */}
-            <div className="flex flex-wrap items-center gap-3 text-xs mb-2">
-              {/* first seen */}
-              <div className="text-pipe-600">{timeAgo(data.firstSeenAt)}</div>
-
-              {/* socials */}
-              {(data.twitter || data.telegram || data.website) && (
-                <div className="flex items-center gap-1.5">
-                  {data.twitter && (
-                    <a
-                      href={data.twitter}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      onClick={(e) => e.stopPropagation()}
-                      className="text-sky-600 hover:text-sky-700 transition-colors"
-                    >
-                      <Twitter className="h-3.5 w-3.5" />
-                    </a>
-                  )}
-                  {data.telegram && (
-                    <a
-                      href={data.telegram}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      onClick={(e) => e.stopPropagation()}
-                      className="text-sky-600 hover:text-sky-700 transition-colors"
-                    >
-                      <MessageCircle className="h-3.5 w-3.5" />
-                    </a>
-                  )}
-                  {data.website && (
-                    <a
-                      href={data.website}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      onClick={(e) => e.stopPropagation()}
-                      className="text-sky-600 hover:text-sky-700 transition-colors"
-                    >
-                      <Globe className="h-3.5 w-3.5" />
-                    </a>
-                  )}
-                </div>
-              )}
-
-              {/* community */}
-              <div className="flex items-center gap-3 ml-2">
-                <div className="flex items-center gap-1 text-pipe-700">
-                  <Flame className="h-3.5 w-3.5 text-star-yellow-600" />
-                  <span className="font-semibold">{data.hotScore ?? "—"}</span>
-                </div>
-                <button
-                  onClick={handleToggleWatch}
-                  className="flex items-center gap-1 text-pipe-700 hover:text-mario-red-600 transition-colors"
-                >
-                  <Heart className={`h-3.5 w-3.5 ${data.isWatched ? "fill-current text-mario-red-500" : ""}`} />
-                  <span className="font-semibold">{data.watcherCount ?? 0}</span>
-                </button>
-              </div>
-            </div>
-
-            {/* Badges row */}
-            <div className="flex flex-wrap items-center gap-2 text-[11px] mb-2">
-              {/* Security badges */}
-              <div className={`px-2 py-0.5 rounded-full border-2 font-bold ${sec.cls}`}>
-                {sec.label}
-              </div>
-              <div className={`px-2 py-0.5 rounded-full border-2 font-bold ${
-                data.freezeRevoked
-                  ? "border-green-500 text-green-600 bg-green-500/10"
-                  : "border-red-500 text-red-600 bg-red-500/10"
-              }`}>
-                Freeze {data.freezeRevoked ? "✓" : "✗"}
-              </div>
-              <div className={`px-2 py-0.5 rounded-full border-2 font-bold ${
-                data.mintRenounced
-                  ? "border-green-500 text-green-600 bg-green-500/10"
-                  : "border-red-500 text-red-600 bg-red-500/10"
-              }`}>
-                Mint {data.mintRenounced ? "✓" : "✗"}
-              </div>
-
-              {/* Liquidity & trading */}
-              <div className="px-2 py-0.5 rounded-full border-2 border-pipe-300 bg-pipe-50 flex items-center gap-1 font-bold text-pipe-900">
-                <Droplet className="h-3.5 w-3.5 text-blue-600" />
+            {/* Liquidity */}
+            <div className="text-right">
+              <div className="text-xs text-pipe-600 mb-1">Liquidity</div>
+              <div className="font-mono font-semibold text-sm text-pipe-900">
                 {fmtCurrency(data.liqUsd)}
               </div>
-              <div className="px-2 py-0.5 rounded-full border-2 border-pipe-300 bg-pipe-50 flex items-center gap-1 font-bold text-pipe-900">
-                <Zap className="h-3.5 w-3.5 text-star-yellow-600" />
-                {fmtPct(data.priceImpactPctAt1pct)}
-              </div>
-              {data.poolAgeMin != null && (
-                <div className="px-2 py-0.5 rounded-full border-2 border-pipe-300 bg-pipe-50 font-bold text-pipe-900">
-                  Pool: {Math.max(0, Math.floor(data.poolAgeMin))}m
-                </div>
-              )}
             </div>
-
-            {/* Bonding curve progress */}
-            {typeof data.bondingCurveProgress === "number" && (
-              <div>
-                <div className="flex items-center justify-between text-[11px] mb-1 text-pipe-700">
-                  <span className="font-semibold">Bonding Curve</span>
-                  <span className="font-bold">{data.bondingCurveProgress.toFixed(1)}%</span>
-                </div>
-                <div className="h-2 rounded-full overflow-hidden border-2 border-pipe-400 bg-pipe-100">
-                  <div
-                    className="h-full transition-all duration-500"
-                    style={{
-                      width: `${Math.max(0, Math.min(100, data.bondingCurveProgress))}%`,
-                      background: `linear-gradient(90deg, ${colors.gradFrom}, ${colors.gradTo})`
-                    }}
-                  />
-                </div>
-              </div>
-            )}
           </div>
 
-          {/* RIGHT: Market + Action */}
-          <div className="flex items-center gap-4 shrink-0">
-            {/* Market data */}
-            <div className="flex flex-col items-end gap-1 text-sm min-w-[180px]">
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-pipe-600 font-semibold">MC</span>
-                <span className="font-bold text-pipe-900">{fmtCurrency(data.marketCapUsd)}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-pipe-600 font-semibold">Vol</span>
-                <span className="font-bold text-pipe-900">{fmtCurrency(data.volume24h)}</span>
-                {volChange != null && (
-                  <span className={`text-xs flex items-center gap-0.5 font-bold ${
-                    volChange >= 0 ? "text-green-600" : "text-red-600"
-                  }`}>
-                    {volChange >= 0 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
-                    {fmtPct(Math.abs(volChange), 0)}
-                  </span>
-                )}
-              </div>
-              {priceChg != null && (
-                <div className={`flex items-center gap-1 text-xs font-bold ${
-                  priceChg >= 0 ? "text-green-600" : "text-red-600"
-                }`}>
-                  {priceChg >= 0 ? "↑" : "↓"}{fmtPct(Math.abs(priceChg), 1)}
-                </div>
-              )}
-            </div>
-
-            {/* Action button */}
-            <button
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-              }}
-              className="h-9 px-4 rounded-full border-3 font-bold shadow-[3px_3px_0_rgba(0,0,0,0.2)] hover:-translate-y-0.5 hover:shadow-[4px_4px_0_rgba(0,0,0,0.2)] transition-all duration-200 bg-white"
-              style={{ borderColor: colors.ring }}
-            >
-              0 SOL
-            </button>
-          </div>
-        </div>
-
-        {/* Footer meta row */}
-        <div className="mt-2 flex flex-wrap items-center gap-3 text-[11px] text-pipe-600">
-          <div className="flex items-center gap-1">
-            <Info className="h-3.5 w-3.5" />
-            State: <b className="ml-1 capitalize text-pipe-900">{data.state}</b>
-          </div>
-          {data.poolType && <div>Pool: <b className="text-pipe-900">{data.poolType}</b></div>}
-          {data.bondingCurveKey && <div>BC: <b className="font-mono text-pipe-900">{shorten(data.bondingCurveKey, 4, 4)}</b></div>}
-          {data.poolAddress && <div>Pool: <b className="font-mono text-pipe-900">{shorten(data.poolAddress, 4, 4)}</b></div>}
-          {data.lastUpdatedAt && <div>Updated {timeAgo(data.lastUpdatedAt)}</div>}
+          {/* Trade Now Button - Full Width */}
+          <Button
+            className="w-full h-11 rounded-full border-3 font-bold text-base shadow-[3px_3px_0_rgba(0,0,0,0.2)] hover:-translate-y-0.5 hover:shadow-[4px_4px_0_rgba(0,0,0,0.2)] transition-all duration-200"
+            style={{
+              borderColor: colors.ring,
+              backgroundColor: colors.gradTo,
+              color: data.state === "new" ? "white" : "black"
+            }}
+            onClick={(e) => {
+              e.preventDefault();
+              // Trade action will be handled by Link wrapper
+            }}
+          >
+            Trade Now
+            <ExternalLink className="ml-2 h-4 w-4" />
+          </Button>
         </div>
       </motion.div>
     </Link>
@@ -338,38 +238,49 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
  */
 export function TokenCardSkeleton() {
   return (
-    <div className="w-full p-3">
-      <div className="flex items-center justify-between gap-4 rounded-xl p-3 border-3 border-pipe-300 shadow-mario animate-pulse">
-        {/* Avatar skeleton */}
-        <div className="h-12 w-12 rounded-lg bg-pipe-200 border-3 border-pipe-300" />
-
-        {/* Content skeleton */}
-        <div className="flex-1">
-          <div className="flex items-center gap-2 mb-1">
-            <div className="h-4 bg-pipe-200 rounded w-24" />
-            <div className="h-3 bg-pipe-100 rounded w-32" />
-            <div className="h-3 bg-pipe-100 rounded w-16" />
-          </div>
-          <div className="flex items-center gap-3 mb-2">
-            <div className="h-3 bg-pipe-100 rounded w-12" />
-            <div className="h-3 bg-pipe-100 rounded w-20" />
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="h-5 bg-pipe-100 rounded-full w-16" />
-            <div className="h-5 bg-pipe-100 rounded-full w-20" />
-            <div className="h-5 bg-pipe-100 rounded-full w-16" />
+    <div className="w-full">
+      <div className="rounded-xl p-4 border-3 border-pipe-300 bg-white shadow-[4px_4px_0_rgba(0,0,0,0.15)] animate-pulse">
+        {/* Logo + Title skeleton */}
+        <div className="flex items-start gap-3 mb-4">
+          <div className="h-14 w-14 rounded-full bg-pipe-200 border-3 border-pipe-300 shrink-0" />
+          <div className="flex-1 pt-1">
+            <div className="h-5 bg-pipe-200 rounded w-24 mb-2" />
+            <div className="h-4 bg-pipe-100 rounded w-32" />
           </div>
         </div>
 
-        {/* Market data skeleton */}
-        <div className="flex flex-col items-end gap-1 min-w-[180px]">
-          <div className="h-4 bg-pipe-100 rounded w-24" />
-          <div className="h-4 bg-pipe-100 rounded w-32" />
-          <div className="h-3 bg-pipe-100 rounded w-16" />
+        {/* Market Cap skeleton */}
+        <div className="mb-2">
+          <div className="h-9 bg-pipe-200 rounded w-32 mb-1" />
+          <div className="h-3 bg-pipe-100 rounded w-20" />
+        </div>
+
+        {/* Change badge skeleton */}
+        <div className="h-7 bg-pipe-100 rounded-full w-24 mb-4" />
+
+        {/* Progress bar skeleton */}
+        <div className="mb-4">
+          <div className="flex justify-between mb-1.5">
+            <div className="h-3 bg-pipe-100 rounded w-24" />
+            <div className="h-3 bg-pipe-100 rounded w-12" />
+          </div>
+          <div className="h-2.5 rounded-full bg-pipe-200 border-2 border-pipe-300" />
+        </div>
+
+        {/* Metrics skeleton */}
+        <div className="grid grid-cols-2 gap-3 mb-4 pt-3 border-t-2 border-pipe-200">
+          <div>
+            <div className="h-3 bg-pipe-100 rounded w-16 mb-1" />
+            <div className="h-4 bg-pipe-200 rounded w-20" />
+          </div>
+          <div className="text-right">
+            <div className="h-3 bg-pipe-100 rounded w-16 mb-1 ml-auto" />
+            <div className="h-4 bg-pipe-200 rounded w-20 ml-auto" />
+          </div>
         </div>
 
         {/* Button skeleton */}
-        <div className="h-9 w-20 rounded-full bg-pipe-200 border-3 border-pipe-300" />
+        <div className="h-11 rounded-full bg-pipe-200 border-3 border-pipe-300" />
       </div>
     </div>
   );
