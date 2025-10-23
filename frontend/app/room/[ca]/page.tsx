@@ -19,13 +19,12 @@ import { useQuery } from '@tanstack/react-query'
 import * as api from '@/lib/api'
 import { Loader2 } from 'lucide-react'
 
-// Force dynamic rendering for this route
-export const dynamic = 'force-dynamic'
-export const dynamicParams = true
+// Remove dynamic exports - they cause Vercel bundling issues
+// The page is already 'use client' so it will render dynamically
 
 // Dynamically import chart component to prevent SSR issues
 const LightweightChart = dynamicImport(
-  () => import('@/components/trading/lightweight-chart').then(mod => ({ default: mod.LightweightChart })),
+  () => import('@/components/trading/lightweight-chart'),
   {
     ssr: false,
     loading: () => (
