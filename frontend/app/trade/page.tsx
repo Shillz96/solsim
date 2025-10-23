@@ -69,140 +69,62 @@ function TradePageContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
-      <main className="w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:pt-3 lg:pb-0 max-w-page-xl mx-auto">
-        {/* MOBILE-OPTIMIZED LAYOUT: Scrollable container with proper spacing */}
-        <div className="lg:hidden">
-          {/* Add padding bottom to account for bottom navigation on mobile */}
-          <div className="space-y-4 sm:space-y-6 pb-24">
-          {/* Sliding Trending Ticker - Mobile (Moved to Top) */}
+    <div className="h-screen bg-gradient-to-br from-background via-background to-muted/20 overflow-hidden">
+      <main className="w-full h-full px-2 sm:px-4 lg:px-6 py-2 sm:py-3 lg:py-4 max-w-page-xl mx-auto">
+        {/* MOBILE LAYOUT: Fixed height with flexbox for viewport fit */}
+        <div className="lg:hidden h-full flex flex-col">
+          <div className="flex flex-col gap-2 sm:gap-3 h-full overflow-hidden">
+          {/* Token details header - Mobile - Compact */}
           <motion.div
-            initial={{ opacity: 0, y: -10 }}
+            initial={{ opacity: 0, y: -5 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
-          >
-            <SlidingTrendingTicker />
-          </motion.div>
-
-          {/* Token details header - Mobile */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
+            className="flex-shrink-0"
           >
             <TokenDetailsHeader tokenAddress={currentTokenAddress} />
           </motion.div>
 
-          {/* Chart Section - Mobile - Adjusted height for better mobile viewing */}
+          {/* Chart Section - Mobile - Flexible height */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
+            transition={{ duration: 0.4 }}
+            className="flex-grow min-h-0"
           >
-            <div className="h-[250px] sm:h-[320px] md:h-[380px] overflow-hidden rounded-lg">
+            <div className="h-full overflow-hidden rounded-lg">
               <Suspense fallback={<ChartSkeleton />}>
                 <DexScreenerChart tokenAddress={currentTokenAddress} />
               </Suspense>
             </div>
           </motion.div>
 
-          {/* Mario Trading Panel - Mobile (Immediately Below Chart) */}
+          {/* Mario Trading Panel - Mobile - Compact */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-            className="space-y-4 sm:space-y-5"
+            transition={{ duration: 0.4, delay: 0.1 }}
+            className="flex-shrink-0"
           >
             <MarioTradingPanel tokenAddress={currentTokenAddress} />
-            {/* Trade Timeline - Mobile (Compact under trading panel) */}
-            <TradeTimeline
-              tokenAddress={currentTokenAddress}
-              maxTrades={5}
-              variant="compact"
-            />
           </motion.div>
 
-          {/* Mario Position P&L - Mobile (Compact & Gamified) */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-          >
-            <MarioPositionPnL
-              tokenAddress={currentTokenAddress}
-              tokenSymbol={tokenSymbol}
-              tokenName={tokenName}
-            />
-          </motion.div>
-
-          {/* Collapsible Secondary Content - Mobile */}
-          <motion.div
-            className="space-y-3"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
-          >
-            <div className="mario-card bg-gradient-to-br from-[var(--super-blue)]/10 to-[var(--super-blue)]/5">
-              <button
-                onClick={() => toggleSection('history')}
-                className="flex items-center justify-between p-4 cursor-pointer hover:bg-[var(--super-blue)]/10 transition-all active:scale-[0.99] w-full"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="mario-badge px-2 py-2 bg-[var(--super-blue)]">
-                    <BarChart3 className="h-5 w-5 text-white" />
-                  </div>
-                  <div>
-                    <span className="mario-font text-sm text-foreground">TRADE LOG</span>
-                    <p className="text-xs text-muted-foreground">Recent transactions</p>
-                  </div>
-                </div>
-                <svg
-                  className={`w-5 h-5 transition-transform ${expandedSections.history ? 'rotate-180' : ''} text-[var(--outline-black)]`}
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-              </button>
-              {expandedSections.history && (
-                <div className="px-4 pb-4 pt-2">
-                  <TradeDetails
-                    tokenAddress={currentTokenAddress}
-                    tokenSymbol={tokenSymbol}
-                    tokenName={tokenName}
-                    variant="sidebar"
-                    maxTrades={20}
-                  />
-                </div>
-              )}
-            </div>
-          </motion.div>
           </div>
         </div>
 
-        {/* DESKTOP LAYOUT: Optimized for Viewport Fit */}
-        <div className="hidden lg:block space-y-2">
-          {/* Sliding Trending Ticker - Desktop (Compact) */}
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            <SlidingTrendingTicker />
-          </motion.div>
-
+        {/* DESKTOP LAYOUT: Flexbox for viewport fit */}
+        <div className="hidden lg:flex lg:flex-col lg:h-full lg:gap-2">
           {/* Token details header - Desktop (Compact) */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: -5 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
+            transition={{ duration: 0.3 }}
+            className="flex-shrink-0"
           >
             <TokenDetailsHeader tokenAddress={currentTokenAddress} />
           </motion.div>
 
-          {/* Grid height: Calculate based on viewport height minus top elements */}
-          <div className="lg:grid lg:grid-cols-12 lg:items-stretch gap-3 h-[calc(100vh-16rem)] xl:h-[calc(100vh-15rem)] 2xl:h-[calc(100vh-14rem)]">
+          {/* Main content grid - Flexible height */}
+          <div className="flex-grow min-h-0 grid grid-cols-12 gap-3">
           {/* Left Sidebar - PnL Above Trade Activity */}
           <motion.aside
             className="lg:col-span-3 flex flex-col gap-3 min-h-0 overflow-hidden"
