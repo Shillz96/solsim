@@ -105,7 +105,7 @@ export default async function searchRoutes(app: FastifyInstance) {
         websites: JSON.stringify(websitesArray),
         socials: JSON.stringify(socialsArray),
         lastPrice: tokenInfo.lastPrice,
-        lastTs: tokenInfo.lastTs ? tokenInfo.lastTs.toISOString() : null,
+        lastTs: tokenInfo.lastTs ? (tokenInfo.lastTs instanceof Date ? tokenInfo.lastTs.toISOString() : tokenInfo.lastTs) : null,
         volume24h: typeof tokenInfo.volume24h === 'bigint' ? Number(tokenInfo.volume24h) : tokenInfo.volume24h,
         priceChange24h: typeof tokenInfo.priceChange24h === 'bigint' ? Number(tokenInfo.priceChange24h) : tokenInfo.priceChange24h,
         marketCapUsd: typeof tokenInfo.marketCapUsd === 'bigint' ? Number(tokenInfo.marketCapUsd) : tokenInfo.marketCapUsd,
