@@ -66,14 +66,23 @@ async function handleNewToken(event: NewTokenEvent): Promise<void> {
     // Calculate bonding curve progress if we have the data
     let bondingCurveProgress = null;
     let tokenState = 'bonded';
-    
+    let liquidityUsd = null;
+
     if (vTokensInBondingCurve && vSolInBondingCurve) {
       // Progress = (SOL in curve / 85 SOL target) * 100
       bondingCurveProgress = new Decimal(vSolInBondingCurve).div(85).mul(100);
-      
+
       // If progress >= 95%, mark as "graduating" (about to migrate)
       if (bondingCurveProgress.gte(95)) {
         tokenState = 'graduating';
+      }
+
+      // Calculate initial liquidity from bonding curve SOL
+      try {
+        const liquidityCalc = await healthCapsuleService.calculateBondingCurveLiquidity(vSolInBondingCurve);
+        liquidityUsd = new Decimal(liquidityCalc);
+      } catch (error) {
+        console.error('[TokenDiscovery] Error calculating bonding curve liquidity:', error);
       }
     }
 
@@ -88,6 +97,7 @@ async function handleNewToken(event: NewTokenEvent): Promise<void> {
         state: tokenState,
         bondingCurveKey: bondingCurve || null,
         bondingCurveProgress: bondingCurveProgress,
+        liquidityUsd: liquidityUsd,
         hotScore: new Decimal(100), // New tokens start hot
         watcherCount: 0,
         freezeRevoked: false,
@@ -100,11 +110,13 @@ async function handleNewToken(event: NewTokenEvent): Promise<void> {
       update: {
         lastUpdatedAt: new Date(),
         // Update progress and potentially state if available
-        ...(bondingCurveProgress && { 
+        ...(bondingCurveProgress && {
           bondingCurveProgress,
           // Update state if crossing the 95% threshold
           ...(bondingCurveProgress.gte(95) && { state: 'graduating' }),
         }),
+        // Update liquidity if available
+        ...(liquidityUsd && { liquidityUsd }),
       },
     });
 

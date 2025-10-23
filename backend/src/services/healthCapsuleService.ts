@@ -97,7 +97,7 @@ class HealthCapsuleService {
         slippageBps: '50', // 0.5%
       });
 
-      const quoteUrl = `${this.jupiterApiBase}/v6/quote?${params.toString()}`;
+      const quoteUrl = `${this.jupiterApiBase}/quote?${params.toString()}`;
 
       const response = await fetch(quoteUrl, {
         signal: AbortSignal.timeout(5000),
@@ -132,6 +132,48 @@ class HealthCapsuleService {
       }
       return undefined;
     }
+  }
+
+  /**
+   * Get current SOL price in USD
+   */
+  async getSolPrice(): Promise<number> {
+    try {
+      // Use Jupiter price API for SOL/USDC price
+      const SOL_MINT = 'So11111111111111111111111111111111111111112';
+      const USDC_MINT = 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v';
+
+      const url = `${this.jupiterApiBase}/quote?inputMint=${SOL_MINT}&outputMint=${USDC_MINT}&amount=1000000000&slippageBps=50`;
+
+      const response = await fetch(url, {
+        signal: AbortSignal.timeout(3000),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Jupiter API error: ${response.status}`);
+      }
+
+      const quote = await response.json() as any;
+
+      if (quote.outAmount) {
+        // outAmount is in USDC smallest units (6 decimals)
+        return parseFloat(quote.outAmount) / 1_000_000;
+      }
+
+      // Fallback to approximate SOL price
+      return 180; // Reasonable fallback
+    } catch (error) {
+      console.log('[HealthCapsule] Could not fetch SOL price, using fallback');
+      return 180; // Fallback price
+    }
+  }
+
+  /**
+   * Calculate liquidity in USD from bonding curve SOL amount
+   */
+  async calculateBondingCurveLiquidity(vSolInBondingCurve: number): Promise<number> {
+    const solPrice = await this.getSolPrice();
+    return vSolInBondingCurve * solPrice;
   }
 
   /**
