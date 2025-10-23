@@ -83,10 +83,10 @@ export async function trade(request: Backend.TradeRequest): Promise<Backend.Trad
 
 /**
  * Get user portfolio with positions and totals
- * GET /api/portfolio?userId={userId}
+ * GET /api/portfolio?userId={userId}&tradeMode={tradeMode}
  */
-export async function getPortfolio(userId: string): Promise<Backend.PortfolioResponse> {
-  const response = await fetch(`${API}/api/portfolio?userId=${encodeURIComponent(userId)}`, {
+export async function getPortfolio(userId: string, tradeMode: 'PAPER' | 'REAL' = 'PAPER'): Promise<Backend.PortfolioResponse> {
+  const response = await fetch(`${API}/api/portfolio?userId=${encodeURIComponent(userId)}&tradeMode=${tradeMode}`, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
@@ -106,10 +106,10 @@ export async function getPortfolio(userId: string): Promise<Backend.PortfolioRes
 
 /**
  * Get user portfolio with real-time price updates
- * GET /api/portfolio/realtime?userId={userId}
+ * GET /api/portfolio/realtime?userId={userId}&tradeMode={tradeMode}
  */
-export async function getPortfolioRealtime(userId: string): Promise<Backend.PortfolioResponse> {
-  const response = await fetch(`${API}/api/portfolio/realtime?userId=${encodeURIComponent(userId)}`, {
+export async function getPortfolioRealtime(userId: string, tradeMode: 'PAPER' | 'REAL' = 'PAPER'): Promise<Backend.PortfolioResponse> {
+  const response = await fetch(`${API}/api/portfolio/realtime?userId=${encodeURIComponent(userId)}&tradeMode=${tradeMode}`, {
     method: 'GET',
     headers: { 'Content-Type': 'application/json' },
   });
@@ -124,10 +124,10 @@ export async function getPortfolioRealtime(userId: string): Promise<Backend.Port
 
 /**
  * Get trading statistics for a user
- * GET /api/portfolio/stats?userId={userId}
+ * GET /api/portfolio/stats?userId={userId}&tradeMode={tradeMode}
  */
-export async function getPortfolioStats(userId: string): Promise<Backend.TradingStats> {
-  const response = await fetch(`${API}/api/portfolio/stats?userId=${encodeURIComponent(userId)}`, {
+export async function getPortfolioStats(userId: string, tradeMode: 'PAPER' | 'REAL' = 'PAPER'): Promise<Backend.TradingStats> {
+  const response = await fetch(`${API}/api/portfolio/stats?userId=${encodeURIComponent(userId)}&tradeMode=${tradeMode}`, {
     method: 'GET',
     headers: { 'Content-Type': 'application/json' },
   });
@@ -142,10 +142,10 @@ export async function getPortfolioStats(userId: string): Promise<Backend.Trading
 
 /**
  * Get portfolio performance over time
- * GET /api/portfolio/performance?userId={userId}&days={days}
+ * GET /api/portfolio/performance?userId={userId}&days={days}&tradeMode={tradeMode}
  */
-export async function getPortfolioPerformance(userId: string, days: number = 30): Promise<Backend.PortfolioPerformanceResponse> {
-  const response = await fetch(`${API}/api/portfolio/performance?userId=${encodeURIComponent(userId)}&days=${days}`, {
+export async function getPortfolioPerformance(userId: string, days: number = 30, tradeMode: 'PAPER' | 'REAL' = 'PAPER'): Promise<Backend.PortfolioPerformanceResponse> {
+  const response = await fetch(`${API}/api/portfolio/performance?userId=${encodeURIComponent(userId)}&days=${days}&tradeMode=${tradeMode}`, {
     method: 'GET',
     headers: { 'Content-Type': 'application/json' },
   });
@@ -336,10 +336,10 @@ export async function getTrades(limit: number = 50, offset: number = 0): Promise
 
 /**
  * Get trades for a specific user
- * GET /api/trades/user/{userId}?limit={limit}&offset={offset}
+ * GET /api/trades/user/{userId}?limit={limit}&offset={offset}&tradeMode={tradeMode}
  */
-export async function getUserTrades(userId: string, limit: number = 50, offset: number = 0): Promise<Backend.TradesResponse> {
-  const response = await fetch(`${API}/api/trades/user/${encodeURIComponent(userId)}?limit=${limit}&offset=${offset}`, {
+export async function getUserTrades(userId: string, limit: number = 50, offset: number = 0, tradeMode: 'PAPER' | 'REAL' = 'PAPER'): Promise<Backend.TradesResponse> {
+  const response = await fetch(`${API}/api/trades/user/${encodeURIComponent(userId)}?limit=${limit}&offset=${offset}&tradeMode=${tradeMode}`, {
     method: 'GET',
     headers: { 'Content-Type': 'application/json' },
   });
@@ -354,10 +354,10 @@ export async function getUserTrades(userId: string, limit: number = 50, offset: 
 
 /**
  * Get trades for a specific token
- * GET /api/trades/token/{mint}?limit={limit}&offset={offset}
+ * GET /api/trades/token/{mint}?limit={limit}&offset={offset}&tradeMode={tradeMode}
  */
-export async function getTokenTrades(mint: string, limit: number = 50, offset: number = 0): Promise<Backend.TradesResponse> {
-  const response = await fetch(`${API}/api/trades/token/${encodeURIComponent(mint)}?limit=${limit}&offset=${offset}`, {
+export async function getTokenTrades(mint: string, limit: number = 50, offset: number = 0, tradeMode: 'PAPER' | 'REAL' = 'PAPER'): Promise<Backend.TradesResponse> {
+  const response = await fetch(`${API}/api/trades/token/${encodeURIComponent(mint)}?limit=${limit}&offset=${offset}&tradeMode=${tradeMode}`, {
     method: 'GET',
     headers: { 'Content-Type': 'application/json' },
   });

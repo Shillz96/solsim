@@ -10,6 +10,7 @@
 
 import { useQuery } from '@tanstack/react-query'
 import { useAuth } from './use-auth'
+import { useTradingMode } from '@/lib/trading-mode-context'
 import * as api from '@/lib/api'
 import type * as Backend from '@/lib/types/backend'
 
@@ -32,6 +33,7 @@ export interface UsePortfolioOptions {
 
 export function usePortfolio(options: UsePortfolioOptions = {}) {
   const { user, isAuthenticated } = useAuth()
+  const { tradeMode } = useTradingMode()
 
   const {
     enabled = isAuthenticated && !!user?.id,
@@ -40,10 +42,10 @@ export function usePortfolio(options: UsePortfolioOptions = {}) {
   } = options
 
   return useQuery({
-    queryKey: ['portfolio', user?.id],
+    queryKey: ['portfolio', user?.id, tradeMode],
     queryFn: async () => {
       if (!user?.id) throw new Error('User not authenticated')
-      return api.getPortfolio(user.id)
+      return api.getPortfolio(user.id, tradeMode)
     },
     enabled,
     refetchInterval,

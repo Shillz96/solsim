@@ -63,21 +63,9 @@ export function WarpPipesHub() {
 
   return (
     <div className="w-full min-h-screen bg-gradient-to-b from-sky-50 via-white to-sky-100">
-      {/* Page Header */}
-      <div className="px-4 pt-8 pb-4">
-        <div className="max-w-7xl mx-auto text-center mb-6">
-          <h1 className="font-mario text-3xl md:text-4xl text-pipe-900 mb-3" style={{ textShadow: '3px 3px 0 rgba(0,0,0,0.2)' }}>
-            🌟 Warp Pipes Hub 🌟
-          </h1>
-          <p className="text-pipe-700 text-lg font-semibold">
-            Discover the hottest new tokens on Solana! Watch them grow from New Pairs to Bonded.
-          </p>
-        </div>
-      </div>
-
       {/* Error State */}
       {error && (
-        <div className="px-4 mb-6 max-w-7xl mx-auto">
+        <div className="px-4 pt-6 mb-6">
           <Alert variant="destructive" className="border-4 border-mario-red-500 shadow-[6px_6px_0_rgba(0,0,0,0.3)] rounded-[16px] bg-white">
             <AlertCircle className="h-5 w-5" />
             <AlertDescription className="flex items-center justify-between">
@@ -97,7 +85,7 @@ export function WarpPipesHub() {
       )}
 
       {/* Desktop: 3-Column Layout - Reordered: New Pairs | About to Graduate | Bonded */}
-      <div className="hidden lg:grid lg:grid-cols-3 gap-6 px-4 pb-8 max-w-[1800px] mx-auto">
+      <div className="hidden lg:grid lg:grid-cols-3 gap-6 px-6 py-6 h-[calc(100vh-80px)]">
         <TokenColumn
           title="🆕 New Pairs"
           tokens={newTokens}
@@ -122,7 +110,7 @@ export function WarpPipesHub() {
       </div>
 
       {/* Mobile: Tabs Layout */}
-      <div className="lg:hidden px-4 pb-8">
+      <div className="lg:hidden px-4 py-6">
         <Tabs defaultValue="new" className="w-full">
           <TabsList className="grid w-full grid-cols-3 mb-4 border-4 border-pipe-900 shadow-[4px_4px_0_rgba(0,0,0,0.3)] rounded-[14px] bg-white p-1">
             <TabsTrigger

@@ -30,9 +30,9 @@ export function TokenColumn({
 }: TokenColumnProps) {
   // Header colors based on column type
   const headerColors = {
-    bonded: "bg-coin-yellow-500 border-coin-yellow-700 text-black", // Coin Yellow
-    graduating: "bg-star-yellow-500 border-star-yellow-700 text-black", // Star Yellow
-    new: "bg-luigi-green-500 border-luigi-green-700 text-white", // Luigi Green
+    bonded: "bg-coin-yellow-500 text-pipe-900", // Coin Yellow
+    graduating: "bg-star-yellow-500 text-pipe-900", // Star Yellow
+    new: "bg-luigi-green-500 text-white", // Luigi Green
   }
 
   // Header images based on column type
@@ -47,8 +47,8 @@ export function TokenColumn({
       {/* Column Header */}
       <div
         className={cn(
-          "p-3 rounded-t-lg border-3 border-b-0 text-center",
-          "shadow-md flex items-center justify-center",
+          "p-4 rounded-t-[16px] border-4 border-b-0 border-pipe-900 text-center",
+          "flex items-center justify-center shadow-[4px_4px_0_rgba(0,0,0,0.2)]",
           headerColors[headerColor]
         )}
       >
@@ -57,7 +57,7 @@ export function TokenColumn({
           alt={title}
           width={400}
           height={80}
-          className="h-16 w-auto object-contain"
+          className="h-16 w-auto object-contain drop-shadow-lg"
           priority
         />
       </div>
@@ -65,16 +65,9 @@ export function TokenColumn({
       {/* Column Body - Scrollable List */}
       <div
         className={cn(
-          "flex-1 overflow-y-auto bg-sky-50 border-3 border-t-0 rounded-b-lg",
-          "shadow-md p-3 space-y-3",
-          headerColor === "bonded" && "border-coin-yellow-700",
-          headerColor === "graduating" && "border-star-yellow-700",
-          headerColor === "new" && "border-luigi-green-700"
+          "flex-1 overflow-y-auto bg-sky-50 border-4 border-t-0 border-pipe-900 rounded-b-[16px]",
+          "shadow-[6px_6px_0_rgba(0,0,0,0.3)] p-4 space-y-4"
         )}
-        style={{
-          maxHeight: "calc(100vh - 200px)", // Adjust based on header height
-          minHeight: "400px",
-        }}
       >
         {/* Loading State */}
         {isLoading && (
@@ -87,10 +80,10 @@ export function TokenColumn({
 
         {/* Empty State */}
         {!isLoading && tokens.length === 0 && (
-          <div className="flex flex-col items-center justify-center h-full text-center p-6">
+          <div className="flex flex-col items-center justify-center h-full text-center p-6 bg-white rounded-[16px] border-3 border-pipe-300">
             <div className="text-6xl mb-4">🍄</div>
-            <p className="text-muted-foreground font-medium">No tokens in this column</p>
-            <p className="text-sm text-muted-foreground mt-1">Check back soon for new discoveries!</p>
+            <p className="text-pipe-900 font-bold text-[16px]">No tokens in this column</p>
+            <p className="text-[14px] text-pipe-600 mt-2">Check back soon for new discoveries!</p>
           </div>
         )}
 

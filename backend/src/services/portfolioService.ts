@@ -85,26 +85,27 @@ export interface PortfolioResponse {
   totals: PortfolioTotals;
 }
 
-export async function getPortfolio(userId: string): Promise<PortfolioResponse> {
+export async function getPortfolio(userId: string, tradeMode: 'PAPER' | 'REAL' = 'PAPER'): Promise<PortfolioResponse> {
   // Use request coalescing to prevent duplicate concurrent requests
   // If 100 users request portfolio at same time, only 1 DB query is made
   return portfolioCoalescer.coalesce(
-    `portfolio:${userId}`,
+    `portfolio:${userId}:${tradeMode}`,
     async () => {
       // Get user's positions (including closed positions with trade history)
       const positions = await prisma.position.findMany({
         where: {
-          userId
+          userId,
+          tradeMode
         }
       });
 
-      return await calculatePortfolioData(userId, positions);
+      return await calculatePortfolioData(userId, positions, tradeMode);
     },
     5000 // 5 second TTL - reduced for near real-time updates with stale-while-revalidate price caching
   );
 }
 
-async function calculatePortfolioData(userId: string, positions: any[]): Promise<PortfolioResponse> {
+async function calculatePortfolioData(userId: string, positions: any[], tradeMode: 'PAPER' | 'REAL' = 'PAPER'): Promise<PortfolioResponse> {
 
   // Get current prices and market data for all tokens
   const mints = positions.map((p: any) => p.mint);
@@ -203,7 +204,7 @@ async function calculatePortfolioData(userId: string, positions: any[]): Promise
   // Get total realized PnL and trading stats in a single batch
   // OPTIMIZATION: Fetch realized PnL records once and calculate both aggregate and stats
   const realizedPnlRecords = await prisma.realizedPnL.findMany({
-    where: { userId },
+    where: { userId, tradeMode },
     select: { pnl: true }
   });
 
@@ -231,7 +232,7 @@ async function calculatePortfolioData(userId: string, positions: any[]): Promise
 
   // Cache trading stats in Redis for 60 seconds (since we just calculated it)
   try {
-    const cacheKey = `portfolio:stats:${userId}`;
+    const cacheKey = `portfolio:stats:${userId}:${tradeMode}`;
     await redis.setex(cacheKey, 60, JSON.stringify(tradingStats));
   } catch (error) {
     console.warn(`Failed to cache trading stats in Redis:`, error);
@@ -263,7 +264,7 @@ export async function getPositionHistory(userId: string, mint: string) {
   });
 }
 
-export async function getPortfolioPerformance(userId: string, days: number = 30) {
+export async function getPortfolioPerformance(userId: string, days: number = 30, tradeMode: 'PAPER' | 'REAL' = 'PAPER') {
   const startDate = new Date();
   startDate.setDate(startDate.getDate() - days);
 
@@ -271,6 +272,7 @@ export async function getPortfolioPerformance(userId: string, days: number = 30)
   const trades = await prisma.trade.findMany({
     where: {
       userId,
+      tradeMode,
       createdAt: { gte: startDate }
     },
     orderBy: { createdAt: "asc" }
@@ -281,7 +283,7 @@ export async function getPortfolioPerformance(userId: string, days: number = 30)
   }
 
   // Get current portfolio
-  const currentPortfolio = await getPortfolio(userId);
+  const currentPortfolio = await getPortfolio(userId, tradeMode);
 
   // Group trades by day and calculate portfolio value at end of each day
   const dailyMap = new Map<string, Decimal>();
@@ -321,9 +323,9 @@ export async function getPortfolioPerformance(userId: string, days: number = 30)
 }
 
 // New function to calculate trading statistics (with 60s Redis cache)
-export async function getPortfolioTradingStats(userId: string) {
+export async function getPortfolioTradingStats(userId: string, tradeMode: 'PAPER' | 'REAL' = 'PAPER') {
   // Try Redis cache first
-  const cacheKey = `portfolio:stats:${userId}`;
+  const cacheKey = `portfolio:stats:${userId}:${tradeMode}`;
   try {
     const cached = await redis.get(cacheKey);
     if (cached) {
@@ -335,7 +337,7 @@ export async function getPortfolioTradingStats(userId: string) {
 
   // Get all realized PnL records for win rate calculation
   const realizedPnlRecords = await prisma.realizedPnL.findMany({
-    where: { userId },
+    where: { userId, tradeMode },
     select: { pnl: true }
   });
 
@@ -365,9 +367,9 @@ export async function getPortfolioTradingStats(userId: string) {
 }
 
 // Enhanced function to get portfolio with real-time price updates
-export async function getPortfolioWithRealTimePrices(userId: string): Promise<PortfolioResponse> {
+export async function getPortfolioWithRealTimePrices(userId: string, tradeMode: 'PAPER' | 'REAL' = 'PAPER'): Promise<PortfolioResponse> {
   // Use cached prices from Redis for real-time updates
-  const portfolio = await getPortfolio(userId);
+  const portfolio = await getPortfolio(userId, tradeMode);
 
   // Batch fetch all latest prices at once (OPTIMIZED: no more N+1 queries!)
   const mints = portfolio.positions.map(p => p.mint);

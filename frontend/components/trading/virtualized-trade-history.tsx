@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils"
 import * as api from "@/lib/api"
 import * as Backend from "@/lib/types/backend"
 import { useAuth } from "@/hooks/use-auth"
+import { useTradingMode } from "@/lib/trading-mode-context"
 import { usePriceStreamContext } from "@/lib/price-stream-provider"
 
 interface VirtualizedTradeHistoryProps {
@@ -26,6 +27,7 @@ function VirtualizedTradeHistoryComponent({
   limit = 100 
 }: VirtualizedTradeHistoryProps = {}) {
   const { user } = useAuth()
+  const { tradeMode } = useTradingMode()
   const { prices: livePrices } = usePriceStreamContext()
   const solPrice = livePrices.get('So11111111111111111111111111111111111111112')?.price || 0
   
@@ -49,10 +51,10 @@ function VirtualizedTradeHistoryComponent({
       
       if (tokenAddress) {
         // Get trades for specific token
-        response = await api.getTokenTrades(tokenAddress, limit)
+        response = await api.getTokenTrades(tokenAddress, limit, 0, tradeMode)
       } else {
         // Get all user trades
-        response = await api.getUserTrades(user.id, limit)
+        response = await api.getUserTrades(user.id, limit, 0, tradeMode)
       }
       
       setTrades(response.trades)
@@ -63,7 +65,7 @@ function VirtualizedTradeHistoryComponent({
       setLoading(false)
       setRefreshing(false)
     }
-  }, [user?.id, tokenAddress, limit])
+  }, [user?.id, tokenAddress, limit, tradeMode])
 
   // Load trades on mount and when dependencies change
   useEffect(() => {

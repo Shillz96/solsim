@@ -69,10 +69,10 @@ export function WatchButton({
         disabled={isLoading}
         className={cn(
           sizes[size],
-          "border-2 rounded-lg transition-all duration-200",
+          "border-3 rounded-[10px] transition-all duration-200 shadow-[2px_2px_0_rgba(0,0,0,0.2)]",
           isWatchedState
-            ? "bg-mario-red-500 border-mario-red-700 text-white hover:bg-mario-red-600"
-            : "bg-white border-pipe-400 text-pipe-700 hover:bg-pipe-50",
+            ? "bg-mario-red-500 border-pipe-900 text-white hover:bg-mario-red-600 hover:-translate-y-[1px] hover:shadow-[3px_3px_0_rgba(0,0,0,0.3)]"
+            : "bg-white border-pipe-400 text-pipe-700 hover:bg-sky-50 hover:-translate-y-[1px]",
           className
         )}
         title={isWatchedState ? "Remove from watchlist" : "Add to watchlist"}
@@ -95,7 +95,7 @@ export function WatchButton({
 
       {/* Watcher Count */}
       {watcherCount > 0 && (
-        <span className="text-xs font-mono text-pipe-600">
+        <span className="text-xs font-mono font-bold text-pipe-700 bg-sky-50 px-2 py-0.5 rounded-[6px] border-2 border-pipe-300">
           {watcherCount}
         </span>
       )}
@@ -135,10 +135,10 @@ export function CompactWatchButton({
       onClick={handleToggle}
       disabled={isLoading}
       className={cn(
-        "p-1.5 rounded-lg transition-all duration-200",
+        "p-2 rounded-[10px] border-3 transition-all duration-200 shadow-[2px_2px_0_rgba(0,0,0,0.2)]",
         isWatchedState
-          ? "text-mario-red-500 hover:text-mario-red-600"
-          : "text-pipe-400 hover:text-pipe-600",
+          ? "bg-mario-red-500 border-pipe-900 text-white hover:bg-mario-red-600 hover:-translate-y-[1px]"
+          : "bg-white border-pipe-400 text-pipe-700 hover:bg-sky-50 hover:-translate-y-[1px]",
         className
       )}
       title={isWatchedState ? "Remove from watchlist" : "Add to watchlist"}

@@ -11,10 +11,15 @@ export default async function (app: FastifyInstance) {
   // Main portfolio endpoint with metadata enrichment
   app.get("/", async (req, reply) => {
     const userId = (req.query as any).userId;
+    const tradeMode = (req.query as any).tradeMode || 'PAPER';
+    
     if (!userId) return reply.code(400).send({ error: "userId required" });
+    if (!['PAPER', 'REAL'].includes(tradeMode)) {
+      return reply.code(400).send({ error: "tradeMode must be 'PAPER' or 'REAL'" });
+    }
     
     try {
-      const data = await getPortfolio(userId);
+      const data = await getPortfolio(userId, tradeMode);
       return data;
     } catch (error) {
       console.error("Portfolio fetch error:", error);
@@ -27,10 +32,15 @@ export default async function (app: FastifyInstance) {
   // Real-time portfolio endpoint with live price updates
   app.get("/realtime", async (req, reply) => {
     const userId = (req.query as any).userId;
+    const tradeMode = (req.query as any).tradeMode || 'PAPER';
+    
     if (!userId) return reply.code(400).send({ error: "userId required" });
+    if (!['PAPER', 'REAL'].includes(tradeMode)) {
+      return reply.code(400).send({ error: "tradeMode must be 'PAPER' or 'REAL'" });
+    }
     
     try {
-      const data = await getPortfolioWithRealTimePrices(userId);
+      const data = await getPortfolioWithRealTimePrices(userId, tradeMode);
       return data;
     } catch (error) {
       console.error("Real-time portfolio fetch error:", error);
@@ -43,10 +53,15 @@ export default async function (app: FastifyInstance) {
   // Trading statistics endpoint
   app.get("/stats", async (req, reply) => {
     const userId = (req.query as any).userId;
+    const tradeMode = (req.query as any).tradeMode || 'PAPER';
+    
     if (!userId) return reply.code(400).send({ error: "userId required" });
+    if (!['PAPER', 'REAL'].includes(tradeMode)) {
+      return reply.code(400).send({ error: "tradeMode must be 'PAPER' or 'REAL'" });
+    }
     
     try {
-      const stats = await getPortfolioTradingStats(userId);
+      const stats = await getPortfolioTradingStats(userId, tradeMode);
       return stats;
     } catch (error) {
       console.error("Portfolio stats fetch error:", error);
@@ -59,12 +74,16 @@ export default async function (app: FastifyInstance) {
   // Portfolio performance over time
   app.get("/performance", async (req, reply) => {
     const userId = (req.query as any).userId;
+    const tradeMode = (req.query as any).tradeMode || 'PAPER';
     const days = parseInt((req.query as any).days) || 30;
     
     if (!userId) return reply.code(400).send({ error: "userId required" });
+    if (!['PAPER', 'REAL'].includes(tradeMode)) {
+      return reply.code(400).send({ error: "tradeMode must be 'PAPER' or 'REAL'" });
+    }
     
     try {
-      const performance = await getPortfolioPerformance(userId, days);
+      const performance = await getPortfolioPerformance(userId, days, tradeMode);
       return { performance };
     } catch (error) {
       console.error("Portfolio performance fetch error:", error);

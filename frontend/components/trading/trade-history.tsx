@@ -9,6 +9,7 @@ import { ArrowUpRight, ArrowDownRight, ChevronDown, Loader2, AlertCircle, Trendi
 import Link from "next/link"
 import { AnimatedNumber } from "@/components/ui/animated-number"
 import { useAuth } from "@/hooks/use-auth"
+import { useTradingMode } from "@/lib/trading-mode-context"
 import { usePriceStreamContext } from "@/lib/price-stream-provider"
 import * as api from "@/lib/api"
 
@@ -34,6 +35,7 @@ export function TradeHistory({
   const [showAll, setShowAll] = useState(false)
   
   const { user, isAuthenticated } = useAuth()
+  const { tradeMode } = useTradingMode()
   const { prices: livePrices } = usePriceStreamContext()
   
   // Get SOL price for conversions (SOL mint address)
@@ -55,10 +57,10 @@ export function TradeHistory({
       
       if (tokenAddress) {
         // Get trades for specific token
-        response = await api.getTokenTrades(tokenAddress, limit)
+        response = await api.getTokenTrades(tokenAddress, limit, 0, tradeMode)
       } else {
         // Get user's trades
-        response = await api.getUserTrades(user.id, limit)
+        response = await api.getUserTrades(user.id, limit, 0, tradeMode)
       }
       
       setTrades(response.trades)
@@ -67,7 +69,7 @@ export function TradeHistory({
     } finally {
       setIsLoading(false)
     }
-  }, [limit, tokenAddress, user, isAuthenticated])
+  }, [limit, tokenAddress, user, isAuthenticated, tradeMode])
 
   useEffect(() => {
     loadTrades()

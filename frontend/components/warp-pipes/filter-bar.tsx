@@ -38,16 +38,16 @@ export function FilterBar({
   ]
 
   return (
-    <div className={cn("flex flex-col sm:flex-row gap-3 p-4 bg-card rounded-xl border-4 border-pipe-400 shadow-md", className)}>
+    <div className={cn("flex flex-col sm:flex-row gap-3 p-4 bg-white rounded-[16px] border-4 border-pipe-900 shadow-[6px_6px_0_rgba(0,0,0,0.3)]", className)}>
       {/* Search Input */}
       <div className="relative flex-1">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-pipe-600" />
         <Input
           type="text"
-          placeholder="Search tokens..."
+          placeholder="🔍 Search tokens..."
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
-          className="pl-10 border-2 border-pipe-300 focus:border-mario-red-500 rounded-lg"
+          className="pl-10 border-3 border-pipe-300 focus:border-mario-red-500 rounded-[12px] font-semibold text-pipe-900 placeholder:text-pipe-500"
         />
       </div>
 
@@ -60,13 +60,13 @@ export function FilterBar({
             size="sm"
             onClick={() => onSortChange(option.value)}
             className={cn(
-              "border-2 rounded-lg font-semibold transition-all duration-200",
+              "border-3 rounded-[12px] font-bold transition-all duration-200 shadow-[3px_3px_0_rgba(0,0,0,0.2)]",
               sortBy === option.value
-                ? "bg-mario-red-500 border-mario-red-700 text-white hover:bg-mario-red-600 shadow-md"
-                : "bg-white border-pipe-400 text-pipe-700 hover:bg-pipe-50"
+                ? "bg-mario-red-500 border-pipe-900 text-white hover:bg-mario-red-600 hover:-translate-y-[1px] hover:shadow-[4px_4px_0_rgba(0,0,0,0.3)]"
+                : "bg-white border-pipe-400 text-pipe-700 hover:bg-sky-50 hover:-translate-y-[1px]"
             )}
           >
-            <span className="mr-1.5">{option.label}</span>
+            <span>{option.label}</span>
           </Button>
         ))}
       </div>

@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query"
 import { formatDistanceToNow } from "date-fns"
 import { TrendingUp, TrendingDown, Clock } from "lucide-react"
 import { useAuth } from "@/hooks/use-auth"
+import { useTradingMode } from "@/lib/trading-mode-context"
 import * as api from "@/lib/api"
 import { formatTokenQuantity, formatUSD } from "@/lib/format"
 import { cn } from "@/lib/utils"
@@ -19,11 +20,12 @@ interface TradeTimelineProps {
 
 export function TradeTimeline({ tokenAddress, maxTrades = 10, variant = 'default' }: TradeTimelineProps) {
   const { user } = useAuth()
+  const { tradeMode } = useTradingMode()
 
   // Fetch user's trades for this token
   const { data: userTradesData } = useQuery({
-    queryKey: ['user-token-trades', user?.id, tokenAddress],
-    queryFn: () => api.getUserTrades(user!.id, 100, 0),
+    queryKey: ['user-token-trades', user?.id, tokenAddress, tradeMode],
+    queryFn: () => api.getUserTrades(user!.id, 100, 0, tradeMode),
     enabled: !!user?.id,
     staleTime: 30000,
   })

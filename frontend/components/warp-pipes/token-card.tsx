@@ -106,75 +106,76 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
         transition={{ duration: 0.2 }}
         className={cn("w-full", className)}
       >
-        {/* Horizontal Stock-Style Card with Mario Theme */}
-        <div className="relative rounded-xl overflow-hidden bg-card border-4 border-outline hover:border-outline-light shadow-card hover:shadow-card-hover hover:-translate-y-0.5 transition-all duration-200">
+        {/* Mario-Themed Token Card */}
+        <div className="relative rounded-[16px] overflow-hidden bg-white border-4 border-pipe-900 shadow-[6px_6px_0_rgba(0,0,0,0.3)] hover:shadow-[8px_8px_0_rgba(0,0,0,0.3)] hover:-translate-y-[2px] transition-all duration-200 cursor-pointer">
 
-          {/* Horizontal Layout: Square Logo | Content | Market Data */}
-          <div className="flex items-stretch">
+          {/* Vertical Layout: Logo on top, content below */}
+          <div className="flex flex-col">
 
-            {/* LEFT: Square Token Logo (Full Height) */}
-            <div className="relative shrink-0 w-32 bg-neutral-100">
-              {img && !imageError ? (
-                <img
-                  src={img}
-                  alt={data.symbol}
-                  className="h-full w-full object-cover"
-                  onError={() => setImageError(true)}
-                  loading="lazy"
-                />
-              ) : (
-                <div className="h-full w-full grid place-items-center bg-neutral-100 text-neutral-400 text-5xl">🪙</div>
-              )}
-            </div>
+            {/* TOP: Token Header with Logo */}
+            <div className="flex items-center gap-3 p-4 bg-sky-50 border-b-4 border-pipe-900">
+              {/* Token Logo */}
+              <div className="relative shrink-0 w-12 h-12 rounded-[10px] overflow-hidden border-3 border-pipe-900 shadow-[2px_2px_0_rgba(0,0,0,0.2)]">
+                {img && !imageError ? (
+                  <img
+                    src={img}
+                    alt={data.symbol}
+                    className="h-full w-full object-cover"
+                    onError={() => setImageError(true)}
+                    loading="lazy"
+                  />
+                ) : (
+                  <div className="h-full w-full grid place-items-center bg-star-yellow-500 text-pipe-900 text-2xl font-bold">🪙</div>
+                )}
+              </div>
 
-            {/* MIDDLE: Token Info & Metrics */}
-            <div className="flex-1 min-w-0 p-5">
               {/* Symbol & Name */}
-              <div className="flex items-center gap-2 mb-1">
-                <h3 className="font-bold text-xl text-foreground">
+              <div className="flex-1 min-w-0">
+                <h3 className="font-bold text-[18px] text-pipe-900">
                   {data.symbol}
                 </h3>
-                <span className="text-sm text-muted-foreground truncate">
+                <span className="text-[12px] text-pipe-600 truncate block">
                   {data.name}
                 </span>
               </div>
 
-              {/* Price */}
-              <div className="text-3xl font-bold text-foreground mb-2">
-                {fmtCurrency(data.marketCapUsd)}
-              </div>
-
-              {/* 24h Change */}
+              {/* 24h Change Badge */}
               {priceChg != null && (
-                <div className="flex items-center gap-2">
-                  <span className="text-sm text-muted-foreground">24h Change</span>
-                  <span className={cn(
-                    "text-lg font-bold",
-                    priceChg >= 0 ? "text-profit" : "text-loss"
-                  )}>
-                    {priceChg >= 0 ? "+" : ""}{priceChg.toFixed(2)}%
+                <div className={cn(
+                  "px-3 py-1 rounded-[10px] border-3 border-pipe-900 shadow-[2px_2px_0_rgba(0,0,0,0.2)]",
+                  priceChg >= 0 ? "bg-luigi-green-500" : "bg-mario-red-500"
+                )}>
+                  <span className="text-white font-bold text-[14px]">
+                    {priceChg >= 0 ? "+" : ""}{priceChg.toFixed(1)}%
                   </span>
                 </div>
               )}
             </div>
 
-            {/* RIGHT: Market Cap & Volume Display */}
-            <div className="shrink-0 flex flex-col justify-center items-end pr-5 border-l-2 border-border min-w-[180px]">
-              {/* Volume 24h */}
-              <div className="text-right mb-4">
-                <div className="text-xs text-muted-foreground mb-1">Volume 24h</div>
-                <div className="text-lg font-bold text-foreground">
-                  {fmtCurrency(data.volume24h)}
+            {/* BOTTOM: Market Data */}
+            <div className="p-4 space-y-3 bg-white">
+              {/* Market Cap - Large Display */}
+              <div className="text-center">
+                <div className="text-[24px] font-bold text-pipe-900 mb-1 font-mono">
+                  {fmtCurrency(data.marketCapUsd)}
+                </div>
+                <div className="text-[12px] text-pipe-600 uppercase tracking-wide font-semibold">
+                  Market Cap
                 </div>
               </div>
 
-              {/* Market Cap */}
-              <div className="text-right">
-                <div className="text-xs text-muted-foreground mb-1">Market Cap</div>
-                <div className="text-lg font-bold text-foreground">
-                  {fmtCurrency(data.marketCapUsd)}
-                </div>
+              {/* Volume 24h */}
+              <div className="flex justify-between items-center bg-sky-50 rounded-[10px] p-3 border-2 border-pipe-300">
+                <span className="text-[12px] text-pipe-600 font-semibold">Volume 24h</span>
+                <span className="text-[14px] font-bold text-pipe-900 font-mono">
+                  {fmtCurrency(data.volume24h)}
+                </span>
               </div>
+
+              {/* Trade Now Button */}
+              <button className="w-full bg-mario-red-500 text-white font-bold py-3 px-4 rounded-[12px] border-3 border-pipe-900 shadow-[4px_4px_0_rgba(0,0,0,0.3)] hover:shadow-[6px_6px_0_rgba(0,0,0,0.3)] hover:-translate-y-[2px] transition-all">
+                🎮 Trade Now
+              </button>
             </div>
           </div>
         </div>
@@ -189,31 +190,26 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
 export function TokenCardSkeleton() {
   return (
     <div className="w-full">
-      <div className="rounded-xl overflow-hidden bg-card border-4 border-neutral-200 shadow-card animate-pulse">
-        <div className="flex items-stretch">
-          {/* Square logo skeleton */}
-          <div className="w-32 bg-neutral-200 shrink-0" />
-
-          {/* Content skeleton */}
-          <div className="flex-1 p-5">
-            <div className="flex items-center gap-2 mb-1">
-              <div className="h-6 bg-neutral-200 rounded w-24" />
-              <div className="h-4 bg-neutral-100 rounded w-32" />
+      <div className="rounded-[16px] overflow-hidden bg-white border-4 border-pipe-900 shadow-[6px_6px_0_rgba(0,0,0,0.3)] animate-pulse">
+        <div className="flex flex-col">
+          {/* Header skeleton */}
+          <div className="flex items-center gap-3 p-4 bg-sky-50 border-b-4 border-pipe-900">
+            <div className="w-12 h-12 bg-pipe-200 rounded-[10px] border-3 border-pipe-900" />
+            <div className="flex-1">
+              <div className="h-5 bg-pipe-200 rounded w-24 mb-1" />
+              <div className="h-3 bg-pipe-100 rounded w-32" />
             </div>
-            <div className="h-9 bg-neutral-200 rounded w-32 mb-2" />
-            <div className="h-6 bg-neutral-100 rounded w-40" />
+            <div className="h-8 w-16 bg-pipe-200 rounded-[10px] border-3 border-pipe-900" />
           </div>
 
-          {/* Market data skeleton */}
-          <div className="flex flex-col justify-center items-end pr-5 border-l-2 border-neutral-200 min-w-[180px]">
-            <div className="text-right mb-4">
-              <div className="h-3 bg-neutral-100 rounded w-16 mb-1 ml-auto" />
-              <div className="h-5 bg-neutral-200 rounded w-24 ml-auto" />
+          {/* Content skeleton */}
+          <div className="p-4 space-y-3 bg-white">
+            <div className="text-center">
+              <div className="h-7 bg-pipe-200 rounded w-32 mx-auto mb-1" />
+              <div className="h-3 bg-pipe-100 rounded w-20 mx-auto" />
             </div>
-            <div className="text-right">
-              <div className="h-3 bg-neutral-100 rounded w-20 mb-1 ml-auto" />
-              <div className="h-5 bg-neutral-200 rounded w-24 ml-auto" />
-            </div>
+            <div className="h-10 bg-sky-50 rounded-[10px] border-2 border-pipe-300" />
+            <div className="h-12 bg-pipe-200 rounded-[12px] border-3 border-pipe-900" />
           </div>
         </div>
       </div>

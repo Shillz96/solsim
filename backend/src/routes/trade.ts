@@ -96,16 +96,22 @@ export default async function (app: FastifyInstance) {
   // Get trade history for a user
   app.get("/history/:userId", async (req, reply) => {
     const { userId } = req.params as { userId: string };
-    const { limit = "50", offset = "0", mint } = req.query as {
+    const { limit = "50", offset = "0", mint, tradeMode = "PAPER" } = req.query as {
       limit?: string;
       offset?: string;
       mint?: string;
+      tradeMode?: string;
     };
+
+    if (!['PAPER', 'REAL'].includes(tradeMode)) {
+      return reply.code(400).send({ error: "tradeMode must be 'PAPER' or 'REAL'" });
+    }
 
     try {
       const trades = await prisma.trade.findMany({
         where: {
           userId,
+          tradeMode,
           ...(mint && { mint })
         },
         orderBy: { timestamp: "desc" },
