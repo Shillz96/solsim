@@ -51,6 +51,8 @@ import { useNotifications } from "@/hooks/use-notifications"
 import { formatDistanceToNow } from "date-fns"
 import { XPBadge } from "@/components/level/xp-progress-bar"
 import { useOnboardingContext } from "@/lib/onboarding-provider"
+import { ProfileMenu } from "@/components/navigation/profile-menu"
+import { WalletBalanceDisplay } from "@/components/navigation/wallet-balance-display"
 
 // Enhanced navigation items with better organization
 const navigationItems = [
@@ -218,15 +220,8 @@ export function NavBar() {
       const isInsideSearchInput = searchRef.current?.contains(target)
       const isInsideSearchResults = searchResultsRef.current?.contains(target)
 
-      console.log('🖱️ Click detected:', {
-        isInsideSearchInput,
-        isInsideSearchResults,
-        targetElement: target.tagName
-      })
-
       // Only close if click is outside both elements
       if (!isInsideSearchInput && !isInsideSearchResults) {
-        console.log('❌ Closing search results - click was outside')
         setShowResults(false)
       }
     }
@@ -245,8 +240,6 @@ export function NavBar() {
   }, [showResults])
 
   const handleTokenSelect = useCallback((token: TokenSearchResult) => {
-    console.log('🔍 handleTokenSelect called for:', token.symbol)
-    console.log('📍 Navigating to:', `/trade?token=${token.mint}&symbol=${token.symbol}&name=${encodeURIComponent(token.name)}`)
     router.push(`/trade?token=${token.mint}&symbol=${token.symbol}&name=${encodeURIComponent(token.name)}`)
     setSearchQuery('')
     setShowResults(false)
@@ -262,11 +255,12 @@ export function NavBar() {
     <motion.header
       initial={{ y: -100 }}
       animate={{ y: 0 }}
-      className="sticky top-0 z-50 w-full border-b border-border/20 bg-[#FFFAE9]"
+      className="sticky top-0 z-50 w-full border-b border-[var(--color-border)] bg-[var(--background)]"
       style={{ viewTransitionName: 'main-nav' } as React.CSSProperties}
     >
-      <div className="w-full px-6">
-        <div className="flex h-16 items-center justify-between gap-6">
+      <div className="w-full">
+        <div className="mx-auto max-w-[var(--content-max-width)] px-4 md:px-6">
+          <div className="flex items-center justify-between gap-4 h-[var(--navbar-height)]">
           {/* Logo and Brand */}
           <div className="flex items-center gap-8">
             <Link href="/" className="flex items-center flex-shrink-0" style={{ viewTransitionName: 'logo' } as React.CSSProperties}>
@@ -281,7 +275,7 @@ export function NavBar() {
             </Link>
 
             {/* Desktop Navigation */}
-            <nav className="hidden lg:flex items-center space-x-2">
+            <nav className="hidden lg:flex items-center gap-1.5">
               {navigationItems.slice(0, 6).map((item) => {
                 const isActive = pathname === item.href
 
@@ -342,14 +336,14 @@ export function NavBar() {
           </div>
 
           {/* Enhanced Search Bar - Hidden on mobile, visible on md+ */}
-          <div className="hidden md:flex flex-1 max-w-md mx-6 relative" ref={searchRef}>
+          <div className="hidden md:flex flex-1 max-w-[520px] mx-4 relative" ref={searchRef}>
             <div className="relative w-full">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder="Search tokens..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 pr-10 w-full h-9 border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)] transition-all font-bold"
+                className="pl-10 pr-10 w-full h-9 border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)] transition-all font-semibold"
               />
               {isSearching && (
                 <Loader2 className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 animate-spin text-muted-foreground" />
@@ -374,7 +368,6 @@ export function NavBar() {
                       <button
                         key={token.mint}
                         onMouseDown={(e) => {
-                          console.log('👆 Button onMouseDown for:', token.symbol)
                           e.preventDefault() // Prevent default to avoid focus issues
                           e.stopPropagation() // Stop event from bubbling to document
                           handleTokenSelect(token)
@@ -421,109 +414,28 @@ export function NavBar() {
           </div>
 
           {/* Right Side Actions */}
-          <div className="flex items-center gap-4 flex-shrink-0">
+          <div className="flex items-center gap-3 flex-shrink-0">
             {isAuthenticated ? (
               <>
-                {/* Balance Display - Clickable */}
-                <button
-                  id="virtual-balance"
-                  onClick={() => setPurchaseModalOpen(true)}
-                  className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all cursor-pointer group"
-                  aria-label="Purchase simulated SOL"
-                >
-                  <Image src="/icons/mario/wallet.png" alt="Wallet" width={18} height={18} className="group-hover:scale-110 transition-transform" />
-                  <div className="text-sm">
-                    <div className="font-bold text-foreground font-mario text-xs leading-tight">
-                      {balanceData ? `${parseFloat(balanceData.balance).toFixed(2)} SOL` : 'Loading...'}
-                    </div>
-                    {solPrice > 0 && balanceData && (
-                      <div className="hidden sm:block text-[10px] text-foreground/60 font-semibold leading-tight">
-                        {formatUSD(parseFloat(balanceData.balance) * solPrice)}
-                      </div>
-                    )}
-                  </div>
-                </button>
+                {/* Consistent balance pill (uses your trading-mode context) */}
+                <WalletBalanceDisplay showDropdown className="h-10" />
 
                 {/* Notifications - Hidden on mobile */}
                 <div className="hidden md:block">
                   <NotificationDropdown />
                 </div>
 
-                {/* Combined User & Level Card - Hidden on mobile */}
+                {/* New compact Profile Menu */}
                 {user && (
                   <div className="hidden md:block">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <button
-                          className="flex items-center gap-3 pl-1.5 pr-4 py-1.5 rounded-lg bg-[var(--star-yellow)] border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all cursor-pointer group min-w-[200px]"
-                        >
-                          {/* User Avatar - No Border, Positioned on Far Left */}
-                          <Avatar className="h-10 w-10 rounded-full bg-[var(--mario-red)] flex-shrink-0 border-0">
-                            <AvatarImage src={avatarUrl} alt={displayName} className="rounded-full object-cover" />
-                            <AvatarFallback className="bg-[var(--mario-red)] text-white text-sm font-bold rounded-full border-0">
-                              {displayName?.[0]?.toUpperCase() || 'U'}
-                            </AvatarFallback>
-                          </Avatar>
-
-                          {/* Level & User Info */}
-                          <div className="flex flex-col items-start justify-center min-w-0 flex-1">
-                            <div className="flex items-center gap-2 w-full">
-                              <span className="text-sm font-mario text-[var(--mario-red)] leading-none">
-                                LVL {(() => {
-                                  const xp = parseFloat(user.rewardPoints?.toString() || '0');
-                                  if (xp >= 150000) return 25;
-                                  if (xp >= 100000) return 20;
-                                  if (xp >= 75000) return 18;
-                                  if (xp >= 50000) return 15;
-                                  if (xp >= 25000) return 12;
-                                  if (xp >= 10000) return 10;
-                                  if (xp >= 5000) return 8;
-                                  if (xp >= 2500) return 6;
-                                  if (xp >= 1000) return 5;
-                                  if (xp >= 500) return 3;
-                                  if (xp >= 100) return 2;
-                                  return 1;
-                                })()}
-                              </span>
-                              <ChevronDown className="h-3 w-3 text-[var(--mario-red)] group-hover:text-[var(--mario-red)]/80 transition-colors flex-shrink-0 ml-auto" />
-                            </div>
-                            <span className="text-xs font-bold text-[var(--mario-red)] truncate max-w-[140px] leading-tight">
-                              {displayName || 'User'}
-                            </span>
-                            <span className="text-[10px] text-[var(--mario-red)]/70 font-semibold leading-tight">
-                              {parseFloat(user.rewardPoints?.toString() || '0').toLocaleString()} XP
-                            </span>
-                          </div>
-                        </button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="w-56 bg-white border-3 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)]">
-                        <DropdownMenuLabel className="font-mario">My Account</DropdownMenuLabel>
-                        <DropdownMenuItem 
-                          onClick={() => setLevelModalOpen(true)}
-                          className="flex items-center gap-2 font-bold cursor-pointer"
-                        >
-                          <Zap className="h-4 w-4 text-[var(--star-yellow)]" />
-                          View Level Progress
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator className="bg-[var(--outline-black)]" />
-                        <DropdownMenuItem asChild>
-                          <Link href="/profile/settings" className="flex items-center gap-2 font-bold">
-                            <Settings className="h-4 w-4" />
-                            Settings
-                          </Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator className="bg-[var(--outline-black)]" />
-                        <DropdownMenuItem onClick={startOnboarding} className="flex items-center gap-2 font-bold text-[var(--luigi-green)] hover:text-[var(--luigi-green)]">
-                          <HelpCircle className="h-4 w-4" />
-                          Take Tour
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator className="bg-[var(--outline-black)]" />
-                        <DropdownMenuItem onClick={handleLogout} className="text-[var(--mario-red)] font-bold">
-                          <LogOut className="h-4 w-4 mr-2" />
-                          Logout
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                    <ProfileMenu
+                      displayName={displayName}
+                      avatarUrl={avatarUrl}
+                      xp={parseFloat(user.rewardPoints?.toString() || '0')}
+                      onLogout={handleLogout}
+                      onOpenLevelModal={() => setLevelModalOpen(true)}
+                      onStartOnboarding={startOnboarding}
+                    />
                   </div>
                 )}
               </>
@@ -699,6 +611,7 @@ export function NavBar() {
             </Sheet>
           </div>
         </div>
+      </div>
       </div>
 
       {/* Modals */}
