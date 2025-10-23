@@ -44,13 +44,7 @@ export default function TradeRoomPage() {
   const ca = params?.ca as string
   const { isAuthenticated } = useAuth()
 
-  // Fetch token details
-  const { data: tokenDetails, isLoading: loadingToken, error: tokenError } = useQuery({
-    queryKey: ['token-details', ca],
-    queryFn: () => api.getTokenDetails(ca),
-    enabled: !!ca,
-  })
-
+  // Early return if no CA
   if (!ca) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[var(--background)]">
@@ -63,6 +57,13 @@ export default function TradeRoomPage() {
       </div>
     )
   }
+
+  // Fetch token details
+  const { data: tokenDetails, isLoading: loadingToken, error: tokenError } = useQuery({
+    queryKey: ['token-details', ca],
+    queryFn: () => api.getTokenDetails(ca),
+    enabled: !!ca,
+  })
 
   if (loadingToken) {
     return (
