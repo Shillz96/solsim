@@ -161,6 +161,7 @@ export function TokenColumn({
             onToggleWatch={onToggleWatch}
           />
         ))}
+        </div>
       </div>
     </div>
   )
