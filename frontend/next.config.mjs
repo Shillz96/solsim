@@ -141,7 +141,7 @@ const withSerwist = withSerwistInit({
   swUrl: '/sw.js',
   cacheOnNavigation: true,
   reloadOnOnline: true,
-  disable: process.env.NODE_ENV === 'development', // Disable in development
+  disable: true, // Temporarily disable to debug 500 errors
   exclude: [
     // Don't cache these files
     /\.map$/,
@@ -156,6 +156,9 @@ const withSerwist = withSerwistInit({
     /wss:/,
     /\/ws\//,
     /railway\.app.*\/ws/,
+    // Vercel Analytics - Don't intercept these scripts
+    /_vercel\/insights/,
+    /_vercel\/speed-insights/,
   ],
 })
 
