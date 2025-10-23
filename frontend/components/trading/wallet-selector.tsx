@@ -25,9 +25,9 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { useAuth } from '@/lib/contexts/auth-context';
+import { useAuth } from '@/hooks/use-auth';
 import api from '@/lib/api';
-import { formatNumber } from '@/lib/utils/format';
+import { formatNumber } from '@/lib/format';
 import { ImportWalletModal } from '@/components/modals/import-wallet-modal';
 import { useToast } from '@/hooks/use-toast';
 
@@ -85,7 +85,6 @@ export function WalletSelector({ onWalletChange, className = '' }: WalletSelecto
       toast({
         title: 'Wallet Switched',
         description: `Now using ${newActiveWallet?.name}`,
-        variant: 'success',
       });
     } catch (error: any) {
       console.error('Failed to switch wallet:', error);
@@ -112,7 +111,6 @@ export function WalletSelector({ onWalletChange, className = '' }: WalletSelecto
       toast({
         title: 'Wallet Created',
         description: `${walletName} has been created`,
-        variant: 'success',
       });
     } catch (error: any) {
       console.error('Failed to create wallet:', error);

@@ -33,7 +33,7 @@ import {
 import { ImportWalletModal } from '@/components/modals/import-wallet-modal';
 import { TransferFundsModal } from '@/components/modals/transfer-funds-modal';
 import { ExportPrivateKeyModal } from '@/components/modals/export-private-key-modal';
-import { formatNumber } from '@/lib/utils/format';
+import { formatNumber } from '@/lib/format';
 import { useToast } from '@/hooks/use-toast';
 
 interface Wallet {
@@ -79,7 +79,6 @@ export function WalletManagement() {
       toast({
         title: '🎉 Wallet Created!',
         description: `${walletName} has been created`,
-        variant: 'success',
       });
     } catch (error: any) {
       console.error('Failed to create wallet:', error);
@@ -103,7 +102,6 @@ export function WalletManagement() {
       toast({
         title: '✅ Active Wallet Changed',
         description: `Now using ${wallet?.name}`,
-        variant: 'success',
       });
     } catch (error: any) {
       console.error('Failed to set active wallet:', error);
@@ -128,7 +126,6 @@ export function WalletManagement() {
       toast({
         title: '✏️ Wallet Renamed',
         description: `Renamed to "${newName}"`,
-        variant: 'success',
       });
     } catch (error: any) {
       console.error('Failed to rename wallet:', error);
@@ -154,7 +151,6 @@ export function WalletManagement() {
       toast({
         title: '🗑️ Wallet Deleted',
         description: `${walletName} has been removed`,
-        variant: 'success',
       });
     } catch (error: any) {
       console.error('Failed to delete wallet:', error);
