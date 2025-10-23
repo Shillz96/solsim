@@ -39,7 +39,7 @@ BEGIN
     IF EXISTS (
         SELECT 1 FROM pg_constraint
         WHERE conname = 'Position_userId_mint_key'
-        AND conrelid = 'Position'::regclass
+        AND conrelid = '"Position"'::regclass
     ) THEN
         ALTER TABLE "Position" DROP CONSTRAINT "Position_userId_mint_key";
     END IF;
@@ -48,7 +48,7 @@ BEGIN
     IF NOT EXISTS (
         SELECT 1 FROM pg_constraint
         WHERE conname = 'Position_userId_mint_tradeMode_key'
-        AND conrelid = 'Position'::regclass
+        AND conrelid = '"Position"'::regclass
     ) THEN
         ALTER TABLE "Position" ADD CONSTRAINT "Position_userId_mint_tradeMode_key" UNIQUE ("userId", "mint", "tradeMode");
     END IF;
