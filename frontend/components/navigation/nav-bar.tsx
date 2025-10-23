@@ -20,7 +20,7 @@ import { Input } from "@/components/ui/input"
 import {
   Menu, User, Settings, LogOut, Bell, Search, Loader2,
   TrendingUp, Wallet, Target, BarChart3, Home, Zap,
-  ChevronDown, Command, Gift, Building2, BookOpen
+  ChevronDown, Command, Gift, Building2, BookOpen, Map, Info
 } from "lucide-react"
 import { useState, useCallback, useEffect, useRef } from "react"
 import { createPortal } from "react-dom"
@@ -94,20 +94,21 @@ const navigationItems = [
     icon: TrendingUp,
     iconSrc: "/icons/mario/trending.png",
     description: "Discover popular tokens"
-  },
-  {
-    name: "Docs",
-    href: "/docs",
-    icon: BookOpen,
-    iconSrc: "/icons/mario/game.png",
-    description: "Learn how 1UP SOL works"
   }
+  // Removed Docs - now in More Info dropdown
   // {
   //   name: "Monitoring",
   //   href: "/monitoring",
   //   icon: BarChart3,
   //   description: "System status and metrics"
   // }
+]
+
+// Info dropdown items for desktop nav
+const infoItems = [
+  { href: "/rewards", icon: Gift, label: "Rewards", iconSrc: "/icons/mario/gift.png" },
+  { href: "/docs", icon: BookOpen, label: "Docs", iconSrc: "/icons/mario/game.png" },
+  { href: "/roadmap", icon: Map, label: "Roadmap", iconSrc: "/icons/mario/map.png" },
 ]
 
 export function NavBar() {
@@ -279,7 +280,7 @@ export function NavBar() {
 
             {/* Desktop Navigation */}
             <nav className="hidden lg:flex items-center space-x-2">
-              {navigationItems.slice(0, 7).map((item) => {
+              {navigationItems.slice(0, 6).map((item) => {
                 const isActive = pathname === item.href
 
                 return (
@@ -298,6 +299,43 @@ export function NavBar() {
                   </Link>
                 )
               })}
+              
+              {/* More Info Dropdown */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className={cn(
+                      "flex items-center gap-1.5 px-3 py-2 transition-all duration-200 font-mario text-xs h-9",
+                      infoItems.some(item => pathname === item.href) && "bg-primary/10 text-primary"
+                    )}
+                  >
+                    <Info className="h-4 w-4" />
+                    <span className="hidden lg:inline">More Info</span>
+                    <ChevronDown className="h-3 w-3" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent 
+                  align="start"
+                  className="bg-white border-3 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)]"
+                >
+                  {infoItems.map((item) => (
+                    <DropdownMenuItem key={item.href} asChild>
+                      <Link
+                        href={item.href}
+                        className={cn(
+                          "flex items-center gap-2 px-3 py-2 cursor-pointer font-mario",
+                          pathname === item.href && "bg-primary/10"
+                        )}
+                      >
+                        <item.icon className="h-4 w-4" />
+                        {item.label}
+                      </Link>
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
             </nav>
           </div>
 
@@ -567,6 +605,29 @@ export function NavBar() {
                           </Link>
                         )
                       })}
+                    
+                    {/* Info Items Section */}
+                    <div className="pt-2 border-t">
+                      <div className="px-3 py-2 text-xs font-semibold text-muted-foreground">
+                        MORE INFO
+                      </div>
+                      {infoItems.map((item) => {
+                        const isActive = pathname === item.href
+                        return (
+                          <Link key={item.href} href={item.href} onClick={() => setMobileMenuOpen(false)}>
+                            <div className={cn(
+                              "flex items-center gap-3 px-3 py-3 rounded-lg transition-colors",
+                              isActive ? "bg-primary/10 text-primary" : "hover:bg-muted"
+                            )}>
+                              <item.icon className="h-5 w-5" />
+                              <div>
+                                <div className="font-medium">{item.label}</div>
+                              </div>
+                            </div>
+                          </Link>
+                        )
+                      })}
+                    </div>
                   </div>
 
                   {/* Profile Section */}
