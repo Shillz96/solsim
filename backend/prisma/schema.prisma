@@ -56,6 +56,7 @@ model User {
   perpPositions           PerpPosition[]
   perpTrades              PerpTrade[]
   liquidations            Liquidation[]
+  tokenWatches            TokenWatch[]
 }
 
 model Trade {
@@ -544,4 +545,68 @@ model Liquidation {
 
   @@index([userId, timestamp(sort: Desc)])
   @@index([positionId])
+}
+
+// Warp Pipes Hub - Token Discovery & Tracking
+model TokenDiscovery {
+  id               String    @id @default(cuid())
+  mint             String    @unique
+  symbol           String?
+  name             String?
+  logoURI          String?
+
+  // State tracking (bonded, graduating, new)
+  state            String    // 'bonded' | 'graduating' | 'new'
+  previousState    String?   // Track state transitions
+
+  // Bonding curve data (for bonded/graduating tokens)
+  bondingCurveProgress  Decimal? // 0-100% progress toward migration
+  bondingCurveKey       String?  // Bonding curve account address
+
+  // Pool data (for new tokens)
+  poolAddress      String?
+  poolType         String?   // 'pumpswap' | 'raydium' | 'meteora'
+  poolCreatedAt    DateTime?
+  liquidityUsd     Decimal?
+
+  // Health capsule data
+  freezeRevoked    Boolean   @default(false)
+  mintRenounced    Boolean   @default(false)
+  priceImpact1Pct  Decimal?  // Price impact for 1% swap
+  creatorVerified  Boolean   @default(false)
+
+  // Trending metrics
+  hotScore         Decimal   @default(0)
+  watcherCount     Int       @default(0)
+
+  // Timestamps
+  firstSeenAt      DateTime  @default(now())
+  lastUpdatedAt    DateTime  @updatedAt
+  stateChangedAt   DateTime  @default(now())
+
+  @@index([state, hotScore(sort: Desc)], map: "token_discovery_state_hot")
+  @@index([mint], map: "token_discovery_mint")
+  @@index([state, lastUpdatedAt(sort: Desc)], map: "token_discovery_state_updated")
+}
+
+model TokenWatch {
+  id                  String   @id @default(cuid())
+  userId              String
+  mint                String
+
+  // Watch preferences
+  notifyOnGraduation  Boolean  @default(true)
+  notifyOnMigration   Boolean  @default(true)
+  notifyOnPriceChange Boolean  @default(false)
+
+  // Tracking
+  currentState        String   // State when watch was added
+  createdAt           DateTime @default(now())
+
+  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, mint], name: "userId_mint")
+  @@index([userId], map: "token_watch_user")
+  @@index([mint], map: "token_watch_mint")
+  @@index([userId, createdAt(sort: Desc)], map: "token_watch_user_recent")
 }
