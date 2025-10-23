@@ -107,7 +107,7 @@ const nextConfig = {
       ...config.resolve.alias,
       'pino-pretty': false,
     };
-    
+
     // Fallback for Node.js modules not available in browser
     if (!isServer) {
       config.resolve.fallback = {
@@ -117,6 +117,17 @@ const nextConfig = {
         tls: false,
         crypto: false,
       };
+    }
+
+    // Ensure styled-jsx is bundled in serverless functions (Vercel fix)
+    if (isServer) {
+      config.externals = config.externals || [];
+      if (Array.isArray(config.externals)) {
+        // Don't externalize styled-jsx - bundle it instead
+        config.externals = config.externals.filter(
+          (external) => typeof external !== 'string' || !external.includes('styled-jsx')
+        );
+      }
     }
 
     return config;
