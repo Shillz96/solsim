@@ -71,28 +71,28 @@ function StatCard({
   // Mario theme variant styles - bold borders and colors
   const variantStyles = {
     default: {
-      bg: 'bg-card',
-      border: 'border-pipe-700',
-      iconBg: 'bg-pipe-500',
+      bg: 'bg-white',
+      border: 'border-[var(--outline-black)]',
+      iconBg: 'bg-[var(--sky-blue)]',
       iconColor: 'text-white'
     },
     success: {
-      bg: 'bg-luigi-green-50',
-      border: 'border-luigi-green-700',
-      iconBg: 'bg-luigi-green-500',
+      bg: 'bg-white',
+      border: 'border-[var(--outline-black)]',
+      iconBg: 'bg-[var(--luigi-green)]',
       iconColor: 'text-white'
     },
     danger: {
-      bg: 'bg-mario-red-50',
-      border: 'border-mario-red-700',
-      iconBg: 'bg-mario-red-500',
+      bg: 'bg-white',
+      border: 'border-[var(--outline-black)]',
+      iconBg: 'bg-[var(--mario-red)]',
       iconColor: 'text-white'
     }
   };
 
   const changeColor = change !== undefined
-    ? change >= 0 ? 'text-profit' : 'text-loss'
-    : 'text-pipe-600';
+    ? change >= 0 ? 'text-[var(--luigi-green)]' : 'text-[var(--mario-red)]'
+    : 'text-muted-foreground';
 
   const ChangeIcon = change !== undefined
     ? change >= 0 ? TrendingUp : TrendingDown
@@ -118,8 +118,8 @@ function StatCard({
         "relative overflow-hidden rounded-xl border-4 transition-all",
         style.bg,
         style.border,
-        "shadow-[6px_6px_0_0_rgba(0,0,0,0.3)]",
-        "hover:shadow-[8px_8px_0_0_rgba(0,0,0,0.4)]"
+        "shadow-[6px_6px_0_var(--outline-black)]",
+        "hover:shadow-[8px_8px_0_var(--outline-black)] hover:-translate-y-1"
       )}>
         <CardContent className="relative p-6">
           {/* Icon Badge */}
@@ -127,8 +127,8 @@ function StatCard({
             <div className={cn(
               "p-3 rounded-lg border-3",
               style.iconBg,
-              "border-black/30",
-              "shadow-[3px_3px_0_0_rgba(0,0,0,0.3)]",
+              "border-[var(--outline-black)]",
+              "shadow-[3px_3px_0_var(--outline-black)]",
               "flex items-center justify-center"
             )}>
               {iconSrc ? (
@@ -139,8 +139,8 @@ function StatCard({
             </div>
             {change !== undefined && ChangeIcon && (
               <div className={cn(
-                "flex items-center gap-1 px-2 py-1 rounded-lg border-2",
-                change >= 0 ? "bg-luigi-green-100 border-luigi-green-500" : "bg-mario-red-100 border-mario-red-500",
+                "flex items-center gap-1 px-2 py-1 rounded-lg border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)]",
+                change >= 0 ? "bg-[var(--luigi-green)]/10" : "bg-[var(--mario-red)]/10",
                 "font-bold text-xs"
               )}>
                 <ChangeIcon className="h-3 w-3" />
@@ -150,31 +150,31 @@ function StatCard({
           </div>
 
           {/* Title - Pixel Font */}
-          <p className="text-xs font-bold text-pipe-700 mb-2 uppercase tracking-wide">{title}</p>
+          <p className="text-xs font-mario font-bold text-[var(--outline-black)] mb-2 uppercase tracking-wide">{title}</p>
 
           {/* Value */}
           {isLoading ? (
             <div className="space-y-2">
-              <div className="h-8 bg-pipe-200 rounded animate-pulse w-3/4" />
-              <div className="h-4 bg-pipe-200 rounded animate-pulse w-1/2" />
+              <div className="h-8 bg-muted rounded animate-pulse w-3/4" />
+              <div className="h-4 bg-muted rounded animate-pulse w-1/2" />
             </div>
           ) : (
             <>
               {format === 'currency' && showSolEquiv && typeof value === 'number' ? (
                 <UsdWithSol
                   usd={value}
-                  className="text-2xl font-bold text-pipe-900"
-                  solClassName="text-xs text-pipe-600"
+                  className="text-2xl font-bold text-[var(--outline-black)]"
+                  solClassName="text-xs text-muted-foreground font-bold"
                 />
               ) : (
-                <p className="text-2xl font-bold text-pipe-900 mb-1">{formattedValue}</p>
+                <p className="text-2xl font-bold text-[var(--outline-black)] mb-1">{formattedValue}</p>
               )}
             </>
           )}
 
           {/* Description */}
           {description && !isLoading && (
-            <p className="text-xs text-pipe-600 mt-2">{description}</p>
+            <p className="text-xs text-muted-foreground font-bold mt-2">{description}</p>
           )}
         </CardContent>
       </div>
@@ -191,13 +191,13 @@ function MetricsLoadingSkeleton() {
       {[1, 2, 3, 4].map((i) => (
         <div
           key={i}
-          className="bg-card border-4 border-pipe-700 rounded-xl shadow-[6px_6px_0_0_rgba(0,0,0,0.3)] p-6 animate-pulse"
+          className="bg-white border-4 border-[var(--outline-black)] rounded-xl shadow-[6px_6px_0_var(--outline-black)] p-6 animate-pulse"
         >
           <div className="flex items-center justify-between mb-4">
-            <div className="w-12 h-12 bg-pipe-200 rounded-lg" />
+            <div className="w-12 h-12 bg-muted border-2 border-[var(--outline-black)] rounded-lg" />
           </div>
-          <div className="h-4 bg-pipe-200 rounded w-1/2 mb-2" />
-          <div className="h-8 bg-pipe-300 rounded w-3/4 mb-2" />
+          <div className="h-4 bg-muted rounded w-1/2 mb-2" />
+          <div className="h-8 bg-muted rounded w-3/4 mb-2" />
           <div className="h-3 bg-pipe-200 rounded w-2/3" />
         </div>
       ))}

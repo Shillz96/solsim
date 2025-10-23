@@ -34,7 +34,7 @@ function PortfolioPageContent() {
           className="mb-8 relative"
         >
           {/* Mario-themed header with coins and stars */}
-          <div className="bg-card border-4 border-pipe-800 rounded-xl p-6 shadow-[8px_8px_0_0_rgba(0,0,0,0.3)] relative overflow-hidden">
+          <div className="bg-white border-4 border-[var(--outline-black)] rounded-xl p-6 shadow-[8px_8px_0_var(--outline-black)] relative overflow-hidden">
             {/* Decorative Mario icons */}
             <div className="absolute top-2 right-2 flex gap-2">
               <Image src="/icons/mario/star.png" alt="Star" width={24} height={24} className="animate-pulse" />
@@ -43,44 +43,44 @@ function PortfolioPageContent() {
 
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
-                <div className="bg-mario-red-500 p-3 rounded-lg border-4 border-mario-red-700 shadow-[4px_4px_0_0_rgba(0,0,0,0.3)]">
+                <div className="bg-[var(--mario-red)] p-3 rounded-lg border-4 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)]">
                   <Image src="/icons/mario/money-bag.png" alt="Portfolio" width={32} height={32} />
                 </div>
                 <div>
-                  <h1 className="text-3xl font-bold text-pipe-900" style={{ fontFamily: "'Press Start 2P', monospace", textShadow: '3px 3px 6px rgba(0,0,0,0.2)' }}>
+                  <h1 className="text-3xl font-mario font-bold text-[var(--outline-black)]">
                     YOUR WORLD
                   </h1>
-                  <p className="text-sm text-pipe-600 mt-1">Track your coin collection and power-ups!</p>
+                  <p className="text-sm text-muted-foreground font-bold mt-1">Track your coin collection and power-ups!</p>
                 </div>
               </div>
 
               {/* Level Badge with User Avatar */}
-              <div className="bg-star-yellow-500 border-4 border-star-yellow-600 rounded-lg px-4 py-2 shadow-[4px_4px_0_0_rgba(0,0,0,0.3)]">
+              <div className="bg-[var(--star-yellow)] border-4 border-[var(--outline-black)] rounded-lg px-4 py-2 shadow-[4px_4px_0_var(--outline-black)]">
                 <div className="flex items-center gap-2">
                   {user?.avatarUrl ? (
-                    <div className="w-10 h-10 rounded-full border-3 border-pipe-900 overflow-hidden bg-white">
+                    <div className="w-10 h-10 rounded-full border-3 border-[var(--outline-black)] overflow-hidden bg-white">
                       <img src={user.avatarUrl} alt="Profile" className="w-full h-full object-cover" />
                     </div>
                   ) : (
                     <Image src="/icons/mario/user.png" alt="Profile" width={40} height={40} className="rounded-full" />
                   )}
                   <div className="text-right">
-                    <div className="text-xs font-bold text-pipe-900">LEVEL</div>
-                    <div className="text-lg font-bold text-pipe-900">1</div>
+                    <div className="text-xs font-mario font-bold text-[var(--outline-black)]">LEVEL</div>
+                    <div className="text-lg font-bold text-[var(--outline-black)]">1</div>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* XP Progress Bar - Mario style */}
-            <div className="mt-4 bg-pipe-300 border-3 border-pipe-700 rounded-full h-6 overflow-hidden relative">
+            <div className="mt-4 bg-gray-200 border-3 border-[var(--outline-black)] rounded-full h-6 overflow-hidden relative">
               <motion.div
-                className="bg-gradient-to-r from-luigi-green-500 to-luigi-green-400 h-full flex items-center justify-center"
+                className="bg-gradient-to-r from-[var(--luigi-green)] to-[var(--luigi-green)]/80 h-full flex items-center justify-center border-r-3 border-[var(--outline-black)]"
                 initial={{ width: 0 }}
                 animate={{ width: "35%" }}
                 transition={{ duration: 1, delay: 0.5 }}
               >
-                <span className="text-xs font-bold text-white z-10">350 / 1000 XP</span>
+                <span className="text-xs font-mario font-bold text-white z-10">350 / 1000 XP</span>
               </motion.div>
             </div>
           </div>
@@ -121,24 +121,24 @@ function PortfolioPageContent() {
             >
               <Tabs defaultValue="positions" className="w-full">
                 {/* Mario-themed tab navigation */}
-                <TabsList className="grid w-full grid-cols-3 mb-6 bg-card border-4 border-pipe-700 rounded-xl p-2 shadow-[4px_4px_0_0_rgba(0,0,0,0.2)]">
+                <TabsList className="grid w-full grid-cols-3 mb-6 bg-white border-4 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)] rounded-xl p-2">
                   <TabsTrigger
                     value="positions"
-                    className="gap-2 data-[state=active]:bg-mario-red-500 data-[state=active]:text-white data-[state=active]:border-3 data-[state=active]:border-mario-red-700 data-[state=active]:shadow-[2px_2px_0_0_rgba(0,0,0,0.3)] rounded-lg font-bold text-xs sm:text-sm transition-all"
+                    className="gap-2 data-[state=active]:bg-[var(--mario-red)] data-[state=active]:text-white data-[state=active]:border-3 data-[state=active]:border-[var(--outline-black)] data-[state=active]:shadow-[2px_2px_0_var(--outline-black)] rounded-lg font-mario text-xs sm:text-sm transition-all"
                   >
                     <Image src="/icons/mario/mushroom.png" alt="Positions" width={16} height={16} />
                     <span>COINS</span>
                   </TabsTrigger>
                   <TabsTrigger
                     value="performance"
-                    className="gap-2 data-[state=active]:bg-luigi-green-500 data-[state=active]:text-white data-[state=active]:border-3 data-[state=active]:border-luigi-green-700 data-[state=active]:shadow-[2px_2px_0_0_rgba(0,0,0,0.3)] rounded-lg font-bold text-xs sm:text-sm transition-all"
+                    className="gap-2 data-[state=active]:bg-[var(--luigi-green)] data-[state=active]:text-white data-[state=active]:border-3 data-[state=active]:border-[var(--outline-black)] data-[state=active]:shadow-[2px_2px_0_var(--outline-black)] rounded-lg font-mario text-xs sm:text-sm transition-all"
                   >
                     <Image src="/icons/mario/star.png" alt="Performance" width={16} height={16} />
                     <span>STATS</span>
                   </TabsTrigger>
                   <TabsTrigger
                     value="history"
-                    className="gap-2 data-[state=active]:bg-star-yellow-500 data-[state=active]:text-pipe-900 data-[state=active]:border-3 data-[state=active]:border-star-yellow-700 data-[state=active]:shadow-[2px_2px_0_0_rgba(0,0,0,0.3)] rounded-lg font-bold text-xs sm:text-sm transition-all"
+                    className="gap-2 data-[state=active]:bg-[var(--star-yellow)] data-[state=active]:text-[var(--outline-black)] data-[state=active]:border-3 data-[state=active]:border-[var(--outline-black)] data-[state=active]:shadow-[2px_2px_0_var(--outline-black)] rounded-lg font-mario text-xs sm:text-sm transition-all"
                   >
                     <Image src="/icons/mario/trophy.png" alt="History" width={16} height={16} />
                     <span>QUEST LOG</span>
@@ -155,10 +155,10 @@ function PortfolioPageContent() {
 
                 <TabsContent value="performance" className="mt-0">
                   <div className="space-y-6">
-                    <div className="bg-card border-4 border-pipe-700 rounded-xl shadow-[6px_6px_0_0_rgba(0,0,0,0.3)] p-6">
+                    <div className="bg-white border-4 border-[var(--outline-black)] rounded-xl shadow-[6px_6px_0_var(--outline-black)] p-6">
                       <div className="flex items-center gap-2 mb-4">
                         <Image src="/icons/mario/fire.png" alt="Fire" width={24} height={24} />
-                        <h3 className="text-lg font-bold text-pipe-900">POWER-UP PERFORMANCE</h3>
+                        <h3 className="text-lg font-mario font-bold text-[var(--outline-black)]">POWER-UP PERFORMANCE</h3>
                       </div>
                       <PortfolioChart />
                     </div>
@@ -169,10 +169,10 @@ function PortfolioPageContent() {
                 </TabsContent>
 
                 <TabsContent value="history" className="mt-0">
-                  <div className="bg-card border-4 border-pipe-700 rounded-xl shadow-[6px_6px_0_0_rgba(0,0,0,0.3)] p-6">
+                  <div className="bg-white border-4 border-[var(--outline-black)] rounded-xl shadow-[6px_6px_0_var(--outline-black)] p-6">
                     <div className="flex items-center gap-2 mb-4">
                       <Image src="/icons/mario/game.png" alt="Quest" width={24} height={24} />
-                      <h3 className="text-lg font-bold text-pipe-900">QUEST LOG</h3>
+                      <h3 className="text-lg font-mario font-bold text-[var(--outline-black)]">QUEST LOG</h3>
                     </div>
                     <TradeHistory showHeader={false} noCard={true} />
                   </div>
@@ -190,35 +190,35 @@ function PortfolioPageContent() {
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.5, delay: 0.3 }}
               >
-                <div className="bg-card border-4 border-pipe-700 rounded-xl shadow-[6px_6px_0_0_rgba(0,0,0,0.3)] p-6">
+                <div className="bg-white border-4 border-[var(--outline-black)] rounded-xl shadow-[6px_6px_0_var(--outline-black)] p-6">
                   <div className="flex items-center gap-2 mb-4">
                     <Image src="/icons/mario/star.png" alt="Star" width={24} height={24} className="animate-pulse" />
-                    <h3 className="text-lg font-bold text-pipe-900">ACHIEVEMENTS</h3>
+                    <h3 className="text-lg font-mario font-bold text-[var(--outline-black)]">ACHIEVEMENTS</h3>
                   </div>
 
                   {/* Achievement badges */}
                   <div className="space-y-3">
-                    <div className="bg-star-yellow-100 border-3 border-star-yellow-500 rounded-lg p-3 flex items-center gap-3">
+                    <div className="bg-[var(--star-yellow)]/20 border-3 border-[var(--star-yellow)] shadow-[3px_3px_0_var(--outline-black)] rounded-lg p-3 flex items-center gap-3">
                       <Image src="/icons/mario/trophy.png" alt="Trophy" width={32} height={32} />
                       <div>
-                        <div className="text-sm font-bold text-pipe-900">First Trade!</div>
-                        <div className="text-xs text-pipe-600">Started your journey</div>
+                        <div className="text-sm font-mario font-bold text-[var(--outline-black)]">First Trade!</div>
+                        <div className="text-xs text-muted-foreground font-bold">Started your journey</div>
                       </div>
                     </div>
 
-                    <div className="bg-pipe-100 border-3 border-pipe-400 rounded-lg p-3 flex items-center gap-3 opacity-50">
+                    <div className="bg-gray-100 border-3 border-gray-400 rounded-lg p-3 flex items-center gap-3 opacity-50">
                       <Image src="/icons/mario/fire.png" alt="Fire" width={32} height={32} />
                       <div>
-                        <div className="text-sm font-bold text-pipe-900">Hot Streak</div>
-                        <div className="text-xs text-pipe-600">Win 5 trades in a row</div>
+                        <div className="text-sm font-mario font-bold text-[var(--outline-black)]">Hot Streak</div>
+                        <div className="text-xs text-muted-foreground font-bold">Win 5 trades in a row</div>
                       </div>
                     </div>
 
-                    <div className="bg-pipe-100 border-3 border-pipe-400 rounded-lg p-3 flex items-center gap-3 opacity-50">
+                    <div className="bg-gray-100 border-3 border-gray-400 rounded-lg p-3 flex items-center gap-3 opacity-50">
                       <Image src="/icons/mario/money-bag.png" alt="Coins" width={32} height={32} />
                       <div>
-                        <div className="text-sm font-bold text-pipe-900">Coin Collector</div>
-                        <div className="text-xs text-pipe-600">Earn 1000 SOL profit</div>
+                        <div className="text-sm font-mario font-bold text-[var(--outline-black)]">Coin Collector</div>
+                        <div className="text-xs text-muted-foreground font-bold">Earn 1000 SOL profit</div>
                       </div>
                     </div>
                   </div>
@@ -231,10 +231,10 @@ function PortfolioPageContent() {
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.5, delay: 0.5 }}
               >
-                <div className="bg-white border-4 border-luigi-green-700 rounded-xl shadow-[6px_6px_0_0_rgba(0,0,0,0.3)] p-6">
+                <div className="bg-white border-4 border-[var(--outline-black)] rounded-xl shadow-[6px_6px_0_var(--outline-black)] p-6">
                   <div className="flex items-center gap-2 mb-4">
                     <Image src="/icons/mario/fire.png" alt="Hot" width={24} height={24} />
-                    <h3 className="text-lg font-bold text-pipe-900">HOT TOKENS</h3>
+                    <h3 className="text-lg font-mario font-bold text-[var(--outline-black)]">HOT TOKENS</h3>
                   </div>
                   <EnhancedTrendingList />
                 </div>
@@ -257,16 +257,16 @@ export default function PortfolioPage() {
             <div className="text-center space-y-4">
               {/* Mario-themed loading spinner */}
               <div className="relative">
-                <div className="h-20 w-20 border-4 border-mario-red-300 border-t-mario-red-600 rounded-full animate-spin mx-auto"></div>
+                <div className="h-20 w-20 border-4 border-[var(--mario-red)]/30 border-t-[var(--mario-red)] rounded-full animate-spin mx-auto"></div>
                 <div className="absolute inset-0 h-20 w-20 flex items-center justify-center">
                   <Image src="/icons/mario/star.png" alt="Loading" width={32} height={32} className="animate-pulse" />
                 </div>
               </div>
-              <div className="bg-white border-4 border-pipe-700 rounded-xl p-6 shadow-[6px_6px_0_0_rgba(0,0,0,0.3)]">
-                <h3 className="text-lg font-bold text-pipe-900" style={{ fontFamily: "'Press Start 2P', monospace" }}>
+              <div className="bg-white border-4 border-[var(--outline-black)] rounded-xl p-6 shadow-[6px_6px_0_var(--outline-black)]">
+                <h3 className="text-lg font-mario font-bold text-[var(--outline-black)]">
                   LOADING...
                 </h3>
-                <p className="text-sm text-pipe-600 mt-2">Collecting your coins!</p>
+                <p className="text-sm text-muted-foreground font-bold mt-2">Collecting your coins!</p>
               </div>
             </div>
           </div>

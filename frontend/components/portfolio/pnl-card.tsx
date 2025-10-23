@@ -88,21 +88,24 @@ function EmptyPnLState() {
   return (
     <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
       <div className="relative mb-4">
-        <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
-          <Activity className="w-8 h-8 text-primary" />
+        <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[var(--star-yellow)] to-[var(--coin-gold)] border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] flex items-center justify-center">
+          <Activity className="w-8 h-8 text-white" />
         </div>
-        <Sparkles className="w-4 h-4 text-primary absolute -top-1 -right-1 animate-pulse" />
+        <Sparkles className="w-4 h-4 text-[var(--star-yellow)] absolute -top-1 -right-1 animate-pulse" />
       </div>
       
-      <h3 className="text-lg font-semibold mb-2">No Trading Activity Yet</h3>
-      <p className="text-sm text-muted-foreground max-w-sm mb-4">
+      <h3 className="text-lg font-mario font-bold mb-2">No Trading Activity Yet</h3>
+      <p className="text-sm text-muted-foreground max-w-sm mb-4 font-bold">
         Start trading to see your profit & loss performance here.
       </p>
       
-      <Button className="gap-2" onClick={() => window.location.href = '/trade'}>
+      <button 
+        onClick={() => window.location.href = '/trade'}
+        className="gap-2 h-10 px-6 rounded-lg border-3 border-[var(--outline-black)] bg-[var(--luigi-green)] text-white hover:bg-[var(--luigi-green)]/90 shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all flex items-center font-mario"
+      >
         <TrendingUp className="w-4 h-4" />
         Start Trading
-      </Button>
+      </button>
     </div>
   );
 }
@@ -222,43 +225,42 @@ export function PnLCard() {
   // Loading state
   if (isLoading) {
     return (
-      <EnhancedCard className="relative overflow-hidden">
+      <div className="bg-white rounded-2xl border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] relative overflow-hidden">
         <PnLLoadingSkeleton />
-      </EnhancedCard>
+      </div>
     );
   }
 
   // Error state
   if (error) {
     return (
-      <EnhancedCard className="relative overflow-hidden">
+      <div className="bg-white rounded-2xl border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] relative overflow-hidden">
         <div className="p-6">
-          <Alert variant="destructive">
+          <Alert variant="destructive" className="border-3 border-[var(--mario-red)] shadow-[3px_3px_0_var(--outline-black)]">
             <AlertCircle className="h-4 w-4" />
             <AlertDescription className="flex items-center justify-between">
-              <span>
+              <span className="font-bold">
                 Failed to load P&L data: {error instanceof Error ? error.message : 'Unknown error'}
               </span>
-              <Button 
-                variant="outline" 
-                size="sm"
+              <button 
                 onClick={handleRefresh}
+                className="h-8 px-3 rounded-lg border-3 border-[var(--outline-black)] bg-white hover:bg-gray-50 shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all font-mario text-sm"
               >
                 Retry
-              </Button>
+              </button>
             </AlertDescription>
           </Alert>
         </div>
-      </EnhancedCard>
+      </div>
     );
   }
 
   // Empty state
   if (!portfolio || !portfolio.positions || portfolio.positions.length === 0) {
     return (
-      <EnhancedCard className="relative overflow-hidden">
+      <div className="bg-white rounded-2xl border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] relative overflow-hidden">
         <EmptyPnLState />
-      </EnhancedCard>
+      </div>
     );
   }
 
@@ -281,7 +283,7 @@ export function PnLCard() {
 
   return (
     <>
-      <EnhancedCard className="relative overflow-hidden">
+      <div className="bg-white rounded-2xl border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] relative overflow-hidden">
         {/* Animated Background */}
         <AnimatedBackground isPositive={isPositive} />
 
@@ -290,25 +292,22 @@ export function PnLCard() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className={cn(
-                "p-2 rounded-lg",
-                isPositive ? "bg-green-500/10" : "bg-red-500/10"
+                "p-2 rounded-lg border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)]",
+                isPositive ? "bg-[var(--luigi-green)]" : "bg-[var(--mario-red)]"
               )}>
-                <PnLIcon className={cn(
-                  "h-5 w-5",
-                  isPositive ? "text-green-400" : "text-red-400"
-                )} />
+                <PnLIcon className="h-5 w-5 text-white" />
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <h3 className="text-lg font-semibold">Profit & Loss</h3>
+                  <h3 className="text-lg font-mario font-bold">Profit & Loss</h3>
                   {isLiveUpdating && (
-                    <Badge variant="outline" className="gap-1 text-[10px] px-1.5 py-0 h-5 border-green-500/30 text-green-400 bg-green-500/5">
-                      <div className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+                    <Badge variant="outline" className="gap-1 text-[10px] px-1.5 py-0 h-5 border-[var(--luigi-green)] text-[var(--luigi-green)] bg-[var(--luigi-green)]/5">
+                      <div className="w-1.5 h-1.5 rounded-full bg-[var(--luigi-green)] animate-pulse" />
                       LIVE
                     </Badge>
                   )}
                 </div>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-muted-foreground font-bold">
                   {totalTrades} trade{totalTrades !== 1 ? 's' : ''} • {winRate.toFixed(1)}% win rate
                 </p>
               </div>
@@ -316,28 +315,24 @@ export function PnLCard() {
 
             {/* Actions */}
             <div className="flex gap-2">
-              <Button
-                variant="ghost"
-                size="icon"
+              <button
                 onClick={handleRefresh}
                 disabled={isRefetching}
-                className="shrink-0"
+                className="shrink-0 h-9 w-9 rounded-lg border-3 border-[var(--outline-black)] bg-white hover:bg-gray-50 shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all flex items-center justify-center"
               >
                 <RefreshCw className={cn(
                   "h-4 w-4",
                   isRefetching && "animate-spin"
                 )} />
-              </Button>
+              </button>
               
-              <Button
-                variant="outline"
-                size="sm"
+              <button
                 onClick={handleShare}
-                className="gap-2"
+                className="gap-2 h-9 px-4 rounded-lg border-3 border-[var(--outline-black)] bg-white hover:bg-gray-50 shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all flex items-center font-mario text-sm"
               >
                 <Share2 className="h-4 w-4" />
                 <span className="hidden sm:inline">Share</span>
-              </Button>
+              </button>
             </div>
           </div>
 
@@ -347,10 +342,10 @@ export function PnLCard() {
             animate={{ scale: 1, opacity: 1 }}
             transition={{ delay: 0.1 }}
             className={cn(
-              "p-6 rounded-xl border-2",
+              "p-6 rounded-xl border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)]",
               isPositive 
-                ? "bg-green-500/5 border-green-500/20" 
-                : "bg-red-500/5 border-red-500/20"
+                ? "bg-[var(--luigi-green)]/10" 
+                : "bg-[var(--mario-red)]/10"
             )}
           >
             <StatItem
@@ -367,7 +362,7 @@ export function PnLCard() {
           </motion.div>
 
           {/* Detailed Metrics Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-[var(--outline-black)]">
             <StatItem
               label="Realized P&L"
               value={realizedPnL}
@@ -405,21 +400,21 @@ export function PnLCard() {
 
           {/* Performance Badge */}
           {totalTrades >= 5 && (
-            <div className="flex items-center gap-2 pt-4 border-t">
+            <div className="flex items-center gap-2 pt-4 border-t border-[var(--outline-black)]">
               <Badge 
                 variant={winRate >= 50 ? "default" : "secondary"}
-                className="gap-1"
+                className="gap-1 border-2 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] font-mario"
               >
                 <Award className="h-3 w-3" />
                 {winRate >= 70 ? "Outstanding" : winRate >= 50 ? "Profitable" : "Building Experience"}
               </Badge>
-              <span className="text-xs text-muted-foreground">
+              <span className="text-xs text-muted-foreground font-bold">
                 {winRate.toFixed(1)}% success rate across {totalTrades} trades
               </span>
             </div>
           )}
         </div>
-      </EnhancedCard>
+      </div>
 
       {/* Share Dialog */}
       <SharePnLDialog

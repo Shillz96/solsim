@@ -174,9 +174,9 @@ export function SharePnLDialog({ totalPnL, totalPnLPercent, currentValue, initia
           Share PnL
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[600px]">
+      <DialogContent className="sm:max-w-[600px] bg-white border-4 border-[var(--outline-black)] shadow-[8px_8px_0_var(--outline-black)]">
         <DialogHeader>
-          <DialogTitle>Share Your Performance</DialogTitle>
+          <DialogTitle className="font-mario text-2xl text-[var(--outline-black)]">Share Your Performance</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4">
@@ -323,7 +323,11 @@ export function SharePnLDialog({ totalPnL, totalPnLPercent, currentValue, initia
 
           {/* Action Buttons */}
           <div className="flex gap-2">
-            <Button onClick={handleDownload} className="flex-1 gap-2" disabled={isGenerating}>
+            <button 
+              onClick={handleDownload} 
+              className="flex-1 gap-2 h-10 px-4 rounded-lg border-3 border-[var(--outline-black)] bg-[var(--luigi-green)] text-white hover:bg-[var(--luigi-green)]/90 shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all flex items-center justify-center font-mario disabled:opacity-50" 
+              disabled={isGenerating}
+            >
               {isGenerating ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -335,11 +339,10 @@ export function SharePnLDialog({ totalPnL, totalPnLPercent, currentValue, initia
                   Download
                 </>
               )}
-            </Button>
-            <Button
+            </button>
+            <button
               onClick={handleCopy}
-              variant="outline"
-              className="flex-1 gap-2 bg-transparent"
+              className="flex-1 gap-2 h-10 px-4 rounded-lg border-3 border-[var(--outline-black)] bg-white hover:bg-gray-50 shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all flex items-center justify-center font-mario disabled:opacity-50"
               disabled={isGenerating}
             >
               {isGenerating ? (
@@ -358,7 +361,7 @@ export function SharePnLDialog({ totalPnL, totalPnLPercent, currentValue, initia
                   Copy Image
                 </>
               )}
-            </Button>
+            </button>
           </div>
         </div>
       </DialogContent>

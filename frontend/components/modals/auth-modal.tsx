@@ -210,7 +210,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-[90vw] max-w-md mx-auto border-2 border-border shadow-none rounded-md max-h-[85vh] overflow-y-auto p-4 sm:p-6" style={{ backgroundColor: 'var(--background)', opacity: 1 }}>
+      <DialogContent className="w-[90vw] max-w-md mx-auto bg-white border-4 border-[var(--outline-black)] shadow-[8px_8px_0_var(--outline-black)] rounded-2xl max-h-[85vh] overflow-y-auto p-4 sm:p-6">
         <div className="relative z-10">
         <DialogHeader className="space-y-3">
           <div className="flex items-center justify-center mb-4">
@@ -224,7 +224,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
               className="h-auto w-auto max-w-[220px]"
             />
           </div>
-          <DialogDescription className="text-center text-sm md:text-base text-muted-foreground">
+          <DialogDescription className="text-center text-sm md:text-base text-muted-foreground font-bold">
             {currentView === 'forgot-password' && 'Reset your password'}
             {currentView === 'reset-success' && 'Check your email'}
             {(currentView === 'login' || currentView === 'register') && 'Start your paper trading journey on Solana'}
@@ -233,106 +233,107 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
 
         {/* Message Display */}
         {error && (
-          <Alert className="border-destructive bg-destructive/10 text-destructive">
+          <Alert className="border-3 border-[var(--mario-red)] bg-[var(--mario-red)]/10 text-[var(--mario-red)] shadow-[3px_3px_0_var(--outline-black)]">
             <AlertCircle className="h-4 w-4" />
-            <AlertDescription className="font-medium">{String(error)}</AlertDescription>
+            <AlertDescription className="font-bold">{String(error)}</AlertDescription>
           </Alert>
         )}
 
                 {success && (
-          <Alert className="border-green-500 bg-green-500/10 text-green-700">
+          <Alert className="border-3 border-[var(--luigi-green)] bg-[var(--luigi-green)]/10 text-[var(--luigi-green)] shadow-[3px_3px_0_var(--outline-black)]">
             <CheckCircle className="h-4 w-4" />
-            <AlertDescription className="font-medium">{success}</AlertDescription>
+            <AlertDescription className="font-bold">{success}</AlertDescription>
           </Alert>
         )}
 
         {/* Forgot Password View */}
         {currentView === 'forgot-password' && (
-          <Card className="border-border" style={{ backgroundColor: 'var(--background)', opacity: 1 }}>
-            <CardHeader className="space-y-2">
-              <CardTitle className="flex items-center gap-3 text-lg">
-                <Button
-                  variant="ghost"
-                  size="sm"
+          <div className="bg-white rounded-xl border-3 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)] p-6 space-y-4">
+            <div className="space-y-2">
+              <div className="flex items-center gap-3">
+                <button
                   onClick={() => setCurrentView('login')}
-                  className="p-2 h-auto hover:bg-muted"
+                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
                 >
                   <ArrowLeft className="h-4 w-4" />
-                </Button>
-                Reset Password
-              </CardTitle>
-              <CardDescription className="text-foreground/70">
+                </button>
+                <h3 className="text-lg font-mario text-[var(--outline-black)]">Reset Password</h3>
+              </div>
+              <p className="text-sm text-muted-foreground font-bold">
                 Enter your email address and we'll send you a link to reset your password.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <form onSubmit={handleForgotPassword} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="reset-email" className="text-foreground font-medium">Email</Label>
-                  <div className="relative">
-                    <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      id="reset-email"
-                      name="email"
-                      type="email"
-                      placeholder="your@email.com"
-                      className="pl-10 bg-background border-border h-11"
-                      required
-                      disabled={isLoading}
-                    />
-                  </div>
-                </div>
-                <Button 
-                  type="submit" 
-                  className="w-full bg-foreground text-background hover:bg-foreground/90 font-medium" 
-                  size="lg"
-                  disabled={isLoading}
-                >
-                  {isLoading ? 'Sending...' : 'Send Reset Link'}
-                </Button>
-              </form>
-            </CardContent>
-          </Card>
-        )}        {/* Reset Success View */}
-        {currentView === 'reset-success' && (
-          <Card className="border-border" style={{ backgroundColor: 'var(--background)', opacity: 1 }}>
-            <CardHeader className="text-center space-y-4">
-              <div className="flex justify-center">
-                <div className="h-16 w-16 rounded-full bg-green-100 flex items-center justify-center">
-                  <CheckCircle className="h-8 w-8 text-green-600" />
+              </p>
+            </div>
+            <form onSubmit={handleForgotPassword} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="reset-email" className="text-foreground font-bold">Email</Label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="reset-email"
+                    name="email"
+                    type="email"
+                    placeholder="your@email.com"
+                    className="pl-10 bg-white border-3 border-[var(--outline-black)] h-11 rounded-lg shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)]"
+                    required
+                    disabled={isLoading}
+                  />
                 </div>
               </div>
-              <CardTitle className="text-xl font-semibold text-foreground">Check your email</CardTitle>
-              <CardDescription className="text-foreground/70">
+              <button 
+                type="submit" 
+                className="w-full h-11 px-4 rounded-lg border-3 border-[var(--outline-black)] bg-[var(--luigi-green)] text-white hover:bg-[var(--luigi-green)]/90 shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all font-mario disabled:opacity-50" 
+                disabled={isLoading}
+              >
+                  {isLoading ? 'Sending...' : 'Send Reset Link'}
+              </button>
+            </form>
+          </div>
+        )}        {/* Reset Success View */}
+        {currentView === 'reset-success' && (
+          <div className="bg-white rounded-xl border-3 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)] p-6">
+            <div className="text-center space-y-4">
+              <div className="flex justify-center">
+                <div className="h-16 w-16 rounded-full bg-[var(--luigi-green)] border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] flex items-center justify-center">
+                  <CheckCircle className="h-8 w-8 text-white" />
+                </div>
+              </div>
+              <h3 className="text-xl font-mario text-[var(--outline-black)]">Check your email</h3>
+              <p className="text-sm text-muted-foreground font-bold">
                 We've sent password reset instructions to your email address.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Button 
+              </p>
+              <button 
                 onClick={() => setCurrentView('login')} 
-                className="w-full"
-                variant="outline"
-                size="lg"
+                className="w-full h-11 px-4 rounded-lg border-3 border-[var(--outline-black)] bg-white hover:bg-gray-50 shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all font-mario"
               >
                 Back to Login
-              </Button>
-            </CardContent>
-          </Card>
+              </button>
+            </div>
+          </div>
         )}
 
         {/* Login/Register Tabs */}
         {(currentView === 'login' || currentView === 'register') && (
           <div className="space-y-6">
             <Tabs value={currentView} onValueChange={(value) => setCurrentView(value as AuthView)} className="w-full">
-              <TabsList className="grid w-full grid-cols-2 bg-muted/50">
-                <TabsTrigger value="login" className="font-medium">Login</TabsTrigger>
-                <TabsTrigger value="register" className="font-medium">Register</TabsTrigger>
+              <TabsList className="grid w-full grid-cols-2 bg-white border-3 border-[var(--outline-black)] p-1 gap-1">
+                <TabsTrigger 
+                  value="login" 
+                  className="font-mario data-[state=active]:bg-[var(--star-yellow)] data-[state=active]:text-[var(--outline-black)] data-[state=active]:border-2 data-[state=active]:border-[var(--outline-black)] data-[state=active]:shadow-[2px_2px_0_var(--outline-black)]"
+                >
+                  Login
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="register" 
+                  className="font-mario data-[state=active]:bg-[var(--star-yellow)] data-[state=active]:text-[var(--outline-black)] data-[state=active]:border-2 data-[state=active]:border-[var(--outline-black)] data-[state=active]:shadow-[2px_2px_0_var(--outline-black)]"
+                >
+                  Register
+                </TabsTrigger>
               </TabsList>
 
               <TabsContent value="login" className="space-y-4 mt-6">
                 <form onSubmit={handleLogin} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="login-email" className="text-foreground font-medium">Email</Label>
+                    <Label htmlFor="login-email" className="text-foreground font-bold">Email</Label>
                     <div className="relative">
                       <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                       <Input 
@@ -340,14 +341,14 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
                         name="email"
                         type="email" 
                         placeholder="you@example.com" 
-                        className="pl-10 bg-background border-border h-11" 
+                        className="pl-10 bg-white border-3 border-[var(--outline-black)] h-11 rounded-lg shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)]" 
                         required 
                         disabled={isLoading}
                       />
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="login-password" className="text-foreground font-medium">Password</Label>
+                    <Label htmlFor="login-password" className="text-foreground font-bold">Password</Label>
                     <div className="relative">
                       <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                       <Input 
@@ -355,38 +356,36 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
                         name="password"
                         type="password" 
                         placeholder="••••••••" 
-                        className="pl-10 bg-background border-border h-11" 
+                        className="pl-10 bg-white border-3 border-[var(--outline-black)] h-11 rounded-lg shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)]" 
                         required 
                         disabled={isLoading}
                       />
                     </div>
                   </div>
                   <div className="flex justify-end">
-                    <Button
+                    <button
                       type="button"
-                      variant="link"
-                      className="px-0 text-sm text-primary hover:text-primary/80"
+                      className="px-0 text-sm text-[var(--luigi-green)] hover:text-[var(--luigi-green)]/80 font-bold underline"
                       onClick={() => setCurrentView('forgot-password')}
                       disabled={isLoading}
                     >
                       Forgot your password?
-                    </Button>
+                    </button>
                   </div>
-                  <Button 
+                  <button 
                     type="submit" 
-                    className="w-full bg-foreground text-background hover:bg-foreground/90 font-medium" 
-                    size="lg"
+                    className="w-full h-11 px-4 rounded-lg border-3 border-[var(--outline-black)] bg-[var(--luigi-green)] text-white hover:bg-[var(--luigi-green)]/90 shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all font-mario disabled:opacity-50" 
                     disabled={isLoading}
                   >
                     {isLoading ? "Logging in..." : "Login"}
-                  </Button>
+                  </button>
                 </form>
               </TabsContent>
 
               <TabsContent value="register" className="space-y-4 mt-6">
                 <form onSubmit={handleRegister} className="space-y-3 sm:space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="register-handle" className="text-foreground font-medium">Username</Label>
+                    <Label htmlFor="register-handle" className="text-foreground font-bold">Username</Label>
                     <div className="relative">
                       <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                       <Input
@@ -394,7 +393,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
                         name="handle"
                         type="text"
                         placeholder="trader123"
-                        className="pl-10 bg-background border-border h-11"
+                        className="pl-10 bg-white border-3 border-[var(--outline-black)] h-11 rounded-lg shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)]"
                         required
                         minLength={3}
                         maxLength={20}
@@ -403,7 +402,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="register-email" className="text-foreground font-medium">Email</Label>
+                    <Label htmlFor="register-email" className="text-foreground font-bold">Email</Label>
                     <div className="relative">
                       <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                       <Input 
@@ -411,14 +410,14 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
                         name="email"
                         type="email" 
                         placeholder="you@example.com" 
-                        className="pl-10 bg-background border-border h-11" 
+                        className="pl-10 bg-white border-3 border-[var(--outline-black)] h-11 rounded-lg shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)]" 
                         required 
                         disabled={isLoading}
                       />
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="register-password" className="text-foreground font-medium">Password</Label>
+                    <Label htmlFor="register-password" className="text-foreground font-bold">Password</Label>
                     <div className="relative">
                       <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                       <Input
@@ -426,7 +425,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
                         name="password"
                         type="password"
                         placeholder="••••••••"
-                        className="pl-10 bg-background border-border h-11"
+                        className="pl-10 bg-white border-3 border-[var(--outline-black)] h-11 rounded-lg shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)]"
                         required
                         minLength={8}
                         disabled={isLoading}
@@ -436,7 +435,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="register-confirm-password" className="text-foreground font-medium">Confirm Password</Label>
+                    <Label htmlFor="register-confirm-password" className="text-foreground font-bold">Confirm Password</Label>
                     <div className="relative">
                       <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                       <Input
@@ -444,7 +443,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
                         name="confirmPassword"
                         type="password"
                         placeholder="••••••••"
-                        className="pl-10 bg-background border-border h-11"
+                        className="pl-10 bg-white border-3 border-[var(--outline-black)] h-11 rounded-lg shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)]"
                         required
                         disabled={isLoading}
                         value={confirmPassword}
@@ -455,19 +454,19 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
 
                   {/* Password Strength Indicator */}
                   {password && (
-                    <div className="bg-muted/30 rounded-lg p-3 sm:p-4">
+                    <div className="bg-gray-50 rounded-lg p-3 sm:p-4 border-2 border-[var(--outline-black)]">
                       <PasswordStrengthIndicator password={password} confirmPassword={confirmPassword} />
                     </div>
                   )}
 
                   {/* Wallet Connection Section */}
-                  <div className="space-y-3 py-3 sm:py-4 border-t border-border mt-2">
+                  <div className="space-y-3 py-3 sm:py-4 border-t-3 border-[var(--outline-black)] mt-2">
                     <div className="flex items-center gap-2 mb-1">
                       <Wallet className="h-4 w-4 text-muted-foreground" />
-                      <Label className="text-sm sm:text-base text-foreground font-medium">Wallet Connection (Optional)</Label>
+                      <Label className="text-sm sm:text-base text-foreground font-bold">Wallet Connection (Optional)</Label>
                     </div>
-                    <div className="bg-muted/30 rounded-lg p-3 sm:p-4">
-                      <p className="text-xs sm:text-sm text-muted-foreground mb-3">
+                    <div className="bg-gray-50 rounded-lg p-3 sm:p-4 border-2 border-[var(--outline-black)]">
+                      <p className="text-xs sm:text-sm text-muted-foreground mb-3 font-bold">
                         Connect your Solana wallet to unlock premium features and higher starting balance.
                       </p>
                       <WalletConnectButton
@@ -478,8 +477,8 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
                         className="w-full"
                       />
                       {walletConnected && (
-                        <div className="mt-2 p-2 sm:p-3 bg-green-50 rounded border border-green-200">
-                          <p className="text-xs sm:text-sm text-green-700">
+                        <div className="mt-2 p-2 sm:p-3 bg-[var(--luigi-green)]/10 rounded border-2 border-[var(--luigi-green)]">
+                          <p className="text-xs sm:text-sm text-[var(--luigi-green)] font-bold">
                             ✓ Wallet connected - You'll receive enhanced tier benefits!
                           </p>
                         </div>
@@ -487,15 +486,14 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
                     </div>
                   </div>
                   
-                  <Button
+                  <button
                     type="submit"
-                    className="w-full bg-foreground text-background hover:bg-foreground/90 font-medium mt-2"
-                    size="lg"
+                    className="w-full h-11 px-4 rounded-lg border-3 border-[var(--outline-black)] bg-[var(--luigi-green)] text-white hover:bg-[var(--luigi-green)]/90 shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all font-mario mt-2 disabled:opacity-50"
                     disabled={isLoading}
                   >
                     {isLoading ? "Creating account..." : "Create Account"}
-                  </Button>
-                  <p className="text-xs sm:text-sm text-center text-muted-foreground px-2">
+                  </button>
+                  <p className="text-xs sm:text-sm text-center text-muted-foreground px-2 font-bold">
                     By registering, you agree to our Terms of Service and Privacy Policy
                   </p>
                 </form>
