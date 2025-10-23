@@ -140,7 +140,7 @@ export function FilterPanel({
         <Button
           onClick={onToggle}
           variant="outline"
-          className="flex items-center gap-2 border-3 border-pipe-900 shadow-[3px_3px_0_rgba(0,0,0,0.3)] hover:shadow-[4px_4px_0_rgba(0,0,0,0.3)] hover:-translate-y-[1px] transition-all duration-200 bg-white text-pipe-900 font-bold"
+          className="flex items-center gap-2 border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-[1px] transition-all duration-200 bg-white text-[var(--outline-black)] font-bold"
         >
           <Settings className="h-4 w-4" />
           🎛️ Filters
@@ -150,42 +150,42 @@ export function FilterPanel({
 
       {/* Collapsible Filter Panel */}
       {isOpen && (
-        <div className="bg-white border-4 border-pipe-900 rounded-[16px] shadow-[6px_6px_0_rgba(0,0,0,0.3)] overflow-hidden">
+        <div className="bg-white border-4 border-[var(--outline-black)] rounded-[16px] shadow-[6px_6px_0_var(--outline-black)] overflow-hidden">
           {/* Tabbed Interface */}
           <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as any)} className="w-full">
-            <TabsList className="grid w-full grid-cols-3 border-b-4 border-pipe-900 rounded-none bg-pipe-100 p-0">
+            <TabsList className="grid w-full grid-cols-3 border-b-4 border-[var(--outline-black)] rounded-none bg-white p-0">
               <TabsTrigger
                 value="audit"
-                className="data-[state=active]:bg-mario-500 data-[state=active]:text-white data-[state=active]:shadow-[2px_2px_0_rgba(0,0,0,0.3)] rounded-none border-r-2 border-pipe-900 font-bold transition-all text-pipe-700 flex items-center gap-2"
+                className="data-[state=active]:bg-[var(--mario-red)] data-[state=active]:text-white data-[state=active]:shadow-[2px_2px_0_var(--outline-black)] rounded-none border-r-2 border-[var(--outline-black)] font-bold transition-all text-[var(--outline-black)] flex items-center gap-2"
               >
                 <Shield className="h-4 w-4" />
                 Audit
                 {filterCounts.audit > 0 && (
-                  <span className="bg-mario-500 text-white text-xs px-1.5 py-0.5 rounded-full border-2 border-pipe-900 font-bold">
+                  <span className="bg-[var(--mario-red)] text-white text-xs px-1.5 py-0.5 rounded-full border-2 border-[var(--outline-black)] font-bold">
                     {filterCounts.audit}
                   </span>
                 )}
               </TabsTrigger>
               <TabsTrigger
                 value="metrics"
-                className="data-[state=active]:bg-star-500 data-[state=active]:text-pipe-900 data-[state=active]:shadow-[2px_2px_0_rgba(0,0,0,0.3)] rounded-none border-r-2 border-pipe-900 font-bold transition-all text-pipe-700 flex items-center gap-2"
+                className="data-[state=active]:bg-[var(--star-yellow)] data-[state=active]:text-[var(--outline-black)] data-[state=active]:shadow-[2px_2px_0_var(--outline-black)] rounded-none border-r-2 border-[var(--outline-black)] font-bold transition-all text-[var(--outline-black)] flex items-center gap-2"
               >
                 <DollarSign className="h-4 w-4" />
                 $ Metrics
                 {filterCounts.metrics > 0 && (
-                  <span className="bg-star-500 text-pipe-900 text-xs px-1.5 py-0.5 rounded-full border-2 border-pipe-900 font-bold">
+                  <span className="bg-[var(--star-yellow)] text-[var(--outline-black)] text-xs px-1.5 py-0.5 rounded-full border-2 border-[var(--outline-black)] font-bold">
                     {filterCounts.metrics}
                   </span>
                 )}
               </TabsTrigger>
               <TabsTrigger
                 value="socials"
-                className="data-[state=active]:bg-luigi-500 data-[state=active]:text-white data-[state=active]:shadow-[2px_2px_0_rgba(0,0,0,0.3)] rounded-none font-bold transition-all text-pipe-700 flex items-center gap-2"
+                className="data-[state=active]:bg-[var(--luigi-green)] data-[state=active]:text-white data-[state=active]:shadow-[2px_2px_0_var(--outline-black)] rounded-none font-bold transition-all text-[var(--outline-black)] flex items-center gap-2"
               >
                 <Users className="h-4 w-4" />
                 Socials
                 {filterCounts.socials > 0 && (
-                  <span className="bg-luigi-500 text-white text-xs px-1.5 py-0.5 rounded-full border-2 border-pipe-900 font-bold">
+                  <span className="bg-[var(--luigi-green)] text-white text-xs px-1.5 py-0.5 rounded-full border-2 border-[var(--outline-black)] font-bold">
                     {filterCounts.socials}
                   </span>
                 )}
@@ -202,14 +202,14 @@ export function FilterPanel({
                     checked={filters.dexPaid || false}
                     onCheckedChange={(checked) => handleFilterChange('dexPaid', checked)}
                   />
-                  <Label htmlFor="dexPaid" className="text-sm font-bold text-pipe-900">
+                  <Label htmlFor="dexPaid" className="text-sm font-bold text-[var(--outline-black)]">
                     DEX Paid (Freeze & Mint Revoked)
                   </Label>
                 </div>
 
                 {/* Age Range */}
                 <div className="space-y-2">
-                  <Label className="text-sm font-bold text-pipe-900 flex items-center gap-2">
+                  <Label className="text-sm font-bold text-[var(--outline-black)] flex items-center gap-2">
                     <Clock className="h-4 w-4" />
                     Age (minutes)
                   </Label>
@@ -220,7 +220,7 @@ export function FilterPanel({
                         type="number"
                         value={filters.minAge || ''}
                         onChange={(e) => handleFilterChange('minAge', e.target.value)}
-                        className="border-3 border-pipe-300 focus:border-mario-500 rounded-[8px] font-mono"
+                        className="border-3 border-[var(--outline-black)] focus:border-[var(--mario-red)] rounded-[8px] font-mono"
                       />
                     </div>
                     <div className="flex-1">
@@ -229,7 +229,7 @@ export function FilterPanel({
                         type="number"
                         value={filters.maxAge || ''}
                         onChange={(e) => handleFilterChange('maxAge', e.target.value)}
-                        className="border-3 border-pipe-300 focus:border-mario-500 rounded-[8px] font-mono"
+                        className="border-3 border-[var(--outline-black)] focus:border-[var(--mario-red)] rounded-[8px] font-mono"
                       />
                     </div>
                   </div>
@@ -237,7 +237,7 @@ export function FilterPanel({
 
                 {/* Top 10 Holders */}
                 <div className="space-y-2">
-                  <Label className="text-sm font-bold text-pipe-900">Top 10 Holders %</Label>
+                  <Label className="text-sm font-bold text-[var(--outline-black)]">Top 10 Holders %</Label>
                   <div className="flex gap-2">
                     <div className="flex-1">
                       <Input
@@ -245,7 +245,7 @@ export function FilterPanel({
                         type="number"
                         value={filters.maxTop10Holders || ''}
                         onChange={(e) => handleFilterChange('maxTop10Holders', e.target.value)}
-                        className="border-3 border-pipe-300 focus:border-mario-500 rounded-[8px] font-mono"
+                        className="border-3 border-[var(--outline-black)] focus:border-[var(--mario-red)] rounded-[8px] font-mono"
                       />
                     </div>
                     <div className="flex-1">
@@ -253,7 +253,7 @@ export function FilterPanel({
                         placeholder="Max"
                         type="number"
                         disabled
-                        className="border-3 border-pipe-200 rounded-[8px] font-mono bg-pipe-100"
+                        className="border-3 border-[var(--outline-black)] rounded-[8px] font-mono bg-[var(--background)] opacity-50"
                       />
                     </div>
                   </div>
@@ -261,7 +261,7 @@ export function FilterPanel({
 
                 {/* Dev Holding */}
                 <div className="space-y-2">
-                  <Label className="text-sm font-bold text-pipe-900">Dev Holding %</Label>
+                  <Label className="text-sm font-bold text-[var(--outline-black)]">Dev Holding %</Label>
                   <div className="flex gap-2">
                     <div className="flex-1">
                       <Input
@@ -269,7 +269,7 @@ export function FilterPanel({
                         type="number"
                         value={filters.maxDevHolding || ''}
                         onChange={(e) => handleFilterChange('maxDevHolding', e.target.value)}
-                        className="border-3 border-pipe-300 focus:border-mario-500 rounded-[8px] font-mono"
+                        className="border-3 border-[var(--outline-black)] focus:border-[var(--mario-red)] rounded-[8px] font-mono"
                       />
                     </div>
                     <div className="flex-1">
@@ -277,7 +277,7 @@ export function FilterPanel({
                         placeholder="Max"
                         type="number"
                         disabled
-                        className="border-3 border-pipe-200 rounded-[8px] font-mono bg-pipe-100"
+                        className="border-3 border-[var(--outline-black)] rounded-[8px] font-mono bg-[var(--background)] opacity-50"
                       />
                     </div>
                   </div>
@@ -290,7 +290,7 @@ export function FilterPanel({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Liquidity */}
                 <div className="space-y-2">
-                  <Label className="text-sm font-bold text-pipe-900 flex items-center gap-2">
+                  <Label className="text-sm font-bold text-[var(--outline-black)] flex items-center gap-2">
                     <TrendingUp className="h-4 w-4" />
                     Liquidity ($)
                   </Label>
@@ -301,7 +301,7 @@ export function FilterPanel({
                         type="number"
                         value={filters.minLiquidityUsd || ''}
                         onChange={(e) => handleFilterChange('minLiquidityUsd', e.target.value)}
-                        className="border-3 border-pipe-300 focus:border-star-500 rounded-[8px] font-mono"
+                        className="border-3 border-[var(--outline-black)] focus:border-[var(--star-yellow)] rounded-[8px] font-mono"
                       />
                     </div>
                     <div className="flex-1">
@@ -310,7 +310,7 @@ export function FilterPanel({
                         type="number"
                         value={filters.maxLiquidityUsd || ''}
                         onChange={(e) => handleFilterChange('maxLiquidityUsd', e.target.value)}
-                        className="border-3 border-pipe-300 focus:border-star-500 rounded-[8px] font-mono"
+                        className="border-3 border-[var(--outline-black)] focus:border-[var(--star-yellow)] rounded-[8px] font-mono"
                       />
                     </div>
                   </div>
@@ -318,7 +318,7 @@ export function FilterPanel({
 
                 {/* Volume 24h */}
                 <div className="space-y-2">
-                  <Label className="text-sm font-bold text-pipe-900">Volume 24h ($)</Label>
+                  <Label className="text-sm font-bold text-[var(--outline-black)]">Volume 24h ($)</Label>
                   <div className="flex gap-2">
                     <div className="flex-1">
                       <Input
@@ -326,7 +326,7 @@ export function FilterPanel({
                         type="number"
                         value={filters.minVolume24h || ''}
                         onChange={(e) => handleFilterChange('minVolume24h', e.target.value)}
-                        className="border-3 border-pipe-300 focus:border-star-500 rounded-[8px] font-mono"
+                        className="border-3 border-[var(--outline-black)] focus:border-[var(--star-yellow)] rounded-[8px] font-mono"
                       />
                     </div>
                     <div className="flex-1">
@@ -335,7 +335,7 @@ export function FilterPanel({
                         type="number"
                         value={filters.maxVolume24h || ''}
                         onChange={(e) => handleFilterChange('maxVolume24h', e.target.value)}
-                        className="border-3 border-pipe-300 focus:border-star-500 rounded-[8px] font-mono"
+                        className="border-3 border-[var(--outline-black)] focus:border-[var(--star-yellow)] rounded-[8px] font-mono"
                       />
                     </div>
                   </div>
@@ -343,7 +343,7 @@ export function FilterPanel({
 
                 {/* Market Cap */}
                 <div className="space-y-2">
-                  <Label className="text-sm font-bold text-pipe-900">Market Cap ($)</Label>
+                  <Label className="text-sm font-bold text-[var(--outline-black)]">Market Cap ($)</Label>
                   <div className="flex gap-2">
                     <div className="flex-1">
                       <Input
@@ -351,7 +351,7 @@ export function FilterPanel({
                         type="number"
                         value={filters.minMarketCap || ''}
                         onChange={(e) => handleFilterChange('minMarketCap', e.target.value)}
-                        className="border-3 border-pipe-300 focus:border-star-500 rounded-[8px] font-mono"
+                        className="border-3 border-[var(--outline-black)] focus:border-[var(--star-yellow)] rounded-[8px] font-mono"
                       />
                     </div>
                     <div className="flex-1">
@@ -360,7 +360,7 @@ export function FilterPanel({
                         type="number"
                         value={filters.maxMarketCap || ''}
                         onChange={(e) => handleFilterChange('maxMarketCap', e.target.value)}
-                        className="border-3 border-pipe-300 focus:border-star-500 rounded-[8px] font-mono"
+                        className="border-3 border-[var(--outline-black)] focus:border-[var(--star-yellow)] rounded-[8px] font-mono"
                       />
                     </div>
                   </div>
@@ -379,7 +379,7 @@ export function FilterPanel({
                       checked={filters.requireTwitter || false}
                       onCheckedChange={(checked) => handleFilterChange('requireTwitter', checked)}
                     />
-                    <Label htmlFor="requireTwitter" className="text-sm font-bold text-pipe-900 flex items-center gap-2">
+                    <Label htmlFor="requireTwitter" className="text-sm font-bold text-[var(--outline-black)] flex items-center gap-2">
                       <Twitter className="h-4 w-4" />
                       Require Twitter
                     </Label>
@@ -391,7 +391,7 @@ export function FilterPanel({
                       checked={filters.requireTelegram || false}
                       onCheckedChange={(checked) => handleFilterChange('requireTelegram', checked)}
                     />
-                    <Label htmlFor="requireTelegram" className="text-sm font-bold text-pipe-900 flex items-center gap-2">
+                    <Label htmlFor="requireTelegram" className="text-sm font-bold text-[var(--outline-black)] flex items-center gap-2">
                       <MessageSquare className="h-4 w-4" />
                       Require Telegram
                     </Label>
@@ -403,7 +403,7 @@ export function FilterPanel({
                       checked={filters.requireWebsite || false}
                       onCheckedChange={(checked) => handleFilterChange('requireWebsite', checked)}
                     />
-                    <Label htmlFor="requireWebsite" className="text-sm font-bold text-pipe-900 flex items-center gap-2">
+                    <Label htmlFor="requireWebsite" className="text-sm font-bold text-[var(--outline-black)] flex items-center gap-2">
                       <Globe className="h-4 w-4" />
                       Require Website
                     </Label>
@@ -414,13 +414,13 @@ export function FilterPanel({
           </Tabs>
 
           {/* Action Buttons */}
-          <div className="flex items-center justify-between p-4 border-t-4 border-pipe-900 bg-pipe-50">
+          <div className="flex items-center justify-between p-4 border-t-4 border-[var(--outline-black)] bg-white">
             <div className="flex gap-2">
               <Button
                 onClick={handleImport}
                 variant="outline"
                 size="sm"
-                className="border-3 border-pipe-900 shadow-[2px_2px_0_rgba(0,0,0,0.3)] hover:shadow-[3px_3px_0_rgba(0,0,0,0.3)] hover:-translate-y-[1px] transition-all duration-200 bg-white text-pipe-900 font-bold"
+                className="border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-[1px] transition-all duration-200 bg-white text-[var(--outline-black)] font-bold"
               >
                 <Upload className="h-4 w-4 mr-1" />
                 Import
@@ -429,7 +429,7 @@ export function FilterPanel({
                 onClick={handleExport}
                 variant="outline"
                 size="sm"
-                className="border-3 border-pipe-900 shadow-[2px_2px_0_rgba(0,0,0,0.3)] hover:shadow-[3px_3px_0_rgba(0,0,0,0.3)] hover:-translate-y-[1px] transition-all duration-200 bg-white text-pipe-900 font-bold"
+                className="border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-[1px] transition-all duration-200 bg-white text-[var(--outline-black)] font-bold"
               >
                 <Download className="h-4 w-4 mr-1" />
                 Export
@@ -438,7 +438,7 @@ export function FilterPanel({
                 onClick={resetFilters}
                 variant="outline"
                 size="sm"
-                className="border-3 border-pipe-900 shadow-[2px_2px_0_rgba(0,0,0,0.3)] hover:shadow-[3px_3px_0_rgba(0,0,0,0.3)] hover:-translate-y-[1px] transition-all duration-200 bg-white text-pipe-900 font-bold"
+                className="border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-[1px] transition-all duration-200 bg-white text-[var(--outline-black)] font-bold"
               >
                 Reset
               </Button>
@@ -446,7 +446,7 @@ export function FilterPanel({
 
             <Button
               onClick={onApply}
-              className="bg-mario-500 hover:bg-mario-600 text-white border-3 border-pipe-900 shadow-[3px_3px_0_rgba(0,0,0,0.3)] hover:shadow-[4px_4px_0_rgba(0,0,0,0.3)] hover:-translate-y-[1px] transition-all duration-200 font-bold"
+              className="bg-[var(--mario-red)] hover:bg-[var(--mario-red)] text-white border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-[1px] transition-all duration-200 font-bold"
             >
               Apply All
             </Button>
@@ -454,7 +454,7 @@ export function FilterPanel({
 
           {/* Import Error */}
           {importError && (
-            <div className="p-4 bg-mario-100 border-t-4 border-mario-500 text-mario-700 font-bold text-sm">
+            <div className="p-4 bg-[var(--mario-red)]/10 border-t-4 border-[var(--mario-red)] text-[var(--mario-red)] font-bold text-sm">
               {importError}
             </div>
           )}

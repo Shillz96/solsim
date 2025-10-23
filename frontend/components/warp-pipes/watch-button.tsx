@@ -69,10 +69,10 @@ export function WatchButton({
         disabled={isLoading}
         className={cn(
           sizes[size],
-          "border-3 rounded-[10px] transition-all duration-200 shadow-[2px_2px_0_rgba(0,0,0,0.2)]",
+          "border-3 rounded-[10px] transition-all duration-200 shadow-[2px_2px_0_var(--outline-black)]",
           isWatchedState
-            ? "bg-mario-red-500 border-pipe-900 text-white hover:bg-mario-red-600 hover:-translate-y-[1px] hover:shadow-[3px_3px_0_rgba(0,0,0,0.3)]"
-            : "bg-white border-pipe-400 text-pipe-700 hover:bg-sky-50 hover:-translate-y-[1px]",
+            ? "bg-[var(--mario-red)] border-[var(--outline-black)] text-white hover:bg-[var(--mario-red)] hover:-translate-y-[1px] hover:shadow-[3px_3px_0_var(--outline-black)]"
+            : "bg-white border-[var(--outline-black)] text-[var(--outline-black)] hover:bg-[var(--background)] hover:-translate-y-[1px]",
           className
         )}
         title={isWatchedState ? "Remove from watchlist" : "Add to watchlist"}
@@ -95,7 +95,7 @@ export function WatchButton({
 
       {/* Watcher Count */}
       {watcherCount > 0 && (
-        <span className="text-xs font-mono font-bold text-pipe-700 bg-sky-50 px-2 py-0.5 rounded-[6px] border-2 border-pipe-300">
+        <span className="text-xs font-mono font-bold text-[var(--outline-black)] bg-[var(--background)] px-2 py-0.5 rounded-[6px] border-2 border-[var(--outline-black)]">
           {watcherCount}
         </span>
       )}
@@ -135,10 +135,10 @@ export function CompactWatchButton({
       onClick={handleToggle}
       disabled={isLoading}
       className={cn(
-        "p-2 rounded-[10px] border-3 transition-all duration-200 shadow-[2px_2px_0_rgba(0,0,0,0.2)]",
+        "p-2 rounded-[10px] border-3 transition-all duration-200 shadow-[2px_2px_0_var(--outline-black)]",
         isWatchedState
-          ? "bg-mario-red-500 border-pipe-900 text-white hover:bg-mario-red-600 hover:-translate-y-[1px]"
-          : "bg-white border-pipe-400 text-pipe-700 hover:bg-sky-50 hover:-translate-y-[1px]",
+          ? "bg-[var(--mario-red)] border-[var(--outline-black)] text-white hover:bg-[var(--mario-red)] hover:-translate-y-[1px]"
+          : "bg-white border-[var(--outline-black)] text-[var(--outline-black)] hover:bg-[var(--background)] hover:-translate-y-[1px]",
         className
       )}
       title={isWatchedState ? "Remove from watchlist" : "Add to watchlist"}

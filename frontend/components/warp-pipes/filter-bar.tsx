@@ -38,16 +38,16 @@ export function FilterBar({
   ]
 
   return (
-    <div className={cn("flex flex-col sm:flex-row gap-3 p-4 bg-white rounded-[16px] border-4 border-pipe-900 shadow-[6px_6px_0_rgba(0,0,0,0.3)]", className)}>
+    <div className={cn("flex flex-col sm:flex-row gap-3 p-4 bg-white rounded-[16px] border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)]", className)}>
       {/* Search Input */}
       <div className="relative flex-1">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-pipe-600" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--outline-black)] opacity-70" />
         <Input
           type="text"
           placeholder="🔍 Search tokens..."
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
-          className="pl-10 border-3 border-pipe-300 focus:border-mario-red-500 rounded-[12px] font-semibold text-pipe-900 placeholder:text-pipe-500"
+          className="pl-10 border-3 border-[var(--outline-black)] focus:border-[var(--mario-red)] rounded-[12px] font-semibold text-[var(--outline-black)] placeholder:text-[var(--outline-black)] placeholder:opacity-60"
         />
       </div>
 
@@ -60,10 +60,10 @@ export function FilterBar({
             size="sm"
             onClick={() => onSortChange(option.value)}
             className={cn(
-              "border-3 rounded-[12px] font-bold transition-all duration-200 shadow-[3px_3px_0_rgba(0,0,0,0.2)]",
+              "border-3 rounded-[12px] font-bold transition-all duration-200 shadow-[3px_3px_0_var(--outline-black)]",
               sortBy === option.value
-                ? "bg-mario-red-500 border-pipe-900 text-white hover:bg-mario-red-600 hover:-translate-y-[1px] hover:shadow-[4px_4px_0_rgba(0,0,0,0.3)]"
-                : "bg-white border-pipe-400 text-pipe-700 hover:bg-sky-50 hover:-translate-y-[1px]"
+                ? "bg-[var(--mario-red)] border-[var(--outline-black)] text-white hover:bg-[var(--mario-red)] hover:-translate-y-[1px] hover:shadow-[4px_4px_0_var(--outline-black)]"
+                : "bg-white border-[var(--outline-black)] text-[var(--outline-black)] hover:bg-[var(--background)] hover:-translate-y-[1px]"
             )}
           >
             <span>{option.label}</span>

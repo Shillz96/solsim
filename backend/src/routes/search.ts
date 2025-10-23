@@ -91,7 +91,8 @@ export default async function searchRoutes(app: FastifyInstance) {
         // Ignore parse errors
       }
 
-      return {
+      // Convert BigInt fields to strings/numbers to avoid serialization errors
+      const response = {
         mint: tokenInfo.address,
         address: tokenInfo.address, // For compatibility
         symbol: tokenInfo.symbol,
@@ -104,17 +105,19 @@ export default async function searchRoutes(app: FastifyInstance) {
         websites: JSON.stringify(websitesArray),
         socials: JSON.stringify(socialsArray),
         lastPrice: tokenInfo.lastPrice,
-        lastTs: tokenInfo.lastTs,
-        volume24h: tokenInfo.volume24h,
-        priceChange24h: tokenInfo.priceChange24h,
-        marketCapUsd: tokenInfo.marketCapUsd,
-        liquidityUsd: tokenInfo.liquidityUsd,
-        holderCount: tokenInfo.holderCount,
-        firstSeenAt: tokenInfo.firstSeenAt,
+        lastTs: tokenInfo.lastTs ? tokenInfo.lastTs.toISOString() : null,
+        volume24h: typeof tokenInfo.volume24h === 'bigint' ? Number(tokenInfo.volume24h) : tokenInfo.volume24h,
+        priceChange24h: typeof tokenInfo.priceChange24h === 'bigint' ? Number(tokenInfo.priceChange24h) : tokenInfo.priceChange24h,
+        marketCapUsd: typeof tokenInfo.marketCapUsd === 'bigint' ? Number(tokenInfo.marketCapUsd) : tokenInfo.marketCapUsd,
+        liquidityUsd: typeof tokenInfo.liquidityUsd === 'bigint' ? Number(tokenInfo.liquidityUsd) : tokenInfo.liquidityUsd,
+        holderCount: typeof tokenInfo.holderCount === 'bigint' ? Number(tokenInfo.holderCount) : tokenInfo.holderCount,
+        firstSeenAt: tokenInfo.firstSeenAt ? (tokenInfo.firstSeenAt instanceof Date ? tokenInfo.firstSeenAt.toISOString() : tokenInfo.firstSeenAt) : null,
         isNew: tokenInfo.isNew,
         isTrending: tokenInfo.isTrending,
-        lastUpdated: tokenInfo.lastUpdated
+        lastUpdated: tokenInfo.lastUpdated ? (tokenInfo.lastUpdated instanceof Date ? tokenInfo.lastUpdated.toISOString() : tokenInfo.lastUpdated) : null
       };
+      
+      return response;
     } catch (error: any) {
       app.log.error(error);
       return reply.code(500).send({ error: error.message || "Failed to fetch token details" });

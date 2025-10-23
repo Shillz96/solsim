@@ -77,9 +77,9 @@ export function TokenColumn({
 
   // Header colors based on column type
   const headerColors = {
-    bonded: "bg-coin-500 text-pipe-900", // Coin Yellow
-    graduating: "bg-star-500 text-pipe-900", // Star Yellow
-    new: "bg-luigi-500 text-white", // Luigi Green
+    bonded: "bg-[var(--coin-yellow)] text-[var(--outline-black)]", // Coin Yellow
+    graduating: "bg-[var(--star-yellow)] text-[var(--outline-black)]", // Star Yellow
+    new: "bg-[var(--luigi-green)] text-white", // Luigi Green
   }
 
   // Header images based on column type
@@ -104,11 +104,11 @@ export function TokenColumn({
       </div>
 
       {/* Token Column */}
-      <div className={cn("flex flex-col h-full border-4 border-pipe-900 rounded-[16px] shadow-[6px_6px_0_rgba(0,0,0,0.3)] overflow-hidden")}>
+      <div className={cn("flex flex-col h-full border-4 border-[var(--outline-black)] rounded-[16px] shadow-[6px_6px_0_var(--outline-black)] overflow-hidden")}>
         {/* Column Header */}
         <div
           className={cn(
-            "p-4 flex-shrink-0 text-center border-b-4 border-pipe-900",
+            "p-4 flex-shrink-0 text-center border-b-4 border-[var(--outline-black)]",
             "flex items-center justify-center",
             headerColors[headerColor]
           )}
@@ -124,7 +124,7 @@ export function TokenColumn({
             />
             {/* Add black bar for NEW PAIRS to match other sections */}
             {headerColor === "new" && (
-              <div className="absolute bottom-0 left-0 right-0 h-1 bg-pipe-900 rounded-sm"></div>
+              <div className="absolute bottom-0 left-0 right-0 h-1 bg-[var(--outline-black)] rounded-sm"></div>
             )}
           </div>
         </div>
@@ -132,7 +132,7 @@ export function TokenColumn({
         {/* Column Body - Scrollable List */}
         <div
           className={cn(
-            "flex-1 overflow-y-auto bg-sky-50 p-4 space-y-4"
+            "flex-1 overflow-y-auto bg-white p-4 space-y-4"
           )}
         >
         {/* Loading State */}
@@ -146,10 +146,10 @@ export function TokenColumn({
 
         {/* Empty State */}
         {!isLoading && tokens.length === 0 && (
-          <div className="flex flex-col items-center justify-center h-full text-center p-6 bg-white rounded-[16px] border-3 border-pipe-300">
+          <div className="flex flex-col items-center justify-center h-full text-center p-6 bg-white rounded-[16px] border-3 border-[var(--outline-black)]">
             <div className="text-6xl mb-4">🍄</div>
-            <p className="text-pipe-900 font-bold text-[16px]">No tokens in this column</p>
-            <p className="text-[14px] text-pipe-600 mt-2">Check back soon for new discoveries!</p>
+            <p className="text-[var(--outline-black)] font-bold text-[16px]">No tokens in this column</p>
+            <p className="text-[14px] text-[var(--outline-black)] opacity-70 mt-2">Check back soon for new discoveries!</p>
           </div>
         )}
 

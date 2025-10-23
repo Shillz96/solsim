@@ -85,10 +85,10 @@ const stateColors = (state: TokenRow["state"]) => {
 
 const securityBadge = (freezeRevoked?: boolean | null, mintRenounced?: boolean | null) => {
   if (freezeRevoked && mintRenounced)
-    return { label: "SAFE", cls: "bg-green-500/10 text-green-600 border-green-500" };
+    return { label: "SAFE", cls: "bg-[var(--luigi-green)]/10 text-[var(--luigi-green)] border-[var(--luigi-green)]" };
   if (freezeRevoked || mintRenounced)
-    return { label: "WARN", cls: "bg-yellow-500/10 text-yellow-600 border-yellow-500" };
-  return { label: "RISK", cls: "bg-red-500/10 text-red-600 border-red-500" };
+    return { label: "WARN", cls: "bg-[var(--star-yellow)]/10 text-[var(--star-yellow)] border-[var(--star-yellow)]" };
+  return { label: "RISK", cls: "bg-[var(--mario-red)]/10 text-[var(--mario-red)] border-[var(--mario-red)]" };
 };
 
 export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
@@ -115,11 +115,11 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
         className={cn("w-full", className)}
       >
         {/* Horizontal Layout Token Card - Axiom Style */}
-        <div className="relative rounded-[16px] overflow-hidden bg-white border-4 border-pipe-900 shadow-[6px_6px_0_rgba(0,0,0,0.3)] hover:shadow-[8px_8px_0_rgba(0,0,0,0.3)] hover:-translate-y-[2px] transition-all duration-200 cursor-pointer">
+        <div className="relative rounded-[16px] overflow-hidden bg-white border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] hover:shadow-[8px_8px_0_var(--outline-black)] hover:-translate-y-[2px] transition-all duration-200 cursor-pointer">
           <div className="flex items-center gap-4 p-4">
-            
+
             {/* LEFT: Token Logo */}
-            <div className="relative shrink-0 w-20 h-20 rounded-[14px] overflow-hidden border-4 border-pipe-900 shadow-[3px_3px_0_rgba(0,0,0,0.3)]">
+            <div className="relative shrink-0 w-20 h-20 rounded-[14px] overflow-hidden border-4 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)]">
               {img && !imageError ? (
                 <img
                   src={img}
@@ -129,7 +129,7 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
                   loading="lazy"
                 />
               ) : (
-                <div className="h-full w-full grid place-items-center bg-star-yellow-500 text-pipe-900 text-4xl font-bold">🪙</div>
+                <div className="h-full w-full grid place-items-center bg-[var(--star-yellow)] text-[var(--outline-black)] text-4xl font-bold">🪙</div>
               )}
             </div>
 
@@ -137,20 +137,20 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
             <div className="flex-1 min-w-0">
               {/* Top Row: Symbol, Name, Age */}
               <div className="flex items-center gap-2 mb-2">
-                <h3 className="font-bold text-[20px] text-pipe-900">
+                <h3 className="font-bold text-[20px] text-[var(--outline-black)]">
                   {data.symbol}
                 </h3>
-                <span className="text-[14px] text-pipe-600 truncate max-w-[150px]" title={data.name || undefined}>
+                <span className="text-[14px] text-[var(--outline-black)] opacity-70 truncate max-w-[150px]" title={data.name || undefined}>
                   {data.name}
                 </span>
-                <span className="text-[12px] text-pipe-500 ml-auto">
+                <span className="text-[12px] text-[var(--outline-black)] opacity-60 ml-auto">
                   {age}
                 </span>
               </div>
-              
+
               {/* Description (if available, truncated) */}
               {data.description && (
-                <div className="text-[11px] text-pipe-500 mb-1 truncate max-w-[300px]" title={data.description}>
+                <div className="text-[11px] text-[var(--outline-black)] opacity-60 mb-1 truncate max-w-[300px]" title={data.description}>
                   {data.description}
                 </div>
               )}
@@ -161,16 +161,16 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
                 {data.status && (
                   <div className={cn(
                     "px-2 py-0.5 rounded-[6px] border-2 text-[11px] font-bold uppercase",
-                    data.status === 'LAUNCHING' && "bg-sky-100 text-sky-700 border-sky-500",
-                    data.status === 'ACTIVE' && "bg-luigi-green-100 text-luigi-green-700 border-luigi-green-500",
-                    data.status === 'ABOUT_TO_BOND' && "bg-star-yellow-100 text-star-yellow-700 border-star-yellow-500",
-                    data.status === 'BONDED' && "bg-coin-yellow-100 text-coin-yellow-700 border-coin-yellow-500",
-                    data.status === 'DEAD' && "bg-mario-red-100 text-mario-red-700 border-mario-red-500"
+                    data.status === 'LAUNCHING' && "bg-[var(--sky-blue)]/20 text-[var(--sky-blue)] border-[var(--sky-blue)]",
+                    data.status === 'ACTIVE' && "bg-[var(--luigi-green)]/20 text-[var(--luigi-green)] border-[var(--luigi-green)]",
+                    data.status === 'ABOUT_TO_BOND' && "bg-[var(--star-yellow)]/20 text-[var(--star-yellow)] border-[var(--star-yellow)]",
+                    data.status === 'BONDED' && "bg-[var(--coin-yellow)]/20 text-[var(--coin-yellow)] border-[var(--coin-yellow)]",
+                    data.status === 'DEAD' && "bg-[var(--mario-red)]/20 text-[var(--mario-red)] border-[var(--mario-red)]"
                   )}>
                     {data.status === 'ABOUT_TO_BOND' ? '🔥 ABOUT TO BOND' : data.status}
                   </div>
                 )}
-                
+
                 {/* Security Badge */}
                 <div className={cn(
                   "px-2 py-0.5 rounded-[6px] border-2 text-[11px] font-bold uppercase",
@@ -182,8 +182,8 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
                 {/* Bonding Progress (if available) */}
                 {data.bondingCurveProgress != null && (
                   <div className="flex items-center gap-1 text-[12px]">
-                    <span className="text-pipe-600">⚡</span>
-                    <span className="font-mono font-bold text-pipe-900">
+                    <span className="text-[var(--outline-black)] opacity-70">⚡</span>
+                    <span className="font-mono font-bold text-[var(--outline-black)]">
                       {data.bondingCurveProgress.toFixed(0)}%
                     </span>
                   </div>
@@ -191,7 +191,7 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
 
                 {/* Holder Count */}
                 {data.holderCount != null && (
-                  <div className="flex items-center gap-1 text-[12px] text-pipe-600">
+                  <div className="flex items-center gap-1 text-[12px] text-[var(--outline-black)] opacity-70">
                     <span>👥</span>
                     <span className="font-mono font-bold">{data.holderCount}</span>
                   </div>
@@ -199,7 +199,7 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
 
                 {/* Transaction Count */}
                 {data.txCount24h != null && (
-                  <div className="flex items-center gap-1 text-[12px] text-pipe-600">
+                  <div className="flex items-center gap-1 text-[12px] text-[var(--outline-black)] opacity-70">
                     <span>📝</span>
                     <span className="font-mono font-bold">{data.txCount24h}</span>
                   </div>
@@ -218,14 +218,14 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
               {/* SOL to Graduate Progress Bar - Only for ABOUT_TO_BOND */}
               {data.status === 'ABOUT_TO_BOND' && data.bondingCurveProgress != null && data.solToGraduate != null && (
                 <div className="mt-2 relative">
-                  <div className="bg-pipe-200 border-3 border-pipe-900 rounded-full h-5 overflow-hidden relative shadow-[2px_2px_0_rgba(0,0,0,0.2)]">
-                    <div 
-                      className="bg-gradient-to-r from-star-yellow-500 to-star-yellow-400 h-full flex items-center justify-center border-r-3 border-pipe-900 transition-all duration-500 relative"
+                  <div className="bg-white border-3 border-[var(--outline-black)] rounded-full h-5 overflow-hidden relative shadow-[2px_2px_0_var(--outline-black)]">
+                    <div
+                      className="bg-[var(--star-yellow)] h-full flex items-center justify-center border-r-3 border-[var(--outline-black)] transition-all duration-500 relative"
                       style={{ width: `${Math.min(data.bondingCurveProgress, 100)}%` }}
                     >
                       {/* Glow effect */}
-                      <div className="absolute inset-0 bg-star-yellow-300 opacity-50 animate-pulse" />
-                      <span className="text-[10px] font-bold text-pipe-900 z-10 relative drop-shadow-sm">
+                      <div className="absolute inset-0 bg-[var(--star-yellow)] opacity-50 animate-pulse" />
+                      <span className="text-[10px] font-bold text-[var(--outline-black)] z-10 relative drop-shadow-sm">
                         🎯 {data.solToGraduate.toFixed(1)} SOL to bond
                       </span>
                     </div>
@@ -369,7 +369,7 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
 
                 {/* Creator Wallet */}
                 {data.creatorWallet && (
-                  <div className="text-[10px] text-pipe-400 font-mono ml-auto" title={data.creatorWallet}>
+                  <div className="text-[10px] text-[var(--outline-black)] opacity-50 font-mono ml-auto" title={data.creatorWallet}>
                     👨‍💻 {shorten(data.creatorWallet, 3, 3)}
                   </div>
                 )}
@@ -380,20 +380,20 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
             <div className="text-right shrink-0">
               {/* Market Cap */}
               <div className="mb-1">
-                <div className="text-[11px] text-pipe-500 uppercase">MC</div>
-                <div className="text-[18px] font-bold text-pipe-900 font-mono">
+                <div className="text-[11px] text-[var(--outline-black)] opacity-60 uppercase">MC</div>
+                <div className="text-[18px] font-bold text-[var(--outline-black)] font-mono">
                   {fmtCurrency(data.marketCapUsd)}
                 </div>
               </div>
 
               {/* Volume - USD and SOL */}
               <div className="mb-2">
-                <div className="text-[11px] text-pipe-500 uppercase">Vol 24h</div>
-                <div className="text-[14px] font-bold text-pipe-700 font-mono">
+                <div className="text-[11px] text-[var(--outline-black)] opacity-60 uppercase">Vol 24h</div>
+                <div className="text-[14px] font-bold text-[var(--outline-black)] opacity-80 font-mono">
                   {fmtCurrency(data.volume24h)}
                 </div>
                 {data.volume24hSol != null && data.volume24hSol > 0 && (
-                  <div className="text-[10px] text-pipe-500 font-mono">
+                  <div className="text-[10px] text-[var(--outline-black)] opacity-60 font-mono">
                     {data.volume24hSol.toFixed(2)} SOL
                   </div>
                 )}
@@ -402,8 +402,8 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
               {/* 24h Change */}
               {priceChg != null && (
                 <div className={cn(
-                  "inline-flex items-center gap-1 px-2 py-1 rounded-[8px] border-2 border-pipe-900",
-                  priceChg >= 0 ? "bg-luigi-green-500" : "bg-mario-red-500"
+                  "inline-flex items-center gap-1 px-2 py-1 rounded-[8px] border-2 border-[var(--outline-black)]",
+                  priceChg >= 0 ? "bg-[var(--luigi-green)]" : "bg-[var(--mario-red)]"
                 )}>
                   <span className="text-white font-bold text-[13px] font-mono">
                     {priceChg >= 0 ? "+" : ""}{priceChg.toFixed(1)}%
@@ -425,28 +425,28 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
 export function TokenCardSkeleton() {
   return (
     <div className="w-full">
-      <div className="rounded-[16px] overflow-hidden bg-white border-4 border-pipe-900 shadow-[6px_6px_0_rgba(0,0,0,0.3)] animate-pulse">
+      <div className="rounded-[16px] overflow-hidden bg-white border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] animate-pulse">
         <div className="flex items-center gap-4 p-4">
           {/* Logo skeleton */}
-          <div className="w-20 h-20 bg-pipe-200 rounded-[14px] border-4 border-pipe-900" />
-          
+          <div className="w-20 h-20 bg-[var(--background)] rounded-[14px] border-4 border-[var(--outline-black)]" />
+
           {/* Middle content skeleton */}
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-2">
-              <div className="h-5 bg-pipe-200 rounded w-20" />
-              <div className="h-4 bg-pipe-100 rounded w-32" />
+              <div className="h-5 bg-[var(--background)] rounded w-20" />
+              <div className="h-4 bg-[var(--background)] opacity-60 rounded w-32" />
             </div>
             <div className="flex items-center gap-3">
-              <div className="h-5 w-12 bg-pipe-200 rounded-[6px]" />
-              <div className="h-4 w-16 bg-pipe-100 rounded" />
+              <div className="h-5 w-12 bg-[var(--background)] rounded-[6px]" />
+              <div className="h-4 w-16 bg-[var(--background)] opacity-60 rounded" />
             </div>
           </div>
 
           {/* Right content skeleton */}
           <div className="text-right shrink-0">
-            <div className="h-4 bg-pipe-100 rounded w-16 mb-1 ml-auto" />
-            <div className="h-5 bg-pipe-200 rounded w-20 mb-2 ml-auto" />
-            <div className="h-7 w-16 bg-pipe-200 rounded-[8px] border-2 border-pipe-900 ml-auto" />
+            <div className="h-4 bg-[var(--background)] opacity-60 rounded w-16 mb-1 ml-auto" />
+            <div className="h-5 bg-[var(--background)] rounded w-20 mb-2 ml-auto" />
+            <div className="h-7 w-16 bg-[var(--background)] rounded-[8px] border-2 border-[var(--outline-black)] ml-auto" />
           </div>
         </div>
       </div>

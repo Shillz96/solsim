@@ -73,19 +73,19 @@ export function WarpPipesHub() {
   }, [data])
 
   return (
-    <div className="w-full min-h-screen bg-gradient-to-b from-sky-50 via-white to-sky-100">
+    <div className="w-full min-h-screen bg-[var(--background)]">
       {/* Error State */}
       {error && (
         <div className="px-4 pt-6 mb-6">
-          <Alert variant="destructive" className="border-4 border-mario-500 shadow-[6px_6px_0_rgba(0,0,0,0.3)] rounded-[16px] bg-white">
+          <Alert variant="destructive" className="border-4 border-[var(--mario-red)] shadow-[6px_6px_0_var(--outline-black)] rounded-[16px] bg-white">
             <AlertCircle className="h-5 w-5" />
             <AlertDescription className="flex items-center justify-between">
-              <span className="text-pipe-900 font-bold">Failed to load tokens. Please try again.</span>
+              <span className="text-[var(--outline-black)] font-bold">Failed to load tokens. Please try again.</span>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => refetch()}
-                className="ml-4 border-3 border-pipe-900 bg-star-500 text-pipe-900 shadow-[4px_4px_0_rgba(0,0,0,0.3)] hover:shadow-[6px_6px_0_rgba(0,0,0,0.3)] hover:-translate-y-[2px] rounded-[12px] font-bold transition-all"
+                className="ml-4 border-3 border-[var(--outline-black)] bg-[var(--star-yellow)] text-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)] hover:shadow-[6px_6px_0_var(--outline-black)] hover:-translate-y-[2px] rounded-[12px] font-bold transition-all"
               >
                 <RefreshCw className="h-4 w-4 mr-2" />
                 Retry
@@ -126,22 +126,22 @@ export function WarpPipesHub() {
       {/* Mobile: Tabs Layout */}
       <div className="lg:hidden px-4 py-6">
         <Tabs defaultValue="new" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 mb-4 border-4 border-pipe-900 shadow-[4px_4px_0_rgba(0,0,0,0.3)] rounded-[14px] bg-white p-1">
+          <TabsList className="grid w-full grid-cols-3 mb-4 border-4 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)] rounded-[14px] bg-white p-1">
             <TabsTrigger
               value="new"
-              className="data-[state=active]:bg-luigi-500 data-[state=active]:text-white data-[state=active]:shadow-[2px_2px_0_rgba(0,0,0,0.3)] rounded-[10px] font-bold transition-all text-pipe-700"
+              className="data-[state=active]:bg-[var(--luigi-green)] data-[state=active]:text-white data-[state=active]:shadow-[2px_2px_0_var(--outline-black)] rounded-[10px] font-bold transition-all text-[var(--outline-black)]"
             >
               🆕 New ({newTokens.length})
             </TabsTrigger>
             <TabsTrigger
               value="graduating"
-              className="data-[state=active]:bg-star-500 data-[state=active]:text-pipe-900 data-[state=active]:shadow-[2px_2px_0_rgba(0,0,0,0.3)] rounded-[10px] font-bold transition-all text-pipe-700"
+              className="data-[state=active]:bg-[var(--star-yellow)] data-[state=active]:text-[var(--outline-black)] data-[state=active]:shadow-[2px_2px_0_var(--outline-black)] rounded-[10px] font-bold transition-all text-[var(--outline-black)]"
             >
               ⭐ Graduate ({graduating.length})
             </TabsTrigger>
             <TabsTrigger
               value="bonded"
-              className="data-[state=active]:bg-coin-500 data-[state=active]:text-pipe-900 data-[state=active]:shadow-[2px_2px_0_rgba(0,0,0,0.3)] rounded-[10px] font-bold transition-all text-pipe-700"
+              className="data-[state=active]:bg-[var(--coin-yellow)] data-[state=active]:text-[var(--outline-black)] data-[state=active]:shadow-[2px_2px_0_var(--outline-black)] rounded-[10px] font-bold transition-all text-[var(--outline-black)]"
             >
               🪙 Bonded ({bonded.length})
             </TabsTrigger>
@@ -185,10 +185,10 @@ export function WarpPipesHub() {
       {/* Loading Overlay */}
       {isLoading && (
         <div className="fixed inset-0 bg-white/80 backdrop-blur-sm flex items-center justify-center z-50">
-          <div className="bg-white border-4 border-pipe-900 shadow-[8px_8px_0_rgba(0,0,0,0.3)] rounded-[16px] p-8">
-            <Loader2 className="h-12 w-12 animate-spin text-mario-500 mx-auto mb-4" />
-            <p className="text-center font-bold text-pipe-900 text-[18px]">Loading Warp Pipes...</p>
-            <p className="text-center text-pipe-600 text-sm mt-2">🍄 Discovering tokens...</p>
+          <div className="bg-white border-4 border-[var(--outline-black)] shadow-[8px_8px_0_var(--outline-black)] rounded-[16px] p-8">
+            <Loader2 className="h-12 w-12 animate-spin text-[var(--mario-red)] mx-auto mb-4" />
+            <p className="text-center font-bold text-[var(--outline-black)] text-[18px]">Loading Warp Pipes...</p>
+            <p className="text-center text-[var(--outline-black)] opacity-70 text-sm mt-2">🍄 Discovering tokens...</p>
           </div>
         </div>
       )}
