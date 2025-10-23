@@ -455,20 +455,20 @@ export function NavBar() {
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <button
-                          className="flex items-center gap-3 px-3 py-2 rounded-lg bg-white border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all cursor-pointer group"
+                          className="flex items-center gap-3 px-4 py-1.5 rounded-lg bg-[var(--star-yellow)] border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all cursor-pointer group min-w-[200px]"
                         >
-                          {/* User Avatar */}
-                          <Avatar className="h-10 w-10 rounded-lg border-2 border-[var(--outline-black)] bg-[var(--mario-red)] flex-shrink-0">
-                            <AvatarImage src={avatarUrl} alt={displayName} className="rounded-lg object-cover" />
-                            <AvatarFallback className="bg-[var(--mario-red)] text-white text-sm font-bold rounded-lg">
+                          {/* User Avatar - No Border */}
+                          <Avatar className="h-10 w-10 rounded-full bg-[var(--mario-red)] flex-shrink-0 border-0">
+                            <AvatarImage src={avatarUrl} alt={displayName} className="rounded-full object-cover" />
+                            <AvatarFallback className="bg-[var(--mario-red)] text-white text-sm font-bold rounded-full border-0">
                               {displayName?.[0]?.toUpperCase() || 'U'}
                             </AvatarFallback>
                           </Avatar>
 
                           {/* Level & User Info */}
-                          <div className="flex flex-col items-start justify-center min-w-0">
-                            <div className="flex items-center gap-2">
-                              <span className="text-sm font-mario text-[var(--star-yellow)] drop-shadow-sm leading-none">
+                          <div className="flex flex-col items-start justify-center min-w-0 flex-1">
+                            <div className="flex items-center gap-2 w-full">
+                              <span className="text-sm font-mario text-[var(--mario-red)] leading-none">
                                 LVL {(() => {
                                   const xp = parseFloat(user.rewardPoints?.toString() || '0');
                                   if (xp >= 150000) return 25;
@@ -485,12 +485,12 @@ export function NavBar() {
                                   return 1;
                                 })()}
                               </span>
-                              <ChevronDown className="h-3 w-3 text-pipe-600 group-hover:text-pipe-900 transition-colors flex-shrink-0" />
+                              <ChevronDown className="h-3 w-3 text-[var(--mario-red)] group-hover:text-[var(--mario-red)]/80 transition-colors flex-shrink-0 ml-auto" />
                             </div>
-                            <span className="text-xs font-bold text-pipe-900 truncate max-w-[120px] leading-tight">
+                            <span className="text-xs font-bold text-[var(--mario-red)] truncate max-w-[140px] leading-tight">
                               {displayName || 'User'}
                             </span>
-                            <span className="text-[10px] text-pipe-700 font-semibold leading-tight">
+                            <span className="text-[10px] text-[var(--mario-red)]/70 font-semibold leading-tight">
                               {parseFloat(user.rewardPoints?.toString() || '0').toLocaleString()} XP
                             </span>
                           </div>
