@@ -24,53 +24,58 @@ export type HealthLevel = 'green' | 'yellow' | 'red';
  * Main token data structure for Warp Pipes Hub
  */
 export interface TokenRow {
+  // 1) BASIC TOKEN INFO
   mint: string;
   symbol: string;
   name: string;
-  logoURI?: string;
-  description?: string;
-  imageUrl?: string;
+  logoURI?: string | null;
+  description?: string | null;
+  imageUrl?: string | null;
+
+  // 2) SOCIAL LINKS
+  twitter?: string | null;
+  telegram?: string | null;
+  website?: string | null;
+
+  // 3) TOKEN STATE
   state: TokenState;
+  previousState?: string | null;
+  stateChangedAt?: string | null;
+  firstSeenAt?: string | null;
 
-  // Social links
-  twitter?: string;
-  telegram?: string;
-  website?: string;
+  // 4) SECURITY METRICS
+  freezeRevoked?: boolean | null;
+  mintRenounced?: boolean | null;
+  creatorVerified?: boolean | null;
 
-  // Health capsule metrics
-  liqUsd?: number;
-  poolAgeMin?: number;
-  priceImpactPctAt1pct?: number;
-  freezeRevoked: boolean;
-  mintRenounced: boolean;
-  creatorVerified?: boolean;
+  // 5) LIQUIDITY & TRADING
+  liqUsd?: number | null;
+  priceImpactPctAt1pct?: number | null;
+  poolAgeMin?: number | null;
 
-  // Market data
-  marketCapUsd?: number;
-  volume24h?: number;
-  volumeChange24h?: number;
-  priceUsd?: number;
-  priceChange24h?: number;
-  txCount24h?: number;
+  // 6) MARKET DATA
+  marketCapUsd?: number | null;
+  volume24h?: number | null;
+  volumeChange24h?: number | null;
+  priceUsd?: number | null;
+  priceChange24h?: number | null;
+  txCount24h?: number | null;
 
-  // Bonding curve data (for bonded/graduating)
-  bondingCurveProgress?: number; // 0-100%
-  bondingCurveKey?: string;
+  // 7) BONDING CURVE
+  bondingCurveProgress?: number | null;
+  bondingCurveKey?: string | null;
+  vSolInBondingCurve?: number | null;
 
-  // Pool data (for new tokens)
-  poolAddress?: string;
-  poolType?: PoolType;
-  poolCreatedAt?: string; // ISO timestamp
+  // 8) POOL DATA
+  poolAddress?: string | null;
+  poolType?: PoolType | null;
+  poolCreatedAt?: string | null;
 
-  // Trending metrics
-  hotScore: number;
-  watcherCount: number;
-  isWatched?: boolean; // Computed per user on frontend
-
-  // Timestamps
-  firstSeenAt: string; // ISO timestamp
-  lastUpdatedAt: string; // ISO timestamp
-  stateChangedAt: string; // ISO timestamp
+  // 9) COMMUNITY METRICS
+  hotScore?: number | null;
+  watcherCount?: number | null;
+  isWatched?: boolean | null;
+  lastUpdatedAt?: string | null;
 }
 
 /**

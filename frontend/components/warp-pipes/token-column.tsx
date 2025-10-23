@@ -52,17 +52,14 @@ export function TokenColumn({
           headerColors[headerColor]
         )}
       >
-        <div className="flex items-center justify-center gap-2 w-full">
-          <Image
-            src={headerImages[headerColor]}
-            alt={title}
-            width={400}
-            height={80}
-            className="h-auto max-h-16 w-auto max-w-full object-contain"
-            priority
-          />
-          <span className="text-sm font-mono ml-2">({tokens.length})</span>
-        </div>
+        <Image
+          src={headerImages[headerColor]}
+          alt={title}
+          width={400}
+          height={80}
+          className="h-16 w-auto object-contain"
+          priority
+        />
       </div>
 
       {/* Column Body - Scrollable */}
