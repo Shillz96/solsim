@@ -8,7 +8,7 @@ import Image from "next/image"
 const steps = [
   {
     icon: UserPlus,
-    iconSrc: "/icons/mario/user.png",
+    iconSrc: "/icons/mario/checkered-flag.png",
     title: "Sign up & start",
     description: "Create your account and get 10 SOL instantly (100 SOL for $UP holders). No wallet needed!",
   },
