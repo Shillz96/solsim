@@ -21,6 +21,7 @@ import { pumpPortalStreamService, NewTokenEvent, MigrationEvent } from '../servi
 import { raydiumStreamService, NewPoolEvent } from '../services/raydiumStreamService.js';
 import { healthCapsuleService } from '../services/healthCapsuleService.js';
 import { tokenMetadataService } from '../services/tokenMetadataService.js';
+import priceServiceClient from '../plugins/priceServiceClient.js';
 
 // ============================================================================
 // INITIALIZATION
@@ -68,6 +69,14 @@ async function handleNewToken(event: NewTokenEvent): Promise<void> {
     let bondingCurveProgress = null;
     let tokenState = 'bonded';
     let liquidityUsd = null;
+    let marketCapUsd = null;
+
+    // Convert marketCapSol to USD
+    if (marketCapSol) {
+      const solPrice = priceServiceClient.getSolPrice();
+      marketCapUsd = new Decimal(marketCapSol).mul(solPrice);
+      console.log(`[TokenDiscovery] Market cap: ${marketCapSol} SOL = $${marketCapUsd.toFixed(2)}`);
+    }
 
     if (vTokensInBondingCurve && vSolInBondingCurve) {
       // Progress = (SOL in curve / 85 SOL target) * 100
@@ -99,6 +108,7 @@ async function handleNewToken(event: NewTokenEvent): Promise<void> {
         bondingCurveKey: bondingCurve || null,
         bondingCurveProgress: bondingCurveProgress,
         liquidityUsd: liquidityUsd,
+        marketCapUsd: marketCapUsd, // ✅ Save market cap from PumpPortal
         hotScore: new Decimal(100), // New tokens start hot
         watcherCount: 0,
         freezeRevoked: false,
@@ -118,6 +128,8 @@ async function handleNewToken(event: NewTokenEvent): Promise<void> {
         }),
         // Update liquidity if available
         ...(liquidityUsd && { liquidityUsd }),
+        // Update market cap if available
+        ...(marketCapUsd && { marketCapUsd }),
       },
     });
 
@@ -575,6 +587,10 @@ async function startWorker(): Promise<void> {
     // Test Redis connection
     await redis.ping();
     console.log('✅ Redis connected');
+
+    // Start price service client (reads SOL price from Redis)
+    await priceServiceClient.start();
+    console.log('✅ Price service client started');
 
     // Start streaming services
     console.log('📡 Starting streaming services...');

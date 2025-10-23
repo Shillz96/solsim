@@ -13,6 +13,7 @@
 
 "use client"
 
+import { useState } from "react"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
 import { motion } from "framer-motion"
@@ -87,6 +88,7 @@ const securityBadge = (freezeRevoked?: boolean | null, mintRenounced?: boolean |
 export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
   const img = data.logoURI || data.imageUrl || undefined;
   const priceChg = data.priceChange24h ?? null;
+  const [imageError, setImageError] = useState(false);
 
   const handleToggleWatch = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -112,8 +114,14 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
 
             {/* LEFT: Square Token Logo (Full Height) */}
             <div className="relative shrink-0 w-32 bg-neutral-100">
-              {img ? (
-                <img src={img} alt={data.symbol} className="h-full w-full object-cover" />
+              {img && !imageError ? (
+                <img
+                  src={img}
+                  alt={data.symbol}
+                  className="h-full w-full object-cover"
+                  onError={() => setImageError(true)}
+                  loading="lazy"
+                />
               ) : (
                 <div className="h-full w-full grid place-items-center bg-neutral-100 text-neutral-400 text-5xl">🪙</div>
               )}
