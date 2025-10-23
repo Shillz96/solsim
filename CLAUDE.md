@@ -411,34 +411,41 @@ All environment variables are documented in **ENVIRONMENT_SETUP.md**.
 - **Easy revert**: `git checkout pre-modernization-2025-backup` restores everything
 
 ### Theme Documentation
-- **MARIO_THEME_DESIGN_SYSTEM.md** - Complete Mario theme design system and guidelines
-- **THEME_CLEANUP_SUMMARY.md** - Theme migration and cleanup documentation
-- **MODERNIZATION_2025.md** - Comprehensive modernization plan and implementation guide
-- **ROLLBACK_GUIDE.md** - Emergency recovery procedures
-- **_archive/MIGRATION_NOTES.md** - Migration history and archived files
+- **[docs/theme/MARIO_THEME_DESIGN_SYSTEM.md](docs/theme/MARIO_THEME_DESIGN_SYSTEM.md)** - Complete Mario theme design system and guidelines
+- **[docs/theme/THEME_CLEANUP_SUMMARY.md](docs/theme/THEME_CLEANUP_SUMMARY.md)** - Theme migration and cleanup documentation
+- **[docs/theme/MODERNIZATION_2025.md](docs/theme/MODERNIZATION_2025.md)** - Comprehensive modernization plan and implementation guide
+- **frontend/_archive/MIGRATION_NOTES.md** - Migration history and archived files
 
 ## Additional Resources
 
 ### Design & Theme
-- **frontend/MARIO_THEME_DESIGN_SYSTEM.md** - Complete Mario theme design system and component patterns
-- **frontend/THEME_CLEANUP_SUMMARY.md** - Theme migration and cleanup documentation
+- **[docs/theme/MARIO_THEME_DESIGN_SYSTEM.md](docs/theme/MARIO_THEME_DESIGN_SYSTEM.md)** - Complete Mario theme design system and component patterns
+- **[docs/theme/MODERNIZATION_2025.md](docs/theme/MODERNIZATION_2025.md)** - 2025 modernization plan and implementation guide
+- **[docs/theme/THEME_CLEANUP_SUMMARY.md](docs/theme/THEME_CLEANUP_SUMMARY.md)** - Theme migration and cleanup documentation
 - **frontend/_archive/MIGRATION_NOTES.md** - Theme migration history and archived files
 
 ### Development & Architecture
-- **MODERNIZATION_2025.md** - 2025 modernization plan and implementation guide
-- **ROLLBACK_GUIDE.md** - Emergency rollback and recovery procedures
-- **WORKFLOW.md** - Complete development workflow and deployment guide
-- **QUICK_START.md** - Quick reference for common commands
-- **ARCHITECTURE.md** - Comprehensive system architecture documentation
+- **[docs/architecture/ARCHITECTURE.md](docs/architecture/ARCHITECTURE.md)** - Comprehensive system architecture documentation
+- **[docs/architecture/API_USAGE_DOCUMENTATION.md](docs/architecture/API_USAGE_DOCUMENTATION.md)** - API endpoints and usage
+- **[docs/architecture/TOKEN_PRICE_DISCOVERY_ARCHITECTURE.md](docs/architecture/TOKEN_PRICE_DISCOVERY_ARCHITECTURE.md)** - Price discovery system
+- **[docs/guides/WORKFLOW.md](docs/guides/WORKFLOW.md)** - Complete development workflow and deployment guide
+- **[docs/ROADMAP.md](docs/ROADMAP.md)** - Product roadmap and planned features
 - **README.md** - General project overview and setup instructions
 
 ### Configuration & Deployment
-- **ENVIRONMENT_SETUP.md** - Environment variable configuration guide
-- **GITHUB_DEPLOYMENT_SETUP.md** - GitHub auto-deployment setup with Railway/Vercel
+- **[docs/deployment/ENVIRONMENT_SETUP.md](docs/deployment/ENVIRONMENT_SETUP.md)** - Environment variable configuration guide
+- **[docs/deployment/GITHUB_DEPLOYMENT_SETUP.md](docs/deployment/GITHUB_DEPLOYMENT_SETUP.md)** - GitHub auto-deployment setup with Railway/Vercel
+- **[docs/deployment/RAILWAY_MIGRATION_GUIDE.md](docs/deployment/RAILWAY_MIGRATION_GUIDE.md)** - Railway deployment guide
 - **Prisma Schema** (`backend/prisma/schema.prisma`) - Complete database schema with comments
+
+### Testing & Guides
+- **[docs/guides/REAL_TRADING_TESTING_GUIDE.md](docs/guides/REAL_TRADING_TESTING_GUIDE.md)** - Testing real trading features
+- **[docs/guides/DATABASE_CLEANUP_GUIDE.md](docs/guides/DATABASE_CLEANUP_GUIDE.md)** - Database maintenance guide
 
 ### AI Assistant Guidelines
 - **Cursor Rules** (`.cursor/rules/`) - AI assistant guidelines for architecture, services, code quality
+
+For a complete overview of all documentation, see **[docs/README.md](docs/README.md)**
 
 ## Mario Theme Development Guidelines
 
