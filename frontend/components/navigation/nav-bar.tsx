@@ -449,56 +449,83 @@ export function NavBar() {
                   <NotificationDropdown />
                 </div>
 
-                {/* XP Badge - Hidden on mobile */}
+                {/* Combined User & Level Card - Hidden on mobile */}
                 {user && (
                   <div className="hidden md:block">
-                    <button
-                      id="xp-display"
-                      onClick={() => setLevelModalOpen(true)}
-                      className="cursor-pointer px-3 py-1.5 bg-gradient-to-r from-[var(--star-yellow)] to-[var(--coin-yellow)] border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all rounded-lg"
-                    >
-                      <XPBadge
-                        currentXP={parseFloat(user.rewardPoints?.toString() || '0')}
-                        displayName={displayName}
-                      />
-                    </button>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <button
+                          className="flex items-center gap-3 px-3 py-2 rounded-lg bg-white border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all cursor-pointer group"
+                        >
+                          {/* User Avatar */}
+                          <Avatar className="h-10 w-10 rounded-lg border-2 border-[var(--outline-black)] bg-[var(--mario-red)] flex-shrink-0">
+                            <AvatarImage src={avatarUrl} alt={displayName} className="rounded-lg object-cover" />
+                            <AvatarFallback className="bg-[var(--mario-red)] text-white text-sm font-bold rounded-lg">
+                              {displayName?.[0]?.toUpperCase() || 'U'}
+                            </AvatarFallback>
+                          </Avatar>
+
+                          {/* Level & User Info */}
+                          <div className="flex flex-col items-start justify-center min-w-0">
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm font-mario text-[var(--star-yellow)] drop-shadow-sm leading-none">
+                                LVL {(() => {
+                                  const xp = parseFloat(user.rewardPoints?.toString() || '0');
+                                  if (xp >= 150000) return 25;
+                                  if (xp >= 100000) return 20;
+                                  if (xp >= 75000) return 18;
+                                  if (xp >= 50000) return 15;
+                                  if (xp >= 25000) return 12;
+                                  if (xp >= 10000) return 10;
+                                  if (xp >= 5000) return 8;
+                                  if (xp >= 2500) return 6;
+                                  if (xp >= 1000) return 5;
+                                  if (xp >= 500) return 3;
+                                  if (xp >= 100) return 2;
+                                  return 1;
+                                })()}
+                              </span>
+                              <ChevronDown className="h-3 w-3 text-pipe-600 group-hover:text-pipe-900 transition-colors flex-shrink-0" />
+                            </div>
+                            <span className="text-xs font-bold text-pipe-900 truncate max-w-[120px] leading-tight">
+                              {displayName || 'User'}
+                            </span>
+                            <span className="text-[10px] text-pipe-700 font-semibold leading-tight">
+                              {parseFloat(user.rewardPoints?.toString() || '0').toLocaleString()} XP
+                            </span>
+                          </div>
+                        </button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-56 bg-white border-3 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)]">
+                        <DropdownMenuLabel className="font-mario">My Account</DropdownMenuLabel>
+                        <DropdownMenuItem 
+                          onClick={() => setLevelModalOpen(true)}
+                          className="flex items-center gap-2 font-bold cursor-pointer"
+                        >
+                          <Zap className="h-4 w-4 text-[var(--star-yellow)]" />
+                          View Level Progress
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator className="bg-[var(--outline-black)]" />
+                        <DropdownMenuItem asChild>
+                          <Link href="/profile/settings" className="flex items-center gap-2 font-bold">
+                            <Settings className="h-4 w-4" />
+                            Settings
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator className="bg-[var(--outline-black)]" />
+                        <DropdownMenuItem onClick={startOnboarding} className="flex items-center gap-2 font-bold text-[var(--luigi-green)] hover:text-[var(--luigi-green)]">
+                          <HelpCircle className="h-4 w-4" />
+                          Take Tour
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator className="bg-[var(--outline-black)]" />
+                        <DropdownMenuItem onClick={handleLogout} className="text-[var(--mario-red)] font-bold">
+                          <LogOut className="h-4 w-4 mr-2" />
+                          Logout
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
                 )}
-
-                {/* User Menu - Hidden on mobile */}
-                <div className="hidden md:block">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" className="p-0 hover:opacity-80 rounded-lg transition-opacity">
-                        <Avatar className="h-9 w-9 rounded-lg border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all bg-[var(--mario-red)]">
-                          <AvatarImage src={avatarUrl} alt={displayName} className="rounded-lg object-cover" />
-                          <AvatarFallback className="bg-[var(--mario-red)] text-white text-sm font-bold rounded-lg">
-                            {displayName?.[0]?.toUpperCase() || 'U'}
-                          </AvatarFallback>
-                        </Avatar>
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-56 bg-white border-3 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)]">
-                      <DropdownMenuLabel className="font-mario">My Account</DropdownMenuLabel>
-                      <DropdownMenuItem asChild>
-                        <Link href="/profile/settings" className="flex items-center gap-2 font-bold">
-                          <Settings className="h-4 w-4" />
-                          Settings
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator className="bg-[var(--outline-black)]" />
-                      <DropdownMenuItem onClick={startOnboarding} className="flex items-center gap-2 font-bold text-[var(--luigi-green)] hover:text-[var(--luigi-green)]">
-                        <HelpCircle className="h-4 w-4" />
-                        Take Tour
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator className="bg-[var(--outline-black)]" />
-                      <DropdownMenuItem onClick={handleLogout} className="text-[var(--mario-red)] font-bold">
-                        <LogOut className="h-4 w-4 mr-2" />
-                        Logout
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
               </>
             ) : (
               <Button onClick={() => setAuthModalOpen(true)} className="font-semibold h-9 px-4">
