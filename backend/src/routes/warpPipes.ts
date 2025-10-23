@@ -56,18 +56,6 @@ const warpPipesRoutes: FastifyPluginAsync = async (fastify) => {
   // ==========================================================================
   fastify.get(
     '/feed',
-    {
-      schema: {
-        querystring: FeedQuerySchema,
-        response: {
-          200: z.object({
-            bonded: z.array(z.any()),
-            graduating: z.array(z.any()),
-            new: z.array(z.any()),
-          }),
-        },
-      },
-    },
     async (request: AuthenticatedRequest, reply) => {
       try {
         const { searchQuery, sortBy, minLiquidity, onlyWatched, limit } =
@@ -200,15 +188,6 @@ const warpPipesRoutes: FastifyPluginAsync = async (fastify) => {
     '/watch',
     {
       preHandler: [authenticateToken], // Require authentication
-      schema: {
-        body: AddWatchSchema,
-        response: {
-          200: z.object({
-            success: z.boolean(),
-            watch: z.any(),
-          }),
-        },
-      },
     },
     async (request: AuthenticatedRequest, reply) => {
       try {
@@ -288,16 +267,6 @@ const warpPipesRoutes: FastifyPluginAsync = async (fastify) => {
     '/watch/:mint',
     {
       preHandler: [authenticateToken],
-      schema: {
-        params: z.object({
-          mint: z.string(),
-        }),
-        response: {
-          200: z.object({
-            success: z.boolean(),
-          }),
-        },
-      },
     },
     async (request: AuthenticatedRequest, reply) => {
       try {
@@ -343,18 +312,6 @@ const warpPipesRoutes: FastifyPluginAsync = async (fastify) => {
     '/watch/:mint',
     {
       preHandler: [authenticateToken],
-      schema: {
-        params: z.object({
-          mint: z.string(),
-        }),
-        body: UpdateWatchSchema,
-        response: {
-          200: z.object({
-            success: z.boolean(),
-            watch: z.any(),
-          }),
-        },
-      },
     },
     async (request: AuthenticatedRequest, reply) => {
       try {
@@ -418,13 +375,6 @@ const warpPipesRoutes: FastifyPluginAsync = async (fastify) => {
     '/watches',
     {
       preHandler: [authenticateToken],
-      schema: {
-        response: {
-          200: z.object({
-            watches: z.array(z.any()),
-          }),
-        },
-      },
     },
     async (request: AuthenticatedRequest, reply) => {
       try {
@@ -485,19 +435,6 @@ const warpPipesRoutes: FastifyPluginAsync = async (fastify) => {
   // ==========================================================================
   fastify.get(
     '/health/:mint',
-    {
-      schema: {
-        params: z.object({
-          mint: z.string(),
-        }),
-        response: {
-          200: z.object({
-            mint: z.string(),
-            health: z.any(),
-          }),
-        },
-      },
-    },
     async (request, reply) => {
       try {
         const { mint } = request.params as { mint: string };
@@ -550,18 +487,6 @@ const warpPipesRoutes: FastifyPluginAsync = async (fastify) => {
   // ==========================================================================
   fastify.get(
     '/token/:mint',
-    {
-      schema: {
-        params: z.object({
-          mint: z.string(),
-        }),
-        response: {
-          200: z.object({
-            token: z.any(),
-          }),
-        },
-      },
-    },
     async (request: AuthenticatedRequest, reply) => {
       try {
         const { mint } = request.params as { mint: string };
