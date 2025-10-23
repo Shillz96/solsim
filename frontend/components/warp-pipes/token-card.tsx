@@ -101,7 +101,7 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
   };
 
   return (
-    <Link href={`/room/${data.mint}`}>
+    <Link href={`/trade?token=${data.mint}`}>
       <motion.div
         initial={{ opacity: 0, scale: 0.98 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -134,13 +134,20 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
                 <h3 className="font-bold text-[20px] text-pipe-900">
                   {data.symbol}
                 </h3>
-                <span className="text-[14px] text-pipe-600 truncate max-w-[150px]">
+                <span className="text-[14px] text-pipe-600 truncate max-w-[150px]" title={data.name || undefined}>
                   {data.name}
                 </span>
                 <span className="text-[12px] text-pipe-500 ml-auto">
                   {age}
                 </span>
               </div>
+              
+              {/* Description (if available, truncated) */}
+              {data.description && (
+                <div className="text-[11px] text-pipe-500 mb-1 truncate max-w-[300px]" title={data.description}>
+                  {data.description}
+                </div>
+              )}
 
               {/* Middle Row: Stats and Badges */}
               <div className="flex items-center gap-3 flex-wrap">
@@ -162,10 +169,71 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
                   </div>
                 )}
 
-                {/* Holders/Txns */}
+                {/* Holder Count */}
+                {data.holderCount != null && (
+                  <div className="flex items-center gap-1 text-[12px] text-pipe-600">
+                    <span>👥</span>
+                    <span className="font-mono font-bold">{data.holderCount}</span>
+                  </div>
+                )}
+
+                {/* Transaction Count */}
                 {data.txCount24h != null && (
-                  <div className="text-[12px] text-pipe-600">
-                    <span className="font-mono">{data.txCount24h}</span> txns
+                  <div className="flex items-center gap-1 text-[12px] text-pipe-600">
+                    <span>📝</span>
+                    <span className="font-mono font-bold">{data.txCount24h}</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Bottom Row: Social Links & Creator */}
+              <div className="flex items-center gap-3 mt-1">
+                {/* Social Links */}
+                {(data.twitter || data.telegram || data.website) && (
+                  <div className="flex items-center gap-2">
+                    {data.twitter && (
+                      <a
+                        href={data.twitter.startsWith('http') ? data.twitter : `https://twitter.com/${data.twitter}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-[14px] hover:text-mario-red-500 transition-colors"
+                        onClick={(e) => e.stopPropagation()}
+                        title="Twitter/X"
+                      >
+                        𝕏
+                      </a>
+                    )}
+                    {data.telegram && (
+                      <a
+                        href={data.telegram.startsWith('http') ? data.telegram : `https://t.me/${data.telegram}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-[14px] hover:text-mario-red-500 transition-colors"
+                        onClick={(e) => e.stopPropagation()}
+                        title="Telegram"
+                      >
+                        ✈️
+                      </a>
+                    )}
+                    {data.website && (
+                      <a
+                        href={data.website.startsWith('http') ? data.website : `https://${data.website}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-[14px] hover:text-mario-red-500 transition-colors"
+                        onClick={(e) => e.stopPropagation()}
+                        title="Website"
+                      >
+                        🌐
+                      </a>
+                    )}
+                  </div>
+                )}
+
+                {/* Creator Wallet */}
+                {data.creatorWallet && (
+                  <div className="text-[10px] text-pipe-400 font-mono ml-auto" title={data.creatorWallet}>
+                    👨‍💻 {shorten(data.creatorWallet, 3, 3)}
                   </div>
                 )}
               </div>
