@@ -22,8 +22,8 @@ function StockCardPreview({ token, onClick }: { token: Backend.TrendingToken; on
   const priceChange = token.priceChange24h || 0
 
   return (
-    <EnhancedCard
-      className="p-4 hover:border-blue-500/50 transition-all cursor-pointer group shadow-md hover:shadow-lg"
+    <div
+      className="bg-white rounded-2xl border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] p-4 hover:shadow-[8px_8px_0_var(--outline-black)] hover:-translate-y-1 transition-all cursor-pointer"
       onClick={onClick}
     >
       <div className="space-y-3">
@@ -33,18 +33,18 @@ function StockCardPreview({ token, onClick }: { token: Backend.TrendingToken; on
             <img
               src={token.logoURI}
               alt={token.symbol || "Stock"}
-              className="w-10 h-10 rounded-full"
+              className="w-10 h-10 rounded-full border-2 border-[var(--outline-black)]"
               onError={() => setImageError(true)}
             />
           ) : (
-            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-lg">
+            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-[var(--mario-red)] to-[var(--luigi-green)] border-2 border-[var(--outline-black)] flex items-center justify-center shadow-lg">
               <span className="text-white text-sm font-bold tracking-tight">
                 {token.symbol?.replace('x', '').replace('X', '').slice(0, 4) || '??'}
               </span>
             </div>
           )}
           <div className="flex-1 min-w-0">
-            <h3 className="font-semibold text-lg truncate group-hover:text-blue-500 transition-colors">
+            <h3 className="font-mario text-lg truncate">
               {token.symbol}
             </h3>
             <p className="text-xs text-muted-foreground truncate">
@@ -60,11 +60,11 @@ function StockCardPreview({ token, onClick }: { token: Backend.TrendingToken; on
           </div>
           <div
             className={cn(
-              "text-sm font-medium flex items-center gap-1",
+              "text-sm font-bold flex items-center gap-1",
               priceChange > 0
-                ? "text-green-600"
+                ? "text-[var(--luigi-green)]"
                 : priceChange < 0
-                ? "text-red-600"
+                ? "text-[var(--mario-red)]"
                 : "text-muted-foreground"
             )}
           >
@@ -74,15 +74,11 @@ function StockCardPreview({ token, onClick }: { token: Backend.TrendingToken; on
         </div>
 
         {/* Trade Button */}
-        <Button
-          size="sm"
-          className="w-full group-hover:bg-blue-500 group-hover:text-white transition-all"
-          variant="outline"
-        >
+        <button className="w-full bg-[var(--luigi-green)] hover:bg-[var(--luigi-green)]/90 text-white font-mario text-sm px-4 py-2 rounded-lg border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all duration-200">
           Trade Now
-        </Button>
+        </button>
       </div>
-    </EnhancedCard>
+    </div>
   )
 }
 
@@ -179,8 +175,7 @@ export function TradeEmptyState() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.1 * index, duration: 0.4 }}
                   >
-                    <EnhancedCard
-                      className="p-4 hover:border-primary/50 transition-all cursor-pointer group shadow-md hover:shadow-lg"
+                    <div className="bg-white rounded-2xl border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] p-4 hover:shadow-[8px_8px_0_var(--outline-black)] hover:-translate-y-1 transition-all cursor-pointer h-full"
                       onClick={() => handleTokenClick(token)}
                     >
                       <div className="space-y-3">
@@ -190,21 +185,21 @@ export function TradeEmptyState() {
                             <img
                               src={token.logoURI}
                               alt={token.symbol || "Token"}
-                              className="w-10 h-10 rounded-full"
+                              className="w-10 h-10 rounded-full border-2 border-[var(--outline-black)]"
                               onError={(e) => {
                                 const target = e.target as HTMLImageElement
                                 target.style.display = "none"
                               }}
                             />
                           ) : (
-                            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                              <span className="text-sm font-bold text-primary">
+                            <div className="w-10 h-10 rounded-full bg-[var(--star-yellow)]/20 border-2 border-[var(--outline-black)] flex items-center justify-center">
+                              <span className="text-sm font-bold text-[var(--outline-black)]">
                                 {(token.symbol || "??").slice(0, 2)}
                               </span>
                             </div>
                           )}
                           <div className="flex-1 min-w-0">
-                            <h3 className="font-semibold text-lg truncate group-hover:text-primary transition-colors">
+                            <h3 className="font-mario text-lg truncate">
                               {token.symbol}
                             </h3>
                             <p className="text-xs text-muted-foreground truncate">
@@ -220,11 +215,11 @@ export function TradeEmptyState() {
                           </div>
                           <div
                             className={cn(
-                              "text-sm font-medium flex items-center gap-1",
+                              "text-sm font-bold flex items-center gap-1",
                               priceChange > 0
-                                ? "text-green-600"
+                                ? "text-[var(--luigi-green)]"
                                 : priceChange < 0
-                                ? "text-red-600"
+                                ? "text-[var(--mario-red)]"
                                 : "text-muted-foreground"
                             )}
                           >
@@ -234,15 +229,11 @@ export function TradeEmptyState() {
                         </div>
 
                         {/* Trade Button */}
-                        <Button
-                          size="sm"
-                          className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-all"
-                          variant="outline"
-                        >
+                        <button className="w-full bg-[var(--luigi-green)] hover:bg-[var(--luigi-green)]/90 text-white font-mario text-sm px-4 py-2 rounded-lg border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all duration-200">
                           Trade Now
-                        </Button>
+                        </button>
                       </div>
-                    </EnhancedCard>
+                    </div>
                   </motion.div>
                 )
               })}

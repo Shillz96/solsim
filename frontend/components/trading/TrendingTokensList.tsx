@@ -198,13 +198,13 @@ export function TrendingTokensList({
               <div
                 key={token.mint}
                 className={cn(
-                  "flex items-center justify-between p-4 rounded-xl border-4 border-outline-black bg-card shadow-md",
-                  onSelectToken ? "cursor-pointer hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200" : ""
+                  "flex items-center justify-between p-4 rounded-xl border-4 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)] bg-white",
+                  onSelectToken ? "cursor-pointer hover:shadow-[6px_6px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all duration-200" : ""
                 )}
                 onClick={() => handleTokenSelect(token.mint)}
               >
                 <div className="flex items-center">
-                  <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 mr-3 overflow-hidden">
+                  <div className="flex items-center justify-center w-8 h-8 rounded-full bg-[var(--star-yellow)]/20 border-2 border-[var(--outline-black)] mr-3 overflow-hidden">
                     {token.logoURI ? (
                       <img
                         src={token.logoURI}
@@ -215,17 +215,17 @@ export function TrendingTokensList({
                         }}
                       />
                     ) : (
-                      <span className="text-sm">{token.symbol?.substring(0, 2) || 'TKN'}</span>
+                      <span className="text-sm font-bold">{token.symbol?.substring(0, 2) || 'TKN'}</span>
                     )}
                   </div>
                   <div>
-                    <div className="font-medium">
+                    <div className="font-mario">
                       {token.name || 'Unknown Token'}
-                      <Badge variant="outline" className="ml-2 font-normal">
+                      <Badge variant="outline" className="ml-2 font-normal border-2 border-[var(--outline-black)]">
                         #{index + 1}
                       </Badge>
                     </div>
-                    <div className="text-xs text-muted-foreground">
+                    <div className="text-xs text-muted-foreground font-bold">
                       {token.symbol || '???'}
                     </div>
                   </div>
@@ -236,12 +236,14 @@ export function TrendingTokensList({
                     <PriceCell 
                       priceUSD={token.priceUsd || 0}
                       priceChangePercent={getChangePercent(token)}
-                      className="font-medium"
+                      className="font-bold"
                       showSolEquiv={true}
                     />
                     <div className={cn(
-                      "text-xs flex items-center justify-end mt-1",
-                      getTrendColor(getChangePercent(token))
+                      "text-xs flex items-center justify-end mt-1 font-bold",
+                      getChangePercent(token) > 0 ? "text-[var(--luigi-green)]" : 
+                      getChangePercent(token) < 0 ? "text-[var(--mario-red)]" : 
+                      "text-muted-foreground"
                     )}>
                       {renderTrendIcon(getChangePercent(token))}
                       <span>
@@ -267,9 +269,9 @@ export function TrendingTokensList({
 // Skeleton loader for tokens
 function TokenSkeleton() {
   return (
-    <div className="flex items-center justify-between p-4 border-4 border-outline-black rounded-xl bg-card shadow-md animate-pulse">
+    <div className="flex items-center justify-between p-4 border-4 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)] rounded-xl bg-white animate-pulse">
       <div className="flex items-center">
-        <div className="h-8 w-8 rounded-full mr-3 bg-muted" />
+        <div className="h-8 w-8 rounded-full mr-3 bg-muted border-2 border-[var(--outline-black)]" />
         <div>
           <div className="h-5 w-24 mb-1 bg-muted rounded" />
           <div className="h-3 w-12 bg-muted rounded" />

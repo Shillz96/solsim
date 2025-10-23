@@ -66,10 +66,10 @@ export function TrendingTokensSection() {
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1 }}
               >
-                <div className="mario-card p-6 bg-gradient-to-br from-white/90 to-white/70 border-3 border-mario-yellow/40 h-full">
+                <div className="bg-white rounded-2xl border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] p-6 h-full">
                   <div className="space-y-4">
                     <div className="flex items-center gap-3">
-                      <div className="h-12 w-12 rounded-full bg-muted animate-pulse" />
+                      <div className="h-12 w-12 rounded-full bg-muted animate-pulse border-2 border-[var(--outline-black)]" />
                       <div className="flex-1 space-y-2">
                         <div className="h-5 w-16 bg-muted animate-pulse rounded" />
                         <div className="h-4 w-24 bg-muted animate-pulse rounded" />
@@ -98,10 +98,10 @@ export function TrendingTokensSection() {
                 transition={{ delay: index * 0.1 }}
               >
                 <Link href={`/trade?token=${token.mint}`}>
-                  <div className="mario-card p-6 bg-gradient-to-br from-white/95 to-white/85 border-3 border-mario-yellow/50 hover:border-mario-yellow transition-all duration-300 group cursor-pointer h-full">
+                  <div className="bg-white rounded-2xl border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] p-6 hover:shadow-[8px_8px_0_var(--outline-black)] hover:-translate-y-1 transition-all duration-300 cursor-pointer h-full">
                     <div className="space-y-4">
                       <div className="flex items-center gap-3">
-                        <div className="relative h-12 w-12 rounded-full overflow-hidden bg-muted">
+                        <div className="relative h-12 w-12 rounded-full overflow-hidden bg-muted border-2 border-[var(--outline-black)]">
                           <Image 
                             src={token.logoURI || "/placeholder-token.svg"} 
                             alt={token.name || 'Unknown Token'} 
@@ -115,7 +115,7 @@ export function TrendingTokensSection() {
                         </div>
                         <div className="flex-1">
                           <div className="flex items-center gap-2">
-                            <h3 className="font-heading text-lg font-bold">{token.symbol || 'N/A'}</h3>
+                            <h3 className="font-mario text-lg font-bold">{token.symbol || 'N/A'}</h3>
                             {(() => {
                               const change = token.priceChange24h || 0;
                               // Add threshold to prevent flickering on near-zero values
@@ -150,7 +150,7 @@ export function TrendingTokensSection() {
 
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <p className="text-xs text-muted-foreground">Price</p>
+                        <p className="text-xs text-muted-foreground font-bold">Price</p>
                         <p className="text-lg font-bold font-mono">
                           {formatPriceUSD(token.priceUsd)}
                         </p>
@@ -161,12 +161,12 @@ export function TrendingTokensSection() {
                         )}
                       </div>
                       <div>
-                        <p className="text-xs text-muted-foreground">24h Change</p>
+                        <p className="text-xs text-muted-foreground font-bold">24h Change</p>
                         <p
                           className={`text-lg font-bold font-mono ${(() => {
                             const change = token.priceChange24h || 0;
-                            if (change > 0.01) return "text-[#00ff85]";
-                            if (change < -0.01) return "text-[#ff4d4d]";
+                            if (change > 0.01) return "text-[var(--luigi-green)]";
+                            if (change < -0.01) return "text-[var(--mario-red)]";
                             return "text-muted-foreground";
                           })()}`}
                         >
@@ -180,7 +180,7 @@ export function TrendingTokensSection() {
                         </p>
                       </div>
                       <div>
-                        <p className="text-xs text-muted-foreground">Volume</p>
+                        <p className="text-xs text-muted-foreground font-bold">Volume</p>
                         <p className="text-sm font-medium font-mono">
                           ${token.volume24h > 1000000 
                             ? `${(token.volume24h / 1000000).toFixed(1)}M` 
@@ -188,7 +188,7 @@ export function TrendingTokensSection() {
                         </p>
                       </div>
                       <div>
-                        <p className="text-xs text-muted-foreground">Market Cap</p>
+                        <p className="text-xs text-muted-foreground font-bold">Market Cap</p>
                         <p className="text-sm font-medium font-mono">
                           ${(token.marketCapUsd || 0) > 1000000 
                             ? `${((token.marketCapUsd || 0) / 1000000).toFixed(1)}M` 
@@ -197,7 +197,7 @@ export function TrendingTokensSection() {
                       </div>
                     </div>
 
-                    <button className="mario-btn mario-btn-green w-full text-white">
+                    <button className="w-full bg-[var(--luigi-green)] hover:bg-[var(--luigi-green)]/90 text-white font-mario text-base px-6 py-3 rounded-xl border-3 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)] hover:shadow-[6px_6px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all duration-200">
                       <span className="flex items-center justify-center gap-2">
                         Trade Now!
                         <Image
@@ -231,7 +231,7 @@ export function TrendingTokensSection() {
           viewport={{ once: true }}
         >
           <Link href="/trade">
-            <button className="mario-btn mario-btn-lg bg-mario-yellow hover:bg-mario-yellow/90 text-black group">
+            <button className="bg-[var(--star-yellow)] hover:bg-[var(--star-yellow)]/90 text-black font-mario text-lg px-8 py-4 rounded-xl border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] hover:shadow-[8px_8px_0_var(--outline-black)] hover:-translate-y-1 transition-all duration-200">
               <span className="flex items-center justify-center gap-2">
                 View All Tokens
                 <Image
@@ -246,7 +246,7 @@ export function TrendingTokensSection() {
                   alt=""
                   width={20}
                   height={20}
-                  className="object-contain inline-block group-hover:translate-x-1 transition-transform"
+                  className="object-contain inline-block"
                 />
               </span>
             </button>
