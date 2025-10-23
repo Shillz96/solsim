@@ -15,7 +15,6 @@ import { Button } from "@/components/ui/button"
 import { TokenColumn } from "./token-column"
 import { useWarpPipesFeed, useAddTokenWatch, useRemoveTokenWatch } from "@/hooks/use-warp-pipes"
 import { useAuth } from "@/hooks/use-auth"
-import { motion } from "framer-motion"
 
 export function WarpPipesHub() {
   const { isAuthenticated } = useAuth()
@@ -63,21 +62,7 @@ export function WarpPipesHub() {
   }, [data])
 
   return (
-    <div className="w-full px-4 py-6">
-      {/* Page Header */}
-      <div className="mb-6">
-        <motion.h1
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-3xl font-bold mb-2 text-foreground"
-        >
-          🎮 Warp Pipes Hub
-        </motion.h1>
-        <p className="text-muted-foreground">
-          Discover new tokens as they progress: New Pairs → About to Graduate → Bonded
-        </p>
-      </div>
-
+    <div className="w-full px-4 py-4">
       {/* Error State */}
       {error && (
         <Alert variant="destructive" className="mb-6 border-4 border-mario-red-500">
@@ -98,7 +83,7 @@ export function WarpPipesHub() {
       )}
 
       {/* Desktop: 3-Column Layout - Reordered: New Pairs | About to Graduate | Bonded */}
-      <div className="hidden lg:grid lg:grid-cols-3 gap-4 h-[calc(100vh-240px)]">
+      <div className="hidden lg:grid lg:grid-cols-3 gap-4 h-[calc(100vh-160px)]">
         <TokenColumn
           title="🆕 New Pairs"
           tokens={newTokens}
