@@ -8,6 +8,7 @@ import { AnimatedNumber } from "@/components/ui/animated-number"
 import { TokenLogo } from "@/components/ui/token-logo"
 import { useTrendingTokens } from "@/hooks/use-react-query-hooks"
 import { cn } from "@/lib/utils"
+import "@/styles/ticker.css"
 
 /**
  * Mario-themed Sliding Trending Tokens Ticker
@@ -129,58 +130,6 @@ export function SlidingTrendingTicker() {
         <div className="absolute top-0 left-0 h-full w-20 bg-gradient-to-r from-[var(--brick-brown)] to-transparent pointer-events-none z-5" />
         <div className="absolute top-0 right-0 h-full w-20 bg-gradient-to-l from-[var(--brick-brown)] to-transparent pointer-events-none z-5" />
       </div>
-
-      <style jsx>{`
-        .ticker-scroll-container {
-          overflow: hidden;
-          width: 100%;
-        }
-
-        .ticker-scroll {
-          display: flex;
-          animation: scroll-left 60s linear infinite;
-        }
-
-        .ticker-scroll.paused {
-          animation-play-state: paused;
-        }
-
-        @keyframes scroll-left {
-          0% {
-            transform: translateX(0);
-          }
-          100% {
-            transform: translateX(-33.333%);
-          }
-        }
-
-        .ticker-item {
-          animation: none;
-        }
-
-        .coin-bounce-hover:hover {
-          animation: coin-flip 0.6s ease-in-out;
-        }
-
-        @keyframes coin-flip {
-          0%, 100% {
-            transform: scale(1.1) rotateY(0deg);
-          }
-          50% {
-            transform: scale(1.15) rotateY(180deg);
-          }
-        }
-
-        /* Prevent animation on reduced motion preference */
-        @media (prefers-reduced-motion: reduce) {
-          .ticker-scroll {
-            animation: none;
-          }
-          .coin-bounce-hover:hover {
-            animation: none;
-          }
-        }
-      `}</style>
     </div>
   )
 }

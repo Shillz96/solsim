@@ -59,6 +59,7 @@ model User {
   tokenWatches            TokenWatch[]
   deposits                Deposit[]
   withdrawals             Withdrawal[]
+  wallets                 UserWallet[]
 }
 
 model Trade {
@@ -696,4 +697,27 @@ model Withdrawal {
   @@index([userId, requestedAt(sort: Desc)])
   @@index([status, requestedAt(sort: Desc)])
   @@index([txSignature])
+}
+
+// Multi-wallet system for managing multiple wallets per user
+enum WalletType {
+  PLATFORM_GENERATED // Original deposit wallets we create
+  IMPORTED // User imported their own wallet
+}
+
+model UserWallet {
+  id           String     @id @default(uuid())
+  userId       String
+  name         String // User-friendly name ("Main Wallet", "Trading Wallet")
+  walletType   WalletType // PLATFORM_GENERATED, IMPORTED
+  address      String     @unique
+  encryptedKey String? // Encrypted private key (only for imported wallets)
+  balance      Decimal    @default(0)
+  isActive     Boolean    @default(false) // Currently selected for trading
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isActive])
+  @@index([userId, walletType])
 }

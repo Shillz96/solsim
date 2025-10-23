@@ -3,6 +3,7 @@
   "version": "0.2.0",
   "private": true,
   "scripts": {
+    "postinstall": "npm ls styled-jsx || npm install styled-jsx@5.1.6",
     "build": "next build",
     "dev": "next dev",
     "lint": "next lint",

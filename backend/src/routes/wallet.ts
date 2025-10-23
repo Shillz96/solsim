@@ -3,6 +3,7 @@ import { FastifyInstance } from "fastify";
 import prisma from "../plugins/prisma.js";
 import * as depositService from "../services/depositService.js";
 import * as withdrawalService from "../services/withdrawalService.js";
+import * as walletManagementService from "../services/walletManagementService.js";
 import { getDepositKeypair } from "../utils/depositAddressGenerator.js";
 
 const PLATFORM_SEED = process.env.PLATFORM_SEED || '';

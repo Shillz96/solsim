@@ -1,0 +1,22 @@
+# Vercel ignore file
+node_modules
+.next
+.cache
+.env.local
+.env.development
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.DS_Store
+*.pem
+coverage
+.nyc_output
+.git
+.gitignore
+README.md
+.eslintcache
+*.md
+_archive
+__tests__
+.vscode
+.idea
