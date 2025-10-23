@@ -15,7 +15,7 @@ import { Button } from "@/components/ui/button"
 import { TokenColumn } from "./token-column"
 import { useWarpPipesFeed, useAddTokenWatch, useRemoveTokenWatch } from "@/hooks/use-warp-pipes"
 import { useAuth } from "@/hooks/use-auth"
-import type { AdvancedFilters } from "@/lib/types/warp-pipes"
+import type { AdvancedFilters, TokenRow } from "@/lib/types/warp-pipes"
 import { getDefaultFilters } from "@/lib/warp-pipes-filter-presets"
 
 export function WarpPipesHub() {
@@ -26,14 +26,11 @@ export function WarpPipesHub() {
   const [graduatingFilters, setGraduatingFilters] = useState<AdvancedFilters>(getDefaultFilters('graduating'))
   const [bondedFilters, setBondedFilters] = useState<AdvancedFilters>(getDefaultFilters('bonded'))
 
-  // Fetch feed data with per-column filters
+  // Fetch feed data - filters are applied per-column on the client side
   const { data, isLoading, error, refetch } = useWarpPipesFeed({
     searchQuery: "",
     sortBy: "volume",
-    // Merge all filters into a single API call
-    ...newFilters,
-    ...graduatingFilters,
-    ...bondedFilters,
+    // Don't apply filters here - they're applied per-column in client-side filtering
   })
 
   // Watch mutations
@@ -59,18 +56,57 @@ export function WarpPipesHub() {
     }
   }
 
-  // Filter and sort tokens
+  // Helper function to apply filters to tokens
+  const applyFilters = (tokens: TokenRow[], filters: AdvancedFilters) => {
+    if (!filters || Object.keys(filters).length === 0) return tokens
+
+    return tokens.filter((token) => {
+      // Audit filters
+      if (filters.dexPaid !== undefined && token.dexPaid !== filters.dexPaid) return false
+      if (filters.minAge !== undefined && token.createdAgo && token.createdAgo < filters.minAge) return false
+      if (filters.maxAge !== undefined && token.createdAgo && token.createdAgo > filters.maxAge) return false
+      if (filters.freezeAuthority !== undefined && token.freezeAuthority !== filters.freezeAuthority) return false
+      if (filters.mintAuthority !== undefined && token.mintAuthority !== filters.mintAuthority) return false
+      if (filters.top10Holders !== undefined && token.top10HoldersPercent !== undefined && token.top10HoldersPercent < filters.top10Holders) return false
+
+      // Metric filters
+      if (filters.minLiquidityUsd !== undefined && token.liquidityUsd && token.liquidityUsd < filters.minLiquidityUsd) return false
+      if (filters.maxLiquidityUsd !== undefined && token.liquidityUsd && token.liquidityUsd > filters.maxLiquidityUsd) return false
+      if (filters.minMarketCapUsd !== undefined && token.marketCapUsd && token.marketCapUsd < filters.minMarketCapUsd) return false
+      if (filters.maxMarketCapUsd !== undefined && token.marketCapUsd && token.marketCapUsd > filters.maxMarketCapUsd) return false
+      if (filters.minVolumeUsd !== undefined && token.volumeUsd && token.volumeUsd < filters.minVolumeUsd) return false
+      if (filters.maxVolumeUsd !== undefined && token.volumeUsd && token.volumeUsd > filters.maxVolumeUsd) return false
+      if (filters.minHolders !== undefined && token.holderCount && token.holderCount < filters.minHolders) return false
+      if (filters.maxHolders !== undefined && token.holderCount && token.holderCount > filters.maxHolders) return false
+      if (filters.minPriceChangePercent !== undefined && token.priceChange24hPercent && token.priceChange24hPercent < filters.minPriceChangePercent) return false
+      if (filters.maxPriceChangePercent !== undefined && token.priceChange24hPercent && token.priceChange24hPercent > filters.maxPriceChangePercent) return false
+
+      // Social filters
+      if (filters.minSocialScore !== undefined && token.socialScore && token.socialScore < filters.minSocialScore) return false
+      if (filters.minSentiment !== undefined && token.sentiment && token.sentiment < filters.minSentiment) return false
+      if (filters.minTwitterFollowers !== undefined && token.twitterFollowers && token.twitterFollowers < filters.minTwitterFollowers) return false
+      if (filters.minTelegramMembers !== undefined && token.telegramMembers && token.telegramMembers < filters.minTelegramMembers) return false
+
+      // Bonding curve filters (for pump.fun tokens)
+      if (filters.minBondingPercentage !== undefined && token.bondingCurvePercentage !== undefined && token.bondingCurvePercentage < filters.minBondingPercentage) return false
+      if (filters.maxBondingPercentage !== undefined && token.bondingCurvePercentage !== undefined && token.bondingCurvePercentage > filters.maxBondingPercentage) return false
+
+      return true
+    })
+  }
+
+  // Filter and sort tokens per-column
   const { bonded, graduating, newTokens } = useMemo(() => {
     if (!data) {
       return { bonded: [], graduating: [], newTokens: [] }
     }
 
     return {
-      bonded: data.bonded || [],
-      graduating: data.graduating || [],
-      newTokens: data.new || [],
+      bonded: applyFilters(data.bonded || [], bondedFilters),
+      graduating: applyFilters(data.graduating || [], graduatingFilters),
+      newTokens: applyFilters(data.new || [], newFilters),
     }
-  }, [data])
+  }, [data, bondedFilters, graduatingFilters, newFilters])
 
   return (
     <div className="w-full min-h-screen bg-[var(--background)]">
