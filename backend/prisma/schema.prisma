@@ -20,6 +20,9 @@ model User {
   telegram                String?
   website                 String?
   virtualSolBalance       Decimal                @default(100)
+  realSolBalance          Decimal                @default(0) // Real SOL deposited for mainnet trading
+  tradingMode             TradeMode              @default(PAPER) // Current trading mode preference
+  realSolDepositAddress   String?                // User-specific deposit address (if using deposited balance)
   isProfilePublic         Boolean                @default(true)
   solanaWallet            String?
   userTier                UserTier               @default(EMAIL_USER)
@@ -78,6 +81,12 @@ model Trade {
   netSol           Decimal? // Net SOL after fees (gross + fees for buy, gross - fees for sell)
   route            String? // Trading route (Raydium/Orca/Jupiter/Pumpfun)
   priceSOLPerToken Decimal? // Token price in SOL terms
+  // Real trading fields
+  tradeMode        TradeMode            @default(PAPER) // Paper or Real trading
+  realTxSignature  String?              // Solana transaction signature for real trades
+  realTxStatus     TransactionStatus?   // Status of real transaction
+  fundingSource    FundingSource?       // How real trade was funded (deposited or wallet)
+  pumpPortalFee    Decimal?             // PumpPortal API fee (0.5% or 1%)
   timestamp        DateTime             @default(now())
   createdAt        DateTime             @default(now())
   user             User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -91,6 +100,8 @@ model Trade {
   @@index([userId, action, timestamp(sort: Desc)], map: "user_trade_type")
   @@index([timestamp(sort: Desc)], map: "trades_chronological")
   @@index([userId, side, createdAt(sort: Desc)], map: "user_trade_side") // PERFORMANCE: For buy/sell history queries
+  @@index([userId, tradeMode, timestamp(sort: Desc)], map: "user_trade_mode") // PERFORMANCE: Filter by trading mode
+  @@index([realTxSignature], map: "real_tx_signature") // PERFORMANCE: Lookup by transaction signature
 }
 
 // REMOVED: Holding model (deprecated - use Position model instead)
@@ -206,45 +217,51 @@ model Position {
   mint      String
   qty       Decimal       @default(0)
   costBasis Decimal       @default(0)
+  tradeMode TradeMode     @default(PAPER) // Separate positions for paper and real trading
   createdAt DateTime      @default(now())
   updatedAt DateTime      @updatedAt
   user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   lots      PositionLot[]
 
-  @@unique([userId, mint])
+  @@unique([userId, mint, tradeMode]) // Unique per user, token, and trading mode
   @@index([userId, qty(sort: Desc)], map: "user_positions_by_qty") // PERFORMANCE: For portfolio queries filtering by qty > 0
+  @@index([userId, tradeMode, qty(sort: Desc)], map: "user_positions_by_mode") // PERFORMANCE: Filter by trading mode
 }
 
 model PositionLot {
-  id           String   @id @default(uuid())
+  id           String    @id @default(uuid())
   positionId   String
   userId       String
   mint         String
   qtyRemaining Decimal
   unitCostUsd  Decimal
-  unitCostSol  Decimal? // Cost per token in SOL
-  solUsdAtBuy  Decimal? // Freeze SOL→USD FX at buy time
-  createdAt    DateTime @default(now())
-  position     Position @relation(fields: [positionId], references: [id], onDelete: Cascade)
+  unitCostSol  Decimal?  // Cost per token in SOL
+  solUsdAtBuy  Decimal?  // Freeze SOL→USD FX at buy time
+  tradeMode    TradeMode @default(PAPER) // Match parent position's trade mode
+  createdAt    DateTime  @default(now())
+  position     Position  @relation(fields: [positionId], references: [id], onDelete: Cascade)
 
   @@index([positionId, createdAt])
   @@index([userId, mint, createdAt])
+  @@index([userId, mint, tradeMode, createdAt]) // PERFORMANCE: FIFO queries by trade mode
 }
 
 model RealizedPnL {
-  id        String   @id @default(uuid())
+  id        String    @id @default(uuid())
   userId    String
   mint      String
-  pnl       Decimal // Legacy: USD PnL
-  pnlUsd    Decimal? // Explicit USD PnL (frozen at sell time)
-  pnlSol    Decimal? // SOL PnL (frozen at sell time)
-  tradeId   String? // Reference to the sell trade
-  createdAt DateTime @default(now())
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  pnl       Decimal   // Legacy: USD PnL
+  pnlUsd    Decimal?  // Explicit USD PnL (frozen at sell time)
+  pnlSol    Decimal?  // SOL PnL (frozen at sell time)
+  tradeMode TradeMode @default(PAPER) // Trading mode for this PnL
+  tradeId   String?   // Reference to the sell trade
+  createdAt DateTime  @default(now())
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, createdAt])
   @@index([mint, createdAt(sort: Desc)], map: "mint_pnl_chronological") // PERFORMANCE: For mint-specific PnL queries
   @@index([tradeId])
+  @@index([userId, tradeMode, createdAt]) // PERFORMANCE: Filter PnL by trading mode
 }
 
 model LotClosure {
@@ -442,6 +459,22 @@ enum NotificationCategory {
   ACHIEVEMENT
   SYSTEM
   GENERAL
+}
+
+enum TradeMode {
+  PAPER // Virtual/simulated trading
+  REAL  // Real mainnet trading
+}
+
+enum FundingSource {
+  DEPOSITED // Trading from platform-held balance (Lightning API)
+  WALLET    // Trading from connected user wallet (Local Transaction API)
+}
+
+enum TransactionStatus {
+  PENDING   // Transaction submitted but not confirmed
+  CONFIRMED // Transaction confirmed on-chain
+  FAILED    // Transaction failed
 }
 
 // Perpetual Trading Models

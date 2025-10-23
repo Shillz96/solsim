@@ -28,6 +28,8 @@ import sentryTestRoutes from "./routes/sentry-test.js";
 import purchaseRoutes from "./routes/purchase.js";
 import notificationsRoutes from "./routes/notifications.js";
 import perpRoutes from "./routes/perpRoutes.js";
+import realTradeRoutes from "./routes/realTrade.js";
+import userProfileRoutes from "./routes/userProfile.js";
 
 // Import plugins and services
 import wsPlugin from "./plugins/ws.js";
@@ -233,6 +235,8 @@ app.register(searchRoutes, { prefix: "/api/search" });
 app.register(purchaseRoutes, { prefix: "/api/purchase" });
 app.register(notificationsRoutes, { prefix: "/api/notifications" });
 app.register(perpRoutes, { prefix: "/api/perp" }); // Perpetual trading routes
+app.register(realTradeRoutes, { prefix: "/api/real-trade" }); // Real mainnet trading routes (Lightning & Local API)
+app.register(userProfileRoutes, { prefix: "/api/user-profile" }); // User profile and trading mode management
 app.register(debugRoutes); // Debug routes for price service monitoring
 app.register(adminRoutes, { prefix: "/api/admin" }); // Admin maintenance routes (protected)
 app.register(sentryTestRoutes); // Sentry test routes (dev only)

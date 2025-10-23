@@ -3,12 +3,13 @@
 import Link from "next/link"
 import Image from "next/image"
 import { usePathname } from "next/navigation"
-import { Home, TrendingUp, Wallet, Trophy, Gift, Eye, Zap, Map, Info, ChevronDown, BookOpen } from "lucide-react"
+import { Home, TrendingUp, Wallet, Trophy, Gift, Eye, Zap, Map, Info, ChevronDown, BookOpen, AlertTriangle } from "lucide-react"
 import { Twitter as XIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { usePriceStreamContext } from "@/lib/price-stream-provider"
+import { useTradingMode } from "@/lib/trading-mode-context"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -16,6 +17,16 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 
 // Percentage formatting now inline
 
@@ -32,9 +43,18 @@ interface BottomNavBarProps {
 export function BottomNavBar({ className }: BottomNavBarProps = {}) {
   const pathname = usePathname()
   const { prices, subscribe, unsubscribe } = usePriceStreamContext()
+  const {
+    tradeMode,
+    activeBalance,
+    isSwitchingMode,
+    switchToRealTrading,
+    switchToPaperTrading,
+  } = useTradingMode()
   const [marketPrices, setMarketPrices] = useState<MarketPrice[]>([
     { symbol: "SOL", price: 250, change24h: 0 }, // Default to reasonable price instead of 0
   ])
+  const [showModeConfirm, setShowModeConfirm] = useState<boolean>(false)
+  const [pendingMode, setPendingMode] = useState<'PAPER' | 'REAL' | null>(null)
 
   // Subscribe to SOL price updates
   useEffect(() => {
@@ -85,6 +105,36 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
 
     fetchSolPrice()
   }, [])
+
+  // Handle trading mode toggle
+  const handleToggleMode = (newMode: 'PAPER' | 'REAL') => {
+    if (newMode === tradeMode) return
+
+    setPendingMode(newMode)
+    setShowModeConfirm(true)
+  }
+
+  const handleConfirmModeSwitch = async () => {
+    if (!pendingMode) return
+
+    try {
+      if (pendingMode === 'REAL') {
+        await switchToRealTrading()
+      } else {
+        await switchToPaperTrading()
+      }
+      setShowModeConfirm(false)
+      setPendingMode(null)
+    } catch (error) {
+      console.error('Error switching trading mode:', error)
+      // Error handling - you might want to add a toast notification here
+    }
+  }
+
+  const handleCancelModeSwitch = () => {
+    setShowModeConfirm(false)
+    setPendingMode(null)
+  }
 
   const navItems = [
     { href: "/", icon: Home, label: "Home" },
@@ -253,8 +303,39 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
             </div>
           </div>
 
-          {/* Right: Wallet Tracker, Leaderboard, More Info Dropdown & Quick Trade */}
+          {/* Right: Trading Mode Toggle, Wallet Tracker, Leaderboard, More Info Dropdown & Quick Trade */}
           <div className="flex items-center gap-4">
+            {/* Trading Mode Toggle */}
+            <div className="flex items-center gap-2 px-2 py-1 rounded-lg bg-muted border-2 border-pipe-300">
+              <button
+                onClick={() => handleToggleMode('PAPER')}
+                disabled={isSwitchingMode}
+                className={cn(
+                  "px-3 py-1 rounded text-xs font-semibold transition-all",
+                  tradeMode === 'PAPER'
+                    ? "bg-luigi-green-500 text-white shadow-sm"
+                    : "text-pipe-600 hover:text-pipe-900"
+                )}
+              >
+                PAPER
+              </button>
+              <button
+                onClick={() => handleToggleMode('REAL')}
+                disabled={isSwitchingMode}
+                className={cn(
+                  "px-3 py-1 rounded text-xs font-semibold transition-all flex items-center gap-1",
+                  tradeMode === 'REAL'
+                    ? "bg-mario-red-500 text-white shadow-sm"
+                    : "text-pipe-600 hover:text-pipe-900"
+                )}
+              >
+                {tradeMode === 'REAL' && <AlertTriangle className="w-3 h-3" />}
+                REAL
+              </button>
+              <div className="text-xs text-pipe-600 pl-2 border-l border-pipe-300">
+                {activeBalance.toFixed(2)} SOL
+              </div>
+            </div>
             {/* Wallet Tracker Button */}
             <Link href="/wallet-tracker">
               <Button
@@ -327,6 +408,48 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
           </div>
         </div>
       </div>
+
+      {/* Trading Mode Confirmation Dialog */}
+      <AlertDialog open={showModeConfirm} onOpenChange={setShowModeConfirm}>
+        <AlertDialogContent className="border-4 border-coin-yellow-500 shadow-mario">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="font-mario text-coin-yellow-600 flex items-center gap-2">
+              {pendingMode === 'REAL' && <AlertTriangle className="w-5 h-5 text-mario-red-500" />}
+              Switch to {pendingMode === 'REAL' ? 'Real' : 'Paper'} Trading?
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {pendingMode === 'REAL' ? (
+                <>
+                  <strong className="text-mario-red-600">Warning:</strong> You are about to switch to REAL trading mode.
+                  All trades will use real SOL and execute on Solana mainnet. This cannot be simulated or undone.
+                  Make sure you understand the risks before proceeding.
+                </>
+              ) : (
+                <>
+                  You are about to switch to PAPER trading mode.
+                  All trades will be simulated using virtual SOL. Your real trading positions will remain separate and unchanged.
+                </>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={handleCancelModeSwitch}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirmModeSwitch}
+              className={cn(
+                "font-semibold",
+                pendingMode === 'REAL'
+                  ? "bg-mario-red-500 hover:bg-mario-red-600 text-white"
+                  : "bg-luigi-green-500 hover:bg-luigi-green-600 text-white"
+              )}
+            >
+              {isSwitchingMode ? 'Switching...' : `Switch to ${pendingMode}`}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   )
 }

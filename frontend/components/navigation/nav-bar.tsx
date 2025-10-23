@@ -20,7 +20,7 @@ import { Input } from "@/components/ui/input"
 import {
   Menu, User, Settings, LogOut, Bell, Search, Loader2,
   TrendingUp, Wallet, Target, BarChart3, Home, Zap,
-  ChevronDown, Command, Gift, Building2, BookOpen, Map, Info
+  ChevronDown, Command, Gift, Building2, BookOpen, Map, Info, HelpCircle
 } from "lucide-react"
 import { useState, useCallback, useEffect, useRef } from "react"
 import { createPortal } from "react-dom"
@@ -50,6 +50,7 @@ import { formatSolEquivalent } from "@/lib/sol-equivalent-utils"
 import { useNotifications } from "@/hooks/use-notifications"
 import { formatDistanceToNow } from "date-fns"
 import { XPBadge } from "@/components/level/xp-progress-bar"
+import { useOnboardingContext } from "@/lib/onboarding-provider"
 
 // Enhanced navigation items with better organization
 const navigationItems = [
@@ -134,6 +135,7 @@ export function NavBar() {
   const { user, isAuthenticated, logout } = useAuth()
   const { prices: livePrices } = usePriceStreamContext()
   const solPrice = livePrices.get('So11111111111111111111111111111111111111112')?.price || 0
+  const { startOnboarding } = useOnboardingContext()
 
   // Notifications data
   const {
@@ -424,6 +426,7 @@ export function NavBar() {
               <>
                 {/* Balance Display - Clickable */}
                 <button
+                  id="virtual-balance"
                   onClick={() => setPurchaseModalOpen(true)}
                   className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all cursor-pointer group"
                   aria-label="Purchase simulated SOL"
@@ -445,6 +448,7 @@ export function NavBar() {
                 {user && (
                   <div className="hidden md:block">
                     <button
+                      id="xp-display"
                       onClick={() => setLevelModalOpen(true)}
                       className="cursor-pointer px-3 py-1.5 bg-gradient-to-r from-[var(--star-yellow)] to-[var(--coin-yellow)] border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all rounded-lg"
                     >
@@ -480,6 +484,11 @@ export function NavBar() {
                           <Settings className="h-4 w-4" />
                           Settings
                         </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator className="bg-[var(--outline-black)]" />
+                      <DropdownMenuItem onClick={startOnboarding} className="flex items-center gap-2 font-bold text-[var(--luigi-green)] hover:text-[var(--luigi-green)]">
+                        <HelpCircle className="h-4 w-4" />
+                        Take Tour
                       </DropdownMenuItem>
                       <DropdownMenuSeparator className="bg-[var(--outline-black)]" />
                       <DropdownMenuItem onClick={handleLogout} className="text-[var(--mario-red)] font-bold">

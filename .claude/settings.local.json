@@ -60,7 +60,11 @@
       "WebFetch(domain:kolscan.io)",
       "Bash(mkdir:*)",
       "WebFetch(domain:www.flaticon.com)",
-      "Bash(move:*)"
+      "Bash(move:*)",
+      "WebFetch(domain:pumpportal.fun)",
+      "WebFetch(domain:docs.pumpportal.fun)",
+      "WebFetch(domain:nextstepjs.com)",
+      "WebFetch(domain:www.onborda.dev)"
     ],
     "deny": [],
     "ask": []

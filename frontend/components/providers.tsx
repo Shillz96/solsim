@@ -7,7 +7,9 @@ import { GlobalErrorBoundary } from "@/components/error-boundary-enhanced"
 import { QueryProvider } from "@/lib/query-provider"
 import { PriceStreamProvider } from "@/lib/price-stream-provider"
 import { SolanaWalletProvider } from "@/lib/solana-wallet-provider"
+import { TradingModeProvider } from "@/lib/trading-mode-context"
 import { NotificationProvider } from "@/components/shared/enhanced-notifications"
+import { OnboardingProvider } from "@/lib/onboarding-provider"
 // PWA features removed for now
 
 interface AppProvidersProps {
@@ -23,26 +25,32 @@ interface AppProvidersProps {
  * 1. GlobalErrorBoundary - Catches all React errors
  * 2. QueryProvider - React Query for data fetching
  * 3. SolanaWalletProvider - Wallet connectivity
- * 4. PriceStreamProvider - Real-time price updates
- * 5. NotificationProvider - Enhanced notification system
- * 6. ThemeProvider - LIGHT MODE ONLY (Mario theme!)
+ * 4. TradingModeProvider - Paper/Real trading mode management
+ * 5. PriceStreamProvider - Real-time price updates
+ * 6. NotificationProvider - Enhanced notification system
+ * 7. OnboardingProvider - Product tour and user onboarding
+ * 8. ThemeProvider - LIGHT MODE ONLY (Mario theme!)
  */
 export function AppProviders({ children }: AppProvidersProps) {
   return (
     <GlobalErrorBoundary>
       <QueryProvider>
         <SolanaWalletProvider>
-          <PriceStreamProvider>
-            <NotificationProvider>
-              <ThemeProvider
-                attribute="class"
-                forcedTheme="light"
-                disableTransitionOnChange
-              >
-                {children}
-              </ThemeProvider>
-            </NotificationProvider>
-          </PriceStreamProvider>
+          <TradingModeProvider>
+            <PriceStreamProvider>
+              <NotificationProvider>
+                <OnboardingProvider>
+                  <ThemeProvider
+                    attribute="class"
+                    forcedTheme="light"
+                    disableTransitionOnChange
+                  >
+                    {children}
+                  </ThemeProvider>
+                </OnboardingProvider>
+              </NotificationProvider>
+            </PriceStreamProvider>
+          </TradingModeProvider>
         </SolanaWalletProvider>
       </QueryProvider>
     </GlobalErrorBoundary>

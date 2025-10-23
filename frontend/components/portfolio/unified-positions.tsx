@@ -577,7 +577,7 @@ export const UnifiedPositions = memo(function UnifiedPositions({
 
   // Render full variant (for portfolio page)
   return (
-    <div className={cn("space-y-6", className)}>
+    <div id="portfolio-table" className={cn("space-y-6", className)}>
       {/* Portfolio Summary - Mario Theme */}
       {showSummary && liveTotals && (
         <div className="bg-card border-4 border-pipe-700 rounded-xl shadow-[6px_6px_0_0_rgba(0,0,0,0.3)] p-6">

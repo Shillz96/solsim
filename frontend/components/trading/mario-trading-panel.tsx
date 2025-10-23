@@ -23,15 +23,19 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Slider } from "@/components/ui/slider"
 import { TrendingUp, TrendingDown, Wallet, AlertCircle, CheckCircle, Loader2, Star, Coins } from "lucide-react"
 import { usePriceStreamContext } from "@/lib/price-stream-provider"
+import { useTradingMode } from "@/lib/trading-mode-context"
 import { useToast } from "@/hooks/use-toast"
 import { cn } from "@/lib/utils"
 import { formatUSD, formatNumber, formatTokenQuantity, formatPriceUSD } from "@/lib/format"
 import { formatSolEquivalent } from "@/lib/sol-equivalent-utils"
 import * as api from "@/lib/api"
+import * as realTradeApi from "@/lib/real-trade-api"
 import { AnimatedNumber } from "@/components/ui/animated-number"
 import { useAuth } from "@/hooks/use-auth"
 import { usePortfolio, usePosition } from "@/hooks/use-portfolio"
 import { motion, AnimatePresence } from "framer-motion"
+import { RealTradeConfirmationModal, type RealTradeDetails } from "./real-trade-confirmation-modal"
+import { TransactionStatusTracker, type TransactionStep } from "./transaction-status-tracker"
 
 interface MarioTradingPanelProps {
   tokenAddress?: string
@@ -47,11 +51,21 @@ function MarioTradingPanelComponent({ tokenAddress: propTokenAddress }: MarioTra
   const { data: portfolio, isLoading: portfolioLoading, error: portfolioErrorObj, refetch: refreshPortfolio } = usePortfolio()
   const portfolioError = portfolioErrorObj ? (portfolioErrorObj as Error).message : null
 
+  const { tradeMode, fundingSource, activeBalance, refreshBalances } = useTradingMode()
+
   const [userBalance, setUserBalance] = useState<number>(0)
   const [isTrading, setIsTrading] = useState(false)
   const [tradeError, setTradeError] = useState<string | null>(null)
   const [lastTradeSuccess, setLastTradeSuccess] = useState(false)
   const [showPowerUpAnimation, setShowPowerUpAnimation] = useState(false)
+
+  // Real trading states
+  const [showRealTradeConfirm, setShowRealTradeConfirm] = useState(false)
+  const [realTradeDetails, setRealTradeDetails] = useState<RealTradeDetails | null>(null)
+  const [showTransactionStatus, setShowTransactionStatus] = useState(false)
+  const [transactionSignature, setTransactionSignature] = useState<string | undefined>()
+  const [transactionStep, setTransactionStep] = useState<TransactionStep>('building')
+  const [transactionError, setTransactionError] = useState<string | undefined>()
 
   const { connected: wsConnected, prices: livePrices } = usePriceStreamContext()
   const { toast } = useToast()
@@ -219,9 +233,128 @@ function MarioTradingPanelComponent({ tokenAddress: propTokenAddress }: MarioTra
     }
   }
 
+  // Real trading handler
+  const handleRealTrade = async (action: 'buy' | 'sell') => {
+    if (!user || !tokenDetails) return
+
+    let amountSol: number
+    let tokenQuantity: number
+
+    if (action === 'buy') {
+      amountSol = selectedSolAmount || (customSolAmount ? parseFloat(customSolAmount) : 0)
+      if (amountSol <= 0 || amountSol > activeBalance) {
+        toast({ title: "Invalid Amount", variant: "destructive" })
+        return
+      }
+      const amountUsd = amountSol * solPrice
+      tokenQuantity = amountUsd / tokenDetails.price
+    } else {
+      if (!tokenHolding || !selectedPercentage) {
+        toast({ title: "Select Amount", variant: "destructive" })
+        return
+      }
+      const holdingQuantity = parseFloat(tokenHolding.qty)
+      tokenQuantity = (holdingQuantity * selectedPercentage) / 100
+    }
+
+    tokenQuantity = Math.round(tokenQuantity * 1e9) / 1e9
+
+    // Prepare trade details for confirmation modal
+    const tradeDetails: RealTradeDetails = {
+      token: {
+        name: tokenDetails.tokenName,
+        symbol: tokenDetails.tokenSymbol,
+        logoUrl: tokenDetails.imageUrl,
+        mint: tokenAddress,
+      },
+      tradeType: action,
+      tokenAmount: tokenQuantity,
+      executionPrice: tokenDetails.price,
+      totalValue: action === 'buy' ? amountSol : tokenQuantity * tokenDetails.price / solPrice,
+      fundingSource: fundingSource,
+      networkFee: 0.00001, // Estimate
+      pumpPortalFee: (action === 'buy' ? amountSol : tokenQuantity * tokenDetails.price / solPrice) * (fundingSource === 'DEPOSITED' ? 0.01 : 0.005),
+      slippageBps: 300, // 3% default slippage
+      availableBalance: activeBalance,
+    }
+
+    setRealTradeDetails(tradeDetails)
+    setShowRealTradeConfirm(true)
+  }
+
+  // Execute real trade after confirmation
+  const executeRealTrade = async () => {
+    if (!realTradeDetails || !user) return
+
+    setShowRealTradeConfirm(false)
+    setShowTransactionStatus(true)
+    setTransactionStep('submitting')
+    setTransactionError(undefined)
+
+    try {
+      const userId = getUserId()
+      if (!userId) throw new Error('Not authenticated')
+
+      const result = await realTradeApi.executeRealTrade({
+        userId,
+        mint: realTradeDetails.token.mint,
+        side: realTradeDetails.tradeType === 'buy' ? 'BUY' : 'SELL',
+        amountSol: realTradeDetails.totalValue,
+        fundingSource: fundingSource,
+        slippageBps: realTradeDetails.slippageBps,
+      })
+
+      if (result.success && result.trade) {
+        setTransactionSignature(result.trade.signature)
+        setTransactionStep('confirming')
+
+        // Poll for confirmation
+        setTimeout(() => {
+          setTransactionStep('confirmed')
+          refreshBalances()
+          refreshPortfolio()
+
+          toast({
+            title: "✅ Real Trade Executed!",
+            description: `${realTradeDetails.tradeType === 'buy' ? 'Bought' : 'Sold'} ${formatTokenQuantity(result.trade.amountTokens)} ${realTradeDetails.token.symbol}`,
+            duration: 5000,
+          })
+
+          setShowPowerUpAnimation(true)
+          setTimeout(() => setShowPowerUpAnimation(false), 1000)
+
+          // Reset form
+          setSelectedSolAmount(null)
+          setSelectedPercentage(null)
+          setCustomSolAmount("")
+          setCustomSellPercentage("")
+        }, 3000)
+      } else {
+        throw new Error(result.error || 'Trade failed')
+      }
+    } catch (error) {
+      console.error('Real trade failed:', error)
+      setTransactionStep('failed')
+      setTransactionError(error instanceof Error ? error.message : 'Unknown error')
+
+      toast({
+        title: "Trade Failed",
+        description: error instanceof Error ? error.message : 'Unknown error',
+        variant: "destructive",
+      })
+    }
+  }
+
   const handleTrade = async (action: 'buy' | 'sell') => {
     if (!user || !tokenDetails) return
 
+    // Check if real trading mode
+    if (tradeMode === 'REAL') {
+      handleRealTrade(action)
+      return
+    }
+
+    // Paper trading logic
     let amountSol: number
     let tokenQuantity: number
 
@@ -283,7 +416,7 @@ function MarioTradingPanelComponent({ tokenAddress: propTokenAddress }: MarioTra
   const tokenBalance = tokenHolding ? parseFloat(tokenHolding.qty) : 0
 
   return (
-    <div className="mario-card p-2 sm:p-3 lg:p-4 relative">
+    <div id="trade-panel" className="mario-card p-2 sm:p-3 lg:p-4 relative">
       {/* Power-up Animation */}
       <AnimatePresence>
         {showPowerUpAnimation && (
@@ -475,6 +608,36 @@ function MarioTradingPanelComponent({ tokenAddress: propTokenAddress }: MarioTra
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* Real Trade Confirmation Modal */}
+      {realTradeDetails && (
+        <RealTradeConfirmationModal
+          open={showRealTradeConfirm}
+          onOpenChange={setShowRealTradeConfirm}
+          tradeDetails={realTradeDetails}
+          isSubmitting={isTrading}
+          onConfirm={executeRealTrade}
+          onCancel={() => {
+            setShowRealTradeConfirm(false)
+            setRealTradeDetails(null)
+          }}
+        />
+      )}
+
+      {/* Transaction Status Tracker */}
+      <TransactionStatusTracker
+        open={showTransactionStatus}
+        onOpenChange={setShowTransactionStatus}
+        signature={transactionSignature}
+        currentStep={transactionStep}
+        error={transactionError}
+        onClose={() => {
+          setShowTransactionStatus(false)
+          setTransactionSignature(undefined)
+          setTransactionStep('building')
+          setTransactionError(undefined)
+        }}
+      />
     </div>
   )
 }

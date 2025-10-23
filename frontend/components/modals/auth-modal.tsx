@@ -15,6 +15,7 @@ import { Mail, Lock, User, TrendingUp, AlertCircle, CheckCircle, ArrowLeft, Wall
 import { useAuth } from "@/hooks/use-auth"
 import { WalletConnectButton } from "@/components/wallet/wallet-connect-button"
 import { PasswordStrengthIndicator, validatePassword } from "@/components/auth/password-strength-indicator"
+import { useMarkOnboardingNeeded } from "@/lib/onboarding-provider"
 // Wallet integration handled by WalletConnectButton component
 
 interface AuthModalProps {
@@ -34,6 +35,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
 
   const { login, signup } = useAuth()
   const [walletConnected, setWalletConnected] = useState<string | null>(null)
+  const markOnboardingNeeded = useMarkOnboardingNeeded()
   // Use services directly instead of hooks
   // Wallet integration handled by WalletConnectButton component
 
@@ -146,6 +148,10 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
 
     try {
       await signup(email, password, handle.trim())
+
+      // Mark that user needs onboarding tour
+      markOnboardingNeeded()
+
       // Close modal - auth state will update automatically via auth context
       onOpenChange(false)
       setSuccess('Account created successfully! Please check your email to verify your account.')
@@ -156,7 +162,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
       setPassword('')
       setConfirmPassword('')
 
-      // Optional: Navigate to a specific page or show verification reminder
+      // Onboarding tour will automatically trigger after modal closes
       // The useAuth hook should handle state updates automatically
     } catch (err) {
       const error = err as Error

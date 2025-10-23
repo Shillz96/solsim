@@ -154,7 +154,7 @@ export default function TrendingPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
-      <main className="w-full px-4 sm:px-6 lg:px-8 py-8 max-w-page-xl mx-auto">
+      <main id="trending-section" className="w-full px-4 sm:px-6 lg:px-8 py-8 max-w-page-xl mx-auto">
         {/* Header - Mario themed with colorful text */}
         <motion.div
           className="mb-8 text-center"
