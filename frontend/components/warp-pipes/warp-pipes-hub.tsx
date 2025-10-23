@@ -62,18 +62,18 @@ export function WarpPipesHub() {
   }, [data])
 
   return (
-    <div className="w-full px-4 py-4">
+    <div className="w-full px-4 py-6 bg-[var(--background)]">
       {/* Error State */}
       {error && (
-        <Alert variant="destructive" className="mb-6 border-4 border-mario-red-500">
+        <Alert variant="destructive" className="mb-6 border-4 border-[var(--mario-red)] shadow-[6px_6px_0_var(--outline-black)] rounded-[16px]">
           <AlertCircle className="h-5 w-5" />
           <AlertDescription className="flex items-center justify-between">
-            <span>Failed to load tokens. Please try again.</span>
+            <span className="text-[var(--outline-black)]">Failed to load tokens. Please try again.</span>
             <Button
               variant="outline"
               size="sm"
               onClick={() => refetch()}
-              className="ml-4 border-2"
+              className="ml-4 border-3 border-[var(--outline-black)] bg-[var(--star-yellow)] text-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)] hover:shadow-[6px_6px_0_var(--outline-black)] hover:-translate-y-[2px] rounded-[12px] font-bold transition-all"
             >
               <RefreshCw className="h-4 w-4 mr-2" />
               Retry
@@ -83,7 +83,7 @@ export function WarpPipesHub() {
       )}
 
       {/* Desktop: 3-Column Layout - Reordered: New Pairs | About to Graduate | Bonded */}
-      <div className="hidden lg:grid lg:grid-cols-3 gap-4 h-[calc(100vh-160px)]">
+      <div className="hidden lg:grid lg:grid-cols-3 gap-6 h-[calc(100vh-160px)]">
         <TokenColumn
           title="🆕 New Pairs"
           tokens={newTokens}
@@ -110,22 +110,22 @@ export function WarpPipesHub() {
       {/* Mobile: Tabs Layout */}
       <div className="lg:hidden">
         <Tabs defaultValue="new" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 mb-4 border-3 border-pipe-400">
+          <TabsList className="grid w-full grid-cols-3 mb-4 border-4 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)] rounded-[14px] bg-white p-1">
             <TabsTrigger
               value="new"
-              className="data-[state=active]:bg-luigi-green-500 data-[state=active]:text-white font-semibold"
+              className="data-[state=active]:bg-[var(--luigi-green)] data-[state=active]:text-white data-[state=active]:shadow-[2px_2px_0_var(--outline-black)] rounded-[10px] font-bold transition-all"
             >
               🆕 New ({newTokens.length})
             </TabsTrigger>
             <TabsTrigger
               value="graduating"
-              className="data-[state=active]:bg-star-yellow-500 data-[state=active]:text-black font-semibold"
+              className="data-[state=active]:bg-[var(--star-yellow)] data-[state=active]:text-[var(--outline-black)] data-[state=active]:shadow-[2px_2px_0_var(--outline-black)] rounded-[10px] font-bold transition-all"
             >
               ⭐ Graduate ({graduating.length})
             </TabsTrigger>
             <TabsTrigger
               value="bonded"
-              className="data-[state=active]:bg-coin-yellow-500 data-[state=active]:text-black font-semibold"
+              className="data-[state=active]:bg-[var(--coin-yellow)] data-[state=active]:text-[var(--outline-black)] data-[state=active]:shadow-[2px_2px_0_var(--outline-black)] rounded-[10px] font-bold transition-all"
             >
               🪙 Bonded ({bonded.length})
             </TabsTrigger>
@@ -165,10 +165,10 @@ export function WarpPipesHub() {
 
       {/* Loading Overlay */}
       {isLoading && (
-        <div className="fixed inset-0 bg-background/50 backdrop-blur-sm flex items-center justify-center z-50">
-          <div className="bg-card border-4 border-mario-red-500 rounded-xl p-8 shadow-xl">
-            <Loader2 className="h-12 w-12 animate-spin text-mario-red-500 mx-auto mb-4" />
-            <p className="text-center font-semibold">Loading Warp Pipes...</p>
+        <div className="fixed inset-0 bg-[var(--background)]/80 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-white border-4 border-[var(--outline-black)] shadow-[8px_8px_0_var(--outline-black)] rounded-[16px] p-8">
+            <Loader2 className="h-12 w-12 animate-spin text-[var(--mario-red)] mx-auto mb-4" />
+            <p className="text-center font-bold text-[var(--outline-black)] text-[18px]">Loading Warp Pipes...</p>
           </div>
         </div>
       )}

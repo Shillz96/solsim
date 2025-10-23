@@ -11,12 +11,28 @@
  */
 
 import { use } from 'react'
+import dynamic from 'next/dynamic'
 import { MarioTradingPanel } from '@/components/trading/mario-trading-panel'
-import { LightweightChart } from '@/components/trading/lightweight-chart'
 import { useAuth } from '@/hooks/use-auth'
 import { useQuery } from '@tanstack/react-query'
 import * as api from '@/lib/api'
 import { Loader2 } from 'lucide-react'
+
+// Dynamically import chart component to prevent SSR issues
+const LightweightChart = dynamic(
+  () => import('@/components/trading/lightweight-chart').then(mod => ({ default: mod.LightweightChart })),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="border-4 border-[var(--outline-black)] rounded-[16px] shadow-[6px_6px_0_var(--outline-black)] bg-[#FFFAE9] overflow-hidden flex items-center justify-center" style={{ minHeight: '500px' }}>
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="h-8 w-8 animate-spin text-[var(--mario-red)]" />
+          <div className="text-sm font-bold">Loading chart...</div>
+        </div>
+      </div>
+    ),
+  }
+)
 
 interface TradeRoomPageProps {
   params: Promise<{
