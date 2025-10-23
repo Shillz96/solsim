@@ -10,6 +10,7 @@
 import { useEffect } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import type { ISeriesApi, SeriesMarker, Time } from 'lightweight-charts'
+import { createSeriesMarkers } from 'lightweight-charts'
 import { useAuth } from './use-auth'
 
 interface Trade {
@@ -83,7 +84,7 @@ export function useTradeMarkers(
       }
     })
 
-    candlestickSeries.setMarkers(markers)
+    createSeriesMarkers(candlestickSeries, markers)
 
     console.log(`✅ Applied ${markers.length} trade markers`)
   }, [candlestickSeries, tradesData])

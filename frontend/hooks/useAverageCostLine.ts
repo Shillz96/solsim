@@ -37,10 +37,10 @@ export function useAverageCostLine(
 
     try {
       // Get average cost from position (already in USD)
-      const avgCostUsd = parseFloat(position.averageCost)
+      const avgCostUsd = parseFloat(position.avgCostUsd)
 
       if (isNaN(avgCostUsd) || avgCostUsd <= 0) {
-        console.warn('⚠️ Invalid average cost:', position.averageCost)
+        console.warn('⚠️ Invalid average cost:', position.avgCostUsd)
         return
       }
 
@@ -78,6 +78,6 @@ export function useAverageCostLine(
 
   return {
     hasPosition: !!position && parseFloat(position.qty) > 0,
-    averageCost: position ? parseFloat(position.averageCost) : 0,
+    averageCost: position ? parseFloat(position.avgCostUsd) : 0,
   }
 }
