@@ -29,22 +29,13 @@ ALTER TABLE "Trade" ADD COLUMN IF NOT EXISTS "realTxStatus" "TransactionStatus";
 ALTER TABLE "Trade" ADD COLUMN IF NOT EXISTS "fundingSource" "FundingSource";
 ALTER TABLE "Trade" ADD COLUMN IF NOT EXISTS "pumpPortalFee" DECIMAL(65,30);
 
--- AlterTable Position - Add trade mode and modify unique constraint
+-- AlterTable Position - Add trade mode (if not exists)
 ALTER TABLE "Position" ADD COLUMN IF NOT EXISTS "tradeMode" "TradeMode" NOT NULL DEFAULT 'PAPER';
 
--- Drop old unique constraint if it exists and create new one with tradeMode
+-- Add new unique constraint for Position (userId, mint, tradeMode)
+-- Only add if it doesn't already exist
 DO $$
 BEGIN
-    -- Try to drop the old constraint if it exists
-    IF EXISTS (
-        SELECT 1 FROM pg_constraint
-        WHERE conname = 'Position_userId_mint_key'
-        AND conrelid = '"Position"'::regclass
-    ) THEN
-        ALTER TABLE "Position" DROP CONSTRAINT "Position_userId_mint_key";
-    END IF;
-
-    -- Add new constraint if it doesn't exist
     IF NOT EXISTS (
         SELECT 1 FROM pg_constraint
         WHERE conname = 'Position_userId_mint_tradeMode_key'
