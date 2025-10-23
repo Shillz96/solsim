@@ -183,6 +183,7 @@ export function WalletBalanceDisplay({
   }
 
   return (
+    <>
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <div>
