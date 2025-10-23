@@ -32,7 +32,7 @@ import realTradeRoutes from "./routes/realTrade.js";
 import userProfileRoutes from "./routes/userProfile.js";
 import warpPipesRoutes from "./routes/warpPipes.js";
 import webhookRoutes from "./routes/webhooks.js";
-import { chartRoutes } from "./routes/chart.js";
+import chartRoutes from "./routes/chart.js";
 
 // Import plugins and services
 import wsPlugin from "./plugins/ws.js";

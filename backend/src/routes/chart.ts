@@ -13,7 +13,7 @@ interface OHLCVQueryParams {
   limit?: string
 }
 
-export async function chartRoutes(app: FastifyInstance) {
+export default async function chartRoutes(app: FastifyInstance) {
   /**
    * GET /api/chart/ohlcv
    *
