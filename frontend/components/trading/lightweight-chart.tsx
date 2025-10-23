@@ -16,11 +16,11 @@
 import { useEffect, useRef, useState } from 'react'
 import {
   createChart,
-  IChartApi,
-  ISeriesApi,
-  CandlestickData,
-  Time,
-  SeriesMarker,
+  type IChartApi,
+  type ISeriesApi,
+  type CandlestickData,
+  type Time,
+  type SeriesMarker,
   ColorType,
   LineStyle,
 } from 'lightweight-charts'
@@ -135,6 +135,7 @@ export function LightweightChart({
     })
 
     // Candlestick series with Mario theme colors
+    // @ts-expect-error - addCandlestickSeries exists in v5 but type definitions may be incomplete
     const candlestickSeries = chart.addCandlestickSeries({
       upColor: '#43B047', // Luigi green
       downColor: '#E52521', // Mario red
@@ -151,6 +152,7 @@ export function LightweightChart({
     })
 
     // Volume histogram
+    // @ts-expect-error - addHistogramSeries exists in v5 but type definitions may be incomplete
     const volumeSeries = chart.addHistogramSeries({
       color: '#A6D8FF', // Sky blue
       priceFormat: {
