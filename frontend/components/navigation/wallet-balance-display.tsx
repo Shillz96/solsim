@@ -26,7 +26,8 @@ interface WalletBalanceDisplayProps {
   onWithdrawClick?: () => void;
   onConnectWalletClick?: () => void;
   showDropdown?: boolean;
-  variant?: "compact" | "minimal";
+  variant?: "compact" | "minimal" | "mario";
+  badgeText?: string;
 }
 
 /**
@@ -51,6 +52,7 @@ export function WalletBalanceDisplay({
   onConnectWalletClick,
   showDropdown = true,
   variant = "compact",
+  badgeText,
 }: WalletBalanceDisplayProps) {
   const {
     tradeMode,
@@ -120,6 +122,57 @@ export function WalletBalanceDisplay({
 
   const config = getDisplayConfig();
   const Icon = config.icon;
+
+  // Mario cartridge variant - big yellow slab with chunky black outline
+  if (variant === "mario") {
+    const isPractice = isPaperMode;
+    const smallLabel = isPractice ? "Virtual SOL" : "Live SOL";
+    const badge = badgeText ?? (isPractice ? "P" : "L");
+
+    return (
+      <button
+        type="button"
+        onClick={() => showDropdown && setShowDepositModal?.(true)}
+        aria-label="Balance"
+        className={cn(
+          // container
+          "group relative h-10 md:h-11 min-w-[180px]",
+          "px-3 md:px-3.5 rounded-[12px] md:rounded-[14px]",
+          "bg-[var(--star-yellow)]",
+          "border-4 border-[var(--outline-black)]",
+          "shadow-[4px_4px_0_var(--outline-black)]",
+          "flex items-center gap-3 md:gap-4",
+          "transition-transform hover:-translate-y-[1px]",
+          className
+        )}
+      >
+        {/* Amount + small label */}
+        <div className="flex flex-col leading-none -space-y-[1px] md:-space-y-[2px]">
+          <span className="tabular-nums font-extrabold text-[15px] md:text-[17px] tracking-tight text-[var(--outline-black)]">
+            {Number(activeBalance ?? 0).toFixed(2)}
+          </span>
+          <span className="text-[10px] md:text-[11px] font-black uppercase text-foreground/80">
+            {smallLabel}
+          </span>
+        </div>
+
+        {/* Red square badge on the right */}
+        <div
+          className={cn(
+            "ml-auto grid place-items-center",
+            "h-7 w-7 md:h-8 md:w-8",
+            "rounded-[10px] md:rounded-[12px]",
+            "bg-[var(--mario-red)] text-white",
+            "border-4 border-[var(--outline-black)]"
+          )}
+        >
+          <span className="font-extrabold text-[11px] md:text-[12px] leading-none">
+            {badge}
+          </span>
+        </div>
+      </button>
+    );
+  }
 
   // Balance display component
   const BalanceButton = () => (
