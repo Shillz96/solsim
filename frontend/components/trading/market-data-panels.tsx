@@ -2,7 +2,7 @@
 
 /**
  * Market Data Panels Component
- * 
+ *
  * Tabbed interface showing:
  * - Recent Trades (with whale alerts)
  * - Top Traders (24h leaderboard)
@@ -81,12 +81,11 @@ export function MarketDataPanels({ tokenMint }: MarketDataPanelsProps) {
 
 // Recent Trades Panel
 function RecentTradesPanel({ tokenMint }: { tokenMint: string }) {
-  // TODO: Implement API endpoint for recent trades
-  // const { data, isLoading } = useQuery({
-  //   queryKey: ['market-trades', tokenMint],
-  //   queryFn: () => api.getMarketTrades(tokenMint),
-  //   refetchInterval: 10000, // Refresh every 10 seconds
-  // })
+  const { data: trades = [], isLoading } = useQuery({
+    queryKey: ['market-trades', tokenMint],
+    queryFn: () => api.getMarketTrades(tokenMint),
+    refetchInterval: 10000, // Refresh every 10 seconds
+  })
 
   return (
     <div className="border-4 border-[var(--outline-black)] rounded-[16px] shadow-[4px_4px_0_var(--outline-black)] bg-white p-4 min-h-[200px]">
@@ -95,43 +94,65 @@ function RecentTradesPanel({ tokenMint }: { tokenMint: string }) {
         <h3 className="font-bold text-sm">Recent Market Activity</h3>
       </div>
 
-      <div className="space-y-2">
-        {/* Placeholder for now */}
+      {isLoading ? (
+        <div className="flex items-center justify-center py-8">
+          <Loader2 className="h-5 w-5 animate-spin text-[var(--outline-black)]" />
+        </div>
+      ) : trades.length === 0 ? (
         <div className="text-sm text-muted-foreground text-center py-8">
           <div className="mb-2">📊</div>
-          <div className="font-bold mb-1">Live trade feed coming soon</div>
-          <div className="text-xs">Real-time buys and sells with whale alerts</div>
+          <div className="font-bold mb-1">No recent trades</div>
+          <div className="text-xs">Waiting for market activity...</div>
         </div>
-
-        {/* Example of what it will look like */}
-        {/* <div className="flex items-center justify-between p-2 bg-[var(--luigi-green)]/10 rounded-lg border-2 border-[var(--luigi-green)]/30">
-          <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-full bg-[var(--luigi-green)] flex items-center justify-center">
-              <TrendingUp className="h-3 w-3 text-white" />
+      ) : (
+        <div className="space-y-2 max-h-[400px] overflow-y-auto">
+          {trades.map((trade: any, i: number) => (
+            <div
+              key={`${trade.user}-${trade.timestamp}-${i}`}
+              className={cn(
+                "flex items-center justify-between p-2 rounded-lg border-2",
+                trade.type === 'buy'
+                  ? "bg-[var(--luigi-green)]/10 border-[var(--luigi-green)]/30"
+                  : "bg-[var(--mario-red)]/10 border-[var(--mario-red)]/30"
+              )}
+            >
+              <div className="flex items-center gap-2">
+                <div className={cn(
+                  "w-6 h-6 rounded-full flex items-center justify-center",
+                  trade.type === 'buy' ? "bg-[var(--luigi-green)]" : "bg-[var(--mario-red)]"
+                )}>
+                  {trade.type === 'buy' ? (
+                    <TrendingUp className="h-3 w-3 text-white" />
+                  ) : (
+                    <TrendingDown className="h-3 w-3 text-white" />
+                  )}
+                </div>
+                <div>
+                  <div className="text-xs font-bold uppercase">{trade.type}</div>
+                  <div className="text-[10px] text-muted-foreground">
+                    {trade.user ? `${trade.user.slice(0, 4)}...${trade.user.slice(-4)}` : 'Unknown'}
+                  </div>
+                </div>
+              </div>
+              <div className="text-right">
+                <div className="text-xs font-bold">{formatNumber(trade.tokenAmount || 0)} tokens</div>
+                <div className="text-[10px] text-muted-foreground">{formatUSD((trade.solAmount || 0) * 100, 2)} SOL</div>
+              </div>
             </div>
-            <div>
-              <div className="text-xs font-bold">BUY</div>
-              <div className="text-[10px] text-muted-foreground">2m ago</div>
-            </div>
-          </div>
-          <div className="text-right">
-            <div className="text-xs font-bold">1.5M tokens</div>
-            <div className="text-[10px] text-muted-foreground">$250</div>
-          </div>
-        </div> */}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   )
 }
 
 // Top Traders Panel
 function TopTradersPanel({ tokenMint }: { tokenMint: string }) {
-  // TODO: Implement API endpoint for top traders
-  // const { data, isLoading } = useQuery({
-  //   queryKey: ['top-traders', tokenMint],
-  //   queryFn: () => api.getTopTraders(tokenMint),
-  //   staleTime: 60000, // 1 minute
-  // })
+  const { data: traders = [], isLoading } = useQuery({
+    queryKey: ['top-traders', tokenMint],
+    queryFn: () => api.getTopTraders(tokenMint),
+    staleTime: 60000, // 1 minute
+  })
 
   return (
     <div className="border-4 border-[var(--outline-black)] rounded-[16px] shadow-[4px_4px_0_var(--outline-black)] bg-white p-4 min-h-[200px]">
@@ -140,38 +161,48 @@ function TopTradersPanel({ tokenMint }: { tokenMint: string }) {
         <h3 className="font-bold text-sm">24h Top Performers</h3>
       </div>
 
-      <div className="space-y-2">
-        {/* Placeholder for now */}
+      {isLoading ? (
+        <div className="flex items-center justify-center py-8">
+          <Loader2 className="h-5 w-5 animate-spin text-[var(--outline-black)]" />
+        </div>
+      ) : traders.length === 0 ? (
         <div className="text-sm text-muted-foreground text-center py-8">
           <div className="mb-2">🏆</div>
-          <div className="font-bold mb-1">Leaderboard coming soon</div>
-          <div className="text-xs">See who's winning with this token</div>
+          <div className="font-bold mb-1">No traders yet</div>
+          <div className="text-xs">Be the first to trade!</div>
         </div>
-
-        {/* Example of what it will look like */}
-        {/* <div className="flex items-center justify-between p-2 bg-muted/50 rounded-lg">
-          <div className="flex items-center gap-2">
-            <div className="text-xs font-bold text-[var(--star-yellow)]">#1</div>
-            <div className="text-xs font-mono">7x4J...kL2p</div>
-          </div>
-          <div className="text-right">
-            <div className="text-xs font-bold text-[var(--luigi-green)]">+$1,250</div>
-            <div className="text-[10px] text-muted-foreground">+45%</div>
-          </div>
-        </div> */}
-      </div>
+      ) : (
+        <div className="space-y-2">
+          {traders.map((trader: any, i: number) => (
+            <div key={trader.address} className="flex items-center justify-between p-2 bg-muted/50 rounded-lg">
+              <div className="flex items-center gap-2">
+                <div className="text-xs font-bold text-[var(--star-yellow)]">#{i + 1}</div>
+                <div className="text-xs font-mono">{trader.address.slice(0, 4)}...{trader.address.slice(-4)}</div>
+              </div>
+              <div className="text-right">
+                <div className={cn(
+                  "text-xs font-bold",
+                  trader.pnl > 0 ? "text-[var(--luigi-green)]" : "text-[var(--mario-red)]"
+                )}>
+                  {trader.pnl > 0 ? '+' : ''}{formatUSD(trader.pnl || 0, 2)}
+                </div>
+                <div className="text-[10px] text-muted-foreground">{trader.trades || 0} trades</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   )
 }
 
 // Holders Panel
 function HoldersPanel({ tokenMint }: { tokenMint: string }) {
-  // TODO: Implement API endpoint for holder distribution
-  // const { data, isLoading } = useQuery({
-  //   queryKey: ['holders', tokenMint],
-  //   queryFn: () => api.getTokenHolders(tokenMint),
-  //   staleTime: 300000, // 5 minutes
-  // })
+  const { data: holders = [], isLoading } = useQuery({
+    queryKey: ['holders', tokenMint],
+    queryFn: () => api.getTokenHolders(tokenMint),
+    staleTime: 300000, // 5 minutes
+  })
 
   return (
     <div className="border-4 border-[var(--outline-black)] rounded-[16px] shadow-[4px_4px_0_var(--outline-black)] bg-white p-4 min-h-[200px]">
@@ -180,24 +211,10 @@ function HoldersPanel({ tokenMint }: { tokenMint: string }) {
         <h3 className="font-bold text-sm">Token Holders</h3>
       </div>
 
-      <div className="space-y-2">
-        {/* Placeholder for now */}
-        <div className="text-sm text-muted-foreground text-center py-8">
-          <div className="mb-2">💎</div>
-          <div className="font-bold mb-1">Holder distribution coming soon</div>
-          <div className="text-xs">Top 20 wallets and supply percentage</div>
-        </div>
-
-        {/* Example of what it will look like */}
-        {/* <div className="flex items-center justify-between p-2 bg-muted/50 rounded-lg">
-          <div className="flex items-center gap-2">
-            <div className="text-xs font-mono">7x4J...kL2p</div>
-          </div>
-          <div className="text-right">
-            <div className="text-xs font-bold">5.2M tokens</div>
-            <div className="text-[10px] text-muted-foreground">2.5% supply</div>
-          </div>
-        </div> */}
+      <div className="text-sm text-muted-foreground text-center py-8">
+        <div className="mb-2">💎</div>
+        <div className="font-bold mb-1">Holder distribution coming soon</div>
+        <div className="text-xs">Top 20 wallets and supply percentage</div>
       </div>
     </div>
   )

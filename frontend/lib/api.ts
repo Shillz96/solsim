@@ -1297,5 +1297,50 @@ export default {
   exportWalletKey,
   transferBetweenWallets,
   deleteWallet,
+  // Market Data
+  getMarketTrades,
+  getTopTraders,
+  getTokenHolders,
 };
+
+// ============================================================================
+// MARKET DATA API
+// ============================================================================
+
+/**
+ * Get recent trades for a specific token from PumpPortal
+ */
+export async function getMarketTrades(tokenMint: string): Promise<any[]> {
+  const res = await fetch(`${API}/api/market/trades/${tokenMint}`, {
+    headers: getAuthHeaders(),
+  });
+  if (!res.ok) throw new Error('Failed to fetch market trades');
+  const data = await res.json();
+  return data.trades || [];
+}
+
+/**
+ * Get top traders for a specific token (24h)
+ */
+export async function getTopTraders(tokenMint: string, limit = 10): Promise<any[]> {
+  const res = await fetch(`${API}/api/market/top-traders/${tokenMint}?limit=${limit}`, {
+    headers: getAuthHeaders(),
+  });
+  if (!res.ok) throw new Error('Failed to fetch top traders');
+  const data = await res.json();
+  return data.traders || [];
+}
+
+/**
+ * Get holder distribution for a specific token
+ */
+export async function getTokenHolders(tokenMint: string, limit = 20): Promise<any[]> {
+  const res = await fetch(`${API}/api/market/holders/${tokenMint}?limit=${limit}`, {
+    headers: getAuthHeaders(),
+  });
+  if (!res.ok) throw new Error('Failed to fetch token holders');
+  const data = await res.json();
+  return data.holders || [];
+}
+
 
