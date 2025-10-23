@@ -3,7 +3,7 @@
 import Link from "next/link"
 import Image from "next/image"
 import { usePathname } from "next/navigation"
-import { Home, TrendingUp, Wallet, Trophy, Gift, Eye, Zap, Map, Info, ChevronDown, BookOpen, AlertTriangle } from "lucide-react"
+import { Home, TrendingUp, Wallet, Trophy, Gift, Eye, Zap, Map, BookOpen, AlertTriangle } from "lucide-react"
 import { Twitter as XIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useState, useEffect } from "react"
@@ -15,12 +15,6 @@ import { useAuth } from "@/hooks/use-auth"
 import { useToast } from "@/hooks/use-toast"
 import * as api from "@/lib/api"
 import { Button } from "@/components/ui/button"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -156,14 +150,6 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
     { href: "/leaderboard", icon: Trophy, label: "Ranks" },
     { href: "/rewards", icon: Gift, label: "Rewards" },
   ]
-
-  const infoItems = [
-    { href: "/rewards", icon: Gift, label: "Rewards" },
-    { href: "/docs", icon: BookOpen, label: "Docs" },
-    { href: "/roadmap", icon: Map, label: "Roadmap" },
-  ]
-
-  const isInfoActive = infoItems.some(item => pathname === item.href)
 
   return (
     <>
@@ -301,70 +287,24 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
             </div>
           </div>
 
-          {/* Right: Wallet Tracker, Leaderboard, More Info Dropdown & Trading Mode */}
+          {/* Right: Wallet Tracker, Leaderboard & Trading Mode */}
           <div className="flex items-center gap-4">
-            {/* Wallet Tracker Button */}
-            <Link href="/wallet-tracker">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-xs font-medium hover:text-primary transition-colors flex items-center gap-1.5 h-8"
-              >
-                <Eye className="h-4 w-4" />
-                Wallet Tracker
-              </Button>
-            </Link>
-            {/* Leaderboard Button */}
-            <Link href="/leaderboard">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-xs font-medium hover:text-primary transition-colors flex items-center gap-1.5 h-8"
-              >
-                <Trophy className="h-4 w-4" />
-                Leaderboard
-              </Button>
-            </Link>
-            {/* More Info Dropdown */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className={cn(
-                    "text-xs font-medium transition-colors flex items-center gap-1.5 h-8",
-                    isInfoActive ? "text-primary" : "hover:text-primary"
-                  )}
-                >
-                  <Info className="h-4 w-4" />
-                  More Info
-                  <ChevronDown className="h-3 w-3" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                align="end"
-                className="bg-white border-3 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)]"
-              >
-                {infoItems.map((item) => {
-                  const Icon = item.icon
-                  return (
-                    <DropdownMenuItem key={item.href} asChild>
-                      <Link
-                        href={item.href}
-                        className={cn(
-                          "flex items-center gap-2 px-3 py-2 cursor-pointer font-mario",
-                          pathname === item.href && "bg-primary/10"
-                        )}
-                      >
-                        <Icon className="h-4 w-4" />
-                        {item.label}
-                      </Link>
-                    </DropdownMenuItem>
-                  )
-                })}
-              </DropdownMenuContent>
-            </DropdownMenu>
-            {/* Theme toggle removed - Light mode only! */}
+            {/* Wallet Tracker - Blue CartridgePill */}
+            <CartridgePill
+              value="Wallet Tracker"
+              href="/wallet-tracker"
+              size="md"
+              bgColor="var(--sky-blue)"
+              badgeText="👁"
+            />
+            {/* Leaderboard - Green CartridgePill */}
+            <CartridgePill
+              value="Leaderboard"
+              href="/leaderboard"
+              size="md"
+              bgColor="var(--luigi-green)"
+              badgeText="🏆"
+            />
             {/* Trading Mode as CartridgePill */}
             <CartridgePill
               value={tradeMode === "REAL" ? "Mainnet" : "Paper"}

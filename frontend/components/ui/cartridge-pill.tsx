@@ -14,6 +14,8 @@ type Props = {
   onClick?: () => void
   layout?: "row" | "col"  // row = value + badge, col = stacked label/value
   size?: "sm" | "md"
+  bgColor?: string     // custom background color (CSS variable)
+  badgeColor?: string  // custom badge color (CSS variable)
 }
 
 export function CartridgePill({
@@ -25,10 +27,12 @@ export function CartridgePill({
   onClick,
   layout = "row",
   size = "md",
+  bgColor = "var(--star-yellow)",
+  badgeColor = "var(--mario-red)",
 }: Props) {
   const base = cn(
     "relative grid items-center",
-    "bg-[var(--star-yellow)] border-4 border-[var(--outline-black)]",
+    "border-4 border-[var(--outline-black)]",
     "shadow-[4px_4px_0_var(--outline-black)]",
     "rounded-[12px] md:rounded-[14px]",
     "transition-transform hover:-translate-y-[1px]"
@@ -61,12 +65,15 @@ export function CartridgePill({
   ) : null
 
   const Badge = badgeText ? (
-    <div className={cn(
-      "ml-auto grid place-items-center",
-      size === "sm" ? "h-7 w-7 rounded-[10px]" : "h-8 w-8 rounded-[12px]",
-      "bg-[var(--mario-red)] text-white",
-      "border-4 border-[var(--outline-black)]"
-    )}>
+    <div
+      className={cn(
+        "ml-auto grid place-items-center",
+        size === "sm" ? "h-7 w-7 rounded-[10px]" : "h-8 w-8 rounded-[12px]",
+        "text-white",
+        "border-4 border-[var(--outline-black)]"
+      )}
+      style={{ backgroundColor: badgeColor }}
+    >
       <span className={cn("font-extrabold", size === "sm" ? "text-[11px]" : "text-[12px]")}>
         {badgeText}
       </span>
@@ -74,7 +81,11 @@ export function CartridgePill({
   ) : null
 
   const Content = (
-    <motion.div whileHover={{ y: -1 }} className={cn(base, dims, className)}>
+    <motion.div
+      whileHover={{ y: -1 }}
+      className={cn(base, dims, className)}
+      style={{ backgroundColor: bgColor }}
+    >
       <div className={inner}>
         {layout === "col" ? (
           <>
