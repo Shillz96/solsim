@@ -19,7 +19,10 @@ const nextConfig = {
   reactStrictMode: false,
 
   // Turbopack configuration (Next.js 16+)
-  turbopack: {},
+  turbopack: {
+    // Set root directory for monorepo compatibility
+    root: __dirname,
+  },
 
   // Experimental features - 2025 Modernization
   experimental: {
@@ -65,12 +68,9 @@ const nextConfig = {
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
 
-  // TypeScript and ESLint configuration
+  // TypeScript configuration
   typescript: {
     ignoreBuildErrors: false, // Enable type checking for better code quality
-  },
-  eslint: {
-    ignoreDuringBuilds: true, // Temporarily ignore ESLint during builds
   },
 
   // Headers for security and performance
