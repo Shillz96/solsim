@@ -20,8 +20,8 @@ const nextConfig = {
 
   // Turbopack configuration (Next.js 16+)
   turbopack: {
-    // Set root directory for monorepo compatibility
-    root: __dirname,
+    // Set root directory for monorepo compatibility (use process.cwd() in ES modules)
+    root: process.cwd(),
   },
 
   // Experimental features - 2025 Modernization
