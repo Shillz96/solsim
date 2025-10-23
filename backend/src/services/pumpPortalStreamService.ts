@@ -212,14 +212,15 @@ class PumpPortalStreamService extends EventEmitter {
         this.emit('newToken', event);
       }
 
-      // Handle migration events - check multiple possible formats
-      else if (message.type === 'migration' || (message.signature && message.slot)) {
+      // Handle migration events - PumpPortal sends these when tokens graduate
+      // txType can be 'migrate' or message may have explicit migration fields
+      else if (message.txType === 'migrate' || message.type === 'migration') {
         const event: MigrationEvent = {
           type: 'migration',
           mint: message.mint,
           data: {
-            poolAddress: message.poolAddress || message.data?.poolAddress,
-            poolType: message.poolType || message.data?.poolType,
+            poolAddress: message.poolAddress || message.pool || message.data?.poolAddress,
+            poolType: message.poolType || message.data?.poolType || 'raydium',
             status: message.status || message.data?.status || 'completed',
           },
           timestamp: message.timestamp || Date.now(),
@@ -227,6 +228,10 @@ class PumpPortalStreamService extends EventEmitter {
 
         console.log('[PumpPortal] Migration event:', event.mint, event.data.status);
         this.emit('migration', event);
+      }
+      // Also check for any other message types for debugging
+      else if (process.env.NODE_ENV !== 'production') {
+        console.log('[PumpPortal] Unknown message type:', message.txType || message.type, 'mint:', message.mint);
       }
     } catch (error) {
       console.error('[PumpPortal] Error parsing message:', error);

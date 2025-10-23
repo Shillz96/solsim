@@ -65,9 +65,16 @@ async function handleNewToken(event: NewTokenEvent): Promise<void> {
 
     // Calculate bonding curve progress if we have the data
     let bondingCurveProgress = null;
+    let tokenState = 'bonded';
+    
     if (vTokensInBondingCurve && vSolInBondingCurve) {
       // Progress = (SOL in curve / 85 SOL target) * 100
       bondingCurveProgress = new Decimal(vSolInBondingCurve).div(85).mul(100);
+      
+      // If progress >= 95%, mark as "graduating" (about to migrate)
+      if (bondingCurveProgress.gte(95)) {
+        tokenState = 'graduating';
+      }
     }
 
     // Upsert to database
@@ -78,7 +85,7 @@ async function handleNewToken(event: NewTokenEvent): Promise<void> {
         symbol: symbol || null,
         name: name || null,
         logoURI: uri || null,
-        state: 'bonded',
+        state: tokenState,
         bondingCurveKey: bondingCurve || null,
         bondingCurveProgress: bondingCurveProgress,
         hotScore: new Decimal(100), // New tokens start hot
@@ -92,8 +99,12 @@ async function handleNewToken(event: NewTokenEvent): Promise<void> {
       },
       update: {
         lastUpdatedAt: new Date(),
-        // Update progress if available
-        ...(bondingCurveProgress && { bondingCurveProgress }),
+        // Update progress and potentially state if available
+        ...(bondingCurveProgress && { 
+          bondingCurveProgress,
+          // Update state if crossing the 95% threshold
+          ...(bondingCurveProgress.gte(95) && { state: 'graduating' }),
+        }),
       },
     });
 
