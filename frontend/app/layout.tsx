@@ -89,6 +89,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               maxTrades={15}
             />
           </div>
+          <SlidingTrendingTicker />
           <main
             className="min-h-screen"
             style={{
