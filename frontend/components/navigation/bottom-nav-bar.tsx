@@ -31,7 +31,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import { EnhancedTradingModeToggle } from "@/components/navigation/enhanced-trading-mode-toggle"
 import { DepositModal } from "@/components/modals/deposit-modal"
 import { RealTradingOnboardingModal } from "@/components/modals/real-trading-onboarding-modal"
 import { CartridgePill } from "@/components/ui/cartridge-pill"
@@ -302,25 +301,8 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
             </div>
           </div>
 
-          {/* Right: Trading Mode Toggle, Wallet Tracker, Leaderboard, More Info Dropdown & Quick Trade */}
+          {/* Right: Wallet Tracker, Leaderboard, More Info Dropdown & Trading Mode */}
           <div className="flex items-center gap-4">
-            {/* Enhanced Trading Mode Toggle */}
-            <EnhancedTradingModeToggle
-              showDropdown={true}
-              onDepositClick={async () => {
-                if (!user?.id) {
-                  toast({
-                    title: 'Authentication Required',
-                    description: 'Please sign in to get your deposit address',
-                    variant: 'destructive',
-                  })
-                  return
-                }
-
-                setShowOnboardingModal(true)
-              }}
-              onConnectWalletClick={() => walletModal.setVisible(true)}
-            />
             {/* Wallet Tracker Button */}
             <Link href="/wallet-tracker">
               <Button
@@ -385,9 +367,7 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
             {/* Theme toggle removed - Light mode only! */}
             {/* Trading Mode as CartridgePill */}
             <CartridgePill
-              label={tradeMode === "REAL" ? "Live" : "Paper"}
-              value={`${activeBalance.toFixed(2)} SOL`}
-              badgeText={tradeMode === "REAL" ? "L" : "P"}
+              value={tradeMode === "REAL" ? "Mainnet" : "Paper"}
               onClick={() => handleToggleMode(tradeMode === "REAL" ? "PAPER" : "REAL")}
               size="md"
             />
