@@ -555,7 +555,14 @@ model TokenDiscovery {
   mint             String    @unique
   symbol           String?
   name             String?
-  logoURI          String?
+  logoURI          String?   // IPFS metadata URI or direct image URL
+  description      String?   // Token description from metadata
+  imageUrl         String?   // Parsed image URL from metadata
+
+  // Social links (from metadata)
+  twitter          String?
+  telegram         String?
+  website          String?
 
   // State tracking (bonded, graduating, new)
   state            String    // 'bonded' | 'graduating' | 'new'
@@ -570,6 +577,14 @@ model TokenDiscovery {
   poolType         String?   // 'pumpswap' | 'raydium' | 'meteora'
   poolCreatedAt    DateTime?
   liquidityUsd     Decimal?
+
+  // Market data
+  marketCapUsd     Decimal?  // Market cap in USD
+  volume24h        Decimal?  // 24h trading volume
+  volumeChange24h  Decimal?  // 24h volume change percentage
+  priceUsd         Decimal?  // Current price in USD
+  priceChange24h   Decimal?  // 24h price change percentage
+  txCount24h       Int?      // 24h transaction count
 
   // Health capsule data
   freezeRevoked    Boolean   @default(false)
@@ -589,6 +604,8 @@ model TokenDiscovery {
   @@index([state, hotScore(sort: Desc)], map: "token_discovery_state_hot")
   @@index([mint], map: "token_discovery_mint")
   @@index([state, lastUpdatedAt(sort: Desc)], map: "token_discovery_state_updated")
+  @@index([volume24h(sort: Desc)], map: "token_discovery_volume")
+  @@index([marketCapUsd(sort: Desc)], map: "token_discovery_market_cap")
 }
 
 model TokenWatch {

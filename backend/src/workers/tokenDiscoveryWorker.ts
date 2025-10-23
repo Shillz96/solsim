@@ -20,6 +20,7 @@ import Redis from 'ioredis';
 import { pumpPortalStreamService, NewTokenEvent, MigrationEvent } from '../services/pumpPortalStreamService.js';
 import { raydiumStreamService, NewPoolEvent } from '../services/raydiumStreamService.js';
 import { healthCapsuleService } from '../services/healthCapsuleService.js';
+import { tokenMetadataService } from '../services/tokenMetadataService.js';
 
 // ============================================================================
 // INITIALIZATION
@@ -278,25 +279,61 @@ async function updateState(mint: string, newState: string, oldState?: string): P
 }
 
 /**
- * Enrich token with health capsule data (async, batched)
+ * Enrich token with health capsule data + metadata + market data (async, batched)
  */
 async function enrichHealthData(mint: string): Promise<void> {
   try {
-    const healthData = await healthCapsuleService.getHealthData(mint);
+    // Get current token to fetch metadata URI
+    const currentToken = await prisma.tokenDiscovery.findUnique({
+      where: { mint },
+      select: { logoURI: true },
+    });
+
+    // Fetch all data in parallel
+    const [healthData, enrichedData] = await Promise.allSettled([
+      healthCapsuleService.getHealthData(mint),
+      tokenMetadataService.getEnrichedMetadata(mint, currentToken?.logoURI || undefined),
+    ]);
+
+    const updateData: any = {
+      lastUpdatedAt: new Date(),
+    };
+
+    // Add health data if successful
+    if (healthData.status === 'fulfilled') {
+      updateData.freezeRevoked = healthData.value.freezeRevoked;
+      updateData.mintRenounced = healthData.value.mintRenounced;
+      if (healthData.value.priceImpact1Pct) {
+        updateData.priceImpact1Pct = new Decimal(healthData.value.priceImpact1Pct);
+      }
+      if (healthData.value.liquidityUsd) {
+        updateData.liquidityUsd = new Decimal(healthData.value.liquidityUsd);
+      }
+    }
+
+    // Add metadata and market data if successful
+    if (enrichedData.status === 'fulfilled') {
+      const data = enrichedData.value;
+
+      // Metadata fields
+      if (data.description) updateData.description = data.description;
+      if (data.imageUrl) updateData.imageUrl = data.imageUrl;
+      if (data.twitter) updateData.twitter = data.twitter;
+      if (data.telegram) updateData.telegram = data.telegram;
+      if (data.website) updateData.website = data.website;
+
+      // Market data fields
+      if (data.marketCapUsd) updateData.marketCapUsd = new Decimal(data.marketCapUsd);
+      if (data.volume24h) updateData.volume24h = new Decimal(data.volume24h);
+      if (data.volumeChange24h) updateData.volumeChange24h = new Decimal(data.volumeChange24h);
+      if (data.priceUsd) updateData.priceUsd = new Decimal(data.priceUsd);
+      if (data.priceChange24h) updateData.priceChange24h = new Decimal(data.priceChange24h);
+      if (data.txCount24h) updateData.txCount24h = data.txCount24h;
+    }
 
     await prisma.tokenDiscovery.update({
       where: { mint },
-      data: {
-        freezeRevoked: healthData.freezeRevoked,
-        mintRenounced: healthData.mintRenounced,
-        priceImpact1Pct: healthData.priceImpact1Pct
-          ? new Decimal(healthData.priceImpact1Pct)
-          : null,
-        liquidityUsd: healthData.liquidityUsd
-          ? new Decimal(healthData.liquidityUsd)
-          : null,
-        lastUpdatedAt: new Date(),
-      },
+      data: updateData,
     });
 
     // Update cache

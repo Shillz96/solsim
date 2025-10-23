@@ -24,7 +24,14 @@ import {
   Zap,
   Copy,
   CheckCircle,
-  XCircle
+  XCircle,
+  Twitter,
+  MessageCircle,
+  Globe,
+  DollarSign,
+  BarChart3,
+  ArrowUp,
+  ArrowDown
 } from "lucide-react"
 import { useState } from "react"
 import type { TokenRow } from "@/lib/types/warp-pipes"
@@ -221,6 +228,88 @@ export function TokenCard({ token, onToggleWatch, rank, className }: TokenCardPr
                   <span className="text-xs font-bold text-pipe-900">{Math.floor(token.hotScore)}</span>
                 </div>
               </div>
+
+              {/* Social Links Row */}
+              {(token.twitter || token.telegram || token.website) && (
+                <div className="flex items-center gap-2 mb-2">
+                  {token.twitter && (
+                    <a
+                      href={token.twitter}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={(e) => e.stopPropagation()}
+                      className="p-1.5 rounded-lg border-2 border-sky-400 bg-sky-50 hover:bg-sky-100 transition-colors"
+                      title="Twitter"
+                    >
+                      <Twitter className="w-3.5 h-3.5 text-sky-600" />
+                    </a>
+                  )}
+                  {token.telegram && (
+                    <a
+                      href={token.telegram}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={(e) => e.stopPropagation()}
+                      className="p-1.5 rounded-lg border-2 border-sky-400 bg-sky-50 hover:bg-sky-100 transition-colors"
+                      title="Telegram"
+                    >
+                      <MessageCircle className="w-3.5 h-3.5 text-sky-600" />
+                    </a>
+                  )}
+                  {token.website && (
+                    <a
+                      href={token.website}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={(e) => e.stopPropagation()}
+                      className="p-1.5 rounded-lg border-2 border-sky-400 bg-sky-50 hover:bg-sky-100 transition-colors"
+                      title="Website"
+                    >
+                      <Globe className="w-3.5 h-3.5 text-sky-600" />
+                    </a>
+                  )}
+                </div>
+              )}
+
+              {/* Market Data Row */}
+              {(token.marketCapUsd || token.volume24h || token.priceChange24h !== undefined) && (
+                <div className="flex items-center gap-3 mb-2 text-xs">
+                  {token.marketCapUsd && (
+                    <div className="flex items-center gap-1" title={`Market Cap: $${formatCompact(token.marketCapUsd)}`}>
+                      <DollarSign className="w-3.5 h-3.5 text-pipe-600" />
+                      <span className="font-mono font-bold text-pipe-900">
+                        MC: {formatCompact(token.marketCapUsd)}
+                      </span>
+                    </div>
+                  )}
+                  {token.volume24h && (
+                    <div className="flex items-center gap-1" title={`24h Volume: $${formatCompact(token.volume24h)}`}>
+                      <BarChart3 className="w-3.5 h-3.5 text-pipe-600" />
+                      <span className="font-mono font-bold text-pipe-900">
+                        Vol: {formatCompact(token.volume24h)}
+                      </span>
+                    </div>
+                  )}
+                  {token.priceChange24h !== undefined && (
+                    <div
+                      className={cn(
+                        "flex items-center gap-1",
+                        token.priceChange24h > 0 ? "text-green-600" : "text-red-600"
+                      )}
+                      title={`24h Price Change: ${token.priceChange24h.toFixed(2)}%`}
+                    >
+                      {token.priceChange24h > 0 ? (
+                        <ArrowUp className="w-3.5 h-3.5" />
+                      ) : (
+                        <ArrowDown className="w-3.5 h-3.5" />
+                      )}
+                      <span className="font-mono font-bold">
+                        {Math.abs(token.priceChange24h).toFixed(1)}%
+                      </span>
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* Bottom Row: Contract Address + Progress Bar */}
               <div className="flex items-center gap-3">

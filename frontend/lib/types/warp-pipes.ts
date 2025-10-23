@@ -28,7 +28,14 @@ export interface TokenRow {
   symbol: string;
   name: string;
   logoURI?: string;
+  description?: string;
+  imageUrl?: string;
   state: TokenState;
+
+  // Social links
+  twitter?: string;
+  telegram?: string;
+  website?: string;
 
   // Health capsule metrics
   liqUsd?: number;
@@ -37,6 +44,14 @@ export interface TokenRow {
   freezeRevoked: boolean;
   mintRenounced: boolean;
   creatorVerified?: boolean;
+
+  // Market data
+  marketCapUsd?: number;
+  volume24h?: number;
+  volumeChange24h?: number;
+  priceUsd?: number;
+  priceChange24h?: number;
+  txCount24h?: number;
 
   // Bonding curve data (for bonded/graduating)
   bondingCurveProgress?: number; // 0-100%

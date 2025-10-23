@@ -146,6 +146,11 @@ const warpPipesRoutes: FastifyPluginAsync = async (fastify) => {
           symbol: token.symbol,
           name: token.name,
           logoURI: token.logoURI,
+          description: token.description,
+          imageUrl: token.imageUrl,
+          twitter: token.twitter,
+          telegram: token.telegram,
+          website: token.website,
           state: token.state,
           liqUsd: token.liquidityUsd ? parseFloat(token.liquidityUsd.toString()) : undefined,
           poolAgeMin: token.poolCreatedAt
@@ -154,6 +159,16 @@ const warpPipesRoutes: FastifyPluginAsync = async (fastify) => {
           priceImpactPctAt1pct: token.priceImpact1Pct
             ? parseFloat(token.priceImpact1Pct.toString())
             : undefined,
+          marketCapUsd: token.marketCapUsd ? parseFloat(token.marketCapUsd.toString()) : undefined,
+          volume24h: token.volume24h ? parseFloat(token.volume24h.toString()) : undefined,
+          volumeChange24h: token.volumeChange24h
+            ? parseFloat(token.volumeChange24h.toString())
+            : undefined,
+          priceUsd: token.priceUsd ? parseFloat(token.priceUsd.toString()) : undefined,
+          priceChange24h: token.priceChange24h
+            ? parseFloat(token.priceChange24h.toString())
+            : undefined,
+          txCount24h: token.txCount24h,
           freezeRevoked: token.freezeRevoked,
           mintRenounced: token.mintRenounced,
           creatorVerified: token.creatorVerified || false,
