@@ -49,9 +49,26 @@ const USDT_MINT = 'Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB';
  */
 async function handleNewToken(event: NewTokenEvent): Promise<void> {
   try {
-    const { mint, name, symbol, uri, creator, bondingCurve } = event.token;
+    const { 
+      mint, 
+      name, 
+      symbol, 
+      uri, 
+      creator, 
+      bondingCurve,
+      marketCapSol,
+      vTokensInBondingCurve,
+      vSolInBondingCurve 
+    } = event.token;
 
     console.log(`[TokenDiscovery] New bonded token: ${symbol || mint}`);
+
+    // Calculate bonding curve progress if we have the data
+    let bondingCurveProgress = null;
+    if (vTokensInBondingCurve && vSolInBondingCurve) {
+      // Progress = (SOL in curve / 85 SOL target) * 100
+      bondingCurveProgress = new Decimal(vSolInBondingCurve).div(85).mul(100);
+    }
 
     // Upsert to database
     await prisma.tokenDiscovery.upsert({
@@ -63,16 +80,20 @@ async function handleNewToken(event: NewTokenEvent): Promise<void> {
         logoURI: uri || null,
         state: 'bonded',
         bondingCurveKey: bondingCurve || null,
+        bondingCurveProgress: bondingCurveProgress,
         hotScore: new Decimal(100), // New tokens start hot
         watcherCount: 0,
         freezeRevoked: false,
         mintRenounced: false,
+        creatorVerified: false,
         firstSeenAt: new Date(),
         lastUpdatedAt: new Date(),
         stateChangedAt: new Date(),
       },
       update: {
         lastUpdatedAt: new Date(),
+        // Update progress if available
+        ...(bondingCurveProgress && { bondingCurveProgress }),
       },
     });
 

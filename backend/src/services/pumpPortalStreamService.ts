@@ -21,6 +21,12 @@ export interface NewTokenEvent {
     uri?: string; // Metadata URI
     creator?: string;
     bondingCurve?: string;
+    // Additional metadata from PumpPortal
+    initialBuy?: number;
+    solAmount?: number;
+    marketCapSol?: number;
+    vTokensInBondingCurve?: number;
+    vSolInBondingCurve?: number;
   };
   timestamp: number;
 }
@@ -157,21 +163,29 @@ class PumpPortalStreamService extends EventEmitter {
       const raw = data.toString();
       const message = JSON.parse(raw);
 
-      // Debug: Log all incoming messages
-      console.log('[PumpPortal] Received message:', JSON.stringify(message).substring(0, 500));
+      // Debug: Log all incoming messages (show full message for debugging)
+      if (process.env.NODE_ENV !== 'production') {
+        console.log('[PumpPortal] Received message:', JSON.stringify(message).substring(0, 1000));
+      }
 
       // PumpPortal sends messages with different structures based on subscription
-      // Check for newToken events (could be direct fields or nested)
-      if (message.mint && (message.name || message.symbol)) {
+      // Check for newToken events (txType === 'create' indicates a new token)
+      if (message.txType === 'create' && message.mint) {
         const event: NewTokenEvent = {
           type: 'newToken',
           token: {
             mint: message.mint,
             name: message.name || '',
             symbol: message.symbol || '',
-            uri: message.uri || message.image || '',
-            creator: message.creator || message.deployer || '',
-            bondingCurve: message.bondingCurve || message.bonding_curve || '',
+            uri: message.uri || message.metadataUri || message.image || '',
+            creator: message.traderPublicKey || message.creator || message.deployer || '',
+            bondingCurve: message.bondingCurveKey || message.bondingCurve || '',
+            // Additional metadata from PumpPortal
+            initialBuy: message.initialBuy,
+            solAmount: message.solAmount,
+            marketCapSol: message.marketCapSol,
+            vTokensInBondingCurve: message.vTokensInBondingCurve,
+            vSolInBondingCurve: message.vSolInBondingCurve,
           },
           timestamp: message.timestamp || Date.now(),
         };
