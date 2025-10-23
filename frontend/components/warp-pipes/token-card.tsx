@@ -1,12 +1,13 @@
 /**
- * Token Card Component - Mario-themed horizontal token display card
+ * Token Card Component - Horizontal pump.fun-style layout
  *
- * Pump.fun-inspired horizontal layout showing:
+ * Comprehensive horizontal token display with:
  * - Large token logo
- * - Symbol/name with time
- * - Comprehensive metrics (security, liquidity, watchers, hot score)
+ * - Inline metadata (time, socials, community)
+ * - Security badges
+ * - Market data (MC, Volume, Price change)
  * - Bonding curve progress
- * Uses Mario theme with bold borders and vibrant colors
+ * - Action button
  */
 
 "use client"
@@ -16,369 +17,320 @@ import { cn } from "@/lib/utils"
 import { motion } from "framer-motion"
 import {
   Droplet,
-  Users,
-  TrendingUp,
-  Clock,
   Heart,
-  Shield,
   Zap,
-  Copy,
-  CheckCircle,
-  XCircle,
   Twitter,
   MessageCircle,
   Globe,
-  DollarSign,
-  BarChart3,
-  ArrowUp,
-  ArrowDown
+  Flame,
+  Info,
+  TrendingUp,
+  TrendingDown
 } from "lucide-react"
-import { useState } from "react"
 import type { TokenRow } from "@/lib/types/warp-pipes"
-import {
-  getLiquidityHealth,
-  getPriceImpactHealth,
-  getSecurityHealth
-} from "@/lib/types/warp-pipes"
 
 interface TokenCardProps {
-  token: TokenRow
-  onToggleWatch: (mint: string, isWatched: boolean) => Promise<void>
-  rank?: number
+  data: TokenRow
+  onToggleWatch?: (mint: string, isWatched: boolean) => Promise<void>
   className?: string
 }
 
-// Helper to format time ago
-function getTimeAgo(timestamp: string): string {
-  const now = new Date().getTime()
-  const then = new Date(timestamp).getTime()
-  const diffMs = now - then
-  const diffMins = Math.floor(diffMs / 60000)
+// --------- UTILITIES ---------
+const fmtCurrency = (n?: number | null) =>
+  n == null ? "—" : n >= 1e9 ? `$${(n/1e9).toFixed(1)}B` : n >= 1e6 ? `$${(n/1e6).toFixed(1)}M` : n >= 1e3 ? `$${(n/1e3).toFixed(1)}K` : `$${Math.round(n)}`;
 
-  if (diffMins < 1) return 'now'
-  if (diffMins < 60) return `${diffMins}m`
-  const diffHours = Math.floor(diffMins / 60)
-  if (diffHours < 24) return `${diffHours}h`
-  const diffDays = Math.floor(diffHours / 24)
-  return `${diffDays}d`
-}
+const fmtPct = (n?: number | null, digits = 1) => (n == null ? "—" : `${n.toFixed(digits)}%`);
 
-// Helper to format number compactly
-function formatCompact(num: number): string {
-  if (num >= 1_000_000) return `$${(num / 1_000_000).toFixed(1)}M`
-  if (num >= 1_000) return `$${(num / 1_000).toFixed(1)}K`
-  return `$${num.toFixed(0)}`
-}
-
-export function TokenCard({ token, onToggleWatch, rank, className }: TokenCardProps) {
-  const [imgError, setImgError] = useState(false)
-  const [copied, setCopied] = useState(false)
-
-  // Health calculations
-  const liquidityHealth = getLiquidityHealth(token.liqUsd)
-  const priceImpactHealth = getPriceImpactHealth(token.priceImpactPctAt1pct)
-  const securityHealth = getSecurityHealth(token.freezeRevoked, token.mintRenounced)
-
-  // Time ago
-  const timeAgo = getTimeAgo(token.firstSeenAt)
-
-  // Shortened address
-  const shortMint = `${token.mint.slice(0, 4)}...${token.mint.slice(-4)}`
-
-  // State colors
-  const stateBorderColors = {
-    bonded: "border-coin-yellow-500",
-    graduating: "border-star-yellow-500",
-    new: "border-luigi-green-500",
+const timeAgo = (iso?: string | null) => {
+  try {
+    if (!iso) return "—";
+    const ms = Date.now() - new Date(iso).getTime();
+    const m = Math.max(0, Math.floor(ms / 60000));
+    if (m < 1) return "now";
+    if (m < 60) return `${m}m`;
+    const h = Math.floor(m / 60);
+    if (h < 24) return `${h}h`;
+    const d = Math.floor(h / 24);
+    return `${d}d`;
+  } catch {
+    return "—";
   }
+};
 
-  const stateGradients = {
-    bonded: "from-coin-yellow-50 to-white",
-    graduating: "from-star-yellow-50 to-white",
-    new: "from-luigi-green-50 to-white",
-  }
+const shorten = (addr?: string | null, s = 4, e = 4) => {
+  if (!addr) return "—";
+  return addr.length <= s + e ? addr : `${addr.slice(0, s)}…${addr.slice(-e)}`;
+};
 
-  const handleCopyMint = (e: React.MouseEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    navigator.clipboard.writeText(token.mint)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
+const stateColors = (state: TokenRow["state"]) => {
+  switch (state) {
+    case "bonded":
+      return {
+        ring: "#fcd34d",
+        gradFrom: "#fde68a",
+        gradTo: "#facc15",
+      };
+    case "graduating":
+      return {
+        ring: "#34d399",
+        gradFrom: "#bbf7d0",
+        gradTo: "#10b981",
+      };
+    default:
+      return {
+        ring: "#60a5fa",
+        gradFrom: "#bfdbfe",
+        gradTo: "#60a5fa",
+      };
   }
+};
+
+const securityBadge = (freezeRevoked?: boolean | null, mintRenounced?: boolean | null) => {
+  if (freezeRevoked && mintRenounced)
+    return { label: "SAFE", cls: "bg-green-500/10 text-green-600 border-green-500" };
+  if (freezeRevoked || mintRenounced)
+    return { label: "WARN", cls: "bg-yellow-500/10 text-yellow-600 border-yellow-500" };
+  return { label: "RISK", cls: "bg-red-500/10 text-red-600 border-red-500" };
+};
+
+export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
+  const img = data.logoURI || data.imageUrl || undefined;
+  const colors = stateColors(data.state);
+  const sec = securityBadge(data.freezeRevoked, data.mintRenounced);
+  const volChange = data.volumeChange24h ?? null;
+  const priceChg = data.priceChange24h ?? null;
+
+  const handleToggleWatch = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (onToggleWatch) {
+      onToggleWatch(data.mint, data.isWatched || false);
+    }
+  };
 
   return (
-    <Link href={`/room/${token.mint}`}>
+    <Link href={`/room/${data.mint}`}>
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.2 }}
-        className={cn(
-          "bg-gradient-to-r rounded-xl border-3 shadow-mario cursor-pointer",
-          "transition-all duration-200 hover:shadow-mario-lg hover:-translate-y-1",
-          "hover:border-mario-red-500",
-          stateBorderColors[token.state],
-          stateGradients[token.state],
-          className
-        )}
+        className={cn("w-full p-3", className)}
       >
-        <div className="p-4">
-          {/* Horizontal Layout */}
-          <div className="flex items-center gap-4">
-            {/* Large Token Logo */}
-            <div className="flex-shrink-0">
-              {!imgError && token.logoURI ? (
-                <img
-                  src={token.logoURI}
-                  alt={token.symbol || "Token"}
-                  className="w-16 h-16 rounded-full border-3 border-pipe-400 bg-white object-cover"
-                  onError={() => setImgError(true)}
-                />
+        {/* Main Card */}
+        <div
+          className="flex items-center justify-between gap-4 rounded-xl p-3 border-3 shadow-mario hover:shadow-mario-lg hover:-translate-y-0.5 transition-all duration-200"
+          style={{
+            borderColor: colors.ring,
+            background: `linear-gradient(180deg, ${colors.gradFrom}15, transparent)`
+          }}
+        >
+          {/* LEFT: Avatar */}
+          <div className="relative shrink-0">
+            <div
+              className="h-12 w-12 rounded-lg overflow-hidden border-3 shadow-[2px_2px_0_rgba(0,0,0,0.2)] bg-white"
+              style={{ borderColor: colors.ring }}
+            >
+              {img ? (
+                <img src={img} alt={data.symbol} className="h-full w-full object-cover" />
               ) : (
-                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-pipe-200 to-pipe-300 border-3 border-pipe-400 flex items-center justify-center">
-                  <span className="text-2xl">🪙</span>
-                </div>
+                <div className="h-full w-full grid place-items-center text-xs text-pipe-400">🪙</div>
               )}
             </div>
+            <div
+              className="absolute -left-1 -top-1 h-2.5 w-2.5 rounded-full ring-2 ring-white"
+              style={{ background: colors.ring }}
+            />
+          </div>
 
-            {/* Token Info & Metrics */}
-            <div className="flex-1 min-w-0">
-              {/* Top Row: Symbol, Name, Time */}
-              <div className="flex items-center gap-2 mb-2">
-                <h3 className="font-bold text-lg text-pipe-900">
-                  {token.symbol || "UNKNOWN"}
-                </h3>
-                <span className="text-sm text-pipe-600 truncate max-w-[200px]">
-                  {token.name || "Unknown Token"}
-                </span>
-                <div className="flex items-center gap-1 text-xs text-pipe-500 ml-auto">
-                  <Clock className="w-3.5 h-3.5" />
-                  <span className="font-mono font-semibold">{timeAgo}</span>
-                </div>
+          {/* MIDDLE: Title + meta */}
+          <div className="flex-1 min-w-0">
+            {/* Title row */}
+            <div className="flex items-center gap-2 min-w-0 mb-1">
+              <div className="truncate font-bold text-base tracking-wide text-pipe-900">
+                {data.symbol}
               </div>
-
-              {/* Metrics Row */}
-              <div className="flex items-center gap-4 mb-2">
-                {/* Security Status */}
-                <div
-                  className={cn(
-                    "flex items-center gap-1.5 px-2 py-1 rounded-lg border-2",
-                    securityHealth === "green" && "bg-green-50 border-green-500 text-green-700",
-                    securityHealth === "yellow" && "bg-yellow-50 border-yellow-500 text-yellow-700",
-                    securityHealth === "red" && "bg-red-50 border-red-500 text-red-700"
-                  )}
-                  title={`Freeze: ${token.freezeRevoked ? "Revoked" : "Active"} | Mint: ${token.mintRenounced ? "Renounced" : "Active"}`}
-                >
-                  {token.freezeRevoked && token.mintRenounced ? (
-                    <CheckCircle className="w-4 h-4" />
-                  ) : (
-                    <XCircle className="w-4 h-4" />
-                  )}
-                  <span className="text-xs font-bold">
-                    {token.freezeRevoked && token.mintRenounced ? "SAFE" : "RISK"}
-                  </span>
-                </div>
-
-                {/* Liquidity */}
-                {token.liqUsd !== undefined && (
-                  <div
-                    className={cn(
-                      "flex items-center gap-1.5 px-2 py-1 rounded-lg border-2",
-                      liquidityHealth === "green" && "bg-green-50 border-green-400",
-                      liquidityHealth === "yellow" && "bg-yellow-50 border-yellow-400",
-                      liquidityHealth === "red" && "bg-red-50 border-red-400"
-                    )}
-                    title={`Liquidity: ${formatCompact(token.liqUsd)}`}
-                  >
-                    <Droplet className="w-4 h-4 text-blue-600" />
-                    <span className="text-xs font-bold text-pipe-900">{formatCompact(token.liqUsd)}</span>
-                  </div>
-                )}
-
-                {/* Price Impact */}
-                {token.priceImpactPctAt1pct !== undefined && (
-                  <div
-                    className={cn(
-                      "flex items-center gap-1.5 px-2 py-1 rounded-lg border-2",
-                      priceImpactHealth === "green" && "bg-green-50 border-green-400",
-                      priceImpactHealth === "yellow" && "bg-yellow-50 border-yellow-400",
-                      priceImpactHealth === "red" && "bg-red-50 border-red-400"
-                    )}
-                    title={`Price Impact: ${token.priceImpactPctAt1pct.toFixed(2)}%`}
-                  >
-                    <Zap className="w-4 h-4 text-star-yellow-600" />
-                    <span className="text-xs font-bold text-pipe-900">{token.priceImpactPctAt1pct.toFixed(1)}%</span>
-                  </div>
-                )}
-
-                {/* Watchers */}
-                <div
-                  className="flex items-center gap-1.5 px-2 py-1 rounded-lg border-2 bg-sky-50 border-sky-400"
-                  title={`${token.watcherCount} watchers`}
-                >
-                  <Users className="w-4 h-4 text-sky-600" />
-                  <span className="text-xs font-bold text-pipe-900">{token.watcherCount}</span>
-                </div>
-
-                {/* Hot Score */}
-                <div
-                  className="flex items-center gap-1.5 px-2 py-1 rounded-lg border-2 bg-mario-red-50 border-mario-red-400"
-                  title={`Hot Score: ${token.hotScore}`}
-                >
-                  <TrendingUp className="w-4 h-4 text-mario-red-600" />
-                  <span className="text-xs font-bold text-pipe-900">{Math.floor(token.hotScore)}</span>
-                </div>
+              <div className="truncate text-xs text-pipe-600">
+                {data.name}
               </div>
+              <div className="text-[10px] px-1.5 py-0.5 rounded bg-pipe-100 border border-pipe-300 ml-1 font-mono">
+                {shorten(data.mint, 4, 4)}
+              </div>
+            </div>
 
-              {/* Social Links Row */}
-              {(token.twitter || token.telegram || token.website) && (
-                <div className="flex items-center gap-2 mb-2">
-                  {token.twitter && (
+            {/* Meta row: time + socials + counts */}
+            <div className="flex flex-wrap items-center gap-3 text-xs mb-2">
+              {/* first seen */}
+              <div className="text-pipe-600">{timeAgo(data.firstSeenAt)}</div>
+
+              {/* socials */}
+              {(data.twitter || data.telegram || data.website) && (
+                <div className="flex items-center gap-1.5">
+                  {data.twitter && (
                     <a
-                      href={token.twitter}
+                      href={data.twitter}
                       target="_blank"
                       rel="noopener noreferrer"
                       onClick={(e) => e.stopPropagation()}
-                      className="p-1.5 rounded-lg border-2 border-sky-400 bg-sky-50 hover:bg-sky-100 transition-colors"
-                      title="Twitter"
+                      className="text-sky-600 hover:text-sky-700 transition-colors"
                     >
-                      <Twitter className="w-3.5 h-3.5 text-sky-600" />
+                      <Twitter className="h-3.5 w-3.5" />
                     </a>
                   )}
-                  {token.telegram && (
+                  {data.telegram && (
                     <a
-                      href={token.telegram}
+                      href={data.telegram}
                       target="_blank"
                       rel="noopener noreferrer"
                       onClick={(e) => e.stopPropagation()}
-                      className="p-1.5 rounded-lg border-2 border-sky-400 bg-sky-50 hover:bg-sky-100 transition-colors"
-                      title="Telegram"
+                      className="text-sky-600 hover:text-sky-700 transition-colors"
                     >
-                      <MessageCircle className="w-3.5 h-3.5 text-sky-600" />
+                      <MessageCircle className="h-3.5 w-3.5" />
                     </a>
                   )}
-                  {token.website && (
+                  {data.website && (
                     <a
-                      href={token.website}
+                      href={data.website}
                       target="_blank"
                       rel="noopener noreferrer"
                       onClick={(e) => e.stopPropagation()}
-                      className="p-1.5 rounded-lg border-2 border-sky-400 bg-sky-50 hover:bg-sky-100 transition-colors"
-                      title="Website"
+                      className="text-sky-600 hover:text-sky-700 transition-colors"
                     >
-                      <Globe className="w-3.5 h-3.5 text-sky-600" />
+                      <Globe className="h-3.5 w-3.5" />
                     </a>
                   )}
                 </div>
               )}
 
-              {/* Market Data Row */}
-              {(token.marketCapUsd || token.volume24h || token.priceChange24h !== undefined) && (
-                <div className="flex items-center gap-3 mb-2 text-xs">
-                  {token.marketCapUsd && (
-                    <div className="flex items-center gap-1" title={`Market Cap: $${formatCompact(token.marketCapUsd)}`}>
-                      <DollarSign className="w-3.5 h-3.5 text-pipe-600" />
-                      <span className="font-mono font-bold text-pipe-900">
-                        MC: {formatCompact(token.marketCapUsd)}
-                      </span>
-                    </div>
-                  )}
-                  {token.volume24h && (
-                    <div className="flex items-center gap-1" title={`24h Volume: $${formatCompact(token.volume24h)}`}>
-                      <BarChart3 className="w-3.5 h-3.5 text-pipe-600" />
-                      <span className="font-mono font-bold text-pipe-900">
-                        Vol: {formatCompact(token.volume24h)}
-                      </span>
-                    </div>
-                  )}
-                  {token.priceChange24h !== undefined && (
-                    <div
-                      className={cn(
-                        "flex items-center gap-1",
-                        token.priceChange24h > 0 ? "text-green-600" : "text-red-600"
-                      )}
-                      title={`24h Price Change: ${token.priceChange24h.toFixed(2)}%`}
-                    >
-                      {token.priceChange24h > 0 ? (
-                        <ArrowUp className="w-3.5 h-3.5" />
-                      ) : (
-                        <ArrowDown className="w-3.5 h-3.5" />
-                      )}
-                      <span className="font-mono font-bold">
-                        {Math.abs(token.priceChange24h).toFixed(1)}%
-                      </span>
-                    </div>
-                  )}
+              {/* community */}
+              <div className="flex items-center gap-3 ml-2">
+                <div className="flex items-center gap-1 text-pipe-700">
+                  <Flame className="h-3.5 w-3.5 text-star-yellow-600" />
+                  <span className="font-semibold">{data.hotScore ?? "—"}</span>
                 </div>
-              )}
-
-              {/* Bottom Row: Contract Address + Progress Bar */}
-              <div className="flex items-center gap-3">
-                {/* Contract Address */}
                 <button
-                  onClick={handleCopyMint}
-                  className="flex items-center gap-1.5 px-2 py-1 rounded-lg border-2 border-pipe-300 bg-pipe-50 hover:bg-pipe-100 transition-colors"
-                  title="Click to copy full address"
+                  onClick={handleToggleWatch}
+                  className="flex items-center gap-1 text-pipe-700 hover:text-mario-red-600 transition-colors"
                 >
-                  <span className="font-mono text-xs text-pipe-700">{shortMint}</span>
-                  {copied ? (
-                    <CheckCircle className="w-3 h-3 text-green-600" />
-                  ) : (
-                    <Copy className="w-3 h-3 text-pipe-500" />
-                  )}
+                  <Heart className={`h-3.5 w-3.5 ${data.isWatched ? "fill-current text-mario-red-500" : ""}`} />
+                  <span className="font-semibold">{data.watcherCount ?? 0}</span>
                 </button>
-
-                {/* Bonding Progress Bar */}
-                {token.state === "bonded" && token.bondingCurveProgress !== undefined && (
-                  <div className="flex-1 flex items-center gap-2">
-                    <div className="flex-1 h-3 bg-pipe-200 rounded-full overflow-hidden border-2 border-pipe-400">
-                      <div
-                        className="h-full bg-gradient-to-r from-coin-yellow-400 to-coin-yellow-600 transition-all duration-500"
-                        style={{ width: `${Math.min(token.bondingCurveProgress, 100)}%` }}
-                      />
-                    </div>
-                    <span className="text-xs font-bold text-coin-yellow-700 min-w-[45px]">
-                      {token.bondingCurveProgress.toFixed(1)}%
-                    </span>
-                  </div>
-                )}
-
-                {/* Pool Age for New Tokens */}
-                {token.state === "new" && token.poolAgeMin !== undefined && (
-                  <div className="px-2 py-1 rounded-lg border-2 border-luigi-green-400 bg-luigi-green-50">
-                    <span className="text-xs font-bold text-luigi-green-700">
-                      Pool: {token.poolAgeMin}m old
-                    </span>
-                  </div>
-                )}
               </div>
             </div>
 
-            {/* Watch Button */}
+            {/* Badges row */}
+            <div className="flex flex-wrap items-center gap-2 text-[11px] mb-2">
+              {/* Security badges */}
+              <div className={`px-2 py-0.5 rounded-full border-2 font-bold ${sec.cls}`}>
+                {sec.label}
+              </div>
+              <div className={`px-2 py-0.5 rounded-full border-2 font-bold ${
+                data.freezeRevoked
+                  ? "border-green-500 text-green-600 bg-green-500/10"
+                  : "border-red-500 text-red-600 bg-red-500/10"
+              }`}>
+                Freeze {data.freezeRevoked ? "✓" : "✗"}
+              </div>
+              <div className={`px-2 py-0.5 rounded-full border-2 font-bold ${
+                data.mintRenounced
+                  ? "border-green-500 text-green-600 bg-green-500/10"
+                  : "border-red-500 text-red-600 bg-red-500/10"
+              }`}>
+                Mint {data.mintRenounced ? "✓" : "✗"}
+              </div>
+
+              {/* Liquidity & trading */}
+              <div className="px-2 py-0.5 rounded-full border-2 border-pipe-300 bg-pipe-50 flex items-center gap-1 font-bold text-pipe-900">
+                <Droplet className="h-3.5 w-3.5 text-blue-600" />
+                {fmtCurrency(data.liqUsd)}
+              </div>
+              <div className="px-2 py-0.5 rounded-full border-2 border-pipe-300 bg-pipe-50 flex items-center gap-1 font-bold text-pipe-900">
+                <Zap className="h-3.5 w-3.5 text-star-yellow-600" />
+                {fmtPct(data.priceImpactPctAt1pct)}
+              </div>
+              {data.poolAgeMin != null && (
+                <div className="px-2 py-0.5 rounded-full border-2 border-pipe-300 bg-pipe-50 font-bold text-pipe-900">
+                  Pool: {Math.max(0, Math.floor(data.poolAgeMin))}m
+                </div>
+              )}
+            </div>
+
+            {/* Bonding curve progress */}
+            {typeof data.bondingCurveProgress === "number" && (
+              <div>
+                <div className="flex items-center justify-between text-[11px] mb-1 text-pipe-700">
+                  <span className="font-semibold">Bonding Curve</span>
+                  <span className="font-bold">{data.bondingCurveProgress.toFixed(1)}%</span>
+                </div>
+                <div className="h-2 rounded-full overflow-hidden border-2 border-pipe-400 bg-pipe-100">
+                  <div
+                    className="h-full transition-all duration-500"
+                    style={{
+                      width: `${Math.max(0, Math.min(100, data.bondingCurveProgress))}%`,
+                      background: `linear-gradient(90deg, ${colors.gradFrom}, ${colors.gradTo})`
+                    }}
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* RIGHT: Market + Action */}
+          <div className="flex items-center gap-4 shrink-0">
+            {/* Market data */}
+            <div className="flex flex-col items-end gap-1 text-sm min-w-[180px]">
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-pipe-600 font-semibold">MC</span>
+                <span className="font-bold text-pipe-900">{fmtCurrency(data.marketCapUsd)}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-pipe-600 font-semibold">Vol</span>
+                <span className="font-bold text-pipe-900">{fmtCurrency(data.volume24h)}</span>
+                {volChange != null && (
+                  <span className={`text-xs flex items-center gap-0.5 font-bold ${
+                    volChange >= 0 ? "text-green-600" : "text-red-600"
+                  }`}>
+                    {volChange >= 0 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
+                    {fmtPct(Math.abs(volChange), 0)}
+                  </span>
+                )}
+              </div>
+              {priceChg != null && (
+                <div className={`flex items-center gap-1 text-xs font-bold ${
+                  priceChg >= 0 ? "text-green-600" : "text-red-600"
+                }`}>
+                  {priceChg >= 0 ? "↑" : "↓"}{fmtPct(Math.abs(priceChg), 1)}
+                </div>
+              )}
+            </div>
+
+            {/* Action button */}
             <button
               onClick={(e) => {
-                e.preventDefault()
-                e.stopPropagation()
-                onToggleWatch(token.mint, token.isWatched || false)
+                e.preventDefault();
+                e.stopPropagation();
               }}
-              className={cn(
-                "flex-shrink-0 p-3 rounded-full transition-all border-3",
-                token.isWatched
-                  ? "bg-mario-red-100 border-mario-red-500 hover:bg-mario-red-200"
-                  : "bg-pipe-100 border-pipe-400 hover:bg-pipe-200"
-              )}
+              className="h-9 px-4 rounded-full border-3 font-bold shadow-[3px_3px_0_rgba(0,0,0,0.2)] hover:-translate-y-0.5 hover:shadow-[4px_4px_0_rgba(0,0,0,0.2)] transition-all duration-200 bg-white"
+              style={{ borderColor: colors.ring }}
             >
-              <Heart
-                className={cn(
-                  "w-6 h-6",
-                  token.isWatched ? "fill-mario-red-500 text-mario-red-500" : "text-pipe-500"
-                )}
-              />
+              0 SOL
             </button>
           </div>
         </div>
+
+        {/* Footer meta row */}
+        <div className="mt-2 flex flex-wrap items-center gap-3 text-[11px] text-pipe-600">
+          <div className="flex items-center gap-1">
+            <Info className="h-3.5 w-3.5" />
+            State: <b className="ml-1 capitalize text-pipe-900">{data.state}</b>
+          </div>
+          {data.poolType && <div>Pool: <b className="text-pipe-900">{data.poolType}</b></div>}
+          {data.bondingCurveKey && <div>BC: <b className="font-mono text-pipe-900">{shorten(data.bondingCurveKey, 4, 4)}</b></div>}
+          {data.poolAddress && <div>Pool: <b className="font-mono text-pipe-900">{shorten(data.poolAddress, 4, 4)}</b></div>}
+          {data.lastUpdatedAt && <div>Updated {timeAgo(data.lastUpdatedAt)}</div>}
+        </div>
       </motion.div>
     </Link>
-  )
+  );
 }
 
 /**
@@ -386,39 +338,39 @@ export function TokenCard({ token, onToggleWatch, rank, className }: TokenCardPr
  */
 export function TokenCardSkeleton() {
   return (
-    <div className="bg-gradient-to-r from-pipe-50 to-white rounded-xl border-3 border-pipe-300 shadow-mario p-4 animate-pulse">
-      <div className="flex items-center gap-4">
-        {/* Large logo skeleton */}
-        <div className="w-16 h-16 rounded-full bg-pipe-200 border-3 border-pipe-300" />
+    <div className="w-full p-3">
+      <div className="flex items-center justify-between gap-4 rounded-xl p-3 border-3 border-pipe-300 shadow-mario animate-pulse">
+        {/* Avatar skeleton */}
+        <div className="h-12 w-12 rounded-lg bg-pipe-200 border-3 border-pipe-300" />
 
         {/* Content skeleton */}
         <div className="flex-1">
-          {/* Top row */}
-          <div className="flex items-center gap-2 mb-2">
-            <div className="h-5 bg-pipe-200 rounded w-24" />
-            <div className="h-4 bg-pipe-100 rounded w-32" />
-            <div className="h-3 bg-pipe-100 rounded w-12 ml-auto" />
+          <div className="flex items-center gap-2 mb-1">
+            <div className="h-4 bg-pipe-200 rounded w-24" />
+            <div className="h-3 bg-pipe-100 rounded w-32" />
+            <div className="h-3 bg-pipe-100 rounded w-16" />
           </div>
-
-          {/* Metrics row */}
           <div className="flex items-center gap-3 mb-2">
-            <div className="h-6 bg-pipe-100 rounded-lg w-16" />
-            <div className="h-6 bg-pipe-100 rounded-lg w-16" />
-            <div className="h-6 bg-pipe-100 rounded-lg w-16" />
-            <div className="h-6 bg-pipe-100 rounded-lg w-16" />
-            <div className="h-6 bg-pipe-100 rounded-lg w-16" />
+            <div className="h-3 bg-pipe-100 rounded w-12" />
+            <div className="h-3 bg-pipe-100 rounded w-20" />
           </div>
-
-          {/* Bottom row */}
-          <div className="flex items-center gap-3">
-            <div className="h-6 bg-pipe-100 rounded-lg w-20" />
-            <div className="flex-1 h-3 bg-pipe-200 rounded-full" />
+          <div className="flex items-center gap-2">
+            <div className="h-5 bg-pipe-100 rounded-full w-16" />
+            <div className="h-5 bg-pipe-100 rounded-full w-20" />
+            <div className="h-5 bg-pipe-100 rounded-full w-16" />
           </div>
         </div>
 
-        {/* Watch button skeleton */}
-        <div className="w-12 h-12 rounded-full bg-pipe-200 border-3 border-pipe-300" />
+        {/* Market data skeleton */}
+        <div className="flex flex-col items-end gap-1 min-w-[180px]">
+          <div className="h-4 bg-pipe-100 rounded w-24" />
+          <div className="h-4 bg-pipe-100 rounded w-32" />
+          <div className="h-3 bg-pipe-100 rounded w-16" />
+        </div>
+
+        {/* Button skeleton */}
+        <div className="h-9 w-20 rounded-full bg-pipe-200 border-3 border-pipe-300" />
       </div>
     </div>
-  )
+  );
 }

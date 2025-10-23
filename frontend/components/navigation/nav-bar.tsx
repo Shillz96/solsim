@@ -64,7 +64,7 @@ const navigationItems = [
   },
   {
     name: "Trade",
-    href: "/trade",
+    href: "/warp-pipes",
     icon: TrendingUp,
     iconSrc: "/icons/mario/trade.png",
     description: "Buy and sell tokens"

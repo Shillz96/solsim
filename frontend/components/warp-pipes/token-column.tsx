@@ -96,12 +96,11 @@ export function TokenColumn({
 
         {/* Token Cards */}
         {!isLoading &&
-          tokens.map((token, index) => (
+          tokens.map((token) => (
             <TokenCard
               key={token.mint}
-              token={token}
+              data={token}
               onToggleWatch={onToggleWatch}
-              rank={index + 1}
             />
           ))}
       </div>

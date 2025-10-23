@@ -19,7 +19,7 @@ interface HealthCapsuleProps {
 /**
  * Get health level from liquidity
  */
-function getLiquidityHealth(liqUsd?: number): HealthLevel {
+function getLiquidityHealth(liqUsd?: number | null): HealthLevel {
   if (!liqUsd) return "red"
   if (liqUsd >= 50000) return "green" // $50k+ = Luigi Green
   if (liqUsd >= 10000) return "yellow" // $10k-$50k = Star Yellow
@@ -29,7 +29,7 @@ function getLiquidityHealth(liqUsd?: number): HealthLevel {
 /**
  * Get health level from price impact
  */
-function getPriceImpactHealth(priceImpact?: number): HealthLevel {
+function getPriceImpactHealth(priceImpact?: number | null): HealthLevel {
   if (!priceImpact) return "yellow"
   if (priceImpact <= 1) return "green" // <1% = Safe
   if (priceImpact <= 5) return "yellow" // 1-5% = Caution
@@ -39,16 +39,16 @@ function getPriceImpactHealth(priceImpact?: number): HealthLevel {
 /**
  * Get security health from freeze/mint status
  */
-function getSecurityHealth(freezeRevoked: boolean, mintRenounced: boolean): HealthLevel {
+function getSecurityHealth(freezeRevoked?: boolean | null, mintRenounced?: boolean | null): HealthLevel {
   if (freezeRevoked && mintRenounced) return "green" // Both revoked = Safe
   if (freezeRevoked || mintRenounced) return "yellow" // One revoked = Caution
   return "red" // Neither revoked = Danger
 }
 
 export function HealthCapsule({ token, className }: HealthCapsuleProps) {
-  const liquidityHealth = getLiquidityHealth(token.liqUsd)
-  const priceImpactHealth = getPriceImpactHealth(token.priceImpactPctAt1pct)
-  const securityHealth = getSecurityHealth(token.freezeRevoked, token.mintRenounced)
+  const liquidityHealth = getLiquidityHealth(token.liqUsd ?? undefined)
+  const priceImpactHealth = getPriceImpactHealth(token.priceImpactPctAt1pct ?? undefined)
+  const securityHealth = getSecurityHealth(token.freezeRevoked ?? undefined, token.mintRenounced ?? undefined)
 
   // Overall health = worst of the three
   const overall: HealthLevel =
@@ -87,7 +87,7 @@ export function HealthCapsule({ token, className }: HealthCapsuleProps) {
       )}
 
       {/* Price Impact Badge */}
-      {token.priceImpactPctAt1pct !== undefined && (
+      {token.priceImpactPctAt1pct != null && (
         <Badge
           variant="outline"
           className={cn(
@@ -117,14 +117,14 @@ export function HealthCapsule({ token, className }: HealthCapsuleProps) {
       </Badge>
 
       {/* Pool Age (for NEW tokens) */}
-      {token.state === "new" && token.poolAgeMin !== undefined && (
+      {token.state === "new" && token.poolAgeMin != null && (
         <Badge variant="outline" className="text-xs font-mono border-2 border-pipe-400 bg-pipe-50 text-pipe-900 px-2 py-0.5">
           🕐 {token.poolAgeMin < 60 ? `${token.poolAgeMin}m` : `${Math.floor(token.poolAgeMin / 60)}h`}
         </Badge>
       )}
 
       {/* Bonding Progress (for BONDED/GRADUATING) */}
-      {(token.state === "bonded" || token.state === "graduating") && token.bondingCurveProgress !== undefined && (
+      {(token.state === "bonded" || token.state === "graduating") && token.bondingCurveProgress != null && (
         <Badge variant="outline" className="text-xs font-mono border-2 border-coin-yellow-600 bg-coin-yellow-50 text-brick-900 px-2 py-0.5">
           📈 {token.bondingCurveProgress.toFixed(0)}%
         </Badge>

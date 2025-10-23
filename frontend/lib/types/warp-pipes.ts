@@ -164,7 +164,7 @@ export const HEALTH_THRESHOLDS = {
 /**
  * Helper to determine health level from liquidity
  */
-export function getLiquidityHealth(liqUsd?: number): HealthLevel {
+export function getLiquidityHealth(liqUsd?: number | null): HealthLevel {
   if (!liqUsd) return 'red';
   if (liqUsd >= HEALTH_THRESHOLDS.liquidity.green) return 'green';
   if (liqUsd >= HEALTH_THRESHOLDS.liquidity.yellow) return 'yellow';
@@ -174,7 +174,7 @@ export function getLiquidityHealth(liqUsd?: number): HealthLevel {
 /**
  * Helper to determine health level from price impact
  */
-export function getPriceImpactHealth(priceImpact?: number): HealthLevel {
+export function getPriceImpactHealth(priceImpact?: number | null): HealthLevel {
   if (!priceImpact) return 'yellow';
   if (priceImpact <= HEALTH_THRESHOLDS.priceImpact.green) return 'green';
   if (priceImpact <= HEALTH_THRESHOLDS.priceImpact.yellow) return 'yellow';
@@ -185,8 +185,8 @@ export function getPriceImpactHealth(priceImpact?: number): HealthLevel {
  * Helper to determine security health from freeze/mint status
  */
 export function getSecurityHealth(
-  freezeRevoked: boolean,
-  mintRenounced: boolean
+  freezeRevoked?: boolean | null,
+  mintRenounced?: boolean | null
 ): HealthLevel {
   if (freezeRevoked && mintRenounced) return 'green';
   if (freezeRevoked || mintRenounced) return 'yellow';
@@ -215,10 +215,13 @@ export function computeHealthStatus(token: TokenRow): HealthStatus {
  * Sort comparator functions
  */
 export const SORT_COMPARATORS = {
-  hot: (a: TokenRow, b: TokenRow) => Number(b.hotScore) - Number(a.hotScore),
-  new: (a: TokenRow, b: TokenRow) =>
-    new Date(b.firstSeenAt).getTime() - new Date(a.firstSeenAt).getTime(),
-  watched: (a: TokenRow, b: TokenRow) => b.watcherCount - a.watcherCount,
+  hot: (a: TokenRow, b: TokenRow) => (b.hotScore ?? 0) - (a.hotScore ?? 0),
+  new: (a: TokenRow, b: TokenRow) => {
+    const aTime = a.firstSeenAt ? new Date(a.firstSeenAt).getTime() : 0;
+    const bTime = b.firstSeenAt ? new Date(b.firstSeenAt).getTime() : 0;
+    return bTime - aTime;
+  },
+  watched: (a: TokenRow, b: TokenRow) => (b.watcherCount ?? 0) - (a.watcherCount ?? 0),
   alphabetical: (a: TokenRow, b: TokenRow) =>
     (a.symbol || '').localeCompare(b.symbol || ''),
 } as const;
