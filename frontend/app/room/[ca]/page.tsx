@@ -116,7 +116,7 @@ export default function TradeRoomPage({ params }: TradeRoomPageProps) {
               {tokenDetails.imageUrl && (
                 <img
                   src={tokenDetails.imageUrl}
-                  alt={tokenDetails.symbol}
+                  alt={tokenDetails.symbol || 'Token'}
                   className="h-12 w-12 rounded-lg border-3 border-[var(--outline-black)]"
                 />
               )}
