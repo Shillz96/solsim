@@ -20,6 +20,11 @@ import { cn } from "@/lib/utils"
 import { motion } from "framer-motion"
 import { ExternalLink } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card"
 import type { TokenRow } from "@/lib/types/warp-pipes"
 
 interface TokenCardProps {
@@ -234,67 +239,130 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
                 {(data.twitter || data.telegram || data.website) && (
                   <div className="flex items-center gap-2.5">
                     {data.twitter && (
-                      <a
-                        href={data.twitter.startsWith('http') ? data.twitter : `https://twitter.com/${data.twitter}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="group relative hover:opacity-70 transition-opacity"
-                        onClick={(e) => e.stopPropagation()}
-                        title="Twitter/X"
-                      >
-                        <Image 
-                          src="/icons/social/x-icon.svg" 
-                          alt="X/Twitter" 
-                          width={20} 
-                          height={20}
-                          className="inline-block"
-                        />
-                        <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 text-xs bg-black text-white rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">
-                          {data.twitter}
-                        </span>
-                      </a>
+                      <HoverCard openDelay={200}>
+                        <HoverCardTrigger asChild>
+                          <a
+                            href={data.twitter.startsWith('http') ? data.twitter : `https://twitter.com/${data.twitter}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="hover:opacity-70 transition-opacity"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <Image 
+                              src="/icons/social/x-icon.svg" 
+                              alt="X/Twitter" 
+                              width={20} 
+                              height={20}
+                              className="inline-block"
+                            />
+                          </a>
+                        </HoverCardTrigger>
+                        <HoverCardContent 
+                          className="w-80 p-4 bg-card border border-border shadow-lg" 
+                          side="top"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <div className="space-y-2">
+                            <div className="flex items-start gap-3">
+                              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-bold text-xl">
+                                {data.symbol?.[0] || '?'}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <div className="font-bold text-base truncate">{data.name || data.symbol}</div>
+                                <div className="text-sm text-muted-foreground truncate">@{data.twitter}</div>
+                              </div>
+                            </div>
+                            <p className="text-sm line-clamp-3">{data.description || 'No description available'}</p>
+                            <div className="flex gap-4 text-xs text-muted-foreground">
+                              <span>Click to view on X →</span>
+                            </div>
+                          </div>
+                        </HoverCardContent>
+                      </HoverCard>
                     )}
                     {data.telegram && (
-                      <a
-                        href={data.telegram.startsWith('http') ? data.telegram : `https://t.me/${data.telegram}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="group relative hover:opacity-70 transition-opacity"
-                        onClick={(e) => e.stopPropagation()}
-                        title="Telegram"
-                      >
-                        <Image 
-                          src="/icons/social/telegram-icon.svg" 
-                          alt="Telegram" 
-                          width={20} 
-                          height={20}
-                          className="inline-block"
-                        />
-                        <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 text-xs bg-black text-white rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">
-                          {data.telegram}
-                        </span>
-                      </a>
+                      <HoverCard openDelay={200}>
+                        <HoverCardTrigger asChild>
+                          <a
+                            href={data.telegram.startsWith('http') ? data.telegram : `https://t.me/${data.telegram}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="hover:opacity-70 transition-opacity"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <Image 
+                              src="/icons/social/telegram-icon.svg" 
+                              alt="Telegram" 
+                              width={20} 
+                              height={20}
+                              className="inline-block"
+                            />
+                          </a>
+                        </HoverCardTrigger>
+                        <HoverCardContent 
+                          className="w-80 p-4 bg-card border border-border shadow-lg" 
+                          side="top"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <div className="space-y-2">
+                            <div className="flex items-start gap-3">
+                              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-white text-2xl">
+                                ✈️
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <div className="font-bold text-base truncate">{data.name || data.symbol}</div>
+                                <div className="text-sm text-muted-foreground truncate">{data.telegram}</div>
+                              </div>
+                            </div>
+                            <p className="text-sm line-clamp-3">{data.description || 'Join the Telegram community'}</p>
+                            <div className="flex gap-4 text-xs text-muted-foreground">
+                              <span>Click to join Telegram →</span>
+                            </div>
+                          </div>
+                        </HoverCardContent>
+                      </HoverCard>
                     )}
                     {data.website && (
-                      <a
-                        href={data.website.startsWith('http') ? data.website : `https://${data.website}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="group relative hover:opacity-70 transition-opacity"
-                        onClick={(e) => e.stopPropagation()}
-                        title="Website"
-                      >
-                        <Image 
-                          src="/icons/social/globe-icon.svg" 
-                          alt="Website" 
-                          width={20} 
-                          height={20}
-                          className="inline-block"
-                        />
-                        <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 text-xs bg-black text-white rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">
-                          {data.website}
-                        </span>
-                      </a>
+                      <HoverCard openDelay={200}>
+                        <HoverCardTrigger asChild>
+                          <a
+                            href={data.website.startsWith('http') ? data.website : `https://${data.website}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="hover:opacity-70 transition-opacity"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <Image 
+                              src="/icons/social/globe-icon.svg" 
+                              alt="Website" 
+                              width={20} 
+                              height={20}
+                              className="inline-block"
+                            />
+                          </a>
+                        </HoverCardTrigger>
+                        <HoverCardContent 
+                          className="w-80 p-4 bg-card border border-border shadow-lg" 
+                          side="top"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <div className="space-y-2">
+                            <div className="flex items-start gap-3">
+                              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white text-2xl">
+                                🌐
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <div className="font-bold text-base truncate">{data.name || data.symbol}</div>
+                                <div className="text-sm text-muted-foreground truncate break-all">{data.website}</div>
+                              </div>
+                            </div>
+                            <p className="text-sm line-clamp-3">{data.description || 'Visit official website'}</p>
+                            <div className="flex gap-4 text-xs text-muted-foreground">
+                              <span>Click to visit website →</span>
+                            </div>
+                          </div>
+                        </HoverCardContent>
+                      </HoverCard>
                     )}
                   </div>
                 )}

@@ -96,6 +96,7 @@
     "recharts": "latest",
     "serwist": "^9.2.1",
     "sonner": "latest",
+    "styled-jsx": "^5.1.6",
     "@tailwindcss/postcss": "^4.1.9",
     "tailwindcss": "^4.1.9",
     "postcss": "^8.5",
