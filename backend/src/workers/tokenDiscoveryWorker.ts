@@ -96,6 +96,9 @@ async function handleNewToken(event: NewTokenEvent): Promise<void> {
       }
     }
 
+    // Convert IPFS URI to HTTP gateway URL
+    const httpLogoURI = convertIPFStoHTTP(uri);
+
     // Upsert to database
     await prisma.tokenDiscovery.upsert({
       where: { mint },
@@ -103,7 +106,7 @@ async function handleNewToken(event: NewTokenEvent): Promise<void> {
         mint,
         symbol: symbol || null,
         name: name || null,
-        logoURI: uri || null,
+        logoURI: httpLogoURI, // ✅ Convert ipfs:// to https://
         state: tokenState,
         bondingCurveKey: bondingCurve || null,
         bondingCurveProgress: bondingCurveProgress,
@@ -269,6 +272,31 @@ async function handleNewPool(event: NewPoolEvent): Promise<void> {
 // ============================================================================
 // HELPER FUNCTIONS
 // ============================================================================
+
+/**
+ * Convert IPFS URI to HTTP gateway URL
+ */
+function convertIPFStoHTTP(uri: string | undefined | null): string | null {
+  if (!uri) return null;
+
+  // Already an HTTP URL
+  if (uri.startsWith('http://') || uri.startsWith('https://')) {
+    return uri;
+  }
+
+  // Convert ipfs:// protocol to HTTP gateway
+  if (uri.startsWith('ipfs://')) {
+    const ipfsHash = uri.replace('ipfs://', '');
+    return `https://ipfs.io/ipfs/${ipfsHash}`;
+  }
+
+  // If it's just a hash, prepend the gateway
+  if (uri.match(/^[a-zA-Z0-9]{46,59}$/)) {
+    return `https://ipfs.io/ipfs/${uri}`;
+  }
+
+  return uri;
+}
 
 /**
  * Update token state with transition tracking

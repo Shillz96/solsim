@@ -67,7 +67,8 @@
       "WebFetch(domain:www.onborda.dev)",
       "Bash(git mv:*)",
       "Bash(git rm:*)",
-      "WebFetch(domain:tradingview.github.io)"
+      "WebFetch(domain:tradingview.github.io)",
+      "Bash(npm run type-check:*)"
     ],
     "deny": [],
     "ask": []
