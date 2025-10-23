@@ -164,9 +164,29 @@ module.exports = {
       
       // Font Families - Mario Theme
       fontFamily: {
-        mario: ['"Luckiest Guy"', 'cursive'],
-        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
-        mono: ['JetBrains Mono', 'monospace'],
+        mario: ['"Luckiest Guy"', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'cursive'],
+        sans: [
+          '-apple-system',
+          'BlinkMacSystemFont',
+          'system-ui',
+          'Segoe UI',
+          'Roboto',
+          'Helvetica Neue',
+          'Arial',
+          'sans-serif',
+          'Apple Color Emoji',
+          'Segoe UI Emoji',
+        ],
+        mono: [
+          'JetBrains Mono',
+          'SF Mono',
+          'Monaco',
+          'Cascadia Code',
+          'Roboto Mono',
+          'Consolas',
+          'Courier New',
+          'monospace',
+        ],
       },
 
       // Typography Scale

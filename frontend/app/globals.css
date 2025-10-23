@@ -242,7 +242,7 @@
     color: var(--foreground);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    font-family: var(--font-sans);
+    font-family: var(--font-radnika-next), -apple-system, BlinkMacSystemFont, 'system-ui', 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
     position: relative;
     line-height: 1.65; /* Enhanced readability */
     /* Note: transform removed - it breaks position: fixed for modals/dropdowns */
@@ -347,7 +347,7 @@
   h4,
   h5,
   h6 {
-    font-family: var(--font-ibm-plex-sans), var(--font-heading), sans-serif;
+    font-family: var(--font-ibm-plex-sans), -apple-system, BlinkMacSystemFont, 'system-ui', 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
     font-weight: 700;
     color: var(--foreground);
     letter-spacing: -0.015em; /* Refined letter spacing for 2025 */
@@ -358,13 +358,13 @@
   span,
   a,
   li {
-    font-family: var(--font-radnika-next), var(--font-sans), sans-serif;
+    font-family: var(--font-radnika-next), -apple-system, BlinkMacSystemFont, 'system-ui', 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
     color: var(--foreground);
   }
 
   code,
   pre {
-    font-family: var(--font-jetbrains-mono), var(--font-mono), monospace;
+    font-family: var(--font-jetbrains-mono), 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
     background-color: var(--input);
     color: var(--foreground);
     padding: 0.2rem 0.4rem;

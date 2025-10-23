@@ -17,17 +17,38 @@ import "./wallet-modal-override.css"
 const radnikaNext = localFont({
   src: "./fonts/Radnika-Medium.otf",
   variable: "--font-radnika-next",
+  fallback: [
+    '-apple-system',
+    'BlinkMacSystemFont',
+    'system-ui',
+    'Segoe UI',
+    'Roboto',
+    'Helvetica Neue',
+    'Arial',
+    'sans-serif',
+  ],
+  display: 'swap',
+  preload: true,
 })
 const ibmPlexSans = IBM_Plex_Sans({
   subsets: ["latin"],
   weight: ["700"],
   variable: "--font-ibm-plex-sans",
+  fallback: [
+    '-apple-system',
+    'BlinkMacSystemFont',
+    'system-ui',
+    'Segoe UI',
+    'sans-serif',
+  ],
+  display: 'swap',
 })
 // JetBrains Mono kept for code/monospace elements only
 const jetBrainsMono = JetBrains_Mono({
   subsets: ["latin"],
   weight: ["400"],
   variable: "--font-jetbrains-mono",
+  display: 'swap',
 })
 
 export const metadata: Metadata = {
