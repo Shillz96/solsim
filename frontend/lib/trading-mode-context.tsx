@@ -142,6 +142,18 @@ export function TradingModeProvider({ children }: { children: React.ReactNode })
     }
   }, [user?.id, refreshBalances]);
 
+  // Periodically refresh balances to keep them in sync
+  useEffect(() => {
+    if (!user?.id) return;
+
+    // Refresh balances every 15 seconds to stay in sync with trades
+    const interval = setInterval(() => {
+      refreshBalances();
+    }, 15000);
+
+    return () => clearInterval(interval);
+  }, [user?.id, refreshBalances]);
+
   // Save funding source preference
   useEffect(() => {
     if (!isLoading) {

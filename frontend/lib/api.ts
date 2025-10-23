@@ -878,6 +878,40 @@ export async function getPurchaseHistory(
 }
 
 // ================================
+// Real Trading Functions
+// ================================
+
+/**
+ * Get unique deposit address for a user
+ * GET /api/real-trade/deposit-address/:userId
+ */
+export async function getDepositAddress(userId: string): Promise<{
+  success: boolean;
+  userId: string;
+  depositAddress: string;
+  shortAddress: string;
+  network: string;
+  instructions: {
+    step1: string;
+    step2: string;
+    step3: string;
+    note: string;
+  };
+}> {
+  const response = await fetch(`${API}/api/real-trade/deposit-address/${encodeURIComponent(userId)}`, {
+    method: 'GET',
+    headers: getAuthHeaders(),
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ message: 'Failed to get deposit address' }));
+    throw new Error(error.message || `HTTP ${response.status}`);
+  }
+
+  return response.json();
+}
+
+// ================================
 // Perpetual Trading Functions
 // ================================
 

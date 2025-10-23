@@ -275,6 +275,80 @@ export default async function (app: FastifyInstance) {
   });
 
   /**
+   * GET /real-trade/deposit-address/:userId
+   * Get unique deposit address for a user
+   *
+   * Returns deterministic deposit address derived from platform seed + user ID
+   */
+  app.get("/deposit-address/:userId", async (req, reply) => {
+    const { userId } = req.params as { userId: string };
+
+    if (!userId) {
+      return reply.code(400).send({
+        error: "User ID is required"
+      });
+    }
+
+    // Get platform seed from environment
+    const platformSeed = process.env.PLATFORM_DEPOSIT_SEED;
+
+    if (!platformSeed) {
+      app.log.error("PLATFORM_DEPOSIT_SEED not configured in environment");
+      return reply.code(500).send({
+        error: "Deposit system not configured. Please contact support."
+      });
+    }
+
+    if (platformSeed.length < 32) {
+      app.log.error("PLATFORM_DEPOSIT_SEED too short (min 32 characters)");
+      return reply.code(500).send({
+        error: "Deposit system misconfigured. Please contact support."
+      });
+    }
+
+    try {
+      // Verify user exists
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { id: true, email: true }
+      });
+
+      if (!user) {
+        return reply.code(404).send({
+          error: "User not found"
+        });
+      }
+
+      // Generate deterministic deposit address
+      const depositAddress = generateDepositAddress(userId, platformSeed);
+      const addressString = depositAddress.toBase58();
+      const shortAddress = formatAddressForDisplay(depositAddress);
+
+      app.log.info(`Generated deposit address for user ${userId}: ${shortAddress}`);
+
+      return {
+        success: true,
+        userId: userId,
+        depositAddress: addressString,
+        shortAddress: shortAddress,
+        network: "mainnet-beta",
+        instructions: {
+          step1: "Send SOL from any wallet to this address",
+          step2: "Wait 30-60 seconds for blockchain confirmation",
+          step3: "Your balance will update automatically",
+          note: "This is your unique deposit address. Save it for future deposits."
+        }
+      };
+    } catch (error: any) {
+      app.log.error("Failed to generate deposit address:", error);
+
+      return reply.code(500).send({
+        error: error.message || "Failed to generate deposit address"
+      });
+    }
+  });
+
+  /**
    * POST /real-trade/deposit
    * Deposit SOL to platform account for deposited balance trading
    * TODO: Implement proper deposit flow with unique deposit addresses

@@ -34,22 +34,38 @@ export function ProfileMenu({
         <motion.button
           whileHover={{ y: -1 }}
           className={cn(
-            "h-10 md:h-11 min-w-[200px]",
-            "px-3 md:px-3.5 rounded-[12px] md:rounded-[14px]",
+            "h-12 md:h-14 min-w-[240px] md:min-w-[280px]",
+            "px-4 md:px-5 rounded-[14px] md:rounded-[16px]",
             "bg-[var(--star-yellow)]",
             "border-4 border-[var(--outline-black)]",
-            "shadow-[4px_4px_0_var(--outline-black)]",
-            "flex items-center gap-3 md:gap-4",
-            "transition-transform"
+            "shadow-[6px_6px_0_var(--outline-black)]",
+            "hover:shadow-[7px_7px_0_var(--outline-black)]",
+            "flex items-center justify-between gap-4 md:gap-5",
+            "transition-all duration-200"
           )}
           aria-label="Account menu"
         >
-          {/* Red square badge on the left with avatar */}
+          {/* Name + Level info - LEFT SIDE with more space */}
+          <div className="flex flex-col items-start justify-center leading-tight space-y-0.5 md:space-y-1 flex-1 min-w-0">
+            <span className="font-extrabold text-[16px] md:text-[18px] tracking-tight text-[var(--outline-black)] truncate max-w-full">
+              {displayName}
+            </span>
+            <div className="flex items-center gap-2 md:gap-3">
+              <span className="text-[11px] md:text-[12px] font-black uppercase text-foreground/90 whitespace-nowrap">
+                LVL {level}
+              </span>
+              <span className="text-[11px] md:text-[12px] font-black uppercase text-foreground/70 whitespace-nowrap">
+                {xp.toLocaleString()} XP
+              </span>
+            </div>
+          </div>
+
+          {/* Larger profile picture on the RIGHT */}
           <div
             className={cn(
-              "grid place-items-center",
-              "h-7 w-7 md:h-8 md:w-8",
-              "rounded-[10px] md:rounded-[12px]",
+              "grid place-items-center flex-shrink-0",
+              "h-10 w-10 md:h-12 md:w-12",
+              "rounded-[12px] md:rounded-[14px]",
               "bg-[var(--mario-red)]",
               "border-4 border-[var(--outline-black)]",
               "overflow-hidden"
@@ -57,20 +73,10 @@ export function ProfileMenu({
           >
             <Avatar className="h-full w-full rounded-none border-0">
               <AvatarImage src={avatarUrl} alt={displayName} className="rounded-none object-cover" />
-              <AvatarFallback className="rounded-none font-bold bg-[var(--mario-red)] text-white text-[11px] md:text-[12px]">
+              <AvatarFallback className="rounded-none font-bold bg-[var(--mario-red)] text-white text-[14px] md:text-[16px]">
                 {displayName?.[0]?.toUpperCase() || "U"}
               </AvatarFallback>
             </Avatar>
-          </div>
-
-          {/* Name + Level info */}
-          <div className="flex flex-col leading-none -space-y-[1px] md:-space-y-[2px]">
-            <span className="font-extrabold text-[15px] md:text-[17px] tracking-tight text-[var(--outline-black)] truncate max-w-[140px]">
-              {displayName}
-            </span>
-            <span className="text-[10px] md:text-[11px] font-black uppercase text-foreground/80">
-              LVL {level} • {xp.toLocaleString()} XP
-            </span>
           </div>
         </motion.button>
       </DropdownMenuTrigger>

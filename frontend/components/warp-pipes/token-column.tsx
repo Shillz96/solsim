@@ -9,6 +9,7 @@
 import { cn } from "@/lib/utils"
 import { TokenCard, TokenCardSkeleton } from "./token-card"
 import type { TokenRow } from "@/lib/types/warp-pipes"
+import Image from "next/image"
 
 interface TokenColumnProps {
   title: string
@@ -34,19 +35,33 @@ export function TokenColumn({
     new: "bg-luigi-green-500 border-luigi-green-700 text-white", // Luigi Green
   }
 
+  // Header images based on column type
+  const headerImages = {
+    bonded: "/bonded-10-23-2025.png",
+    graduating: "/About-to-Graduate-10-23-2025.png",
+    new: "/New-Pairs-10-23-2025.png",
+  }
+
   return (
     <div className={cn("flex flex-col h-full", className)}>
       {/* Column Header */}
       <div
         className={cn(
-          "p-3 rounded-t-lg border-3 border-b-0 font-bold text-center text-base",
-          "shadow-md",
+          "p-3 rounded-t-lg border-3 border-b-0 text-center",
+          "shadow-md flex items-center justify-center",
           headerColors[headerColor]
         )}
       >
-        <div className="flex items-center justify-center gap-2">
-          <span>{title}</span>
-          <span className="text-sm font-mono">({tokens.length})</span>
+        <div className="flex items-center justify-center gap-2 w-full">
+          <Image
+            src={headerImages[headerColor]}
+            alt={title}
+            width={400}
+            height={80}
+            className="h-auto max-h-16 w-auto max-w-full object-contain"
+            priority
+          />
+          <span className="text-sm font-mono ml-2">({tokens.length})</span>
         </div>
       </div>
 
