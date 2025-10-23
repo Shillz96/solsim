@@ -1,0 +1,194 @@
+# 1UP SOL - Cursor AI Assistant Rules
+
+You are an AI assistant working on 1UP SOL, a Mario-themed Solana paper trading game. Follow these rules strictly:
+
+## 🎮 Project Context
+- **1UP SOL**: Full-stack Solana paper trading game with real-time price tracking
+- **Mario Theme**: Retro game aesthetic with vibrant colors, bold borders, 3D shadows
+- **Architecture**: Next.js frontend + Fastify backend + PostgreSQL + Redis
+- **Monorepo**: `frontend/`, `backend/`, `packages/types/`
+
+## 🎨 Mario Theme Design System
+
+### Colors (OKLCH + Display-P3)
+- **Primary Actions**: `bg-mario-red-500` for Buy buttons and CTAs
+- **Success States**: `bg-luigi-green-500` or profit green `#00ff85`
+- **Highlights**: `bg-star-yellow-500` or `bg-coin-yellow-500`
+- **Backgrounds**: `bg-white`, `bg-sky-50`, `bg-sky-100`
+- **Neutral Elements**: `bg-pipe-*`, `text-pipe-*`, `border-pipe-*`
+
+### Typography
+- **Headers**: `.font-mario` (Press Start 2P pixel font) with text shadows
+- **Body Text**: System fonts (default)
+- **Numbers/Prices**: `.font-mono` for alignment
+
+### Components
+- **Cards**: `.mario-card` with bold borders (3-4px)
+- **Buttons**: `.mario-btn` with 3D block shadows
+- **Borders**: `border-3` or `border-4` for Mario aesthetic
+- **Shadows**: `shadow-mario` for 3D block effect
+
+### ❌ NEVER Use
+- Dark mode classes (`dark:*`)
+- Old color scales (`gray-*`, `slate-*`, `zinc-*`)
+- Thin borders (< 2px)
+- Soft shadows (use 3D block shadows)
+- Pixel font for body text
+- New color variants outside Mario palette
+
+## 🔧 Code Quality Rules
+
+### TypeScript
+- **Strict mode enabled** - No `any` types allowed
+- **End-to-end TypeScript** - Frontend and backend
+- **Zod validation** - All API inputs/outputs
+- **Shared types** - Use `@virtualsol/types` package
+
+### React Components
+- **≤ 150 lines per component** - Split if exceeded
+- **One concern per file** - Clear separation
+- **React.memo** - For table rows and chart components
+- **Strong prop typing** - Avoid `any`
+
+### React Query Configuration
+```typescript
+{
+  staleTime: 30000,        // 30 seconds
+  cacheTime: 300000,       // 5 minutes
+  refetchOnWindowFocus: false
+}
+```
+
+### Database & Financial
+- **FIFO Position Tracking** - Strict First-In-First-Out accounting
+- **Decimal Precision** - Use Prisma `Decimal` for all financial calculations
+- **Lot Consumption** - Always consume lots in `createdAt ASC` order
+
+## 🏗️ Architecture Patterns
+
+### Backend Service Pattern
+1. **Routes** (`routes/`) - API endpoints, register with Fastify
+2. **Services** (`services/`) - Business logic, async/await
+3. **Plugins** (`plugins/`) - Shared functionality
+4. **Utils** (`utils/`) - Helper functions
+
+### Key Services
+- `tradeService.ts` - Trade execution and validation
+- `portfolioService.ts` - Position management and PnL
+- `priceService.ts` - Real-time price streaming via Helius WebSocket
+- `rewardService.ts` - XP and points-based rewards
+- `walletTrackerService.ts` - KOL wallet tracking
+
+### Critical Implementation Rules
+
+#### WebSocket Registration Order
+```typescript
+// ✅ CORRECT - WebSocket BEFORE rate limiting
+app.register(websocket)
+app.register(wsTestPlugin)
+app.register(wsPlugin)
+app.register(rateLimiting)  // Rate limit comes AFTER
+```
+
+#### FIFO Lot Consumption
+```typescript
+// ✅ CORRECT - Always oldest first
+const lots = await prisma.positionLot.findMany({
+  where: { userId, mint },
+  orderBy: { createdAt: 'asc' }  // CRITICAL: oldest first
+});
+```
+
+#### Price Service Initialization
+```typescript
+// ✅ CORRECT - Start price service before server
+await priceService.start();  // Start WebSocket connections
+app.listen({ port, host: "0.0.0.0" });
+```
+
+#### Decimal Precision
+```typescript
+import { Decimal } from '@prisma/client/runtime/library';
+
+// ✅ CORRECT
+const totalCost = new Decimal(price).mul(quantity);
+
+// ❌ WRONG - floating point errors
+const totalCost = price * quantity;
+```
+
+## 🚀 Development Commands
+
+### Backend
+```bash
+cd backend
+npm run dev                # Start dev server
+npm run build             # Build TypeScript
+npm run prisma:generate   # Generate Prisma client
+npm run prisma:migrate    # Apply migrations
+npm test                  # Run tests
+```
+
+### Frontend
+```bash
+cd frontend
+npm run dev              # Start Next.js dev server
+npm run build           # Build for production
+npm run lint            # Run ESLint
+npm run format          # Format with Prettier
+npm test                # Run Vitest
+```
+
+### Monorepo
+```bash
+npm run dev:backend         # Start backend dev server
+npm run dev:frontend        # Start frontend dev server
+npm run build              # Build both
+npm test                   # Run all tests
+npm run db:migrate          # Apply migrations
+npm run db:studio          # Open Prisma Studio
+```
+
+## 🔒 Security & Validation
+
+### API Security
+- All API routes validate input with Zod schemas
+- Prisma ORM prevents SQL injection
+- JWT authentication with `@fastify/jwt`
+- Rate limiting via `@fastify/rate-limit`
+- CORS configured for specific origins
+
+### Environment Variables
+**Backend**: `DATABASE_URL`, `REDIS_URL`, `HELIUS_API`, `HELIUS_RPC_URL`, `HELIUS_WS`, `SOLANA_RPC_URL`, `VSOL_TOKEN_MINT`, `REWARDS_WALLET_SECRET`, `JWT_SECRET`
+**Frontend**: `NEXT_PUBLIC_API_URL`, `NEXT_PUBLIC_WS_URL`
+
+## 🎯 When Working on This Project
+
+1. **Always follow Mario theme guidelines** - Use Mario colors, bold borders, 3D shadows
+2. **Maintain type safety** - No `any` types, use Zod validation
+3. **Follow FIFO accounting** - Critical for accurate PnL calculations
+4. **Use React Query patterns** - Consistent caching and state management
+5. **Keep components small** - ≤ 150 lines, split if needed
+6. **Document utilities** - JSDoc for all helper functions
+7. **Test on both sRGB and Display-P3** - Ensure color accuracy
+8. **Follow WebSocket registration order** - Critical for functionality
+9. **Use Decimal for financial calculations** - Prevent floating point errors
+10. **Maintain security** - Validate all inputs, use parameterized queries
+
+## 📚 Key Documentation Files
+- `ARCHITECTURE.md` - System architecture
+- `frontend/MARIO_THEME_DESIGN_SYSTEM.md` - Mario theme guide
+- `MODERNIZATION_2025.md` - 2025 modernization plan
+- `WORKFLOW.md` - Development workflow
+- `ENVIRONMENT_SETUP.md` - Environment configuration
+- `GITHUB_DEPLOYMENT_SETUP.md` - Deployment setup
+
+## 🔄 2025 Modernization Features
+- **View Transitions API** - Smooth page transitions
+- **Display-P3 Wide-Gamut Colors** - Vivid Mario colors on modern displays
+- **Tailwind v4 CSS Theme** - CSS-first theme tokens
+- **Mario Theme Consistency** - 100% Mario-themed styling
+- **Light Mode Only** - No dark mode support
+- **Rollback Safety** - Backup branch available
+
+Remember: This is a Mario-themed retro game aesthetic. Keep it bright, vibrant, and nostalgic with bold borders and 3D shadows!

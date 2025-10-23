@@ -25,6 +25,7 @@
     "db:verify": "tsx scripts/verify-database.ts",
     "db:optimize": "tsx src/scripts/create-performance-indexes.ts",
     "db:fix-enum": "tsx scripts/fix-enum-migration.ts",
+    "db:seed-tokens": "tsx scripts/seed-warp-pipes-tokens.ts",
     "test": "jest"
   },
   "dependencies": {

@@ -500,7 +500,21 @@ export async function submitSignedRealTrade(
     throw new Error("submitSignedRealTrade only for WALLET funding source");
   }
 
-  // Submit the signed transaction
+  let q = D(params.qty);
+  if (q.lte(0)) throw new Error("Quantity must be greater than 0");
+
+  logger.info(
+    {
+      userId: params.userId,
+      mint: params.mint.slice(0, 8),
+      side: params.side,
+      qty: params.qty,
+      fundingSource: params.fundingSource
+    },
+    "[RealTrade] Submitting signed wallet transaction"
+  );
+
+  // Submit the signed transaction via Local API
   const submitResult = await localService.submitSignedTransaction(signedTransactionBase64);
 
   if (!submitResult.success || !submitResult.signature) {
@@ -508,19 +522,303 @@ export async function submitSignedRealTrade(
   }
 
   const txSignature = submitResult.signature;
+  logger.info({ signature: txSignature }, "[RealTrade] Wallet transaction submitted");
 
-  // Now follow the same flow as deposited balance trading
-  // (duplicate logic from executeRealTrade for now)
-  // TODO: Refactor to share common logic
+  // Verify transaction on-chain
+  logger.info({ signature: txSignature }, "[RealTrade] Verifying transaction on-chain");
+  const verified = await lightningService.verifyTransaction(txSignature);
+  
+  let txStatus: "PENDING" | "CONFIRMED" | "FAILED" = verified ? "CONFIRMED" : "FAILED";
+  
+  if (!verified) {
+    txStatus = "FAILED";
+    logger.error({ signature: txSignature }, "[RealTrade] Transaction failed verification");
+    throw new Error("Transaction failed to confirm on-chain");
+  }
+
+  logger.info({ signature: txSignature }, "[RealTrade] Transaction confirmed on-chain");
+
+  // Get user
+  const user = await prisma.user.findUnique({ where: { id: params.userId } });
+  if (!user) throw new Error("User not found");
+
+  // Get price tick
+  const tick = await priceService.getLastTick(params.mint);
+  if (!tick || !tick.priceUsd || tick.priceUsd <= 0) {
+    throw new Error(`Price data unavailable for token ${params.mint}`);
+  }
+
+  // Validate price freshness
+  const priceAge = Date.now() - tick.timestamp;
+  if (priceAge > 5 * 60 * 1000) {
+    throw new Error(
+      `Price data is stale for token ${params.mint} (${Math.floor(priceAge / 1000)}s old)`
+    );
+  }
+
+  const priceUsd = D(tick.priceUsd);
+  const currentSolPrice = priceService.getSolPrice();
+  if (currentSolPrice <= 0) {
+    throw new Error(`Invalid SOL price: $${currentSolPrice}`);
+  }
+
+  const solUsdAtFill = D(currentSolPrice);
+  const priceSol = priceUsd.div(solUsdAtFill);
+  const mcAtFill = tick.marketCapUsd ? D(tick.marketCapUsd) : null;
+
+  // For sells, validate and clamp quantity
+  if (params.side === "SELL") {
+    const position = await prisma.position.findUnique({
+      where: {
+        userId_mint_tradeMode: {
+          userId: params.userId,
+          mint: params.mint,
+          tradeMode: "REAL"
+        }
+      }
+    });
+
+    if (!position) {
+      throw new Error(`No real trading position found for token`);
+    }
+
+    const positionQty = position.qty as Decimal;
+    const difference = positionQty.minus(q);
+    const EPSILON = D("0.0001");
+    
+    if (difference.lt(EPSILON.neg())) {
+      throw new Error(
+        `Insufficient token balance. Required: ${q.toFixed(4)}, Available: ${positionQty.toFixed(4)}`
+      );
+    }
+
+    if (difference.lt(0) && difference.gte(EPSILON.neg())) {
+      logger.info(
+        `[RealTrade] Clamping sell quantity from ${q.toString()} to ${positionQty.toString()}`
+      );
+      q = positionQty;
+    }
+  }
+
+  // Calculate amounts
+  const grossSol = q.mul(priceSol);
+  const grossUsd = q.mul(priceUsd);
+  const pumpPortalFee = grossSol.mul(localService.LOCAL_FEE_PERCENT / 100);
+
+  let netSol: Decimal;
+  let tradeCostSol: Decimal;
+  let tradeCostUsd: Decimal;
+
+  if (params.side === "BUY") {
+    netSol = grossSol.plus(pumpPortalFee);
+    tradeCostSol = netSol;
+    tradeCostUsd = netSol.mul(solUsdAtFill);
+  } else {
+    netSol = grossSol.minus(pumpPortalFee);
+    tradeCostSol = netSol;
+    tradeCostUsd = netSol.mul(solUsdAtFill);
+  }
+
+  logger.info({
+    priceUsd: priceUsd.toString(),
+    priceSol: priceSol.toString(),
+    grossSol: grossSol.toString(),
+    pumpPortalFee: pumpPortalFee.toString(),
+    netSol: netSol.toString()
+  }, "[RealTrade] Wallet trade pricing calculated");
+
+  // Record the trade in database using FIFO logic
+  const result = await prisma.$transaction(async (tx) => {
+    // Create trade record
+    const trade = await tx.trade.create({
+      data: {
+        userId: params.userId,
+        tokenAddress: params.mint,
+        mint: params.mint,
+        side: params.side,
+        action: params.side.toLowerCase(),
+        quantity: q,
+        price: priceUsd,
+        priceSOLPerToken: priceSol,
+        grossSol,
+        feesSol: pumpPortalFee,
+        netSol,
+        totalCost: tradeCostSol,
+        costUsd: tradeCostUsd,
+        solUsdAtFill,
+        marketCapUsd: mcAtFill,
+        route: "PumpPortal",
+        tradeMode: "REAL",
+        realTxSignature: txSignature,
+        realTxStatus: txStatus,
+        fundingSource: params.fundingSource,
+        pumpPortalFee: pumpPortalFee
+      }
+    });
+
+    // Fetch/initialize position with REAL trade mode
+    let pos = await tx.position.findUnique({
+      where: {
+        userId_mint_tradeMode: {
+          userId: params.userId,
+          mint: params.mint,
+          tradeMode: "REAL"
+        }
+      }
+    });
+
+    if (!pos) {
+      pos = await tx.position.create({
+        data: {
+          userId: params.userId,
+          mint: params.mint,
+          qty: D(0),
+          costBasis: D(0),
+          tradeMode: "REAL"
+        }
+      });
+    }
+
+    let realizedPnL = D(0);
+
+    if (params.side === "BUY") {
+      // Create new lot for FIFO tracking
+      await tx.positionLot.create({
+        data: {
+          positionId: pos.id,
+          userId: params.userId,
+          mint: params.mint,
+          qtyRemaining: q,
+          unitCostUsd: priceUsd,
+          unitCostSol: priceSol,
+          solUsdAtBuy: solUsdAtFill,
+          tradeMode: "REAL"
+        }
+      });
+
+      // Update position using VWAP
+      const newVWAP = vwapBuy(pos.qty as Decimal, pos.costBasis as Decimal, q, priceUsd);
+      pos = await tx.position.update({
+        where: {
+          userId_mint_tradeMode: {
+            userId: params.userId,
+            mint: params.mint,
+            tradeMode: "REAL"
+          }
+        },
+        data: {
+          qty: newVWAP.newQty,
+          costBasis: newVWAP.newBasis
+        }
+      });
+
+      // NOTE: Do NOT update realSolBalance for WALLET funding - funds come from user's wallet
+
+    } else {
+      // SELL: Consume lots using FIFO
+      const lots = await tx.positionLot.findMany({
+        where: {
+          userId: params.userId,
+          mint: params.mint,
+          tradeMode: "REAL",
+          qtyRemaining: { gt: 0 }
+        },
+        orderBy: { createdAt: "asc" }
+      });
+
+      const { realized, consumed } = fifoSell(
+        lots.map((l: any) => ({
+          id: l.id,
+          qtyRemaining: l.qtyRemaining as Decimal,
+          unitCostUsd: l.unitCostUsd as Decimal
+        })),
+        q,
+        priceUsd
+      );
+
+      realizedPnL = realized;
+
+      // Update consumed lots
+      for (const c of consumed) {
+        const lot = lots.find((l: any) => l.id === c.lotId)!;
+        const newQty = (lot.qtyRemaining as Decimal).sub(c.qty);
+        await tx.positionLot.update({
+          where: { id: lot.id },
+          data: { qtyRemaining: newQty }
+        });
+      }
+
+      // Update position
+      const newQty = (pos.qty as Decimal).sub(q);
+      const totalConsumedCost = consumed.reduce((sum, c) => {
+        const lot = lots.find((l: any) => l.id === c.lotId)!;
+        return sum.add(c.qty.mul(lot.unitCostUsd as Decimal));
+      }, D(0));
+
+      let newBasis = (pos.costBasis as Decimal).sub(totalConsumedCost);
+      if (newBasis.lt(0)) {
+        logger.error(`⚠️ Negative cost basis detected for wallet real position, clamping to 0`);
+        newBasis = D(0);
+      }
+      if (newQty.eq(0)) newBasis = D(0);
+
+      pos = await tx.position.update({
+        where: {
+          userId_mint_tradeMode: {
+            userId: params.userId,
+            mint: params.mint,
+            tradeMode: "REAL"
+          }
+        },
+        data: { qty: newQty, costBasis: newBasis }
+      });
+
+      // Record realized PnL
+      await tx.realizedPnL.create({
+        data: {
+          userId: params.userId,
+          mint: params.mint,
+          pnl: realized,
+          pnlUsd: realized,
+          tradeMode: "REAL",
+          tradeId: trade.id
+        }
+      });
+
+      // NOTE: Do NOT update realSolBalance for WALLET funding - funds go to user's wallet
+    }
+
+    return { trade, position: pos, realizedPnL };
+  });
+
+  // Add reward points
+  await addTradePoints(params.userId, tradeCostUsd);
+
+  // Invalidate portfolio cache
+  portfolioCoalescer.invalidate(`portfolio:${params.userId}`);
+  logger.info(`[RealTrade] Invalidated portfolio cache for user ${params.userId}`);
+
+  // Calculate portfolio totals
+  const portfolioTotals = await calculateRealPortfolioTotals(params.userId);
 
   logger.info(
-    { signature: txSignature },
-    "[RealTrade] Wallet transaction submitted, completing trade record"
+    { 
+      userId: params.userId, 
+      txSignature,
+      side: params.side,
+      amount: q.toString()
+    },
+    "✅ [RealTrade] Wallet trade completed successfully"
   );
 
-  // Verify and record trade (similar to executeRealTrade)
-  // For brevity, returning placeholder - full implementation would mirror executeRealTrade
-  throw new Error("Wallet trade completion not yet fully implemented");
+  return {
+    trade: result.trade,
+    position: result.position,
+    portfolioTotals,
+    rewardPointsEarned: tradeCostUsd,
+    realTxSignature: txSignature,
+    realTxStatus: txStatus
+  };
 }
 
 /**

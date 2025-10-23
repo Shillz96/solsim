@@ -36,6 +36,8 @@ import { usePortfolio, usePosition } from "@/hooks/use-portfolio"
 import { motion, AnimatePresence } from "framer-motion"
 import { RealTradeConfirmationModal, type RealTradeDetails } from "./real-trade-confirmation-modal"
 import { TransactionStatusTracker, type TransactionStep } from "./transaction-status-tracker"
+import { Transaction } from '@solana/web3.js'
+import { useWallet } from '@solana/wallet-adapter-react'
 
 interface MarioTradingPanelProps {
   tokenAddress?: string
@@ -52,6 +54,7 @@ function MarioTradingPanelComponent({ tokenAddress: propTokenAddress }: MarioTra
   const portfolioError = portfolioErrorObj ? (portfolioErrorObj as Error).message : null
 
   const { tradeMode, fundingSource, activeBalance, refreshBalances } = useTradingMode()
+  const wallet = useWallet()
 
   const [userBalance, setUserBalance] = useState<number>(0)
   const [isTrading, setIsTrading] = useState(false)
@@ -289,36 +292,78 @@ function MarioTradingPanelComponent({ tokenAddress: propTokenAddress }: MarioTra
 
     setShowRealTradeConfirm(false)
     setShowTransactionStatus(true)
-    setTransactionStep('submitting')
     setTransactionError(undefined)
 
     try {
       const userId = getUserId()
       if (!userId) throw new Error('Not authenticated')
 
-      const result = await realTradeApi.executeRealTrade({
-        userId,
-        mint: realTradeDetails.token.mint,
-        side: realTradeDetails.tradeType === 'buy' ? 'BUY' : 'SELL',
-        amountSol: realTradeDetails.totalValue,
-        fundingSource: fundingSource,
-        slippageBps: realTradeDetails.slippageBps,
-      })
+      // Check if using wallet funding source
+      if (fundingSource === 'WALLET') {
+        // Wallet trading flow - requires signing
+        if (!wallet.publicKey || !wallet.signTransaction) {
+          throw new Error('Please connect your wallet to trade with wallet balance')
+        }
 
-      if (result.success && result.trade) {
-        const trade = result.trade
-        setTransactionSignature(trade.signature)
+        // Step 1: Build unsigned transaction
+        setTransactionStep('building')
+        console.log('[RealTrade] Building wallet transaction...')
+
+        const buildResult = await realTradeApi.buildWalletTransaction({
+          userId,
+          mint: realTradeDetails.token.mint,
+          side: realTradeDetails.tradeType === 'buy' ? 'BUY' : 'SELL',
+          amountSol: realTradeDetails.totalValue,
+          slippageBps: realTradeDetails.slippageBps,
+        })
+
+        if (!buildResult.success || !buildResult.transaction) {
+          throw new Error(buildResult.error || 'Failed to build transaction')
+        }
+
+        console.log('[RealTrade] Transaction built successfully')
+
+        // Step 2: Sign transaction with wallet
+        setTransactionStep('signing')
+        console.log('[RealTrade] Requesting wallet signature...')
+
+        const transaction = Transaction.from(
+          Buffer.from(buildResult.transaction, 'base64')
+        )
+
+        const signedTx = await wallet.signTransaction(transaction)
+        const signedTxBase64 = Buffer.from(signedTx.serialize()).toString('base64')
+
+        console.log('[RealTrade] Transaction signed')
+
+        // Step 3: Submit signed transaction
+        setTransactionStep('submitting')
+        console.log('[RealTrade] Submitting signed transaction...')
+
+        const submitResult = await realTradeApi.submitSignedTransaction({
+          userId,
+          mint: realTradeDetails.token.mint,
+          side: realTradeDetails.tradeType === 'buy' ? 'BUY' : 'SELL',
+          signedTransaction: signedTxBase64,
+          amountSol: realTradeDetails.totalValue,
+        })
+
+        if (!submitResult.success || !submitResult.trade) {
+          throw new Error(submitResult.error || 'Failed to submit transaction')
+        }
+
+        setTransactionSignature(submitResult.trade.signature)
         setTransactionStep('confirming')
 
-        // Poll for confirmation
+        // Wait a bit then mark as confirmed
         setTimeout(() => {
           setTransactionStep('confirmed')
           refreshBalances()
           refreshPortfolio()
 
           toast({
-            title: "✅ Real Trade Executed!",
-            description: `${realTradeDetails.tradeType === 'buy' ? 'Bought' : 'Sold'} ${formatTokenQuantity(trade.amountTokens)} ${realTradeDetails.token.symbol}`,
+            title: "✅ Wallet Trade Executed!",
+            description: `${realTradeDetails.tradeType === 'buy' ? 'Bought' : 'Sold'} ${realTradeDetails.token.symbol}`,
             duration: 5000,
           })
 
@@ -331,8 +376,50 @@ function MarioTradingPanelComponent({ tokenAddress: propTokenAddress }: MarioTra
           setCustomSolAmount("")
           setCustomSellPercentage("")
         }, 3000)
+
       } else {
-        throw new Error(result.error || 'Trade failed')
+        // Deposited balance trading flow - direct execution
+        setTransactionStep('submitting')
+        console.log('[RealTrade] Executing trade with deposited balance...')
+
+        const result = await realTradeApi.executeRealTrade({
+          userId,
+          mint: realTradeDetails.token.mint,
+          side: realTradeDetails.tradeType === 'buy' ? 'BUY' : 'SELL',
+          amountSol: realTradeDetails.totalValue,
+          fundingSource: fundingSource,
+          slippageBps: realTradeDetails.slippageBps,
+        })
+
+        if (result.success && result.trade) {
+          const trade = result.trade
+          setTransactionSignature(trade.signature)
+          setTransactionStep('confirming')
+
+          // Poll for confirmation
+          setTimeout(() => {
+            setTransactionStep('confirmed')
+            refreshBalances()
+            refreshPortfolio()
+
+            toast({
+              title: "✅ Real Trade Executed!",
+              description: `${realTradeDetails.tradeType === 'buy' ? 'Bought' : 'Sold'} ${formatTokenQuantity(trade.amountTokens)} ${realTradeDetails.token.symbol}`,
+              duration: 5000,
+            })
+
+            setShowPowerUpAnimation(true)
+            setTimeout(() => setShowPowerUpAnimation(false), 1000)
+
+            // Reset form
+            setSelectedSolAmount(null)
+            setSelectedPercentage(null)
+            setCustomSolAmount("")
+            setCustomSellPercentage("")
+          }, 3000)
+        } else {
+          throw new Error(result.error || 'Trade failed')
+        }
       }
     } catch (error) {
       console.error('Real trade failed:', error)

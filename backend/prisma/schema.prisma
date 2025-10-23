@@ -57,6 +57,8 @@ model User {
   perpTrades              PerpTrade[]
   liquidations            Liquidation[]
   tokenWatches            TokenWatch[]
+  deposits                Deposit[]
+  withdrawals             Withdrawal[]
 }
 
 model Trade {
@@ -609,4 +611,43 @@ model TokenWatch {
   @@index([userId], map: "token_watch_user")
   @@index([mint], map: "token_watch_mint")
   @@index([userId, createdAt(sort: Desc)], map: "token_watch_user_recent")
+}
+
+// Deposit tracking for real SOL deposits
+model Deposit {
+  id                String    @id @default(uuid())
+  userId            String
+  amount            Decimal
+  txSignature       String    @unique
+  status            String    @default("PENDING") // PENDING, CONFIRMED, FAILED
+  depositAddress    String
+  fromAddress       String?
+  confirmedAt       DateTime?
+  createdAt         DateTime  @default(now())
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([status, createdAt(sort: Desc)])
+  @@index([txSignature])
+}
+
+// Withdrawal tracking for real SOL withdrawals
+model Withdrawal {
+  id                String    @id @default(uuid())
+  userId            String
+  amount            Decimal
+  fee               Decimal   @default(0)
+  netAmount         Decimal
+  toAddress         String
+  txSignature       String?   @unique
+  status            String    @default("PENDING") // PENDING, PROCESSING, CONFIRMED, FAILED
+  errorMessage      String?
+  requestedAt       DateTime  @default(now())
+  processedAt       DateTime?
+  confirmedAt       DateTime?
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId, requestedAt(sort: Desc)])
+  @@index([status, requestedAt(sort: Desc)])
+  @@index([txSignature])
 }

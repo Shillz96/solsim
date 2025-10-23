@@ -1,8 +1,61 @@
 // Wallet routes for balance and transactions
 import { FastifyInstance } from "fastify";
 import prisma from "../plugins/prisma.js";
+import * as depositService from "../services/depositService.js";
+import * as withdrawalService from "../services/withdrawalService.js";
 
 export default async function walletRoutes(app: FastifyInstance) {
+  // Get user's deposit address for real SOL deposits
+  app.get("/deposit-address/:userId", async (req, reply) => {
+    const { userId } = req.params as { userId: string };
+    
+    try {
+      const result = await depositService.getUserDepositAddress(userId);
+      
+      return {
+        success: true,
+        userId,
+        depositAddress: result.address,
+        depositAddressShort: result.addressShort,
+        network: 'mainnet-beta',
+        instructions: 'Send SOL to this address to fund your real trading account. Deposits are typically confirmed within 1-2 minutes.'
+      };
+    } catch (error: any) {
+      app.log.error(error);
+      return reply.code(500).send({ 
+        error: "Failed to generate deposit address",
+        message: error.message 
+      });
+    }
+  });
+
+  // Get deposit history
+  app.get("/deposits/:userId", async (req, reply) => {
+    const { userId } = req.params as { userId: string };
+    const { limit = "50", offset = "0" } = req.query as any;
+    
+    try {
+      const result = await depositService.getDepositHistory(
+        userId,
+        parseInt(limit),
+        parseInt(offset)
+      );
+      
+      return {
+        success: true,
+        deposits: result.deposits.map(d => ({
+          ...d,
+          explorerUrl: `https://solscan.io/tx/${d.txSignature}`
+        })),
+        total: result.total,
+        hasMore: result.total > parseInt(offset) + parseInt(limit)
+      };
+    } catch (error: any) {
+      app.log.error(error);
+      return reply.code(500).send({ error: "Failed to fetch deposit history" });
+    }
+  });
+
   // Get user's virtual SOL balance
   app.get("/balance/:userId", async (req, reply) => {
     const { userId } = req.params as { userId: string };
@@ -141,6 +194,83 @@ export default async function walletRoutes(app: FastifyInstance) {
     } catch (error: any) {
       app.log.error(error);
       return reply.code(500).send({ error: "Failed to fetch wallet stats" });
+    }
+  });
+
+  // Request withdrawal
+  app.post("/withdraw", async (req, reply) => {
+    const { userId, amount, toAddress } = req.body as {
+      userId: string;
+      amount: string;
+      toAddress: string;
+    };
+
+    // Validation
+    if (!userId || !amount || !toAddress) {
+      return reply.code(400).send({
+        error: "Missing required fields: userId, amount, toAddress"
+      });
+    }
+
+    const amountNum = parseFloat(amount);
+    if (isNaN(amountNum) || amountNum <= 0) {
+      return reply.code(400).send({
+        error: "Invalid amount. Must be a positive number"
+      });
+    }
+
+    try {
+      const result = await withdrawalService.executeWithdrawal({
+        userId,
+        amount: amountNum,
+        toAddress
+      });
+
+      if (!result.success) {
+        return reply.code(400).send({
+          error: result.error || "Withdrawal failed"
+        });
+      }
+
+      return {
+        success: true,
+        withdrawalId: result.withdrawalId,
+        txSignature: result.txSignature,
+        newBalance: result.newBalance,
+        explorerUrl: `https://solscan.io/tx/${result.txSignature}`
+      };
+    } catch (error: any) {
+      app.log.error("Withdrawal failed:", error);
+      return reply.code(500).send({
+        error: error.message || "Withdrawal processing failed"
+      });
+    }
+  });
+
+  // Get withdrawal history
+  app.get("/withdrawals/:userId", async (req, reply) => {
+    const { userId } = req.params as { userId: string };
+    const { limit = "50", offset = "0" } = req.query as any;
+
+    try {
+      const result = await withdrawalService.getWithdrawalHistory(
+        userId,
+        parseInt(limit),
+        parseInt(offset)
+      );
+
+      return {
+        success: true,
+        withdrawals: result.withdrawals.map(w => ({
+          ...w,
+          explorerUrl: w.txSignature ? `https://solscan.io/tx/${w.txSignature}` : undefined
+        })),
+        total: result.total,
+        hasMore: result.total > parseInt(offset) + parseInt(limit)
+      };
+    } catch (error: any) {
+      app.log.error(error);
+      return reply.code(500).send({ error: "Failed to fetch withdrawal history" });
     }
   });
 }

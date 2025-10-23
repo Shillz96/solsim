@@ -2,6 +2,8 @@
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/hooks/use-auth';
+import { Connection, PublicKey, LAMPORTS_PER_SOL } from '@solana/web3.js';
+import { useWallet } from '@solana/wallet-adapter-react';
 
 export type TradeMode = 'PAPER' | 'REAL';
 export type FundingSource = 'DEPOSITED' | 'WALLET';
@@ -37,6 +39,7 @@ const TradingModeContext = createContext<TradingModeContextType | undefined>(und
 
 export function TradingModeProvider({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
+  const { publicKey, connected } = useWallet();
 
   const [tradeMode, setTradeModeState] = useState<TradeMode>('PAPER');
   const [fundingSource, setFundingSource] = useState<FundingSource>('DEPOSITED');
@@ -45,6 +48,47 @@ export function TradingModeProvider({ children }: { children: React.ReactNode })
   const [walletSolBalance, setWalletSolBalance] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isSwitchingMode, setIsSwitchingMode] = useState<boolean>(false);
+  const [connection, setConnection] = useState<Connection | null>(null);
+
+  // Initialize Solana connection
+  useEffect(() => {
+    const rpcUrl = process.env.NEXT_PUBLIC_HELIUS_RPC || process.env.NEXT_PUBLIC_RPC_ENDPOINT || 'https://api.mainnet-beta.solana.com';
+    const conn = new Connection(rpcUrl, 'confirmed');
+    setConnection(conn);
+  }, []);
+
+  // Fetch wallet SOL balance from blockchain
+  const fetchWalletBalance = useCallback(async () => {
+    if (!connection || !publicKey || !connected) {
+      setWalletSolBalance(null);
+      return;
+    }
+
+    try {
+      const balance = await connection.getBalance(publicKey);
+      const solBalance = balance / LAMPORTS_PER_SOL;
+      setWalletSolBalance(solBalance);
+    } catch (error) {
+      console.error('Failed to fetch wallet balance:', error);
+      setWalletSolBalance(null);
+    }
+  }, [connection, publicKey, connected]);
+
+  // Fetch wallet balance when wallet connects or when in REAL mode with WALLET funding
+  useEffect(() => {
+    if (tradeMode === 'REAL' && fundingSource === 'WALLET' && publicKey && connected) {
+      fetchWalletBalance();
+
+      // Refresh wallet balance every 10 seconds
+      const interval = setInterval(() => {
+        fetchWalletBalance();
+      }, 10000);
+
+      return () => clearInterval(interval);
+    } else {
+      setWalletSolBalance(null);
+    }
+  }, [tradeMode, fundingSource, publicKey, connected, fetchWalletBalance]);
 
   // Calculate active balance based on mode and funding source
   const activeBalance = React.useMemo(() => {

@@ -6,6 +6,8 @@ import { Wallet, ArrowDownToLine, ArrowUpFromLine, ExternalLink, Power, AlertTri
 import { useWallet } from '@solana/wallet-adapter-react';
 import { useTradingMode } from '@/lib/trading-mode-context';
 import { Button } from '@/components/ui/button';
+import { DepositModal } from '@/components/modals/deposit-modal';
+import { WithdrawModal } from '@/components/modals/withdraw-modal';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -58,6 +60,10 @@ export function WalletBalanceDisplay({
   } = useTradingMode();
 
   const { publicKey, disconnect, connected } = useWallet();
+  
+  // Modal states
+  const [showDepositModal, setShowDepositModal] = useState(false);
+  const [showWithdrawModal, setShowWithdrawModal] = useState(false);
 
   const isPaperMode = tradeMode === 'PAPER';
   const isDepositedFunding = fundingSource === 'DEPOSITED';
@@ -242,7 +248,10 @@ export function WalletBalanceDisplay({
         {!isPaperMode && (
           <>
             <DropdownMenuItem
-              onClick={onDepositClick}
+              onClick={() => {
+                setShowDepositModal(true);
+                onDepositClick?.();
+              }}
               className="cursor-pointer"
             >
               <ArrowDownToLine className="mr-2 h-4 w-4 text-luigi-green-600" />
@@ -251,7 +260,10 @@ export function WalletBalanceDisplay({
 
             {realSolBalance > 0 && (
               <DropdownMenuItem
-                onClick={onWithdrawClick}
+                onClick={() => {
+                  setShowWithdrawModal(true);
+                  onWithdrawClick?.();
+                }}
                 className="cursor-pointer"
               >
                 <ArrowUpFromLine className="mr-2 h-4 w-4 text-mario-red-600" />
@@ -311,5 +323,10 @@ export function WalletBalanceDisplay({
         </div>
       </DropdownMenuContent>
     </DropdownMenu>
+
+      {/* Modals */}
+      <DepositModal open={showDepositModal} onOpenChange={setShowDepositModal} />
+      <WithdrawModal open={showWithdrawModal} onOpenChange={setShowWithdrawModal} />
+    </>
   );
 }
