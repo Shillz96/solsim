@@ -114,9 +114,17 @@ export function TradingModeProvider({ children }: { children: React.ReactNode })
       }
 
       const data = await response.json();
-      setVirtualSolBalance(data.virtualSolBalance ?? 100);
-      setRealSolBalance(data.realSolBalance ?? 0);
-      setTradeModeState(data.tradingMode ?? 'PAPER');
+      // Backend returns data in balances object
+      if (data.balances) {
+        setVirtualSolBalance(parseFloat(data.balances.virtualSol) || 100);
+        setRealSolBalance(parseFloat(data.balances.realSol) || 0);
+        setTradeModeState(data.balances.currentMode || 'PAPER');
+      } else {
+        // Fallback for old API format
+        setVirtualSolBalance(data.virtualSolBalance ?? 100);
+        setRealSolBalance(data.realSolBalance ?? 0);
+        setTradeModeState(data.tradingMode ?? 'PAPER');
+      }
     } catch (error) {
       console.error('Error fetching balances:', error);
     }

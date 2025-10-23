@@ -4,9 +4,12 @@ import Link from "next/link"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger, DropdownMenuLabel } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
-import { Settings, LogOut, HelpCircle, Zap, Bell } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Settings, LogOut, HelpCircle, Zap, Bell, CheckCheck, Trash2 } from "lucide-react"
 import { motion } from "framer-motion"
 import { cn } from "@/lib/utils"
+import { formatDistanceToNow } from "date-fns"
+import type { Notification } from "@/hooks/use-notifications"
 
 type ProfileMenuProps = {
   displayName: string
@@ -16,6 +19,10 @@ type ProfileMenuProps = {
   onOpenLevelModal: () => void
   onStartOnboarding: () => void
   unreadNotificationCount?: number
+  notifications?: Notification[]
+  onMarkAsRead?: (id: string) => void
+  onMarkAllAsRead?: () => void
+  onRemoveNotification?: (id: string) => void
 }
 
 export function ProfileMenu({
@@ -25,7 +32,11 @@ export function ProfileMenu({
   onLogout,
   onOpenLevelModal,
   onStartOnboarding,
-  unreadNotificationCount = 0
+  unreadNotificationCount = 0,
+  notifications = [],
+  onMarkAsRead,
+  onMarkAllAsRead,
+  onRemoveNotification
 }: ProfileMenuProps) {
 
   // Level calc - simplified inline
@@ -64,19 +75,8 @@ export function ProfileMenu({
             </div>
           </div>
 
-          {/* Profile picture + notification bell */}
-          <div className="flex items-center gap-1.5 flex-shrink-0">
-            {/* Notification bell with badge */}
-            <div className="relative">
-              <img src="/icons/mario/bell.png" alt="Notifications" className="h-4 w-4" />
-              {unreadNotificationCount > 0 && (
-                <Badge className="absolute -top-1.5 -right-1.5 h-3.5 w-3.5 flex items-center justify-center p-0 text-[8px] bg-mario-red-500 border border-white font-bold rounded-full">
-                  {unreadNotificationCount > 9 ? '9+' : unreadNotificationCount}
-                </Badge>
-              )}
-            </div>
-
-            {/* Compact profile picture */}
+          {/* Compact profile picture with notification badge */}
+          <div className="relative flex-shrink-0">
             <div
               className={cn(
                 "grid place-items-center flex-shrink-0",
@@ -94,12 +94,102 @@ export function ProfileMenu({
                 </AvatarFallback>
               </Avatar>
             </div>
+            {/* Notification badge on avatar */}
+            {unreadNotificationCount > 0 && (
+              <Badge className="absolute -top-1 -right-1 h-4 w-4 flex items-center justify-center p-0 text-[8px] bg-mario-red-500 border-2 border-white font-bold rounded-full">
+                {unreadNotificationCount > 9 ? '9+' : unreadNotificationCount}
+              </Badge>
+            )}
           </div>
         </motion.button>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent align="end" className="w-60 bg-white border border-[var(--color-border)] shadow-[var(--shadow-dropdown)]">
+      <DropdownMenuContent align="end" className="w-80 max-h-96 overflow-y-auto bg-white border border-[var(--color-border)] shadow-[var(--shadow-dropdown)]">
         <DropdownMenuLabel>My Account</DropdownMenuLabel>
+
+        {/* Notifications Section */}
+        {notifications.length > 0 && (
+          <>
+            <DropdownMenuSeparator />
+            <div className="px-2 py-2">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <Bell className="h-4 w-4" />
+                  <span className="text-sm font-semibold">Notifications</span>
+                  {unreadNotificationCount > 0 && (
+                    <Badge className="h-5 px-1.5 text-xs bg-mario-red-500">
+                      {unreadNotificationCount}
+                    </Badge>
+                  )}
+                </div>
+                {unreadNotificationCount > 0 && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={(e) => {
+                      e.preventDefault()
+                      e.stopPropagation()
+                      onMarkAllAsRead?.()
+                    }}
+                    className="h-6 text-xs px-2"
+                  >
+                    <CheckCheck className="h-3 w-3 mr-1" />
+                    Mark all read
+                  </Button>
+                )}
+              </div>
+
+              <div className="space-y-1 max-h-64 overflow-y-auto">
+                {notifications.slice(0, 5).map((notification) => (
+                  <div
+                    key={notification.id}
+                    className={cn(
+                      "flex items-start gap-2 p-2 rounded-lg cursor-pointer hover:bg-muted",
+                      !notification.read && "bg-primary/5"
+                    )}
+                    onClick={() => {
+                      if (!notification.read) {
+                        onMarkAsRead?.(notification.id)
+                      }
+                    }}
+                  >
+                    <div className="flex-1 min-w-0">
+                      <p className={cn(
+                        "text-xs font-medium truncate",
+                        !notification.read && "font-semibold"
+                      )}>
+                        {notification.title}
+                      </p>
+                      <p className="text-xs text-muted-foreground line-clamp-1">
+                        {notification.message}
+                      </p>
+                      <span className="text-[10px] text-muted-foreground">
+                        {formatDistanceToNow(notification.timestamp, { addSuffix: true })}
+                      </span>
+                    </div>
+                    {!notification.read && (
+                      <div className="w-2 h-2 rounded-full bg-primary flex-shrink-0 mt-1" />
+                    )}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        onRemoveNotification?.(notification.id)
+                      }}
+                      className="h-5 w-5 p-0 text-destructive hover:text-destructive"
+                      title="Remove"
+                    >
+                      <Trash2 className="h-3 w-3" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </>
+        )}
+
+        <DropdownMenuSeparator />
 
         <DropdownMenuItem onClick={onOpenLevelModal} className="font-semibold cursor-pointer">
           <Zap className="h-4 w-4 mr-2" />

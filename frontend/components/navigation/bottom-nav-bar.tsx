@@ -383,11 +383,12 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
               </DropdownMenuContent>
             </DropdownMenu>
             {/* Theme toggle removed - Light mode only! */}
+            {/* Trading Mode as CartridgePill */}
             <CartridgePill
-              label="Quick"
-              value="Trade"
-              badgeText="GO"
-              href="/trade"
+              label={tradeMode === "REAL" ? "Live" : "Paper"}
+              value={`${activeBalance.toFixed(2)} SOL`}
+              badgeText={tradeMode === "REAL" ? "L" : "P"}
+              onClick={() => handleToggleMode(tradeMode === "REAL" ? "PAPER" : "REAL")}
               size="md"
             />
           </div>

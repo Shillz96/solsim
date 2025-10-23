@@ -429,6 +429,10 @@ export function NavBar() {
                       onOpenLevelModal={() => setLevelModalOpen(true)}
                       onStartOnboarding={startOnboarding}
                       unreadNotificationCount={unreadCount}
+                      notifications={notifications}
+                      onMarkAsRead={markAsRead}
+                      onMarkAllAsRead={markAllAsRead}
+                      onRemoveNotification={removeNotification}
                     />
                   </div>
                 )}
