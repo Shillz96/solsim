@@ -26,6 +26,7 @@ interface WalletBalanceDisplayProps {
   onWithdrawClick?: () => void;
   onConnectWalletClick?: () => void;
   showDropdown?: boolean;
+  variant?: "compact" | "minimal";
 }
 
 /**
@@ -49,6 +50,7 @@ export function WalletBalanceDisplay({
   onWithdrawClick,
   onConnectWalletClick,
   showDropdown = true,
+  variant = "compact",
 }: WalletBalanceDisplayProps) {
   const {
     tradeMode,
@@ -122,46 +124,45 @@ export function WalletBalanceDisplay({
   // Balance display component
   const BalanceButton = () => (
     <motion.div
-      whileHover={{ scale: 1.02 }}
+      whileHover={{ y: -1 }}
       className={cn(
-        'flex items-center gap-2 px-3 py-1.5 rounded-lg transition-all duration-300',
-        'border-2 text-sm font-semibold cursor-pointer',
-        config.color === 'luigi-green' && 'bg-luigi-green-50 border-luigi-green-500 text-luigi-green-700',
-        config.color === 'star-yellow' && 'bg-star-yellow-50 border-star-yellow-500 text-star-yellow-900',
-        config.color === 'coin-yellow' && 'bg-coin-yellow-50 border-coin-yellow-500 text-coin-yellow-900',
-        config.color === 'mario-red' && 'bg-mario-red-50 border-mario-red-500 text-mario-red-700',
-        hasZeroBalance && !isPaperMode && 'animate-pulse',
+        "h-9 px-2.5 rounded-md flex items-center gap-2 tabular-nums cursor-pointer",
+        variant === "minimal"
+          ? [
+              // Minimal: thin border, no big shadows, neutral background
+              "border border-[var(--color-border)] bg-white text-foreground/90 shadow-none",
+              // Subtle hover
+              "hover:bg-[color-mix(in_oklab,white,black_3%)] transition-colors"
+            ]
+          : [
+              // keep your current colorful card look for non-header uses
+              "border-2 text-sm font-semibold",
+              config.color === "luigi-green" && "bg-luigi-green-50 border-luigi-green-500 text-luigi-green-700",
+              config.color === "star-yellow" && "bg-star-yellow-50 border-star-yellow-500 text-star-yellow-900",
+              config.color === "coin-yellow" && "bg-coin-yellow-50 border-coin-yellow-500 text-coin-yellow-900",
+              config.color === "mario-red" && "bg-mario-red-50 border-mario-red-500 text-mario-red-700",
+            ],
         className
       )}
     >
-      {/* Icon */}
-      <Icon className="w-4 h-4" />
-
-      {/* Balance */}
-      <div className="flex flex-col items-start">
-        <span className="text-[10px] leading-none opacity-80">
+      {/* left: tiny icon + label */}
+      <div className="flex items-center gap-1.5 min-w-0">
+        <Icon className="w-4 h-4 opacity-80" />
+        <span className="text-[11px] leading-none truncate opacity-80">
           {config.label}
         </span>
-        <div className="flex items-center gap-1">
-          <AnimatedNumber
-            value={config.balance}
-            decimals={2}
-            className="font-mono text-xs leading-none font-bold"
-          />
-          <span className="text-[10px] leading-none">SOL</span>
-        </div>
       </div>
 
-      {/* Badge */}
-      <div className={cn(
-        "text-[8px] px-1.5 py-0.5 rounded font-bold border",
-        config.color === 'luigi-green' && 'bg-luigi-green-500 text-white border-luigi-green-700',
-        config.color === 'star-yellow' && 'bg-star-yellow-500 text-star-yellow-900 border-star-yellow-700',
-        config.color === 'coin-yellow' && 'bg-coin-yellow-500 text-coin-yellow-900 border-coin-yellow-700',
-        config.color === 'mario-red' && 'bg-mario-red-500 text-white border-mario-red-700',
-      )}>
-        {config.badge}
+      {/* middle: strong number */}
+      <div className="flex items-baseline gap-1 ml-1">
+        <AnimatedNumber value={config.balance} decimals={2} className="text-sm font-bold leading-none" />
+        <span className="text-[11px] leading-none opacity-70">SOL</span>
       </div>
+
+      {/* right: micro badge */}
+      <span className="ml-1 text-[10px] leading-none px-1 py-[2px] rounded border uppercase tracking-wide opacity-80">
+        {config.badge}
+      </span>
 
       {/* Warning indicator for 0 balance */}
       <AnimatePresence>

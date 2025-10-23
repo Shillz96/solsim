@@ -417,7 +417,7 @@ export function NavBar() {
             {isAuthenticated ? (
               <>
                 {/* Consistent balance pill (uses your trading-mode context) */}
-                <WalletBalanceDisplay showDropdown className="h-10" />
+                <WalletBalanceDisplay variant="minimal" showDropdown className="h-9" />
 
                 {/* Notifications - Hidden on mobile */}
                 <div className="hidden md:block">
