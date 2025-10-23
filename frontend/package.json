@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "postinstall": "npm ls styled-jsx || npm install styled-jsx@5.1.6",
+    "prebuild": "npm ls styled-jsx || npm install styled-jsx@5.1.6",
     "build": "next build",
     "dev": "next dev",
     "lint": "next lint",

@@ -3,7 +3,7 @@
   "outputDirectory": ".next",
   "framework": "nextjs",
   "regions": ["sfo1"],
-  "installCommand": "npm ci || npm install",
+  "installCommand": "npm install --legacy-peer-deps",
   "functions": {
     "app/**/*": {
       "maxDuration": 10
