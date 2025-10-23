@@ -8,7 +8,6 @@
  */
 
 import { Keypair, PublicKey } from '@solana/web3.js';
-import { derivePath } from 'ed25519-hd-key';
 import * as crypto from 'crypto';
 
 /**
