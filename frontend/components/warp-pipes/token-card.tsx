@@ -258,22 +258,22 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
                           </a>
                         </HoverCardTrigger>
                         <HoverCardContent 
-                          className="w-80 p-4 bg-background border-2 border-border shadow-xl z-50" 
+                          className="w-80 p-4 bg-white border-4 border-[var(--outline-black)] rounded-xl shadow-[6px_6px_0_var(--outline-black)] z-50" 
                           side="top"
                           onClick={(e) => e.stopPropagation()}
                         >
                           <div className="space-y-2">
                             <div className="flex items-start gap-3">
-                              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-bold text-xl">
+                              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-bold text-xl border-3 border-[var(--outline-black)]">
                                 {data.symbol?.[0] || '?'}
                               </div>
                               <div className="flex-1 min-w-0">
-                                <div className="font-bold text-base truncate text-foreground">{data.name || data.symbol}</div>
-                                <div className="text-sm text-muted-foreground truncate">@{data.twitter}</div>
+                                <div className="font-bold text-base truncate text-[var(--outline-black)]">{data.name || data.symbol}</div>
+                                <div className="text-sm text-pipe-600 truncate">@{data.twitter}</div>
                               </div>
                             </div>
-                            <p className="text-sm line-clamp-3 text-foreground">{data.description || 'No description available'}</p>
-                            <div className="flex gap-4 text-xs text-muted-foreground">
+                            <p className="text-sm line-clamp-3 text-[var(--outline-black)]">{data.description || 'No description available'}</p>
+                            <div className="flex gap-4 text-xs text-pipe-600 font-bold">
                               <span>Click to view on X →</span>
                             </div>
                           </div>
@@ -300,22 +300,22 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
                           </a>
                         </HoverCardTrigger>
                         <HoverCardContent 
-                          className="w-80 p-4 bg-background border-2 border-border shadow-xl z-50" 
+                          className="w-80 p-4 bg-white border-4 border-[var(--outline-black)] rounded-xl shadow-[6px_6px_0_var(--outline-black)] z-50" 
                           side="top"
                           onClick={(e) => e.stopPropagation()}
                         >
                           <div className="space-y-2">
                             <div className="flex items-start gap-3">
-                              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-white text-2xl">
+                              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-white text-2xl border-3 border-[var(--outline-black)]">
                                 ✈️
                               </div>
                               <div className="flex-1 min-w-0">
-                                <div className="font-bold text-base truncate text-foreground">{data.name || data.symbol}</div>
-                                <div className="text-sm text-muted-foreground truncate">{data.telegram}</div>
+                                <div className="font-bold text-base truncate text-[var(--outline-black)]">{data.name || data.symbol}</div>
+                                <div className="text-sm text-pipe-600 truncate">{data.telegram}</div>
                               </div>
                             </div>
-                            <p className="text-sm line-clamp-3 text-foreground">{data.description || 'Join the Telegram community'}</p>
-                            <div className="flex gap-4 text-xs text-muted-foreground">
+                            <p className="text-sm line-clamp-3 text-[var(--outline-black)]">{data.description || 'Join the Telegram community'}</p>
+                            <div className="flex gap-4 text-xs text-pipe-600 font-bold">
                               <span>Click to join Telegram →</span>
                             </div>
                           </div>
@@ -342,22 +342,22 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
                           </a>
                         </HoverCardTrigger>
                         <HoverCardContent 
-                          className="w-80 p-4 bg-background border-2 border-border shadow-xl z-50" 
+                          className="w-80 p-4 bg-white border-4 border-[var(--outline-black)] rounded-xl shadow-[6px_6px_0_var(--outline-black)] z-50" 
                           side="top"
                           onClick={(e) => e.stopPropagation()}
                         >
                           <div className="space-y-2">
                             <div className="flex items-start gap-3">
-                              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white text-2xl">
+                              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white text-2xl border-3 border-[var(--outline-black)]">
                                 🌐
                               </div>
                               <div className="flex-1 min-w-0">
-                                <div className="font-bold text-base truncate text-foreground">{data.name || data.symbol}</div>
-                                <div className="text-sm text-muted-foreground truncate break-all">{data.website}</div>
+                                <div className="font-bold text-base truncate text-[var(--outline-black)]">{data.name || data.symbol}</div>
+                                <div className="text-sm text-pipe-600 truncate break-all">{data.website}</div>
                               </div>
                             </div>
-                            <p className="text-sm line-clamp-3 text-foreground">{data.description || 'Visit official website'}</p>
-                            <div className="flex gap-4 text-xs text-muted-foreground">
+                            <p className="text-sm line-clamp-3 text-[var(--outline-black)]">{data.description || 'Visit official website'}</p>
+                            <div className="flex gap-4 text-xs text-pipe-600 font-bold">
                               <span>Click to visit website →</span>
                             </div>
                           </div>

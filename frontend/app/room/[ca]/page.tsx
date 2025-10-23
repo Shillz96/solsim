@@ -23,21 +23,22 @@ import { usePortfolio, usePosition } from '@/hooks/use-portfolio'
 import { usePriceStreamContext } from '@/lib/price-stream-provider'
 import { formatTokenQuantity } from '@/lib/format'
 import { WalletDebugButton } from '@/components/wallet/wallet-debug-button'
+import { ChartFallback } from '@/components/trading/chart-fallback'
+import { ErrorBoundary } from '@/components/error-boundary'
 
 // Dynamically import chart component to prevent SSR issues
-// Use dynamic from 'next/dynamic' directly
+// Use dynamic from 'next/dynamic' directly with error boundary
 const LightweightChart = dynamic(
-  () => import('@/components/trading/lightweight-chart').then(mod => ({ default: mod.default || mod.LightweightChart || mod })),
+  () => import('@/components/trading/lightweight-chart').then(
+    (mod) => ({
+      default: mod.default || mod.LightweightChart || (() => <ChartFallback error={true} />)
+    })
+  ).catch(() => ({
+    default: () => <ChartFallback error={true} />
+  })),
   {
     ssr: false,
-    loading: () => (
-      <div className="border-4 border-[var(--outline-black)] rounded-[16px] shadow-[6px_6px_0_var(--outline-black)] bg-[#FFFAE9] overflow-hidden flex items-center justify-center" style={{ minHeight: '500px' }}>
-        <div className="flex flex-col items-center gap-4">
-          <Loader2 className="h-8 w-8 animate-spin text-[var(--mario-red)]" />
-          <div className="text-sm font-bold">Loading chart...</div>
-        </div>
-      </div>
-    ),
+    loading: () => <ChartFallback />,
   }
 )
 
@@ -281,7 +282,7 @@ function TradeRoomPage() {
                 />
               )}
               <div>
-                <div className="font-black text-lg">{tokenDetails.name}</div>
+                <div className="font-black text-lg">{tokenDetails.name || 'Unknown Token'}</div>
                 <div className="text-xs opacity-70">
                   {tokenDetails.symbol} •
                   {tokenDetails.marketCapUsd && ` FDV: $${(parseFloat(tokenDetails.marketCapUsd) / 1_000_000).toFixed(2)}M`}
@@ -305,11 +306,13 @@ function TradeRoomPage() {
 
           {/* Chart Area */}
           <div className="p-4">
-            <LightweightChart
-              tokenMint={ca}
-              tokenSymbol={tokenDetails.symbol || 'TOKEN'}
-              className="w-full"
-            />
+            <ErrorBoundary fallback={<ChartFallback tokenSymbol={tokenDetails.symbol || undefined} error={true} />}>
+              <LightweightChart
+                tokenMint={ca}
+                tokenSymbol={tokenDetails.symbol || 'TOKEN'}
+                className="w-full"
+              />
+            </ErrorBoundary>
           </div>
 
           {/* Tabs for Data Panels */}
