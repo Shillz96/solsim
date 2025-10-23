@@ -105,24 +105,22 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
         className={cn("w-full", className)}
       >
         {/* Horizontal Stock-Style Card with Mario Theme */}
-        <div className="relative rounded-xl p-5 bg-card border-4 border-outline hover:border-outline-light shadow-card hover:shadow-card-hover hover:-translate-y-0.5 transition-all duration-200">
+        <div className="relative rounded-xl overflow-hidden bg-card border-4 border-outline hover:border-outline-light shadow-card hover:shadow-card-hover hover:-translate-y-0.5 transition-all duration-200">
 
-          {/* Horizontal Layout: Logo | Content | Button */}
-          <div className="flex items-center gap-5">
+          {/* Horizontal Layout: Square Logo | Content | Market Data */}
+          <div className="flex items-stretch">
 
-            {/* LEFT: Token Logo */}
-            <div className="relative shrink-0">
-              <div className="h-14 w-14 rounded-full overflow-hidden border-3 border-neutral-300 bg-white shadow-sm">
-                {img ? (
-                  <img src={img} alt={data.symbol} className="h-full w-full object-cover" />
-                ) : (
-                  <div className="h-full w-full grid place-items-center bg-neutral-100 text-neutral-400 text-2xl">🪙</div>
-                )}
-              </div>
+            {/* LEFT: Square Token Logo (Full Height) */}
+            <div className="relative shrink-0 w-32 bg-neutral-100">
+              {img ? (
+                <img src={img} alt={data.symbol} className="h-full w-full object-cover" />
+              ) : (
+                <div className="h-full w-full grid place-items-center bg-neutral-100 text-neutral-400 text-5xl">🪙</div>
+              )}
             </div>
 
             {/* MIDDLE: Token Info & Metrics */}
-            <div className="flex-1 min-w-0">
+            <div className="flex-1 min-w-0 p-5">
               {/* Symbol & Name */}
               <div className="flex items-center gap-2 mb-1">
                 <h3 className="font-bold text-xl text-foreground">
@@ -140,7 +138,7 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
 
               {/* 24h Change */}
               {priceChg != null && (
-                <div className="flex items-center gap-2 mb-3">
+                <div className="flex items-center gap-2">
                   <span className="text-sm text-muted-foreground">24h Change</span>
                   <span className={cn(
                     "text-lg font-bold",
@@ -150,39 +148,25 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
                   </span>
                 </div>
               )}
-
-              {/* Divider */}
-              <div className="h-px bg-border mb-3" />
-
-              {/* Volume & Market Cap Row */}
-              <div className="flex items-center gap-8">
-                <div>
-                  <div className="text-xs text-muted-foreground mb-1">Volume 24h</div>
-                  <div className="text-sm font-bold text-foreground">
-                    {fmtCurrency(data.volume24h)}
-                  </div>
-                </div>
-                <div>
-                  <div className="text-xs text-muted-foreground mb-1">Market Cap</div>
-                  <div className="text-sm font-bold text-foreground">
-                    {fmtCurrency(data.marketCapUsd)}
-                  </div>
-                </div>
-              </div>
             </div>
 
-            {/* RIGHT: Trade Button */}
-            <div className="shrink-0">
-              <Button
-                size="lg"
-                className="w-48 h-12 bg-profit hover:bg-profit-light text-white font-bold rounded-lg shadow-button hover:shadow-lg transition-all duration-200"
-                onClick={(e) => {
-                  e.preventDefault();
-                }}
-              >
-                Trade Now
-                <ExternalLink className="ml-2 h-4 w-4" />
-              </Button>
+            {/* RIGHT: Market Cap & Volume Display */}
+            <div className="shrink-0 flex flex-col justify-center items-end pr-5 border-l-2 border-border min-w-[180px]">
+              {/* Volume 24h */}
+              <div className="text-right mb-4">
+                <div className="text-xs text-muted-foreground mb-1">Volume 24h</div>
+                <div className="text-lg font-bold text-foreground">
+                  {fmtCurrency(data.volume24h)}
+                </div>
+              </div>
+
+              {/* Market Cap */}
+              <div className="text-right">
+                <div className="text-xs text-muted-foreground mb-1">Market Cap</div>
+                <div className="text-lg font-bold text-foreground">
+                  {fmtCurrency(data.marketCapUsd)}
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -197,34 +181,32 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
 export function TokenCardSkeleton() {
   return (
     <div className="w-full">
-      <div className="rounded-xl p-5 bg-card border-4 border-neutral-200 shadow-card animate-pulse">
-        <div className="flex items-center gap-5">
-          {/* Logo skeleton */}
-          <div className="h-14 w-14 rounded-full bg-neutral-200 border-3 border-neutral-300 shrink-0" />
+      <div className="rounded-xl overflow-hidden bg-card border-4 border-neutral-200 shadow-card animate-pulse">
+        <div className="flex items-stretch">
+          {/* Square logo skeleton */}
+          <div className="w-32 bg-neutral-200 shrink-0" />
 
           {/* Content skeleton */}
-          <div className="flex-1">
+          <div className="flex-1 p-5">
             <div className="flex items-center gap-2 mb-1">
               <div className="h-6 bg-neutral-200 rounded w-24" />
               <div className="h-4 bg-neutral-100 rounded w-32" />
             </div>
             <div className="h-9 bg-neutral-200 rounded w-32 mb-2" />
-            <div className="h-6 bg-neutral-100 rounded w-40 mb-3" />
-            <div className="h-px bg-neutral-200 mb-3" />
-            <div className="flex items-center gap-8">
-              <div>
-                <div className="h-3 bg-neutral-100 rounded w-16 mb-1" />
-                <div className="h-4 bg-neutral-200 rounded w-20" />
-              </div>
-              <div>
-                <div className="h-3 bg-neutral-100 rounded w-20 mb-1" />
-                <div className="h-4 bg-neutral-200 rounded w-24" />
-              </div>
-            </div>
+            <div className="h-6 bg-neutral-100 rounded w-40" />
           </div>
 
-          {/* Button skeleton */}
-          <div className="h-12 w-48 rounded-lg bg-neutral-200 shrink-0" />
+          {/* Market data skeleton */}
+          <div className="flex flex-col justify-center items-end pr-5 border-l-2 border-neutral-200 min-w-[180px]">
+            <div className="text-right mb-4">
+              <div className="h-3 bg-neutral-100 rounded w-16 mb-1 ml-auto" />
+              <div className="h-5 bg-neutral-200 rounded w-24 ml-auto" />
+            </div>
+            <div className="text-right">
+              <div className="h-3 bg-neutral-100 rounded w-20 mb-1 ml-auto" />
+              <div className="h-5 bg-neutral-200 rounded w-24 ml-auto" />
+            </div>
+          </div>
         </div>
       </div>
     </div>
