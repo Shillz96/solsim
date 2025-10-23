@@ -2,12 +2,14 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Wallet, ArrowDownToLine, ArrowUpFromLine, ExternalLink, Power, AlertTriangle, Sparkles } from 'lucide-react';
+import { Wallet, ArrowDownToLine, ArrowUpFromLine, ExternalLink, Power, AlertTriangle, Sparkles, KeyRound } from 'lucide-react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { useTradingMode } from '@/lib/trading-mode-context';
 import { Button } from '@/components/ui/button';
 import { DepositModal } from '@/components/modals/deposit-modal';
 import { WithdrawModal } from '@/components/modals/withdraw-modal';
+import { ExportPrivateKeyModal } from '@/components/modals/export-private-key-modal';
+import { useAuth } from '@/hooks/use-auth';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -64,10 +66,12 @@ export function WalletBalanceDisplay({
   } = useTradingMode();
 
   const { publicKey, disconnect, connected } = useWallet();
+  const { user } = useAuth();
   
   // Modal states
   const [showDepositModal, setShowDepositModal] = useState(false);
   const [showWithdrawModal, setShowWithdrawModal] = useState(false);
+  const [showExportKeyModal, setShowExportKeyModal] = useState(false);
 
   const isPaperMode = tradeMode === 'PAPER';
   const isDepositedFunding = fundingSource === 'DEPOSITED';
@@ -326,6 +330,16 @@ export function WalletBalanceDisplay({
               </DropdownMenuItem>
             )}
 
+            {realSolBalance > 0 && (
+              <DropdownMenuItem
+                onClick={() => setShowExportKeyModal(true)}
+                className="cursor-pointer"
+              >
+                <KeyRound className="mr-2 h-4 w-4 text-pipe-600" />
+                Export Private Key
+              </DropdownMenuItem>
+            )}
+
             <DropdownMenuSeparator />
           </>
         )}
@@ -382,6 +396,14 @@ export function WalletBalanceDisplay({
       {/* Modals */}
       <DepositModal open={showDepositModal} onOpenChange={setShowDepositModal} />
       <WithdrawModal open={showWithdrawModal} onOpenChange={setShowWithdrawModal} />
+      {user && (
+        <ExportPrivateKeyModal
+          open={showExportKeyModal}
+          onOpenChange={setShowExportKeyModal}
+          userId={user.id}
+          balance={realSolBalance.toString()}
+        />
+      )}
     </>
   );
 }

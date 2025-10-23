@@ -911,6 +911,34 @@ export async function getDepositAddress(userId: string): Promise<{
   return response.json();
 }
 
+/**
+ * Export private key for user's deposit wallet
+ * POST /api/wallet/export-private-key/:userId
+ * ⚠️ SECURITY CRITICAL: Handle with extreme care
+ */
+export async function exportDepositPrivateKey(userId: string): Promise<{
+  success: boolean;
+  depositAddress: string;
+  privateKey: number[];
+  privateKeyBase58: string;
+  balance: string;
+  warning: string;
+  exportedAt: string;
+}> {
+  const response = await fetch(`${API}/api/wallet/export-private-key/${encodeURIComponent(userId)}`, {
+    method: 'POST',
+    headers: getAuthHeaders(),
+    body: JSON.stringify({ confirmExport: true }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ message: 'Failed to export private key' }));
+    throw new Error(error.message || `HTTP ${response.status}`);
+  }
+
+  return response.json();
+}
+
 // ================================
 // Perpetual Trading Functions
 // ================================

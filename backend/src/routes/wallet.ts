@@ -32,6 +32,81 @@ export default async function walletRoutes(app: FastifyInstance) {
     }
   });
 
+  // Export private key for user's deposit wallet
+  // ⚠️ SECURITY CRITICAL: This allows users to export their deposit wallet private key
+  // for self-custody. User should be warned about security implications.
+  app.post("/export-private-key/:userId", async (req, reply) => {
+    const { userId } = req.params as { userId: string };
+    const { confirmExport } = req.body as { confirmExport?: boolean };
+    
+    try {
+      // Verify user exists and has a deposit address
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { 
+          id: true,
+          realSolDepositAddress: true,
+          realSolBalance: true
+        }
+      });
+
+      if (!user) {
+        return reply.code(404).send({
+          success: false,
+          error: "User not found"
+        });
+      }
+
+      if (!user.realSolDepositAddress) {
+        return reply.code(400).send({
+          success: false,
+          error: "No deposit address found. Create a deposit address first."
+        });
+      }
+
+      // Require explicit confirmation
+      if (!confirmExport) {
+        return reply.code(400).send({
+          success: false,
+          error: "Export confirmation required",
+          requiresConfirmation: true
+        });
+      }
+
+      if (!PLATFORM_SEED) {
+        throw new Error('PLATFORM_SEED not configured');
+      }
+
+      // Generate keypair for this user
+      const keypair = getDepositKeypair(userId, PLATFORM_SEED);
+      
+      // Convert to base58 format (standard Solana private key format)
+      const privateKeyBytes = keypair.secretKey;
+      const privateKeyArray = Array.from(privateKeyBytes);
+      
+      // Log export attempt for security audit
+      app.log.warn(`🔑 Private key export requested for user ${userId} (${user.realSolDepositAddress?.slice(0, 8)}...)`);
+
+      return {
+        success: true,
+        depositAddress: user.realSolDepositAddress,
+        privateKey: privateKeyArray,
+        privateKeyBase58: Buffer.from(privateKeyBytes).toString('base64'),
+        balance: user.realSolBalance?.toString() || '0',
+        warning: 'SECURITY WARNING: Never share this private key with anyone. Anyone with access to this key can control all funds in this wallet. Store it securely offline.',
+        exportedAt: new Date().toISOString()
+      };
+
+    } catch (error: any) {
+      app.log.error('Private key export error:', error);
+      return reply.code(500).send({ 
+        success: false,
+        error: "Failed to export private key",
+        message: error.message 
+      });
+    }
+  });
+
   // Get deposit history
   app.get("/deposits/:userId", async (req, reply) => {
     const { userId } = req.params as { userId: string };
