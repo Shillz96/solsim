@@ -15,9 +15,13 @@ import { useParams } from 'next/navigation'
 import dynamicImport from 'next/dynamic'
 import { MarioTradingPanel } from '@/components/trading/mario-trading-panel'
 import { useAuth } from '@/hooks/use-auth'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import * as api from '@/lib/api'
 import { Loader2 } from 'lucide-react'
+import { useToast } from '@/hooks/use-toast'
+import { usePortfolio, usePosition } from '@/hooks/use-portfolio'
+import { usePriceStreamContext } from '@/lib/price-stream-provider'
+import { formatTokenQuantity } from '@/lib/format'
 
 // Remove dynamic exports - they cause Vercel bundling issues
 // The page is already 'use client' so it will render dynamically
@@ -42,7 +46,21 @@ const LightweightChart = dynamicImport(
 export default function TradeRoomPage() {
   const params = useParams()
   const ca = params?.ca as string
-  const { isAuthenticated } = useAuth()
+  const { isAuthenticated, user, getUserId } = useAuth()
+  const { toast } = useToast()
+  const queryClient = useQueryClient()
+  
+  // Trading state
+  const [isTrading, setIsTrading] = useState(false)
+  const [showMobileTradePanel, setShowMobileTradePanel] = useState(false)
+  
+  // Get portfolio data
+  const { data: portfolio, refetch: refreshPortfolio } = usePortfolio()
+  const tokenHolding = usePosition(ca)
+  
+  // Get live prices
+  const { prices: livePrices } = usePriceStreamContext()
+  const solPrice = livePrices.get('So11111111111111111111111111111111111111112')?.price || 208
 
   // Early return if no CA
   if (!ca) {
@@ -89,6 +107,125 @@ export default function TradeRoomPage() {
         </div>
       </div>
     )
+  }
+
+  // Quick Buy Handler - Uses 1 SOL by default
+  const handleQuickBuy = async () => {
+    if (!isAuthenticated || !user) {
+      toast({
+        title: "Please Sign In",
+        description: "You need to be signed in to trade",
+        variant: "destructive"
+      })
+      return
+    }
+
+    setIsTrading(true)
+    try {
+      const userId = getUserId()
+      if (!userId) throw new Error('Not authenticated')
+
+      // Get current balance
+      const balanceData = await api.getWalletBalance(userId)
+      const userBalance = parseFloat(balanceData.balance)
+      
+      if (userBalance < 1) {
+        toast({
+          title: "Insufficient Balance",
+          description: "You need at least 1 SOL to quick buy",
+          variant: "destructive"
+        })
+        return
+      }
+
+      const currentPrice = livePrices.get(ca)?.price || parseFloat(tokenDetails.lastPrice || '0')
+      const amountUsd = 1 * solPrice // 1 SOL in USD
+      const tokenQuantity = amountUsd / currentPrice
+
+      const result = await api.trade({
+        userId,
+        mint: ca,
+        side: 'BUY',
+        qty: tokenQuantity.toString()
+      })
+
+      if (result.success) {
+        await refreshPortfolio()
+        queryClient.invalidateQueries({ queryKey: ['user-balance', userId] })
+
+        toast({
+          title: "🎉 Quick Buy Success!",
+          description: `Bought ${formatTokenQuantity(parseFloat(result.trade.quantity))} ${tokenDetails.symbol}`,
+          duration: 5000,
+        })
+      }
+    } catch (err) {
+      const errorMessage = (err as Error).message
+      toast({
+        title: "Trade Failed",
+        description: errorMessage,
+        variant: "destructive",
+      })
+    } finally {
+      setIsTrading(false)
+    }
+  }
+
+  // Quick Sell Handler - Sells 50% of position by default
+  const handleQuickSell = async () => {
+    if (!isAuthenticated || !user) {
+      toast({
+        title: "Please Sign In",
+        description: "You need to be signed in to trade",
+        variant: "destructive"
+      })
+      return
+    }
+
+    if (!tokenHolding || parseFloat(tokenHolding.qty) <= 0) {
+      toast({
+        title: "No Holdings",
+        description: "You don't have any tokens to sell",
+        variant: "destructive"
+      })
+      return
+    }
+
+    setIsTrading(true)
+    try {
+      const userId = getUserId()
+      if (!userId) throw new Error('Not authenticated')
+
+      const holdingQuantity = parseFloat(tokenHolding.qty)
+      const sellQuantity = holdingQuantity * 0.5 // Sell 50%
+
+      const result = await api.trade({
+        userId,
+        mint: ca,
+        side: 'SELL',
+        qty: sellQuantity.toString()
+      })
+
+      if (result.success) {
+        await refreshPortfolio()
+        queryClient.invalidateQueries({ queryKey: ['user-balance', userId] })
+
+        toast({
+          title: "💰 Quick Sell Success!",
+          description: `Sold ${formatTokenQuantity(parseFloat(result.trade.quantity))} ${tokenDetails.symbol}`,
+          duration: 5000,
+        })
+      }
+    } catch (err) {
+      const errorMessage = (err as Error).message
+      toast({
+        title: "Trade Failed",
+        description: errorMessage,
+        variant: "destructive",
+      })
+    } finally {
+      setIsTrading(false)
+    }
   }
 
   return (
@@ -191,7 +328,7 @@ export default function TradeRoomPage() {
           </div>
         </section>
 
-        {/* Right Sidebar - Trade Panel & Chat */}
+        {/* Right Sidebar - Trade Panel & Chat (Desktop) */}
         <aside className="hidden lg:flex flex-col w-[380px] border-l-4 border-[var(--outline-black)] bg-[var(--background)] overflow-hidden">
           {/* Trade Panel */}
           <div className="p-3 border-b-3 border-[var(--outline-black)]">
@@ -208,6 +345,11 @@ export default function TradeRoomPage() {
             </div>
           </div>
         </aside>
+        
+        {/* Mobile Trade Panel (Hidden on Desktop) */}
+        <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-[var(--background)] border-t-4 border-[var(--outline-black)] p-3 pb-20">
+          <MarioTradingPanel tokenAddress={ca} />
+        </div>
       </main>
 
       {/* Bottom Quick Trade Bar */}
@@ -216,11 +358,33 @@ export default function TradeRoomPage() {
           {tokenDetails.symbol} — ${parseFloat(tokenDetails.lastPrice || '0').toFixed(6)}
         </div>
         <div className="flex gap-2">
-          <button className="h-8 px-4 rounded-lg border-2 border-[var(--outline-black)] bg-[var(--luigi-green)] text-white font-bold hover:shadow-[2px_2px_0_var(--outline-black)] transition-all">
-            Quick Buy
+          <button 
+            onClick={handleQuickBuy}
+            disabled={isTrading || !isAuthenticated}
+            className="h-8 px-4 rounded-lg border-2 border-[var(--outline-black)] bg-[var(--luigi-green)] text-white font-bold hover:shadow-[2px_2px_0_var(--outline-black)] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
+          >
+            {isTrading ? (
+              <>
+                <Loader2 className="h-3 w-3 animate-spin" />
+                <span>Buying...</span>
+              </>
+            ) : (
+              'Quick Buy (1 SOL)'
+            )}
           </button>
-          <button className="h-8 px-4 rounded-lg border-2 border-[var(--outline-black)] bg-[var(--mario-red)] text-white font-bold hover:shadow-[2px_2px_0_var(--outline-black)] transition-all">
-            Quick Sell
+          <button 
+            onClick={handleQuickSell}
+            disabled={isTrading || !isAuthenticated || !tokenHolding || parseFloat(tokenHolding?.qty || '0') <= 0}
+            className="h-8 px-4 rounded-lg border-2 border-[var(--outline-black)] bg-[var(--mario-red)] text-white font-bold hover:shadow-[2px_2px_0_var(--outline-black)] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
+          >
+            {isTrading ? (
+              <>
+                <Loader2 className="h-3 w-3 animate-spin" />
+                <span>Selling...</span>
+              </>
+            ) : (
+              'Quick Sell (50%)'
+            )}
           </button>
         </div>
       </footer>
