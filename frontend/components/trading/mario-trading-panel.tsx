@@ -306,7 +306,8 @@ function MarioTradingPanelComponent({ tokenAddress: propTokenAddress }: MarioTra
       })
 
       if (result.success && result.trade) {
-        setTransactionSignature(result.trade.signature)
+        const trade = result.trade
+        setTransactionSignature(trade.signature)
         setTransactionStep('confirming')
 
         // Poll for confirmation
@@ -317,7 +318,7 @@ function MarioTradingPanelComponent({ tokenAddress: propTokenAddress }: MarioTra
 
           toast({
             title: "✅ Real Trade Executed!",
-            description: `${realTradeDetails.tradeType === 'buy' ? 'Bought' : 'Sold'} ${formatTokenQuantity(result.trade.amountTokens)} ${realTradeDetails.token.symbol}`,
+            description: `${realTradeDetails.tradeType === 'buy' ? 'Bought' : 'Sold'} ${formatTokenQuantity(trade.amountTokens)} ${realTradeDetails.token.symbol}`,
             duration: 5000,
           })
 
