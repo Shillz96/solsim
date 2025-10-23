@@ -111,7 +111,7 @@ export default async function (app: FastifyInstance) {
       const trades = await prisma.trade.findMany({
         where: {
           userId,
-          tradeMode,
+          tradeMode: tradeMode as 'PAPER' | 'REAL',
           ...(mint && { mint })
         },
         orderBy: { timestamp: "desc" },
