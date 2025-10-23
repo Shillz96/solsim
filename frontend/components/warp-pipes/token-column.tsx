@@ -118,7 +118,7 @@ export function TokenColumn({
         </div>
 
         {/* Filter Panel - Inside Column */}
-        <div className="px-3 pt-3">
+        <div className="px-3 pt-3 pb-3 flex-shrink-0 bg-white border-b-4 border-[var(--outline-black)]">
           <FilterPanel
             filters={filters}
             onFiltersChange={handleFiltersChange}
@@ -133,7 +133,7 @@ export function TokenColumn({
         {/* Column Body - Scrollable List */}
         <div
           className={cn(
-            "flex-1 overflow-y-auto bg-white p-4 space-y-4"
+            "flex-1 overflow-y-auto bg-white p-4 space-y-4 min-h-0"
           )}
         >
         {/* Loading State */}
