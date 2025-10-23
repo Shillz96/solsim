@@ -18,7 +18,7 @@ import * as lightningService from "./pumpPortalLightningService.js";
 import * as localService from "./pumpPortalLocalService.js";
 import { loggers } from "../utils/logger.js";
 
-const logger = loggers.tradeService;
+const logger = loggers.trade;
 
 // Constants
 const DEFAULT_SLIPPAGE = 10; // 10% slippage tolerance

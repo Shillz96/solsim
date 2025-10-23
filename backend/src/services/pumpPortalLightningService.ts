@@ -12,10 +12,10 @@
 import { loggers } from "../utils/logger.js";
 import { Connection, PublicKey, Transaction } from "@solana/web3.js";
 
-const logger = loggers.tradeService;
+const logger = loggers.trade;
 
 const PUMPPORTAL_API_URL = "https://pumpportal.fun/api/trade";
-const LIGHTNING_FEE_PERCENT = 1.0; // 1% fee for Lightning API
+export const LIGHTNING_FEE_PERCENT = 1.0; // 1% fee for Lightning API
 
 export interface LightningTradeParams {
   action: "buy" | "sell";

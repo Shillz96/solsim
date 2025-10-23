@@ -1,4 +1,4 @@
-import type { Tour } from "onborda"
+import type { Step, Tour } from "onborda/dist/types"
 import { Coins, TrendingUp, Trophy, Star, Rocket, Users, Target, Zap } from "lucide-react"
 
 /**
@@ -35,7 +35,6 @@ export const onboardingTours: Tour[] = [{
     pointerPadding: 10,
     pointerRadius: 8,
     nextRoute: "/portfolio",
-    showSkip: true,
   },
 
   // Step 3: Portfolio & PnL
@@ -49,7 +48,6 @@ export const onboardingTours: Tour[] = [{
     pointerPadding: 10,
     pointerRadius: 8,
     nextRoute: "/rewards",
-    showSkip: true,
   },
 
   // Step 4: XP & Gamification
@@ -63,7 +61,6 @@ export const onboardingTours: Tour[] = [{
     pointerPadding: 10,
     pointerRadius: 8,
     nextRoute: "/leaderboard",
-    showSkip: true,
   },
 
   // Step 5: Leaderboard
@@ -77,7 +74,6 @@ export const onboardingTours: Tour[] = [{
     pointerPadding: 10,
     pointerRadius: 8,
     nextRoute: "/trending",
-    showSkip: true,
   },
 
   // Step 6: Trending Tokens
@@ -91,7 +87,6 @@ export const onboardingTours: Tour[] = [{
     pointerPadding: 10,
     pointerRadius: 8,
     nextRoute: "/wallet-tracker",
-    showSkip: true,
   },
 
   // Step 7: KOL Wallet Tracker (Advanced)
@@ -104,7 +99,6 @@ export const onboardingTours: Tour[] = [{
     showControls: true,
     pointerPadding: 10,
     pointerRadius: 8,
-    showSkip: true,
   },
 
   // Step 8: Final - Platform Purpose

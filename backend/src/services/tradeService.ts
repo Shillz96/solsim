@@ -142,7 +142,7 @@ async function executeTradeLogic({
   // For sells, check position and clamp quantity if needed (handles floating-point rounding)
   if (side === "SELL") {
     const position = await prisma.position.findUnique({
-      where: { userId_mint: { userId, mint } }
+      where: { userId_mint_tradeMode: { userId, mint, tradeMode: 'PAPER' } }
     });
     if (!position) {
       throw new Error(`No position found for token`);
@@ -226,10 +226,10 @@ async function executeTradeLogic({
     });
 
     // Fetch/initialize position
-    let pos = await tx.position.findUnique({ where: { userId_mint: { userId, mint } } });
+    let pos = await tx.position.findUnique({ where: { userId_mint_tradeMode: { userId, mint, tradeMode: 'PAPER' } } });
     if (!pos) {
       pos = await tx.position.create({
-        data: { userId, mint, qty: D(0), costBasis: D(0) }
+        data: { userId, mint, tradeMode: 'PAPER', qty: D(0), costBasis: D(0) }
       });
     }
 
@@ -252,7 +252,7 @@ async function executeTradeLogic({
       // Update position using VWAP
       const newVWAP = vwapBuy(pos.qty as Decimal, pos.costBasis as Decimal, q, priceUsd);
       pos = await tx.position.update({
-        where: { userId_mint: { userId, mint } },
+        where: { userId_mint_tradeMode: { userId, mint, tradeMode: 'PAPER' } },
         data: {
           qty: newVWAP.newQty,
           costBasis: newVWAP.newBasis
@@ -320,7 +320,7 @@ async function executeTradeLogic({
       if (newQty.eq(0)) newBasis = D(0);
 
       pos = await tx.position.update({
-        where: { userId_mint: { userId, mint } },
+        where: { userId_mint_tradeMode: { userId, mint, tradeMode: 'PAPER' } },
         data: { qty: newQty, costBasis: newBasis }
       });
 

@@ -237,8 +237,8 @@ function MarioTradingPanelComponent({ tokenAddress: propTokenAddress }: MarioTra
   const handleRealTrade = async (action: 'buy' | 'sell') => {
     if (!user || !tokenDetails) return
 
-    let amountSol: number
-    let tokenQuantity: number
+    let amountSol: number = 0
+    let tokenQuantity: number = 0
 
     if (action === 'buy') {
       amountSol = selectedSolAmount || (customSolAmount ? parseFloat(customSolAmount) : 0)
@@ -255,6 +255,7 @@ function MarioTradingPanelComponent({ tokenAddress: propTokenAddress }: MarioTra
       }
       const holdingQuantity = parseFloat(tokenHolding.qty)
       tokenQuantity = (holdingQuantity * selectedPercentage) / 100
+      amountSol = (tokenQuantity * tokenDetails.price) / solPrice
     }
 
     tokenQuantity = Math.round(tokenQuantity * 1e9) / 1e9
@@ -270,10 +271,10 @@ function MarioTradingPanelComponent({ tokenAddress: propTokenAddress }: MarioTra
       tradeType: action,
       tokenAmount: tokenQuantity,
       executionPrice: tokenDetails.price,
-      totalValue: action === 'buy' ? amountSol : tokenQuantity * tokenDetails.price / solPrice,
+      totalValue: amountSol,
       fundingSource: fundingSource,
       networkFee: 0.00001, // Estimate
-      pumpPortalFee: (action === 'buy' ? amountSol : tokenQuantity * tokenDetails.price / solPrice) * (fundingSource === 'DEPOSITED' ? 0.01 : 0.005),
+      pumpPortalFee: amountSol * (fundingSource === 'DEPOSITED' ? 0.01 : 0.005),
       slippageBps: 300, // 3% default slippage
       availableBalance: activeBalance,
     }

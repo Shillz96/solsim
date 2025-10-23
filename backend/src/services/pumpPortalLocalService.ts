@@ -13,10 +13,10 @@ import { loggers } from "../utils/logger.js";
 import { Connection, Transaction, VersionedTransaction } from "@solana/web3.js";
 import bs58 from "bs58";
 
-const logger = loggers.tradeService;
+const logger = loggers.trade;
 
 const PUMPPORTAL_LOCAL_API_URL = "https://pumpportal.fun/api/trade-local";
-const LOCAL_FEE_PERCENT = 0.5; // 0.5% fee for Local Transaction API
+export const LOCAL_FEE_PERCENT = 0.5; // 0.5% fee for Local Transaction API
 
 export interface LocalTradeParams {
   publicKey: string; // User's wallet public key

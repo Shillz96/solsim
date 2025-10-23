@@ -70,7 +70,7 @@ export async function fillTradeV2({
   // For sells, check position and clamp quantity if needed (handles floating-point rounding)
   if (side === "SELL") {
     const position = await prisma.position.findUnique({
-      where: { userId_mint: { userId, mint } },
+      where: { userId_mint_tradeMode: { userId, mint, tradeMode: 'PAPER' } },
     });
     if (!position) {
       throw new Error(`No position found for token`);
@@ -155,10 +155,10 @@ export async function fillTradeV2({
     });
 
     // Fetch/initialize position
-    let pos = await tx.position.findUnique({ where: { userId_mint: { userId, mint } } });
+    let pos = await tx.position.findUnique({ where: { userId_mint_tradeMode: { userId, mint, tradeMode: 'PAPER' } } });
     if (!pos) {
       pos = await tx.position.create({
-        data: { userId, mint, qty: D(0), costBasis: D(0) },
+        data: { userId, mint, tradeMode: 'PAPER', qty: D(0), costBasis: D(0) },
       });
     }
 
@@ -184,7 +184,7 @@ export async function fillTradeV2({
       const newCostBasis = (pos.costBasis as Decimal).plus(tradeCostUsd);
 
       pos = await tx.position.update({
-        where: { userId_mint: { userId, mint } },
+        where: { userId_mint_tradeMode: { userId, mint, tradeMode: 'PAPER' } },
         data: {
           qty: newQty,
           costBasis: newCostBasis,
@@ -269,7 +269,7 @@ export async function fillTradeV2({
       if (newQty.eq(0)) newCostBasis = D(0);
 
       pos = await tx.position.update({
-        where: { userId_mint: { userId, mint } },
+        where: { userId_mint_tradeMode: { userId, mint, tradeMode: 'PAPER' } },
         data: { qty: newQty, costBasis: newCostBasis },
       });
 

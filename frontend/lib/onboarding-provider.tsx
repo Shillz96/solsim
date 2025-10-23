@@ -92,12 +92,8 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
       }}
     >
       <Onborda
-        tours={onboardingTours}
+        steps={onboardingTours}
         showOnborda={isOnboardingActive}
-        onStepChange={(step) => {
-          // Optional: track step changes
-        }}
-        closeOnEsc={true}
         // Custom card styling with Mario theme
         cardComponent={(props: CardComponentProps) => {
           const isLastStep = props.currentStep === props.totalSteps - 1
