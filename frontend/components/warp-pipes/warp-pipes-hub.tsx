@@ -15,7 +15,7 @@ import { Button } from "@/components/ui/button"
 import { FilterBar, type SortBy } from "./filter-bar"
 import { TokenColumn } from "./token-column"
 import { useWarpPipesFeed, useAddTokenWatch, useRemoveTokenWatch } from "@/hooks/use-warp-pipes"
-import { useAuth } from "@/lib/auth-provider"
+import { useAuth } from "@/hooks/use-auth"
 import { motion } from "framer-motion"
 import { cn } from "@/lib/utils"
 

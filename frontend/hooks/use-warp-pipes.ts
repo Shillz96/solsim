@@ -7,7 +7,7 @@
 "use client"
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
-import { useAuth } from "@/lib/auth-provider"
+import { useAuth } from "@/hooks/use-auth"
 import {
   getWarpPipesFeed,
   addTokenWatch,
@@ -23,11 +23,9 @@ import type { FeedFilters, AddWatchRequest, UpdateWatchRequest } from "@/lib/typ
  * Hook to fetch Warp Pipes feed
  */
 export function useWarpPipesFeed(filters?: FeedFilters) {
-  const { token } = useAuth()
-
   return useQuery({
     queryKey: ["warp-pipes-feed", filters],
-    queryFn: () => getWarpPipesFeed(filters, token || undefined),
+    queryFn: () => getWarpPipesFeed(filters),
     refetchInterval: 2000, // Refetch every 2 seconds for real-time updates
     staleTime: 1000, // Consider data stale after 1 second
   })
@@ -37,13 +35,13 @@ export function useWarpPipesFeed(filters?: FeedFilters) {
  * Hook to add a token to watchlist
  */
 export function useAddTokenWatch() {
-  const { token } = useAuth()
   const queryClient = useQueryClient()
+  const { isAuthenticated } = useAuth()
 
   return useMutation({
     mutationFn: (request: AddWatchRequest) => {
-      if (!token) throw new Error("Authentication required")
-      return addTokenWatch(request, token)
+      if (!isAuthenticated) throw new Error("Authentication required")
+      return addTokenWatch(request)
     },
     onSuccess: () => {
       // Invalidate feed to update isWatched flags
@@ -57,13 +55,13 @@ export function useAddTokenWatch() {
  * Hook to remove a token from watchlist
  */
 export function useRemoveTokenWatch() {
-  const { token } = useAuth()
   const queryClient = useQueryClient()
+  const { isAuthenticated } = useAuth()
 
   return useMutation({
     mutationFn: (mint: string) => {
-      if (!token) throw new Error("Authentication required")
-      return removeTokenWatch(mint, token)
+      if (!isAuthenticated) throw new Error("Authentication required")
+      return removeTokenWatch(mint)
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["warp-pipes-feed"] })
@@ -76,13 +74,13 @@ export function useRemoveTokenWatch() {
  * Hook to update watch preferences
  */
 export function useUpdateWatchPreferences() {
-  const { token } = useAuth()
   const queryClient = useQueryClient()
+  const { isAuthenticated } = useAuth()
 
   return useMutation({
     mutationFn: ({ mint, preferences }: { mint: string; preferences: UpdateWatchRequest }) => {
-      if (!token) throw new Error("Authentication required")
-      return updateWatchPreferences(mint, preferences, token)
+      if (!isAuthenticated) throw new Error("Authentication required")
+      return updateWatchPreferences(mint, preferences)
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["warp-pipes-watches"] })
@@ -94,15 +92,12 @@ export function useUpdateWatchPreferences() {
  * Hook to fetch user's watched tokens
  */
 export function useUserWatches() {
-  const { token } = useAuth()
+  const { isAuthenticated } = useAuth()
 
   return useQuery({
     queryKey: ["warp-pipes-watches"],
-    queryFn: () => {
-      if (!token) throw new Error("Authentication required")
-      return getUserWatches(token)
-    },
-    enabled: !!token, // Only fetch if authenticated
+    queryFn: () => getUserWatches(),
+    enabled: isAuthenticated, // Only fetch if authenticated
   })
 }
 
@@ -121,11 +116,9 @@ export function useTokenHealth(mint: string) {
  * Hook to fetch token details
  */
 export function useTokenDetails(mint: string) {
-  const { token } = useAuth()
-
   return useQuery({
     queryKey: ["warp-pipes-token", mint],
-    queryFn: () => getTokenDetails(mint, token || undefined),
+    queryFn: () => getTokenDetails(mint),
     staleTime: 2 * 60 * 1000, // 2 minutes
   })
 }

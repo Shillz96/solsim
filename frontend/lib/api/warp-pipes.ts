@@ -14,12 +14,25 @@ import type {
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000"
 
+// Helper to get authorization headers
+function getAuthHeaders(): HeadersInit {
+  const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
+  const headers: HeadersInit = {
+    'Content-Type': 'application/json',
+  };
+
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+
+  return headers;
+}
+
 /**
  * Get token discovery feed (bonded, graduating, new)
  */
 export async function getWarpPipesFeed(
-  filters?: FeedFilters,
-  token?: string
+  filters?: FeedFilters
 ): Promise<WarpPipesFeedResponse> {
   const params = new URLSearchParams()
 
@@ -30,15 +43,7 @@ export async function getWarpPipesFeed(
 
   const url = `${API_BASE_URL}/api/warp-pipes/feed${params.toString() ? `?${params}` : ""}`
 
-  const headers: HeadersInit = {
-    "Content-Type": "application/json",
-  }
-
-  if (token) {
-    headers["Authorization"] = `Bearer ${token}`
-  }
-
-  const response = await fetch(url, { headers })
+  const response = await fetch(url, { headers: getAuthHeaders() })
 
   if (!response.ok) {
     throw new Error("Failed to fetch warp pipes feed")
@@ -51,15 +56,11 @@ export async function getWarpPipesFeed(
  * Add a token to watchlist
  */
 export async function addTokenWatch(
-  request: AddWatchRequest,
-  token: string
+  request: AddWatchRequest
 ): Promise<{ success: boolean; watch: any }> {
   const response = await fetch(`${API_BASE_URL}/api/warp-pipes/watch`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
+    headers: getAuthHeaders(),
     body: JSON.stringify(request),
   })
 
@@ -74,12 +75,10 @@ export async function addTokenWatch(
 /**
  * Remove a token from watchlist
  */
-export async function removeTokenWatch(mint: string, token: string): Promise<{ success: boolean }> {
+export async function removeTokenWatch(mint: string): Promise<{ success: boolean }> {
   const response = await fetch(`${API_BASE_URL}/api/warp-pipes/watch/${mint}`, {
     method: "DELETE",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
+    headers: getAuthHeaders(),
   })
 
   if (!response.ok) {
@@ -95,15 +94,11 @@ export async function removeTokenWatch(mint: string, token: string): Promise<{ s
  */
 export async function updateWatchPreferences(
   mint: string,
-  request: UpdateWatchRequest,
-  token: string
+  request: UpdateWatchRequest
 ): Promise<{ success: boolean; watch: any }> {
   const response = await fetch(`${API_BASE_URL}/api/warp-pipes/watch/${mint}`, {
     method: "PATCH",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
+    headers: getAuthHeaders(),
     body: JSON.stringify(request),
   })
 
@@ -118,11 +113,9 @@ export async function updateWatchPreferences(
 /**
  * Get user's watched tokens
  */
-export async function getUserWatches(token: string): Promise<{ watches: any[] }> {
+export async function getUserWatches(): Promise<{ watches: any[] }> {
   const response = await fetch(`${API_BASE_URL}/api/warp-pipes/watches`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
+    headers: getAuthHeaders(),
   })
 
   if (!response.ok) {
@@ -149,16 +142,11 @@ export async function getTokenHealth(mint: string): Promise<{ mint: string; heal
  * Get detailed token information
  */
 export async function getTokenDetails(
-  mint: string,
-  token?: string
+  mint: string
 ): Promise<{ token: TokenRow }> {
-  const headers: HeadersInit = {}
-
-  if (token) {
-    headers["Authorization"] = `Bearer ${token}`
-  }
-
-  const response = await fetch(`${API_BASE_URL}/api/warp-pipes/token/${mint}`, { headers })
+  const response = await fetch(`${API_BASE_URL}/api/warp-pipes/token/${mint}`, {
+    headers: getAuthHeaders()
+  })
 
   if (!response.ok) {
     throw new Error("Failed to fetch token details")
