@@ -520,18 +520,44 @@ function PerpsContent() {
     <div className="min-h-screen bg-background">
       <main className="w-full px-4 sm:px-6 lg:px-8 py-2 sm:py-4 max-w-page-xl mx-auto">
         <div className="space-y-4">
-        {/* Header */}
+        {/* Mario-themed Header with Image */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
+        >
+          <div className="bg-[var(--sky-blue)]/20 border-4 border-[var(--outline-black)] rounded-xl shadow-[8px_8px_0_var(--outline-black)] p-6 relative overflow-hidden mb-4">
+            {/* Decorative Mario icons */}
+            <div className="absolute top-2 right-2 flex gap-2">
+              <img src="/icons/mario/star.png" alt="Star" width={24} height={24} className="animate-pulse" />
+              <img src="/icons/mario/fire.png" alt="Fire" width={24} height={24} />
+            </div>
+
+            <div className="flex flex-col items-center gap-4">
+              {/* Header Image */}
+              <div className="relative w-full max-w-2xl">
+                <img
+                  src="/Perpetual-Trading-10-22-2025.png"
+                  alt="Perpetual Trading"
+                  className="w-full h-auto"
+                />
+              </div>
+
+              {/* Description */}
+              <p className="text-muted-foreground text-lg text-center font-bold">
+                Trade with up to 20x leverage
+              </p>
+            </div>
+          </div>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
           className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
         >
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-mario text-[var(--outline-black)]">Perpetual Trading</h1>
-            <p className="text-[var(--outline-black)] text-sm font-semibold">Trade with up to 20x leverage</p>
-          </div>
-          <div className="mario-card bg-white p-3 border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)]">
+          <div className="bg-[var(--sky-blue)]/20 p-3 border-3 border-[var(--outline-black)] rounded-lg shadow-[3px_3px_0_var(--outline-black)]">
             <div className="text-xs text-[var(--outline-black)] font-bold">Available Balance</div>
             <div className="text-xl sm:text-2xl font-mario text-[var(--outline-black)]">
               {balance.toFixed(4)} SOL
@@ -550,28 +576,28 @@ function PerpsContent() {
             transition={{ duration: 0.5, delay: 0.1 }}
             className="grid grid-cols-2 sm:grid-cols-4 gap-3"
           >
-            <div className="mario-card bg-white p-4 border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all">
+            <div className="bg-[var(--sky-blue)]/20 p-4 border-3 border-[var(--outline-black)] rounded-lg shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all">
               <div className="flex items-center gap-2">
                 <Activity className="h-4 w-4 text-[var(--outline-black)]" />
                 <span className="text-xs text-[var(--outline-black)] font-bold">Open Positions</span>
               </div>
               <div className="text-2xl font-mario text-[var(--outline-black)] mt-1">{portfolioStats.positionCount}</div>
             </div>
-            <div className="mario-card bg-white p-4 border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all">
+            <div className="bg-[var(--sky-blue)]/20 p-4 border-3 border-[var(--outline-black)] rounded-lg shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all">
               <div className="flex items-center gap-2">
                 <DollarSign className="h-4 w-4 text-[var(--outline-black)]" />
                 <span className="text-xs text-[var(--outline-black)] font-bold">Total Margin</span>
               </div>
               <div className="text-2xl font-mario text-[var(--outline-black)] mt-1">{portfolioStats.totalMargin.toFixed(2)} SOL</div>
             </div>
-            <div className="mario-card bg-white p-4 border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all">
+            <div className="bg-[var(--sky-blue)]/20 p-4 border-3 border-[var(--outline-black)] rounded-lg shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all">
               <div className="flex items-center gap-2">
                 <TrendingUp className="h-4 w-4 text-[var(--outline-black)]" />
                 <span className="text-xs text-[var(--outline-black)] font-bold">Position Value</span>
               </div>
               <div className="text-2xl font-mario text-[var(--outline-black)] mt-1">${portfolioStats.totalPositionValue.toFixed(2)}</div>
             </div>
-            <div className="mario-card bg-white p-4 border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all">
+            <div className="bg-[var(--sky-blue)]/20 p-4 border-3 border-[var(--outline-black)] rounded-lg shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all">
               <div className="flex items-center gap-2">
                 <DollarSign className="h-4 w-4 text-[var(--outline-black)]" />
                 <span className="text-xs text-[var(--outline-black)] font-bold">Total PnL</span>
@@ -589,7 +615,7 @@ function PerpsContent() {
           <div className="lg:col-span-8 space-y-4">
             {/* Price Ticker */}
             {selectedTokenMeta && (
-              <div className="mario-card bg-white border-4 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)] transition-all hover:shadow-[6px_6px_0_var(--outline-black)] animate-in fade-in slide-in-from-top-2 duration-300">
+              <div className="bg-[var(--sky-blue)]/20 border-4 border-[var(--outline-black)] rounded-xl shadow-[4px_4px_0_var(--outline-black)] transition-all hover:shadow-[6px_6px_0_var(--outline-black)] animate-in fade-in slide-in-from-top-2 duration-300">
                 <div className="p-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
@@ -622,7 +648,7 @@ function PerpsContent() {
             )}
 
             {/* Chart */}
-            <div className="mario-card bg-white border-4 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)] overflow-hidden">
+            <div className="bg-[var(--sky-blue)]/20 border-4 border-[var(--outline-black)] rounded-xl shadow-[4px_4px_0_var(--outline-black)] overflow-hidden">
               <div className="h-[400px] sm:h-[500px]">
                 {selectedToken ? (
                   <DexScreenerChart tokenAddress={selectedToken} />
@@ -646,7 +672,7 @@ function PerpsContent() {
           </div>
 
           {/* Trading Panel - Right (4 columns on desktop) */}
-          <div className="lg:col-span-4 mario-card bg-white border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)]">
+          <div className="lg:col-span-4 bg-[var(--sky-blue)]/20 border-4 border-[var(--outline-black)] rounded-xl shadow-[6px_6px_0_var(--outline-black)]">
             <div className="p-6 border-b-3 border-[var(--outline-black)]">
               <h2 className="text-xl font-mario text-[var(--outline-black)]">Open Position</h2>
               <p className="text-sm text-[var(--outline-black)] font-semibold">Select token and parameters</p>
@@ -848,7 +874,8 @@ function PerpsContent() {
         </div>
 
         {/* Positions & History Section */}
-        <div className="mario-card bg-white border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)]">
+                {/* Positions & History Tabs */}
+        <div className="bg-[var(--sky-blue)]/20 border-4 border-[var(--outline-black)] rounded-xl shadow-[6px_6px_0_var(--outline-black)]">
           <div className="p-6 border-b-3 border-[var(--outline-black)]">
             <div className="flex items-center justify-between flex-wrap gap-4">
               <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)} className="flex-1">
@@ -865,7 +892,7 @@ function PerpsContent() {
                 variant="outline"
                 size="sm"
                 onClick={activeTab === "positions" ? exportPositionsToCSV : exportTradeHistoryToCSV}
-                className="gap-2 mario-btn bg-white border-3 border-[var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)]"
+                className="gap-2 bg-[var(--luigi-green)] text-white border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all font-mario"
               >
                 <Download className="h-4 w-4" />
                 Export CSV
