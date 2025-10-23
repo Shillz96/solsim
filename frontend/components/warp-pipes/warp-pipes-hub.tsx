@@ -135,13 +135,13 @@ export function WarpPipesHub() {
             </TabsTrigger>
             <TabsTrigger
               value="graduating"
-              className="data-[state=active]:bg-star-yellow-500 data-[state=active]:text-pipe-900 data-[state=active]:shadow-[2px_2px_0_rgba(0,0,0,0.3)] rounded-[10px] font-bold transition-all text-pipe-700"
+              className="data-[state=active]:bg-star-500 data-[state=active]:text-pipe-900 data-[state=active]:shadow-[2px_2px_0_rgba(0,0,0,0.3)] rounded-[10px] font-bold transition-all text-pipe-700"
             >
               ⭐ Graduate ({graduating.length})
             </TabsTrigger>
             <TabsTrigger
               value="bonded"
-              className="data-[state=active]:bg-coin-yellow-500 data-[state=active]:text-pipe-900 data-[state=active]:shadow-[2px_2px_0_rgba(0,0,0,0.3)] rounded-[10px] font-bold transition-all text-pipe-700"
+              className="data-[state=active]:bg-coin-500 data-[state=active]:text-pipe-900 data-[state=active]:shadow-[2px_2px_0_rgba(0,0,0,0.3)] rounded-[10px] font-bold transition-all text-pipe-700"
             >
               🪙 Bonded ({bonded.length})
             </TabsTrigger>
@@ -186,7 +186,7 @@ export function WarpPipesHub() {
       {isLoading && (
         <div className="fixed inset-0 bg-white/80 backdrop-blur-sm flex items-center justify-center z-50">
           <div className="bg-white border-4 border-pipe-900 shadow-[8px_8px_0_rgba(0,0,0,0.3)] rounded-[16px] p-8">
-            <Loader2 className="h-12 w-12 animate-spin text-mario-red-500 mx-auto mb-4" />
+            <Loader2 className="h-12 w-12 animate-spin text-mario-500 mx-auto mb-4" />
             <p className="text-center font-bold text-pipe-900 text-[18px]">Loading Warp Pipes...</p>
             <p className="text-center text-pipe-600 text-sm mt-2">🍄 Discovering tokens...</p>
           </div>
