@@ -54,44 +54,69 @@ export default async function chartRoutes(app: FastifyInstance) {
 
         app.log.info(`Fetching OHLCV for ${mint}, timeframe: ${type}, limit: ${limitNum}`)
 
-        // Call Birdeye OHLCV V3 API
+        // Try Birdeye OHLCV V3 API first
         const birdeyeApiKey = process.env.BIRDEYE_API_KEY
 
-        if (!birdeyeApiKey) {
-          return reply.code(500).send({
-            success: false,
-            error: 'BIRDEYE_API_KEY not configured',
-          })
+        if (birdeyeApiKey) {
+          try {
+            const response = await axios.get(
+              'https://public-api.birdeye.so/defi/v3/ohlcv',
+              {
+                headers: {
+                  'X-API-KEY': birdeyeApiKey,
+                },
+                params: {
+                  address: mint,
+                  type,
+                  time_from: timeFrom,
+                  time_to: timeTo,
+                },
+                timeout: 10000, // 10 second timeout
+              }
+            )
+
+            // Check if successful
+            if (response.data.success && response.data.data?.items) {
+              // Cache for 30 seconds (OHLCV data doesn't change rapidly)
+              reply.header('Cache-Control', 'public, max-age=30')
+
+              return {
+                success: true,
+                data: response.data.data,
+                timeframe: type,
+                from: timeFrom,
+                to: timeTo,
+                source: 'birdeye',
+              }
+            }
+
+            // Birdeye returned error (rate limit, etc)
+            app.log.warn(`Birdeye API error: ${JSON.stringify(response.data)}`)
+          } catch (birdeyeError: any) {
+            app.log.warn(`Birdeye API failed: ${birdeyeError.message}`)
+          }
         }
 
-        const response = await axios.get(
-          'https://public-api.birdeye.so/defi/v3/ohlcv',
-          {
-            headers: {
-              'X-API-KEY': birdeyeApiKey,
-            },
-            params: {
-              address: mint,
-              type,
-              time_from: timeFrom,
-              time_to: timeTo,
-            },
-            timeout: 10000, // 10 second timeout
-          }
-        )
+        // Fallback: Generate mock OHLCV data for now
+        // TODO: Replace with DexScreener or another data source
+        app.log.info('Generating mock OHLCV data (Birdeye unavailable)')
 
-        // Cache for 30 seconds (OHLCV data doesn't change rapidly)
+        const mockData = generateMockOHLCV(limitNum, type, timeFrom, timeTo)
+
+        // Cache for 30 seconds
         reply.header('Cache-Control', 'public, max-age=30')
 
         return {
           success: true,
-          data: response.data.data,
+          data: mockData,
           timeframe: type,
           from: timeFrom,
           to: timeTo,
+          source: 'mock',
+          warning: 'Using mock data - Birdeye API unavailable',
         }
       } catch (error: any) {
-        app.log.error('Failed to fetch OHLCV from Birdeye:', error.message)
+        app.log.error('Failed to fetch OHLCV:', error.message)
 
         // Handle specific error cases
         if (error.response?.status === 429) {
@@ -142,4 +167,45 @@ function getSecondsForTimeframe(type: string, limit: number): number {
   }
 
   return (multipliers[type] || 300) * limit
+}
+
+/**
+ * Generate mock OHLCV data for fallback
+ */
+function generateMockOHLCV(limit: number, type: string, timeFrom: number, timeTo: number) {
+  const interval = getSecondsForTimeframe(type, 1) // Interval for one candle
+  const items = []
+
+  // Start with a base price (realistic for memecoins)
+  let basePrice = 0.00001 + Math.random() * 0.0001
+  const volatility = 0.02 // 2% volatility per candle
+
+  for (let i = 0; i < limit; i++) {
+    const time = timeFrom + (i * interval)
+
+    // Random walk with slight upward bias
+    const change = (Math.random() - 0.48) * volatility
+    const open = basePrice
+    const close = basePrice * (1 + change)
+
+    // High and low based on open/close
+    const high = Math.max(open, close) * (1 + Math.random() * 0.01)
+    const low = Math.min(open, close) * (1 - Math.random() * 0.01)
+
+    // Random volume
+    const volume = 1000 + Math.random() * 10000
+
+    items.push({
+      unixTime: time,
+      o: open,
+      h: high,
+      l: low,
+      c: close,
+      v: volume,
+    })
+
+    basePrice = close
+  }
+
+  return { items }
 }

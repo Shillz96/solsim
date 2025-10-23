@@ -50,6 +50,7 @@ export function LightweightChart({
 
   const [timeframe, setTimeframe] = useState<Timeframe>('5m')
   const [isLoading, setIsLoading] = useState(true)
+  const [dataSource, setDataSource] = useState<'birdeye' | 'mock' | null>(null)
 
   // Get SOL price for average cost calculations
   const { prices } = usePriceStreamContext()
@@ -195,6 +196,9 @@ export function LightweightChart({
         const json = await response.json()
 
         if (json.success && json.data?.items) {
+          // Set data source
+          setDataSource(json.source || 'birdeye')
+
           // Transform to Lightweight Charts format
           const candlesticks: CandlestickData[] = json.data.items.map((item: any) => ({
             time: item.unixTime as Time,
@@ -219,7 +223,7 @@ export function LightweightChart({
           // Fit content
           chartRef.current?.timeScale().fitContent()
 
-          console.log(`✅ Loaded ${candlesticks.length} candles`)
+          console.log(`✅ Loaded ${candlesticks.length} candles from ${json.source || 'birdeye'}`)
         }
       } catch (error) {
         console.error('Failed to load OHLCV:', error)
@@ -271,6 +275,11 @@ export function LightweightChart({
       <div className="flex justify-between text-[10px] text-muted-foreground px-2">
         <div>
           <span className="font-bold">{tokenSymbol}</span> • {timeframe.toUpperCase()} Chart
+          {dataSource === 'mock' && (
+            <span className="ml-2 px-2 py-0.5 bg-[var(--star-yellow)] text-[var(--outline-black)] rounded font-bold">
+              DEMO DATA
+            </span>
+          )}
         </div>
         <div>
           Powered by TradingView Lightweight Charts
