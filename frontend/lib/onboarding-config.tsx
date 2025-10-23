@@ -1,4 +1,4 @@
-import type { Step } from "onborda"
+import type { Tour } from "onborda"
 import { Coins, TrendingUp, Trophy, Star, Rocket, Users, Target, Zap } from "lucide-react"
 
 /**
@@ -8,7 +8,9 @@ import { Coins, TrendingUp, Trophy, Star, Rocket, Users, Target, Zap } from "luc
  * through the key features of the platform. Steps are styled with Mario theme.
  */
 
-export const onboardingSteps: Step[] = [
+export const onboardingTours: Tour[] = [{
+  tour: "main-tour",
+  steps: [
   // Step 1: Virtual SOL Balance
   {
     icon: <Coins className="h-5 w-5" />,
@@ -20,7 +22,6 @@ export const onboardingSteps: Step[] = [
     pointerPadding: 10,
     pointerRadius: 8,
     nextRoute: "/trade",
-    showSkip: true,
   },
 
   // Step 2: Trade Page
@@ -116,9 +117,8 @@ export const onboardingSteps: Step[] = [
     showControls: true,
     pointerPadding: 10,
     pointerRadius: 8,
-    showSkip: false, // Last step, no skip needed
   },
-]
+]}]
 
 /**
  * Onboarding card styling configuration

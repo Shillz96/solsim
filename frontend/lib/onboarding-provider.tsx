@@ -1,8 +1,8 @@
 "use client"
 
 import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from "react"
-import { Onborda, useOnborda } from "onborda"
-import { onboardingSteps } from "./onboarding-config"
+import { Onborda, useOnborda, type CardComponentProps } from "onborda"
+import { onboardingTours } from "./onboarding-config"
 import { WelcomeModal } from "@/components/onboarding/welcome-modal"
 
 interface OnboardingContextType {
@@ -92,88 +92,90 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
       }}
     >
       <Onborda
-        steps={onboardingSteps}
+        tours={onboardingTours}
         showOnborda={isOnboardingActive}
-        onComplete={handleTourComplete}
+        onStepChange={(step) => {
+          // Optional: track step changes
+        }}
+        closeOnEsc={true}
         // Custom card styling with Mario theme
-        cardComponent={(props) => (
-          <div
-            style={{
-              backgroundColor: "white",
-              border: "4px solid var(--outline-black)",
-              borderRadius: "12px",
-              boxShadow: "6px 6px 0 var(--outline-black)",
-              padding: "1.5rem",
-              maxWidth: "400px",
-              zIndex: 9999,
-            }}
-          >
-            {/* Icon */}
-            {props.step.icon && (
-              <div
-                className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--star-yellow)] border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)]"
-              >
-                {props.step.icon}
-              </div>
-            )}
+        cardComponent={(props: CardComponentProps) => {
+          const isLastStep = props.currentStep === props.totalSteps - 1
 
-            {/* Title */}
-            {props.step.title && (
-              <h3
-                className="mb-2 text-lg font-mario text-[var(--outline-black)]"
-              >
-                {props.step.title}
-              </h3>
-            )}
+          return (
+            <div
+              style={{
+                backgroundColor: "white",
+                border: "4px solid var(--outline-black)",
+                borderRadius: "12px",
+                boxShadow: "6px 6px 0 var(--outline-black)",
+                padding: "1.5rem",
+                maxWidth: "400px",
+                zIndex: 9999,
+              }}
+            >
+              {/* Icon */}
+              {props.step.icon && (
+                <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--star-yellow)] border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)]">
+                  {props.step.icon}
+                </div>
+              )}
 
-            {/* Content */}
-            {props.step.content && (
-              <p
-                className="mb-4 text-sm leading-relaxed text-[var(--pipe-600)] font-semibold"
-              >
-                {props.step.content}
-              </p>
-            )}
+              {/* Title */}
+              {props.step.title && (
+                <h3 className="mb-2 text-lg font-mario text-[var(--outline-black)]">
+                  {props.step.title}
+                </h3>
+              )}
 
-            {/* Controls */}
-            <div className="flex items-center justify-between gap-3">
-              {/* Skip button */}
-              {props.step.showSkip && (
+              {/* Content */}
+              {props.step.content && (
+                <p className="mb-4 text-sm leading-relaxed text-[var(--pipe-600)] font-semibold">
+                  {props.step.content}
+                </p>
+              )}
+
+              {/* Controls */}
+              <div className="flex items-center justify-between gap-3">
+                {/* Skip button */}
                 <button
-                  onClick={props.onClose}
+                  onClick={handleTourComplete}
                   className="text-sm font-semibold text-[var(--pipe-500)] hover:text-[var(--outline-black)] underline transition-colors"
                 >
                   Skip Tour
                 </button>
-              )}
 
-              {/* Progress indicator */}
-              <div className="flex-1 text-center">
-                <span className="text-xs font-bold text-[var(--pipe-500)]">
-                  {props.currentStep + 1} / {props.totalSteps}
-                </span>
-              </div>
+                {/* Progress indicator */}
+                <div className="flex-1 text-center">
+                  <span className="text-xs font-bold text-[var(--pipe-500)]">
+                    {props.currentStep + 1} / {props.totalSteps}
+                  </span>
+                </div>
 
-              {/* Navigation buttons */}
-              <div className="flex gap-2">
-                {props.currentStep > 0 && (
+                {/* Navigation buttons */}
+                <div className="flex gap-2">
+                  {props.currentStep > 0 && (
+                    <button
+                      onClick={props.prevStep}
+                      className="px-4 py-2 text-sm font-bold text-[var(--outline-black)] bg-white border-3 border-[var(--outline-black)] rounded-lg shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all"
+                    >
+                      Back
+                    </button>
+                  )}
                   <button
-                    onClick={props.onPrev}
-                    className="px-4 py-2 text-sm font-bold text-[var(--outline-black)] bg-white border-3 border-[var(--outline-black)] rounded-lg shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all"
+                    onClick={isLastStep ? handleTourComplete : props.nextStep}
+                    className="px-4 py-2 text-sm font-mario text-white bg-[var(--luigi-green)] border-3 border-[var(--outline-black)] rounded-lg shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all"
                   >
-                    Back
+                    {isLastStep ? "Finish" : "Next"}
                   </button>
-                )}
-                <button
-                  onClick={props.currentStep === props.totalSteps - 1 ? props.onClose : props.onNext}
-                  className="px-4 py-2 text-sm font-mario text-white bg-[var(--luigi-green)] border-3 border-[var(--outline-black)] rounded-lg shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all"
-                >
-                  {props.currentStep === props.totalSteps - 1 ? "Finish" : "Next"}
-                </button>
+                </div>
               </div>
+
+              {/* Arrow */}
+              {props.arrow}
             </div>
-          </div>
-        )}
+          )
+        }}
       >
         {children}
       </Onborda>
