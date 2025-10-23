@@ -93,7 +93,7 @@ export function TokenCard({ token, onToggleWatch, rank, className }: TokenCardPr
                   </Badge>
                 )}
                 {token.hotScore >= 90 && (
-                  <Flame className="h-4 w-4 text-mario-red-500" title="Hot Token!" />
+                  <Flame className="h-4 w-4 text-mario-red-500" />
                 )}
               </div>
               <p className="text-xs text-muted-foreground truncate">{token.name || "Unknown Token"}</p>

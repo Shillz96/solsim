@@ -8,6 +8,7 @@ import { FastifyPluginAsync } from 'fastify';
 import { PrismaClient } from '@prisma/client';
 import { z } from 'zod';
 import Redis from 'ioredis';
+import { authenticateToken, type AuthenticatedRequest } from '../plugins/auth.js';
 import { healthCapsuleService } from '../services/healthCapsuleService.js';
 
 const prisma = new PrismaClient();
@@ -67,13 +68,13 @@ const warpPipesRoutes: FastifyPluginAsync = async (fastify) => {
         },
       },
     },
-    async (request, reply) => {
+    async (request: AuthenticatedRequest, reply) => {
       try {
         const { searchQuery, sortBy, minLiquidity, onlyWatched, limit } =
           FeedQuerySchema.parse(request.query);
 
         // Get userId from JWT if authenticated (optional)
-        const userId = (request.user as any)?.id;
+        const userId = request.user?.id;
 
         // Build base query
         const baseWhere: any = {};
@@ -185,7 +186,7 @@ const warpPipesRoutes: FastifyPluginAsync = async (fastify) => {
           new: newTokens.map(transformToken),
         });
       } catch (error) {
-        fastify.log.error('Error fetching warp pipes feed:', error);
+        fastify.log.error({ error }, 'Error fetching warp pipes feed');
         return reply.status(500).send({ error: 'Failed to fetch token feed' });
       }
     }
@@ -198,7 +199,7 @@ const warpPipesRoutes: FastifyPluginAsync = async (fastify) => {
   fastify.post(
     '/watch',
     {
-      preHandler: [fastify.authenticate], // Require authentication
+      preHandler: [authenticateToken], // Require authentication
       schema: {
         body: AddWatchSchema,
         response: {
@@ -209,9 +210,9 @@ const warpPipesRoutes: FastifyPluginAsync = async (fastify) => {
         },
       },
     },
-    async (request, reply) => {
+    async (request: AuthenticatedRequest, reply) => {
       try {
-        const userId = (request.user as any).id;
+        const userId = request.user!.id;
         const { mint, preferences } = AddWatchSchema.parse(request.body);
 
         // Check if token exists
@@ -273,7 +274,7 @@ const warpPipesRoutes: FastifyPluginAsync = async (fastify) => {
           },
         });
       } catch (error) {
-        fastify.log.error('Error adding token watch:', error);
+        fastify.log.error({ error }, 'Error adding token watch');
         return reply.status(500).send({ error: 'Failed to add token watch' });
       }
     }
@@ -286,7 +287,7 @@ const warpPipesRoutes: FastifyPluginAsync = async (fastify) => {
   fastify.delete(
     '/watch/:mint',
     {
-      preHandler: [fastify.authenticate],
+      preHandler: [authenticateToken],
       schema: {
         params: z.object({
           mint: z.string(),
@@ -298,9 +299,9 @@ const warpPipesRoutes: FastifyPluginAsync = async (fastify) => {
         },
       },
     },
-    async (request, reply) => {
+    async (request: AuthenticatedRequest, reply) => {
       try {
-        const userId = (request.user as any).id;
+        const userId = request.user!.id;
         const { mint } = request.params as { mint: string };
 
         // Delete watch
@@ -328,7 +329,7 @@ const warpPipesRoutes: FastifyPluginAsync = async (fastify) => {
 
         return reply.send({ success: true });
       } catch (error) {
-        fastify.log.error('Error removing token watch:', error);
+        fastify.log.error({ error }, 'Error removing token watch');
         return reply.status(500).send({ error: 'Failed to remove token watch' });
       }
     }
@@ -341,7 +342,7 @@ const warpPipesRoutes: FastifyPluginAsync = async (fastify) => {
   fastify.patch(
     '/watch/:mint',
     {
-      preHandler: [fastify.authenticate],
+      preHandler: [authenticateToken],
       schema: {
         params: z.object({
           mint: z.string(),

@@ -10,6 +10,7 @@ import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { usePriceStreamContext } from "@/lib/price-stream-provider"
 import { useTradingMode } from "@/lib/trading-mode-context"
+import { useWalletModal } from "@solana/wallet-adapter-react-ui"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -27,6 +28,9 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
+import { EnhancedTradingModeToggle } from "@/components/navigation/enhanced-trading-mode-toggle"
+import { DepositModal } from "@/components/modals/deposit-modal"
+import { RealTradingOnboardingModal } from "@/components/modals/real-trading-onboarding-modal"
 
 // Percentage formatting now inline
 
@@ -46,15 +50,20 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
   const {
     tradeMode,
     activeBalance,
+    realSolBalance,
     isSwitchingMode,
     switchToRealTrading,
     switchToPaperTrading,
   } = useTradingMode()
+  const walletModal = useWalletModal()
   const [marketPrices, setMarketPrices] = useState<MarketPrice[]>([
     { symbol: "SOL", price: 250, change24h: 0 }, // Default to reasonable price instead of 0
   ])
   const [showModeConfirm, setShowModeConfirm] = useState<boolean>(false)
   const [pendingMode, setPendingMode] = useState<'PAPER' | 'REAL' | null>(null)
+  const [showDepositModal, setShowDepositModal] = useState<boolean>(false)
+  const [showOnboardingModal, setShowOnboardingModal] = useState<boolean>(false)
+  const [depositAddress, setDepositAddress] = useState<string>('')
 
   // Subscribe to SOL price updates
   useEffect(() => {
@@ -305,34 +314,16 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
 
           {/* Right: Trading Mode Toggle, Wallet Tracker, Leaderboard, More Info Dropdown & Quick Trade */}
           <div className="flex items-center gap-4">
-            {/* Trading Mode Toggle */}
-            <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-[#FFFAE9] border-3 border-pipe-900 shadow-[2px_2px_0_var(--outline-black)]">
-              <button
-                onClick={() => handleToggleMode('PAPER')}
-                disabled={isSwitchingMode}
-                className={cn(
-                  "px-2.5 py-1 rounded text-[10px] font-mario font-bold transition-all border-2 uppercase",
-                  tradeMode === 'PAPER'
-                    ? "bg-luigi-green-500 text-white border-luigi-green-700 shadow-[2px_2px_0_rgba(0,0,0,0.25)]"
-                    : "bg-[#FFFAE9] text-pipe-900 border-pipe-700 hover:bg-white"
-                )}
-              >
-                Paper
-              </button>
-              <button
-                onClick={() => handleToggleMode('REAL')}
-                disabled={isSwitchingMode}
-                className={cn(
-                  "px-2.5 py-1 rounded text-[10px] font-mario font-bold transition-all flex items-center gap-1 border-2 uppercase",
-                  tradeMode === 'REAL'
-                    ? "bg-mario-red-500 text-white border-mario-red-700 shadow-[2px_2px_0_rgba(0,0,0,0.25)]"
-                    : "bg-[#FFFAE9] text-pipe-900 border-pipe-700 hover:bg-white"
-                )}
-              >
-                {tradeMode === 'REAL' && <AlertTriangle className="w-2.5 h-2.5" />}
-                Real
-              </button>
-            </div>
+            {/* Enhanced Trading Mode Toggle */}
+            <EnhancedTradingModeToggle
+              showDropdown={true}
+              onDepositClick={() => {
+                setShowOnboardingModal(true)
+                // TODO: Fetch deposit address when implemented
+                setDepositAddress('ABC123...XYZ789')
+              }}
+              onConnectWalletClick={() => walletModal.setVisible(true)}
+            />
             {/* Wallet Tracker Button */}
             <Link href="/wallet-tracker">
               <Button
@@ -462,6 +453,33 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Real Trading Onboarding Modal */}
+      <RealTradingOnboardingModal
+        open={showOnboardingModal}
+        onOpenChange={setShowOnboardingModal}
+        userHasBalance={realSolBalance > 0}
+        onDepositChoice={() => {
+          setShowDepositModal(true)
+          setShowOnboardingModal(false)
+        }}
+        onWalletChoice={() => {
+          walletModal.setVisible(true)
+          setShowOnboardingModal(false)
+        }}
+      />
+
+      {/* Deposit Modal */}
+      <DepositModal
+        open={showDepositModal}
+        onOpenChange={setShowDepositModal}
+        depositAddress={depositAddress}
+        isLoadingAddress={!depositAddress}
+        onDepositDetected={(amount, signature) => {
+          console.log(`Deposit detected: ${amount} SOL, tx: ${signature}`)
+          // Balance will auto-refresh via trading mode context
+        }}
+      />
     </>
   )
 }
