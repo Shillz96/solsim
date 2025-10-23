@@ -20,9 +20,10 @@ const redis = new Redis(process.env.REDIS_URL || '');
 
 const FeedQuerySchema = z.object({
   searchQuery: z.string().optional(),
-  sortBy: z.enum(['hot', 'new', 'watched', 'alphabetical']).optional().default('hot'),
-  minLiquidity: z.coerce.number().optional(),
+  sortBy: z.enum(['hot', 'new', 'watched', 'alphabetical', 'volume']).optional().default('volume'),
+  minLiquidity: z.coerce.number().optional().default(2000),
   onlyWatched: z.coerce.boolean().optional().default(false),
+  requireSecurity: z.coerce.boolean().optional().default(true),
   limit: z.coerce.number().min(1).max(100).optional().default(50),
 });
 
@@ -58,7 +59,7 @@ const warpPipesRoutes: FastifyPluginAsync = async (fastify) => {
     '/feed',
     async (request: AuthenticatedRequest, reply) => {
       try {
-        const { searchQuery, sortBy, minLiquidity, onlyWatched, limit } =
+        const { searchQuery, sortBy, minLiquidity, onlyWatched, requireSecurity, limit } =
           FeedQuerySchema.parse(request.query);
 
         // Get userId from JWT if authenticated (optional)
@@ -80,6 +81,22 @@ const warpPipesRoutes: FastifyPluginAsync = async (fastify) => {
           baseWhere.liquidityUsd = { gte: minLiquidity };
         }
 
+        // Quality filters (Axiom-style defaults)
+        if (requireSecurity) {
+          baseWhere.freezeRevoked = true;
+          baseWhere.mintRenounced = true;
+        }
+
+        // Filter test/rug tokens
+        baseWhere.NOT = {
+          OR: [
+            { name: { contains: 'test', mode: 'insensitive' } },
+            { name: { contains: 'rug', mode: 'insensitive' } },
+            { symbol: { contains: 'test', mode: 'insensitive' } },
+            { symbol: { contains: 'rug', mode: 'insensitive' } },
+          ],
+        };
+
         // Filter by watched tokens (requires authentication)
         if (onlyWatched && userId) {
           const watchedMints = await prisma.tokenWatch.findMany({
@@ -92,6 +109,9 @@ const warpPipesRoutes: FastifyPluginAsync = async (fastify) => {
         // Determine sort order
         const orderBy: any = {};
         switch (sortBy) {
+          case 'volume':
+            orderBy.volume24h = 'desc';
+            break;
           case 'hot':
             orderBy.hotScore = 'desc';
             break;

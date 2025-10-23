@@ -125,9 +125,10 @@ export interface WarpPipesFeedResponse {
  */
 export interface FeedFilters {
   searchQuery?: string;
-  sortBy?: 'hot' | 'new' | 'watched' | 'alphabetical';
+  sortBy?: 'hot' | 'new' | 'watched' | 'alphabetical' | 'volume';
   minLiquidity?: number;
   onlyWatched?: boolean;
+  requireSecurity?: boolean;
 }
 
 /**
@@ -215,6 +216,7 @@ export function computeHealthStatus(token: TokenRow): HealthStatus {
  * Sort comparator functions
  */
 export const SORT_COMPARATORS = {
+  volume: (a: TokenRow, b: TokenRow) => (b.volume24h ?? 0) - (a.volume24h ?? 0),
   hot: (a: TokenRow, b: TokenRow) => (b.hotScore ?? 0) - (a.hotScore ?? 0),
   new: (a: TokenRow, b: TokenRow) => {
     const aTime = a.firstSeenAt ? new Date(a.firstSeenAt).getTime() : 0;

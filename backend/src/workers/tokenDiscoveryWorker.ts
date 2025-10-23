@@ -67,7 +67,7 @@ async function handleNewToken(event: NewTokenEvent): Promise<void> {
 
     // Calculate bonding curve progress if we have the data
     let bondingCurveProgress = null;
-    let tokenState = 'bonded';
+    let tokenState: 'bonded' | 'graduating' | 'new' = 'new';
     let liquidityUsd = null;
     let marketCapUsd = null;
 
@@ -81,10 +81,19 @@ async function handleNewToken(event: NewTokenEvent): Promise<void> {
     if (vTokensInBondingCurve && vSolInBondingCurve) {
       // Progress = (SOL in curve / 85 SOL target) * 100
       bondingCurveProgress = new Decimal(vSolInBondingCurve).div(85).mul(100);
+      const progress = parseFloat(bondingCurveProgress.toString());
 
-      // If progress >= 95%, mark as "graduating" (about to migrate)
-      if (bondingCurveProgress.gte(95)) {
+      // NEW: Brand new launches (< 80% progress, < 2 hours old)
+      if (progress < 80) {
+        tokenState = 'new';
+      }
+      // GRADUATING: About to complete bonding (80-100%)
+      else if (progress >= 80 && progress < 100) {
         tokenState = 'graduating';
+      }
+      // BONDED: Completed bonding curve
+      else {
+        tokenState = 'bonded';
       }
 
       // Calculate initial liquidity from bonding curve SOL
@@ -174,8 +183,8 @@ async function handleMigration(event: MigrationEvent): Promise<void> {
       // bonded → graduating
       newState = 'graduating';
     } else if (status === 'completed') {
-      // graduating → new
-      newState = 'new';
+      // graduating → bonded (has LP now)
+      newState = 'bonded';
 
       // Update pool data
       await prisma.tokenDiscovery.update({
@@ -220,10 +229,10 @@ async function handleNewPool(event: NewPoolEvent): Promise<void> {
     });
 
     if (existing) {
-      // Update existing token to NEW state
-      console.log(`[TokenDiscovery] Updating existing token ${tokenMint} to NEW state`);
+      // Update existing token to BONDED state (has LP now)
+      console.log(`[TokenDiscovery] Updating existing token ${tokenMint} to BONDED state`);
 
-      await updateState(tokenMint, 'new', existing.state);
+      await updateState(tokenMint, 'bonded', existing.state);
       await prisma.tokenDiscovery.update({
         where: { mint: tokenMint },
         data: {
@@ -234,15 +243,15 @@ async function handleNewPool(event: NewPoolEvent): Promise<void> {
       });
 
       // Notify watchers
-      await notifyWatchers(tokenMint, existing.state, 'new');
+      await notifyWatchers(tokenMint, existing.state, 'bonded');
     } else {
-      // Direct Raydium listing (not from Pump.fun)
+      // Direct Raydium listing (not from Pump.fun) - has LP, so BONDED
       console.log(`[TokenDiscovery] Creating direct Raydium listing: ${tokenMint}`);
 
       await prisma.tokenDiscovery.create({
         data: {
           mint: tokenMint,
-          state: 'new',
+          state: 'bonded',
           poolAddress,
           poolType: 'raydium',
           poolCreatedAt: new Date(blockTime * 1000),
@@ -532,6 +541,23 @@ async function recalculateHotScores(): Promise<void> {
 
     let updated = 0;
     for (const token of tokens) {
+      const ageHours = (Date.now() - token.firstSeenAt.getTime()) / 3600000;
+      const progress = token.bondingCurveProgress ? parseFloat(token.bondingCurveProgress.toString()) : 0;
+      
+      // Age-based state transitions for NEW tokens (> 2 hours old)
+      if (token.state === 'new' && ageHours >= 2) {
+        if (progress >= 100 || token.poolAddress) {
+          // Has completed bonding or has LP → BONDED
+          await updateState(token.mint, 'bonded', token.state);
+          console.log(`[TokenDiscovery] Age transition: ${token.mint} NEW → BONDED (age: ${ageHours.toFixed(1)}h, progress: ${progress}%)`);
+        } else if (progress >= 80 && progress < 100) {
+          // About to complete bonding → GRADUATING
+          await updateState(token.mint, 'graduating', token.state);
+          console.log(`[TokenDiscovery] Age transition: ${token.mint} NEW → GRADUATING (age: ${ageHours.toFixed(1)}h, progress: ${progress}%)`);
+        }
+      }
+      
+      // Calculate and update hot score
       const newScore = await calculateHotScore(token.mint);
       await prisma.tokenDiscovery.update({
         where: { mint: token.mint },
