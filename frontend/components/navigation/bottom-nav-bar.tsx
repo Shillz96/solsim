@@ -68,8 +68,6 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
   const [pendingMode, setPendingMode] = useState<'PAPER' | 'REAL' | null>(null)
   const [showDepositModal, setShowDepositModal] = useState<boolean>(false)
   const [showOnboardingModal, setShowOnboardingModal] = useState<boolean>(false)
-  const [depositAddress, setDepositAddress] = useState<string>('')
-  const [isLoadingAddress, setIsLoadingAddress] = useState<boolean>(false)
 
   // Subscribe to SOL price updates
   useEffect(() => {
@@ -334,22 +332,6 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
                 }
 
                 setShowOnboardingModal(true)
-                setIsLoadingAddress(true)
-
-                try {
-                  const response = await api.getDepositAddress(user.id)
-                  setDepositAddress(response.depositAddress)
-                } catch (error: any) {
-                  console.error('Failed to fetch deposit address:', error)
-                  toast({
-                    title: 'Error',
-                    description: error.message || 'Failed to generate deposit address. Please try again.',
-                    variant: 'destructive',
-                  })
-                  setDepositAddress('') // Clear address on error
-                } finally {
-                  setIsLoadingAddress(false)
-                }
               }}
               onConnectWalletClick={() => walletModal.setVisible(true)}
             />
@@ -502,16 +484,6 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
       <DepositModal
         open={showDepositModal}
         onOpenChange={setShowDepositModal}
-        depositAddress={depositAddress}
-        isLoadingAddress={isLoadingAddress}
-        onDepositDetected={(amount, signature) => {
-          console.log(`Deposit detected: ${amount} SOL, signature: ${signature}`)
-          // TODO: Backend will handle balance update via webhook
-          toast({
-            title: '🎉 Deposit Confirmed!',
-            description: `${amount} SOL has been added to your account`,
-          })
-        }}
       />
     </>
   )
