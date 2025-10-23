@@ -129,7 +129,7 @@ function TradeRoomContent() {
     <div className="flex flex-col h-screen bg-[var(--background)] overflow-hidden">
       {/* Header - Token Info */}
       <header className="border-b-4 border-[var(--outline-black)] bg-white p-3 sm:p-4 flex-shrink-0">
-        <div className="max-w-[2000px] mx-auto flex items-center justify-between gap-4">
+        <div className="w-full flex items-center justify-between gap-4">
           {/* Left: Back + Token Info */}
           <div className="flex items-center gap-3 min-w-0">
             <Button
@@ -211,7 +211,7 @@ function TradeRoomContent() {
       </header>
 
       {/* Main Content Area */}
-      <main className="flex flex-1 w-full overflow-hidden max-w-[2000px] mx-auto">
+      <main className="flex flex-1 w-full overflow-hidden">
         {/* MOBILE LAYOUT */}
         <div className="lg:hidden flex flex-col w-full overflow-y-auto">
           {/* Chart */}

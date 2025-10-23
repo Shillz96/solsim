@@ -135,7 +135,7 @@ export function LightweightChart({
     })
 
     // Candlestick series with Mario theme colors
-    const candlestickSeries = chart.addSeries('Candlestick' as any, {
+    const candlestickSeries = chart.addCandlestickSeries({
       upColor: '#43B047', // Luigi green
       downColor: '#E52521', // Mario red
       borderUpColor: '#1C1C1C',
@@ -148,10 +148,10 @@ export function LightweightChart({
       priceLineWidth: 2,
       priceLineColor: '#1C1C1C',
       priceLineStyle: LineStyle.Solid,
-    }) as ISeriesApi<'Candlestick'>
+    })
 
     // Volume histogram
-    const volumeSeries = chart.addSeries('Histogram' as any, {
+    const volumeSeries = chart.addHistogramSeries({
       color: '#A6D8FF', // Sky blue
       priceFormat: {
         type: 'volume',
@@ -159,7 +159,7 @@ export function LightweightChart({
       priceScaleId: '', // Create separate scale
       lastValueVisible: false,
       priceLineVisible: false,
-    }) as ISeriesApi<'Histogram'>
+    })
 
     // Configure volume scale to appear at bottom
     chart.priceScale('').applyOptions({
