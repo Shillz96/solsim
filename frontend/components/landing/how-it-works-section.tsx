@@ -85,10 +85,10 @@ export function HowItWorksSection() {
                 <div className="flex flex-col items-center text-center space-y-4">
                   {/* Step icon */}
                   <div className="relative">
-                    <div className={`h-20 w-20 rounded-lg ${iconColors[index]} border-4 border-[var(--outline-black)] flex items-center justify-center shadow-lg hover:scale-110 transition-transform`}>
+                    <div className={`h-20 w-20 rounded-lg ${iconColors[index]} border-4 border-[var(--outline-black)] flex items-center justify-center hover:scale-110 transition-all`} style={{ boxShadow: '6px 6px 0 var(--outline-black)' }}>
                       <Image src={step.iconSrc} alt="" width={40} height={40} className="object-contain" />
                     </div>
-                    <div className="absolute -top-2 -right-2 h-10 w-10 rounded-full bg-[var(--mario-red)] text-white border-3 border-[var(--outline-black)] flex items-center justify-center text-lg font-mario shadow-xl">
+                    <div className="absolute -top-2 -right-2 h-10 w-10 rounded-full bg-[var(--mario-red)] text-white border-3 border-[var(--outline-black)] flex items-center justify-center text-lg font-mario" style={{ boxShadow: '4px 4px 0 var(--outline-black)' }}>
                       {index + 1}
                     </div>
                   </div>
