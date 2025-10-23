@@ -2,6 +2,9 @@
 import { FastifyInstance } from "fastify";
 import { getTokenMeta, getTokenInfo } from "../services/tokenService.js";
 import { robustFetch } from "../utils/fetch.js";
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient();
 
 const DEX = process.env.DEXSCREENER_BASE || "https://api.dexscreener.com";
 const BIRDEYE = process.env.BIRDEYE_BASE || "https://public-api.birdeye.so";
@@ -16,7 +19,40 @@ export default async function searchRoutes(app: FastifyInstance) {
     }
     
     try {
-      const tokenInfo = await getTokenInfo(mint);
+      let tokenInfo = await getTokenInfo(mint);
+      
+      // If not found in main Token table, try Warp Pipes tokenDiscovery table
+      if (!tokenInfo) {
+        const warpPipesToken = await prisma.tokenDiscovery.findUnique({
+          where: { mint },
+        });
+
+        if (warpPipesToken) {
+          // Convert Warp Pipes token to expected format
+          tokenInfo = {
+            address: warpPipesToken.mint,
+            symbol: warpPipesToken.symbol || '',
+            name: warpPipesToken.name || '',
+            logoURI: warpPipesToken.logoURI || warpPipesToken.imageUrl,
+            website: warpPipesToken.website,
+            twitter: warpPipesToken.twitter,
+            telegram: warpPipesToken.telegram,
+            socials: null,
+            websites: null,
+            lastPrice: warpPipesToken.priceUsd ? warpPipesToken.priceUsd.toString() : null,
+            lastTs: warpPipesToken.lastUpdatedAt,
+            volume24h: warpPipesToken.volume24h ? parseFloat(warpPipesToken.volume24h.toString()) : null,
+            priceChange24h: warpPipesToken.priceChange24h ? parseFloat(warpPipesToken.priceChange24h.toString()) : null,
+            marketCapUsd: warpPipesToken.marketCapUsd ? parseFloat(warpPipesToken.marketCapUsd.toString()) : null,
+            liquidityUsd: warpPipesToken.liquidityUsd ? parseFloat(warpPipesToken.liquidityUsd.toString()) : null,
+            holderCount: null,
+            firstSeenAt: warpPipesToken.firstSeenAt,
+            isNew: warpPipesToken.state === 'new',
+            isTrending: false,
+            lastUpdated: warpPipesToken.lastUpdatedAt,
+          };
+        }
+      }
       
       if (!tokenInfo) {
         return reply.code(404).send({ error: "Token not found" });
