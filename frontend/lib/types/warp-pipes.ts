@@ -11,6 +11,11 @@
 export type TokenState = 'bonded' | 'graduating' | 'new';
 
 /**
+ * Token lifecycle status (more detailed than state)
+ */
+export type TokenStatus = 'LAUNCHING' | 'ACTIVE' | 'ABOUT_TO_BOND' | 'BONDED' | 'DEAD';
+
+/**
  * Pool type for migrated tokens
  */
 export type PoolType = 'pumpswap' | 'raydium' | 'meteora';
@@ -39,6 +44,7 @@ export interface TokenRow {
 
   // 3) TOKEN STATE
   state: TokenState;
+  status?: TokenStatus | null; // Lifecycle status
   previousState?: string | null;
   stateChangedAt?: string | null;
   firstSeenAt?: string | null;
@@ -56,6 +62,7 @@ export interface TokenRow {
   // 6) MARKET DATA
   marketCapUsd?: number | null;
   volume24h?: number | null;
+  volume24hSol?: number | null; // Volume in SOL terms
   volumeChange24h?: number | null;
   priceUsd?: number | null;
   priceChange24h?: number | null;
@@ -69,6 +76,7 @@ export interface TokenRow {
   bondingCurveProgress?: number | null;
   bondingCurveKey?: string | null;
   vSolInBondingCurve?: number | null;
+  solToGraduate?: number | null; // SOL needed to reach graduation
 
   // 8) POOL DATA
   poolAddress?: string | null;

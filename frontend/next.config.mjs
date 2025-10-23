@@ -1,9 +1,16 @@
 import withSerwistInit from '@serwist/next'
-import withBundleAnalyzer from '@next/bundle-analyzer'
 
-const bundleAnalyzer = withBundleAnalyzer({
-  enabled: process.env.ANALYZE === 'true',
-})
+// Make bundle analyzer optional - only load if explicitly analyzing
+let withBundleAnalyzer = (config) => config
+if (process.env.ANALYZE === 'true') {
+  try {
+    withBundleAnalyzer = (await import('@next/bundle-analyzer')).default({
+      enabled: true,
+    })
+  } catch (e) {
+    console.log('Bundle analyzer not available, skipping...')
+  }
+}
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -149,4 +156,4 @@ const withSerwist = withSerwistInit({
   ],
 })
 
-export default bundleAnalyzer(withSerwist(nextConfig))
+export default withBundleAnalyzer(withSerwist(nextConfig))

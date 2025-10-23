@@ -152,6 +152,20 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
 
               {/* Middle Row: Stats and Badges */}
               <div className="flex items-center gap-3 flex-wrap">
+                {/* Status Badge */}
+                {data.status && (
+                  <div className={cn(
+                    "px-2 py-0.5 rounded-[6px] border-2 text-[11px] font-bold uppercase",
+                    data.status === 'LAUNCHING' && "bg-sky-100 text-sky-700 border-sky-500",
+                    data.status === 'ACTIVE' && "bg-luigi-green-100 text-luigi-green-700 border-luigi-green-500",
+                    data.status === 'ABOUT_TO_BOND' && "bg-star-yellow-100 text-star-yellow-700 border-star-yellow-500",
+                    data.status === 'BONDED' && "bg-coin-yellow-100 text-coin-yellow-700 border-coin-yellow-500",
+                    data.status === 'DEAD' && "bg-mario-red-100 text-mario-red-700 border-mario-red-500"
+                  )}>
+                    {data.status === 'ABOUT_TO_BOND' ? '🔥 ABOUT TO BOND' : data.status}
+                  </div>
+                )}
+                
                 {/* Security Badge */}
                 <div className={cn(
                   "px-2 py-0.5 rounded-[6px] border-2 text-[11px] font-bold uppercase",
@@ -191,23 +205,26 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
               <div className="flex items-center gap-3 mt-1">
                 {/* Social Links */}
                 {(data.twitter || data.telegram || data.website) && (
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2.5">
                     {data.twitter && (
                       <a
                         href={data.twitter.startsWith('http') ? data.twitter : `https://twitter.com/${data.twitter}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="hover:opacity-70 transition-opacity"
+                        className="group relative hover:opacity-70 transition-opacity"
                         onClick={(e) => e.stopPropagation()}
                         title="Twitter/X"
                       >
                         <Image 
                           src="/icons/social/x-icon.svg" 
                           alt="X/Twitter" 
-                          width={16} 
-                          height={16}
+                          width={20} 
+                          height={20}
                           className="inline-block"
                         />
+                        <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 text-xs bg-black text-white rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">
+                          {data.twitter}
+                        </span>
                       </a>
                     )}
                     {data.telegram && (
@@ -215,17 +232,20 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
                         href={data.telegram.startsWith('http') ? data.telegram : `https://t.me/${data.telegram}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="hover:opacity-70 transition-opacity"
+                        className="group relative hover:opacity-70 transition-opacity"
                         onClick={(e) => e.stopPropagation()}
                         title="Telegram"
                       >
                         <Image 
                           src="/icons/social/telegram-icon.svg" 
                           alt="Telegram" 
-                          width={16} 
-                          height={16}
+                          width={20} 
+                          height={20}
                           className="inline-block"
                         />
+                        <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 text-xs bg-black text-white rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">
+                          {data.telegram}
+                        </span>
                       </a>
                     )}
                     {data.website && (
@@ -233,17 +253,20 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
                         href={data.website.startsWith('http') ? data.website : `https://${data.website}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="hover:opacity-70 transition-opacity"
+                        className="group relative hover:opacity-70 transition-opacity"
                         onClick={(e) => e.stopPropagation()}
                         title="Website"
                       >
                         <Image 
                           src="/icons/social/globe-icon.svg" 
                           alt="Website" 
-                          width={16} 
-                          height={16}
+                          width={20} 
+                          height={20}
                           className="inline-block"
                         />
+                        <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 text-xs bg-black text-white rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">
+                          {data.website}
+                        </span>
                       </a>
                     )}
                   </div>

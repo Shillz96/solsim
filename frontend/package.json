@@ -79,6 +79,7 @@
     "lightweight-charts": "^5.0.9",
     "lucide-react": "^0.454.0",
     "next": "15.1.3",
+    "@next/bundle-analyzer": "15.1.3",
     "next-themes": "latest",
     "onborda": "^1.2.5",
     "qrcode": "^1.5.4",
@@ -99,7 +100,6 @@
     "zod": "3.25.67"
   },
   "devDependencies": {
-    "@next/bundle-analyzer": "15.1.3",
     "@tailwindcss/postcss": "^4.1.9",
     "@testing-library/react": "^16.0.0",
     "@testing-library/user-event": "^14.0.0",
