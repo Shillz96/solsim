@@ -38,6 +38,21 @@ interface LightweightChartProps {
 
 type Timeframe = '1m' | '5m' | '15m' | '1h' | '4h' | '1d'
 
+/**
+ * Convert timeframe to seconds for candle alignment
+ */
+function getIntervalSeconds(timeframe: Timeframe): number {
+  const intervals: Record<Timeframe, number> = {
+    '1m': 60,
+    '5m': 300,
+    '15m': 900,
+    '1h': 3600,
+    '4h': 14400,
+    '1d': 86400,
+  }
+  return intervals[timeframe]
+}
+
 export function LightweightChart({
   tokenMint,
   tokenSymbol,
@@ -52,9 +67,10 @@ export function LightweightChart({
   const [isLoading, setIsLoading] = useState(true)
   const [dataSource, setDataSource] = useState<'birdeye' | 'mock' | null>(null)
 
-  // Get SOL price for average cost calculations
-  const { prices } = usePriceStreamContext()
+  // Get real-time price updates via WebSocket
+  const { prices, subscribe, unsubscribe } = usePriceStreamContext()
   const solPrice = prices.get('So11111111111111111111111111111111111111112')?.price || 208
+  const tokenPrice = prices.get(tokenMint)
 
   // Add trade markers (buy/sell arrows)
   useTradeMarkers(candlestickSeriesRef.current, tokenMint)
@@ -234,6 +250,42 @@ export function LightweightChart({
 
     fetchOHLCV()
   }, [tokenMint, timeframe])
+
+  // Subscribe to token price updates via WebSocket
+  useEffect(() => {
+    if (!tokenMint) return
+
+    console.log(`📡 Subscribing to real-time price updates for ${tokenMint}`)
+    subscribe(tokenMint)
+
+    return () => {
+      console.log(`📴 Unsubscribing from price updates for ${tokenMint}`)
+      unsubscribe(tokenMint)
+    }
+  }, [tokenMint, subscribe, unsubscribe])
+
+  // Update last candlestick when price changes (real-time updates)
+  useEffect(() => {
+    if (!candlestickSeriesRef.current || !tokenPrice) return
+
+    try {
+      // Get current time aligned to timeframe
+      const now = Math.floor(Date.now() / 1000)
+      const interval = getIntervalSeconds(timeframe)
+      const alignedTime = Math.floor(now / interval) * interval
+
+      // Update the last candlestick with new price
+      candlestickSeriesRef.current.update({
+        time: alignedTime as Time,
+        close: tokenPrice.price,
+        // We don't update open/high/low as those should be preserved from the candle
+      } as CandlestickData)
+
+      console.log(`📊 Updated chart with real-time price: $${tokenPrice.price.toFixed(8)}`)
+    } catch (error) {
+      console.error('Failed to update real-time price on chart:', error)
+    }
+  }, [tokenPrice, timeframe])
 
   const timeframes: Timeframe[] = ['1m', '5m', '15m', '1h', '4h', '1d']
 

@@ -60,17 +60,9 @@ export function SlidingTrendingTicker() {
   const duplicatedTokens = [...trendingTokens, ...trendingTokens, ...trendingTokens]
 
   return (
-    <div className="relative overflow-hidden bg-gradient-to-r from-[var(--brick-brown)] to-[var(--brick-brown)]/80 border-4 border-[var(--outline-black)] rounded-lg shadow-lg">
-      {/* Ticker Header */}
-      <div className="absolute top-0 left-0 z-10 px-4 py-2 bg-[var(--mario-red)] border-b-4 border-[var(--outline-black)]">
-        <div className="flex items-center gap-2">
-          <Flame className="h-4 w-4 text-[var(--star-yellow)] animate-pulse" />
-          <span className="mario-font text-white text-sm tracking-wider">HOT COINS</span>
-        </div>
-      </div>
-
+    <div className="sticky top-[72px] z-40 overflow-hidden bg-gradient-to-r from-[var(--brick-brown)] to-[var(--brick-brown)]/80 border-b-4 border-[var(--outline-black)] shadow-md">
       {/* Scrolling Container - Pause on Hover */}
-      <div className="group relative pt-12 pb-3">
+      <div className="group relative py-2">
         <div className="ticker-scroll-container">
           <div className="ticker-scroll group-hover:paused">
             {duplicatedTokens.map((token, index) => {
@@ -82,35 +74,35 @@ export function SlidingTrendingTicker() {
                 <button
                   key={`${token.mint}-${index}`}
                   onClick={() => handleTokenClick(token.mint)}
-                  className="ticker-item mario-badge flex-shrink-0 mx-2 px-4 py-2 bg-[var(--coin-gold)] border-3 border-[var(--outline-black)] rounded-full shadow-md hover:scale-110 hover:shadow-xl transition-all duration-200 active:scale-95 coin-bounce-hover"
+                  className="ticker-item mario-badge flex-shrink-0 mx-2 px-3 py-1.5 bg-[var(--coin-gold)] border-2 border-[var(--outline-black)] rounded-full shadow-md hover:scale-110 hover:shadow-xl transition-all duration-200 active:scale-95 coin-bounce-hover"
                 >
-                  <div className="flex items-center gap-3 whitespace-nowrap">
+                  <div className="flex items-center gap-2 whitespace-nowrap">
                     {/* Token Logo */}
                     <TokenLogo
                       src={token.logoURI || undefined}
                       alt={token.name || 'Token'}
                       mint={token.mint}
-                      className="w-8 h-8 flex-shrink-0 ring-2 ring-[var(--outline-black)]"
+                      className="w-6 h-6 flex-shrink-0 ring-2 ring-[var(--outline-black)]"
                     />
 
                     {/* Token Symbol */}
-                    <span className="mario-font text-[var(--outline-black)] text-base tracking-wide">
+                    <span className="mario-font text-[var(--outline-black)] text-sm tracking-wide">
                       {token.symbol || 'N/A'}
                     </span>
 
                     {/* Price */}
-                    <div className="flex flex-col items-end">
+                    <div className="flex items-center gap-2">
                       <AnimatedNumber
                         value={token.priceUsd}
                         prefix="$"
                         decimals={token.priceUsd < 0.001 ? 6 : 4}
-                        className="font-mono text-sm font-bold text-[var(--outline-black)]"
+                        className="font-mono text-xs font-bold text-[var(--outline-black)]"
                         formatLarge={false}
                       />
 
                       {/* Price Change with Icon */}
                       <div className={cn(
-                        "flex items-center gap-1 text-xs font-bold",
+                        "flex items-center gap-0.5 text-xs font-bold",
                         isPositive && "text-[var(--luigi-green)]",
                         isNegative && "text-[var(--mario-red)]"
                       )}>
