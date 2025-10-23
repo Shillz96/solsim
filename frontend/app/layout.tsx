@@ -6,7 +6,6 @@ import { Analytics } from "@vercel/analytics/react"
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import { NavBar } from "@/components/navigation/nav-bar"
 import { BottomNavBar } from "@/components/navigation/bottom-nav-bar"
-import { RealtimeTradeStrip } from "@/components/trading/realtime-trade-strip"
 import { SlidingTrendingTicker } from "@/components/trading/sliding-trending-ticker"
 import { AppProviders } from "@/components/providers"
 
@@ -84,12 +83,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <AppProviders>
           <div className="sticky top-0 z-50">
             <NavBar aria-label="Primary navigation" />
-            <RealtimeTradeStrip
-              className="w-full"
-              maxTrades={15}
-            />
+            <SlidingTrendingTicker />
           </div>
-          <SlidingTrendingTicker />
           <main
             className="min-h-screen"
             style={{

@@ -35,7 +35,7 @@ import {
   Twitter
 } from "lucide-react"
 import type { AdvancedFilters } from "@/lib/types/warp-pipes"
-import { exportFilters, importFilters } from "@/lib/warp-pipes-storage"
+import { importFilters } from "@/lib/warp-pipes-storage"
 
 interface FilterPanelProps {
   filters: AdvancedFilters
@@ -123,17 +123,31 @@ export function FilterPanel({
   }
 
   const handleExport = () => {
-    exportFilters(category, filters)
-    alert('Filters exported to clipboard')
+    try {
+      const exportData = JSON.stringify({
+        category,
+        filters,
+        exportedAt: new Date().toISOString(),
+        version: '1.0',
+      }, null, 2)
+
+      navigator.clipboard.writeText(exportData)
+      alert('Filters exported to clipboard')
+    } catch (error) {
+      alert('Failed to export filters')
+    }
   }
 
   const handleImport = async () => {
     try {
-      const imported = await importFilters()
+      const text = await navigator.clipboard.readText()
+      const imported = importFilters(text)
       if (imported) {
-        onFiltersChange(imported)
+        onFiltersChange(imported.filters)
         setImportError(null)
         alert('Filters imported successfully')
+      } else {
+        throw new Error('Invalid filter data')
       }
     } catch (error: any) {
       setImportError(error.message || 'Failed to import filters')
