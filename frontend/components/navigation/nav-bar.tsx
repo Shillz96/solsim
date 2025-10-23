@@ -455,9 +455,9 @@ export function NavBar() {
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <button
-                          className="flex items-center gap-3 px-4 py-1.5 rounded-lg bg-[var(--star-yellow)] border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all cursor-pointer group min-w-[200px]"
+                          className="flex items-center gap-3 pl-1.5 pr-4 py-1.5 rounded-lg bg-[var(--star-yellow)] border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all cursor-pointer group min-w-[200px]"
                         >
-                          {/* User Avatar - No Border */}
+                          {/* User Avatar - No Border, Positioned on Far Left */}
                           <Avatar className="h-10 w-10 rounded-full bg-[var(--mario-red)] flex-shrink-0 border-0">
                             <AvatarImage src={avatarUrl} alt={displayName} className="rounded-full object-cover" />
                             <AvatarFallback className="bg-[var(--mario-red)] text-white text-sm font-bold rounded-full border-0">
