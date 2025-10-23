@@ -97,8 +97,8 @@ async function fetchTokenMetadata(uri: string): Promise<{
  */
 async function handleSwap(event: SwapEvent): Promise<void> {
   try {
-    const { mint, timestamp } = event;
-    
+    const { mint, timestamp, txType, solAmount, tokenAmount, user } = event;
+
     // Update last trade timestamp in database
     await prisma.tokenDiscovery.updateMany({
       where: { mint },
@@ -107,14 +107,58 @@ async function handleSwap(event: SwapEvent): Promise<void> {
         lastUpdatedAt: new Date(),
       }
     });
-    
+
+    // Store trade in Redis for market data panel (keep last 50 trades per token)
+    const tradeData = {
+      type: txType,
+      solAmount,
+      tokenAmount,
+      user,
+      timestamp,
+    };
+
+    // Add to sorted set (score = timestamp)
+    await redis.zadd(
+      `market:trades:${mint}`,
+      timestamp,
+      JSON.stringify(tradeData)
+    );
+
+    // Keep only last 50 trades
+    await redis.zremrangebyrank(`market:trades:${mint}`, 0, -51);
+
+    // Expire after 1 hour
+    await redis.expire(`market:trades:${mint}`, 3600);
+
+    // Update trader stats for top traders leaderboard
+    if (user) {
+      const traderKey = `market:traders:${mint}`;
+      const existingData = await redis.hget(traderKey, user);
+      const traderStats = existingData ? JSON.parse(existingData) : {
+        buyVolume: 0,
+        sellVolume: 0,
+        trades: 0,
+      };
+
+      if (txType === 'buy') {
+        traderStats.buyVolume += solAmount || 0;
+      } else {
+        traderStats.sellVolume += solAmount || 0;
+      }
+      traderStats.trades += 1;
+      traderStats.pnl = traderStats.sellVolume - traderStats.buyVolume; // Simple PnL estimate
+
+      await redis.hset(traderKey, user, JSON.stringify(traderStats));
+      await redis.expire(traderKey, 86400); // 24 hours
+    }
+
     // Use timestamp as unique identifier (in real scenario, use signature)
     const txId = `${mint}-${timestamp}`;
-    
+
     if (!txCountMap.has(mint)) {
       txCountMap.set(mint, new Set());
     }
-    
+
     txCountMap.get(mint)!.add(txId);
   } catch (error) {
     console.error('[TokenDiscovery] Error handling swap event:', error);

@@ -33,6 +33,7 @@ import userProfileRoutes from "./routes/userProfile.js";
 import warpPipesRoutes from "./routes/warpPipes.js";
 import webhookRoutes from "./routes/webhooks.js";
 import chartRoutes from "./routes/chart.js";
+import marketRoutes from "./routes/market.js";
 
 // Import plugins and services
 import wsPlugin from "./plugins/ws.js";
@@ -240,6 +241,7 @@ app.register(notificationsRoutes, { prefix: "/api/notifications" });
 app.register(perpRoutes, { prefix: "/api/perp" }); // Perpetual trading routes
 app.register(chartRoutes, { prefix: "/api" }); // Chart data routes (OHLCV)
 app.register(realTradeRoutes, { prefix: "/api/real-trade" }); // Real mainnet trading routes (Lightning & Local API)
+app.register(marketRoutes, { prefix: "/api" }); // Market data routes (trades, traders, holders)
 app.register(userProfileRoutes, { prefix: "/api/user-profile" }); // User profile and trading mode management
 app.register(warpPipesRoutes, { prefix: "/api/warp-pipes" }); // Warp Pipes Hub token discovery
 app.register(webhookRoutes, { prefix: "/api/webhooks" }); // Webhook handlers for external services (Helius)
