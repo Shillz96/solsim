@@ -60,7 +60,7 @@ export function DexScreenerChart({
       {/* DexScreener iframe with optimized parameters */}
       <iframe
         ref={iframeRef}
-        src={`https://dexscreener.com/solana/${currentToken}?embed=1&theme=dark&trades=0&info=0&timezone=UTC`}
+        src={`https://dexscreener.com/solana/${currentToken}?embed=1&theme=light&trades=0&info=0&timezone=UTC`}
         className="h-full w-full block"
         style={{
           minHeight: "100%",

@@ -4,7 +4,7 @@
  * Trade Room Page - /room/[ca]
  *
  * Full-width trading page with:
- * - TradingView Lightweight Charts with trade markers
+ * - DexScreener embedded chart
  * - Enhanced Mario Trading Panel
  * - Live Chat Room (Coming Soon)
  * - Market Data Panels (Trades, Top Traders, Holders)
@@ -16,7 +16,6 @@
 
 import { useEffect, useState, Suspense, useRef } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import dynamicImport from 'next/dynamic'
 import { MarioTradingPanel } from '@/components/trading/mario-trading-panel'
 import { useAuth } from '@/hooks/use-auth'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
@@ -26,30 +25,12 @@ import { useToast } from '@/hooks/use-toast'
 import { usePortfolio, usePosition } from '@/hooks/use-portfolio'
 import { usePriceStreamContext } from '@/lib/price-stream-provider'
 import { formatTokenQuantity, formatUSD, formatNumber } from '@/lib/format'
-import { ErrorBoundary } from '@/components/error-boundary'
-import { ChartFallback } from '@/components/trading/chart-fallback'
 import { MarketDataPanels } from '@/components/trading/market-data-panels'
 import { ChatRoom } from '@/components/chat/chat-room'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { cn } from '@/lib/utils'
-import Image from 'next/image'
-import { motion, AnimatePresence } from 'framer-motion'
-
-// Dynamically import chart to prevent SSR issues
-const LightweightChart = dynamicImport(
-  () => import('@/components/trading/lightweight-chart').then(
-    (mod) => ({
-      default: mod.default || mod.LightweightChart || (() => <ChartFallback error={true} />)
-    })
-  ).catch(() => ({
-    default: () => <ChartFallback error={true} />
-  })),
-  {
-    ssr: false,
-    loading: () => <ChartFallback />,
-  }
-)
+import { DexScreenerChart } from '@/components/trading/dexscreener-chart'
 
 function TradeRoomContent() {
   const params = useParams()
@@ -307,15 +288,8 @@ function TradeRoomContent() {
         <div className="md:hidden flex flex-col w-full overflow-y-auto">
           {/* Chart */}
           <div className="p-3">
-            <div className="min-h-[400px]">
-              <ErrorBoundary fallback={<ChartFallback tokenSymbol={tokenDetails.symbol || undefined} error={true} />}>
-                <LightweightChart
-                  key={`chart-mobile-${ca}`}
-                  tokenMint={ca}
-                  tokenSymbol={tokenDetails.symbol || 'TOKEN'}
-                  className="w-full"
-                />
-              </ErrorBoundary>
+            <div className="min-h-[400px] h-[400px]">
+              <DexScreenerChart tokenAddress={ca} />
             </div>
           </div>
 
@@ -356,15 +330,8 @@ function TradeRoomContent() {
           <section className="flex-1 flex flex-col bg-[var(--background)] overflow-y-auto">
             {/* Chart Area */}
             <div className="p-4">
-              <div className="min-h-[400px]">
-                <ErrorBoundary fallback={<ChartFallback tokenSymbol={tokenDetails.symbol || undefined} error={true} />}>
-                  <LightweightChart
-                    key={`chart-tablet-${ca}`}
-                    tokenMint={ca}
-                    tokenSymbol={tokenDetails.symbol || 'TOKEN'}
-                    className="w-full"
-                  />
-                </ErrorBoundary>
+              <div className="min-h-[400px] h-[400px]">
+                <DexScreenerChart tokenAddress={ca} />
               </div>
             </div>
 
@@ -391,15 +358,8 @@ function TradeRoomContent() {
           <section className="flex-1 flex flex-col bg-[var(--background)] overflow-y-auto">
             {/* Chart Area */}
             <div className="p-4">
-              <div className="min-h-[400px] lg:min-h-[600px]">
-                <ErrorBoundary fallback={<ChartFallback tokenSymbol={tokenDetails.symbol || undefined} error={true} />}>
-                  <LightweightChart
-                    key={`chart-desktop-${ca}`}
-                    tokenMint={ca}
-                    tokenSymbol={tokenDetails.symbol || 'TOKEN'}
-                    className="w-full"
-                  />
-                </ErrorBoundary>
+              <div className="min-h-[600px] h-[600px]">
+                <DexScreenerChart tokenAddress={ca} />
               </div>
             </div>
 
