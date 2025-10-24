@@ -271,8 +271,9 @@ class PumpPortalStreamService extends EventEmitter {
         }
       }
       // Also check for any other message types for debugging
-      else if (process.env.NODE_ENV !== 'production') {
-        console.log('[PumpPortal] Unknown message type:', message.txType || message.type, 'mint:', message.mint);
+      else {
+        // TEMPORARY: Log all messages to debug trade issue
+        console.log('[PumpPortal] Unknown message:', JSON.stringify(message).substring(0, 200));
       }
     } catch (error) {
       console.error('[PumpPortal] Error parsing message:', error);
