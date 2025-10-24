@@ -288,3 +288,193 @@ function HoldersPanel({ tokenMint }: { tokenMint: string }) {
     </div>
   )
 }
+
+// Bubble Maps Panel
+function BubbleMapsPanel({ tokenMint }: { tokenMint: string }) {
+  const { data: isAvailable, isLoading } = useQuery({
+    queryKey: ['bubblemap-availability', tokenMint],
+    queryFn: () => api.checkBubbleMapAvailability(tokenMint),
+    staleTime: 300000, // 5 minutes
+  })
+
+  const [iframeLoaded, setIframeLoaded] = useState(false)
+
+  return (
+    <div className="border-4 border-[var(--outline-black)] rounded-[16px] shadow-[4px_4px_0_var(--outline-black)] bg-white overflow-hidden min-h-[400px] relative">
+      {isLoading ? (
+        <div className="flex items-center justify-center h-[400px]">
+          <div className="text-center">
+            <Loader2 className="h-8 w-8 animate-spin mx-auto mb-3 text-[var(--luigi-green)]" />
+            <p className="text-sm font-bold">Checking Bubble Map availability...</p>
+          </div>
+        </div>
+      ) : !isAvailable ? (
+        <div className="flex items-center justify-center h-[400px] p-6">
+          <div className="text-center max-w-md">
+            <Network className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+            <h3 className="font-bold text-lg mb-2">Bubble Map Not Available</h3>
+            <p className="text-sm text-muted-foreground mb-4">
+              This token doesn't have a Bubble Map visualization yet. Maps are created as tokens gain traction and holder activity.
+            </p>
+            <p className="text-xs text-muted-foreground">
+              Check back later or view the Holders tab for distribution data.
+            </p>
+          </div>
+        </div>
+      ) : (
+        <>
+          {!iframeLoaded && (
+            <div className="absolute inset-0 flex items-center justify-center bg-white z-10">
+              <div className="text-center">
+                <Loader2 className="h-8 w-8 animate-spin mx-auto mb-3 text-[var(--luigi-green)]" />
+                <p className="text-sm font-bold">Loading Bubble Map...</p>
+              </div>
+            </div>
+          )}
+          <iframe
+            src={`https://app.bubblemaps.io/sol/token/${tokenMint}?small_text&hide_context&prevent_scroll_zoom`}
+            className="w-full h-[400px] sm:h-[500px] md:h-[600px] border-0"
+            title={`Bubble Map for ${tokenMint}`}
+            onLoad={() => setIframeLoaded(true)}
+            sandbox="allow-scripts allow-same-origin"
+          />
+        </>
+      )}
+    </div>
+  )
+}
+
+// User Positions Panel
+function UserPositionsPanel() {
+  const { isAuthenticated, user } = useAuth()
+  const { data: portfolio, isLoading } = usePortfolio()
+  const router = useRouter()
+
+  if (!isAuthenticated) {
+    return (
+      <div className="border-4 border-[var(--outline-black)] rounded-[16px] shadow-[4px_4px_0_var(--outline-black)] bg-white p-6 min-h-[300px] flex items-center justify-center">
+        <div className="text-center max-w-md">
+          <Wallet className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+          <h3 className="font-bold text-lg mb-2">Login Required</h3>
+          <p className="text-sm text-muted-foreground mb-4">
+            Sign in to view your portfolio positions across all tokens
+          </p>
+          <button
+            onClick={() => router.push('/login')}
+            className="px-4 py-2 bg-[var(--mario-red)] text-white font-bold rounded-lg border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-[1px] transition-all"
+          >
+            Sign In
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  if (isLoading) {
+    return (
+      <div className="border-4 border-[var(--outline-black)] rounded-[16px] shadow-[4px_4px_0_var(--outline-black)] bg-white p-6 min-h-[300px] flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-3 text-[var(--luigi-green)]" />
+          <p className="text-sm font-bold">Loading your positions...</p>
+        </div>
+      </div>
+    )
+  }
+
+  const positions = portfolio?.positions || []
+
+  if (positions.length === 0) {
+    return (
+      <div className="border-4 border-[var(--outline-black)] rounded-[16px] shadow-[4px_4px_0_var(--outline-black)] bg-white p-6 min-h-[300px] flex items-center justify-center">
+        <div className="text-center max-w-md">
+          <Wallet className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+          <h3 className="font-bold text-lg mb-2">No Positions Yet</h3>
+          <p className="text-sm text-muted-foreground">
+            You don't have any open positions. Start trading to build your portfolio!
+          </p>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="border-4 border-[var(--outline-black)] rounded-[16px] shadow-[4px_4px_0_var(--outline-black)] bg-white p-4 min-h-[200px]">
+      <div className="flex items-center gap-2 mb-4">
+        <Wallet className="h-4 w-4 text-[var(--mario-red)]" />
+        <h3 className="font-bold text-sm">Your Portfolio</h3>
+        <span className="text-xs text-muted-foreground">({positions.length} positions)</span>
+      </div>
+
+      <div className="space-y-2 max-h-[400px] overflow-y-auto">
+        {positions.map((position) => (
+          <button
+            key={position.mint}
+            onClick={() => router.push(`/room/${position.mint}`)}
+            className="w-full p-3 bg-white border-2 border-[var(--outline-black)] rounded-lg shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-[1px] transition-all text-left"
+          >
+            <div className="flex items-center gap-3">
+              {/* Token Image */}
+              {position.tokenImage ? (
+                <img
+                  src={position.tokenImage}
+                  alt={position.tokenSymbol || 'Token'}
+                  className="w-10 h-10 rounded-full border-2 border-[var(--outline-black)] shrink-0"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).style.display = 'none'
+                  }}
+                />
+              ) : (
+                <div className="w-10 h-10 rounded-full border-2 border-[var(--outline-black)] bg-[var(--pipe-100)] flex items-center justify-center shrink-0">
+                  <span className="text-xs font-bold">
+                    {position.tokenSymbol?.slice(0, 2) || '??'}
+                  </span>
+                </div>
+              )}
+
+              {/* Token Info & Stats */}
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="font-bold text-sm truncate">
+                    {position.tokenSymbol || position.mint.slice(0, 8)}
+                  </span>
+                  {position.priceChange24h && (
+                    <span className={cn(
+                      "text-xs font-bold flex items-center gap-0.5",
+                      parseFloat(position.priceChange24h) >= 0 ? "text-[var(--luigi-green)]" : "text-[var(--mario-red)]"
+                    )}>
+                      {parseFloat(position.priceChange24h) >= 0 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
+                      {parseFloat(position.priceChange24h).toFixed(2)}%
+                    </span>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                  <div>
+                    <span className="text-muted-foreground">Holdings:</span>
+                    <div className="font-bold">{formatTokenQuantity(position.qty)}</div>
+                    <div className="text-muted-foreground">{formatUSD(parseFloat(position.valueUsd))}</div>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-muted-foreground">P&L:</span>
+                    <div className={cn(
+                      "font-bold",
+                      parseFloat(position.unrealizedUsd) >= 0 ? "text-[var(--luigi-green)]" : "text-[var(--mario-red)]"
+                    )}>
+                      {parseFloat(position.unrealizedUsd) >= 0 ? '+' : ''}{formatUSD(parseFloat(position.unrealizedUsd))}
+                    </div>
+                    <div className={cn(
+                      "text-muted-foreground",
+                      parseFloat(position.unrealizedPercent) >= 0 ? "text-[var(--luigi-green)]" : "text-[var(--mario-red)]"
+                    )}>
+                      ({parseFloat(position.unrealizedPercent) >= 0 ? '+' : ''}{parseFloat(position.unrealizedPercent).toFixed(2)}%)
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </button>
+        ))}
+      </div>
+    </div>
+  )
+}
