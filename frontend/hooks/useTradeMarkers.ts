@@ -39,8 +39,10 @@ export function useTradeMarkers(
     queryFn: async () => {
       if (!userId) return null
 
+      // Use backend API URL instead of relative path
+      const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
       const response = await fetch(
-        `/api/trades/user/${userId}/token/${tokenMint}`
+        `${API}/api/trades/user/${userId}/token/${tokenMint}`
       )
 
       if (!response.ok) {

@@ -47,6 +47,21 @@ export interface SwapEvent {
   timestamp: number;
 }
 
+export interface AccountTradeEvent {
+  type: 'accountTrade';
+  wallet: string;        // The tracked wallet address
+  mint: string;          // Token being traded
+  txType: 'buy' | 'sell';
+  solAmount?: number;
+  tokenAmount?: number;
+  signature?: string;    // Transaction signature
+  timestamp: number;
+  // Token metadata (if available from PumpPortal)
+  tokenSymbol?: string;
+  tokenName?: string;
+  tokenUri?: string;
+}
+
 export interface MigrationEvent {
   type: 'migration';
   mint: string;
@@ -58,7 +73,7 @@ export interface MigrationEvent {
   timestamp: number;
 }
 
-export type PumpPortalEvent = NewTokenEvent | MigrationEvent | SwapEvent;
+export type PumpPortalEvent = NewTokenEvent | MigrationEvent | SwapEvent | AccountTradeEvent;
 
 class PumpPortalStreamService extends EventEmitter {
   private ws: WebSocket | null = null;
@@ -72,6 +87,7 @@ class PumpPortalStreamService extends EventEmitter {
   private pingInterval: NodeJS.Timeout | null = null;
   private pongTimeout: NodeJS.Timeout | null = null;
   private subscribedTokens: Set<string> = new Set(); // Track subscribed token mints
+  private subscribedWallets: Set<string> = new Set(); // Track subscribed wallet addresses
 
   constructor() {
     super();
@@ -211,6 +227,78 @@ class PumpPortalStreamService extends EventEmitter {
   }
 
   /**
+   * Subscribe to trades for specific wallet addresses (real-time wallet tracking)
+   * @param walletAddresses Array of wallet addresses to track
+   */
+  subscribeToWallets(walletAddresses: string[]): void {
+    if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
+      console.warn('[PumpPortal] Cannot subscribe to wallets: WebSocket not open');
+      return;
+    }
+
+    // Filter out already subscribed wallets
+    const newWallets = walletAddresses.filter(addr => !this.subscribedWallets.has(addr));
+
+    if (newWallets.length === 0) {
+      return; // All wallets already subscribed
+    }
+
+    // Subscribe to trades for these wallets using PumpPortal's subscribeAccountTrade
+    const accountTradeSub = {
+      method: 'subscribeAccountTrade',
+      keys: newWallets,
+    };
+
+    console.log(`[PumpPortal] Subscribing to ${newWallets.length} wallets for trade tracking`);
+    this.ws.send(JSON.stringify(accountTradeSub));
+
+    // Track subscribed wallets
+    newWallets.forEach(addr => this.subscribedWallets.add(addr));
+  }
+
+  /**
+   * Unsubscribe from wallet trade tracking
+   * @param walletAddresses Array of wallet addresses to stop tracking
+   */
+  unsubscribeFromWallets(walletAddresses: string[]): void {
+    if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
+      console.warn('[PumpPortal] Cannot unsubscribe from wallets: WebSocket not open');
+      return;
+    }
+
+    const walletsToRemove = walletAddresses.filter(addr => this.subscribedWallets.has(addr));
+
+    if (walletsToRemove.length === 0) {
+      return;
+    }
+
+    const accountTradeUnsub = {
+      method: 'unsubscribeAccountTrade',
+      keys: walletsToRemove,
+    };
+
+    console.log(`[PumpPortal] Unsubscribing from ${walletsToRemove.length} wallets`);
+    this.ws.send(JSON.stringify(accountTradeUnsub));
+
+    // Remove from tracked set
+    walletsToRemove.forEach(addr => this.subscribedWallets.delete(addr));
+  }
+
+  /**
+   * Get count of currently tracked wallets
+   */
+  getSubscribedWalletCount(): number {
+    return this.subscribedWallets.size;
+  }
+
+  /**
+   * Get list of subscribed wallet addresses
+   */
+  getSubscribedWallets(): string[] {
+    return Array.from(this.subscribedWallets);
+  }
+
+  /**
    * Handle incoming WebSocket messages
    */
   private onMessage(data: WebSocket.Data): void {
@@ -299,6 +387,27 @@ class PumpPortalStreamService extends EventEmitter {
         // Only emit if we have a mint address
         if (event.mint) {
           this.emit('swap', event);
+          
+          // If this trade was made by a tracked wallet, also emit as accountTrade
+          const trader = message.user || message.traderPublicKey;
+          if (trader && this.subscribedWallets.has(trader)) {
+            const accountTradeEvent: AccountTradeEvent = {
+              type: 'accountTrade',
+              wallet: trader,
+              mint: message.mint,
+              txType: message.txType || 'buy',
+              solAmount: message.solAmount || message.sol,
+              tokenAmount: message.tokenAmount || message.tokens,
+              signature: message.signature || message.txId,
+              timestamp: message.timestamp || Date.now(),
+              tokenSymbol: message.symbol || message.tokenSymbol,
+              tokenName: message.name || message.tokenName,
+              tokenUri: message.uri || message.image,
+            };
+            
+            console.log(`[PumpPortal] Wallet trade: ${trader.slice(0, 8)}... ${accountTradeEvent.txType} ${accountTradeEvent.tokenSymbol || accountTradeEvent.mint.slice(0, 8)}`);
+            this.emit('accountTrade', accountTradeEvent);
+          }
         }
       }
       // Also check for any other message types for debugging

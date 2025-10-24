@@ -1,6 +1,28 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import type { WalletActivity } from '@/components/wallet-tracker/types'
 
+// Helper function for time ago
+function getTimeAgo(date: Date): string {
+  const seconds = Math.floor((Date.now() - date.getTime()) / 1000)
+  
+  if (seconds < 60) return `${seconds}s ago`
+  const minutes = Math.floor(seconds / 60)
+  if (minutes < 60) return `${minutes}m ago`
+  const hours = Math.floor(minutes / 60)
+  if (hours < 24) return `${hours}h ago`
+  const days = Math.floor(hours / 24)
+  return `${days}d ago`
+}
+
+/**
+ * WebSocket hook for real-time wallet tracking with PumpPortal
+ * 
+ * Features:
+ * - Real-time trade notifications
+ * - Auto-reconnection with exponential backoff
+ * - Ping/pong keepalive
+ * - Subscription management
+ */
 export function useWalletTrackerWebSocket(userId: string) {
   const [connected, setConnected] = useState(false)
   const [newActivities, setNewActivities] = useState<WalletActivity[]>([])
@@ -41,6 +63,44 @@ export function useWalletTrackerWebSocket(userId: string) {
         const data = JSON.parse(event.data)
 
         switch (data.type) {
+          case 'walletTrade':
+          case 'wallet:trade':
+            // Real-time trade from PumpPortal
+            const trade = data.trade || data
+            const activity: WalletActivity = {
+              id: trade.signature || `${trade.wallet}-${trade.timestamp}`,
+              walletAddress: trade.wallet,
+              signature: trade.signature,
+              type: trade.type,
+              tokenIn: trade.type === 'BUY' ? {
+                mint: 'So11111111111111111111111111111111111111112',
+                symbol: 'SOL',
+                amount: trade.solAmount?.toString(),
+              } : {
+                mint: trade.tokenMint,
+                symbol: trade.tokenSymbol,
+                amount: trade.tokenAmount,
+                logoURI: trade.tokenLogoURI
+              },
+              tokenOut: trade.type === 'BUY' ? {
+                mint: trade.tokenMint,
+                symbol: trade.tokenSymbol,
+                amount: trade.tokenAmount,
+                logoURI: trade.tokenLogoURI
+              } : {
+                mint: 'So11111111111111111111111111111111111111112',
+                symbol: 'SOL',
+                amount: trade.solAmount?.toString(),
+              },
+              priceUsd: trade.priceUsd?.toString(),
+              solAmount: trade.solAmount?.toString(),
+              program: 'PumpPortal',
+              marketCap: trade.marketCapUsd?.toString(),
+              timestamp: new Date(trade.timestamp).toISOString(),
+              timeAgo: getTimeAgo(new Date(trade.timestamp))
+            }
+            setNewActivities([activity])
+            break
           case 'new_activities':
             setNewActivities(data.activities)
             break

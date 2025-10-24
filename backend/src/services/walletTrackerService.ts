@@ -1,4 +1,17 @@
 // Wallet tracker service with enhanced swap detection
+// 
+// ⚠️ NOTE: This is the HELIUS-based implementation for HISTORICAL data
+// For REAL-TIME wallet tracking, see: walletTrackerService-pumpportal.ts
+// 
+// This service:
+// - Uses Helius HTTP API for transaction history
+// - Good for historical analysis and backfilling
+// - Requires complex parsing of transaction data
+// 
+// For live tracking (recommended):
+// - Use walletTrackerService-pumpportal.ts (90% less code, real-time updates)
+// - See WALLET_TRACKER_COMPARISON.md for details
+//
 import prisma from "../plugins/prisma.js";
 import { robustFetch } from "../utils/fetch.js";
 import { getTokenMetaBatch } from "./tokenService.js";

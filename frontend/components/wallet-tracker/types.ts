@@ -1,7 +1,7 @@
 export interface WalletActivity {
   id: string
   walletAddress: string
-  signature: string
+  signature?: string
   type: 'BUY' | 'SELL' | 'SWAP'
   tokenIn: {
     mint?: string
@@ -24,4 +24,24 @@ export interface WalletActivity {
   priceChange24h?: string
   timestamp: string
   timeAgo: string
+}
+
+export interface TrackedWallet {
+  id: string
+  userId: string
+  walletAddress: string
+  label?: string
+  isActive: boolean
+  createdAt: string
+}
+
+export interface WalletTrackerSettings {
+  showBuys: boolean
+  showSells: boolean
+  showFirstBuyOnly: boolean
+  minMarketCap?: number
+  maxMarketCap?: number
+  minTransactionUsd?: number
+  maxTransactionUsd?: number
+  requireImages: boolean
 }

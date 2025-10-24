@@ -237,8 +237,10 @@ export function LightweightChart({
       try {
         console.log(`📥 Fetching ${timeframe} OHLCV for ${tokenMint}`)
 
+        // Use backend API URL instead of relative path
+        const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
         const response = await fetch(
-          `/api/chart/ohlcv?mint=${tokenMint}&type=${timeframe}&limit=500`
+          `${API}/api/chart/ohlcv?mint=${tokenMint}&type=${timeframe}&limit=500`
         )
 
         if (!response.ok) {

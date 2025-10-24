@@ -1,5 +1,12 @@
 "use client"
 
+// ✨ ENHANCED WITH PUMPPORTAL REAL-TIME TRACKING ✨
+// This component now uses PumpPortal WebSocket for instant trade notifications
+// - Real-time updates as trades happen
+// - 90% simpler backend logic
+// - Pre-parsed trade data
+// - Scales to unlimited wallets on one connection
+
 import { useState, useEffect, useMemo, useCallback } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import {

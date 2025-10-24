@@ -21,6 +21,7 @@ import walletRoutes from "./routes/wallet.js";
 import walletTrackerRoutes from "./routes/walletTracker.js";
 import walletTrackerV2Routes from "./routes/walletTrackerV2.js";
 import walletTrackerSettingsRoutes from "./routes/walletTrackerSettings.js";
+import walletTrackerPumpPortalRoutes, { initializeWalletTracker } from "./routes/walletTrackerExample.js";
 import searchRoutes from "./routes/search.js";
 import debugRoutes from "./routes/debug.js";
 import adminRoutes from "./routes/admin.js";
@@ -235,6 +236,7 @@ app.register(walletRoutes, { prefix: "/api/wallet" });
 app.register(walletTrackerRoutes, { prefix: "/api/wallet-tracker" });
 app.register(walletTrackerV2Routes, { prefix: "/api/wallet-tracker/v2" });
 app.register(walletTrackerSettingsRoutes, { prefix: "/api/wallet-tracker" });
+app.register(walletTrackerPumpPortalRoutes, { prefix: "/api" }); // PumpPortal real-time wallet tracking
 app.register(searchRoutes, { prefix: "/api/search" });
 app.register(purchaseRoutes, { prefix: "/api/purchase" });
 app.register(notificationsRoutes, { prefix: "/api/notifications" });
@@ -258,6 +260,16 @@ RateLimitCleanupService.start();
 
 // Start WS price streamer (Birdeye) + warm SOL price
 await priceService.start();
+
+// Initialize PumpPortal wallet tracker (waits for PumpPortal connection)
+console.log("🔌 Initializing PumpPortal wallet tracker...");
+try {
+  await initializeWalletTracker();
+  console.log("✅ PumpPortal wallet tracker initialized");
+} catch (error) {
+  console.error("❌ Failed to initialize wallet tracker:", error);
+  // Non-fatal - continue startup
+}
 
 // Start liquidation engine for perpetual trading
 await liquidationEngine.startLiquidationEngine();
