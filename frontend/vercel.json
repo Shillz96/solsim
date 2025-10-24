@@ -3,7 +3,7 @@
   "outputDirectory": ".next",
   "framework": "nextjs",
   "regions": ["sfo1"],
-  "installCommand": "cd .. && npm install && cd frontend",
+  "installCommand": "npm install --prefix ..",
   "functions": {
     "app/**/*": {
       "maxDuration": 10
