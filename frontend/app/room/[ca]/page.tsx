@@ -98,6 +98,9 @@ function TradeRoomContent() {
   const currentPriceData = livePrices.get(ca)
   const priceLastUpdated = currentPriceData?.timestamp || Date.now()
 
+  // Calculate current price (needs to be declared early for useEffect dependencies)
+  const currentPrice = livePrices.get(ca)?.price || parseFloat(tokenDetails.lastPrice || '0')
+
   // Track price changes for loading animation
   const prevPriceRef = useRef(currentPrice)
   useEffect(() => {
@@ -172,7 +175,6 @@ function TradeRoomContent() {
     )
   }
 
-  const currentPrice = livePrices.get(ca)?.price || parseFloat(tokenDetails.lastPrice || '0')
   const priceChange24h = parseFloat(tokenDetails.priceChange24h || '0')
   const volume24h = parseFloat(tokenDetails.volume24h || '0')
   const marketCap = parseFloat(tokenDetails.marketCapUsd || '0')
@@ -233,9 +235,9 @@ function TradeRoomContent() {
                 Updated {formatTimeAgo(priceLastUpdated)}
               </div>
               {/* Position Indicator */}
-              {tokenHolding && tokenHolding.totalQuantity > 0 && (
+              {tokenHolding && parseFloat(tokenHolding.qty) > 0 && (
                 <div className="text-xs text-[var(--mario-red)] font-bold mt-1">
-                  Holding: {formatTokenQuantity(tokenHolding.totalQuantity)}
+                  Holding: {formatTokenQuantity(tokenHolding.qty)}
                 </div>
               )}
             </div>

@@ -204,11 +204,12 @@ function usePriceStream(options: {
       let ws: WebSocket
 
       try {
-        // Create WebSocket without protocol specification to avoid server compatibility issues
-        ws = new WebSocket(env.NEXT_PUBLIC_WS_URL)
+        // Create WebSocket - append /ws/prices path to base WS URL
+        const wsUrl = `${env.NEXT_PUBLIC_WS_URL}/ws/prices`
+        ws = new WebSocket(wsUrl)
         wsRef.current = ws
 
-        console.log(`🔍 WebSocket created, readyState: ${ws.readyState} (CONNECTING: 0, OPEN: 1, CLOSING: 2, CLOSED: 3)`)
+        console.log(`🔍 WebSocket created for ${wsUrl}, readyState: ${ws.readyState} (CONNECTING: 0, OPEN: 1, CLOSING: 2, CLOSED: 3)`)
       } catch (createError) {
         console.error('❌ Failed to create WebSocket:', createError)
         throw createError

@@ -2,21 +2,261 @@
 
 import dynamic from 'next/dynamic';
 import { useWindowManager } from './WindowManager';
-import { useCallback, useState } from 'react';
+import type { WinState } from './WindowManager';
+import { useCallback, useState, Component, ReactNode, useEffect } from 'react';
 
 // react-rnd exports a named Rnd; dynamic import to avoid SSR issues
-const Rnd = dynamic(async () => (await import('react-rnd')).Rnd, { ssr: false });
+const Rnd = dynamic(async () => {
+  try {
+    const module = await import('react-rnd');
+    return module.Rnd;
+  } catch (error) {
+    console.error('Failed to load react-rnd:', error);
+    // Return a no-op component
+    return ({ children }: any) => <div className="select-none">{children}</div>;
+  }
+}, {
+  ssr: false,
+  loading: ({ children }: any) => <div className="select-none">{children}</div> // Fallback during loading
+});
+
+class FloatingWindowsErrorBoundary extends Component<
+  { children: ReactNode },
+  { hasError: boolean; error?: Error }
+> {
+  constructor(props: { children: ReactNode }) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error: Error, errorInfo: any) {
+    console.error('FloatingWindows error:', error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="fixed inset-0 bg-red-100 border-4 border-red-500 rounded-lg m-4 p-4 z-50">
+          <h3 className="font-['Press_Start_2P',_monospace] text-red-800 text-sm mb-2">
+            Window System Error
+          </h3>
+          <p className="text-red-700 text-xs mb-4">
+            The floating window system encountered an error and couldn't load.
+          </p>
+          <button
+            onClick={() => this.setState({ hasError: false })}
+            className="px-3 py-1 bg-red-600 text-white rounded border-2 border-red-700 text-xs"
+          >
+            Retry
+          </button>
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
+}
 
 export default function FloatingWindows() {
   const { windows, bringToFront, updateBounds, closeWindow } = useWindowManager();
   const [draggingId, setDraggingId] = useState<string | null>(null);
+  const [focusedId, setFocusedId] = useState<string | null>(null);
+  const [viewportSize, setViewportSize] = useState({ width: 0, height: 0 });
+
+  // Update viewport size
+  useEffect(() => {
+    const updateViewport = () => {
+      setViewportSize({ width: window.innerWidth, height: window.innerHeight });
+    };
+
+    updateViewport();
+    window.addEventListener('resize', updateViewport);
+    return () => window.removeEventListener('resize', updateViewport);
+  }, []);
+
+  // Keyboard controls for focused window
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!focusedId) return;
+
+      const window = windows.find(w => w.id === focusedId);
+      if (!window) return;
+
+      const moveStep = e.shiftKey ? 10 : 1; // Larger steps with Shift
+      const resizeStep = e.shiftKey ? 20 : 5;
+
+      let newBounds = { ...window };
+
+      switch (e.key) {
+        case 'ArrowUp':
+          if (e.ctrlKey || e.metaKey) {
+            // Resize up
+            newBounds.height = Math.max(240, window.height - resizeStep);
+            newBounds.y = window.y + (window.height - newBounds.height);
+          } else {
+            // Move up
+            newBounds.y = Math.max(0, window.y - moveStep);
+          }
+          e.preventDefault();
+          break;
+        case 'ArrowDown':
+          if (e.ctrlKey || e.metaKey) {
+            // Resize down
+            newBounds.height = Math.min(viewportSize.height - 40, window.height + resizeStep);
+          } else {
+            // Move down
+            newBounds.y = Math.min(viewportSize.height - window.height - 20, window.y + moveStep);
+          }
+          e.preventDefault();
+          break;
+        case 'ArrowLeft':
+          if (e.ctrlKey || e.metaKey) {
+            // Resize left
+            newBounds.width = Math.max(320, window.width - resizeStep);
+            newBounds.x = window.x + (window.width - newBounds.width);
+          } else {
+            // Move left
+            newBounds.x = Math.max(0, window.x - moveStep);
+          }
+          e.preventDefault();
+          break;
+        case 'ArrowRight':
+          if (e.ctrlKey || e.metaKey) {
+            // Resize right
+            newBounds.width = Math.min(viewportSize.width - 40, window.width + resizeStep);
+          } else {
+            // Move right
+            newBounds.x = Math.min(viewportSize.width - window.width - 20, window.x + moveStep);
+          }
+          e.preventDefault();
+          break;
+        case 'Enter':
+        case ' ':
+          // Bring to front on Enter/Space
+          bringToFront(focusedId);
+          e.preventDefault();
+          break;
+        case 'Delete':
+        case 'Backspace':
+          // Close window
+          closeWindow(focusedId);
+          setFocusedId(null);
+          e.preventDefault();
+          break;
+      }
+
+      if (newBounds !== window) {
+        const constrained = constrainPosition(newBounds.x, newBounds.y, newBounds.width, newBounds.height);
+        const constrainedDims = constrainDimensions(newBounds.width, newBounds.height);
+        updateBounds(focusedId, {
+          x: constrained.x,
+          y: constrained.y,
+          width: constrainedDims.width,
+          height: constrainedDims.height
+        });
+      }
+    };
+
+  // Constrain position to viewport with snap-to-edge behavior
+  const constrainPosition = useCallback((x: number, y: number, width: number, height: number) => {
+    const margin = 20; // Minimum distance from edge
+    const snapThreshold = 30; // Distance for magnetic snap
+
+    let constrainedX = Math.max(margin, Math.min(x, viewportSize.width - width - margin));
+    let constrainedY = Math.max(margin, Math.min(y, viewportSize.height - height - margin));
+
+    // Magnetic snap to edges
+    if (Math.abs(constrainedX - margin) < snapThreshold) constrainedX = margin;
+    if (Math.abs(constrainedX - (viewportSize.width - width - margin)) < snapThreshold) {
+      constrainedX = viewportSize.width - width - margin;
+    }
+    if (Math.abs(constrainedY - margin) < snapThreshold) constrainedY = margin;
+    if (Math.abs(constrainedY - (viewportSize.height - height - margin)) < snapThreshold) {
+      constrainedY = viewportSize.height - height - margin;
+    }
+
+    return { x: constrainedX, y: constrainedY };
+  }, [viewportSize]);
+
+  // Constrain dimensions to viewport
+  const constrainDimensions = useCallback((width: number, height: number) => {
+    const maxWidth = viewportSize.width - 40; // Account for margins
+    const maxHeight = viewportSize.height - 40;
+
+    return {
+      width: Math.min(width, maxWidth),
+      height: Math.min(height, maxHeight)
+    };
+  }, [viewportSize]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        closeWindow(focusedId);
+        return;
+      }
+
+      if (!focusedId) return;
+
+      const window = windows.find(w => w.id === focusedId);
+      if (!window) return;
+
+      const step = e.shiftKey ? 50 : 10; // Larger steps with Shift
+
+      let newBounds = { ...window };
+
+      switch (e.key) {
+        case 'ArrowUp':
+          e.preventDefault();
+          newBounds.y = Math.max(0, window.y - step);
+          break;
+        case 'ArrowDown':
+          e.preventDefault();
+          newBounds.y = window.y + step;
+          break;
+        case 'ArrowLeft':
+          e.preventDefault();
+          newBounds.x = Math.max(0, window.x - step);
+          break;
+        case 'ArrowRight':
+          e.preventDefault();
+          newBounds.x = window.x + step;
+          break;
+      }
+
+      if (newBounds !== window) {
+        const constrained = constrainPosition(newBounds.x, newBounds.y, newBounds.width, newBounds.height);
+        const constrainedDims = constrainDimensions(newBounds.width, newBounds.height);
+        updateBounds(focusedId, {
+          x: constrained.x,
+          y: constrained.y,
+          width: constrainedDims.width,
+          height: constrainedDims.height
+        });
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [focusedId, windows, viewportSize, bringToFront, closeWindow, updateBounds, constrainPosition, constrainDimensions]);
 
   const onActivate = useCallback((id: string) => {
     bringToFront(id);
   }, [bringToFront]);
 
+  // Check if window can be resized (not at min dimensions)
+  const canResize = useCallback((w: WinState) => {
+    const minW = Math.min(320, viewportSize.width - 40);
+    const minH = Math.min(240, viewportSize.height - 40);
+    return w.width > minW || w.height > minH;
+  }, [viewportSize]);
+
   return (
-    <>
+    <FloatingWindowsErrorBoundary>
       {windows.map(w => (
         <Rnd
           key={w.id}
@@ -24,8 +264,8 @@ export default function FloatingWindows() {
           position={{ x: w.x, y: w.y }}
           size={{ width: w.width, height: w.height }}
           bounds="parent"
-          minWidth={320}
-          minHeight={240}
+          minWidth={Math.min(320, viewportSize.width - 40)}
+          minHeight={Math.min(240, viewportSize.height - 40)}
           dragGrid={[8, 8]}
           resizeGrid={[8, 8]}
           onDragStart={() => {
@@ -34,31 +274,48 @@ export default function FloatingWindows() {
           }}
           onResizeStart={() => onActivate(w.id)}
           onDragStop={(_, data) => {
-            updateBounds(w.id, { x: data.x, y: data.y });
+            const constrained = constrainPosition(data.x, data.y, w.width, w.height);
+            updateBounds(w.id, constrained);
             setDraggingId(null);
           }}
           onResizeStop={(_, __, ref, ___, pos) => {
+            const constrainedPos = constrainPosition(pos.x, pos.y, ref.offsetWidth, ref.offsetHeight);
+            const constrainedDims = constrainDimensions(ref.offsetWidth, ref.offsetHeight);
             updateBounds(w.id, {
-              width: ref.offsetWidth,
-              height: ref.offsetHeight,
-              x: pos.x,
-              y: pos.y
+              width: constrainedDims.width,
+              height: constrainedDims.height,
+              x: constrainedPos.x,
+              y: constrainedPos.y
             });
           }}
-          enableResizing={{
+          enableResizing={canResize(w) ? {
             top: true, right: true, bottom: true, left: true,
             topRight: true, bottomRight: true, bottomLeft: true, topLeft: true
-          }}
+          } : false}
           style={{ zIndex: w.z }}
           className="select-none"
         >
           <div
-            onMouseDown={() => onActivate(w.id)}
-            onTouchStart={() => onActivate(w.id)}
+            tabIndex={0}
+            onPointerDown={(e) => {
+              // Prevent text selection on touch devices
+              e.preventDefault();
+              onActivate(w.id);
+            }}
+            onFocus={() => setFocusedId(w.id)}
+            onBlur={() => setFocusedId(null)}
+            onKeyDown={(e) => {
+              // Prevent default behavior for our handled keys
+              if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Enter', ' ', 'Delete', 'Backspace'].includes(e.key)) {
+                e.preventDefault();
+              }
+            }}
             className={
               draggingId === w.id
-                ? "flex flex-col h-full rounded-lg border-[3px] border-black bg-white"
-                : "flex flex-col h-full rounded-lg border-[3px] border-black bg-gradient-to-br from-white via-white to-gray-50 shadow-[4px_4px_0_rgba(0,0,0,1)] hover:shadow-[5px_5px_0_rgba(0,0,0,1)] transition-shadow"
+                ? "flex flex-col h-full rounded-lg border-[3px] border-black bg-gradient-to-br from-white via-white to-gray-50 opacity-90 scale-[0.98] focus:outline-none focus:ring-4 focus:ring-blue-500"
+                : focusedId === w.id
+                ? "flex flex-col h-full rounded-lg border-[3px] border-blue-500 bg-gradient-to-br from-white via-white to-gray-50 shadow-[4px_4px_0_rgba(0,0,0,1)] focus:outline-none focus:ring-4 focus:ring-blue-500"
+                : "flex flex-col h-full rounded-lg border-[3px] border-black bg-gradient-to-br from-white via-white to-gray-50 shadow-[4px_4px_0_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] transition-transform focus:outline-none focus:ring-4 focus:ring-blue-500"
             }
             style={{
               touchAction: 'none',
@@ -69,6 +326,8 @@ export default function FloatingWindows() {
           >
             {/* Title bar (drag handle) */}
             <div
+              role="button"
+              aria-label={`Drag ${w.title} window`}
               className="
                 flex items-center justify-between px-4 py-2.5
                 cursor-move rounded-t-md
@@ -82,17 +341,14 @@ export default function FloatingWindows() {
                 {w.title}
               </span>
               <button
-                onClick={(e) => {
+                onPointerDown={(e) => {
                   e.stopPropagation();
-                  closeWindow(w.id);
-                }}
-                onTouchEnd={(e) => {
-                  e.stopPropagation();
+                  e.preventDefault();
                   closeWindow(w.id);
                 }}
                 className="
-                  h-7 w-7 grid place-items-center rounded-md 
-                  border-[3px] border-black 
+                  h-11 w-11 grid place-items-center rounded-md
+                  border-[3px] border-black
                   bg-gradient-to-b from-red-500 to-red-600
                   hover:from-red-600 hover:to-red-700
                   active:translate-y-[2px] active:shadow-none
@@ -100,8 +356,8 @@ export default function FloatingWindows() {
                   shadow-[2px_2px_0_rgba(0,0,0,1)]
                   text-white font-bold text-lg
                 "
-                aria-label="Close"
-                title="Close"
+                aria-label={`Close ${w.title}`}
+                title={`Close ${w.title}`}
               >
                 ×
               </button>
@@ -112,13 +368,18 @@ export default function FloatingWindows() {
               {w.content}
             </div>
 
-            {/* Resize handles visual enhancement */}
-            <div className="absolute bottom-0 right-0 w-4 h-4 pointer-events-none">
-              <div className="absolute bottom-1 right-1 w-2 h-2 bg-black/30 rounded-full" />
-            </div>
+            {/* Resize handles visual enhancement - only show when resizable */}
+            {canResize(w) && (
+              <div
+                className="absolute bottom-0 right-0 w-6 h-6 cursor-nwse-resize pointer-events-none"
+                title="Resize window"
+              >
+                <div className="absolute bottom-1 right-1 w-4 h-4 bg-black/60 rounded-sm border border-white/50" />
+              </div>
+            )}
           </div>
         </Rnd>
       ))}
-    </>
+    </FloatingWindowsErrorBoundary>
   );
 }

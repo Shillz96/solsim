@@ -28,7 +28,7 @@ import {
 import { DepositModal } from "@/components/modals/deposit-modal"
 import { RealTradingOnboardingModal } from "@/components/modals/real-trading-onboarding-modal"
 import { CartridgePill } from "@/components/ui/cartridge-pill"
-import { useWindowManager } from "@/components/window/WindowManager"
+import { useWindowManager, useWindowTemplate } from "@/components/window/WindowManager"
 import { WalletTrackerContent } from "@/components/wallet-tracker/wallet-tracker-content"
 import MarketHover from "@/components/market/MarketHover"
 
@@ -59,6 +59,15 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
   const { toast } = useToast()
   const walletModal = useWalletModal()
   const { openWindow, closeWindow } = useWindowManager()
+
+  // Register wallet tracker window template for persistence
+  useWindowTemplate({
+    id: 'wallet-tracker',
+    title: '👀 Wallet Tracker',
+    content: () => <WalletTrackerContent key={Date.now()} compact={true} />,
+    defaultBounds: { x: 100, y: 100, width: 900, height: 600 }
+  });
+
   const [marketPrices, setMarketPrices] = useState<MarketPrice[]>([
     { symbol: "SOL", price: 250, change24h: 0 }, // Default to reasonable price instead of 0
   ])
@@ -72,7 +81,7 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
     // Close any existing window first to force refresh with new layout
     closeWindow('wallet-tracker')
 
-    // Small delay to ensure clean state, then open with fresh content in compact mode
+    // Small delay to ensure clean state, then open window (content will be provided by template)
     setTimeout(() => {
       openWindow({
         id: 'wallet-tracker',
