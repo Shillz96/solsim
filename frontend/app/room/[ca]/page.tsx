@@ -163,7 +163,13 @@ function TradeRoomContent() {
   const marketCap = parseFloat(tokenDetails.marketCapUsd || '0')
 
   return (
-    <div className="flex flex-col h-screen bg-[var(--background)] overflow-hidden">
+    <div 
+      className="flex flex-col bg-[var(--background)] overflow-hidden"
+      style={{ 
+        height: 'calc(100dvh - var(--navbar-height, 56px) - var(--trending-ticker-height, 60px) - var(--bottom-nav-height, 64px))',
+        maxHeight: 'calc(100dvh - var(--navbar-height, 56px) - var(--trending-ticker-height, 60px) - var(--bottom-nav-height, 64px))'
+      }}
+    >
       {/* Header - Token Info */}
       <header className="border-b-4 border-[var(--outline-black)] bg-white p-3 sm:p-4 flex-shrink-0">
         <div className="w-full flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4">
