@@ -244,10 +244,7 @@ export function WarpPipesHub() {
       </div>
 
       {/* Mobile: Tabs Layout */}
-      <div className="lg:hidden flex flex-col flex-1 min-h-0 px-4 py-6" style={{
-        height: 'calc(100dvh - var(--navbar-height, 56px) - var(--trending-ticker-height, 60px) - var(--bottom-nav-height, 64px))',
-        maxHeight: 'calc(100dvh - var(--navbar-height, 56px) - var(--trending-ticker-height, 60px) - var(--bottom-nav-height, 64px))'
-      }}>
+      <div className="lg:hidden flex flex-col flex-1 min-h-0 px-4 py-6">
         <Tabs defaultValue="new" className="w-full h-full flex flex-col">
           <TabsList className="grid w-full grid-cols-3 mb-4 border-4 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)] rounded-[14px] bg-white p-1">
             <TabsTrigger

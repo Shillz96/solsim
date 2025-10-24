@@ -154,7 +154,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               id="main-content"
               className="relative"
               style={{
-                minHeight: 'calc(100vh - 120px)', // Simplified height calculation
                 touchAction: 'pan-y', // Optimize touch scrolling on mobile
               }}
               role="main"
