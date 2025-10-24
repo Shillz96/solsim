@@ -5,7 +5,7 @@
  * with Mario theme integration and automated achievement detection.
  */
 
-import prisma from '../plugins/prisma';
+import prisma from '../plugins/prisma.js';
 import { Decimal } from '@prisma/client/runtime/library';
 
 export interface Badge {

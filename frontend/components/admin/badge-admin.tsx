@@ -31,12 +31,13 @@ export function BadgeAdmin() {
 
     const fetchData = async () => {
       try {
+        const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
         const [badgesResponse, statsResponse] = await Promise.all([
           fetch('/api/badges', {
-            headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+            headers: { 'Authorization': `Bearer ${token}` }
           }),
           fetch('/api/badges/stats', {
-            headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+            headers: { 'Authorization': `Bearer ${token}` }
           })
         ]);
 
@@ -66,11 +67,12 @@ export function BadgeAdmin() {
 
     setAwarding(true);
     try {
+      const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
       const response = await fetch('/api/badges/award', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
           badgeName: selectedBadge.name,
@@ -95,7 +97,7 @@ export function BadgeAdmin() {
 
   if (!isAdmin) {
     return (
-      <div className="bg-white rounded-lg border-4 border-pipe-300 p-6">
+      <div className="bg-white rounded-lg border-4 border-pipe-300 p-6 shadow-mario">
         <div className="text-center">
           <div className="font-mario text-xl text-pipe-800 mb-2">👑</div>
           <div className="font-mario text-lg text-pipe-600">Admin Access Required</div>
@@ -107,7 +109,7 @@ export function BadgeAdmin() {
 
   if (loading) {
     return (
-      <div className="bg-white rounded-lg border-4 border-pipe-300 p-6">
+      <div className="bg-white rounded-lg border-4 border-pipe-300 p-6 shadow-mario">
         <div className="animate-pulse">
           <div className="h-8 bg-pipe-200 rounded mb-4"></div>
           <div className="space-y-2">
@@ -121,10 +123,10 @@ export function BadgeAdmin() {
   }
 
   return (
-    <div className="bg-white rounded-lg border-4 border-pipe-300 p-6">
+    <div className="bg-white rounded-lg border-4 border-pipe-300 p-6 shadow-mario">
       <div className="mb-6">
-        <h2 className="font-mario text-2xl text-pipe-800 mb-2">🏆 Badge Admin Panel</h2>
-        <div className="text-sm text-pipe-600">Manage badges and award them to users</div>
+        <h2 className="font-mario text-3xl text-pipe-800 mb-2">🏆 Badge Admin Panel</h2>
+        <div className="text-pipe-600">Manage badges and award them to users</div>
       </div>
 
       {/* Tabs */}

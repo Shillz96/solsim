@@ -32,14 +32,14 @@ export function MarketDataPanels({ tokenMint }: MarketDataPanelsProps) {
     <div className="flex flex-col h-full bg-white">
       {/* Tabs */}
       <div className="border-b-4 border-[var(--outline-black)] bg-white px-4 py-2 overflow-x-auto flex-shrink-0">
-        <div className="flex gap-2 sm:gap-3 text-xs font-bold justify-start sm:justify-center min-w-max">
+        <div className="flex gap-2 text-xs font-mario font-bold justify-start sm:justify-center min-w-max">
           <button
             onClick={() => setActiveTab('trades')}
             className={cn(
-              "px-3 py-1 rounded-md border-2 border-[var(--outline-black)] transition-all whitespace-nowrap",
+              "px-4 py-2 rounded-lg border-3 border-[var(--outline-black)] transition-all whitespace-nowrap",
               activeTab === 'trades'
-                ? "bg-[var(--star-yellow)] shadow-[3px_3px_0_var(--outline-black)] -translate-y-[1px]"
-                : "bg-white hover:bg-[var(--pipe-100)] shadow-[2px_2px_0_var(--outline-black)]"
+                ? "bg-[var(--star-yellow)] shadow-mario -translate-y-[1px]"
+                : "bg-white hover:bg-[var(--pipe-100)] shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)]"
             )}
           >
             Trades
@@ -48,10 +48,10 @@ export function MarketDataPanels({ tokenMint }: MarketDataPanelsProps) {
           <button
             onClick={() => setActiveTab('traders')}
             className={cn(
-              "px-3 py-1 rounded-md border-2 border-[var(--outline-black)] transition-all whitespace-nowrap",
+              "px-4 py-2 rounded-lg border-3 border-[var(--outline-black)] transition-all whitespace-nowrap",
               activeTab === 'traders'
-                ? "bg-[var(--star-yellow)] shadow-[3px_3px_0_var(--outline-black)] -translate-y-[1px]"
-                : "bg-white hover:bg-[var(--pipe-100)] shadow-[2px_2px_0_var(--outline-black)]"
+                ? "bg-[var(--star-yellow)] shadow-mario -translate-y-[1px]"
+                : "bg-white hover:bg-[var(--pipe-100)] shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)]"
             )}
           >
             Top Traders
@@ -60,10 +60,10 @@ export function MarketDataPanels({ tokenMint }: MarketDataPanelsProps) {
           <button
             onClick={() => setActiveTab('holders')}
             className={cn(
-              "px-3 py-1 rounded-md border-2 border-[var(--outline-black)] transition-all whitespace-nowrap",
+              "px-4 py-2 rounded-lg border-3 border-[var(--outline-black)] transition-all whitespace-nowrap",
               activeTab === 'holders'
-                ? "bg-[var(--star-yellow)] shadow-[3px_3px_0_var(--outline-black)] -translate-y-[1px]"
-                : "bg-white hover:bg-[var(--pipe-100)] shadow-[2px_2px_0_var(--outline-black)]"
+                ? "bg-[var(--star-yellow)] shadow-mario -translate-y-[1px]"
+                : "bg-white hover:bg-[var(--pipe-100)] shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)]"
             )}
           >
             Holders
@@ -72,10 +72,10 @@ export function MarketDataPanels({ tokenMint }: MarketDataPanelsProps) {
           <button
             onClick={() => setActiveTab('bubblemap')}
             className={cn(
-              "px-3 py-1 rounded-md border-2 border-[var(--outline-black)] transition-all whitespace-nowrap",
+              "px-4 py-2 rounded-lg border-3 border-[var(--outline-black)] transition-all whitespace-nowrap",
               activeTab === 'bubblemap'
-                ? "bg-[var(--star-yellow)] shadow-[3px_3px_0_var(--outline-black)] -translate-y-[1px]"
-                : "bg-white hover:bg-[var(--pipe-100)] shadow-[2px_2px_0_var(--outline-black)]"
+                ? "bg-[var(--star-yellow)] shadow-mario -translate-y-[1px]"
+                : "bg-white hover:bg-[var(--pipe-100)] shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)]"
             )}
           >
             Bubble Map
@@ -84,10 +84,10 @@ export function MarketDataPanels({ tokenMint }: MarketDataPanelsProps) {
           <button
             onClick={() => setActiveTab('positions')}
             className={cn(
-              "px-3 py-1 rounded-md border-2 border-[var(--outline-black)] transition-all whitespace-nowrap",
+              "px-4 py-2 rounded-lg border-3 border-[var(--outline-black)] transition-all whitespace-nowrap",
               activeTab === 'positions'
-                ? "bg-[var(--star-yellow)] shadow-[3px_3px_0_var(--outline-black)] -translate-y-[1px]"
-                : "bg-white hover:bg-[var(--pipe-100)] shadow-[2px_2px_0_var(--outline-black)]"
+                ? "bg-[var(--star-yellow)] shadow-mario -translate-y-[1px]"
+                : "bg-white hover:bg-[var(--pipe-100)] shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)]"
             )}
           >
             Portfolio
@@ -116,10 +116,12 @@ function RecentTradesPanel({ tokenMint }: { tokenMint: string }) {
   })
 
   return (
-    <div className="border-4 border-[var(--outline-black)] rounded-[16px] shadow-[4px_4px_0_var(--outline-black)] bg-white p-4 min-h-[200px]">
+    <div className="border-4 border-[var(--outline-black)] rounded-[16px] shadow-mario bg-white p-4 min-h-[200px]">
       <div className="flex items-center gap-2 mb-4">
-        <Activity className="h-4 w-4 text-[var(--luigi-green)]" />
-        <h3 className="font-bold text-sm">Recent Market Activity</h3>
+        <div className="h-8 w-8 rounded-lg bg-[var(--luigi-green)] border-3 border-[var(--outline-black)] flex items-center justify-center shadow-[2px_2px_0_var(--outline-black)]">
+          <Activity className="h-4 w-4 text-white" />
+        </div>
+        <h3 className="font-mario font-bold text-sm">Recent Market Activity</h3>
       </div>
 
       {isLoading ? (
@@ -145,25 +147,25 @@ function RecentTradesPanel({ tokenMint }: { tokenMint: string }) {
               <div
                 key={`${trade.id || trade.user?.id || i}-${trade.timestamp || trade.createdAt}-${i}`}
                 className={cn(
-                  "flex items-center justify-between p-2 rounded-lg border-2",
+                  "flex items-center justify-between p-3 rounded-lg border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)]",
                   isBuy
-                    ? "bg-[var(--luigi-green)]/10 border-[var(--luigi-green)]/30"
-                    : "bg-[var(--mario-red)]/10 border-[var(--mario-red)]/30"
+                    ? "bg-[var(--luigi-green)]/10"
+                    : "bg-[var(--mario-red)]/10"
                 )}
               >
                 <div className="flex items-center gap-2">
                   <div className={cn(
-                    "w-6 h-6 rounded-full flex items-center justify-center",
+                    "w-7 h-7 rounded-full flex items-center justify-center border-2 border-[var(--outline-black)]",
                     isBuy ? "bg-[var(--luigi-green)]" : "bg-[var(--mario-red)]"
                   )}>
                     {isBuy ? (
-                      <TrendingUp className="h-3 w-3 text-white" />
+                      <TrendingUp className="h-4 w-4 text-white" />
                     ) : (
-                      <TrendingDown className="h-3 w-3 text-white" />
+                      <TrendingDown className="h-4 w-4 text-white" />
                     )}
                   </div>
                   <div>
-                    <div className="text-xs font-bold uppercase">{isBuy ? 'BUY' : 'SELL'}</div>
+                    <div className="text-xs font-mario font-bold uppercase">{isBuy ? 'BUY' : 'SELL'}</div>
                     <div className="text-[10px] text-muted-foreground">
                       {userDisplay ? `${userDisplay.slice(0, 8)}...` : 'Anonymous'}
                     </div>
@@ -191,10 +193,12 @@ function TopTradersPanel({ tokenMint }: { tokenMint: string }) {
   })
 
   return (
-    <div className="border-4 border-[var(--outline-black)] rounded-[16px] shadow-[4px_4px_0_var(--outline-black)] bg-white p-4 min-h-[200px]">
+    <div className="border-4 border-[var(--outline-black)] rounded-[16px] shadow-mario bg-white p-4 min-h-[200px]">
       <div className="flex items-center gap-2 mb-4">
-        <TrendingUp className="h-4 w-4 text-[var(--star-yellow)]" />
-        <h3 className="font-bold text-sm">24h Top Performers</h3>
+        <div className="h-8 w-8 rounded-lg bg-[var(--star-yellow)] border-3 border-[var(--outline-black)] flex items-center justify-center shadow-[2px_2px_0_var(--outline-black)]">
+          <TrendingUp className="h-4 w-4 text-[var(--outline-black)]" />
+        </div>
+        <h3 className="font-mario font-bold text-sm">24h Top Performers</h3>
       </div>
 
       {isLoading ? (
@@ -210,9 +214,9 @@ function TopTradersPanel({ tokenMint }: { tokenMint: string }) {
       ) : (
         <div className="space-y-2">
           {traders.map((trader: any, i: number) => (
-            <div key={trader.address} className="flex items-center justify-between p-2 bg-muted/50 rounded-lg">
+            <div key={trader.address} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg border-2 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)]">
               <div className="flex items-center gap-2">
-                <div className="text-xs font-bold text-[var(--star-yellow)]">#{i + 1}</div>
+                <div className="text-sm font-mario font-bold text-[var(--star-yellow)]">#{i + 1}</div>
                 <div className="text-xs font-mono">{trader.address.slice(0, 4)}...{trader.address.slice(-4)}</div>
               </div>
               <div className="text-right">

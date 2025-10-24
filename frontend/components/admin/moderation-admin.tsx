@@ -87,12 +87,13 @@ export function ModerationAdmin() {
 
     const fetchData = async () => {
       try {
+        const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
         const [configResponse, statsResponse] = await Promise.all([
           fetch('/api/moderation/config', {
-            headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+            headers: { 'Authorization': `Bearer ${token}` }
           }),
           fetch('/api/moderation/stats', {
-            headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+            headers: { 'Authorization': `Bearer ${token}` }
           })
         ]);
 
@@ -122,11 +123,12 @@ export function ModerationAdmin() {
 
     setSaving(true);
     try {
+      const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
       const response = await fetch('/api/moderation/config', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify(config)
       });
@@ -146,11 +148,12 @@ export function ModerationAdmin() {
 
   const testModerationBot = async (testMessage: string) => {
     try {
+      const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
       const response = await fetch('/api/moderation/test', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({ message: testMessage })
       });
@@ -164,7 +167,7 @@ export function ModerationAdmin() {
 
   if (!isAdmin) {
     return (
-      <div className="bg-white rounded-lg border-4 border-pipe-300 p-6">
+      <div className="bg-white rounded-lg border-4 border-pipe-300 p-6 shadow-mario">
         <div className="text-center">
           <div className="font-mario text-xl text-pipe-800 mb-2">👑</div>
           <div className="font-mario text-lg text-pipe-600">Admin Access Required</div>
@@ -176,7 +179,7 @@ export function ModerationAdmin() {
 
   if (loading) {
     return (
-      <div className="bg-white rounded-lg border-4 border-pipe-300 p-6">
+      <div className="bg-white rounded-lg border-4 border-pipe-300 p-6 shadow-mario">
         <div className="animate-pulse">
           <div className="h-8 bg-pipe-200 rounded mb-4"></div>
           <div className="space-y-2">
@@ -190,10 +193,10 @@ export function ModerationAdmin() {
   }
 
   return (
-    <div className="bg-white rounded-lg border-4 border-pipe-300 p-6">
+    <div className="bg-white rounded-lg border-4 border-pipe-300 p-6 shadow-mario">
       <div className="mb-6">
-        <h2 className="font-mario text-2xl text-pipe-800 mb-2">🛡️ Moderation Admin Panel</h2>
-        <div className="text-sm text-pipe-600">Manage moderation settings and view statistics</div>
+        <h2 className="font-mario text-3xl text-pipe-800 mb-2">🛡️ Moderation Admin Panel</h2>
+        <div className="text-pipe-600">Manage moderation settings and view statistics</div>
       </div>
 
       {/* Tabs */}

@@ -22,8 +22,8 @@ export function AdminDashboard() {
   if (!isAdmin) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-sky-50 to-luigi-green-50 p-4">
-        <div className="max-w-4xl mx-auto">
-          <div className="bg-white rounded-lg border-4 border-pipe-300 p-8 text-center mb-6">
+        <div className="w-3/4 mx-auto">
+          <div className="bg-white rounded-lg border-4 border-pipe-300 p-8 text-center mb-6 shadow-mario">
             <div className="font-mario text-4xl text-pipe-800 mb-4">👑</div>
             <div className="font-mario text-2xl text-pipe-600 mb-2">Admin Access Required</div>
             <div className="text-pipe-500">You need administrator privileges to access this dashboard</div>
@@ -38,7 +38,7 @@ export function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-sky-50 to-luigi-green-50 p-4">
-      <div className="max-w-6xl mx-auto">
+      <div className="w-3/4 mx-auto">
         {/* Header */}
         <div className="mb-8">
           <h1 className="font-mario text-4xl text-pipe-800 mb-2">🛡️ Admin Dashboard</h1>
@@ -46,7 +46,7 @@ export function AdminDashboard() {
         </div>
 
         {/* Navigation */}
-        <div className="flex gap-2 mb-8">
+        <div className="flex gap-2 mb-8 flex-wrap">
           <button
             onClick={() => setActivePanel('overview')}
             className={`px-6 py-3 rounded-lg font-mario border-3 transition-all ${
