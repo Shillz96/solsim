@@ -17,6 +17,7 @@
 import { useEffect, useState, Suspense, useRef } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { MarioTradingPanel } from '@/components/trading/mario-trading-panel'
+import { TokenVitalsBar } from '@/components/trading/token-vitals-bar'
 import { useAuth } from '@/hooks/use-auth'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import * as api from '@/lib/api'
@@ -361,8 +362,14 @@ function TradeRoomContent() {
 
           {/* Right: Trade Panel */}
           <aside className="flex flex-col w-[280px] border-l-4 border-[var(--outline-black)] bg-white">
-            <div className="flex-1 p-3 overflow-y-auto">
+            <div className="flex-1 p-3 overflow-y-auto space-y-3">
               <MarioTradingPanel tokenAddress={ca} />
+              <TokenVitalsBar 
+                volume24h={volume24h}
+                holders={tokenDetails.holderCount ? parseInt(tokenDetails.holderCount) : undefined}
+                priceChange5m={undefined}
+                userRank={null}
+              />
             </div>
           </aside>
         </div>
@@ -397,8 +404,14 @@ function TradeRoomContent() {
 
           {/* Right Sidebar - Trade Panel Only */}
           <aside className="flex flex-col w-[380px] border-l-4 border-[var(--outline-black)] bg-white">
-            <div className="flex-1 p-3 overflow-y-auto">
+            <div className="flex-1 p-3 overflow-y-auto space-y-3">
               <MarioTradingPanel tokenAddress={ca} />
+              <TokenVitalsBar 
+                volume24h={volume24h}
+                holders={tokenDetails.holderCount ? parseInt(tokenDetails.holderCount) : undefined}
+                priceChange5m={undefined}
+                userRank={null}
+              />
             </div>
           </aside>
         </div>

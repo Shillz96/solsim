@@ -236,8 +236,7 @@ export default async function (app: FastifyInstance) {
           createdAt: {
             gte: new Date(Date.now() - 24 * 60 * 60 * 1000) // Only last 24 hours
           }
-        },
-        take: Math.min(count, 100)
+        }
       });
 
       return { 
