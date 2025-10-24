@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Coins, Star, AlertTriangle, TrendingUp, Wallet, ArrowDownToLine, ChevronDown } from 'lucide-react';
 import { useTradingMode } from '@/lib/trading-mode-context';
@@ -24,6 +24,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { cn } from '@/lib/utils';
 import { formatNumber } from '@/lib/utils';
+import { useToast } from '@/hooks/use-toast';
 
 interface EnhancedTradingModeToggleProps {
   className?: string;
@@ -54,43 +55,53 @@ export function EnhancedTradingModeToggle({
     virtualSolBalance,
     realSolBalance,
     isSwitchingMode,
-    switchToRealTrading,
-    switchToPaperTrading,
+    showModeConfirm,
+    setShowModeConfirm,
+    pendingMode,
+    setPendingMode,
+    switchError,
+    setSwitchError,
+    handleToggleMode,
+    handleConfirmModeSwitch,
+    handleCancelModeSwitch,
   } = useTradingMode();
 
-  const [showModeConfirm, setShowModeConfirm] = useState(false);
-  const [pendingMode, setPendingMode] = useState<'PAPER' | 'REAL' | null>(null);
+  const [isVisible, setIsVisible] = useState(true);
+  const [zeroBalanceDetectedAt, setZeroBalanceDetectedAt] = useState<number | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const { toast } = useToast();
 
   const isPaperMode = tradeMode === 'PAPER';
   const hasZeroBalance = tradeMode === 'REAL' && realSolBalance === 0;
 
-  // Handle mode toggle
-  const handleToggleMode = (newMode: 'PAPER' | 'REAL') => {
-    if (newMode === tradeMode || isSwitchingMode) return;
-    setPendingMode(newMode);
-    setShowModeConfirm(true);
-  };
-
-  const handleConfirmModeSwitch = async () => {
-    if (!pendingMode) return;
-
-    try {
-      if (pendingMode === 'REAL') {
-        await switchToRealTrading();
-      } else {
-        await switchToPaperTrading();
-      }
-      setShowModeConfirm(false);
-      setPendingMode(null);
-    } catch (error) {
-      console.error('Error switching trading mode:', error);
+  // Track when zero balance is first detected
+  useEffect(() => {
+    if (hasZeroBalance && !zeroBalanceDetectedAt) {
+      setZeroBalanceDetectedAt(Date.now());
+    } else if (!hasZeroBalance) {
+      setZeroBalanceDetectedAt(null);
     }
-  };
+  }, [hasZeroBalance, zeroBalanceDetectedAt]);
 
-  const handleCancelModeSwitch = () => {
-    setShowModeConfirm(false);
-    setPendingMode(null);
-  };
+  // Pulse for 10 seconds after zero balance detection, then static
+  const shouldPulse = hasZeroBalance && zeroBalanceDetectedAt && (Date.now() - zeroBalanceDetectedAt) < 10000;
+
+  // Visibility detection to pause animations when not visible
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsVisible(entry.isIntersecting);
+      },
+      { threshold: 0.1 }
+    );
+
+    if (containerRef.current) {
+      observer.observe(containerRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
+
 
   // Toggle button content
   const ToggleButton = () => (
@@ -99,29 +110,33 @@ export function EnhancedTradingModeToggle({
       whileTap={{ scale: 0.98 }}
       onClick={() => handleToggleMode(isPaperMode ? 'REAL' : 'PAPER')}
       disabled={isSwitchingMode}
+      aria-label={isSwitchingMode ? "Switching trading mode, please wait" : `Switch to ${isPaperMode ? 'LIVE' : 'PAPER'} trading mode`}
       className={cn(
         'relative flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-300',
         'border-3 font-semibold text-sm',
         isPaperMode
           ? 'bg-luigi-green-500 hover:bg-luigi-green-600 text-white border-luigi-green-700 shadow-mario'
-          : 'bg-gradient-to-r from-star-yellow-500 to-coin-yellow-500 hover:from-star-yellow-600 hover:to-coin-yellow-600 text-pipe-900 border-star-yellow-700 shadow-mario',
-        hasZeroBalance && 'animate-pulse-ring',
+          : 'text-pipe-900 border-star-700 shadow-mario',
+        shouldPulse && 'animate-pulse-ring',
         className
       )}
+      style={isPaperMode ? {} : {
+        background: 'linear-gradient(to right, var(--color-star), var(--color-coin))'
+      }}
     >
-      {/* Icon with animation */}
+      {/* Icon with optimized animation */}
       <motion.div
-        animate={isPaperMode ? {
+        animate={isVisible && !isSwitchingMode ? (isPaperMode ? {
           rotate: [0, 360],
-          transition: { duration: 2, repeat: Infinity, ease: 'linear' }
+          transition: { duration: 3, repeat: 2, ease: 'linear' }
         } : {
-          scale: [1, 1.2, 1],
-          rotate: [0, 10, -10, 0],
-          transition: { duration: 1.5, repeat: Infinity, ease: 'easeInOut' }
-        }}
+          scale: [1, 1.1, 1],
+          rotate: [0, 5, -5, 0],
+          transition: { duration: 2, repeat: 1, ease: 'easeInOut' }
+        }) : false}
       >
         {isPaperMode ? (
-          <Coins className="w-5 h-5" />
+          <Coins className="w-5 h-5 fill-current" />
         ) : (
           <Star className="w-5 h-5 fill-current" />
         )}
@@ -159,9 +174,9 @@ export function EnhancedTradingModeToggle({
         <motion.div
           animate={{ rotate: 360 }}
           transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-          className="absolute inset-0 flex items-center justify-center bg-pipe-900/50 rounded-lg"
+          className="ml-2"
         >
-          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full" />
+          <div className="w-3 h-3 border-2 border-current border-t-transparent rounded-full" />
         </motion.div>
       )}
     </motion.button>
@@ -169,47 +184,30 @@ export function EnhancedTradingModeToggle({
 
   // Render with or without dropdown
   if (!showDropdown) {
-    return (
-      <>
-        <ToggleButton />
-        {/* Confirmation Dialog */}
-        <ModeSwitchDialog
-          open={showModeConfirm}
-          onOpenChange={setShowModeConfirm}
-          pendingMode={pendingMode}
-          onConfirm={handleConfirmModeSwitch}
-          onCancel={handleCancelModeSwitch}
-          hasZeroBalance={hasZeroBalance}
-        />
-      </>
-    );
+    return <ToggleButton />;
   }
 
   return (
-    <>
-      <DropdownMenu>
+    <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <div className="relative">
+          <div className="relative" ref={containerRef}>
             <ToggleButton />
             <ChevronDown className="absolute -bottom-1 right-1 w-3 h-3 text-current opacity-70" />
           </div>
         </DropdownMenuTrigger>
 
-        <DropdownMenuContent align="end" className="w-56 border-3 border-pipe-400 shadow-mario">
-          {/* Mode info */}
+        <DropdownMenuContent align="end" className="w-64 border-3 border-pipe-400 shadow-mario">
+          {/* Trading fees & limits */}
           <div className="px-2 py-1.5 text-xs text-pipe-600">
             <div className="flex items-center justify-between mb-1">
-              <span>Current Mode:</span>
-              <span className={cn(
-                "font-bold",
-                isPaperMode ? "text-luigi-green-600" : "text-mario-red-600"
-              )}>
-                {isPaperMode ? 'PAPER' : 'LIVE'}
+              <span>Trading Fee:</span>
+              <span className="font-mono font-semibold">
+                {isPaperMode ? 'FREE' : realSolBalance > 0 ? '0.5%' : '1%'}
               </span>
             </div>
             <div className="flex items-center justify-between">
-              <span>Available:</span>
-              <span className="font-mono font-semibold">{formatNumber(activeBalance, 2)} SOL</span>
+              <span>Min. Trade:</span>
+              <span className="font-mono font-semibold">0.01 SOL</span>
             </div>
           </div>
 
@@ -222,7 +220,7 @@ export function EnhancedTradingModeToggle({
             className="cursor-pointer"
           >
             <TrendingUp className="mr-2 h-4 w-4" />
-            Switch to {isPaperMode ? 'Live' : 'Paper'} Trading
+            You're in {isPaperMode ? 'PAPER' : 'LIVE'} mode. Switch to {isPaperMode ? 'LIVE' : 'PAPER'}?
           </DropdownMenuItem>
 
           {/* Show funding options when in REAL mode */}
@@ -246,133 +244,28 @@ export function EnhancedTradingModeToggle({
             </>
           )}
 
-          {/* Balance details */}
+          {/* Account status */}
           <DropdownMenuSeparator />
           <div className="px-2 py-1.5 text-xs text-pipe-500">
             <div className="flex justify-between mb-0.5">
-              <span>Virtual:</span>
-              <span className="font-mono">{formatNumber(virtualSolBalance, 2)} SOL</span>
+              <span>Status:</span>
+              <span className={cn(
+                "font-semibold",
+                hasZeroBalance ? "text-mario-red-600" : "text-luigi-green-600"
+              )}>
+                {hasZeroBalance ? 'Fund Required' : 'Ready to Trade'}
+              </span>
             </div>
             <div className="flex justify-between">
-              <span>Deposited:</span>
-              <span className="font-mono">{formatNumber(realSolBalance, 2)} SOL</span>
+              <span>Total Balance:</span>
+              <span className="font-mono font-semibold">{formatNumber(activeBalance, 2)} SOL</span>
             </div>
           </div>
         </DropdownMenuContent>
       </DropdownMenu>
-
-      {/* Confirmation Dialog */}
-      <ModeSwitchDialog
-        open={showModeConfirm}
-        onOpenChange={setShowModeConfirm}
-        pendingMode={pendingMode}
-        onConfirm={handleConfirmModeSwitch}
-        onCancel={handleCancelModeSwitch}
-        hasZeroBalance={hasZeroBalance}
-      />
-    </>
   );
 }
 
-/**
- * Mode Switch Confirmation Dialog
- */
-interface ModeSwitchDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  pendingMode: 'PAPER' | 'REAL' | null;
-  onConfirm: () => void;
-  onCancel: () => void;
-  hasZeroBalance: boolean;
-}
-
-function ModeSwitchDialog({
-  open,
-  onOpenChange,
-  pendingMode,
-  onConfirm,
-  onCancel,
-  hasZeroBalance,
-}: ModeSwitchDialogProps) {
-  const isSwitchingToReal = pendingMode === 'REAL';
-
-  return (
-    <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent className={cn(
-        "border-4 shadow-mario",
-        isSwitchingToReal ? "border-mario-red-500" : "border-luigi-green-500"
-      )}>
-        <AlertDialogHeader>
-          <AlertDialogTitle className={cn(
-            "font-mario text-lg flex items-center gap-2",
-            isSwitchingToReal ? "text-mario-red-600" : "text-luigi-green-600"
-          )}>
-            {isSwitchingToReal ? (
-              <>
-                <AlertTriangle className="w-5 h-5" />
-                Switch to LIVE Trading?
-              </>
-            ) : (
-              <>
-                <Coins className="w-5 h-5" />
-                Switch to PAPER Trading?
-              </>
-            )}
-          </AlertDialogTitle>
-          <AlertDialogDescription className="text-sm">
-            {isSwitchingToReal ? (
-              <>
-                <p className="mb-2">
-                  You're about to switch to <strong>live trading mode</strong> where you'll use <strong>real SOL</strong> to execute trades on Solana mainnet.
-                </p>
-                {hasZeroBalance && (
-                  <div className="bg-star-yellow-50 border-2 border-star-yellow-500 rounded-lg p-3 mb-2">
-                    <p className="text-star-yellow-900 font-semibold text-xs flex items-center gap-1">
-                      <AlertTriangle className="w-4 h-4" />
-                      You'll need to fund your account or connect a wallet before trading.
-                    </p>
-                  </div>
-                )}
-                <p className="text-pipe-600 text-xs">
-                  • Trades execute on-chain with real money<br />
-                  • Fees apply: 1% (deposited) or 0.5% (wallet)<br />
-                  • Transactions cannot be reversed
-                </p>
-              </>
-            ) : (
-              <>
-                <p className="mb-2">
-                  You're about to switch to <strong>paper trading mode</strong> where you'll use <strong>virtual SOL</strong> to practice trading without risk.
-                </p>
-                <p className="text-pipe-600 text-xs">
-                  • No real money involved<br />
-                  • Perfect for learning and practicing<br />
-                  • Positions are separate from live trading
-                </p>
-              </>
-            )}
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel onClick={onCancel} className="border-2">
-            Cancel
-          </AlertDialogCancel>
-          <AlertDialogAction
-            onClick={onConfirm}
-            className={cn(
-              "border-3 font-semibold shadow-mario",
-              isSwitchingToReal
-                ? "bg-mario-red-500 hover:bg-mario-red-600 text-white border-mario-red-700"
-                : "bg-luigi-green-500 hover:bg-luigi-green-600 text-white border-luigi-green-700"
-            )}
-          >
-            {isSwitchingToReal ? 'Switch to LIVE' : 'Switch to PAPER'}
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
-  );
-}
 
 /**
  * Custom animation for pulsing ring effect

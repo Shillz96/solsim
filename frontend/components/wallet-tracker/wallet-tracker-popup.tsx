@@ -47,6 +47,10 @@ export function WalletTrackerPopup({ isOpen, onClose }: WalletTrackerPopupProps)
   const [touchStart, setTouchStart] = useState<number | null>(null)
   const [touchEnd, setTouchEnd] = useState<number | null>(null)
 
+  // Focus trap refs
+  const popupRef = useRef<HTMLDivElement>(null)
+  const previousFocusRef = useRef<HTMLElement | null>(null)
+
   // Add wallet state
   const [newWalletAddress, setNewWalletAddress] = useState("")
   const [newWalletLabel, setNewWalletLabel] = useState("")
@@ -71,7 +75,7 @@ export function WalletTrackerPopup({ isOpen, onClose }: WalletTrackerPopupProps)
   }, [copyTradePercentage])
 
   // Debounced slider update
-  const debounceRef = useRef<NodeJS.Timeout>()
+  const debounceRef = useRef<NodeJS.Timeout | null>(null)
   const debouncedSetCopyTradePercentage = useCallback((value: number) => {
     if (debounceRef.current) {
       clearTimeout(debounceRef.current)
@@ -253,21 +257,67 @@ export function WalletTrackerPopup({ isOpen, onClose }: WalletTrackerPopupProps)
     }
   }
 
-  // Prevent body scroll when popup is opened
+  // Prevent body scroll and manage focus when popup is opened
   useEffect(() => {
     if (isOpen) {
       // Prevent body scroll
       document.body.style.overflow = 'hidden'
+
+      // Store previous focus
+      previousFocusRef.current = document.activeElement as HTMLElement
+
+      // Focus the popup
+      setTimeout(() => {
+        if (popupRef.current) {
+          const focusableElements = popupRef.current.querySelectorAll(
+            'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+          )
+          const firstFocusable = focusableElements[0] as HTMLElement
+          if (firstFocusable) {
+            firstFocusable.focus()
+          } else {
+            popupRef.current.focus()
+          }
+        }
+      }, 100)
+
+      // Add escape key handler
+      const handleKeyDown = (e: KeyboardEvent) => {
+        if (e.key === 'Escape') {
+          onClose()
+        }
+      }
+      document.addEventListener('keydown', handleKeyDown)
+
+      return () => {
+        document.removeEventListener('keydown', handleKeyDown)
+      }
     } else {
       // Restore body scroll when closed
       document.body.style.overflow = ''
+
+      // Restore previous focus
+      if (previousFocusRef.current) {
+        previousFocusRef.current.focus()
+      }
     }
 
     // Cleanup on unmount
     return () => {
       document.body.style.overflow = ''
     }
-  }, [isOpen])
+  }, [isOpen, onClose])
+
+  // Handle backdrop click with confirmation if trade is in progress
+  const handleBackdropClick = () => {
+    if (copyTradeMutation.isPending) {
+      const confirmed = window.confirm(
+        "A trade copy is in progress. Are you sure you want to close the wallet tracker?"
+      )
+      if (!confirmed) return
+    }
+    onClose()
+  }
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text)
@@ -287,20 +337,22 @@ export function WalletTrackerPopup({ isOpen, onClose }: WalletTrackerPopupProps)
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100]"
-            onClick={onClose}
+            onClick={handleBackdropClick}
           />
 
           {/* Popup */}
           <motion.div
+            ref={popupRef}
             initial={{ y: "100%", opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: "100%", opacity: 0 }}
             transition={{ type: "spring", damping: 30, stiffness: 300 }}
-            className="fixed bottom-0 left-0 right-0 z-[101] max-h-[85vh] bg-background border-t-2 border-border rounded-t-2xl shadow-2xl overflow-hidden"
+            className="fixed bottom-0 left-0 right-0 z-[101] max-h-[calc(100vh-env(safe-area-inset-bottom)-200px)] bg-background border-t-2 border-border rounded-t-2xl shadow-2xl overflow-hidden"
             role="dialog"
             aria-label="Wallet tracker"
+            tabIndex={-1}
           >
-            <div className="flex flex-col h-full max-h-[85vh]">
+            <div className="flex flex-col h-full max-h-[calc(100vh-env(safe-area-inset-bottom)-200px)]">
               {/* Header */}
               <div
                 className="flex items-center justify-between p-4 border-b border-border bg-muted/30 touch-none"
@@ -486,7 +538,7 @@ export function WalletTrackerPopup({ isOpen, onClose }: WalletTrackerPopupProps)
                         ) : (
                           <div className="space-y-2">
                             {walletActivity.map((activity) => (
-                              <Card key={activity.signature} className="p-3">
+                              <Card key={activity.signature} className="p-4 sm:p-6">
                                 <div className="flex items-start justify-between gap-3">
                                   <div className="flex-1 min-w-0">
                                     <div className="flex items-center gap-2 mb-2">

@@ -10,6 +10,7 @@ import { motion } from "framer-motion"
 import { cn } from "@/lib/utils"
 import { formatDistanceToNow } from "date-fns"
 import type { Notification } from "@/hooks/use-notifications"
+import { calculateLevel } from "@/lib/utils/levelSystem"
 
 type ProfileMenuProps = {
   displayName: string
@@ -39,8 +40,9 @@ export function ProfileMenu({
   onRemoveNotification
 }: ProfileMenuProps) {
 
-  // Level calc - simplified inline
-  const level = xp >= 150000 ? 25 : xp >= 100000 ? 20 : xp >= 75000 ? 18 : xp >= 50000 ? 15 : xp >= 25000 ? 12 : xp >= 10000 ? 10 : xp >= 5000 ? 8 : xp >= 2500 ? 6 : xp >= 1000 ? 5 : xp >= 500 ? 3 : xp >= 100 ? 2 : 1
+  // Calculate level using centralized utility
+  const levelInfo = calculateLevel(xp)
+  const level = levelInfo.level
 
   return (
     <DropdownMenu>
@@ -83,7 +85,7 @@ export function ProfileMenu({
                 "h-7 w-7 md:h-8 md:w-8",
                 "rounded-[8px] md:rounded-[10px]",
                 "bg-[var(--mario-red)]",
-                "border-3 border-[var(--outline-black)]",
+                "border-4 border-[var(--outline-black)]",
                 "overflow-hidden"
               )}
             >
@@ -98,7 +100,7 @@ export function ProfileMenu({
         </motion.button>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent align="end" className="w-80 max-h-96 overflow-y-auto bg-white border border-[var(--color-border)] shadow-[var(--shadow-dropdown)]">
+      <DropdownMenuContent align="end" className="w-80 max-h-[60vh] overflow-y-auto bg-white border border-[var(--color-border)] shadow-[var(--shadow-dropdown)]">
         <DropdownMenuLabel>My Account</DropdownMenuLabel>
 
         {/* Notifications Section */}
@@ -168,17 +170,36 @@ export function ProfileMenu({
                       variant="ghost"
                       size="sm"
                       onClick={(e) => {
+                        e.preventDefault()
                         e.stopPropagation()
                         onRemoveNotification?.(notification.id)
                       }}
-                      className="h-5 w-5 p-0 text-destructive hover:text-destructive"
+                      className="h-8 w-8 p-0 text-destructive hover:text-destructive"
                       title="Remove"
                     >
-                      <Trash2 className="h-3 w-3" />
+                      <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
                 ))}
               </div>
+
+              {notifications.length > 5 && (
+                <div className="pt-2 border-t border-border">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="w-full text-xs text-muted-foreground hover:text-foreground h-7"
+                    onClick={(e) => {
+                      e.preventDefault()
+                      e.stopPropagation()
+                      // TODO: Navigate to notifications page or open modal
+                      console.log('View all notifications clicked')
+                    }}
+                  >
+                    View all {notifications.length} notifications
+                  </Button>
+                </div>
+              )}
             </div>
           </>
         )}

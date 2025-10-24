@@ -4,6 +4,7 @@ import React, { createContext, useContext, useState, useEffect, useCallback } fr
 import { useAuth } from '@/hooks/use-auth';
 import { Connection, PublicKey, LAMPORTS_PER_SOL } from '@solana/web3.js';
 import { useWallet } from '@solana/wallet-adapter-react';
+import { ModeSwitchDialog } from '@/components/navigation/mode-switch-dialog';
 
 export type TradeMode = 'PAPER' | 'REAL';
 export type FundingSource = 'DEPOSITED' | 'WALLET';
@@ -29,10 +30,21 @@ interface TradingModeContextType {
   isLoading: boolean;
   isSwitchingMode: boolean;
 
+  // Mode switch dialog state
+  showModeConfirm: boolean;
+  setShowModeConfirm: (show: boolean) => void;
+  pendingMode: TradeMode | null;
+  setPendingMode: (mode: TradeMode | null) => void;
+  switchError: string | null;
+  setSwitchError: (error: string | null) => void;
+
   // Actions
   switchToRealTrading: () => Promise<void>;
   switchToPaperTrading: () => Promise<void>;
   refreshBalances: () => Promise<void>;
+  handleToggleMode: (newMode: TradeMode) => void;
+  handleConfirmModeSwitch: () => Promise<void>;
+  handleCancelModeSwitch: () => void;
 }
 
 const TradingModeContext = createContext<TradingModeContextType | undefined>(undefined);
@@ -48,6 +60,11 @@ export function TradingModeProvider({ children }: { children: React.ReactNode })
   const [walletSolBalance, setWalletSolBalance] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isSwitchingMode, setIsSwitchingMode] = useState<boolean>(false);
+
+  // Mode switch dialog state
+  const [showModeConfirm, setShowModeConfirm] = useState<boolean>(false);
+  const [pendingMode, setPendingMode] = useState<TradeMode | null>(null);
+  const [switchError, setSwitchError] = useState<string | null>(null);
   const [connection, setConnection] = useState<Connection | null>(null);
 
   // Initialize Solana connection
@@ -231,6 +248,40 @@ export function TradingModeProvider({ children }: { children: React.ReactNode })
     }
   }, [switchToRealTrading, switchToPaperTrading]);
 
+  // Mode switch dialog handlers
+  const handleToggleMode = useCallback((newMode: TradeMode) => {
+    if (newMode === tradeMode || isSwitchingMode) return;
+    setPendingMode(newMode);
+    setShowModeConfirm(true);
+  }, [tradeMode, isSwitchingMode]);
+
+  const handleConfirmModeSwitch = useCallback(async () => {
+    if (!pendingMode) return;
+
+    setSwitchError(null); // Clear any previous error
+
+    try {
+      if (pendingMode === 'REAL') {
+        await switchToRealTrading();
+      } else {
+        await switchToPaperTrading();
+      }
+      setShowModeConfirm(false);
+      setPendingMode(null);
+    } catch (error) {
+      console.error('Error switching trading mode:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to switch trading mode';
+      setSwitchError(errorMessage);
+      // Keep dialog open to show error
+    }
+  }, [pendingMode, switchToRealTrading, switchToPaperTrading]);
+
+  const handleCancelModeSwitch = useCallback(() => {
+    setShowModeConfirm(false);
+    setPendingMode(null);
+    setSwitchError(null);
+  }, []);
+
   const value: TradingModeContextType = {
     tradeMode,
     setTradeMode,
@@ -242,14 +293,24 @@ export function TradingModeProvider({ children }: { children: React.ReactNode })
     activeBalance,
     isLoading,
     isSwitchingMode,
+    showModeConfirm,
+    setShowModeConfirm,
+    pendingMode,
+    setPendingMode,
+    switchError,
+    setSwitchError,
     switchToRealTrading,
     switchToPaperTrading,
     refreshBalances,
+    handleToggleMode,
+    handleConfirmModeSwitch,
+    handleCancelModeSwitch,
   };
 
   return (
     <TradingModeContext.Provider value={value}>
       {children}
+      <ModeSwitchDialog />
     </TradingModeContext.Provider>
   );
 }

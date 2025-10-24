@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Card } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
 
 interface SettingsModalProps {
   isOpen: boolean
@@ -49,6 +50,10 @@ export function WalletTrackerSettingsModal({ isOpen, onClose, onSettingsSaved }:
   const [minTransactionUsd, setMinTransactionUsd] = useState<string>("")
   const [maxTransactionUsd, setMaxTransactionUsd] = useState<string>("")
   const [requireImages, setRequireImages] = useState(false)
+
+  // Validation state
+  const [marketCapError, setMarketCapError] = useState<string>("")
+  const [transactionError, setTransactionError] = useState<string>("")
 
   // Fetch current settings
   const { data: settings, isLoading } = useQuery<WalletTrackerSettings>({
@@ -137,10 +142,67 @@ export function WalletTrackerSettingsModal({ isOpen, onClose, onSettingsSaved }:
 
   // Handle number input change
   const handleNumberChange = (value: string, setter: (val: string) => void) => {
-    const cleaned = value.replace(/,/g, '')
+    // Strip commas and other non-numeric characters except decimal point
+    const cleaned = value.replace(/[^0-9.]/g, '')
     if (cleaned === '' || !isNaN(parseFloat(cleaned))) {
       setter(cleaned)
     }
+  }
+
+  // Validation functions
+  const validateMarketCap = (min: string, max: string) => {
+    const minVal = min ? parseFloat(min) : 0
+    const maxVal = max ? parseFloat(max) : Infinity
+    if (minVal > 0 && maxVal < Infinity && minVal > maxVal) {
+      setMarketCapError("Min market cap cannot be greater than max")
+    } else {
+      setMarketCapError("")
+    }
+  }
+
+  const validateTransaction = (min: string, max: string) => {
+    const minVal = min ? parseFloat(min) : 0
+    const maxVal = max ? parseFloat(max) : Infinity
+    if (minVal > 0 && maxVal < Infinity && minVal > maxVal) {
+      setTransactionError("Min transaction cannot be greater than max")
+    } else {
+      setTransactionError("")
+    }
+  }
+
+  // Handle market cap changes with validation
+  const handleMinMarketCapChange = (value: string) => {
+    handleNumberChange(value, setMinMarketCap)
+    setTimeout(() => validateMarketCap(value, maxMarketCap), 0)
+  }
+
+  const handleMaxMarketCapChange = (value: string) => {
+    handleNumberChange(value, setMaxMarketCap)
+    setTimeout(() => validateMarketCap(minMarketCap, value), 0)
+  }
+
+  const handleMinTransactionChange = (value: string) => {
+    handleNumberChange(value, setMinTransactionUsd)
+    setTimeout(() => validateTransaction(value, maxTransactionUsd), 0)
+  }
+
+  const handleMaxTransactionChange = (value: string) => {
+    handleNumberChange(value, setMaxTransactionUsd)
+    setTimeout(() => validateTransaction(minTransactionUsd, value), 0)
+  }
+
+  // Reset to defaults
+  const resetToDefaults = () => {
+    setShowBuys(true)
+    setShowSells(true)
+    setShowFirstBuyOnly(false)
+    setMinMarketCap("")
+    setMaxMarketCap("")
+    setMinTransactionUsd("")
+    setMaxTransactionUsd("")
+    setRequireImages(false)
+    setMarketCapError("")
+    setTransactionError("")
   }
 
   return (
@@ -186,8 +248,8 @@ export function WalletTrackerSettingsModal({ isOpen, onClose, onSettingsSaved }:
                 {/* Transaction Types */}
                 <div className="space-y-3">
                   <Label className="text-sm font-bold text-[var(--outline-black)]">Transaction Types</Label>
-                  <div className="space-y-2">
-                    <div className="flex items-center space-x-2">
+                  <div className="space-y-3">
+                    <div className="flex items-center space-x-3">
                       <Checkbox
                         id="showBuys"
                         checked={showBuys}
@@ -201,7 +263,7 @@ export function WalletTrackerSettingsModal({ isOpen, onClose, onSettingsSaved }:
                         Buy
                       </label>
                     </div>
-                    <div className="flex items-center space-x-2">
+                    <div className="flex items-center space-x-3">
                       <Checkbox
                         id="showSells"
                         checked={showSells}
@@ -215,7 +277,7 @@ export function WalletTrackerSettingsModal({ isOpen, onClose, onSettingsSaved }:
                         Sell
                       </label>
                     </div>
-                    <div className="flex items-center space-x-2">
+                    <div className="flex items-center space-x-3">
                       <Checkbox
                         id="showFirstBuyOnly"
                         checked={showFirstBuyOnly}
@@ -247,10 +309,10 @@ export function WalletTrackerSettingsModal({ isOpen, onClose, onSettingsSaved }:
                         <Input
                           id="minMarketCap"
                           type="text"
-                          placeholder="0"
+                          placeholder="e.g., 50000"
                           value={minMarketCap ? formatNumberInput(minMarketCap) : ''}
-                          onChange={(e) => handleNumberChange(e.target.value, setMinMarketCap)}
-                          className="pl-7 bg-white border-3 border-[var(--outline-black)] rounded-lg shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)] font-bold"
+                          onChange={(e) => handleMinMarketCapChange(e.target.value)}
+                          className="pl-8 bg-white border-3 border-[var(--outline-black)] rounded-lg shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)] font-bold"
                         />
                       </div>
                     </div>
@@ -265,14 +327,17 @@ export function WalletTrackerSettingsModal({ isOpen, onClose, onSettingsSaved }:
                         <Input
                           id="maxMarketCap"
                           type="text"
-                          placeholder="No limit"
+                          placeholder="e.g., 1000000"
                           value={maxMarketCap ? formatNumberInput(maxMarketCap) : ''}
-                          onChange={(e) => handleNumberChange(e.target.value, setMaxMarketCap)}
-                          className="pl-7 bg-white border-3 border-[var(--outline-black)] rounded-lg shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)] font-bold"
+                          onChange={(e) => handleMaxMarketCapChange(e.target.value)}
+                          className="pl-8 bg-white border-3 border-[var(--outline-black)] rounded-lg shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)] font-bold"
                         />
                       </div>
                     </div>
                   </div>
+                  {marketCapError && (
+                    <p className="text-xs text-[var(--mario-red)] font-bold">{marketCapError}</p>
+                  )}
                 </div>
 
                 {/* Transaction Amount Filter */}
@@ -290,10 +355,10 @@ export function WalletTrackerSettingsModal({ isOpen, onClose, onSettingsSaved }:
                         <Input
                           id="minTransactionUsd"
                           type="text"
-                          placeholder="0"
+                          placeholder="e.g., 100"
                           value={minTransactionUsd ? formatNumberInput(minTransactionUsd) : ''}
-                          onChange={(e) => handleNumberChange(e.target.value, setMinTransactionUsd)}
-                          className="pl-7 bg-white border-3 border-[var(--outline-black)] rounded-lg shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)] font-bold"
+                          onChange={(e) => handleMinTransactionChange(e.target.value)}
+                          className="pl-8 bg-white border-3 border-[var(--outline-black)] rounded-lg shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)] font-bold"
                         />
                       </div>
                     </div>
@@ -308,20 +373,23 @@ export function WalletTrackerSettingsModal({ isOpen, onClose, onSettingsSaved }:
                         <Input
                           id="maxTransactionUsd"
                           type="text"
-                          placeholder="No limit"
+                          placeholder="e.g., 10000"
                           value={maxTransactionUsd ? formatNumberInput(maxTransactionUsd) : ''}
-                          onChange={(e) => handleNumberChange(e.target.value, setMaxTransactionUsd)}
-                          className="pl-7 bg-white border-3 border-[var(--outline-black)] rounded-lg shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)] font-bold"
+                          onChange={(e) => handleMaxTransactionChange(e.target.value)}
+                          className="pl-8 bg-white border-3 border-[var(--outline-black)] rounded-lg shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)] font-bold"
                         />
                       </div>
                     </div>
                   </div>
+                  {transactionError && (
+                    <p className="text-xs text-[var(--mario-red)] font-bold">{transactionError}</p>
+                  )}
                 </div>
 
                 {/* Require Images */}
                 <div className="space-y-3">
                   <Label className="text-sm font-bold text-[var(--outline-black)]">Display Options</Label>
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-3">
                     <Checkbox
                       id="requireImages"
                       checked={requireImages}
@@ -337,8 +405,60 @@ export function WalletTrackerSettingsModal({ isOpen, onClose, onSettingsSaved }:
                   </div>
                 </div>
 
+                {/* Active Filters Summary */}
+                <div className="space-y-3">
+                  <Label className="text-sm font-bold text-[var(--outline-black)]">Active Filters</Label>
+                  <div className="p-3 bg-[var(--sky-50)] border-3 border-[var(--outline-black)] rounded-lg">
+                    <div className="flex flex-wrap gap-2">
+                      {showBuys && (
+                        <Badge variant="secondary" className="bg-[var(--luigi-green)] text-white">
+                          Show Buys
+                        </Badge>
+                      )}
+                      {showSells && (
+                        <Badge variant="secondary" className="bg-[var(--mario-red)] text-white">
+                          Show Sells
+                        </Badge>
+                      )}
+                      {showFirstBuyOnly && (
+                        <Badge variant="secondary" className="bg-[var(--star-yellow)] text-[var(--outline-black)]">
+                          First Buy Only
+                        </Badge>
+                      )}
+                      {minMarketCap && (
+                        <Badge variant="secondary">
+                          Min Market Cap: ${formatNumberInput(minMarketCap)}M
+                        </Badge>
+                      )}
+                      {maxMarketCap && (
+                        <Badge variant="secondary">
+                          Max Market Cap: ${formatNumberInput(maxMarketCap)}M
+                        </Badge>
+                      )}
+                      {minTransactionUsd && (
+                        <Badge variant="secondary">
+                          Min Tx: ${formatNumberInput(minTransactionUsd)}
+                        </Badge>
+                      )}
+                      {maxTransactionUsd && (
+                        <Badge variant="secondary">
+                          Max Tx: ${formatNumberInput(maxTransactionUsd)}
+                        </Badge>
+                      )}
+                      {requireImages && (
+                        <Badge variant="secondary" className="bg-[var(--coin-yellow)] text-[var(--outline-black)]">
+                          Images Required
+                        </Badge>
+                      )}
+                      {(!showBuys && !showSells && !showFirstBuyOnly && !minMarketCap && !maxMarketCap && !minTransactionUsd && !maxTransactionUsd && !requireImages) && (
+                        <span className="text-sm text-muted-foreground">No filters active</span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
                 {/* Action Buttons */}
-                <div className="flex gap-3 pt-4">
+                <div className="flex gap-2 pt-4">
                   <button
                     onClick={onClose}
                     className="flex-1 h-10 px-4 rounded-lg border-3 border-[var(--outline-black)] bg-white hover:bg-gray-50 shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all font-mario"
@@ -346,8 +466,14 @@ export function WalletTrackerSettingsModal({ isOpen, onClose, onSettingsSaved }:
                     Cancel
                   </button>
                   <button
+                    onClick={resetToDefaults}
+                    className="flex-1 h-10 px-4 rounded-lg border-3 border-[var(--outline-black)] bg-[var(--mario-red)] text-white hover:bg-[var(--mario-red)]/90 shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all font-mario"
+                  >
+                    Reset
+                  </button>
+                  <button
                     onClick={() => saveMutation.mutate()}
-                    disabled={saveMutation.isPending}
+                    disabled={saveMutation.isPending || !!marketCapError || !!transactionError}
                     className="flex-1 h-10 px-4 rounded-lg border-3 border-[var(--outline-black)] bg-[var(--luigi-green)] text-white hover:bg-[var(--luigi-green)]/90 shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all font-mario disabled:opacity-50"
                   >
                     {saveMutation.isPending ? (

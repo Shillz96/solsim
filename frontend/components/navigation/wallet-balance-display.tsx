@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Wallet, ArrowDownToLine, ArrowUpFromLine, ExternalLink, Power, AlertTriangle, Sparkles, KeyRound } from 'lucide-react';
+import { useState, useEffect, useMemo } from 'react';
+import { motion } from 'framer-motion';
+import { Wallet, ArrowDownToLine, ArrowUpFromLine, ExternalLink, Power, Sparkles, KeyRound, AlertCircle, CheckCircle, AlertTriangle } from 'lucide-react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { useTradingMode } from '@/lib/trading-mode-context';
 import { Button } from '@/components/ui/button';
@@ -83,9 +83,9 @@ export function WalletBalanceDisplay({
   const hasZeroBalance = activeBalance === 0 && !isLoadingBalance;
 
   // Format wallet address
-  const walletAddress = publicKey
-    ? `${publicKey.toBase58().slice(0, 4)}...${publicKey.toBase58().slice(-4)}`
-    : null;
+  const walletAddress = useMemo(() => publicKey
+    ? `${publicKey.toBase58().slice(0, 6)}...${publicKey.toBase58().slice(-4)}`
+    : null, [publicKey]);
 
   // Determine display state
   const getDisplayConfig = () => {
@@ -132,7 +132,17 @@ export function WalletBalanceDisplay({
     };
   };
 
-  const config = getDisplayConfig();
+  const config = useMemo(() => getDisplayConfig(), [
+    isPaperMode,
+    isDepositedFunding,
+    isWalletConnected,
+    virtualSolBalance,
+    realSolBalance,
+    walletSolBalance,
+    hasZeroBalance,
+    isLoadingBalance,
+    walletAddress
+  ]);
   const Icon = config.icon;
 
   // Mario cartridge variant - big yellow slab with chunky black outline
@@ -147,13 +157,13 @@ export function WalletBalanceDisplay({
         onClick={() => showDropdown && setActiveModal('deposit')}
         aria-label="Balance"
         className={cn(
-          // container
-          "group relative h-9 md:h-11 min-w-[140px] md:min-w-[180px]",
-          "px-2.5 md:px-3.5 rounded-[10px] md:rounded-[14px]",
+          // container - fluid sizing for smooth responsive behavior
+          "group relative h-[clamp(36px,4vw,44px)] min-w-[clamp(140px,15vw,180px)]",
+          "px-[clamp(10px,2vw,14px)] rounded-[clamp(10px,1.5vw,14px)]",
           "bg-[var(--star-yellow)]",
           "border-3 md:border-4 border-[var(--outline-black)]",
-          "shadow-[3px_3px_0_var(--outline-black)] md:shadow-[4px_4px_0_var(--outline-black)]",
-          "flex items-center gap-2 md:gap-4",
+          "shadow-[clamp(3px,0.5vw,4px)_clamp(3px,0.5vw,4px)_0_var(--outline-black)]",
+          "flex items-center gap-[clamp(8px,1.5vw,16px)]",
           "transition-all duration-150",
           "hover:-translate-y-[1px] hover:bg-[var(--star-yellow)]/90",
           "hover:shadow-[4px_4px_0_var(--outline-black)] md:hover:shadow-[6px_6px_0_var(--outline-black)]",
@@ -162,26 +172,26 @@ export function WalletBalanceDisplay({
         )}
       >
         {/* Amount + small label */}
-        <div className="flex flex-col leading-none -space-y-[1px] md:-space-y-[2px]">
-          <span className="tabular-nums font-extrabold text-[13px] md:text-[17px] tracking-tight text-[var(--outline-black)]">
+        <div className="flex flex-col leading-none -space-y-[clamp(1px,0.5vw,2px)]">
+          <span className="tabular-nums font-extrabold text-[clamp(13px,2.5vw,17px)] tracking-tight text-[var(--outline-black)]">
             {Number(activeBalance ?? 0).toFixed(2)}
           </span>
-          <span className="text-[9px] md:text-[11px] font-black uppercase text-foreground/80 truncate max-w-[80px] md:max-w-none">
+          <span className="text-[clamp(9px,1.5vw,11px)] font-black uppercase text-foreground/80 truncate max-w-[80px] md:max-w-none">
             {smallLabel}
           </span>
         </div>
 
-        {/* Red square badge on the right */}
+        {/* Red square badge on the right - part of touch target */}
         <div
           className={cn(
             "ml-auto grid place-items-center flex-shrink-0",
-            "h-6 w-6 md:h-8 md:w-8",
-            "rounded-[8px] md:rounded-[12px]",
+            "h-[clamp(24px,3vw,32px)] w-[clamp(24px,3vw,32px)]",
+            "rounded-[clamp(8px,1vw,12px)]",
             "bg-[var(--mario-red)] text-white",
-            "border-3 md:border-4 border-[var(--outline-black)]"
+            "border-[clamp(3px,0.5vw,4px)] border-[var(--outline-black)]"
           )}
         >
-          <span className="font-extrabold text-[10px] md:text-[12px] leading-none">
+          <span className="font-extrabold text-[clamp(10px,1.5vw,12px)] leading-none">
             {badge}
           </span>
         </div>
@@ -197,10 +207,10 @@ export function WalletBalanceDisplay({
         "h-8 md:h-9 px-2 md:px-2.5 rounded-md flex items-center gap-1.5 md:gap-2 tabular-nums cursor-pointer",
         variant === "minimal"
           ? [
-              // Minimal: thin border, no big shadows, neutral background
-              "border border-[var(--color-border)] bg-white text-foreground/90 shadow-none",
-              // Subtle hover
-              "hover:bg-[color-mix(in_oklab,white,black_3%)] transition-colors"
+              // Minimal: ensure visibility with white background and better contrast
+              "border border-[var(--color-border)] bg-white text-foreground shadow-sm",
+              // Subtle hover with better visibility
+              "hover:bg-[color-mix(in_oklab,white,black_5%)] hover:shadow-md transition-all"
             ]
           : [
               // keep your current colorful card look for non-header uses
@@ -215,7 +225,11 @@ export function WalletBalanceDisplay({
     >
       {/* left: tiny icon + label */}
       <div className="flex items-center gap-1 md:gap-1.5 min-w-0">
-        <Icon className="w-3.5 md:w-4 h-3.5 md:h-4 opacity-80 flex-shrink-0" />
+        <Icon
+          className="w-3.5 md:w-4 h-3.5 md:h-4 opacity-80 flex-shrink-0"
+          aria-hidden="false"
+          aria-label={`${config.label} balance`}
+        />
         <span className="text-[10px] md:text-[11px] leading-none truncate opacity-80 max-w-[60px] md:max-w-none">
           {config.label}
         </span>
@@ -236,7 +250,16 @@ export function WalletBalanceDisplay({
         {config.badge}
       </span>
 
-      {/* Badge serves as the warning indicator */}
+      {/* Status indicator for accessibility */}
+      {config.badge === 'FUND' && (
+        <AlertCircle className="w-3 h-3 text-mario-red-600 ml-1" aria-label="Funding required" />
+      )}
+      {config.badge === 'LIVE' && (
+        <CheckCircle className="w-3 h-3 text-luigi-green-600 ml-1" aria-label="Live trading active" />
+      )}
+      {config.badge === 'SETUP' && (
+        <AlertCircle className="w-3 h-3 text-mario-red-600 ml-1" aria-label="Setup required" />
+      )}
     </motion.div>
   );
 

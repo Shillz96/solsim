@@ -15,6 +15,11 @@ import {
   DropdownMenuTrigger,
   DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { Input } from "@/components/ui/input"
 import {
@@ -23,7 +28,6 @@ import {
   ChevronDown, Command, Gift, Building2, BookOpen, Map, Info, HelpCircle
 } from "lucide-react"
 import { useState, useCallback, useEffect, useRef } from "react"
-import { createPortal } from "react-dom"
 
 // Dynamic imports for modals to reduce initial bundle size
 const AuthModal = dynamic(() => import("@/components/modals/auth-modal").then(mod => ({ default: mod.AuthModal })), {
@@ -52,6 +56,7 @@ import { XPBadge } from "@/components/level/xp-progress-bar"
 import { useOnboardingContext } from "@/lib/onboarding-provider"
 import { ProfileMenu } from "@/components/navigation/profile-menu"
 import { WalletBalanceDisplay } from "@/components/navigation/wallet-balance-display"
+import { useBalance } from "@/hooks/use-react-query-hooks"
 
 // Enhanced navigation items with better organization
 const navigationItems = [
@@ -112,9 +117,10 @@ export function NavBar() {
   const [searchQuery, setSearchQuery] = useState("")
   const [searchResults, setSearchResults] = useState<TokenSearchResult[]>([])
   const [isSearching, setIsSearching] = useState(false)
-  const [showResults, setShowResults] = useState(false)
-  const searchRef = useRef<HTMLDivElement>(null)
-  const searchResultsRef = useRef<HTMLDivElement>(null)
+  const [isSearchOpen, setIsSearchOpen] = useState(false)
+  const [selectedResultIndex, setSelectedResultIndex] = useState(-1)
+  const [hasMoreResults, setHasMoreResults] = useState(false)
+  const searchInputRef = useRef<HTMLInputElement>(null)
   const abortControllerRef = useRef<AbortController | null>(null)
   const debouncedQuery = useDebounce(searchQuery, 300)
 
@@ -133,19 +139,14 @@ export function NavBar() {
     removeNotification,
   } = useNotifications()
 
-  const { data: balanceData } = useQuery({
-    queryKey: ['user-balance', user?.id],
-    queryFn: () => api.getWalletBalance(user!.id),
-    enabled: !!user,
-    staleTime: 30000,
-  })
+  const { data: balanceData } = useBalance(user?.id)
 
   // Fetch user profile for avatar and handle
   const { data: userProfile } = useQuery({
     queryKey: ['userProfile', user?.id],
     queryFn: () => user?.id ? api.getUserProfile(user.id) : null,
     enabled: !!user?.id,
-    staleTime: 5 * 60 * 1000
+    staleTime: 1 * 60 * 1000 // Reduced from 5 minutes to 1 minute for better data freshness
   })
 
   const balanceNumber = balanceData ? parseFloat(balanceData.balance) : 0
@@ -157,7 +158,8 @@ export function NavBar() {
   const performSearch = useCallback(async (query: string) => {
     if (!query.trim()) {
       setSearchResults([])
-      setShowResults(false)
+      setHasMoreResults(false)
+      setIsSearchOpen(false)
       return
     }
 
@@ -167,19 +169,25 @@ export function NavBar() {
 
     abortControllerRef.current = new AbortController()
     setIsSearching(true)
-    
+
     try {
-      const results = await api.searchTokens(query.trim(), 8)
-      
+      const results = await api.searchTokens(query.trim(), 9) // Request 9 to check if there are more
+
       if (!abortControllerRef.current.signal.aborted) {
-        setSearchResults(results)
-        setShowResults(true)
+        const hasMore = results.length === 9
+        const displayResults = hasMore ? results.slice(0, 8) : results
+
+        setSearchResults(displayResults)
+        setHasMoreResults(hasMore)
+        setIsSearchOpen(true)
+        setSelectedResultIndex(-1) // Reset selection when new results arrive
       }
     } catch (error) {
       if (!abortControllerRef.current.signal.aborted) {
         console.error('Search failed:', error)
         setSearchResults([])
-        setShowResults(false)
+        setHasMoreResults(false)
+        setIsSearchOpen(false)
       }
     } finally {
       if (!abortControllerRef.current.signal.aborted) {
@@ -196,40 +204,54 @@ export function NavBar() {
     setMounted(true)
   }, [])
 
-  // Close search results when clicking outside
+  // Cleanup abort controller on unmount
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as HTMLElement
-
-      // Check if click is inside search input or search results
-      const isInsideSearchInput = searchRef.current?.contains(target)
-      const isInsideSearchResults = searchResultsRef.current?.contains(target)
-
-      // Only close if click is outside both elements
-      if (!isInsideSearchInput && !isInsideSearchResults) {
-        setShowResults(false)
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort()
       }
     }
+  }, [])
 
-    if (showResults) {
-      // Small delay to prevent immediate closure on the same click that opened results
-      const timeoutId = setTimeout(() => {
-        document.addEventListener('mousedown', handleClickOutside)
-      }, 0)
 
-      return () => {
-        clearTimeout(timeoutId)
-        document.removeEventListener('mousedown', handleClickOutside)
-      }
-    }
-  }, [showResults])
+  const handleTokenSelect = useCallback((token?: TokenSearchResult, index?: number) => {
+    const tokenToSelect = token || (index !== undefined && searchResults[index])
+    if (!tokenToSelect) return
 
-  const handleTokenSelect = useCallback((token: TokenSearchResult) => {
-    router.push(`/trade?token=${token.mint}&symbol=${token.symbol}&name=${encodeURIComponent(token.name)}`)
+    router.push(`/trade?token=${tokenToSelect.mint}&symbol=${tokenToSelect.symbol}&name=${encodeURIComponent(tokenToSelect.name)}`)
     setSearchQuery('')
-    setShowResults(false)
+    setIsSearchOpen(false)
+    setSelectedResultIndex(-1)
     setMobileMenuOpen(false)
-  }, [router])
+  }, [router, searchResults])
+
+  const handleSearchKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (!isSearchOpen || searchResults.length === 0) return
+
+    switch (e.key) {
+      case 'ArrowDown':
+        e.preventDefault()
+        setSelectedResultIndex(prev =>
+          prev < searchResults.length - 1 ? prev + 1 : prev
+        )
+        break
+      case 'ArrowUp':
+        e.preventDefault()
+        setSelectedResultIndex(prev => prev > 0 ? prev - 1 : -1)
+        break
+      case 'Enter':
+        e.preventDefault()
+        if (selectedResultIndex >= 0) {
+          handleTokenSelect(undefined, selectedResultIndex)
+        }
+        break
+      case 'Escape':
+        e.preventDefault()
+        setIsSearchOpen(false)
+        setSelectedResultIndex(-1)
+        break
+    }
+  }, [isSearchOpen, searchResults.length, selectedResultIndex, handleTokenSelect])
 
   const handleLogout = useCallback(() => {
     logout()
@@ -241,13 +263,12 @@ export function NavBar() {
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       className="sticky top-0 z-50 w-full border-b border-[var(--color-border)] bg-[var(--background)]"
-      style={{ viewTransitionName: 'main-nav' } as React.CSSProperties}
     >
       <div className="w-full px-4 md:px-6">
         <div className="flex items-center justify-between gap-4 h-[var(--navbar-height)]">
           {/* Logo and Brand */}
           <div className="flex items-center gap-8">
-            <Link href="/" className="flex items-center flex-shrink-0" style={{ viewTransitionName: 'logo' } as React.CSSProperties}>
+            <Link href="/" className="flex items-center flex-shrink-0">
               <Image
                 src="/navbarlogo.svg"
                 alt="1UP SOL"
@@ -288,7 +309,9 @@ export function NavBar() {
                     size="sm"
                     className={cn(
                       "flex items-center gap-1.5 px-3 py-2 transition-all duration-200 font-mario text-xs h-9",
-                      infoItems.some(item => pathname === item.href) && "bg-primary/10 text-primary"
+                      "bg-[var(--pipe-gray)]/20 hover:bg-[var(--pipe-gray)]/30 border-2 border-[var(--pipe-gray)]",
+                      "shadow-[2px_2px_0_var(--pipe-gray)] hover:shadow-[3px_3px_0_var(--pipe-gray)]",
+                      infoItems.some(item => pathname === item.href) && "bg-[var(--star-yellow)]/20 border-[var(--star-yellow)] shadow-[2px_2px_0_var(--star-yellow)]"
                     )}
                   >
                     <Info className="h-4 w-4" />
@@ -320,81 +343,115 @@ export function NavBar() {
           </div>
 
           {/* Enhanced Search Bar - Hidden on mobile, visible on md+ */}
-          <div className="hidden md:flex flex-1 max-w-[400px] lg:max-w-[520px] mx-2 lg:mx-4 relative" ref={searchRef}>
-            <div className="relative w-full">
-              <Search className="absolute left-2 md:left-3 top-1/2 transform -translate-y-1/2 h-3.5 md:h-4 w-3.5 md:w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search tokens..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-8 md:pl-10 pr-8 md:pr-10 w-full h-8 md:h-9 text-xs md:text-sm border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)] transition-all font-semibold"
-              />
-              {isSearching && (
-                <Loader2 className="absolute right-2 md:right-3 top-1/2 transform -translate-y-1/2 h-3.5 md:h-4 w-3.5 md:w-4 animate-spin text-muted-foreground" />
-              )}
-            </div>
-
-            {/* Enhanced Search Results - Positioned relative to search input */}
-            {showResults && searchResults.length > 0 && (
-              <motion.div
-                ref={searchResultsRef}
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.15 }}
-                className="absolute top-full left-0 right-0 mt-2 bg-white border-3 md:border-4 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)] md:shadow-[6px_6px_0_var(--outline-black)] rounded-lg md:rounded-xl z-[100] max-h-80 overflow-y-auto"
+          <div className="hidden md:flex flex-1 max-w-[400px] lg:max-w-[520px] mx-2 lg:mx-4">
+            <Popover open={isSearchOpen} onOpenChange={setIsSearchOpen}>
+              <PopoverTrigger asChild>
+                <div className="relative w-full">
+                  <Search className="absolute left-2 md:left-3 top-1/2 transform -translate-y-1/2 h-3.5 md:h-4 w-3.5 md:w-4 text-muted-foreground" />
+                  <Input
+                    ref={searchInputRef}
+                    placeholder="Search tokens..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onKeyDown={handleSearchKeyDown}
+                    className="pl-8 md:pl-10 pr-8 md:pr-10 w-full h-8 md:h-9 text-xs md:text-sm border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)] transition-all font-semibold"
+                  />
+                  {isSearching && (
+                    <Loader2 className="absolute right-2 md:right-3 top-1/2 transform -translate-y-1/2 h-3.5 md:h-4 w-3.5 md:w-4 animate-spin text-muted-foreground" />
+                  )}
+                </div>
+              </PopoverTrigger>
+              <PopoverContent
+                align="start"
+                className="w-full p-0 bg-white border-3 md:border-4 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)] md:shadow-[6px_6px_0_var(--outline-black)] rounded-lg md:rounded-xl max-h-80 overflow-y-auto"
+                sideOffset={8}
               >
-                  <div className="p-1.5 md:p-2">
-                    <div className="text-[10px] md:text-xs text-muted-foreground px-2 py-1.5 md:py-2 font-mario font-bold border-b-2 md:border-b-3 border-[var(--outline-black)] mb-1 uppercase tracking-wide">
-                      Search Results
-                    </div>
-                    {searchResults.map((token) => (
-                      <button
-                        key={token.mint}
-                        onMouseDown={(e) => {
-                          e.preventDefault() // Prevent default to avoid focus issues
-                          e.stopPropagation() // Stop event from bubbling to document
-                          handleTokenSelect(token)
-                        }}
-                        className="w-full text-left px-2 md:px-3 py-2 md:py-2.5 rounded-lg hover:bg-[var(--star-yellow)]/20 border-2 border-transparent hover:border-[var(--outline-black)] transition-colors duration-150 focus:bg-[var(--star-yellow)]/20 focus:border-[var(--outline-black)] focus:outline-none"
-                      >
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            {token.logoURI && (
-                              <img
-                                src={token.logoURI}
-                                alt={token.symbol}
-                                className="w-7 h-7 rounded-full border-2 border-[var(--outline-black)] flex-shrink-0"
-                                onError={(e) => {
-                                  (e.target as HTMLImageElement).style.display = 'none'
-                                }}
-                              />
+                <AnimatePresence>
+                  {searchResults.length > 0 && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      transition={{ duration: 0.15 }}
+                    >
+                      <div className="p-1.5 md:p-2">
+                        <div className="text-[10px] md:text-xs text-muted-foreground px-2 py-1.5 md:py-2 font-mario font-bold border-b-2 md:border-b-3 border-[var(--outline-black)] mb-1 uppercase tracking-wide">
+                          Search Results
+                        </div>
+                        {searchResults.map((token, index) => (
+                          <button
+                            key={token.mint}
+                            onMouseDown={(e) => {
+                              e.preventDefault() // Prevent default to avoid focus issues
+                              e.stopPropagation() // Stop event from bubbling to document
+                              handleTokenSelect(token)
+                            }}
+                            className={cn(
+                              "w-full text-left px-2 md:px-3 py-2 md:py-2.5 rounded-lg border-2 transition-colors duration-150 focus:outline-none",
+                              selectedResultIndex === index
+                                ? "bg-[var(--star-yellow)]/30 border-[var(--outline-black)]"
+                                : "hover:bg-[var(--star-yellow)]/20 border-transparent hover:border-[var(--outline-black)] focus:bg-[var(--star-yellow)]/20 focus:border-[var(--outline-black)]"
                             )}
-                            <div className="min-w-0 flex-1">
-                              <div className="font-mario text-xs md:text-sm text-foreground truncate">{token.symbol}</div>
-                              <div className="text-[10px] md:text-xs text-muted-foreground truncate font-bold">
-                                {token.name}
+                          >
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-3">
+                                {token.logoURI && (
+                                  <img
+                                    src={token.logoURI}
+                                    alt={token.symbol}
+                                    className="w-7 h-7 rounded-full border-2 border-[var(--outline-black)] flex-shrink-0"
+                                    onError={(e) => {
+                                      (e.target as HTMLImageElement).style.display = 'none'
+                                    }}
+                                  />
+                                )}
+                                <div className="min-w-0 flex-1">
+                                  <div className="font-mario text-xs md:text-sm text-foreground truncate">{token.symbol}</div>
+                                  <div className="text-[10px] md:text-xs text-muted-foreground truncate font-bold">
+                                    {token.name}
+                                  </div>
+                                </div>
                               </div>
-                            </div>
-                          </div>
-                          {token.price && (
-                            <div className="text-right flex-shrink-0 ml-2">
-                              <div className="text-xs md:text-sm font-bold text-foreground tabular-nums">
-                                ${parseFloat(token.price.toString()).toFixed(6)}
-                              </div>
-                              {solPrice > 0 && (
-                                <div className="text-[10px] md:text-xs text-muted-foreground tabular-nums font-bold">
-                                  {formatSolEquivalent(parseFloat(token.price.toString()), solPrice)}
+                              {token.price && (
+                                <div className="text-right flex-shrink-0 ml-2">
+                                  <div className="text-xs md:text-sm font-bold text-foreground tabular-nums">
+                                    ${parseFloat(token.price.toString()).toFixed(6)}
+                                  </div>
+                                  {solPrice > 0 && (
+                                    <div className="text-[10px] md:text-xs text-muted-foreground tabular-nums font-bold">
+                                      {formatSolEquivalent(parseFloat(token.price.toString()), solPrice)}
+                                    </div>
+                                  )}
                                 </div>
                               )}
                             </div>
-                          )}
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-              </motion.div>
-            )}
+                          </button>
+                        ))}
+
+                        {hasMoreResults && (
+                          <div className="border-t border-[var(--outline-black)] mt-2 pt-2">
+                            <button
+                              onMouseDown={(e) => {
+                                e.preventDefault()
+                                e.stopPropagation()
+                                // Navigate to trending page with search query as filter
+                                router.push(`/trending?search=${encodeURIComponent(searchQuery)}`)
+                                setSearchQuery('')
+                                setIsSearchOpen(false)
+                                setSelectedResultIndex(-1)
+                              }}
+                              className="w-full text-center px-2 md:px-3 py-2 rounded-lg bg-[var(--mario-red)] border-2 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] transition-all duration-150 font-mario text-xs md:text-sm font-bold text-white hover:bg-[var(--mario-red)]/90"
+                            >
+                              View all results
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </PopoverContent>
+            </Popover>
           </div>
 
           {/* Right Side Actions */}

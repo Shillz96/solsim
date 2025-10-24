@@ -955,7 +955,7 @@ export function WalletManager({
                     value={bulkWalletText}
                     onChange={(e) => setBulkWalletText(e.target.value)}
                     placeholder="Paste wallet addresses here (one per line, or comma/space separated)&#10;&#10;Example:&#10;GJQzW...abc123&#10;9HzJP...xyz789&#10;ABcdE...efg456"
-                    rows={10}
+                    rows={6}
                     className="w-full px-3 py-2 bg-white border-3 border-[var(--outline-black)] rounded-lg shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)] font-mono text-sm resize-none focus:outline-none focus:ring-0"
                   />
                   <p className="text-xs text-[var(--pipe-600)] font-semibold">
