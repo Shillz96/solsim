@@ -50,28 +50,28 @@ function PortfolioPageContent() {
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.2 }}>
           <Tabs defaultValue={defaultTab} className="w-full">
-            <TabsList className="inline-flex w-auto mb-6 bg-[var(--sky-blue)]/20 border-4 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)] rounded-xl p-2 gap-2 flex-wrap">
-              <TabsTrigger value="overview" className="gap-2 bg-white/80 text-[var(--outline-black)] border-3 border-[var(--outline-black)] data-[state=active]:bg-[var(--star-yellow)] data-[state=active]:text-[var(--outline-black)] data-[state=active]:border-4 data-[state=active]:border-[var(--outline-black)] data-[state=active]:shadow-[2px_2px_0_var(--outline-black)] rounded-lg font-mario text-xs sm:text-sm transition-all px-4 py-2 hover:bg-[var(--star-yellow)]/20">
+            <TabsList className="inline-flex w-auto mb-6 bg-[var(--sky-blue)]/20 border-4 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)] rounded-xl p-1 gap-1 flex-wrap">
+              <TabsTrigger value="overview" className="gap-2 bg-white/80 text-[var(--outline-black)] border-3 border-transparent data-[state=active]:bg-[var(--star-yellow)] data-[state=active]:text-[var(--outline-black)] data-[state=active]:border-[var(--outline-black)] rounded-lg font-mario text-xs sm:text-sm transition-all px-3 py-1.5 hover:bg-[var(--star-yellow)]/20">
                 <Image src="/icons/mario/star.png" alt="Overview" width={16} height={16} />
                 <span>OVERVIEW</span>
               </TabsTrigger>
-              <TabsTrigger value="coins" className="gap-2 bg-white/80 text-[var(--outline-black)] border-3 border-[var(--outline-black)] data-[state=active]:bg-[var(--mario-red)] data-[state=active]:text-white data-[state=active]:border-4 data-[state=active]:border-[var(--outline-black)] data-[state=active]:shadow-[2px_2px_0_var(--outline-black)] rounded-lg font-mario text-xs sm:text-sm transition-all px-4 py-2 hover:bg-[var(--mario-red)]/20">
+              <TabsTrigger value="coins" className="gap-2 bg-white/80 text-[var(--outline-black)] border-3 border-transparent data-[state=active]:bg-[var(--mario-red)] data-[state=active]:text-white data-[state=active]:border-[var(--outline-black)] rounded-lg font-mario text-xs sm:text-sm transition-all px-3 py-1.5 hover:bg-[var(--mario-red)]/20">
                 <Image src="/icons/mario/mushroom.png" alt="Positions" width={16} height={16} />
                 <span>COINS</span>
               </TabsTrigger>
-              <TabsTrigger value="stats" className="gap-2 bg-white/80 text-[var(--outline-black)] border-3 border-[var(--outline-black)] data-[state=active]:bg-[var(--luigi-green)] data-[state=active]:text-white data-[state=active]:border-4 data-[state=active]:border-[var(--outline-black)] data-[state=active]:shadow-[2px_2px_0_var(--outline-black)] rounded-lg font-mario text-xs sm:text-sm transition-all px-4 py-2 hover:bg-[var(--luigi-green)]/20">
+              <TabsTrigger value="stats" className="gap-2 bg-white/80 text-[var(--outline-black)] border-3 border-transparent data-[state=active]:bg-[var(--luigi-green)] data-[state=active]:text-white data-[state=active]:border-[var(--outline-black)] rounded-lg font-mario text-xs sm:text-sm transition-all px-3 py-1.5 hover:bg-[var(--luigi-green)]/20">
                 <Image src="/icons/mario/fire.png" alt="Stats" width={16} height={16} />
                 <span>STATS</span>
               </TabsTrigger>
-              <TabsTrigger value="history" className="gap-2 bg-white/80 text-[var(--outline-black)] border-3 border-[var(--outline-black)] data-[state=active]:bg-[var(--star-yellow)] data-[state=active]:text-[var(--outline-black)] data-[state=active]:border-4 data-[state=active]:border-[var(--outline-black)] data-[state=active]:shadow-[2px_2px_0_var(--outline-black)] rounded-lg font-mario text-xs sm:text-sm transition-all px-4 py-2 hover:bg-[var(--star-yellow)]/20">
+              <TabsTrigger value="history" className="gap-2 bg-white/80 text-[var(--outline-black)] border-3 border-transparent data-[state=active]:bg-[var(--star-yellow)] data-[state=active]:text-[var(--outline-black)] data-[state=active]:border-[var(--outline-black)] rounded-lg font-mario text-xs sm:text-sm transition-all px-3 py-1.5 hover:bg-[var(--star-yellow)]/20">
                 <Image src="/icons/mario/trophy.png" alt="History" width={16} height={16} />
                 <span>QUEST LOG</span>
               </TabsTrigger>
-              <TabsTrigger value="wallet" className="gap-2 bg-white/80 text-[var(--outline-black)] border-3 border-[var(--outline-black)] data-[state=active]:bg-[var(--mario-red)] data-[state=active]:text-white data-[state=active]:border-4 data-[state=active]:border-[var(--outline-black)] data-[state=active]:shadow-[2px_2px_0_var(--outline-black)] rounded-lg font-mario text-xs sm:text-sm transition-all px-4 py-2 hover:bg-[var(--mario-red)]/20">
+              <TabsTrigger value="wallet" className="gap-2 bg-white/80 text-[var(--outline-black)] border-3 border-transparent data-[state=active]:bg-[var(--mario-red)] data-[state=active]:text-white data-[state=active]:border-[var(--outline-black)] rounded-lg font-mario text-xs sm:text-sm transition-all px-3 py-1.5 hover:bg-[var(--mario-red)]/20">
                 <Image src="/icons/mario/money-bag.png" alt="Wallet" width={16} height={16} />
                 <span>WALLET</span>
               </TabsTrigger>
-              <TabsTrigger value="achievements" className="gap-2 bg-white/80 text-[var(--outline-black)] border-2 border-[var(--outline-black)] data-[state=active]:bg-[var(--luigi-green)] data-[state=active]:text-white data-[state=active]:border-3 data-[state=active]:border-[var(--outline-black)] data-[state=active]:shadow-[2px_2px_0_var(--outline-black)] rounded-lg font-mario text-xs sm:text-sm transition-all px-4 py-2 hover:bg-[var(--luigi-green)]/20">
+              <TabsTrigger value="achievements" className="gap-2 bg-white/80 text-[var(--outline-black)] border-3 border-transparent data-[state=active]:bg-[var(--luigi-green)] data-[state=active]:text-white data-[state=active]:border-[var(--outline-black)] rounded-lg font-mario text-xs sm:text-sm transition-all px-3 py-1.5 hover:bg-[var(--luigi-green)]/20">
                 <Image src="/icons/mario/star.png" alt="Achievements" width={16} height={16} />
                 <span>ACHIEVEMENTS</span>
               </TabsTrigger>

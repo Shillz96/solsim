@@ -366,7 +366,7 @@ function MarioTradingPanelComponent({ tokenAddress: propTokenAddress }: MarioTra
         </div>
 
         {/* Price Display */}
-        <div className="bg-gradient-to-br from-[var(--coin-gold)]/20 to-[var(--star-yellow)]/10 border-2 border-[var(--outline-black)] rounded p-2 sm:p-3">
+        <div className="bg-gradient-to-br from-[var(--coin-gold)]/20 to-[var(--star-yellow)]/10 border-3 border-[var(--outline-black)] rounded p-2 sm:p-3">
           <AnimatedNumber
             value={currentPrice}
             prefix="$"

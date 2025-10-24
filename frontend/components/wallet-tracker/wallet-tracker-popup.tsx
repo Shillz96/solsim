@@ -347,7 +347,7 @@ export function WalletTrackerPopup({ isOpen, onClose }: WalletTrackerPopupProps)
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: "100%", opacity: 0 }}
             transition={{ type: "spring", damping: 30, stiffness: 300 }}
-            className="fixed bottom-0 left-0 right-0 z-[101] max-h-[calc(100vh-env(safe-area-inset-bottom)-200px)] bg-background border-t-2 border-border rounded-t-2xl shadow-2xl overflow-hidden"
+            className="fixed bottom-0 left-0 right-0 z-[101] max-h-[calc(100vh-env(safe-area-inset-bottom)-200px)] bg-background border-t-4 border-[var(--outline-black)] rounded-t-xl shadow-[0_-8px_0_var(--outline-black)] overflow-hidden"
             role="dialog"
             aria-label="Wallet tracker"
             tabIndex={-1}
@@ -355,7 +355,7 @@ export function WalletTrackerPopup({ isOpen, onClose }: WalletTrackerPopupProps)
             <div className="flex flex-col h-full max-h-[calc(100vh-env(safe-area-inset-bottom)-200px)]">
               {/* Header */}
               <div
-                className="flex items-center justify-between p-4 border-b border-border bg-muted/30 touch-none"
+                className="flex items-center justify-between p-4 border-b-3 border-[var(--outline-black)] bg-muted/30 touch-none"
                 onTouchStart={onTouchStart}
                 onTouchMove={onTouchMove}
                 onTouchEnd={onTouchEnd}
