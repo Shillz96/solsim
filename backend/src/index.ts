@@ -235,9 +235,10 @@ app.register(tradesRoutes, { prefix: "/api/trades" });
 app.register(walletRoutes, { prefix: "/api/wallet" });
 // Legacy wallet tracker (deprecated - kept for backwards compatibility)
 // app.register(walletTrackerRoutes, { prefix: "/api/wallet-tracker" });
-app.register(walletTrackerV2Routes, { prefix: "/api/wallet-tracker/v2" });
+// V2 routes now handled by PumpPortal implementation below
+// app.register(walletTrackerV2Routes, { prefix: "/api/wallet-tracker/v2" });
 app.register(walletTrackerSettingsRoutes, { prefix: "/api/wallet-tracker" });
-// PumpPortal real-time wallet tracking (replaces legacy walletTrackerRoutes)
+// PumpPortal real-time wallet tracking (replaces legacy walletTrackerRoutes and V2)
 app.register(walletTrackerPumpPortalRoutes, { prefix: "/api" });
 app.register(searchRoutes, { prefix: "/api/search" });
 app.register(purchaseRoutes, { prefix: "/api/purchase" });
