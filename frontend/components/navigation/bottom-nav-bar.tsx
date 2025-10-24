@@ -286,7 +286,7 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
         "fixed bottom-0 left-0 right-0 z-50 border-t border-[var(--color-border)] bg-[var(--background)] md:hidden pb-[env(safe-area-inset-bottom)]",
         className
       )}>
-        <div className="flex items-center justify-around h-16">
+        <div className="flex items-center justify-around h-12">
           {navItems.map((item, index) => {
             const Icon = item.icon
             const isActive = pathname === item.href
@@ -301,7 +301,7 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
                 <Link
                   href={item.href}
                   className={cn(
-                    "relative z-10 flex flex-col items-center justify-center gap-1 px-3 py-2 rounded-lg transition-all duration-200",
+                    "relative z-10 flex flex-col items-center justify-center gap-0.5 px-2 py-1 rounded-lg transition-all duration-200",
                     isActive
                       ? "bg-primary/20 text-primary shadow-sm"
                       : "text-foreground/70 hover:text-foreground hover:bg-muted/50"
@@ -309,11 +309,11 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
                   aria-current={isActive ? "page" : undefined}
                 >
                   <Icon className={cn(
-                    "h-4 w-4 transition-colors",
+                    "h-3.5 w-3.5 transition-colors",
                     isActive ? "text-primary" : "text-foreground/70"
                   )} />
                   <span className={cn(
-                    "text-[10px] font-mario truncate max-w-[60px] transition-colors",
+                    "text-[9px] font-mario truncate max-w-[50px] transition-colors",
                     isActive ? "text-primary font-semibold" : "text-foreground/70"
                   )}>
                     {item.label}
@@ -333,18 +333,18 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
             <button
               onClick={() => handleToggleMode(tradeMode === "REAL" ? "PAPER" : "REAL")}
               className={cn(
-                "relative z-10 flex flex-col items-center justify-center gap-1 px-3 py-2 rounded-lg transition-all duration-200",
+                "relative z-10 flex flex-col items-center justify-center gap-0.5 px-2 py-1 rounded-lg transition-all duration-200",
                 "text-foreground/70 hover:text-foreground hover:bg-muted/50"
               )}
             >
               <div className={cn(
-                "h-4 w-4 transition-colors flex items-center justify-center",
+                "h-3.5 w-3.5 transition-colors flex items-center justify-center",
                 "text-foreground/70"
               )}>
-                <span className="text-xs font-mario">📄</span>
+                <span className="text-[10px] font-mario">📄</span>
               </div>
               <span className={cn(
-                "text-[10px] font-mario truncate max-w-[60px] transition-colors",
+                "text-[9px] font-mario truncate max-w-[50px] transition-colors",
                 "text-foreground/70"
               )}>
                 {tradeMode === "REAL" ? "Paper" : "Mainnet"}

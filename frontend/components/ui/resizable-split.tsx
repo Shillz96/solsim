@@ -71,7 +71,7 @@ export function ResizableSplit({
   )
 
   // Debounced save function
-  const debouncedSave = useRef<NodeJS.Timeout>()
+  const debouncedSave = useRef<NodeJS.Timeout | null>(null)
   const debouncedSaveRatio = useCallback(
     (newRatio: number) => {
       if (debouncedSave.current) {
