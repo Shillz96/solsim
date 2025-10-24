@@ -50,7 +50,7 @@ export default function WalletManagementPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-sky-100 via-white to-pipe-50">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
       {/* Header */}
       <div className="bg-gradient-to-r from-star-yellow-400 via-coin-yellow-400 to-star-yellow-400 border-b-4 border-pipe-700 shadow-mario">
         <div className="container mx-auto px-4 py-6">
