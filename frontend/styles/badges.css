@@ -6,27 +6,33 @@
 
 /* Badge Rarity Colors */
 .badge-common {
-  @apply bg-luigi-green-500 border-luigi-green-600;
+  background-color: var(--luigi-green);
+  border-color: rgb(22, 163, 74);
 }
 
 .badge-uncommon {
-  @apply bg-sky-blue-500 border-sky-blue-600;
+  background-color: var(--sky-blue);
+  border-color: rgb(14, 165, 233);
 }
 
 .badge-rare {
-  @apply bg-star-yellow-500 border-star-yellow-600;
+  background-color: var(--star-yellow);
+  border-color: rgb(234, 179, 8);
 }
 
 .badge-epic {
-  @apply bg-mario-red-500 border-mario-red-600;
+  background-color: var(--mario-red);
+  border-color: rgb(220, 38, 38);
 }
 
 .badge-legendary {
-  @apply bg-coin-yellow-500 border-coin-yellow-600;
+  background-color: var(--coin-gold);
+  border-color: rgb(234, 179, 8);
 }
 
 .badge-mythic {
-  @apply bg-star-yellow-400 border-star-yellow-500;
+  background-color: var(--star-yellow);
+  border-color: rgb(250, 204, 21);
 }
 
 /* Badge Glow Effects */
@@ -156,27 +162,27 @@
 }
 
 .badge-rarity-indicator-common {
-  @apply bg-luigi-green-500;
+  background-color: var(--luigi-green);
 }
 
 .badge-rarity-indicator-uncommon {
-  @apply bg-sky-blue-500;
+  background-color: var(--sky-blue);
 }
 
 .badge-rarity-indicator-rare {
-  @apply bg-star-yellow-500;
+  background-color: var(--star-yellow);
 }
 
 .badge-rarity-indicator-epic {
-  @apply bg-mario-red-500;
+  background-color: var(--mario-red);
 }
 
 .badge-rarity-indicator-legendary {
-  @apply bg-coin-yellow-500;
+  background-color: var(--coin-gold);
 }
 
 .badge-rarity-indicator-mythic {
-  @apply bg-star-yellow-400;
+  background-color: var(--star-yellow);
 }
 
 /* Badge Unlock Animation */
@@ -237,19 +243,20 @@
 }
 
 .badge-leaderboard-rank-1 {
-  @apply bg-coin-yellow-500;
+  background-color: var(--coin-gold);
 }
 
 .badge-leaderboard-rank-2 {
-  @apply bg-pipe-400;
+  background-color: #a8a29e;
 }
 
 .badge-leaderboard-rank-3 {
-  @apply bg-luigi-green-500;
+  background-color: var(--luigi-green);
 }
 
 .badge-leaderboard-rank-other {
-  @apply bg-pipe-300 text-pipe-700;
+  background-color: #d6d3d1;
+  color: #57534e;
 }
 
 /* Badge Stats */
