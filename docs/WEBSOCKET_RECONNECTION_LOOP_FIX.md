@@ -8,6 +8,10 @@ WebSocket connections establishing and immediately disconnecting in a rapid loop
 ### 1. ✅ FIXED: React useEffect Dependency Loop
 **Issue:** Multiple useEffect hooks with function dependencies causing constant re-renders
 
+**Affected Components:**
+- `frontend/lib/price-stream-provider.tsx` - Price WebSocket
+- `frontend/hooks/useChatWebSocket.ts` - Chat WebSocket
+
 **Fix Applied:**
 ```tsx
 // Before (WRONG):
@@ -26,19 +30,40 @@ useEffect(() => {
 // Removed duplicate cleanup effect
 ```
 
+### 2. ✅ FIXED: WebSocket URL Path Concatenation
+**Issue:** Chat WebSocket was concatenating paths incorrectly
+
+**Problem:**
+```
+NEXT_PUBLIC_WS_URL=wss://solsim-production.up.railway.app/ws/prices
+Chat WebSocket: ${WS_URL}/ws/chat
+Result: wss://solsim-production.up.railway.app/ws/prices/ws/chat ❌
+```
+
+**Fix Applied:**
+```typescript
+// Strip any existing paths before appending chat path
+const baseUrl = WS_URL.replace(/\/(ws\/)?prices?\/?$/, '');
+const ws = new WebSocket(`${baseUrl}/ws/chat?token=${token}`);
+// Result: wss://solsim-production.up.railway.app/ws/chat ✅
+```
+
 ### 2. ⚠️ NEEDS VERIFICATION: Environment Variable Path
 **Current Configuration:**
 ```bash
-NEXT_PUBLIC_WS_URL=wss://solsim-production.up.railway.app
-```
-
-**Issue:** Missing `/ws/prices` path (backend WebSocket endpoint)
-
-**Temporary Fix:** Code now intelligently appends path if missing
-**Permanent Fix:** Update `.env.local`:
-```bash
 NEXT_PUBLIC_WS_URL=wss://solsim-production.up.railway.app/ws/prices
 ```
+
+**Status:** ✅ WORKING - Code now handles this correctly by:
+- Price WebSocket: Uses URL as-is (includes /ws/prices)
+- Chat WebSocket: Strips /ws/prices and appends /ws/chat
+- Wallet Tracker: Strips /ws/prices and appends /ws/wallet-tracker
+
+**Alternative (Cleaner):** You can update `.env.local` to use base URL:
+```bash
+NEXT_PUBLIC_WS_URL=wss://solsim-production.up.railway.app
+```
+Then each WebSocket will append its own path.
 
 ### 3. ⚠️ NEEDS INVESTIGATION: CORS/Origin Blocking
 **Backend CORS Config:**

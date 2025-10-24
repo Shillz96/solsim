@@ -3,7 +3,7 @@
 import Link from "next/link"
 import Image from "next/image"
 import { usePathname } from "next/navigation"
-import { Home, TrendingUp, Wallet, Trophy, Gift, Eye, Zap, Map, BookOpen, AlertTriangle } from "lucide-react"
+import { Home, TrendingUp, Wallet, Trophy, Gift, Eye, Zap, Map, BookOpen, AlertTriangle, Rocket } from "lucide-react"
 import { Twitter as XIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useState, useEffect } from "react"
@@ -249,6 +249,7 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
     { href: "/portfolio", icon: Wallet, label: "Portfolio" },
     { href: "/leaderboard", icon: Trophy, label: "Ranks" },
     { href: "/rewards", icon: Gift, label: "Rewards" },
+    { href: "/launch", icon: Rocket, label: "Launch" },
   ]
 
   return (
@@ -410,6 +411,13 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
 
               {/* Right: Controls */}
               <div className="flex items-center gap-4">
+                {/* Launch Token - Red CartridgePill */}
+                <CartridgePill
+                  value="Launch Token"
+                  href="/launch"
+                  size="sm"
+                  bgColor="var(--mario-red)"
+                />
                 {/* Wallet Tracker - Blue CartridgePill */}
                 <CartridgePill
                   value="Wallet Tracker"
@@ -523,8 +531,16 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
               </div>
             </div>
 
-            {/* Right: Wallet Tracker, Leaderboard & Trading Mode */}
+            {/* Right: Launch Token, Wallet Tracker, Leaderboard & Trading Mode */}
             <div className="flex items-center gap-2 md:gap-4">
+              {/* Launch Token - Red CartridgePill */}
+              <CartridgePill
+                value="Launch Token"
+                href="/launch"
+                size="sm"
+                bgColor="var(--mario-red)"
+                className="hidden lg:inline-grid"
+              />
               {/* Wallet Tracker - Blue CartridgePill */}
               <CartridgePill
                 value="Wallet Tracker"
