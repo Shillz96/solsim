@@ -62,7 +62,8 @@ export function useTradeMarkers(
 
     // If hide bubbles is active or showMarkers is false, clear markers
     if (hideBubbles || !showMarkers) {
-      candlestickSeries.setMarkers([])
+      // Use type assertion - setMarkers exists in v5 but TypeScript types don't expose it
+      ;(candlestickSeries as any).setMarkers([])
       return
     }
 
@@ -108,8 +109,8 @@ export function useTradeMarkers(
       }
     })
 
-    // Use correct TradingView v5 API
-    candlestickSeries.setMarkers(markers)
+    // Use TradingView v5 API (setMarkers exists but TypeScript types don't expose it)
+    ;(candlestickSeries as any).setMarkers(markers)
 
     console.log(`✅ Applied ${markers.length} trade markers`)
   }, [candlestickSeries, tradesData, hideBubbles, showMarkers])
