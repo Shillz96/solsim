@@ -115,7 +115,7 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
         className={cn("w-full", className)}
       >
         {/* Horizontal Layout Token Card - Axiom Style */}
-        <div className="relative rounded-[16px] overflow-hidden bg-[var(--sky-blue)]/20 border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] hover:shadow-[8px_8px_0_var(--outline-black)] hover:-translate-y-[2px] transition-all duration-200 cursor-pointer h-[140px]">
+        <div className="relative rounded-[16px] overflow-hidden bg-[var(--sky-blue)]/20 border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] hover:shadow-[8px_8px_0_var(--outline-black)] hover:-translate-y-[2px] transition-all duration-200 cursor-pointer h-[160px] min-h-[160px]">
           <div className="flex items-center gap-4 p-4 h-full">
 
             {/* LEFT: Token Logo */}
@@ -136,44 +136,44 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
             {/* MIDDLE: Token Info */}
             <div className="flex-1 min-w-0">
               {/* Top Row: Symbol, Name, Age */}
-              <div className="flex items-center gap-2 mb-2">
-                <h3 className="font-bold text-[22px] text-[var(--outline-black)] font-mario">
+              <div className="flex items-center gap-2 mb-1">
+                <h3 className="font-bold text-[18px] text-[var(--outline-black)] font-mario">
                   {data.symbol}
                 </h3>
-                <span className="text-[15px] text-[var(--outline-black)] font-semibold truncate max-w-[150px]" title={data.name || undefined}>
+                <span className="text-[13px] text-[var(--outline-black)] font-semibold truncate max-w-[120px]" title={data.name || undefined}>
                   {data.name}
                 </span>
-                <span className="text-[13px] text-[var(--outline-black)] font-bold ml-auto">
+                <span className="text-[11px] text-[var(--outline-black)] font-bold ml-auto">
                   {age}
                 </span>
               </div>
 
               {/* Description (if available, truncated) */}
               {data.description && (
-                <div className="text-[12px] text-[var(--outline-black)] font-medium mb-1 truncate max-w-[300px] opacity-90" title={data.description}>
+                <div className="text-[10px] text-[var(--outline-black)] font-medium mb-1 truncate max-w-[280px] opacity-90" title={data.description}>
                   {data.description}
                 </div>
               )}
 
               {/* Middle Row: Stats and Badges */}
-              <div className="flex items-center gap-3 flex-wrap">
+              <div className="flex items-center gap-2 flex-wrap">
                 {/* Status Badge */}
                 {data.status && (
                   <div className={cn(
-                    "px-2 py-0.5 rounded-[6px] border-3 text-[12px] font-bold uppercase font-mario shadow-[2px_2px_0_var(--outline-black)]",
+                    "px-1.5 py-0.5 rounded-[4px] border-2 text-[10px] font-bold uppercase font-mario shadow-[1px_1px_0_var(--outline-black)]",
                     data.status === 'LAUNCHING' && "bg-[var(--sky-blue)]/20 text-[var(--sky-blue)] border-[var(--sky-blue)]",
                     data.status === 'ACTIVE' && "bg-[var(--luigi-green)]/20 text-[var(--luigi-green)] border-[var(--luigi-green)]",
                     data.status === 'ABOUT_TO_BOND' && "bg-[var(--star-yellow)]/20 text-[var(--star-yellow)] border-[var(--star-yellow)]",
                     data.status === 'BONDED' && "bg-[var(--coin-yellow)]/20 text-[var(--coin-yellow)] border-[var(--coin-yellow)]",
                     data.status === 'DEAD' && "bg-[var(--mario-red)]/20 text-[var(--mario-red)] border-[var(--mario-red)]"
                   )}>
-                    {data.status === 'ABOUT_TO_BOND' ? '🔥 ABOUT TO BOND' : data.status}
+                    {data.status === 'ABOUT_TO_BOND' ? '🔥 BOND' : data.status}
                   </div>
                 )}
 
                 {/* Security Badge */}
                 <div className={cn(
-                  "px-2 py-0.5 rounded-[6px] border-3 text-[12px] font-bold uppercase font-mario shadow-[2px_2px_0_var(--outline-black)]",
+                  "px-1.5 py-0.5 rounded-[4px] border-2 text-[10px] font-bold uppercase font-mario shadow-[1px_1px_0_var(--outline-black)]",
                   security.cls
                 )}>
                   {security.label}
@@ -181,7 +181,7 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
 
                 {/* Bonding Progress (if available) */}
                 {data.bondingCurveProgress != null && (
-                  <div className="flex items-center gap-1 text-[13px]">
+                  <div className="flex items-center gap-1 text-[11px]">
                     <span className="text-[var(--outline-black)]">⚡</span>
                     <span className="font-mono font-bold text-[var(--outline-black)]">
                       {data.bondingCurveProgress.toFixed(0)}%
@@ -191,7 +191,7 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
 
                 {/* Holder Count */}
                 {data.holderCount != null && (
-                  <div className="flex items-center gap-1 text-[13px] text-[var(--outline-black)] font-semibold">
+                  <div className="flex items-center gap-1 text-[11px] text-[var(--outline-black)] font-semibold">
                     <span>👥</span>
                     <span className="font-mono font-bold">{data.holderCount}</span>
                   </div>
@@ -199,7 +199,7 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
 
                 {/* Transaction Count */}
                 {data.txCount24h != null && (
-                  <div className="flex items-center gap-1 text-[13px] text-[var(--outline-black)] font-semibold">
+                  <div className="flex items-center gap-1 text-[11px] text-[var(--outline-black)] font-semibold">
                     <span>📝</span>
                     <span className="font-mono font-bold">{data.txCount24h}</span>
                   </div>
@@ -217,16 +217,16 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
 
               {/* SOL to Graduate Progress Bar - Only for ABOUT_TO_BOND */}
               {data.status === 'ABOUT_TO_BOND' && data.bondingCurveProgress != null && data.solToGraduate != null && (
-                <div className="mt-2 relative">
-                  <div className="bg-white border-3 border-[var(--outline-black)] rounded-full h-5 overflow-hidden relative shadow-[2px_2px_0_var(--outline-black)]">
+                <div className="mt-1 relative">
+                  <div className="bg-white border-2 border-[var(--outline-black)] rounded-full h-3 overflow-hidden relative shadow-[1px_1px_0_var(--outline-black)]">
                     <div
-                      className="bg-[var(--star-yellow)] h-full flex items-center justify-center border-r-3 border-[var(--outline-black)] transition-all duration-500 relative"
+                      className="bg-[var(--star-yellow)] h-full flex items-center justify-center border-r-2 border-[var(--outline-black)] transition-all duration-500 relative"
                       style={{ width: `${Math.min(data.bondingCurveProgress, 100)}%` }}
                     >
                       {/* Glow effect */}
                       <div className="absolute inset-0 bg-[var(--star-yellow)] opacity-50 animate-pulse" />
-                      <span className="text-[10px] font-bold text-[var(--outline-black)] z-10 relative drop-shadow-sm">
-                        🎯 {data.solToGraduate.toFixed(1)} SOL to bond
+                      <span className="text-[8px] font-bold text-[var(--outline-black)] z-10 relative drop-shadow-sm">
+                        🎯 {data.solToGraduate.toFixed(1)} SOL
                       </span>
                     </div>
                   </div>
@@ -234,10 +234,10 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
               )}
 
               {/* Bottom Row: Social Links & Creator */}
-              <div className="flex items-center gap-3 mt-1">
+              <div className="flex items-center gap-2 mt-1">
                 {/* Social Links */}
                 {(data.twitter || data.telegram || data.website) && (
-                  <div className="flex items-center gap-2.5">
+                  <div className="flex items-center gap-1.5">
                     {data.twitter && (
                       <HoverCard openDelay={200}>
                         <HoverCardTrigger asChild>
@@ -251,8 +251,8 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
                             <Image 
                               src="/x-logo/logo.svg" 
                               alt="X/Twitter" 
-                              width={20} 
-                              height={20}
+                              width={16} 
+                              height={16}
                               className="inline-block filter brightness-0"
                             />
                           </a>
@@ -293,8 +293,8 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
                             <Image 
                               src="/icons/social/telegram-icon.svg" 
                               alt="Telegram" 
-                              width={20} 
-                              height={20}
+                              width={16} 
+                              height={16}
                               className="inline-block"
                             />
                           </a>
@@ -335,8 +335,8 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
                             <Image 
                               src="/icons/social/globe-icon.svg" 
                               alt="Website" 
-                              width={20} 
-                              height={20}
+                              width={16} 
+                              height={16}
                               className="inline-block"
                             />
                           </a>
@@ -380,20 +380,20 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
             <div className="text-right shrink-0">
               {/* Market Cap */}
               <div className="mb-1">
-                <div className="text-[11px] text-[var(--outline-black)] opacity-80 uppercase font-bold font-mario">MC</div>
-                <div className="text-[18px] font-bold text-[var(--outline-black)] font-mono">
+                <div className="text-[9px] text-[var(--outline-black)] opacity-80 uppercase font-bold font-mario">MC</div>
+                <div className="text-[14px] font-bold text-[var(--outline-black)] font-mono">
                   {fmtCurrency(data.marketCapUsd)}
                 </div>
               </div>
 
               {/* Volume - USD and SOL */}
-              <div className="mb-2">
-                <div className="text-[11px] text-[var(--outline-black)] opacity-80 uppercase font-bold font-mario">Vol 24h</div>
-                <div className="text-[14px] font-bold text-[var(--outline-black)] font-mono">
+              <div className="mb-1">
+                <div className="text-[9px] text-[var(--outline-black)] opacity-80 uppercase font-bold font-mario">Vol 24h</div>
+                <div className="text-[12px] font-bold text-[var(--outline-black)] font-mono">
                   {fmtCurrency(data.volume24h)}
                 </div>
                 {data.volume24hSol != null && data.volume24hSol > 0 && (
-                  <div className="text-[10px] text-[var(--outline-black)] opacity-80 font-mono">
+                  <div className="text-[8px] text-[var(--outline-black)] opacity-80 font-mono">
                     {data.volume24hSol.toFixed(2)} SOL
                   </div>
                 )}
@@ -402,10 +402,10 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
               {/* 24h Change */}
               {priceChg != null && (
                 <div className={cn(
-                  "inline-flex items-center gap-1 px-2 py-1 rounded-[8px] border-2 border-[var(--outline-black)]",
+                  "inline-flex items-center gap-1 px-1.5 py-0.5 rounded-[6px] border-2 border-[var(--outline-black)]",
                   priceChg >= 0 ? "bg-[var(--luigi-green)]" : "bg-[var(--mario-red)]"
                 )}>
-                  <span className="text-white font-bold text-[13px] font-mono">
+                  <span className="text-white font-bold text-[10px] font-mono">
                     {priceChg >= 0 ? "+" : ""}{priceChg.toFixed(1)}%
                   </span>
                 </div>

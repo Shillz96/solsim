@@ -304,13 +304,15 @@ function usePriceStream(options: {
       
       ws.onerror = (event) => {
         console.error('❌ WebSocket error:', event)
+        console.error('🔍 WebSocket URL:', wsUrl)
+        console.error('🔍 Environment WS_URL:', env.NEXT_PUBLIC_WS_URL)
         
         if (connectionTimeoutRef.current) {
           clearTimeout(connectionTimeoutRef.current)
           connectionTimeoutRef.current = null
         }
         
-        setError('WebSocket connection error - check network connectivity')
+        setError(`WebSocket connection error - check if backend is running at ${wsUrl}`)
         updateConnectionState(ConnectionState.Disconnected)
       }
       

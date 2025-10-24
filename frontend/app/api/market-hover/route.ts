@@ -4,7 +4,7 @@ const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
 export async function GET() {
   try {
-    const response = await fetch(`${API_BASE}/api/market/lighthouse`, {
+    const response = await fetch(`${API_BASE}/market/lighthouse`, {
       cache: 'no-store',
       headers: {
         'Content-Type': 'application/json',

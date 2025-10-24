@@ -213,7 +213,7 @@ export function WarpPipesHub() {
       )}
 
       {/* Desktop: 3-Column Layout - Reordered: New Pairs | About to Graduate | Bonded */}
-      <div className="hidden lg:grid lg:grid-cols-3 gap-6 px-6 py-6 flex-1 min-h-0">
+      <div className="hidden lg:grid lg:grid-cols-3 gap-4 px-4 py-4 flex-1 min-h-0">
         <TokenColumn
           title="🆕 New Pairs"
           tokens={newTokens}

@@ -19,13 +19,37 @@ export default function MarketHover({ trigger }: { trigger: React.ReactNode }) {
     const load = async () => {
       try {
         const res = await fetch("/api/market-hover", { cache: "no-store" });
-        const j = await res.json();
+        
+        if (!res.ok) {
+          throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+        }
+        
+        const text = await res.text();
+        let j;
+        try {
+          j = JSON.parse(text);
+        } catch (parseError) {
+          console.error('[MarketHover] Invalid JSON response:', text.substring(0, 200));
+          throw new Error(`Invalid JSON response: ${parseError}`);
+        }
+        
         if (alive) {
           setData(j);
           setLastUpdate(new Date());
         }
       } catch (error) {
         console.error('[MarketHover] Error fetching data:', error);
+        // Set fallback data on error
+        if (alive) {
+          setData({
+            pumpVolume24h: null,
+            totalMarketCapUsd: null,
+            fearGreedIndex: null,
+            fearGreedLabel: null,
+            altcoinSeasonIndex: null,
+            ts: Date.now(),
+          });
+        }
       }
     };
     load();

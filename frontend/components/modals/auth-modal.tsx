@@ -321,16 +321,16 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
         {(currentView === 'login' || currentView === 'register') && (
           <div className="space-y-6">
             <Tabs value={currentView} onValueChange={(value) => setCurrentView(value as AuthView)} className="w-full">
-              <TabsList className="grid w-full grid-cols-2 bg-white border-3 border-[var(--outline-black)] p-1 gap-1">
+              <TabsList className="grid w-full grid-cols-2 bg-white border-3 border-[var(--outline-black)] p-1 gap-1 shadow-[3px_3px_0_var(--outline-black)]">
                 <TabsTrigger 
                   value="login" 
-                  className="font-mario data-[state=active]:bg-[var(--star-yellow)] data-[state=active]:text-[var(--outline-black)] data-[state=active]:border-2 data-[state=active]:border-[var(--outline-black)] data-[state=active]:shadow-[2px_2px_0_var(--outline-black)]"
+                  className="font-mario border-3 border-[var(--outline-black)] bg-white text-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all data-[state=active]:bg-[var(--star-yellow)] data-[state=active]:shadow-[3px_3px_0_var(--outline-black)] data-[state=active]:translate-y-0"
                 >
                   Login
                 </TabsTrigger>
                 <TabsTrigger 
                   value="register" 
-                  className="font-mario data-[state=active]:bg-[var(--star-yellow)] data-[state=active]:text-[var(--outline-black)] data-[state=active]:border-2 data-[state=active]:border-[var(--outline-black)] data-[state=active]:shadow-[2px_2px_0_var(--outline-black)]"
+                  className="font-mario border-3 border-[var(--outline-black)] bg-white text-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all data-[state=active]:bg-[var(--star-yellow)] data-[state=active]:shadow-[3px_3px_0_var(--outline-black)] data-[state=active]:translate-y-0"
                 >
                   Register
                 </TabsTrigger>
