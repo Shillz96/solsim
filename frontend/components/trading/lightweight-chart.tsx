@@ -77,8 +77,11 @@ export function LightweightChart({
   const solPrice = prices.get('So11111111111111111111111111111111111111112')?.price || 208
   const tokenPrice = prices.get(tokenMint)
 
-  // Add trade markers (buy/sell arrows)
-  useTradeMarkers(candlestickSeriesRef.current, tokenMint)
+  // Add trade markers (buy/sell circular bubbles)
+  const { hideBubbles, toggleBubbles } = useTradeMarkers(
+    candlestickSeriesRef.current,
+    tokenMint
+  )
 
   // Add average cost price line
   useAverageCostLine(candlestickSeriesRef.current, tokenMint, solPrice)
@@ -372,8 +375,21 @@ export function LightweightChart({
           </button>
         ))}
 
+        {/* Hide Bubbles Toggle (axiom.trade style) */}
+        <button
+          onClick={toggleBubbles}
+          className={cn(
+            'px-2.5 md:px-3 py-1 md:py-1.5 text-[10px] md:text-xs font-bold rounded-lg border-2 md:border-3 transition-all ml-auto',
+            hideBubbles
+              ? 'bg-[var(--mario-red)] text-white border-[var(--mario-red)] shadow-[2px_2px_0_rgba(0,0,0,0.3)]'
+              : 'bg-[var(--luigi-green)] text-white border-[var(--luigi-green)] shadow-[2px_2px_0_rgba(0,0,0,0.3)]'
+          )}
+        >
+          {hideBubbles ? 'Show Bubbles' : 'Hide Bubbles'}
+        </button>
+
         {isLoading && (
-          <div className="flex items-center gap-1.5 md:gap-2 ml-auto text-[10px] md:text-xs text-muted-foreground">
+          <div className="flex items-center gap-1.5 md:gap-2 text-[10px] md:text-xs text-muted-foreground">
             <Loader2 className="h-3 w-3 animate-spin" />
             <span className="hidden sm:inline">Loading...</span>
           </div>

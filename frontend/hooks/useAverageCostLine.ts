@@ -46,14 +46,14 @@ export function useAverageCostLine(
 
       console.log(`📏 Adding average cost line at $${avgCostUsd.toFixed(8)}`)
 
-      // Create horizontal price line
+      // Create horizontal price line (axiom.trade style - green dashed)
       const priceLine = candlestickSeries.createPriceLine({
         price: avgCostUsd,
-        color: '#FFD800', // Star yellow
-        lineWidth: 3,
+        color: '#26a69a', // Teal green to match buy markers
+        lineWidth: 2,
         lineStyle: 2, // Dashed line
         axisLabelVisible: true,
-        title: `Avg Cost: $${avgCostUsd.toFixed(8)}`,
+        title: `Avg: $${avgCostUsd.toFixed(8)}`,
       })
 
       priceLineRef.current = priceLine
