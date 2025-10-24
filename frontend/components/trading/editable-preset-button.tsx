@@ -118,14 +118,11 @@ export function EditablePresetButton({
       <button
         onClick={handleEditClick}
         className={cn(
-          "absolute top-1 right-1 h-5 w-5 flex items-center justify-center rounded",
-          "bg-[var(--star-yellow)] hover:bg-[var(--coin-gold)] transition-colors",
-          "border-2 border-[var(--outline-black)]",
-          "shadow-[2px_2px_0_var(--outline-black)]",
-          "active:translate-y-[1px] active:shadow-[1px_1px_0_var(--outline-black)]"
+          "absolute top-1 right-1 h-4 w-4 flex items-center justify-center",
+          "hover:scale-110 transition-transform"
         )}
       >
-        <Edit2 className="h-2.5 w-2.5 text-[var(--outline-black)]" />
+        <Edit2 className="h-3 w-3 text-[var(--outline-black)] hover:text-[var(--mario-red)]" />
       </button>
 
       {/* Insufficient balance indicator */}

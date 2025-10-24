@@ -10,10 +10,11 @@ import React, { useState } from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import { BadgeAdmin } from './badge-admin';
 import { ModerationAdmin } from './moderation-admin';
+import { DebugAdmin } from './debug-admin';
 
 export function AdminDashboard() {
   const { user } = useAuth();
-  const [activePanel, setActivePanel] = useState<'overview' | 'badges' | 'moderation'>('overview');
+  const [activePanel, setActivePanel] = useState<'overview' | 'badges' | 'moderation' | 'debug'>('debug');
 
   // Check if user is admin
   const isAdmin = user?.userTier === 'ADMINISTRATOR';
@@ -22,11 +23,14 @@ export function AdminDashboard() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-sky-50 to-luigi-green-50 p-4">
         <div className="max-w-4xl mx-auto">
-          <div className="bg-white rounded-lg border-4 border-pipe-300 p-8 text-center">
+          <div className="bg-white rounded-lg border-4 border-pipe-300 p-8 text-center mb-6">
             <div className="font-mario text-4xl text-pipe-800 mb-4">👑</div>
             <div className="font-mario text-2xl text-pipe-600 mb-2">Admin Access Required</div>
             <div className="text-pipe-500">You need administrator privileges to access this dashboard</div>
           </div>
+          
+          {/* Show debug info even when not admin */}
+          <DebugAdmin />
         </div>
       </div>
     );
@@ -72,6 +76,16 @@ export function AdminDashboard() {
             }`}
           >
             🛡️ Moderation Control
+          </button>
+          <button
+            onClick={() => setActivePanel('debug')}
+            className={`px-6 py-3 rounded-lg font-mario border-3 transition-all ${
+              activePanel === 'debug'
+                ? 'bg-mario-red-500 text-white border-mario-red-600 shadow-mario'
+                : 'bg-pipe-100 text-pipe-700 border-pipe-300 hover:bg-pipe-200'
+            }`}
+          >
+            🔍 Debug
           </button>
         </div>
 
@@ -188,6 +202,9 @@ export function AdminDashboard() {
 
         {/* Moderation Panel */}
         {activePanel === 'moderation' && <ModerationAdmin />}
+
+        {/* Debug Panel */}
+        {activePanel === 'debug' && <DebugAdmin />}
       </div>
     </div>
   );
