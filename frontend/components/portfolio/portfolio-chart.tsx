@@ -152,27 +152,27 @@ function PortfolioChartComponent() {
           >
             <CartesianGrid
               strokeDasharray="3 3"
-              stroke="hsl(var(--border))"
-              opacity={0.2}
+              stroke="var(--pipe-200)"
+              opacity={0.3}
               vertical={false}
             />
             <XAxis
               dataKey="formattedDate"
               fontSize={12}
               tickLine={false}
-              axisLine={{ stroke: 'hsl(var(--border))', strokeWidth: 1 }}
+              axisLine={{ stroke: 'var(--outline-black)', strokeWidth: 2 }}
               interval="preserveStartEnd"
-              tick={{ fill: 'currentColor' }}
-              className="text-foreground"
+              tick={{ fill: 'var(--outline-black)', fontWeight: 'bold' }}
+              className="text-[var(--outline-black)]"
             />
             <YAxis
               fontSize={12}
               tickLine={false}
-              axisLine={{ stroke: 'hsl(var(--border))', strokeWidth: 1 }}
+              axisLine={{ stroke: 'var(--outline-black)', strokeWidth: 2 }}
               tickFormatter={(value) => `$${Number(value).toFixed(0)}`}
               domain={[valueRange.min, valueRange.max]}
-              tick={{ fill: 'currentColor' }}
-              className="text-foreground"
+              tick={{ fill: 'var(--outline-black)', fontWeight: 'bold' }}
+              className="text-[var(--outline-black)]"
               label={{
                 value: 'Portfolio Value',
                 angle: -90,
@@ -190,7 +190,7 @@ function PortfolioChartComponent() {
                 if (active && payload && payload.length) {
                   const data = payload[0].payload
                   return (
-                    <div className="rounded-lg border border-border bg-background p-3 shadow-lg">
+                    <div className="rounded-lg border-3 border-[var(--outline-black)] bg-white p-3 shadow-[4px_4px_0_var(--outline-black)]">
                       <p className="text-xs text-muted-foreground mb-2">{data.formattedDate}</p>
                       <div>
                         <p className="font-mono text-sm font-semibold text-foreground">
@@ -211,14 +211,14 @@ function PortfolioChartComponent() {
             <Line
               type="monotone"
               dataKey="value"
-              stroke="hsl(var(--primary))"
-              strokeWidth={3}
+              stroke="#2ecc71"
+              strokeWidth={4}
               dot={chartData.length <= 7}
               activeDot={{
-                r: 6,
-                fill: "hsl(var(--primary))",
-                strokeWidth: 2,
-                stroke: "hsl(var(--background))"
+                r: 8,
+                fill: "#2ecc71",
+                strokeWidth: 3,
+                stroke: "#fff"
               }}
               isAnimationActive={true}
               animationDuration={1000}

@@ -9,6 +9,30 @@ import { cn } from '@/lib/utils'
 // 1UP SOL is light mode only - no dark theme
 const THEMES = { light: '' } as const
 
+// Mario-themed chart colors
+export const MARIO_CHART_COLORS = {
+  // Primary colors
+  marioRed: '#e74c3c',        // Mario red for bearish/down
+  luigiGreen: '#2ecc71',      // Luigi green for bullish/up
+  starYellow: '#f1c40f',      // Star yellow for highlights
+  coinGold: '#f39c12',        // Coin gold for secondary data
+  
+  // Chart specific colors
+  bullish: '#2ecc71',         // Green for up trends
+  bearish: '#e74c3c',         // Red for down trends
+  neutral: '#95a5a6',         // Gray for neutral
+  volume: '#3498db',          // Blue for volume
+  background: '#ffffff',       // White background
+  grid: '#ecf0f1',           // Light gray for grid lines
+  text: '#2c3e50',           // Dark text
+  border: '#34495e',         // Dark border
+  
+  // Gradient colors
+  bullishGradient: 'rgba(46, 204, 113, 0.1)',
+  bearishGradient: 'rgba(231, 76, 60, 0.1)',
+  volumeGradient: 'rgba(52, 152, 219, 0.1)',
+} as const
+
 export type ChartConfig = {
   [k in string]: {
     label?: React.ReactNode
@@ -56,7 +80,14 @@ function ChartContainer({
         data-slot="chart"
         data-chart={chartId}
         className={cn(
-          "[&_.recharts-cartesian-axis-tick_text]:fill-muted-foreground [&_.recharts-cartesian-grid_line[stroke='#ccc']]:stroke-border/50 [&_.recharts-curve.recharts-tooltip-cursor]:stroke-border [&_.recharts-polar-grid_[stroke='#ccc']]:stroke-border [&_.recharts-radial-bar-background-sector]:fill-muted [&_.recharts-rectangle.recharts-tooltip-cursor]:fill-muted [&_.recharts-reference-line_[stroke='#ccc']]:stroke-border flex aspect-video justify-center text-xs [&_.recharts-dot[stroke='#fff']]:stroke-transparent [&_.recharts-layer]:outline-hidden [&_.recharts-sector]:outline-hidden [&_.recharts-sector[stroke='#fff']]:stroke-transparent [&_.recharts-surface]:outline-hidden",
+          // Mario-themed chart styling
+          "border-4 border-[var(--outline-black)] rounded-xl shadow-[6px_6px_0_var(--outline-black)] bg-white",
+          // Recharts styling
+          "[&_.recharts-cartesian-axis-tick_text]:fill-[var(--outline-black)] [&_.recharts-cartesian-grid_line[stroke='#ccc']]:stroke-[var(--pipe-200)] [&_.recharts-curve.recharts-tooltip-cursor]:stroke-[var(--outline-black)] [&_.recharts-polar-grid_[stroke='#ccc']]:stroke-[var(--pipe-200)] [&_.recharts-radial-bar-background-sector]:fill-[var(--pipe-100)] [&_.recharts-rectangle.recharts-tooltip-cursor]:fill-[var(--pipe-100)] [&_.recharts-reference-line_[stroke='#ccc']]:stroke-[var(--outline-black)]",
+          // Layout
+          "flex aspect-video justify-center text-xs",
+          // Clean up
+          "[&_.recharts-dot[stroke='#fff']]:stroke-transparent [&_.recharts-layer]:outline-hidden [&_.recharts-sector]:outline-hidden [&_.recharts-sector[stroke='#fff']]:stroke-transparent [&_.recharts-surface]:outline-hidden",
           className,
         )}
         {...props}
@@ -183,7 +214,8 @@ function ChartTooltipContent({
   return (
     <div
       className={cn(
-        'border-border/50 bg-background grid min-w-[8rem] items-start gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs shadow-xl',
+        // Mario-themed tooltip styling
+        'border-3 border-[var(--outline-black)] bg-white grid min-w-[8rem] items-start gap-1.5 rounded-lg px-3 py-2 text-xs shadow-[4px_4px_0_var(--outline-black)]',
         className,
       )}
     >

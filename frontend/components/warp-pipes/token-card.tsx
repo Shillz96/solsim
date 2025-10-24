@@ -115,11 +115,11 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
         className={cn("w-full", className)}
       >
         {/* Horizontal Layout Token Card - Axiom Style */}
-        <div className="relative rounded-[16px] overflow-hidden bg-white border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] hover:shadow-[8px_8px_0_var(--outline-black)] hover:-translate-y-[2px] transition-all duration-200 cursor-pointer">
+        <div className="relative rounded-[16px] overflow-hidden bg-[var(--sky-blue)]/20 border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] hover:shadow-[8px_8px_0_var(--outline-black)] hover:-translate-y-[2px] transition-all duration-200 cursor-pointer">
           <div className="flex items-center gap-4 p-4">
 
             {/* LEFT: Token Logo */}
-            <div className="relative shrink-0 w-20 h-20 rounded-[14px] overflow-hidden border-4 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)]">
+            <div className="relative shrink-0 w-24 h-24 rounded-[14px] overflow-hidden border-4 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)]">
               {img && !imageError ? (
                 <img
                   src={img}
@@ -137,20 +137,20 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
             <div className="flex-1 min-w-0">
               {/* Top Row: Symbol, Name, Age */}
               <div className="flex items-center gap-2 mb-2">
-                <h3 className="font-bold text-[20px] text-[var(--outline-black)]">
+                <h3 className="font-bold text-[22px] text-[var(--outline-black)]">
                   {data.symbol}
                 </h3>
-                <span className="text-[14px] text-[var(--outline-black)] opacity-70 truncate max-w-[150px]" title={data.name || undefined}>
+                <span className="text-[15px] text-[var(--outline-black)] font-semibold truncate max-w-[150px]" title={data.name || undefined}>
                   {data.name}
                 </span>
-                <span className="text-[12px] text-[var(--outline-black)] opacity-60 ml-auto">
+                <span className="text-[13px] text-[var(--outline-black)] font-bold ml-auto">
                   {age}
                 </span>
               </div>
 
               {/* Description (if available, truncated) */}
               {data.description && (
-                <div className="text-[11px] text-[var(--outline-black)] opacity-60 mb-1 truncate max-w-[300px]" title={data.description}>
+                <div className="text-[12px] text-[var(--outline-black)] font-medium mb-1 truncate max-w-[300px]" title={data.description}>
                   {data.description}
                 </div>
               )}
@@ -160,7 +160,7 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
                 {/* Status Badge */}
                 {data.status && (
                   <div className={cn(
-                    "px-2 py-0.5 rounded-[6px] border-2 text-[11px] font-bold uppercase",
+                    "px-2 py-0.5 rounded-[6px] border-3 text-[12px] font-bold uppercase",
                     data.status === 'LAUNCHING' && "bg-[var(--sky-blue)]/20 text-[var(--sky-blue)] border-[var(--sky-blue)]",
                     data.status === 'ACTIVE' && "bg-[var(--luigi-green)]/20 text-[var(--luigi-green)] border-[var(--luigi-green)]",
                     data.status === 'ABOUT_TO_BOND' && "bg-[var(--star-yellow)]/20 text-[var(--star-yellow)] border-[var(--star-yellow)]",
@@ -173,7 +173,7 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
 
                 {/* Security Badge */}
                 <div className={cn(
-                  "px-2 py-0.5 rounded-[6px] border-2 text-[11px] font-bold uppercase",
+                  "px-2 py-0.5 rounded-[6px] border-3 text-[12px] font-bold uppercase",
                   security.cls
                 )}>
                   {security.label}
@@ -181,8 +181,8 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
 
                 {/* Bonding Progress (if available) */}
                 {data.bondingCurveProgress != null && (
-                  <div className="flex items-center gap-1 text-[12px]">
-                    <span className="text-[var(--outline-black)] opacity-70">⚡</span>
+                  <div className="flex items-center gap-1 text-[13px]">
+                    <span className="text-[var(--outline-black)]">⚡</span>
                     <span className="font-mono font-bold text-[var(--outline-black)]">
                       {data.bondingCurveProgress.toFixed(0)}%
                     </span>
@@ -191,7 +191,7 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
 
                 {/* Holder Count */}
                 {data.holderCount != null && (
-                  <div className="flex items-center gap-1 text-[12px] text-[var(--outline-black)] opacity-70">
+                  <div className="flex items-center gap-1 text-[13px] text-[var(--outline-black)] font-semibold">
                     <span>👥</span>
                     <span className="font-mono font-bold">{data.holderCount}</span>
                   </div>
@@ -199,7 +199,7 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
 
                 {/* Transaction Count */}
                 {data.txCount24h != null && (
-                  <div className="flex items-center gap-1 text-[12px] text-[var(--outline-black)] opacity-70">
+                  <div className="flex items-center gap-1 text-[13px] text-[var(--outline-black)] font-semibold">
                     <span>📝</span>
                     <span className="font-mono font-bold">{data.txCount24h}</span>
                   </div>

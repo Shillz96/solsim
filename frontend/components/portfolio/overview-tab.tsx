@@ -185,16 +185,16 @@ export function OverviewTab() {
         
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           <div className="text-center">
-            <div className="text-sm text-muted-foreground font-bold mb-1">Total Trades</div>
-            <div className="text-xl font-mario font-bold text-[var(--outline-black)]">{totalTrades}</div>
+            <div className="text-sm text-[var(--outline-black)] font-bold mb-1">Total Trades</div>
+            <div className="text-2xl font-mario font-bold text-[var(--outline-black)]">{totalTrades}</div>
           </div>
           <div className="text-center">
-            <div className="text-sm text-muted-foreground font-bold mb-1">Wins</div>
-            <div className="text-xl font-mario font-bold text-[var(--luigi-green)]">{winningTrades}</div>
+            <div className="text-sm text-[var(--outline-black)] font-bold mb-1">Wins</div>
+            <div className="text-2xl font-mario font-bold text-[var(--luigi-green)]">{winningTrades}</div>
           </div>
           <div className="text-center">
-            <div className="text-sm text-muted-foreground font-bold mb-1">Losses</div>
-            <div className="text-xl font-mario font-bold text-[var(--mario-red)]">{totalTrades - winningTrades}</div>
+            <div className="text-sm text-[var(--outline-black)] font-bold mb-1">Losses</div>
+            <div className="text-2xl font-mario font-bold text-[var(--mario-red)]">{totalTrades - winningTrades}</div>
           </div>
         </div>
       </motion.div>
@@ -230,13 +230,13 @@ export function OverviewTab() {
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
                         {position.tokenImage ? (
-                          <img src={position.tokenImage} alt={position.tokenSymbol} className="w-10 h-10 rounded-full border-2 border-[var(--outline-black)]" />
+                          <img src={position.tokenImage} alt={position.tokenSymbol} className="w-12 h-12 rounded-full border-3 border-[var(--outline-black)]" />
                         ) : (
-                          <div className="w-10 h-10 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full border-2 border-[var(--outline-black)]" />
+                          <div className="w-12 h-12 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full border-3 border-[var(--outline-black)]" />
                         )}
                         <div>
-                          <div className="font-bold text-[var(--outline-black)]">{position.tokenSymbol}</div>
-                          <div className="text-xs text-muted-foreground">{formatUSD(position.currentValue)}</div>
+                          <div className="font-bold text-[15px] text-[var(--outline-black)]">{position.tokenSymbol}</div>
+                          <div className="text-sm font-semibold text-[var(--outline-black)]">{formatUSD(position.currentValue)}</div>
                         </div>
                       </div>
                       <div className="text-right">

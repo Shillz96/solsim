@@ -198,48 +198,50 @@ export function LightweightChart({
 
     if (chartType === 'candlestick') {
       candlestickSeries = chart.addSeries(CandlestickSeries, {
-        upColor: '#26a69a', // Vibrant teal green
-        downColor: '#ef5350', // Vibrant red
-        borderUpColor: '#26a69a',
-        borderDownColor: '#ef5350',
-        wickUpColor: '#26a69a',
-        wickDownColor: '#ef5350',
-        borderVisible: false, // No borders for cleaner look
+        upColor: '#2ecc71', // Luigi green for bullish
+        downColor: '#e74c3c', // Mario red for bearish
+        borderUpColor: '#2ecc71',
+        borderDownColor: '#e74c3c',
+        wickUpColor: '#2ecc71',
+        wickDownColor: '#e74c3c',
+        borderVisible: true, // Mario theme uses borders
+        borderUpColor: '#27ae60', // Darker green border
+        borderDownColor: '#c0392b', // Darker red border
         lastValueVisible: true,
         priceLineVisible: true,
-        priceLineWidth: 2,
-        priceLineColor: '#4E5057',
+        priceLineWidth: 3, // Thicker lines for Mario theme
+        priceLineColor: '#34495e', // Dark border color
         priceLineStyle: LineStyle.Solid,
       })
     } else if (chartType === 'line') {
       candlestickSeries = chart.addSeries(LineSeries, {
-        color: '#26a69a',
-        lineWidth: 2,
+        color: '#2ecc71', // Luigi green
+        lineWidth: 3, // Thicker for Mario theme
         lastValueVisible: true,
         priceLineVisible: true,
         crosshairMarkerVisible: true,
-        crosshairMarkerRadius: 4,
-        crosshairMarkerBorderColor: '#26a69a',
-        crosshairMarkerBackgroundColor: '#26a69a',
+        crosshairMarkerRadius: 5, // Larger markers
+        crosshairMarkerBorderColor: '#27ae60', // Darker green border
+        crosshairMarkerBackgroundColor: '#2ecc71',
       })
     } else { // 'area'
       candlestickSeries = chart.addSeries(AreaSeries, {
-        topColor: 'rgba(38, 166, 154, 0.4)',
-        bottomColor: 'rgba(38, 166, 154, 0.0)',
-        lineColor: '#26a69a',
-        lineWidth: 2,
+        topColor: 'rgba(46, 204, 113, 0.3)', // Luigi green with opacity
+        bottomColor: 'rgba(46, 204, 113, 0.0)',
+        lineColor: '#2ecc71', // Luigi green
+        lineWidth: 3, // Thicker for Mario theme
         lastValueVisible: true,
         priceLineVisible: true,
         crosshairMarkerVisible: true,
-        crosshairMarkerRadius: 4,
-        crosshairMarkerBorderColor: '#26a69a',
-        crosshairMarkerBackgroundColor: '#26a69a',
+        crosshairMarkerRadius: 5, // Larger markers
+        crosshairMarkerBorderColor: '#27ae60', // Darker green border
+        crosshairMarkerBackgroundColor: '#2ecc71',
       })
     }
 
     // Volume histogram (v5 API)
     const volumeSeries = chart.addSeries(HistogramSeries, {
-      color: '#A6D8FF', // Sky blue
+      color: '#3498db', // Mario blue for volume
       priceFormat: {
         type: 'volume',
       },
@@ -501,15 +503,15 @@ export function LightweightChart({
   const priceChangePercent = priceChange24h
 
   return (
-    <div className={cn('space-y-2', className)}>
+    <div className={cn('space-y-2 border-4 border-[var(--outline-black)] rounded-xl shadow-[6px_6px_0_var(--outline-black)] bg-white overflow-hidden', className)}>
       {/* Token Info Header */}
-      <div className="flex items-center justify-between p-3 bg-[#0A0A0F] border-3 border-[#2B2B43] rounded-[12px] shadow-[4px_4px_0_rgba(0,0,0,0.5)]">
+      <div className="flex items-center justify-between p-3 bg-gradient-to-r from-[var(--luigi-green)]/20 to-[var(--sky-blue)]/20 border-3 border-[var(--outline-black)] rounded-lg shadow-[3px_3px_0_var(--outline-black)]">
         <div>
-          <h3 className="text-white font-bold text-sm md:text-base">{tokenSymbol}/USD</h3>
-          <p className="text-xs text-gray-400">Real-time Price</p>
+          <h3 className="text-[var(--outline-black)] font-mario font-bold text-sm md:text-base">{tokenSymbol}/USD</h3>
+          <p className="text-xs text-[var(--outline-black)] font-bold">Real-time Price</p>
         </div>
         <div className="text-right">
-          <p className="text-xl md:text-2xl font-bold font-mono text-white">
+          <p className="text-xl md:text-2xl font-bold font-mono text-[var(--outline-black)]">
             ${currentPrice.toFixed(currentPrice < 0.01 ? 8 : 4)}
           </p>
           {priceChangePercent !== 0 && (
