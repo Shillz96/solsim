@@ -311,56 +311,110 @@ export function WalletTrackerContent({ compact = false }: WalletTrackerContentPr
         <div className={cn(
           compact ? "h-full flex flex-col gap-0" : "space-y-3"
         )}>
-        {/* Compact Header - Simple and minimal */}
+        {/* Compact Header - Mario themed matching portfolio style */}
         {compact ? (
-          <div className="flex items-center justify-between px-4 py-2 border-b-2 border-pipe-300 flex-shrink-0">
-            <Badge
-              variant={connected ? "default" : "secondary"}
-              className={cn(
-                "gap-1 border-2 font-bold text-xs",
-                connected ? "bg-luigi-green text-white border-black" : "bg-pipe-200 text-pipe-900 border-pipe-700"
-              )}
-            >
-              <div className={cn(
-                "h-1.5 w-1.5 rounded-full",
-                connected ? "bg-white animate-pulse" : "bg-pipe-700"
-              )} />
-              {connected ? "Live" : "Offline"}
-            </Badge>
+          <motion.div 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+            className="bg-[var(--sky-blue)]/20 border-4 border-[var(--outline-black)] rounded-xl shadow-[6px_6px_0_var(--outline-black)] p-3 flex-shrink-0"
+          >
+            <div className="flex items-center justify-between">
+              {/* Live Status with Mario Icon */}
+              <div className="flex items-center gap-3">
+                <motion.div 
+                  animate={{ 
+                    scale: [1, 1.05, 1],
+                    rotate: [0, 2, -2, 0]
+                  }}
+                  transition={{ 
+                    duration: 2,
+                    repeat: Infinity,
+                    repeatDelay: 3
+                  }}
+                  className="bg-[var(--mario-red)] border-2 border-[var(--outline-black)] rounded-lg p-2"
+                >
+                  <Image src="/icons/mario/eyes.png" alt="Tracker" width={16} height={16} />
+                </motion.div>
+                <div className="flex items-center gap-2">
+                  <Badge
+                    variant={connected ? "default" : "secondary"}
+                    className={cn(
+                      "gap-1 border-2 font-mario text-xs font-bold",
+                      connected ? "bg-[var(--luigi-green)] text-white border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)]" : "bg-[var(--pipe-200)] text-[var(--outline-black)] border-[var(--outline-black)]"
+                    )}
+                  >
+                    <div className={cn(
+                      "h-1.5 w-1.5 rounded-full",
+                      connected ? "bg-white animate-pulse" : "bg-[var(--outline-black)]"
+                    )} />
+                    {connected ? "LIVE" : "OFFLINE"}
+                  </Badge>
+                  {hasNewActivities && (
+                    <motion.div 
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ 
+                        type: "spring", 
+                        stiffness: 500, 
+                        damping: 15,
+                        delay: 0.2 
+                      }}
+                      className="bg-[var(--star-yellow)] border-2 border-[var(--outline-black)] rounded-lg px-2 py-1 shadow-[2px_2px_0_var(--outline-black)]"
+                    >
+                      <motion.span 
+                        animate={{ 
+                          scale: [1, 1.1, 1],
+                          rotate: [0, 5, -5, 0]
+                        }}
+                        transition={{ 
+                          duration: 0.6,
+                          repeat: Infinity,
+                          repeatDelay: 2
+                        }}
+                        className="text-xs font-mario font-bold text-[var(--outline-black)]"
+                      >
+                        NEW!
+                      </motion.span>
+                    </motion.div>
+                  )}
+                </div>
+              </div>
 
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowSettings(true)}
-                className="gap-1.5 border-2 border-pipe-500 hover:bg-sky-100 font-bold h-8 text-xs"
-                title="Filters"
-              >
-                <Settings className="h-3.5 w-3.5" />
-                <span className="hidden xs:inline">Filters</span>
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowSettings(true)}
+                  className="gap-1.5 bg-white/80 border-2 border-[var(--outline-black)] hover:bg-[var(--star-yellow)]/20 font-mario h-8 text-xs shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all"
+                  title="Filters"
+                >
+                  <Settings className="h-3.5 w-3.5" />
+                  <span className="hidden xs:inline">FILTERS</span>
+                </Button>
 
-              <Button
-                size="sm"
-                onClick={() => setShowWalletManager(true)}
-                className="gap-1.5 mario-btn mario-btn-red font-bold text-white h-8 text-xs"
-                title="Manage Wallets"
-              >
-                <Plus className="h-3.5 w-3.5" />
-                <span className="hidden xs:inline">Wallets</span>
-              </Button>
+                <Button
+                  size="sm"
+                  onClick={() => setShowWalletManager(true)}
+                  className="gap-1.5 bg-[var(--mario-red)] border-2 border-[var(--outline-black)] text-white font-mario h-8 text-xs shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all"
+                  title="Manage Wallets"
+                >
+                  <Plus className="h-3.5 w-3.5" />
+                  <span className="hidden xs:inline">WALLETS</span>
+                </Button>
 
-              <Button
-                size="sm"
-                onClick={() => window.location.href = '/wallet-tracker'}
-                className="gap-1.5 mario-btn bg-sky-blue font-bold text-pipe-900 h-8 text-xs border-2 border-black"
-                title="Full View"
-              >
-                <ExternalLink className="h-3.5 w-3.5" />
-                <span className="hidden xs:inline">More</span>
-              </Button>
+                <Button
+                  size="sm"
+                  onClick={() => window.location.href = '/wallet-tracker'}
+                  className="gap-1.5 bg-[var(--star-yellow)] border-2 border-[var(--outline-black)] text-[var(--outline-black)] font-mario h-8 text-xs shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all"
+                  title="Full View"
+                >
+                  <ExternalLink className="h-3.5 w-3.5" />
+                  <span className="hidden xs:inline">MORE</span>
+                </Button>
+              </div>
             </div>
-          </div>
+          </motion.div>
         ) : (
           <>
             {/* Full Header - Mario themed */}
@@ -536,9 +590,14 @@ export function WalletTrackerContent({ compact = false }: WalletTrackerContentPr
         )}
 
         {/* Activity List - Full height in compact mode */}
-        <div className={cn(
-          compact ? "flex-1 min-h-0 overflow-hidden" : "min-h-[600px]"
-        )}>
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.1 }}
+          className={cn(
+            compact ? "flex-1 min-h-0 overflow-hidden" : "min-h-[600px]"
+          )}
+        >
           <WalletActivityList
             activities={filteredActivities}
             isLoading={loadingWallets || (activities.length === 0 && isLoadingMore)}
@@ -556,7 +615,7 @@ export function WalletTrackerContent({ compact = false }: WalletTrackerContentPr
             emptyMessage={filterType !== 'all' ? `No ${filterType.toLowerCase()} transactions found. Try adjusting filters.` : undefined}
             filterType={filterType}
           />
-        </div>
+        </motion.div>
 
         {/* Wallet Manager Modal */}
         <AnimatePresence>

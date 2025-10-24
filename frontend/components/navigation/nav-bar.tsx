@@ -323,6 +323,7 @@ export function NavBar() {
                         isActive && "bg-primary/10 text-primary"
                       )}
                   >
+                    {/* Small icon */}
                     <Image 
                       src={
                         item.name === 'Trade' ? '/icons/mario/trade.png' :
@@ -337,7 +338,21 @@ export function NavBar() {
                       height={16} 
                       className="object-contain hover:scale-105 transition-transform duration-200" 
                     />
-                    <span>{item.name}</span>
+                    {/* Mario text image */}
+                    <Image 
+                      src={
+                        item.name === 'Trade' ? '/Trade-10-24-2025.png' :
+                        item.name === 'Portfolio' ? '/Portfolio-10-24-2025.png' :
+                        item.name === 'Trending' ? '/Trending-10-24-2025.png' :
+                        item.name === 'Dashboard' ? '/Home-10-24-2025.png' :
+                        item.name === 'Pipe Network' ? '/Pipe-Network-10-24-2025.png' :
+                        item.iconSrc
+                      }
+                      alt={item.name} 
+                      width={80} 
+                      height={20} 
+                      className="object-contain hover:scale-105 transition-transform duration-200" 
+                    />
                   </Button>
                 </Link>
               )
@@ -601,6 +616,7 @@ export function NavBar() {
                               "flex items-center gap-3 px-3 py-3 rounded-lg transition-colors",
                               isActive ? "bg-primary/10 text-primary" : "hover:bg-muted"
                             )}>
+                              {/* Small icon */}
                               <Image 
                                 src={
                                   item.name === 'Trade' ? '/icons/mario/trade.png' :
@@ -615,8 +631,22 @@ export function NavBar() {
                                 height={20} 
                                 className="object-contain" 
                               />
+                              {/* Mario text image */}
+                              <Image 
+                                src={
+                                  item.name === 'Trade' ? '/Trade-10-24-2025.png' :
+                                  item.name === 'Portfolio' ? '/Portfolio-10-24-2025.png' :
+                                  item.name === 'Trending' ? '/Trending-10-24-2025.png' :
+                                  item.name === 'Dashboard' ? '/Home-10-24-2025.png' :
+                                  item.name === 'Pipe Network' ? '/Pipe-Network-10-24-2025.png' :
+                                  item.iconSrc
+                                }
+                                alt={item.name} 
+                                width={100} 
+                                height={25} 
+                                className="object-contain" 
+                              />
                               <div>
-                                <div className="font-medium">{item.name}</div>
                                 <div className="text-xs text-muted-foreground">{item.description}</div>
                               </div>
                             </div>

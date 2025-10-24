@@ -308,6 +308,7 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
                   aria-current={isActive ? "page" : undefined}
                 >
                   <div className="flex items-center gap-1">
+                    {/* Small icon */}
                     <Image 
                       src={item.iconSrc} 
                       alt={item.label} 
@@ -315,10 +316,21 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
                       height={12} 
                       className="object-contain" 
                     />
-                    <Icon className={cn(
-                      "h-3.5 w-3.5 transition-colors",
-                      isActive ? "text-primary" : "text-foreground/70"
-                    )} />
+                    {/* Mario text image */}
+                    <Image 
+                      src={
+                        item.href === "/" ? "/Home-10-24-2025.png" :
+                        item.href === "/trade" ? "/Trade-10-24-2025.png" :
+                        item.href === "/pipe-network" ? "/Pipe-Network-10-24-2025.png" :
+                        item.href === "/portfolio" ? "/Portfolio-10-24-2025.png" :
+                        item.href === "/leaderboard" ? "/Leaderboard-10-24-2025.png" :
+                        item.iconSrc
+                      }
+                      alt={item.label} 
+                      width={40} 
+                      height={10} 
+                      className="object-contain" 
+                    />
                   </div>
                   <span className={cn(
                     "text-[9px] font-mario truncate max-w-[50px] transition-colors",

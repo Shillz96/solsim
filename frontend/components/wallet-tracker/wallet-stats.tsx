@@ -114,18 +114,15 @@ export function WalletStats({
       {stats.map((stat, index) => (
         <div
           key={index}
-          className="mario-card bg-white border-3 border-pipe-700 shadow-mario p-4 transition-transform hover:scale-105 hover:shadow-lg cursor-default"
+          className="bg-[var(--sky-blue)]/20 border-4 border-[var(--outline-black)] rounded-xl shadow-[4px_4px_0_var(--outline-black)] p-4 transition-transform hover:scale-105 hover:shadow-[6px_6px_0_var(--outline-black)] cursor-default"
         >
           <div className="flex items-start justify-between">
             <div className="space-y-1">
               <p className="text-xs font-bold text-pipe-700">{stat.label}</p>
               <p className="text-xl font-bold text-pipe-900">{stat.value}</p>
             </div>
-            <div className={cn(
-              "p-2 rounded-lg border-2 border-black relative",
-              stat.bgColor
-            )}>
-              <stat.icon className={cn("h-5 w-5", stat.color)} />
+            <div className="bg-[var(--sky-blue)] border-2 border-[var(--outline-black)] rounded-lg p-2">
+              <stat.icon className="h-5 w-5 text-[var(--outline-black)]" />
               <span className="sr-only">{stat.srText}</span>
             </div>
           </div>
