@@ -35,10 +35,6 @@ import { cn } from '@/lib/utils'
 import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
 
-// Force dynamic rendering - no static generation
-export const dynamic = 'force-dynamic'
-export const revalidate = 0
-
 // Dynamically import chart to prevent SSR issues
 const LightweightChart = dynamicImport(
   () => import('@/components/trading/lightweight-chart').then(
