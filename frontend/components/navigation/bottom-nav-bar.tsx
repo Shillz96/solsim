@@ -463,7 +463,13 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
                   className="hover:glow-primary"
                 />
               </a>
-                <span className="text-xs font-mario text-muted-foreground whitespace-nowrap">© 2025 1UP SOL</span>
+                <Image 
+                  src="/-2025-1UP-SOL-10-24-2025.png" 
+                  alt="2025 1UP SOL" 
+                  width={120} 
+                  height={40}
+                  className="object-contain"
+                />
               </div>
 
               {/* Right: Controls */}
@@ -548,17 +554,23 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
                   className="md:w-4 md:h-4 hover:glow-primary"
                 />
               </a>
-              <span className="text-[10px] md:text-xs font-mario text-muted-foreground whitespace-nowrap">© 2025 1UP SOL</span>
+              <Image 
+                src="/-2025-1UP-SOL-10-24-2025.png" 
+                alt="2025 1UP SOL" 
+                width={120} 
+                height={40}
+                className="object-contain"
+              />
             </div>
 
             {/* Center: Market Prices + Market Lighthouse */}
-            <div className="flex items-center justify-center w-full">
+            <div className="flex items-center justify-center w-full gap-4">
               {/* Market Lighthouse Hover - Left side */}
               <MarketHover
                 trigger={
                   <div className="flex items-center gap-1.5 md:gap-2 px-2 md:px-3 py-1 md:py-1.5 rounded-lg bg-transparent hover:bg-white/10 transition-colors">
                     <div className="flex items-center gap-1 md:gap-1.5">
-                      <div className="relative w-7 h-7 animate-bounce">
+                      <div className="relative w-10 h-10 animate-bounce">
                         <Image
                           src="/icons/market-data.png"
                           alt="Market Data"
@@ -572,7 +584,7 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
               />
 
               {/* Crypto prices - Centered */}
-              <div className="flex items-center gap-2 md:gap-4">
+              <div className="flex items-center justify-center gap-2 md:gap-4">
                 {marketPrices.map((market) => {
                 // Define glow colors for each crypto
                 const getGlowColor = (symbol: string) => {
