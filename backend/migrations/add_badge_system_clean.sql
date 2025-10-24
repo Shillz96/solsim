@@ -167,3 +167,5 @@ BEGIN
   WHERE "isBanned" = true AND "bannedUntil" IS NOT NULL AND "bannedUntil" < NOW();
 END;
 $$ LANGUAGE plpgsql;
+
+

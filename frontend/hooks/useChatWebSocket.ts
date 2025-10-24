@@ -26,6 +26,17 @@ export interface ChatMessage {
     displayName: string | null;
     avatarUrl: string | null;
     userTier: string;
+    userBadges?: Array<{
+      id: string;
+      badge: {
+        id: string;
+        name: string;
+        displayName: string;
+        description: string;
+        iconUrl: string | null;
+        category: string;
+      };
+    }>;
   };
 }
 

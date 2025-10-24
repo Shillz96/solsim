@@ -531,7 +531,7 @@ function MarioTradingPanelComponent({ tokenAddress: propTokenAddress }: MarioTra
   const tokenBalance = tokenHolding ? parseFloat(tokenHolding.qty) : 0
 
   return (
-    <div id="trade-panel" className="mario-card p-2 sm:p-3 lg:p-4 relative w-full">
+    <div id="trade-panel" className="mario-card p-2 sm:p-3 lg:p-4 relative w-full border-4 border-[var(--outline-black)] rounded-[16px] shadow-[6px_6px_0_var(--outline-black)] bg-gradient-to-br from-white to-amber-50/30">
       {/* Position Stats Box */}
       <PositionStatsBox
         tokenAddress={tokenAddress}

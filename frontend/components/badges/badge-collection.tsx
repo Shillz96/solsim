@@ -200,3 +200,5 @@ export function BadgeCollection({ userId, className = '' }: BadgeCollectionProps
     </div>
   );
 }
+
+

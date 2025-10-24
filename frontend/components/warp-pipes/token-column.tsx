@@ -50,9 +50,16 @@ export function TokenColumn({
 
   // Header colors based on column type
   const headerColors = {
-    bonded: "bg-[var(--coin-yellow)] text-[var(--outline-black)]", // Coin Yellow
-    graduating: "bg-[var(--star-yellow)] text-[var(--outline-black)]", // Star Yellow
-    new: "bg-[var(--luigi-green)] text-white", // Luigi Green
+    bonded: "bg-gradient-to-br from-[var(--coin-gold)] to-[var(--coin-yellow)] text-[var(--outline-black)]", // Gold/Yellow gradient
+    graduating: "bg-gradient-to-br from-[var(--star-yellow)] to-amber-400 text-[var(--outline-black)]", // Bright Yellow gradient
+    new: "bg-gradient-to-br from-[var(--luigi-green)] to-emerald-500 text-white", // Green gradient
+  }
+
+  // Body background colors based on column type
+  const bodyColors = {
+    bonded: "bg-gradient-to-b from-amber-50/30 to-white", // Subtle gold tint
+    graduating: "bg-gradient-to-b from-yellow-50/30 to-white", // Subtle yellow tint
+    new: "bg-gradient-to-b from-green-50/30 to-white", // Subtle green tint
   }
 
   // Header images based on column type
@@ -91,7 +98,10 @@ export function TokenColumn({
         </div>
 
         {/* Filter Panel - Modal Trigger */}
-        <div className="px-3 pt-3 pb-3 flex-shrink-0 bg-white">
+        <div className={cn(
+          "px-3 pt-3 pb-3 flex-shrink-0",
+          bodyColors[headerColor]
+        )}>
           <FilterPanel
             filters={filters}
             onFiltersChange={handleFiltersChange}
@@ -106,8 +116,9 @@ export function TokenColumn({
         {/* Column Body - Scrollable List */}
         <div
           className={cn(
-            "flex-1 overflow-y-auto bg-white p-4 pt-0 space-y-4 min-h-0",
-            "scrollbar-none" // Hide scrollbars while maintaining scroll functionality
+            "flex-1 overflow-y-auto p-4 pt-0 space-y-4 min-h-0",
+            "scrollbar-none", // Hide scrollbars while maintaining scroll functionality
+            bodyColors[headerColor]
           )}
         >
         {/* Loading State */}

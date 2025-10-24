@@ -26,14 +26,16 @@ const radnikaNext = localFont({
   src: "./fonts/Radnika-Medium.otf",
   variable: "--font-radnika-next",
   fallback: [
-    'Inter',
-    'Manrope',
     'Nunito Sans',
+    'Baloo 2',
+    'Fredoka',
+    'Poppins',
     'Rubik',
+    'Quicksand',
     'Segoe UI',
     'Roboto',
     'Helvetica Neue',
-    'Arial',
+    'Arial Rounded MT Bold',
     'sans-serif',
   ],
   display: 'swap',
@@ -44,14 +46,10 @@ const ibmPlexSans = IBM_Plex_Sans({
   weight: ["700"],
   variable: "--font-ibm-plex-sans",
   fallback: [
-    'Inter',
-    'Manrope',
-    'Nunito Sans',
-    'Rubik',
+    '-apple-system',
+    'BlinkMacSystemFont',
+    'system-ui',
     'Segoe UI',
-    'Roboto',
-    'Helvetica Neue',
-    'Arial',
     'sans-serif',
   ],
   display: 'swap',
@@ -76,12 +74,6 @@ export const metadata: Metadata = {
     ],
     apple: { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
   },
-  other: {
-    // Force font cache refresh
-    'Cache-Control': 'no-cache, no-store, must-revalidate',
-    'Pragma': 'no-cache',
-    'Expires': '0',
-  },
 }
 
 export const viewport = {
@@ -96,33 +88,6 @@ export const viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" dir="ltr">
-      <head>
-        {/* Force no cache for fonts during development */}
-        <meta httpEquiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-        <meta httpEquiv="Pragma" content="no-cache" />
-        <meta httpEquiv="Expires" content="0" />
-        {/* Preload Google Fonts with cache busting */}
-        <link
-          rel="preload"
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap&v=2"
-          as="style"
-        />
-        <link
-          rel="preload"
-          href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap&v=2"
-          as="style"
-        />
-        <link
-          rel="preload"
-          href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;500;600;700&display=swap&v=2"
-          as="style"
-        />
-        <link
-          rel="preload"
-          href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&display=swap&v=2"
-          as="style"
-        />
-      </head>
       <body
         className={`${radnikaNext.variable} ${ibmPlexSans.variable} ${jetBrainsMono.variable} font-sans`}
         style={{
@@ -154,13 +119,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               id="main-content"
               className="relative"
               style={{
+                minHeight: 'calc(100dvh - var(--navbar-height, 56px) - var(--trending-ticker-height, 60px) - var(--bottom-nav-height, 64px))',
+                paddingBottom: 'var(--bottom-nav-height, 64px)',
                 touchAction: 'pan-y', // Optimize touch scrolling on mobile
               }}
               role="main"
             >
               {children}
             </main>
-            <BottomNavBar aria-label="Mobile navigation" className="fixed bottom-0 left-0 right-0 z-50" />
+            <BottomNavBar aria-label="Mobile navigation" className="sticky bottom-0 z-50" />
             {/* Floating windows render here, positioned absolutely over the page */}
             <FloatingWindows />
           </WindowManager>

@@ -189,6 +189,29 @@ export function ChatRoom({ tokenMint, className }: ChatRoomProps) {
                       {msg.user.displayName || `@${msg.user.handle}`}
                     </div>
 
+                    {/* User Badges */}
+                    {msg.user.userBadges && msg.user.userBadges.length > 0 && (
+                      <div className="flex items-center gap-1">
+                        {msg.user.userBadges.slice(0, 2).map((userBadge) => (
+                          <div
+                            key={userBadge.id}
+                            title={userBadge.badge.displayName}
+                            className="h-4 w-4 rounded-full border border-[var(--outline-black)] bg-white flex items-center justify-center overflow-hidden"
+                          >
+                            {userBadge.badge.iconUrl ? (
+                              <img
+                                src={userBadge.badge.iconUrl}
+                                alt={userBadge.badge.displayName}
+                                className="h-full w-full object-cover"
+                              />
+                            ) : (
+                              <span className="text-[8px]">🏆</span>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
                     {/* Tier Badge */}
                     {msg.user.userTier === 'ADMINISTRATOR' && (
                       <div className="px-1 py-0.5 rounded bg-[var(--mario-red)] border border-[var(--outline-black)] text-[10px] font-bold text-white">

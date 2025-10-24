@@ -106,8 +106,18 @@ export async function sendMessage(
           select: {
             id: true,
             handle: true,
+            displayName: true,
             avatarUrl: true,
             userTier: true,
+            userBadges: {
+              include: {
+                badge: true,
+              },
+              orderBy: {
+                earnedAt: 'desc',
+              },
+              take: 3, // Show top 3 badges
+            },
           },
         },
       },
@@ -247,8 +257,18 @@ export async function getRecentMessages(roomId: string, limit: number = 50): Pro
           select: {
             id: true,
             handle: true,
+            displayName: true,
             avatarUrl: true,
             userTier: true,
+            userBadges: {
+              include: {
+                badge: true,
+              },
+              orderBy: {
+                earnedAt: 'desc',
+              },
+              take: 3, // Show top 3 badges
+            },
           },
         },
       },
@@ -275,8 +295,18 @@ export async function getUserChatHistory(userId: string, limit: number = 100): P
           select: {
             id: true,
             handle: true,
+            displayName: true,
             avatarUrl: true,
             userTier: true,
+            userBadges: {
+              include: {
+                badge: true,
+              },
+              orderBy: {
+                earnedAt: 'desc',
+              },
+              take: 3,
+            },
           },
         },
       },

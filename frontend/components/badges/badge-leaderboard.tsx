@@ -151,3 +151,5 @@ export function BadgeLeaderboard({ limit = 10, className = '' }: BadgeLeaderboar
     </div>
   );
 }
+
+

@@ -436,3 +436,5 @@ export function UserBadges({ userId, maxDisplay = 5 }: { userId: string; maxDisp
 - Ensure accessibility with proper contrast
 
 This system will create an engaging, Mario-themed community experience with proper moderation tools! 🎮✨
+
+
