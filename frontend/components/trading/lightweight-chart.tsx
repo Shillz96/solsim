@@ -16,6 +16,8 @@
 import { useEffect, useRef, useState } from 'react'
 import {
   createChart,
+  CandlestickSeries,
+  HistogramSeries,
   type IChartApi,
   type ISeriesApi,
   type CandlestickData,
@@ -164,14 +166,8 @@ export function LightweightChart({
       },
     })
 
-    // Candlestick series with Mario theme colors
-    // Using type assertion to bypass strict TypeScript types
-    const candlestickSeries = chart.addSeries({
-      type: 'Candlestick',
-    } as any) as ISeriesApi<'Candlestick'>
-
-    // Apply candlestick options
-    candlestickSeries.applyOptions({
+    // Candlestick series with Mario theme colors (v5 API)
+    const candlestickSeries = chart.addSeries(CandlestickSeries, {
       upColor: '#43B047', // Luigi green
       downColor: '#E52521', // Mario red
       borderUpColor: '#1C1C1C',
@@ -186,14 +182,8 @@ export function LightweightChart({
       priceLineStyle: LineStyle.Solid,
     })
 
-    // Volume histogram
-    // Using type assertion to bypass strict TypeScript types
-    const volumeSeries = chart.addSeries({
-      type: 'Histogram',
-    } as any) as ISeriesApi<'Histogram'>
-
-    // Apply volume options
-    volumeSeries.applyOptions({
+    // Volume histogram (v5 API)
+    const volumeSeries = chart.addSeries(HistogramSeries, {
       color: '#A6D8FF', // Sky blue
       priceFormat: {
         type: 'volume',
