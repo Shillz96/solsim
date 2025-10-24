@@ -30,14 +30,14 @@ export function PositionStatsBox({
   tradeMode = 'PAPER',
   className
 }: PositionStatsBoxProps) {
-  const { getUserId } = useAuth()
+  const { user } = useAuth()
   const [stats, setStats] = useState<TokenStats | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     const fetchStats = async () => {
-      const userId = getUserId()
+      const userId = user?.id
       
       console.log('[PositionStatsBox] Fetching stats:', { userId, tokenAddress, tradeMode })
       
@@ -78,7 +78,7 @@ export function PositionStatsBox({
     }
 
     fetchStats()
-  }, [tokenAddress, tradeMode, getUserId])
+  }, [tokenAddress, tradeMode, user?.id])
 
   if (loading) {
     return (
