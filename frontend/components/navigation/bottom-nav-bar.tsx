@@ -322,6 +322,35 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
               </motion.div>
             )
           })}
+          
+          {/* Paper Trading Mode Button - Mobile */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: navItems.length * 0.05 }}
+            className="relative"
+          >
+            <button
+              onClick={() => handleToggleMode(tradeMode === "REAL" ? "PAPER" : "REAL")}
+              className={cn(
+                "relative z-10 flex flex-col items-center justify-center gap-1 px-3 py-2 rounded-lg transition-all duration-200",
+                "text-foreground/70 hover:text-foreground hover:bg-muted/50"
+              )}
+            >
+              <div className={cn(
+                "h-4 w-4 transition-colors flex items-center justify-center",
+                "text-foreground/70"
+              )}>
+                <span className="text-xs font-mario">📄</span>
+              </div>
+              <span className={cn(
+                "text-[10px] font-mario truncate max-w-[60px] transition-colors",
+                "text-foreground/70"
+              )}>
+                {tradeMode === "REAL" ? "Paper" : "Mainnet"}
+              </span>
+            </button>
+          </motion.div>
         </div>
       </nav>
 
@@ -544,7 +573,7 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
               />
 
               {/* Crypto prices - Centered */}
-              <div className="flex items-center gap-2 md:gap-4 mx-4">
+              <div className="flex items-center gap-2 md:gap-4">
                 {marketPrices.map((market) => {
                 // Define glow colors for each crypto
                 const getGlowColor = (symbol: string) => {

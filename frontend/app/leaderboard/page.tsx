@@ -139,25 +139,17 @@ export default function LeaderboardPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="mb-6"
+          className="mb-6 flex justify-end"
         >
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-4xl md:text-5xl font-bold font-mario mb-4 text-[var(--outline-black)]" style={{ textShadow: '2px 2px 0px var(--outline-black), 4px 4px 0px var(--mario-red-500)' }}>
-                🏆 Top Traders
-              </h1>
-              <p className="text-lg text-[var(--outline-black)] font-semibold">Compete with traders worldwide and climb the ranks</p>
-            </div>
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={handleRefresh}
-              disabled={refreshing}
-              className="border-3 border-[var(--outline-black)] bg-white hover:bg-[var(--mario-red-500)] hover:text-white shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] transition-all duration-200"
-            >
-              <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
-            </Button>
-          </div>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={handleRefresh}
+            disabled={refreshing}
+            className="border-3 border-[var(--outline-black)] bg-white hover:bg-[var(--mario-red-500)] hover:text-white shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] transition-all duration-200"
+          >
+            <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
+          </Button>
         </motion.div>
 
         {/* Error Message */}
@@ -295,65 +287,74 @@ export default function LeaderboardPage() {
                     <span className="text-sm text-[var(--outline-black)] font-semibold opacity-70">Leading traders</span>
                   </div>
                   <div className="space-y-3">
-                    {topPerformers.map((performer, index) => (
-                      <div
-                        key={performer.userId}
-                        className="flex items-center justify-between p-3 rounded-[12px] bg-[var(--sky-50)] border-2 border-[var(--outline-black)] hover:bg-[var(--sky-100)] transition-colors shadow-[2px_2px_0_var(--outline-black)]"
-                      >
-                        <div className="flex items-center gap-3">
-                          <div className="flex items-center justify-center w-8 h-8 rounded-full bg-[var(--star-yellow-500)] text-[var(--outline-black)] border-2 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] font-bold text-sm">
-                            {index + 1}
+                    {topPerformers.map((performer, index) => {
+                      const colors = [
+                        { bg: 'bg-[var(--star-yellow-500)]', border: 'border-[var(--star-yellow-600)]', rank: 'bg-[var(--star-yellow-600)]' },
+                        { bg: 'bg-[#C0C0C0]', border: 'border-[#A0A0A0]', rank: 'bg-[#A0A0A0]' },
+                        { bg: 'bg-[#CD7F32]', border: 'border-[#A0522D]', rank: 'bg-[#A0522D]' }
+                      ]
+                      const color = colors[index]
+                      
+                      return (
+                        <div
+                          key={performer.userId}
+                          className={`flex items-center justify-between p-3 rounded-[12px] ${color.bg} border-2 ${color.border} hover:opacity-90 transition-opacity shadow-[2px_2px_0_var(--outline-black)]`}
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className={`flex items-center justify-center w-8 h-8 rounded-full ${color.rank} text-white border-2 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] font-bold text-sm`}>
+                              {index + 1}
+                            </div>
+                            <div>
+                              <p className="font-bold text-[var(--outline-black)]">{performer.handle || performer.displayName || `User ${performer.userId.slice(0, 8)}`}</p>
+                              <p className="text-xs text-[var(--outline-black)] opacity-70 font-semibold">{performer.totalTrades} trades</p>
+                            </div>
                           </div>
-                          <div>
-                            <p className="font-bold text-[var(--outline-black)]">{performer.handle || performer.displayName || `User ${performer.userId.slice(0, 8)}`}</p>
-                            <p className="text-xs text-[var(--outline-black)] opacity-70 font-semibold">{performer.totalTrades} trades</p>
+                          <div className="text-right">
+                            <div className={`font-bold ${parseFloat(performer.totalPnlUsd) >= 0 ? 'text-[var(--luigi-green-700)]' : 'text-[var(--mario-red-700)]'}`}>
+                              <UsdWithSol 
+                                usd={parseFloat(performer.totalPnlUsd)} 
+                                prefix={parseFloat(performer.totalPnlUsd) >= 0 ? '+' : ''}
+                                className="font-bold"
+                                solClassName="text-xs"
+                              />
+                            </div>
+                            <p className="text-xs text-[var(--outline-black)] opacity-70 font-semibold">{performer.winRate.toFixed(1)}% win</p>
                           </div>
                         </div>
-                        <div className="text-right">
-                          <div className={`font-bold ${parseFloat(performer.totalPnlUsd) >= 0 ? 'text-[var(--luigi-green-700)]' : 'text-[var(--mario-red-700)]'}`}>
-                            <UsdWithSol 
-                              usd={parseFloat(performer.totalPnlUsd)} 
-                              prefix={parseFloat(performer.totalPnlUsd) >= 0 ? '+' : ''}
-                              className="font-bold"
-                              solClassName="text-xs"
-                            />
-                          </div>
-                          <p className="text-xs text-[var(--outline-black)] opacity-70 font-semibold">{performer.winRate.toFixed(1)}% win</p>
-                        </div>
-                      </div>
-                    ))}
+                      )
+                    })}
                   </div>
                 </div>
               )}
 
-              {/* Quick Stats */}
-              <div className="p-6 rounded-lg bg-card border border-border/50">
-                <div className="mb-4">
-                  <h3 className="font-semibold text-lg">Competition Stats</h3>
+              {/* Competition Stats */}
+              <div className="p-6 rounded-[16px] bg-white border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)]">
+                <div className="mb-6">
+                  <h3 className="font-bold text-lg text-[var(--outline-black)] font-mario">📊 Competition Stats</h3>
                 </div>
                 <div className="space-y-4">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Total Traders</span>
-                    <span className="font-semibold text-lg">{totalTraders.toLocaleString()}</span>
+                  <div className="flex justify-between items-center pb-3 border-b-2 border-[var(--outline-black)] border-opacity-20">
+                    <span className="text-sm text-[var(--outline-black)] font-semibold opacity-70">Total Traders</span>
+                    <span className="font-bold text-lg text-[var(--outline-black)]">{totalTraders.toLocaleString()}</span>
                   </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Active Today</span>
-                    <span className="font-semibold text-lg">{activeToday.toLocaleString()}</span>
+                  <div className="flex justify-between items-center pb-3 border-b-2 border-[var(--outline-black)] border-opacity-20">
+                    <span className="text-sm text-[var(--outline-black)] font-semibold opacity-70">Active Today</span>
+                    <span className="font-bold text-lg text-[var(--outline-black)]">{activeToday.toLocaleString()}</span>
                   </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Avg PnL</span>
-                    <div className={`font-semibold text-lg ${avgROI >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                  <div className="flex justify-between items-center pb-3 border-b-2 border-[var(--outline-black)] border-opacity-20">
+                    <span className="text-sm text-[var(--outline-black)] font-semibold opacity-70">Avg PnL</span>
+                    <div className={`font-bold text-lg ${avgROI >= 0 ? 'text-[var(--luigi-green-700)]' : 'text-[var(--mario-red-700)]'}`}>
                       <UsdWithSol
                         usd={avgROI}
                         prefix={avgROI >= 0 ? '+' : ''}
-                        className="text-lg font-semibold font-mono"
+                        className="text-lg font-bold"
                         solClassName="text-xs"
                       />
                     </div>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Total Trades</span>
-                    <span className="font-semibold text-lg font-mono">{formatNumber(totalVolume, { useCompact: true })}</span>
+                    <span className="text-sm text-[var(--outline-black)] font-semibold opacity-70">Total Trades</span>
+                    <span className="font-bold text-lg text-[var(--outline-black)]">{formatNumber(totalVolume, { useCompact: true })}</span>
                   </div>
                 </div>
               </div>
