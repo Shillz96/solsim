@@ -66,6 +66,7 @@ export function LightweightChart({
   const [timeframe, setTimeframe] = useState<Timeframe>('5m')
   const [isLoading, setIsLoading] = useState(true)
   const [dataSource, setDataSource] = useState<'birdeye' | 'mock' | null>(null)
+  const [isMobile, setIsMobile] = useState(false)
 
   // Get real-time price updates via WebSocket
   const { prices, subscribe, unsubscribe } = usePriceStreamContext()
@@ -78,13 +79,28 @@ export function LightweightChart({
   // Add average cost price line
   useAverageCostLine(candlestickSeriesRef.current, tokenMint, solPrice)
 
+  // Detect mobile on mount and resize
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 640)
+    }
+
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
+
   // Initialize chart
   useEffect(() => {
     if (!chartContainerRef.current) return
 
+    // Responsive height: smaller on mobile, larger on desktop
+    const chartHeight = isMobile ? 350 : 500
+
     const chart = createChart(chartContainerRef.current, {
       width: chartContainerRef.current.clientWidth,
-      height: 500,
+      height: chartHeight,
       layout: {
         background: { type: ColorType.Solid, color: '#FFFAE9' }, // Mario theme cream
         textColor: '#1C1C1C', // Outline black
@@ -192,7 +208,7 @@ export function LightweightChart({
       resizeObserver.disconnect()
       chart.remove()
     }
-  }, [])
+  }, [isMobile])
 
   // Load historical data when timeframe changes
   useEffect(() => {
@@ -322,21 +338,24 @@ export function LightweightChart({
       <div
         ref={chartContainerRef}
         className="border-4 border-[var(--outline-black)] rounded-[16px] shadow-[6px_6px_0_var(--outline-black)] bg-[#FFFAE9] overflow-hidden"
-        style={{ minHeight: '500px' }}
+        style={{ minHeight: isMobile ? '350px' : '500px' }}
       />
 
       {/* Chart Info */}
-      <div className="flex justify-between text-[10px] text-muted-foreground px-2">
-        <div>
+      <div className="flex justify-between text-[10px] text-muted-foreground px-2 gap-2">
+        <div className="flex items-center gap-1 flex-wrap">
           <span className="font-bold">{tokenSymbol}</span> • {timeframe.toUpperCase()} Chart
           {dataSource === 'mock' && (
-            <span className="ml-2 px-2 py-0.5 bg-[var(--star-yellow)] text-[var(--outline-black)] rounded font-bold">
+            <span className="px-2 py-0.5 bg-[var(--star-yellow)] text-[var(--outline-black)] rounded font-bold whitespace-nowrap">
               DEMO DATA
             </span>
           )}
         </div>
-        <div>
+        <div className="hidden sm:block">
           Powered by TradingView Lightweight Charts
+        </div>
+        <div className="sm:hidden text-right">
+          TradingView
         </div>
       </div>
     </div>
