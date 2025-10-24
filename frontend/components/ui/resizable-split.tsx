@@ -177,19 +177,19 @@ export function ResizableSplit({
     const handleMove = (e: MouseEvent) => handleMouseMove(e)
     const handleTouch = (e: TouchEvent) => handleTouchMove(e)
     const handleUp = (e: MouseEvent) => handleMouseUp(e)
-    const handleTouchEnd = (e: TouchEvent) => handleTouchEnd(e)
+    const handleTouchEndLocal = (e: TouchEvent) => handleTouchEnd(e)
 
     // Add event listeners with capture to ensure they fire before other handlers
     document.addEventListener('mousemove', handleMove, { passive: false, capture: true })
     document.addEventListener('mouseup', handleUp, { passive: false, capture: true })
     document.addEventListener('touchmove', handleTouch, { passive: false, capture: true })
-    document.addEventListener('touchend', handleTouchEnd, { passive: false, capture: true })
+    document.addEventListener('touchend', handleTouchEndLocal, { passive: false, capture: true })
 
     return () => {
       document.removeEventListener('mousemove', handleMove, { capture: true })
       document.removeEventListener('mouseup', handleUp, { capture: true })
       document.removeEventListener('touchmove', handleTouch, { capture: true })
-      document.removeEventListener('touchend', handleTouchEnd, { capture: true })
+      document.removeEventListener('touchend', handleTouchEndLocal, { capture: true })
     }
   }, [isDragging, handleMouseMove, handleMouseUp, handleTouchMove, handleTouchEnd])
 
