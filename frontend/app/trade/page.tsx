@@ -116,8 +116,6 @@ function TradePageContent() {
           >
             <MarioTradingPanel tokenAddress={currentTokenAddress} />
           </motion.div>
-
-          </div>
         </div>
 
         {/* DESKTOP LAYOUT: Grid layout */}
