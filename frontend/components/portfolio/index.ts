@@ -5,5 +5,6 @@ export { PortfolioChart as PortfolioChartDynamic } from "./portfolio-chart-dynam
 export { PortfolioMetrics } from "./PortfolioMetrics"
 export { RewardsCard } from "./rewards-card"
 export { TradingStatsSummary } from "./trading-stats-summary"
+export { WalletManagement } from "./wallet-management"
 export { PortfolioStatsWidget, LeaderboardPreviewWidget, QuickPortfolioActionsWidget } from "./portfolio-widgets"
 export * from "./types"

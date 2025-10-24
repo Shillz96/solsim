@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { Wallet, ArrowDownToLine, ArrowUpFromLine, ExternalLink, Power, Sparkles, KeyRound, AlertCircle, CheckCircle, AlertTriangle } from 'lucide-react';
+import { Wallet, ArrowDownToLine, ArrowUpFromLine, ExternalLink, Power, Sparkles, KeyRound, AlertCircle, CheckCircle, AlertTriangle, Settings } from 'lucide-react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { useTradingMode } from '@/lib/trading-mode-context';
 import { Button } from '@/components/ui/button';
@@ -10,6 +10,7 @@ import { DepositModal } from '@/components/modals/deposit-modal';
 import { WithdrawModal } from '@/components/modals/withdraw-modal';
 import { ExportPrivateKeyModal } from '@/components/modals/export-private-key-modal';
 import { useAuth } from '@/hooks/use-auth';
+import { useRouter } from 'next/navigation';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -67,6 +68,7 @@ export function WalletBalanceDisplay({
 
   const { publicKey, disconnect, connected } = useWallet();
   const { user } = useAuth();
+  const router = useRouter();
   
   // Modal state - single state to prevent race conditions
   const [activeModal, setActiveModal] = useState<'deposit' | 'withdraw' | 'export' | null>(null);
@@ -370,6 +372,17 @@ export function WalletBalanceDisplay({
             <DropdownMenuSeparator />
           </>
         )}
+
+        {/* Wallet Management */}
+        <DropdownMenuItem
+          onClick={() => router.push('/wallet-management')}
+          className="cursor-pointer font-medium"
+        >
+          <Settings className="mr-2 h-4 w-4 text-star-yellow-600" />
+          Wallet Management
+        </DropdownMenuItem>
+
+        <DropdownMenuSeparator />
 
         {/* Wallet actions */}
         {isWalletConnected ? (

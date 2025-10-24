@@ -10,6 +10,7 @@
 import { useState, useEffect, useMemo, useCallback, useDeferredValue } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import dynamic from "next/dynamic"
+import Image from "next/image"
 import {
   Eye,
   Plus,
@@ -368,10 +369,17 @@ export function WalletTrackerContent({ compact = false }: WalletTrackerContentPr
               className="flex items-center justify-between"
             >
               <div className="space-y-2">
-                <h1 className="text-3xl font-bold flex items-center gap-3 text-pipe-900">
-                  <Eye className="h-8 w-8 text-mario-red" />
-                  Wallet Tracker
-                </h1>
+                {/* Header Image */}
+                <div className="mb-4">
+                  <Image
+                    src="/wallet-tracker-10-24-2025.png"
+                    alt="Wallet Tracker"
+                    width={600}
+                    height={100}
+                    priority
+                    className="h-auto w-auto max-w-full"
+                  />
+                </div>
                 <p className="text-base font-semibold text-pipe-700">
                   Track and copy trades from top Solana wallets in real-time
                 </p>
