@@ -177,44 +177,45 @@ export default function FloatingWindows() {
 
   return (
     <FloatingWindowsErrorBoundary>
-      {windows.map(w => (
-        <Rnd
-          key={w.id}
-          default={{ x: w.x, y: w.y, width: w.width, height: w.height }}
-          position={{ x: w.x, y: w.y }}
-          size={{ width: w.width, height: w.height }}
-          bounds="parent"
-          minWidth={Math.min(320, viewportSize.width - 40)}
-          minHeight={Math.min(240, viewportSize.height - 40)}
-          dragGrid={[8, 8]}
-          resizeGrid={[8, 8]}
-          onDragStart={() => {
-            onActivate(w.id);
-            setDraggingId(w.id);
-          }}
-          onResizeStart={() => onActivate(w.id)}
-          onDragStop={(_, data) => {
-            const constrained = constrainPosition(data.x, data.y, w.width, w.height);
-            updateBounds(w.id, constrained);
-            setDraggingId(null);
-          }}
-          onResizeStop={(_, __, ref, ___, pos) => {
-            const constrainedPos = constrainPosition(pos.x, pos.y, ref.offsetWidth, ref.offsetHeight);
-            const constrainedDims = constrainDimensions(ref.offsetWidth, ref.offsetHeight);
-            updateBounds(w.id, {
-              width: constrainedDims.width,
-              height: constrainedDims.height,
-              x: constrainedPos.x,
-              y: constrainedPos.y
-            });
-          }}
-          enableResizing={canResize(w) ? {
-            top: true, right: true, bottom: true, left: true,
-            topRight: true, bottomRight: true, bottomLeft: true, topLeft: true
-          } : false}
-          style={{ zIndex: w.z }}
-          className="select-none"
-        >
+      <div className="fixed inset-0 pointer-events-none" style={{ zIndex: 100 }}>
+        {windows.map(w => (
+          <Rnd
+            key={w.id}
+            default={{ x: w.x, y: w.y, width: w.width, height: w.height }}
+            position={{ x: w.x, y: w.y }}
+            size={{ width: w.width, height: w.height }}
+            bounds="parent"
+            minWidth={Math.min(320, viewportSize.width - 40)}
+            minHeight={Math.min(240, viewportSize.height - 40)}
+            dragGrid={[8, 8]}
+            resizeGrid={[8, 8]}
+            onDragStart={() => {
+              onActivate(w.id);
+              setDraggingId(w.id);
+            }}
+            onResizeStart={() => onActivate(w.id)}
+            onDragStop={(_, data) => {
+              const constrained = constrainPosition(data.x, data.y, w.width, w.height);
+              updateBounds(w.id, constrained);
+              setDraggingId(null);
+            }}
+            onResizeStop={(_, __, ref, ___, pos) => {
+              const constrainedPos = constrainPosition(pos.x, pos.y, ref.offsetWidth, ref.offsetHeight);
+              const constrainedDims = constrainDimensions(ref.offsetWidth, ref.offsetHeight);
+              updateBounds(w.id, {
+                width: constrainedDims.width,
+                height: constrainedDims.height,
+                x: constrainedPos.x,
+                y: constrainedPos.y
+              });
+            }}
+            enableResizing={canResize(w) ? {
+              top: true, right: true, bottom: true, left: true,
+              topRight: true, bottomRight: true, bottomLeft: true, topLeft: true
+            } : false}
+            style={{ zIndex: w.z }}
+            className="select-none pointer-events-auto"
+          >
           <div
             tabIndex={0}
             onPointerDown={(e) => {
@@ -300,6 +301,7 @@ export default function FloatingWindows() {
           </div>
         </Rnd>
       ))}
+      </div>
     </FloatingWindowsErrorBoundary>
   );
 }

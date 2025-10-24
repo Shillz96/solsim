@@ -1,4 +1,5 @@
 import { Metadata } from "next"
+import Image from "next/image"
 import { LaunchTokenForm } from "@/components/launch/launch-token-form"
 import { LaunchTokenCard } from "@/components/launch/launch-token-card"
 
@@ -18,9 +19,16 @@ export default function LaunchPage() {
       <div className="max-w-2xl mx-auto">
         {/* Page Header */}
         <div className="text-center mb-8">
-          <h1 className="font-mario text-3xl md:text-4xl text-[var(--outline-black)] font-black mb-2">
-            Launch Token
-          </h1>
+          <div className="mb-4">
+            <Image
+              src="/Launch-Token-10-24-2025.png"
+              alt="Launch Token"
+              width={400}
+              height={100}
+              className="mx-auto"
+              priority
+            />
+          </div>
           <p className="text-lg text-[var(--outline-black)]/80 font-semibold">
             Create your own Solana token on Pump.fun
           </p>
