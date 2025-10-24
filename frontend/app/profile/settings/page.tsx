@@ -1006,4 +1006,6 @@ function PurchaseHistorySection({ userId }: { userId: string }) {
   );
 }
 
+}
+
 export default UserSettingsPage
