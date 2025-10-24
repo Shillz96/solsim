@@ -1197,14 +1197,14 @@
 
 /* Mario Font Base Class */
 .mario-font {
-  font-family: 'Luckiest Guy', cursive;
+  font-family: var(--font-radnika-next), "Radnika Next", "Inter", "Manrope", "Nunito Sans", "Rubik", "Segoe UI", "Roboto", "Helvetica Neue", "Arial", sans-serif;
   letter-spacing: 1px;
   text-transform: uppercase;
 }
 
 /* Mario Title/Headline Style - Bold with outline and shadow */
 .mario-title {
-  font-family: 'Luckiest Guy', cursive;
+  font-family: var(--font-radnika-next), "Radnika Next", "Inter", "Manrope", "Nunito Sans", "Rubik", "Segoe UI", "Roboto", "Helvetica Neue", "Arial", sans-serif;
   color: var(--mario-red);
   -webkit-text-stroke: 2px var(--outline-black);
   text-shadow:
@@ -1220,7 +1220,7 @@
   color: var(--outline-black);
   border: 3px solid var(--outline-black);
   border-radius: 8px;
-  font-family: 'Luckiest Guy', cursive;
+  font-family: var(--font-radnika-next), "Radnika Next", "Inter", "Manrope", "Nunito Sans", "Rubik", "Segoe UI", "Roboto", "Helvetica Neue", "Arial", sans-serif;
   padding: 0.6rem 1rem;
   box-shadow: 3px 3px 0 var(--outline-black);
   transition: transform 0.1s ease, box-shadow 0.1s ease;
@@ -1244,7 +1244,7 @@
   color: #ffffff;
   border: 3px solid var(--outline-black);
   border-radius: 8px;
-  font-family: 'Luckiest Guy', cursive;
+  font-family: var(--font-radnika-next), "Radnika Next", "Inter", "Manrope", "Nunito Sans", "Rubik", "Segoe UI", "Roboto", "Helvetica Neue", "Arial", sans-serif;
   padding: 0.6rem 1rem;
   box-shadow: 3px 3px 0 var(--outline-black);
   transition: transform 0.1s ease, box-shadow 0.1s ease;
@@ -1261,7 +1261,7 @@
   color: #ffffff;
   border: 3px solid var(--outline-black);
   border-radius: 8px;
-  font-family: 'Luckiest Guy', cursive;
+  font-family: var(--font-radnika-next), "Radnika Next", "Inter", "Manrope", "Nunito Sans", "Rubik", "Segoe UI", "Roboto", "Helvetica Neue", "Arial", sans-serif;
   padding: 0.6rem 1rem;
   box-shadow: 3px 3px 0 var(--outline-black);
   transition: transform 0.1s ease, box-shadow 0.1s ease;
@@ -1278,7 +1278,7 @@
   color: #ffffff;
   border: 3px solid var(--outline-black);
   border-radius: 8px;
-  font-family: 'Luckiest Guy', cursive;
+  font-family: var(--font-radnika-next), "Radnika Next", "Inter", "Manrope", "Nunito Sans", "Rubik", "Segoe UI", "Roboto", "Helvetica Neue", "Arial", sans-serif;
   padding: 0.6rem 1rem;
   box-shadow: 3px 3px 0 var(--outline-black);
   transition: transform 0.1s ease, box-shadow 0.1s ease;
@@ -1313,7 +1313,7 @@
   background: var(--coin-gold);
   border: 2px solid var(--outline-black);
   border-radius: 20px;
-  font-family: 'Luckiest Guy', cursive;
+  font-family: var(--font-radnika-next), "Radnika Next", "Inter", "Manrope", "Nunito Sans", "Rubik", "Segoe UI", "Roboto", "Helvetica Neue", "Arial", sans-serif;
   font-size: 0.875rem;
   color: var(--outline-black);
   box-shadow: 2px 2px 0 var(--outline-black);
@@ -1323,7 +1323,7 @@
 
 /* Mario Header Text - Colorful with outline */
 .mario-header-text {
-  font-family: 'Luckiest Guy', cursive;
+  font-family: var(--font-radnika-next), "Radnika Next", "Inter", "Manrope", "Nunito Sans", "Rubik", "Segoe UI", "Roboto", "Helvetica Neue", "Arial", sans-serif;
   background: linear-gradient(90deg,
     var(--super-blue),
     var(--mario-red),
@@ -1347,7 +1347,7 @@
   border: 3px solid var(--outline-black) !important;
   box-shadow: 0 0 20px rgba(67, 176, 71, 0.3), 3px 3px 0 var(--outline-black);
   transition: all 0.2s ease;
-  font-family: 'Luckiest Guy', cursive;
+  font-family: var(--font-radnika-next), "Radnika Next", "Inter", "Manrope", "Nunito Sans", "Rubik", "Segoe UI", "Roboto", "Helvetica Neue", "Arial", sans-serif;
   text-transform: uppercase;
   letter-spacing: 1px;
 }
@@ -1370,7 +1370,7 @@
   border: 3px solid var(--outline-black) !important;
   box-shadow: 0 0 20px rgba(229, 37, 33, 0.3), 3px 3px 0 var(--outline-black);
   transition: all 0.2s ease;
-  font-family: 'Luckiest Guy', cursive;
+  font-family: var(--font-radnika-next), "Radnika Next", "Inter", "Manrope", "Nunito Sans", "Rubik", "Segoe UI", "Roboto", "Helvetica Neue", "Arial", sans-serif;
   text-transform: uppercase;
   letter-spacing: 1px;
 }
@@ -1428,7 +1428,7 @@
   background: var(--star-yellow);
   border: 3px solid var(--outline-black);
   border-radius: 50%;
-  font-family: 'Luckiest Guy', cursive;
+  font-family: var(--font-radnika-next), "Radnika Next", "Inter", "Manrope", "Nunito Sans", "Rubik", "Segoe UI", "Roboto", "Helvetica Neue", "Arial", sans-serif;
   font-size: 1.25rem;
   color: var(--outline-black);
   box-shadow: 3px 3px 0 var(--outline-black);
