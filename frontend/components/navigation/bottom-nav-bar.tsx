@@ -351,38 +351,59 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
                 }
               />
 
-              {marketPrices.map((market) => (
-                <div key={market.symbol} className="flex items-center gap-1 px-2 py-1 rounded-lg bg-white border-2 border-[var(--outline-black)]/20">
-                  <div className="flex items-center gap-1">
-                    <div className="relative h-4 w-4">
-                      <Image
-                        src={market.icon}
-                        alt={`${market.symbol} icon`}
-                        fill
-                        className="object-contain"
-                      />
+              {marketPrices.map((market) => {
+                // Define glow colors for each crypto
+                const getGlowColor = (symbol: string) => {
+                  switch (symbol) {
+                    case 'SOL': return 'text-[#14F195]'; // Solana green
+                    case 'BTC': return 'text-[#F7931A]'; // Bitcoin orange  
+                    case 'ETH': return 'text-[#627EEA]'; // Ethereum blue
+                    default: return 'text-[var(--star-yellow)]';
+                  }
+                };
+
+                const getGlowShadow = (symbol: string) => {
+                  switch (symbol) {
+                    case 'SOL': return 'drop-shadow-[0_0_8px_rgba(20,241,149,0.6)]'; // Solana green glow
+                    case 'BTC': return 'drop-shadow-[0_0_8px_rgba(247,147,26,0.6)]'; // Bitcoin orange glow
+                    case 'ETH': return 'drop-shadow-[0_0_8px_rgba(98,126,234,0.6)]'; // Ethereum blue glow
+                    default: return 'drop-shadow-[0_0_8px_rgba(255,216,0,0.6)]';
+                  }
+                };
+
+                return (
+                  <div key={market.symbol} className="flex items-center gap-1 px-2 py-1 rounded-lg bg-transparent">
+                    <div className="flex items-center gap-1">
+                      <div className={`relative h-4 w-4 ${getGlowShadow(market.symbol)}`}>
+                        <Image
+                          src={market.icon}
+                          alt={`${market.symbol} icon`}
+                          fill
+                          className="object-contain"
+                        />
+                      </div>
+                      <span className={`text-[10px] font-semibold ${getGlowColor(market.symbol)}`}>{market.symbol}</span>
                     </div>
-                    <span className="text-[10px] font-semibold text-foreground">{market.symbol}</span>
+                    <span className={`text-[10px] font-bold tabular-nums ${getGlowColor(market.symbol)}`}>
+                      ${market.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </span>
+                    <span
+                      className={cn(
+                        "text-[9px] font-medium px-1 py-0.5 rounded tabular-nums",
+                        market.change24h > 0
+                          ? "text-[#00ff85] drop-shadow-[0_0_4px_rgba(0,255,133,0.6)]"
+                          : market.change24h < 0
+                          ? "text-[#ff4d4d] drop-shadow-[0_0_4px_rgba(255,77,77,0.6)]"
+                          : "text-muted-foreground",
+                      )}
+                      aria-label={`Price change: ${market.change24h > 0 ? 'up' : market.change24h < 0 ? 'down' : 'unchanged'} ${Math.abs(market.change24h).toFixed(2)} percent`}
+                    >
+                      {market.change24h > 0 ? "+" : ""}
+                      {market.change24h.toFixed(2)}%
+                    </span>
                   </div>
-                  <span className="text-[10px] font-bold text-foreground tabular-nums">
-                    ${market.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                  </span>
-                  <span
-                    className={cn(
-                      "text-[9px] font-medium px-1 py-0.5 rounded tabular-nums",
-                      market.change24h > 0
-                        ? "text-green-600 bg-green-100"
-                        : market.change24h < 0
-                        ? "text-red-600 bg-red-100"
-                        : "text-muted-foreground bg-muted",
-                    )}
-                    aria-label={`Price change: ${market.change24h > 0 ? 'up' : market.change24h < 0 ? 'down' : 'unchanged'} ${Math.abs(market.change24h).toFixed(2)} percent`}
-                  >
-                    {market.change24h > 0 ? "+" : ""}
-                    {market.change24h.toFixed(2)}%
-                  </span>
-                </div>
-              ))}
+                );
+              })}
 
             </div>
 
@@ -478,38 +499,59 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
                 }
               />
 
-              {marketPrices.map((market) => (
-                <div key={market.symbol} className="flex items-center gap-1 px-2 py-1 rounded-lg bg-white border-2 border-[var(--outline-black)]/20">
-                  <div className="flex items-center gap-1">
-                    <div className="relative h-4 w-4">
-                      <Image
-                        src={market.icon}
-                        alt={`${market.symbol} icon`}
-                        fill
-                        className="object-contain"
-                      />
+              {marketPrices.map((market) => {
+                // Define glow colors for each crypto
+                const getGlowColor = (symbol: string) => {
+                  switch (symbol) {
+                    case 'SOL': return 'text-[#14F195]'; // Solana green
+                    case 'BTC': return 'text-[#F7931A]'; // Bitcoin orange  
+                    case 'ETH': return 'text-[#627EEA]'; // Ethereum blue
+                    default: return 'text-[var(--star-yellow)]';
+                  }
+                };
+
+                const getGlowShadow = (symbol: string) => {
+                  switch (symbol) {
+                    case 'SOL': return 'drop-shadow-[0_0_8px_rgba(20,241,149,0.6)]'; // Solana green glow
+                    case 'BTC': return 'drop-shadow-[0_0_8px_rgba(247,147,26,0.6)]'; // Bitcoin orange glow
+                    case 'ETH': return 'drop-shadow-[0_0_8px_rgba(98,126,234,0.6)]'; // Ethereum blue glow
+                    default: return 'drop-shadow-[0_0_8px_rgba(255,216,0,0.6)]';
+                  }
+                };
+
+                return (
+                  <div key={market.symbol} className="flex items-center gap-1 px-2 py-1 rounded-lg bg-transparent">
+                    <div className="flex items-center gap-1">
+                      <div className={`relative h-4 w-4 ${getGlowShadow(market.symbol)}`}>
+                        <Image
+                          src={market.icon}
+                          alt={`${market.symbol} icon`}
+                          fill
+                          className="object-contain"
+                        />
+                      </div>
+                      <span className={`text-[10px] font-semibold ${getGlowColor(market.symbol)}`}>{market.symbol}</span>
                     </div>
-                    <span className="text-[10px] font-semibold text-foreground">{market.symbol}</span>
+                    <span className={`text-[10px] font-bold tabular-nums ${getGlowColor(market.symbol)}`}>
+                      ${market.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </span>
+                    <span
+                      className={cn(
+                        "text-[9px] font-medium px-1 py-0.5 rounded tabular-nums",
+                        market.change24h > 0
+                          ? "text-[#00ff85] drop-shadow-[0_0_4px_rgba(0,255,133,0.6)]"
+                          : market.change24h < 0
+                          ? "text-[#ff4d4d] drop-shadow-[0_0_4px_rgba(255,77,77,0.6)]"
+                          : "text-muted-foreground",
+                      )}
+                      aria-label={`Price change: ${market.change24h > 0 ? 'up' : market.change24h < 0 ? 'down' : 'unchanged'} ${Math.abs(market.change24h).toFixed(2)} percent`}
+                    >
+                      {market.change24h > 0 ? "+" : ""}
+                      {market.change24h.toFixed(2)}%
+                    </span>
                   </div>
-                  <span className="text-[10px] font-bold text-foreground tabular-nums">
-                    ${market.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                  </span>
-                  <span
-                    className={cn(
-                      "text-[9px] font-medium px-1 py-0.5 rounded tabular-nums",
-                      market.change24h > 0
-                        ? "text-green-600 bg-green-100"
-                        : market.change24h < 0
-                        ? "text-red-600 bg-red-100"
-                        : "text-muted-foreground bg-muted",
-                    )}
-                    aria-label={`Price change: ${market.change24h > 0 ? 'up' : market.change24h < 0 ? 'down' : 'unchanged'} ${Math.abs(market.change24h).toFixed(2)} percent`}
-                  >
-                    {market.change24h > 0 ? "+" : ""}
-                    {market.change24h.toFixed(2)}%
-                  </span>
-                </div>
-              ))}
+                );
+              })}
 
             </div>
 
