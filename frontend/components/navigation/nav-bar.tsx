@@ -642,8 +642,8 @@ export function NavBar() {
                                   item.iconSrc
                                 }
                                 alt={item.name} 
-                                width={100} 
-                                height={25} 
+                                width={80} 
+                                height={20} 
                                 className="object-contain" 
                               />
                               <div>
