@@ -26,6 +26,7 @@ import { Label } from "@/components/ui/label"
 import { Slider } from "@/components/ui/slider"
 import { useToast } from "@/hooks/use-toast"
 import { useAuth } from "@/hooks/use-auth"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { cn } from "@/lib/utils"
 import { formatUSD, formatNumber } from "@/lib/format"
 import * as api from "@/lib/wallet-tracker-api"
@@ -39,25 +40,65 @@ interface WalletTrackerPopupProps {
 export function WalletTrackerPopup({ isOpen, onClose }: WalletTrackerPopupProps) {
   const { user, getUserId } = useAuth()
   const { toast } = useToast()
+  const queryClient = useQueryClient()
   const [activeTab, setActiveTab] = useState<"tracked" | "add">("tracked")
-  
-  // Tracked wallets state
-  const [trackedWallets, setTrackedWallets] = useState<Backend.TrackedWallet[]>([])
-  const [loadingWallets, setLoadingWallets] = useState(false)
-  
+
   // Add wallet state
   const [newWalletAddress, setNewWalletAddress] = useState("")
   const [newWalletLabel, setNewWalletLabel] = useState("")
   const [isAddingWallet, setIsAddingWallet] = useState(false)
-  
+
   // Activity state
   const [selectedWallet, setSelectedWallet] = useState<string | null>(null)
-  const [walletActivity, setWalletActivity] = useState<Backend.WalletActivity[]>([])
-  const [loadingActivity, setLoadingActivity] = useState(false)
-  
-  // Copy trade state
-  const [copyTradePercentage, setCopyTradePercentage] = useState(100)
+
+  // Copy trade state - persist in localStorage
+  const [copyTradePercentage, setCopyTradePercentage] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('wallet-tracker-copy-percentage')
+      return saved ? parseInt(saved, 10) : 100
+    }
+    return 100
+  })
   const [copyingTrade, setCopyingTrade] = useState<string | null>(null)
+
+  // Persist copy trade percentage to localStorage
+  useEffect(() => {
+    localStorage.setItem('wallet-tracker-copy-percentage', copyTradePercentage.toString())
+  }, [copyTradePercentage])
+
+  // Query for tracked wallets
+  const {
+    data: trackedWallets = [],
+    isLoading: loadingWallets,
+    refetch: refetchTrackedWallets
+  } = useQuery({
+    queryKey: ['tracked-wallets', user?.id],
+    queryFn: async () => {
+      if (!user?.id) return []
+      const userId = getUserId()
+      if (!userId) return []
+      const response = await api.getTrackedWallets(userId)
+      return response.trackedWallets
+    },
+    enabled: !!user?.id && isOpen,
+    staleTime: 30000, // 30 seconds
+  })
+
+  // Query for wallet activity
+  const {
+    data: walletActivity = [],
+    isLoading: loadingActivity,
+    refetch: refetchWalletActivity
+  } = useQuery({
+    queryKey: ['wallet-activity', selectedWallet],
+    queryFn: async () => {
+      if (!selectedWallet) return []
+      const response = await api.getWalletActivity(selectedWallet, 20)
+      return response.activity
+    },
+    enabled: !!selectedWallet,
+    staleTime: 15000, // 15 seconds for activity
+  })
 
   // Load tracked wallets
   const loadTrackedWallets = useCallback(async () => {
@@ -192,10 +233,24 @@ export function WalletTrackerPopup({ isOpen, onClose }: WalletTrackerPopupProps)
     }
   }
 
-  // ONLY load data when popup is opened, not on mount
+  // Prevent body scroll and load data when popup is opened
   useEffect(() => {
-    if (isOpen && user) {
-      loadTrackedWallets()
+    if (isOpen) {
+      // Prevent body scroll
+      document.body.style.overflow = 'hidden'
+
+      // Load data if user is available
+      if (user) {
+        loadTrackedWallets()
+      }
+    } else {
+      // Restore body scroll when closed
+      document.body.style.overflow = ''
+    }
+
+    // Cleanup on unmount
+    return () => {
+      document.body.style.overflow = ''
     }
   }, [isOpen, user])  // Removed loadTrackedWallets from dependencies
 

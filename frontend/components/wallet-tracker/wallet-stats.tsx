@@ -1,5 +1,6 @@
 "use client"
 
+import { useMemo } from "react"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import {
@@ -7,7 +8,8 @@ import {
   TrendingUp,
   TrendingDown,
   Wallet,
-  DollarSign
+  DollarSign,
+  Loader2
 } from "lucide-react"
 import { formatUSD, formatNumber } from "@/lib/format"
 import { cn } from "@/lib/utils"
@@ -15,75 +17,116 @@ import { cn } from "@/lib/utils"
 interface WalletStatsProps {
   trackedWallets: any[]
   activities: any[]
+  isLoading?: boolean
+  timeWindowHours?: number
 }
 
-export function WalletStats({ trackedWallets, activities }: WalletStatsProps) {
-  // Calculate stats
-  const totalWallets = trackedWallets.length
-  const totalActivities24h = activities.filter(a => {
-    const activityTime = new Date(a.timestamp)
-    const now = new Date()
-    const hoursDiff = (now.getTime() - activityTime.getTime()) / (1000 * 60 * 60)
-    return hoursDiff <= 24
-  }).length
+export function WalletStats({
+  trackedWallets,
+  activities,
+  isLoading = false,
+  timeWindowHours = 24
+}: WalletStatsProps) {
+  // Calculate stats with useMemo for real-time updates
+  const stats = useMemo(() => {
+    const totalWallets = trackedWallets.length
 
-  const totalVolume24h = activities
-    .filter(a => {
-      const activityTime = new Date(a.timestamp)
-      const now = new Date()
-      const hoursDiff = (now.getTime() - activityTime.getTime()) / (1000 * 60 * 60)
-      return hoursDiff <= 24
+    // Filter activities by time window
+    const timeWindowMs = timeWindowHours * 60 * 60 * 1000
+    const now = new Date().getTime()
+
+    const timeFilteredActivities = activities.filter(a => {
+      const activityTime = new Date(a.timestamp).getTime()
+      return (now - activityTime) <= timeWindowMs
     })
-    .reduce((sum, a) => sum + (parseFloat(a.priceUsd || '0')), 0)
 
-  const buyCount = activities.filter(a => a.type === 'BUY').length
-  const sellCount = activities.filter(a => a.type === 'SELL').length
+    const totalActivities = timeFilteredActivities.length
 
-  const stats = [
-    {
-      label: "Tracked Wallets",
-      value: totalWallets,
-      icon: Wallet,
-      color: "text-primary",
-      bgColor: "bg-primary/10"
-    },
-    {
-      label: "24h Activities",
-      value: totalActivities24h,
-      icon: Activity,
-      color: "text-blue-500",
-      bgColor: "bg-blue-500/10"
-    },
-    {
-      label: "24h Volume",
-      value: formatUSD(totalVolume24h),
-      icon: DollarSign,
-      color: "text-green-500",
-      bgColor: "bg-green-500/10"
-    },
-    {
-      label: "Buy/Sell Ratio",
-      value: `${buyCount}/${sellCount}`,
-      icon: buyCount > sellCount ? TrendingUp : TrendingDown,
-      color: buyCount > sellCount ? "text-green-500" : "text-red-500",
-      bgColor: buyCount > sellCount ? "bg-green-500/10" : "bg-red-500/10"
-    }
-  ]
+    const totalVolume = timeFilteredActivities
+      .reduce((sum, a) => sum + (parseFloat(a.priceUsd || '0')), 0)
+
+    const buyCount = activities.filter(a => a.type === 'BUY').length
+    const sellCount = activities.filter(a => a.type === 'SELL').length
+
+    // Handle division by zero for ratio
+    const ratioValue = buyCount === 0 && sellCount === 0 ? "N/A" : `${buyCount}/${sellCount}`
+    const isPositive = buyCount > sellCount
+
+    return [
+      {
+        label: "Tracked Wallets",
+        value: totalWallets,
+        icon: Wallet,
+        color: "text-mario-red",
+        bgColor: "bg-mario-red/10",
+        srText: "Number of tracked wallets"
+      },
+      {
+        label: `${timeWindowHours}h Activities`,
+        value: totalActivities,
+        icon: Activity,
+        color: "text-blue-500",
+        bgColor: "bg-blue-500/10",
+        srText: `Activities in the last ${timeWindowHours} hours`
+      },
+      {
+        label: `${timeWindowHours}h Volume`,
+        value: formatNumber(totalVolume), // Remove $ symbol - redundant with label
+        icon: DollarSign,
+        color: "text-green-500",
+        bgColor: "bg-green-500/10",
+        srText: `Trading volume in the last ${timeWindowHours} hours`
+      },
+      {
+        label: "Buy/Sell Ratio",
+        value: ratioValue,
+        icon: buyCount > sellCount ? TrendingUp : TrendingDown,
+        color: isPositive ? "text-luigi-green" : "text-red-500",
+        bgColor: isPositive ? "bg-luigi-green/10" : "bg-red-500/10",
+        srText: isPositive ? "More buy activity" : "More sell activity"
+      }
+    ]
+  }, [trackedWallets, activities, timeWindowHours])
+
+  // Loading skeleton
+  if (isLoading) {
+    return (
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {Array.from({ length: 4 }).map((_, index) => (
+          <div key={index} className="mario-card bg-white border-3 border-pipe-700 shadow-mario p-4">
+            <div className="flex items-start justify-between">
+              <div className="space-y-1">
+                <div className="h-3 bg-pipe-200 rounded animate-pulse" />
+                <div className="h-6 bg-pipe-300 rounded animate-pulse w-16" />
+              </div>
+              <div className="p-2 rounded-lg border-2 border-black bg-pipe-100">
+                <Loader2 className="h-5 w-5 animate-spin text-pipe-600" />
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    )
+  }
 
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
       {stats.map((stat, index) => (
-        <div key={index} className="mario-card bg-white border-4 border-pipe-700 shadow-mario p-4">
+        <div
+          key={index}
+          className="mario-card bg-white border-3 border-pipe-700 shadow-mario p-4 transition-transform hover:scale-105 hover:shadow-lg cursor-default"
+        >
           <div className="flex items-start justify-between">
             <div className="space-y-1">
               <p className="text-xs font-bold text-pipe-700">{stat.label}</p>
               <p className="text-xl font-bold text-pipe-900">{stat.value}</p>
             </div>
             <div className={cn(
-              "p-2 rounded-lg border-2 border-black",
+              "p-2 rounded-lg border-2 border-black relative",
               stat.bgColor
             )}>
               <stat.icon className={cn("h-5 w-5", stat.color)} />
+              <span className="sr-only">{stat.srText}</span>
             </div>
           </div>
         </div>

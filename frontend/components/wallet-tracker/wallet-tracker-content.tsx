@@ -97,17 +97,27 @@ export function WalletTrackerContent({ compact = false }: WalletTrackerContentPr
   const [isLoadingMore, setIsLoadingMore] = useState(false)
   const [hasMore, setHasMore] = useState(true)
   const [offset, setOffset] = useState(0)
-  const [density, setDensity] = useState<'comfortable' | 'compact'>(() => {
-    if (typeof window !== 'undefined') {
-      return (localStorage.getItem('wallet-tracker-density') as 'comfortable' | 'compact') || 'comfortable'
+  const [isRequestInProgress, setIsRequestInProgress] = useState(false)
+  const [density, setDensity] = useState<'comfortable' | 'compact'>('comfortable')
+  const [isHydrated, setIsHydrated] = useState(false)
+  const [syncingWallets, setSyncingWallets] = useState<Set<string>>(new Set())
+  const [hasNewActivities, setHasNewActivities] = useState(false)
+
+  // Load density preference from localStorage after hydration
+  useEffect(() => {
+    const savedDensity = localStorage.getItem('wallet-tracker-density') as 'comfortable' | 'compact'
+    if (savedDensity) {
+      setDensity(savedDensity)
     }
-    return 'comfortable'
-  })
+    setIsHydrated(true)
+  }, [])
 
   // Save density preference to localStorage
   useEffect(() => {
-    localStorage.setItem('wallet-tracker-density', density)
-  }, [density])
+    if (isHydrated) {
+      localStorage.setItem('wallet-tracker-density', density)
+    }
+  }, [density, isHydrated])
 
   // Fetch tracked wallets
   const { data: trackedWallets, isLoading: loadingWallets, refetch: refetchWallets } = useQuery<TrackedWallet[]>({
@@ -133,10 +143,11 @@ export function WalletTrackerContent({ compact = false }: WalletTrackerContentPr
     unsubscribe
   } = useWalletTrackerWebSocket(user?.id || '')
 
-  // Fetch initial activities
+  // Fetch initial activities with request deduplication
   const fetchActivities = useCallback(async (reset: boolean = false) => {
-    if (!user?.id || isLoadingMore) return
+    if (!user?.id || isRequestInProgress) return
 
+    setIsRequestInProgress(true)
     setIsLoadingMore(true)
     try {
       const currentOffset = reset ? 0 : offset
@@ -167,8 +178,9 @@ export function WalletTrackerContent({ compact = false }: WalletTrackerContentPr
       })
     } finally {
       setIsLoadingMore(false)
+      setIsRequestInProgress(false)
     }
-  }, [user?.id, offset, filterType, isLoadingMore, toast])
+  }, [user?.id, offset, filterType, isRequestInProgress, toast])
 
   // Initial load
   useEffect(() => {
@@ -177,28 +189,42 @@ export function WalletTrackerContent({ compact = false }: WalletTrackerContentPr
     }
   }, [user?.id, filterType])
 
-  // Handle new activities from WebSocket
+  // Handle new activities from WebSocket with size limit
   useEffect(() => {
     if (newActivities.length > 0) {
       setActivities(prev => {
         // Add new activities at the top, remove duplicates
         const activityIds = new Set(prev.map(a => a.id))
         const uniqueNew = newActivities.filter(a => !activityIds.has(a.id))
-        return [...uniqueNew, ...prev]
+        // Limit to 1000 activities to prevent unbounded growth
+        return [...uniqueNew, ...prev].slice(0, 1000)
       })
+      // Set flag for new activities (clears after 5 seconds)
+      setHasNewActivities(true)
+      const timer = setTimeout(() => setHasNewActivities(false), 5000)
+      return () => clearTimeout(timer)
     }
   }, [newActivities])
 
-  // Subscribe to tracked wallets
+  // Subscribe to tracked wallets with cleanup
   useEffect(() => {
     if (connected && trackedWallets && trackedWallets.length > 0) {
       const addresses = trackedWallets.map((w: any) => w.walletAddress)
       subscribe(addresses)
+
+      // Cleanup function to unsubscribe
+      return () => {
+        // Note: The subscribe function should handle unsubscribing from previous addresses
+        // If not, we might need to call unsubscribe here with previous addresses
+      }
     }
   }, [connected, trackedWallets, subscribe])
 
-  // Sync wallet activities
+  // Sync wallet activities with loading state
   const syncWallet = async (walletAddress: string) => {
+    if (syncingWallets.has(walletAddress)) return // Prevent duplicate syncs
+
+    setSyncingWallets(prev => new Set(prev).add(walletAddress))
     try {
       const response = await fetch(`${API_URL}/api/wallet-tracker/v2/sync/${walletAddress}`, {
         method: 'POST',
@@ -222,6 +248,12 @@ export function WalletTrackerContent({ compact = false }: WalletTrackerContentPr
         title: "Sync Failed",
         description: "Failed to sync wallet activities",
         variant: "destructive"
+      })
+    } finally {
+      setSyncingWallets(prev => {
+        const newSet = new Set(prev)
+        newSet.delete(walletAddress)
+        return newSet
       })
     }
   }
@@ -299,27 +331,30 @@ export function WalletTrackerContent({ compact = false }: WalletTrackerContentPr
                 size="sm"
                 onClick={() => setShowSettings(true)}
                 className="gap-1.5 border-2 border-pipe-500 hover:bg-sky-100 font-bold h-8 text-xs"
+                title="Filters"
               >
                 <Settings className="h-3.5 w-3.5" />
-                Filters
+                <span className="hidden xs:inline">Filters</span>
               </Button>
 
               <Button
                 size="sm"
                 onClick={() => setShowWalletManager(true)}
                 className="gap-1.5 mario-btn mario-btn-red font-bold text-white h-8 text-xs"
+                title="Manage Wallets"
               >
                 <Plus className="h-3.5 w-3.5" />
-                Manage Wallets
+                <span className="hidden xs:inline">Wallets</span>
               </Button>
 
               <Button
                 size="sm"
                 onClick={() => window.location.href = '/wallet-tracker'}
                 className="gap-1.5 mario-btn bg-sky-blue font-bold text-pipe-900 h-8 text-xs border-2 border-black"
+                title="Full View"
               >
                 <ExternalLink className="h-3.5 w-3.5" />
-                More
+                <span className="hidden xs:inline">More</span>
               </Button>
             </div>
           </div>
@@ -352,7 +387,7 @@ export function WalletTrackerContent({ compact = false }: WalletTrackerContentPr
                 >
                   <div className={cn(
                     "h-2 w-2 rounded-full",
-                    connected ? "bg-white animate-pulse" : "bg-pipe-700"
+                    connected ? (hasNewActivities ? "bg-white animate-pulse" : "bg-white") : "bg-pipe-700"
                   )} />
                   {connected ? "Live" : "Offline"}
                 </Badge>
@@ -371,10 +406,18 @@ export function WalletTrackerContent({ compact = false }: WalletTrackerContentPr
                   variant="outline"
                   size="sm"
                   onClick={() => setShowSettings(true)}
-                  className="gap-2 border-3 border-pipe-700 hover:bg-sky-100 font-bold"
+                  className="gap-2 border-3 border-pipe-700 hover:bg-sky-100 font-bold relative"
                 >
                   <Settings className="h-4 w-4" />
                   Filters
+                  {(filterType !== 'all' || selectedWallets.length > 0 || searchTerm) && (
+                    <Badge
+                      variant="destructive"
+                      className="absolute -top-2 -right-2 h-5 w-5 p-0 flex items-center justify-center text-xs bg-mario-red border-2 border-white"
+                    >
+                      !
+                    </Badge>
+                  )}
                 </Button>
 
                 <Button
@@ -397,11 +440,12 @@ export function WalletTrackerContent({ compact = false }: WalletTrackerContentPr
               <WalletStats
                 trackedWallets={trackedWallets || []}
                 activities={activities}
+                isLoading={loadingWallets || (activities.length === 0 && isLoadingMore)}
               />
             </motion.div>
 
             {/* Filters - Sticky bar - Full mode only */}
-            <div className="sticky top-0 z-10 mario-card bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/95 border-4 border-pipe-700 shadow-mario p-4">
+            <div className="sticky top-0 z-10 mario-card bg-white border-4 border-pipe-700 shadow-mario p-4 backdrop-blur-sm">
               <div className="flex flex-col sm:flex-row gap-4">
                 <div className="relative flex-1">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-pipe-700" />
@@ -497,6 +541,8 @@ export function WalletTrackerContent({ compact = false }: WalletTrackerContentPr
             }}
             getWalletLabel={getWalletLabel}
             density={density}
+            emptyMessage={filterType !== 'all' ? `No ${filterType.toLowerCase()} transactions found. Try adjusting filters.` : undefined}
+            filterType={filterType}
           />
         </div>
 

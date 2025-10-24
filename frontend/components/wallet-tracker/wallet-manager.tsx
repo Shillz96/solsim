@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useDeferredValue, useMemo, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import Image from "next/image"
 import {
@@ -83,14 +83,62 @@ export function WalletManager({
   const { toast } = useToast()
 
   const [activeTab, setActiveTab] = useState<"tracked" | "add" | "import">("tracked")
+
+  // Preserve tab state in localStorage
+  useEffect(() => {
+    const savedTab = localStorage.getItem('wallet-manager-active-tab') as "tracked" | "add" | "import"
+    if (savedTab && ['tracked', 'add', 'import'].includes(savedTab)) {
+      setActiveTab(savedTab)
+    }
+  }, [])
+
+  useEffect(() => {
+    localStorage.setItem('wallet-manager-active-tab', activeTab)
+  }, [activeTab])
   const [newWalletAddress, setNewWalletAddress] = useState("")
   const [newWalletLabel, setNewWalletLabel] = useState("")
   const [newWalletIcon, setNewWalletIcon] = useState("")
   const [showNewWalletIconPicker, setShowNewWalletIconPicker] = useState(false)
   const [isAddingWallet, setIsAddingWallet] = useState(false)
+
+  // Validation state
+  const [addressValidation, setAddressValidation] = useState<{
+    isValid: boolean | null
+    message: string
+  }>({ isValid: null, message: "" })
+
+  // Address validation
+  useEffect(() => {
+    if (!newWalletAddress.trim()) {
+      setAddressValidation({ isValid: null, message: "" })
+      return
+    }
+
+    const address = newWalletAddress.trim()
+    const isValidLength = address.length >= 32 && address.length <= 44
+    const isValidChars = /^[A-Za-z0-9]+$/.test(address)
+
+    if (!isValidLength) {
+      setAddressValidation({
+        isValid: false,
+        message: "Address must be 32-44 characters long"
+      })
+    } else if (!isValidChars) {
+      setAddressValidation({
+        isValid: false,
+        message: "Address can only contain letters and numbers"
+      })
+    } else {
+      setAddressValidation({
+        isValid: true,
+        message: "Valid Solana address"
+      })
+    }
+  }, [newWalletAddress])
   const [syncingWallets, setSyncingWallets] = useState<Set<string>>(new Set())
   const [removingWallets, setRemovingWallets] = useState<Set<string>>(new Set())
   const [searchTerm, setSearchTerm] = useState("")
+  const deferredSearchTerm = useDeferredValue(searchTerm)
 
   // Edit mode state
   const [editingWallet, setEditingWallet] = useState<string | null>(null)
@@ -102,6 +150,11 @@ export function WalletManager({
   // Bulk import state
   const [bulkWalletText, setBulkWalletText] = useState("")
   const [isImporting, setIsImporting] = useState(false)
+  const [importProgress, setImportProgress] = useState<{
+    current: number
+    total: number
+    currentAddress: string
+  } | null>(null)
   const [importResults, setImportResults] = useState<{
     success: number
     failed: number
@@ -109,15 +162,15 @@ export function WalletManager({
     errors: string[]
   } | null>(null)
 
-  // Filter tracked wallets
-  const filteredWallets = trackedWallets.filter(wallet => {
-    if (!searchTerm) return true
-    const search = searchTerm.toLowerCase()
-    return (
+  // Filter tracked wallets with debounced search
+  const filteredWallets = useMemo(() => {
+    if (!deferredSearchTerm) return trackedWallets
+    const search = deferredSearchTerm.toLowerCase()
+    return trackedWallets.filter(wallet =>
       wallet.walletAddress.toLowerCase().includes(search) ||
       wallet.label?.toLowerCase().includes(search)
     )
-  })
+  }, [trackedWallets, deferredSearchTerm])
 
   // Add wallet
   const handleAddWallet = async () => {
@@ -293,6 +346,7 @@ export function WalletManager({
 
     setIsImporting(true)
     setImportResults(null)
+    setImportProgress(null)
 
     try {
       // Parse wallet addresses from text (supports newline, comma, space separation)
@@ -305,13 +359,21 @@ export function WalletManager({
         throw new Error("No valid wallet addresses found")
       }
 
+      setImportProgress({ current: 0, total: addresses.length, currentAddress: "" })
+
       let success = 0
       let failed = 0
       let skipped = 0
       const errors: string[] = []
 
       // Import each wallet
-      for (const address of addresses) {
+      for (let i = 0; i < addresses.length; i++) {
+        const address = addresses[i]
+        setImportProgress({
+          current: i + 1,
+          total: addresses.length,
+          currentAddress: address.slice(0, 12) + "..."
+        })
         try {
           // Validate Solana address (basic check: 32-44 characters)
           if (address.length < 32 || address.length > 44) {
@@ -351,6 +413,7 @@ export function WalletManager({
       }
 
       setImportResults({ success, failed, skipped, errors })
+      setImportProgress(null)
 
       if (success > 0) {
         toast({
@@ -374,6 +437,7 @@ export function WalletManager({
         description: error.message || "Failed to import wallets",
         variant: "destructive"
       })
+      setImportProgress(null)
     } finally {
       setIsImporting(false)
     }
@@ -500,6 +564,7 @@ export function WalletManager({
                                     alt={getIconById(editIcon)!.name}
                                     width={24}
                                     height={24}
+                                    sizes="24px"
                                     className="object-contain"
                                   />
                                 ) : (
@@ -509,25 +574,37 @@ export function WalletManager({
 
                               {/* Icon Picker Dropdown */}
                               {showIconPicker && (
-                                <div className="absolute top-12 left-0 z-50 bg-white rounded-lg border-3 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)] p-2 grid grid-cols-4 gap-1.5 min-w-[180px]">
-                                  {MARIO_ICONS.map((icon) => (
+                                <div className="absolute top-12 left-0 z-[60] bg-white rounded-lg border-3 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)] p-2 grid grid-cols-4 gap-1.5 min-w-[180px]">
+                                  {MARIO_ICONS.map((icon, index) => (
                                     <button
                                       key={icon.id}
+                                      tabIndex={0}
                                       onClick={() => {
                                         setEditIcon(icon.id)
                                         setShowIconPicker(false)
                                       }}
+                                      onKeyDown={(e) => {
+                                        if (e.key === 'Enter' || e.key === ' ') {
+                                          e.preventDefault()
+                                          setEditIcon(icon.id)
+                                          setShowIconPicker(false)
+                                        } else if (e.key === 'Escape') {
+                                          setShowIconPicker(false)
+                                        }
+                                      }}
                                       className={cn(
-                                        "h-10 w-10 rounded border-2 flex items-center justify-center hover:bg-gray-100 transition-colors p-1.5",
+                                        "h-10 w-10 rounded border-2 flex items-center justify-center hover:bg-gray-100 focus:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-[var(--mario-red)] transition-colors p-1.5",
                                         editIcon === icon.id ? "border-[var(--mario-red)] bg-[var(--mario-red)]/10" : "border-gray-300"
                                       )}
                                       title={icon.name}
+                                      aria-label={`Select ${icon.name} icon`}
                                     >
                                       <Image
                                         src={icon.path}
                                         alt={icon.name}
                                         width={24}
                                         height={24}
+                                        sizes="24px"
                                         className="object-contain"
                                       />
                                     </button>
@@ -554,6 +631,13 @@ export function WalletManager({
                               placeholder="Enter wallet label..."
                               className="flex-1 bg-white border-3 border-[var(--outline-black)] rounded-lg shadow-[2px_2px_0_var(--outline-black)]"
                               autoFocus
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                  handleUpdateLabel(wallet.id)
+                                } else if (e.key === 'Escape') {
+                                  handleCancelEdit()
+                                }
+                              }}
                             />
                           </div>
 
@@ -685,8 +769,23 @@ export function WalletManager({
                     placeholder="Enter Solana wallet address..."
                     value={newWalletAddress}
                     onChange={(e) => setNewWalletAddress(e.target.value)}
-                    className="font-mono bg-white border-3 border-[var(--outline-black)] rounded-lg shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)]"
+                    className={cn(
+                      "font-mono bg-white border-3 rounded-lg shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)]",
+                      addressValidation.isValid === true ? "border-[var(--luigi-green)]" :
+                      addressValidation.isValid === false ? "border-[var(--mario-red)]" :
+                      "border-[var(--outline-black)]"
+                    )}
                   />
+                  {addressValidation.message && (
+                    <p className={cn(
+                      "text-xs font-semibold",
+                      addressValidation.isValid === true ? "text-[var(--luigi-green)]" :
+                      addressValidation.isValid === false ? "text-[var(--mario-red)]" :
+                      "text-[var(--pipe-600)]"
+                    )}>
+                      {addressValidation.message}
+                    </p>
+                  )}
                 </div>
 
                 <div className="space-y-2">
@@ -827,6 +926,24 @@ export function WalletManager({
                     Supports newline, comma, or space separated addresses
                   </p>
                 </div>
+
+                {/* Progress Indicator */}
+                {importProgress && (
+                  <div className="bg-[var(--star-yellow)]/20 rounded-lg border-3 border-[var(--outline-black)] p-3 text-center">
+                    <div className="text-sm font-mario text-[var(--outline-black)] mb-2">
+                      Importing {importProgress.current} of {importProgress.total}
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2 border-2 border-[var(--outline-black)]">
+                      <div
+                        className="bg-[var(--luigi-green)] h-full rounded-full transition-all duration-300"
+                        style={{ width: `${(importProgress.current / importProgress.total) * 100}%` }}
+                      />
+                    </div>
+                    <div className="text-xs text-[var(--pipe-600)] font-mono mt-1 truncate">
+                      {importProgress.currentAddress}
+                    </div>
+                  </div>
+                )}
 
                 <button
                   onClick={handleBulkImport}
