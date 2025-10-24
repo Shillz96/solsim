@@ -15,12 +15,8 @@
  */
 
 import { useEffect, useState, Suspense } from 'react'
-
-// Force dynamic rendering - no static generation
-export const dynamic = 'force-dynamic'
-export const revalidate = 0
 import { useParams, useRouter } from 'next/navigation'
-import dynamic from 'next/dynamic'
+import dynamicImport from 'next/dynamic'
 import { MarioTradingPanel } from '@/components/trading/mario-trading-panel'
 import { useAuth } from '@/hooks/use-auth'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
@@ -39,8 +35,12 @@ import { cn } from '@/lib/utils'
 import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
 
+// Force dynamic rendering - no static generation
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 // Dynamically import chart to prevent SSR issues
-const LightweightChart = dynamic(
+const LightweightChart = dynamicImport(
   () => import('@/components/trading/lightweight-chart').then(
     (mod) => ({
       default: mod.default || mod.LightweightChart || (() => <ChartFallback error={true} />)
