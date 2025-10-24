@@ -4,14 +4,34 @@ import type { WalletActivity } from '@/components/wallet-tracker/types'
 // Helper function for time ago
 function getTimeAgo(date: Date): string {
   const seconds = Math.floor((Date.now() - date.getTime()) / 1000)
-  
-  if (seconds < 60) return `${seconds}s ago`
+
+  if (seconds < 60) return `${seconds}s`
   const minutes = Math.floor(seconds / 60)
-  if (minutes < 60) return `${minutes}m ago`
+  if (minutes < 60) return `${minutes}m`
   const hours = Math.floor(minutes / 60)
-  if (hours < 24) return `${hours}h ago`
+  if (hours < 24) return `${hours}h`
   const days = Math.floor(hours / 24)
-  return `${days}d ago`
+  return `${days}d`
+}
+
+// Helper function for token age (compact format like "2h", "8m", "1d")
+function getTokenAge(createdAt: string | number | undefined): string | undefined {
+  if (!createdAt) return undefined
+
+  const created = typeof createdAt === 'number' ? new Date(createdAt) : new Date(createdAt)
+  const seconds = Math.floor((Date.now() - created.getTime()) / 1000)
+
+  if (seconds < 60) return `${seconds}s`
+  const minutes = Math.floor(seconds / 60)
+  if (minutes < 60) return `${minutes}m`
+  const hours = Math.floor(minutes / 60)
+  if (hours < 24) return `${hours}h`
+  const days = Math.floor(hours / 24)
+  if (days < 30) return `${days}d`
+  const months = Math.floor(days / 30)
+  if (months < 12) return `${months}mo`
+  const years = Math.floor(months / 12)
+  return `${years}y`
 }
 
 /**
@@ -116,7 +136,9 @@ export function useWalletTrackerWebSocket(userId: string) {
               program: 'PumpPortal',
               marketCap: trade.marketCapUsd?.toString(),
               timestamp: new Date(trade.timestamp).toISOString(),
-              timeAgo: getTimeAgo(new Date(trade.timestamp))
+              timeAgo: getTimeAgo(new Date(trade.timestamp)),
+              tokenCreatedAt: trade.tokenCreatedAt,
+              tokenAge: getTokenAge(trade.tokenCreatedAt)
             }
             // Queue activity and schedule RAF flush
             queueRef.current.push(activity)

@@ -49,7 +49,15 @@ const prefersReducedMotion = typeof window !== 'undefined'
   ? window.matchMedia('(prefers-reduced-motion: reduce)').matches
   : false
 
-// Memoized activity row component for optimal performance
+// Wallet emoji mapping for visual identification
+const WALLET_EMOJIS = ['🟠', '🟢', '🔵', '🟡', '🟣', '🔴', '🟤', '⚫'] as const;
+
+function getWalletEmoji(address: string): string {
+  const hash = address.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  return WALLET_EMOJIS[hash % WALLET_EMOJIS.length];
+}
+
+// Memoized activity row component - Photon-style ultra-compact layout
 const ActivityRow = React.memo(function ActivityRow({
   activity,
   onCopyTrade,
@@ -77,8 +85,7 @@ const ActivityRow = React.memo(function ActivityRow({
   const tokenSymbol = mainToken.symbol || 'Unknown';
   const tokenLogoURI = mainToken.logoURI;
   const walletLabel = getWalletLabel(activity.walletAddress);
-  const priceChange = activity.priceChange24h ? parseFloat(activity.priceChange24h) : null;
-  const isPositiveChange = priceChange !== null && priceChange >= 0;
+  const walletEmoji = getWalletEmoji(activity.walletAddress);
 
   // Skip if no mint (invalid data)
   if (!tokenMint) {
@@ -86,168 +93,88 @@ const ActivityRow = React.memo(function ActivityRow({
     return null;
   }
 
-  const isCompact = density === 'compact'
+  const isBuy = activity.type === 'BUY';
+  const amount = activity.solAmount ? parseFloat(activity.solAmount) : 0;
+  const marketCapNum = activity.marketCap ? parseFloat(activity.marketCap) : 0;
+
+  // Calculate amount bar width (max 100px for 10+ SOL)
+  const amountBarWidth = Math.min((amount / 10) * 100, 100);
 
   return (
-    <div
+    <Link
+      href={`/room/${tokenMint}`}
       className={cn(
-        "group hover:bg-muted/20 transition-colors",
-        activity.type === 'BUY' && "border-l-2 border-l-green-500/30",
-        activity.type === 'SELL' && "border-l-2 border-l-red-500/30"
+        "flex items-center gap-2 px-3 py-1.5 hover:bg-pipe-100/50 transition-colors cursor-pointer border-l-2",
+        isBuy ? "border-l-luigi-green" : "border-l-mario-red"
       )}
     >
-      <div className={cn(
-        "flex items-center gap-3 sm:gap-4 px-3 sm:px-4",
-        isCompact ? "py-2" : "py-4"
-      )}>
-        {/* Time Column - Simplified */}
-        <div className="hidden sm:block w-12 text-xs text-muted-foreground flex-shrink-0">
-          {activity.timeAgo}
-        </div>
+      {/* Time */}
+      <div className="w-10 text-xs text-pipe-700 font-medium flex-shrink-0">
+        {activity.timeAgo}
+      </div>
 
-        {/* Wallet Identifier - Small and subtle */}
-        <div className="hidden sm:flex items-center gap-1.5 flex-shrink-0">
-          <div className={cn(
-            "h-2 w-2 rounded-full flex-shrink-0",
-            activity.type === 'BUY' ? "bg-green-500" : "bg-red-500"
-          )} />
-          <span className="text-xs text-muted-foreground font-medium">
-            {walletLabel}
+      {/* Wallet Emoji + Label */}
+      <div className="flex items-center gap-1.5 min-w-[80px] flex-shrink-0">
+        <span className="text-base">{walletEmoji}</span>
+        <span className="text-xs font-bold text-mario-red truncate max-w-[60px]">
+          {walletLabel}
+        </span>
+      </div>
+
+      {/* Token Logo + Symbol + Age */}
+      <div className="flex items-center gap-2 flex-1 min-w-0">
+        <TokenLogo
+          src={tokenLogoURI || undefined}
+          alt={tokenSymbol}
+          mint={tokenMint}
+          className="h-6 w-6 border border-pipe-300 flex-shrink-0"
+        />
+        <div className="flex items-center gap-1.5 min-w-0">
+          <span className="font-bold text-sm text-pipe-900 truncate">
+            {tokenSymbol}
           </span>
-        </div>
-
-        {/* Main Token Section - PROMINENT */}
-        <Link
-          href={`/room/${tokenMint}`}
-          className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0 hover:opacity-80 transition-opacity"
-        >
-          {/* Token Logo - Responsive size based on density */}
-          <TokenLogo
-            src={tokenLogoURI || undefined}
-            alt={tokenSymbol}
-            mint={tokenMint}
-            className={cn(
-              "border border-border",
-              isCompact ? "h-8 w-8 sm:h-8 sm:w-8" : "h-10 w-10 sm:h-12 sm:w-12"
-            )}
-          />
-
-          {/* Token Symbol & Price Change - PROMINENT */}
-          <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 min-w-0">
-            <div className="flex items-center gap-2">
-              {/* Mobile: Show dot indicator */}
-              <div className={cn(
-                "sm:hidden h-1.5 w-1.5 rounded-full flex-shrink-0",
-                activity.type === 'BUY' ? "bg-green-500" : "bg-red-500"
-              )} />
-              <span className="font-bold text-base sm:text-lg truncate">
-                {tokenSymbol}
-              </span>
-            </div>
-
-            {/* Price Change - Prominent & Color Coded */}
-            {priceChange !== null && (
-              <div className={cn(
-                "flex items-center gap-1 font-semibold text-xs sm:text-sm px-1.5 sm:px-2 py-0.5 rounded",
-                isPositiveChange
-                  ? "text-green-500 bg-green-500/10"
-                  : "text-red-500 bg-red-500/10"
-              )}>
-                {isPositiveChange ? (
-                  <TrendingUp className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
-                ) : (
-                  <TrendingDown className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
-                )}
-                {isPositiveChange ? '+' : ''}{priceChange.toFixed(1)}%
-              </div>
-            )}
-          </div>
-        </Link>
-
-        {/* Trade Size & Market Cap - RIGHT ALIGNED & PROMINENT */}
-        <div className="flex items-center gap-3 sm:gap-4 flex-shrink-0">
-          {/* Trade Size (USD Amount) */}
-          {activity.priceUsd && (
-            <div className="text-right min-w-[80px]">
-              <div className="text-xs text-muted-foreground mb-0.5">Amount</div>
-              <div className="font-bold text-sm sm:text-base tabular-nums">
-                {formatUSD(parseFloat(activity.priceUsd))}
-              </div>
-            </div>
+          {activity.tokenAge && (
+            <span className="text-xs text-luigi-green font-medium flex-shrink-0">
+              · {activity.tokenAge}
+            </span>
           )}
-
-          {/* Market Cap - PROMINENT - Hide on mobile in compact mode */}
-          {activity.marketCap && (
-            <div className={cn(
-              "text-right min-w-[80px]",
-              isCompact && "hidden sm:block"
-            )}>
-              <div className="text-xs text-muted-foreground mb-0.5">$MC</div>
-              <div className="font-semibold text-sm sm:text-base text-primary tabular-nums">
-                {formatMarketCap(parseFloat(activity.marketCap))}
-              </div>
-            </div>
-          )}
-
-          {/* Actions - Cleaner - Fixed 20px icon lane */}
-          <div className="hidden sm:flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity w-[120px] justify-end">
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    copyToClipboard(activity.walletAddress, "Wallet address");
-                  }}
-                >
-                  <Copy className="h-3.5 w-3.5" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>Copy wallet</TooltipContent>
-            </Tooltip>
-
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    window.open(`https://solscan.io/tx/${activity.signature}`, '_blank');
-                  }}
-                >
-                  <ExternalLink className="h-3.5 w-3.5" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>View transaction</TooltipContent>
-            </Tooltip>
-
-            {activity.type === 'BUY' && (
-              <Button
-                size="sm"
-                variant="default"
-                onClick={(e) => {
-                  e.preventDefault();
-                  onCopyTrade(activity);
-                }}
-                disabled={copyingTrades.has(activity.id)}
-                className="gap-1.5 ml-1 h-8"
-              >
-                {copyingTrades.has(activity.id) ? (
-                  <Loader2 className="h-3 w-3 animate-spin" />
-                ) : (
-                  <Copy className="h-3 w-3" />
-                )}
-                Copy
-              </Button>
-            )}
-          </div>
         </div>
       </div>
-    </div>
+
+      {/* Amount with visual bar indicator */}
+      <div className="flex items-center gap-2 min-w-[100px] flex-shrink-0">
+        <div className="relative w-20 h-4 bg-pipe-100 rounded overflow-hidden border border-pipe-300">
+          <div
+            className={cn(
+              "absolute inset-y-0 left-0 rounded-r",
+              "bg-gradient-to-r",
+              isBuy
+                ? "from-luigi-green/80 to-luigi-green"
+                : "from-mario-red/80 to-mario-red"
+            )}
+            style={{
+              width: `${amountBarWidth}%`,
+              backgroundImage: isBuy
+                ? 'repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(255,255,255,0.1) 2px, rgba(255,255,255,0.1) 4px)'
+                : 'repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(0,0,0,0.1) 2px, rgba(0,0,0,0.1) 4px)'
+            }}
+          />
+        </div>
+        <span className={cn(
+          "text-xs font-bold tabular-nums w-12 text-right",
+          isBuy ? "text-luigi-green" : "text-mario-red"
+        )}>
+          {amount.toFixed(4)}
+        </span>
+      </div>
+
+      {/* Market Cap */}
+      <div className="text-right w-16 flex-shrink-0">
+        <span className="text-xs font-semibold text-pipe-900 tabular-nums">
+          {formatMarketCap(marketCapNum)}
+        </span>
+      </div>
+    </Link>
   );
 })
 
@@ -268,15 +195,9 @@ export function WalletActivityList({
   onLoadMore,
   onCopyTrade,
   getWalletLabel,
-  density = 'comfortable'
+  density // Keep for API compatibility but not used in new compact design
 }: WalletActivityListProps) {
   const [copyingTrades, setCopyingTrades] = useState<Set<string>>(new Set())
-  const loadMoreRef = useRef<HTMLDivElement>(null)
-
-  // Infinite scroll trigger
-  useIntersectionObserver(loadMoreRef, onLoadMore, {
-    enabled: hasMore && !isLoading
-  })
 
   const handleCopyTrade = async (activity: WalletActivity) => {
     setCopyingTrades(prev => new Set(prev).add(activity.id))
@@ -297,22 +218,20 @@ export function WalletActivityList({
     // Could add toast notification here
   }
 
-  // Loading state - skeleton heights match final row height (py-4 = 64px total)
+  // Loading state - skeleton heights match ultra-compact row (~32px total)
   if (isLoading && activities.length === 0) {
     return (
-      <Card className="p-4">
-        <div className="divide-y divide-border/30">
-          {[...Array(5)].map((_, i) => (
-            <div key={i} className="flex items-center gap-4 px-3 sm:px-4 py-4 h-[80px]">
-              <Skeleton className="h-12 w-12 rounded flex-shrink-0" />
-              <div className="flex-1 space-y-2">
-                <Skeleton className="h-5 w-32" />
-                <Skeleton className="h-4 w-24" />
-              </div>
-              <div className="flex items-center gap-3">
-                <Skeleton className="h-10 w-20" />
-                <Skeleton className="h-10 w-20" />
-              </div>
+      <Card className="overflow-hidden">
+        <div>
+          {[...Array(10)].map((_, i) => (
+            <div key={i} className="flex items-center gap-2 px-3 py-1.5 h-[32px] border-b border-pipe-200">
+              <Skeleton className="h-3 w-10" />
+              <Skeleton className="h-4 w-4 rounded-full" />
+              <Skeleton className="h-3 w-16" />
+              <Skeleton className="h-6 w-6 rounded" />
+              <Skeleton className="h-3 w-24" />
+              <Skeleton className="h-4 w-20 ml-auto" />
+              <Skeleton className="h-3 w-16" />
             </div>
           ))}
         </div>
@@ -334,32 +253,30 @@ export function WalletActivityList({
   }
 
   return (
-    <TooltipProvider>
-      <Card className="overflow-hidden">
-        <Virtuoso
-          data={activities}
-          overscan={200}
-          style={{ height: '600px' }}
-          itemContent={(index, activity) => (
-            <ActivityRow
-              activity={activity}
-              onCopyTrade={handleCopyTrade}
-              copyingTrades={copyingTrades}
-              getWalletLabel={getWalletLabel}
-              copyToClipboard={copyToClipboard}
-              density={density}
-            />
-          )}
-          endReached={hasMore ? onLoadMore : undefined}
-          components={{
-            Footer: () => hasMore && isLoading ? (
-              <div className="p-4 text-center border-t border-border/30">
-                <Loader2 className="h-5 w-5 animate-spin mx-auto text-muted-foreground" />
-              </div>
-            ) : null
-          }}
-        />
-      </Card>
-    </TooltipProvider>
+    <Card className="overflow-hidden border-4 border-pipe-700 shadow-mario">
+      <Virtuoso
+        data={activities}
+        overscan={200}
+        style={{ height: '600px' }}
+        itemContent={(index, activity) => (
+          <ActivityRow
+            activity={activity}
+            onCopyTrade={handleCopyTrade}
+            copyingTrades={copyingTrades}
+            getWalletLabel={getWalletLabel}
+            copyToClipboard={copyToClipboard}
+            density={density}
+          />
+        )}
+        endReached={hasMore ? onLoadMore : undefined}
+        components={{
+          Footer: () => hasMore && isLoading ? (
+            <div className="p-2 text-center border-t border-pipe-300">
+              <Loader2 className="h-4 w-4 animate-spin mx-auto text-pipe-700" />
+            </div>
+          ) : null
+        }}
+      />
+    </Card>
   )
 }

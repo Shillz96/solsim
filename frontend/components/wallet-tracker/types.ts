@@ -24,6 +24,8 @@ export interface WalletActivity {
   priceChange24h?: string
   timestamp: string
   timeAgo: string
+  tokenCreatedAt?: string // When the token was created
+  tokenAge?: string // Human-readable token age (e.g., "2h", "8m", "1d")
 }
 
 export interface TrackedWallet {
