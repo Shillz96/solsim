@@ -34,13 +34,13 @@ export function CartridgePill({
     "relative grid items-center",
     "border-3 md:border-4 border-[var(--outline-black)]",
     "shadow-[3px_3px_0_var(--outline-black)] md:shadow-[4px_4px_0_var(--outline-black)]",
-    "rounded-[10px] md:rounded-[14px]",
+    "rounded-[10px] md:rounded-[12px]",
     "transition-transform hover:-translate-y-[1px]"
   )
 
   const dims = size === "sm"
-    ? "h-8 md:h-9 px-2.5 md:px-3 gap-2 md:gap-3"
-    : "h-9 md:h-11 px-3 md:px-3.5 gap-3 md:gap-4"
+    ? "h-8 md:h-8 px-2.5 md:px-2.5 gap-2 md:gap-2"
+    : "h-9 md:h-10 px-3 md:px-3 gap-3 md:gap-3"
 
   const inner = layout === "col"
     ? "grid grid-rows-[auto_auto] items-center leading-none -space-y-0.5"
@@ -49,7 +49,7 @@ export function CartridgePill({
   const Value = (
     <span className={cn(
       "tabular-nums font-extrabold truncate max-w-[120px] sm:max-w-[180px] md:max-w-none",
-      size === "sm" ? "text-[12px] md:text-[14px]" : "text-[14px] md:text-[16px]"
+      size === "sm" ? "text-[12px] md:text-[13px]" : "text-[14px] md:text-[15px]"
     )}>
       {value}
     </span>
@@ -58,7 +58,7 @@ export function CartridgePill({
   const Label = label ? (
     <span className={cn(
       "uppercase font-black text-foreground/80 truncate",
-      size === "sm" ? "text-[9px] md:text-[10px]" : "text-[10px] md:text-[11px]"
+      size === "sm" ? "text-[9px] md:text-[9px]" : "text-[10px] md:text-[10px]"
     )}>
       {label}
     </span>
@@ -68,13 +68,13 @@ export function CartridgePill({
     <div
       className={cn(
         "ml-auto grid place-items-center flex-shrink-0",
-        size === "sm" ? "h-6 w-6 md:h-7 md:w-7 rounded-[8px] md:rounded-[10px]" : "h-7 w-7 md:h-8 md:w-8 rounded-[10px] md:rounded-[12px]",
+        size === "sm" ? "h-6 w-6 md:h-6 md:w-6 rounded-[8px] md:rounded-[8px]" : "h-7 w-7 md:h-7 md:w-7 rounded-[10px] md:rounded-[10px]",
         "text-white",
         "border-3 md:border-4 border-[var(--outline-black)]"
       )}
       style={{ backgroundColor: badgeColor }}
     >
-      <span className={cn("font-extrabold", size === "sm" ? "text-[10px] md:text-[11px]" : "text-[11px] md:text-[12px]")}>
+      <span className={cn("font-extrabold", size === "sm" ? "text-[10px] md:text-[10px]" : "text-[11px] md:text-[11px]")}>
         {badgeText}
       </span>
     </div>
