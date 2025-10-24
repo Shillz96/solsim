@@ -271,12 +271,12 @@ function HoldersPanel({ tokenMint }: { tokenMint: string }) {
   }
 
   return (
-    <div className="border-4 border-[var(--outline-black)] rounded-[16px] shadow-[4px_4px_0_var(--outline-black)] bg-white p-4 min-h-[200px]">
+    <div className="border-4 border-[var(--outline-black)] rounded-[16px] shadow-[4px_4px_0_var(--outline-black)] bg-gradient-to-br from-[var(--sky-blue)]/10 via-white to-[var(--sky-blue)]/5 p-4 min-h-[200px]">
       <div className="flex items-center gap-2 mb-4">
         <Users className="h-4 w-4 text-[var(--sky-blue)]" />
-        <h3 className="font-bold text-sm">Token Holders & Distribution</h3>
+        <h3 className="font-bold text-sm text-[var(--outline-black)]">Token Holders & Distribution</h3>
         {holderCount > 0 && (
-          <span className="text-xs text-muted-foreground">({holderCount} total)</span>
+          <span className="text-xs text-[var(--outline-black)] opacity-70">({holderCount} total)</span>
         )}
       </div>
 
@@ -316,14 +316,14 @@ function HoldersPanel({ tokenMint }: { tokenMint: string }) {
               <div key={holder.address} className={cn(
                 "flex items-center justify-between p-3 rounded-lg border-2 transition-all",
                 isLiquidityPool 
-                  ? "bg-[var(--sky-blue)]/10 border-[var(--sky-blue)]/30" 
-                  : "bg-muted/50 border-transparent hover:border-[var(--outline-black)]/20"
+                  ? "bg-[var(--sky-blue)]/20 border-[var(--sky-blue)]/50 shadow-[2px_2px_0_var(--sky-blue)]/30" 
+                  : "bg-gradient-to-r from-[var(--sky-blue)]/5 to-white border-[var(--sky-blue)]/20 hover:border-[var(--sky-blue)]/40 hover:shadow-[2px_2px_0_var(--sky-blue)]/20"
               )}>
                 <div className="flex items-center gap-3 min-w-0 flex-1">
                   <div className="flex items-center gap-2">
                     <div className={cn(
                       "text-xs font-bold shrink-0",
-                      holder.rank === 1 ? "text-[var(--star-yellow)]" : "text-muted-foreground"
+                      holder.rank === 1 ? "text-[var(--star-yellow)]" : "text-[var(--outline-black)]"
                     )}>
                       #{holder.rank}
                     </div>
@@ -332,7 +332,7 @@ function HoldersPanel({ tokenMint }: { tokenMint: string }) {
                   
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
-                      <div className="text-xs font-mono truncate">
+                      <div className="text-xs font-mono truncate text-[var(--outline-black)] font-bold">
                         {isLiquidityPool ? 'LIQUIDITY POOL' : `${holder.address.slice(0, 8)}...${holder.address.slice(-6)}`}
                       </div>
                       <span className={cn("text-xs font-bold", holderInfo.color)}>
@@ -341,7 +341,7 @@ function HoldersPanel({ tokenMint }: { tokenMint: string }) {
                     </div>
                     
                     {/* Additional holder info */}
-                    <div className="text-[10px] text-muted-foreground mt-1">
+                    <div className="text-[10px] text-[var(--outline-black)] opacity-80 mt-1">
                       {isLiquidityPool ? (
                         <span>Provides trading liquidity</span>
                       ) : holder.percentage > 5 ? (
@@ -356,8 +356,8 @@ function HoldersPanel({ tokenMint }: { tokenMint: string }) {
                 </div>
                 
                 <div className="text-right shrink-0">
-                  <div className="text-xs font-bold">{holder.percentage.toFixed(2)}%</div>
-                  <div className="text-[10px] text-muted-foreground">{formatTokenQuantity(holder.balance)}</div>
+                  <div className="text-xs font-bold text-[var(--outline-black)]">{holder.percentage.toFixed(2)}%</div>
+                  <div className="text-[10px] text-[var(--outline-black)] opacity-70">{formatTokenQuantity(holder.balance)}</div>
                   
                   {/* Progress bar for large holders */}
                   {holder.percentage > 1 && (
