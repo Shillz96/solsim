@@ -134,40 +134,48 @@ function RecentTradesPanel({ tokenMint }: { tokenMint: string }) {
         </div>
       ) : (
         <div className="space-y-2 max-h-[400px] overflow-y-auto">
-          {trades.map((trade: any, i: number) => (
-            <div
-              key={`${trade.user}-${trade.timestamp}-${i}`}
-              className={cn(
-                "flex items-center justify-between p-2 rounded-lg border-2",
-                trade.type === 'buy'
-                  ? "bg-[var(--luigi-green)]/10 border-[var(--luigi-green)]/30"
-                  : "bg-[var(--mario-red)]/10 border-[var(--mario-red)]/30"
-              )}
-            >
-              <div className="flex items-center gap-2">
-                <div className={cn(
-                  "w-6 h-6 rounded-full flex items-center justify-center",
-                  trade.type === 'buy' ? "bg-[var(--luigi-green)]" : "bg-[var(--mario-red)]"
-                )}>
-                  {trade.type === 'buy' ? (
-                    <TrendingUp className="h-3 w-3 text-white" />
-                  ) : (
-                    <TrendingDown className="h-3 w-3 text-white" />
-                  )}
-                </div>
-                <div>
-                  <div className="text-xs font-bold uppercase">{trade.type}</div>
-                  <div className="text-[10px] text-muted-foreground">
-                    {trade.user ? `${trade.user.slice(0, 4)}...${trade.user.slice(-4)}` : 'Unknown'}
+          {trades.map((trade: any, i: number) => {
+            // Handle both market trade format and database trade format
+            const isBuy = trade.side === 'BUY' || trade.type === 'buy'
+            const userDisplay = trade.user?.handle || trade.user?.id || 'Anonymous'
+            const tokenAmount = trade.quantity || trade.tokenAmount || 0
+            const solAmount = trade.totalCost || trade.solAmount || 0
+            
+            return (
+              <div
+                key={`${trade.id || trade.user?.id || i}-${trade.timestamp || trade.createdAt}-${i}`}
+                className={cn(
+                  "flex items-center justify-between p-2 rounded-lg border-2",
+                  isBuy
+                    ? "bg-[var(--luigi-green)]/10 border-[var(--luigi-green)]/30"
+                    : "bg-[var(--mario-red)]/10 border-[var(--mario-red)]/30"
+                )}
+              >
+                <div className="flex items-center gap-2">
+                  <div className={cn(
+                    "w-6 h-6 rounded-full flex items-center justify-center",
+                    isBuy ? "bg-[var(--luigi-green)]" : "bg-[var(--mario-red)]"
+                  )}>
+                    {isBuy ? (
+                      <TrendingUp className="h-3 w-3 text-white" />
+                    ) : (
+                      <TrendingDown className="h-3 w-3 text-white" />
+                    )}
+                  </div>
+                  <div>
+                    <div className="text-xs font-bold uppercase">{isBuy ? 'BUY' : 'SELL'}</div>
+                    <div className="text-[10px] text-muted-foreground">
+                      {userDisplay ? `${userDisplay.slice(0, 8)}...` : 'Anonymous'}
+                    </div>
                   </div>
                 </div>
+                <div className="text-right">
+                  <div className="text-xs font-bold">{formatNumber(tokenAmount)} tokens</div>
+                  <div className="text-[10px] text-muted-foreground">{formatNumber(solAmount)} SOL</div>
+                </div>
               </div>
-              <div className="text-right">
-                <div className="text-xs font-bold">{formatNumber(trade.tokenAmount || 0)} tokens</div>
-                <div className="text-[10px] text-muted-foreground">{formatNumber(trade.solAmount || 0)} SOL</div>
-              </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
       )}
     </div>
@@ -380,7 +388,7 @@ function HoldersPanel({ tokenMint }: { tokenMint: string }) {
               </div>
             </div>
             <div>
-              <span className="text-muted-foreground">Whales (>10%):</span>
+              <span className="text-muted-foreground">Whales (&gt;10%):</span>
               <div className="font-bold">
                 {holders.filter((h: any) => h.percentage > 10).length} holders
               </div>
