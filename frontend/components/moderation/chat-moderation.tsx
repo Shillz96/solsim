@@ -101,7 +101,7 @@ export function ChatModeration({ roomId, className = '' }: ChatModerationProps) 
               p-3 rounded-lg border-2 transition-all duration-200
               ${message.moderationStatus?.isMuted ? 'border-mario-red-300 bg-mario-red-50' : ''}
               ${message.moderationStatus?.isBanned ? 'border-mario-red-500 bg-mario-red-100' : ''}
-              ${message.moderationStatus?.trustScore < 50 ? 'border-star-yellow-300 bg-star-yellow-50' : ''}
+              ${(message.moderationStatus?.trustScore ?? 100) < 50 ? 'border-star-yellow-300 bg-star-yellow-50' : ''}
               ${selectedMessage?.id === message.id ? 'border-mario-red-500 bg-mario-red-50' : 'border-pipe-200'}
               hover:border-pipe-300 cursor-pointer
             `}
@@ -135,12 +135,12 @@ export function ChatModeration({ roomId, className = '' }: ChatModerationProps) 
                   {message.moderationStatus?.isBanned && (
                     <span className="text-xs bg-mario-red-600 text-white px-2 py-1 rounded-full">BANNED</span>
                   )}
-                  {message.moderationStatus?.trustScore < 50 && (
+                  {(message.moderationStatus?.trustScore ?? 100) < 50 && (
                     <span className="text-xs bg-star-yellow-500 text-white px-2 py-1 rounded-full">LOW TRUST</span>
                   )}
                   
                   <span className="text-xs text-pipe-500">
-                    Trust: {message.moderationStatus?.trustScore || 100}
+                    Trust: {message.moderationStatus?.trustScore ?? 100}
                   </span>
                 </div>
                 
