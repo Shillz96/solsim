@@ -172,17 +172,13 @@ export function ChatRoom({ tokenMint, className }: ChatRoomProps) {
                 >
                   <div className="flex items-center gap-2 mb-1.5">
                     {/* Avatar */}
-                    {msg.user.avatarUrl ? (
+                    <div className="h-6 w-6 rounded-full border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] overflow-hidden">
                       <img
-                        src={msg.user.avatarUrl}
-                        alt={msg.user.handle}
-                        className="h-6 w-6 rounded-full border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)]"
+                        src={isOwnMessage ? "/icons/mario/money-bag.png" : "/icons/mario/user.png"}
+                        alt={isOwnMessage ? "Money Bag" : "User"}
+                        className="h-full w-full object-cover"
                       />
-                    ) : (
-                      <div className="h-6 w-6 rounded-full bg-gradient-to-br from-[var(--luigi-green)] to-[var(--pipe-green)] border-3 border-[var(--outline-black)] flex items-center justify-center text-xs font-bold text-white shadow-[2px_2px_0_var(--outline-black)]">
-                        {msg.user.handle[0].toUpperCase()}
-                      </div>
-                    )}
+                    </div>
 
                     {/* Username */}
                     <div className="text-sm font-bold text-[var(--outline-black)]">
