@@ -200,13 +200,11 @@ export function LightweightChart({
       candlestickSeries = chart.addSeries(CandlestickSeries, {
         upColor: '#2ecc71', // Luigi green for bullish
         downColor: '#e74c3c', // Mario red for bearish
-        borderUpColor: '#2ecc71',
-        borderDownColor: '#e74c3c',
+        borderUpColor: '#27ae60', // Darker green border
+        borderDownColor: '#c0392b', // Darker red border
         wickUpColor: '#2ecc71',
         wickDownColor: '#e74c3c',
         borderVisible: true, // Mario theme uses borders
-        borderUpColor: '#27ae60', // Darker green border
-        borderDownColor: '#c0392b', // Darker red border
         lastValueVisible: true,
         priceLineVisible: true,
         priceLineWidth: 3, // Thicker lines for Mario theme
