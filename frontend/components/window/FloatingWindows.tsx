@@ -79,88 +79,6 @@ export default function FloatingWindows() {
   }, []);
 
   // Keyboard controls for focused window
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (!focusedId) return;
-
-      const window = windows.find(w => w.id === focusedId);
-      if (!window) return;
-
-      const moveStep = e.shiftKey ? 10 : 1; // Larger steps with Shift
-      const resizeStep = e.shiftKey ? 20 : 5;
-
-      let newBounds = { ...window };
-
-      switch (e.key) {
-        case 'ArrowUp':
-          if (e.ctrlKey || e.metaKey) {
-            // Resize up
-            newBounds.height = Math.max(240, window.height - resizeStep);
-            newBounds.y = window.y + (window.height - newBounds.height);
-          } else {
-            // Move up
-            newBounds.y = Math.max(0, window.y - moveStep);
-          }
-          e.preventDefault();
-          break;
-        case 'ArrowDown':
-          if (e.ctrlKey || e.metaKey) {
-            // Resize down
-            newBounds.height = Math.min(viewportSize.height - 40, window.height + resizeStep);
-          } else {
-            // Move down
-            newBounds.y = Math.min(viewportSize.height - window.height - 20, window.y + moveStep);
-          }
-          e.preventDefault();
-          break;
-        case 'ArrowLeft':
-          if (e.ctrlKey || e.metaKey) {
-            // Resize left
-            newBounds.width = Math.max(320, window.width - resizeStep);
-            newBounds.x = window.x + (window.width - newBounds.width);
-          } else {
-            // Move left
-            newBounds.x = Math.max(0, window.x - moveStep);
-          }
-          e.preventDefault();
-          break;
-        case 'ArrowRight':
-          if (e.ctrlKey || e.metaKey) {
-            // Resize right
-            newBounds.width = Math.min(viewportSize.width - 40, window.width + resizeStep);
-          } else {
-            // Move right
-            newBounds.x = Math.min(viewportSize.width - window.width - 20, window.x + moveStep);
-          }
-          e.preventDefault();
-          break;
-        case 'Enter':
-        case ' ':
-          // Bring to front on Enter/Space
-          bringToFront(focusedId);
-          e.preventDefault();
-          break;
-        case 'Delete':
-        case 'Backspace':
-          // Close window
-          closeWindow(focusedId);
-          setFocusedId(null);
-          e.preventDefault();
-          break;
-      }
-
-      if (newBounds !== window) {
-        const constrained = constrainPosition(newBounds.x, newBounds.y, newBounds.width, newBounds.height);
-        const constrainedDims = constrainDimensions(newBounds.width, newBounds.height);
-        updateBounds(focusedId, {
-          x: constrained.x,
-          y: constrained.y,
-          width: constrainedDims.width,
-          height: constrainedDims.height
-        });
-      }
-    };
-
   // Constrain position to viewport with snap-to-edge behavior
   const constrainPosition = useCallback((x: number, y: number, width: number, height: number) => {
     const margin = 20; // Minimum distance from edge
@@ -196,7 +114,9 @@ export default function FloatingWindows() {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
-        closeWindow(focusedId);
+        if (focusedId) {
+          closeWindow(focusedId);
+        }
         return;
       }
 

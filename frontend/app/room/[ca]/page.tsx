@@ -98,19 +98,8 @@ function TradeRoomContent() {
   const currentPriceData = livePrices.get(ca)
   const priceLastUpdated = currentPriceData?.timestamp || Date.now()
 
-  // Calculate current price (needs to be declared early for useEffect dependencies)
-  const currentPrice = livePrices.get(ca)?.price || parseFloat(tokenDetails.lastPrice || '0')
-
-  // Track price changes for loading animation
-  const prevPriceRef = useRef(currentPrice)
-  useEffect(() => {
-    if (prevPriceRef.current !== currentPrice && prevPriceRef.current !== undefined) {
-      setPriceUpdating(true)
-      const timer = setTimeout(() => setPriceUpdating(false), 1000)
-      return () => clearTimeout(timer)
-    }
-    prevPriceRef.current = currentPrice
-  }, [currentPrice])
+  // Track price changes for loading animation (will be initialized after tokenDetails)
+  const prevPriceRef = useRef<number | undefined>(undefined)
 
   // Early return if no CA
   if (!ca) {
@@ -133,6 +122,19 @@ function TradeRoomContent() {
     queryFn: () => api.getTokenDetails(ca),
     staleTime: 120000, // 2 minutes - reduce excessive refetching
   })
+
+  // Calculate current price
+  const currentPrice = livePrices.get(ca)?.price || parseFloat(tokenDetails?.lastPrice || '0')
+
+  // Track price changes for loading animation
+  useEffect(() => {
+    if (prevPriceRef.current !== currentPrice && prevPriceRef.current !== undefined) {
+      setPriceUpdating(true)
+      const timer = setTimeout(() => setPriceUpdating(false), 1000)
+      return () => clearTimeout(timer)
+    }
+    prevPriceRef.current = currentPrice
+  }, [currentPrice])
 
   // Loading state
   if (loadingToken) {

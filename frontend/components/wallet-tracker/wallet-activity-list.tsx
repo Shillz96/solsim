@@ -15,7 +15,8 @@ import {
   AlertCircle,
   CheckCircle2,
   XCircle,
-  Coins
+  Coins,
+  Circle
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
@@ -49,12 +50,21 @@ const prefersReducedMotion = typeof window !== 'undefined'
   ? window.matchMedia('(prefers-reduced-motion: reduce)').matches
   : false
 
-// Wallet emoji mapping for visual identification
-const WALLET_EMOJIS = ['🟠', '🟢', '🔵', '🟡', '🟣', '🔴', '🟤', '⚫'] as const;
+// Wallet color mapping for visual identification
+const WALLET_COLORS = [
+  'text-orange-500',
+  'text-green-500',
+  'text-blue-500',
+  'text-yellow-500',
+  'text-purple-500',
+  'text-red-500',
+  'text-amber-700',
+  'text-gray-600'
+] as const;
 
-function getWalletEmoji(address: string): string {
+function getWalletColor(address: string): string {
   const hash = address.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-  return WALLET_EMOJIS[hash % WALLET_EMOJIS.length];
+  return WALLET_COLORS[hash % WALLET_COLORS.length];
 }
 
 // Memoized activity row component - Clean Mario-themed layout
@@ -73,9 +83,6 @@ const ActivityRow = React.memo(function ActivityRow({
   copyToClipboard: (text: string, label: string) => void
   density?: 'comfortable' | 'compact'
 }) {
-  // Filter out SWAP types - only show BUY/SELL
-  if (activity.type === 'SWAP') return null;
-
   // Get the main token (non-SOL token)
   const mainToken = activity.type === 'BUY'
     ? activity.tokenOut
@@ -85,7 +92,7 @@ const ActivityRow = React.memo(function ActivityRow({
   const tokenSymbol = mainToken.symbol || 'Unknown';
   const tokenLogoURI = mainToken.logoURI;
   const walletLabel = getWalletLabel(activity.walletAddress);
-  const walletEmoji = getWalletEmoji(activity.walletAddress);
+  const walletColor = getWalletColor(activity.walletAddress);
 
   // Skip if no mint (invalid data)
   if (!tokenMint) {
@@ -100,18 +107,29 @@ const ActivityRow = React.memo(function ActivityRow({
   return (
     <Link
       href={`/room/${tokenMint}`}
-      className="grid grid-cols-[60px_100px_1fr_100px_80px] gap-3 px-4 py-2.5 hover:bg-[var(--background)] transition-colors cursor-pointer border-b border-pipe-300"
+      className="grid grid-cols-[60px_100px_1fr_100px_80px] gap-3 px-4 py-2.5 hover:bg-[var(--star-yellow)]/20 hover:shadow-sm transition-all duration-150 cursor-pointer border-b border-pipe-300"
     >
       {/* Time */}
       <div className="flex items-center">
-        <span className="text-xs font-bold text-[var(--pipe-700)]">
-          {activity.timeAgo}
-        </span>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span className="text-xs font-bold text-[var(--pipe-700)] cursor-help">
+                {activity.timeAgo}
+              </span>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p className="text-xs">
+                {activity.timestamp ? new Date(activity.timestamp).toLocaleString() : 'Unknown time'}
+              </p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       </div>
 
       {/* Wallet */}
       <div className="flex items-center gap-1.5 min-w-0">
-        <span className="text-lg leading-none flex-shrink-0">{walletEmoji}</span>
+        <Circle className={cn("h-4 w-4 flex-shrink-0", walletColor)} fill="currentColor" />
         <span className="text-xs font-bold text-[var(--mario-red)] truncate">
           {walletLabel}
         </span>
@@ -138,7 +156,12 @@ const ActivityRow = React.memo(function ActivityRow({
       </div>
 
       {/* Amount (SOL) - Simple colored number */}
-      <div className="flex items-center justify-end">
+      <div className="flex items-center justify-end gap-1">
+        {isBuy ? (
+          <TrendingUp className="h-3 w-3 text-[var(--luigi-green)] flex-shrink-0" />
+        ) : (
+          <TrendingDown className="h-3 w-3 text-[var(--mario-red)] flex-shrink-0" />
+        )}
         <span className={cn(
           "text-sm font-bold font-mono tabular-nums",
           isBuy ? "text-[var(--luigi-green)]" : "text-[var(--mario-red)]"
@@ -181,6 +204,12 @@ export function WalletActivityList({
 }: WalletActivityListProps) {
   const [copyingTrades, setCopyingTrades] = useState<Set<string>>(new Set())
 
+  // Filter out SWAP activities at data level for better performance
+  const filteredActivities = useMemo(() =>
+    activities.filter(activity => activity.type !== 'SWAP'),
+    [activities]
+  )
+
   const handleCopyTrade = async (activity: WalletActivity) => {
     setCopyingTrades(prev => new Set(prev).add(activity.id))
 
@@ -201,7 +230,7 @@ export function WalletActivityList({
   }
 
   // Loading state - skeleton matches grid layout
-  if (isLoading && activities.length === 0) {
+  if (isLoading && filteredActivities.length === 0) {
     return (
       <div className="mario-card bg-white border-4 border-[var(--pipe-700)] shadow-mario overflow-hidden h-full flex flex-col">
         {/* Column Headers */}
@@ -214,7 +243,7 @@ export function WalletActivityList({
         </div>
 
         {/* Loading Skeletons */}
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 overflow-y-auto min-h-0">
           {[...Array(10)].map((_, i) => (
             <div key={i} className="grid grid-cols-[60px_100px_1fr_100px_80px] gap-3 px-4 py-2.5 border-b border-[var(--pipe-300)]">
               <Skeleton className="h-4 w-10" />
@@ -236,7 +265,7 @@ export function WalletActivityList({
   }
 
   // Empty state
-  if (activities.length === 0) {
+  if (filteredActivities.length === 0) {
     return (
       <div className="mario-card bg-white border-4 border-[var(--pipe-700)] shadow-mario overflow-hidden h-full flex flex-col">
         {/* Column Headers */}
@@ -274,10 +303,11 @@ export function WalletActivityList({
       </div>
 
       {/* Activity List */}
-      <Virtuoso
-        data={activities}
-        overscan={200}
-        style={{ height: '100%' }}
+      <div className="flex-1 min-h-0">
+        <Virtuoso
+          data={filteredActivities}
+          overscan={50}
+          style={{ height: '100%' }}
         itemContent={(index, activity) => (
           <ActivityRow
             activity={activity}
@@ -291,12 +321,32 @@ export function WalletActivityList({
         endReached={hasMore ? onLoadMore : undefined}
         components={{
           Footer: () => hasMore && isLoading ? (
-            <div className="p-3 text-center border-t-2 border-pipe-700 bg-[var(--background)]">
-              <Loader2 className="h-4 w-4 animate-spin mx-auto text-mario-red" />
-            </div>
+            <>
+              {/* Loading skeleton rows */}
+              {[...Array(3)].map((_, i) => (
+                <div key={`loading-${i}`} className="grid grid-cols-[60px_100px_1fr_100px_80px] gap-3 px-4 py-2.5 border-b border-pipe-300 bg-[var(--star-yellow)]/10">
+                  <Skeleton className="h-4 w-10" />
+                  <div className="flex items-center gap-1.5">
+                    <Skeleton className="h-4 w-4 rounded-full" />
+                    <Skeleton className="h-3 w-12" />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Skeleton className="h-7 w-7 rounded" />
+                    <Skeleton className="h-4 w-20" />
+                  </div>
+                  <Skeleton className="h-4 w-16 ml-auto" />
+                  <Skeleton className="h-4 w-12 ml-auto" />
+                </div>
+              ))}
+              {/* Loading indicator */}
+              <div className="p-3 text-center border-t-2 border-pipe-700 bg-[var(--background)]">
+                <Loader2 className="h-4 w-4 animate-spin mx-auto text-mario-red" />
+              </div>
+            </>
           ) : null
         }}
-      />
+        />
+      </div>
     </div>
   )
 }
