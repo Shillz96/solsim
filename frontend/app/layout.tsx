@@ -76,6 +76,12 @@ export const metadata: Metadata = {
     ],
     apple: { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
   },
+  other: {
+    // Force font cache refresh
+    'Cache-Control': 'no-cache, no-store, must-revalidate',
+    'Pragma': 'no-cache',
+    'Expires': '0',
+  },
 }
 
 export const viewport = {
@@ -90,6 +96,37 @@ export const viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" dir="ltr">
+      <head>
+        {/* Force no cache for fonts during development */}
+        <meta httpEquiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+        <meta httpEquiv="Pragma" content="no-cache" />
+        <meta httpEquiv="Expires" content="0" />
+        {/* Preload Google Fonts with cache busting */}
+        <link
+          rel="preload"
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap&v=2"
+          as="style"
+          onLoad="this.onload=null;this.rel='stylesheet'"
+        />
+        <link
+          rel="preload"
+          href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap&v=2"
+          as="style"
+          onLoad="this.onload=null;this.rel='stylesheet'"
+        />
+        <link
+          rel="preload"
+          href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;500;600;700&display=swap&v=2"
+          as="style"
+          onLoad="this.onload=null;this.rel='stylesheet'"
+        />
+        <link
+          rel="preload"
+          href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&display=swap&v=2"
+          as="style"
+          onLoad="this.onload=null;this.rel='stylesheet'"
+        />
+      </head>
       <body
         className={`${radnikaNext.variable} ${ibmPlexSans.variable} ${jetBrainsMono.variable} font-sans`}
         style={{

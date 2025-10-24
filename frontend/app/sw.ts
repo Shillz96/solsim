@@ -23,7 +23,7 @@ declare global {
 declare const self: ServiceWorkerGlobalScope
 
 // Cache version - increment this to force cache refresh
-const CACHE_VERSION = 'v1.0.8-vsol-ca-click-to-copy'
+const CACHE_VERSION = 'v1.0.9-font-cache-bust'
 
 // Initialize Serwist with precaching and default runtime caching
 const serwist = new Serwist({
@@ -59,6 +59,21 @@ serwist.handleFetch = (event) => {
 
 // Add Serwist event listeners
 serwist.addEventListeners()
+
+// Force font cache invalidation on service worker update
+self.addEventListener('install', (event) => {
+  event.waitUntil(
+    caches.keys().then((cacheNames) => {
+      return Promise.all(
+        cacheNames.map((cacheName) => {
+          if (cacheName.includes('font') || cacheName.includes('google-fonts')) {
+            return caches.delete(cacheName)
+          }
+        })
+      )
+    })
+  )
+})
 
 // Handle periodic background sync with proper permission checking
 self.addEventListener('message', async (event) => {
