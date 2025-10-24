@@ -335,15 +335,15 @@ export default function DocumentationPage() {
                 </h3>
                 <div className="space-y-2 text-[var(--outline-black)] pl-10">
                   <p><strong className="text-[var(--outline-black)]">20 Mario Levels:</strong> From "Goomba Trader" to "Legendary Luigi"</p>
-                  <p><strong className="text-[var(--outline-black)]">vSOL Rewards:</strong> Earn virtual SOL tokens based on your performance</p>
+                  <p><strong className="text-[var(--outline-black)]">$1UP Rewards:</strong> Earn $1UP tokens based on your performance</p>
                   <p><strong className="text-[var(--outline-black)]">Reward Calculation:</strong></p>
                   <div className="bg-[var(--star-yellow)] p-3 rounded-lg border-2 border-[var(--outline-black)] ml-4">
-                    <p className="text-sm">• 1 point per trade = 1,000 vSOL</p>
-                    <p className="text-sm">• 2 points per $100 volume = 2,000 vSOL</p>
-                    <p className="text-sm">• 10 points per 10% win rate = 10,000 vSOL</p>
-                    <p className="text-sm">• Maximum: 200 points = 200,000 vSOL per claim</p>
+                    <p className="text-sm">• 1 point per trade = 1,000 $1UP</p>
+                    <p className="text-sm">• 2 points per $100 volume = 2,000 $1UP</p>
+                    <p className="text-sm">• 10 points per 10% win rate = 10,000 $1UP</p>
+                    <p className="text-sm">• Maximum: 200 points = 200,000 $1UP per claim</p>
                   </div>
-                  <p><strong className="text-[var(--outline-black)]">Claim Rewards:</strong> Visit the Rewards page to claim your earned vSOL tokens</p>
+                  <p><strong className="text-[var(--outline-black)]">Claim Rewards:</strong> Visit the Rewards page to claim your earned $1UP tokens</p>
                 </div>
               </div>
 
@@ -441,7 +441,7 @@ export default function DocumentationPage() {
                 <div className="space-y-2">
                   <h3 className="font-bold text-lg text-[var(--outline-black)]">Rewards</h3>
                   <p className="text-[var(--outline-black)] text-sm">
-                    Claim vSOL rewards based on your trading performance and XP.
+                    Claim $1UP rewards based on your trading performance and XP.
                   </p>
                 </div>
               </div>
