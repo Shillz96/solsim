@@ -25,7 +25,7 @@ export default async function marketRoutes(app: FastifyInstance) {
     }
 
     try {
-      // Get trades from Redis sorted set (most recent first)
+      // First, try to get trades from Redis (populated by worker)
       const tradesData = await redis.zrevrange(
         `market:trades:${mint}`,
         0,
@@ -33,7 +33,7 @@ export default async function marketRoutes(app: FastifyInstance) {
         'WITHSCORES'
       );
 
-      // Parse trades (format: [trade1, timestamp1, trade2, timestamp2, ...])
+      // Parse trades from Redis
       const trades: any[] = [];
       for (let i = 0; i < tradesData.length; i += 2) {
         try {
@@ -45,6 +45,38 @@ export default async function marketRoutes(app: FastifyInstance) {
           });
         } catch (e) {
           console.error('Error parsing trade:', e);
+        }
+      }
+
+      // If no trades in Redis, fall back to DexScreener API
+      if (trades.length === 0) {
+        try {
+          const response = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${mint}`);
+          if (response.ok) {
+            const data = await response.json();
+            const pair = data.pairs?.[0];
+
+            if (pair && pair.txns) {
+              // Transform DexScreener transaction data to our format
+              const buys = pair.txns.h24?.buys || 0;
+              const sells = pair.txns.h24?.sells || 0;
+
+              // Create synthetic trade data (DexScreener doesn't provide individual trades via API)
+              if (buys > 0 || sells > 0) {
+                return {
+                  trades: [],
+                  aggregated: {
+                    buys24h: buys,
+                    sells24h: sells,
+                    volume24h: pair.volume?.h24 || 0,
+                    message: 'Real-time trade feed coming soon. Showing 24h aggregated data.'
+                  }
+                };
+              }
+            }
+          }
+        } catch (error: any) {
+          app.log.warn(`Failed to fetch DexScreener data for ${mint}: ${error.message}`);
         }
       }
 
