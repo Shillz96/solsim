@@ -69,11 +69,10 @@ function TradePageContent() {
   }
 
   return (
-    <div className="h-dvh-screen bg-gradient-to-br from-background via-background to-muted/20 overflow-hidden">
-      <main className="w-full h-full px-2 sm:px-4 lg:px-6 py-2 sm:py-3 lg:py-4 max-w-page-xl mx-auto">
-        {/* MOBILE LAYOUT: Fixed height with flexbox for viewport fit */}
-        <div className="lg:hidden h-full flex flex-col">
-          <div className="flex flex-col gap-2 h-full overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
+      <main className="container mx-auto px-4 py-6">
+        {/* MOBILE LAYOUT: Responsive layout */}
+        <div className="lg:hidden space-y-4">
           {/* Trending Ticker - Mobile - Compact */}
           <motion.div
             initial={{ opacity: 0, y: -5 }}
@@ -94,14 +93,14 @@ function TradePageContent() {
             <TokenDetailsHeader tokenAddress={currentTokenAddress} />
           </motion.div>
 
-          {/* Chart Section - Mobile - Flexible height with larger minimum */}
+          {/* Chart Section - Mobile */}
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4 }}
-            className="flex-grow min-h-[400px]"
+            className="min-h-[400px]"
           >
-            <div className="h-full overflow-hidden rounded-lg">
+            <div className="h-[400px] overflow-hidden rounded-lg">
               <Suspense fallback={<ChartSkeleton />}>
                 <DexScreenerChart tokenAddress={currentTokenAddress} />
               </Suspense>
@@ -121,66 +120,56 @@ function TradePageContent() {
           </div>
         </div>
 
-        {/* DESKTOP LAYOUT: Flexbox for viewport fit */}
-        <div className="hidden lg:flex lg:flex-col lg:h-full lg:gap-2">
-          {/* Trending Ticker - Desktop - Compact */}
+        {/* DESKTOP LAYOUT: Grid layout */}
+        <div className="hidden lg:grid lg:grid-cols-12 lg:gap-4">
+          {/* Trending Ticker - Desktop - Full width */}
           <motion.div
             initial={{ opacity: 0, y: -5 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.2 }}
-            className="flex-shrink-0"
+            className="lg:col-span-12"
           >
             <SlidingTrendingTicker />
           </motion.div>
 
-          {/* Token details header - Desktop (Compact) */}
+          {/* Token details header - Desktop */}
           <motion.div
             initial={{ opacity: 0, y: -5 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: 0.05 }}
-            className="flex-shrink-0"
+            className="lg:col-span-12"
           >
             <TokenDetailsHeader tokenAddress={currentTokenAddress} />
           </motion.div>
-
-          {/* Main content grid - Flexible height */}
-          <div className="flex-grow min-h-0 grid grid-cols-12 gap-3">
           {/* Left Sidebar - PnL Above Trade Activity */}
           <motion.aside
-            className="lg:col-span-3 flex flex-col gap-3 min-h-0 overflow-hidden"
+            className="lg:col-span-3 space-y-4"
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
           >
-            {/* Mario Position P&L - Top Priority */}
-            <div className="flex-shrink-0">
-              <MarioPositionPnL
-                tokenAddress={currentTokenAddress}
-                tokenSymbol={tokenSymbol}
-                tokenName={tokenName}
-              />
-            </div>
-
-            {/* Trade Activity - Scrollable Below PnL */}
-            <div className="flex-1 min-h-0 overflow-y-auto">
-              <TradeDetails
-                tokenAddress={currentTokenAddress}
-                tokenSymbol={tokenSymbol}
-                tokenName={tokenName}
-                variant="sidebar"
-                maxTrades={20}
-              />
-            </div>
+            <MarioPositionPnL
+              tokenAddress={currentTokenAddress}
+              tokenSymbol={tokenSymbol}
+              tokenName={tokenName}
+            />
+            <TradeDetails
+              tokenAddress={currentTokenAddress}
+              tokenSymbol={tokenSymbol}
+              tokenName={tokenName}
+              variant="sidebar"
+              maxTrades={20}
+            />
           </motion.aside>
 
-          {/* Chart - Matches Right Panel Height */}
+          {/* Chart */}
           <motion.div
-            className="lg:col-span-7 flex flex-col min-h-0"
+            className="lg:col-span-7"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
           >
-            <div className="flex-1 min-h-0 overflow-hidden">
+            <div className="h-[600px] overflow-hidden rounded-lg">
               <Suspense fallback={<ChartSkeleton />}>
                 <DexScreenerChart tokenAddress={currentTokenAddress} />
               </Suspense>
@@ -189,23 +178,18 @@ function TradePageContent() {
 
           {/* Right Sidebar - Trading Panel + Timeline */}
           <motion.aside
-            className="lg:col-span-2 flex flex-col gap-3 min-h-0 overflow-hidden"
+            className="lg:col-span-2 space-y-4"
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
           >
-            <div className="flex-shrink-0">
-              <MarioTradingPanel tokenAddress={currentTokenAddress} />
-            </div>
-            <div className="flex-1 min-h-0 overflow-y-auto">
-              <TradeTimeline
-                tokenAddress={currentTokenAddress}
-                maxTrades={10}
-                variant="compact"
-              />
-            </div>
+            <MarioTradingPanel tokenAddress={currentTokenAddress} />
+            <TradeTimeline
+              tokenAddress={currentTokenAddress}
+              maxTrades={10}
+              variant="compact"
+            />
           </motion.aside>
-          </div>
         </div>
 
         {/* Decorative Elements */}

@@ -23,8 +23,8 @@ function PortfolioPageContent() {
   const defaultTab = searchParams.get('tab') || 'overview'
 
   return (
-    <div className="min-h-dvh-screen bg-gradient-to-br from-background via-background to-muted/20">
-      <main className="w-full px-4 sm:px-6 lg:px-8 py-2 sm:py-4">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
+      <main className="container mx-auto px-4 py-6">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
