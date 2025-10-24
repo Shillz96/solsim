@@ -299,36 +299,35 @@ export function NavBar() {
                 className="h-8 md:h-10 w-auto hover:scale-105 transition-transform duration-200"
               />
             </Link>
-
-            {/* Desktop Navigation */}
-            <nav className="hidden lg:flex items-center gap-2 ml-4">
-              {navigationItems.slice(0, 6).map((item) => {
-                const isActive = pathname === item.href
-
-                return (
-                  <Link key={item.href} href={item.href}>
-                    <Button
-                      variant={isActive ? "secondary" : "ghost"}
-                      size="sm"
-                      className={cn(
-                        "flex items-center justify-center px-2 py-2 transition-all duration-200 font-mario text-xs h-10 w-auto",
-                        isActive && "bg-primary/10 text-primary"
-                      )}
-                    >
-                      <Image 
-                        src={item.iconSrc} 
-                        alt={item.name} 
-                        width={80} 
-                        height={32} 
-                        className="object-contain hover:scale-105 transition-transform duration-200" 
-                      />
-                    </Button>
-                  </Link>
-                )
-              })}
-              
-            </nav>
           </div>
+
+          {/* Desktop Navigation - Centered */}
+          <nav className="hidden lg:flex items-center gap-2 flex-1 justify-center">
+            {navigationItems.slice(0, 6).map((item) => {
+              const isActive = pathname === item.href
+
+              return (
+                <Link key={item.href} href={item.href}>
+                  <Button
+                    variant={isActive ? "secondary" : "ghost"}
+                    size="sm"
+                    className={cn(
+                      "flex items-center justify-center px-2 py-2 transition-all duration-200 font-mario text-xs h-10 w-24",
+                      isActive && "bg-primary/10 text-primary"
+                    )}
+                  >
+                    <Image 
+                      src={item.iconSrc} 
+                      alt={item.name} 
+                      width={96} 
+                      height={32} 
+                      className="object-contain hover:scale-105 transition-transform duration-200 max-w-full max-h-full" 
+                    />
+                  </Button>
+                </Link>
+              )
+            })}
+          </nav>
 
           {/* Enhanced Search Bar - Hidden on mobile, visible on md+ */}
           <div className="hidden md:flex flex-1 max-w-[400px] lg:max-w-[520px] mx-2 lg:mx-4">
