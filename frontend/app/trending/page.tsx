@@ -345,7 +345,7 @@ export default function TrendingPage() {
                         {/* Token Info */}
                         <td className="p-5">
                           <Link
-                            href={`/trade?token=${token.mint}`}
+                            href={`/room/${token.mint}`}
                             className="flex items-center gap-3 hover:opacity-80 transition-opacity"
                           >
                             <div>
@@ -451,7 +451,7 @@ export default function TrendingPage() {
 
                         {/* Action */}
                         <td className="p-5 text-right">
-                          <Link href={`/trade?token=${token.mint}`}>
+                          <Link href={`/room/${token.mint}`}>
                             <Button
                               size="sm"
                               className="mario-btn mario-btn-green text-white"

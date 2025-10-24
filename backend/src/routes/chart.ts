@@ -1,11 +1,13 @@
 /**
  * Chart Data Routes
  *
- * Provides historical OHLCV data from Birdeye API
+ * Provides historical OHLCV data from GeckoTerminal (free tier)
+ * Falls back to DexScreener current price + estimates
  */
 
 import { FastifyInstance } from 'fastify'
 import axios from 'axios'
+import { geckoTerminalService } from '../services/geckoTerminalService.js'
 
 interface OHLCVQueryParams {
   mint: string
@@ -54,48 +56,40 @@ export default async function chartRoutes(app: FastifyInstance) {
 
         app.log.info(`Fetching OHLCV for ${mint}, timeframe: ${type}, limit: ${limitNum}`)
 
-        // Try Birdeye OHLCV V3 API first
-        const birdeyeApiKey = process.env.BIRDEYE_API_KEY
+        // Try GeckoTerminal cache first (free tier, 30 rpm)
+        const geckoData = geckoTerminalService.getOHLCV(mint, type)
 
-        if (birdeyeApiKey) {
-          try {
-            const response = await axios.get(
-              'https://public-api.birdeye.so/defi/v3/ohlcv',
-              {
-                headers: {
-                  'X-API-KEY': birdeyeApiKey,
-                },
-                params: {
-                  address: mint,
-                  type,
-                  time_from: timeFrom,
-                  time_to: timeTo,
-                },
-                timeout: 10000, // 10 second timeout
-              }
-            )
+        if (geckoData && geckoData.candles.length > 0) {
+          // Convert GeckoTerminal format to our format
+          const items = geckoData.candles.map(candle => ({
+            unixTime: candle.time,
+            o: candle.open,
+            h: candle.high,
+            l: candle.low,
+            c: candle.close,
+            v: candle.volume
+          }))
 
-            // Check if successful
-            if (response.data.success && response.data.data?.items) {
-              // Cache for 30 seconds (OHLCV data doesn't change rapidly)
-              reply.header('Cache-Control', 'public, max-age=30')
+          // Cache for 55 seconds (just under 1 minute poll interval)
+          reply.header('Cache-Control', 'public, s-maxage=55, stale-while-revalidate=60')
 
-              return {
-                success: true,
-                data: response.data.data,
-                timeframe: type,
-                from: timeFrom,
-                to: timeTo,
-                source: 'birdeye',
-              }
-            }
+          app.log.info(`Serving OHLCV from GeckoTerminal cache (${items.length} candles)`)
 
-            // Birdeye returned error (rate limit, etc)
-            app.log.warn(`Birdeye API error: ${JSON.stringify(response.data)}`)
-          } catch (birdeyeError: any) {
-            app.log.warn(`Birdeye API failed: ${birdeyeError.message}`)
+          return {
+            success: true,
+            data: { items },
+            timeframe: type,
+            from: timeFrom,
+            to: timeTo,
+            source: 'geckoterminal',
           }
         }
+
+        // Not in cache - track this token for future polls
+        app.log.info(`Token ${mint.slice(0, 8)} not in cache, tracking for next poll...`)
+        geckoTerminalService.trackToken(mint).catch(err => {
+          app.log.warn(`Failed to track token: ${err.message}`)
+        })
 
         // Fallback: Try DexScreener API (no API key needed!)
         app.log.info('Birdeye unavailable, trying DexScreener...')

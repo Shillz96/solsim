@@ -13,7 +13,10 @@ import {
   Eye,
   EyeOff,
   UserPlus,
-  Search
+  Search,
+  Edit2,
+  Check,
+  XCircle
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -33,6 +36,9 @@ import { useAuth } from "@/hooks/use-auth"
 import { cn } from "@/lib/utils"
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
+
+// Mario-themed wallet icons
+const MARIO_ICONS = ['🟠', '🟢', '🔵', '🟡', '🟣', '🔴', '🟤', '⚫', '⭐', '🍄', '🪙', '👑'] as const;
 
 interface TrackedWallet {
   id: string
@@ -64,10 +70,19 @@ export function WalletManager({
   const [activeTab, setActiveTab] = useState<"tracked" | "add">("tracked")
   const [newWalletAddress, setNewWalletAddress] = useState("")
   const [newWalletLabel, setNewWalletLabel] = useState("")
+  const [newWalletIcon, setNewWalletIcon] = useState("")
+  const [showNewWalletIconPicker, setShowNewWalletIconPicker] = useState(false)
   const [isAddingWallet, setIsAddingWallet] = useState(false)
   const [syncingWallets, setSyncingWallets] = useState<Set<string>>(new Set())
   const [removingWallets, setRemovingWallets] = useState<Set<string>>(new Set())
   const [searchTerm, setSearchTerm] = useState("")
+
+  // Edit mode state
+  const [editingWallet, setEditingWallet] = useState<string | null>(null)
+  const [editLabel, setEditLabel] = useState("")
+  const [editIcon, setEditIcon] = useState("")
+  const [showIconPicker, setShowIconPicker] = useState(false)
+  const [updatingWallet, setUpdatingWallet] = useState(false)
 
   // Filter tracked wallets
   const filteredWallets = trackedWallets.filter(wallet => {
@@ -92,13 +107,17 @@ export function WalletManager({
 
     setIsAddingWallet(true)
     try {
+      const fullLabel = newWalletIcon
+        ? `${newWalletIcon} ${newWalletLabel.trim()}`
+        : newWalletLabel.trim()
+
       const response = await fetch(`${API_URL}/api/wallet-tracker/track`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           userId: user.id,
           walletAddress: newWalletAddress.trim(),
-          label: newWalletLabel.trim() || undefined
+          label: fullLabel || undefined
         })
       })
 
@@ -109,11 +128,13 @@ export function WalletManager({
 
       toast({
         title: "Success",
-        description: `Wallet ${newWalletLabel || newWalletAddress.slice(0, 8)} added to tracking`,
+        description: `Wallet ${fullLabel || newWalletAddress.slice(0, 8)} added to tracking`,
       })
 
       setNewWalletAddress("")
       setNewWalletLabel("")
+      setNewWalletIcon("")
+      setShowNewWalletIconPicker(false)
       onWalletsUpdated()
       setActiveTab("tracked")
     } catch (error: any) {
@@ -174,6 +195,63 @@ export function WalletManager({
         next.delete(address)
         return next
       })
+    }
+  }
+
+  // Start editing wallet
+  const handleStartEdit = (wallet: TrackedWallet) => {
+    setEditingWallet(wallet.id)
+    // Parse icon and label from current label (format: "icon label" or just "label")
+    const currentLabel = wallet.label || ""
+    const firstChar = currentLabel.charAt(0)
+    if (MARIO_ICONS.includes(firstChar as any)) {
+      setEditIcon(firstChar)
+      setEditLabel(currentLabel.slice(1).trim())
+    } else {
+      setEditIcon("")
+      setEditLabel(currentLabel)
+    }
+  }
+
+  // Cancel editing
+  const handleCancelEdit = () => {
+    setEditingWallet(null)
+    setEditLabel("")
+    setEditIcon("")
+    setShowIconPicker(false)
+  }
+
+  // Update wallet label
+  const handleUpdateLabel = async (trackingId: string) => {
+    setUpdatingWallet(true)
+    try {
+      const newLabel = editIcon ? `${editIcon} ${editLabel.trim()}` : editLabel.trim()
+
+      const response = await fetch(`${API_URL}/api/wallet-tracker/${trackingId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ label: newLabel })
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to update wallet label')
+      }
+
+      toast({
+        title: "Success",
+        description: "Wallet label updated"
+      })
+
+      onWalletsUpdated()
+      handleCancelEdit()
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update wallet label",
+        variant: "destructive"
+      })
+    } finally {
+      setUpdatingWallet(false)
     }
   }
 
@@ -253,73 +331,168 @@ export function WalletManager({
               </div>
             ) : (
               <div className="space-y-2">
-                {filteredWallets.map((wallet) => (
-                  <div key={wallet.id} className="bg-white rounded-xl border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] p-3">
-                    <div className="flex items-center justify-between">
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
-                          {wallet.label && (
-                            <Badge variant="secondary" className="text-xs font-mario border-2 border-[var(--outline-black)] bg-[var(--star-yellow)] text-[var(--outline-black)]">
-                              {wallet.label}
-                            </Badge>
-                          )}
-                          <Badge
-                            variant={wallet.isActive ? "default" : "outline"}
-                            className={cn(
-                              "text-xs font-mario border-2",
-                              wallet.isActive ? "bg-[var(--luigi-green)] text-white border-[var(--outline-black)]" : "border-[var(--outline-black)] bg-gray-100 text-[var(--outline-black)]"
-                            )}
-                          >
-                            {wallet.isActive ? "Active" : "Inactive"}
-                          </Badge>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <code className="text-xs font-mono font-bold text-muted-foreground truncate">
-                            {wallet.walletAddress}
-                          </code>
-                          <button
-                            onClick={() => copyToClipboard(wallet.walletAddress)}
-                            className="text-muted-foreground hover:text-foreground transition-colors"
-                          >
-                            <Copy className="h-3 w-3" />
-                          </button>
-                          <a
-                            href={`https://solscan.io/account/${wallet.walletAddress}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-muted-foreground hover:text-foreground transition-colors"
-                          >
-                            <ExternalLink className="h-3 w-3" />
-                          </a>
-                        </div>
-                      </div>
+                {filteredWallets.map((wallet) => {
+                  const isEditing = editingWallet === wallet.id
 
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => handleSyncWallet(wallet.walletAddress)}
-                          disabled={syncingWallets.has(wallet.walletAddress)}
-                          className="h-8 w-8 rounded-lg border-2 border-[var(--outline-black)] bg-white hover:bg-gray-50 shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all flex items-center justify-center disabled:opacity-50"
-                        >
-                          <RefreshCw className={cn(
-                            "h-4 w-4",
-                            syncingWallets.has(wallet.walletAddress) && "animate-spin"
-                          )} />
-                        </button>
-                        <button
-                          onClick={() => handleRemoveWallet(wallet.id)}
-                          disabled={removingWallets.has(wallet.id)}
-                          className="h-8 w-8 rounded-lg border-2 border-[var(--mario-red)] bg-white hover:bg-[var(--mario-red)]/10 shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all flex items-center justify-center disabled:opacity-50 text-[var(--mario-red)]"
-                        >
-                          {removingWallets.has(wallet.id) ? (
-                            <Loader2 className="h-4 w-4 animate-spin" />
-                          ) : (
-                            <Trash2 className="h-4 w-4" />
-                          )}
-                        </button>
-                      </div>
+                  return (
+                    <div key={wallet.id} className="bg-white rounded-xl border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] p-3">
+                      {isEditing ? (
+                        // Edit Mode
+                        <div className="space-y-3">
+                          <div className="flex items-center gap-2">
+                            {/* Icon Picker Button */}
+                            <div className="relative">
+                              <button
+                                onClick={() => setShowIconPicker(!showIconPicker)}
+                                className="h-10 w-10 rounded-lg border-3 border-[var(--outline-black)] bg-[var(--star-yellow)] hover:bg-[var(--star-yellow)]/80 shadow-[2px_2px_0_var(--outline-black)] flex items-center justify-center text-xl transition-all"
+                              >
+                                {editIcon || "➕"}
+                              </button>
+
+                              {/* Icon Picker Dropdown */}
+                              {showIconPicker && (
+                                <div className="absolute top-12 left-0 z-50 bg-white rounded-lg border-3 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)] p-2 grid grid-cols-4 gap-1 min-w-[160px]">
+                                  {MARIO_ICONS.map((icon) => (
+                                    <button
+                                      key={icon}
+                                      onClick={() => {
+                                        setEditIcon(icon)
+                                        setShowIconPicker(false)
+                                      }}
+                                      className={cn(
+                                        "h-8 w-8 rounded border-2 flex items-center justify-center text-lg hover:bg-gray-100 transition-colors",
+                                        editIcon === icon ? "border-[var(--mario-red)] bg-[var(--mario-red)]/10" : "border-gray-300"
+                                      )}
+                                    >
+                                      {icon}
+                                    </button>
+                                  ))}
+                                  {editIcon && (
+                                    <button
+                                      onClick={() => {
+                                        setEditIcon("")
+                                        setShowIconPicker(false)
+                                      }}
+                                      className="h-8 w-8 rounded border-2 border-gray-300 flex items-center justify-center text-xs hover:bg-gray-100 transition-colors col-span-4"
+                                    >
+                                      Remove Icon
+                                    </button>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+
+                            {/* Label Input */}
+                            <Input
+                              value={editLabel}
+                              onChange={(e) => setEditLabel(e.target.value)}
+                              placeholder="Enter wallet label..."
+                              className="flex-1 bg-white border-3 border-[var(--outline-black)] rounded-lg shadow-[2px_2px_0_var(--outline-black)]"
+                              autoFocus
+                            />
+                          </div>
+
+                          <div className="flex items-center gap-2 justify-end">
+                            <button
+                              onClick={handleCancelEdit}
+                              disabled={updatingWallet}
+                              className="h-8 px-3 rounded-lg border-2 border-[var(--outline-black)] bg-white hover:bg-gray-50 shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all flex items-center gap-1 font-mario text-xs disabled:opacity-50"
+                            >
+                              <XCircle className="h-3 w-3" />
+                              Cancel
+                            </button>
+                            <button
+                              onClick={() => handleUpdateLabel(wallet.id)}
+                              disabled={updatingWallet}
+                              className="h-8 px-3 rounded-lg border-2 border-[var(--outline-black)] bg-[var(--luigi-green)] text-white hover:bg-[var(--luigi-green)]/90 shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all flex items-center gap-1 font-mario text-xs disabled:opacity-50"
+                            >
+                              {updatingWallet ? (
+                                <Loader2 className="h-3 w-3 animate-spin" />
+                              ) : (
+                                <Check className="h-3 w-3" />
+                              )}
+                              Save
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        // View Mode
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-1 flex-wrap">
+                              {wallet.label && (
+                                <Badge variant="secondary" className="text-xs font-mario border-2 border-[var(--outline-black)] bg-[var(--star-yellow)] text-[var(--outline-black)]">
+                                  {wallet.label}
+                                </Badge>
+                              )}
+                              <Badge
+                                variant={wallet.isActive ? "default" : "outline"}
+                                className={cn(
+                                  "text-xs font-mario border-2",
+                                  wallet.isActive ? "bg-[var(--luigi-green)] text-white border-[var(--outline-black)]" : "border-[var(--outline-black)] bg-gray-100 text-[var(--outline-black)]"
+                                )}
+                              >
+                                {wallet.isActive ? "Active" : "Inactive"}
+                              </Badge>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <code className="text-xs font-mono font-bold text-muted-foreground truncate">
+                                {wallet.walletAddress}
+                              </code>
+                              <button
+                                onClick={() => copyToClipboard(wallet.walletAddress)}
+                                className="text-muted-foreground hover:text-foreground transition-colors flex-shrink-0"
+                              >
+                                <Copy className="h-3 w-3" />
+                              </button>
+                              <a
+                                href={`https://solscan.io/account/${wallet.walletAddress}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-muted-foreground hover:text-foreground transition-colors flex-shrink-0"
+                              >
+                                <ExternalLink className="h-3 w-3" />
+                              </a>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-2 flex-shrink-0">
+                            <button
+                              onClick={() => handleStartEdit(wallet)}
+                              className="h-8 w-8 rounded-lg border-2 border-[var(--outline-black)] bg-white hover:bg-gray-50 shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all flex items-center justify-center"
+                              title="Edit label"
+                            >
+                              <Edit2 className="h-4 w-4" />
+                            </button>
+                            <button
+                              onClick={() => handleSyncWallet(wallet.walletAddress)}
+                              disabled={syncingWallets.has(wallet.walletAddress)}
+                              className="h-8 w-8 rounded-lg border-2 border-[var(--outline-black)] bg-white hover:bg-gray-50 shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all flex items-center justify-center disabled:opacity-50"
+                              title="Sync wallet"
+                            >
+                              <RefreshCw className={cn(
+                                "h-4 w-4",
+                                syncingWallets.has(wallet.walletAddress) && "animate-spin"
+                              )} />
+                            </button>
+                            <button
+                              onClick={() => handleRemoveWallet(wallet.id)}
+                              disabled={removingWallets.has(wallet.id)}
+                              className="h-8 w-8 rounded-lg border-2 border-[var(--mario-red)] bg-white hover:bg-[var(--mario-red)]/10 shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all flex items-center justify-center disabled:opacity-50 text-[var(--mario-red)]"
+                              title="Delete wallet"
+                            >
+                              {removingWallets.has(wallet.id) ? (
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                              ) : (
+                                <Trash2 className="h-4 w-4" />
+                              )}
+                            </button>
+                          </div>
+                        </div>
+                      )}
                     </div>
-                  </div>
-                ))}
+                  )
+                })}
               </div>
             )}
           </TabsContent>
@@ -340,13 +513,61 @@ export function WalletManager({
 
                 <div className="space-y-2">
                   <Label htmlFor="wallet-label" className="font-bold text-[var(--outline-black)]">Label (Optional)</Label>
-                  <Input
-                    id="wallet-label"
-                    placeholder="e.g., 'Ansem', 'Top Trader'..."
-                    value={newWalletLabel}
-                    onChange={(e) => setNewWalletLabel(e.target.value)}
-                    className="bg-white border-3 border-[var(--outline-black)] rounded-lg shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)]"
-                  />
+                  <div className="flex items-center gap-2">
+                    {/* Icon Picker Button */}
+                    <div className="relative">
+                      <button
+                        type="button"
+                        onClick={() => setShowNewWalletIconPicker(!showNewWalletIconPicker)}
+                        className="h-10 w-10 rounded-lg border-3 border-[var(--outline-black)] bg-[var(--star-yellow)] hover:bg-[var(--star-yellow)]/80 shadow-[2px_2px_0_var(--outline-black)] flex items-center justify-center text-xl transition-all flex-shrink-0"
+                      >
+                        {newWalletIcon || "➕"}
+                      </button>
+
+                      {/* Icon Picker Dropdown */}
+                      {showNewWalletIconPicker && (
+                        <div className="absolute top-12 left-0 z-50 bg-white rounded-lg border-3 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)] p-2 grid grid-cols-4 gap-1 min-w-[160px]">
+                          {MARIO_ICONS.map((icon) => (
+                            <button
+                              key={icon}
+                              type="button"
+                              onClick={() => {
+                                setNewWalletIcon(icon)
+                                setShowNewWalletIconPicker(false)
+                              }}
+                              className={cn(
+                                "h-8 w-8 rounded border-2 flex items-center justify-center text-lg hover:bg-gray-100 transition-colors",
+                                newWalletIcon === icon ? "border-[var(--mario-red)] bg-[var(--mario-red)]/10" : "border-gray-300"
+                              )}
+                            >
+                              {icon}
+                            </button>
+                          ))}
+                          {newWalletIcon && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setNewWalletIcon("")
+                                setShowNewWalletIconPicker(false)
+                              }}
+                              className="h-8 w-8 rounded border-2 border-gray-300 flex items-center justify-center text-xs hover:bg-gray-100 transition-colors col-span-4"
+                            >
+                              Remove Icon
+                            </button>
+                          )}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Label Input */}
+                    <Input
+                      id="wallet-label"
+                      placeholder="e.g., 'Ansem', 'Top Trader'..."
+                      value={newWalletLabel}
+                      onChange={(e) => setNewWalletLabel(e.target.value)}
+                      className="flex-1 bg-white border-3 border-[var(--outline-black)] rounded-lg shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)]"
+                    />
+                  </div>
                 </div>
 
                 <div className="bg-[var(--sky-blue)]/20 rounded-lg border-3 border-[var(--outline-black)] p-4 text-sm">
