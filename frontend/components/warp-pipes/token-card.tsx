@@ -249,7 +249,7 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
                             onClick={(e) => e.stopPropagation()}
                           >
                             <Image 
-                              src="/icons/social/x-icon.svg" 
+                              src="/x-logo/logo.svg" 
                               alt="X/Twitter" 
                               width={20} 
                               height={20}

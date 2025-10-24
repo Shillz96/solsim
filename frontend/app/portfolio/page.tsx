@@ -17,6 +17,7 @@ import { motion } from "framer-motion"
 import { useAuth } from "@/hooks/use-auth"
 import { useWallet } from "@solana/wallet-adapter-react"
 import { MarioPageHeader } from "@/components/shared/mario-page-header"
+import { WalletTrackerPanel } from "@/components/portfolio/wallet-tracker-panel"
 import Image from "next/image"
 
 function PortfolioPageContent() {
@@ -184,6 +185,9 @@ function PortfolioPageContent() {
           {/* Enhanced Right Sidebar - Power-Up Panel */}
           <aside className="space-y-6 order-first xl:order-last">
             <div className="xl:sticky xl:top-6 space-y-6">
+              {/* Wallet Tracker Panel - NEW! */}
+              <WalletTrackerPanel />
+
               {/* Achievement Badges Panel */}
               <motion.div
                 initial={{ opacity: 0, x: 20 }}
@@ -222,21 +226,6 @@ function PortfolioPageContent() {
                       </div>
                     </div>
                   </div>
-                </div>
-              </motion.div>
-
-              {/* Trending Tokens - Warp Pipe Style */}
-              <motion.div
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.5, delay: 0.5 }}
-              >
-                <div className="bg-[var(--sky-blue)]/20 border-4 border-[var(--outline-black)] rounded-xl shadow-[6px_6px_0_var(--outline-black)] p-6">
-                  <div className="flex items-center gap-2 mb-4">
-                    <Image src="/icons/mario/fire.png" alt="Hot" width={24} height={24} />
-                    <h3 className="text-lg font-mario font-bold text-[var(--outline-black)]">HOT TOKENS</h3>
-                  </div>
-                  <EnhancedTrendingList />
                 </div>
               </motion.div>
             </div>

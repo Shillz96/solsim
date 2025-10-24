@@ -4,7 +4,6 @@ import Link from "next/link"
 import Image from "next/image"
 import { usePathname } from "next/navigation"
 import { Home, TrendingUp, Wallet, Trophy, Gift, Eye, Zap, Map, BookOpen, AlertTriangle, Rocket } from "lucide-react"
-import { Twitter as XIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
@@ -398,14 +397,20 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
             <div className="flex items-center justify-between">
               {/* Left: Social Links */}
               <div className="flex items-center gap-4">
-                <a
-                  href="https://x.com/oneupsol"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-muted-foreground hover:text-primary transition-colors"
-                >
-                  <XIcon className="h-4 w-4 hover:glow-primary" />
-                </a>
+              <a
+                href="https://x.com/1upsol_fun"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-muted-foreground hover:text-primary transition-colors"
+              >
+                <Image 
+                  src="/x-logo/logo.svg" 
+                  alt="X" 
+                  width={16} 
+                  height={16}
+                  className="hover:glow-primary"
+                />
+              </a>
                 <span className="text-xs font-mario text-muted-foreground whitespace-nowrap">© 2025 1UP SOL</span>
               </div>
 
@@ -450,12 +455,18 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
             {/* Left: Social Links */}
             <div className="flex items-center gap-2 md:gap-4">
               <a
-                href="https://x.com/oneupsol"
+                href="https://x.com/1upsol_fun"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-muted-foreground hover:text-primary transition-colors"
               >
-                <XIcon className="h-3.5 md:h-4 w-3.5 md:w-4 hover:glow-primary" />
+                <Image 
+                  src="/x-logo/logo.svg" 
+                  alt="X" 
+                  width={14} 
+                  height={14}
+                  className="md:w-4 md:h-4 hover:glow-primary"
+                />
               </a>
               <span className="text-[10px] md:text-xs font-mario text-muted-foreground whitespace-nowrap">© 2025 1UP SOL</span>
             </div>

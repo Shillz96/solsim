@@ -66,13 +66,13 @@ export function Footer() {
             <ul className="space-y-2 text-sm">
               <li>
                 <a
-                  href="https://x.com/virtualsol_fun"
+                  href="https://x.com/1upsol_fun"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-white font-semibold hover:text-[var(--star-yellow)] transition-colors hover:translate-x-1 inline-block"
                   style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.9)' }}
                 >
-                  → Twitter
+                  → X (Twitter)
                 </a>
               </li>
             </ul>
