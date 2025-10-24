@@ -124,7 +124,10 @@ INSERT INTO "Badge" ("id", "name", "description", "icon", "color", "rarity", "ca
 ('badge_admin', 'Admin', 'Platform administrator', '👑', 'bg-mario-red-500', 'LEGENDARY', 'MODERATION', '{"type": "admin_role"}'),
 ('badge_trusted', 'Trusted', 'High community trust score', '⭐', 'bg-star-yellow-500', 'RARE', 'MODERATION', '{"type": "trust_score", "minScore": 90}'),
 ('badge_verified', 'Verified', 'Identity verified', '🔒', 'bg-luigi-green-500', 'UNCOMMON', 'MODERATION', '{"type": "identity_verified"}'),
-('badge_vip', 'VIP', 'Premium community member', '💎', 'bg-coin-yellow-500', 'EPIC', 'MODERATION', '{"type": "premium_member"}');
+('badge_vip', 'VIP', 'Premium community member', '💎', 'bg-coin-yellow-500', 'EPIC', 'MODERATION', '{"type": "premium_member"}'),
+
+-- Developer Badge (Ultra Rare 1/1)
+('badge_developer', 'Developer', 'Core developer of 1UP SOL - The rarest badge in existence', '👨‍💻', 'bg-gradient-to-r from-purple-500 to-pink-500', 'DEVELOPER', 'DEVELOPER', '{"type": "developer_role", "maxCount": 1}');
 
 -- Create function to automatically create UserModerationStatus for new users
 CREATE OR REPLACE FUNCTION create_user_moderation_status()

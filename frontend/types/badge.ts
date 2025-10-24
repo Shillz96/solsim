@@ -10,8 +10,8 @@ export interface Badge {
   description: string;
   icon: string;
   color: string;
-  rarity: 'COMMON' | 'UNCOMMON' | 'RARE' | 'EPIC' | 'LEGENDARY' | 'MYTHIC';
-  category: 'FOUNDER' | 'TRADING' | 'COMMUNITY' | 'SPECIAL' | 'MODERATION';
+  rarity: 'COMMON' | 'UNCOMMON' | 'RARE' | 'EPIC' | 'LEGENDARY' | 'MYTHIC' | 'DEVELOPER';
+  category: 'FOUNDER' | 'TRADING' | 'COMMUNITY' | 'SPECIAL' | 'MODERATION' | 'DEVELOPER';
   isVisible: boolean;
   requirements: any;
   createdAt: Date;

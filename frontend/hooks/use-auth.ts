@@ -15,6 +15,7 @@ interface AuthUser {
   emailVerified?: boolean
   avatarUrl?: string
   rewardPoints?: string | number  // Can be string (Decimal) or number
+  userTier?: string  // User role/tier (ADMINISTRATOR, etc)
 }
 
 interface AuthState {

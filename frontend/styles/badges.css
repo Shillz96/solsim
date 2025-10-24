@@ -35,6 +35,13 @@
   border-color: rgb(250, 204, 21);
 }
 
+.badge-developer {
+  background: linear-gradient(45deg, #8b5cf6, #ec4899, #8b5cf6);
+  background-size: 200% 200%;
+  border-color: rgb(147, 51, 234);
+  animation: developer-gradient 3s ease infinite;
+}
+
 /* Badge Glow Effects */
 .shadow-luigi-glow {
   box-shadow: 0 0 10px rgba(34, 197, 94, 0.5);
@@ -58,6 +65,10 @@
 
 .shadow-mythic-glow {
   box-shadow: 0 0 20px rgba(251, 191, 36, 0.8), 0 0 40px rgba(251, 191, 36, 0.4);
+}
+
+.shadow-developer-glow {
+  box-shadow: 0 0 20px rgba(147, 51, 234, 0.8), 0 0 40px rgba(236, 72, 153, 0.6);
 }
 
 /* Badge Animations */
@@ -85,6 +96,45 @@
   }
   50% {
     transform: translateY(-5px);
+  }
+}
+
+/* Developer Badge Special Animations */
+@keyframes developer-gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes sparkle {
+  0%, 100% {
+    opacity: 0;
+    transform: scale(0) rotate(0deg);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1) rotate(180deg);
+  }
+}
+
+@keyframes developer-sparkle {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(147, 51, 234, 0.8), 0 0 40px rgba(236, 72, 153, 0.6);
+  }
+  25% {
+    box-shadow: 0 0 25px rgba(236, 72, 153, 0.9), 0 0 50px rgba(147, 51, 234, 0.7);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(147, 51, 234, 1), 0 0 60px rgba(236, 72, 153, 0.8);
+  }
+  75% {
+    box-shadow: 0 0 25px rgba(236, 72, 153, 0.9), 0 0 50px rgba(147, 51, 234, 0.7);
   }
 }
 
