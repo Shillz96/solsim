@@ -338,13 +338,20 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
         <div className="mx-auto px-4 max-w-content lg:hidden">
           <div className="flex flex-col gap-2 py-2">
             {/* Top row: Market data */}
-            <div className="flex items-center justify-center gap-2 md:gap-4">
+            <div className="flex items-center justify-start gap-2 md:gap-4">
               {/* Market Lighthouse Hover */}
               <MarketHover
                 trigger={
-                  <div className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg bg-white border-2 border-[var(--outline-black)]/20 hover:border-[var(--outline-black)]/40 transition-colors">
+                  <div className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg bg-transparent hover:bg-white/10 transition-colors">
                     <div className="flex items-center gap-1.5">
-                      <div className="w-1.5 h-1.5 rounded-full bg-[var(--luigi-green)] animate-pulse"></div>
+                      <div className="relative w-5 h-5">
+                        <Image
+                          src="https://cdn.brandfetch.io/idSZf4wCPl/w/400/h/400/theme/dark/icon.jpeg?c=1bxid64Mup7aczewSAYMX&t=1758793327112"
+                          alt="Market Data"
+                          fill
+                          className="object-contain"
+                        />
+                      </div>
                       <span className="text-xs font-semibold text-foreground font-mario uppercase">Market Data</span>
                     </div>
                   </div>
@@ -384,12 +391,12 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
                       </div>
                       <span className={`text-[10px] font-semibold ${getGlowColor(market.symbol)}`}>{market.symbol}</span>
                     </div>
-                    <span className={`text-[10px] font-bold tabular-nums ${getGlowColor(market.symbol)}`}>
+                    <span className={`text-sm font-bold tabular-nums ${getGlowColor(market.symbol)}`}>
                       ${market.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </span>
                     <span
                       className={cn(
-                        "text-[9px] font-medium px-1 py-0.5 rounded tabular-nums",
+                        "text-xs font-medium px-1 py-0.5 rounded tabular-nums",
                         market.change24h > 0
                           ? "text-[#00ff85] drop-shadow-[0_0_4px_rgba(0,255,133,0.6)]"
                           : market.change24h < 0
@@ -399,7 +406,7 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
                       aria-label={`Price change: ${market.change24h > 0 ? 'up' : market.change24h < 0 ? 'down' : 'unchanged'} ${Math.abs(market.change24h).toFixed(2)} percent`}
                     >
                       {market.change24h > 0 ? "+" : ""}
-                      {market.change24h.toFixed(2)}%
+                      {market.change24h.toFixed(2)}
                     </span>
                   </div>
                 );
@@ -486,13 +493,20 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
             </div>
 
             {/* Center: Market Prices + Market Lighthouse */}
-            <div className="flex items-center gap-2 md:gap-4">
+            <div className="flex items-center justify-start gap-2 md:gap-4">
               {/* Market Lighthouse Hover */}
               <MarketHover
                 trigger={
-                  <div className="flex items-center gap-1.5 md:gap-2 px-2 md:px-3 py-1 md:py-1.5 rounded-lg bg-white border-2 border-[var(--outline-black)]/20 hover:border-[var(--outline-black)]/40 transition-colors">
+                  <div className="flex items-center gap-1.5 md:gap-2 px-2 md:px-3 py-1 md:py-1.5 rounded-lg bg-transparent hover:bg-white/10 transition-colors">
                     <div className="flex items-center gap-1 md:gap-1.5">
-                      <div className="w-1.5 h-1.5 rounded-full bg-[var(--luigi-green)] animate-pulse"></div>
+                      <div className="relative w-5 h-5">
+                        <Image
+                          src="https://cdn.brandfetch.io/idSZf4wCPl/w/400/h/400/theme/dark/icon.jpeg?c=1bxid64Mup7aczewSAYMX&t=1758793327112"
+                          alt="Market Data"
+                          fill
+                          className="object-contain"
+                        />
+                      </div>
                       <span className="text-[10px] md:text-xs font-semibold text-foreground font-mario uppercase">Market Data</span>
                     </div>
                   </div>
@@ -532,12 +546,12 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
                       </div>
                       <span className={`text-[10px] font-semibold ${getGlowColor(market.symbol)}`}>{market.symbol}</span>
                     </div>
-                    <span className={`text-[10px] font-bold tabular-nums ${getGlowColor(market.symbol)}`}>
+                    <span className={`text-sm font-bold tabular-nums ${getGlowColor(market.symbol)}`}>
                       ${market.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </span>
                     <span
                       className={cn(
-                        "text-[9px] font-medium px-1 py-0.5 rounded tabular-nums",
+                        "text-xs font-medium px-1 py-0.5 rounded tabular-nums",
                         market.change24h > 0
                           ? "text-[#00ff85] drop-shadow-[0_0_4px_rgba(0,255,133,0.6)]"
                           : market.change24h < 0
@@ -547,7 +561,7 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
                       aria-label={`Price change: ${market.change24h > 0 ? 'up' : market.change24h < 0 ? 'down' : 'unchanged'} ${Math.abs(market.change24h).toFixed(2)} percent`}
                     >
                       {market.change24h > 0 ? "+" : ""}
-                      {market.change24h.toFixed(2)}%
+                      {market.change24h.toFixed(2)}
                     </span>
                   </div>
                 );
