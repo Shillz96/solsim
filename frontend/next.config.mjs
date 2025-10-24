@@ -97,9 +97,6 @@ const nextConfig = {
     ];
   },
 
-  // Set output file tracing root to fix lockfile warning
-  outputFileTracingRoot: process.cwd(),
-
   // Webpack configuration
   webpack: (config, { isServer }) => {
     // Ignore pino-pretty (optional dependency used by WalletConnect)
