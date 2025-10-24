@@ -242,7 +242,7 @@ export default async function (app: FastifyInstance) {
       return { 
         success: true, 
         message: `Cleared ${deletedMessages.count} messages`,
-        count: deletedMessages.count
+        count: deletedMessages.count as number
       };
     } catch (error: any) {
       return reply.code(500).send({

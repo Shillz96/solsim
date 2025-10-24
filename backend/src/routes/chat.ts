@@ -12,6 +12,8 @@ import { z } from 'zod';
 import { authenticateToken, requireAdmin } from '../plugins/auth.js';
 import {
   getRecentMessages,
+  getRoomMetadata,
+  deleteMessage,
 } from '../services/chatService.js';
 import {
   checkModerationStatus,
@@ -90,7 +92,7 @@ export default async function chatRoutes(app: FastifyInstance) {
     async (req, reply) => {
       try {
         const { roomId } = req.params as { roomId: string };
-        const metadata = { roomId, messageCount: 0, activeUsers: 0 };
+        const metadata = await getRoomMetadata(roomId);
 
         return reply.code(200).send({
           success: true,
@@ -351,7 +353,7 @@ export default async function chatRoutes(app: FastifyInstance) {
         const { messageId } = req.params as { messageId: string };
         const moderatorId = (req.user as any).userId;
 
-        const success = true; // Placeholder - implement deleteMessage function
+        const success = await deleteMessage(messageId, moderatorId);
 
         if (success) {
           return reply.code(200).send({

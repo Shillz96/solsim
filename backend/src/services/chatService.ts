@@ -332,3 +332,66 @@ export async function getRoomStats(roomId: string): Promise<{
     };
   }
 }
+
+/**
+ * Get room metadata
+ */
+export async function getRoomMetadata(roomId: string): Promise<{
+  roomId: string;
+  messageCount: number;
+  activeUsers: number;
+  lastActivity: Date | null;
+}> {
+  try {
+    const stats = await getRoomStats(roomId);
+    return {
+      roomId,
+      ...stats
+    };
+  } catch (error) {
+    console.error('Error fetching room metadata:', error);
+    return {
+      roomId,
+      messageCount: 0,
+      activeUsers: 0,
+      lastActivity: null
+    };
+  }
+}
+
+/**
+ * Delete a message (admin only)
+ */
+export async function deleteMessage(messageId: string, moderatorId: string): Promise<boolean> {
+  try {
+    // Check if message exists
+    const message = await prisma.chatMessage.findUnique({
+      where: { id: messageId },
+      select: { id: true, userId: true }
+    });
+
+    if (!message) {
+      return false;
+    }
+
+    // Delete the message
+    await prisma.chatMessage.delete({
+      where: { id: messageId }
+    });
+
+    // Log the moderation action
+    await prisma.chatModerationAction.create({
+      data: {
+        userId: message.userId,
+        moderatorId,
+        action: 'DELETE_MESSAGE',
+        reason: 'Message deleted by moderator'
+      }
+    });
+
+    return true;
+  } catch (error) {
+    console.error('Error deleting message:', error);
+    return false;
+  }
+}

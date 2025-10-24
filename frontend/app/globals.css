@@ -1,5 +1,4 @@
 @import "tailwindcss";
-@import "./theme.css";
 @import "../styles/badges.css";
 @import url('https://fonts.googleapis.com/css2?family=Luckiest+Guy&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap&v=2');
@@ -18,6 +17,18 @@
 :root {
   /* 1UP SOL Design System - Mario Light Mode Only! */
   /* Fun, Colorful Mario Aesthetic */
+
+  /* Mario Theme Colors - Core Brand Colors */
+  --mario-red: #E52521;
+  --luigi-green: #43B047;
+  --star-yellow: #FFD800;
+  --coin-gold: #FFB915;
+  --coin-yellow: #FFD700;
+  --sky-blue: #A6D8FF;
+  --super-blue: #2B4EF9;
+  --pipe-green: #00994C;
+  --brick-brown: #9C5818;
+  --outline-black: #1C1C1C;
 
   /* Base UI Colors - Warm Paper Cream Background */
   --background: #FFFAE9; /* Warm Paper Cream */
