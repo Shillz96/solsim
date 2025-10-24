@@ -69,7 +69,9 @@
       "Bash(git rm:*)",
       "WebFetch(domain:tradingview.github.io)",
       "Bash(npm run type-check:*)",
-      "WebFetch(domain:oneupsol.fun)"
+      "WebFetch(domain:oneupsol.fun)",
+      "Bash(npm ls:*)",
+      "Bash(git log:*)"
     ],
     "deny": [],
     "ask": []

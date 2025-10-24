@@ -172,14 +172,17 @@ function TradeRoomContent() {
           </div>
 
           {/* Right: Stats + Actions */}
-          <div className="hidden sm:flex items-center gap-4">
+          <div className="flex items-center gap-3 sm:gap-4">
+            {/* Always show market cap */}
             <div className="text-right">
-              <div className="text-[10px] text-muted-foreground uppercase">Volume 24h</div>
-              <div className="text-sm font-bold">{formatUSD(volume24h)}</div>
+              <div className="text-[10px] text-muted-foreground uppercase">MCap</div>
+              <div className="text-xs sm:text-sm font-bold">{formatUSD(marketCap)}</div>
             </div>
-            <div className="text-right">
-              <div className="text-[10px] text-muted-foreground uppercase">Market Cap</div>
-              <div className="text-sm font-bold">{formatUSD(marketCap)}</div>
+
+            {/* Volume only on larger screens */}
+            <div className="hidden sm:block text-right">
+              <div className="text-[10px] text-muted-foreground uppercase">Vol 24h</div>
+              <div className="text-sm font-bold">{formatUSD(volume24h)}</div>
             </div>
 
             <Button

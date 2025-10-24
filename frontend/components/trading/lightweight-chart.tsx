@@ -38,13 +38,14 @@ interface LightweightChartProps {
   className?: string
 }
 
-type Timeframe = '1m' | '5m' | '15m' | '1h' | '4h' | '1d'
+type Timeframe = '1s' | '1m' | '5m' | '15m' | '1h' | '4h' | '1d'
 
 /**
  * Convert timeframe to seconds for candle alignment
  */
 function getIntervalSeconds(timeframe: Timeframe): number {
   const intervals: Record<Timeframe, number> = {
+    '1s': 1,
     '1m': 60,
     '5m': 300,
     '15m': 900,
@@ -66,7 +67,7 @@ export function LightweightChart({
   const volumeSeriesRef = useRef<ISeriesApi<'Histogram'> | null>(null)
   const lastCandleRef = useRef<CandlestickData | null>(null) // Track last candle for proper high/low updates
 
-  const [timeframe, setTimeframe] = useState<Timeframe>('5m')
+  const [timeframe, setTimeframe] = useState<Timeframe>('1s')
   const [isLoading, setIsLoading] = useState(true)
   const [dataSource, setDataSource] = useState<'birdeye' | 'mock' | null>(null)
   const [isMobile, setIsMobile] = useState(false)
@@ -105,29 +106,29 @@ export function LightweightChart({
       width: chartContainerRef.current.clientWidth,
       height: chartHeight,
       layout: {
-        background: { type: ColorType.Solid, color: '#FFFAE9' }, // Mario theme cream
-        textColor: '#1C1C1C', // Outline black
+        background: { type: ColorType.Solid, color: '#0A0A0F' }, // Dark background for better contrast
+        textColor: '#D1D4DC', // Light gray text
         fontSize: isMobile ? 10 : 12, // Smaller font on mobile
       },
       grid: {
-        vertLines: { color: '#e5e5e5' },
-        horzLines: { color: '#e5e5e5' },
+        vertLines: { color: 'rgba(42, 46, 57, 0.6)' },
+        horzLines: { color: 'rgba(42, 46, 57, 0.6)' },
       },
       crosshair: {
         mode: 1, // CrosshairMode.Normal
         vertLine: {
           width: isMobile ? 1 : 2,
-          color: '#1C1C1C',
+          color: '#758696',
           style: LineStyle.Dashed,
         },
         horzLine: {
           width: isMobile ? 1 : 2,
-          color: '#1C1C1C',
+          color: '#758696',
           style: LineStyle.Dashed,
         },
       },
       rightPriceScale: {
-        borderColor: '#1C1C1C',
+        borderColor: '#2B2B43',
         scaleMargins: {
           top: 0.1,
           bottom: 0.3, // Make room for volume
@@ -135,7 +136,7 @@ export function LightweightChart({
         minimumWidth: isMobile ? 50 : 60, // Narrower price scale on mobile
       },
       timeScale: {
-        borderColor: '#1C1C1C',
+        borderColor: '#2B2B43',
         timeVisible: true,
         secondsVisible: false,
         fixLeftEdge: true,
@@ -166,19 +167,19 @@ export function LightweightChart({
       },
     })
 
-    // Candlestick series with Mario theme colors (v5 API)
+    // Candlestick series with vibrant colors for dark background
     const candlestickSeries = chart.addSeries(CandlestickSeries, {
-      upColor: '#43B047', // Luigi green
-      downColor: '#E52521', // Mario red
-      borderUpColor: '#1C1C1C',
-      borderDownColor: '#1C1C1C',
-      wickUpColor: '#43B047',
-      wickDownColor: '#E52521',
-      borderVisible: true,
+      upColor: '#26a69a', // Vibrant teal green
+      downColor: '#ef5350', // Vibrant red
+      borderUpColor: '#26a69a',
+      borderDownColor: '#ef5350',
+      wickUpColor: '#26a69a',
+      wickDownColor: '#ef5350',
+      borderVisible: false, // No borders for cleaner look
       lastValueVisible: true,
       priceLineVisible: true,
       priceLineWidth: 2,
-      priceLineColor: '#1C1C1C',
+      priceLineColor: '#4E5057',
       priceLineStyle: LineStyle.Solid,
     })
 
@@ -260,8 +261,8 @@ export function LightweightChart({
             time: item.unixTime as Time,
             value: parseFloat(item.v),
             color: parseFloat(item.c) >= parseFloat(item.o)
-              ? '#43B047' // Green for up candle
-              : '#E52521', // Red for down candle
+              ? 'rgba(38, 166, 154, 0.5)' // Teal green with transparency
+              : 'rgba(239, 83, 80, 0.5)', // Red with transparency
           }))
 
           // Set data
@@ -350,7 +351,7 @@ export function LightweightChart({
     }
   }, [tokenPrice, timeframe])
 
-  const timeframes: Timeframe[] = ['1m', '5m', '15m', '1h', '4h', '1d']
+  const timeframes: Timeframe[] = ['1s', '1m', '5m', '15m', '1h', '4h', '1d']
 
   return (
     <div className={cn('space-y-2', className)}>
@@ -382,7 +383,7 @@ export function LightweightChart({
       {/* Chart Container */}
       <div
         ref={chartContainerRef}
-        className="border-3 md:border-4 border-[var(--outline-black)] rounded-[12px] md:rounded-[16px] shadow-[4px_4px_0_var(--outline-black)] md:shadow-[6px_6px_0_var(--outline-black)] bg-[#FFFAE9] overflow-hidden touch-pan-x touch-pan-y"
+        className="border-3 md:border-4 border-[#2B2B43] rounded-[12px] md:rounded-[16px] shadow-[4px_4px_0_rgba(0,0,0,0.5)] md:shadow-[6px_6px_0_rgba(0,0,0,0.5)] bg-[#0A0A0F] overflow-hidden touch-pan-x touch-pan-y"
         style={{
           minHeight: isMobile ? '350px' : '500px',
           touchAction: 'pan-x pan-y', // Better touch handling

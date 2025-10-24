@@ -41,7 +41,7 @@ export async function GET(request: NextRequest) {
   }
 
   // Validate timeframe
-  const validTimeframes = ['1m', '5m', '15m', '1h', '4h', '1d']
+  const validTimeframes = ['1s', '1m', '5m', '15m', '1h', '4h', '1d']
   if (!validTimeframes.includes(type)) {
     return NextResponse.json(
       {
@@ -81,6 +81,7 @@ export async function GET(request: NextRequest) {
  */
 function getSecondsForTimeframe(type: string, limit: number): number {
   const multipliers: Record<string, number> = {
+    '1s': 1,
     '1m': 60,
     '5m': 300,
     '15m': 900,
