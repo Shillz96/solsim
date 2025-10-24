@@ -494,12 +494,6 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
                     ))}
                   </DropdownMenuContent>
                 </DropdownMenu>
-                {/* Trading Mode as CartridgePill */}
-                <CartridgePill
-                  value={tradeMode === "REAL" ? "Mainnet" : "Paper"}
-                  onClick={() => handleToggleMode(tradeMode === "REAL" ? "PAPER" : "REAL")}
-                  size="sm"
-                />
               </div>
             </div>
           </div>
@@ -652,12 +646,6 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
                   ))}
                 </DropdownMenuContent>
               </DropdownMenu>
-              {/* Trading Mode as CartridgePill */}
-              <CartridgePill
-                value={tradeMode === "REAL" ? "Mainnet" : "Paper"}
-                onClick={() => handleToggleMode(tradeMode === "REAL" ? "PAPER" : "REAL")}
-                size="sm"
-              />
             </div>
           </div>
         </div>
