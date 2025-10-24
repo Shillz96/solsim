@@ -41,26 +41,26 @@ export function AuthGuard({ children, requireAuth = true, fallback }: AuthGuardP
       <>
         {fallback || (
           <div className="min-h-screen flex items-center justify-center p-4">
-            <Card className="max-w-md w-full">
-              <CardHeader className="text-center">
-                <div className="mx-auto mb-4 p-3 bg-primary/10 rounded-full w-fit">
-                  <Lock className="h-8 w-8 text-primary" />
+            <div className="mario-card-standard max-w-md w-full">
+              <div className="mario-header-card text-center mb-6">
+                <div className="mario-icon-container mx-auto mb-4 w-fit">
+                  <Lock className="h-8 w-8 text-white" />
                 </div>
-                <CardTitle className="text-xl">Authentication Required</CardTitle>
-                <CardDescription>
+                <h2 className="mario-title-standard">Authentication Required</h2>
+                <p className="mario-subtitle-standard">
                   Please sign in to access this page and start trading.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
+                </p>
+              </div>
+              <div className="p-6 space-y-4">
                 <Button 
                   onClick={() => setShowAuthModal(true)} 
-                  className="w-full flex items-center gap-2"
+                  className="mario-btn-standard w-full flex items-center gap-2"
                 >
                   <TrendingUp className="h-4 w-4" />
                   Sign In to Trade
                 </Button>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           </div>
         )}
         <AuthModal open={showAuthModal} onOpenChange={setShowAuthModal} />

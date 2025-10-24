@@ -180,32 +180,32 @@ export function Leaderboard({
   // Loading state
   if (isLoading) {
     return (
-      <Card className={cn("", className)}>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Trophy className="h-5 w-5 text-primary" />
+      <div className={cn("mario-card-standard", className)}>
+        <div className="mario-header-card mb-6">
+          <h2 className="mario-title-standard flex items-center gap-2">
+            <Trophy className="h-5 w-5 text-[var(--outline-black)]" />
             Leaderboard
-          </CardTitle>
-          <CardDescription>Top performers by total P&L</CardDescription>
-        </CardHeader>
-        <CardContent>
+          </h2>
+          <p className="mario-subtitle-standard">Top performers by total P&L</p>
+        </div>
+        <div className="p-6">
           <LeaderboardSkeleton rows={limit} />
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     );
   }
 
   // Error state
   if (isError) {
     return (
-      <Card className={cn("", className)}>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Trophy className="h-5 w-5 text-primary" />
+      <div className={cn("mario-card-standard", className)}>
+        <div className="mario-header-card mb-6">
+          <h2 className="mario-title-standard flex items-center gap-2">
+            <Trophy className="h-5 w-5 text-[var(--outline-black)]" />
             Leaderboard
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
+          </h2>
+        </div>
+        <div className="p-6">
           <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
             <AlertDescription className="flex items-center justify-between">
@@ -221,40 +221,40 @@ export function Leaderboard({
               </Button>
             </AlertDescription>
           </Alert>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     );
   }
 
   // Empty state
   if (!leaderboardEntries.length) {
     return (
-      <Card className={cn("", className)}>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Trophy className="h-5 w-5 text-primary" />
+      <div className={cn("mario-card-standard", className)}>
+        <div className="mario-header-card mb-6">
+          <h2 className="mario-title-standard flex items-center gap-2">
+            <Trophy className="h-5 w-5 text-[var(--outline-black)]" />
             Leaderboard
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
+          </h2>
+        </div>
+        <div className="p-6">
           <EmptyLeaderboard />
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     );
   }
 
   return (
-    <Card className={cn("", className)}>
-      <CardHeader>
+    <div className={cn("mario-card-standard", className)}>
+      <div className="mario-header-card mb-6">
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle className="flex items-center gap-2">
-              <Trophy className="h-5 w-5 text-primary" />
+            <h2 className="mario-title-standard flex items-center gap-2">
+              <Trophy className="h-5 w-5 text-[var(--outline-black)]" />
               Leaderboard
-            </CardTitle>
-            <CardDescription>
+            </h2>
+            <p className="mario-subtitle-standard">
               Top {leaderboardEntries.length} traders by total P&L
-            </CardDescription>
+            </p>
           </div>
           
           <Button
@@ -262,13 +262,14 @@ export function Leaderboard({
             size="icon"
             onClick={() => refetch()}
             disabled={isRefetching}
+            className="mario-btn-standard"
           >
             <RefreshCw className={cn("h-4 w-4", isRefetching && "animate-spin")} />
           </Button>
         </div>
-      </CardHeader>
+      </div>
 
-      <CardContent>
+      <div className="p-6">
         {/* Table View */}
         <div className="rounded-lg border">
           <Table>
@@ -375,7 +376,7 @@ export function Leaderboard({
             </TableBody>
           </Table>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }

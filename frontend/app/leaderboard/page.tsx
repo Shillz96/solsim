@@ -116,7 +116,7 @@ export default function LeaderboardPage() {
   const totalVolume = leaderboardData.reduce((sum, entry) => sum + entry.totalTrades, 0)
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[var(--sky-50)] via-white to-[var(--sky-100)]">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
       <main id="leaderboard-table" className="w-full px-4 sm:px-6 lg:px-8 py-2 sm:py-4 max-w-page-xl mx-auto">
         {/* Mario Page Header */}
         <motion.div

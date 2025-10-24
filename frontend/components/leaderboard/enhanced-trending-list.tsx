@@ -30,18 +30,18 @@ export function EnhancedTrendingList() {
 
   if (loading && !trendingTokens) {
     return (
-      <Card className="glass-solid p-4">
+      <div className="mario-card-standard p-4">
         <div className="flex items-center justify-center h-32">
           <Loader2 className="h-4 w-4 animate-spin" />
           <span className="ml-2 text-sm">Loading...</span>
         </div>
-      </Card>
+      </div>
     )
   }
 
   if (error) {
     return (
-      <Card className="glass-solid p-4">
+      <div className="mario-card-standard p-4">
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription className="text-xs">
@@ -51,7 +51,7 @@ export function EnhancedTrendingList() {
             </Button>
           </AlertDescription>
         </Alert>
-      </Card>
+      </div>
     )
   }
 
@@ -74,8 +74,8 @@ export function EnhancedTrendingList() {
           whileHover={{ scale: 1.02, x: 4 }}
           whileTap={{ scale: 0.98 }}
         >
-          <Card
-            className="p-3 cursor-pointer bento-card"
+          <div
+            className="mario-card-standard p-3 cursor-pointer hover:shadow-[8px_8px_0_var(--outline-black)] hover:-translate-y-1 transition-all duration-200"
             onClick={() => handleTokenClick(token.mint)}
           >
           <div className="flex items-start gap-3">
@@ -127,7 +127,7 @@ export function EnhancedTrendingList() {
               </div>
             </div>
           </div>
-        </Card>
+        </div>
         </motion.div>
         ))}
       </div>

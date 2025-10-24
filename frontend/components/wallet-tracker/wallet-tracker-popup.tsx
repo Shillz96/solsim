@@ -400,26 +400,26 @@ export function WalletTrackerPopup({ isOpen, onClose }: WalletTrackerPopupProps)
                         <Loader2 className="h-8 w-8 animate-spin text-primary" />
                       </div>
                     ) : trackedWallets.length === 0 ? (
-                      <Card className="p-8 text-center">
+                      <div className="mario-card-standard p-8 text-center">
                         <div className="flex flex-col items-center gap-3">
-                          <div className="p-4 bg-muted rounded-full">
-                            <Eye className="h-8 w-8 text-muted-foreground" />
+                          <div className="mario-icon-container">
+                            <Eye className="h-8 w-8 text-white" />
                           </div>
-                          <p className="text-muted-foreground">No wallets tracked yet</p>
-                          <Button onClick={() => setActiveTab("add")} size="sm" className="gap-2">
+                          <p className="text-[var(--outline-black)] font-semibold">No wallets tracked yet</p>
+                          <Button onClick={() => setActiveTab("add")} size="sm" className="mario-btn-standard gap-2">
                             <Plus className="h-4 w-4" />
                             Track Your First Wallet
                           </Button>
                         </div>
-                      </Card>
+                      </div>
                     ) : (
                       <div className="space-y-3">
                         {trackedWallets.map((wallet) => (
-                          <Card
+                          <div
                             key={wallet.id}
                             className={cn(
-                              "p-4 hover:border-primary/50 transition-all cursor-pointer",
-                              selectedWallet === wallet.walletAddress && "border-primary bg-primary/5"
+                              "mario-card-standard p-4 hover:shadow-[8px_8px_0_var(--outline-black)] hover:-translate-y-1 transition-all cursor-pointer",
+                              selectedWallet === wallet.walletAddress && "border-[var(--mario-red)] bg-[var(--mario-red)]/10"
                             )}
                             onClick={() => setSelectedWallet(wallet.walletAddress)}
                           >
@@ -478,7 +478,7 @@ export function WalletTrackerPopup({ isOpen, onClose }: WalletTrackerPopupProps)
                                 <Trash2 className="h-4 w-4" />
                               </Button>
                             </div>
-                          </Card>
+                          </div>
                         ))}
                       </div>
                     )}
@@ -503,9 +503,9 @@ export function WalletTrackerPopup({ isOpen, onClose }: WalletTrackerPopupProps)
                         </div>
 
                         {/* Copy Trade Settings */}
-                        <Card className="p-4 bg-muted/30">
+                        <div className="mario-card-standard p-4 bg-[var(--sky-blue)]/20">
                           <div className="space-y-3">
-                            <Label className="text-xs font-semibold">Copy Trade Size</Label>
+                            <Label className="text-xs font-semibold text-[var(--outline-black)]">Copy Trade Size</Label>
                             <div className="flex items-center gap-4">
                               <Slider
                                 value={[copyTradePercentage]}
@@ -520,25 +520,25 @@ export function WalletTrackerPopup({ isOpen, onClose }: WalletTrackerPopupProps)
                                 {copyTradePercentage}%
                               </Badge>
                             </div>
-                            <p className="text-xs text-muted-foreground">
+                            <p className="text-xs text-[var(--outline-black)] opacity-70">
                               Copy trades at {copyTradePercentage}% of original size
                             </p>
                           </div>
-                        </Card>
+                        </div>
 
                         {loadingActivity ? (
                           <div className="flex items-center justify-center py-8">
                             <Loader2 className="h-6 w-6 animate-spin text-primary" />
                           </div>
                         ) : walletActivity.length === 0 ? (
-                          <Card className="p-6 text-center">
-                            <AlertCircle className="h-6 w-6 text-muted-foreground mx-auto mb-2" />
-                            <p className="text-sm text-muted-foreground">No recent activity</p>
-                          </Card>
+                          <div className="mario-card-standard p-6 text-center">
+                            <AlertCircle className="h-6 w-6 text-[var(--outline-black)] mx-auto mb-2" />
+                            <p className="text-sm text-[var(--outline-black)] font-semibold">No recent activity</p>
+                          </div>
                         ) : (
                           <div className="space-y-2">
                             {walletActivity.map((activity) => (
-                              <Card key={activity.signature} className="p-4 sm:p-6">
+                              <div key={activity.signature} className="mario-card-standard p-4 sm:p-6">
                                 <div className="flex items-start justify-between gap-3">
                                   <div className="flex-1 min-w-0">
                                     <div className="flex items-center gap-2 mb-2">
@@ -586,7 +586,7 @@ export function WalletTrackerPopup({ isOpen, onClose }: WalletTrackerPopupProps)
 
                   {/* Add Wallet Tab */}
                   <TabsContent value="add">
-                    <Card className="p-6">
+                    <div className="mario-card-standard p-6">
                       <div className="space-y-4">
                         <div className="space-y-2">
                           <Label htmlFor="wallet-address">Wallet Address *</Label>
@@ -625,7 +625,7 @@ export function WalletTrackerPopup({ isOpen, onClose }: WalletTrackerPopupProps)
                           )}
                         </Button>
                       </div>
-                    </Card>
+                    </div>
                   </TabsContent>
                 </Tabs>
               </div>

@@ -3,7 +3,7 @@
 import Link from "next/link"
 import Image from "next/image"
 import { usePathname } from "next/navigation"
-import { Home, TrendingUp, Wallet, Trophy, Gift, Eye, Zap, Map, BookOpen, AlertTriangle, Rocket, Info, ChevronDown } from "lucide-react"
+import { Home, TrendingUp, Wallet, Trophy, Gift, Eye, Zap, Map, BookOpen, Rocket, Info, ChevronDown } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
@@ -15,23 +15,11 @@ import { useToast } from "@/hooks/use-toast"
 import * as api from "@/lib/api"
 import { Button } from "@/components/ui/button"
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
-import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { DepositModal } from "@/components/modals/deposit-modal"
-import { RealTradingOnboardingModal } from "@/components/modals/real-trading-onboarding-modal"
 import { CartridgePill } from "@/components/ui/cartridge-pill"
 import { useWindowManager, useWindowTemplate } from "@/components/window/WindowManager"
 import { WalletTrackerContent } from "@/components/wallet-tracker/wallet-tracker-content"
@@ -61,12 +49,7 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
   const pathname = usePathname()
   const { prices, subscribe, unsubscribe } = usePriceStreamContext()
   const {
-    tradeMode,
     activeBalance,
-    realSolBalance,
-    isSwitchingMode,
-    switchToRealTrading,
-    switchToPaperTrading,
   } = useTradingMode()
   const { user } = useAuth()
   const { toast } = useToast()
@@ -86,18 +69,8 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
     { symbol: "BTC", price: 50000, change24h: 0, icon: "/icons/btc.png" },
     { symbol: "ETH", price: 3000, change24h: 0, icon: "/icons/eth.png" },
   ])
-  const [showModeConfirm, setShowModeConfirm] = useState<boolean>(false)
-  const [pendingMode, setPendingMode] = useState<'PAPER' | 'REAL' | null>(null)
-  const [showDepositModal, setShowDepositModal] = useState<boolean>(false)
-  const [showOnboardingModal, setShowOnboardingModal] = useState<boolean>(false)
   const [lastPriceFetch, setLastPriceFetch] = useState<number>(0)
   const [priceFetchAttempts, setPriceFetchAttempts] = useState<number>(0)
-  const [dontAskAgain, setDontAskAgain] = useState<boolean>(() => {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem('trading-mode-dont-ask-again') === 'true'
-    }
-    return false
-  })
 
   // Function to open wallet tracker as floating window (compact mode)
   const openWalletTrackerWindow = () => {
@@ -215,60 +188,6 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
     fetchCryptoPrices()
   }, [lastPriceFetch, priceFetchAttempts])
 
-  // Save "don't ask again" preference to localStorage
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('trading-mode-dont-ask-again', dontAskAgain.toString())
-    }
-  }, [dontAskAgain])
-
-  // Handle trading mode toggle
-  const handleToggleMode = (newMode: 'PAPER' | 'REAL') => {
-    if (newMode === tradeMode) return
-
-    if (dontAskAgain) {
-      // Skip confirmation and directly switch mode
-      handleConfirmModeSwitchDirect(newMode)
-    } else {
-      setPendingMode(newMode)
-      setShowModeConfirm(true)
-    }
-  }
-
-  const handleConfirmModeSwitchDirect = async (mode: 'PAPER' | 'REAL') => {
-    try {
-      if (mode === 'REAL') {
-        await switchToRealTrading()
-      } else {
-        await switchToPaperTrading()
-      }
-    } catch (error) {
-      console.error('Error switching trading mode:', error)
-      // Error handling - you might want to add a toast notification here
-    }
-  }
-
-  const handleConfirmModeSwitch = async () => {
-    if (!pendingMode) return
-
-    try {
-      if (pendingMode === 'REAL') {
-        await switchToRealTrading()
-      } else {
-        await switchToPaperTrading()
-      }
-      setShowModeConfirm(false)
-      setPendingMode(null)
-    } catch (error) {
-      console.error('Error switching trading mode:', error)
-      // Error handling - you might want to add a toast notification here
-    }
-  }
-
-  const handleCancelModeSwitch = () => {
-    setShowModeConfirm(false)
-    setPendingMode(null)
-  }
 
   const navItems = [
     { href: "/", icon: Home, label: "Home", iconSrc: "/icons/mario/home.png" },
@@ -329,7 +248,8 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
                       alt={item.label} 
                       width={40} 
                       height={10} 
-                      className="object-contain" 
+                      className="object-cover" 
+                      style={{ width: '40px', height: '10px' }}
                     />
                   </div>
                   <span className={cn(
@@ -343,34 +263,6 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
             )
           })}
           
-          {/* Paper Trading Mode Button - Mobile */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: navItems.length * 0.05 }}
-            className="relative"
-          >
-            <button
-              onClick={() => handleToggleMode(tradeMode === "REAL" ? "PAPER" : "REAL")}
-              className={cn(
-                "relative z-10 flex flex-col items-center justify-center gap-0.5 px-2 py-1 rounded-lg transition-all duration-200",
-                "text-foreground/70 hover:text-foreground hover:bg-muted/50"
-              )}
-            >
-              <div className={cn(
-                "h-3.5 w-3.5 transition-colors flex items-center justify-center",
-                "text-foreground/70"
-              )}>
-                <span className="text-[10px] font-mario">📄</span>
-              </div>
-              <span className={cn(
-                "text-[9px] font-mario truncate max-w-[50px] transition-colors",
-                "text-foreground/70"
-              )}>
-                {tradeMode === "REAL" ? "Paper" : "Mainnet"}
-              </span>
-            </button>
-          </motion.div>
         </div>
       </nav>
 
@@ -494,13 +386,6 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
 
               {/* Right: Controls */}
               <div className="flex items-center gap-4">
-                {/* Launch Token - Red CartridgePill */}
-                <CartridgePill
-                  value="Launch Token"
-                  href="/launch"
-                  size="sm"
-                  bgColor="var(--mario-red)"
-                />
                 {/* Wallet Tracker - Blue CartridgePill */}
                 <CartridgePill
                   value="Wallet Tracker"
@@ -646,16 +531,8 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
               </div>
             </div>
 
-            {/* Right: Launch Token, Wallet Tracker, Leaderboard, More Info & Trading Mode */}
+            {/* Right: Wallet Tracker, Leaderboard, More Info */}
             <div className="flex items-center gap-2 md:gap-4">
-              {/* Launch Token - Red CartridgePill */}
-              <CartridgePill
-                value="Launch Token"
-                href="/launch"
-                size="sm"
-                bgColor="var(--mario-red)"
-                className="hidden lg:inline-grid"
-              />
               {/* Wallet Tracker - Blue CartridgePill */}
               <CartridgePill
                 value="Wallet Tracker"
@@ -706,110 +583,11 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
                   ))}
                 </DropdownMenuContent>
               </DropdownMenu>
-              {/* Trading Mode as CartridgePill - Desktop */}
-              <CartridgePill
-                value={tradeMode === "REAL" ? "Mainnet" : "Paper"}
-                onClick={() => handleToggleMode(tradeMode === "REAL" ? "PAPER" : "REAL")}
-                size="sm"
-                className="hidden lg:inline-grid"
-              />
             </div>
           </div>
         </div>
       </div>
 
-      {/* Trading Mode Confirmation Dialog */}
-      <AlertDialog open={showModeConfirm} onOpenChange={setShowModeConfirm}>
-        <AlertDialogContent className="bg-white border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] rounded-xl">
-          <AlertDialogHeader>
-            <AlertDialogTitle className="font-mario text-base text-[var(--outline-black)] flex items-center gap-2 pb-3 border-b-3 border-[var(--color-border)]">
-              {pendingMode === 'REAL' && <AlertTriangle className="w-5 h-5 text-[var(--mario-red)]" />}
-              Switch to {pendingMode === 'REAL' ? 'Mainnet' : 'Paper'} Trading?
-            </AlertDialogTitle>
-            <AlertDialogDescription className="pt-4 text-[var(--outline-black)] text-sm leading-relaxed">
-              {pendingMode === 'REAL' ? (
-                <div className="space-y-3">
-                  <div className="flex items-start gap-2 p-3 bg-white border-3 border-[var(--mario-red)] rounded-lg shadow-[2px_2px_0_rgba(0,0,0,0.1)]">
-                    <AlertTriangle className="w-5 h-5 text-[var(--mario-red)] mt-0.5 flex-shrink-0" />
-                    <div>
-                      <strong className="text-[var(--mario-red)] font-bold block mb-1">Warning: Real Money Trading</strong>
-                      <p className="text-[var(--outline-black)] text-xs">
-                        You are about to switch to MAINNET trading mode. All trades will use real SOL and execute on Solana mainnet.
-                        This cannot be simulated or undone.
-                      </p>
-                    </div>
-                  </div>
-                  <p className="text-xs text-[var(--outline-black)] opacity-80">
-                    Make sure you understand the risks before proceeding.
-                  </p>
-                </div>
-              ) : (
-                <div className="p-3 bg-white border-3 border-[var(--luigi-green)] rounded-lg shadow-[2px_2px_0_rgba(0,0,0,0.1)]">
-                  <p className="text-[var(--outline-black)] text-xs">
-                    You are about to switch to PAPER trading mode. All trades will be simulated using virtual SOL.
-                    Your real trading positions will remain separate and unchanged.
-                  </p>
-                </div>
-              )}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <div className="flex items-center space-x-2 px-6 pb-4">
-            <input
-              type="checkbox"
-              id="dont-ask-again"
-              checked={dontAskAgain}
-              onChange={(e) => setDontAskAgain(e.target.checked)}
-              className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
-            />
-            <label
-              htmlFor="dont-ask-again"
-              className="text-sm text-[var(--outline-black)] cursor-pointer"
-            >
-              Don't ask again for future mode switches
-            </label>
-          </div>
-          <AlertDialogFooter className="gap-3">
-            <AlertDialogCancel
-              onClick={handleCancelModeSwitch}
-              className="font-mario font-bold bg-white text-[var(--outline-black)] border-4 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-[1px] transition-all"
-            >
-              Cancel
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleConfirmModeSwitch}
-              className={cn(
-                "font-mario font-bold border-4 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-[1px] transition-all text-white",
-                pendingMode === 'REAL'
-                  ? "bg-[var(--mario-red)] hover:bg-[var(--mario-red)]"
-                  : "bg-[var(--luigi-green)] hover:bg-[var(--luigi-green)]"
-              )}
-            >
-              {isSwitchingMode ? 'Switching...' : `Switch to ${pendingMode === 'REAL' ? 'Mainnet' : 'Paper'}`}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
-      {/* Real Trading Onboarding Modal */}
-      <RealTradingOnboardingModal
-        open={showOnboardingModal}
-        onOpenChange={setShowOnboardingModal}
-        userHasBalance={realSolBalance > 0}
-        onDepositChoice={() => {
-          setShowDepositModal(true)
-          setShowOnboardingModal(false)
-        }}
-        onWalletChoice={() => {
-          walletModal.setVisible(true)
-          setShowOnboardingModal(false)
-        }}
-      />
-
-      {/* Deposit Modal */}
-      <DepositModal
-        open={showDepositModal}
-        onOpenChange={setShowDepositModal}
-      />
     </>
   )
 }

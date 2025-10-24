@@ -61,7 +61,7 @@ export function ModernLeaderboard({
   // Empty state
   if (!externalData || externalData.length === 0) {
     return (
-      <div className="bg-white border-4 border-[var(--outline-black)] rounded-[16px] shadow-[6px_6px_0_var(--outline-black)]">
+      <div className="mario-card-standard">
         <div className="text-center py-12">
           <Trophy className="h-12 w-12 mx-auto mb-4 text-[var(--star-yellow-500)]" />
           <p className="text-[var(--outline-black)] font-semibold">No leaderboard data available</p>

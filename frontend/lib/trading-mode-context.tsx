@@ -6,8 +6,8 @@ import { Connection, PublicKey, LAMPORTS_PER_SOL } from '@solana/web3.js';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { ModeSwitchDialog } from '@/components/navigation/mode-switch-dialog';
 
-export type TradeMode = 'PAPER' | 'REAL';
-export type FundingSource = 'DEPOSITED' | 'WALLET';
+export type TradeMode = 'PAPER';
+export type FundingSource = 'DEPOSITED';
 
 interface TradingModeContextType {
   // Current trading mode
@@ -186,32 +186,6 @@ export function TradingModeProvider({ children }: { children: React.ReactNode })
     }
   }, [fundingSource, isLoading]);
 
-  // Switch to real trading
-  const switchToRealTrading = useCallback(async () => {
-    if (!user?.id || tradeMode === 'REAL') return;
-
-    setIsSwitchingMode(true);
-    try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
-      const response = await fetch(`${apiUrl}/api/user-profile/${user.id}/trading-mode`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ tradingMode: 'REAL' }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to switch to real trading');
-      }
-
-      setTradeModeState('REAL');
-      await refreshBalances();
-    } catch (error) {
-      console.error('Error switching to real trading:', error);
-      throw error;
-    } finally {
-      setIsSwitchingMode(false);
-    }
-  }, [user?.id, tradeMode, refreshBalances]);
 
   // Switch to paper trading
   const switchToPaperTrading = useCallback(async () => {
@@ -241,12 +215,9 @@ export function TradingModeProvider({ children }: { children: React.ReactNode })
   }, [user?.id, tradeMode, refreshBalances]);
 
   const setTradeMode = useCallback((mode: TradeMode) => {
-    if (mode === 'REAL') {
-      switchToRealTrading();
-    } else {
-      switchToPaperTrading();
-    }
-  }, [switchToRealTrading, switchToPaperTrading]);
+    // Only paper trading is supported
+    switchToPaperTrading();
+  }, [switchToPaperTrading]);
 
   // Mode switch dialog handlers
   const handleToggleMode = useCallback((newMode: TradeMode) => {
@@ -261,11 +232,8 @@ export function TradingModeProvider({ children }: { children: React.ReactNode })
     setSwitchError(null); // Clear any previous error
 
     try {
-      if (pendingMode === 'REAL') {
-        await switchToRealTrading();
-      } else {
-        await switchToPaperTrading();
-      }
+      // Only paper trading is supported
+      await switchToPaperTrading();
       setShowModeConfirm(false);
       setPendingMode(null);
     } catch (error) {
@@ -274,7 +242,7 @@ export function TradingModeProvider({ children }: { children: React.ReactNode })
       setSwitchError(errorMessage);
       // Keep dialog open to show error
     }
-  }, [pendingMode, switchToRealTrading, switchToPaperTrading]);
+  }, [pendingMode, switchToPaperTrading]);
 
   const handleCancelModeSwitch = useCallback(() => {
     setShowModeConfirm(false);

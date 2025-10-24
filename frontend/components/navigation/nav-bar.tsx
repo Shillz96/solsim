@@ -139,12 +139,6 @@ export function NavBar() {
   const solPrice = livePrices.get('So11111111111111111111111111111111111111112')?.price || 0
   const { startOnboarding } = useOnboardingContext()
   
-  // Trading mode
-  const {
-    tradeMode,
-    switchToRealTrading,
-    switchToPaperTrading,
-  } = useTradingMode()
 
   // Notifications data
   const {
@@ -274,17 +268,6 @@ export function NavBar() {
     setMobileMenuOpen(false)
   }, [logout])
 
-  const handleToggleMode = useCallback(async () => {
-    try {
-      if (tradeMode === 'REAL') {
-        await switchToPaperTrading()
-      } else {
-        await switchToRealTrading()
-      }
-    } catch (error) {
-      console.error('Error switching trading mode:', error)
-    }
-  }, [tradeMode, switchToRealTrading, switchToPaperTrading])
 
   return (
     <motion.header
@@ -351,7 +334,8 @@ export function NavBar() {
                       alt={item.name} 
                       width={80} 
                       height={20} 
-                      className="object-contain hover:scale-105 transition-transform duration-200" 
+                      className="object-cover hover:scale-105 transition-transform duration-200" 
+                      style={{ width: '80px', height: '20px' }}
                     />
                   </Button>
                 </Link>
@@ -525,17 +509,6 @@ export function NavBar() {
                     </div>
                   )}
                   
-                  {/* Trade Mode Toggle - Mobile */}
-                  {isAuthenticated && (
-                    <div className="px-3">
-                      <CartridgePill
-                        value={tradeMode === "REAL" ? "Mainnet" : "Paper"}
-                        onClick={handleToggleMode}
-                        size="sm"
-                        className="w-full"
-                      />
-                    </div>
-                  )}
 
                   {/* Notifications Section */}
                   {isAuthenticated && (
@@ -644,7 +617,8 @@ export function NavBar() {
                                 alt={item.name} 
                                 width={80} 
                                 height={20} 
-                                className="object-contain" 
+                                className="object-cover" 
+                                style={{ width: '80px', height: '20px' }}
                               />
                               <div>
                                 <div className="text-xs text-muted-foreground">{item.description}</div>
