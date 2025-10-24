@@ -272,10 +272,10 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
 
   const navItems = [
     { href: "/", icon: Home, label: "Home", iconSrc: "/icons/mario/home.png" },
-    { href: "/trade", icon: TrendingUp, label: "Trade", iconSrc: "/icons/mario/trade.png" },
+    { href: "/warp-pipes", icon: TrendingUp, label: "Trade", iconSrc: "/icons/mario/trade.png" },
     { href: "/pipe-network", icon: Map, label: "Network", iconSrc: "/icons/mario/chat.png" },
     { href: "/portfolio", icon: Wallet, label: "Portfolio", iconSrc: "/icons/mario/wallet.png" },
-    { href: "/leaderboard", icon: Trophy, label: "Ranks", iconSrc: "/icons/mario/trophy.png" },
+    { href: "/trending", icon: TrendingUp, label: "Trending", iconSrc: "/icons/mario/trending.png" },
   ]
 
   return (
@@ -320,10 +320,10 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
                     <Image 
                       src={
                         item.href === "/" ? "/Home-10-24-2025.png" :
-                        item.href === "/trade" ? "/Trade-10-24-2025.png" :
+                        item.href === "/warp-pipes" ? "/Trade-10-24-2025.png" :
                         item.href === "/pipe-network" ? "/Pipe-Network-10-24-2025.png" :
                         item.href === "/portfolio" ? "/Portfolio-10-24-2025.png" :
-                        item.href === "/leaderboard" ? "/Leaderboard-10-24-2025.png" :
+                        item.href === "/trending" ? "/Trending-10-24-2025.png" :
                         item.iconSrc
                       }
                       alt={item.label} 
