@@ -66,28 +66,28 @@ const navigationItems = [
     name: "Dashboard",
     href: "/",
     icon: Home,
-    iconSrc: "/icons/mario/home.png",
+    iconSrc: "/Home-10-24-2025.png",
     description: "Overview of your trading activity"
   },
   {
     name: "Trade",
     href: "/warp-pipes",
     icon: TrendingUp,
-    iconSrc: "/icons/mario/trade.png",
+    iconSrc: "/Trade-10-24-2025.png",
     description: "Buy and sell tokens"
   },
   {
     name: "Portfolio",
     href: "/portfolio",
     icon: Wallet,
-    iconSrc: "/icons/mario/wallet.png",
+    iconSrc: "/Portfolio-10-24-2025.png",
     description: "Track your positions and P&L"
   },
   {
     name: "Trending",
     href: "/trending",
     icon: TrendingUp,
-    iconSrc: "/icons/mario/trending.png",
+    iconSrc: "/Trending-10-24-2025.png",
     description: "Discover popular tokens"
   }
   // Removed Docs - now in More Info dropdown
@@ -301,7 +301,7 @@ export function NavBar() {
             </Link>
 
             {/* Desktop Navigation */}
-            <nav className="hidden lg:flex items-center gap-1.5">
+            <nav className="hidden lg:flex items-center gap-2 ml-4">
               {navigationItems.slice(0, 6).map((item) => {
                 const isActive = pathname === item.href
 
@@ -311,12 +311,17 @@ export function NavBar() {
                       variant={isActive ? "secondary" : "ghost"}
                       size="sm"
                       className={cn(
-                        "flex items-center gap-1.5 px-3 py-2 transition-all duration-200 font-mario text-xs h-9",
+                        "flex items-center justify-center px-2 py-2 transition-all duration-200 font-mario text-xs h-10 w-auto",
                         isActive && "bg-primary/10 text-primary"
                       )}
                     >
-                      <Image src={item.iconSrc} alt={item.name} width={16} height={16} className="object-contain" />
-                      <span className="hidden lg:inline">{item.name}</span>
+                      <Image 
+                        src={item.iconSrc} 
+                        alt={item.name} 
+                        width={80} 
+                        height={32} 
+                        className="object-contain hover:scale-105 transition-transform duration-200" 
+                      />
                     </Button>
                   </Link>
                 )
@@ -628,7 +633,7 @@ export function NavBar() {
                               "flex items-center gap-3 px-3 py-3 rounded-lg transition-colors",
                               isActive ? "bg-primary/10 text-primary" : "hover:bg-muted"
                             )}>
-                              <Image src={item.iconSrc} alt={item.name} width={20} height={20} className="object-contain" />
+                              <Image src={item.iconSrc} alt={item.name} width={60} height={24} className="object-contain" />
                               <div>
                                 <div className="font-medium">{item.name}</div>
                                 <div className="text-xs text-muted-foreground">{item.description}</div>
