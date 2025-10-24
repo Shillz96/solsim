@@ -168,7 +168,14 @@ function usePriceStream(options: {
     if (!options.enabled || 
         connectionState === ConnectionState.Connecting || 
         connectionState === ConnectionState.Connected || 
-        isManuallyClosedRef.current) {
+        isManuallyClosedRef.current ||
+        (wsRef.current && wsRef.current.readyState !== WebSocket.CLOSED)) {
+      console.log('🚫 Connection prevented:', {
+        enabled: options.enabled,
+        state: connectionState,
+        manuallyClosed: isManuallyClosedRef.current,
+        wsReadyState: wsRef.current?.readyState
+      })
       return
     }
     
@@ -204,8 +211,12 @@ function usePriceStream(options: {
       let ws: WebSocket
 
       try {
-        // Create WebSocket - append /ws/prices path to base WS URL
-        const wsUrl = `${env.NEXT_PUBLIC_WS_URL}/ws/prices`
+        // Create WebSocket - check if URL already includes the path
+        let wsUrl = env.NEXT_PUBLIC_WS_URL
+        // Only append /ws/prices if not already in the URL
+        if (!wsUrl.includes('/ws/prices') && !wsUrl.includes('/prices')) {
+          wsUrl = `${wsUrl}/ws/prices`
+        }
         ws = new WebSocket(wsUrl)
         wsRef.current = ws
 
@@ -454,36 +465,27 @@ function usePriceStream(options: {
   
   // Enhanced effect with better mounting/unmounting handling
   useEffect(() => {
-    if (options.enabled && !isManuallyClosedRef.current) {
-      console.log('🚀 Price stream enabled, initiating connection')
-      
-      // Delay to prevent rapid mounting/unmounting in React Strict Mode
-      const timer = setTimeout(() => {
-        if (!isManuallyClosedRef.current && options.enabled) {
-          connect()
-        }
-      }, 200)
-      
-      return () => {
-        clearTimeout(timer)
-        cleanup()
-      }
-    } else {
+    if (!options.enabled || isManuallyClosedRef.current) {
       console.log('⏹️ Price stream disabled or manually closed')
+      return
     }
+
+    console.log('🚀 Price stream enabled, initiating connection')
+    
+    // Delay to prevent rapid mounting/unmounting in React Strict Mode
+    const timer = setTimeout(() => {
+      if (!isManuallyClosedRef.current && options.enabled) {
+        connect()
+      }
+    }, 200)
     
     return () => {
+      clearTimeout(timer)
       cleanup()
     }
-  }, [options.enabled, connect, cleanup])
-  
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      console.log('🧹 Price stream provider unmounting')
-      cleanup()
-    }
-  }, [cleanup])
+    // Only re-run when enabled state changes, not when functions change
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [options.enabled])
   
   return {
     connected,

@@ -6,20 +6,21 @@ import { z } from "zod";
  * Prevents undefined env vars from causing runtime errors
  * 
  * CRITICAL: NEXT_PUBLIC_WS_URL must be wss:// and point directly
- * to your WebSocket endpoint, NOT through Vercel edge proxy
+ * to your WebSocket endpoint (e.g., wss://domain.com/prices)
+ * The path must match the backend WebSocket server path
  */
 const Env = z.object({
   // Required WebSocket URL - MUST be direct connection, not proxied
   NEXT_PUBLIC_WS_URL: z
     .string()
     .url()
-    .refine(url => url.startsWith('wss://'), {
-      message: "WebSocket URL must use wss:// for security"
+    .refine(url => url.startsWith('wss://') || url.startsWith('ws://'), {
+      message: "WebSocket URL must use wss:// (or ws:// for development)"
     })
     .refine(url => !url.includes('vercel.app') || url.includes('ws.'), {
       message: "Avoid routing WebSocket through Vercel edge proxy - use direct ws.domain.com"
     })
-    .describe("Direct WebSocket URL (e.g., wss://ws.virtualsol.com/prices)"),
+    .describe("Direct WebSocket URL including path (e.g., wss://ws.virtualsol.com/prices)"),
   
   // Required API URL for backend communication
   NEXT_PUBLIC_API_URL: z.string().url().describe("Backend API URL"),
