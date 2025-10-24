@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
+import Image from "next/image"
 import {
   X,
   Plus,
@@ -38,8 +39,21 @@ import { cn } from "@/lib/utils"
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
 
-// Mario-themed wallet icons
-const MARIO_ICONS = ['🟠', '🟢', '🔵', '🟡', '🟣', '🔴', '🟤', '⚫', '⭐', '🍄', '🪙', '👑'] as const;
+// Mario-themed wallet icons from public folder
+const MARIO_ICONS = [
+  { id: 'star', path: '/icons/mario/star.png', name: 'Star' },
+  { id: 'mushroom', path: '/icons/mario/mushroom.png', name: 'Mushroom' },
+  { id: 'fire', path: '/icons/mario/fire.png', name: 'Fire' },
+  { id: 'lightning', path: '/icons/mario/lightning.png', name: 'Lightning' },
+  { id: 'trophy', path: '/icons/mario/trophy.png', name: 'Trophy' },
+  { id: '1st', path: '/icons/mario/1st.png', name: '1st Place' },
+  { id: '2nd', path: '/icons/mario/2nd-place.png', name: '2nd Place' },
+  { id: '3rd', path: '/icons/mario/3rd.png', name: '3rd Place' },
+  { id: 'coin', path: '/icons/mario/money-bag.png', name: 'Coin' },
+  { id: 'controller', path: '/icons/mario/controller.png', name: 'Controller' },
+  { id: 'flag', path: '/icons/mario/checkered-flag.png', name: 'Flag' },
+  { id: 'eyes', path: '/icons/mario/eyes.png', name: 'Eyes' },
+] as const;
 
 interface TrackedWallet {
   id: string
@@ -119,7 +133,7 @@ export function WalletManager({
     setIsAddingWallet(true)
     try {
       const fullLabel = newWalletIcon
-        ? `${newWalletIcon} ${newWalletLabel.trim()}`
+        ? `[${newWalletIcon}]${newWalletLabel.trim()}`
         : newWalletLabel.trim()
 
       const response = await fetch(`${API_URL}/api/wallet-tracker/track`, {
@@ -212,12 +226,12 @@ export function WalletManager({
   // Start editing wallet
   const handleStartEdit = (wallet: TrackedWallet) => {
     setEditingWallet(wallet.id)
-    // Parse icon and label from current label (format: "icon label" or just "label")
+    // Parse icon ID and label from current label (format: "[iconId]label" or just "label")
     const currentLabel = wallet.label || ""
-    const firstChar = currentLabel.charAt(0)
-    if (MARIO_ICONS.includes(firstChar as any)) {
-      setEditIcon(firstChar)
-      setEditLabel(currentLabel.slice(1).trim())
+    const iconMatch = currentLabel.match(/^\[([^\]]+)\]/)
+    if (iconMatch) {
+      setEditIcon(iconMatch[1])
+      setEditLabel(currentLabel.slice(iconMatch[0].length).trim())
     } else {
       setEditIcon("")
       setEditLabel(currentLabel)
@@ -236,7 +250,7 @@ export function WalletManager({
   const handleUpdateLabel = async (trackingId: string) => {
     setUpdatingWallet(true)
     try {
-      const newLabel = editIcon ? `${editIcon} ${editLabel.trim()}` : editLabel.trim()
+      const newLabel = editIcon ? `[${editIcon}]${editLabel.trim()}` : editLabel.trim()
 
       const response = await fetch(`${API_URL}/api/wallet-tracker/${trackingId}`, {
         method: 'PATCH',
@@ -373,6 +387,23 @@ export function WalletManager({
     })
   }
 
+  // Get icon by ID
+  const getIconById = (iconId: string) => {
+    return MARIO_ICONS.find(icon => icon.id === iconId)
+  }
+
+  // Parse wallet label to extract icon and text
+  const parseLabel = (label: string) => {
+    const iconMatch = label.match(/^\[([^\]]+)\]/)
+    if (iconMatch) {
+      return {
+        iconId: iconMatch[1],
+        text: label.slice(iconMatch[0].length).trim()
+      }
+    }
+    return { iconId: null, text: label }
+  }
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl max-h-[80vh] overflow-hidden flex flex-col bg-white border-4 border-[var(--outline-black)] shadow-[8px_8px_0_var(--outline-black)]">
@@ -389,27 +420,27 @@ export function WalletManager({
         </DialogHeader>
 
         <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)} className="flex-1 overflow-hidden flex flex-col">
-          <TabsList className="grid w-full grid-cols-3 bg-white border-3 border-[var(--outline-black)] p-1 gap-1 flex-shrink-0">
+          <TabsList className="grid w-full grid-cols-3 bg-white border-3 border-[var(--outline-black)] p-1.5 gap-2 flex-shrink-0 h-auto">
             <TabsTrigger
               value="tracked"
-              className="gap-2 font-mario text-xs data-[state=active]:bg-[var(--star-yellow)] data-[state=active]:text-[var(--outline-black)] data-[state=active]:border-2 data-[state=active]:border-[var(--outline-black)] data-[state=active]:shadow-[2px_2px_0_var(--outline-black)]"
+              className="flex items-center justify-center gap-1.5 font-mario text-[11px] py-2 px-2 whitespace-nowrap data-[state=active]:bg-[var(--star-yellow)] data-[state=active]:text-[var(--outline-black)] data-[state=active]:border-2 data-[state=active]:border-[var(--outline-black)] data-[state=active]:shadow-[2px_2px_0_var(--outline-black)] rounded-md"
             >
-              <Eye className="h-4 w-4" />
-              Tracked ({trackedWallets.length})
+              <Eye className="h-3.5 w-3.5 flex-shrink-0" />
+              <span>Tracked ({trackedWallets.length})</span>
             </TabsTrigger>
             <TabsTrigger
               value="add"
-              className="gap-2 font-mario text-xs data-[state=active]:bg-[var(--star-yellow)] data-[state=active]:text-[var(--outline-black)] data-[state=active]:border-2 data-[state=active]:border-[var(--outline-black)] data-[state=active]:shadow-[2px_2px_0_var(--outline-black)]"
+              className="flex items-center justify-center gap-1.5 font-mario text-[11px] py-2 px-2 whitespace-nowrap data-[state=active]:bg-[var(--star-yellow)] data-[state=active]:text-[var(--outline-black)] data-[state=active]:border-2 data-[state=active]:border-[var(--outline-black)] data-[state=active]:shadow-[2px_2px_0_var(--outline-black)] rounded-md"
             >
-              <UserPlus className="h-4 w-4" />
-              Add One
+              <UserPlus className="h-3.5 w-3.5 flex-shrink-0" />
+              <span>Add One</span>
             </TabsTrigger>
             <TabsTrigger
               value="import"
-              className="gap-2 font-mario text-xs data-[state=active]:bg-[var(--star-yellow)] data-[state=active]:text-[var(--outline-black)] data-[state=active]:border-2 data-[state=active]:border-[var(--outline-black)] data-[state=active]:shadow-[2px_2px_0_var(--outline-black)]"
+              className="flex items-center justify-center gap-1.5 font-mario text-[11px] py-2 px-2 whitespace-nowrap data-[state=active]:bg-[var(--star-yellow)] data-[state=active]:text-[var(--outline-black)] data-[state=active]:border-2 data-[state=active]:border-[var(--outline-black)] data-[state=active]:shadow-[2px_2px_0_var(--outline-black)] rounded-md"
             >
-              <Sparkles className="h-4 w-4" />
-              Bulk Import
+              <Sparkles className="h-3.5 w-3.5 flex-shrink-0" />
+              <span>Import</span>
             </TabsTrigger>
           </TabsList>
 
@@ -461,27 +492,44 @@ export function WalletManager({
                             <div className="relative">
                               <button
                                 onClick={() => setShowIconPicker(!showIconPicker)}
-                                className="h-10 w-10 rounded-lg border-3 border-[var(--outline-black)] bg-[var(--star-yellow)] hover:bg-[var(--star-yellow)]/80 shadow-[2px_2px_0_var(--outline-black)] flex items-center justify-center text-xl transition-all"
+                                className="h-10 w-10 rounded-lg border-3 border-[var(--outline-black)] bg-[var(--star-yellow)] hover:bg-[var(--star-yellow)]/80 shadow-[2px_2px_0_var(--outline-black)] flex items-center justify-center transition-all p-1.5"
                               >
-                                {editIcon || "➕"}
+                                {editIcon && getIconById(editIcon) ? (
+                                  <Image
+                                    src={getIconById(editIcon)!.path}
+                                    alt={getIconById(editIcon)!.name}
+                                    width={24}
+                                    height={24}
+                                    className="object-contain"
+                                  />
+                                ) : (
+                                  <Plus className="h-5 w-5" />
+                                )}
                               </button>
 
                               {/* Icon Picker Dropdown */}
                               {showIconPicker && (
-                                <div className="absolute top-12 left-0 z-50 bg-white rounded-lg border-3 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)] p-2 grid grid-cols-4 gap-1 min-w-[160px]">
+                                <div className="absolute top-12 left-0 z-50 bg-white rounded-lg border-3 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)] p-2 grid grid-cols-4 gap-1.5 min-w-[180px]">
                                   {MARIO_ICONS.map((icon) => (
                                     <button
-                                      key={icon}
+                                      key={icon.id}
                                       onClick={() => {
-                                        setEditIcon(icon)
+                                        setEditIcon(icon.id)
                                         setShowIconPicker(false)
                                       }}
                                       className={cn(
-                                        "h-8 w-8 rounded border-2 flex items-center justify-center text-lg hover:bg-gray-100 transition-colors",
-                                        editIcon === icon ? "border-[var(--mario-red)] bg-[var(--mario-red)]/10" : "border-gray-300"
+                                        "h-10 w-10 rounded border-2 flex items-center justify-center hover:bg-gray-100 transition-colors p-1.5",
+                                        editIcon === icon.id ? "border-[var(--mario-red)] bg-[var(--mario-red)]/10" : "border-gray-300"
                                       )}
+                                      title={icon.name}
                                     >
-                                      {icon}
+                                      <Image
+                                        src={icon.path}
+                                        alt={icon.name}
+                                        width={24}
+                                        height={24}
+                                        className="object-contain"
+                                      />
                                     </button>
                                   ))}
                                   {editIcon && (
@@ -490,7 +538,7 @@ export function WalletManager({
                                         setEditIcon("")
                                         setShowIconPicker(false)
                                       }}
-                                      className="h-8 w-8 rounded border-2 border-gray-300 flex items-center justify-center text-xs hover:bg-gray-100 transition-colors col-span-4"
+                                      className="h-10 rounded border-2 border-gray-300 flex items-center justify-center text-[9px] hover:bg-gray-100 transition-colors col-span-4 font-mario"
                                     >
                                       Remove Icon
                                     </button>
@@ -537,11 +585,24 @@ export function WalletManager({
                         <div className="flex items-start justify-between gap-3">
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 mb-1 flex-wrap">
-                              {wallet.label && (
-                                <Badge variant="secondary" className="text-xs font-mario border-2 border-[var(--outline-black)] bg-[var(--star-yellow)] text-[var(--outline-black)]">
-                                  {wallet.label}
-                                </Badge>
-                              )}
+                              {wallet.label && (() => {
+                                const { iconId, text } = parseLabel(wallet.label)
+                                const icon = iconId ? getIconById(iconId) : null
+                                return (
+                                  <Badge variant="secondary" className="flex items-center gap-1.5 text-xs font-mario border-2 border-[var(--outline-black)] bg-[var(--star-yellow)] text-[var(--outline-black)]">
+                                    {icon && (
+                                      <Image
+                                        src={icon.path}
+                                        alt={icon.name}
+                                        width={14}
+                                        height={14}
+                                        className="object-contain"
+                                      />
+                                    )}
+                                    <span>{text || wallet.label}</span>
+                                  </Badge>
+                                )
+                              })()}
                               <Badge
                                 variant={wallet.isActive ? "default" : "outline"}
                                 className={cn(
@@ -636,28 +697,45 @@ export function WalletManager({
                       <button
                         type="button"
                         onClick={() => setShowNewWalletIconPicker(!showNewWalletIconPicker)}
-                        className="h-10 w-10 rounded-lg border-3 border-[var(--outline-black)] bg-[var(--star-yellow)] hover:bg-[var(--star-yellow)]/80 shadow-[2px_2px_0_var(--outline-black)] flex items-center justify-center text-xl transition-all flex-shrink-0"
+                        className="h-10 w-10 rounded-lg border-3 border-[var(--outline-black)] bg-[var(--star-yellow)] hover:bg-[var(--star-yellow)]/80 shadow-[2px_2px_0_var(--outline-black)] flex items-center justify-center transition-all flex-shrink-0 p-1.5"
                       >
-                        {newWalletIcon || "➕"}
+                        {newWalletIcon && getIconById(newWalletIcon) ? (
+                          <Image
+                            src={getIconById(newWalletIcon)!.path}
+                            alt={getIconById(newWalletIcon)!.name}
+                            width={24}
+                            height={24}
+                            className="object-contain"
+                          />
+                        ) : (
+                          <Plus className="h-5 w-5" />
+                        )}
                       </button>
 
                       {/* Icon Picker Dropdown */}
                       {showNewWalletIconPicker && (
-                        <div className="absolute top-12 left-0 z-50 bg-white rounded-lg border-3 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)] p-2 grid grid-cols-4 gap-1 min-w-[160px]">
+                        <div className="absolute top-12 left-0 z-50 bg-white rounded-lg border-3 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)] p-2 grid grid-cols-4 gap-1.5 min-w-[180px]">
                           {MARIO_ICONS.map((icon) => (
                             <button
-                              key={icon}
+                              key={icon.id}
                               type="button"
                               onClick={() => {
-                                setNewWalletIcon(icon)
+                                setNewWalletIcon(icon.id)
                                 setShowNewWalletIconPicker(false)
                               }}
                               className={cn(
-                                "h-8 w-8 rounded border-2 flex items-center justify-center text-lg hover:bg-gray-100 transition-colors",
-                                newWalletIcon === icon ? "border-[var(--mario-red)] bg-[var(--mario-red)]/10" : "border-gray-300"
+                                "h-10 w-10 rounded border-2 flex items-center justify-center hover:bg-gray-100 transition-colors p-1.5",
+                                newWalletIcon === icon.id ? "border-[var(--mario-red)] bg-[var(--mario-red)]/10" : "border-gray-300"
                               )}
+                              title={icon.name}
                             >
-                              {icon}
+                              <Image
+                                src={icon.path}
+                                alt={icon.name}
+                                width={24}
+                                height={24}
+                                className="object-contain"
+                              />
                             </button>
                           ))}
                           {newWalletIcon && (
@@ -667,7 +745,7 @@ export function WalletManager({
                                 setNewWalletIcon("")
                                 setShowNewWalletIconPicker(false)
                               }}
-                              className="h-8 w-8 rounded border-2 border-gray-300 flex items-center justify-center text-xs hover:bg-gray-100 transition-colors col-span-4"
+                              className="h-10 rounded border-2 border-gray-300 flex items-center justify-center text-[9px] hover:bg-gray-100 transition-colors col-span-4 font-mario"
                             >
                               Remove Icon
                             </button>

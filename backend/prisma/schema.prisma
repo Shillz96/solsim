@@ -60,6 +60,13 @@ model User {
   deposits                Deposit[]
   withdrawals             Withdrawal[]
   wallets                 UserWallet[]
+  // Chat relations
+  chatMessages            ChatMessage[]
+  moderationActions       ChatModerationAction[]
+  // Chat moderation fields
+  chatStrikes             Int                    @default(0)
+  chatMutedUntil          DateTime?
+  bannedFromChat          Boolean                @default(false)
 }
 
 model Trade {
@@ -720,4 +727,39 @@ model UserWallet {
 
   @@index([userId, isActive])
   @@index([userId, walletType])
+}
+
+// ============================================================
+// Chat System Models
+// ============================================================
+
+// Chat messages - per-token room messages
+model ChatMessage {
+  id        String   @id @default(uuid())
+  roomId    String   // Token mint address (or 'lobby' for global chat)
+  userId    String
+  content   String   @db.VarChar(280) // Max 280 characters (Twitter-style)
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([roomId, createdAt(sort: Desc)], map: "chat_room_recent") // Fetch recent messages
+  @@index([userId, createdAt(sort: Desc)], map: "chat_user_recent") // User's chat history
+  @@index([roomId, userId, createdAt(sort: Desc)], map: "chat_room_user") // Per-user per-room messages
+}
+
+// Moderation actions - track mutes, bans, strikes
+model ChatModerationAction {
+  id           String    @id @default(uuid())
+  userId       String    // User being moderated
+  moderatorId  String?   // Admin who took action (null for automated)
+  action       String    // 'MUTE', 'BAN', 'STRIKE', 'UNMUTE', 'UNBAN', 'CLEAR_STRIKES'
+  reason       String?   // Optional reason
+  duration     Int?      // Duration in minutes (for mutes)
+  expiresAt    DateTime? // When mute expires (null for bans)
+  createdAt    DateTime  @default(now())
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt(sort: Desc)], map: "moderation_user_recent") // User's moderation history
+  @@index([action, createdAt(sort: Desc)], map: "moderation_action_type") // Filter by action type
+  @@index([expiresAt], map: "moderation_expiry") // Find expired mutes
 }

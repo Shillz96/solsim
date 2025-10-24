@@ -155,27 +155,7 @@ export default function TrendingPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
       <main id="trending-section" className="w-full px-4 sm:px-6 lg:px-8 py-8 max-w-page-xl mx-auto">
-        {/* Header - Mario themed with colorful text */}
-        <motion.div
-          className="mb-8 text-center"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          <div className="mb-4">
-            <Image
-              src="/Trending-tokens-header.png"
-              alt="Trending Tokens"
-              width={800}
-              height={140}
-              className="mx-auto"
-              priority
-            />
-          </div>
-          <p className="text-lg text-foreground font-semibold">Discover the hottest tokens on Solana with real-time market data</p>
-        </motion.div>
-
-        {/* Filters & Search */}
+        {/* Filters & Search with Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -183,6 +163,18 @@ export default function TrendingPage() {
           className="mb-4"
         >
           <div className="mario-card bg-white border-4 border-pipe-700 shadow-mario p-6">
+          {/* Header Image inside filter bar */}
+          <div className="mb-6 flex justify-center">
+            <Image
+              src="/Trending-tokens-header.png"
+              alt="Trending Tokens"
+              width={600}
+              height={100}
+              className="object-contain"
+              priority
+            />
+          </div>
+          
           <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
             {/* Birdeye Sort Filters */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
