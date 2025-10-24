@@ -8,7 +8,7 @@
  * - Moderation status checks
  */
 
-import prisma from '../lib/prisma.js';
+import prisma from '../plugins/prisma.js';
 
 /**
  * Moderation status for a user

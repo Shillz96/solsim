@@ -66,4 +66,7 @@ redis.connect()
     console.log("⚠️ App will continue without Redis caching");
   });
 
+// Named export for compatibility
+export const getRedis = () => redis;
+
 export default redis;

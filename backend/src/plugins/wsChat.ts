@@ -9,17 +9,24 @@
  * - Message broadcasting
  */
 
+/// <reference path="../types/fastify.d.ts" />
+
 import { FastifyInstance } from 'fastify';
 import { AuthService } from './auth.js';
 import { sendMessage, getRecentMessages } from '../services/chatService.js';
 import { checkModerationStatus } from '../services/moderationService.js';
 import { WebSocket } from 'ws';
 
+// Extend WebSocket with isAlive property for heartbeat tracking
+interface ExtendedWebSocket extends WebSocket {
+  isAlive?: boolean;
+}
+
 /**
  * Connected client data
  */
 interface ChatClient {
-  socket: WebSocket & { isAlive?: boolean };
+  socket: ExtendedWebSocket;
   userId: string;
   handle: string;
   rooms: Set<string>;
@@ -29,7 +36,7 @@ interface ChatClient {
 const rooms = new Map<string, Set<ChatClient>>();
 
 // Client registry: socket -> client data
-const clients = new Map<WebSocket, ChatClient>();
+const clients = new Map<ExtendedWebSocket, ChatClient>();
 
 /**
  * Join a room
@@ -160,7 +167,9 @@ export default async function wsChatPlugin(app: FastifyInstance) {
   });
 
   // Chat WebSocket route
-  app.get('/ws/chat', { websocket: true }, async (socket, req) => {
+  app.get('/ws/chat', { websocket: true }, async (connection, req) => {
+    // Cast WebSocket to ExtendedWebSocket for isAlive property
+    const socket = connection as ExtendedWebSocket;
     console.log('💬 Chat WebSocket connection attempt from', req.ip);
 
     // 1. Authenticate via JWT in query params

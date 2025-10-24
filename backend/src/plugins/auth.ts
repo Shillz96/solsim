@@ -26,13 +26,8 @@ export interface JWTPayload {
   exp?: number;
 }
 
-export interface AuthenticatedRequest<T = any> extends FastifyRequest<{ Body: T }> {
-  user?: {
-    id: string;
-    userTier: string;
-    sessionId: string;
-  };
-}
+// Import FastifyRequest directly - user property is augmented via fastify.d.ts
+export type AuthenticatedRequest<T = any> = FastifyRequest<{ Body: T }>;
 
 class AuthService {
   // Generate JWT token pair

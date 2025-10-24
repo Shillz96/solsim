@@ -7,7 +7,7 @@
  * - Room metadata
  */
 
-import prisma from '../lib/prisma.js';
+import prisma from '../plugins/prisma.js';
 import { sanitizeChatMessage, getMessageHash } from '../utils/chatSanitizer.js';
 import { checkRateLimit, isDuplicateMessage, CHAT_MESSAGE_LIMIT } from '../utils/chatRateLimiter.js';
 import { checkModerationStatus, addStrike } from './moderationService.js';
