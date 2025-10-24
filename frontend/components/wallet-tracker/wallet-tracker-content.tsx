@@ -7,8 +7,9 @@
 // - Pre-parsed trade data
 // - Scales to unlimited wallets on one connection
 
-import { useState, useEffect, useMemo, useCallback } from "react"
+import { useState, useEffect, useMemo, useCallback, useDeferredValue } from "react"
 import { motion, AnimatePresence } from "framer-motion"
+import dynamic from "next/dynamic"
 import {
   Eye,
   Plus,
@@ -54,12 +55,18 @@ import { cn } from "@/lib/utils"
 import { formatUSD, formatNumber } from "@/lib/format"
 import { useWalletTrackerWebSocket } from "@/hooks/use-wallet-tracker-ws"
 import { WalletActivityList } from "./wallet-activity-list"
-import { WalletManager } from "./wallet-manager"
 import { WalletStats } from "./wallet-stats"
 import type { WalletActivity } from "./types"
 
-// Import WalletTrackerSettingsModal
-import { WalletTrackerSettingsModal } from "./wallet-tracker-settings-modal"
+// Lazy load heavy modals for better performance
+const WalletManager = dynamic(
+  () => import('./wallet-manager').then(m => ({ default: m.WalletManager })),
+  { ssr: false }
+)
+const WalletTrackerSettingsModal = dynamic(
+  () => import('./wallet-tracker-settings-modal').then(m => ({ default: m.WalletTrackerSettingsModal })),
+  { ssr: false }
+)
 
 interface TrackedWallet {
   id: string
@@ -77,6 +84,7 @@ export function WalletTrackerContent() {
   const { toast } = useToast()
 
   const [searchTerm, setSearchTerm] = useState("")
+  const deferredSearchTerm = useDeferredValue(searchTerm)
   const [filterType, setFilterType] = useState<'all' | 'buy' | 'sell' | 'swap'>('all')
   const [selectedWallets, setSelectedWallets] = useState<string[]>([])
   const [showWalletManager, setShowWalletManager] = useState(false)
@@ -85,6 +93,17 @@ export function WalletTrackerContent() {
   const [isLoadingMore, setIsLoadingMore] = useState(false)
   const [hasMore, setHasMore] = useState(true)
   const [offset, setOffset] = useState(0)
+  const [density, setDensity] = useState<'comfortable' | 'compact'>(() => {
+    if (typeof window !== 'undefined') {
+      return (localStorage.getItem('wallet-tracker-density') as 'comfortable' | 'compact') || 'comfortable'
+    }
+    return 'comfortable'
+  })
+
+  // Save density preference to localStorage
+  useEffect(() => {
+    localStorage.setItem('wallet-tracker-density', density)
+  }, [density])
 
   // Fetch tracked wallets
   const { data: trackedWallets, isLoading: loadingWallets, refetch: refetchWallets } = useQuery<TrackedWallet[]>({
@@ -203,11 +222,11 @@ export function WalletTrackerContent() {
     }
   }
 
-  // Filter activities
+  // Filter activities - using deferred search to prevent stuttering while typing
   const filteredActivities = useMemo(() => {
     return activities.filter(activity => {
-      if (searchTerm) {
-        const search = searchTerm.toLowerCase()
+      if (deferredSearchTerm) {
+        const search = deferredSearchTerm.toLowerCase()
         return (
           activity.tokenIn.symbol?.toLowerCase().includes(search) ||
           activity.tokenOut.symbol?.toLowerCase().includes(search) ||
@@ -216,7 +235,7 @@ export function WalletTrackerContent() {
       }
       return true
     })
-  }, [activities, searchTerm])
+  }, [activities, deferredSearchTerm])
 
   // Get wallet label
   const getWalletLabel = (address: string) => {
@@ -323,8 +342,8 @@ export function WalletTrackerContent() {
           />
         </motion.div>
 
-        {/* Filters */}
-        <div className="mario-card bg-white border-4 border-pipe-700 shadow-mario p-4">
+        {/* Filters - Sticky bar */}
+        <div className="sticky top-0 z-10 mario-card bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/95 border-4 border-pipe-700 shadow-mario p-4">
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-pipe-700" />
@@ -348,6 +367,16 @@ export function WalletTrackerContent() {
                 <SelectItem value="swap">Swaps Only</SelectItem>
               </SelectContent>
             </Select>
+
+            {/* Density Toggle */}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setDensity(prev => prev === 'comfortable' ? 'compact' : 'comfortable')}
+              className="border-3 border-pipe-500 font-bold whitespace-nowrap"
+            >
+              {density === 'comfortable' ? 'Comfortable' : 'Compact'}
+            </Button>
 
             {trackedWallets && trackedWallets.length > 0 && (
               <DropdownMenu>
@@ -406,6 +435,7 @@ export function WalletTrackerContent() {
             })
           }}
           getWalletLabel={getWalletLabel}
+          density={density}
         />
 
         {/* Wallet Manager Modal */}

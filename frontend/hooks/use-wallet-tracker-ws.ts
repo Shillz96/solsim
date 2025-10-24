@@ -29,6 +29,25 @@ export function useWalletTrackerWebSocket(userId: string) {
   const wsRef = useRef<WebSocket | null>(null)
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined)
   const pingIntervalRef = useRef<NodeJS.Timeout | undefined>(undefined)
+  // RAF batching to prevent excessive re-renders
+  const queueRef = useRef<WalletActivity[]>([])
+  const rafRef = useRef<number | null>(null)
+
+  // Flush queued activities on animation frame (max 60fps)
+  const flush = useCallback(() => {
+    const incoming = queueRef.current
+    queueRef.current = []
+
+    if (incoming.length > 0) {
+      // Deduplicate by ID and set as new activities
+      const uniqueActivities = incoming.filter((activity, index, self) =>
+        index === self.findIndex(a => a.id === activity.id)
+      )
+      setNewActivities(uniqueActivities)
+    }
+
+    rafRef.current = null
+  }, [])
 
   const connect = useCallback(() => {
     if (wsRef.current?.readyState === WebSocket.OPEN) return
@@ -65,7 +84,7 @@ export function useWalletTrackerWebSocket(userId: string) {
         switch (data.type) {
           case 'walletTrade':
           case 'wallet:trade':
-            // Real-time trade from PumpPortal
+            // Real-time trade from PumpPortal - queue for RAF batching
             const trade = data.trade || data
             const activity: WalletActivity = {
               id: trade.signature || `${trade.wallet}-${trade.timestamp}`,
@@ -99,10 +118,20 @@ export function useWalletTrackerWebSocket(userId: string) {
               timestamp: new Date(trade.timestamp).toISOString(),
               timeAgo: getTimeAgo(new Date(trade.timestamp))
             }
-            setNewActivities([activity])
+            // Queue activity and schedule RAF flush
+            queueRef.current.push(activity)
+            if (!rafRef.current) {
+              rafRef.current = requestAnimationFrame(flush)
+            }
             break
           case 'new_activities':
-            setNewActivities(data.activities)
+            // Queue activities and schedule RAF flush
+            if (data.activities && data.activities.length > 0) {
+              queueRef.current.push(...data.activities)
+              if (!rafRef.current) {
+                rafRef.current = requestAnimationFrame(flush)
+              }
+            }
             break
           case 'initial_activities':
             // Initial activities are handled differently
@@ -130,9 +159,13 @@ export function useWalletTrackerWebSocket(userId: string) {
       setConnected(false)
       wsRef.current = null
 
-      // Clear intervals
+      // Clear intervals and RAF
       if (pingIntervalRef.current) {
         clearInterval(pingIntervalRef.current)
+      }
+      if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current)
+        rafRef.current = null
       }
 
       // Reconnect after 5 seconds
@@ -151,6 +184,10 @@ export function useWalletTrackerWebSocket(userId: string) {
     }
     if (pingIntervalRef.current) {
       clearInterval(pingIntervalRef.current)
+    }
+    if (rafRef.current) {
+      cancelAnimationFrame(rafRef.current)
+      rafRef.current = null
     }
     if (wsRef.current) {
       wsRef.current.close()

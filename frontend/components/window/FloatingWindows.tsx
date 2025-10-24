@@ -2,13 +2,14 @@
 
 import dynamic from 'next/dynamic';
 import { useWindowManager } from './WindowManager';
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 
 // react-rnd exports a named Rnd; dynamic import to avoid SSR issues
 const Rnd = dynamic(async () => (await import('react-rnd')).Rnd, { ssr: false });
 
 export default function FloatingWindows() {
   const { windows, bringToFront, updateBounds, closeWindow } = useWindowManager();
+  const [draggingId, setDraggingId] = useState<string | null>(null);
 
   const onActivate = useCallback((id: string) => {
     bringToFront(id);
@@ -27,15 +28,21 @@ export default function FloatingWindows() {
           minHeight={240}
           dragGrid={[8, 8]}
           resizeGrid={[8, 8]}
-          onDragStart={() => onActivate(w.id)}
+          onDragStart={() => {
+            onActivate(w.id);
+            setDraggingId(w.id);
+          }}
           onResizeStart={() => onActivate(w.id)}
-          onDragStop={(_, data) => updateBounds(w.id, { x: data.x, y: data.y })}
+          onDragStop={(_, data) => {
+            updateBounds(w.id, { x: data.x, y: data.y });
+            setDraggingId(null);
+          }}
           onResizeStop={(_, __, ref, ___, pos) => {
-            updateBounds(w.id, { 
-              width: ref.offsetWidth, 
-              height: ref.offsetHeight, 
-              x: pos.x, 
-              y: pos.y 
+            updateBounds(w.id, {
+              width: ref.offsetWidth,
+              height: ref.offsetHeight,
+              x: pos.x,
+              y: pos.y
             });
           }}
           enableResizing={{
@@ -48,16 +55,16 @@ export default function FloatingWindows() {
           <div
             onMouseDown={() => onActivate(w.id)}
             onTouchStart={() => onActivate(w.id)}
-            className="
-              flex flex-col h-full rounded-lg border-[3px]
-              border-black
-              bg-gradient-to-br from-white via-white to-gray-50
-              shadow-[4px_4px_0_rgba(0,0,0,1)]
-              hover:shadow-[5px_5px_0_rgba(0,0,0,1)]
-              transition-shadow
-            "
+            className={
+              draggingId === w.id
+                ? "flex flex-col h-full rounded-lg border-[3px] border-black bg-white"
+                : "flex flex-col h-full rounded-lg border-[3px] border-black bg-gradient-to-br from-white via-white to-gray-50 shadow-[4px_4px_0_rgba(0,0,0,1)] hover:shadow-[5px_5px_0_rgba(0,0,0,1)] transition-shadow"
+            }
             style={{
-              touchAction: 'none'
+              touchAction: 'none',
+              willChange: 'transform',
+              transform: 'translateZ(0)',
+              backfaceVisibility: 'hidden'
             }}
           >
             {/* Title bar (drag handle) */}

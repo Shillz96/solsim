@@ -97,6 +97,7 @@
     "react-hook-form": "latest",
     "react-resizable-panels": "latest",
     "react-rnd": "^10.5.2",
+    "react-virtuoso": "^4.14.1",
     "recharts": "latest",
     "serwist": "^9.2.1",
     "sonner": "latest",

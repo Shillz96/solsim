@@ -54,29 +54,38 @@ function saveFilters(key: string, filters: AdvancedFilters) {
 export function WarpPipesHub() {
   const { isAuthenticated } = useAuth()
 
-  // Per-column filter state - load from localStorage on mount
-  const [newFilters, setNewFilters] = useState<AdvancedFilters>(() => 
-    loadFilters(STORAGE_KEYS.NEW, 'new')
-  )
-  const [graduatingFilters, setGraduatingFilters] = useState<AdvancedFilters>(() => 
-    loadFilters(STORAGE_KEYS.GRADUATING, 'graduating')
-  )
-  const [bondedFilters, setBondedFilters] = useState<AdvancedFilters>(() => 
-    loadFilters(STORAGE_KEYS.BONDED, 'bonded')
-  )
+  // Per-column filter state - start with defaults, load from localStorage in useEffect
+  const [newFilters, setNewFilters] = useState<AdvancedFilters>(getDefaultFilters('new'))
+  const [graduatingFilters, setGraduatingFilters] = useState<AdvancedFilters>(getDefaultFilters('graduating'))
+  const [bondedFilters, setBondedFilters] = useState<AdvancedFilters>(getDefaultFilters('bonded'))
+  const [isFiltersLoaded, setIsFiltersLoaded] = useState(false)
 
-  // Save filters to localStorage whenever they change
+  // Load filters from localStorage on mount (client-side only)
   useEffect(() => {
-    saveFilters(STORAGE_KEYS.NEW, newFilters)
-  }, [newFilters])
+    setNewFilters(loadFilters(STORAGE_KEYS.NEW, 'new'))
+    setGraduatingFilters(loadFilters(STORAGE_KEYS.GRADUATING, 'graduating'))
+    setBondedFilters(loadFilters(STORAGE_KEYS.BONDED, 'bonded'))
+    setIsFiltersLoaded(true)
+  }, [])
+
+  // Save filters to localStorage whenever they change (but only after initial load)
+  useEffect(() => {
+    if (isFiltersLoaded) {
+      saveFilters(STORAGE_KEYS.NEW, newFilters)
+    }
+  }, [newFilters, isFiltersLoaded])
 
   useEffect(() => {
-    saveFilters(STORAGE_KEYS.GRADUATING, graduatingFilters)
-  }, [graduatingFilters])
+    if (isFiltersLoaded) {
+      saveFilters(STORAGE_KEYS.GRADUATING, graduatingFilters)
+    }
+  }, [graduatingFilters, isFiltersLoaded])
 
   useEffect(() => {
-    saveFilters(STORAGE_KEYS.BONDED, bondedFilters)
-  }, [bondedFilters])
+    if (isFiltersLoaded) {
+      saveFilters(STORAGE_KEYS.BONDED, bondedFilters)
+    }
+  }, [bondedFilters, isFiltersLoaded])
 
   // Fetch feed data - filters are applied per-column on the client side
   const { data, isLoading, error, refetch } = useWarpPipesFeed({
