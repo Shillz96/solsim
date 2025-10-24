@@ -311,16 +311,16 @@ export function NavBar() {
                   <Button
                     variant={isActive ? "secondary" : "ghost"}
                     size="sm"
-                    className={cn(
-                      "flex items-center justify-center px-2 py-2 transition-all duration-200 font-mario text-xs h-10 w-24",
-                      isActive && "bg-primary/10 text-primary"
-                    )}
+                      className={cn(
+                        "flex items-center justify-center px-2 py-2 transition-all duration-200 font-mario text-xs h-10 w-32",
+                        isActive && "bg-primary/10 text-primary"
+                      )}
                   >
                     <Image 
                       src={item.iconSrc} 
                       alt={item.name} 
-                      width={96} 
-                      height={32} 
+                      width={120} 
+                      height={40} 
                       className="object-contain hover:scale-105 transition-transform duration-200 max-w-full max-h-full" 
                     />
                   </Button>

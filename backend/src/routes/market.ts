@@ -172,15 +172,15 @@ export default async function marketRoutes(app: FastifyInstance) {
         totalMarketCapUsd: null,
       };
 
-      // Get Fear & Greed Index from Redis
-      const fearGreedData = await redis.get('market:fear-greed');
+      // Get Fear & Greed Index from CMC cache
+      const fearGreedData = await redis.get('market:cmc:fear-greed');
       const fearGreed = fearGreedData ? JSON.parse(fearGreedData) : {
         value: null,
         classification: null,
       };
 
-      // Get Altcoin Season Index from Redis
-      const altcoinSeasonData = await redis.get('market:altcoin-season');
+      // Get Altcoin Season Index from CMC cache
+      const altcoinSeasonData = await redis.get('market:cmc:altcoin-season');
       const altcoinSeason = altcoinSeasonData ? JSON.parse(altcoinSeasonData) : {
         value: null,
       };
@@ -199,4 +199,3 @@ export default async function marketRoutes(app: FastifyInstance) {
     }
   });
 }
-

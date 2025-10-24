@@ -12,18 +12,50 @@ type Payload = {
 
 export default function MarketHover({ trigger }: { trigger: React.ReactNode }) {
   const [data, setData] = useState<Payload | null>(null);
+  const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
 
   useEffect(() => {
     let alive = true;
     const load = async () => {
-      const res = await fetch("/api/market-hover", { cache: "no-store" });
-      const j = await res.json();
-      if (alive) setData(j);
+      try {
+        const res = await fetch("/api/market-hover", { cache: "no-store" });
+        const j = await res.json();
+        if (alive) {
+          setData(j);
+          setLastUpdate(new Date());
+        }
+      } catch (error) {
+        console.error('[MarketHover] Error fetching data:', error);
+      }
     };
     load();
     const id = setInterval(load, 15_000);
     return () => { alive = false; clearInterval(id); };
   }, []);
+
+  const getTimeAgo = () => {
+    if (!lastUpdate) return "—";
+    const seconds = Math.floor((Date.now() - lastUpdate.getTime()) / 1000);
+    if (seconds < 10) return "just now";
+    if (seconds < 60) return `${seconds}s ago`;
+    return `${Math.floor(seconds / 60)}m ago`;
+  };
+
+  const getFearGreedColor = (value: number | null | undefined) => {
+    if (value === null || value === undefined) return "var(--text-secondary)";
+    if (value >= 75) return "#16a34a"; // Extreme Greed - green
+    if (value >= 55) return "#84cc16"; // Greed - lime
+    if (value >= 45) return "#fbbf24"; // Neutral - amber
+    if (value >= 25) return "#f97316"; // Fear - orange
+    return "#ef4444"; // Extreme Fear - red
+  };
+
+  const getAltSeasonColor = (value: number | null | undefined) => {
+    if (value === null || value === undefined) return "var(--text-secondary)";
+    if (value >= 75) return "#16a34a"; // Altseason - green
+    if (value >= 50) return "#fbbf24"; // Mixed - amber
+    return "#3b82f6"; // Bitcoin Season - blue
+  };
 
   return (
     <div className="relative inline-block group">
@@ -35,31 +67,68 @@ export default function MarketHover({ trigger }: { trigger: React.ReactNode }) {
         className="
           invisible opacity-0 translate-y-2 group-hover:visible group-hover:opacity-100 group-hover:translate-y-0
           transition-all duration-200 ease-out
-          absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-[420px] z-[100]
+          absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-[440px] z-[100]
+          pointer-events-none group-hover:pointer-events-auto
         "
       >
-        <div className="rounded-[16px] border-4 border-[var(--outline-black)] bg-[var(--card)] p-4 shadow-[6px_6px_0_var(--outline-black)]">
+        <div className="rounded-[16px] border-4 border-[var(--outline-black)] bg-[var(--card)] p-5 shadow-[8px_8px_0_var(--outline-black)]">
           {/* Header */}
-          <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <span className="inline-flex h-2.5 w-2.5 rounded-full bg-[var(--luigi-green)] live-indicator" />
-              <span className="font-mario text-sm tracking-wide uppercase">Market Lighthouse</span>
+              <span className="font-mario text-base tracking-wide uppercase">Market Lighthouse</span>
             </div>
-            <span className="text-xs opacity-60">Updated {data ? "now" : "…"}</span>
+            <span className="text-xs opacity-60">Updated {getTimeAgo()}</span>
           </div>
 
           {/* Market Stats */}
-          <div className="space-y-2">
-            <StatRow label="Pump.fun 24h Vol" value={fmtSol(data?.pumpVolume24h)} />
-            <StatRow label="Total Crypto Market Cap" value={fmtUsd(data?.totalMarketCapUsd)} />
+          <div className="space-y-3">
+            {/* Pump.fun 24h Volume */}
+            <StatRow 
+              label="Pump.fun 24h Volume" 
+              value={fmtSol(data?.pumpVolume24h)}
+              icon="🔥"
+            />
+            
+            {/* Total Crypto Market Cap */}
+            <StatRow 
+              label="Total Crypto Market Cap" 
+              value={fmtUsd(data?.totalMarketCapUsd)}
+              icon="💰"
+            />
+            
+            {/* Fear & Greed Index */}
             <StatRow 
               label="Fear & Greed Index" 
-              value={data?.fearGreedIndex != null ? `${data.fearGreedIndex} - ${data.fearGreedLabel}` : "—"} 
+              value={data?.fearGreedIndex != null ? `${data.fearGreedIndex}` : "—"}
+              subValue={data?.fearGreedLabel || undefined}
+              valueColor={getFearGreedColor(data?.fearGreedIndex)}
+              icon="😱"
             />
+            
+            {/* Altcoin Season Index */}
             <StatRow 
               label="Altcoin Season Index" 
-              value={data?.altcoinSeasonIndex != null ? `${data.altcoinSeasonIndex}/100` : "—"} 
+              value={data?.altcoinSeasonIndex != null ? `${data.altcoinSeasonIndex}/100` : "—"}
+              subValue={
+                data?.altcoinSeasonIndex != null 
+                  ? data.altcoinSeasonIndex >= 75 
+                    ? "Altseason" 
+                    : data.altcoinSeasonIndex >= 50 
+                      ? "Mixed Market" 
+                      : "Bitcoin Season"
+                  : undefined
+              }
+              valueColor={getAltSeasonColor(data?.altcoinSeasonIndex)}
+              icon="🪙"
             />
+          </div>
+
+          {/* Footer */}
+          <div className="mt-4 pt-3 border-t-2 border-[var(--outline-black)]">
+            <p className="text-xs text-center opacity-60">
+              Real-time market data from CoinMarketCap & PumpPortal
+            </p>
           </div>
         </div>
       </div>
@@ -67,17 +136,59 @@ export default function MarketHover({ trigger }: { trigger: React.ReactNode }) {
   );
 }
 
-function StatRow({ label, value }: { label: string; value: string }) {
+function StatRow({ 
+  label, 
+  value, 
+  subValue, 
+  valueColor, 
+  icon 
+}: { 
+  label: string; 
+  value: string; 
+  subValue?: string; 
+  valueColor?: string; 
+  icon?: string; 
+}) {
   return (
-    <div className="rounded-[16px] border-4 border-[var(--outline-black)] px-3 py-2 shadow-[6px_6px_0_var(--outline-black)] bg-[var(--card)]">
-      <div className="flex justify-between items-center">
-        <div className="text-[11px] opacity-70">{label}</div>
-        <div className="text-sm font-semibold number-display">{value || "—"}</div>
+    <div className="rounded-[12px] border-3 border-[var(--outline-black)] px-4 py-3 shadow-[4px_4px_0_var(--outline-black)] bg-gradient-to-br from-[var(--card)] to-[var(--card-hover)] hover:shadow-[6px_6px_0_var(--outline-black)] transition-all">
+      <div className="flex justify-between items-center gap-3">
+        <div className="flex items-center gap-2 flex-1">
+          {icon && <span className="text-lg">{icon}</span>}
+          <div className="text-xs opacity-80 font-medium">{label}</div>
+        </div>
+        <div className="text-right">
+          <div 
+            className="text-base font-bold number-display" 
+            style={{ color: valueColor || 'inherit' }}
+          >
+            {value || "—"}
+          </div>
+          {subValue && (
+            <div 
+              className="text-[10px] font-semibold uppercase tracking-wide mt-0.5"
+              style={{ color: valueColor || 'var(--text-secondary)' }}
+            >
+              {subValue}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
 }
 
 // ---- formatters ----
-const fmtUsd = (n?: number|null) => (n==null ? "" : (n >= 1e12 ? `$${(n/1e12).toFixed(2)}T` : n >= 1e9 ? `$${(n/1e9).toFixed(2)}B` : n >= 1e6 ? `$${(n/1e6).toFixed(2)}M` : `$${Math.round(n).toLocaleString()}`));
-const fmtSol = (n?: number|null) => (n==null ? "" : `${n.toLocaleString(undefined, { maximumFractionDigits: 0 })} SOL`);
+const fmtUsd = (n?: number|null) => (
+  n == null ? "" : 
+  n >= 1e12 ? `$${(n/1e12).toFixed(2)}T` : 
+  n >= 1e9 ? `$${(n/1e9).toFixed(2)}B` : 
+  n >= 1e6 ? `$${(n/1e6).toFixed(2)}M` : 
+  `$${Math.round(n).toLocaleString()}`
+);
+
+const fmtSol = (n?: number|null) => (
+  n == null ? "" : 
+  n >= 1e6 ? `${(n/1e6).toFixed(2)}M SOL` :
+  n >= 1e3 ? `${(n/1e3).toFixed(1)}K SOL` :
+  `${n.toLocaleString(undefined, { maximumFractionDigits: 0 })} SOL`
+);
