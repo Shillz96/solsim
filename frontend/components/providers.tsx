@@ -10,6 +10,7 @@ import { SolanaWalletProvider } from "@/lib/solana-wallet-provider"
 import { TradingModeProvider } from "@/lib/trading-mode-context"
 import { NotificationProvider } from "@/components/shared/enhanced-notifications"
 import { OnboardingProvider } from "@/lib/onboarding-provider"
+import { ChatProvider } from "@/lib/contexts/ChatContext"
 // PWA features removed for now
 
 interface AppProvidersProps {
@@ -27,9 +28,10 @@ interface AppProvidersProps {
  * 3. SolanaWalletProvider - Wallet connectivity
  * 4. TradingModeProvider - Paper/Real trading mode management
  * 5. PriceStreamProvider - Real-time price updates
- * 6. NotificationProvider - Enhanced notification system
- * 7. OnboardingProvider - Product tour and user onboarding
- * 8. ThemeProvider - LIGHT MODE ONLY (Mario theme!)
+ * 6. ChatProvider - Real-time chat functionality
+ * 7. NotificationProvider - Enhanced notification system
+ * 8. OnboardingProvider - Product tour and user onboarding
+ * 9. ThemeProvider - LIGHT MODE ONLY (Mario theme!)
  */
 export function AppProviders({ children }: AppProvidersProps) {
   return (
@@ -38,17 +40,19 @@ export function AppProviders({ children }: AppProvidersProps) {
         <SolanaWalletProvider>
           <TradingModeProvider>
             <PriceStreamProvider>
-              <NotificationProvider>
-                <OnboardingProvider>
-                  <ThemeProvider
-                    attribute="class"
-                    forcedTheme="light"
-                    disableTransitionOnChange
-                  >
-                    {children}
-                  </ThemeProvider>
-                </OnboardingProvider>
-              </NotificationProvider>
+              <ChatProvider>
+                <NotificationProvider>
+                  <OnboardingProvider>
+                    <ThemeProvider
+                      attribute="class"
+                      forcedTheme="light"
+                      disableTransitionOnChange
+                    >
+                      {children}
+                    </ThemeProvider>
+                  </OnboardingProvider>
+                </NotificationProvider>
+              </ChatProvider>
             </PriceStreamProvider>
           </TradingModeProvider>
         </SolanaWalletProvider>

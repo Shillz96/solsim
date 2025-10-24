@@ -35,11 +35,13 @@ import warpPipesRoutes from "./routes/warpPipes.js";
 import webhookRoutes from "./routes/webhooks.js";
 import chartRoutes from "./routes/chart.js";
 import marketRoutes from "./routes/market.js";
+import chatRoutes from "./routes/chat.js";
 
 // Import plugins and services
 import wsPlugin from "./plugins/ws.js";
 import wsTestPlugin from "./plugins/wsTest.js";
 import wsWalletTrackerPlugin from "./plugins/wsWalletTracker.js";
+import wsChatPlugin from "./plugins/wsChat.js";
 // import priceService from "./plugins/priceService.js"; // Old service
 import priceService from "./plugins/priceService-optimized.js"; // Optimized with WebSocket monitoring
 import { generalRateLimit } from "./plugins/rateLimiting.js";
@@ -207,6 +209,7 @@ app.register(websocket, {
 app.register(wsTestPlugin) // Test WebSocket first for debugging
 app.register(wsPlugin) // Main price stream WebSocket
 app.register(wsWalletTrackerPlugin) // Wallet tracker WebSocket
+app.register(wsChatPlugin) // Chat WebSocket
 
 // Production rate limiting (replaces old rate limiting for better scale)
 // app.register(productionRateLimitingPlugin);
@@ -251,6 +254,7 @@ app.register(marketRoutes, { prefix: "/api" }); // Market data routes (trades, t
 app.register(userProfileRoutes, { prefix: "/api/user-profile" }); // User profile and trading mode management
 app.register(warpPipesRoutes, { prefix: "/api/warp-pipes" }); // Warp Pipes Hub token discovery
 app.register(webhookRoutes, { prefix: "/api/webhooks" }); // Webhook handlers for external services (Helius)
+app.register(chatRoutes); // Chat REST API routes (messages, moderation)
 app.register(debugRoutes); // Debug routes for price service monitoring
 app.register(adminRoutes, { prefix: "/api/admin" }); // Admin maintenance routes (protected)
 app.register(sentryTestRoutes); // Sentry test routes (dev only)
