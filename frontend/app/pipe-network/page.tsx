@@ -101,8 +101,12 @@ export default function PipeNetworkPage() {
   ]
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
-      <main className="container mx-auto px-4 py-6">
+    <div className="w-full flex flex-col bg-[var(--background)]" style={{ 
+      height: 'calc(100dvh - var(--navbar-height, 56px) - var(--trending-ticker-height, 60px) - var(--bottom-nav-height, 64px))',
+      maxHeight: 'calc(100dvh - var(--navbar-height, 56px) - var(--trending-ticker-height, 60px) - var(--bottom-nav-height, 64px))',
+      overflow: 'hidden'
+    }}>
+      <main className="container mx-auto px-4 py-6 flex-1 min-h-0">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -128,7 +132,7 @@ export default function PipeNetworkPage() {
         </motion.div>
 
         {/* Main Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 flex-1 min-h-0">
           
           {/* Left Sidebar - Quick Links & Features */}
           <motion.aside
@@ -213,7 +217,7 @@ export default function PipeNetworkPage() {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="lg:col-span-6"
           >
-            <div className="bg-[var(--luigi-green)]/20 border-4 border-[var(--outline-black)] rounded-xl shadow-[8px_8px_0_var(--outline-black)] overflow-hidden h-[calc(100vh-200px)] min-h-[600px]">
+            <div className="bg-[var(--luigi-green)]/20 border-4 border-[var(--outline-black)] rounded-xl shadow-[8px_8px_0_var(--outline-black)] overflow-hidden h-full min-h-[600px]">
               <div className="bg-gradient-to-r from-[var(--luigi-green)] to-emerald-500 p-4 border-b-4 border-[var(--outline-black)]">
                 <div className="flex items-center gap-3">
                   <div className="h-10 w-10 rounded-lg bg-white border-3 border-[var(--outline-black)] flex items-center justify-center shadow-[3px_3px_0_var(--outline-black)]">
