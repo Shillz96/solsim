@@ -93,7 +93,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         style={{
           // iOS safe area insets for notch and home indicator
           paddingTop: 'env(safe-area-inset-top)',
-          paddingBottom: 'max(env(safe-area-inset-bottom), var(--bottom-nav-height, 64px))',
+          paddingBottom: 'env(safe-area-inset-bottom)',
           paddingLeft: 'env(safe-area-inset-left)',
           paddingRight: 'env(safe-area-inset-right)',
         }}
@@ -120,7 +120,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               className="relative"
               style={{
                 minHeight: 'calc(100dvh - var(--navbar-height, 56px) - var(--trending-ticker-height, 60px) - var(--bottom-nav-height, 64px))',
-                paddingBottom: 'var(--bottom-nav-height, 64px)',
                 touchAction: 'pan-y', // Optimize touch scrolling on mobile
               }}
               role="main"

@@ -53,7 +53,7 @@ function StockCard({ token }: { token: Backend.TrendingToken }) {
                       onError={() => setImageError(true)}
                     />
                   ) : (
-                    <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-lg">
+                    <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)]">
                       <span className="text-white text-base font-bold tracking-tight">
                         {token.symbol?.replace('x', '').replace('X', '').slice(0, 4) || '??'}
                       </span>

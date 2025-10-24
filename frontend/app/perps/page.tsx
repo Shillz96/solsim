@@ -928,7 +928,7 @@ function PerpsContent() {
                     return (
                       <div
                         key={pos.id}
-                        className={`border rounded-lg p-4 space-y-3 transition-all duration-300 hover:shadow-md ${isNearLiquidation ? 'border-red-500 bg-red-50' : 'hover:border-primary/50'} ${isCritical ? 'animate-pulse' : ''}`}
+                        className={`border-3 rounded-lg p-4 space-y-3 transition-all duration-300 shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] ${isNearLiquidation ? 'border-red-500 bg-red-50' : 'border-[var(--outline-black)] hover:border-primary/50'} ${isCritical ? 'animate-pulse' : ''}`}
                       >
                         <div className="flex items-center justify-between flex-wrap gap-2">
                           <div className="flex items-center gap-2">

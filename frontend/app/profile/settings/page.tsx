@@ -356,7 +356,7 @@ function UserSettingsPage() {
         </div>
         <div className="p-6 space-y-4">
           <div className="flex items-center gap-6">
-            <Avatar className="h-24 w-24 border-2 border-border">
+            <Avatar className="h-24 w-24 border-4 border-[var(--outline-black)]">
               <AvatarImage src={avatarUrl} alt={displayHandle || 'User'} />
               <AvatarFallback className="text-2xl bg-muted">
                 {displayHandle?.[0]?.toUpperCase() || displayEmail?.[0]?.toUpperCase() || 'U'}

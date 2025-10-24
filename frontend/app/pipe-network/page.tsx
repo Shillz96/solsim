@@ -15,11 +15,7 @@ import { ChatRoom } from '@/components/chat/chat-room'
 
 export default function PipeNetworkPage() {
   return (
-    <div className="w-full flex flex-col bg-[var(--background)]" style={{ 
-      height: 'calc(100dvh - var(--navbar-height, 56px) - var(--trending-ticker-height, 60px) - var(--bottom-nav-height, 64px))',
-      maxHeight: 'calc(100dvh - var(--navbar-height, 56px) - var(--trending-ticker-height, 60px) - var(--bottom-nav-height, 64px))',
-      overflow: 'hidden'
-    }}>
+    <div className="w-full flex flex-col bg-[var(--background)] min-h-full">
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
@@ -63,7 +59,7 @@ export default function PipeNetworkPage() {
               </div>
             </div>
           </div>
-          <div className="h-[calc(100%-76px)]">
+          <div className="flex-1 min-h-0">
             <ChatRoom tokenMint="community" className="h-full" />
           </div>
         </div>

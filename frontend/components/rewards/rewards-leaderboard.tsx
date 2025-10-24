@@ -151,7 +151,7 @@ export function RewardsLeaderboard() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {leaders?.slice(0, 3).map((leader) => (
           <Card key={leader.userId} className={cn(
-            "mario-card-standard relative overflow-hidden transition-all hover:shadow-lg hover:scale-105",
+            "mario-card-standard relative overflow-hidden transition-all hover:shadow-[6px_6px_0_var(--outline-black)] hover:scale-105",
             leader.rank === 1 && "border-yellow-500/50 bg-gradient-to-br from-yellow-500/5 to-transparent",
             leader.rank === 2 && "border-pipe-400/50 bg-gradient-to-br from-pipe-400/5 to-transparent",
             leader.rank === 3 && "border-amber-600/50 bg-gradient-to-br from-amber-600/5 to-transparent"
@@ -163,7 +163,7 @@ export function RewardsLeaderboard() {
             )}
             <CardHeader className="mario-header-card mb-4">
               <div className="flex items-center gap-3">
-                <Avatar className="h-12 w-12 border-2 border-primary/20">
+                <Avatar className="h-12 w-12 border-3 border-[var(--outline-black)]">
                   <AvatarImage
                     src={
                       leader.avatarUrl ||
@@ -209,7 +209,7 @@ export function RewardsLeaderboard() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.2 }}
       >
-      <Card className="border-border/50 bg-card/95 backdrop-blur-sm shadow-card hover:shadow-card-hover transition-all duration-300">
+      <Card className="mario-card-standard">
         <CardHeader>
           <CardTitle className="text-xl flex items-center gap-2">
             <Users className="h-5 w-5 text-primary" />
@@ -220,9 +220,9 @@ export function RewardsLeaderboard() {
           <div className="space-y-3">
             {leaders?.map((leader) => (
               <div key={leader.userId} className={cn(
-                "flex items-center justify-between p-4 rounded-lg border border-border/50",
-                "hover:bg-muted/50 transition-all hover:shadow-md",
-                user?.id === leader.userId && "bg-primary/5 border-primary/30 ring-2 ring-primary/10"
+                "flex items-center justify-between p-4 rounded-lg border-3 border-[var(--outline-black)]",
+                "hover:bg-muted/50 transition-all hover:shadow-[2px_2px_0_var(--outline-black)]",
+                user?.id === leader.userId && "bg-primary/5 border-primary shadow-[3px_3px_0_var(--outline-black)]"
               )}>
                 <div className="flex items-center gap-4">
                   <div className="w-8 flex justify-center">
@@ -285,7 +285,7 @@ export function RewardsLeaderboard() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.3 }}
       >
-      <Card className="border-border/50 bg-card/95 backdrop-blur-sm shadow-card hover:shadow-card-hover transition-all duration-300">
+      <Card className="mario-card-standard">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-lg">
             <Zap className="h-5 w-5" />
