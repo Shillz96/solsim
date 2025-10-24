@@ -123,17 +123,17 @@ export function RewardsLeaderboard() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-      <Card className="border-border/50 bg-card/95 backdrop-blur-sm shadow-card hover:shadow-card-hover transition-all duration-300">
-        <CardHeader>
+      <div className="mario-card-standard">
+        <div className="mario-header-card mb-6">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
-              <CardTitle className="flex items-center gap-2 text-xl">
+              <h2 className="mario-title-standard flex items-center gap-2 text-xl">
                 <Trophy className="h-5 w-5 text-primary" />
                 Top Reward Earners
-              </CardTitle>
-              <CardDescription className="mt-1">
+              </h2>
+              <p className="mario-subtitle-standard mt-1">
                 The traders earning the most $vSOL tokens
-              </CardDescription>
+              </p>
             </div>
             <Tabs value={timeframe} onValueChange={(v) => setTimeframe(v as any)} className="w-full sm:w-auto">
               <TabsList className="grid w-full grid-cols-3">
@@ -143,15 +143,15 @@ export function RewardsLeaderboard() {
               </TabsList>
             </Tabs>
           </div>
-        </CardHeader>
-      </Card>
+        </div>
+      </div>
       </motion.div>
 
       {/* Top 3 Showcase */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {leaders?.slice(0, 3).map((leader) => (
-          <Card key={leader.userId} className={cn(
-            "relative overflow-hidden border-border/50 bg-card/50 backdrop-blur-sm transition-all hover:shadow-lg hover:scale-105",
+          <div key={leader.userId} className={cn(
+            "mario-card-standard relative overflow-hidden transition-all hover:shadow-lg hover:scale-105",
             leader.rank === 1 && "border-yellow-500/50 bg-gradient-to-br from-yellow-500/5 to-transparent",
             leader.rank === 2 && "border-pipe-400/50 bg-gradient-to-br from-pipe-400/5 to-transparent",
             leader.rank === 3 && "border-amber-600/50 bg-gradient-to-br from-amber-600/5 to-transparent"
@@ -161,7 +161,7 @@ export function RewardsLeaderboard() {
                 <Crown className="h-6 w-6 text-yellow-500" />
               </div>
             )}
-            <CardHeader className="pb-3">
+            <div className="mario-header-card mb-4">
               <div className="flex items-center gap-3">
                 <Avatar className="h-12 w-12 border-2 border-primary/20">
                   <AvatarImage

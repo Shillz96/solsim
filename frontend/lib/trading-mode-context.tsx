@@ -4,7 +4,6 @@ import React, { createContext, useContext, useState, useEffect, useCallback } fr
 import { useAuth } from '@/hooks/use-auth';
 import { Connection, PublicKey, LAMPORTS_PER_SOL } from '@solana/web3.js';
 import { useWallet } from '@solana/wallet-adapter-react';
-import { ModeSwitchDialog } from '@/components/navigation/mode-switch-dialog';
 
 export type TradeMode = 'PAPER';
 export type FundingSource = 'DEPOSITED';
@@ -90,21 +89,10 @@ export function TradingModeProvider({ children }: { children: React.ReactNode })
     }
   }, [connection, publicKey, connected]);
 
-  // Fetch wallet balance when wallet connects or when in REAL mode with WALLET funding
+  // Since we only support paper trading, we don't need wallet balance fetching
   useEffect(() => {
-    if (tradeMode === 'REAL' && fundingSource === 'WALLET' && publicKey && connected) {
-      fetchWalletBalance();
-
-      // Refresh wallet balance every 10 seconds
-      const interval = setInterval(() => {
-        fetchWalletBalance();
-      }, 10000);
-
-      return () => clearInterval(interval);
-    } else {
-      setWalletSolBalance(null);
-    }
-  }, [tradeMode, fundingSource, publicKey, connected, fetchWalletBalance]);
+    setWalletSolBalance(null);
+  }, []);
 
   // Calculate active balance based on mode and funding source
   const activeBalance = React.useMemo(() => {
@@ -276,7 +264,6 @@ export function TradingModeProvider({ children }: { children: React.ReactNode })
   return (
     <TradingModeContext.Provider value={value}>
       {children}
-      <ModeSwitchDialog />
     </TradingModeContext.Provider>
   );
 }
