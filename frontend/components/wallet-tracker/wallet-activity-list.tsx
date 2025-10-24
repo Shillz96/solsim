@@ -248,7 +248,7 @@ export function WalletActivityList({
         </div>
 
         {/* Loading Skeletons */}
-        <div className="flex-1 overflow-y-auto min-h-0">
+        <div className="flex-1 overflow-y-auto min-h-0 relative">
           {[...Array(10)].map((_, i) => (
             <div key={i} className="grid grid-cols-[50px_80px_1fr_80px_60px] sm:grid-cols-[60px_100px_1fr_100px_80px] gap-2 sm:gap-3 px-3 sm:px-4 py-2.5 border-b border-[var(--pipe-300)]">
               <Skeleton className="h-4 w-10" />
@@ -307,49 +307,37 @@ export function WalletActivityList({
         <div className="text-[10px] font-mario text-[var(--pipe-900)] uppercase text-right">MCap</div>
       </div>
 
-      {/* Activity List */}
-      <div className="flex-1 min-h-0">
+      {/* Activity List - Fixed height container */}
+      <div className="flex-1 min-h-0 relative">
         <Virtuoso
           data={filteredActivities}
           overscan={50}
-          style={{ height: '100%' }}
-        itemContent={(index, activity) => (
-          <ActivityRow
-            activity={activity}
-            onCopyTrade={handleCopyTrade}
-            copyingTrades={copyingTrades}
-            getWalletLabel={getWalletLabel}
-            copyToClipboard={copyToClipboard}
-            density={density}
-          />
-        )}
-        endReached={hasMore ? onLoadMore : undefined}
-        components={{
-          Footer: () => hasMore && isLoading ? (
-            <>
-              {/* Loading skeleton rows */}
-              {[...Array(3)].map((_, i) => (
-                <div key={`loading-${i}`} className="grid grid-cols-[50px_80px_1fr_80px_60px] sm:grid-cols-[60px_100px_1fr_100px_80px] gap-2 sm:gap-3 px-3 sm:px-4 py-2.5 border-b border-pipe-300 bg-[var(--star-yellow)]/10">
-                  <Skeleton className="h-4 w-10" />
-                  <div className="flex items-center gap-1.5">
-                    <Skeleton className="h-4 w-4 rounded-full" />
-                    <Skeleton className="h-3 w-12" />
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Skeleton className="h-7 w-7 rounded" />
-                    <Skeleton className="h-4 w-20" />
-                  </div>
-                  <Skeleton className="h-4 w-16 ml-auto" />
-                  <Skeleton className="h-4 w-12 ml-auto" />
+          style={{ height: '100%', width: '100%' }}
+          itemContent={(index, activity) => (
+            <ActivityRow
+              activity={activity}
+              onCopyTrade={handleCopyTrade}
+              copyingTrades={copyingTrades}
+              getWalletLabel={getWalletLabel}
+              copyToClipboard={copyToClipboard}
+              density={density}
+            />
+          )}
+          endReached={hasMore ? onLoadMore : undefined}
+          components={{
+            Footer: () => hasMore && isLoading ? (
+              <div className="py-4 border-t-2 border-pipe-300 bg-white">
+                <div className="flex items-center justify-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin text-mario-red" />
+                  <span className="text-sm font-semibold text-pipe-700">Loading more activities...</span>
                 </div>
-              ))}
-              {/* Loading indicator */}
-              <div className="p-3 text-center border-t-2 border-pipe-700 bg-[var(--background)]">
-                <Loader2 className="h-4 w-4 animate-spin mx-auto text-mario-red" />
               </div>
-            </>
-          ) : null
-        }}
+            ) : !hasMore && filteredActivities.length > 0 ? (
+              <div className="py-3 text-center border-t-2 border-pipe-300 bg-[var(--star-yellow)]/20">
+                <span className="text-xs font-bold text-pipe-700">End of activity feed</span>
+              </div>
+            ) : null
+          }}
         />
       </div>
     </div>

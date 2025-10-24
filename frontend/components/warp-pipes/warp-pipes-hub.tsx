@@ -19,9 +19,9 @@ import type { AdvancedFilters, TokenRow } from "@/lib/types/warp-pipes"
 import { getDefaultFilters } from "@/lib/warp-pipes-filter-presets"
 
 const STORAGE_KEYS = {
-  NEW: 'warp-pipes-filters-new',
-  GRADUATING: 'warp-pipes-filters-graduating',
-  BONDED: 'warp-pipes-filters-bonded',
+  NEW: 'warp-pipes-new-filters',
+  GRADUATING: 'warp-pipes-graduating-filters',
+  BONDED: 'warp-pipes-bonded-filters',
 }
 
 // Load filters from localStorage with fallback to defaults
@@ -31,10 +31,20 @@ function loadFilters(key: string, category: 'new' | 'graduating' | 'bonded'): Ad
   try {
     const stored = localStorage.getItem(key)
     if (stored) {
-      return JSON.parse(stored)
+      const parsed = JSON.parse(stored)
+      // Validate that parsed data is a valid AdvancedFilters object
+      if (parsed && typeof parsed === 'object') {
+        return parsed
+      }
     }
   } catch (error) {
-    console.error(`Failed to load filters from ${key}:`, error)
+    console.warn(`Failed to load filters from ${key}:`, error)
+    // Clear corrupted data
+    try {
+      localStorage.removeItem(key)
+    } catch (clearError) {
+      console.warn(`Failed to clear corrupted filters from ${key}:`, clearError)
+    }
   }
   
   return getDefaultFilters(category)
@@ -45,9 +55,15 @@ function saveFilters(key: string, filters: AdvancedFilters) {
   if (typeof window === 'undefined') return
   
   try {
-    localStorage.setItem(key, JSON.stringify(filters))
+    // Only save if filters have actual values (not just empty object)
+    if (filters && Object.keys(filters).length > 0) {
+      localStorage.setItem(key, JSON.stringify(filters))
+    } else {
+      // Remove empty filters from storage
+      localStorage.removeItem(key)
+    }
   } catch (error) {
-    console.error(`Failed to save filters to ${key}:`, error)
+    console.warn(`Failed to save filters to ${key}:`, error)
   }
 }
 
@@ -199,6 +215,7 @@ export function WarpPipesHub() {
           tokens={newTokens}
           isLoading={isLoading}
           onToggleWatch={handleToggleWatch}
+          filters={newFilters}
           onFiltersChange={setNewFilters}
           headerColor="new"
         />
@@ -207,6 +224,7 @@ export function WarpPipesHub() {
           tokens={graduating}
           isLoading={isLoading}
           onToggleWatch={handleToggleWatch}
+          filters={graduatingFilters}
           onFiltersChange={setGraduatingFilters}
           headerColor="graduating"
         />
@@ -215,6 +233,7 @@ export function WarpPipesHub() {
           tokens={bonded}
           isLoading={isLoading}
           onToggleWatch={handleToggleWatch}
+          filters={bondedFilters}
           onFiltersChange={setBondedFilters}
           headerColor="bonded"
         />
@@ -250,6 +269,7 @@ export function WarpPipesHub() {
               tokens={newTokens}
               isLoading={isLoading}
               onToggleWatch={handleToggleWatch}
+              filters={newFilters}
               onFiltersChange={setNewFilters}
               headerColor="new"
             />
@@ -261,6 +281,7 @@ export function WarpPipesHub() {
               tokens={graduating}
               isLoading={isLoading}
               onToggleWatch={handleToggleWatch}
+              filters={graduatingFilters}
               onFiltersChange={setGraduatingFilters}
               headerColor="graduating"
             />
@@ -272,6 +293,7 @@ export function WarpPipesHub() {
               tokens={bonded}
               isLoading={isLoading}
               onToggleWatch={handleToggleWatch}
+              filters={bondedFilters}
               onFiltersChange={setBondedFilters}
               headerColor="bonded"
             />

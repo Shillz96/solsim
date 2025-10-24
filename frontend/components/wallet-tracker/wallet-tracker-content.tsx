@@ -534,7 +534,9 @@ export function WalletTrackerContent({ compact = false }: WalletTrackerContentPr
         )}
 
         {/* Activity List - Full height in compact mode */}
-        <div className={cn(compact && "flex-1 min-h-0")}>
+        <div className={cn(
+          compact ? "flex-1 min-h-0 overflow-hidden" : "min-h-[600px]"
+        )}>
           <WalletActivityList
             activities={filteredActivities}
             isLoading={loadingWallets || (activities.length === 0 && isLoadingMore)}

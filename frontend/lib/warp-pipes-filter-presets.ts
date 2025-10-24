@@ -137,9 +137,9 @@ export const TRADING_PRESETS = {
 
 /**
  * Get default filters for a specific category
- * Returns empty filters - user must configure their own preferences
+ * Returns empty filters initially - user configures their own preferences
  */
-export function getDefaultFilters(category: 'new' | 'graduating' | 'bonded'): Partial<AdvancedFilters> {
+export function getDefaultFilters(category: 'new' | 'graduating' | 'bonded'): AdvancedFilters {
   // Return empty filters by default - user configures their own
   return {};
 }

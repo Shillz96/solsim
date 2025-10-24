@@ -13,7 +13,7 @@ import { TokenCard, TokenCardSkeleton } from "./token-card"
 import { FilterPanel } from "./filter-panel"
 import type { TokenRow, AdvancedFilters } from "@/lib/types/warp-pipes"
 import { getDefaultFilters } from "@/lib/warp-pipes-filter-presets"
-import { saveFilters as saveToStorage, loadFilters as loadFromStorage } from "@/lib/warp-pipes-storage"
+// Removed duplicate filter management - handled by parent component
 import Image from "next/image"
 
 interface TokenColumnProps {
@@ -21,7 +21,8 @@ interface TokenColumnProps {
   tokens: TokenRow[]
   isLoading?: boolean
   onToggleWatch: (mint: string, isWatched: boolean) => Promise<void>
-  onFiltersChange?: (filters: AdvancedFilters) => void
+  filters: AdvancedFilters
+  onFiltersChange: (filters: AdvancedFilters) => void
   className?: string
   headerColor?: "bonded" | "graduating" | "new"
 }
@@ -31,48 +32,20 @@ export function TokenColumn({
   tokens,
   isLoading,
   onToggleWatch,
+  filters,
   onFiltersChange,
   className,
   headerColor = "bonded",
 }: TokenColumnProps) {
   const [filtersOpen, setFiltersOpen] = useState(false)
-  const [filters, setFilters] = useState<AdvancedFilters>({})
-
-  // Load filters from localStorage on mount
-  useEffect(() => {
-    const savedFilters = loadFromStorage(headerColor)
-    if (savedFilters) {
-      setFilters(savedFilters)
-    } else {
-      // Use default filters for this category
-      const defaultFilters = getDefaultFilters(headerColor)
-      setFilters(defaultFilters)
-    }
-  }, [headerColor])
-
-  // Save filters to localStorage when they change
-  useEffect(() => {
-    if (Object.keys(filters).length > 0) {
-      saveToStorage(headerColor, filters)
-    }
-  }, [filters, headerColor])
-
-  // Notify parent component of filter changes
-  useEffect(() => {
-    if (onFiltersChange) {
-      onFiltersChange(filters)
-    }
-  }, [filters, onFiltersChange])
 
   const handleFiltersChange = (newFilters: AdvancedFilters) => {
-    setFilters(newFilters)
+    onFiltersChange(newFilters)
   }
 
   const handleApplyFilters = () => {
-    // Trigger a refetch with new filters
-    if (onFiltersChange) {
-      onFiltersChange(filters)
-    }
+    // Filters are already applied through onFiltersChange
+    setFiltersOpen(false)
   }
 
   // Header colors based on column type
