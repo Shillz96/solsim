@@ -63,9 +63,9 @@ export function TokenColumn({
   }
 
   return (
-    <div className={cn("flex flex-col h-full", className)}>
+    <div className={cn("flex flex-col h-full min-h-0", className)}>
       {/* Token Column */}
-      <div className={cn("flex flex-col h-full border-4 border-[var(--outline-black)] rounded-[16px] shadow-[6px_6px_0_var(--outline-black)] overflow-hidden")}>
+      <div className={cn("flex flex-col h-full min-h-0 border-4 border-[var(--outline-black)] rounded-[16px] shadow-[6px_6px_0_var(--outline-black)] overflow-hidden")}>
         {/* Column Header */}
         <div
           className={cn(

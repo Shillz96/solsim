@@ -164,9 +164,7 @@ export default async function marketRoutes(app: FastifyInstance) {
     try {
       // Get PumpPortal 24h volume from Redis
       const pumpData = await redis.get('market:lighthouse:pump');
-      const pump = pumpData ? JSON.parse(pumpData) : {
-        '24h': { volumeSol: 0 },
-      };
+      const pump = pumpData ? JSON.parse(pumpData) : null;
 
       // Get CMC total market cap from Redis
       const cmcData = await redis.get('market:cmc:global');
@@ -188,7 +186,7 @@ export default async function marketRoutes(app: FastifyInstance) {
       };
 
       return {
-        pumpVolume24h: pump['24h']?.volumeSol || null,
+        pumpVolume24h: pump?.['24h']?.volumeSol || null,
         totalMarketCapUsd: cmc.totalMarketCapUsd || null,
         fearGreedIndex: fearGreed.value || null,
         fearGreedLabel: fearGreed.classification || null,
