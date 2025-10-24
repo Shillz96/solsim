@@ -186,7 +186,7 @@ export function WarpPipesHub() {
   }, [data, bondedFilters, graduatingFilters, newFilters])
 
   return (
-    <div className="w-full h-screen flex flex-col bg-[var(--background)]">
+    <div className="w-full h-screen flex flex-col bg-[var(--background)] overflow-hidden">
       {/* Error State */}
       {error && (
         <div className="px-4 pt-4 pb-2 flex-shrink-0">

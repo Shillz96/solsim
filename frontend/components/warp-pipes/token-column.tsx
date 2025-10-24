@@ -65,7 +65,7 @@ export function TokenColumn({
   return (
     <div className={cn("flex flex-col h-full", className)}>
       {/* Token Column */}
-      <div className={cn("flex flex-col h-full border-4 border-[var(--outline-black)] rounded-[16px] shadow-[6px_6px_0_var(--outline-black)]")}>
+      <div className={cn("flex flex-col h-full border-4 border-[var(--outline-black)] rounded-[16px] shadow-[6px_6px_0_var(--outline-black)] overflow-hidden")}>
         {/* Column Header */}
         <div
           className={cn(
@@ -106,7 +106,7 @@ export function TokenColumn({
         {/* Column Body - Scrollable List */}
         <div
           className={cn(
-            "flex-1 overflow-y-auto bg-white p-4 pt-0 space-y-4 min-h-0 max-h-full"
+            "flex-1 overflow-y-auto bg-white p-4 pt-0 space-y-4 min-h-0"
           )}
         >
         {/* Loading State */}
