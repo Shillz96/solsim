@@ -45,7 +45,7 @@ export function ProfileMenu({
   const level = levelInfo.level
 
   return (
-    <DropdownMenu>
+    <DropdownMenu modal={false}>
       <DropdownMenuTrigger asChild>
         <motion.button
           whileHover={{ y: -1 }}

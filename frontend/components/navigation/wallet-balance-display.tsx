@@ -271,7 +271,7 @@ export function WalletBalanceDisplay({
 
   return (
     <>
-    <DropdownMenu>
+    <DropdownMenu modal={false}>
       <DropdownMenuTrigger asChild>
         <div role="button" aria-haspopup="menu">
           <BalanceButton />

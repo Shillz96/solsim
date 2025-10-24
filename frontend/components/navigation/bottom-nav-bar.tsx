@@ -491,7 +491,7 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
                   bgColor="var(--luigi-green)"
                 />
                 {/* More Info - White CartridgePill with Dropdown */}
-                <DropdownMenu>
+                <DropdownMenu modal={false}>
                   <DropdownMenuTrigger asChild>
                     <div>
                       <CartridgePill
@@ -507,7 +507,6 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
                     side="top"
                     className="bg-white border-3 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)] mb-2"
                     sideOffset={8}
-                    avoidCollisions={true}
                   >
                     {infoItems.map((item) => (
                       <DropdownMenuItem key={item.href} asChild>
@@ -642,7 +641,7 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
                 className="hidden lg:inline-grid"
               />
               {/* More Info - White CartridgePill with Dropdown */}
-              <DropdownMenu>
+              <DropdownMenu modal={false}>
                 <DropdownMenuTrigger asChild>
                   <div>
                     <CartridgePill
@@ -658,7 +657,6 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
                   side="top"
                   className="bg-white border-3 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)] mb-2"
                   sideOffset={8}
-                  avoidCollisions={true}
                 >
                   {infoItems.map((item) => (
                     <DropdownMenuItem key={item.href} asChild>

@@ -506,11 +506,12 @@ export async function getTokenTradingStats(
 
   if (position && D(position.qty).gt(0)) {
     // Get current price
-    const currentPrice = await priceService.getLastTick(mint);
-    if (currentPrice) {
+    const priceTick = await priceService.getLastTick(mint);
+    if (priceTick && priceTick.priceUsd) {
       const qty = D(position.qty);
       const costBasis = D(position.costBasis);
-      currentHoldingValue = qty.mul(D(currentPrice));
+      const currentPrice = D(priceTick.priceUsd);
+      currentHoldingValue = qty.mul(currentPrice);
       unrealizedPnL = currentHoldingValue.sub(costBasis);
     }
   }
