@@ -146,7 +146,8 @@ function PortfolioPageContent() {
                   </TabsTrigger>
                 </TabsList>
 
-                <TabsContent value="positions" className="mt-0">
+                {/* Tab content with consistent height to prevent layout shifts */}
+                <TabsContent value="positions" className="flex-1 min-h-[600px] mt-0">
                   <UnifiedPositions
                     variant="full"
                     showHeader={false}
@@ -154,7 +155,7 @@ function PortfolioPageContent() {
                   />
                 </TabsContent>
 
-                <TabsContent value="performance" className="mt-0">
+                <TabsContent value="performance" className="flex-1 min-h-[600px] mt-0">
                   <div className="space-y-6">
                     <div className="bg-[var(--sky-blue)]/20 border-4 border-[var(--outline-black)] rounded-xl shadow-[6px_6px_0_var(--outline-black)] p-6">
                       <div className="flex items-center gap-2 mb-4">
@@ -169,7 +170,7 @@ function PortfolioPageContent() {
                   </div>
                 </TabsContent>
 
-                <TabsContent value="history" className="mt-0">
+                <TabsContent value="history" className="flex-1 min-h-[600px] mt-0">
                   <div className="bg-[var(--sky-blue)]/20 border-4 border-[var(--outline-black)] rounded-xl shadow-[6px_6px_0_var(--outline-black)] p-6">
                     <div className="flex items-center gap-2 mb-4">
                       <Image src="/icons/mario/game.png" alt="Quest" width={24} height={24} />
