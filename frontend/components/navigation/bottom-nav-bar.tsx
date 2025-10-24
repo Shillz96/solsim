@@ -3,7 +3,7 @@
 import Link from "next/link"
 import Image from "next/image"
 import { usePathname } from "next/navigation"
-import { Home, TrendingUp, Wallet, Trophy, Gift, Eye, Zap, Map, BookOpen, AlertTriangle, Rocket } from "lucide-react"
+import { Home, TrendingUp, Wallet, Trophy, Gift, Eye, Zap, Map, BookOpen, AlertTriangle, Rocket, Info, ChevronDown } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
@@ -24,6 +24,12 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { DepositModal } from "@/components/modals/deposit-modal"
 import { RealTradingOnboardingModal } from "@/components/modals/real-trading-onboarding-modal"
 import { CartridgePill } from "@/components/ui/cartridge-pill"
@@ -32,6 +38,13 @@ import { WalletTrackerContent } from "@/components/wallet-tracker/wallet-tracker
 import MarketHover from "@/components/market/MarketHover"
 
 // Percentage formatting now inline
+
+// Info dropdown items for bottom nav
+const infoItems = [
+  { href: "/rewards", icon: Gift, label: "Rewards", iconSrc: "/icons/mario/gift.png" },
+  { href: "/docs", icon: BookOpen, label: "Docs", iconSrc: "/icons/mario/game.png" },
+  { href: "/roadmap", icon: Map, label: "Roadmap", iconSrc: "/icons/mario/map.png" },
+]
 
 interface MarketPrice {
   symbol: string
@@ -448,6 +461,39 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
                   size="sm"
                   bgColor="var(--luigi-green)"
                 />
+                {/* More Info - White CartridgePill with Dropdown */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <div>
+                      <CartridgePill
+                        value="More Info"
+                        size="sm"
+                        bgColor="white"
+                        className="cursor-pointer border-2 border-[var(--outline-black)] text-[var(--outline-black)]"
+                      />
+                    </div>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent 
+                    align="center"
+                    side="top"
+                    className="bg-white border-3 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)] mb-2"
+                  >
+                    {infoItems.map((item) => (
+                      <DropdownMenuItem key={item.href} asChild>
+                        <Link
+                          href={item.href}
+                          className={cn(
+                            "flex items-center gap-2 px-3 py-2 cursor-pointer font-mario",
+                            pathname === item.href && "bg-primary/10"
+                          )}
+                        >
+                          <item.icon className="h-4 w-4" />
+                          {item.label}
+                        </Link>
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
                 {/* Trading Mode as CartridgePill */}
                 <CartridgePill
                   value={tradeMode === "REAL" ? "Mainnet" : "Paper"}
@@ -547,7 +593,7 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
               <div className="w-5 h-5"></div>
             </div>
 
-            {/* Right: Launch Token, Wallet Tracker, Leaderboard & Trading Mode */}
+            {/* Right: Launch Token, Wallet Tracker, Leaderboard, More Info & Trading Mode */}
             <div className="flex items-center gap-2 md:gap-4">
               {/* Launch Token - Red CartridgePill */}
               <CartridgePill
@@ -573,6 +619,39 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
                 bgColor="var(--luigi-green)"
                 className="hidden lg:inline-grid"
               />
+              {/* More Info - White CartridgePill with Dropdown */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <div>
+                    <CartridgePill
+                      value="More Info"
+                      size="sm"
+                      bgColor="white"
+                      className="hidden lg:inline-grid cursor-pointer border-2 border-[var(--outline-black)] text-[var(--outline-black)]"
+                    />
+                  </div>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent 
+                  align="center"
+                  side="top"
+                  className="bg-white border-3 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)] mb-2"
+                >
+                  {infoItems.map((item) => (
+                    <DropdownMenuItem key={item.href} asChild>
+                      <Link
+                        href={item.href}
+                        className={cn(
+                          "flex items-center gap-2 px-3 py-2 cursor-pointer font-mario",
+                          pathname === item.href && "bg-primary/10"
+                        )}
+                      >
+                        <item.icon className="h-4 w-4" />
+                        {item.label}
+                      </Link>
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
               {/* Trading Mode as CartridgePill */}
               <CartridgePill
                 value={tradeMode === "REAL" ? "Mainnet" : "Paper"}

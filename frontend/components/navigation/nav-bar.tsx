@@ -327,44 +327,6 @@ export function NavBar() {
                 )
               })}
               
-              {/* More Info Dropdown */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className={cn(
-                      "flex items-center gap-1.5 px-3 py-2 transition-all duration-200 font-mario text-xs h-9",
-                      "bg-[var(--pipe-gray)]/20 hover:bg-[var(--pipe-gray)]/30 border-2 border-[var(--pipe-gray)]",
-                      "shadow-[2px_2px_0_var(--pipe-gray)] hover:shadow-[3px_3px_0_var(--pipe-gray)]",
-                      infoItems.some(item => pathname === item.href) && "bg-[var(--star-yellow)]/20 border-[var(--star-yellow)] shadow-[2px_2px_0_var(--star-yellow)]"
-                    )}
-                  >
-                    <Info className="h-4 w-4" />
-                    <span className="hidden lg:inline">More Info</span>
-                    <ChevronDown className="h-3 w-3" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent 
-                  align="start"
-                  className="bg-white border-3 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)]"
-                >
-                  {infoItems.map((item) => (
-                    <DropdownMenuItem key={item.href} asChild>
-                      <Link
-                        href={item.href}
-                        className={cn(
-                          "flex items-center gap-2 px-3 py-2 cursor-pointer font-mario",
-                          pathname === item.href && "bg-primary/10"
-                        )}
-                      >
-                        <item.icon className="h-4 w-4" />
-                        {item.label}
-                      </Link>
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
             </nav>
           </div>
 
