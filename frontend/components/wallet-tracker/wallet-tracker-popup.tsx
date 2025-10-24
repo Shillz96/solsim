@@ -576,7 +576,7 @@ export function WalletTrackerPopup({ isOpen, onClose }: WalletTrackerPopupProps)
                                     Copy
                                   </Button>
                                 </div>
-                              </Card>
+                              </div>
                             ))}
                           </div>
                         )}

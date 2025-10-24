@@ -52,7 +52,7 @@ function MarioTradingPanelComponent({ tokenAddress: propTokenAddress }: MarioTra
   const { data: portfolio, isLoading: portfolioLoading, error: portfolioErrorObj, refetch: refreshPortfolio } = usePortfolio()
   const portfolioError = portfolioErrorObj ? (portfolioErrorObj as Error).message : null
 
-  const { activeBalance, refreshBalances } = useTradingMode()
+  const { activeBalance, refreshBalances, tradeMode } = useTradingMode()
 
   const [userBalance, setUserBalance] = useState<number>(0)
   const [isTrading, setIsTrading] = useState(false)

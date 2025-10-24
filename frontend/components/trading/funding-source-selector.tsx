@@ -56,9 +56,10 @@ export function FundingSourceSelector({
 
   const handleSelectSource = (source: FundingSource) => {
     // Can't select wallet if not connected
-    if (source === 'WALLET' && !connected) {
-      return;
-    }
+    // Note: WALLET type currently not in FundingSource union (paper mode only)
+    // if (source === 'WALLET' && !connected) {
+    //   return;
+    // }
 
     setFundingSource(source);
   };

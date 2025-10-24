@@ -62,44 +62,57 @@ function VerifyEmailContent() {
   }, [token, router])
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-background">
-      <Card className="w-full max-w-md border-2">
-        <CardHeader className="text-center">
-          <div className="flex justify-center mb-4">
-            {status === 'loading' && (
-              <Loader2 className="h-16 w-16 text-primary animate-spin" />
-            )}
-            {status === 'success' && (
-              <div className="h-16 w-16 rounded-full bg-green-100 flex items-center justify-center">
-                <CheckCircle className="h-10 w-10 text-green-600" />
-              </div>
-            )}
-            {status === 'error' && (
-              <div className="h-16 w-16 rounded-full bg-red-100 flex items-center justify-center">
-                <AlertCircle className="h-10 w-10 text-red-600" />
-              </div>
-            )}
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 flex items-center justify-center p-4">
+      <div className="w-full max-w-md">
+        {/* Mario-themed Header */}
+        <div className="bg-gradient-to-r from-[var(--luigi-green)]/20 to-[var(--sky-blue)]/20 border-4 border-[var(--outline-black)] rounded-xl p-6 shadow-[8px_8px_0_var(--outline-black)] relative overflow-hidden mb-6">
+          <div className="absolute top-2 right-2 flex gap-2">
+            <img src="/icons/mario/star.png" alt="Star" width={24} height={24} className="animate-pulse" />
+            <img src="/icons/mario/mushroom.png" alt="Mushroom" width={24} height={24} />
           </div>
+          <div className="flex flex-col items-center gap-4">
+            <div className="flex justify-center mb-4">
+              {status === 'loading' && (
+                <div className="relative">
+                  <div className="h-16 w-16 border-4 border-[var(--luigi-green)]/30 border-t-[var(--luigi-green)] rounded-full animate-spin"></div>
+                  <div className="absolute inset-0 h-16 w-16 flex items-center justify-center">
+                    <img src="/icons/mario/star.png" alt="Loading" width={32} height={32} className="animate-pulse" />
+                  </div>
+                </div>
+              )}
+              {status === 'success' && (
+                <div className="h-16 w-16 rounded-full bg-[var(--luigi-green)] border-4 border-[var(--outline-black)] flex items-center justify-center shadow-[4px_4px_0_var(--outline-black)]">
+                  <CheckCircle className="h-10 w-10 text-white" />
+                </div>
+              )}
+              {status === 'error' && (
+                <div className="h-16 w-16 rounded-full bg-[var(--mario-red)] border-4 border-[var(--outline-black)] flex items-center justify-center shadow-[4px_4px_0_var(--outline-black)]">
+                  <AlertCircle className="h-10 w-10 text-white" />
+                </div>
+              )}
+            </div>
 
-          <CardTitle className="text-2xl">
-            {status === 'loading' && 'Verifying your email...'}
-            {status === 'success' && 'Email Verified!'}
-            {status === 'error' && 'Verification Failed'}
-          </CardTitle>
+            <h1 className="font-mario text-2xl text-[var(--outline-black)]">
+              {status === 'loading' && 'Verifying your email...'}
+              {status === 'success' && 'Email Verified!'}
+              {status === 'error' && 'Verification Failed'}
+            </h1>
 
-          <CardDescription className="text-base">
-            {message}
-          </CardDescription>
-        </CardHeader>
+            <p className="text-[var(--outline-black)] font-bold text-center">
+              {message}
+            </p>
+          </div>
+        </div>
 
-        <CardContent className="space-y-4">
+        {/* Action Buttons */}
+        <div className="space-y-4">
           {status === 'success' && (
-            <div className="text-center">
-              <p className="text-sm text-muted-foreground mb-4">
+            <div className="text-center space-y-4">
+              <p className="text-sm text-[var(--outline-black)] font-bold">
                 Redirecting you to the homepage...
               </p>
               <Button
-                className="w-full"
+                className="w-full mario-btn bg-[var(--luigi-green)] text-white border-3 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)] hover:shadow-[6px_6px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all font-mario"
                 onClick={() => window.location.href = '/'}
               >
                 Go to Homepage
@@ -108,19 +121,19 @@ function VerifyEmailContent() {
           )}
 
           {status === 'error' && (
-            <div className="space-y-2">
+            <div className="space-y-3">
               <Link href="/">
-                <Button variant="outline" className="w-full">
+                <Button className="w-full mario-btn bg-[var(--mario-red)] text-white border-3 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)] hover:shadow-[6px_6px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all font-mario">
                   Return to Homepage
                 </Button>
               </Link>
-              <p className="text-xs text-center text-muted-foreground">
+              <p className="text-xs text-center text-[var(--outline-black)] font-bold">
                 Need help? Contact support or try signing up again.
               </p>
             </div>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   )
 }

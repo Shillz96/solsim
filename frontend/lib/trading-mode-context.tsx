@@ -6,7 +6,7 @@ import { Connection, PublicKey, LAMPORTS_PER_SOL } from '@solana/web3.js';
 import { useWallet } from '@solana/wallet-adapter-react';
 
 export type TradeMode = 'PAPER';
-export type FundingSource = 'DEPOSITED';
+export type FundingSource = 'DEPOSITED' | 'WALLET'; // WALLET for future real trading support
 
 interface TradingModeContextType {
   // Current trading mode

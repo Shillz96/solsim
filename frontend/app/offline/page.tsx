@@ -65,77 +65,100 @@ export default function OfflinePage() {
         transition={{ duration: 0.5 }}
         className="max-w-md w-full space-y-6"
       >
-        <Card className="p-8 text-center space-y-6">
-          <motion.div
-            animate={{ 
-              scale: [1, 1.1, 1],
-              rotate: [0, 5, -5, 0]
-            }}
-            transition={{ 
-              duration: 2,
-              repeat: Infinity,
-              ease: "easeInOut"
-            }}
-            className="mx-auto w-16 h-16 rounded-full bg-muted flex items-center justify-center"
-          >
-            <WifiOff className="h-8 w-8 text-muted-foreground" />
-          </motion.div>
+        {/* Mario-themed Header */}
+        <div className="bg-gradient-to-r from-[var(--mario-red)]/20 to-[var(--star-yellow)]/20 border-4 border-[var(--outline-black)] rounded-xl p-6 shadow-[8px_8px_0_var(--outline-black)] relative overflow-hidden">
+          <div className="absolute top-2 right-2 flex gap-2">
+            <img src="/icons/mario/fire.png" alt="Fire" width={24} height={24} />
+            <img src="/icons/mario/star.png" alt="Star" width={24} height={24} className="animate-pulse" />
+          </div>
+          <div className="flex flex-col items-center gap-4">
+            <motion.div
+              animate={{ 
+                scale: [1, 1.1, 1],
+                rotate: [0, 5, -5, 0]
+              }}
+              transition={{ 
+                duration: 2,
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
+              className="w-16 h-16 rounded-full bg-[var(--mario-red)] border-4 border-[var(--outline-black)] flex items-center justify-center shadow-[4px_4px_0_var(--outline-black)]"
+            >
+              <WifiOff className="h-8 w-8 text-white" />
+            </motion.div>
 
-          <div>
-            <h1 className="text-2xl font-bold mb-2">You're Offline</h1>
-            <p className="text-muted-foreground">
+            <h1 className="font-mario text-2xl text-[var(--outline-black)]">You're Offline</h1>
+            <p className="text-[var(--outline-black)] font-bold text-center">
               Check your internet connection and try again. Some cached data is still available.
             </p>
+
+            {!isOnline && lastOnline && (
+              <div className="bg-[var(--star-yellow)] border-3 border-[var(--outline-black)] rounded-lg px-3 py-1 shadow-[2px_2px_0_var(--outline-black)]">
+                <span className="text-xs font-mario font-bold text-[var(--outline-black)]">
+                  Last online: {formatLastOnline()}
+                </span>
+              </div>
+            )}
           </div>
+        </div>
 
-          {!isOnline && lastOnline && (
-            <Badge variant="secondary" className="mx-auto">
-              Last online: {formatLastOnline()}
-            </Badge>
-          )}
-
+        {/* Retry Button */}
+        <div className="bg-white border-4 border-[var(--outline-black)] rounded-xl shadow-[6px_6px_0_var(--outline-black)] p-6">
           <Button 
             onClick={handleRetry} 
-            className="w-full"
+            className="w-full mario-btn bg-[var(--luigi-green)] text-white border-3 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)] hover:shadow-[6px_6px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all font-mario"
             disabled={!isOnline}
           >
             <RefreshCw className="mr-2 h-4 w-4" />
             {isOnline ? 'Retry Connection' : 'Waiting for Connection...'}
           </Button>
-        </Card>
+        </div>
 
         {/* Show cached data if available */}
         {balance && (
-          <Card className="p-6 space-y-4">
+          <div className="bg-white border-4 border-[var(--outline-black)] rounded-xl shadow-[6px_6px_0_var(--outline-black)] p-6 space-y-4">
             <div className="flex items-center gap-2 mb-4">
-              <TrendingUp className="h-5 w-5 text-primary" />
-              <h2 className="font-semibold">Cached Data</h2>
-              <Badge variant="outline" className="text-xs">Offline</Badge>
-            </div>
-
-            <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
-              <div className="flex items-center gap-2">
-                <Wallet className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm font-medium">Balance</span>
+              <div className="h-8 w-8 rounded-lg bg-[var(--luigi-green)] border-3 border-[var(--outline-black)] flex items-center justify-center shadow-[2px_2px_0_var(--outline-black)]">
+                <TrendingUp className="h-4 w-4 text-white" />
               </div>
-              <span className="font-mono text-sm">{parseFloat(balance.balance).toFixed(2)} SOL</span>
+              <h2 className="font-mario font-bold text-[var(--outline-black)]">Cached Data</h2>
+              <div className="bg-[var(--mario-red)] border-2 border-[var(--outline-black)] rounded px-2 py-1 shadow-[1px_1px_0_var(--outline-black)]">
+                <span className="text-xs font-mario font-bold text-white">Offline</span>
+              </div>
             </div>
 
-            <div className="text-xs text-center text-muted-foreground mt-4">
+            <div className="flex items-center justify-between p-3 bg-[var(--sky-blue)]/20 border-3 border-[var(--outline-black)] rounded-lg shadow-[2px_2px_0_var(--outline-black)]">
+              <div className="flex items-center gap-2">
+                <Wallet className="h-4 w-4 text-[var(--outline-black)]" />
+                <span className="text-sm font-bold text-[var(--outline-black)]">Balance</span>
+              </div>
+              <span className="font-mono text-sm font-bold text-[var(--outline-black)]">{parseFloat(balance.balance).toFixed(2)} SOL</span>
+            </div>
+
+            <div className="text-xs text-center text-[var(--outline-black)] font-bold mt-4 bg-[var(--star-yellow)]/20 border-2 border-[var(--outline-black)] rounded-lg p-3 shadow-[1px_1px_0_var(--outline-black)]">
               📋 This data was cached when you were last online.<br />
               Reconnect to get the latest updates.
             </div>
-          </Card>
+          </div>
         )}
 
-        <div className="text-center space-y-2">
-          <p className="text-sm text-muted-foreground">
+        <div className="text-center space-y-3 bg-white border-4 border-[var(--outline-black)] rounded-xl shadow-[6px_6px_0_var(--outline-black)] p-6">
+          <p className="text-sm text-[var(--outline-black)] font-bold">
             💡 <strong>PWA Features Active:</strong>
           </p>
-          <div className="text-xs text-muted-foreground space-y-1">
-            <div>✅ Cached portfolio data available</div>
-            <div>✅ Offline trading queue enabled</div>
-            <div>✅ Background sync when online</div>
+          <div className="text-xs text-[var(--outline-black)] space-y-1">
+            <div className="flex items-center gap-2">
+              <span className="text-[var(--luigi-green)] font-bold">✓</span>
+              <span>Cached portfolio data available</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-[var(--luigi-green)] font-bold">✓</span>
+              <span>Offline trading queue enabled</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-[var(--luigi-green)] font-bold">✓</span>
+              <span>Background sync when online</span>
+            </div>
           </div>
         </div>
       </motion.div>
