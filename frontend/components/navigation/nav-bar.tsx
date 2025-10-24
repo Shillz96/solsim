@@ -254,7 +254,7 @@ export function NavBar() {
                 width={180}
                 height={54}
                 priority
-                className="h-10 w-auto hover:scale-105 transition-transform duration-200"
+                className="h-8 md:h-10 w-auto hover:scale-105 transition-transform duration-200"
               />
             </Link>
 
@@ -320,17 +320,17 @@ export function NavBar() {
           </div>
 
           {/* Enhanced Search Bar - Hidden on mobile, visible on md+ */}
-          <div className="hidden md:flex flex-1 max-w-[520px] mx-4 relative" ref={searchRef}>
+          <div className="hidden md:flex flex-1 max-w-[400px] lg:max-w-[520px] mx-2 lg:mx-4 relative" ref={searchRef}>
             <div className="relative w-full">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Search className="absolute left-2 md:left-3 top-1/2 transform -translate-y-1/2 h-3.5 md:h-4 w-3.5 md:w-4 text-muted-foreground" />
               <Input
                 placeholder="Search tokens..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 pr-10 w-full h-9 border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)] transition-all font-semibold"
+                className="pl-8 md:pl-10 pr-8 md:pr-10 w-full h-8 md:h-9 text-xs md:text-sm border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)] transition-all font-semibold"
               />
               {isSearching && (
-                <Loader2 className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 animate-spin text-muted-foreground" />
+                <Loader2 className="absolute right-2 md:right-3 top-1/2 transform -translate-y-1/2 h-3.5 md:h-4 w-3.5 md:w-4 animate-spin text-muted-foreground" />
               )}
             </div>
 
@@ -342,10 +342,10 @@ export function NavBar() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
                 transition={{ duration: 0.15 }}
-                className="absolute top-full left-0 right-0 mt-2 bg-white border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] rounded-xl z-[100] max-h-80 overflow-y-auto"
+                className="absolute top-full left-0 right-0 mt-2 bg-white border-3 md:border-4 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)] md:shadow-[6px_6px_0_var(--outline-black)] rounded-lg md:rounded-xl z-[100] max-h-80 overflow-y-auto"
               >
-                  <div className="p-2">
-                    <div className="text-xs text-muted-foreground px-2 py-2 font-mario font-bold border-b-3 border-[var(--outline-black)] mb-1 uppercase tracking-wide">
+                  <div className="p-1.5 md:p-2">
+                    <div className="text-[10px] md:text-xs text-muted-foreground px-2 py-1.5 md:py-2 font-mario font-bold border-b-2 md:border-b-3 border-[var(--outline-black)] mb-1 uppercase tracking-wide">
                       Search Results
                     </div>
                     {searchResults.map((token) => (
@@ -356,7 +356,7 @@ export function NavBar() {
                           e.stopPropagation() // Stop event from bubbling to document
                           handleTokenSelect(token)
                         }}
-                        className="w-full text-left px-3 py-2.5 rounded-lg hover:bg-[var(--star-yellow)]/20 border-2 border-transparent hover:border-[var(--outline-black)] transition-colors duration-150 focus:bg-[var(--star-yellow)]/20 focus:border-[var(--outline-black)] focus:outline-none"
+                        className="w-full text-left px-2 md:px-3 py-2 md:py-2.5 rounded-lg hover:bg-[var(--star-yellow)]/20 border-2 border-transparent hover:border-[var(--outline-black)] transition-colors duration-150 focus:bg-[var(--star-yellow)]/20 focus:border-[var(--outline-black)] focus:outline-none"
                       >
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-3">
@@ -370,20 +370,20 @@ export function NavBar() {
                                 }}
                               />
                             )}
-                            <div className="min-w-0">
-                              <div className="font-mario text-sm text-foreground">{token.symbol}</div>
-                              <div className="text-xs text-muted-foreground truncate max-w-[200px] font-bold">
+                            <div className="min-w-0 flex-1">
+                              <div className="font-mario text-xs md:text-sm text-foreground truncate">{token.symbol}</div>
+                              <div className="text-[10px] md:text-xs text-muted-foreground truncate font-bold">
                                 {token.name}
                               </div>
                             </div>
                           </div>
                           {token.price && (
                             <div className="text-right flex-shrink-0 ml-2">
-                              <div className="text-sm font-bold text-foreground tabular-nums">
+                              <div className="text-xs md:text-sm font-bold text-foreground tabular-nums">
                                 ${parseFloat(token.price.toString()).toFixed(6)}
                               </div>
                               {solPrice > 0 && (
-                                <div className="text-xs text-muted-foreground tabular-nums font-bold">
+                                <div className="text-[10px] md:text-xs text-muted-foreground tabular-nums font-bold">
                                   {formatSolEquivalent(parseFloat(token.price.toString()), solPrice)}
                                 </div>
                               )}

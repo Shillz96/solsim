@@ -186,8 +186,8 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
                     />
                   ) : (
                     <>
-                      <Icon className="h-5 w-5 text-foreground/70 group-hover:text-foreground transition-colors" />
-                      <span className="text-[11px] font-mario text-foreground/70">{item.label}</span>
+                      <Icon className="h-4 w-4 text-foreground/70 group-hover:text-foreground transition-colors" />
+                      <span className="text-[10px] font-mario text-foreground/70 truncate max-w-[60px]">{item.label}</span>
                     </>
                   )}
                 </Link>
@@ -221,32 +221,32 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
       )}>
         <div className="mx-auto flex h-12 items-center justify-between px-4 max-w-content">
           {/* Left: Social Links */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 md:gap-4">
             <a
               href="https://x.com/oneupsol"
               target="_blank"
               rel="noopener noreferrer"
               className="text-muted-foreground hover:text-primary transition-colors"
             >
-              <XIcon className="h-4 w-4 hover:glow-primary" />
+              <XIcon className="h-3.5 md:h-4 w-3.5 md:w-4 hover:glow-primary" />
             </a>
-            <span className="text-xs font-mario text-muted-foreground">© 2025 1UP SOL</span>
+            <span className="text-[10px] md:text-xs font-mario text-muted-foreground whitespace-nowrap">© 2025 1UP SOL</span>
           </div>
 
           {/* Center: Market Prices */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 md:gap-4">
             {marketPrices.map((market) => (
-              <div key={market.symbol} className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white border-2 border-[var(--outline-black)]/20">
-                <div className="flex items-center gap-1.5">
+              <div key={market.symbol} className="flex items-center gap-1.5 md:gap-2 px-2 md:px-3 py-1 md:py-1.5 rounded-lg bg-white border-2 border-[var(--outline-black)]/20">
+                <div className="flex items-center gap-1 md:gap-1.5">
                   <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div>
-                  <span className="text-xs font-semibold text-foreground">{market.symbol}</span>
+                  <span className="text-[10px] md:text-xs font-semibold text-foreground">{market.symbol}</span>
                 </div>
-                <span className="text-xs font-bold text-foreground">
+                <span className="text-[10px] md:text-xs font-bold text-foreground tabular-nums">
                   ${market.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </span>
                 <span
                   className={cn(
-                    "text-[10px] font-medium px-1.5 py-0.5 rounded",
+                    "text-[9px] md:text-[10px] font-medium px-1 md:px-1.5 py-0.5 rounded tabular-nums",
                     market.change24h > 0
                       ? "text-green-600 bg-green-100"
                       : market.change24h < 0
@@ -262,7 +262,7 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
 
             {/* UP Token Info */}
             <div
-              className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white border-2 border-[var(--outline-black)]/20 cursor-pointer hover:border-[var(--outline-black)]/40 transition-colors"
+              className="flex items-center gap-1.5 md:gap-2 px-2 md:px-3 py-1 md:py-1.5 rounded-lg bg-white border-2 border-[var(--outline-black)]/20 cursor-pointer hover:border-[var(--outline-black)]/40 transition-colors"
               onClick={() => {
                 const ca = "2mksd9Ci9XzBV4CrZ6Fo2SuAtHfrUg3cmdKRjZeApump"
                 navigator.clipboard.writeText(ca)
@@ -270,8 +270,8 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
               }}
               title="Click to copy contract address"
             >
-              <div className="flex items-center gap-1.5">
-                <div className="relative h-6 w-6">
+              <div className="flex items-center gap-1 md:gap-1.5">
+                <div className="relative h-5 w-5 md:h-6 md:w-6">
                   <Image
                     src="/Socials PFP-1.png"
                     alt="UP Token Logo"
@@ -279,22 +279,23 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
                     className="object-contain"
                   />
                 </div>
-                <span className="text-xs font-semibold text-star">$UP</span>
+                <span className="text-[10px] md:text-xs font-semibold text-star">$UP</span>
               </div>
-              <span className="text-[10px] text-muted-foreground font-mono hover:text-foreground transition-colors">
+              <span className="text-[9px] md:text-[10px] text-muted-foreground font-mono hover:text-foreground transition-colors whitespace-nowrap">
                 Coming Soon
               </span>
             </div>
           </div>
 
           {/* Right: Wallet Tracker, Leaderboard & Trading Mode */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 md:gap-4">
             {/* Wallet Tracker - Blue CartridgePill */}
             <CartridgePill
               value="Wallet Tracker"
               href="/wallet-tracker"
               size="sm"
               bgColor="var(--sky-blue)"
+              className="hidden lg:inline-grid"
             />
             {/* Leaderboard - Green CartridgePill */}
             <CartridgePill
@@ -302,6 +303,7 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
               href="/leaderboard"
               size="sm"
               bgColor="var(--luigi-green)"
+              className="hidden lg:inline-grid"
             />
             {/* Trading Mode as CartridgePill */}
             <CartridgePill

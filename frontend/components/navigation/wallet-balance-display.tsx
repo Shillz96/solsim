@@ -140,22 +140,22 @@ export function WalletBalanceDisplay({
         aria-label="Balance"
         className={cn(
           // container
-          "group relative h-10 md:h-11 min-w-[180px]",
-          "px-3 md:px-3.5 rounded-[12px] md:rounded-[14px]",
+          "group relative h-9 md:h-11 min-w-[140px] md:min-w-[180px]",
+          "px-2.5 md:px-3.5 rounded-[10px] md:rounded-[14px]",
           "bg-[var(--star-yellow)]",
-          "border-4 border-[var(--outline-black)]",
-          "shadow-[4px_4px_0_var(--outline-black)]",
-          "flex items-center gap-3 md:gap-4",
+          "border-3 md:border-4 border-[var(--outline-black)]",
+          "shadow-[3px_3px_0_var(--outline-black)] md:shadow-[4px_4px_0_var(--outline-black)]",
+          "flex items-center gap-2 md:gap-4",
           "transition-transform hover:-translate-y-[1px]",
           className
         )}
       >
         {/* Amount + small label */}
         <div className="flex flex-col leading-none -space-y-[1px] md:-space-y-[2px]">
-          <span className="tabular-nums font-extrabold text-[15px] md:text-[17px] tracking-tight text-[var(--outline-black)]">
+          <span className="tabular-nums font-extrabold text-[13px] md:text-[17px] tracking-tight text-[var(--outline-black)]">
             {Number(activeBalance ?? 0).toFixed(2)}
           </span>
-          <span className="text-[10px] md:text-[11px] font-black uppercase text-foreground/80">
+          <span className="text-[9px] md:text-[11px] font-black uppercase text-foreground/80 truncate max-w-[80px] md:max-w-none">
             {smallLabel}
           </span>
         </div>
@@ -163,14 +163,14 @@ export function WalletBalanceDisplay({
         {/* Red square badge on the right */}
         <div
           className={cn(
-            "ml-auto grid place-items-center",
-            "h-7 w-7 md:h-8 md:w-8",
-            "rounded-[10px] md:rounded-[12px]",
+            "ml-auto grid place-items-center flex-shrink-0",
+            "h-6 w-6 md:h-8 md:w-8",
+            "rounded-[8px] md:rounded-[12px]",
             "bg-[var(--mario-red)] text-white",
-            "border-4 border-[var(--outline-black)]"
+            "border-3 md:border-4 border-[var(--outline-black)]"
           )}
         >
-          <span className="font-extrabold text-[11px] md:text-[12px] leading-none">
+          <span className="font-extrabold text-[10px] md:text-[12px] leading-none">
             {badge}
           </span>
         </div>
@@ -183,7 +183,7 @@ export function WalletBalanceDisplay({
     <motion.div
       whileHover={{ y: -1 }}
       className={cn(
-        "h-9 px-2.5 rounded-md flex items-center gap-2 tabular-nums cursor-pointer",
+        "h-8 md:h-9 px-2 md:px-2.5 rounded-md flex items-center gap-1.5 md:gap-2 tabular-nums cursor-pointer",
         variant === "minimal"
           ? [
               // Minimal: thin border, no big shadows, neutral background
@@ -193,7 +193,7 @@ export function WalletBalanceDisplay({
             ]
           : [
               // keep your current colorful card look for non-header uses
-              "border-2 text-sm font-semibold",
+              "border-2 text-xs md:text-sm font-semibold",
               config.color === "luigi-green" && "bg-luigi-green-50 border-luigi-green-500 text-luigi-green-700",
               config.color === "star-yellow" && "bg-star-yellow-50 border-star-yellow-500 text-star-yellow-900",
               config.color === "coin-yellow" && "bg-coin-yellow-50 border-coin-yellow-500 text-coin-yellow-900",
@@ -203,21 +203,21 @@ export function WalletBalanceDisplay({
       )}
     >
       {/* left: tiny icon + label */}
-      <div className="flex items-center gap-1.5 min-w-0">
-        <Icon className="w-4 h-4 opacity-80" />
-        <span className="text-[11px] leading-none truncate opacity-80">
+      <div className="flex items-center gap-1 md:gap-1.5 min-w-0">
+        <Icon className="w-3.5 md:w-4 h-3.5 md:h-4 opacity-80 flex-shrink-0" />
+        <span className="text-[10px] md:text-[11px] leading-none truncate opacity-80 max-w-[60px] md:max-w-none">
           {config.label}
         </span>
       </div>
 
       {/* middle: strong number */}
-      <div className="flex items-baseline gap-1 ml-1">
-        <AnimatedNumber value={config.balance} decimals={2} className="text-sm font-bold leading-none" />
-        <span className="text-[11px] leading-none opacity-70">SOL</span>
+      <div className="flex items-baseline gap-0.5 md:gap-1 ml-0.5 md:ml-1">
+        <AnimatedNumber value={config.balance} decimals={2} className="text-xs md:text-sm font-bold leading-none" />
+        <span className="text-[10px] md:text-[11px] leading-none opacity-70">SOL</span>
       </div>
 
       {/* right: micro badge */}
-      <span className="ml-1 text-[10px] leading-none px-1 py-[2px] rounded border uppercase tracking-wide opacity-80">
+      <span className="ml-0.5 md:ml-1 text-[9px] md:text-[10px] leading-none px-1 py-[2px] rounded border uppercase tracking-wide opacity-80">
         {config.badge}
       </span>
 

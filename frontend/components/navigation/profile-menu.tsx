@@ -48,13 +48,13 @@ export function ProfileMenu({
         <motion.button
           whileHover={{ y: -1 }}
           className={cn(
-            "h-10 min-w-[160px]",
-            "px-3 rounded-[12px]",
+            "h-9 md:h-10 min-w-[140px] md:min-w-[160px]",
+            "px-2.5 md:px-3 rounded-[10px] md:rounded-[12px]",
             "bg-[var(--star-yellow)]",
             "border-3 border-[var(--outline-black)]",
-            "shadow-[4px_4px_0_var(--outline-black)]",
-            "hover:shadow-[5px_5px_0_var(--outline-black)]",
-            "flex items-center justify-between gap-2.5",
+            "shadow-[3px_3px_0_var(--outline-black)] md:shadow-[4px_4px_0_var(--outline-black)]",
+            "hover:shadow-[4px_4px_0_var(--outline-black)] md:hover:shadow-[5px_5px_0_var(--outline-black)]",
+            "flex items-center justify-between gap-2 md:gap-2.5",
             "transition-all duration-200",
             "relative"
           )}
@@ -62,14 +62,14 @@ export function ProfileMenu({
         >
           {/* Name + Level info - LEFT SIDE compact */}
           <div className="flex flex-col items-start justify-center leading-tight space-y-0 flex-1 min-w-0">
-            <span className="font-extrabold text-[13px] tracking-tight text-[var(--outline-black)] truncate max-w-full">
+            <span className="font-extrabold text-[11px] md:text-[13px] tracking-tight text-[var(--outline-black)] truncate max-w-full">
               {displayName}
             </span>
-            <div className="flex items-center gap-1.5">
-              <span className="text-[9px] font-black uppercase text-foreground/90 whitespace-nowrap">
+            <div className="flex items-center gap-1 md:gap-1.5">
+              <span className="text-[8px] md:text-[9px] font-black uppercase text-foreground/90 whitespace-nowrap">
                 LVL {level}
               </span>
-              <span className="text-[9px] font-black uppercase text-foreground/70 whitespace-nowrap">
+              <span className="text-[8px] md:text-[9px] font-black uppercase text-foreground/70 whitespace-nowrap hidden sm:inline">
                 {xp.toLocaleString()} XP
               </span>
             </div>
@@ -80,8 +80,8 @@ export function ProfileMenu({
             <div
               className={cn(
                 "grid place-items-center flex-shrink-0",
-                "h-8 w-8",
-                "rounded-[10px]",
+                "h-7 w-7 md:h-8 md:w-8",
+                "rounded-[8px] md:rounded-[10px]",
                 "bg-[var(--mario-red)]",
                 "border-3 border-[var(--outline-black)]",
                 "overflow-hidden"
@@ -89,7 +89,7 @@ export function ProfileMenu({
             >
               <Avatar className="h-full w-full rounded-none border-0">
                 <AvatarImage src={avatarUrl} alt={displayName} className="rounded-none object-cover" />
-                <AvatarFallback className="rounded-none font-bold bg-[var(--mario-red)] text-white text-[12px]">
+                <AvatarFallback className="rounded-none font-bold bg-[var(--mario-red)] text-white text-[10px] md:text-[12px]">
                   {displayName?.[0]?.toUpperCase() || "U"}
                 </AvatarFallback>
               </Avatar>

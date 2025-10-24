@@ -62,6 +62,7 @@ export function LightweightChart({
   const chartRef = useRef<IChartApi | null>(null)
   const candlestickSeriesRef = useRef<ISeriesApi<'Candlestick'> | null>(null)
   const volumeSeriesRef = useRef<ISeriesApi<'Histogram'> | null>(null)
+  const lastCandleRef = useRef<CandlestickData | null>(null) // Track last candle for proper high/low updates
 
   const [timeframe, setTimeframe] = useState<Timeframe>('5m')
   const [isLoading, setIsLoading] = useState(true)
@@ -104,7 +105,7 @@ export function LightweightChart({
       layout: {
         background: { type: ColorType.Solid, color: '#FFFAE9' }, // Mario theme cream
         textColor: '#1C1C1C', // Outline black
-        fontSize: 12,
+        fontSize: isMobile ? 10 : 12, // Smaller font on mobile
       },
       grid: {
         vertLines: { color: '#e5e5e5' },
@@ -113,12 +114,12 @@ export function LightweightChart({
       crosshair: {
         mode: 1, // CrosshairMode.Normal
         vertLine: {
-          width: 2,
+          width: isMobile ? 1 : 2,
           color: '#1C1C1C',
           style: LineStyle.Dashed,
         },
         horzLine: {
-          width: 2,
+          width: isMobile ? 1 : 2,
           color: '#1C1C1C',
           style: LineStyle.Dashed,
         },
@@ -129,6 +130,7 @@ export function LightweightChart({
           top: 0.1,
           bottom: 0.3, // Make room for volume
         },
+        minimumWidth: isMobile ? 50 : 60, // Narrower price scale on mobile
       },
       timeScale: {
         borderColor: '#1C1C1C',
@@ -136,6 +138,13 @@ export function LightweightChart({
         secondsVisible: false,
         fixLeftEdge: true,
         fixRightEdge: true,
+        tickMarkFormatter: isMobile
+          ? (time: any) => {
+              // Shorter date format on mobile
+              const date = new Date(time * 1000)
+              return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })
+            }
+          : undefined,
       },
       handleScroll: {
         mouseWheel: true,
@@ -146,7 +155,12 @@ export function LightweightChart({
       handleScale: {
         axisPressedMouseMove: true,
         mouseWheel: true,
-        pinch: true,
+        pinch: true, // Essential for mobile pinch-to-zoom
+      },
+      // Improve touch handling on mobile
+      kineticScroll: {
+        touch: true,
+        mouse: false,
       },
     })
 
@@ -254,6 +268,11 @@ export function LightweightChart({
           candlestickSeriesRef.current?.setData(candlesticks)
           volumeSeriesRef.current?.setData(volumes)
 
+          // Store last candle for real-time updates
+          if (candlesticks.length > 0) {
+            lastCandleRef.current = candlesticks[candlesticks.length - 1]
+          }
+
           // Fit content
           chartRef.current?.timeScale().fitContent()
 
@@ -283,6 +302,7 @@ export function LightweightChart({
   }, [tokenMint, subscribe, unsubscribe])
 
   // Update last candlestick when price changes (real-time updates)
+  // Following TradingView best practices for real-time candle updates
   useEffect(() => {
     if (!candlestickSeriesRef.current || !tokenPrice) return
 
@@ -292,14 +312,39 @@ export function LightweightChart({
       const interval = getIntervalSeconds(timeframe)
       const alignedTime = Math.floor(now / interval) * interval
 
-      // Update the last candlestick with new price
-      candlestickSeriesRef.current.update({
-        time: alignedTime as Time,
-        close: tokenPrice.price,
-        // We don't update open/high/low as those should be preserved from the candle
-      } as CandlestickData)
+      const currentPrice = tokenPrice.price
 
-      console.log(`📊 Updated chart with real-time price: $${tokenPrice.price.toFixed(8)}`)
+      // Get the last candle or create a new one
+      let updatedCandle: CandlestickData
+
+      if (lastCandleRef.current && lastCandleRef.current.time === alignedTime) {
+        // Update existing candle - properly track high/low as per best practices
+        const lastCandle = lastCandleRef.current
+        updatedCandle = {
+          time: alignedTime as Time,
+          open: lastCandle.open,
+          high: Math.max(lastCandle.high, currentPrice), // Update high if price exceeds
+          low: Math.min(lastCandle.low, currentPrice),   // Update low if price is lower
+          close: currentPrice,
+        }
+      } else {
+        // New candle - use current price for all OHLC
+        updatedCandle = {
+          time: alignedTime as Time,
+          open: currentPrice,
+          high: currentPrice,
+          low: currentPrice,
+          close: currentPrice,
+        }
+      }
+
+      // Update the chart
+      candlestickSeriesRef.current.update(updatedCandle)
+
+      // Store for next update
+      lastCandleRef.current = updatedCandle
+
+      console.log(`📊 Updated chart with real-time price: $${currentPrice.toFixed(8)}`)
     } catch (error) {
       console.error('Failed to update real-time price on chart:', error)
     }
@@ -310,16 +355,16 @@ export function LightweightChart({
   return (
     <div className={cn('space-y-2', className)}>
       {/* Timeframe Selector */}
-      <div className="flex gap-2 flex-wrap">
+      <div className="flex gap-1.5 md:gap-2 flex-wrap">
         {timeframes.map((tf) => (
           <button
             key={tf}
             onClick={() => setTimeframe(tf)}
             className={cn(
-              'px-3 py-1.5 text-xs font-bold rounded-lg border-3 border-[var(--outline-black)] transition-all',
+              'px-2.5 md:px-3 py-1 md:py-1.5 text-[10px] md:text-xs font-bold rounded-lg border-2 md:border-3 border-[var(--outline-black)] transition-all',
               timeframe === tf
-                ? 'bg-[var(--star-yellow)] shadow-[3px_3px_0_var(--outline-black)] -translate-y-[1px]'
-                : 'bg-white hover:bg-[var(--pipe-100)] shadow-[2px_2px_0_var(--outline-black)]'
+                ? 'bg-[var(--star-yellow)] shadow-[2px_2px_0_var(--outline-black)] md:shadow-[3px_3px_0_var(--outline-black)] -translate-y-[1px]'
+                : 'bg-white hover:bg-[var(--pipe-100)] shadow-[1px_1px_0_var(--outline-black)] md:shadow-[2px_2px_0_var(--outline-black)]'
             )}
           >
             {tf.toUpperCase()}
@@ -327,9 +372,9 @@ export function LightweightChart({
         ))}
 
         {isLoading && (
-          <div className="flex items-center gap-2 ml-auto text-xs text-muted-foreground">
+          <div className="flex items-center gap-1.5 md:gap-2 ml-auto text-[10px] md:text-xs text-muted-foreground">
             <Loader2 className="h-3 w-3 animate-spin" />
-            <span>Loading...</span>
+            <span className="hidden sm:inline">Loading...</span>
           </div>
         )}
       </div>
@@ -337,8 +382,11 @@ export function LightweightChart({
       {/* Chart Container */}
       <div
         ref={chartContainerRef}
-        className="border-4 border-[var(--outline-black)] rounded-[16px] shadow-[6px_6px_0_var(--outline-black)] bg-[#FFFAE9] overflow-hidden"
-        style={{ minHeight: isMobile ? '350px' : '500px' }}
+        className="border-3 md:border-4 border-[var(--outline-black)] rounded-[12px] md:rounded-[16px] shadow-[4px_4px_0_var(--outline-black)] md:shadow-[6px_6px_0_var(--outline-black)] bg-[#FFFAE9] overflow-hidden touch-pan-x touch-pan-y"
+        style={{
+          minHeight: isMobile ? '350px' : '500px',
+          touchAction: 'pan-x pan-y', // Better touch handling
+        }}
       />
 
       {/* Chart Info */}

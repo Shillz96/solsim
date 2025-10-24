@@ -32,15 +32,15 @@ export function CartridgePill({
 }: Props) {
   const base = cn(
     "relative grid items-center",
-    "border-4 border-[var(--outline-black)]",
-    "shadow-[4px_4px_0_var(--outline-black)]",
-    "rounded-[12px] md:rounded-[14px]",
+    "border-3 md:border-4 border-[var(--outline-black)]",
+    "shadow-[3px_3px_0_var(--outline-black)] md:shadow-[4px_4px_0_var(--outline-black)]",
+    "rounded-[10px] md:rounded-[14px]",
     "transition-transform hover:-translate-y-[1px]"
   )
 
   const dims = size === "sm"
-    ? "h-9 px-3 gap-3"
-    : "h-11 px-3.5 gap-4"
+    ? "h-8 md:h-9 px-2.5 md:px-3 gap-2 md:gap-3"
+    : "h-9 md:h-11 px-3 md:px-3.5 gap-3 md:gap-4"
 
   const inner = layout === "col"
     ? "grid grid-rows-[auto_auto] items-center leading-none -space-y-0.5"
@@ -48,8 +48,8 @@ export function CartridgePill({
 
   const Value = (
     <span className={cn(
-      "tabular-nums font-extrabold",
-      size === "sm" ? "text-[14px]" : "text-[16px]"
+      "tabular-nums font-extrabold truncate max-w-[120px] sm:max-w-[180px] md:max-w-none",
+      size === "sm" ? "text-[12px] md:text-[14px]" : "text-[14px] md:text-[16px]"
     )}>
       {value}
     </span>
@@ -57,8 +57,8 @@ export function CartridgePill({
 
   const Label = label ? (
     <span className={cn(
-      "uppercase font-black text-foreground/80",
-      size === "sm" ? "text-[10px]" : "text-[11px]"
+      "uppercase font-black text-foreground/80 truncate",
+      size === "sm" ? "text-[9px] md:text-[10px]" : "text-[10px] md:text-[11px]"
     )}>
       {label}
     </span>
@@ -67,14 +67,14 @@ export function CartridgePill({
   const Badge = badgeText ? (
     <div
       className={cn(
-        "ml-auto grid place-items-center",
-        size === "sm" ? "h-7 w-7 rounded-[10px]" : "h-8 w-8 rounded-[12px]",
+        "ml-auto grid place-items-center flex-shrink-0",
+        size === "sm" ? "h-6 w-6 md:h-7 md:w-7 rounded-[8px] md:rounded-[10px]" : "h-7 w-7 md:h-8 md:w-8 rounded-[10px] md:rounded-[12px]",
         "text-white",
-        "border-4 border-[var(--outline-black)]"
+        "border-3 md:border-4 border-[var(--outline-black)]"
       )}
       style={{ backgroundColor: badgeColor }}
     >
-      <span className={cn("font-extrabold", size === "sm" ? "text-[11px]" : "text-[12px]")}>
+      <span className={cn("font-extrabold", size === "sm" ? "text-[10px] md:text-[11px]" : "text-[11px] md:text-[12px]")}>
         {badgeText}
       </span>
     </div>
@@ -94,8 +94,8 @@ export function CartridgePill({
           </>
         ) : (
           <>
-            {Label && <span className="text-[10px] font-black uppercase text-foreground/80">{label}</span>}
-            <span className="font-extrabold text-[15px] md:text-[16px]">{value}</span>
+            {Label && <span className="text-[9px] md:text-[10px] font-black uppercase text-foreground/80 truncate">{label}</span>}
+            <span className="font-extrabold text-[13px] md:text-[16px] truncate">{value}</span>
           </>
         )}
       </div>
