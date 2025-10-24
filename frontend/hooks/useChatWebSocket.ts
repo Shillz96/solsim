@@ -9,7 +9,7 @@
  */
 
 import { useEffect, useRef, useState, useCallback } from 'react';
-import { useAuth } from '@/lib/contexts/AuthContext';
+import { useAuth } from '@/hooks/use-auth';
 
 /**
  * Chat message structure
@@ -68,7 +68,7 @@ export function useChatWebSocket(options: UseChatWebSocketOptions = {}) {
   const [status, setStatus] = useState<ConnectionStatus>('disconnected');
   const [error, setError] = useState<string | null>(null);
   const [participantCount, setParticipantCount] = useState(0);
-  const reconnectTimeoutRef = useRef<NodeJS.Timeout>();
+  const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const reconnectAttemptsRef = useRef(0);
   const currentRoomRef = useRef<string | null>(null);
   const messageQueueRef = useRef<Array<{ type: string; data: any }>>([]);
@@ -91,7 +91,9 @@ export function useChatWebSocket(options: UseChatWebSocketOptions = {}) {
    * Connect to WebSocket server
    */
   const connect = useCallback(() => {
-    if (!user?.accessToken) {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
+    
+    if (!token) {
       console.warn('No access token available for chat WebSocket');
       return;
     }
@@ -105,7 +107,7 @@ export function useChatWebSocket(options: UseChatWebSocketOptions = {}) {
     console.log('💬 Connecting to chat WebSocket...');
 
     try {
-      const ws = new WebSocket(`${WS_URL}/ws/chat?token=${user.accessToken}`);
+      const ws = new WebSocket(`${WS_URL}/ws/chat?token=${token}`);
       wsRef.current = ws;
 
       ws.onopen = () => {
@@ -278,7 +280,8 @@ export function useChatWebSocket(options: UseChatWebSocketOptions = {}) {
    * Auto-connect when user logs in
    */
   useEffect(() => {
-    if (user?.accessToken) {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
+    if (user && token) {
       connect();
     } else {
       disconnect();
@@ -287,7 +290,7 @@ export function useChatWebSocket(options: UseChatWebSocketOptions = {}) {
     return () => {
       disconnect();
     };
-  }, [user?.accessToken, connect, disconnect]);
+  }, [user, connect, disconnect]);
 
   /**
    * Heartbeat ping every 20 seconds

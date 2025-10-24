@@ -13,7 +13,7 @@
  */
 
 import { useState, useEffect, useRef } from 'react'
-import { useAuth } from '@/lib/contexts/AuthContext'
+import { useAuth } from '@/hooks/use-auth'
 import { useChat } from '@/lib/contexts/ChatContext'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
