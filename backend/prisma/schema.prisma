@@ -63,6 +63,9 @@ model User {
   // Chat relations
   chatMessages            ChatMessage[]
   moderationActions       ChatModerationAction[]
+  // Badge system relations
+  userBadges              UserBadge[]
+  userModerationStatus    UserModerationStatus?
   // Chat moderation fields
   chatStrikes             Int                    @default(0)
   chatMutedUntil          DateTime?
@@ -436,6 +439,7 @@ enum UserTier {
   EMAIL_USER
   WALLET_USER
   VSOL_HOLDER
+  MODERATOR
   ADMINISTRATOR
 }
 
@@ -762,4 +766,83 @@ model ChatModerationAction {
   @@index([userId, createdAt(sort: Desc)], map: "moderation_user_recent") // User's moderation history
   @@index([action, createdAt(sort: Desc)], map: "moderation_action_type") // Filter by action type
   @@index([expiresAt], map: "moderation_expiry") // Find expired mutes
+}
+
+// ============================================================
+// Badge System Models
+// ============================================================
+
+// Badge Rarity Enum
+enum BadgeRarity {
+  COMMON
+  UNCOMMON
+  RARE
+  EPIC
+  LEGENDARY
+  MYTHIC
+}
+
+// Badge Category Enum
+enum BadgeCategory {
+  FOUNDER
+  TRADING
+  COMMUNITY
+  SPECIAL
+  MODERATION
+}
+
+// Badge Definitions
+model Badge {
+  id          String      @id @default(uuid())
+  name        String      @unique
+  description String
+  icon        String
+  color       String
+  rarity      BadgeRarity @default(COMMON)
+  category    BadgeCategory
+  isVisible   Boolean     @default(true)
+  requirements Json?
+  createdAt   DateTime    @default(now())
+  
+  userBadges  UserBadge[]
+  
+  @@index([category, rarity], map: "badge_category_rarity")
+}
+
+// User Badges - Track earned badges
+model UserBadge {
+  id        String   @id @default(uuid())
+  userId    String
+  badgeId   String
+  earnedAt  DateTime @default(now())
+  isActive  Boolean  @default(true)
+  
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  badge     Badge    @relation(fields: [badgeId], references: [id])
+  
+  @@unique([userId, badgeId], map: "user_badge_unique")
+  @@index([userId, isActive], map: "user_active_badges")
+  @@index([earnedAt(sort: Desc)], map: "badge_earned_at")
+}
+
+// User Moderation Status - Track trust scores and moderation state
+model UserModerationStatus {
+  id              String    @id @default(uuid())
+  userId          String    @unique
+  trustScore      Int       @default(100)
+  strikes         Int       @default(0)
+  isMuted         Boolean   @default(false)
+  mutedUntil      DateTime?
+  isBanned        Boolean   @default(false)
+  bannedUntil     DateTime?
+  lastViolation   DateTime?
+  violationCount  Int       @default(0)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([trustScore], map: "user_trust_score")
+  @@index([isMuted, mutedUntil], map: "user_mute_status")
+  @@index([isBanned, bannedUntil], map: "user_ban_status")
 }

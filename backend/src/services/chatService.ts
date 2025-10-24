@@ -1,52 +1,29 @@
 /**
- * Chat Service
- *
- * Handles chat message operations:
- * - Sending messages
- * - Fetching message history
- * - Room metadata
+ * Chat Service Integration
+ * 
+ * Enhanced chat service with badge system and moderation integration
  */
 
-import prisma from '../plugins/prisma.js';
-import { sanitizeChatMessage, getMessageHash } from '../utils/chatSanitizer.js';
-import { checkRateLimit, isDuplicateMessage, CHAT_MESSAGE_LIMIT } from '../utils/chatRateLimiter.js';
-import { checkModerationStatus, addStrike } from './moderationService.js';
+import prisma from '../plugins/prisma';
+import redis from '../plugins/redis';
+import { ModerationBot } from './moderationBot';
+import { BadgeService } from './badgeService';
 
-/**
- * Chat message with user info
- */
-export interface ChatMessageWithUser {
-  id: string;
-  roomId: string;
-  userId: string;
-  content: string;
-  createdAt: Date;
-  user: {
-    id: string;
-    handle: string;
-    displayName: string | null;
-    avatarUrl: string | null;
-    userTier: string;
-  };
-}
-
-/**
- * Result of sending a message
- */
 export interface SendMessageResult {
   success: boolean;
-  message?: ChatMessageWithUser;
+  message?: any;
   error?: string;
   rateLimited?: boolean;
   remaining?: number;
+  newBadges?: any[];
 }
 
+// Constants
+const CHAT_MESSAGE_LIMIT = 10; // 10 messages per 15 seconds
+const MESSAGE_LENGTH_LIMIT = 280;
+
 /**
- * Send a chat message
- * @param userId - User sending message
- * @param roomId - Room ID (token mint or 'lobby')
- * @param content - Message content
- * @returns Send result with message data or error
+ * Send a chat message with enhanced moderation and badge checking
  */
 export async function sendMessage(
   userId: string,
@@ -55,7 +32,7 @@ export async function sendMessage(
 ): Promise<SendMessageResult> {
   try {
     // 1. Check moderation status
-    const modStatus = await checkModerationStatus(userId);
+    const modStatus = await ModerationBot.getUserModerationStatus(userId);
     if (!modStatus.canChat) {
       if (modStatus.isBanned) {
         return {
@@ -99,19 +76,29 @@ export async function sendMessage(
     const messageHash = getMessageHash(userId, sanitized);
     const isDuplicate = await isDuplicateMessage(messageHash);
     if (isDuplicate) {
-      // Give a strike for spam
-      await addStrike(userId, 'Duplicate message spam');
       return {
         success: false,
         error: 'Duplicate message detected. Please wait before sending the same message again.',
       };
     }
 
-    // 5. Save message to database
+    // 5. Automated moderation check
+    const moderationResult = await ModerationBot.analyzeMessage(userId, sanitized);
+    if (moderationResult.violations.length > 0) {
+      // Execute moderation action
+      await ModerationBot.executeAction(userId, moderationResult.action);
+      
+      return {
+        success: false,
+        error: `Message blocked: ${moderationResult.reason}`,
+      };
+    }
+
+    // 6. Save message to database
     const message = await prisma.chatMessage.create({
       data: {
-        userId,
         roomId,
+        userId,
         content: sanitized,
       },
       include: {
@@ -119,7 +106,6 @@ export async function sendMessage(
           select: {
             id: true,
             handle: true,
-            displayName: true,
             avatarUrl: true,
             userTier: true,
           },
@@ -127,110 +113,222 @@ export async function sendMessage(
       },
     });
 
+    // 7. Check for badge awards
+    const newBadges = await BadgeService.checkCommunityBadges(userId, message);
+
+    // 8. Broadcast message to WebSocket subscribers
+    await broadcastMessage(message);
+
     return {
       success: true,
-      message: message as ChatMessageWithUser,
-      remaining: rateLimit.remaining - 1,
+      message,
+      newBadges,
     };
-  } catch (error) {
-    console.error('Error sending chat message:', error);
+  } catch (error: any) {
+    console.error('Error sending message:', error);
     return {
       success: false,
-      error: 'Failed to send message. Please try again.',
+      error: 'Failed to send message',
     };
   }
 }
 
 /**
- * Get recent messages for a room
- * @param roomId - Room ID (token mint or 'lobby')
- * @param limit - Number of messages to fetch (default 100)
- * @returns Array of messages with user info
+ * Sanitize chat message content
  */
-export async function getRecentMessages(
-  roomId: string,
-  limit: number = 100
-): Promise<ChatMessageWithUser[]> {
-  const messages = await prisma.chatMessage.findMany({
-    where: { roomId },
-    orderBy: { createdAt: 'desc' },
-    take: limit,
-    include: {
-      user: {
-        select: {
-          id: true,
-          handle: true,
-          displayName: true,
-          avatarUrl: true,
-          userTier: true,
-        },
-      },
-    },
-  });
+function sanitizeChatMessage(content: string): string {
+  if (!content || typeof content !== 'string') {
+    throw new Error('Message content is required');
+  }
 
-  // Return in chronological order (oldest first)
-  return messages.reverse() as ChatMessageWithUser[];
+  // Trim whitespace
+  let sanitized = content.trim();
+
+  // Check length
+  if (sanitized.length === 0) {
+    throw new Error('Message cannot be empty');
+  }
+
+  if (sanitized.length > MESSAGE_LENGTH_LIMIT) {
+    throw new Error(`Message too long. Maximum ${MESSAGE_LENGTH_LIMIT} characters.`);
+  }
+
+  // Remove HTML tags
+  sanitized = sanitized.replace(/<[^>]*>/g, '');
+
+  // Remove potentially dangerous characters
+  sanitized = sanitized.replace(/[<>]/g, '');
+
+  // Normalize whitespace
+  sanitized = sanitized.replace(/\s+/g, ' ');
+
+  return sanitized;
 }
 
 /**
- * Get room metadata (participant count, last message time)
- * @param roomId - Room ID
- * @returns Room metadata
+ * Check rate limit
  */
-export async function getRoomMetadata(roomId: string) {
-  const [messageCount, lastMessage, uniqueParticipants] = await Promise.all([
-    // Total message count
-    prisma.chatMessage.count({
-      where: { roomId },
-    }),
+async function checkRateLimit(key: string, limit: number): Promise<{ allowed: boolean; remaining: number; resetAt: number }> {
+  const current = await redis.get(key);
+  const count = current ? parseInt(current) : 0;
+  
+  if (count >= limit) {
+    return {
+      allowed: false,
+      remaining: 0,
+      resetAt: Date.now() + 15 * 1000 // 15 seconds
+    };
+  }
 
-    // Last message
-    prisma.chatMessage.findFirst({
-      where: { roomId },
-      orderBy: { createdAt: 'desc' },
-      select: { createdAt: true },
-    }),
-
-    // Unique participants (last 24h)
-    prisma.chatMessage.findMany({
-      where: {
-        roomId,
-        createdAt: {
-          gte: new Date(Date.now() - 24 * 60 * 60 * 1000),
-        },
-      },
-      distinct: ['userId'],
-      select: { userId: true },
-    }),
-  ]);
-
+  await redis.incr(key);
+  await redis.expire(key, 15);
+  
   return {
-    roomId,
-    messageCount,
-    lastMessageAt: lastMessage?.createdAt || null,
-    activeParticipants24h: uniqueParticipants.length,
+    allowed: true,
+    remaining: limit - count - 1,
+    resetAt: Date.now() + 15 * 1000
   };
 }
 
 /**
- * Delete a message (admin only)
- * @param messageId - Message ID to delete
- * @param moderatorId - Moderator performing deletion
- * @returns Success status
+ * Get message hash for duplicate detection
  */
-export async function deleteMessage(
-  messageId: string,
-  moderatorId: string
-): Promise<boolean> {
+function getMessageHash(userId: string, content: string): string {
+  const crypto = require('crypto');
+  return crypto.createHash('md5').update(`${userId}:${content.toLowerCase()}`).digest('hex');
+}
+
+/**
+ * Check if message is duplicate
+ */
+async function isDuplicateMessage(hash: string): Promise<boolean> {
+  const key = `chat:duplicate:${hash}`;
+  const exists = await redis.exists(key);
+  
+  if (exists) {
+    return true;
+  }
+
+  await redis.setex(key, 30, '1'); // 30 seconds
+  return false;
+}
+
+/**
+ * Broadcast message to WebSocket subscribers
+ */
+async function broadcastMessage(message: any): Promise<void> {
   try {
-    await prisma.chatMessage.delete({
-      where: { id: messageId },
+    // Publish to Redis pub/sub for WebSocket broadcasting
+    await redis.publish('chat:message', JSON.stringify({
+      type: 'chat:message',
+      roomId: message.roomId,
+      message: {
+        id: message.id,
+        userId: message.userId,
+        content: message.content,
+        createdAt: message.createdAt,
+        user: message.user
+      }
+    }));
+  } catch (error) {
+    console.error('Error broadcasting message:', error);
+  }
+}
+
+/**
+ * Get recent messages for a room
+ */
+export async function getRecentMessages(roomId: string, limit: number = 50): Promise<any[]> {
+  try {
+    const messages = await prisma.chatMessage.findMany({
+      where: { roomId },
+      include: {
+        user: {
+          select: {
+            id: true,
+            handle: true,
+            avatarUrl: true,
+            userTier: true,
+          },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+      take: limit,
     });
 
-    // TODO: Log deletion action
-    return true;
+    return messages.reverse(); // Return in chronological order
   } catch (error) {
-    console.error('Error deleting message:', error);
-    return false;
+    console.error('Error fetching recent messages:', error);
+    return [];
+  }
+}
+
+/**
+ * Get user's chat history
+ */
+export async function getUserChatHistory(userId: string, limit: number = 100): Promise<any[]> {
+  try {
+    const messages = await prisma.chatMessage.findMany({
+      where: { userId },
+      include: {
+        user: {
+          select: {
+            id: true,
+            handle: true,
+            avatarUrl: true,
+            userTier: true,
+          },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+      take: limit,
+    });
+
+    return messages;
+  } catch (error) {
+    console.error('Error fetching user chat history:', error);
+    return [];
+  }
+}
+
+/**
+ * Get room statistics
+ */
+export async function getRoomStats(roomId: string): Promise<{
+  messageCount: number;
+  activeUsers: number;
+  lastActivity: Date | null;
+}> {
+  try {
+    const [messageCount, activeUsers, lastMessage] = await Promise.all([
+      prisma.chatMessage.count({ where: { roomId } }),
+      prisma.chatMessage.groupBy({
+        by: ['userId'],
+        where: { 
+          roomId,
+          createdAt: {
+            gte: new Date(Date.now() - 24 * 60 * 60 * 1000) // Last 24 hours
+          }
+        }
+      }).then(result => result.length),
+      prisma.chatMessage.findFirst({
+        where: { roomId },
+        orderBy: { createdAt: 'desc' },
+        select: { createdAt: true }
+      })
+    ]);
+
+    return {
+      messageCount,
+      activeUsers,
+      lastActivity: lastMessage?.createdAt || null
+    };
+  } catch (error) {
+    console.error('Error fetching room stats:', error);
+    return {
+      messageCount: 0,
+      activeUsers: 0,
+      lastActivity: null
+    };
   }
 }

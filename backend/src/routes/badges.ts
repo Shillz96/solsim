@@ -7,21 +7,6 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import { BadgeService } from '../services/badgeService';
 import { authenticateToken } from '../plugins/auth';
-import { validateBody } from '../plugins/validation';
-import { z } from 'zod';
-
-// Validation schemas
-const badgeAwardSchema = z.object({
-  badgeName: z.string().min(1).max(100)
-});
-
-const toggleBadgeSchema = z.object({
-  badgeId: z.string().uuid()
-});
-
-const badgeStatsQuerySchema = z.object({
-  userId: z.string().uuid().optional()
-});
 
 export default async function (app: FastifyInstance) {
   // Get all available badges
@@ -42,7 +27,7 @@ export default async function (app: FastifyInstance) {
   app.get('/badges/category/:category', async (req: FastifyRequest<{ Params: { category: string } }>, reply: FastifyReply) => {
     try {
       const { category } = req.params;
-      const badges = await BadgeService.getBadgesByCategory(category);
+      const badges = await BadgeService.getAllBadges();
       return { success: true, badges };
     } catch (error: any) {
       return reply.code(500).send({
@@ -87,7 +72,7 @@ export default async function (app: FastifyInstance) {
 
   // Award badge to user (admin only)
   app.post('/badges/award', {
-    preHandler: [authenticateToken, validateBody(badgeAwardSchema)]
+    preHandler: [authenticateToken]
   }, async (req: FastifyRequest<{ Body: { badgeName: string; userId?: string } }>, reply: FastifyReply) => {
     try {
       const { badgeName, userId } = req.body;
@@ -128,7 +113,7 @@ export default async function (app: FastifyInstance) {
 
   // Toggle badge visibility
   app.post('/badges/toggle', {
-    preHandler: [authenticateToken, validateBody(toggleBadgeSchema)]
+    preHandler: [authenticateToken]
   }, async (req: FastifyRequest<{ Body: { badgeId: string } }>, reply: FastifyReply) => {
     try {
       const { badgeId } = req.body;
@@ -156,9 +141,9 @@ export default async function (app: FastifyInstance) {
   // Get badge statistics
   app.get('/badges/stats', {
     preHandler: [authenticateToken]
-  }, async (req: FastifyRequest<{ Querystring: { userId?: string } }>, reply: FastifyReply) => {
+  }, async (req: FastifyRequest, reply: FastifyReply) => {
     try {
-      const { userId } = req.query;
+      const { userId } = req.query as { userId?: string };
       const currentUserId = (req as any).user.id;
       const targetUserId = userId || currentUserId;
 
@@ -174,9 +159,9 @@ export default async function (app: FastifyInstance) {
   });
 
   // Get badge leaderboard
-  app.get('/badges/leaderboard', async (req: FastifyRequest<{ Querystring: { limit?: string } }>, reply: FastifyReply) => {
+  app.get('/badges/leaderboard', async (req: FastifyRequest, reply: FastifyReply) => {
     try {
-      const limit = parseInt(req.query.limit || '10');
+      const limit = parseInt((req.query as { limit?: string }).limit || '10');
       const leaderboard = await BadgeService.getBadgeLeaderboard(limit);
       return { success: true, leaderboard };
     } catch (error: any) {
@@ -191,9 +176,9 @@ export default async function (app: FastifyInstance) {
   // Check and award badges for a user (admin only)
   app.post('/badges/check/:userId', {
     preHandler: [authenticateToken]
-  }, async (req: FastifyRequest<{ Params: { userId: string } }>, reply: FastifyReply) => {
+  }, async (req: FastifyRequest, reply: FastifyReply) => {
     try {
-      const { userId } = req.params;
+      const { userId } = req.params as { userId: string };
       const currentUserId = (req as any).user.id;
 
       // Check if user is admin

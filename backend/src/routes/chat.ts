@@ -12,8 +12,6 @@ import { z } from 'zod';
 import { authenticateToken, requireAdmin } from '../plugins/auth.js';
 import {
   getRecentMessages,
-  getRoomMetadata,
-  deleteMessage,
 } from '../services/chatService.js';
 import {
   checkModerationStatus,

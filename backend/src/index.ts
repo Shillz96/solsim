@@ -36,6 +36,9 @@ import webhookRoutes from "./routes/webhooks.js";
 import chartRoutes from "./routes/chart.js";
 import marketRoutes from "./routes/market.js";
 import chatRoutes from "./routes/chat.js";
+import badgeRoutes from "./routes/badges.js";
+import moderationRoutes from "./routes/moderation.js";
+import moderationConfigRoutes from "./routes/moderationConfig.js";
 
 // Import plugins and services
 import wsPlugin from "./plugins/ws.js";
@@ -262,6 +265,9 @@ app.register(userProfileRoutes, { prefix: "/api/user-profile" }); // User profil
 app.register(warpPipesRoutes, { prefix: "/api/warp-pipes" }); // Warp Pipes Hub token discovery
 app.register(webhookRoutes, { prefix: "/api/webhooks" }); // Webhook handlers for external services (Helius)
 app.register(chatRoutes); // Chat REST API routes (messages, moderation)
+app.register(badgeRoutes, { prefix: "/api/badges" }); // Badge management routes
+app.register(moderationRoutes, { prefix: "/api/moderation" }); // Moderation routes
+app.register(moderationConfigRoutes, { prefix: "/api/moderation" }); // Moderation configuration routes
 app.register(debugRoutes); // Debug routes for price service monitoring
 app.register(adminRoutes, { prefix: "/api/admin" }); // Admin maintenance routes (protected)
 app.register(sentryTestRoutes); // Sentry test routes (dev only)

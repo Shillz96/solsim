@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Edit2, Check, X } from "lucide-react"
+import { Edit2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 interface EditablePresetButtonProps {
@@ -28,8 +28,7 @@ export function EditablePresetButton({
   className
 }: EditablePresetButtonProps) {
   const [isEditing, setIsEditing] = useState(false)
-  const [editValue, setEditValue] = useState(value.toString())
-  const [doubleClickTimer, setDoubleClickTimer] = useState<NodeJS.Timeout | null>(null)
+  const [editValue, setEditValue] = useState("")
   const inputRef = useRef<HTMLInputElement>(null)
 
   // Focus input when entering edit mode
@@ -40,53 +39,25 @@ export function EditablePresetButton({
     }
   }, [isEditing])
 
-  const handleClick = () => {
-    console.log('[EditablePresetButton] Click detected, isEditing:', isEditing, 'doubleClickTimer:', !!doubleClickTimer, 'disabled:', disabled)
-    
-    if (isEditing) return
-
-    // Handle double-click for edit mode
-    if (doubleClickTimer) {
-      console.log('[EditablePresetButton] Double-click detected! Entering edit mode')
-      clearTimeout(doubleClickTimer)
-      setDoubleClickTimer(null)
-      enterEditMode()
-    } else {
-      // Single click - select preset (only if not disabled)
-      if (!disabled) {
-        console.log('[EditablePresetButton] Single click - selecting preset value:', value)
-        onSelect(value)
-      } else {
-        console.log('[EditablePresetButton] Single click - button disabled, selection prevented')
-      }
-      // Set timer for double-click detection
-      const timer = setTimeout(() => {
-        setDoubleClickTimer(null)
-      }, 300)
-      setDoubleClickTimer(timer)
+  const handleButtonClick = () => {
+    // Only select if not disabled
+    if (!disabled && !isEditing) {
+      onSelect(value)
     }
   }
 
-  const enterEditMode = () => {
-    console.log('[EditablePresetButton] Entering edit mode for value:', value)
+  const handleEditClick = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    setEditValue("")  // Start with empty field
     setIsEditing(true)
-    setEditValue(value.toString())
   }
 
   const saveEdit = () => {
     const newValue = parseFloat(editValue)
     if (!isNaN(newValue) && newValue > 0 && newValue <= maxValue) {
       onUpdate(index, newValue)
-      setIsEditing(false)
-    } else {
-      // Invalid value, revert
-      setEditValue(value.toString())
-      setIsEditing(false)
     }
-  }
-
-  const cancelEdit = () => {
-    setEditValue(value.toString())
+    // Always exit edit mode on blur
     setIsEditing(false)
   }
 
@@ -94,7 +65,7 @@ export function EditablePresetButton({
     if (e.key === 'Enter') {
       saveEdit()
     } else if (e.key === 'Escape') {
-      cancelEdit()
+      setIsEditing(false)
     }
   }
 
@@ -108,33 +79,19 @@ export function EditablePresetButton({
         "bg-white p-1",
         className
       )}>
-        <div className="flex items-center gap-1 h-full">
-          <Input
-            ref={inputRef}
-            type="number"
-            value={editValue}
-            onChange={(e) => setEditValue(e.target.value)}
-            onKeyDown={handleKeyDown}
-            className="h-full text-center font-mono text-sm border-0 focus-visible:ring-0 p-0"
-            step="0.1"
-            min="0.1"
-            max={maxValue}
-          />
-          <Button
-            size="sm"
-            onClick={saveEdit}
-            className="h-full aspect-square p-0 bg-[var(--luigi-green)] hover:bg-[var(--luigi-green)]/90"
-          >
-            <Check className="h-3 w-3" />
-          </Button>
-          <Button
-            size="sm"
-            onClick={cancelEdit}
-            className="h-full aspect-square p-0 bg-[var(--mario-red)] hover:bg-[var(--mario-red)]/90"
-          >
-            <X className="h-3 w-3" />
-          </Button>
-        </div>
+        <Input
+          ref={inputRef}
+          type="number"
+          value={editValue}
+          onChange={(e) => setEditValue(e.target.value)}
+          onKeyDown={handleKeyDown}
+          onBlur={saveEdit}
+          placeholder={`Max ${maxValue}`}
+          className="h-full text-center font-mono text-sm border-0 focus-visible:ring-0 p-0"
+          step="0.1"
+          min="0.1"
+          max={maxValue}
+        />
       </div>
     )
   }
@@ -151,18 +108,25 @@ export function EditablePresetButton({
         disabled && "opacity-50",
         className
       )}
-      onClick={handleClick}
-      disabled={false}  // Allow clicks for editing even when preset is over balance
-      title="Double-click to edit"
+      onClick={handleButtonClick}
+      disabled={false}
+      title="Click pencil to edit"
     >
       {value} SOL
 
-      {/* Edit indicator on hover */}
-      <Edit2 className={cn(
-        "absolute top-1 right-1 h-2.5 w-2.5 opacity-0 group-hover:opacity-40 transition-opacity",
-        selected && "text-accent-foreground",
-        !selected && "text-muted-foreground"
-      )} />
+      {/* Edit button - click to edit */}
+      <button
+        onClick={handleEditClick}
+        className={cn(
+          "absolute top-1 right-1 h-5 w-5 flex items-center justify-center rounded",
+          "bg-[var(--star-yellow)] hover:bg-[var(--coin-gold)] transition-colors",
+          "border-2 border-[var(--outline-black)]",
+          "shadow-[2px_2px_0_var(--outline-black)]",
+          "active:translate-y-[1px] active:shadow-[1px_1px_0_var(--outline-black)]"
+        )}
+      >
+        <Edit2 className="h-2.5 w-2.5 text-[var(--outline-black)]" />
+      </button>
 
       {/* Insufficient balance indicator */}
       {disabled && (
