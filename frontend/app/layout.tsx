@@ -154,15 +154,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               id="main-content"
               className="relative"
               style={{
-                minHeight: 'calc(100dvh - var(--navbar-height, 56px) - var(--trending-ticker-height, 60px) - var(--bottom-nav-height, 64px))',
-                paddingBottom: 'var(--bottom-nav-height, 64px)',
+                minHeight: 'calc(100vh - 120px)', // Simplified height calculation
                 touchAction: 'pan-y', // Optimize touch scrolling on mobile
               }}
               role="main"
             >
               {children}
             </main>
-            <BottomNavBar aria-label="Mobile navigation" className="sticky bottom-0 z-50" />
+            <BottomNavBar aria-label="Mobile navigation" className="fixed bottom-0 left-0 right-0 z-50" />
             {/* Floating windows render here, positioned absolutely over the page */}
             <FloatingWindows />
           </WindowManager>
