@@ -275,7 +275,7 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
     { href: "/trade", icon: TrendingUp, label: "Trade", iconSrc: "/icons/mario/trade.png" },
     { href: "/pipe-network", icon: Map, label: "Network", iconSrc: "/icons/mario/chat.png" },
     { href: "/portfolio", icon: Wallet, label: "Portfolio", iconSrc: "/icons/mario/wallet.png" },
-    { href: "/leaderboard", icon: Trophy, label: "Ranks" },
+    { href: "/leaderboard", icon: Trophy, label: "Ranks", iconSrc: "/icons/mario/trophy.png" },
   ]
 
   return (
@@ -307,23 +307,19 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
                   )}
                   aria-current={isActive ? "page" : undefined}
                 >
-                  {item.iconSrc ? (
-                    <Image
-                      src={item.iconSrc}
-                      alt={item.label}
-                      width={14}
-                      height={14}
-                      className={cn(
-                        "transition-colors object-contain",
-                        isActive ? "opacity-100" : "opacity-70"
-                      )}
+                  <div className="flex items-center gap-1">
+                    <Image 
+                      src={item.iconSrc} 
+                      alt={item.label} 
+                      width={12} 
+                      height={12} 
+                      className="object-contain" 
                     />
-                  ) : (
                     <Icon className={cn(
                       "h-3.5 w-3.5 transition-colors",
                       isActive ? "text-primary" : "text-foreground/70"
                     )} />
-                  )}
+                  </div>
                   <span className={cn(
                     "text-[9px] font-mario truncate max-w-[50px] transition-colors",
                     isActive ? "text-primary font-semibold" : "text-foreground/70"

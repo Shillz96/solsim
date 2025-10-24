@@ -66,35 +66,35 @@ const navigationItems = [
     name: "Dashboard",
     href: "/",
     icon: Home,
-    iconSrc: "/icons/mario/home.png",
+    iconSrc: "/Home-10-24-2025.png",
     description: "Overview of your trading activity"
   },
   {
     name: "Trade",
     href: "/warp-pipes",
     icon: TrendingUp,
-    iconSrc: "/icons/mario/trade.png",
+    iconSrc: "/Trade-10-24-2025.png",
     description: "Buy and sell tokens"
   },
   {
     name: "Pipe Network",
     href: "/pipe-network",
     icon: Map,
-    iconSrc: "/icons/mario/chat.png",
+    iconSrc: "/Pipe-Network-10-24-2025.png",
     description: "Community hub and learning center"
   },
   {
     name: "Portfolio",
     href: "/portfolio",
     icon: Wallet,
-    iconSrc: "/icons/mario/wallet.png",
+    iconSrc: "/Portfolio-10-24-2025.png",
     description: "Track your positions and P&L"
   },
   {
     name: "Trending",
     href: "/trending",
     icon: TrendingUp,
-    iconSrc: "/icons/mario/trending.png",
+    iconSrc: "/Trending-10-24-2025.png",
     description: "Discover popular tokens"
   }
   // Removed Docs - now in More Info dropdown
@@ -319,17 +319,25 @@ export function NavBar() {
                     variant={isActive ? "secondary" : "ghost"}
                     size="sm"
                       className={cn(
-                        "flex items-center justify-center px-2 py-2 transition-all duration-200 font-mario text-xs h-10 w-32",
+                        "flex items-center gap-2 px-3 py-2 transition-all duration-200 font-mario text-xs h-10 w-auto",
                         isActive && "bg-primary/10 text-primary"
                       )}
                   >
                     <Image 
-                      src={item.iconSrc} 
+                      src={
+                        item.name === 'Trade' ? '/icons/mario/trade.png' :
+                        item.name === 'Portfolio' ? '/icons/mario/wallet.png' :
+                        item.name === 'Trending' ? '/icons/mario/trending.png' :
+                        item.name === 'Dashboard' ? '/icons/mario/home.png' :
+                        item.name === 'Pipe Network' ? '/icons/mario/chat.png' :
+                        item.iconSrc
+                      }
                       alt={item.name} 
-                      width={20} 
-                      height={20} 
-                      className="object-contain hover:scale-105 transition-transform duration-200 max-w-full max-h-full" 
+                      width={16} 
+                      height={16} 
+                      className="object-contain hover:scale-105 transition-transform duration-200" 
                     />
+                    <span>{item.name}</span>
                   </Button>
                 </Link>
               )
@@ -593,7 +601,20 @@ export function NavBar() {
                               "flex items-center gap-3 px-3 py-3 rounded-lg transition-colors",
                               isActive ? "bg-primary/10 text-primary" : "hover:bg-muted"
                             )}>
-                              <Image src={item.iconSrc} alt={item.name} width={24} height={24} className="object-contain" />
+                              <Image 
+                                src={
+                                  item.name === 'Trade' ? '/icons/mario/trade.png' :
+                                  item.name === 'Portfolio' ? '/icons/mario/wallet.png' :
+                                  item.name === 'Trending' ? '/icons/mario/trending.png' :
+                                  item.name === 'Dashboard' ? '/icons/mario/home.png' :
+                                  item.name === 'Pipe Network' ? '/icons/mario/chat.png' :
+                                  item.iconSrc
+                                }
+                                alt={item.name} 
+                                width={20} 
+                                height={20} 
+                                className="object-contain" 
+                              />
                               <div>
                                 <div className="font-medium">{item.name}</div>
                                 <div className="text-xs text-muted-foreground">{item.description}</div>
