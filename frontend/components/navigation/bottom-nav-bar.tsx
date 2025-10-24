@@ -338,8 +338,8 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
         <div className="mx-auto px-4 max-w-content lg:hidden">
           <div className="flex flex-col gap-2 py-2">
             {/* Top row: Market data */}
-            <div className="flex items-center justify-start gap-2 md:gap-4">
-              {/* Market Lighthouse Hover */}
+            <div className="flex items-center justify-between w-full">
+              {/* Market Lighthouse Hover - Left side */}
               <MarketHover
                 trigger={
                   <div className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg bg-transparent hover:bg-white/10 transition-colors">
@@ -357,7 +357,9 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
                 }
               />
 
-              {marketPrices.map((market) => {
+              {/* Crypto prices - Centered */}
+              <div className="flex items-center gap-2 md:gap-4">
+                {marketPrices.map((market) => {
                 // Define glow colors for each crypto
                 const getGlowColor = (symbol: string) => {
                   switch (symbol) {
@@ -395,7 +397,10 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
                   </div>
                 );
               })}
+              </div>
 
+              {/* Spacer div to balance the layout */}
+              <div className="w-5 h-5"></div>
             </div>
 
             {/* Bottom row: Navigation and social */}
@@ -477,8 +482,8 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
             </div>
 
             {/* Center: Market Prices + Market Lighthouse */}
-            <div className="flex items-center justify-start gap-2 md:gap-4">
-              {/* Market Lighthouse Hover */}
+            <div className="flex items-center justify-between w-full">
+              {/* Market Lighthouse Hover - Left side */}
               <MarketHover
                 trigger={
                   <div className="flex items-center gap-1.5 md:gap-2 px-2 md:px-3 py-1 md:py-1.5 rounded-lg bg-transparent hover:bg-white/10 transition-colors">
@@ -496,7 +501,9 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
                 }
               />
 
-              {marketPrices.map((market) => {
+              {/* Crypto prices - Centered */}
+              <div className="flex items-center gap-2 md:gap-4">
+                {marketPrices.map((market) => {
                 // Define glow colors for each crypto
                 const getGlowColor = (symbol: string) => {
                   switch (symbol) {
@@ -534,7 +541,10 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
                   </div>
                 );
               })}
+              </div>
 
+              {/* Spacer div to balance the layout */}
+              <div className="w-5 h-5"></div>
             </div>
 
             {/* Right: Launch Token, Wallet Tracker, Leaderboard & Trading Mode */}
