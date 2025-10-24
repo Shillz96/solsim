@@ -39,7 +39,6 @@ interface TradingModeContextType {
   setSwitchError: (error: string | null) => void;
 
   // Actions
-  switchToRealTrading: () => Promise<void>;
   switchToPaperTrading: () => Promise<void>;
   refreshBalances: () => Promise<void>;
   handleToggleMode: (newMode: TradeMode) => void;
@@ -267,7 +266,6 @@ export function TradingModeProvider({ children }: { children: React.ReactNode })
     setPendingMode,
     switchError,
     setSwitchError,
-    switchToRealTrading,
     switchToPaperTrading,
     refreshBalances,
     handleToggleMode,

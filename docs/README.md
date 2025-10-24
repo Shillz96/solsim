@@ -30,7 +30,6 @@ Comprehensive documentation for the 1UP SOL platform.
 
 - **[WORKFLOW.md](guides/WORKFLOW.md)** - Development workflow and best practices
 - **[DATABASE_CLEANUP_GUIDE.md](guides/DATABASE_CLEANUP_GUIDE.md)** - Database maintenance guide
-- **[REAL_TRADING_TESTING_GUIDE.md](guides/REAL_TRADING_TESTING_GUIDE.md)** - Testing real trading features
 
 ### 📊 Implementation Status
 

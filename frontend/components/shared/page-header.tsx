@@ -55,7 +55,7 @@ export function PageHeader({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
     >
-      <Card className="relative overflow-hidden border border-border/50 bg-card/50 backdrop-blur-sm">
+      <div className="mario-card-standard relative overflow-hidden">
         {/* Animated Background */}
         <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-blue-500/5 opacity-50"></div>
         <div className="absolute top-0 left-0 w-full h-0.5 md:h-1 bg-gradient-to-r from-primary to-blue-500"></div>
@@ -122,7 +122,7 @@ export function PageHeader({
           {/* Accent Line */}
           <div className="w-full h-0.5 md:h-1 bg-gradient-to-r from-primary via-blue-500 to-accent rounded-full mt-3 md:mt-4"></div>
         </div>
-      </Card>
+      </div>
     </motion.div>
   )
 }
