@@ -115,8 +115,8 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
         className={cn("w-full", className)}
       >
         {/* Horizontal Layout Token Card - Axiom Style */}
-        <div className="relative rounded-[16px] overflow-hidden bg-[var(--sky-blue)]/20 border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] hover:shadow-[8px_8px_0_var(--outline-black)] hover:-translate-y-[2px] transition-all duration-200 cursor-pointer">
-          <div className="flex items-center gap-4 p-4">
+        <div className="relative rounded-[16px] overflow-hidden bg-[var(--sky-blue)]/20 border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] hover:shadow-[8px_8px_0_var(--outline-black)] hover:-translate-y-[2px] transition-all duration-200 cursor-pointer h-[140px]">
+          <div className="flex items-center gap-4 p-4 h-full">
 
             {/* LEFT: Token Logo */}
             <div className="relative shrink-0 w-24 h-24 rounded-[14px] overflow-hidden border-4 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)]">
@@ -137,20 +137,20 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
             <div className="flex-1 min-w-0">
               {/* Top Row: Symbol, Name, Age */}
               <div className="flex items-center gap-2 mb-2">
-                <h3 className="font-bold text-[22px] text-[var(--outline-black)]">
+                <h3 className="font-bold text-[22px] text-[var(--outline-black)] drop-shadow-sm">
                   {data.symbol}
                 </h3>
-                <span className="text-[15px] text-[var(--outline-black)] font-semibold truncate max-w-[150px]" title={data.name || undefined}>
+                <span className="text-[15px] text-[var(--outline-black)] font-semibold truncate max-w-[150px] drop-shadow-sm" title={data.name || undefined}>
                   {data.name}
                 </span>
-                <span className="text-[13px] text-[var(--outline-black)] font-bold ml-auto">
+                <span className="text-[13px] text-[var(--outline-black)] font-bold ml-auto drop-shadow-sm">
                   {age}
                 </span>
               </div>
 
               {/* Description (if available, truncated) */}
               {data.description && (
-                <div className="text-[12px] text-[var(--outline-black)] font-medium mb-1 truncate max-w-[300px]" title={data.description}>
+                <div className="text-[12px] text-[var(--outline-black)] font-medium mb-1 truncate max-w-[300px] drop-shadow-sm opacity-90" title={data.description}>
                   {data.description}
                 </div>
               )}
@@ -253,7 +253,7 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
                               alt="X/Twitter" 
                               width={20} 
                               height={20}
-                              className="inline-block"
+                              className="inline-block filter brightness-0"
                             />
                           </a>
                         </HoverCardTrigger>
@@ -380,20 +380,20 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
             <div className="text-right shrink-0">
               {/* Market Cap */}
               <div className="mb-1">
-                <div className="text-[11px] text-[var(--outline-black)] opacity-60 uppercase">MC</div>
-                <div className="text-[18px] font-bold text-[var(--outline-black)] font-mono">
+                <div className="text-[11px] text-[var(--outline-black)] opacity-80 uppercase font-bold drop-shadow-sm">MC</div>
+                <div className="text-[18px] font-bold text-[var(--outline-black)] font-mono drop-shadow-sm">
                   {fmtCurrency(data.marketCapUsd)}
                 </div>
               </div>
 
               {/* Volume - USD and SOL */}
               <div className="mb-2">
-                <div className="text-[11px] text-[var(--outline-black)] opacity-60 uppercase">Vol 24h</div>
-                <div className="text-[14px] font-bold text-[var(--outline-black)] opacity-80 font-mono">
+                <div className="text-[11px] text-[var(--outline-black)] opacity-80 uppercase font-bold drop-shadow-sm">Vol 24h</div>
+                <div className="text-[14px] font-bold text-[var(--outline-black)] font-mono drop-shadow-sm">
                   {fmtCurrency(data.volume24h)}
                 </div>
                 {data.volume24hSol != null && data.volume24hSol > 0 && (
-                  <div className="text-[10px] text-[var(--outline-black)] opacity-60 font-mono">
+                  <div className="text-[10px] text-[var(--outline-black)] opacity-80 font-mono drop-shadow-sm">
                     {data.volume24hSol.toFixed(2)} SOL
                   </div>
                 )}
