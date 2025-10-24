@@ -193,39 +193,58 @@ export function FilterPanel({
             <div className={cn("", panelBgColors[headerColor])}>
               {/* Tabbed Interface */}
               <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as any)} className="w-full">
-                <TabsList className="grid w-full grid-cols-3 border-b-4 border-[var(--outline-black)] rounded-none bg-white p-0">
+                <TabsList className="grid w-full grid-cols-3 border-b-4 border-[var(--outline-black)] rounded-none bg-transparent p-0 gap-0 h-auto">
                   <TabsTrigger
                     value="audit"
-                    className="data-[state=active]:bg-[var(--mario-red)] data-[state=active]:text-white data-[state=active]:shadow-[2px_2px_0_var(--outline-black)] rounded-none border-r-2 border-[var(--outline-black)] font-bold transition-all text-[var(--outline-black)] flex items-center gap-2"
+                    className={cn(
+                      "rounded-none border-r-4 border-[var(--outline-black)] font-bold transition-all flex items-center justify-center gap-2 h-14 px-4",
+                      "bg-white text-[var(--outline-black)]",
+                      "data-[state=active]:bg-[var(--mario-red)] data-[state=active]:text-white",
+                      "hover:bg-[var(--mario-red)]/10",
+                      "data-[state=active]:hover:bg-[var(--mario-red)]"
+                    )}
                   >
                     <Shield className="h-4 w-4" />
-                    Audit
+                    <span className="hidden sm:inline">Audit</span>
                     {filterCounts.audit > 0 && (
-                      <span className="bg-[var(--mario-red)] text-white text-xs px-1.5 py-0.5 rounded-full border-2 border-[var(--outline-black)] font-bold">
+                      <span className="bg-[var(--mario-red)] text-white text-xs px-1.5 py-0.5 rounded-full border-2 border-[var(--outline-black)] font-bold min-w-[20px] text-center">
                         {filterCounts.audit}
                       </span>
                     )}
                   </TabsTrigger>
                   <TabsTrigger
                     value="metrics"
-                    className="data-[state=active]:bg-[var(--star-yellow)] data-[state=active]:text-[var(--outline-black)] data-[state=active]:shadow-[2px_2px_0_var(--outline-black)] rounded-none border-r-2 border-[var(--outline-black)] font-bold transition-all text-[var(--outline-black)] flex items-center gap-2"
+                    className={cn(
+                      "rounded-none border-r-4 border-[var(--outline-black)] font-bold transition-all flex items-center justify-center gap-2 h-14 px-4",
+                      "bg-white text-[var(--outline-black)]",
+                      "data-[state=active]:bg-[var(--star-yellow)] data-[state=active]:text-[var(--outline-black)]",
+                      "hover:bg-[var(--star-yellow)]/10",
+                      "data-[state=active]:hover:bg-[var(--star-yellow)]"
+                    )}
                   >
                     <DollarSign className="h-4 w-4" />
-                    $ Metrics
+                    <span className="hidden sm:inline">$ Metrics</span>
+                    <span className="sm:hidden">$</span>
                     {filterCounts.metrics > 0 && (
-                      <span className="bg-[var(--star-yellow)] text-[var(--outline-black)] text-xs px-1.5 py-0.5 rounded-full border-2 border-[var(--outline-black)] font-bold">
+                      <span className="bg-[var(--star-yellow)] text-[var(--outline-black)] text-xs px-1.5 py-0.5 rounded-full border-2 border-[var(--outline-black)] font-bold min-w-[20px] text-center">
                         {filterCounts.metrics}
                       </span>
                     )}
                   </TabsTrigger>
                   <TabsTrigger
                     value="socials"
-                    className="data-[state=active]:bg-[var(--luigi-green)] data-[state=active]:text-white data-[state=active]:shadow-[2px_2px_0_var(--outline-black)] rounded-none font-bold transition-all text-[var(--outline-black)] flex items-center gap-2"
+                    className={cn(
+                      "rounded-none font-bold transition-all flex items-center justify-center gap-2 h-14 px-4",
+                      "bg-white text-[var(--outline-black)]",
+                      "data-[state=active]:bg-[var(--luigi-green)] data-[state=active]:text-white",
+                      "hover:bg-[var(--luigi-green)]/10",
+                      "data-[state=active]:hover:bg-[var(--luigi-green)]"
+                    )}
                   >
                     <Users className="h-4 w-4" />
-                    Socials
+                    <span className="hidden sm:inline">Socials</span>
                     {filterCounts.socials > 0 && (
-                      <span className="bg-[var(--luigi-green)] text-white text-xs px-1.5 py-0.5 rounded-full border-2 border-[var(--outline-black)] font-bold">
+                      <span className="bg-[var(--luigi-green)] text-white text-xs px-1.5 py-0.5 rounded-full border-2 border-[var(--outline-black)] font-bold min-w-[20px] text-center">
                         {filterCounts.socials}
                       </span>
                     )}

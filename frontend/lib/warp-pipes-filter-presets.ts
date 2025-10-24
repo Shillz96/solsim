@@ -137,18 +137,11 @@ export const TRADING_PRESETS = {
 
 /**
  * Get default filters for a specific category
+ * Returns empty filters - user must configure their own preferences
  */
 export function getDefaultFilters(category: 'new' | 'graduating' | 'bonded'): Partial<AdvancedFilters> {
-  switch (category) {
-    case 'new':
-      return NEW_PAIRS_DEFAULTS;
-    case 'graduating':
-      return GRADUATING_DEFAULTS;
-    case 'bonded':
-      return BONDED_DEFAULTS;
-    default:
-      return {};
-  }
+  // Return empty filters by default - user configures their own
+  return {};
 }
 
 /**
