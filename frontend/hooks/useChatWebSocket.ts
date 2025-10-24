@@ -107,7 +107,9 @@ export function useChatWebSocket(options: UseChatWebSocketOptions = {}) {
     console.log('💬 Connecting to chat WebSocket...');
 
     try {
-      const ws = new WebSocket(`${WS_URL}/ws/chat?token=${token}`);
+      // Strip any existing paths from WS_URL to get base URL
+      const baseUrl = WS_URL.replace(/\/(ws\/)?prices?\/?$/, '');
+      const ws = new WebSocket(`${baseUrl}/ws/chat?token=${token}`);
       wsRef.current = ws;
 
       ws.onopen = () => {
