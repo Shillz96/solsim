@@ -1,10 +1,19 @@
 @import "tailwindcss";
 @import "./theme.css";
 @import url('https://fonts.googleapis.com/css2?family=Luckiest+Guy&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&display=swap');
 
 /* ---------------------------
    FONTS & THEME VARIABLES
 --------------------------- */
+
+/* Force font loading for mobile devices */
+* {
+  font-display: swap;
+}
 :root {
   /* 1UP SOL Design System - Mario Light Mode Only! */
   /* Fun, Colorful Mario Aesthetic */
@@ -248,6 +257,10 @@
     line-height: 1.65; /* Enhanced readability */
     /* Note: transform removed - it breaks position: fixed for modals/dropdowns */
     /* Use will-change sparingly for GPU optimization only when needed */
+    
+    /* Force font loading to prevent FOUT */
+    font-display: swap;
+    text-rendering: optimizeLegibility;
 
     /* iOS Safe Area Insets - Account for notch and home indicator */
     padding-top: env(safe-area-inset-top);
