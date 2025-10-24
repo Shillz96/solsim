@@ -66,28 +66,35 @@ const navigationItems = [
     name: "Dashboard",
     href: "/",
     icon: Home,
-    iconSrc: "/Home-10-24-2025.png",
+    iconSrc: "/icons/mario/home.png",
     description: "Overview of your trading activity"
   },
   {
     name: "Trade",
     href: "/warp-pipes",
     icon: TrendingUp,
-    iconSrc: "/Trade-10-24-2025.png",
+    iconSrc: "/icons/mario/trade.png",
     description: "Buy and sell tokens"
+  },
+  {
+    name: "Pipe Network",
+    href: "/pipe-network",
+    icon: Map,
+    iconSrc: "/icons/mario/chat.png",
+    description: "Community hub and learning center"
   },
   {
     name: "Portfolio",
     href: "/portfolio",
     icon: Wallet,
-    iconSrc: "/Portfolio-10-24-2025.png",
+    iconSrc: "/icons/mario/wallet.png",
     description: "Track your positions and P&L"
   },
   {
     name: "Trending",
     href: "/trending",
     icon: TrendingUp,
-    iconSrc: "/Trending-10-24-2025.png",
+    iconSrc: "/icons/mario/trending.png",
     description: "Discover popular tokens"
   }
   // Removed Docs - now in More Info dropdown
@@ -319,8 +326,8 @@ export function NavBar() {
                     <Image 
                       src={item.iconSrc} 
                       alt={item.name} 
-                      width={120} 
-                      height={40} 
+                      width={20} 
+                      height={20} 
                       className="object-contain hover:scale-105 transition-transform duration-200 max-w-full max-h-full" 
                     />
                   </Button>
@@ -586,7 +593,7 @@ export function NavBar() {
                               "flex items-center gap-3 px-3 py-3 rounded-lg transition-colors",
                               isActive ? "bg-primary/10 text-primary" : "hover:bg-muted"
                             )}>
-                              <Image src={item.iconSrc} alt={item.name} width={60} height={24} className="object-contain" />
+                              <Image src={item.iconSrc} alt={item.name} width={24} height={24} className="object-contain" />
                               <div>
                                 <div className="font-medium">{item.name}</div>
                                 <div className="text-xs text-muted-foreground">{item.description}</div>
