@@ -42,6 +42,7 @@ import wsPlugin from "./plugins/ws.js";
 import wsTestPlugin from "./plugins/wsTest.js";
 import wsWalletTrackerPlugin from "./plugins/wsWalletTracker.js";
 import wsChatPlugin from "./plugins/wsChat.js";
+import prisma from "./plugins/prisma.js";
 // import priceService from "./plugins/priceService.js"; // Old service
 import priceService from "./plugins/priceService-optimized.js"; // Optimized with WebSocket monitoring
 import { generalRateLimit } from "./plugins/rateLimiting.js";
@@ -70,6 +71,9 @@ const app = Fastify({
     ? { level: 'warn' } // Only log warnings and errors in production
     : { transport: { target: "pino-pretty" } } // Pretty logs in development
 });
+
+// Register Prisma as a decorator for use in routes and plugins
+app.decorate('prisma', prisma);
 
 // Add global error handler for Sentry
 app.setErrorHandler((error, request, reply) => {

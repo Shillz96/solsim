@@ -43,6 +43,18 @@
 
   /* Brick Brown */
   --color-brick: oklch(48% 0.10 45);        /* Brick Brown #9C5818 */
+  --color-outline-black: oklch(12% 0 0);    /* Outline Black #1C1C1C */
+
+  /* BACKWARD COMPATIBILITY - Legacy variable names from globals.css */
+  --mario-red: #E52521;
+  --luigi-green: #43B047;
+  --star-yellow: #FFD800;
+  --coin-gold: #FFB915;
+  --coin-yellow: #FFD700;
+  --sky-blue: #A6D8FF;
+  --brick-brown: #9C5818;
+  --pipe-green: #00994C;
+  --outline-black: #1C1C1C;
 
   /* Trading-specific colors - Luigi Green for profit, Mario Red for loss */
   --color-profit: oklch(62% 0.18 145);      /* Luigi Green - WCAG AA compliant */

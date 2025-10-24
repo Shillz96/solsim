@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./theme.css";
 @import url('https://fonts.googleapis.com/css2?family=Luckiest+Guy&display=swap');
 
 /* ---------------------------
@@ -1179,19 +1180,7 @@
    1UP SOL - MARIO THEME STYLES
    ============================================================ */
 
-/* Mario Color Variables */
-:root {
-  --mario-red: #E52521;
-  --luigi-green: #43B047;
-  --super-blue: #2B4EF9;
-  --star-yellow: #FFD800;
-  --coin-gold: #FFB915;
-  --coin-yellow: #FFD700; /* Adding coin-yellow for roadmap */
-  --sky-blue: #A6D8FF;
-  --brick-brown: #9C5818;
-  --pipe-green: #00994C;
-  --outline-black: #1C1C1C;
-}
+/* Mario Color Variables - MOVED TO theme.css for consolidation */
 
 /* Mario Font Base Class */
 .mario-font {
