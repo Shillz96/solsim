@@ -1334,13 +1334,22 @@ export async function getTopTraders(tokenMint: string, limit = 10): Promise<any[
 /**
  * Get holder distribution for a specific token
  */
-export async function getTokenHolders(tokenMint: string, limit = 20): Promise<any[]> {
+export async function getTokenHolders(tokenMint: string, limit = 20): Promise<{
+  holders: Array<{
+    address: string;
+    balance: string;
+    percentage: number;
+    rank: number;
+  }>;
+  totalSupply: string;
+  holderCount: number;
+}> {
   const res = await fetch(`${API}/api/market/holders/${tokenMint}?limit=${limit}`, {
     headers: getAuthHeaders(),
   });
   if (!res.ok) throw new Error('Failed to fetch token holders');
   const data = await res.json();
-  return data.holders || [];
+  return data;
 }
 
 /**
