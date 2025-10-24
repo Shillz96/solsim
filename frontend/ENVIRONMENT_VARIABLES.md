@@ -5,7 +5,7 @@
 ### Frontend (.env.local)
 
 ```bash
-# Solana RPC URL (for wallet balance checks)
+# Solana RPC URL (for wallet balance checks and transaction submission)
 NEXT_PUBLIC_SOLANA_RPC_URL=https://api.mainnet-beta.solana.com
 
 # WebSocket URL (for real-time price updates)
@@ -15,36 +15,35 @@ NEXT_PUBLIC_WS_URL=wss://your-backend-domain.com/prices
 NEXT_PUBLIC_API_URL=https://your-backend-domain.com
 ```
 
-### Backend (.env)
+## No API Key Required! 🎉
 
-```bash
-# PumpPortal API Key (required for token creation)
-PUMPPORTAL_API_KEY=your-pumpportal-api-key-here
-```
+The launch token feature uses **PumpPortal's Local Transaction API** which doesn't require an API key. Users sign transactions with their own Solana wallets, making it completely non-custodial.
 
-## Getting PumpPortal API Key
+## How It Works
 
-1. Visit [PumpPortal.fun](https://pumpportal.fun/)
-2. Sign up for an account
-3. Navigate to the API section
-4. Generate an API key
-5. Add the key to your backend environment variables
+1. **Metadata Upload**: Uses Pump.fun's public IPFS endpoint (no API key needed)
+2. **Token Creation**: Uses PumpPortal's Local Transaction API (no API key needed)
+3. **Transaction Signing**: User signs with their own wallet (Phantom, Solflare, etc.)
+4. **Transaction Submission**: Sent directly to Solana network
 
-## Security Notes
+## Security Benefits
 
-- **Never expose PUMPPORTAL_API_KEY in frontend code**
-- The API key is only used in Next.js API routes (server-side)
-- All PumpPortal API calls are proxied through our backend to keep the key secure
-- Frontend makes calls to `/api/launch/*` endpoints which then call PumpPortal
+- **No API keys required** - eliminates key management complexity
+- **Non-custodial** - users maintain full control of their wallets
+- **Direct integration** - no third-party API dependencies
+- **User-controlled** - all transactions signed by user's wallet
 
 ## Testing
 
-For testing purposes, you can use PumpPortal's test environment if available, or use a small amount of SOL on mainnet for testing token creation.
+You can test the complete flow with:
+- Any Solana wallet (Phantom, Solflare, etc.)
+- Small amount of SOL for transaction fees (~0.02 SOL)
+- Real mainnet testing (no test environment needed)
 
 ## Deployment
 
 When deploying to Vercel:
 
-1. Add `PUMPPORTAL_API_KEY` to your Vercel environment variables
-2. Ensure all frontend environment variables are prefixed with `NEXT_PUBLIC_`
-3. The API routes will automatically have access to the backend environment variables
+1. Ensure all frontend environment variables are prefixed with `NEXT_PUBLIC_`
+2. No backend environment variables needed for token creation
+3. The API routes work without any additional configuration

@@ -2,10 +2,11 @@ import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 
 /**
- * Create token via PumpPortal API
+ * Create token via PumpPortal Local Transaction API
  * 
- * This endpoint receives token creation parameters and calls PumpPortal API
- * to create a new token on the Pump.fun bonding curve.
+ * This endpoint receives token creation parameters and calls PumpPortal's
+ * Local Transaction API to build a transaction for token creation.
+ * No API key required - user signs with their own wallet.
  */
 
 const CreateTokenSchema = z.object({
@@ -36,17 +37,7 @@ export async function POST(request: NextRequest) {
     
     const { name, symbol, metadataUri, mint, amount, slippage, priorityFee } = validation.data
     
-    // Get PumpPortal API key from environment
-    const apiKey = process.env.PUMPPORTAL_API_KEY
-    if (!apiKey) {
-      console.error('PUMPPORTAL_API_KEY not found in environment variables')
-      return NextResponse.json(
-        { error: 'Server configuration error' },
-        { status: 500 }
-      )
-    }
-    
-    // Prepare request body for PumpPortal API
+    // Prepare request body for PumpPortal Local Transaction API
     const pumpPortalBody = {
       action: 'create',
       tokenMetadata: {
@@ -62,8 +53,8 @@ export async function POST(request: NextRequest) {
       pool: 'pump'
     }
     
-    // Call PumpPortal API
-    const response = await fetch(`https://pumpportal.fun/api/trade?api-key=${apiKey}`, {
+    // Call PumpPortal Local Transaction API (no API key needed)
+    const response = await fetch('https://pumpportal.fun/api/trade', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -77,7 +68,7 @@ export async function POST(request: NextRequest) {
       
       return NextResponse.json(
         { 
-          error: 'Failed to create token',
+          error: 'Failed to create token transaction',
           details: `PumpPortal API returned ${response.status}: ${errorText}`
         },
         { status: 500 }
@@ -86,15 +77,17 @@ export async function POST(request: NextRequest) {
     
     const result = await response.json()
     
-    if (!result.signature) {
+    // Local Transaction API returns the transaction to be signed
+    // The user will sign it with their wallet
+    if (!result.transaction) {
       return NextResponse.json(
-        { error: 'No transaction signature returned from PumpPortal' },
+        { error: 'No transaction returned from PumpPortal' },
         { status: 500 }
       )
     }
     
     return NextResponse.json({
-      signature: result.signature,
+      transaction: result.transaction,
       mint: mint // Return the mint address that was used
     })
     

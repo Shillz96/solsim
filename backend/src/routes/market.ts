@@ -162,26 +162,37 @@ export default async function marketRoutes(app: FastifyInstance) {
    */
   app.get('/market/lighthouse', async (req, reply) => {
     try {
-      // Get PumpPortal aggregated data from Redis
+      // Get PumpPortal 24h volume from Redis
       const pumpData = await redis.get('market:lighthouse:pump');
       const pump = pumpData ? JSON.parse(pumpData) : {
-        '5m': { totalTrades: 0, traders: 0, volumeSol: 0, created: 0, migrations: 0 },
-        '1h': { totalTrades: 0, traders: 0, volumeSol: 0, created: 0, migrations: 0 },
-        '6h': { totalTrades: 0, traders: 0, volumeSol: 0, created: 0, migrations: 0 },
-        '24h': { totalTrades: 0, traders: 0, volumeSol: 0, created: 0, migrations: 0 },
+        '24h': { volumeSol: 0 },
       };
 
-      // Get CMC data from Redis (cached by cmcService)
+      // Get CMC total market cap from Redis
       const cmcData = await redis.get('market:cmc:global');
       const cmc = cmcData ? JSON.parse(cmcData) : {
         totalMarketCapUsd: null,
-        btcDominancePct: null,
-        totalVolume24hUsd: null,
+      };
+
+      // Get Fear & Greed Index from Redis
+      const fearGreedData = await redis.get('market:fear-greed');
+      const fearGreed = fearGreedData ? JSON.parse(fearGreedData) : {
+        value: null,
+        classification: null,
+      };
+
+      // Get Altcoin Season Index from Redis
+      const altcoinSeasonData = await redis.get('market:altcoin-season');
+      const altcoinSeason = altcoinSeasonData ? JSON.parse(altcoinSeasonData) : {
+        value: null,
       };
 
       return {
-        pump,
-        cmc,
+        pumpVolume24h: pump['24h']?.volumeSol || null,
+        totalMarketCapUsd: cmc.totalMarketCapUsd || null,
+        fearGreedIndex: fearGreed.value || null,
+        fearGreedLabel: fearGreed.classification || null,
+        altcoinSeasonIndex: altcoinSeason.value || null,
         ts: Date.now(),
       };
     } catch (error: any) {

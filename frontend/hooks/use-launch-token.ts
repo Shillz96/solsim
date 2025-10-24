@@ -72,7 +72,7 @@ export function useLaunchToken() {
 
       const { metadataUri }: UploadMetadataResponse = await metadataResponse.json()
 
-      // Step 4: Create token via PumpPortal
+      // Step 4: Create token transaction via PumpPortal Local Transaction API
       const createResponse = await fetch('/api/launch/create-token', {
         method: 'POST',
         headers: {
@@ -91,14 +91,37 @@ export function useLaunchToken() {
 
       if (!createResponse.ok) {
         const error = await createResponse.json()
-        throw new Error(error.error || 'Failed to create token')
+        throw new Error(error.error || 'Failed to create token transaction')
       }
 
-      const { signature, mint }: CreateTokenResponse = await createResponse.json()
+      const { transaction, mint }: CreateTokenResponse = await createResponse.json()
 
-      // Step 5: Build and sign transaction (if needed)
-      // Note: PumpPortal handles the transaction creation and signing
-      // We just need to return the result for now
+      // Step 5: Sign and send transaction with user's wallet
+      if (!signTransaction) {
+        throw new Error('Wallet does not support transaction signing')
+      }
+
+      // Deserialize the transaction from PumpPortal
+      const transactionBuffer = Buffer.from(transaction, 'base64')
+      const transactionToSign = Transaction.from(transactionBuffer)
+
+      // Sign the transaction with user's wallet
+      const signedTransaction = await signTransaction(transactionToSign)
+
+      // Step 6: Send the signed transaction to Solana
+      const connection = new Connection(getRpcEndpoint(), 'confirmed')
+      const signature = await connection.sendRawTransaction(signedTransaction.serialize())
+
+      // Step 7: Wait for confirmation
+      const confirmation = await connection.confirmTransaction({
+        signature,
+        blockhash: transactionToSign.recentBlockhash!,
+        lastValidBlockHeight: transactionToSign.lastValidBlockHeight!
+      }, 'confirmed')
+
+      if (confirmation.value.err) {
+        throw new Error(`Transaction failed: ${JSON.stringify(confirmation.value.err)}`)
+      }
       
       return {
         signature,

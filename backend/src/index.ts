@@ -52,6 +52,7 @@ import * as liquidationEngine from "./services/liquidationEngine.js";
 import { geckoTerminalService } from "./services/geckoTerminalService.js";
 import { marketLighthouseWorker } from "./workers/marketLighthouseWorker.js";
 import { startCMCRefresh, stopCMCRefresh } from "./services/cmcService.js";
+import { startSentimentRefresh, stopSentimentRefresh } from "./services/marketSentimentService.js";
 
 // Import production-ready plugins
 import { validateEnvironment, getConfig, isProduction } from "./utils/env.js";
@@ -283,6 +284,10 @@ console.log("🦎 GeckoTerminal OHLCV service started");
 startCMCRefresh();
 console.log("📊 CoinMarketCap service started");
 
+// Start Market Sentiment auto-refresh (Fear & Greed, Altcoin Season)
+startSentimentRefresh();
+console.log("😱 Market Sentiment service started");
+
 // Start Market Lighthouse worker (PumpPortal aggregation)
 await marketLighthouseWorker.start();
 console.log("🔦 Market Lighthouse worker started");
@@ -324,6 +329,7 @@ const gracefulShutdown = async (signal: string) => {
     await liquidationEngine.stopLiquidationEngine();
     marketLighthouseWorker.stop();
     stopCMCRefresh();
+    stopSentimentRefresh();
 
     console.log('✅ Graceful shutdown completed');
     process.exit(0);

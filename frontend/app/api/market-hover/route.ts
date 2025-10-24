@@ -22,17 +22,11 @@ export async function GET() {
     
     // Return empty data on error
     return NextResponse.json({
-      pump: {
-        '5m': { totalTrades: 0, traders: 0, volumeSol: 0, created: 0, migrations: 0 },
-        '1h': { totalTrades: 0, traders: 0, volumeSol: 0, created: 0, migrations: 0 },
-        '6h': { totalTrades: 0, traders: 0, volumeSol: 0, created: 0, migrations: 0 },
-        '24h': { totalTrades: 0, traders: 0, volumeSol: 0, created: 0, migrations: 0 },
-      },
-      cmc: {
-        totalMarketCapUsd: null,
-        btcDominancePct: null,
-        totalVolume24hUsd: null,
-      },
+      pumpVolume24h: null,
+      totalMarketCapUsd: null,
+      fearGreedIndex: null,
+      fearGreedLabel: null,
+      altcoinSeasonIndex: null,
       ts: Date.now(),
     });
   }

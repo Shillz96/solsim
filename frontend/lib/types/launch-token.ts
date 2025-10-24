@@ -39,7 +39,7 @@ export interface CreateTokenRequest {
 }
 
 export interface CreateTokenResponse {
-  signature: string
+  transaction: string // base64 encoded transaction
   mint: string
 }
 
