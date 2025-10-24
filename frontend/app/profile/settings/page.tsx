@@ -316,6 +316,11 @@ function UserSettingsPage() {
     }
   }, [settingsData, toast])
 
+  const profile = userProfile as any
+  const displayEmail = profile?.email || user?.email || ''
+  const displayHandle = profile?.handle || (user as any)?.handle || ''
+  const avatarUrl = profile?.avatarUrl
+
   if (!isAuthenticated || !user) {
     return (
       <div className="container max-w-4xl mx-auto py-8">
@@ -331,11 +336,6 @@ function UserSettingsPage() {
     )
   }
 
-  const profile = userProfile as any
-  const displayEmail = profile?.email || user?.email || ''
-  const displayHandle = profile?.handle || (user as any)?.handle || ''
-  const avatarUrl = profile?.avatarUrl
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
       <div className="container max-w-4xl mx-auto py-8 pb-24 space-y-6">
@@ -345,8 +345,8 @@ function UserSettingsPage() {
           <p className="mario-subtitle-standard">Manage your profile and preferences</p>
         </div>
 
-      {/* Avatar Section */}
-      <div className="mario-card-standard">
+        {/* Avatar Section */}
+        <div className="mario-card-standard">
         <div className="mario-header-card mb-6">
           <h2 className="mario-title-standard flex items-center gap-2">
             <Camera className="h-5 w-5" />
@@ -975,6 +975,7 @@ function UserSettingsPage() {
           userId={user.id}
         />
       )}
+      </div>
     </div>
   )
 }
@@ -1004,8 +1005,6 @@ function PurchaseHistorySection({ userId }: { userId: string }) {
       isLoading={isLoading}
     />
   );
-}
-
 }
 
 export default UserSettingsPage
