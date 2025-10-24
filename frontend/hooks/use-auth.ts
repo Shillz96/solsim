@@ -92,7 +92,8 @@ export function useAuth() {
     const user: AuthUser = {
       id: response.userId,
       email,
-      emailVerified: response.user.emailVerified
+      emailVerified: response.user.emailVerified,
+      userTier: response.user.userTier
     }
 
     localStorage.setItem('userId', response.userId)
@@ -126,7 +127,8 @@ export function useAuth() {
       id: response.userId,
       email,
       handle: handle,
-      emailVerified: response.user.emailVerified
+      emailVerified: response.user.emailVerified,
+      userTier: response.user.userTier
     }
 
     localStorage.setItem('userId', response.userId)
