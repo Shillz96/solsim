@@ -106,7 +106,8 @@ export function TokenColumn({
         {/* Column Body - Scrollable List */}
         <div
           className={cn(
-            "flex-1 overflow-y-auto bg-white p-4 pt-0 space-y-4 min-h-0"
+            "flex-1 overflow-y-auto bg-white p-4 pt-0 space-y-4 min-h-0",
+            "scrollbar-none" // Hide scrollbars while maintaining scroll functionality
           )}
         >
         {/* Loading State */}
