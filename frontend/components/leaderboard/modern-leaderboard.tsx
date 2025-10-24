@@ -299,7 +299,9 @@ export function ModernLeaderboard({
       {/* Rest of Leaderboard */}
       {rest.length > 0 && (
         <div className="stat-card">
-          <h3 className="text-lg font-semibold mb-4">Full Rankings</h3>
+          <h3 className="text-lg sm:text-xl font-mario font-bold mb-4 text-[var(--outline-black)] drop-shadow-[2px_2px_0_rgba(0,0,0,0.2)]">
+            Full Rankings
+          </h3>
 
           {viewMode === 'cards' ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

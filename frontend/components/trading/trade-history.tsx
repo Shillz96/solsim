@@ -93,55 +93,60 @@ export function TradeHistory({
 
   if (isLoading) {
     const loadingContent = (
-      <div className="flex items-center justify-center h-32">
-        <Loader2 className="h-6 w-6 animate-spin" />
-        <span className="ml-2">Loading trade history...</span>
+      <div className="flex flex-col items-center justify-center h-32">
+        <Loader2 className="h-6 w-6 animate-spin text-[var(--mario-red)]" />
+        <span className="ml-2 font-bold text-[var(--outline-black)] mt-2">Loading trade history...</span>
       </div>
     )
-    return noCard ? loadingContent : <Card className="p-6">{loadingContent}</Card>
+    return noCard ? loadingContent : <div className="bg-white border-4 border-[var(--outline-black)] rounded-xl shadow-[6px_6px_0_var(--outline-black)] p-6">{loadingContent}</div>
   }
 
   if (error) {
     const errorContent = (
-      <Alert variant="destructive">
+      <Alert variant="destructive" className="border-3 border-[var(--mario-red)]">
         <AlertCircle className="h-4 w-4" />
-        <AlertDescription>
+        <AlertDescription className="font-semibold">
           Failed to load trade history: {error}
         </AlertDescription>
       </Alert>
     )
-    return noCard ? errorContent : <Card className="p-6">{errorContent}</Card>
+    return noCard ? errorContent : <div className="bg-white border-4 border-[var(--outline-black)] rounded-xl shadow-[6px_6px_0_var(--outline-black)] p-6">{errorContent}</div>
   }
 
   const content = (
     <>
       {showHeader && (
-        <div className="flex items-center justify-between">
-          <h3 className="font-semibold">
-            {tokenAddress ? "Token Trade History" : "Recent Trades"}
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="font-mario font-bold text-lg text-[var(--outline-black)]">
+            {tokenAddress ? "🎮 Token Trades" : "📜 Quest Log"}
           </h3>
-          <Button variant="ghost" size="sm" onClick={loadTrades}>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={loadTrades}
+            className="border-3 border-[var(--outline-black)] bg-white hover:bg-[var(--mario-red)] hover:text-white shadow-[2px_2px_0_var(--outline-black)] font-bold"
+          >
             Refresh
           </Button>
         </div>
       )}
 
       {trades.length === 0 ? (
-        <div className="text-center py-12">
-          <div className="inline-flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 mb-4">
-            <TrendingUp className="h-8 w-8 text-primary" />
+        <div className="text-center py-12 bg-[var(--sky-blue)]/10 rounded-lg border-3 border-[var(--outline-black)]">
+          <div className="inline-flex h-16 w-16 items-center justify-center rounded-full bg-[var(--mario-red)]/10 border-3 border-[var(--outline-black)] mb-4">
+            <TrendingUp className="h-8 w-8 text-[var(--mario-red)]" />
           </div>
-          <h3 className="font-semibold text-lg mb-2">
-            {tokenAddress ? "No Token Trades" : "No Trade History"}
+          <h3 className="font-mario font-bold text-lg mb-2 text-[var(--outline-black)]">
+            {tokenAddress ? "No Token Trades" : "No Quest History"}
           </h3>
-          <p className="text-muted-foreground mb-6 max-w-sm mx-auto">
+          <p className="text-muted-foreground font-semibold mb-6 max-w-sm mx-auto">
             {tokenAddress
               ? "No trades found for this token. Start trading to see your history here."
-              : "Make your first trade to see your transaction history here."
+              : "Make your first trade to see your quest history here!"
             }
           </p>
           {!tokenAddress && (
-            <Button asChild size="lg">
+            <Button asChild size="lg" className="bg-[var(--mario-red)] hover:bg-[var(--mario-red)]/90 text-white border-3 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)] font-bold">
               <Link href="/trade">
                 <TrendingUp className="mr-2 h-4 w-4" />
                 Start Trading
@@ -154,13 +159,13 @@ export function TradeHistory({
           {displayTrades.map((trade) => (
             <div
               key={trade.id}
-              className="flex items-center justify-between rounded-lg border p-3 transition-colors hover:bg-muted/50"
+              className="flex items-center justify-between rounded-lg border-3 border-[var(--outline-black)] bg-white p-3 transition-all hover:bg-[var(--sky-blue)]/10 hover:shadow-[3px_3px_0_var(--outline-black)]"
             >
               <div className="flex items-center gap-3">
-                <div className={`flex h-8 w-8 items-center justify-center rounded-full ${
+                <div className={`flex h-8 w-8 items-center justify-center rounded-full border-2 border-[var(--outline-black)] ${
                   trade.side === "BUY"
-                    ? "bg-green-100 text-green-600"
-                    : "bg-red-100 text-red-600"
+                    ? "bg-[var(--luigi-green)] text-white"
+                    : "bg-[var(--mario-red)] text-white"
                 }`}>
                   {trade.side === "BUY" ? (
                     <ArrowUpRight className="h-4 w-4" />
@@ -170,12 +175,19 @@ export function TradeHistory({
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <Badge variant={trade.side === "BUY" ? "default" : "destructive"} className="text-xs">
+                    <Badge 
+                      variant={trade.side === "BUY" ? "default" : "destructive"} 
+                      className={`text-xs font-bold border-2 border-[var(--outline-black)] ${
+                        trade.side === "BUY" 
+                          ? "bg-[var(--luigi-green)] hover:bg-[var(--luigi-green)]/90"
+                          : "bg-[var(--mario-red)] hover:bg-[var(--mario-red)]/90"
+                      }`}
+                    >
                       {trade.side}
                     </Badge>
-                    <span className="font-medium">{trade.symbol || 'Unknown'}</span>
+                    <span className="font-bold text-[var(--outline-black)]">{trade.symbol || 'Unknown'}</span>
                   </div>
-                  <div className="text-sm text-muted-foreground">
+                  <div className="text-sm text-muted-foreground font-semibold">
                     {trade.name || 'Unknown Token'}
                   </div>
                 </div>
@@ -188,7 +200,7 @@ export function TradeHistory({
                     qty={parseFloat(trade.qty)}
                     symbol={trade.symbol || ''}
                     decimals={6}
-                    className="text-sm font-mono"
+                    className="text-sm font-mono font-bold"
                   />
                 </div>
 
@@ -196,7 +208,7 @@ export function TradeHistory({
                 <div>
                   <PriceCell
                     priceUSD={parseFloat(trade.priceUsd)}
-                    className="text-sm"
+                    className="text-sm font-bold"
                     showSolEquiv={true}
                   />
                 </div>
@@ -205,13 +217,13 @@ export function TradeHistory({
                 <div>
                   <MoneyCell
                     usd={parseFloat(trade.costUsd)}
-                    className="text-sm font-medium"
+                    className="text-sm font-bold"
                     hideSolEquiv={false}
                   />
                 </div>
 
                 {/* Timestamp */}
-                <div className="text-xs text-muted-foreground w-16 text-right">
+                <div className="text-xs text-[var(--outline-black)] font-semibold w-16 text-right">
                   {formatTimestamp(trade.createdAt)}
                 </div>
               </div>
@@ -221,7 +233,7 @@ export function TradeHistory({
           {trades.length > 10 && (
             <Button
               variant="outline"
-              className="w-full"
+              className="w-full border-3 border-[var(--outline-black)] bg-white hover:bg-[var(--star-yellow)] hover:text-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] font-bold"
               onClick={() => setShowAll(!showAll)}
             >
               {showAll ? "Show Less" : `Show All (${trades.length})`}
@@ -236,6 +248,6 @@ export function TradeHistory({
   return noCard ? (
     <div className="space-y-4">{content}</div>
   ) : (
-    <Card className="p-6 space-y-4">{content}</Card>
+    <div className="bg-white border-4 border-[var(--outline-black)] rounded-xl shadow-[6px_6px_0_var(--outline-black)] p-6 space-y-4">{content}</div>
   )
 }

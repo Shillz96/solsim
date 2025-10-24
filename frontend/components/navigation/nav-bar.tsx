@@ -44,6 +44,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import { useRouter } from "next/navigation"
 import { useDebounce } from "@/hooks/use-debounce"
 import { useAuth } from "@/hooks/use-auth"
+import { useTradingMode } from "@/lib/trading-mode-context"
 import { useQuery } from "@tanstack/react-query"
 import * as api from "@/lib/api"
 import type { TokenSearchResult } from "@/lib/types/backend"
@@ -56,6 +57,7 @@ import { XPBadge } from "@/components/level/xp-progress-bar"
 import { useOnboardingContext } from "@/lib/onboarding-provider"
 import { ProfileMenu } from "@/components/navigation/profile-menu"
 import { WalletBalanceDisplay } from "@/components/navigation/wallet-balance-display"
+import { CartridgePill } from "@/components/ui/cartridge-pill"
 import { useBalance } from "@/hooks/use-react-query-hooks"
 
 // Enhanced navigation items with better organization
@@ -129,6 +131,13 @@ export function NavBar() {
   const { prices: livePrices } = usePriceStreamContext()
   const solPrice = livePrices.get('So11111111111111111111111111111111111111112')?.price || 0
   const { startOnboarding } = useOnboardingContext()
+  
+  // Trading mode
+  const {
+    tradeMode,
+    switchToRealTrading,
+    switchToPaperTrading,
+  } = useTradingMode()
 
   // Notifications data
   const {
@@ -257,6 +266,18 @@ export function NavBar() {
     logout()
     setMobileMenuOpen(false)
   }, [logout])
+
+  const handleToggleMode = useCallback(async () => {
+    try {
+      if (tradeMode === 'REAL') {
+        await switchToPaperTrading()
+      } else {
+        await switchToRealTrading()
+      }
+    } catch (error) {
+      console.error('Error switching trading mode:', error)
+    }
+  }, [tradeMode, switchToRealTrading, switchToPaperTrading])
 
   return (
     <motion.header
@@ -458,8 +479,17 @@ export function NavBar() {
           <div className="flex items-center gap-3 flex-shrink-0">
             {isAuthenticated ? (
               <>
-                {/* Minimal balance pill */}
-                <WalletBalanceDisplay variant="minimal" showDropdown className="h-9" />
+                {/* Trade Mode Toggle - Desktop */}
+                <div className="hidden md:block">
+                  <CartridgePill
+                    value={tradeMode === "REAL" ? "Mainnet" : "Paper"}
+                    onClick={handleToggleMode}
+                    size="sm"
+                  />
+                </div>
+                
+                {/* Minimal balance pill with constrained width on mobile */}
+                <WalletBalanceDisplay variant="minimal" showDropdown className="h-9 max-w-[140px] sm:max-w-none" />
 
                 {/* New compact Profile Menu with integrated notifications */}
                 {user && (
@@ -481,7 +511,7 @@ export function NavBar() {
                 )}
               </>
             ) : (
-              <Button onClick={() => setAuthModalOpen(true)} className="font-semibold h-9 px-4">
+              <Button onClick={() => setAuthModalOpen(true)} className="font-semibold h-8 sm:h-9 px-3 sm:px-4 text-sm sm:text-base">
                 Sign In
               </Button>
             )}
@@ -504,6 +534,18 @@ export function NavBar() {
                   {isAuthenticated && user && (
                     <div className="px-3 py-2 bg-gradient-to-r from-[var(--star-yellow)]/20 to-[var(--coin-yellow)]/20 border-3 border-[var(--star-yellow)] shadow-[3px_3px_0_var(--outline-black)] rounded-lg">
                       <XPBadge currentXP={parseFloat(user.rewardPoints?.toString() || '0')} />
+                    </div>
+                  )}
+                  
+                  {/* Trade Mode Toggle - Mobile */}
+                  {isAuthenticated && (
+                    <div className="px-3">
+                      <CartridgePill
+                        value={tradeMode === "REAL" ? "Mainnet" : "Paper"}
+                        onClick={handleToggleMode}
+                        size="sm"
+                        className="w-full"
+                      />
                     </div>
                   )}
 
