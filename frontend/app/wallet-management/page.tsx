@@ -4,7 +4,8 @@ import { WalletManagement } from '@/components/portfolio/wallet-management';
 import { useAuth } from '@/hooks/use-auth';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { ArrowLeft, Wallet2, Lock } from 'lucide-react';
+import { ArrowLeft, Lock } from 'lucide-react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 
 /**
@@ -63,12 +64,19 @@ export default function WalletManagementPage() {
               >
                 <ArrowLeft className="h-4 w-4" />
               </Button>
-              <div>
-                <h1 className="font-mario text-2xl md:text-3xl text-pipe-900 drop-shadow-[2px_2px_0px_rgba(0,0,0,0.25)] flex items-center gap-2">
-                  <Wallet2 className="h-7 w-7" />
-                  Wallet Management
-                </h1>
-                <p className="text-pipe-700 text-sm md:text-base mt-1">
+              <div className="flex flex-col items-center">
+                {/* Mario-themed WALLET MANAGEMENT header image */}
+                <div className="mb-2">
+                  <Image
+                    src="/Wallet-Management-10-24-2025.png"
+                    alt="WALLET MANAGEMENT"
+                    width={400}
+                    height={80}
+                    className="h-16 w-auto md:h-20"
+                    priority
+                  />
+                </div>
+                <p className="text-pipe-700 text-sm md:text-base text-center">
                   Manage your wallets, transfer funds, and track performance
                 </p>
               </div>

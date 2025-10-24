@@ -17,7 +17,7 @@ import { motion } from "framer-motion"
 import { useAuth } from "@/hooks/use-auth"
 import { useWallet } from "@solana/wallet-adapter-react"
 import { MarioPageHeader } from "@/components/shared/mario-page-header"
-import { WalletTrackerPanel } from "@/components/portfolio/wallet-tracker-panel"
+import { WalletManagementPanel } from "@/components/portfolio/wallet-management-panel"
 import Image from "next/image"
 
 function PortfolioPageContent() {
@@ -185,8 +185,8 @@ function PortfolioPageContent() {
           {/* Enhanced Right Sidebar - Power-Up Panel */}
           <aside className="space-y-6 order-first xl:order-last">
             <div className="xl:sticky xl:top-6 space-y-6">
-              {/* Wallet Tracker Panel - NEW! */}
-              <WalletTrackerPanel />
+              {/* Wallet Management Panel - NEW! */}
+              <WalletManagementPanel />
 
               {/* Achievement Badges Panel */}
               <motion.div
