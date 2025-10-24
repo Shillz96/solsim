@@ -41,9 +41,9 @@ import MarketHover from "@/components/market/MarketHover"
 
 // Info dropdown items for bottom nav
 const infoItems = [
-  { href: "/rewards", icon: Gift, label: "Rewards", iconSrc: "/icons/mario/gift.png" },
+  { href: "/rewards", icon: Gift, label: "Rewards", iconSrc: "/icons/mario/star.png" },
   { href: "/docs", icon: BookOpen, label: "Docs", iconSrc: "/icons/mario/game.png" },
-  { href: "/roadmap", icon: Map, label: "Roadmap", iconSrc: "/icons/mario/map.png" },
+  { href: "/roadmap", icon: Map, label: "Roadmap", iconSrc: "/icons/mario/checkered-flag.png" },
 ]
 
 interface MarketPrice {
