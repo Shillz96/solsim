@@ -9,9 +9,10 @@
  * - Size scales with trade volume
  */
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import type { ISeriesApi, SeriesMarker, Time } from 'lightweight-charts'
+import type { ISeriesApi, SeriesMarker, Time, ISeriesMarkersPluginApi } from 'lightweight-charts'
+import { createSeriesMarkers } from 'lightweight-charts'
 import { useAuth } from './use-auth'
 
 interface Trade {
@@ -32,6 +33,7 @@ export function useTradeMarkers(
   const { getUserId } = useAuth()
   const userId = getUserId()
   const [hideBubbles, setHideBubbles] = useState(false)
+  const markersApiRef = useRef<ISeriesMarkersPluginApi<Time> | null>(null)
 
   // Fetch user trades for this token
   const { data: tradesData, isLoading } = useQuery({
@@ -56,16 +58,35 @@ export function useTradeMarkers(
     staleTime: 60000, // Cache for 1 minute
   })
 
+  // Initialize markers API when series becomes available
+  useEffect(() => {
+    if (!candlestickSeries) {
+      markersApiRef.current = null
+      return
+    }
+
+    // Create markers API instance using TradingView v5 API
+    markersApiRef.current = createSeriesMarkers(candlestickSeries, [])
+    console.log('📍 Initialized markers API for series')
+
+    return () => {
+      // Cleanup markers when series changes
+      if (markersApiRef.current) {
+        markersApiRef.current.detach()
+        markersApiRef.current = null
+      }
+    }
+  }, [candlestickSeries])
+
   // Apply markers to chart when trades data changes
   useEffect(() => {
-    if (!candlestickSeries || !tradesData?.success || !tradesData.trades) {
+    if (!markersApiRef.current || !tradesData?.success || !tradesData.trades) {
       return
     }
 
     // If hide bubbles is active or showMarkers is false, clear markers
     if (hideBubbles || !showMarkers) {
-      // Use type assertion - setMarkers exists in v5 but TypeScript types don't expose it
-      ;(candlestickSeries as any).setMarkers([])
+      markersApiRef.current.setMarkers([])
       return
     }
 
@@ -111,11 +132,11 @@ export function useTradeMarkers(
       }
     })
 
-    // Use TradingView v5 API (setMarkers exists but TypeScript types don't expose it)
-    ;(candlestickSeries as any).setMarkers(markers)
+    // Use TradingView v5 API with proper createSeriesMarkers
+    markersApiRef.current.setMarkers(markers)
 
     console.log(`✅ Applied ${markers.length} trade markers`)
-  }, [candlestickSeries, tradesData, hideBubbles, showMarkers])
+  }, [markersApiRef.current, tradesData, hideBubbles, showMarkers])
 
   return {
     trades: tradesData?.trades || [],

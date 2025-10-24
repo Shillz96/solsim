@@ -224,6 +224,14 @@ export function LightweightChart({
     return () => {
       console.log('🧹 Cleaning up chart')
       resizeObserver.disconnect()
+
+      // Clear refs BEFORE removing chart to prevent "Object is disposed" errors
+      candlestickSeriesRef.current = null
+      volumeSeriesRef.current = null
+      chartRef.current = null
+      lastCandleRef.current = null
+
+      // Now safe to remove chart
       chart.remove()
     }
   }, [isMobile])
@@ -231,6 +239,8 @@ export function LightweightChart({
   // Load historical data when timeframe changes
   useEffect(() => {
     if (!candlestickSeriesRef.current || !volumeSeriesRef.current) return
+
+    let isMounted = true // Track if component is still mounted
 
     const fetchOHLCV = async () => {
       setIsLoading(true)
@@ -270,28 +280,39 @@ export function LightweightChart({
               : 'rgba(239, 83, 80, 0.5)', // Red with transparency
           }))
 
-          // Set data
-          candlestickSeriesRef.current?.setData(candlesticks)
-          volumeSeriesRef.current?.setData(volumes)
+          // Only update if component is still mounted (prevents "Object is disposed" errors)
+          if (isMounted && candlestickSeriesRef.current && volumeSeriesRef.current) {
+            // Set data
+            candlestickSeriesRef.current.setData(candlesticks)
+            volumeSeriesRef.current.setData(volumes)
 
-          // Store last candle for real-time updates
-          if (candlesticks.length > 0) {
-            lastCandleRef.current = candlesticks[candlesticks.length - 1]
+            // Store last candle for real-time updates
+            if (candlesticks.length > 0) {
+              lastCandleRef.current = candlesticks[candlesticks.length - 1]
+            }
+
+            // Fit content
+            chartRef.current?.timeScale().fitContent()
+
+            console.log(`✅ Loaded ${candlesticks.length} candles from ${json.source || 'birdeye'}`)
           }
-
-          // Fit content
-          chartRef.current?.timeScale().fitContent()
-
-          console.log(`✅ Loaded ${candlesticks.length} candles from ${json.source || 'birdeye'}`)
         }
       } catch (error) {
-        console.error('Failed to load OHLCV:', error)
+        if (isMounted) {
+          console.error('Failed to load OHLCV:', error)
+        }
       } finally {
-        setIsLoading(false)
+        if (isMounted) {
+          setIsLoading(false)
+        }
       }
     }
 
     fetchOHLCV()
+
+    return () => {
+      isMounted = false // Cleanup: mark as unmounted
+    }
   }, [tokenMint, timeframe])
 
   // Subscribe to token price updates via WebSocket
@@ -310,6 +331,7 @@ export function LightweightChart({
   // Update last candlestick when price changes (real-time updates)
   // Following TradingView best practices for real-time candle updates
   useEffect(() => {
+    // Guard: Check if series still exists (might be disposed during cleanup)
     if (!candlestickSeriesRef.current || !tokenPrice) return
 
     try {
@@ -344,15 +366,18 @@ export function LightweightChart({
         }
       }
 
-      // Update the chart
-      candlestickSeriesRef.current.update(updatedCandle)
-
-      // Store for next update
-      lastCandleRef.current = updatedCandle
-
-      console.log(`📊 Updated chart with real-time price: $${currentPrice.toFixed(8)}`)
+      // Double-check series still exists before updating (race condition guard)
+      if (candlestickSeriesRef.current) {
+        candlestickSeriesRef.current.update(updatedCandle)
+        // Store for next update
+        lastCandleRef.current = updatedCandle
+        console.log(`📊 Updated chart with real-time price: $${currentPrice.toFixed(8)}`)
+      }
     } catch (error) {
-      console.error('Failed to update real-time price on chart:', error)
+      // Silently catch disposal errors to prevent console spam
+      if (error instanceof Error && !error.message.includes('disposed')) {
+        console.error('Failed to update real-time price on chart:', error)
+      }
     }
   }, [tokenPrice, timeframe])
 
