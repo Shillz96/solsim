@@ -34,12 +34,13 @@ export function Badge({
   };
 
   const rarityClasses = {
-    COMMON: 'bg-luigi-green-500 border-luigi-green-600',
-    UNCOMMON: 'bg-sky-blue-500 border-sky-blue-600',
-    RARE: 'bg-star-yellow-500 border-star-yellow-600',
-    EPIC: 'bg-mario-red-500 border-mario-red-600',
-    LEGENDARY: 'bg-coin-yellow-500 border-coin-yellow-600',
-    MYTHIC: 'bg-star-yellow-400 border-star-yellow-500'
+    COMMON: 'badge-common',
+    UNCOMMON: 'badge-uncommon',
+    RARE: 'badge-rare',
+    EPIC: 'badge-epic',
+    LEGENDARY: 'badge-legendary',
+    MYTHIC: 'badge-mythic',
+    DEVELOPER: 'badge-developer'
   };
 
   const glowClasses = {
@@ -48,7 +49,8 @@ export function Badge({
     RARE: 'shadow-star-glow',
     EPIC: 'shadow-mario-glow',
     LEGENDARY: 'shadow-coin-glow',
-    MYTHIC: 'shadow-mythic-glow'
+    MYTHIC: 'shadow-mythic-glow',
+    DEVELOPER: 'shadow-developer-glow'
   };
 
   return (
@@ -57,7 +59,8 @@ export function Badge({
       ${rarityClasses[badge.rarity]}
       ${glow ? glowClasses[badge.rarity] : 'shadow-mario'}
       ${animated ? 'animate-pulse' : ''}
-      ${glow ? 'animate-glow' : ''}
+      ${glow ? (badge.rarity === 'DEVELOPER' ? 'animate-developer-sparkle' : 'animate-glow') : ''}
+      ${badge.rarity === 'DEVELOPER' ? 'animate-sparkle' : ''}
       rounded-full border-3 flex items-center justify-center
       cursor-pointer transition-all duration-200 hover:scale-110
       group relative

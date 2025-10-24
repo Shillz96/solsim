@@ -600,6 +600,192 @@ export default function DocumentationPage() {
           </div>
         </motion.section>
 
+        {/* Badges System */}
+        <motion.section
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+          className="space-y-6 mb-12"
+        >
+          <div className="flex items-center gap-3 mb-6">
+            <div className="h-12 w-12 rounded-lg bg-[var(--star-yellow)] border-3 border-[var(--outline-black)] flex items-center justify-center shadow-[3px_3px_0_var(--outline-black)]">
+              <Trophy className="h-6 w-6 text-[var(--outline-black)]" />
+            </div>
+            <h2 className="font-mario text-3xl text-[var(--outline-black)]">Badge System</h2>
+          </div>
+
+          <div className="bg-white rounded-lg border-3 border-[var(--outline-black)] p-6 shadow-[4px_4px_0_var(--outline-black)]">
+            <div className="space-y-6">
+              <p className="text-[var(--outline-black)] font-semibold text-lg">
+                Earn badges by completing achievements and participating in the community! Each badge represents a unique accomplishment in your 1UP SOL journey.
+              </p>
+
+              {/* Badge Categories */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="bg-[var(--mario-red)] bg-opacity-10 rounded-lg p-4 border-2 border-[var(--mario-red)]">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="text-2xl">👑</div>
+                    <h3 className="font-mario text-lg text-[var(--outline-black)]">Founder Badges</h3>
+                  </div>
+                  <p className="text-sm text-[var(--outline-black)]">
+                    Early adopter badges for the first users to join 1UP SOL. These are the rarest and most prestigious badges!
+                  </p>
+                  <ul className="text-xs text-[var(--outline-black)] mt-2 space-y-1">
+                    <li>• <strong>Founder</strong> - First 100 users</li>
+                    <li>• <strong>Early Adopter</strong> - First 1000 users</li>
+                    <li>• <strong>Beta Tester</strong> - Beta phase users</li>
+                    <li>• <strong>Diamond Hands</strong> - Hold VSOL 30+ days</li>
+                  </ul>
+                </div>
+
+                <div className="bg-[var(--luigi-green)] bg-opacity-10 rounded-lg p-4 border-2 border-[var(--luigi-green)]">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="text-2xl">📈</div>
+                    <h3 className="font-mario text-lg text-[var(--outline-black)]">Trading Badges</h3>
+                  </div>
+                  <p className="text-sm text-[var(--outline-black)]">
+                    Master the art of trading with these achievement badges. From your first trade to becoming a trading legend!
+                  </p>
+                  <ul className="text-xs text-[var(--outline-black)] mt-2 space-y-1">
+                    <li>• <strong>First Trade</strong> - Complete your first trade</li>
+                    <li>• <strong>Trading Master</strong> - Complete 1000 trades</li>
+                    <li>• <strong>Profit Maker</strong> - Make $1000+ profit</li>
+                    <li>• <strong>Whale Trader</strong> - Single trade worth $10k+</li>
+                  </ul>
+                </div>
+
+                <div className="bg-[var(--sky-blue)] bg-opacity-10 rounded-lg p-4 border-2 border-[var(--sky-blue)]">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="text-2xl">🤝</div>
+                    <h3 className="font-mario text-lg text-[var(--outline-black)]">Community Badges</h3>
+                  </div>
+                  <p className="text-sm text-[var(--outline-black)]">
+                    Be an active and helpful member of the community. These badges recognize your contributions!
+                  </p>
+                  <ul className="text-xs text-[var(--outline-black)] mt-2 space-y-1">
+                    <li>• <strong>Helpful Member</strong> - Help other users</li>
+                    <li>• <strong>Community Champion</strong> - High community standing</li>
+                    <li>• <strong>Social Butterfly</strong> - Active in discussions</li>
+                    <li>• <strong>Trusted Member</strong> - High trust score</li>
+                  </ul>
+                </div>
+
+                <div className="bg-[var(--coin-yellow)] bg-opacity-10 rounded-lg p-4 border-2 border-[var(--coin-yellow)]">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="text-2xl">🎪</div>
+                    <h3 className="font-mario text-lg text-[var(--outline-black)]">Special Badges</h3>
+                  </div>
+                  <p className="text-sm text-[var(--outline-black)]">
+                    Unique badges for special events, contests, and exclusive achievements. Keep an eye out for these!
+                  </p>
+                  <ul className="text-xs text-[var(--outline-black)] mt-2 space-y-1">
+                    <li>• <strong>Lucky Winner</strong> - Win community contests</li>
+                    <li>• <strong>Event Participant</strong> - Join community events</li>
+                    <li>• <strong>Gift Giver</strong> - Share tokens with community</li>
+                    <li>• <strong>Creator</strong> - Create popular content</li>
+                  </ul>
+                </div>
+
+                <div className="bg-[var(--mario-red)] bg-opacity-10 rounded-lg p-4 border-2 border-[var(--mario-red)]">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="text-2xl">🛡️</div>
+                    <h3 className="font-mario text-lg text-[var(--outline-black)]">Moderation Badges</h3>
+                  </div>
+                  <p className="text-sm text-[var(--outline-black)]">
+                    Recognition for maintaining a positive community environment and helping with moderation.
+                  </p>
+                  <ul className="text-xs text-[var(--outline-black)] mt-2 space-y-1">
+                    <li>• <strong>Moderator</strong> - Community moderator role</li>
+                    <li>• <strong>Admin</strong> - Platform administrator</li>
+                    <li>• <strong>Trusted</strong> - High trust score (90+)</li>
+                    <li>• <strong>Verified</strong> - Identity verified</li>
+                  </ul>
+                </div>
+
+                <div className="bg-gradient-to-r from-purple-100 to-pink-100 rounded-lg p-4 border-2 border-purple-300">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="text-2xl animate-sparkle">👨‍💻</div>
+                    <h3 className="font-mario text-lg text-purple-800">Developer Badge</h3>
+                  </div>
+                  <p className="text-sm text-purple-700">
+                    <strong>Ultra-Rare 1/1 Badge!</strong> The rarest badge in existence, reserved for core developers of 1UP SOL.
+                  </p>
+                  <div className="text-xs text-purple-600 mt-2 bg-purple-50 p-2 rounded border border-purple-200">
+                    ✨ <strong>Special Effects:</strong> Animated gradient background, sparkle effects, and multi-layered glow
+                  </div>
+                </div>
+              </div>
+
+              {/* Rarity System */}
+              <div className="bg-[var(--pipe-gray)] bg-opacity-10 rounded-lg p-4 border-2 border-[var(--pipe-gray)]">
+                <h3 className="font-mario text-lg text-[var(--outline-black)] mb-3">🏆 Badge Rarity System</h3>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  <div className="text-center">
+                    <div className="w-8 h-8 bg-[var(--luigi-green)] rounded-full border-2 border-[var(--outline-black)] mx-auto mb-1"></div>
+                    <div className="text-xs font-mario text-[var(--outline-black)]">Common</div>
+                    <div className="text-xs text-[var(--outline-black)]">Easy to earn</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="w-8 h-8 bg-[var(--sky-blue)] rounded-full border-2 border-[var(--outline-black)] mx-auto mb-1"></div>
+                    <div className="text-xs font-mario text-[var(--outline-black)]">Uncommon</div>
+                    <div className="text-xs text-[var(--outline-black)]">Moderate effort</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="w-8 h-8 bg-[var(--star-yellow)] rounded-full border-2 border-[var(--outline-black)] mx-auto mb-1"></div>
+                    <div className="text-xs font-mario text-[var(--outline-black)]">Rare</div>
+                    <div className="text-xs text-[var(--outline-black)]">Challenging</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="w-8 h-8 bg-[var(--mario-red)] rounded-full border-2 border-[var(--outline-black)] mx-auto mb-1"></div>
+                    <div className="text-xs font-mario text-[var(--outline-black)]">Epic</div>
+                    <div className="text-xs text-[var(--outline-black)]">Very difficult</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="w-8 h-8 bg-[var(--coin-yellow)] rounded-full border-2 border-[var(--outline-black)] mx-auto mb-1"></div>
+                    <div className="text-xs font-mario text-[var(--outline-black)]">Legendary</div>
+                    <div className="text-xs text-[var(--outline-black)]">Extremely rare</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="w-8 h-8 bg-[var(--star-yellow)] rounded-full border-2 border-[var(--outline-black)] mx-auto mb-1 animate-pulse"></div>
+                    <div className="text-xs font-mario text-[var(--outline-black)]">Mythic</div>
+                    <div className="text-xs text-[var(--outline-black)]">Legendary status</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full border-2 border-purple-500 mx-auto mb-1 animate-sparkle"></div>
+                    <div className="text-xs font-mario text-purple-800">Developer</div>
+                    <div className="text-xs text-purple-600">1/1 Ultra-rare</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* How to Earn Badges */}
+              <div className="bg-[var(--luigi-green)] bg-opacity-10 rounded-lg p-4 border-2 border-[var(--luigi-green)]">
+                <h3 className="font-mario text-lg text-[var(--outline-black)] mb-3">💡 How to Earn Badges</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <h4 className="font-mario text-[var(--outline-black)] mb-2">🎯 Getting Started</h4>
+                    <ul className="text-sm text-[var(--outline-black)] space-y-1">
+                      <li>• Complete your first trade for "First Trade" badge</li>
+                      <li>• Be active in community discussions</li>
+                      <li>• Help other users with questions</li>
+                      <li>• Participate in community events</li>
+                    </ul>
+                  </div>
+                  <div>
+                    <h4 className="font-mario text-[var(--outline-black)] mb-2">🏆 Advanced Badges</h4>
+                    <ul className="text-sm text-[var(--outline-black)] space-y-1">
+                      <li>• Trade frequently to unlock trading mastery badges</li>
+                      <li>• Make profitable trades for profit badges</li>
+                      <li>• Maintain high trust score for moderation badges</li>
+                      <li>• Be among the first users for founder badges</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </motion.section>
+
         {/* CTA */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}

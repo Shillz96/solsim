@@ -142,6 +142,14 @@
   animation: badge-glow 2s ease-in-out infinite;
 }
 
+.animate-sparkle {
+  animation: sparkle 2s ease-in-out infinite;
+}
+
+.animate-developer-sparkle {
+  animation: developer-sparkle 3s ease-in-out infinite;
+}
+
 .animate-pulse {
   animation: badge-pulse 1s ease-in-out infinite;
 }
