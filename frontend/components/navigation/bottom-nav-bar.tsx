@@ -57,7 +57,7 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
   const { user } = useAuth()
   const { toast } = useToast()
   const walletModal = useWalletModal()
-  const { openWindow } = useWindowManager()
+  const { openWindow, closeWindow } = useWindowManager()
   const [marketPrices, setMarketPrices] = useState<MarketPrice[]>([
     { symbol: "SOL", price: 250, change24h: 0 }, // Default to reasonable price instead of 0
   ])
@@ -68,15 +68,21 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
 
   // Function to open wallet tracker as floating window
   const openWalletTrackerWindow = () => {
-    openWindow({
-      id: 'wallet-tracker',
-      title: '👀 Wallet Tracker',
-      content: <WalletTrackerContent />,
-      x: 100,
-      y: 100,
-      width: 900,
-      height: 600
-    })
+    // Close any existing window first to force refresh with new layout
+    closeWindow('wallet-tracker')
+
+    // Small delay to ensure clean state, then open with fresh content
+    setTimeout(() => {
+      openWindow({
+        id: 'wallet-tracker',
+        title: '👀 Wallet Tracker',
+        content: <WalletTrackerContent key={Date.now()} />,
+        x: 100,
+        y: 100,
+        width: 900,
+        height: 600
+      })
+    }, 50)
   }
 
   // Subscribe to SOL price updates
