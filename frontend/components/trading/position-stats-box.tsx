@@ -69,15 +69,15 @@ export function PositionStatsBox({
   if (loading) {
     return (
       <div className={cn(
-        "flex items-center justify-center p-4",
-        "bg-[var(--outline-black)] text-white",
-        "border-4 border-[var(--outline-black)]",
-        "shadow-[4px_4px_0_var(--outline-black)]",
-        "rounded-[12px]",
+        "flex items-center justify-center p-3",
+        "bg-[var(--sky-blue)]/20 text-[var(--outline-black)]",
+        "border-3 border-[var(--outline-black)]",
+        "shadow-[3px_3px_0_var(--outline-black)]",
+        "rounded-lg",
         className
       )}>
         <Loader2 className="h-4 w-4 animate-spin mr-2" />
-        <span className="text-xs font-bold">Loading stats...</span>
+        <span className="text-xs font-bold font-mario">Loading stats...</span>
       </div>
     )
   }
@@ -92,46 +92,46 @@ export function PositionStatsBox({
   return (
     <div className={cn(
       "grid grid-cols-4 gap-0 p-3",
-      "bg-[var(--outline-black)] text-white",
-      "border-4 border-[var(--outline-black)]",
-      "shadow-[4px_4px_0_var(--outline-black)]",
-      "rounded-[12px]",
-      "transition-all hover:shadow-[6px_6px_0_var(--outline-black)] hover:-translate-y-[1px]",
+      "bg-gradient-to-br from-[var(--coin-gold)]/30 to-[var(--star-yellow)]/20",
+      "border-3 border-[var(--outline-black)]",
+      "shadow-[3px_3px_0_var(--outline-black)]",
+      "rounded-lg",
+      "transition-all hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-[1px]",
       className
     )}>
       {/* Bought */}
-      <div className="flex flex-col items-center justify-center border-r border-white/20 px-2">
-        <div className="text-[10px] font-bold uppercase text-white/70 mb-1">
+      <div className="flex flex-col items-center justify-center border-r-2 border-[var(--outline-black)]/20 px-2">
+        <div className="text-[10px] font-bold uppercase text-[var(--outline-black)]/70 mb-1 font-mario">
           Bought
         </div>
-        <div className="font-mono text-[13px] font-extrabold">
+        <div className="font-mono text-[13px] font-extrabold text-[var(--outline-black)]">
           {formatUSD(parseFloat(stats.totalBoughtUsd))}
         </div>
       </div>
 
       {/* Sold */}
-      <div className="flex flex-col items-center justify-center border-r border-white/20 px-2">
-        <div className="text-[10px] font-bold uppercase text-white/70 mb-1">
+      <div className="flex flex-col items-center justify-center border-r-2 border-[var(--outline-black)]/20 px-2">
+        <div className="text-[10px] font-bold uppercase text-[var(--outline-black)]/70 mb-1 font-mario">
           Sold
         </div>
-        <div className="font-mono text-[13px] font-extrabold">
+        <div className="font-mono text-[13px] font-extrabold text-[var(--outline-black)]">
           {formatUSD(parseFloat(stats.totalSoldUsd))}
         </div>
       </div>
 
       {/* Holding */}
-      <div className="flex flex-col items-center justify-center border-r border-white/20 px-2">
-        <div className="text-[10px] font-bold uppercase text-white/70 mb-1">
+      <div className="flex flex-col items-center justify-center border-r-2 border-[var(--outline-black)]/20 px-2">
+        <div className="text-[10px] font-bold uppercase text-[var(--outline-black)]/70 mb-1 font-mario">
           Holding
         </div>
-        <div className="font-mono text-[13px] font-extrabold">
+        <div className="font-mono text-[13px] font-extrabold text-[var(--outline-black)]">
           {formatUSD(parseFloat(stats.currentHoldingValue))}
         </div>
       </div>
 
       {/* PnL */}
       <div className="flex flex-col items-center justify-center px-2">
-        <div className="text-[10px] font-bold uppercase text-white/70 mb-1">
+        <div className="text-[10px] font-bold uppercase text-[var(--outline-black)]/70 mb-1 font-mario">
           PnL
         </div>
         <div className="flex items-center gap-1">

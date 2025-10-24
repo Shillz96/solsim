@@ -355,8 +355,8 @@ function TradeRoomContent() {
           </section>
 
           {/* Right: Trade Panel */}
-          <aside className="flex flex-col w-[280px] border-l-4 border-[var(--outline-black)] bg-white overflow-hidden">
-            <div className="flex-1 p-3 overflow-hidden">
+          <aside className="flex flex-col w-[280px] border-l-4 border-[var(--outline-black)] bg-white">
+            <div className="flex-1 p-3 overflow-y-auto">
               <MarioTradingPanel tokenAddress={ca} />
             </div>
           </aside>
@@ -387,8 +387,8 @@ function TradeRoomContent() {
           </section>
 
           {/* Right Sidebar - Trade Panel Only */}
-          <aside className="flex flex-col w-[380px] border-l-4 border-[var(--outline-black)] bg-white overflow-hidden">
-            <div className="flex-1 p-3 overflow-hidden">
+          <aside className="flex flex-col w-[380px] border-l-4 border-[var(--outline-black)] bg-white">
+            <div className="flex-1 p-3 overflow-y-auto">
               <MarioTradingPanel tokenAddress={ca} />
             </div>
           </aside>

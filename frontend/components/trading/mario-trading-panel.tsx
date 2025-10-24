@@ -531,7 +531,7 @@ function MarioTradingPanelComponent({ tokenAddress: propTokenAddress }: MarioTra
   const tokenBalance = tokenHolding ? parseFloat(tokenHolding.qty) : 0
 
   return (
-    <div id="trade-panel" className="mario-card p-2 sm:p-3 lg:p-4 relative">
+    <div id="trade-panel" className="mario-card p-2 sm:p-3 lg:p-4 relative w-full">
       {/* Position Stats Box */}
       <PositionStatsBox
         tokenAddress={tokenAddress}
@@ -597,11 +597,11 @@ function MarioTradingPanelComponent({ tokenAddress: propTokenAddress }: MarioTra
           )}
         </div>
 
-        {/* Holdings Display - More compact */}
+        {/* Holdings Display - Mario theme */}
         {tokenHolding && (
-          <div className="bg-[var(--super-blue)]/10 border border-[var(--super-blue)] rounded p-1.5 sm:p-2">
-            <div className="text-[10px] sm:text-xs text-muted-foreground">Holdings</div>
-            <div className="font-mono font-bold text-xs sm:text-sm break-words">
+          <div className="bg-[var(--star-yellow)]/20 border-3 border-[var(--star-yellow)] rounded-lg p-2 shadow-[2px_2px_0_var(--outline-black)]">
+            <div className="text-[10px] sm:text-xs text-[var(--outline-black)]/70 font-bold mb-0.5">Holdings</div>
+            <div className="font-mono font-bold text-sm sm:text-base text-[var(--outline-black)] break-words">
               {formatTokenQuantity(tokenHolding.qty)} {tokenDetails.tokenSymbol}
             </div>
           </div>
