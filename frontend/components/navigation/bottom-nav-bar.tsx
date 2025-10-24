@@ -37,6 +37,7 @@ interface MarketPrice {
   symbol: string
   price: number
   change24h: number
+  icon: string
 }
 
 interface BottomNavBarProps {
@@ -68,7 +69,9 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
   });
 
   const [marketPrices, setMarketPrices] = useState<MarketPrice[]>([
-    { symbol: "SOL", price: 250, change24h: 0 }, // Default to reasonable price instead of 0
+    { symbol: "SOL", price: 250, change24h: 0, icon: "/icons/solana.png" },
+    { symbol: "BTC", price: 50000, change24h: 0, icon: "/icons/btc.png" },
+    { symbol: "ETH", price: 3000, change24h: 0, icon: "/icons/eth.png" },
   ])
   const [showModeConfirm, setShowModeConfirm] = useState<boolean>(false)
   const [pendingMode, setPendingMode] = useState<'PAPER' | 'REAL' | null>(null)
@@ -118,15 +121,17 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
     const solPrice = prices.get(solMint)
 
     if (solPrice && solPrice.price > 0) {
-      setMarketPrices([
-        { symbol: "SOL", price: solPrice.price, change24h: solPrice.change24h || 0 }
-      ])
+      setMarketPrices(prev => prev.map(market => 
+        market.symbol === "SOL" 
+          ? { ...market, price: solPrice.price, change24h: solPrice.change24h || 0 }
+          : market
+      ))
     }
   }, [prices.get("So11111111111111111111111111111111111111112")])
 
-  // Fetch SOL price on mount as a fallback with rate limiting and exponential backoff
+  // Fetch crypto prices on mount as a fallback with rate limiting and exponential backoff
   useEffect(() => {
-    const fetchSolPrice = async () => {
+    const fetchCryptoPrices = async () => {
       const now = Date.now()
       const timeSinceLastFetch = now - lastPriceFetch
       const minInterval = 30000 // 30 seconds minimum between fetches
@@ -147,12 +152,12 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
 
       // Stop trying after max attempts
       if (priceFetchAttempts >= maxAttempts) {
-        console.warn('Max SOL price fetch attempts reached, giving up')
+        console.warn('Max crypto price fetch attempts reached, giving up')
         return
       }
 
       try {
-        const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd&include_24hr_change=true')
+        const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=solana,bitcoin,ethereum&vs_currencies=usd&include_24hr_change=true')
 
         if (!response.ok) {
           throw new Error(`CoinGecko API error: ${response.status}`)
@@ -160,31 +165,41 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
 
         const data = await response.json()
 
-        if (data.solana?.usd) {
-          setMarketPrices(prev => {
-            // Only update if we still have the default price or if this is a retry
-            if (prev[0]?.price === 250 || prev[0]?.price === 0 || priceFetchAttempts > 0) {
-              return [{
-                symbol: "SOL",
-                price: data.solana.usd,
-                change24h: data.solana.usd_24h_change || 0
-              }]
+        if (data.solana?.usd || data.bitcoin?.usd || data.ethereum?.usd) {
+          setMarketPrices(prev => prev.map(market => {
+            let newPrice = market.price
+            let newChange = market.change24h
+
+            if (market.symbol === "SOL" && data.solana?.usd) {
+              newPrice = data.solana.usd
+              newChange = data.solana.usd_24h_change || 0
+            } else if (market.symbol === "BTC" && data.bitcoin?.usd) {
+              newPrice = data.bitcoin.usd
+              newChange = data.bitcoin.usd_24h_change || 0
+            } else if (market.symbol === "ETH" && data.ethereum?.usd) {
+              newPrice = data.ethereum.usd
+              newChange = data.ethereum.usd_24h_change || 0
             }
-            return prev
-          })
+
+            return {
+              ...market,
+              price: newPrice,
+              change24h: newChange
+            }
+          }))
 
           // Reset attempts on success
           setPriceFetchAttempts(0)
         }
       } catch (error) {
-        console.warn('Failed to fetch SOL price:', error)
+        console.warn('Failed to fetch crypto prices:', error)
         setPriceFetchAttempts(prev => prev + 1)
       } finally {
         setLastPriceFetch(now)
       }
     }
 
-    fetchSolPrice()
+    fetchCryptoPrices()
   }, [lastPriceFetch, priceFetchAttempts])
 
   // Save "don't ask again" preference to localStorage
@@ -337,17 +352,24 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
               />
 
               {marketPrices.map((market) => (
-                <div key={market.symbol} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white border-2 border-[var(--outline-black)]/20">
-                  <div className="flex items-center gap-1.5">
-                    <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div>
-                    <span className="text-xs font-semibold text-foreground">{market.symbol}</span>
+                <div key={market.symbol} className="flex items-center gap-1 px-2 py-1 rounded-lg bg-white border-2 border-[var(--outline-black)]/20">
+                  <div className="flex items-center gap-1">
+                    <div className="relative h-4 w-4">
+                      <Image
+                        src={market.icon}
+                        alt={`${market.symbol} icon`}
+                        fill
+                        className="object-contain"
+                      />
+                    </div>
+                    <span className="text-[10px] font-semibold text-foreground">{market.symbol}</span>
                   </div>
-                  <span className="text-xs font-bold text-foreground tabular-nums">
+                  <span className="text-[10px] font-bold text-foreground tabular-nums">
                     ${market.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </span>
                   <span
                     className={cn(
-                      "text-[10px] font-medium px-1.5 py-0.5 rounded tabular-nums",
+                      "text-[9px] font-medium px-1 py-0.5 rounded tabular-nums",
                       market.change24h > 0
                         ? "text-green-600 bg-green-100"
                         : market.change24h < 0
@@ -362,35 +384,6 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
                 </div>
               ))}
 
-              {/* UP Token Info */}
-              <div
-                className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white border-2 border-[var(--outline-black)]/20 cursor-pointer hover:border-[var(--outline-black)]/40 transition-colors"
-                onClick={() => {
-                  const ca = "2mksd9Ci9XzBV4CrZ6Fo2SuAtHfrUg3cmdKRjZeApump"
-                  navigator.clipboard.writeText(ca)
-                  toast({
-                    title: "Contract Address Copied",
-                    description: "UP token contract address copied to clipboard. Token launching soon!",
-                    duration: 3000,
-                  })
-                }}
-                title="Click to copy contract address"
-              >
-                <div className="flex items-center gap-1.5">
-                  <div className="relative h-6 w-6">
-                    <Image
-                      src="/Socials PFP-1.png"
-                      alt="UP Token Logo"
-                      fill
-                      className="object-contain"
-                    />
-                  </div>
-                  <span className="text-xs font-semibold text-star">$UP</span>
-                </div>
-                <span className="text-[10px] text-muted-foreground font-mono hover:text-foreground transition-colors whitespace-nowrap">
-                  Coming Soon
-                </span>
-              </div>
             </div>
 
             {/* Bottom row: Navigation and social */}
@@ -486,17 +479,24 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
               />
 
               {marketPrices.map((market) => (
-                <div key={market.symbol} className="flex items-center gap-1.5 md:gap-2 px-2 md:px-3 py-1 md:py-1.5 rounded-lg bg-white border-2 border-[var(--outline-black)]/20">
-                  <div className="flex items-center gap-1 md:gap-1.5">
-                    <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div>
-                    <span className="text-[10px] md:text-xs font-semibold text-foreground">{market.symbol}</span>
+                <div key={market.symbol} className="flex items-center gap-1 px-2 py-1 rounded-lg bg-white border-2 border-[var(--outline-black)]/20">
+                  <div className="flex items-center gap-1">
+                    <div className="relative h-4 w-4">
+                      <Image
+                        src={market.icon}
+                        alt={`${market.symbol} icon`}
+                        fill
+                        className="object-contain"
+                      />
+                    </div>
+                    <span className="text-[10px] font-semibold text-foreground">{market.symbol}</span>
                   </div>
-                  <span className="text-[10px] md:text-xs font-bold text-foreground tabular-nums">
+                  <span className="text-[10px] font-bold text-foreground tabular-nums">
                     ${market.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </span>
                   <span
                     className={cn(
-                      "text-[9px] md:text-[10px] font-medium px-1 md:px-1.5 py-0.5 rounded tabular-nums",
+                      "text-[9px] font-medium px-1 py-0.5 rounded tabular-nums",
                       market.change24h > 0
                         ? "text-green-600 bg-green-100"
                         : market.change24h < 0
@@ -511,35 +511,6 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
                 </div>
               ))}
 
-              {/* UP Token Info */}
-              <div
-                className="flex items-center gap-1.5 md:gap-2 px-2 md:px-3 py-1 md:py-1.5 rounded-lg bg-white border-2 border-[var(--outline-black)]/20 cursor-pointer hover:border-[var(--outline-black)]/40 transition-colors"
-                onClick={() => {
-                  const ca = "2mksd9Ci9XzBV4CrZ6Fo2SuAtHfrUg3cmdKRjZeApump"
-                  navigator.clipboard.writeText(ca)
-                  toast({
-                    title: "Contract Address Copied",
-                    description: "UP token contract address copied to clipboard. Token launching soon!",
-                    duration: 3000,
-                  })
-                }}
-                title="Click to copy contract address"
-              >
-                <div className="flex items-center gap-1 md:gap-1.5">
-                  <div className="relative h-5 w-5 md:h-6 md:w-6">
-                    <Image
-                      src="/Socials PFP-1.png"
-                      alt="UP Token Logo"
-                      fill
-                      className="object-contain"
-                    />
-                  </div>
-                  <span className="text-[10px] md:text-xs font-semibold text-star">$UP</span>
-                </div>
-                <span className="text-[9px] md:text-[10px] text-muted-foreground font-mono hover:text-foreground transition-colors whitespace-nowrap">
-                  Coming Soon
-                </span>
-              </div>
             </div>
 
             {/* Right: Launch Token, Wallet Tracker, Leaderboard & Trading Mode */}
