@@ -891,6 +891,47 @@ async function syncWatcherCounts(): Promise<void> {
 }
 
 /**
+ * Subscribe to trades for active tokens
+ * Fetches top tokens by volume/activity and subscribes to their trades
+ */
+async function subscribeToActiveTokens(): Promise<void> {
+  try {
+    // Fetch top 200 most active tokens (by volume, market cap, or recent activity)
+    const activeTokens = await prisma.tokenDiscovery.findMany({
+      where: {
+        OR: [
+          { volume24h: { gt: 1000 } }, // Tokens with >$1000 volume
+          { marketCapUsd: { gt: 5000 } }, // Tokens with >$5000 market cap
+          { lastTradeTs: { gte: new Date(Date.now() - 24 * 60 * 60 * 1000) } }, // Traded in last 24h
+          { state: 'graduating' }, // All graduating tokens
+        ],
+      },
+      select: {
+        mint: true,
+      },
+      orderBy: [
+        { volume24h: 'desc' },
+        { marketCapUsd: 'desc' },
+      ],
+      take: 200, // Limit to 200 tokens to avoid overwhelming the subscription
+    });
+
+    const tokenMints = activeTokens.map(t => t.mint);
+
+    if (tokenMints.length === 0) {
+      console.log('[TokenDiscovery] No active tokens found to subscribe to');
+      return;
+    }
+
+    console.log(`[TokenDiscovery] Subscribing to trades for ${tokenMints.length} active tokens`);
+    pumpPortalStreamService.subscribeToTokens(tokenMints);
+    console.log(`[TokenDiscovery] Total subscribed tokens: ${pumpPortalStreamService.getSubscribedTokenCount()}`);
+  } catch (error) {
+    console.error('[TokenDiscovery] Error subscribing to active tokens:', error);
+  }
+}
+
+/**
  * Cleanup old tokens (>24h old for NEW, >12h for BONDED)
  */
 async function cleanupOldTokens(): Promise<void> {
@@ -968,10 +1009,15 @@ async function startWorker(): Promise<void> {
 
     // Market data + state classification update (every 30 seconds)
     setInterval(updateMarketDataAndStates, 30_000);
-    
+
     setInterval(recalculateHotScores, HOT_SCORE_UPDATE_INTERVAL);
     setInterval(syncWatcherCounts, WATCHER_SYNC_INTERVAL);
     setInterval(cleanupOldTokens, CLEANUP_INTERVAL);
+
+    // Subscribe to active tokens for trade data (every 5 minutes)
+    setInterval(subscribeToActiveTokens, 5 * 60 * 1000);
+    // Run immediately on startup
+    setTimeout(subscribeToActiveTokens, 5000);
 
     console.log('✅ Background jobs scheduled');
     console.log('');
@@ -981,6 +1027,7 @@ async function startWorker(): Promise<void> {
     console.log('   - Market data updates: every 30 seconds');
     console.log('   - Hot score updates: every 5 minutes');
     console.log('   - Watcher sync: every 1 minute');
+    console.log('   - Token trade subscriptions: every 5 minutes');
     console.log('   - Cleanup: every 5 minutes');
   } catch (error) {
     console.error('❌ Token Discovery Worker failed to start:', error);

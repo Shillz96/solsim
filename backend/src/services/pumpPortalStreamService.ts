@@ -71,6 +71,7 @@ class PumpPortalStreamService extends EventEmitter {
   private wsUrl: string;
   private pingInterval: NodeJS.Timeout | null = null;
   private pongTimeout: NodeJS.Timeout | null = null;
+  private subscribedTokens: Set<string> = new Set(); // Track subscribed token mints
 
   constructor() {
     super();
@@ -168,15 +169,45 @@ class PumpPortalStreamService extends EventEmitter {
     console.log('[PumpPortal] Sending subscription:', JSON.stringify(migrationSub));
     this.ws.send(JSON.stringify(migrationSub));
 
-    // Subscribe to token trades (for transaction counting)
+    // Note: Token trade subscriptions are handled dynamically via subscribeToTokens()
+    console.log('[PumpPortal] Base subscription requests sent. Use subscribeToTokens() for trade data.');
+  }
+
+  /**
+   * Subscribe to trades for specific tokens
+   * @param tokenMints Array of token mint addresses to subscribe to
+   */
+  subscribeToTokens(tokenMints: string[]): void {
+    if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
+      console.warn('[PumpPortal] Cannot subscribe to tokens: WebSocket not open');
+      return;
+    }
+
+    // Filter out already subscribed tokens
+    const newTokens = tokenMints.filter(mint => !this.subscribedTokens.has(mint));
+
+    if (newTokens.length === 0) {
+      return; // All tokens already subscribed
+    }
+
+    // Subscribe to trades for these tokens
     const tokenTradeSub = {
       method: 'subscribeTokenTrade',
-      keys: ['*'], // Subscribe to all token trades
+      keys: newTokens,
     };
-    console.log('[PumpPortal] Sending subscription:', JSON.stringify(tokenTradeSub));
+
+    console.log(`[PumpPortal] Subscribing to ${newTokens.length} tokens for trade data`);
     this.ws.send(JSON.stringify(tokenTradeSub));
 
-    console.log('[PumpPortal] Subscription requests sent. Waiting for events...');
+    // Track subscribed tokens
+    newTokens.forEach(mint => this.subscribedTokens.add(mint));
+  }
+
+  /**
+   * Get count of currently subscribed tokens
+   */
+  getSubscribedTokenCount(): number {
+    return this.subscribedTokens.size;
   }
 
   /**
@@ -271,9 +302,8 @@ class PumpPortalStreamService extends EventEmitter {
         }
       }
       // Also check for any other message types for debugging
-      else {
-        // TEMPORARY: Log all messages to debug trade issue
-        console.log('[PumpPortal] Unknown message:', JSON.stringify(message).substring(0, 200));
+      else if (process.env.NODE_ENV !== 'production') {
+        console.log('[PumpPortal] Unknown message type:', message.txType || message.type, 'mint:', message.mint);
       }
     } catch (error) {
       console.error('[PumpPortal] Error parsing message:', error);
