@@ -189,6 +189,7 @@ export default function FloatingWindows() {
             minHeight={Math.min(240, viewportSize.height - 40)}
             dragGrid={[8, 8]}
             resizeGrid={[8, 8]}
+            dragHandleClassName="window-drag-handle"
             onDragStart={() => {
               onActivate(w.id);
               setDraggingId(w.id);
@@ -214,23 +215,14 @@ export default function FloatingWindows() {
               topRight: true, bottomRight: true, bottomLeft: true, topLeft: true
             } : false}
             style={{ zIndex: w.z }}
-            className="select-none pointer-events-auto"
+            className="pointer-events-auto"
+            disableDragging={false}
           >
           <div
             tabIndex={0}
-            onPointerDown={(e) => {
-              // Prevent text selection on touch devices
-              e.preventDefault();
-              onActivate(w.id);
-            }}
+            onMouseDown={() => onActivate(w.id)}
             onFocus={() => setFocusedId(w.id)}
             onBlur={() => setFocusedId(null)}
-            onKeyDown={(e) => {
-              // Prevent default behavior for our handled keys
-              if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Enter', ' ', 'Delete', 'Backspace'].includes(e.key)) {
-                e.preventDefault();
-              }
-            }}
             className={
               draggingId === w.id
                 ? "flex flex-col h-full rounded-lg border-[3px] border-black bg-gradient-to-br from-white via-white to-gray-50 opacity-90 scale-[0.98] focus:outline-none focus:ring-4 focus:ring-blue-500"
@@ -239,7 +231,6 @@ export default function FloatingWindows() {
                 : "flex flex-col h-full rounded-lg border-[3px] border-black bg-gradient-to-br from-white via-white to-gray-50 shadow-[4px_4px_0_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] transition-transform focus:outline-none focus:ring-4 focus:ring-blue-500"
             }
             style={{
-              touchAction: 'none',
               willChange: 'transform',
               transform: 'translateZ(0)',
               backfaceVisibility: 'hidden'
@@ -247,9 +238,8 @@ export default function FloatingWindows() {
           >
             {/* Title bar (drag handle) */}
             <div
-              role="button"
-              aria-label={`Drag ${w.title} window`}
               className="
+                window-drag-handle
                 flex items-center justify-between px-4 py-2.5
                 cursor-move rounded-t-md
                 bg-gradient-to-r from-[#f7d33d] to-[#ffd700]
@@ -257,15 +247,19 @@ export default function FloatingWindows() {
                 font-['Press_Start_2P',_monospace]
                 select-none
               "
+              role="banner"
+              aria-label={`${w.title} window header`}
             >
-              <span className="text-xs font-bold truncate text-black drop-shadow-sm">
+              <span className="text-xs font-bold truncate text-black drop-shadow-sm pointer-events-none">
                 {w.title}
               </span>
               <button
-                onPointerDown={(e) => {
+                onClick={(e) => {
                   e.stopPropagation();
-                  e.preventDefault();
                   closeWindow(w.id);
+                }}
+                onMouseDown={(e) => {
+                  e.stopPropagation();
                 }}
                 className="
                   h-11 w-11 grid place-items-center rounded-md
@@ -276,23 +270,26 @@ export default function FloatingWindows() {
                   transition-all
                   shadow-[2px_2px_0_rgba(0,0,0,1)]
                   text-white font-bold text-lg
+                  pointer-events-auto
+                  z-10
                 "
                 aria-label={`Close ${w.title}`}
                 title={`Close ${w.title}`}
+                type="button"
               >
                 ×
               </button>
             </div>
 
             {/* Content */}
-            <div className="flex-1 overflow-auto p-4 bg-white/90 rounded-b-md">
+            <div className="flex-1 min-h-0 overflow-hidden bg-white/90 rounded-b-md pointer-events-auto">
               {w.content}
             </div>
 
             {/* Resize handles visual enhancement - only show when resizable */}
             {canResize(w) && (
               <div
-                className="absolute bottom-0 right-0 w-6 h-6 cursor-nwse-resize pointer-events-none"
+                className="absolute bottom-0 right-0 w-6 h-6 cursor-nwse-resize pointer-events-none z-20"
                 title="Resize window"
               >
                 <div className="absolute bottom-1 right-1 w-4 h-4 bg-black/60 rounded-sm border border-white/50" />

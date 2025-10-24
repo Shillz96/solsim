@@ -308,7 +308,9 @@ export function WalletTrackerContent({ compact = false }: WalletTrackerContentPr
         "w-full",
         compact ? "h-full flex flex-col" : "px-4 sm:px-6 lg:px-8 py-2 sm:py-4 max-w-page-xl mx-auto"
       )}>
-        <div className={cn("space-y-3", compact && "h-full flex flex-col")}>
+        <div className={cn(
+          compact ? "h-full flex flex-col gap-0" : "space-y-3"
+        )}>
         {/* Compact Header - Simple and minimal */}
         {compact ? (
           <div className="flex items-center justify-between px-4 py-2 border-b-2 border-pipe-300 flex-shrink-0">

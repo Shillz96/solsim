@@ -51,8 +51,8 @@ export function ModernLeaderboard({
     return (
       <div className="flex items-center justify-center p-12">
         <div className="text-center">
-          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-primary" />
-          <p className="text-muted-foreground">Loading leaderboard...</p>
+          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-[var(--mario-red-500)]" />
+          <p className="text-[var(--outline-black)] font-semibold">Loading leaderboard...</p>
         </div>
       </div>
     )
@@ -61,11 +61,11 @@ export function ModernLeaderboard({
   // Empty state
   if (!externalData || externalData.length === 0) {
     return (
-      <div className="stat-card">
+      <div className="bg-white border-4 border-[var(--outline-black)] rounded-[16px] shadow-[6px_6px_0_var(--outline-black)]">
         <div className="text-center py-12">
-          <Trophy className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-          <p className="text-muted-foreground">No leaderboard data available</p>
-          <p className="text-sm text-muted-foreground mt-2">Start trading to appear on the leaderboard!</p>
+          <Trophy className="h-12 w-12 mx-auto mb-4 text-[var(--star-yellow-500)]" />
+          <p className="text-[var(--outline-black)] font-semibold">No leaderboard data available</p>
+          <p className="text-sm text-[var(--outline-black)] opacity-70 mt-2 font-semibold">Start trading to appear on the leaderboard!</p>
         </div>
       </div>
     )
@@ -162,13 +162,12 @@ export function ModernLeaderboard({
             }}
           >
             <div className={cn(
-              "relative overflow-hidden rounded-2xl p-6 transition-all duration-500",
-              "backdrop-blur-xl bg-gradient-to-br shadow-2xl",
-              index === 0 && "from-yellow-500/20 via-amber-500/10 to-orange-500/5 border border-yellow-500/50",
-              index === 1 && "from-pipe-400/20 via-pipe-500/10 to-pipe-600/5 border border-pipe-400/50",
-              index === 2 && "from-orange-600/20 via-amber-600/10 to-red-500/5 border border-orange-600/50",
-              "before:absolute before:inset-0 before:bg-gradient-to-br before:from-white/5 before:to-transparent",
-              "hover:shadow-[0_20px_70px_-15px_rgba(0,0,0,0.3)]",
+              "relative overflow-hidden rounded-[16px] p-6 transition-all duration-500",
+              "bg-white border-4 shadow-[8px_8px_0_var(--outline-black)]",
+              index === 0 && "border-[var(--star-yellow-500)] bg-gradient-to-br from-[var(--star-yellow-50)] to-white",
+              index === 1 && "border-[var(--pipe-500)] bg-gradient-to-br from-[var(--pipe-50)] to-white",
+              index === 2 && "border-[var(--coin-yellow-500)] bg-gradient-to-br from-[var(--coin-yellow-50)] to-white",
+              "hover:shadow-[12px_12px_0_var(--outline-black)] hover:-translate-y-1",
               "group"
             )}>
               {/* Animated Rank Badge with Trophy Image */}
@@ -214,22 +213,22 @@ export function ModernLeaderboard({
                       />
                     ) : null}
                     <div
-                      className="w-12 h-12 rounded-full bg-gradient-to-br from-primary via-purple-500 to-accent flex items-center justify-center text-white font-bold text-lg shadow-lg relative overflow-hidden"
+                      className="w-12 h-12 rounded-full bg-gradient-to-br from-[var(--mario-red-500)] via-[var(--mario-red-600)] to-[var(--mario-red-700)] flex items-center justify-center text-white font-bold text-lg shadow-[3px_3px_0_var(--outline-black)] border-2 border-[var(--outline-black)] relative overflow-hidden"
                       style={{ display: entry.avatarUrl ? 'none' : 'flex' }}
                     >
                       <div className="absolute inset-0 bg-gradient-to-t from-white/0 via-white/20 to-white/0 animate-pulse"></div>
                       <span className="relative z-10">{(entry.handle || entry.displayName || '?').charAt(0).toUpperCase()}</span>
                     </div>
                     {/* Status Indicator */}
-                    <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-background animate-pulse"></div>
+                    <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-[var(--luigi-green-500)] rounded-full border-2 border-white animate-pulse shadow-[1px_1px_0_var(--outline-black)]"></div>
                   </motion.div>
                   <div className="flex-1 min-w-0">
-                    <div className="font-bold text-lg text-foreground truncate">
+                    <div className="font-bold text-lg text-[var(--outline-black)] truncate">
                       {entry.handle || entry.displayName || 'Anonymous Trader'}
                     </div>
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <span className="flex items-center gap-1">
-                        <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                    <div className="flex items-center gap-2 text-sm text-[var(--outline-black)] opacity-70">
+                      <span className="flex items-center gap-1 font-semibold">
+                        <div className="w-2 h-2 bg-[var(--luigi-green-500)] rounded-full animate-pulse shadow-[1px_1px_0_var(--outline-black)]"></div>
                         {entry.totalTrades} trades
                       </span>
                     </div>
@@ -241,11 +240,11 @@ export function ModernLeaderboard({
               <div className="space-y-3">
                 <div className="space-y-1">
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">PnL</span>
+                    <span className="text-sm text-[var(--outline-black)] font-semibold">💰 PnL</span>
                     <motion.span
                       className={cn(
                         "font-bold text-lg",
-                        parseFloat(entry.totalPnlUsd) > 0 ? "text-green-500" : "text-red-500"
+                        parseFloat(entry.totalPnlUsd) > 0 ? "text-[var(--luigi-green-700)]" : "text-[var(--mario-red-700)]"
                       )}
                       initial={{ scale: 0 }}
                       animate={{ scale: 1 }}
@@ -258,14 +257,14 @@ export function ModernLeaderboard({
 
                 <div className="space-y-1">
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Win Rate</span>
-                    <span className="font-semibold">{entry.winRate.toFixed(1)}%</span>
+                    <span className="text-sm text-[var(--outline-black)] font-semibold">🎯 Win Rate</span>
+                    <span className="font-bold text-[var(--outline-black)]">{entry.winRate.toFixed(1)}%</span>
                   </div>
-                  <div className="relative h-2 bg-muted/50 rounded-full overflow-hidden">
+                  <div className="relative h-3 bg-[var(--sky-200)] rounded-full overflow-hidden border border-[var(--outline-black)]">
                     <motion.div
                       className={cn(
                         "absolute left-0 top-0 h-full rounded-full",
-                        entry.winRate > 50 ? "bg-gradient-to-r from-green-500 to-emerald-500" : "bg-gradient-to-r from-orange-500 to-red-500"
+                        entry.winRate > 50 ? "bg-gradient-to-r from-[var(--luigi-green-500)] to-[var(--luigi-green-600)]" : "bg-gradient-to-r from-[var(--mario-red-500)] to-[var(--mario-red-600)]"
                       )}
                       initial={{ width: 0 }}
                       animate={{ width: `${entry.winRate}%` }}
@@ -276,8 +275,8 @@ export function ModernLeaderboard({
 
                 <div className="space-y-1">
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Volume</span>
-                    <span className="font-semibold">{formatUSD(parseFloat(entry.totalVolumeUsd))}</span>
+                    <span className="text-sm text-[var(--outline-black)] font-semibold">📊 Volume</span>
+                    <span className="font-bold text-[var(--outline-black)]">{formatUSD(parseFloat(entry.totalVolumeUsd))}</span>
                   </div>
                 </div>
               </div>

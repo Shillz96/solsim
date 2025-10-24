@@ -116,7 +116,7 @@ export default function LeaderboardPage() {
   const totalVolume = leaderboardData.reduce((sum, entry) => sum + entry.totalTrades, 0)
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
+    <div className="min-h-screen bg-gradient-to-br from-[var(--sky-50)] via-white to-[var(--sky-100)]">
       <main id="leaderboard-table" className="w-full px-4 sm:px-6 lg:px-8 py-2 sm:py-4 max-w-page-xl mx-auto">
         {/* Mario Page Header */}
         <motion.div
@@ -143,16 +143,17 @@ export default function LeaderboardPage() {
         >
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-4xl md:text-5xl font-bold font-mario mb-4 text-foreground" style={{ textShadow: '1px 1px 2px rgba(255,255,255,0.5)' }}>
-                Top Traders
+              <h1 className="text-4xl md:text-5xl font-bold font-mario mb-4 text-[var(--outline-black)]" style={{ textShadow: '2px 2px 0px var(--outline-black), 4px 4px 0px var(--mario-red-500)' }}>
+                🏆 Top Traders
               </h1>
-              <p className="text-lg text-foreground font-semibold">Compete with traders worldwide and climb the ranks</p>
+              <p className="text-lg text-[var(--outline-black)] font-semibold">Compete with traders worldwide and climb the ranks</p>
             </div>
             <Button
               variant="outline"
               size="icon"
               onClick={handleRefresh}
               disabled={refreshing}
+              className="border-3 border-[var(--outline-black)] bg-white hover:bg-[var(--mario-red-500)] hover:text-white shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] transition-all duration-200"
             >
               <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
             </Button>
@@ -161,8 +162,8 @@ export default function LeaderboardPage() {
 
         {/* Error Message */}
         {error && (
-          <div className="mb-6 p-4 rounded-lg bg-destructive/10 border border-destructive/20">
-            <p className="text-destructive">{String(error)}</p>
+          <div className="mb-6 p-4 rounded-[12px] bg-[var(--mario-red-50)] border-3 border-[var(--mario-red-500)] shadow-[3px_3px_0_var(--mario-red-500)]">
+            <p className="text-[var(--mario-red-700)] font-semibold">{String(error)}</p>
           </div>
         )}
 
@@ -173,20 +174,29 @@ export default function LeaderboardPage() {
           transition={{ duration: 0.5, delay: 0.1 }}
           className="mb-4"
         >
-          <div className="bg-card border border-border rounded-lg px-6 py-3 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+          <div className="bg-white border-4 border-[var(--outline-black)] rounded-[16px] shadow-[6px_6px_0_var(--outline-black)] px-6 py-3 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
             <div className="flex items-center gap-4">
               <Tabs value={timeRange} onValueChange={(v) => setTimeRange(v as TimeRange)}>
-                <TabsList>
-                  <TabsTrigger value="all">All Time</TabsTrigger>
+                <TabsList className="bg-[var(--sky-100)] border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] rounded-[12px] p-1">
+                  <TabsTrigger 
+                    value="all" 
+                    className="data-[state=active]:bg-[var(--mario-red-500)] data-[state=active]:text-white data-[state=active]:shadow-[2px_2px_0_var(--outline-black)] rounded-[8px] font-bold transition-all text-[var(--outline-black)]"
+                  >
+                    All Time
+                  </TabsTrigger>
                 </TabsList>
               </Tabs>
-              <span className="text-xs text-muted-foreground">
+              <span className="text-xs text-[var(--outline-black)] opacity-70 font-semibold">
                 (24h and 7d filters coming soon)
               </span>
             </div>
 
             {currentUser && (
-              <Button variant="outline" onClick={scrollToUserRank} className="md:hidden">
+              <Button 
+                variant="outline" 
+                onClick={scrollToUserRank} 
+                className="md:hidden border-3 border-[var(--outline-black)] bg-white hover:bg-[var(--luigi-green-500)] hover:text-white shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] transition-all duration-200 font-bold"
+              >
                 <Target className="h-4 w-4 mr-2" />
                 View My Rank
               </Button>
@@ -218,7 +228,11 @@ export default function LeaderboardPage() {
           <div className="space-y-6">
             {/* Mobile: Collapsible Stats */}
             <div className="lg:hidden">
-              <Button variant="outline" className="w-full mb-4" onClick={() => setShowStats(!showStats)}>
+              <Button 
+                variant="outline" 
+                className="w-full mb-4 border-3 border-[var(--outline-black)] bg-white hover:bg-[var(--mario-red-500)] hover:text-white shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] transition-all duration-200 font-bold" 
+                onClick={() => setShowStats(!showStats)}
+              >
                 {showStats ? "Hide" : "Show"} Stats
               </Button>
             </div>
@@ -226,43 +240,43 @@ export default function LeaderboardPage() {
             <div className={`space-y-6 ${!showStats && "hidden lg:block"}`}>
               {/* Current User Rank */}
               {currentUser && (
-                <div className="p-6 rounded-lg bg-muted/20 border border-border/50">
+                <div className="p-6 rounded-[16px] bg-[var(--sky-50)] border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)]">
                   <div className="mb-4">
-                    <h3 className="font-semibold text-lg mb-2">Your Rank</h3>
+                    <h3 className="font-bold text-lg mb-2 text-[var(--outline-black)] font-mario">🎯 Your Rank</h3>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <Target className="h-4 w-4" />
-                        <span className="text-sm text-muted-foreground">Current Position</span>
+                        <Target className="h-4 w-4 text-[var(--mario-red-500)]" />
+                        <span className="text-sm text-[var(--outline-black)] font-semibold">Current Position</span>
                       </div>
-                      <Badge variant="secondary" className="text-lg px-3 py-1">
+                      <Badge className="text-lg px-3 py-1 bg-[var(--star-yellow-500)] text-[var(--outline-black)] border-2 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] font-bold">
                         #{currentUser.rank}
                       </Badge>
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4 pt-4 border-t border-border/50">
+                  <div className="grid grid-cols-2 gap-4 pt-4 border-t-3 border-[var(--outline-black)]">
                     <div>
-                      <p className="text-sm text-muted-foreground mb-2">Total PnL</p>
-                      <div className={`font-semibold text-lg ${parseFloat(currentUser.totalPnlUsd) >= 0 ? 'text-profit' : 'text-loss'}`}>
+                      <p className="text-sm text-[var(--outline-black)] mb-2 font-semibold">💰 Total PnL</p>
+                      <div className={`font-bold text-lg ${parseFloat(currentUser.totalPnlUsd) >= 0 ? 'text-[var(--luigi-green-700)]' : 'text-[var(--mario-red-700)]'}`}>
                         <UsdWithSol 
                           usd={parseFloat(currentUser.totalPnlUsd)} 
                           prefix={parseFloat(currentUser.totalPnlUsd) >= 0 ? '+' : ''}
-                          className="text-lg font-semibold"
+                          className="text-lg font-bold"
                           solClassName="text-xs"
                         />
                       </div>
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground mb-2">Trades</p>
-                      <p className="font-semibold text-lg">{currentUser.totalTrades}</p>
+                      <p className="text-sm text-[var(--outline-black)] mb-2 font-semibold">📊 Trades</p>
+                      <p className="font-bold text-lg text-[var(--outline-black)]">{currentUser.totalTrades}</p>
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground mb-2">Win Rate</p>
-                      <p className="font-semibold text-lg">{currentUser.winRate.toFixed(1)}%</p>
+                      <p className="text-sm text-[var(--outline-black)] mb-2 font-semibold">🎯 Win Rate</p>
+                      <p className="font-bold text-lg text-[var(--outline-black)]">{currentUser.winRate.toFixed(1)}%</p>
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground mb-2">Balance</p>
-                      <p className="font-semibold text-lg font-mono">
+                      <p className="text-sm text-[var(--outline-black)] mb-2 font-semibold">💎 Balance</p>
+                      <p className="font-bold text-lg font-mono text-[var(--outline-black)]">
                         {balanceData ? `${parseFloat(balanceData.balance).toFixed(2)} SOL` : 'Loading...'}
                       </p>
                     </div>
@@ -272,39 +286,39 @@ export default function LeaderboardPage() {
 
               {/* Top Performers */}
               {topPerformers.length > 0 && (
-                <div className="p-6 rounded-lg bg-card border border-border/50">
+                <div className="p-6 rounded-[16px] bg-white border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)]">
                   <div className="mb-6">
                     <div className="flex items-center gap-2 mb-2">
-                      <Trophy className="h-5 w-5 text-yellow-500" />
-                      <h3 className="font-semibold text-lg">Top Performers</h3>
+                      <Trophy className="h-5 w-5 text-[var(--star-yellow-500)]" />
+                      <h3 className="font-bold text-lg text-[var(--outline-black)] font-mario">🏆 Top Performers</h3>
                     </div>
-                    <span className="text-sm text-muted-foreground">Leading traders</span>
+                    <span className="text-sm text-[var(--outline-black)] font-semibold opacity-70">Leading traders</span>
                   </div>
                   <div className="space-y-3">
                     {topPerformers.map((performer, index) => (
                       <div
                         key={performer.userId}
-                        className="flex items-center justify-between p-3 rounded-md bg-muted/20 hover:bg-muted/30 transition-colors"
+                        className="flex items-center justify-between p-3 rounded-[12px] bg-[var(--sky-50)] border-2 border-[var(--outline-black)] hover:bg-[var(--sky-100)] transition-colors shadow-[2px_2px_0_var(--outline-black)]"
                       >
                         <div className="flex items-center gap-3">
-                          <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br from-primary to-secondary text-primary-foreground font-bold text-sm">
+                          <div className="flex items-center justify-center w-8 h-8 rounded-full bg-[var(--star-yellow-500)] text-[var(--outline-black)] border-2 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] font-bold text-sm">
                             {index + 1}
                           </div>
                           <div>
-                            <p className="font-medium">{performer.handle || performer.displayName || `User ${performer.userId.slice(0, 8)}`}</p>
-                            <p className="text-xs text-muted-foreground">{performer.totalTrades} trades</p>
+                            <p className="font-bold text-[var(--outline-black)]">{performer.handle || performer.displayName || `User ${performer.userId.slice(0, 8)}`}</p>
+                            <p className="text-xs text-[var(--outline-black)] opacity-70 font-semibold">{performer.totalTrades} trades</p>
                           </div>
                         </div>
                         <div className="text-right">
-                          <div className={`font-semibold ${parseFloat(performer.totalPnlUsd) >= 0 ? 'text-profit' : 'text-loss'}`}>
+                          <div className={`font-bold ${parseFloat(performer.totalPnlUsd) >= 0 ? 'text-[var(--luigi-green-700)]' : 'text-[var(--mario-red-700)]'}`}>
                             <UsdWithSol 
                               usd={parseFloat(performer.totalPnlUsd)} 
                               prefix={parseFloat(performer.totalPnlUsd) >= 0 ? '+' : ''}
-                              className="font-semibold"
+                              className="font-bold"
                               solClassName="text-xs"
                             />
                           </div>
-                          <p className="text-xs text-muted-foreground">{performer.winRate.toFixed(1)}% win</p>
+                          <p className="text-xs text-[var(--outline-black)] opacity-70 font-semibold">{performer.winRate.toFixed(1)}% win</p>
                         </div>
                       </div>
                     ))}
