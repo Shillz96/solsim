@@ -1,5 +1,3 @@
-'use client'
-
 import type React from "react"
 import type { Metadata } from "next"
 import { IBM_Plex_Sans, JetBrains_Mono } from "next/font/google"
@@ -12,11 +10,16 @@ import { SlidingTrendingTicker } from "@/components/trading/sliding-trending-tic
 import { AppProviders } from "@/components/providers"
 import WindowManager from "@/components/window/WindowManager"
 import FloatingWindows from "@/components/window/FloatingWindows"
-import { useIsMobile } from "@/hooks/use-mobile"
 
 import "./theme.css"
 import "./globals.css"
 import "./wallet-modal-override.css"
+
+// Font Loading Strategy:
+// - display: 'swap' prevents invisible text during font load
+// - preload: true for critical fonts (Radnika Next = main body font)
+// - JetBrains Mono loads globally as it's used for monospace text throughout app
+// - Fallback fonts ensure text is always readable
 
 // Typography: IBM Plex Sans Bold for headings, Radnika Next for body
 const radnikaNext = localFont({
@@ -33,7 +36,7 @@ const radnikaNext = localFont({
     'sans-serif',
   ],
   display: 'swap',
-  preload: true,
+  preload: true, // Critical: main body font
 })
 const ibmPlexSans = IBM_Plex_Sans({
   subsets: ["latin"],
@@ -76,54 +79,46 @@ export const viewport = {
   maximumScale: 5,
   userScalable: true,
   viewportFit: "cover", // iOS safe area insets (notch, home indicator)
-  // Default to light mode Mario Sky Blue - client-side script will update based on user preference
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#A6D8FF" }, // Mario Sky Blue
-    { media: "(prefers-color-scheme: dark)", color: "#1a365d" }   // Dark blue for dark mode
-  ]
+  themeColor: "#A6D8FF", // Mario Sky Blue - light mode only (no dark mode support per design)
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html
-      lang="en"
-      dir="ltr"
-      style={{
-        // iOS safe area insets for notch/home indicator
-        '--safe-area-inset-top': 'env(safe-area-inset-top, 0px)',
-        '--safe-area-inset-bottom': 'env(safe-area-inset-bottom, 0px)',
-        '--safe-area-inset-left': 'env(safe-area-inset-left, 0px)',
-        '--safe-area-inset-right': 'env(safe-area-inset-right, 0px)',
-      } as React.CSSProperties}
-    >
+    <html lang="en" dir="ltr">
       <body
         className={`${radnikaNext.variable} ${ibmPlexSans.variable} ${jetBrainsMono.variable} font-sans`}
+        style={{
+          // iOS safe area insets for notch and home indicator
+          paddingTop: 'env(safe-area-inset-top)',
+          paddingBottom: 'max(env(safe-area-inset-bottom), var(--bottom-nav-height, 60px))',
+          paddingLeft: 'env(safe-area-inset-left)',
+          paddingRight: 'env(safe-area-inset-right)',
+        }}
       >
         <AppProviders>
+          {/* Z-Index Hierarchy:
+             * WindowManager (z-[100]): Modal windows and overlays
+             * Header elements (z-50): NavBar, Ticker, BottomNavBar, Skip Link
+             * Content (z-auto): Main content area
+          */}
           <WindowManager>
-            {/* Z-Index Hierarchy (from lowest to highest):
-             * NavBar/SlidingTrendingTicker: z-50 - Sticky navigation
-             * Skip to main content link: z-[60] - Above navigation for accessibility
-             * BottomNavBar: z-50 - Sticky bottom navigation
-             * WindowManager: z-[100] - Modal/floating windows
-             * FloatingWindows: rendered inside WindowManager
-             */}
-            {/* Skip to main content link for screen reader accessibility */}
-            <a
-              href="#main-content"
-              className="sr-only focus:not-sr-only absolute top-4 left-4 z-[60] bg-mario-red-500 text-white px-4 py-2 rounded-md font-mario text-sm shadow-mario focus:outline-none focus:ring-2 focus:ring-mario-red-300"
-            >
-              Skip to main content
-            </a>
             <div className="sticky top-0 z-50">
+              <a
+                href="#main-content"
+                className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:px-4 focus:py-2 focus:bg-mario-red-500 focus:text-white focus:rounded focus:shadow-mario focus:font-mario focus:text-sm focus:border-2 focus:border-white"
+              >
+                Skip to main content
+              </a>
               <NavBar aria-label="Primary navigation" />
               <SlidingTrendingTicker />
             </div>
             <main
               id="main-content"
-              className="min-h-[calc(100vh-var(--navbar-height)-var(--bottom-nav-height))] relative"
+              className="relative"
               style={{
-                paddingBottom: 'var(--bottom-nav-height, 60px)' // Fallback to 60px if variable not defined
+                minHeight: 'calc(100vh - var(--header-height, 120px) - var(--bottom-nav-height, 60px))',
+                paddingBottom: 'var(--bottom-nav-height, 60px)',
+                touchAction: 'pan-y', // Optimize touch scrolling on mobile
               }}
               role="main"
             >
