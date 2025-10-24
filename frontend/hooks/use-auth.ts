@@ -34,6 +34,12 @@ export function useAuth() {
 
   // Load user from localStorage on mount with token validation
   useEffect(() => {
+    // Only access localStorage on the client side
+    if (typeof window === 'undefined') {
+      setAuthState(prev => ({ ...prev, isLoading: false }))
+      return
+    }
+
     const savedUserId = localStorage.getItem('userId')
     const savedUser = localStorage.getItem('user')
     const accessToken = localStorage.getItem('accessToken')

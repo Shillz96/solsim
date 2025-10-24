@@ -6,7 +6,7 @@
 
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import { BadgeService } from '../services/badgeService.js';
-import { authenticateToken } from '../plugins/auth';
+import { authenticateToken } from '../plugins/auth.js';
 
 export default async function (app: FastifyInstance) {
   // Get all available badges
