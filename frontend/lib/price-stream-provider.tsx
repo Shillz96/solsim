@@ -202,21 +202,13 @@ function usePriceStream(options: {
       
       // Create WebSocket with better error handling and browser compatibility
       let ws: WebSocket
-      
+
       try {
-        // Add small delay for Chrome compatibility
-        if (typeof window !== 'undefined' && window.navigator?.userAgent?.includes('Chrome')) {
-          await new Promise(resolve => setTimeout(resolve, 100))
-        }
-        
-        // Create WebSocket with explicit protocols for better proxy/CDN compatibility
-        ws = new WebSocket(env.NEXT_PUBLIC_WS_URL, ['websocket'])
+        // Create WebSocket without protocol specification to avoid server compatibility issues
+        ws = new WebSocket(env.NEXT_PUBLIC_WS_URL)
         wsRef.current = ws
-        
+
         console.log(`🔍 WebSocket created, readyState: ${ws.readyState} (CONNECTING: 0, OPEN: 1, CLOSING: 2, CLOSED: 3)`)
-        
-        // Small delay before setting up event listeners
-        await new Promise(resolve => setTimeout(resolve, 50))
       } catch (createError) {
         console.error('❌ Failed to create WebSocket:', createError)
         throw createError
