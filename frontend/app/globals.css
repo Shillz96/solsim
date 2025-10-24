@@ -243,7 +243,7 @@
     color: var(--foreground);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    font-family: var(--font-radnika-next), -apple-system, BlinkMacSystemFont, 'system-ui', 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+    font-family: var(--font-radnika-next), "Radnika Next", "Inter", "Manrope", "Nunito Sans", "Rubik", "Segoe UI", "Roboto", "Helvetica Neue", "Arial", sans-serif;
     position: relative;
     line-height: 1.65; /* Enhanced readability */
     /* Note: transform removed - it breaks position: fixed for modals/dropdowns */
@@ -348,7 +348,7 @@
   h4,
   h5,
   h6 {
-    font-family: var(--font-ibm-plex-sans), -apple-system, BlinkMacSystemFont, 'system-ui', 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+    font-family: var(--font-ibm-plex-sans), "IBM Plex Sans", "Inter", "Manrope", "Nunito Sans", "Rubik", "Segoe UI", "Roboto", "Helvetica Neue", "Arial", sans-serif;
     font-weight: 700;
     color: var(--foreground);
     letter-spacing: -0.015em; /* Refined letter spacing for 2025 */
@@ -359,7 +359,7 @@
   span,
   a,
   li {
-    font-family: var(--font-radnika-next), -apple-system, BlinkMacSystemFont, 'system-ui', 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+    font-family: var(--font-radnika-next), "Radnika Next", "Inter", "Manrope", "Nunito Sans", "Rubik", "Segoe UI", "Roboto", "Helvetica Neue", "Arial", sans-serif;
     color: var(--foreground);
   }
 
