@@ -7,7 +7,7 @@
 
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect } from "react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Loader2, AlertCircle, RefreshCw } from "lucide-react"
@@ -18,13 +18,65 @@ import { useAuth } from "@/hooks/use-auth"
 import type { AdvancedFilters, TokenRow } from "@/lib/types/warp-pipes"
 import { getDefaultFilters } from "@/lib/warp-pipes-filter-presets"
 
+const STORAGE_KEYS = {
+  NEW: 'warp-pipes-filters-new',
+  GRADUATING: 'warp-pipes-filters-graduating',
+  BONDED: 'warp-pipes-filters-bonded',
+}
+
+// Load filters from localStorage with fallback to defaults
+function loadFilters(key: string, category: 'new' | 'graduating' | 'bonded'): AdvancedFilters {
+  if (typeof window === 'undefined') return getDefaultFilters(category)
+  
+  try {
+    const stored = localStorage.getItem(key)
+    if (stored) {
+      return JSON.parse(stored)
+    }
+  } catch (error) {
+    console.error(`Failed to load filters from ${key}:`, error)
+  }
+  
+  return getDefaultFilters(category)
+}
+
+// Save filters to localStorage
+function saveFilters(key: string, filters: AdvancedFilters) {
+  if (typeof window === 'undefined') return
+  
+  try {
+    localStorage.setItem(key, JSON.stringify(filters))
+  } catch (error) {
+    console.error(`Failed to save filters to ${key}:`, error)
+  }
+}
+
 export function WarpPipesHub() {
   const { isAuthenticated } = useAuth()
 
-  // Per-column filter state
-  const [newFilters, setNewFilters] = useState<AdvancedFilters>(getDefaultFilters('new'))
-  const [graduatingFilters, setGraduatingFilters] = useState<AdvancedFilters>(getDefaultFilters('graduating'))
-  const [bondedFilters, setBondedFilters] = useState<AdvancedFilters>(getDefaultFilters('bonded'))
+  // Per-column filter state - load from localStorage on mount
+  const [newFilters, setNewFilters] = useState<AdvancedFilters>(() => 
+    loadFilters(STORAGE_KEYS.NEW, 'new')
+  )
+  const [graduatingFilters, setGraduatingFilters] = useState<AdvancedFilters>(() => 
+    loadFilters(STORAGE_KEYS.GRADUATING, 'graduating')
+  )
+  const [bondedFilters, setBondedFilters] = useState<AdvancedFilters>(() => 
+    loadFilters(STORAGE_KEYS.BONDED, 'bonded')
+  )
+
+  // Save filters to localStorage whenever they change
+  useEffect(() => {
+    saveFilters(STORAGE_KEYS.NEW, newFilters)
+  }, [newFilters])
+
+  useEffect(() => {
+    saveFilters(STORAGE_KEYS.GRADUATING, graduatingFilters)
+  }, [graduatingFilters])
+
+  useEffect(() => {
+    saveFilters(STORAGE_KEYS.BONDED, bondedFilters)
+  }, [bondedFilters])
 
   // Fetch feed data - filters are applied per-column on the client side
   const { data, isLoading, error, refetch } = useWarpPipesFeed({
