@@ -79,7 +79,11 @@ interface TrackedWallet {
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
 
-export function WalletTrackerContent() {
+interface WalletTrackerContentProps {
+  compact?: boolean // Compact mode for floating window (no stats, minimal controls)
+}
+
+export function WalletTrackerContent({ compact = false }: WalletTrackerContentProps = {}) {
   const { user, isAuthenticated } = useAuth()
   const { toast } = useToast()
 
@@ -264,179 +268,237 @@ export function WalletTrackerContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
-      <main id="wallet-tracker" className="w-full px-4 sm:px-6 lg:px-8 py-2 sm:py-4 max-w-page-xl mx-auto">
-        <div className="space-y-6">
-        {/* Header - Mario themed */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="flex items-center justify-between"
-        >
-          <div className="space-y-2">
-            <h1 className="text-3xl font-bold flex items-center gap-3 text-pipe-900">
-              <Eye className="h-8 w-8 text-mario-red" />
-              Wallet Tracker
-            </h1>
-            <p className="text-base font-semibold text-pipe-700">
-              Track and copy trades from top Solana wallets in real-time
-            </p>
-          </div>
-
-          <div className="flex items-center gap-2">
+    <div className={cn(
+      compact ? "h-full" : "min-h-screen bg-gradient-to-br from-background via-background to-muted/20"
+    )}>
+      <main id="wallet-tracker" className={cn(
+        "w-full",
+        compact ? "h-full flex flex-col" : "px-4 sm:px-6 lg:px-8 py-2 sm:py-4 max-w-page-xl mx-auto"
+      )}>
+        <div className={cn("space-y-3", compact && "h-full flex flex-col")}>
+        {/* Compact Header - Simple and minimal */}
+        {compact ? (
+          <div className="flex items-center justify-between px-4 py-2 border-b-2 border-pipe-300 flex-shrink-0">
             <Badge
               variant={connected ? "default" : "secondary"}
               className={cn(
-                "gap-1 border-2 font-bold",
-                connected ? "bg-luigi-green-500 text-white border-black" : "bg-pipe-200 text-pipe-900 border-pipe-700"
+                "gap-1 border-2 font-bold text-xs",
+                connected ? "bg-luigi-green text-white border-black" : "bg-pipe-200 text-pipe-900 border-pipe-700"
               )}
             >
               <div className={cn(
-                "h-2 w-2 rounded-full",
+                "h-1.5 w-1.5 rounded-full",
                 connected ? "bg-white animate-pulse" : "bg-pipe-700"
               )} />
               {connected ? "Live" : "Offline"}
             </Badge>
 
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => fetchActivities(true)}
-              disabled={isLoadingMore}
-              className="border-3 border-pipe-700 hover:bg-sky-100"
-            >
-              <RefreshCw className={cn("h-4 w-4", isLoadingMore && "animate-spin")} />
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowSettings(true)}
+                className="gap-1.5 border-2 border-pipe-500 hover:bg-sky-100 font-bold h-8 text-xs"
+              >
+                <Settings className="h-3.5 w-3.5" />
+                Filters
+              </Button>
 
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setShowSettings(true)}
-              className="gap-2 border-3 border-pipe-700 hover:bg-sky-100 font-bold"
-            >
-              <Settings className="h-4 w-4" />
-              Filters
-            </Button>
+              <Button
+                size="sm"
+                onClick={() => setShowWalletManager(true)}
+                className="gap-1.5 mario-btn mario-btn-red font-bold text-white h-8 text-xs"
+              >
+                <Plus className="h-3.5 w-3.5" />
+                Manage Wallets
+              </Button>
 
-            <Button
-              size="sm"
-              onClick={() => setShowWalletManager(true)}
-              className="gap-2 mario-btn mario-btn-red font-bold text-white"
-            >
-              <Plus className="h-4 w-4" />
-              Manage Wallets
-            </Button>
-          </div>
-        </motion.div>
-
-        {/* Stats Overview */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-        >
-          <WalletStats
-            trackedWallets={trackedWallets || []}
-            activities={activities}
-          />
-        </motion.div>
-
-        {/* Filters - Sticky bar */}
-        <div className="sticky top-0 z-10 mario-card bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/95 border-4 border-pipe-700 shadow-mario p-4">
-          <div className="flex flex-col sm:flex-row gap-4">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-pipe-700" />
-              <Input
-                placeholder="Search token symbol or wallet..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-9 border-3 border-pipe-500 focus:border-mario-red font-semibold"
-              />
+              <Button
+                size="sm"
+                onClick={() => window.location.href = '/wallet-tracker'}
+                className="gap-1.5 mario-btn bg-sky-blue font-bold text-pipe-900 h-8 text-xs border-2 border-black"
+              >
+                <ExternalLink className="h-3.5 w-3.5" />
+                More
+              </Button>
             </div>
-
-            <Select value={filterType} onValueChange={(v: any) => setFilterType(v)}>
-              <SelectTrigger className="w-[140px] border-3 border-pipe-500 font-bold">
-                <Filter className="h-4 w-4 mr-2" />
-                <SelectValue placeholder="Filter" />
-              </SelectTrigger>
-              <SelectContent className="border-3 border-pipe-700">
-                <SelectItem value="all">All Trades</SelectItem>
-                <SelectItem value="buy">Buys Only</SelectItem>
-                <SelectItem value="sell">Sells Only</SelectItem>
-                <SelectItem value="swap">Swaps Only</SelectItem>
-              </SelectContent>
-            </Select>
-
-            {/* Density Toggle */}
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setDensity(prev => prev === 'comfortable' ? 'compact' : 'comfortable')}
-              className="border-3 border-pipe-500 font-bold whitespace-nowrap"
-            >
-              {density === 'comfortable' ? 'Comfortable' : 'Compact'}
-            </Button>
-
-            {trackedWallets && trackedWallets.length > 0 && (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="sm" className="border-3 border-pipe-500 font-bold">
-                    <Wallet className="h-4 w-4 mr-2" />
-                    {selectedWallets.length === 0
-                      ? "All Wallets"
-                      : `${selectedWallets.length} Selected`}
-                    <ChevronDown className="h-4 w-4 ml-2" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-64 border-3 border-pipe-700">
-                  <DropdownMenuItem onClick={() => setSelectedWallets([])}>
-                    All Wallets
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  {trackedWallets.map((wallet) => (
-                    <DropdownMenuItem
-                      key={wallet.id}
-                      onClick={() => {
-                        setSelectedWallets(prev =>
-                          prev.includes(wallet.walletAddress)
-                            ? prev.filter(w => w !== wallet.walletAddress)
-                            : [...prev, wallet.walletAddress]
-                        )
-                      }}
-                    >
-                      <div className="flex items-center justify-between w-full">
-                        <span className="truncate">
-                          {wallet.label || wallet.walletAddress.slice(0, 8)}
-                        </span>
-                        {selectedWallets.includes(wallet.walletAddress) && (
-                          <CheckCircle className="h-4 w-4 text-primary" />
-                        )}
-                      </div>
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
-            )}
           </div>
-        </div>
+        ) : (
+          <>
+            {/* Full Header - Mario themed */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="flex items-center justify-between"
+            >
+              <div className="space-y-2">
+                <h1 className="text-3xl font-bold flex items-center gap-3 text-pipe-900">
+                  <Eye className="h-8 w-8 text-mario-red" />
+                  Wallet Tracker
+                </h1>
+                <p className="text-base font-semibold text-pipe-700">
+                  Track and copy trades from top Solana wallets in real-time
+                </p>
+              </div>
 
-        {/* Activity List */}
-        <WalletActivityList
-          activities={filteredActivities}
-          isLoading={loadingWallets || (activities.length === 0 && isLoadingMore)}
-          hasMore={hasMore}
-          onLoadMore={() => fetchActivities(false)}
-          onCopyTrade={(activity) => {
-            // Handle copy trade
-            toast({
-              title: "Copy Trade",
-              description: "Trade copying functionality coming soon",
-            })
-          }}
-          getWalletLabel={getWalletLabel}
-          density={density}
-        />
+              <div className="flex items-center gap-2">
+                <Badge
+                  variant={connected ? "default" : "secondary"}
+                  className={cn(
+                    "gap-1 border-2 font-bold",
+                    connected ? "bg-luigi-green-500 text-white border-black" : "bg-pipe-200 text-pipe-900 border-pipe-700"
+                  )}
+                >
+                  <div className={cn(
+                    "h-2 w-2 rounded-full",
+                    connected ? "bg-white animate-pulse" : "bg-pipe-700"
+                  )} />
+                  {connected ? "Live" : "Offline"}
+                </Badge>
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => fetchActivities(true)}
+                  disabled={isLoadingMore}
+                  className="border-3 border-pipe-700 hover:bg-sky-100"
+                >
+                  <RefreshCw className={cn("h-4 w-4", isLoadingMore && "animate-spin")} />
+                </Button>
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowSettings(true)}
+                  className="gap-2 border-3 border-pipe-700 hover:bg-sky-100 font-bold"
+                >
+                  <Settings className="h-4 w-4" />
+                  Filters
+                </Button>
+
+                <Button
+                  size="sm"
+                  onClick={() => setShowWalletManager(true)}
+                  className="gap-2 mario-btn mario-btn-red font-bold text-white"
+                >
+                  <Plus className="h-4 w-4" />
+                  Manage Wallets
+                </Button>
+              </div>
+            </motion.div>
+
+            {/* Stats Overview - Full mode only */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+            >
+              <WalletStats
+                trackedWallets={trackedWallets || []}
+                activities={activities}
+              />
+            </motion.div>
+
+            {/* Filters - Sticky bar - Full mode only */}
+            <div className="sticky top-0 z-10 mario-card bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/95 border-4 border-pipe-700 shadow-mario p-4">
+              <div className="flex flex-col sm:flex-row gap-4">
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-pipe-700" />
+                  <Input
+                    placeholder="Search token symbol or wallet..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-9 border-3 border-pipe-500 focus:border-mario-red font-semibold"
+                  />
+                </div>
+
+                <Select value={filterType} onValueChange={(v: any) => setFilterType(v)}>
+                  <SelectTrigger className="w-[140px] border-3 border-pipe-500 font-bold">
+                    <Filter className="h-4 w-4 mr-2" />
+                    <SelectValue placeholder="Filter" />
+                  </SelectTrigger>
+                  <SelectContent className="border-3 border-pipe-700">
+                    <SelectItem value="all">All Trades</SelectItem>
+                    <SelectItem value="buy">Buys Only</SelectItem>
+                    <SelectItem value="sell">Sells Only</SelectItem>
+                    <SelectItem value="swap">Swaps Only</SelectItem>
+                  </SelectContent>
+                </Select>
+
+                {/* Density Toggle */}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setDensity(prev => prev === 'comfortable' ? 'compact' : 'comfortable')}
+                  className="border-3 border-pipe-500 font-bold whitespace-nowrap"
+                >
+                  {density === 'comfortable' ? 'Comfortable' : 'Compact'}
+                </Button>
+
+                {trackedWallets && trackedWallets.length > 0 && (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="outline" size="sm" className="border-3 border-pipe-500 font-bold">
+                        <Wallet className="h-4 w-4 mr-2" />
+                        {selectedWallets.length === 0
+                          ? "All Wallets"
+                          : `${selectedWallets.length} Selected`}
+                        <ChevronDown className="h-4 w-4 ml-2" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-64 border-3 border-pipe-700">
+                      <DropdownMenuItem onClick={() => setSelectedWallets([])}>
+                        All Wallets
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      {trackedWallets.map((wallet) => (
+                        <DropdownMenuItem
+                          key={wallet.id}
+                          onClick={() => {
+                            setSelectedWallets(prev =>
+                              prev.includes(wallet.walletAddress)
+                                ? prev.filter(w => w !== wallet.walletAddress)
+                                : [...prev, wallet.walletAddress]
+                            )
+                          }}
+                        >
+                          <div className="flex items-center justify-between w-full">
+                            <span className="truncate">
+                              {wallet.label || wallet.walletAddress.slice(0, 8)}
+                            </span>
+                            {selectedWallets.includes(wallet.walletAddress) && (
+                              <CheckCircle className="h-4 w-4 text-primary" />
+                            )}
+                          </div>
+                        </DropdownMenuItem>
+                      ))}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                )}
+              </div>
+            </div>
+          </>
+        )}
+
+        {/* Activity List - Full height in compact mode */}
+        <div className={cn(compact && "flex-1 min-h-0")}>
+          <WalletActivityList
+            activities={filteredActivities}
+            isLoading={loadingWallets || (activities.length === 0 && isLoadingMore)}
+            hasMore={hasMore}
+            onLoadMore={() => fetchActivities(false)}
+            onCopyTrade={(activity) => {
+              // Handle copy trade
+              toast({
+                title: "Copy Trade",
+                description: "Trade copying functionality coming soon",
+              })
+            }}
+            getWalletLabel={getWalletLabel}
+            density={density}
+          />
+        </div>
 
         {/* Wallet Manager Modal */}
         <AnimatePresence>

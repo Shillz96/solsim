@@ -66,17 +66,17 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
   const [showDepositModal, setShowDepositModal] = useState<boolean>(false)
   const [showOnboardingModal, setShowOnboardingModal] = useState<boolean>(false)
 
-  // Function to open wallet tracker as floating window
+  // Function to open wallet tracker as floating window (compact mode)
   const openWalletTrackerWindow = () => {
     // Close any existing window first to force refresh with new layout
     closeWindow('wallet-tracker')
 
-    // Small delay to ensure clean state, then open with fresh content
+    // Small delay to ensure clean state, then open with fresh content in compact mode
     setTimeout(() => {
       openWindow({
         id: 'wallet-tracker',
         title: '👀 Wallet Tracker',
-        content: <WalletTrackerContent key={Date.now()} />,
+        content: <WalletTrackerContent key={Date.now()} compact={true} />,
         x: 100,
         y: 100,
         width: 900,
