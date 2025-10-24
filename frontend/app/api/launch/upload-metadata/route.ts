@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
     formData.append('name', name)
     formData.append('symbol', symbol)
     formData.append('description', description)
-    formData.append('file', new Blob([imageBuffer.buffer]), 'token-image.png')
+    formData.append('file', new Blob([new Uint8Array(imageBuffer)]), 'token-image.png')
     
     // Add optional social links (only if provided and not empty)
     if (twitter) formData.append('twitter', twitter)

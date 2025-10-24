@@ -38,7 +38,7 @@ export function LaunchTokenForm() {
     name: "",
     symbol: "",
     description: "",
-    image: null as any,
+    image: null,
     twitter: "",
     telegram: "",
     website: "",

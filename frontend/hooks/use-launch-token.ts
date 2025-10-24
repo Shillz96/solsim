@@ -45,6 +45,9 @@ export function useLaunchToken() {
       const mintString = Array.from(mintKeypair.secretKey).join(',')
 
       // Step 2: Convert image to base64
+      if (!formData.image) {
+        throw new Error('Image is required')
+      }
       const imageBase64 = await fileToBase64(formData.image)
 
       // Step 3: Upload metadata to IPFS

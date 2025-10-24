@@ -6,7 +6,7 @@ export interface LaunchTokenFormData {
   name: string
   symbol: string
   description: string
-  image: File
+  image: File | null
   twitter?: string
   telegram?: string
   website?: string
