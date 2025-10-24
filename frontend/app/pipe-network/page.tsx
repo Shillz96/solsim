@@ -39,15 +39,15 @@ export default function PipeNetworkPage() {
         transition={{ duration: 0.5, delay: 0.1 }}
         className="flex-1 min-h-0 px-4 pb-4"
       >
-        <div className="bg-[var(--luigi-green)]/20 border-4 border-[var(--outline-black)] rounded-xl shadow-[8px_8px_0_var(--outline-black)] overflow-hidden h-full">
-          <div className="bg-gradient-to-r from-[var(--luigi-green)] to-emerald-500 p-4 border-b-4 border-[var(--outline-black)]">
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-lg bg-white border-3 border-[var(--outline-black)] flex items-center justify-center shadow-[3px_3px_0_var(--outline-black)]">
+        <div className="bg-gradient-to-br from-[var(--luigi-green)]/10 via-white to-[var(--sky-blue)]/10 border-4 border-[var(--outline-black)] rounded-2xl shadow-[8px_8px_0_var(--outline-black)] overflow-hidden h-full">
+          <div className="bg-gradient-to-r from-[var(--luigi-green)] via-emerald-500 to-[var(--pipe-green)] p-5 border-b-4 border-[var(--outline-black)]">
+            <div className="flex items-center gap-4">
+              <div className="h-12 w-12 rounded-xl bg-white border-4 border-[var(--outline-black)] flex items-center justify-center shadow-[4px_4px_0_var(--outline-black)] text-2xl">
                 💬
               </div>
               <div>
-                <h2 className="font-mario font-bold text-xl text-white">COMMUNITY CHAT</h2>
-                <p className="text-white/90 text-xs">Connect with traders & get help</p>
+                <h2 className="font-mario font-bold text-2xl text-white drop-shadow-[2px_2px_0_rgba(0,0,0,0.3)]">COMMUNITY CHAT</h2>
+                <p className="text-white/90 text-sm font-bold">Connect with traders & get help</p>
               </div>
             </div>
           </div>

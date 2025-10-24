@@ -1626,3 +1626,47 @@
     max-height: 100dvh; /* Modern */
   }
 }
+
+/* ----------------------------
+   CHAT-SPECIFIC ENHANCEMENTS
+   - Custom scrollbar styling
+   - Message animations
+   - Hover effects
+--------------------------- */
+
+/* Custom scrollbar for chat */
+.chat-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.chat-scrollbar::-webkit-scrollbar-track {
+  background: var(--background);
+  border-left: 2px solid var(--outline-black);
+}
+
+.chat-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--luigi-green);
+  border: 2px solid var(--outline-black);
+  border-radius: 4px;
+}
+
+.chat-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--pipe-green);
+}
+
+/* Message fade-in animation */
+@keyframes messageSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.chat-message-enter {
+  animation: messageSlideIn 0.3s ease-out;
+}
+
