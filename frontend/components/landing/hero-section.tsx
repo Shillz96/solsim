@@ -58,8 +58,8 @@ export function HeroSection() {
           >
             <div className="relative w-full flex justify-center">
               <Image
-                src="/1UP-Your-Solana-Trading-Skill-10-22-2025.svg"
-                alt="1UP Your Solana Trading Skills"
+                src="/Master-Solana-Trading-Practi-10-24-2025.png"
+                alt="Master Solana Trading - Practice to Pro"
                 width={1200}
                 height={300}
                 className="object-contain w-full h-auto drop-shadow-2xl"
@@ -78,7 +78,7 @@ export function HeroSection() {
             transition={{ duration: 0.6, delay: 0.2 }}
           >
             <p className="text-xl text-[var(--outline-black)] leading-relaxed font-bold drop-shadow-lg flex items-center justify-center gap-2 flex-wrap">
-              Trade real Solana tokens with zero risk. Level up through trades, earn XP, unlock achievements, and compete on the leaderboard - just like your favorite game!
+              Discover new Solana tokens in real-time, paper trade with zero risk, track wallet performance, and level up your trading skills - all in one gamified platform!
               <Image src="/icons/mario/controller.png" alt="" width={24} height={24} className="object-contain inline-block" />
             </p>
 

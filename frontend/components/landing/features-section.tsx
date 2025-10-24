@@ -10,50 +10,50 @@ const features = [
   {
     icon: TrendingUp,
     iconSrc: "/icons/mario/arrow-up.png",
-    title: "Hybrid Trending System",
-    description: "Real-time trending tokens from Birdeye and Pump.fun. Stay ahead of the market with live data.",
-  },
-  {
-    icon: Wallet,
-    iconSrc: "/icons/mario/money-bag.png",
-    title: "Virtual SOL Balance",
-    description: "Start with 10 SOL (100 SOL for $UP holders). Trade without losing real money while you level up!",
+    title: "Warp Pipes Token Discovery",
+    description: "Real-time discovery of new Solana tokens from Pump.fun. Track tokens from bonding curve to graduation to Raydium - all in one place!",
   },
   {
     icon: Eye,
     iconSrc: "/icons/mario/eyes.png",
     title: "Wallet Tracker",
-    description: "Track any Solana wallet's holdings and performance in real-time. Learn from the pros and copy their trades!",
+    description: "Track any Solana wallet's holdings, performance, and trades in real-time. Learn from successful traders and copy their strategies!",
+  },
+  {
+    icon: Wallet,
+    iconSrc: "/icons/mario/money-bag.png",
+    title: "Risk-Free Paper Trading",
+    description: "Start with 10 SOL virtual balance (100 SOL for $UP holders). Practice trading with real market data without risking real money!",
   },
   {
     icon: LineChart,
     iconSrc: "/icons/mario/game.png",
-    title: "Portfolio Analytics",
-    description: "Advanced portfolio statistics, PnL tracking, win rates, and detailed performance metrics.",
+    title: "Advanced Portfolio Analytics",
+    description: "Track your PnL, win rates, trade history, and detailed performance metrics. Professional-grade analytics for free!",
   },
   {
     icon: Star,
     iconSrc: "/icons/mario/star.png",
     title: "XP & Level System",
-    description: "Earn XP from every trade! Progress through 20 levels from Goomba to Legendary Luigi. Unlock achievements and titles!",
+    description: "Earn XP from every trade! Progress through 20 levels from Goomba to Legendary Luigi. Unlock achievements and exclusive titles!",
   },
   {
     icon: BarChart3,
     iconSrc: "/icons/mario/arrow-down.png",
-    title: "Real Market Data",
-    description: "Practice with live prices and charts. Experience real market conditions without the risk.",
+    title: "Live Market Data",
+    description: "Real-time prices, charts, and token metadata powered by Helius and DexScreener. Practice with actual market conditions!",
   },
   {
     icon: Trophy,
     iconSrc: "/icons/mario/trophy.png",
     title: "Competitive Leaderboards",
-    description: "Compete with traders worldwide! Climb the rankings to earn XP bonuses and show off your trading prowess.",
+    description: "Compete with traders worldwide! Climb the rankings to earn XP bonuses and prove your trading skills!",
   },
   {
     icon: Zap,
     iconSrc: "/icons/mario/lightning.png",
     title: "Achievement System",
-    description: "Unlock special achievements like Diamond Hands, 10-Bagger, and Portfolio ATH for massive XP rewards!",
+    description: "Unlock special achievements like Diamond Hands, 10-Bagger, and Portfolio ATH for massive XP rewards and bragging rights!",
   },
 ]
 
@@ -79,11 +79,11 @@ export function FeaturesSection() {
           </div>
 
           <h2 className="font-mario text-4xl md:text-5xl font-bold text-balance text-mario-red flex items-center justify-center gap-3" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.3)' }}>
-            Power-Up Your Trading Skills!
+            Power-Up Your Trading Journey!
             <Image src="/icons/mario/mushroom.png" alt="" width={40} height={40} className="object-contain inline-block" />
           </h2>
           <p className="text-xl text-foreground max-w-2xl mx-auto leading-relaxed font-bold" style={{ textShadow: '1px 1px 2px rgba(255,255,255,0.8)' }}>
-            Professional-grade tools and features to help you level up your Solana trading game!
+            Real-time token discovery, paper trading, wallet tracking, and gamified progression - everything you need to master Solana trading!
           </p>
         </motion.div>
 
