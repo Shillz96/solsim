@@ -26,9 +26,9 @@ export function MarketDataPanels({ tokenMint }: MarketDataPanelsProps) {
   const [activeTab, setActiveTab] = useState<TabType>('trades')
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full bg-white">
       {/* Tabs */}
-      <div className="border-b-3 border-[var(--outline-black)] bg-white px-2 sm:px-4 py-2 flex gap-2 sm:gap-4 text-xs font-bold justify-center flex-shrink-0">
+      <div className="border-b-4 border-[var(--outline-black)] bg-white px-4 py-3 flex gap-3 text-xs font-bold justify-center flex-shrink-0">
         <button
           onClick={() => setActiveTab('trades')}
           className={cn(
@@ -71,7 +71,7 @@ export function MarketDataPanels({ tokenMint }: MarketDataPanelsProps) {
       </div>
 
       {/* Data Panel Content */}
-      <div className="flex-1 overflow-y-auto p-2 sm:p-4">
+      <div className="flex-1 overflow-y-auto p-4 bg-white">
         {activeTab === 'trades' && <RecentTradesPanel tokenMint={tokenMint} />}
         {activeTab === 'traders' && <TopTradersPanel tokenMint={tokenMint} />}
         {activeTab === 'holders' && <HoldersPanel tokenMint={tokenMint} />}
