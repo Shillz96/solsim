@@ -326,7 +326,14 @@ function TradeRoomContent() {
 
         {/* TABLET LAYOUT */}
         <div className="hidden md:flex lg:hidden w-full overflow-hidden">
-          {/* Left: Chart & Data */}
+          {/* Left: Chat Room */}
+          <aside className="flex flex-col w-[280px] border-r-4 border-[var(--outline-black)] bg-white overflow-hidden">
+            <div className="flex-1 overflow-hidden">
+              <ChatRoom tokenMint={ca} />
+            </div>
+          </aside>
+
+          {/* Center: Chart & Data */}
           <section className="flex-1 flex flex-col bg-white overflow-hidden">
             {/* Chart Area */}
             <div className="border-b-4 border-[var(--outline-black)]">
@@ -341,20 +348,24 @@ function TradeRoomContent() {
             </div>
           </section>
 
-          {/* Right: Trade Panel & Chat */}
-          <aside className="flex flex-col w-[320px] border-l-4 border-[var(--outline-black)] bg-white overflow-hidden">
-            <div className="p-3 border-b-4 border-[var(--outline-black)] flex-shrink-0">
+          {/* Right: Trade Panel */}
+          <aside className="flex flex-col w-[280px] border-l-4 border-[var(--outline-black)] bg-white overflow-hidden">
+            <div className="flex-1 p-3 overflow-hidden">
               <MarioTradingPanel tokenAddress={ca} />
-            </div>
-            <div className="flex-1 overflow-hidden">
-              <ChatRoom tokenMint={ca} />
             </div>
           </aside>
         </div>
 
         {/* DESKTOP LAYOUT */}
         <div className="hidden lg:flex w-full overflow-hidden">
-          {/* Left Section - Chart & Data Panels */}
+          {/* Left Sidebar - Chat Room */}
+          <aside className="flex flex-col w-[320px] border-r-4 border-[var(--outline-black)] bg-white overflow-hidden">
+            <div className="flex-1 overflow-hidden">
+              <ChatRoom tokenMint={ca} />
+            </div>
+          </aside>
+
+          {/* Center Section - Chart & Data Panels */}
           <section className="flex-1 flex flex-col bg-white overflow-hidden">
             {/* Chart Area - Takes up about 60% of viewport height */}
             <div className="border-b-4 border-[var(--outline-black)]">
@@ -369,16 +380,10 @@ function TradeRoomContent() {
             </div>
           </section>
 
-          {/* Right Sidebar - Trade Panel & Chat (Desktop) */}
+          {/* Right Sidebar - Trade Panel Only */}
           <aside className="flex flex-col w-[380px] border-l-4 border-[var(--outline-black)] bg-white overflow-hidden">
-            {/* Trade Panel - Fixed height */}
-            <div className="p-3 border-b-4 border-[var(--outline-black)] flex-shrink-0">
+            <div className="flex-1 p-3 overflow-hidden">
               <MarioTradingPanel tokenAddress={ca} />
-            </div>
-
-            {/* Chat Room - Takes remaining space */}
-            <div className="flex-1 overflow-hidden">
-              <ChatRoom tokenMint={ca} />
             </div>
           </aside>
         </div>

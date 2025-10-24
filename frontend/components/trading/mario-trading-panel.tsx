@@ -38,6 +38,10 @@ import { RealTradeConfirmationModal, type RealTradeDetails } from "./real-trade-
 import { TransactionStatusTracker, type TransactionStep } from "./transaction-status-tracker"
 import { Transaction } from '@solana/web3.js'
 import { useWallet } from '@solana/wallet-adapter-react'
+// New advanced trading components
+import { PositionStatsBox } from "./position-stats-box"
+import { FeeDisplay } from "./fee-display"
+import { EditablePresetButton } from "./editable-preset-button"
 
 interface MarioTradingPanelProps {
   tokenAddress?: string
@@ -86,8 +90,30 @@ function MarioTradingPanelComponent({ tokenAddress: propTokenAddress }: MarioTra
   const [showCustomInput, setShowCustomInput] = useState(false)
   const [customSellPercentage, setCustomSellPercentage] = useState("")
 
-  const presetSolAmounts = [1, 5, 10, 20]
+  // Editable presets (load from localStorage)
+  const [presetSolAmounts, setPresetSolAmounts] = useState<number[]>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('mario-buy-preset-amounts')
+      if (saved) {
+        try {
+          return JSON.parse(saved)
+        } catch (e) {
+          // Invalid saved data, use defaults
+        }
+      }
+    }
+    return [1, 5, 10, 20] // Default presets
+  })
+
   const sellPercentages = [25, 50, 75, 100]
+
+  // Save preset amounts to localStorage when they change
+  const updatePresetAmount = (index: number, newValue: number) => {
+    const newPresets = [...presetSolAmounts]
+    newPresets[index] = newValue
+    setPresetSolAmounts(newPresets)
+    localStorage.setItem('mario-buy-preset-amounts', JSON.stringify(newPresets))
+  }
 
   // Load user balance
   useEffect(() => {
@@ -506,6 +532,13 @@ function MarioTradingPanelComponent({ tokenAddress: propTokenAddress }: MarioTra
 
   return (
     <div id="trade-panel" className="mario-card p-2 sm:p-3 lg:p-4 relative">
+      {/* Position Stats Box */}
+      <PositionStatsBox
+        tokenAddress={tokenAddress}
+        tradeMode={tradeMode}
+        className="mb-3"
+      />
+
       {/* Power-up Animation */}
       <AnimatePresence>
         {showPowerUpAnimation && (
@@ -599,25 +632,21 @@ function MarioTradingPanelComponent({ tokenAddress: propTokenAddress }: MarioTra
             <Label className="mario-font text-[10px] sm:text-xs whitespace-nowrap">SELECT AMOUNT (SOL)</Label>
 
             <div className="grid grid-cols-2 gap-1.5 sm:gap-2">
-              {presetSolAmounts.map((amount) => (
-                <button
-                  key={amount}
-                  onClick={() => {
-                    setSelectedSolAmount(amount)
+              {presetSolAmounts.map((amount, index) => (
+                <EditablePresetButton
+                  key={index}
+                  value={amount}
+                  index={index}
+                  selected={selectedSolAmount === amount}
+                  disabled={amount > balance}
+                  maxValue={balance}
+                  onSelect={(value) => {
+                    setSelectedSolAmount(value)
                     setCustomSolAmount("")
                   }}
-                  disabled={amount > balance}
-                  className={cn(
-                    "mario-btn h-8 sm:h-10 lg:h-12 text-xs sm:text-sm transition-all flex items-center justify-center whitespace-nowrap px-2",
-                    selectedSolAmount === amount
-                      ? "bg-[var(--star-yellow)] scale-105"
-                      : "bg-[var(--coin-gold)]",
-                    amount > balance && "opacity-50 cursor-not-allowed"
-                  )}
-                >
-                  <Star className="h-3 w-3 mr-0.5 flex-shrink-0" />
-                  {amount} SOL
-                </button>
+                  onUpdate={updatePresetAmount}
+                  className="h-8 sm:h-10 lg:h-12"
+                />
               ))}
             </div>
 
@@ -633,6 +662,14 @@ function MarioTradingPanelComponent({ tokenAddress: propTokenAddress }: MarioTra
                 className="border-3 border-[var(--outline-black)] font-mono"
               />
             )}
+
+            {/* Fee Display for Buy */}
+            <FeeDisplay
+              solAmount={selectedSolAmount || parseFloat(customSolAmount) || 0}
+              solPrice={solPrice}
+              variant="buy"
+              className="mb-2"
+            />
 
             <Button
               className="w-full mario-btn mario-btn-green h-10 sm:h-11 lg:h-12 text-xs sm:text-sm whitespace-nowrap overflow-hidden"
@@ -676,6 +713,18 @@ function MarioTradingPanelComponent({ tokenAddress: propTokenAddress }: MarioTra
                 </button>
               ))}
             </div>
+
+            {/* Fee Display for Sell */}
+            {tokenHolding && selectedPercentage && (
+              <FeeDisplay
+                solAmount={
+                  (parseFloat(tokenHolding.qty) * selectedPercentage / 100 * tokenDetails.price) / solPrice
+                }
+                solPrice={solPrice}
+                variant="sell"
+                className="mb-2"
+              />
+            )}
 
             <Button
               className="w-full mario-btn mario-btn-red h-10 sm:h-11 lg:h-12 text-xs sm:text-sm whitespace-nowrap overflow-hidden"
