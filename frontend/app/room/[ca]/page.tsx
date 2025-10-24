@@ -31,6 +31,7 @@ import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { cn } from '@/lib/utils'
 import { DexScreenerChart } from '@/components/trading/dexscreener-chart'
+import { ResizableSplit } from '@/components/ui/resizable-split'
 
 function TradeRoomContent() {
   const params = useParams()
@@ -171,30 +172,30 @@ function TradeRoomContent() {
       }}
     >
       {/* Header - Token Info */}
-      <header className="border-b-4 border-[var(--outline-black)] bg-white p-3 sm:p-4 flex-shrink-0">
-        <div className="w-full flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4">
+      <header className="border-b-4 border-[var(--outline-black)] bg-white p-2 sm:p-2.5 flex-shrink-0">
+        <div className="w-full flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-2">
           {/* Left: Back + Token Info */}
-          <div className="flex items-center gap-3 min-w-0">
+          <div className="flex items-center gap-2 min-w-0">
             <Button
               variant="outline"
               size="sm"
               onClick={() => router.back()}
-              className="border-2 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] transition-all h-11 w-11 sm:h-9 sm:w-9 p-0"
+              className="border-2 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] transition-all h-8 w-8 p-0"
               aria-label="Go back"
             >
-              <ArrowLeft className="h-4 w-4" />
+              <ArrowLeft className="h-3 w-3" />
             </Button>
 
             {tokenDetails.imageUrl && (
               <img
                 src={tokenDetails.imageUrl}
                 alt={tokenDetails.symbol || 'Token'}
-                className="h-10 w-10 sm:h-12 sm:w-12 rounded-lg border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)]"
+                className="h-8 w-8 sm:h-10 sm:w-10 rounded-lg border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)]"
               />
             )}
 
             <div className="min-w-0">
-              <div className="font-black text-base sm:text-lg truncate">
+              <div className="font-black text-sm sm:text-base truncate">
                 {tokenDetails.name || 'Unknown Token'}
               </div>
               <div className="text-xs text-muted-foreground flex items-center gap-2 flex-wrap">
@@ -219,16 +220,16 @@ function TradeRoomContent() {
                   )}
                   {priceChange24h >= 0 ? "+" : ""}{priceChange24h.toFixed(2)}%
                 </span>
+                {/* Position Indicator - moved inline */}
+                {tokenHolding && parseFloat(tokenHolding.qty) > 0 && (
+                  <>
+                    <span>•</span>
+                    <span className="text-[var(--mario-red)] font-bold">
+                      Holding: {formatTokenQuantity(tokenHolding.qty)}
+                    </span>
+                  </>
+                )}
               </div>
-              <div className="text-[10px] text-muted-foreground">
-                Updated {formatTimeAgo(priceLastUpdated)}
-              </div>
-              {/* Position Indicator */}
-              {tokenHolding && parseFloat(tokenHolding.qty) > 0 && (
-                <div className="text-xs text-[var(--mario-red)] font-bold mt-1">
-                  Holding: {formatTokenQuantity(tokenHolding.qty)}
-                </div>
-              )}
             </div>
           </div>
 
@@ -259,13 +260,13 @@ function TradeRoomContent() {
                   toast({ title: "Failed to copy", description: "Please copy the URL manually", variant: "destructive" })
                 }
               }}
-              className="border-2 border-[var(--outline-black)] bg-[var(--sky-blue)] shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] transition-all shrink-0 h-11 w-11 sm:h-9 sm:w-9 p-0"
+              className="border-2 border-[var(--outline-black)] bg-[var(--sky-blue)] shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] transition-all shrink-0 h-8 w-8 p-0"
               aria-label="Share token page"
             >
               {shareCopied ? (
-                <Check className="h-4 w-4 text-green-600" />
+                <Check className="h-3 w-3 text-green-600" />
               ) : (
-                <Share2 className="h-4 w-4" />
+                <Share2 className="h-3 w-3" />
               )}
             </Button>
 
@@ -273,7 +274,7 @@ function TradeRoomContent() {
               variant="outline"
               size="sm"
               asChild
-              className="border-2 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] transition-all shrink-0 h-11 w-11 sm:h-9 sm:w-9 p-0"
+              className="border-2 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] transition-all shrink-0 h-8 w-8 p-0"
             >
               <a
                 href={`https://dexscreener.com/solana/${ca}`}
@@ -281,7 +282,7 @@ function TradeRoomContent() {
                 rel="noopener noreferrer"
                 aria-label="View on DexScreener"
               >
-                <ExternalLink className="h-4 w-4" />
+                <ExternalLink className="h-3 w-3" />
               </a>
             </Button>
           </div>
@@ -339,19 +340,23 @@ function TradeRoomContent() {
             </div>
           </aside>
 
-          {/* Center: Chart & Data */}
+          {/* Center: Resizable Chart & Data */}
           <section className="flex-1 flex flex-col bg-white overflow-hidden">
-            {/* Chart Area */}
-            <div className="border-b-4 border-[var(--outline-black)]">
-              <div className="h-[50vh]">
+            <ResizableSplit
+              orientation="vertical"
+              defaultRatio={50}
+              minRatio={30}
+              maxRatio={70}
+              storageKey="trade-room-chart-split-tablet"
+              className="h-full"
+            >
+              <div className="h-full border-b-4 border-[var(--outline-black)]">
                 <DexScreenerChart tokenAddress={ca} />
               </div>
-            </div>
-
-            {/* Market Data Panels */}
-            <div className="flex-1 overflow-y-auto">
-              <MarketDataPanels tokenMint={ca} />
-            </div>
+              <div className="h-full overflow-y-auto">
+                <MarketDataPanels tokenMint={ca} />
+              </div>
+            </ResizableSplit>
           </section>
 
           {/* Right: Trade Panel */}
@@ -371,19 +376,23 @@ function TradeRoomContent() {
             </div>
           </aside>
 
-          {/* Center Section - Chart & Data Panels */}
+          {/* Center Section - Resizable Chart & Data Panels */}
           <section className="flex-1 flex flex-col bg-white overflow-hidden">
-            {/* Chart Area - Takes up about 60% of viewport height */}
-            <div className="border-b-4 border-[var(--outline-black)]">
-              <div className="h-[calc(60vh-80px)]">
+            <ResizableSplit
+              orientation="vertical"
+              defaultRatio={60}
+              minRatio={30}
+              maxRatio={70}
+              storageKey="trade-room-chart-split"
+              className="h-full"
+            >
+              <div className="h-full border-b-4 border-[var(--outline-black)]">
                 <DexScreenerChart tokenAddress={ca} />
               </div>
-            </div>
-
-            {/* Market Data Panels - Takes remaining space */}
-            <div className="flex-1 overflow-y-auto">
-              <MarketDataPanels tokenMint={ca} />
-            </div>
+              <div className="h-full overflow-y-auto">
+                <MarketDataPanels tokenMint={ca} />
+              </div>
+            </ResizableSplit>
           </section>
 
           {/* Right Sidebar - Trade Panel Only */}
