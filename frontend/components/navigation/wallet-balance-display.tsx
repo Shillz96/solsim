@@ -68,15 +68,19 @@ export function WalletBalanceDisplay({
   const { publicKey, disconnect, connected } = useWallet();
   const { user } = useAuth();
   
-  // Modal states
-  const [showDepositModal, setShowDepositModal] = useState(false);
-  const [showWithdrawModal, setShowWithdrawModal] = useState(false);
-  const [showExportKeyModal, setShowExportKeyModal] = useState(false);
+  // Modal state - single state to prevent race conditions
+  const [activeModal, setActiveModal] = useState<'deposit' | 'withdraw' | 'export' | null>(null);
+
+  // Sync wallet connection state to prevent stale data
+  const [isWalletConnected, setIsWalletConnected] = useState(false);
+  useEffect(() => {
+    setIsWalletConnected(connected && !!publicKey);
+  }, [connected, publicKey]);
 
   const isPaperMode = tradeMode === 'PAPER';
   const isDepositedFunding = fundingSource === 'DEPOSITED';
-  const hasZeroBalance = activeBalance === 0;
-  const isWalletConnected = connected && publicKey;
+  const isLoadingBalance = activeBalance === undefined || activeBalance === null;
+  const hasZeroBalance = activeBalance === 0 && !isLoadingBalance;
 
   // Format wallet address
   const walletAddress = publicKey
@@ -89,9 +93,10 @@ export function WalletBalanceDisplay({
       return {
         icon: Sparkles,
         label: 'Virtual',
-        balance: virtualSolBalance,
+        balance: isLoadingBalance ? 0 : virtualSolBalance,
         color: 'luigi-green',
         badge: 'PRACTICE',
+        isLoading: isLoadingBalance,
       };
     }
 
@@ -99,9 +104,10 @@ export function WalletBalanceDisplay({
       return {
         icon: Wallet,
         label: 'Deposited',
-        balance: realSolBalance,
+        balance: isLoadingBalance ? 0 : realSolBalance,
         color: hasZeroBalance ? 'mario-red' : 'star-yellow',
         badge: hasZeroBalance ? 'FUND' : 'LIVE',
+        isLoading: isLoadingBalance,
       };
     }
 
@@ -109,9 +115,10 @@ export function WalletBalanceDisplay({
       return {
         icon: Wallet,
         label: walletAddress || 'Wallet',
-        balance: walletSolBalance || 0,
+        balance: isLoadingBalance ? 0 : (walletSolBalance || 0),
         color: hasZeroBalance ? 'mario-red' : 'coin-yellow',
         badge: 'WALLET',
+        isLoading: isLoadingBalance,
       };
     }
 
@@ -121,6 +128,7 @@ export function WalletBalanceDisplay({
       balance: 0,
       color: 'mario-red',
       badge: 'SETUP',
+      isLoading: false,
     };
   };
 
@@ -136,7 +144,7 @@ export function WalletBalanceDisplay({
     return (
       <button
         type="button"
-        onClick={() => showDropdown && setShowDepositModal?.(true)}
+        onClick={() => showDropdown && setActiveModal('deposit')}
         aria-label="Balance"
         className={cn(
           // container
@@ -146,7 +154,10 @@ export function WalletBalanceDisplay({
           "border-3 md:border-4 border-[var(--outline-black)]",
           "shadow-[3px_3px_0_var(--outline-black)] md:shadow-[4px_4px_0_var(--outline-black)]",
           "flex items-center gap-2 md:gap-4",
-          "transition-transform hover:-translate-y-[1px]",
+          "transition-all duration-150",
+          "hover:-translate-y-[1px] hover:bg-[var(--star-yellow)]/90",
+          "hover:shadow-[4px_4px_0_var(--outline-black)] md:hover:shadow-[6px_6px_0_var(--outline-black)]",
+          "active:translate-y-0 active:shadow-[2px_2px_0_var(--outline-black)] md:active:shadow-[3px_3px_0_var(--outline-black)]",
           className
         )}
       >
@@ -212,7 +223,11 @@ export function WalletBalanceDisplay({
 
       {/* middle: strong number */}
       <div className="flex items-baseline gap-0.5 md:gap-1 ml-0.5 md:ml-1">
-        <AnimatedNumber value={config.balance} decimals={2} className="text-xs md:text-sm font-bold leading-none" />
+        {config.isLoading ? (
+          <span className="text-xs md:text-sm font-bold leading-none opacity-50">--</span>
+        ) : (
+          <AnimatedNumber value={config.balance} decimals={2} className="text-xs md:text-sm font-bold leading-none" />
+        )}
         <span className="text-[10px] md:text-[11px] leading-none opacity-70">SOL</span>
       </div>
 
@@ -221,18 +236,7 @@ export function WalletBalanceDisplay({
         {config.badge}
       </span>
 
-      {/* Warning indicator for 0 balance */}
-      <AnimatePresence>
-        {hasZeroBalance && !isPaperMode && (
-          <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            exit={{ scale: 0 }}
-          >
-            <AlertTriangle className="w-3 h-3 text-mario-red-600" />
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Badge serves as the warning indicator */}
     </motion.div>
   );
 
@@ -244,7 +248,7 @@ export function WalletBalanceDisplay({
     <>
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <div>
+        <div role="button" aria-haspopup="menu">
           <BalanceButton />
         </div>
       </DropdownMenuTrigger>
@@ -308,7 +312,7 @@ export function WalletBalanceDisplay({
           <>
             <DropdownMenuItem
               onClick={() => {
-                setShowDepositModal(true);
+                setActiveModal('deposit');
                 onDepositClick?.();
               }}
               className="cursor-pointer"
@@ -320,7 +324,7 @@ export function WalletBalanceDisplay({
             {realSolBalance > 0 && (
               <DropdownMenuItem
                 onClick={() => {
-                  setShowWithdrawModal(true);
+                  setActiveModal('withdraw');
                   onWithdrawClick?.();
                 }}
                 className="cursor-pointer"
@@ -332,7 +336,7 @@ export function WalletBalanceDisplay({
 
             {realSolBalance > 0 && (
               <DropdownMenuItem
-                onClick={() => setShowExportKeyModal(true)}
+                onClick={() => setActiveModal('export')}
                 className="cursor-pointer"
               >
                 <KeyRound className="mr-2 h-4 w-4 text-pipe-600" />
@@ -394,12 +398,18 @@ export function WalletBalanceDisplay({
     </DropdownMenu>
 
       {/* Modals */}
-      <DepositModal open={showDepositModal} onOpenChange={setShowDepositModal} />
-      <WithdrawModal open={showWithdrawModal} onOpenChange={setShowWithdrawModal} />
+      <DepositModal
+        open={activeModal === 'deposit'}
+        onOpenChange={(open) => setActiveModal(open ? 'deposit' : null)}
+      />
+      <WithdrawModal
+        open={activeModal === 'withdraw'}
+        onOpenChange={(open) => setActiveModal(open ? 'withdraw' : null)}
+      />
       {user && (
         <ExportPrivateKeyModal
-          open={showExportKeyModal}
-          onOpenChange={setShowExportKeyModal}
+          open={activeModal === 'export'}
+          onOpenChange={(open) => setActiveModal(open ? 'export' : null)}
           userId={user.id}
           balance={realSolBalance.toString()}
         />

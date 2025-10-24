@@ -470,7 +470,7 @@ export function WalletManager({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[80vh] overflow-hidden flex flex-col bg-white border-4 border-[var(--outline-black)] shadow-[8px_8px_0_var(--outline-black)]">
+      <DialogContent className="w-[95vw] max-w-2xl max-h-[85vh] sm:max-h-[80vh] overflow-hidden flex flex-col bg-white border-4 border-[var(--outline-black)] shadow-[8px_8px_0_var(--outline-black)] p-4 sm:p-6">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-2xl font-mario text-[var(--outline-black)]">
             <div className="h-8 w-8 rounded-lg bg-[var(--mario-red)] border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] flex items-center justify-center">
@@ -484,27 +484,30 @@ export function WalletManager({
         </DialogHeader>
 
         <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)} className="flex-1 overflow-hidden flex flex-col">
-          <TabsList className="grid w-full grid-cols-3 bg-white border-3 border-[var(--outline-black)] p-1.5 gap-2 flex-shrink-0 h-auto">
+          <TabsList className="grid w-full grid-cols-3 bg-white border-3 border-[var(--outline-black)] p-1 gap-1 sm:gap-2 flex-shrink-0 h-auto">
             <TabsTrigger
               value="tracked"
-              className="flex items-center justify-center gap-1.5 font-mario text-[11px] py-2 px-2 whitespace-nowrap data-[state=active]:bg-[var(--star-yellow)] data-[state=active]:text-[var(--outline-black)] data-[state=active]:border-2 data-[state=active]:border-[var(--outline-black)] data-[state=active]:shadow-[2px_2px_0_var(--outline-black)] rounded-md"
+              className="flex items-center justify-center gap-1 font-mario text-[10px] sm:text-[11px] py-1.5 sm:py-2 px-1 sm:px-2 whitespace-nowrap data-[state=active]:bg-[var(--star-yellow)] data-[state=active]:text-[var(--outline-black)] data-[state=active]:border-2 data-[state=active]:border-[var(--outline-black)] data-[state=active]:shadow-[2px_2px_0_var(--outline-black)] rounded-md"
             >
-              <Eye className="h-3.5 w-3.5 flex-shrink-0" />
-              <span>Tracked ({trackedWallets.length})</span>
+              <Eye className="h-3 w-3 sm:h-3.5 sm:w-3.5 flex-shrink-0" />
+              <span className="hidden sm:inline">Tracked ({trackedWallets.length})</span>
+              <span className="sm:hidden">{trackedWallets.length}</span>
             </TabsTrigger>
             <TabsTrigger
               value="add"
-              className="flex items-center justify-center gap-1.5 font-mario text-[11px] py-2 px-2 whitespace-nowrap data-[state=active]:bg-[var(--star-yellow)] data-[state=active]:text-[var(--outline-black)] data-[state=active]:border-2 data-[state=active]:border-[var(--outline-black)] data-[state=active]:shadow-[2px_2px_0_var(--outline-black)] rounded-md"
+              className="flex items-center justify-center gap-1 font-mario text-[10px] sm:text-[11px] py-1.5 sm:py-2 px-1 sm:px-2 whitespace-nowrap data-[state=active]:bg-[var(--star-yellow)] data-[state=active]:text-[var(--outline-black)] data-[state=active]:border-2 data-[state=active]:border-[var(--outline-black)] data-[state=active]:shadow-[2px_2px_0_var(--outline-black)] rounded-md"
             >
-              <UserPlus className="h-3.5 w-3.5 flex-shrink-0" />
-              <span>Add One</span>
+              <UserPlus className="h-3 w-3 sm:h-3.5 sm:w-3.5 flex-shrink-0" />
+              <span className="hidden sm:inline">Add One</span>
+              <span className="sm:hidden">+</span>
             </TabsTrigger>
             <TabsTrigger
               value="import"
-              className="flex items-center justify-center gap-1.5 font-mario text-[11px] py-2 px-2 whitespace-nowrap data-[state=active]:bg-[var(--star-yellow)] data-[state=active]:text-[var(--outline-black)] data-[state=active]:border-2 data-[state=active]:border-[var(--outline-black)] data-[state=active]:shadow-[2px_2px_0_var(--outline-black)] rounded-md"
+              className="flex items-center justify-center gap-1 font-mario text-[10px] sm:text-[11px] py-1.5 sm:py-2 px-1 sm:px-2 whitespace-nowrap data-[state=active]:bg-[var(--star-yellow)] data-[state=active]:text-[var(--outline-black)] data-[state=active]:border-2 data-[state=active]:border-[var(--outline-black)] data-[state=active]:shadow-[2px_2px_0_var(--outline-black)] rounded-md"
             >
-              <Sparkles className="h-3.5 w-3.5 flex-shrink-0" />
-              <span>Import</span>
+              <Sparkles className="h-3 w-3 sm:h-3.5 sm:w-3.5 flex-shrink-0" />
+              <span className="hidden sm:inline">Import</span>
+              <span className="sm:hidden">📥</span>
             </TabsTrigger>
           </TabsList>
 
@@ -611,11 +614,22 @@ export function WalletManager({
                                   ))}
                                   {editIcon && (
                                     <button
+                                      tabIndex={0}
                                       onClick={() => {
                                         setEditIcon("")
                                         setShowIconPicker(false)
                                       }}
-                                      className="h-10 rounded border-2 border-gray-300 flex items-center justify-center text-[9px] hover:bg-gray-100 transition-colors col-span-4 font-mario"
+                                      onKeyDown={(e) => {
+                                        if (e.key === 'Enter' || e.key === ' ') {
+                                          e.preventDefault()
+                                          setEditIcon("")
+                                          setShowIconPicker(false)
+                                        } else if (e.key === 'Escape') {
+                                          setShowIconPicker(false)
+                                        }
+                                      }}
+                                      className="h-12 rounded-lg border-2 border-[var(--mario-red)] bg-[var(--mario-red)] text-white hover:bg-[var(--mario-red)]/90 focus:bg-[var(--mario-red)]/90 focus:outline-none focus:ring-2 focus:ring-[var(--mario-red)] flex items-center justify-center text-xs font-mario col-span-4 px-2 py-1"
+                                      aria-label="Remove selected icon"
                                     >
                                       Remove Icon
                                     </button>
@@ -813,20 +827,31 @@ export function WalletManager({
 
                       {/* Icon Picker Dropdown */}
                       {showNewWalletIconPicker && (
-                        <div className="absolute top-12 left-0 z-50 bg-white rounded-lg border-3 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)] p-2 grid grid-cols-4 gap-1.5 min-w-[180px]">
+                        <div className="absolute top-12 left-0 z-[60] bg-white rounded-lg border-3 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)] p-2 grid grid-cols-4 gap-1.5 min-w-[180px]">
                           {MARIO_ICONS.map((icon) => (
                             <button
                               key={icon.id}
                               type="button"
+                              tabIndex={0}
                               onClick={() => {
                                 setNewWalletIcon(icon.id)
                                 setShowNewWalletIconPicker(false)
                               }}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter' || e.key === ' ') {
+                                  e.preventDefault()
+                                  setNewWalletIcon(icon.id)
+                                  setShowNewWalletIconPicker(false)
+                                } else if (e.key === 'Escape') {
+                                  setShowNewWalletIconPicker(false)
+                                }
+                              }}
                               className={cn(
-                                "h-10 w-10 rounded border-2 flex items-center justify-center hover:bg-gray-100 transition-colors p-1.5",
+                                "h-10 w-10 rounded border-2 flex items-center justify-center hover:bg-gray-100 focus:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-[var(--mario-red)] transition-colors p-1.5",
                                 newWalletIcon === icon.id ? "border-[var(--mario-red)] bg-[var(--mario-red)]/10" : "border-gray-300"
                               )}
                               title={icon.name}
+                              aria-label={`Select ${icon.name} icon`}
                             >
                               <Image
                                 src={icon.path}
@@ -840,11 +865,22 @@ export function WalletManager({
                           {newWalletIcon && (
                             <button
                               type="button"
+                              tabIndex={0}
                               onClick={() => {
                                 setNewWalletIcon("")
                                 setShowNewWalletIconPicker(false)
                               }}
-                              className="h-10 rounded border-2 border-gray-300 flex items-center justify-center text-[9px] hover:bg-gray-100 transition-colors col-span-4 font-mario"
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter' || e.key === ' ') {
+                                  e.preventDefault()
+                                  setNewWalletIcon("")
+                                  setShowNewWalletIconPicker(false)
+                                } else if (e.key === 'Escape') {
+                                  setShowNewWalletIconPicker(false)
+                                }
+                              }}
+                              className="h-12 rounded-lg border-2 border-[var(--mario-red)] bg-[var(--mario-red)] text-white hover:bg-[var(--mario-red)]/90 focus:bg-[var(--mario-red)]/90 focus:outline-none focus:ring-2 focus:ring-[var(--mario-red)] flex items-center justify-center text-xs font-mario col-span-4 px-2 py-1"
+                              aria-label="Remove selected icon"
                             >
                               Remove Icon
                             </button>

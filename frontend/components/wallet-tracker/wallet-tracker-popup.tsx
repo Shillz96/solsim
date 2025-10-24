@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { 
   X, 
@@ -43,6 +43,10 @@ export function WalletTrackerPopup({ isOpen, onClose }: WalletTrackerPopupProps)
   const queryClient = useQueryClient()
   const [activeTab, setActiveTab] = useState<"tracked" | "add">("tracked")
 
+  // Swipe to close state
+  const [touchStart, setTouchStart] = useState<number | null>(null)
+  const [touchEnd, setTouchEnd] = useState<number | null>(null)
+
   // Add wallet state
   const [newWalletAddress, setNewWalletAddress] = useState("")
   const [newWalletLabel, setNewWalletLabel] = useState("")
@@ -65,6 +69,17 @@ export function WalletTrackerPopup({ isOpen, onClose }: WalletTrackerPopupProps)
   useEffect(() => {
     localStorage.setItem('wallet-tracker-copy-percentage', copyTradePercentage.toString())
   }, [copyTradePercentage])
+
+  // Debounced slider update
+  const debounceRef = useRef<NodeJS.Timeout>()
+  const debouncedSetCopyTradePercentage = useCallback((value: number) => {
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current)
+    }
+    debounceRef.current = setTimeout(() => {
+      setCopyTradePercentage(value)
+    }, 100) // 100ms debounce
+  }, [])
 
   // Query for tracked wallets
   const {
@@ -100,48 +115,82 @@ export function WalletTrackerPopup({ isOpen, onClose }: WalletTrackerPopupProps)
     staleTime: 15000, // 15 seconds for activity
   })
 
-  // Load tracked wallets
-  const loadTrackedWallets = useCallback(async () => {
-    if (!user) {
-      setLoadingWallets(false)
-      return
-    }
-    
-    setLoadingWallets(true)
-    try {
+  // Mutation for adding wallet
+  const addWalletMutation = useMutation({
+    mutationFn: async ({ walletAddress, label }: { walletAddress: string, label?: string }) => {
       const userId = getUserId()
-      if (!userId) {
-        setLoadingWallets(false)
-        return
-      }
-      
-      const response = await api.getTrackedWallets(userId)
-      setTrackedWallets(response.trackedWallets)
-    } catch (error) {
-      console.error("Failed to load tracked wallets:", error)
-      // Show error but don't crash
-      setTrackedWallets([])
-    } finally {
-      setLoadingWallets(false)
+      if (!userId) throw new Error('User not authenticated')
+      return await api.trackWallet(userId, walletAddress, label)
+    },
+    onSuccess: () => {
+      refetchTrackedWallets()
+      toast({
+        title: "Success",
+        description: `Wallet ${newWalletLabel || newWalletAddress.slice(0, 8)} added to tracking`,
+      })
+      setNewWalletAddress("")
+      setNewWalletLabel("")
+      setActiveTab("tracked")
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to add wallet",
+        variant: "destructive"
+      })
     }
-  }, [user, getUserId])
+  })
 
-  // Load wallet activity
-  const loadWalletActivity = useCallback(async (walletAddress: string) => {
-    setLoadingActivity(true)
-    try {
-      const response = await api.getWalletActivity(walletAddress, 20)
-      setWalletActivity(response.activity)
-    } catch (error) {
-      console.error("Failed to load wallet activity:", error)
-      setWalletActivity([])
-    } finally {
-      setLoadingActivity(false)
+  // Mutation for removing wallet
+  const removeWalletMutation = useMutation({
+    mutationFn: async (trackingId: string) => {
+      return await api.untrackWallet(trackingId)
+    },
+    onSuccess: () => {
+      refetchTrackedWallets()
+      toast({
+        title: "Success",
+        description: "Wallet removed from tracking"
+      })
+      if (selectedWallet) {
+        setSelectedWallet(null)
+      }
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to remove wallet",
+        variant: "destructive"
+      })
     }
-  }, [])
+  })
+
+  // Mutation for copying trade
+  const copyTradeMutation = useMutation({
+    mutationFn: async ({ walletAddress, signature, percentage }: { walletAddress: string, signature: string, percentage: number }) => {
+      const userId = getUserId()
+      if (!userId) throw new Error('User not authenticated')
+      return await api.copyTrade(userId, walletAddress, signature, percentage)
+    },
+    onSuccess: (_, { percentage }) => {
+      setCopyingTrade(null)
+      toast({
+        title: "Trade Copied!",
+        description: `Successfully copied trade at ${percentage}% size`,
+      })
+    },
+    onError: (error: any) => {
+      setCopyingTrade(null)
+      toast({
+        title: "Error",
+        description: error.message || "Failed to copy trade",
+        variant: "destructive"
+      })
+    }
+  })
 
   // Add wallet to tracking
-  const handleAddWallet = async () => {
+  const handleAddWallet = () => {
     if (!user || !newWalletAddress.trim()) {
       toast({
         title: "Error",
@@ -151,57 +200,19 @@ export function WalletTrackerPopup({ isOpen, onClose }: WalletTrackerPopupProps)
       return
     }
 
-    setIsAddingWallet(true)
-    try {
-      const userId = getUserId()
-      if (!userId) return
-
-      await api.trackWallet(userId, newWalletAddress.trim(), newWalletLabel.trim() || undefined)
-      
-      toast({
-        title: "Success",
-        description: `Wallet ${newWalletLabel || newWalletAddress.slice(0, 8)} added to tracking`,
-      })
-      
-      setNewWalletAddress("")
-      setNewWalletLabel("")
-      await loadTrackedWallets()
-      setActiveTab("tracked")
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to add wallet",
-        variant: "destructive"
-      })
-    } finally {
-      setIsAddingWallet(false)
-    }
+    addWalletMutation.mutate({
+      walletAddress: newWalletAddress.trim(),
+      label: newWalletLabel.trim() || undefined
+    })
   }
 
   // Remove wallet from tracking
-  const handleRemoveWallet = async (trackingId: string) => {
-    try {
-      await api.untrackWallet(trackingId)
-      toast({
-        title: "Success",
-        description: "Wallet removed from tracking"
-      })
-      await loadTrackedWallets()
-      if (selectedWallet) {
-        setSelectedWallet(null)
-        setWalletActivity([])
-      }
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to remove wallet",
-        variant: "destructive"
-      })
-    }
+  const handleRemoveWallet = (trackingId: string) => {
+    removeWalletMutation.mutate(trackingId)
   }
 
   // Copy trade
-  const handleCopyTrade = async (walletAddress: string, signature: string) => {
+  const handleCopyTrade = (walletAddress: string, signature: string) => {
     if (!user) {
       toast({
         title: "Error",
@@ -212,37 +223,41 @@ export function WalletTrackerPopup({ isOpen, onClose }: WalletTrackerPopupProps)
     }
 
     setCopyingTrade(signature)
-    try {
-      const userId = getUserId()
-      if (!userId) return
+    copyTradeMutation.mutate({
+      walletAddress,
+      signature,
+      percentage: copyTradePercentage
+    })
+  }
 
-      const response = await api.copyTrade(userId, walletAddress, signature, copyTradePercentage)
-      
-      toast({
-        title: "Trade Copied!",
-        description: `Successfully copied trade at ${copyTradePercentage}% size`,
-      })
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to copy trade",
-        variant: "destructive"
-      })
-    } finally {
-      setCopyingTrade(null)
+  // Swipe to close functionality
+  const minSwipeDistance = 50
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null)
+    setTouchStart(e.targetTouches[0].clientY)
+  }
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientY)
+  }
+
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) return
+
+    const distance = touchStart - touchEnd
+    const isDownSwipe = distance < -minSwipeDistance
+
+    if (isDownSwipe) {
+      onClose()
     }
   }
 
-  // Prevent body scroll and load data when popup is opened
+  // Prevent body scroll when popup is opened
   useEffect(() => {
     if (isOpen) {
       // Prevent body scroll
       document.body.style.overflow = 'hidden'
-
-      // Load data if user is available
-      if (user) {
-        loadTrackedWallets()
-      }
     } else {
       // Restore body scroll when closed
       document.body.style.overflow = ''
@@ -252,14 +267,7 @@ export function WalletTrackerPopup({ isOpen, onClose }: WalletTrackerPopupProps)
     return () => {
       document.body.style.overflow = ''
     }
-  }, [isOpen, user])  // Removed loadTrackedWallets from dependencies
-
-  // Load activity when wallet selected
-  useEffect(() => {
-    if (selectedWallet) {
-      loadWalletActivity(selectedWallet)
-    }
-  }, [selectedWallet])  // Removed loadWalletActivity from dependencies
+  }, [isOpen])
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text)
@@ -289,10 +297,17 @@ export function WalletTrackerPopup({ isOpen, onClose }: WalletTrackerPopupProps)
             exit={{ y: "100%", opacity: 0 }}
             transition={{ type: "spring", damping: 30, stiffness: 300 }}
             className="fixed bottom-0 left-0 right-0 z-[101] max-h-[85vh] bg-background border-t-2 border-border rounded-t-2xl shadow-2xl overflow-hidden"
+            role="dialog"
+            aria-label="Wallet tracker"
           >
             <div className="flex flex-col h-full max-h-[85vh]">
               {/* Header */}
-              <div className="flex items-center justify-between p-4 border-b border-border bg-muted/30">
+              <div
+                className="flex items-center justify-between p-4 border-b border-border bg-muted/30 touch-none"
+                onTouchStart={onTouchStart}
+                onTouchMove={onTouchMove}
+                onTouchEnd={onTouchEnd}
+              >
                 <div className="flex items-center gap-3">
                   <div className="p-2 bg-primary/10 rounded-lg">
                     <Eye className="h-5 w-5 text-primary" />
@@ -424,7 +439,7 @@ export function WalletTrackerPopup({ isOpen, onClose }: WalletTrackerPopupProps)
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => loadWalletActivity(selectedWallet)}
+                            onClick={() => refetchWalletActivity()}
                             disabled={loadingActivity}
                           >
                             {loadingActivity ? (
@@ -442,7 +457,8 @@ export function WalletTrackerPopup({ isOpen, onClose }: WalletTrackerPopupProps)
                             <div className="flex items-center gap-4">
                               <Slider
                                 value={[copyTradePercentage]}
-                                onValueChange={(v) => setCopyTradePercentage(v[0])}
+                                onValueChange={(v) => debouncedSetCopyTradePercentage(v[0])}
+                                onValueCommit={(v) => setCopyTradePercentage(v[0])}
                                 min={1}
                                 max={100}
                                 step={1}
@@ -497,10 +513,10 @@ export function WalletTrackerPopup({ isOpen, onClose }: WalletTrackerPopupProps)
                                   <Button
                                     size="sm"
                                     onClick={() => handleCopyTrade(selectedWallet, activity.signature)}
-                                    disabled={copyingTrade === activity.signature}
+                                    disabled={copyTradeMutation.isPending}
                                     className="gap-2"
                                   >
-                                    {copyingTrade === activity.signature ? (
+                                    {copyTradeMutation.isPending ? (
                                       <Loader2 className="h-3 w-3 animate-spin" />
                                     ) : (
                                       <Copy className="h-3 w-3" />
@@ -541,10 +557,10 @@ export function WalletTrackerPopup({ isOpen, onClose }: WalletTrackerPopupProps)
                         </div>
                         <Button
                           onClick={handleAddWallet}
-                          disabled={isAddingWallet || !newWalletAddress.trim()}
+                          disabled={addWalletMutation.isPending || !newWalletAddress.trim()}
                           className="w-full gap-2"
                         >
-                          {isAddingWallet ? (
+                          {addWalletMutation.isPending ? (
                             <>
                               <Loader2 className="h-4 w-4 animate-spin" />
                               Adding...

@@ -64,7 +64,7 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
   useWindowTemplate({
     id: 'wallet-tracker',
     title: '👀 Wallet Tracker',
-    content: () => <WalletTrackerContent key={Date.now()} compact={true} />,
+    content: () => <WalletTrackerContent compact={true} />,
     defaultBounds: { x: 100, y: 100, width: 900, height: 600 }
   });
 
@@ -86,7 +86,7 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
       openWindow({
         id: 'wallet-tracker',
         title: '👀 Wallet Tracker',
-        content: <WalletTrackerContent key={Date.now()} compact={true} />,
+        content: <WalletTrackerContent compact={true} />,
         x: 100,
         y: 100,
         width: 900,
