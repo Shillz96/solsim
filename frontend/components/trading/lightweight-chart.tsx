@@ -18,19 +18,24 @@ import {
   createChart,
   CandlestickSeries,
   HistogramSeries,
+  LineSeries,
+  AreaSeries,
   type IChartApi,
   type ISeriesApi,
   type CandlestickData,
+  type LineData,
   type Time,
   type SeriesMarker,
+  type MouseEventParams,
   ColorType,
   LineStyle,
 } from 'lightweight-charts'
 import { cn } from '@/lib/utils'
-import { Loader2 } from 'lucide-react'
+import { Loader2, TrendingUp, TrendingDown } from 'lucide-react'
 import { useTradeMarkers } from '@/hooks/useTradeMarkers'
 import { useAverageCostLine } from '@/hooks/useAverageCostLine'
 import { usePriceStreamContext } from '@/lib/price-stream-provider'
+import { calculateSMA, calculateEMA, type PriceData } from '@/lib/indicators'
 
 interface LightweightChartProps {
   tokenMint: string
@@ -39,6 +44,16 @@ interface LightweightChartProps {
 }
 
 type Timeframe = '1s' | '1m' | '5m' | '15m' | '1h' | '4h' | '1d'
+type ChartType = 'candlestick' | 'line' | 'area'
+
+interface TooltipData {
+  time: Time
+  open: number
+  high: number
+  low: number
+  close: number
+  volume?: number
+}
 
 /**
  * Convert timeframe to seconds for candle alignment
@@ -66,11 +81,19 @@ export function LightweightChart({
   const candlestickSeriesRef = useRef<ISeriesApi<'Candlestick'> | null>(null)
   const volumeSeriesRef = useRef<ISeriesApi<'Histogram'> | null>(null)
   const lastCandleRef = useRef<CandlestickData | null>(null) // Track last candle for proper high/low updates
+  const smaSeriesRef = useRef<ISeriesApi<'Line'> | null>(null)
+  const emaSeriesRef = useRef<ISeriesApi<'Line'> | null>(null)
 
   const [timeframe, setTimeframe] = useState<Timeframe>('1s')
+  const [chartType, setChartType] = useState<ChartType>('candlestick')
   const [isLoading, setIsLoading] = useState(true)
   const [dataSource, setDataSource] = useState<'birdeye' | 'mock' | null>(null)
   const [isMobile, setIsMobile] = useState(false)
+  const [tooltipData, setTooltipData] = useState<TooltipData | null>(null)
+  const [priceChange24h, setPriceChange24h] = useState<number>(0)
+  const [openPrice24h, setOpenPrice24h] = useState<number>(0)
+  const [showSMA, setShowSMA] = useState(false)
+  const [showEMA, setShowEMA] = useState(false)
 
   // Get real-time price updates via WebSocket
   const { prices, subscribe, unsubscribe } = usePriceStreamContext()
@@ -170,21 +193,49 @@ export function LightweightChart({
       },
     })
 
-    // Candlestick series with vibrant colors for dark background
-    const candlestickSeries = chart.addSeries(CandlestickSeries, {
-      upColor: '#26a69a', // Vibrant teal green
-      downColor: '#ef5350', // Vibrant red
-      borderUpColor: '#26a69a',
-      borderDownColor: '#ef5350',
-      wickUpColor: '#26a69a',
-      wickDownColor: '#ef5350',
-      borderVisible: false, // No borders for cleaner look
-      lastValueVisible: true,
-      priceLineVisible: true,
-      priceLineWidth: 2,
-      priceLineColor: '#4E5057',
-      priceLineStyle: LineStyle.Solid,
-    })
+    // Create main series based on chart type
+    let candlestickSeries: ISeriesApi<any>
+
+    if (chartType === 'candlestick') {
+      candlestickSeries = chart.addSeries(CandlestickSeries, {
+        upColor: '#26a69a', // Vibrant teal green
+        downColor: '#ef5350', // Vibrant red
+        borderUpColor: '#26a69a',
+        borderDownColor: '#ef5350',
+        wickUpColor: '#26a69a',
+        wickDownColor: '#ef5350',
+        borderVisible: false, // No borders for cleaner look
+        lastValueVisible: true,
+        priceLineVisible: true,
+        priceLineWidth: 2,
+        priceLineColor: '#4E5057',
+        priceLineStyle: LineStyle.Solid,
+      })
+    } else if (chartType === 'line') {
+      candlestickSeries = chart.addSeries(LineSeries, {
+        color: '#26a69a',
+        lineWidth: 2,
+        lastValueVisible: true,
+        priceLineVisible: true,
+        crosshairMarkerVisible: true,
+        crosshairMarkerRadius: 4,
+        crosshairMarkerBorderColor: '#26a69a',
+        crosshairMarkerBackgroundColor: '#26a69a',
+      })
+    } else { // 'area'
+      candlestickSeries = chart.addSeries(AreaSeries, {
+        topColor: 'rgba(38, 166, 154, 0.4)',
+        bottomColor: 'rgba(38, 166, 154, 0.0)',
+        lineColor: '#26a69a',
+        lineWidth: 2,
+        lastValueVisible: true,
+        priceLineVisible: true,
+        crosshairMarkerVisible: true,
+        crosshairMarkerRadius: 4,
+        crosshairMarkerBorderColor: '#26a69a',
+        crosshairMarkerBackgroundColor: '#26a69a',
+      })
+    }
 
     // Volume histogram (v5 API)
     const volumeSeries = chart.addSeries(HistogramSeries, {
@@ -211,6 +262,28 @@ export function LightweightChart({
 
     console.log('📊 Chart initialized')
 
+    // Subscribe to crosshair move for OHLCV tooltip
+    chart.subscribeCrosshairMove((param: MouseEventParams) => {
+      if (!param.time || !param.seriesData) {
+        setTooltipData(null)
+        return
+      }
+
+      const candleData = param.seriesData.get(candlestickSeries) as CandlestickData | undefined
+      const volumeData = param.seriesData.get(volumeSeries) as { value: number } | undefined
+
+      if (candleData) {
+        setTooltipData({
+          time: param.time,
+          open: candleData.open,
+          high: candleData.high,
+          low: candleData.low,
+          close: candleData.close,
+          volume: volumeData?.value,
+        })
+      }
+    })
+
     // Handle resize
     const resizeObserver = new ResizeObserver((entries) => {
       if (entries.length === 0 || !chartRef.current) return
@@ -234,7 +307,7 @@ export function LightweightChart({
       // Now safe to remove chart
       chart.remove()
     }
-  }, [isMobile])
+  }, [isMobile, chartType]) // Recreate chart when type changes
 
   // Load historical data when timeframe changes
   useEffect(() => {
@@ -263,7 +336,26 @@ export function LightweightChart({
           // Set data source
           setDataSource(json.source || 'birdeye')
 
-          // Transform to Lightweight Charts format
+          // Transform to Lightweight Charts format based on chart type
+          let seriesData: any[]
+
+          if (chartType === 'candlestick') {
+            seriesData = json.data.items.map((item: any) => ({
+              time: item.unixTime as Time,
+              open: parseFloat(item.o),
+              high: parseFloat(item.h),
+              low: parseFloat(item.l),
+              close: parseFloat(item.c),
+            }))
+          } else {
+            // For line and area charts, use close price
+            seriesData = json.data.items.map((item: any) => ({
+              time: item.unixTime as Time,
+              value: parseFloat(item.c), // Use close price
+            }))
+          }
+
+          // Keep candlestick data for calculations
           const candlesticks: CandlestickData[] = json.data.items.map((item: any) => ({
             time: item.unixTime as Time,
             open: parseFloat(item.o),
@@ -282,13 +374,20 @@ export function LightweightChart({
 
           // Only update if component is still mounted (prevents "Object is disposed" errors)
           if (isMounted && candlestickSeriesRef.current && volumeSeriesRef.current) {
-            // Set data
-            candlestickSeriesRef.current.setData(candlesticks)
+            // Set data (use seriesData which is formatted for the current chart type)
+            candlestickSeriesRef.current.setData(seriesData)
             volumeSeriesRef.current.setData(volumes)
 
             // Store last candle for real-time updates
             if (candlesticks.length > 0) {
               lastCandleRef.current = candlesticks[candlesticks.length - 1]
+
+              // Calculate 24h price change
+              const latestClose = candlesticks[candlesticks.length - 1].close
+              const oldestOpen = candlesticks[0].open
+              setOpenPrice24h(oldestOpen)
+              const change = ((latestClose - oldestOpen) / oldestOpen) * 100
+              setPriceChange24h(change)
             }
 
             // Fit content
@@ -368,7 +467,17 @@ export function LightweightChart({
 
       // Double-check series still exists before updating (race condition guard)
       if (candlestickSeriesRef.current) {
-        candlestickSeriesRef.current.update(updatedCandle)
+        // Update series based on chart type
+        if (chartType === 'candlestick') {
+          candlestickSeriesRef.current.update(updatedCandle)
+        } else {
+          // For line/area charts, just use the close price
+          candlestickSeriesRef.current.update({
+            time: alignedTime as Time,
+            value: currentPrice,
+          } as LineData)
+        }
+
         // Store for next update
         lastCandleRef.current = updatedCandle
         console.log(`📊 Updated chart with real-time price: $${currentPrice.toFixed(8)}`)
@@ -379,14 +488,60 @@ export function LightweightChart({
         console.error('Failed to update real-time price on chart:', error)
       }
     }
-  }, [tokenPrice, timeframe])
+  }, [tokenPrice, timeframe, chartType])
 
   const timeframes: Timeframe[] = ['1s', '1m', '5m', '15m', '1h', '4h', '1d']
+  const chartTypes: { type: ChartType; label: string }[] = [
+    { type: 'candlestick', label: 'Candles' },
+    { type: 'line', label: 'Line' },
+    { type: 'area', label: 'Area' },
+  ]
+
+  const currentPrice = tokenPrice?.price || lastCandleRef.current?.close || 0
+  const priceChangePercent = priceChange24h
 
   return (
     <div className={cn('space-y-2', className)}>
-      {/* Timeframe Selector */}
-      <div className="flex gap-1.5 md:gap-2 flex-wrap">
+      {/* Token Info Header */}
+      <div className="flex items-center justify-between p-3 bg-[#0A0A0F] border-3 border-[#2B2B43] rounded-[12px] shadow-[4px_4px_0_rgba(0,0,0,0.5)]">
+        <div>
+          <h3 className="text-white font-bold text-sm md:text-base">{tokenSymbol}/USD</h3>
+          <p className="text-xs text-gray-400">Real-time Price</p>
+        </div>
+        <div className="text-right">
+          <p className="text-xl md:text-2xl font-bold font-mono text-white">
+            ${currentPrice.toFixed(currentPrice < 0.01 ? 8 : 4)}
+          </p>
+          {priceChangePercent !== 0 && (
+            <div className={cn('flex items-center gap-1 text-sm font-bold justify-end', priceChangePercent >= 0 ? 'text-[#26a69a]' : 'text-[#ef5350]')}>
+              {priceChangePercent >= 0 ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
+              <span>{priceChangePercent >= 0 ? '+' : ''}{priceChangePercent.toFixed(2)}%</span>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Chart Type & Timeframe Selector */}
+      <div className="flex gap-1.5 md:gap-2 flex-wrap items-center">
+        {/* Chart Type Selector */}
+        <div className="flex gap-1 md:gap-1.5 border-r-2 border-[var(--outline-black)] pr-2 mr-1">
+          {chartTypes.map(({ type, label }) => (
+            <button
+              key={type}
+              onClick={() => setChartType(type)}
+              className={cn(
+                'px-2 md:px-2.5 py-1 md:py-1.5 text-[10px] md:text-xs font-bold rounded-lg border-2 border-[var(--outline-black)] transition-all',
+                chartType === type
+                  ? 'bg-[var(--luigi-green)] text-white shadow-[2px_2px_0_var(--outline-black)]'
+                  : 'bg-white hover:bg-gray-100 shadow-[1px_1px_0_var(--outline-black)]'
+              )}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+
+        {/* Timeframe Selector */}
         {timeframes.map((tf) => (
           <button
             key={tf}
@@ -424,14 +579,51 @@ export function LightweightChart({
       </div>
 
       {/* Chart Container */}
-      <div
-        ref={chartContainerRef}
-        className="border-3 md:border-4 border-[#2B2B43] rounded-[12px] md:rounded-[16px] shadow-[4px_4px_0_rgba(0,0,0,0.5)] md:shadow-[6px_6px_0_rgba(0,0,0,0.5)] bg-[#0A0A0F] overflow-hidden touch-pan-x touch-pan-y"
-        style={{
-          minHeight: isMobile ? '350px' : '500px',
-          touchAction: 'pan-x pan-y', // Better touch handling
-        }}
-      />
+      <div className="relative">
+        <div
+          ref={chartContainerRef}
+          className="border-3 md:border-4 border-[#2B2B43] rounded-[12px] md:rounded-[16px] shadow-[4px_4px_0_rgba(0,0,0,0.5)] md:shadow-[6px_6px_0_rgba(0,0,0,0.5)] bg-[#0A0A0F] overflow-hidden touch-pan-x touch-pan-y"
+          style={{
+            minHeight: isMobile ? '350px' : '500px',
+            touchAction: 'pan-x pan-y', // Better touch handling
+          }}
+        />
+
+        {/* OHLCV Tooltip Overlay */}
+        {tooltipData && (
+          <div className="absolute top-2 left-2 md:top-3 md:left-3 bg-[#0A0A0F]/90 backdrop-blur-sm border-2 border-[#2B2B43] rounded-lg p-2 md:p-3 pointer-events-none z-10 shadow-[2px_2px_0_rgba(0,0,0,0.5)]">
+            <div className="grid grid-cols-2 gap-x-3 md:gap-x-4 gap-y-1 text-xs md:text-sm font-mono">
+              <div className="text-gray-400">O</div>
+              <div className="text-white font-bold">${tooltipData.open.toFixed(tooltipData.open < 0.01 ? 8 : 4)}</div>
+
+              <div className="text-gray-400">H</div>
+              <div className="text-[#26a69a] font-bold">${tooltipData.high.toFixed(tooltipData.high < 0.01 ? 8 : 4)}</div>
+
+              <div className="text-gray-400">L</div>
+              <div className="text-[#ef5350] font-bold">${tooltipData.low.toFixed(tooltipData.low < 0.01 ? 8 : 4)}</div>
+
+              <div className="text-gray-400">C</div>
+              <div className={cn('font-bold', tooltipData.close >= tooltipData.open ? 'text-[#26a69a]' : 'text-[#ef5350]')}>
+                ${tooltipData.close.toFixed(tooltipData.close < 0.01 ? 8 : 4)}
+              </div>
+
+              {tooltipData.volume && (
+                <>
+                  <div className="text-gray-400">Vol</div>
+                  <div className="text-[#A6D8FF] font-bold">
+                    {tooltipData.volume >= 1000000
+                      ? `${(tooltipData.volume / 1000000).toFixed(2)}M`
+                      : tooltipData.volume >= 1000
+                      ? `${(tooltipData.volume / 1000).toFixed(2)}K`
+                      : tooltipData.volume.toFixed(0)
+                    }
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
 
       {/* Chart Info */}
       <div className="flex justify-between text-[10px] text-muted-foreground px-2 gap-2">
