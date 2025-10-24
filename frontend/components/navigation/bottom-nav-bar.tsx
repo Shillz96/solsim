@@ -386,7 +386,7 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
                 trigger={
                   <div className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg bg-transparent hover:bg-white/10 transition-colors">
                     <div className="flex items-center gap-1.5">
-                      <div className="relative w-5 h-5">
+                      <div className="relative w-7 h-7 animate-bounce">
                         <Image
                           src="/icons/market-data.png"
                           alt="Market Data"
@@ -558,7 +558,7 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
                 trigger={
                   <div className="flex items-center gap-1.5 md:gap-2 px-2 md:px-3 py-1 md:py-1.5 rounded-lg bg-transparent hover:bg-white/10 transition-colors">
                     <div className="flex items-center gap-1 md:gap-1.5">
-                      <div className="relative w-5 h-5">
+                      <div className="relative w-7 h-7 animate-bounce">
                         <Image
                           src="/icons/market-data.png"
                           alt="Market Data"
