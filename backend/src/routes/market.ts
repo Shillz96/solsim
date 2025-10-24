@@ -136,20 +136,77 @@ export default async function marketRoutes(app: FastifyInstance) {
     }
 
     try {
-      // Check Redis cache first
+      // Check Redis cache first (cache for 5 minutes)
       const cached = await redis.get(`market:holders:${mint}`);
       if (cached) {
         return JSON.parse(cached);
       }
 
-      // TODO: Implement Helius API call to get token holders
-      // For now, return placeholder
-      return {
-        holders: [],
-        totalSupply: 0,
-        holderCount: 0,
-        message: 'Holder data coming soon'
+      // Fetch token holders from Helius
+      const heliusUrl = process.env.HELIUS_RPC_URL;
+      if (!heliusUrl) {
+        app.log.warn('HELIUS_RPC_URL not configured');
+        return {
+          holders: [],
+          totalSupply: 0,
+          holderCount: 0,
+          message: 'Holder data service unavailable'
+        };
+      }
+
+      // Get token accounts for this mint
+      const response = await fetch(heliusUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          id: 1,
+          method: 'getTokenLargestAccounts',
+          params: [mint]
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`Helius API error: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      if (data.error) {
+        app.log.error({ error: data.error }, 'Helius API error');
+        return {
+          holders: [],
+          totalSupply: 0,
+          holderCount: 0,
+          message: 'Failed to fetch holder data'
+        };
+      }
+
+      const accounts = data.result?.value || [];
+      const totalSupply = accounts.reduce((sum: number, acc: any) =>
+        sum + Number(acc.amount), 0
+      );
+
+      // Transform to holder format
+      const holders = accounts
+        .slice(0, parseInt(limit))
+        .map((acc: any, index: number) => ({
+          address: acc.address,
+          balance: acc.amount,
+          percentage: totalSupply > 0 ? (Number(acc.amount) / totalSupply) * 100 : 0,
+          rank: index + 1
+        }));
+
+      const result = {
+        holders,
+        totalSupply: totalSupply.toString(),
+        holderCount: accounts.length,
       };
+
+      // Cache for 5 minutes
+      await redis.setex(`market:holders:${mint}`, 300, JSON.stringify(result));
+
+      return result;
     } catch (error: any) {
       app.log.error(error);
       return reply.code(500).send({ error: error.message || 'Failed to fetch holders' });

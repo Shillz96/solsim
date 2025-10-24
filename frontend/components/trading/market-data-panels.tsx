@@ -199,24 +199,57 @@ function TopTradersPanel({ tokenMint }: { tokenMint: string }) {
 
 // Holders Panel
 function HoldersPanel({ tokenMint }: { tokenMint: string }) {
-  const { data: holders = [], isLoading } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: ['holders', tokenMint],
     queryFn: () => api.getTokenHolders(tokenMint),
     staleTime: 300000, // 5 minutes
   })
 
+  const holders = data?.holders || []
+  const totalSupply = data?.totalSupply ? parseFloat(data.totalSupply) : 0
+  const holderCount = data?.holderCount || 0
+
   return (
     <div className="border-4 border-[var(--outline-black)] rounded-[16px] shadow-[4px_4px_0_var(--outline-black)] bg-white p-4 min-h-[200px]">
       <div className="flex items-center gap-2 mb-4">
         <Users className="h-4 w-4 text-[var(--sky-blue)]" />
-        <h3 className="font-bold text-sm">Token Holders</h3>
+        <h3 className="font-bold text-sm">Top Token Holders</h3>
+        {holderCount > 0 && (
+          <span className="text-xs text-muted-foreground">({holderCount} total)</span>
+        )}
       </div>
 
-      <div className="text-sm text-muted-foreground text-center py-8">
-        <div className="mb-2">💎</div>
-        <div className="font-bold mb-1">Holder distribution coming soon</div>
-        <div className="text-xs">Top 20 wallets and supply percentage</div>
-      </div>
+      {isLoading ? (
+        <div className="flex items-center justify-center py-8">
+          <Loader2 className="h-5 w-5 animate-spin text-[var(--outline-black)]" />
+        </div>
+      ) : holders.length === 0 ? (
+        <div className="text-sm text-muted-foreground text-center py-8">
+          <div className="mb-2">💎</div>
+          <div className="font-bold mb-1">No holder data available</div>
+          <div className="text-xs">Data will appear once available</div>
+        </div>
+      ) : (
+        <div className="space-y-2 max-h-[400px] overflow-y-auto">
+          {holders.map((holder: any) => (
+            <div key={holder.address} className="flex items-center justify-between p-2 bg-muted/50 rounded-lg">
+              <div className="flex items-center gap-2 min-w-0 flex-1">
+                <div className={cn(
+                  "text-xs font-bold shrink-0",
+                  holder.rank === 1 ? "text-[var(--star-yellow)]" : "text-muted-foreground"
+                )}>
+                  #{holder.rank}
+                </div>
+                <div className="text-xs font-mono truncate">{holder.address.slice(0, 8)}...{holder.address.slice(-6)}</div>
+              </div>
+              <div className="text-right shrink-0">
+                <div className="text-xs font-bold">{holder.percentage.toFixed(2)}%</div>
+                <div className="text-[10px] text-muted-foreground">{formatTokenQuantity(holder.balance)}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   )
 }
