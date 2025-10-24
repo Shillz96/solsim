@@ -337,23 +337,24 @@ function UserSettingsPage() {
   const avatarUrl = profile?.avatarUrl
 
   return (
-    <div className="container max-w-4xl mx-auto py-8 pb-24 space-y-6">
-      {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold">Account Settings</h1>
-        <p className="text-muted-foreground">Manage your profile and preferences</p>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
+      <div className="container max-w-4xl mx-auto py-8 pb-24 space-y-6">
+        {/* Header */}
+        <div className="mario-header-card">
+          <h1 className="mario-title-standard">Account Settings</h1>
+          <p className="mario-subtitle-standard">Manage your profile and preferences</p>
+        </div>
 
       {/* Avatar Section */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+      <div className="mario-card-standard">
+        <div className="mario-header-card mb-6">
+          <h2 className="mario-title-standard flex items-center gap-2">
             <Camera className="h-5 w-5" />
             Profile Picture
-          </CardTitle>
-          <CardDescription>Update your avatar image</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
+          </h2>
+          <p className="mario-subtitle-standard">Update your avatar image</p>
+        </div>
+        <div className="p-6 space-y-4">
           <div className="flex items-center gap-6">
             <Avatar className="h-24 w-24 border-2 border-border">
               <AvatarImage src={avatarUrl} alt={displayHandle || 'User'} />
@@ -367,7 +368,7 @@ function UserSettingsPage() {
                   onClick={() => fileInputRef.current?.click()}
                   disabled={uploadAvatarMutation.isPending}
                   size="sm"
-                  variant="outline"
+                  className="mario-btn-standard"
                 >
                   <Upload className="h-4 w-4 mr-2" />
                   {uploadAvatarMutation.isPending ? 'Uploading...' : 'Upload New'}
@@ -376,8 +377,8 @@ function UserSettingsPage() {
                   <Button
                     onClick={() => removeAvatarMutation.mutate()}
                     disabled={removeAvatarMutation.isPending}
-                    variant="outline"
                     size="sm"
+                    className="mario-btn-standard"
                   >
                     <Trash2 className="h-4 w-4 mr-2" />
                     {removeAvatarMutation.isPending ? 'Removing...' : 'Remove'}
@@ -399,19 +400,19 @@ function UserSettingsPage() {
             }}
             className="hidden"
           />
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       {/* Profile Information */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+      <div className="mario-card-standard">
+        <div className="mario-header-card mb-6">
+          <h2 className="mario-title-standard flex items-center gap-2">
             <User className="h-5 w-5" />
             Profile Information
-          </CardTitle>
-          <CardDescription>Update your personal information</CardDescription>
-        </CardHeader>
-        <CardContent>
+          </h2>
+          <p className="mario-subtitle-standard">Update your personal information</p>
+        </div>
+        <div className="p-6">
           <form onSubmit={(e) => {
             e.preventDefault()
             updateProfileMutation.mutate(profileData)
@@ -535,29 +536,30 @@ function UserSettingsPage() {
               <Button
                 type="submit"
                 disabled={updateProfileMutation.isPending}
+                className="mario-btn-standard"
               >
                 <Save className="h-4 w-4 mr-2" />
                 {updateProfileMutation.isPending ? 'Saving...' : 'Save Profile'}
               </Button>
             </div>
           </form>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       {/* Security Settings */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+      <div className="mario-card-standard">
+        <div className="mario-header-card mb-6">
+          <h2 className="mario-title-standard flex items-center gap-2">
             <Shield className="h-5 w-5" />
             Security
-          </CardTitle>
-          <CardDescription>Change your password and manage security</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={(e) => {
+          </h2>
+          <p className="mario-subtitle-standard">Change your password and manage security</p>
+        </div>
+        <div className="p-6">
+          <form onSubmit={(e => {
             e.preventDefault()
             changePasswordMutation.mutate()
-          }} className="space-y-4">
+          })} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="currentPassword">Current Password</Label>
               <div className="relative">
@@ -628,25 +630,26 @@ function UserSettingsPage() {
               <Button
                 type="submit"
                 disabled={changePasswordMutation.isPending || !passwordData.currentPassword || !passwordData.newPassword}
+                className="mario-btn-standard"
               >
                 <Lock className="h-4 w-4 mr-2" />
                 {changePasswordMutation.isPending ? 'Changing...' : 'Change Password'}
               </Button>
             </div>
           </form>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       {/* App Settings */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+      <div className="mario-card-standard">
+        <div className="mario-header-card mb-6">
+          <h2 className="mario-title-standard flex items-center gap-2">
             <Settings className="h-5 w-5" />
             Preferences
-          </CardTitle>
-          <CardDescription>Customize your app experience</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
+          </h2>
+          <p className="mario-subtitle-standard">Customize your app experience</p>
+        </div>
+        <div className="p-6 space-y-6">
           {/* Notifications */}
           <div>
             <h4 className="text-sm font-medium mb-3 flex items-center gap-2">
@@ -870,20 +873,20 @@ function UserSettingsPage() {
           </div>
 
           <div className="flex justify-end">
-            <Button onClick={handleSettingsUpdate}>
+            <Button onClick={handleSettingsUpdate} className="mario-btn-standard">
               <Save className="h-4 w-4 mr-2" />
               Save Preferences
             </Button>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       {/* Account Info */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Account Information</CardTitle>
-        </CardHeader>
-        <CardContent>
+      <div className="mario-card-standard">
+        <div className="mario-header-card mb-6">
+          <h2 className="mario-title-standard">Account Information</h2>
+        </div>
+        <div className="p-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div>
               <p className="text-sm text-muted-foreground">Account Type</p>
@@ -912,21 +915,21 @@ function UserSettingsPage() {
               </p>
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       {/* Purchase Simulated SOL Section */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+      <div className="mario-card-standard">
+        <div className="mario-header-card mb-6">
+          <h2 className="mario-title-standard flex items-center gap-2">
             <ShoppingCart className="h-5 w-5" />
             Purchase Simulated SOL
-          </CardTitle>
-          <CardDescription>
+          </h2>
+          <p className="mario-subtitle-standard">
             Add more simulated SOL to your trading balance with real SOL
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
+          </p>
+        </div>
+        <div className="p-6 space-y-6">
           {/* Current Balance Display */}
           <div className="bg-gradient-to-br from-primary/10 to-primary/5 rounded-lg p-6">
             <div className="flex items-center justify-between">
@@ -947,7 +950,7 @@ function UserSettingsPage() {
             <Button
               size="lg"
               onClick={() => setPurchaseModalOpen(true)}
-              className="w-full md:w-auto"
+              className="mario-btn-standard w-full md:w-auto"
             >
               <ShoppingCart className="h-4 w-4 mr-2" />
               Buy More Simulated SOL
@@ -961,8 +964,8 @@ function UserSettingsPage() {
             <h4 className="text-sm font-medium mb-4">Recent Purchases</h4>
             <PurchaseHistorySection userId={user?.id || ''} />
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       {/* Purchase Modal */}
       {user && (

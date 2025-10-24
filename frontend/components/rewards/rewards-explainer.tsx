@@ -105,17 +105,17 @@ export function RewardsExplainer() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-      <Card className="border-border/50 bg-card/95 backdrop-blur-sm shadow-card hover:shadow-card-hover transition-all duration-300">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+      <div className="mario-card-standard">
+        <div className="mario-header-card mb-6">
+          <h2 className="mario-title-standard flex items-center gap-2">
             <Info className="h-5 w-5 text-primary" />
             How XP and Rewards Work
-          </CardTitle>
-          <CardDescription>
+          </h2>
+          <p className="mario-subtitle-standard">
             Learn how to earn XP and level up on 1UP SOL
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
+          </p>
+        </div>
+        <div className="p-6 space-y-6">
           <div className="prose prose-sm max-w-none text-muted-foreground">
             <p>
               1UP SOL rewards active traders with XP (experience points) based on their trading activity and performance.
@@ -132,8 +132,8 @@ export function RewardsExplainer() {
               to compete with traders globally!
             </AlertDescription>
           </Alert>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
       </motion.div>
 
       {/* Earning Points */}
@@ -142,17 +142,17 @@ export function RewardsExplainer() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.1 }}
       >
-      <Card className="border-border/50 bg-card/95 backdrop-blur-sm shadow-card hover:shadow-card-hover transition-all duration-300">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+      <div className="mario-card-standard">
+        <div className="mario-header-card mb-6">
+          <h2 className="mario-title-standard flex items-center gap-2">
             <Coins className="h-5 w-5 text-primary" />
             How to Earn Reward Points
-          </CardTitle>
-          <CardDescription>
+          </h2>
+          <p className="mario-subtitle-standard">
             Multiple ways to accumulate points throughout each day
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
+          </p>
+        </div>
+        <div className="p-6">
           <div className="grid gap-4 md:grid-cols-2">
             {rewardActivities.map((activity, index) => (
               <motion.div
@@ -178,8 +178,8 @@ export function RewardsExplainer() {
               </motion.div>
             ))}
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
       </motion.div>
 
       {/* Tier System */}
@@ -188,17 +188,17 @@ export function RewardsExplainer() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.2 }}
       >
-      <Card className="border-border/50 bg-card/95 backdrop-blur-sm shadow-card hover:shadow-card-hover transition-all duration-300">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+      <div className="mario-card-standard">
+        <div className="mario-header-card mb-6">
+          <h2 className="mario-title-standard flex items-center gap-2">
             <Award className="h-5 w-5 text-primary" />
             Tier System & Multipliers
-          </CardTitle>
-          <CardDescription>
+          </h2>
+          <p className="mario-subtitle-standard">
             Higher trading volumes unlock better reward multipliers
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
+          </p>
+        </div>
+        <div className="p-6">
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {tiers.map((tier, index) => (
               <motion.div
@@ -245,8 +245,8 @@ export function RewardsExplainer() {
               </motion.div>
             ))}
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
       </motion.div>
 
       {/* Calculation Example */}
@@ -255,17 +255,17 @@ export function RewardsExplainer() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.3 }}
       >
-      <Card className="border-border/50 bg-card/95 backdrop-blur-sm shadow-card hover:shadow-card-hover transition-all duration-300">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+      <div className="mario-card-standard">
+        <div className="mario-header-card mb-6">
+          <h2 className="mario-title-standard flex items-center gap-2">
             <Calculator className="h-5 w-5" />
             Reward Calculation Example
-          </CardTitle>
-          <CardDescription>
+          </h2>
+          <p className="mario-subtitle-standard">
             See how your rewards are calculated
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
+          </p>
+        </div>
+        <div className="p-6">
           <div className="space-y-4">
             <div className="p-4 rounded-lg bg-muted/50 space-y-3">
               <h4 className="font-semibold">Example Trader Rewards</h4>
@@ -316,8 +316,8 @@ export function RewardsExplainer() {
               </AlertDescription>
             </Alert>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
       </motion.div>
 
       {/* Distribution Schedule */}
@@ -326,17 +326,17 @@ export function RewardsExplainer() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.4 }}
       >
-      <Card className="border-border/50 bg-card/95 backdrop-blur-sm shadow-card hover:shadow-card-hover transition-all duration-300">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+      <div className="mario-card-standard">
+        <div className="mario-header-card mb-6">
+          <h2 className="mario-title-standard flex items-center gap-2">
             <Calendar className="h-5 w-5" />
             Distribution Schedule
-          </CardTitle>
-          <CardDescription>
+          </h2>
+          <p className="mario-subtitle-standard">
             When and how rewards are distributed
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
+          </p>
+        </div>
+        <div className="p-6">
           <div className="space-y-4">
             <div className="grid gap-3">
               <div className="flex items-center gap-3">
@@ -385,8 +385,8 @@ export function RewardsExplainer() {
               </AlertDescription>
             </Alert>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
       </motion.div>
     </div>
   )

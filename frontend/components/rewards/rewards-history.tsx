@@ -141,17 +141,15 @@ export function RewardsHistory() {
 
   if (!user) {
     return (
-      <Card>
-        <CardContent className="py-12">
-          <div className="text-center space-y-4">
-            <History className="h-12 w-12 text-muted-foreground mx-auto" />
-            <div>
-              <h3 className="text-lg font-semibold">Sign In Required</h3>
-              <p className="text-sm text-muted-foreground">Connect your account to view reward history</p>
-            </div>
+      <div className="mario-card-standard">
+        <div className="p-12 text-center space-y-4">
+          <History className="h-12 w-12 text-muted-foreground mx-auto" />
+          <div>
+            <h3 className="text-lg font-semibold">Sign In Required</h3>
+            <p className="text-sm text-muted-foreground">Connect your account to view reward history</p>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     )
   }
 
@@ -172,17 +170,17 @@ export function RewardsHistory() {
             transition={{ delay: index * 0.05 }}
             whileHover={{ scale: 1.02 }}
           >
-            <Card className="border-border/50 bg-card/95 backdrop-blur-sm shadow-card hover:shadow-card-hover transition-all duration-300 h-full">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
+            <div className="mario-card-standard h-full">
+              <div className="mario-header-card mb-4">
+                <h3 className="text-sm font-medium text-muted-foreground">
                   {stat.label}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
+                </h3>
+              </div>
+              <div className="p-6">
                 <div className={cn("text-2xl font-bold", stat.color)}>{stat.value}</div>
                 <p className="text-xs text-muted-foreground">{stat.subtitle}</p>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           </motion.div>
         ))}
       </div>
@@ -193,17 +191,17 @@ export function RewardsHistory() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
       >
-      <Card className="border-border/50 bg-card/95 backdrop-blur-sm shadow-card hover:shadow-card-hover transition-all duration-300">
-        <CardHeader>
+      <div className="mario-card-standard">
+        <div className="mario-header-card mb-6">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
-              <CardTitle className="flex items-center gap-2">
+              <h2 className="mario-title-standard flex items-center gap-2">
                 <History className="h-5 w-5 text-primary" />
                 Reward History
-              </CardTitle>
-              <CardDescription>
+              </h2>
+              <p className="mario-subtitle-standard">
                 Your complete reward claim history
-              </CardDescription>
+              </p>
             </div>
             <div className="flex gap-2">
               <Button
@@ -217,8 +215,8 @@ export function RewardsHistory() {
               </Button>
             </div>
           </div>
-        </CardHeader>
-        <CardContent>
+        </div>
+        <div className="p-6">
           {/* Filters */}
           <div className="flex flex-col sm:flex-row gap-3 mb-6">
             <div className="relative flex-1">
@@ -329,8 +327,8 @@ export function RewardsHistory() {
               </Table>
             </div>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
       </motion.div>
     </div>
   )

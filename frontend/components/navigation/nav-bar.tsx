@@ -334,8 +334,7 @@ export function NavBar() {
                       alt={item.name} 
                       width={80} 
                       height={20} 
-                      className="object-cover hover:scale-105 transition-transform duration-200" 
-                      style={{ width: '80px', height: '20px' }}
+                      className="h-[20px] w-auto object-contain hover:scale-105 transition-transform duration-200" 
                     />
                   </Button>
                 </Link>
@@ -617,8 +616,7 @@ export function NavBar() {
                                 alt={item.name} 
                                 width={80} 
                                 height={20} 
-                                className="object-cover" 
-                                style={{ width: '80px', height: '20px' }}
+                                className="h-[20px] w-auto object-contain" 
                               />
                               <div>
                                 <div className="text-xs text-muted-foreground">{item.description}</div>

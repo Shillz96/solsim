@@ -248,8 +248,7 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
                       alt={item.label} 
                       width={40} 
                       height={10} 
-                      className="object-cover" 
-                      style={{ width: '40px', height: '10px' }}
+                      className="h-[10px] w-auto object-contain" 
                     />
                   </div>
                   <span className={cn(

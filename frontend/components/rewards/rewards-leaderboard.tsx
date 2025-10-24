@@ -105,13 +105,13 @@ export function RewardsLeaderboard() {
 
   if (isLoading) {
     return (
-      <Card>
-        <CardContent className="py-12">
+      <div className="mario-card-standard">
+        <div className="p-12">
           <div className="flex items-center justify-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     )
   }
 
