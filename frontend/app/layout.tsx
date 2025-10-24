@@ -8,6 +8,8 @@ import { NavBar } from "@/components/navigation/nav-bar"
 import { BottomNavBar } from "@/components/navigation/bottom-nav-bar"
 import { SlidingTrendingTicker } from "@/components/trading/sliding-trending-ticker"
 import { AppProviders } from "@/components/providers"
+import WindowManager from "@/components/window/WindowManager"
+import FloatingWindows from "@/components/window/FloatingWindows"
 
 import "./theme.css"
 import "./globals.css"
@@ -81,20 +83,24 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         className={`${radnikaNext.variable} ${ibmPlexSans.variable} ${jetBrainsMono.variable} font-sans`}
       >
         <AppProviders>
-          <div className="sticky top-0 z-50">
-            <NavBar aria-label="Primary navigation" />
-            <SlidingTrendingTicker />
-          </div>
-          <main
-            className="min-h-screen"
-            style={{
-              paddingBottom: 'var(--bottom-nav-height)'
-            }}
-            role="main"
-          >
-            {children}
-          </main>
-          <BottomNavBar aria-label="Mobile navigation" className="sticky bottom-0 z-50" />
+          <WindowManager>
+            <div className="sticky top-0 z-50">
+              <NavBar aria-label="Primary navigation" />
+              <SlidingTrendingTicker />
+            </div>
+            <main
+              className="min-h-screen relative"
+              style={{
+                paddingBottom: 'var(--bottom-nav-height)'
+              }}
+              role="main"
+            >
+              {children}
+            </main>
+            <BottomNavBar aria-label="Mobile navigation" className="sticky bottom-0 z-50" />
+            {/* Floating windows render here, positioned absolutely over the page */}
+            <FloatingWindows />
+          </WindowManager>
         </AppProviders>
         <Analytics />
         <SpeedInsights />

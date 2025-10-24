@@ -28,6 +28,8 @@ import {
 import { DepositModal } from "@/components/modals/deposit-modal"
 import { RealTradingOnboardingModal } from "@/components/modals/real-trading-onboarding-modal"
 import { CartridgePill } from "@/components/ui/cartridge-pill"
+import { useWindowManager } from "@/components/window/WindowManager"
+import { WalletTrackerContent } from "@/components/wallet-tracker/wallet-tracker-content"
 
 // Percentage formatting now inline
 
@@ -55,6 +57,7 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
   const { user } = useAuth()
   const { toast } = useToast()
   const walletModal = useWalletModal()
+  const { openWindow } = useWindowManager()
   const [marketPrices, setMarketPrices] = useState<MarketPrice[]>([
     { symbol: "SOL", price: 250, change24h: 0 }, // Default to reasonable price instead of 0
   ])
@@ -62,6 +65,19 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
   const [pendingMode, setPendingMode] = useState<'PAPER' | 'REAL' | null>(null)
   const [showDepositModal, setShowDepositModal] = useState<boolean>(false)
   const [showOnboardingModal, setShowOnboardingModal] = useState<boolean>(false)
+
+  // Function to open wallet tracker as floating window
+  const openWalletTrackerWindow = () => {
+    openWindow({
+      id: 'wallet-tracker',
+      title: '👀 Wallet Tracker',
+      content: <WalletTrackerContent />,
+      x: 100,
+      y: 100,
+      width: 900,
+      height: 600
+    })
+  }
 
   // Subscribe to SOL price updates
   useEffect(() => {
@@ -204,14 +220,13 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
         animate={{ scale: 1, opacity: 1 }}
         transition={{ delay: 0.5, type: "spring", stiffness: 200 }}
       >
-        <Link href="/wallet-tracker">
-          <Button
-            size="icon"
-            className="h-14 w-14 rounded-full shadow-lg hover:shadow-xl transition-all hover:scale-110 bg-gradient-to-br from-primary to-primary/80"
-          >
-            <Eye className="h-6 w-6" />
-          </Button>
-        </Link>
+        <Button
+          size="icon"
+          onClick={openWalletTrackerWindow}
+          className="h-14 w-14 rounded-full shadow-lg hover:shadow-xl transition-all hover:scale-110 bg-gradient-to-br from-primary to-primary/80"
+        >
+          <Eye className="h-6 w-6" />
+        </Button>
       </motion.div>
 
       {/* Desktop/Tablet Bottom Info Bar */}
@@ -292,10 +307,10 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
             {/* Wallet Tracker - Blue CartridgePill */}
             <CartridgePill
               value="Wallet Tracker"
-              href="/wallet-tracker"
+              onClick={openWalletTrackerWindow}
               size="sm"
               bgColor="var(--sky-blue)"
-              className="hidden lg:inline-grid"
+              className="hidden lg:inline-grid cursor-pointer"
             />
             {/* Leaderboard - Green CartridgePill */}
             <CartridgePill

@@ -233,10 +233,12 @@ app.register(stocksRoutes, { prefix: "/api/stocks" });
 app.register(rewardsRoutes, { prefix: "/api/rewards" });
 app.register(tradesRoutes, { prefix: "/api/trades" });
 app.register(walletRoutes, { prefix: "/api/wallet" });
-app.register(walletTrackerRoutes, { prefix: "/api/wallet-tracker" });
+// Legacy wallet tracker (deprecated - kept for backwards compatibility)
+// app.register(walletTrackerRoutes, { prefix: "/api/wallet-tracker" });
 app.register(walletTrackerV2Routes, { prefix: "/api/wallet-tracker/v2" });
 app.register(walletTrackerSettingsRoutes, { prefix: "/api/wallet-tracker" });
-app.register(walletTrackerPumpPortalRoutes, { prefix: "/api" }); // PumpPortal real-time wallet tracking
+// PumpPortal real-time wallet tracking (replaces legacy walletTrackerRoutes)
+app.register(walletTrackerPumpPortalRoutes, { prefix: "/api" });
 app.register(searchRoutes, { prefix: "/api/search" });
 app.register(purchaseRoutes, { prefix: "/api/purchase" });
 app.register(notificationsRoutes, { prefix: "/api/notifications" });

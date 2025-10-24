@@ -99,11 +99,28 @@ async function handleSwap(event: SwapEvent): Promise<void> {
   try {
     const { mint, timestamp, txType, solAmount, tokenAmount, user } = event;
 
+    // Validate and convert timestamp (handle both seconds and milliseconds)
+    let tradeDate: Date;
+    try {
+      // If timestamp is already in milliseconds (> year 2100 in seconds = 4102444800)
+      const timestampMs = timestamp > 4102444800 ? timestamp : timestamp * 1000;
+      tradeDate = new Date(timestampMs);
+
+      // Validate date is reasonable (between 2020 and 2050)
+      if (tradeDate.getFullYear() < 2020 || tradeDate.getFullYear() > 2050) {
+        console.warn(`[TokenDiscovery] Invalid timestamp for ${mint}: ${timestamp} -> ${tradeDate.toISOString()}`);
+        tradeDate = new Date(); // Fallback to current time
+      }
+    } catch (error) {
+      console.error(`[TokenDiscovery] Error parsing timestamp ${timestamp}:`, error);
+      tradeDate = new Date();
+    }
+
     // Update last trade timestamp in database
     await prisma.tokenDiscovery.updateMany({
       where: { mint },
       data: {
-        lastTradeTs: new Date(timestamp * 1000),
+        lastTradeTs: tradeDate,
         lastUpdatedAt: new Date(),
       }
     });
