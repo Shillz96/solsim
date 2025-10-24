@@ -278,6 +278,7 @@ export function useChatWebSocket(options: UseChatWebSocketOptions = {}) {
 
   /**
    * Auto-connect when user logs in
+   * Only re-run when user object changes, not when connect/disconnect functions change
    */
   useEffect(() => {
     const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
@@ -290,7 +291,9 @@ export function useChatWebSocket(options: UseChatWebSocketOptions = {}) {
     return () => {
       disconnect();
     };
-  }, [user, connect, disconnect]);
+    // Only depend on user, not the callback functions to prevent reconnection loops
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
 
   /**
    * Heartbeat ping every 20 seconds
