@@ -109,10 +109,10 @@ export function WarpPipesHub() {
   }, [data, bondedFilters, graduatingFilters, newFilters])
 
   return (
-    <div className="w-full min-h-screen bg-[var(--background)]">
+    <div className="w-full h-screen flex flex-col bg-[var(--background)] overflow-hidden">
       {/* Error State */}
       {error && (
-        <div className="px-4 pt-6 mb-6">
+        <div className="px-4 pt-4 pb-2 flex-shrink-0">
           <Alert variant="destructive" className="border-4 border-[var(--mario-red)] shadow-[6px_6px_0_var(--outline-black)] rounded-[16px] bg-white">
             <AlertCircle className="h-5 w-5" />
             <AlertDescription className="flex items-center justify-between">
@@ -132,7 +132,7 @@ export function WarpPipesHub() {
       )}
 
       {/* Desktop: 3-Column Layout - Reordered: New Pairs | About to Graduate | Bonded */}
-      <div className="hidden lg:grid lg:grid-cols-3 gap-6 px-6 py-6 h-[calc(100vh-80px)]">
+      <div className="hidden lg:grid lg:grid-cols-3 gap-6 px-6 py-6 flex-1 min-h-0">
         <TokenColumn
           title="🆕 New Pairs"
           tokens={newTokens}
@@ -160,8 +160,8 @@ export function WarpPipesHub() {
       </div>
 
       {/* Mobile: Tabs Layout */}
-      <div className="lg:hidden px-4 py-6">
-        <Tabs defaultValue="new" className="w-full">
+      <div className="lg:hidden flex flex-col flex-1 min-h-0 px-4 py-6">
+        <Tabs defaultValue="new" className="w-full h-full flex flex-col">
           <TabsList className="grid w-full grid-cols-3 mb-4 border-4 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)] rounded-[14px] bg-white p-1">
             <TabsTrigger
               value="new"
@@ -183,7 +183,7 @@ export function WarpPipesHub() {
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="new">
+          <TabsContent value="new" className="flex-1 min-h-0 mt-0">
             <TokenColumn
               title="🆕 New Pairs"
               tokens={newTokens}
@@ -194,7 +194,7 @@ export function WarpPipesHub() {
             />
           </TabsContent>
 
-          <TabsContent value="graduating">
+          <TabsContent value="graduating" className="flex-1 min-h-0 mt-0">
             <TokenColumn
               title="⭐ About to Graduate"
               tokens={graduating}
@@ -205,7 +205,7 @@ export function WarpPipesHub() {
             />
           </TabsContent>
 
-          <TabsContent value="bonded">
+          <TabsContent value="bonded" className="flex-1 min-h-0 mt-0">
             <TokenColumn
               title="🪙 Bonded"
               tokens={bonded}
