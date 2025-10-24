@@ -21,8 +21,8 @@ const steps = [
   {
     icon: TrendingUp,
     iconSrc: "/icons/mario/arrow-up.png",
-    title: "Paper trade & learn",
-    description: "Buy and sell tokens with virtual SOL using real market data. Learn trading without risking real money!",
+    title: "Practice then go live",
+    description: "Start with paper trading to learn risk-free, then switch to real trading when you're confident. Your choice!",
   },
   {
     icon: Star,

@@ -57,7 +57,7 @@ function getWalletEmoji(address: string): string {
   return WALLET_EMOJIS[hash % WALLET_EMOJIS.length];
 }
 
-// Memoized activity row component - Photon-style ultra-compact layout
+// Memoized activity row component - Clean Mario-themed layout
 const ActivityRow = React.memo(function ActivityRow({
   activity,
   onCopyTrade,
@@ -97,82 +97,78 @@ const ActivityRow = React.memo(function ActivityRow({
   const amount = activity.solAmount ? parseFloat(activity.solAmount) : 0;
   const marketCapNum = activity.marketCap ? parseFloat(activity.marketCap) : 0;
 
-  // Calculate amount bar width (max 100px for 10+ SOL)
-  const amountBarWidth = Math.min((amount / 10) * 100, 100);
+  // Calculate amount bar percentage (max at 5 SOL = 100%)
+  const amountBarPercent = Math.min((amount / 5) * 100, 100);
 
   return (
     <Link
       href={`/room/${tokenMint}`}
       className={cn(
-        "flex items-center gap-2 px-3 py-1.5 hover:bg-pipe-100/50 transition-colors cursor-pointer border-l-2",
-        isBuy ? "border-l-luigi-green" : "border-l-mario-red"
+        "grid grid-cols-[60px_100px_1fr_140px_80px] gap-3 px-4 py-2.5 hover:bg-[var(--background)] transition-colors cursor-pointer border-b border-pipe-300",
+        isBuy ? "bg-luigi-green/5" : "bg-mario-red/5"
       )}
     >
       {/* Time */}
-      <div className="w-10 text-xs text-pipe-700 font-medium flex-shrink-0">
-        {activity.timeAgo}
+      <div className="flex items-center">
+        <span className="text-xs font-bold text-pipe-700">
+          {activity.timeAgo}
+        </span>
       </div>
 
-      {/* Wallet Emoji + Label */}
-      <div className="flex items-center gap-1.5 min-w-[80px] flex-shrink-0">
-        <span className="text-base">{walletEmoji}</span>
-        <span className="text-xs font-bold text-mario-red truncate max-w-[60px]">
+      {/* Wallet */}
+      <div className="flex items-center gap-1.5">
+        <span className="text-lg leading-none">{walletEmoji}</span>
+        <span className="text-xs font-bold text-mario-red truncate">
           {walletLabel}
         </span>
       </div>
 
-      {/* Token Logo + Symbol + Age */}
-      <div className="flex items-center gap-2 flex-1 min-w-0">
+      {/* Token */}
+      <div className="flex items-center gap-2 min-w-0">
         <TokenLogo
           src={tokenLogoURI || undefined}
           alt={tokenSymbol}
           mint={tokenMint}
-          className="h-6 w-6 border border-pipe-300 flex-shrink-0"
+          className="h-7 w-7 border-2 border-pipe-700 rounded flex-shrink-0"
         />
-        <div className="flex items-center gap-1.5 min-w-0">
-          <span className="font-bold text-sm text-pipe-900 truncate">
+        <div className="flex flex-col min-w-0">
+          <span className="font-bold text-sm text-pipe-900 truncate leading-tight">
             {tokenSymbol}
           </span>
           {activity.tokenAge && (
-            <span className="text-xs text-luigi-green font-medium flex-shrink-0">
-              · {activity.tokenAge}
+            <span className="text-[10px] text-luigi-green font-medium">
+              {activity.tokenAge} old
             </span>
           )}
         </div>
       </div>
 
-      {/* Amount with visual bar indicator */}
-      <div className="flex items-center gap-2 min-w-[100px] flex-shrink-0">
-        <div className="relative w-20 h-4 bg-pipe-100 rounded overflow-hidden border border-pipe-300">
+      {/* Amount (SOL) */}
+      <div className="flex items-center gap-2">
+        <div className="flex-1 h-6 bg-white border-2 border-pipe-700 rounded relative overflow-hidden">
           <div
             className={cn(
-              "absolute inset-y-0 left-0 rounded-r",
-              "bg-gradient-to-r",
-              isBuy
-                ? "from-luigi-green/80 to-luigi-green"
-                : "from-mario-red/80 to-mario-red"
+              "absolute inset-0 transition-all",
+              isBuy ? "bg-luigi-green" : "bg-mario-red"
             )}
-            style={{
-              width: `${amountBarWidth}%`,
-              backgroundImage: isBuy
-                ? 'repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(255,255,255,0.1) 2px, rgba(255,255,255,0.1) 4px)'
-                : 'repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(0,0,0,0.1) 2px, rgba(0,0,0,0.1) 4px)'
-            }}
+            style={{ width: `${amountBarPercent}%` }}
           />
+          <div className="absolute inset-0 flex items-center justify-center">
+            <span className="text-[10px] font-bold text-pipe-900 z-10 drop-shadow-sm">
+              {amount.toFixed(2)} SOL
+            </span>
+          </div>
         </div>
-        <span className={cn(
-          "text-xs font-bold tabular-nums w-12 text-right",
-          isBuy ? "text-luigi-green" : "text-mario-red"
-        )}>
-          {amount.toFixed(4)}
-        </span>
       </div>
 
       {/* Market Cap */}
-      <div className="text-right w-16 flex-shrink-0">
-        <span className="text-xs font-semibold text-pipe-900 tabular-nums">
-          {formatMarketCap(marketCapNum)}
-        </span>
+      <div className="flex items-center justify-end">
+        <div className="text-right">
+          <div className="text-[9px] text-pipe-600 font-medium">MCap</div>
+          <div className="text-xs font-bold text-pipe-900 tabular-nums">
+            {formatMarketCap(marketCapNum)}
+          </div>
+        </div>
       </div>
     </Link>
   );
@@ -218,24 +214,38 @@ export function WalletActivityList({
     // Could add toast notification here
   }
 
-  // Loading state - skeleton heights match ultra-compact row (~32px total)
+  // Loading state - skeleton matches grid layout
   if (isLoading && activities.length === 0) {
     return (
-      <Card className="overflow-hidden">
+      <div className="mario-card bg-white border-4 border-pipe-700 shadow-mario overflow-hidden">
+        {/* Column Headers */}
+        <div className="grid grid-cols-[60px_100px_1fr_140px_80px] gap-3 px-4 py-2 bg-star-yellow border-b-4 border-pipe-700">
+          <div className="text-[10px] font-mario text-pipe-900 uppercase">Time</div>
+          <div className="text-[10px] font-mario text-pipe-900 uppercase">Wallet</div>
+          <div className="text-[10px] font-mario text-pipe-900 uppercase">Token</div>
+          <div className="text-[10px] font-mario text-pipe-900 uppercase">Amount (SOL)</div>
+          <div className="text-[10px] font-mario text-pipe-900 uppercase text-right">MCap</div>
+        </div>
+
+        {/* Loading Skeletons */}
         <div>
           {[...Array(10)].map((_, i) => (
-            <div key={i} className="flex items-center gap-2 px-3 py-1.5 h-[32px] border-b border-pipe-200">
-              <Skeleton className="h-3 w-10" />
-              <Skeleton className="h-4 w-4 rounded-full" />
-              <Skeleton className="h-3 w-16" />
-              <Skeleton className="h-6 w-6 rounded" />
-              <Skeleton className="h-3 w-24" />
-              <Skeleton className="h-4 w-20 ml-auto" />
-              <Skeleton className="h-3 w-16" />
+            <div key={i} className="grid grid-cols-[60px_100px_1fr_140px_80px] gap-3 px-4 py-2.5 border-b border-pipe-300">
+              <Skeleton className="h-4 w-10" />
+              <div className="flex items-center gap-1.5">
+                <Skeleton className="h-4 w-4 rounded-full" />
+                <Skeleton className="h-3 w-12" />
+              </div>
+              <div className="flex items-center gap-2">
+                <Skeleton className="h-7 w-7 rounded" />
+                <Skeleton className="h-4 w-20" />
+              </div>
+              <Skeleton className="h-6 w-full rounded" />
+              <Skeleton className="h-4 w-12 ml-auto" />
             </div>
           ))}
         </div>
-      </Card>
+      </div>
     )
   }
 
@@ -253,11 +263,21 @@ export function WalletActivityList({
   }
 
   return (
-    <Card className="overflow-hidden border-4 border-pipe-700 shadow-mario">
+    <div className="mario-card bg-white border-4 border-pipe-700 shadow-mario overflow-hidden">
+      {/* Column Headers */}
+      <div className="grid grid-cols-[60px_100px_1fr_140px_80px] gap-3 px-4 py-2 bg-star-yellow border-b-4 border-pipe-700">
+        <div className="text-[10px] font-mario text-pipe-900 uppercase">Time</div>
+        <div className="text-[10px] font-mario text-pipe-900 uppercase">Wallet</div>
+        <div className="text-[10px] font-mario text-pipe-900 uppercase">Token</div>
+        <div className="text-[10px] font-mario text-pipe-900 uppercase">Amount (SOL)</div>
+        <div className="text-[10px] font-mario text-pipe-900 uppercase text-right">MCap</div>
+      </div>
+
+      {/* Activity List */}
       <Virtuoso
         data={activities}
         overscan={200}
-        style={{ height: '600px' }}
+        style={{ height: '540px' }}
         itemContent={(index, activity) => (
           <ActivityRow
             activity={activity}
@@ -271,12 +291,12 @@ export function WalletActivityList({
         endReached={hasMore ? onLoadMore : undefined}
         components={{
           Footer: () => hasMore && isLoading ? (
-            <div className="p-2 text-center border-t border-pipe-300">
-              <Loader2 className="h-4 w-4 animate-spin mx-auto text-pipe-700" />
+            <div className="p-3 text-center border-t-2 border-pipe-700 bg-[var(--background)]">
+              <Loader2 className="h-4 w-4 animate-spin mx-auto text-mario-red" />
             </div>
           ) : null
         }}
       />
-    </Card>
+    </div>
   )
 }

@@ -78,7 +78,7 @@ export function HeroSection() {
             transition={{ duration: 0.6, delay: 0.2 }}
           >
             <p className="text-xl text-[var(--outline-black)] leading-relaxed font-bold drop-shadow-lg flex items-center justify-center gap-2 flex-wrap">
-              Discover new Solana tokens in real-time, paper trade with zero risk, track wallet performance, and level up your trading skills - all in one gamified platform!
+              Discover new Solana tokens, practice with paper trading, then go live with real trades - track wallets, earn XP, and level up your skills in one gamified platform!
               <Image src="/icons/mario/controller.png" alt="" width={24} height={24} className="object-contain inline-block" />
             </p>
 

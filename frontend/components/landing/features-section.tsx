@@ -14,16 +14,16 @@ const features = [
     description: "Real-time discovery of new Solana tokens from Pump.fun. Track tokens from bonding curve to graduation to Raydium - all in one place!",
   },
   {
+    icon: Wallet,
+    iconSrc: "/icons/mario/money-bag.png",
+    title: "Paper & Real Trading",
+    description: "Start with virtual SOL to practice risk-free, then switch to real trading when you're ready. Learn first, earn later!",
+  },
+  {
     icon: Eye,
     iconSrc: "/icons/mario/eyes.png",
     title: "Wallet Tracker",
     description: "Track any Solana wallet's holdings, performance, and trades in real-time. Learn from successful traders and copy their strategies!",
-  },
-  {
-    icon: Wallet,
-    iconSrc: "/icons/mario/money-bag.png",
-    title: "Risk-Free Paper Trading",
-    description: "Start with 10 SOL virtual balance (100 SOL for $UP holders). Practice trading with real market data without risking real money!",
   },
   {
     icon: LineChart,
