@@ -61,35 +61,35 @@ export function WarpPipesHub() {
     if (!filters || Object.keys(filters).length === 0) return tokens
 
     return tokens.filter((token) => {
-      // Audit filters
-      if (filters.dexPaid !== undefined && token.dexPaid !== filters.dexPaid) return false
-      if (filters.minAge !== undefined && token.createdAgo && token.createdAgo < filters.minAge) return false
-      if (filters.maxAge !== undefined && token.createdAgo && token.createdAgo > filters.maxAge) return false
-      if (filters.freezeAuthority !== undefined && token.freezeAuthority !== filters.freezeAuthority) return false
-      if (filters.mintAuthority !== undefined && token.mintAuthority !== filters.mintAuthority) return false
-      if (filters.top10Holders !== undefined && token.top10HoldersPercent !== undefined && token.top10HoldersPercent < filters.top10Holders) return false
+      // Audit filters - map to actual TokenRow properties
+      // Note: Some filters may not have direct property mappings in TokenRow
+      if (filters.minAge !== undefined && token.firstSeenAt) {
+        const ageMinutes = (Date.now() - new Date(token.firstSeenAt).getTime()) / 60000
+        if (ageMinutes < filters.minAge) return false
+      }
+      if (filters.maxAge !== undefined && token.firstSeenAt) {
+        const ageMinutes = (Date.now() - new Date(token.firstSeenAt).getTime()) / 60000
+        if (ageMinutes > filters.maxAge) return false
+      }
 
-      // Metric filters
-      if (filters.minLiquidityUsd !== undefined && token.liquidityUsd && token.liquidityUsd < filters.minLiquidityUsd) return false
-      if (filters.maxLiquidityUsd !== undefined && token.liquidityUsd && token.liquidityUsd > filters.maxLiquidityUsd) return false
-      if (filters.minMarketCapUsd !== undefined && token.marketCapUsd && token.marketCapUsd < filters.minMarketCapUsd) return false
-      if (filters.maxMarketCapUsd !== undefined && token.marketCapUsd && token.marketCapUsd > filters.maxMarketCapUsd) return false
-      if (filters.minVolumeUsd !== undefined && token.volumeUsd && token.volumeUsd < filters.minVolumeUsd) return false
-      if (filters.maxVolumeUsd !== undefined && token.volumeUsd && token.volumeUsd > filters.maxVolumeUsd) return false
-      if (filters.minHolders !== undefined && token.holderCount && token.holderCount < filters.minHolders) return false
-      if (filters.maxHolders !== undefined && token.holderCount && token.holderCount > filters.maxHolders) return false
-      if (filters.minPriceChangePercent !== undefined && token.priceChange24hPercent && token.priceChange24hPercent < filters.minPriceChangePercent) return false
-      if (filters.maxPriceChangePercent !== undefined && token.priceChange24hPercent && token.priceChange24hPercent > filters.maxPriceChangePercent) return false
+      // Metric filters - use TokenRow property names
+      if (filters.minLiquidityUsd !== undefined && token.liqUsd && token.liqUsd < filters.minLiquidityUsd) return false
+      if (filters.maxLiquidityUsd !== undefined && token.liqUsd && token.liqUsd > filters.maxLiquidityUsd) return false
+      if (filters.minMarketCap !== undefined && token.marketCapUsd && token.marketCapUsd < filters.minMarketCap) return false
+      if (filters.maxMarketCap !== undefined && token.marketCapUsd && token.marketCapUsd > filters.maxMarketCap) return false
+      if (filters.minVolume24h !== undefined && token.volume24h && token.volume24h < filters.minVolume24h) return false
+      if (filters.maxVolume24h !== undefined && token.volume24h && token.volume24h > filters.maxVolume24h) return false
 
-      // Social filters
-      if (filters.minSocialScore !== undefined && token.socialScore && token.socialScore < filters.minSocialScore) return false
-      if (filters.minSentiment !== undefined && token.sentiment && token.sentiment < filters.minSentiment) return false
-      if (filters.minTwitterFollowers !== undefined && token.twitterFollowers && token.twitterFollowers < filters.minTwitterFollowers) return false
-      if (filters.minTelegramMembers !== undefined && token.telegramMembers && token.telegramMembers < filters.minTelegramMembers) return false
+      // Social filters - check for presence of social links
+      if (filters.requireTwitter && !token.twitter) return false
+      if (filters.requireTelegram && !token.telegram) return false
+      if (filters.requireWebsite && !token.website) return false
 
-      // Bonding curve filters (for pump.fun tokens)
-      if (filters.minBondingPercentage !== undefined && token.bondingCurvePercentage !== undefined && token.bondingCurvePercentage < filters.minBondingPercentage) return false
-      if (filters.maxBondingPercentage !== undefined && token.bondingCurvePercentage !== undefined && token.bondingCurvePercentage > filters.maxBondingPercentage) return false
+      // Bonding curve filters - use bondingCurveProgress (0-100)
+      if (filters.minBondingProgress !== undefined && token.bondingCurveProgress != null && token.bondingCurveProgress < filters.minBondingProgress) return false
+      if (filters.maxBondingProgress !== undefined && token.bondingCurveProgress != null && token.bondingCurveProgress > filters.maxBondingProgress) return false
+      if (filters.minSolToGraduate !== undefined && token.solToGraduate != null && token.solToGraduate < filters.minSolToGraduate) return false
+      if (filters.maxSolToGraduate !== undefined && token.solToGraduate != null && token.solToGraduate > filters.maxSolToGraduate) return false
 
       return true
     })

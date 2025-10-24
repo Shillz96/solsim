@@ -137,7 +137,7 @@ function RecentTradesPanel({ tokenMint }: { tokenMint: string }) {
               </div>
               <div className="text-right">
                 <div className="text-xs font-bold">{formatNumber(trade.tokenAmount || 0)} tokens</div>
-                <div className="text-[10px] text-muted-foreground">{formatNumber((trade.solAmount || 0) * 100)} SOL</div>
+                <div className="text-[10px] text-muted-foreground">{formatNumber(trade.solAmount || 0)} SOL</div>
               </div>
             </div>
           ))}
