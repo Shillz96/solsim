@@ -10,9 +10,15 @@
  * - Market Data Panels (Trades, Top Traders, Holders)
  * - Real-time WebSocket price updates
  * - Responsive mobile/desktop layouts
+ *
+ * IMPORTANT: This is a fully dynamic page that re-renders on route changes
  */
 
 import { useEffect, useState, Suspense } from 'react'
+
+// Force dynamic rendering - no static generation
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
 import { useParams, useRouter } from 'next/navigation'
 import dynamic from 'next/dynamic'
 import { MarioTradingPanel } from '@/components/trading/mario-trading-panel'
@@ -211,13 +217,14 @@ function TradeRoomContent() {
       </header>
 
       {/* Main Content Area */}
-      <main className="flex flex-1 w-full overflow-hidden">
+      <main className="flex flex-1 w-full overflow-hidden" key={ca}>
         {/* MOBILE LAYOUT */}
         <div className="lg:hidden flex flex-col w-full overflow-y-auto">
           {/* Chart */}
           <div className="p-3">
             <ErrorBoundary fallback={<ChartFallback tokenSymbol={tokenDetails.symbol || undefined} error={true} />}>
               <LightweightChart
+                key={`chart-mobile-${ca}`}
                 tokenMint={ca}
                 tokenSymbol={tokenDetails.symbol || 'TOKEN'}
                 className="w-full"
@@ -227,12 +234,12 @@ function TradeRoomContent() {
 
           {/* Trade Panel */}
           <div className="p-3 border-t-3 border-[var(--outline-black)] bg-white">
-            <MarioTradingPanel tokenAddress={ca} />
+            <MarioTradingPanel key={`trade-mobile-${ca}`} tokenAddress={ca} />
           </div>
 
           {/* Market Data Panels */}
           <div className="border-t-3 border-[var(--outline-black)] bg-[var(--background)] min-h-[300px]">
-            <MarketDataPanels tokenMint={ca} />
+            <MarketDataPanels key={`market-mobile-${ca}`} tokenMint={ca} />
           </div>
         </div>
 
@@ -244,6 +251,7 @@ function TradeRoomContent() {
             <div className="p-4">
               <ErrorBoundary fallback={<ChartFallback tokenSymbol={tokenDetails.symbol || undefined} error={true} />}>
                 <LightweightChart
+                  key={`chart-desktop-${ca}`}
                   tokenMint={ca}
                   tokenSymbol={tokenDetails.symbol || 'TOKEN'}
                   className="w-full"
@@ -253,7 +261,7 @@ function TradeRoomContent() {
 
             {/* Market Data Panels */}
             <div className="flex-1 min-h-[300px]">
-              <MarketDataPanels tokenMint={ca} />
+              <MarketDataPanels key={`market-desktop-${ca}`} tokenMint={ca} />
             </div>
           </section>
 
@@ -261,11 +269,11 @@ function TradeRoomContent() {
           <aside className="flex flex-col w-[380px] border-l-4 border-[var(--outline-black)] bg-[var(--background)] overflow-hidden">
             {/* Trade Panel */}
             <div className="p-3 border-b-3 border-[var(--outline-black)] bg-white">
-              <MarioTradingPanel tokenAddress={ca} />
+              <MarioTradingPanel key={`trade-desktop-${ca}`} tokenAddress={ca} />
             </div>
 
             {/* Chat Room */}
-            <ChatRoom tokenMint={ca} />
+            <ChatRoom key={`chat-${ca}`} tokenMint={ca} />
           </aside>
         </div>
       </main>
