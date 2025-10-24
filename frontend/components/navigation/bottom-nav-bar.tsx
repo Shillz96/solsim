@@ -477,6 +477,8 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
                     align="center"
                     side="top"
                     className="bg-white border-3 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)] mb-2"
+                    sideOffset={8}
+                    avoidCollisions={true}
                   >
                     {infoItems.map((item) => (
                       <DropdownMenuItem key={item.href} asChild>
@@ -522,7 +524,7 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
             </div>
 
             {/* Center: Market Prices + Market Lighthouse */}
-            <div className="flex items-center justify-between w-full">
+            <div className="flex items-center justify-center w-full">
               {/* Market Lighthouse Hover - Left side */}
               <MarketHover
                 trigger={
@@ -542,7 +544,7 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
               />
 
               {/* Crypto prices - Centered */}
-              <div className="flex items-center gap-2 md:gap-4">
+              <div className="flex items-center gap-2 md:gap-4 mx-4">
                 {marketPrices.map((market) => {
                 // Define glow colors for each crypto
                 const getGlowColor = (symbol: string) => {
@@ -582,9 +584,6 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
                 );
               })}
               </div>
-
-              {/* Spacer div to balance the layout */}
-              <div className="w-5 h-5"></div>
             </div>
 
             {/* Right: Launch Token, Wallet Tracker, Leaderboard, More Info & Trading Mode */}
@@ -629,6 +628,8 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
                   align="center"
                   side="top"
                   className="bg-white border-3 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)] mb-2"
+                  sideOffset={8}
+                  avoidCollisions={true}
                 >
                   {infoItems.map((item) => (
                     <DropdownMenuItem key={item.href} asChild>
