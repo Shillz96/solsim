@@ -101,14 +101,14 @@ export default function PipeNetworkPage() {
   ]
 
   return (
-    <div className="min-h-dvh-screen bg-gradient-to-br from-background via-background to-muted/20">
-      <main className="w-full px-4 sm:px-6 lg:px-8 py-2 sm:py-4">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
+      <main className="container mx-auto px-4 py-6">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="mb-6"
+          className="mb-8"
         >
           <div className="bg-gradient-to-r from-[var(--luigi-green)]/20 to-[var(--sky-blue)]/20 border-4 border-[var(--outline-black)] rounded-xl p-6 shadow-[8px_8px_0_var(--outline-black)] relative overflow-hidden">
             <div className="absolute top-2 right-2 flex gap-2">
