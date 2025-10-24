@@ -62,27 +62,27 @@ export default function MarketHover({ trigger }: { trigger: React.ReactNode }) {
       {/* Trigger */}
       <div className="cursor-pointer">{trigger}</div>
 
-      {/* Popover - positioned above the trigger on desktop */}
+      {/* Popover - positioned above the trigger with proper spacing */}
       <div
         className="
           invisible opacity-0 translate-y-2 group-hover:visible group-hover:opacity-100 group-hover:translate-y-0
           transition-all duration-200 ease-out
-          absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-[440px] z-[100]
+          absolute bottom-full left-1/2 -translate-x-1/2 mb-4 w-[420px] z-[9999]
           pointer-events-none group-hover:pointer-events-auto
         "
       >
-        <div className="rounded-[16px] border-4 border-[var(--outline-black)] bg-[var(--card)] p-5 shadow-[8px_8px_0_var(--outline-black)]">
+        <div className="rounded-[16px] border-4 border-[var(--outline-black)] bg-[var(--card)] p-4 shadow-[8px_8px_0_var(--outline-black)]">
           {/* Header */}
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
               <span className="inline-flex h-2.5 w-2.5 rounded-full bg-[var(--luigi-green)] live-indicator" />
-              <span className="font-mario text-base tracking-wide uppercase">Market Lighthouse</span>
+              <span className="font-mario text-sm tracking-wide uppercase">Market Lighthouse</span>
             </div>
             <span className="text-xs opacity-60">Updated {getTimeAgo()}</span>
           </div>
 
           {/* Market Stats */}
-          <div className="space-y-3">
+          <div className="space-y-2.5">
             {/* Pump.fun 24h Volume */}
             <StatRow 
               label="Pump.fun 24h Volume" 
@@ -125,9 +125,9 @@ export default function MarketHover({ trigger }: { trigger: React.ReactNode }) {
           </div>
 
           {/* Footer */}
-          <div className="mt-4 pt-3 border-t-2 border-[var(--outline-black)]">
-            <p className="text-xs text-center opacity-60">
-              Real-time market data from CoinMarketCap & PumpPortal
+          <div className="mt-3 pt-2.5 border-t-2 border-[var(--outline-black)]">
+            <p className="text-[10px] text-center opacity-60">
+              Real-time data from CoinMarketCap & PumpPortal
             </p>
           </div>
         </div>
@@ -150,22 +150,22 @@ function StatRow({
   icon?: string; 
 }) {
   return (
-    <div className="rounded-[12px] border-3 border-[var(--outline-black)] px-4 py-3 shadow-[4px_4px_0_var(--outline-black)] bg-gradient-to-br from-[var(--card)] to-[var(--card-hover)] hover:shadow-[6px_6px_0_var(--outline-black)] transition-all">
+    <div className="rounded-[12px] border-3 border-[var(--outline-black)] px-3 py-2.5 shadow-[4px_4px_0_var(--outline-black)] bg-gradient-to-br from-[var(--card)] to-[var(--card-hover)] hover:shadow-[5px_5px_0_var(--outline-black)] transition-all">
       <div className="flex justify-between items-center gap-3">
         <div className="flex items-center gap-2 flex-1">
-          {icon && <span className="text-lg">{icon}</span>}
-          <div className="text-xs opacity-80 font-medium">{label}</div>
+          {icon && <span className="text-base">{icon}</span>}
+          <div className="text-[11px] opacity-80 font-medium">{label}</div>
         </div>
         <div className="text-right">
           <div 
-            className="text-base font-bold number-display" 
+            className="text-sm font-bold number-display" 
             style={{ color: valueColor || 'inherit' }}
           >
             {value || "—"}
           </div>
           {subValue && (
             <div 
-              className="text-[10px] font-semibold uppercase tracking-wide mt-0.5"
+              className="text-[9px] font-semibold uppercase tracking-wide mt-0.5"
               style={{ color: valueColor || 'var(--text-secondary)' }}
             >
               {subValue}
