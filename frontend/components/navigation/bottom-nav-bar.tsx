@@ -359,7 +359,7 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
                     <div className="flex items-center gap-1.5">
                       <div className="relative w-5 h-5">
                         <Image
-                          src="https://cdn.brandfetch.io/idSZf4wCPl/w/400/h/400/theme/dark/icon.jpeg?c=1bxid64Mup7aczewSAYMX&t=1758793327112"
+                          src="/icons/social/market-data.svg"
                           alt="Market Data"
                           fill
                           className="object-contain"
@@ -536,7 +536,7 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
                     <div className="flex items-center gap-1 md:gap-1.5">
                       <div className="relative w-5 h-5">
                         <Image
-                          src="https://cdn.brandfetch.io/idSZf4wCPl/w/400/h/400/theme/dark/icon.jpeg?c=1bxid64Mup7aczewSAYMX&t=1758793327112"
+                          src="/icons/social/market-data.svg"
                           alt="Market Data"
                           fill
                           className="object-contain"
