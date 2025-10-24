@@ -137,20 +137,20 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
             <div className="flex-1 min-w-0">
               {/* Top Row: Symbol, Name, Age */}
               <div className="flex items-center gap-2 mb-2">
-                <h3 className="font-bold text-[22px] text-[var(--outline-black)] drop-shadow-sm">
+                <h3 className="font-bold text-[22px] text-[var(--outline-black)] font-mario">
                   {data.symbol}
                 </h3>
-                <span className="text-[15px] text-[var(--outline-black)] font-semibold truncate max-w-[150px] drop-shadow-sm" title={data.name || undefined}>
+                <span className="text-[15px] text-[var(--outline-black)] font-semibold truncate max-w-[150px]" title={data.name || undefined}>
                   {data.name}
                 </span>
-                <span className="text-[13px] text-[var(--outline-black)] font-bold ml-auto drop-shadow-sm">
+                <span className="text-[13px] text-[var(--outline-black)] font-bold ml-auto">
                   {age}
                 </span>
               </div>
 
               {/* Description (if available, truncated) */}
               {data.description && (
-                <div className="text-[12px] text-[var(--outline-black)] font-medium mb-1 truncate max-w-[300px] drop-shadow-sm opacity-90" title={data.description}>
+                <div className="text-[12px] text-[var(--outline-black)] font-medium mb-1 truncate max-w-[300px] opacity-90" title={data.description}>
                   {data.description}
                 </div>
               )}
@@ -160,7 +160,7 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
                 {/* Status Badge */}
                 {data.status && (
                   <div className={cn(
-                    "px-2 py-0.5 rounded-[6px] border-3 text-[12px] font-bold uppercase",
+                    "px-2 py-0.5 rounded-[6px] border-3 text-[12px] font-bold uppercase font-mario shadow-[2px_2px_0_var(--outline-black)]",
                     data.status === 'LAUNCHING' && "bg-[var(--sky-blue)]/20 text-[var(--sky-blue)] border-[var(--sky-blue)]",
                     data.status === 'ACTIVE' && "bg-[var(--luigi-green)]/20 text-[var(--luigi-green)] border-[var(--luigi-green)]",
                     data.status === 'ABOUT_TO_BOND' && "bg-[var(--star-yellow)]/20 text-[var(--star-yellow)] border-[var(--star-yellow)]",
@@ -173,7 +173,7 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
 
                 {/* Security Badge */}
                 <div className={cn(
-                  "px-2 py-0.5 rounded-[6px] border-3 text-[12px] font-bold uppercase",
+                  "px-2 py-0.5 rounded-[6px] border-3 text-[12px] font-bold uppercase font-mario shadow-[2px_2px_0_var(--outline-black)]",
                   security.cls
                 )}>
                   {security.label}
@@ -380,20 +380,20 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
             <div className="text-right shrink-0">
               {/* Market Cap */}
               <div className="mb-1">
-                <div className="text-[11px] text-[var(--outline-black)] opacity-80 uppercase font-bold drop-shadow-sm">MC</div>
-                <div className="text-[18px] font-bold text-[var(--outline-black)] font-mono drop-shadow-sm">
+                <div className="text-[11px] text-[var(--outline-black)] opacity-80 uppercase font-bold font-mario">MC</div>
+                <div className="text-[18px] font-bold text-[var(--outline-black)] font-mono">
                   {fmtCurrency(data.marketCapUsd)}
                 </div>
               </div>
 
               {/* Volume - USD and SOL */}
               <div className="mb-2">
-                <div className="text-[11px] text-[var(--outline-black)] opacity-80 uppercase font-bold drop-shadow-sm">Vol 24h</div>
-                <div className="text-[14px] font-bold text-[var(--outline-black)] font-mono drop-shadow-sm">
+                <div className="text-[11px] text-[var(--outline-black)] opacity-80 uppercase font-bold font-mario">Vol 24h</div>
+                <div className="text-[14px] font-bold text-[var(--outline-black)] font-mono">
                   {fmtCurrency(data.volume24h)}
                 </div>
                 {data.volume24hSol != null && data.volume24hSol > 0 && (
-                  <div className="text-[10px] text-[var(--outline-black)] opacity-80 font-mono drop-shadow-sm">
+                  <div className="text-[10px] text-[var(--outline-black)] opacity-80 font-mono">
                     {data.volume24hSol.toFixed(2)} SOL
                   </div>
                 )}
