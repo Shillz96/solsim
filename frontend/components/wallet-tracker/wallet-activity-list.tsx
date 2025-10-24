@@ -3,6 +3,7 @@
 import React, { useState, useRef, useCallback, useMemo } from "react"
 import { Virtuoso } from "react-virtuoso"
 import Link from "next/link"
+import Image from "next/image"
 import {
   TrendingUp,
   TrendingDown,
