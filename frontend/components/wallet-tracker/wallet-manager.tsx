@@ -16,7 +16,8 @@ import {
   Search,
   Edit2,
   Check,
-  XCircle
+  XCircle,
+  Sparkles
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -67,7 +68,7 @@ export function WalletManager({
   const { user } = useAuth()
   const { toast } = useToast()
 
-  const [activeTab, setActiveTab] = useState<"tracked" | "add">("tracked")
+  const [activeTab, setActiveTab] = useState<"tracked" | "add" | "import">("tracked")
   const [newWalletAddress, setNewWalletAddress] = useState("")
   const [newWalletLabel, setNewWalletLabel] = useState("")
   const [newWalletIcon, setNewWalletIcon] = useState("")
@@ -83,6 +84,16 @@ export function WalletManager({
   const [editIcon, setEditIcon] = useState("")
   const [showIconPicker, setShowIconPicker] = useState(false)
   const [updatingWallet, setUpdatingWallet] = useState(false)
+
+  // Bulk import state
+  const [bulkWalletText, setBulkWalletText] = useState("")
+  const [isImporting, setIsImporting] = useState(false)
+  const [importResults, setImportResults] = useState<{
+    success: number
+    failed: number
+    skipped: number
+    errors: string[]
+  } | null>(null)
 
   // Filter tracked wallets
   const filteredWallets = trackedWallets.filter(wallet => {
@@ -255,6 +266,105 @@ export function WalletManager({
     }
   }
 
+  // Bulk import wallets
+  const handleBulkImport = async () => {
+    if (!user || !bulkWalletText.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter wallet addresses",
+        variant: "destructive"
+      })
+      return
+    }
+
+    setIsImporting(true)
+    setImportResults(null)
+
+    try {
+      // Parse wallet addresses from text (supports newline, comma, space separation)
+      const addresses = bulkWalletText
+        .split(/[\n,\s]+/)
+        .map(addr => addr.trim())
+        .filter(addr => addr.length > 0)
+
+      if (addresses.length === 0) {
+        throw new Error("No valid wallet addresses found")
+      }
+
+      let success = 0
+      let failed = 0
+      let skipped = 0
+      const errors: string[] = []
+
+      // Import each wallet
+      for (const address of addresses) {
+        try {
+          // Validate Solana address (basic check: 32-44 characters)
+          if (address.length < 32 || address.length > 44) {
+            errors.push(`Invalid address format: ${address.slice(0, 12)}...`)
+            failed++
+            continue
+          }
+
+          // Check if already tracking
+          const existing = trackedWallets.find(w => w.walletAddress === address)
+          if (existing) {
+            skipped++
+            continue
+          }
+
+          // Add wallet
+          const response = await fetch(`${API_URL}/api/wallet-tracker/track`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              userId: user.id,
+              walletAddress: address
+            })
+          })
+
+          if (!response.ok) {
+            const error = await response.json()
+            errors.push(`${address.slice(0, 12)}...: ${error.error || 'Failed'}`)
+            failed++
+          } else {
+            success++
+          }
+        } catch (error: any) {
+          errors.push(`${address.slice(0, 12)}...: ${error.message}`)
+          failed++
+        }
+      }
+
+      setImportResults({ success, failed, skipped, errors })
+
+      if (success > 0) {
+        toast({
+          title: "Import Complete",
+          description: `Successfully imported ${success} wallet${success > 1 ? 's' : ''}`
+        })
+        onWalletsUpdated()
+        setBulkWalletText("")
+      }
+
+      if (failed > 0 || skipped > 0) {
+        toast({
+          title: "Import Issues",
+          description: `${failed} failed, ${skipped} already tracked`,
+          variant: "destructive"
+        })
+      }
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to import wallets",
+        variant: "destructive"
+      })
+    } finally {
+      setIsImporting(false)
+    }
+  }
+
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text)
     toast({
@@ -278,25 +388,32 @@ export function WalletManager({
           </DialogDescription>
         </DialogHeader>
 
-        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)} className="flex-1 overflow-hidden">
-          <TabsList className="grid w-full grid-cols-2 bg-white border-3 border-[var(--outline-black)] p-1 gap-1">
-            <TabsTrigger 
-              value="tracked" 
-              className="gap-2 font-mario data-[state=active]:bg-[var(--star-yellow)] data-[state=active]:text-[var(--outline-black)] data-[state=active]:border-2 data-[state=active]:border-[var(--outline-black)] data-[state=active]:shadow-[2px_2px_0_var(--outline-black)]"
+        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)} className="flex-1 overflow-hidden flex flex-col">
+          <TabsList className="grid w-full grid-cols-3 bg-white border-3 border-[var(--outline-black)] p-1 gap-1 flex-shrink-0">
+            <TabsTrigger
+              value="tracked"
+              className="gap-2 font-mario text-xs data-[state=active]:bg-[var(--star-yellow)] data-[state=active]:text-[var(--outline-black)] data-[state=active]:border-2 data-[state=active]:border-[var(--outline-black)] data-[state=active]:shadow-[2px_2px_0_var(--outline-black)]"
             >
               <Eye className="h-4 w-4" />
               Tracked ({trackedWallets.length})
             </TabsTrigger>
-            <TabsTrigger 
-              value="add" 
-              className="gap-2 font-mario data-[state=active]:bg-[var(--star-yellow)] data-[state=active]:text-[var(--outline-black)] data-[state=active]:border-2 data-[state=active]:border-[var(--outline-black)] data-[state=active]:shadow-[2px_2px_0_var(--outline-black)]"
+            <TabsTrigger
+              value="add"
+              className="gap-2 font-mario text-xs data-[state=active]:bg-[var(--star-yellow)] data-[state=active]:text-[var(--outline-black)] data-[state=active]:border-2 data-[state=active]:border-[var(--outline-black)] data-[state=active]:shadow-[2px_2px_0_var(--outline-black)]"
             >
               <UserPlus className="h-4 w-4" />
-              Add Wallet
+              Add One
+            </TabsTrigger>
+            <TabsTrigger
+              value="import"
+              className="gap-2 font-mario text-xs data-[state=active]:bg-[var(--star-yellow)] data-[state=active]:text-[var(--outline-black)] data-[state=active]:border-2 data-[state=active]:border-[var(--outline-black)] data-[state=active]:shadow-[2px_2px_0_var(--outline-black)]"
+            >
+              <Sparkles className="h-4 w-4" />
+              Bulk Import
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="tracked" className="mt-4 overflow-y-auto max-h-[50vh]">
+          <TabsContent value="tracked" className="mt-4 overflow-y-auto flex-1 min-h-0">
             {/* Search */}
             {trackedWallets.length > 0 && (
               <div className="relative mb-4">
@@ -611,6 +728,81 @@ export function WalletManager({
                     </>
                   )}
                 </button>
+              </div>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="import" className="mt-4 overflow-y-auto flex-1 min-h-0">
+            <div className="bg-white rounded-xl border-4 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)] p-6">
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="bulk-wallets" className="font-bold text-[var(--outline-black)]">Wallet Addresses</Label>
+                  <textarea
+                    id="bulk-wallets"
+                    value={bulkWalletText}
+                    onChange={(e) => setBulkWalletText(e.target.value)}
+                    placeholder="Paste wallet addresses here (one per line, or comma/space separated)&#10;&#10;Example:&#10;GJQzW...abc123&#10;9HzJP...xyz789&#10;ABcdE...efg456"
+                    rows={10}
+                    className="w-full px-3 py-2 bg-white border-3 border-[var(--outline-black)] rounded-lg shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)] font-mono text-sm resize-none focus:outline-none focus:ring-0"
+                  />
+                  <p className="text-xs text-[var(--pipe-600)] font-semibold">
+                    Supports newline, comma, or space separated addresses
+                  </p>
+                </div>
+
+                <button
+                  onClick={handleBulkImport}
+                  disabled={isImporting || !bulkWalletText.trim()}
+                  className="w-full gap-2 h-10 px-4 rounded-lg border-3 border-[var(--outline-black)] bg-[var(--luigi-green)] text-white hover:bg-[var(--luigi-green)]/90 shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all flex items-center justify-center font-mario disabled:opacity-50"
+                >
+                  {isImporting ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Importing...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="h-4 w-4" />
+                      Import Wallets
+                    </>
+                  )}
+                </button>
+
+                {/* Import Results */}
+                {importResults && (
+                  <div className="bg-[var(--sky-blue)]/20 rounded-lg border-3 border-[var(--outline-black)] p-4 text-sm space-y-2">
+                    <p className="font-mario text-[var(--outline-black)]">Import Results:</p>
+                    <div className="space-y-1">
+                      <div className="flex items-center justify-between">
+                        <span className="font-bold text-[var(--luigi-green)]">✓ Successfully imported:</span>
+                        <span className="font-bold text-[var(--luigi-green)]">{importResults.success}</span>
+                      </div>
+                      {importResults.skipped > 0 && (
+                        <div className="flex items-center justify-between">
+                          <span className="font-bold text-[var(--star-yellow)]">⚠ Already tracked:</span>
+                          <span className="font-bold text-[var(--star-yellow)]">{importResults.skipped}</span>
+                        </div>
+                      )}
+                      {importResults.failed > 0 && (
+                        <div className="flex items-center justify-between">
+                          <span className="font-bold text-[var(--mario-red)]">✗ Failed:</span>
+                          <span className="font-bold text-[var(--mario-red)]">{importResults.failed}</span>
+                        </div>
+                      )}
+                    </div>
+
+                    {importResults.errors.length > 0 && (
+                      <div className="mt-2 pt-2 border-t-2 border-[var(--outline-black)]/20">
+                        <p className="font-mario text-xs text-[var(--outline-black)] mb-1">Errors:</p>
+                        <div className="max-h-[100px] overflow-y-auto space-y-1">
+                          {importResults.errors.map((error, i) => (
+                            <p key={i} className="text-xs text-[var(--mario-red)] font-mono">{error}</p>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           </TabsContent>
