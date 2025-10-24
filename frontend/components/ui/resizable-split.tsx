@@ -91,9 +91,10 @@ export function ResizableSplit({
     }
   }, [])
 
-  // Optimized mouse handlers with useCallback
+  // Optimized mouse handlers with proper click-and-hold behavior
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
     e.preventDefault()
+    e.stopPropagation()
     setIsDragging(true)
     startPosRef.current = orientation === 'vertical' ? e.clientY : e.clientX
     startRatioRef.current = ratio
@@ -102,6 +103,9 @@ export function ResizableSplit({
   // Throttled mouse move handler for better performance
   const handleMouseMove = useCallback((e: MouseEvent) => {
     if (!isDragging || !containerRef.current) return
+
+    e.preventDefault()
+    e.stopPropagation()
 
     const containerRect = containerRef.current.getBoundingClientRect()
     const containerSize = orientation === 'vertical' ? containerRect.height : containerRect.width
@@ -120,15 +124,18 @@ export function ResizableSplit({
     }
   }, [isDragging, orientation, minRatio, maxRatio, ratio, debouncedSaveRatio])
 
-  const handleMouseUp = useCallback(() => {
+  const handleMouseUp = useCallback((e: MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
     setIsDragging(false)
     // Save final ratio
     debouncedSaveRatio(ratio)
   }, [ratio, debouncedSaveRatio])
 
-  // Touch handlers
+  // Touch handlers with proper click-and-hold behavior
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
     e.preventDefault()
+    e.stopPropagation()
     setIsDragging(true)
     startPosRef.current = orientation === 'vertical' ? e.touches[0].clientY : e.touches[0].clientX
     startRatioRef.current = ratio
@@ -136,6 +143,9 @@ export function ResizableSplit({
 
   const handleTouchMove = useCallback((e: TouchEvent) => {
     if (!isDragging || !containerRef.current) return
+
+    e.preventDefault()
+    e.stopPropagation()
 
     const containerRect = containerRef.current.getBoundingClientRect()
     const containerSize = orientation === 'vertical' ? containerRect.height : containerRect.width
@@ -153,28 +163,33 @@ export function ResizableSplit({
     }
   }, [isDragging, orientation, minRatio, maxRatio, ratio, debouncedSaveRatio])
 
-  const handleTouchEnd = useCallback(() => {
+  const handleTouchEnd = useCallback((e: TouchEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
     setIsDragging(false)
     debouncedSaveRatio(ratio)
   }, [ratio, debouncedSaveRatio])
 
-  // Optimized event listeners with proper cleanup
+  // Optimized event listeners with proper click-and-hold behavior
   useEffect(() => {
     if (!isDragging) return
 
     const handleMove = (e: MouseEvent) => handleMouseMove(e)
     const handleTouch = (e: TouchEvent) => handleTouchMove(e)
+    const handleUp = (e: MouseEvent) => handleMouseUp(e)
+    const handleTouchEnd = (e: TouchEvent) => handleTouchEnd(e)
 
-    document.addEventListener('mousemove', handleMove, { passive: false })
-    document.addEventListener('mouseup', handleMouseUp)
-    document.addEventListener('touchmove', handleTouch, { passive: false })
-    document.addEventListener('touchend', handleTouchEnd)
+    // Add event listeners with capture to ensure they fire before other handlers
+    document.addEventListener('mousemove', handleMove, { passive: false, capture: true })
+    document.addEventListener('mouseup', handleUp, { passive: false, capture: true })
+    document.addEventListener('touchmove', handleTouch, { passive: false, capture: true })
+    document.addEventListener('touchend', handleTouchEnd, { passive: false, capture: true })
 
     return () => {
-      document.removeEventListener('mousemove', handleMove)
-      document.removeEventListener('mouseup', handleMouseUp)
-      document.removeEventListener('touchmove', handleTouch)
-      document.removeEventListener('touchend', handleTouchEnd)
+      document.removeEventListener('mousemove', handleMove, { capture: true })
+      document.removeEventListener('mouseup', handleUp, { capture: true })
+      document.removeEventListener('touchmove', handleTouch, { capture: true })
+      document.removeEventListener('touchend', handleTouchEnd, { capture: true })
     }
   }, [isDragging, handleMouseMove, handleMouseUp, handleTouchMove, handleTouchEnd])
 
