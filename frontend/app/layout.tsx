@@ -106,25 +106,21 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           rel="preload"
           href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap&v=2"
           as="style"
-          onLoad="this.onload=null;this.rel='stylesheet'"
         />
         <link
           rel="preload"
           href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap&v=2"
           as="style"
-          onLoad="this.onload=null;this.rel='stylesheet'"
         />
         <link
           rel="preload"
           href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;500;600;700&display=swap&v=2"
           as="style"
-          onLoad="this.onload=null;this.rel='stylesheet'"
         />
         <link
           rel="preload"
           href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&display=swap&v=2"
           as="style"
-          onLoad="this.onload=null;this.rel='stylesheet'"
         />
       </head>
       <body
