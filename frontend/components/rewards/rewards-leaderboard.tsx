@@ -150,7 +150,7 @@ export function RewardsLeaderboard() {
       {/* Top 3 Showcase */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {leaders?.slice(0, 3).map((leader) => (
-          <div key={leader.userId} className={cn(
+          <Card key={leader.userId} className={cn(
             "mario-card-standard relative overflow-hidden transition-all hover:shadow-lg hover:scale-105",
             leader.rank === 1 && "border-yellow-500/50 bg-gradient-to-br from-yellow-500/5 to-transparent",
             leader.rank === 2 && "border-pipe-400/50 bg-gradient-to-br from-pipe-400/5 to-transparent",
@@ -161,7 +161,7 @@ export function RewardsLeaderboard() {
                 <Crown className="h-6 w-6 text-yellow-500" />
               </div>
             )}
-            <div className="mario-header-card mb-4">
+            <CardHeader className="mario-header-card mb-4">
               <div className="flex items-center gap-3">
                 <Avatar className="h-12 w-12 border-2 border-primary/20">
                   <AvatarImage
