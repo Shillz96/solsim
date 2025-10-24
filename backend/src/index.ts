@@ -46,6 +46,7 @@ import { generalRateLimit } from "./plugins/rateLimiting.js";
 import { NonceCleanupService } from "./plugins/nonce.js";
 import { RateLimitCleanupService } from "./plugins/rateLimiting.js";
 import * as liquidationEngine from "./services/liquidationEngine.js";
+import { geckoTerminalService } from "./services/geckoTerminalService.js";
 
 // Import production-ready plugins
 import { validateEnvironment, getConfig, isProduction } from "./utils/env.js";
@@ -263,6 +264,10 @@ RateLimitCleanupService.start();
 
 // Start WS price streamer (Birdeye) + warm SOL price
 await priceService.start();
+
+// Start GeckoTerminal OHLCV polling service (free tier, 30 rpm)
+geckoTerminalService.start();
+console.log("🦎 GeckoTerminal OHLCV service started");
 
 // Initialize PumpPortal wallet tracker (waits for PumpPortal connection)
 console.log("🔌 Initializing PumpPortal wallet tracker...");
