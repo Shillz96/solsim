@@ -41,7 +41,7 @@ export function EditablePresetButton({
   }, [isEditing])
 
   const handleClick = () => {
-    console.log('[EditablePresetButton] Click detected, isEditing:', isEditing, 'doubleClickTimer:', !!doubleClickTimer)
+    console.log('[EditablePresetButton] Click detected, isEditing:', isEditing, 'doubleClickTimer:', !!doubleClickTimer, 'disabled:', disabled)
     
     if (isEditing) return
 
@@ -52,9 +52,13 @@ export function EditablePresetButton({
       setDoubleClickTimer(null)
       enterEditMode()
     } else {
-      // Single click - select preset
-      console.log('[EditablePresetButton] Single click - selecting preset value:', value)
-      onSelect(value)
+      // Single click - select preset (only if not disabled)
+      if (!disabled) {
+        console.log('[EditablePresetButton] Single click - selecting preset value:', value)
+        onSelect(value)
+      } else {
+        console.log('[EditablePresetButton] Single click - button disabled, selection prevented')
+      }
       // Set timer for double-click detection
       const timer = setTimeout(() => {
         setDoubleClickTimer(null)
@@ -144,11 +148,11 @@ export function EditablePresetButton({
         selected
           ? "bg-accent text-accent-foreground hover:bg-accent/90 ring-2 ring-accent ring-offset-2"
           : "bg-card hover:bg-muted",
-        disabled && "opacity-50 cursor-not-allowed",
+        disabled && "opacity-50",
         className
       )}
       onClick={handleClick}
-      disabled={disabled}
+      disabled={false}  // Allow clicks for editing even when preset is over balance
       title="Double-click to edit"
     >
       {value} SOL
