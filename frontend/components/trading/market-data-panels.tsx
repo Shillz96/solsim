@@ -224,7 +224,7 @@ function TopTradersPanel({ tokenMint }: { tokenMint: string }) {
   )
 }
 
-// Holders Panel
+// Enhanced Holders Panel with Liquidity Pool and Trading Data
 function HoldersPanel({ tokenMint }: { tokenMint: string }) {
   const { data, isLoading } = useQuery({
     queryKey: ['holders', tokenMint],
@@ -236,15 +236,53 @@ function HoldersPanel({ tokenMint }: { tokenMint: string }) {
   const totalSupply = data?.totalSupply ? parseFloat(data.totalSupply) : 0
   const holderCount = data?.holderCount || 0
 
+  // Calculate liquidity pool participation (mock data - would come from API)
+  const liquidityPoolHolders = holders.filter((holder: any) => 
+    holder.address.includes('LIQUIDITY') || holder.address.includes('POOL')
+  )
+  const liquidityPoolPercentage = liquidityPoolHolders.reduce((sum: number, holder: any) => 
+    sum + holder.percentage, 0
+  )
+
+  // Mock trading activity data (would come from API)
+  const getHolderType = (holder: any) => {
+    if (holder.address.includes('LIQUIDITY') || holder.address.includes('POOL')) {
+      return { type: 'Liquidity Pool', icon: '🏊', color: 'text-[var(--sky-blue)]' }
+    }
+    if (holder.percentage > 10) {
+      return { type: 'Whale', icon: '🐋', color: 'text-[var(--mario-red)]' }
+    }
+    if (holder.percentage > 1) {
+      return { type: 'Dolphin', icon: '🐬', color: 'text-[var(--luigi-green)]' }
+    }
+    return { type: 'Holder', icon: '👤', color: 'text-muted-foreground' }
+  }
+
   return (
     <div className="border-4 border-[var(--outline-black)] rounded-[16px] shadow-[4px_4px_0_var(--outline-black)] bg-white p-4 min-h-[200px]">
       <div className="flex items-center gap-2 mb-4">
         <Users className="h-4 w-4 text-[var(--sky-blue)]" />
-        <h3 className="font-bold text-sm">Top Token Holders</h3>
+        <h3 className="font-bold text-sm">Token Holders & Distribution</h3>
         {holderCount > 0 && (
           <span className="text-xs text-muted-foreground">({holderCount} total)</span>
         )}
       </div>
+
+      {/* Liquidity Pool Summary */}
+      {liquidityPoolPercentage > 0 && (
+        <div className="mb-4 p-3 bg-[var(--sky-blue)]/10 border-2 border-[var(--sky-blue)]/30 rounded-lg">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="text-lg">🏊</span>
+              <span className="text-sm font-bold">Liquidity Pool</span>
+            </div>
+            <div className="text-right">
+              <div className="text-sm font-bold">{liquidityPoolPercentage.toFixed(2)}%</div>
+              <div className="text-xs text-muted-foreground">of total supply</div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {isLoading ? (
         <div className="flex items-center justify-center py-8">
@@ -258,23 +296,96 @@ function HoldersPanel({ tokenMint }: { tokenMint: string }) {
         </div>
       ) : (
         <div className="space-y-2 max-h-[400px] overflow-y-auto">
-          {holders.map((holder: any) => (
-            <div key={holder.address} className="flex items-center justify-between p-2 bg-muted/50 rounded-lg">
-              <div className="flex items-center gap-2 min-w-0 flex-1">
-                <div className={cn(
-                  "text-xs font-bold shrink-0",
-                  holder.rank === 1 ? "text-[var(--star-yellow)]" : "text-muted-foreground"
-                )}>
-                  #{holder.rank}
+          {holders.map((holder: any) => {
+            const holderInfo = getHolderType(holder)
+            const isLiquidityPool = holderInfo.type === 'Liquidity Pool'
+            
+            return (
+              <div key={holder.address} className={cn(
+                "flex items-center justify-between p-3 rounded-lg border-2 transition-all",
+                isLiquidityPool 
+                  ? "bg-[var(--sky-blue)]/10 border-[var(--sky-blue)]/30" 
+                  : "bg-muted/50 border-transparent hover:border-[var(--outline-black)]/20"
+              )}>
+                <div className="flex items-center gap-3 min-w-0 flex-1">
+                  <div className="flex items-center gap-2">
+                    <div className={cn(
+                      "text-xs font-bold shrink-0",
+                      holder.rank === 1 ? "text-[var(--star-yellow)]" : "text-muted-foreground"
+                    )}>
+                      #{holder.rank}
+                    </div>
+                    <span className="text-sm">{holderInfo.icon}</span>
+                  </div>
+                  
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2">
+                      <div className="text-xs font-mono truncate">
+                        {isLiquidityPool ? 'LIQUIDITY POOL' : `${holder.address.slice(0, 8)}...${holder.address.slice(-6)}`}
+                      </div>
+                      <span className={cn("text-xs font-bold", holderInfo.color)}>
+                        {holderInfo.type}
+                      </span>
+                    </div>
+                    
+                    {/* Additional holder info */}
+                    <div className="text-[10px] text-muted-foreground mt-1">
+                      {isLiquidityPool ? (
+                        <span>Provides trading liquidity</span>
+                      ) : holder.percentage > 5 ? (
+                        <span>Major holder • High influence</span>
+                      ) : holder.percentage > 1 ? (
+                        <span>Significant holder</span>
+                      ) : (
+                        <span>Individual holder</span>
+                      )}
+                    </div>
+                  </div>
                 </div>
-                <div className="text-xs font-mono truncate">{holder.address.slice(0, 8)}...{holder.address.slice(-6)}</div>
+                
+                <div className="text-right shrink-0">
+                  <div className="text-xs font-bold">{holder.percentage.toFixed(2)}%</div>
+                  <div className="text-[10px] text-muted-foreground">{formatTokenQuantity(holder.balance)}</div>
+                  
+                  {/* Progress bar for large holders */}
+                  {holder.percentage > 1 && (
+                    <div className="w-16 h-1 bg-[var(--outline-black)]/20 rounded-full mt-1">
+                      <div 
+                        className={cn(
+                          "h-full rounded-full transition-all",
+                          holder.percentage > 10 ? "bg-[var(--mario-red)]" :
+                          holder.percentage > 5 ? "bg-[var(--star-yellow)]" :
+                          "bg-[var(--luigi-green)]"
+                        )}
+                        style={{ width: `${Math.min(holder.percentage * 2, 100)}%` }}
+                      />
+                    </div>
+                  )}
+                </div>
               </div>
-              <div className="text-right shrink-0">
-                <div className="text-xs font-bold">{holder.percentage.toFixed(2)}%</div>
-                <div className="text-[10px] text-muted-foreground">{formatTokenQuantity(holder.balance)}</div>
+            )
+          })}
+        </div>
+      )}
+
+      {/* Distribution Summary */}
+      {holders.length > 0 && (
+        <div className="mt-4 p-3 bg-muted/30 rounded-lg border-2 border-[var(--outline-black)]/10">
+          <div className="text-xs font-bold mb-2">Distribution Analysis</div>
+          <div className="grid grid-cols-2 gap-2 text-[10px]">
+            <div>
+              <span className="text-muted-foreground">Top 5 holders:</span>
+              <div className="font-bold">
+                {holders.slice(0, 5).reduce((sum: number, holder: any) => sum + holder.percentage, 0).toFixed(1)}%
               </div>
             </div>
-          ))}
+            <div>
+              <span className="text-muted-foreground">Whales (>10%):</span>
+              <div className="font-bold">
+                {holders.filter((h: any) => h.percentage > 10).length} holders
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>
