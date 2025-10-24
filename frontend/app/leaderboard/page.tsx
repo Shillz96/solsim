@@ -289,9 +289,9 @@ export default function LeaderboardPage() {
                   <div className="space-y-3">
                     {topPerformers.map((performer, index) => {
                       const colors = [
-                        { bg: 'bg-[var(--star-yellow-500)]', border: 'border-[var(--star-yellow-600)]', rank: 'bg-[var(--star-yellow-600)]' },
-                        { bg: 'bg-[#C0C0C0]', border: 'border-[#A0A0A0]', rank: 'bg-[#A0A0A0]' },
-                        { bg: 'bg-[#CD7F32]', border: 'border-[#A0522D]', rank: 'bg-[#A0522D]' }
+                        { bg: 'bg-[#FFD700]', border: 'border-[#FFA500]', rank: 'bg-[#FFD700]' }, // Gold
+                        { bg: 'bg-[#C0C0C0]', border: 'border-[#A9A9A9]', rank: 'bg-[#C0C0C0]' }, // Silver
+                        { bg: 'bg-[#CD7F32]', border: 'border-[#8B4513]', rank: 'bg-[#CD7F32]' }  // Bronze
                       ]
                       const color = colors[index]
                       
@@ -301,7 +301,7 @@ export default function LeaderboardPage() {
                           className={`flex items-center justify-between p-3 rounded-[12px] ${color.bg} border-2 ${color.border} hover:opacity-90 transition-opacity shadow-[2px_2px_0_var(--outline-black)]`}
                         >
                           <div className="flex items-center gap-3">
-                            <div className={`flex items-center justify-center w-8 h-8 rounded-full ${color.rank} text-white border-2 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] font-bold text-sm`}>
+                            <div className={`flex items-center justify-center w-8 h-8 rounded-full ${color.rank} text-[var(--outline-black)] border-2 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] font-bold text-sm`}>
                               {index + 1}
                             </div>
                             <div>

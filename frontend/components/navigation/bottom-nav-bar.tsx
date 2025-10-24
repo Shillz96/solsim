@@ -388,7 +388,7 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
                     <div className="flex items-center gap-1.5">
                       <div className="relative w-5 h-5">
                         <Image
-                          src="/market-data.svg"
+                          src="/icons/social/market-data.svg"
                           alt="Market Data"
                           fill
                           className="object-contain"
@@ -561,7 +561,7 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
                     <div className="flex items-center gap-1 md:gap-1.5">
                       <div className="relative w-5 h-5">
                         <Image
-                          src="/market-data.svg"
+                          src="/icons/social/market-data.svg"
                           alt="Market Data"
                           fill
                           className="object-contain"
@@ -676,6 +676,13 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
                   ))}
                 </DropdownMenuContent>
               </DropdownMenu>
+              {/* Trading Mode as CartridgePill - Desktop */}
+              <CartridgePill
+                value={tradeMode === "REAL" ? "Mainnet" : "Paper"}
+                onClick={() => handleToggleMode(tradeMode === "REAL" ? "PAPER" : "REAL")}
+                size="sm"
+                className="hidden lg:inline-grid"
+              />
             </div>
           </div>
         </div>

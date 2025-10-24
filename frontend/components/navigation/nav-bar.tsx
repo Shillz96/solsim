@@ -445,14 +445,6 @@ export function NavBar() {
           <div className="flex items-center gap-3 flex-shrink-0">
             {isAuthenticated ? (
               <>
-                {/* Trade Mode Toggle - Desktop */}
-                <div className="hidden md:block">
-                  <CartridgePill
-                    value={tradeMode === "REAL" ? "Mainnet" : "Paper"}
-                    onClick={handleToggleMode}
-                    size="sm"
-                  />
-                </div>
                 
                 {/* Minimal balance pill with constrained width on mobile */}
                 <WalletBalanceDisplay variant="minimal" showDropdown className="h-9 max-w-[140px] sm:max-w-none" />
