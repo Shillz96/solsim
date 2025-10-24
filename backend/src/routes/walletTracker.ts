@@ -79,15 +79,38 @@ export default async function walletTrackerRoutes(app: FastifyInstance) {
     }
   });
 
+  // Update wallet label/alias
+  app.patch("/:trackingId", async (req, reply) => {
+    const { trackingId } = req.params as { trackingId: string };
+    const { label } = req.body as { label?: string };
+
+    try {
+      const updatedWallet = await prisma.walletTrack.update({
+        where: { id: trackingId },
+        data: { alias: label || null }
+      });
+
+      return {
+        id: updatedWallet.id,
+        walletAddress: updatedWallet.address,
+        label: updatedWallet.alias,
+        message: "Wallet label updated"
+      };
+    } catch (error: any) {
+      app.log.error(error);
+      return reply.code(500).send({ error: "Failed to update wallet label" });
+    }
+  });
+
   // Untrack a wallet
   app.delete("/:trackingId", async (req, reply) => {
     const { trackingId } = req.params as { trackingId: string };
-    
+
     try {
       await prisma.walletTrack.delete({
         where: { id: trackingId }
       });
-      
+
       return { message: "Wallet removed from tracking" };
     } catch (error: any) {
       app.log.error(error);
