@@ -106,33 +106,32 @@ export default function PipeNetworkPage() {
       maxHeight: 'calc(100dvh - var(--navbar-height, 56px) - var(--trending-ticker-height, 60px) - var(--bottom-nav-height, 64px))',
       overflow: 'hidden'
     }}>
-      <main className="container mx-auto px-4 py-6 flex-1 min-h-0">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="mb-8"
-        >
-          <div className="bg-gradient-to-r from-[var(--luigi-green)]/20 to-[var(--sky-blue)]/20 border-4 border-[var(--outline-black)] rounded-xl p-6 shadow-[8px_8px_0_var(--outline-black)] relative overflow-hidden">
-            <div className="absolute top-2 right-2 flex gap-2">
-              <Image src="/icons/mario/star.png" alt="Star" width={24} height={24} className="animate-pulse" />
-              <Image src="/icons/mario/mushroom.png" alt="Mushroom" width={24} height={24} />
+      {/* Header */}
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="px-4 pt-4 pb-2 flex-shrink-0"
+      >
+        <div className="bg-gradient-to-r from-[var(--luigi-green)]/20 to-[var(--sky-blue)]/20 border-4 border-[var(--outline-black)] rounded-xl p-6 shadow-[8px_8px_0_var(--outline-black)] relative overflow-hidden">
+          <div className="absolute top-2 right-2 flex gap-2">
+            <Image src="/icons/mario/star.png" alt="Star" width={24} height={24} className="animate-pulse" />
+            <Image src="/icons/mario/mushroom.png" alt="Mushroom" width={24} height={24} />
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="bg-[var(--luigi-green)] p-3 rounded-lg border-4 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)]">
+              <Image src="/Pipe-Network-10-24-2025.png" alt="Pipe Network" width={32} height={32} />
             </div>
-            <div className="flex items-center gap-4">
-              <div className="bg-[var(--luigi-green)] p-3 rounded-lg border-4 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)]">
-                <Image src="/Pipe-Network-10-24-2025.png" alt="Pipe Network" width={32} height={32} />
-              </div>
-              <div>
-                <h1 className="text-3xl font-mario font-bold text-[var(--outline-black)]">PIPE NETWORK</h1>
-                <p className="text-sm text-muted-foreground font-bold mt-1">Connect with the community & learn!</p>
-              </div>
+            <div>
+              <h1 className="text-3xl font-mario font-bold text-[var(--outline-black)]">PIPE NETWORK</h1>
+              <p className="text-sm text-muted-foreground font-bold mt-1">Connect with the community & learn!</p>
             </div>
           </div>
-        </motion.div>
+        </div>
+      </motion.div>
 
-        {/* Main Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 flex-1 min-h-0">
+      {/* Main Content Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 px-6 py-6 flex-1 min-h-0">
           
           {/* Left Sidebar - Quick Links & Features */}
           <motion.aside
@@ -306,8 +305,7 @@ export default function PipeNetworkPage() {
             </div>
           </motion.aside>
 
-        </div>
-      </main>
+      </div>
     </div>
   )
 }
