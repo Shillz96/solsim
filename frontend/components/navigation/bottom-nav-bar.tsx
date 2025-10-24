@@ -352,7 +352,6 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
                           className="object-contain"
                         />
                       </div>
-                      <span className="text-xs font-semibold text-foreground font-mario uppercase">Market Data</span>
                     </div>
                   </div>
                 }
@@ -389,24 +388,9 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
                           className="object-contain"
                         />
                       </div>
-                      <span className={`text-[10px] font-semibold ${getGlowColor(market.symbol)}`}>{market.symbol}</span>
                     </div>
                     <span className={`text-sm font-bold tabular-nums ${getGlowColor(market.symbol)}`}>
                       ${market.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                    </span>
-                    <span
-                      className={cn(
-                        "text-xs font-medium px-1 py-0.5 rounded tabular-nums",
-                        market.change24h > 0
-                          ? "text-[#00ff85] drop-shadow-[0_0_4px_rgba(0,255,133,0.6)]"
-                          : market.change24h < 0
-                          ? "text-[#ff4d4d] drop-shadow-[0_0_4px_rgba(255,77,77,0.6)]"
-                          : "text-muted-foreground",
-                      )}
-                      aria-label={`Price change: ${market.change24h > 0 ? 'up' : market.change24h < 0 ? 'down' : 'unchanged'} ${Math.abs(market.change24h).toFixed(2)} percent`}
-                    >
-                      {market.change24h > 0 ? "+" : ""}
-                      {market.change24h.toFixed(2)}
                     </span>
                   </div>
                 );
@@ -507,7 +491,6 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
                           className="object-contain"
                         />
                       </div>
-                      <span className="text-[10px] md:text-xs font-semibold text-foreground font-mario uppercase">Market Data</span>
                     </div>
                   </div>
                 }
@@ -544,24 +527,9 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
                           className="object-contain"
                         />
                       </div>
-                      <span className={`text-[10px] font-semibold ${getGlowColor(market.symbol)}`}>{market.symbol}</span>
                     </div>
                     <span className={`text-sm font-bold tabular-nums ${getGlowColor(market.symbol)}`}>
                       ${market.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                    </span>
-                    <span
-                      className={cn(
-                        "text-xs font-medium px-1 py-0.5 rounded tabular-nums",
-                        market.change24h > 0
-                          ? "text-[#00ff85] drop-shadow-[0_0_4px_rgba(0,255,133,0.6)]"
-                          : market.change24h < 0
-                          ? "text-[#ff4d4d] drop-shadow-[0_0_4px_rgba(255,77,77,0.6)]"
-                          : "text-muted-foreground",
-                      )}
-                      aria-label={`Price change: ${market.change24h > 0 ? 'up' : market.change24h < 0 ? 'down' : 'unchanged'} ${Math.abs(market.change24h).toFixed(2)} percent`}
-                    >
-                      {market.change24h > 0 ? "+" : ""}
-                      {market.change24h.toFixed(2)}
                     </span>
                   </div>
                 );
