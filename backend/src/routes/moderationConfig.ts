@@ -5,8 +5,8 @@
  */
 
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
-import { authenticateToken } from '../plugins/auth';
-import { currentConfig, getModerationConfig, validateModerationConfig, ModerationConfig } from '../config/moderationConfig';
+import { authenticateToken } from '../plugins/auth.js';
+import { currentConfig, getModerationConfig, validateModerationConfig, ModerationConfig } from '../config/moderationConfig.js';
 
 export default async function (app: FastifyInstance) {
   // Get current moderation configuration

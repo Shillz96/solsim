@@ -5,7 +5,7 @@
  */
 
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
-import { BadgeService } from '../services/badgeService';
+import { BadgeService } from '../services/badgeService.js';
 import { authenticateToken } from '../plugins/auth';
 
 export default async function (app: FastifyInstance) {

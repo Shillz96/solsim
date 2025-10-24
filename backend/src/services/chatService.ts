@@ -4,10 +4,10 @@
  * Enhanced chat service with badge system and moderation integration
  */
 
-import prisma from '../plugins/prisma';
-import redis from '../plugins/redis';
-import { ModerationBot } from './moderationBot';
-import { BadgeService } from './badgeService';
+import prisma from '../plugins/prisma.js';
+import redis from '../plugins/redis.js';
+import { ModerationBot } from './moderationBot.js';
+import { BadgeService } from './badgeService.js';
 
 export interface SendMessageResult {
   success: boolean;

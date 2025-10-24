@@ -5,9 +5,9 @@
  */
 
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
-import { ModerationBot } from '../services/moderationBot';
-import { authenticateToken } from '../plugins/auth';
-import prisma from '../plugins/prisma';
+import { ModerationBot } from '../services/moderationBot.js';
+import { authenticateToken } from '../plugins/auth.js';
+import prisma from '../plugins/prisma.js';
 
 // Helper function to check if user is moderator/admin
 async function checkModeratorPermissions(userId: string, prisma: any): Promise<boolean> {

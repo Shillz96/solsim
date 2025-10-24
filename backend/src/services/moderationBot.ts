@@ -5,9 +5,9 @@
  * Handles spam detection, toxicity filtering, and auto-moderation actions
  */
 
-import prisma from '../plugins/prisma';
-import redis from '../plugins/redis';
-import { currentConfig, ModerationConfig } from '../config/moderationConfig';
+import prisma from '../plugins/prisma.js';
+import redis from '../plugins/redis.js';
+import { currentConfig, ModerationConfig } from '../config/moderationConfig.js';
 
 export interface ModerationResult {
   violations: Violation[];
