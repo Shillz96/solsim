@@ -155,4 +155,39 @@ export default async function marketRoutes(app: FastifyInstance) {
       return reply.code(500).send({ error: error.message || 'Failed to fetch holders' });
     }
   });
+
+  /**
+   * Market Lighthouse - Combined PumpPortal + CMC data
+   * Returns aggregated market stats for hover component
+   */
+  app.get('/market/lighthouse', async (req, reply) => {
+    try {
+      // Get PumpPortal aggregated data from Redis
+      const pumpData = await redis.get('market:lighthouse:pump');
+      const pump = pumpData ? JSON.parse(pumpData) : {
+        '5m': { totalTrades: 0, traders: 0, volumeSol: 0, created: 0, migrations: 0 },
+        '1h': { totalTrades: 0, traders: 0, volumeSol: 0, created: 0, migrations: 0 },
+        '6h': { totalTrades: 0, traders: 0, volumeSol: 0, created: 0, migrations: 0 },
+        '24h': { totalTrades: 0, traders: 0, volumeSol: 0, created: 0, migrations: 0 },
+      };
+
+      // Get CMC data from Redis (cached by cmcService)
+      const cmcData = await redis.get('market:cmc:global');
+      const cmc = cmcData ? JSON.parse(cmcData) : {
+        totalMarketCapUsd: null,
+        btcDominancePct: null,
+        totalVolume24hUsd: null,
+      };
+
+      return {
+        pump,
+        cmc,
+        ts: Date.now(),
+      };
+    } catch (error: any) {
+      app.log.error(error);
+      return reply.code(500).send({ error: error.message || 'Failed to fetch lighthouse data' });
+    }
+  });
 }
+

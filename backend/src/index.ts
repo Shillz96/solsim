@@ -49,6 +49,8 @@ import { NonceCleanupService } from "./plugins/nonce.js";
 import { RateLimitCleanupService } from "./plugins/rateLimiting.js";
 import * as liquidationEngine from "./services/liquidationEngine.js";
 import { geckoTerminalService } from "./services/geckoTerminalService.js";
+import { marketLighthouseWorker } from "./workers/marketLighthouseWorker.js";
+import { startCMCRefresh, stopCMCRefresh } from "./services/cmcService.js";
 
 // Import production-ready plugins
 import { validateEnvironment, getConfig, isProduction } from "./utils/env.js";
@@ -273,6 +275,14 @@ await priceService.start();
 geckoTerminalService.start();
 console.log("🦎 GeckoTerminal OHLCV service started");
 
+// Start CoinMarketCap auto-refresh for global market data
+startCMCRefresh();
+console.log("📊 CoinMarketCap service started");
+
+// Start Market Lighthouse worker (PumpPortal aggregation)
+await marketLighthouseWorker.start();
+console.log("🔦 Market Lighthouse worker started");
+
 // Initialize PumpPortal wallet tracker (waits for PumpPortal connection)
 console.log("🔌 Initializing PumpPortal wallet tracker...");
 try {
@@ -308,6 +318,8 @@ const gracefulShutdown = async (signal: string) => {
     RateLimitCleanupService.stop();
     await priceService.stop();
     await liquidationEngine.stopLiquidationEngine();
+    marketLighthouseWorker.stop();
+    stopCMCRefresh();
 
     console.log('✅ Graceful shutdown completed');
     process.exit(0);

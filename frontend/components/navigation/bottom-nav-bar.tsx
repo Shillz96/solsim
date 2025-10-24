@@ -30,6 +30,7 @@ import { RealTradingOnboardingModal } from "@/components/modals/real-trading-onb
 import { CartridgePill } from "@/components/ui/cartridge-pill"
 import { useWindowManager } from "@/components/window/WindowManager"
 import { WalletTrackerContent } from "@/components/wallet-tracker/wallet-tracker-content"
+import MarketHover from "@/components/market/MarketHover"
 
 // Percentage formatting now inline
 
@@ -254,8 +255,20 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
             <span className="text-[10px] md:text-xs font-mario text-muted-foreground whitespace-nowrap">© 2025 1UP SOL</span>
           </div>
 
-          {/* Center: Market Prices */}
+          {/* Center: Market Prices + Market Lighthouse */}
           <div className="flex items-center gap-2 md:gap-4">
+            {/* Market Lighthouse Hover */}
+            <MarketHover
+              trigger={
+                <div className="flex items-center gap-1.5 md:gap-2 px-2 md:px-3 py-1 md:py-1.5 rounded-lg bg-white border-2 border-[var(--outline-black)]/20 hover:border-[var(--outline-black)]/40 transition-colors">
+                  <div className="flex items-center gap-1 md:gap-1.5">
+                    <div className="w-1.5 h-1.5 rounded-full bg-[var(--luigi-green)] animate-pulse"></div>
+                    <span className="text-[10px] md:text-xs font-semibold text-foreground font-mario uppercase">Market Data</span>
+                  </div>
+                </div>
+              }
+            />
+
             {marketPrices.map((market) => (
               <div key={market.symbol} className="flex items-center gap-1.5 md:gap-2 px-2 md:px-3 py-1 md:py-1.5 rounded-lg bg-white border-2 border-[var(--outline-black)]/20">
                 <div className="flex items-center gap-1 md:gap-1.5">
