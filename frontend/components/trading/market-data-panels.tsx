@@ -12,15 +12,18 @@
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { cn } from '@/lib/utils'
-import { Loader2, TrendingUp, TrendingDown, Users, Activity } from 'lucide-react'
+import { Loader2, TrendingUp, TrendingDown, Users, Activity, Network, Wallet } from 'lucide-react'
 import { formatUSD, formatNumber, formatTokenQuantity } from '@/lib/format'
+import { usePortfolio } from '@/hooks/use-portfolio'
+import { useAuth } from '@/hooks/use-auth'
+import { useRouter } from 'next/navigation'
 import * as api from '@/lib/api'
 
 interface MarketDataPanelsProps {
   tokenMint: string
 }
 
-type TabType = 'trades' | 'traders' | 'holders'
+type TabType = 'trades' | 'traders' | 'holders' | 'bubblemap' | 'positions'
 
 export function MarketDataPanels({ tokenMint }: MarketDataPanelsProps) {
   const [activeTab, setActiveTab] = useState<TabType>('trades')
@@ -28,46 +31,76 @@ export function MarketDataPanels({ tokenMint }: MarketDataPanelsProps) {
   return (
     <div className="flex flex-col h-full bg-white">
       {/* Tabs */}
-      <div className="border-b-4 border-[var(--outline-black)] bg-white px-4 py-3 flex gap-3 text-xs font-bold justify-center flex-shrink-0">
-        <button
-          onClick={() => setActiveTab('trades')}
-          className={cn(
-            "px-2 sm:px-3 py-1.5 rounded-md border-2 border-[var(--outline-black)] transition-all flex items-center gap-1 sm:gap-1.5",
-            activeTab === 'trades'
-              ? "bg-[var(--star-yellow)] shadow-[3px_3px_0_var(--outline-black)] -translate-y-[1px]"
-              : "bg-white hover:bg-[var(--pipe-100)] shadow-[2px_2px_0_var(--outline-black)]"
-          )}
-        >
-          <Activity className="h-3 w-3" />
-          <span className="hidden xs:inline">Trades</span>
-        </button>
+      <div className="border-b-4 border-[var(--outline-black)] bg-white px-4 py-3 overflow-x-auto flex-shrink-0">
+        <div className="flex gap-2 sm:gap-3 text-xs font-bold justify-start sm:justify-center min-w-max">
+          <button
+            onClick={() => setActiveTab('trades')}
+            className={cn(
+              "px-2 sm:px-3 py-1.5 rounded-md border-2 border-[var(--outline-black)] transition-all flex items-center gap-1 sm:gap-1.5 whitespace-nowrap",
+              activeTab === 'trades'
+                ? "bg-[var(--star-yellow)] shadow-[3px_3px_0_var(--outline-black)] -translate-y-[1px]"
+                : "bg-white hover:bg-[var(--pipe-100)] shadow-[2px_2px_0_var(--outline-black)]"
+            )}
+          >
+            <Activity className="h-3 w-3" />
+            <span className="hidden xs:inline">Trades</span>
+          </button>
 
-        <button
-          onClick={() => setActiveTab('traders')}
-          className={cn(
-            "px-2 sm:px-3 py-1.5 rounded-md border-2 border-[var(--outline-black)] transition-all flex items-center gap-1 sm:gap-1.5",
-            activeTab === 'traders'
-              ? "bg-[var(--star-yellow)] shadow-[3px_3px_0_var(--outline-black)] -translate-y-[1px]"
-              : "bg-white hover:bg-[var(--pipe-100)] shadow-[2px_2px_0_var(--outline-black)]"
-          )}
-        >
-          <TrendingUp className="h-3 w-3" />
-          <span className="hidden sm:inline">Top Traders</span>
-          <span className="sm:hidden">Traders</span>
-        </button>
+          <button
+            onClick={() => setActiveTab('traders')}
+            className={cn(
+              "px-2 sm:px-3 py-1.5 rounded-md border-2 border-[var(--outline-black)] transition-all flex items-center gap-1 sm:gap-1.5 whitespace-nowrap",
+              activeTab === 'traders'
+                ? "bg-[var(--star-yellow)] shadow-[3px_3px_0_var(--outline-black)] -translate-y-[1px]"
+                : "bg-white hover:bg-[var(--pipe-100)] shadow-[2px_2px_0_var(--outline-black)]"
+            )}
+          >
+            <TrendingUp className="h-3 w-3" />
+            <span className="hidden sm:inline">Top Traders</span>
+            <span className="sm:hidden">Traders</span>
+          </button>
 
-        <button
-          onClick={() => setActiveTab('holders')}
-          className={cn(
-            "px-2 sm:px-3 py-1.5 rounded-md border-2 border-[var(--outline-black)] transition-all flex items-center gap-1 sm:gap-1.5",
-            activeTab === 'holders'
-              ? "bg-[var(--star-yellow)] shadow-[3px_3px_0_var(--outline-black)] -translate-y-[1px]"
-              : "bg-white hover:bg-[var(--pipe-100)] shadow-[2px_2px_0_var(--outline-black)]"
-          )}
-        >
-          <Users className="h-3 w-3" />
-          <span className="hidden xs:inline">Holders</span>
-        </button>
+          <button
+            onClick={() => setActiveTab('holders')}
+            className={cn(
+              "px-2 sm:px-3 py-1.5 rounded-md border-2 border-[var(--outline-black)] transition-all flex items-center gap-1 sm:gap-1.5 whitespace-nowrap",
+              activeTab === 'holders'
+                ? "bg-[var(--star-yellow)] shadow-[3px_3px_0_var(--outline-black)] -translate-y-[1px]"
+                : "bg-white hover:bg-[var(--pipe-100)] shadow-[2px_2px_0_var(--outline-black)]"
+            )}
+          >
+            <Users className="h-3 w-3" />
+            <span className="hidden xs:inline">Holders</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('bubblemap')}
+            className={cn(
+              "px-2 sm:px-3 py-1.5 rounded-md border-2 border-[var(--outline-black)] transition-all flex items-center gap-1 sm:gap-1.5 whitespace-nowrap",
+              activeTab === 'bubblemap'
+                ? "bg-[var(--star-yellow)] shadow-[3px_3px_0_var(--outline-black)] -translate-y-[1px]"
+                : "bg-white hover:bg-[var(--pipe-100)] shadow-[2px_2px_0_var(--outline-black)]"
+            )}
+          >
+            <Network className="h-3 w-3" />
+            <span className="hidden xs:inline">Bubble Map</span>
+            <span className="xs:hidden">Map</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('positions')}
+            className={cn(
+              "px-2 sm:px-3 py-1.5 rounded-md border-2 border-[var(--outline-black)] transition-all flex items-center gap-1 sm:gap-1.5 whitespace-nowrap",
+              activeTab === 'positions'
+                ? "bg-[var(--star-yellow)] shadow-[3px_3px_0_var(--outline-black)] -translate-y-[1px]"
+                : "bg-white hover:bg-[var(--pipe-100)] shadow-[2px_2px_0_var(--outline-black)]"
+            )}
+          >
+            <Wallet className="h-3 w-3" />
+            <span className="hidden xs:inline">My Positions</span>
+            <span className="xs:hidden">Portfolio</span>
+          </button>
+        </div>
       </div>
 
       {/* Data Panel Content */}
@@ -75,6 +108,8 @@ export function MarketDataPanels({ tokenMint }: MarketDataPanelsProps) {
         {activeTab === 'trades' && <RecentTradesPanel tokenMint={tokenMint} />}
         {activeTab === 'traders' && <TopTradersPanel tokenMint={tokenMint} />}
         {activeTab === 'holders' && <HoldersPanel tokenMint={tokenMint} />}
+        {activeTab === 'bubblemap' && <BubbleMapsPanel tokenMint={tokenMint} />}
+        {activeTab === 'positions' && <UserPositionsPanel />}
       </div>
     </div>
   )

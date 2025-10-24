@@ -410,3 +410,130 @@ export async function getPortfolioWithRealTimePrices(userId: string, tradeMode: 
 
   return portfolio;
 }
+
+// Get token-specific trading statistics (total bought/sold/PnL for a specific token)
+export async function getTokenTradingStats(
+  userId: string,
+  mint: string,
+  tradeMode: 'PAPER' | 'REAL' = 'PAPER'
+) {
+  // Try Redis cache first (30s TTL for token stats)
+  const cacheKey = `token:stats:${userId}:${mint}:${tradeMode}`;
+  try {
+    const cached = await redis.get(cacheKey);
+    if (cached) {
+      return JSON.parse(cached);
+    }
+  } catch (error) {
+    console.warn(`Redis cache miss for token stats ${userId}:${mint}:`, error);
+  }
+
+  // Get all trades for this token
+  const trades = await prisma.trade.findMany({
+    where: {
+      userId,
+      mint,
+      tradeMode
+    },
+    select: {
+      side: true,
+      costUsd: true,
+      proceedsUsd: true,
+      totalCost: true,
+      realizedPnL: true,
+      feesSol: true,
+      solUsdAtFill: true
+    },
+    orderBy: { createdAt: 'asc' }
+  });
+
+  let totalBoughtUsd = D(0);
+  let totalSoldUsd = D(0);
+  let totalRealizedPnL = D(0);
+  let totalFeesSol = D(0);
+  let totalFeesUsd = D(0);
+
+  for (const trade of trades) {
+    const feesSol = trade.feesSol ? D(trade.feesSol) : D(0);
+    const solUsdAtFill = trade.solUsdAtFill ? D(trade.solUsdAtFill) : D(0);
+
+    totalFeesSol = totalFeesSol.add(feesSol);
+    if (solUsdAtFill.gt(0)) {
+      totalFeesUsd = totalFeesUsd.add(feesSol.mul(solUsdAtFill));
+    }
+
+    if (trade.side === 'BUY') {
+      // For buys, use costUsd if available, otherwise calculate from totalCost (SOL) * solUsdAtFill
+      const costUsd = trade.costUsd
+        ? D(trade.costUsd)
+        : (trade.totalCost && solUsdAtFill.gt(0)
+            ? D(trade.totalCost).mul(solUsdAtFill)
+            : D(0));
+      totalBoughtUsd = totalBoughtUsd.add(costUsd);
+    } else if (trade.side === 'SELL') {
+      // For sells, use proceedsUsd if available, otherwise calculate from totalCost * solUsdAtFill
+      const proceedsUsd = trade.proceedsUsd
+        ? D(trade.proceedsUsd)
+        : (trade.totalCost && solUsdAtFill.gt(0)
+            ? D(trade.totalCost).mul(solUsdAtFill)
+            : D(0));
+      totalSoldUsd = totalSoldUsd.add(proceedsUsd);
+
+      // Add realized PnL
+      if (trade.realizedPnL) {
+        totalRealizedPnL = totalRealizedPnL.add(D(trade.realizedPnL));
+      }
+    }
+  }
+
+  // Get current position for unrealized PnL
+  const position = await prisma.position.findUnique({
+    where: {
+      userId_mint_tradeMode: {
+        userId,
+        mint,
+        tradeMode
+      }
+    },
+    select: {
+      qty: true,
+      costBasis: true
+    }
+  });
+
+  let currentHoldingValue = D(0);
+  let unrealizedPnL = D(0);
+
+  if (position && D(position.qty).gt(0)) {
+    // Get current price
+    const currentPrice = await priceService.getLastTick(mint);
+    if (currentPrice) {
+      const qty = D(position.qty);
+      const costBasis = D(position.costBasis);
+      currentHoldingValue = qty.mul(D(currentPrice));
+      unrealizedPnL = currentHoldingValue.sub(costBasis);
+    }
+  }
+
+  const result = {
+    mint,
+    totalBoughtUsd: totalBoughtUsd.toFixed(2),
+    totalSoldUsd: totalSoldUsd.toFixed(2),
+    currentHoldingValue: currentHoldingValue.toFixed(2),
+    realizedPnL: totalRealizedPnL.toFixed(2),
+    unrealizedPnL: unrealizedPnL.toFixed(2),
+    totalPnL: totalRealizedPnL.add(unrealizedPnL).toFixed(2),
+    totalFeesSol: totalFeesSol.toFixed(6),
+    totalFeesUsd: totalFeesUsd.toFixed(2),
+    tradeCount: trades.length
+  };
+
+  // Cache for 30 seconds
+  try {
+    await redis.setex(cacheKey, 30, JSON.stringify(result));
+  } catch (error) {
+    console.warn(`Failed to cache token stats for ${userId}:${mint}:`, error);
+  }
+
+  return result;
+}

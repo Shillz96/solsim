@@ -1,10 +1,11 @@
 // Portfolio routes with enhanced functionality
 import { FastifyInstance } from "fastify";
-import { 
-  getPortfolio, 
-  getPortfolioWithRealTimePrices, 
+import {
+  getPortfolio,
+  getPortfolioWithRealTimePrices,
   getPortfolioTradingStats,
-  getPortfolioPerformance 
+  getPortfolioPerformance,
+  getTokenTradingStats
 } from "../services/portfolioService.js";
 
 export default async function (app: FastifyInstance) {
@@ -76,19 +77,42 @@ export default async function (app: FastifyInstance) {
     const userId = (req.query as any).userId;
     const tradeMode = (req.query as any).tradeMode || 'PAPER';
     const days = parseInt((req.query as any).days) || 30;
-    
+
     if (!userId) return reply.code(400).send({ error: "userId required" });
     if (!['PAPER', 'REAL'].includes(tradeMode)) {
       return reply.code(400).send({ error: "tradeMode must be 'PAPER' or 'REAL'" });
     }
-    
+
     try {
       const performance = await getPortfolioPerformance(userId, days, tradeMode);
       return { performance };
     } catch (error) {
       console.error("Portfolio performance fetch error:", error);
-      return reply.code(500).send({ 
-        error: "Failed to fetch portfolio performance" 
+      return reply.code(500).send({
+        error: "Failed to fetch portfolio performance"
+      });
+    }
+  });
+
+  // Token-specific trading statistics (bought/sold/PnL/fees for a specific token)
+  app.get("/token-stats", async (req, reply) => {
+    const userId = (req.query as any).userId;
+    const mint = (req.query as any).mint;
+    const tradeMode = (req.query as any).tradeMode || 'PAPER';
+
+    if (!userId) return reply.code(400).send({ error: "userId required" });
+    if (!mint) return reply.code(400).send({ error: "mint (token address) required" });
+    if (!['PAPER', 'REAL'].includes(tradeMode)) {
+      return reply.code(400).send({ error: "tradeMode must be 'PAPER' or 'REAL'" });
+    }
+
+    try {
+      const stats = await getTokenTradingStats(userId, mint, tradeMode);
+      return stats;
+    } catch (error) {
+      console.error("Token stats fetch error:", error);
+      return reply.code(500).send({
+        error: "Failed to fetch token statistics"
       });
     }
   });

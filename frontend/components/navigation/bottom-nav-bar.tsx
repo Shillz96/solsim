@@ -388,7 +388,7 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
                     <div className="flex items-center gap-1.5">
                       <div className="relative w-5 h-5">
                         <Image
-                          src="/icons/social/market-data.svg"
+                          src="/icons/market-data.png"
                           alt="Market Data"
                           fill
                           className="object-contain"
@@ -561,7 +561,7 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
                     <div className="flex items-center gap-1 md:gap-1.5">
                       <div className="relative w-5 h-5">
                         <Image
-                          src="/icons/social/market-data.svg"
+                          src="/icons/market-data.png"
                           alt="Market Data"
                           fill
                           className="object-contain"

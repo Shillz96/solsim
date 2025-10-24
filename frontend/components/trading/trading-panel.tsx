@@ -26,6 +26,11 @@ import { useScreenReaderAnnouncements } from "@/hooks/use-screen-reader-announce
 import { TradingValue, ProfitLossValue } from "@/components/ui/financial-value"
 import { useAuth } from "@/hooks/use-auth"
 import { usePortfolio, usePosition } from "@/hooks/use-portfolio"
+// New advanced trading components
+import { PositionStatsBox } from "./position-stats-box"
+import { FeeDisplay } from "./fee-display"
+import { EditablePresetButton } from "./editable-preset-button"
+import { QuickTradePanel } from "./quick-trade-panel"
 
 // Token details type
 type TokenDetails = {
@@ -296,9 +301,31 @@ function TradingPanelComponent({ tokenAddress: propTokenAddress }: TradingPanelP
   const [customSellPercentage, setCustomSellPercentage] = useState("")
   const [lastTrade, setLastTrade] = useState<{side: 'buy' | 'sell', amount: number, timestamp: number} | null>(null)
 
-  const presetSolAmounts = [1, 5, 10, 20]
+  // Editable presets (load from localStorage)
+  const [presetSolAmounts, setPresetSolAmounts] = useState<number[]>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('buy-preset-amounts')
+      if (saved) {
+        try {
+          return JSON.parse(saved)
+        } catch (e) {
+          // Invalid saved data, use defaults
+        }
+      }
+    }
+    return [1, 5, 10, 20] // Default presets
+  })
+
   const presetBalancePercentages = [1, 5, 10, 25] // % of balance
   const sellPercentages = [25, 50, 75, 100]
+
+  // Save preset amounts to localStorage when they change
+  const updatePresetAmount = (index: number, newValue: number) => {
+    const newPresets = [...presetSolAmounts]
+    newPresets[index] = newValue
+    setPresetSolAmounts(newPresets)
+    localStorage.setItem('buy-preset-amounts', JSON.stringify(newPresets))
+  }
 
   // Load last trade from localStorage on mount
   useEffect(() => {
@@ -621,6 +648,13 @@ function TradingPanelComponent({ tokenAddress: propTokenAddress }: TradingPanelP
       )}
 
       <div className="space-y-3">
+        {/* Position Stats Box */}
+        <PositionStatsBox
+          tokenAddress={tokenAddress}
+          tradeMode="PAPER"
+          className="mb-4"
+        />
+
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <h3 className="font-bold text-lg">Trade {tokenDetails.tokenSymbol || 'Token'}</h3>
@@ -734,36 +768,20 @@ function TradingPanelComponent({ tokenAddress: propTokenAddress }: TradingPanelP
             </div>
 
             <div className="grid grid-cols-2 gap-3 sm:gap-4">
-              {presetSolAmounts.map((amount) => (
-                <Button
-                  key={amount}
-                  size="lg"
-                  variant={selectedSolAmount === amount ? "default" : "outline"}
-                  className={cn(
-                    "h-14 sm:h-12 font-mono text-lg sm:text-base transition-all relative active:scale-95",
-                    selectedSolAmount === amount
-                      ? "bg-accent text-accent-foreground hover:bg-accent/90 ring-2 ring-accent ring-offset-2"
-                      : "bg-card hover:bg-muted",
-                    amount > balance && "opacity-50 cursor-not-allowed"
-                  )}
-                  onClick={() => {
-                    setSelectedSolAmount(amount)
+              {presetSolAmounts.map((amount, index) => (
+                <EditablePresetButton
+                  key={index}
+                  value={amount}
+                  index={index}
+                  selected={selectedSolAmount === amount}
+                  disabled={amount > balance}
+                  maxValue={balance}
+                  onSelect={(value) => {
+                    setSelectedSolAmount(value)
                     setCustomSolAmount("")
                   }}
-                  disabled={amount > balance}
-                  aria-label={
-                    amount > balance
-                      ? `${amount} SOL - Insufficient balance, you have ${balance.toFixed(2)} SOL available`
-                      : `Select ${amount} SOL to spend${selectedSolAmount === amount ? ', currently selected' : ''}`
-                  }
-                  aria-pressed={selectedSolAmount === amount}
-                  title={amount > balance ? `Insufficient balance (need ${amount} SOL)` : undefined}
-                >
-                  {amount} SOL
-                  {amount > balance && (
-                    <span className="absolute -top-1 -right-1 h-3 w-3 bg-destructive rounded-full" aria-hidden="true" />
-                  )}
-                </Button>
+                  onUpdate={updatePresetAmount}
+                />
               ))}
             </div>
 
@@ -898,6 +916,16 @@ function TradingPanelComponent({ tokenAddress: propTokenAddress }: TradingPanelP
               </div>
             </div>
           </div>
+
+          {/* Fee Display */}
+          {(selectedSolAmount || customSolAmount) && solPrice > 0 && (
+            <FeeDisplay
+              solAmount={parseFloat(customSolAmount) || selectedSolAmount || 0}
+              solPrice={solPrice}
+              variant="buy"
+              className="mb-3"
+            />
+          )}
 
           <Button
             className="w-full btn-buy h-16 sm:h-14 text-xl sm:text-lg font-bold active:scale-[0.98] transition-transform"
@@ -1103,6 +1131,16 @@ function TradingPanelComponent({ tokenAddress: propTokenAddress }: TradingPanelP
                 )}
               </div>
 
+              {/* Fee Display for Sell */}
+              {selectedPercentage && solPrice > 0 && tokenBalance > 0 && (
+                <FeeDisplay
+                  solAmount={((tokenBalance * selectedPercentage) / 100) * currentPrice / solPrice}
+                  solPrice={solPrice}
+                  variant="sell"
+                  className="mb-3"
+                />
+              )}
+
               <Button
                 className="w-full btn-sell h-16 sm:h-14 text-xl sm:text-lg font-bold active:scale-[0.98] transition-transform"
                 size="lg"
@@ -1140,10 +1178,32 @@ function TradingPanelComponent({ tokenAddress: propTokenAddress }: TradingPanelP
       </Tabs>
       
       {/* Screen reader announcements for trading actions */}
-      <ScreenReaderAnnouncements 
+      <ScreenReaderAnnouncements
         politeMessage={announcement}
         urgentMessage={urgentAnnouncement}
       />
+
+      {/* Quick Trade Pop-out Panel */}
+      {tokenDetails && (
+        <QuickTradePanel
+          tokenSymbol={tokenDetails.tokenSymbol || 'Token'}
+          currentPrice={currentPrice}
+          solPrice={solPrice}
+          balance={balance}
+          tokenBalance={tokenBalance}
+          onBuy={(amount) => {
+            setSelectedSolAmount(amount)
+            setCustomSolAmount("")
+            setTimeout(() => handleTrade('buy'), 100)
+          }}
+          onSell={(percentage) => {
+            setSelectedPercentage(percentage)
+            setCustomSellPercentage("")
+            setTimeout(() => handleTrade('sell'), 100)
+          }}
+          isTrading={isTrading}
+        />
+      )}
       </div>
     </div>
   )
