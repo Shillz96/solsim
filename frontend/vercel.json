@@ -3,7 +3,7 @@
   "outputDirectory": ".next",
   "framework": "nextjs",
   "regions": ["sfo1"],
-  "installCommand": "npm ci || npm install",
+  "installCommand": "cd .. && npm ci && cd frontend",
   "functions": {
     "app/**/*": {
       "maxDuration": 10

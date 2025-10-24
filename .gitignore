@@ -6,7 +6,6 @@ backend.backup/
 node_modules/
 .pnp
 .pnp.js
-package-lock.json  # Only if using different package managers
 .npmrc
 
 # Testing
