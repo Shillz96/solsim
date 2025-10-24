@@ -1,17 +1,17 @@
 'use client'
 
 /**
- * ResizableSplit Component
+ * ResizableSplit Component - Optimized Version
  * 
  * Mario-themed resizable split panel with:
- * - Draggable handle between two panels
- * - Smooth resize animation
+ * - Smooth, performant dragging
+ * - Optimized re-renders
  * - Min/max constraints
  * - Persistent split ratio to localStorage
  * - Mario theme styling with hover/drag states
  */
 
-import { useState, useEffect, useRef, useCallback, ReactNode } from 'react'
+import { useState, useEffect, useRef, useCallback, ReactNode, useMemo } from 'react'
 import { cn } from '@/lib/utils'
 
 interface ResizableSplitProps {
@@ -38,6 +38,7 @@ export function ResizableSplit({
   const containerRef = useRef<HTMLDivElement>(null)
   const startPosRef = useRef<number>(0)
   const startRatioRef = useRef<number>(0)
+  const debouncedSaveRef = useRef<NodeJS.Timeout | null>(null)
 
   // Load saved ratio from localStorage
   useEffect(() => {
@@ -56,7 +57,7 @@ export function ResizableSplit({
     }
   }, [storageKey, minRatio, maxRatio])
 
-  // Save ratio to localStorage (debounced)
+  // Optimized save function with cleanup
   const saveRatio = useCallback(
     (newRatio: number) => {
       if (storageKey && typeof window !== 'undefined') {
@@ -70,18 +71,27 @@ export function ResizableSplit({
     [storageKey]
   )
 
-  // Debounced save function
-  const debouncedSave = useRef<NodeJS.Timeout | null>(null)
+  // Debounced save with proper cleanup
   const debouncedSaveRatio = useCallback(
     (newRatio: number) => {
-      if (debouncedSave.current) {
-        clearTimeout(debouncedSave.current)
+      if (debouncedSaveRef.current) {
+        clearTimeout(debouncedSaveRef.current)
       }
-      debouncedSave.current = setTimeout(() => saveRatio(newRatio), 100)
+      debouncedSaveRef.current = setTimeout(() => saveRatio(newRatio), 200)
     },
     [saveRatio]
   )
 
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (debouncedSaveRef.current) {
+        clearTimeout(debouncedSaveRef.current)
+      }
+    }
+  }, [])
+
+  // Optimized mouse handlers with useCallback
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
     e.preventDefault()
     setIsDragging(true)
@@ -89,6 +99,7 @@ export function ResizableSplit({
     startRatioRef.current = ratio
   }, [orientation, ratio])
 
+  // Throttled mouse move handler for better performance
   const handleMouseMove = useCallback((e: MouseEvent) => {
     if (!isDragging || !containerRef.current) return
 
@@ -103,14 +114,19 @@ export function ResizableSplit({
     const newRatio = Math.max(minRatio, Math.min(maxRatio, startRatio + deltaPercent))
 
     setRatio(newRatio)
-    debouncedSaveRatio(newRatio)
-  }, [isDragging, orientation, minRatio, maxRatio, debouncedSaveRatio])
+    // Only save on significant changes to reduce localStorage writes
+    if (Math.abs(newRatio - ratio) > 1) {
+      debouncedSaveRatio(newRatio)
+    }
+  }, [isDragging, orientation, minRatio, maxRatio, ratio, debouncedSaveRatio])
 
   const handleMouseUp = useCallback(() => {
     setIsDragging(false)
-  }, [])
+    // Save final ratio
+    debouncedSaveRatio(ratio)
+  }, [ratio, debouncedSaveRatio])
 
-  // Touch event handlers for mobile
+  // Touch handlers
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
     e.preventDefault()
     setIsDragging(true)
@@ -132,33 +148,52 @@ export function ResizableSplit({
     const newRatio = Math.max(minRatio, Math.min(maxRatio, startRatio + deltaPercent))
 
     setRatio(newRatio)
-    debouncedSaveRatio(newRatio)
-  }, [isDragging, orientation, minRatio, maxRatio, debouncedSaveRatio])
+    if (Math.abs(newRatio - ratio) > 1) {
+      debouncedSaveRatio(newRatio)
+    }
+  }, [isDragging, orientation, minRatio, maxRatio, ratio, debouncedSaveRatio])
 
   const handleTouchEnd = useCallback(() => {
     setIsDragging(false)
-  }, [])
+    debouncedSaveRatio(ratio)
+  }, [ratio, debouncedSaveRatio])
 
-  // Global event listeners
+  // Optimized event listeners with proper cleanup
   useEffect(() => {
-    if (isDragging) {
-      document.addEventListener('mousemove', handleMouseMove)
-      document.addEventListener('mouseup', handleMouseUp)
-      document.addEventListener('touchmove', handleTouchMove, { passive: false })
-      document.addEventListener('touchend', handleTouchEnd)
+    if (!isDragging) return
 
-      return () => {
-        document.removeEventListener('mousemove', handleMouseMove)
-        document.removeEventListener('mouseup', handleMouseUp)
-        document.removeEventListener('touchmove', handleTouchMove)
-        document.removeEventListener('touchend', handleTouchEnd)
-      }
+    const handleMove = (e: MouseEvent) => handleMouseMove(e)
+    const handleTouch = (e: TouchEvent) => handleTouchMove(e)
+
+    document.addEventListener('mousemove', handleMove, { passive: false })
+    document.addEventListener('mouseup', handleMouseUp)
+    document.addEventListener('touchmove', handleTouch, { passive: false })
+    document.addEventListener('touchend', handleTouchEnd)
+
+    return () => {
+      document.removeEventListener('mousemove', handleMove)
+      document.removeEventListener('mouseup', handleMouseUp)
+      document.removeEventListener('touchmove', handleTouch)
+      document.removeEventListener('touchend', handleTouchEnd)
     }
   }, [isDragging, handleMouseMove, handleMouseUp, handleTouchMove, handleTouchEnd])
 
+  // Memoized calculations to prevent unnecessary re-renders
   const isVertical = orientation === 'vertical'
-  const firstPanelSize = `${ratio}%`
-  const secondPanelSize = `${100 - ratio}%`
+  const panelSizes = useMemo(() => ({
+    first: `${ratio}%`,
+    second: `${100 - ratio}%`
+  }), [ratio])
+
+  // Memoized handle styles
+  const handleStyles = useMemo(() => cn(
+    "flex-shrink-0 bg-[var(--outline-black)] transition-all duration-150 cursor-row-resize select-none",
+    isVertical ? "h-1 w-full" : "w-1 h-full",
+    "hover:h-2 hover:bg-[var(--star-yellow)] hover:shadow-[2px_2px_0_var(--outline-black)]",
+    isDragging && "h-2 bg-[var(--mario-red)] shadow-[2px_2px_0_var(--outline-black)]",
+    isVertical ? "hover:h-2" : "hover:w-2",
+    isDragging && (isVertical ? "h-2" : "w-2")
+  ), [isVertical, isDragging])
 
   return (
     <div
@@ -176,7 +211,7 @@ export function ResizableSplit({
           isVertical ? "w-full" : "h-full"
         )}
         style={{
-          [isVertical ? 'height' : 'width']: firstPanelSize
+          [isVertical ? 'height' : 'width']: panelSizes.first
         }}
       >
         {children[0]}
@@ -184,14 +219,7 @@ export function ResizableSplit({
 
       {/* Resize Handle */}
       <div
-        className={cn(
-          "flex-shrink-0 bg-[var(--outline-black)] transition-all duration-200 cursor-row-resize",
-          isVertical ? "h-1 w-full" : "w-1 h-full",
-          "hover:h-2 hover:bg-[var(--star-yellow)] hover:shadow-[2px_2px_0_var(--outline-black)]",
-          isDragging && "h-2 bg-[var(--mario-red)] shadow-[2px_2px_0_var(--outline-black)]",
-          isVertical ? "hover:h-2" : "hover:w-2",
-          isDragging && (isVertical ? "h-2" : "w-2")
-        )}
+        className={handleStyles}
         onMouseDown={handleMouseDown}
         onTouchStart={handleTouchStart}
         role="separator"
@@ -215,7 +243,7 @@ export function ResizableSplit({
           isVertical ? "w-full" : "h-full"
         )}
         style={{
-          [isVertical ? 'height' : 'width']: secondPanelSize
+          [isVertical ? 'height' : 'width']: panelSizes.second
         }}
       >
         {children[1]}

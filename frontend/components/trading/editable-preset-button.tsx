@@ -41,15 +41,19 @@ export function EditablePresetButton({
   }, [isEditing])
 
   const handleClick = () => {
+    console.log('[EditablePresetButton] Click detected, isEditing:', isEditing, 'doubleClickTimer:', !!doubleClickTimer)
+    
     if (isEditing) return
 
     // Handle double-click for edit mode
     if (doubleClickTimer) {
+      console.log('[EditablePresetButton] Double-click detected! Entering edit mode')
       clearTimeout(doubleClickTimer)
       setDoubleClickTimer(null)
       enterEditMode()
     } else {
       // Single click - select preset
+      console.log('[EditablePresetButton] Single click - selecting preset value:', value)
       onSelect(value)
       // Set timer for double-click detection
       const timer = setTimeout(() => {
@@ -60,6 +64,7 @@ export function EditablePresetButton({
   }
 
   const enterEditMode = () => {
+    console.log('[EditablePresetButton] Entering edit mode for value:', value)
     setIsEditing(true)
     setEditValue(value.toString())
   }

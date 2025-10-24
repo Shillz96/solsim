@@ -38,25 +38,39 @@ export function PositionStatsBox({
   useEffect(() => {
     const fetchStats = async () => {
       const userId = getUserId()
-      if (!userId || !tokenAddress) return
+      
+      console.log('[PositionStatsBox] Fetching stats:', { userId, tokenAddress, tradeMode })
+      
+      if (!userId || !tokenAddress) {
+        console.log('[PositionStatsBox] Skipping fetch - missing userId or tokenAddress')
+        setLoading(false)
+        return
+      }
 
       setLoading(true)
       setError(null)
 
       try {
         const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
-        const res = await fetch(
-          `${API_URL}/api/portfolio/token-stats?userId=${userId}&mint=${tokenAddress}&tradeMode=${tradeMode}`
-        )
+        const url = `${API_URL}/api/portfolio/token-stats?userId=${userId}&mint=${tokenAddress}&tradeMode=${tradeMode}`
+        
+        console.log('[PositionStatsBox] Fetching from:', url)
+        
+        const res = await fetch(url)
+
+        console.log('[PositionStatsBox] Response status:', res.status)
 
         if (!res.ok) {
-          throw new Error('Failed to fetch token stats')
+          const errorText = await res.text()
+          console.error('[PositionStatsBox] Error response:', errorText)
+          throw new Error(`Failed to fetch token stats: ${res.status}`)
         }
 
         const data = await res.json()
+        console.log('[PositionStatsBox] Received data:', data)
         setStats(data)
       } catch (err) {
-        console.error('Error fetching token stats:', err)
+        console.error('[PositionStatsBox] Error fetching token stats:', err)
         setError((err as Error).message)
       } finally {
         setLoading(false)
