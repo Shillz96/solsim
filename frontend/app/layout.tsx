@@ -10,6 +10,52 @@ import { BottomNavBar } from "@/components/navigation/bottom-nav-bar"
 import { SlidingTrendingTicker } from "@/components/trading/sliding-trending-ticker"
 import { AppProviders } from "@/components/providers"
 import { cn } from "@/lib/utils"
+import { usePathname } from "next/navigation"
+import { useEffect, useState } from "react"
+
+function LayoutContent({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname()
+  const [isScrollable, setIsScrollable] = useState(false)
+  
+  // Pages that should be scrollable
+  const scrollablePages = ['/', '/portfolio', '/leaderboard']
+  
+  // Only apply scrollable logic after mount to prevent hydration mismatch
+  useEffect(() => {
+    setIsScrollable(scrollablePages.includes(pathname))
+  }, [pathname])
+  
+  return (
+    <>
+      <div>
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:px-4 focus:py-2 focus:bg-mario-red-500 focus:text-white focus:rounded focus:shadow-mario focus:font-mario focus:text-sm focus:border-2 focus:border-white"
+        >
+          Skip to main content
+        </a>
+        <NavBar aria-label="Primary navigation" />
+        <SlidingTrendingTicker />
+      </div>
+      <main
+        id="main-content"
+        className="relative"
+        style={{
+          height: 'calc(100dvh - var(--navbar-height, 56px) - var(--trending-ticker-height, 60px) - var(--bottom-nav-height, 64px))',
+          marginTop: 'calc(var(--navbar-height, 56px) + var(--trending-ticker-height, 60px))',
+          overflow: isScrollable ? 'auto' : 'hidden',
+          touchAction: 'pan-y', // Optimize touch scrolling on mobile
+        }}
+        role="main"
+      >
+        {children}
+      </main>
+      <BottomNavBar aria-label="Mobile navigation" className="sticky bottom-0 z-50" />
+      {/* Floating windows render here, positioned absolutely over the page */}
+      <FloatingWindows />
+    </>
+  )
+}
 
 export default function RootLayout({
   children,
@@ -28,32 +74,9 @@ export default function RootLayout({
       <body className={cn("h-full bg-[var(--background)] text-[var(--foreground)] antialiased")}>
         <AppProviders>
           <WindowManager>
-            <div>
-              <a
-                href="#main-content"
-                className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:px-4 focus:py-2 focus:bg-mario-red-500 focus:text-white focus:rounded focus:shadow-mario focus:font-mario focus:text-sm focus:border-2 focus:border-white"
-              >
-                Skip to main content
-              </a>
-              <NavBar aria-label="Primary navigation" />
-              <SlidingTrendingTicker />
-            </div>
-            <main
-              id="main-content"
-              className="relative"
-              style={{
-                height: 'calc(100dvh - var(--navbar-height, 56px) - var(--trending-ticker-height, 60px) - var(--bottom-nav-height, 64px))',
-                marginTop: 'calc(var(--navbar-height, 56px) + var(--trending-ticker-height, 60px))',
-                overflow: 'hidden',
-                touchAction: 'pan-y', // Optimize touch scrolling on mobile
-              }}
-              role="main"
-            >
+            <LayoutContent>
               {children}
-            </main>
-            <BottomNavBar aria-label="Mobile navigation" className="sticky bottom-0 z-50" />
-            {/* Floating windows render here, positioned absolutely over the page */}
-            <FloatingWindows />
+            </LayoutContent>
           </WindowManager>
         </AppProviders>
       </body>
