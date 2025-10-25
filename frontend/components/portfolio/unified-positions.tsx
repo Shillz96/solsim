@@ -692,7 +692,7 @@ export const UnifiedPositions = memo(function UnifiedPositions({
       )}
 
       {/* Positions Table - Mario Theme */}
-      <div className="bg-white border-4 border-pipe-700 rounded-xl shadow-[6px_6px_0_0_rgba(0,0,0,0.3)] p-6">
+      <div className="bg-[var(--card)] border-4 border-pipe-700 rounded-xl shadow-[6px_6px_0_0_rgba(0,0,0,0.3)] p-6">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
             <div className="bg-mario-red-500 p-2 rounded-lg border-3 border-mario-red-700 shadow-[3px_3px_0_0_rgba(0,0,0,0.3)]">

@@ -68,7 +68,7 @@ export function TierCard({ tier, selected, onSelect }: TierCardProps) {
           {/* Main display */}
           <div className="space-y-3">
             {/* Simulated SOL amount */}
-            <div className="text-center py-5 px-3 rounded-lg border-3 border-[var(--outline-black)] bg-white shadow-[3px_3px_0_var(--outline-black)]">
+            <div className="text-center py-5 px-3 rounded-lg border-3 border-[var(--outline-black)] bg-[var(--card)] shadow-[3px_3px_0_var(--outline-black)]">
               <div className="text-4xl font-mario leading-tight mb-1 text-[var(--outline-black)]">
                 {tier.simulatedSol}
               </div>
@@ -111,7 +111,7 @@ export function TierCard({ tier, selected, onSelect }: TierCardProps) {
             "text-center text-xs font-mario py-2.5 px-4 rounded-lg transition-all duration-200 mt-3 border-3 border-[var(--outline-black)]",
             selected
               ? "bg-[var(--luigi-green)] text-white shadow-[3px_3px_0_var(--outline-black)] scale-105"
-              : "bg-white text-[var(--outline-black)] group-hover:shadow-[3px_3px_0_var(--outline-black)] group-hover:scale-105"
+              : "bg-[var(--card)] text-[var(--outline-black)] group-hover:shadow-[3px_3px_0_var(--outline-black)] group-hover:scale-105"
           )}>
             {selected ? '✓ SELECTED' : 'SELECT TIER'}
           </div>

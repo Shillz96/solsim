@@ -76,7 +76,7 @@ export function EditablePresetButton({
         "border-4 border-[var(--star-yellow)]",
         "shadow-[4px_4px_0_var(--outline-black)]",
         "rounded-[12px]",
-        "bg-white p-1",
+        "bg-[var(--card)] p-1",
         className
       )}>
         <Input

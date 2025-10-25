@@ -132,13 +132,13 @@ export function TokenVitalsBar({
       </div>
 
       {/* User Rank */}
-      <div className={marioStyles.vitalsCard('from-[var(--star-yellow)]/20 to-yellow-100/10')}>
+      <div className={marioStyles.vitalsCard('from-[var(--star-yellow)]/20 to-[var(--star-yellow)]/10')}>
         <div className={marioStyles.vitalsIcon('var(--star-yellow)')}>
           <Trophy className="h-8 w-8 text-[var(--outline-black)]" />
         </div>
         <div className="text-center">
-          <div className="text-xs font-mario font-bold uppercase text-muted-foreground mb-1">Your Rank</div>
-          <div className="font-mono text-lg font-bold text-foreground">
+          <div className="text-xs font-mario font-bold uppercase text-[var(--outline-black)]/60 mb-1">Your Rank</div>
+          <div className="font-mono text-lg font-bold text-[var(--outline-black)]">
             {userRank ? `#${userRank}` : "Unranked"}
           </div>
         </div>

@@ -43,7 +43,7 @@ export function WelcomeModal({ open, onClose, onStartTour }: WelcomeModalProps) 
   return (
     <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
       <DialogContent
-        className="w-[90vw] max-w-2xl mx-auto bg-white border-4 border-[var(--outline-black)] shadow-[8px_8px_0_var(--outline-black)] rounded-2xl p-6 sm:p-8 max-h-[90vh] overflow-y-auto"
+        className="w-[90vw] max-w-2xl mx-auto bg-[var(--card)] border-4 border-[var(--outline-black)] shadow-[8px_8px_0_var(--outline-black)] rounded-2xl p-6 sm:p-8 max-h-[90vh] overflow-y-auto"
         aria-describedby="welcome-description"
       >
         <DialogHeader className="space-y-4">

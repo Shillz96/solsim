@@ -228,7 +228,7 @@ export function PnLCard() {
   // Loading state
   if (isLoading) {
     return (
-      <div className="bg-white rounded-2xl border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] relative overflow-hidden">
+      <div className="bg-[var(--card)] rounded-2xl border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] relative overflow-hidden">
         <PnLLoadingSkeleton />
       </div>
     );
@@ -237,7 +237,7 @@ export function PnLCard() {
   // Error state
   if (error) {
     return (
-      <div className="bg-white rounded-2xl border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] relative overflow-hidden">
+      <div className="bg-[var(--card)] rounded-2xl border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] relative overflow-hidden">
         <div className="p-6">
           <Alert variant="destructive" className="border-3 border-[var(--mario-red)] shadow-[3px_3px_0_var(--outline-black)]">
             <AlertCircle className="h-4 w-4" />
@@ -247,7 +247,7 @@ export function PnLCard() {
               </span>
               <button 
                 onClick={handleRefresh}
-                className="h-8 px-3 rounded-lg border-3 border-[var(--outline-black)] bg-white hover:bg-gray-50 shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all font-mario text-sm"
+                className="h-8 px-3 rounded-lg border-3 border-[var(--outline-black)] bg-[var(--card)] hover:bg-gray-50 shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all font-mario text-sm"
               >
                 Retry
               </button>
@@ -261,7 +261,7 @@ export function PnLCard() {
   // Empty state
   if (!portfolio || !portfolio.positions || portfolio.positions.length === 0) {
     return (
-      <div className="bg-white rounded-2xl border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] relative overflow-hidden">
+      <div className="bg-[var(--card)] rounded-2xl border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] relative overflow-hidden">
         <EmptyPnLState />
       </div>
     );
@@ -286,7 +286,7 @@ export function PnLCard() {
 
   return (
     <>
-      <div className="bg-white rounded-2xl border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] relative overflow-hidden">
+      <div className="bg-[var(--card)] rounded-2xl border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] relative overflow-hidden">
         {/* Animated Background */}
         <AnimatedBackground isPositive={isPositive} />
 
@@ -321,7 +321,7 @@ export function PnLCard() {
               <button
                 onClick={handleRefresh}
                 disabled={isRefetching}
-                className="shrink-0 h-9 w-9 rounded-lg border-3 border-[var(--outline-black)] bg-white hover:bg-gray-50 shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all flex items-center justify-center"
+                className="shrink-0 h-9 w-9 rounded-lg border-3 border-[var(--outline-black)] bg-[var(--card)] hover:bg-gray-50 shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all flex items-center justify-center"
               >
                 <RefreshCw className={cn(
                   "h-4 w-4",
@@ -331,7 +331,7 @@ export function PnLCard() {
               
               <button
                 onClick={handleShare}
-                className="gap-2 h-9 px-4 rounded-lg border-3 border-[var(--outline-black)] bg-white hover:bg-gray-50 shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all flex items-center font-mario text-sm"
+                className="gap-2 h-9 px-4 rounded-lg border-3 border-[var(--outline-black)] bg-[var(--card)] hover:bg-gray-50 shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all flex items-center font-mario text-sm"
               >
                 <Share2 className="h-4 w-4" />
                 <span className="hidden sm:inline">Share</span>

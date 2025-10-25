@@ -179,19 +179,19 @@ export function AchievementsTab() {
         </div>
 
         <div className="grid grid-cols-3 gap-4">
-          <div className="bg-white/50 border-3 border-[var(--outline-black)] rounded-lg p-4 text-center">
+          <div className="bg-[var(--card)]/50 border-3 border-[var(--outline-black)] rounded-lg p-4 text-center">
             <Image src="/icons/mario/trophy.png" alt="Global" width={32} height={32} className="mx-auto mb-2" />
             <div className="text-2xl font-mario font-bold text-[var(--outline-black)]">#127</div>
             <div className="text-xs text-muted-foreground font-bold mt-1">Global</div>
           </div>
           
-          <div className="bg-white/50 border-3 border-[var(--outline-black)] rounded-lg p-4 text-center">
+          <div className="bg-[var(--card)]/50 border-3 border-[var(--outline-black)] rounded-lg p-4 text-center">
             <Image src="/icons/mario/fire.png" alt="Weekly" width={32} height={32} className="mx-auto mb-2" />
             <div className="text-2xl font-mario font-bold text-[var(--outline-black)]">#45</div>
             <div className="text-xs text-muted-foreground font-bold mt-1">This Week</div>
           </div>
           
-          <div className="bg-white/50 border-3 border-[var(--outline-black)] rounded-lg p-4 text-center">
+          <div className="bg-[var(--card)]/50 border-3 border-[var(--outline-black)] rounded-lg p-4 text-center">
             <Image src="/icons/mario/star.png" alt="Daily" width={32} height={32} className="mx-auto mb-2" />
             <div className="text-2xl font-mario font-bold text-[var(--outline-black)]">#23</div>
             <div className="text-xs text-muted-foreground font-bold mt-1">Today</div>

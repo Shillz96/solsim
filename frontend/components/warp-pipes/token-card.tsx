@@ -113,11 +113,13 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
         initial={{ opacity: 0, scale: 0.98 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.2 }}
-        className={cn("w-full", className)}
+        className={cn("w-full mb-3", className)}
       >
         {/* Redesigned Token Card - Enhanced Layout */}
         <div className={cn(
-          marioStyles.interactiveCard('lg'),
+          'cursor-pointer transition-all duration-200',
+          'rounded-2xl border-4 border-[var(--outline-black)] p-6 bg-white',
+          'shadow-[6px_0_0_var(--outline-black)] hover:shadow-[8px_0_0_var(--outline-black)] hover:-translate-y-1',
           'relative overflow-hidden bg-[var(--sky-blue)]/20',
           'h-[var(--token-card-height)] min-h-[var(--token-card-height)]'
         )}>

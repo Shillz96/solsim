@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
+import { cn, marioStyles } from "@/lib/utils"
 
 interface DexScreenerChartProps {
   tokenAddress?: string
@@ -34,14 +35,14 @@ export function DexScreenerChart({
   }
 
   return (
-    <div className="h-full w-full overflow-hidden relative bg-white">
+    <div className="h-full w-full overflow-hidden relative bg-[var(--card)]">
       {/* Preconnect to DexScreener for faster loading */}
       <link rel="preconnect" href="https://dexscreener.com" />
       <link rel="dns-prefetch" href="https://dexscreener.com" />
 
       {/* Loading overlay with better UX */}
       {isLoading && (
-        <div className="absolute inset-0 z-10 flex items-center justify-center bg-white">
+        <div className="absolute inset-0 z-10 flex items-center justify-center bg-[var(--card)]">
           <div className="flex flex-col items-center gap-3">
             <div className="relative">
               <div className="h-12 w-12 border-4 border-[var(--luigi-green)]/20 border-t-[var(--luigi-green)] rounded-full animate-spin"></div>
@@ -80,7 +81,10 @@ export function DexScreenerChart({
       
       {/* Custom attribution overlay with better styling */}
       <div className="absolute bottom-2 right-2 z-20">
-        <div className="bg-[var(--outline-black)]/90 text-white px-2 py-1 rounded text-[10px] font-bold border border-white/20">
+        <div className={cn(
+          marioStyles.badgeLg('admin'),
+          "text-[10px] px-2 py-1"
+        )}>
           Tracked by DexScreener
         </div>
       </div>

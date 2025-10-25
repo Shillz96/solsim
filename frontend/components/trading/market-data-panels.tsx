@@ -29,7 +29,10 @@ export function MarketDataPanels({ tokenMint }: MarketDataPanelsProps) {
   const [activeTab, setActiveTab] = useState<TabType>('trades')
 
   return (
-    <div className="flex flex-col h-full bg-[var(--card)] border-4 border-[var(--outline-black)] rounded-[16px] shadow-[6px_6px_0_var(--outline-black)] overflow-hidden">
+    <div className={cn(
+      marioStyles.cardLg(false),
+      "flex flex-col h-full overflow-hidden"
+    )}>
       {/* Tabs */}
       <div className="border-b-4 border-[var(--outline-black)] bg-gradient-to-r from-[var(--star-yellow)]/20 via-[var(--pipe-green)]/20 to-[var(--sky-blue)]/20 px-4 py-3 overflow-x-auto flex-shrink-0">
         <div className="flex gap-2 text-xs font-mario font-bold justify-start sm:justify-center min-w-max">
@@ -96,7 +99,7 @@ export function MarketDataPanels({ tokenMint }: MarketDataPanelsProps) {
       </div>
 
       {/* Data Panel Content */}
-      <div className="flex-1 overflow-y-auto p-4 bg-gradient-to-br from-[var(--pipe-green)]/30 via-white to-[var(--sky-blue)]/10">
+      <div className="flex-1 overflow-y-auto p-4 bg-gradient-to-br from-[var(--pipe-green)]/30 via-[var(--card)] to-[var(--sky-blue)]/10">
         {activeTab === 'trades' && <RecentTradesPanel tokenMint={tokenMint} />}
         {activeTab === 'traders' && <TopTradersPanel tokenMint={tokenMint} />}
         {activeTab === 'holders' && <HoldersPanel tokenMint={tokenMint} />}
@@ -116,7 +119,10 @@ function RecentTradesPanel({ tokenMint }: { tokenMint: string }) {
   })
 
   return (
-    <div className="border-4 border-[var(--outline-black)] rounded-[16px] shadow-[6px_6px_0_var(--outline-black)] bg-gradient-to-br from-green-50 to-emerald-50 p-4 min-h-[200px]">
+    <div className={cn(
+      marioStyles.cardLg(false),
+      "bg-gradient-to-br from-green-50 to-emerald-50 p-4 min-h-[200px]"
+    )}>
       <div className="flex items-center gap-2 mb-4 bg-[var(--card)] rounded-lg p-3 border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)]">
         <div className="h-8 w-8 rounded-lg bg-[var(--luigi-green)] border-3 border-[var(--outline-black)] flex items-center justify-center shadow-[2px_2px_0_var(--outline-black)]">
           <Activity className="h-4 w-4 text-white" />
@@ -193,7 +199,10 @@ function TopTradersPanel({ tokenMint }: { tokenMint: string }) {
   })
 
   return (
-    <div className="border-4 border-[var(--outline-black)] rounded-[16px] shadow-[6px_6px_0_var(--outline-black)] bg-gradient-to-br from-yellow-50 to-amber-50 p-4 min-h-[200px]">
+    <div className={cn(
+      marioStyles.cardLg(false),
+      "bg-gradient-to-br from-yellow-50 to-amber-50 p-4 min-h-[200px]"
+    )}>
       <div className="flex items-center gap-2 mb-4 bg-[var(--card)] rounded-lg p-3 border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)]">
         <div className="h-8 w-8 rounded-lg bg-[var(--star-yellow)] border-3 border-[var(--outline-black)] flex items-center justify-center shadow-[2px_2px_0_var(--outline-black)]">
           <TrendingUp className="h-4 w-4 text-[var(--outline-black)]" />
@@ -214,7 +223,7 @@ function TopTradersPanel({ tokenMint }: { tokenMint: string }) {
       ) : (
         <div className="space-y-2">
           {traders.map((trader: any, i: number) => (
-            <div key={trader.address} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg border-2 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)]">
+            <div key={trader.address} className="flex items-center justify-between p-3 bg-[var(--card)]/50 rounded-lg border-2 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)]">
               <div className="flex items-center gap-2">
                 <div className="text-sm font-mario font-bold text-[var(--star-yellow)]">#{i + 1}</div>
                 <div className="text-xs font-mono">{trader.address.slice(0, 4)}...{trader.address.slice(-4)}</div>

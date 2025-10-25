@@ -80,7 +80,7 @@ export function WalletTrackerPanel() {
             >
               <div className={cn(
                 "h-1.5 w-1.5 rounded-full",
-                connected ? "bg-white animate-pulse" : "bg-pipe-700"
+                connected ? "bg-[var(--card)] animate-pulse" : "bg-pipe-700"
               )} />
               {connected ? "Live" : "Offline"}
             </Badge>
@@ -119,7 +119,7 @@ export function WalletTrackerPanel() {
               {trackedWallets.slice(0, 3).map((wallet) => (
                 <div
                   key={wallet.id}
-                  className="bg-white/80 border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] rounded-lg p-3 hover:bg-white transition-colors"
+                  className="bg-[var(--card)]/80 border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] rounded-lg p-3 hover:bg-[var(--card)] transition-colors"
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex-1 min-w-0">

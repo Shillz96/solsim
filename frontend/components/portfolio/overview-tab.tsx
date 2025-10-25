@@ -44,7 +44,7 @@ export function OverviewTab() {
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-3">
             {user?.avatarUrl ? (
-              <div className="w-12 h-12 rounded-full border-3 border-[var(--outline-black)] overflow-hidden bg-white">
+              <div className="w-12 h-12 rounded-full border-3 border-[var(--outline-black)] overflow-hidden bg-[var(--card)]">
                 <img src={user.avatarUrl} alt="Profile" className="w-full h-full object-cover" />
               </div>
             ) : (
@@ -226,7 +226,7 @@ export function OverviewTab() {
               
               return (
                 <Link href={`/room/${position.mint}`} key={position.mint}>
-                  <div className="bg-white/50 border-3 border-[var(--outline-black)] rounded-lg p-3 hover:bg-white/80 transition-colors cursor-pointer">
+                  <div className="bg-[var(--card)]/50 border-3 border-[var(--outline-black)] rounded-lg p-3 hover:bg-[var(--card)]/80 transition-colors cursor-pointer">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
                         {position.tokenImage ? (
