@@ -365,18 +365,23 @@ function MarioTradingPanelComponent({ tokenAddress: propTokenAddress }: MarioTra
           </div>
         </div>
 
-        {/* Price Display */}
-        <div className="bg-gradient-to-br from-[var(--coin-gold)]/20 to-[var(--star-yellow)]/10 border-3 border-[var(--outline-black)] rounded p-2 sm:p-3">
+        {/* Price Display - Enhanced Mario Theme */}
+        <div className="bg-gradient-to-br from-[var(--star-yellow)] to-amber-300 border-4 border-[var(--outline-black)] rounded-[14px] p-3 shadow-[3px_3px_0_var(--outline-black)] relative overflow-hidden">
+          {/* Coin decoration */}
+          <div className="absolute top-1 right-1 text-2xl opacity-20">⭐</div>
+          <div className="text-[9px] sm:text-[10px] font-mario font-bold text-[var(--outline-black)]/80 uppercase mb-1">
+            Current Price
+          </div>
           <AnimatedNumber
             value={currentPrice}
             prefix="$"
             decimals={8}
-            className="font-mono text-sm sm:text-lg lg:text-xl font-bold text-[var(--outline-black)] break-all"
+            className="font-mono text-sm sm:text-lg lg:text-xl font-bold text-[var(--outline-black)] break-all relative z-10"
             colorize={false}
             glowOnChange={true}
           />
           {solPrice > 0 && (
-            <div className="text-[10px] sm:text-xs text-muted-foreground">
+            <div className="text-[10px] sm:text-xs font-bold text-[var(--outline-black)]/60 mt-1">
               {formatSolEquivalent(currentPrice, solPrice)}
             </div>
           )}
@@ -415,6 +420,20 @@ function MarioTradingPanelComponent({ tokenAddress: propTokenAddress }: MarioTra
           {/* Buy Tab */}
           <TabsContent value="buy" className="space-y-2 mt-2">
             <Label className="mario-font text-[10px] sm:text-xs whitespace-nowrap">SELECT AMOUNT (SOL)</Label>
+
+            {/* Estimated Tokens Display */}
+            {(selectedSolAmount || customSolAmount) && currentPrice > 0 && solPrice > 0 && (
+              <div className="bg-gradient-to-br from-green-100 to-emerald-100 border-3 border-[var(--luigi-green)] rounded-lg p-2 shadow-[2px_2px_0_var(--outline-black)]">
+                <div className="text-[9px] font-mario font-bold text-[var(--outline-black)]/70 uppercase mb-0.5">
+                  You'll Receive
+                </div>
+                <div className="font-mono font-bold text-sm text-[var(--luigi-green)]">
+                  ~{formatTokenQuantity(
+                    ((selectedSolAmount || parseFloat(customSolAmount) || 0) * solPrice) / currentPrice
+                  )} {tokenDetails.tokenSymbol}
+                </div>
+              </div>
+            )}
 
             <div className="grid grid-cols-2 gap-1.5 sm:gap-2">
               {presetSolAmounts.map((amount, index) => (
@@ -478,6 +497,21 @@ function MarioTradingPanelComponent({ tokenAddress: propTokenAddress }: MarioTra
           {/* Sell Tab */}
           <TabsContent value="sell" className="space-y-2 mt-2">
             <Label className="mario-font text-[10px] sm:text-xs whitespace-nowrap">SELECT PERCENTAGE</Label>
+
+            {/* Estimated SOL Display */}
+            {tokenHolding && selectedPercentage && currentPrice > 0 && solPrice > 0 && (
+              <div className="bg-gradient-to-br from-red-100 to-pink-100 border-3 border-[var(--mario-red)] rounded-lg p-2 shadow-[2px_2px_0_var(--outline-black)]">
+                <div className="text-[9px] font-mario font-bold text-[var(--outline-black)]/70 uppercase mb-0.5">
+                  You'll Receive
+                </div>
+                <div className="font-mono font-bold text-sm text-[var(--mario-red)]">
+                  ~{((parseFloat(tokenHolding.qty) * selectedPercentage / 100 * currentPrice) / solPrice).toFixed(4)} SOL
+                </div>
+                <div className="text-[9px] font-bold text-[var(--outline-black)]/60">
+                  ({formatTokenQuantity(parseFloat(tokenHolding.qty) * selectedPercentage / 100)} {tokenDetails.tokenSymbol})
+                </div>
+              </div>
+            )}
 
             <div className="grid grid-cols-2 gap-1.5 sm:gap-2">
               {sellPercentages.map((percent) => (

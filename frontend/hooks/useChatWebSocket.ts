@@ -250,10 +250,12 @@ export function useChatWebSocket(options: UseChatWebSocketOptions = {}) {
     currentRoomRef.current = roomId;
 
     if (wsRef.current?.readyState === WebSocket.OPEN) {
+      console.log(`💬 Sending join_room for: ${roomId}`);
       wsRef.current.send(JSON.stringify({ type: 'join_room', roomId }));
     } else {
-      // Queue message if not connected
-      messageQueueRef.current.push({ type: 'join_room', data: { roomId } });
+      // Queue message if not connected (use same format as direct send)
+      console.log(`💬 Queueing join_room for: ${roomId}`);
+      messageQueueRef.current.push({ type: 'join_room', roomId });
     }
   }, []);
 
@@ -283,8 +285,8 @@ export function useChatWebSocket(options: UseChatWebSocketOptions = {}) {
     if (wsRef.current?.readyState === WebSocket.OPEN) {
       wsRef.current.send(JSON.stringify(message));
     } else {
-      // Queue message if not connected
-      messageQueueRef.current.push({ type: 'send_message', data: message });
+      // Queue message if not connected (use same format as direct send)
+      messageQueueRef.current.push(message);
       setError('Not connected. Message will be sent when connection is restored.');
     }
   }, []);

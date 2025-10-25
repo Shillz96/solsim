@@ -346,7 +346,7 @@ function UserSettingsPage() {
         </div>
 
         {/* Avatar Section */}
-        <div className="bg-gradient-to-br from-yellow-100 to-orange-100 rounded-xl border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)]">
+        <div className="rounded-xl border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] overflow-hidden">
         <div className="bg-gradient-to-r from-[var(--star-yellow)] to-yellow-400 p-4 border-b-4 border-[var(--outline-black)]">
           <h2 className="text-2xl font-mario text-[var(--outline-black)] flex items-center gap-2">
             <Camera className="h-6 w-6" />
@@ -354,7 +354,7 @@ function UserSettingsPage() {
           </h2>
           <p className="text-sm font-bold text-[var(--outline-black)]/80 mt-1">Update your avatar image</p>
         </div>
-        <div className="p-6 space-y-4">
+        <div className="p-6 space-y-4 bg-gradient-to-br from-yellow-50 to-orange-50">
           <div className="flex items-center gap-6">
             <Avatar className="h-24 w-24 border-4 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)]">
               <AvatarImage src={avatarUrl} alt={displayHandle || 'User'} />
@@ -404,7 +404,7 @@ function UserSettingsPage() {
       </div>
 
       {/* Profile Information */}
-      <div className="bg-gradient-to-br from-green-100 to-emerald-100 rounded-xl border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)]">
+      <div className="rounded-xl border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] overflow-hidden">
         <div className="bg-gradient-to-r from-[var(--luigi-green)] to-emerald-500 p-4 border-b-4 border-[var(--outline-black)]">
           <h2 className="text-2xl font-mario text-white flex items-center gap-2 drop-shadow-[2px_2px_0_var(--outline-black)]">
             <User className="h-6 w-6" />
@@ -412,7 +412,7 @@ function UserSettingsPage() {
           </h2>
           <p className="text-sm font-bold text-white/90 mt-1">Update your personal information</p>
         </div>
-        <div className="p-6">
+        <div className="p-6 bg-gradient-to-br from-green-50 to-emerald-50">
           <form onSubmit={(e) => {
             e.preventDefault()
             updateProfileMutation.mutate(profileData)
@@ -478,7 +478,7 @@ function UserSettingsPage() {
 
             <Separator className="bg-[var(--outline-black)] h-1" />
 
-            <div className="space-y-4">
+            <div className="space-y-4 bg-white rounded-lg p-4 border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)]">
               <h4 className="text-lg font-mario">Social Links</h4>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -553,7 +553,7 @@ function UserSettingsPage() {
       </div>
 
       {/* Security Settings */}
-      <div className="bg-gradient-to-br from-red-100 to-pink-100 rounded-xl border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)]">
+      <div className="rounded-xl border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] overflow-hidden">
         <div className="bg-gradient-to-r from-[var(--mario-red)] to-red-600 p-4 border-b-4 border-[var(--outline-black)]">
           <h2 className="text-2xl font-mario text-white flex items-center gap-2 drop-shadow-[2px_2px_0_var(--outline-black)]">
             <Shield className="h-6 w-6" />
@@ -561,7 +561,7 @@ function UserSettingsPage() {
           </h2>
           <p className="text-sm font-bold text-white/90 mt-1">Change your password and manage security</p>
         </div>
-        <div className="p-6">
+        <div className="p-6 bg-gradient-to-br from-red-50 to-pink-50">
           <form onSubmit={(e => {
             e.preventDefault()
             changePasswordMutation.mutate()
@@ -650,7 +650,7 @@ function UserSettingsPage() {
       </div>
 
       {/* App Settings */}
-      <div className="bg-gradient-to-br from-blue-100 to-cyan-100 rounded-xl border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)]">
+      <div className="rounded-xl border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] overflow-hidden">
         <div className="bg-gradient-to-r from-[var(--sky-blue)] to-blue-400 p-4 border-b-4 border-[var(--outline-black)]">
           <h2 className="text-2xl font-mario text-white flex items-center gap-2 drop-shadow-[2px_2px_0_var(--outline-black)]">
             <Settings className="h-6 w-6" />
@@ -658,14 +658,14 @@ function UserSettingsPage() {
           </h2>
           <p className="text-sm font-bold text-white/90 mt-1">Customize your app experience</p>
         </div>
-        <div className="p-6 space-y-6">
+        <div className="p-6 space-y-6 bg-gradient-to-br from-blue-50 to-cyan-50">
           {/* Notifications */}
-          <div>
+          <div className="bg-white rounded-lg p-4 border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)]">
             <h4 className="text-lg font-mario mb-3 flex items-center gap-2">
               <Bell className="h-5 w-5" />
               Notifications
             </h4>
-            <div className="space-y-3 pl-6">
+            <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <div>
                   <Label htmlFor="email-notifications" className="font-bold">Email Notifications</Label>
@@ -736,12 +736,12 @@ function UserSettingsPage() {
           <Separator className="bg-[var(--outline-black)] h-1" />
 
           {/* Privacy */}
-          <div>
+          <div className="bg-white rounded-lg p-4 border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)]">
             <h4 className="text-lg font-mario mb-3 flex items-center gap-2">
               <Eye className="h-5 w-5" />
               Privacy
             </h4>
-            <div className="space-y-3 pl-6">
+            <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <div>
                   <Label htmlFor="public-profile" className="font-bold">Public Profile</Label>
@@ -798,12 +798,12 @@ function UserSettingsPage() {
           <Separator className="bg-[var(--outline-black)] h-1" />
 
           {/* Trading Preferences */}
-          <div>
+          <div className="bg-white rounded-lg p-4 border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)]">
             <h4 className="text-lg font-mario mb-3 flex items-center gap-2">
               <DollarSign className="h-5 w-5" />
               Trading
             </h4>
-            <div className="space-y-3 pl-6">
+            <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <div>
                   <Label htmlFor="confirm-trades" className="font-bold">Confirm Trades</Label>
@@ -891,36 +891,38 @@ function UserSettingsPage() {
       </div>
 
       {/* Account Info */}
-      <div className="bg-gradient-to-br from-purple-100 to-pink-100 rounded-xl border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)]">
+      <div className="rounded-xl border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] overflow-hidden">
         <div className="bg-gradient-to-r from-purple-500 to-pink-500 p-4 border-b-4 border-[var(--outline-black)]">
           <h2 className="text-2xl font-mario text-white drop-shadow-[2px_2px_0_var(--outline-black)]">Account Information</h2>
         </div>
-        <div className="p-6">
+        <div className="p-6 bg-gradient-to-br from-purple-50 to-pink-50">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div>
-              <p className="text-sm text-muted-foreground">Account Type</p>
-              <Badge variant="secondary" className="mt-1">
+            <div className="bg-white rounded-lg p-4 border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)]">
+              <p className="text-sm font-bold text-[var(--outline-black)]/60 mb-2">Account Type</p>
+              <Badge variant="secondary" className="border-2 border-[var(--outline-black)] bg-purple-200 text-[var(--outline-black)] font-bold">
                 {profile?.userTier || 'Standard'}
               </Badge>
             </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Balance</p>
-              <p className="text-lg font-semibold">
-                {profile?.virtualSolBalance || '10'} SOL
+            <div className="bg-white rounded-lg p-4 border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)]">
+              <p className="text-sm font-bold text-[var(--outline-black)]/60 mb-2">Balance</p>
+              <p className="text-lg font-mario text-[var(--outline-black)]">
+                {profile?.virtualSolBalance
+                  ? parseFloat(profile.virtualSolBalance).toFixed(2)
+                  : '10.00'} SOL
               </p>
             </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Member Since</p>
-              <p className="text-sm">
+            <div className="bg-white rounded-lg p-4 border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)]">
+              <p className="text-sm font-bold text-[var(--outline-black)]/60 mb-2">Member Since</p>
+              <p className="text-sm font-bold text-[var(--outline-black)]">
                 {profile?.createdAt
                   ? new Date(profile.createdAt).toLocaleDateString()
                   : 'Unknown'}
               </p>
             </div>
-            <div>
-              <p className="text-sm text-muted-foreground">User ID</p>
-              <p className="text-xs font-mono truncate" title={user.id}>
-                {user.id}
+            <div className="bg-white rounded-lg p-4 border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)]">
+              <p className="text-sm font-bold text-[var(--outline-black)]/60 mb-2">User ID</p>
+              <p className="text-xs font-mono font-bold text-[var(--outline-black)] truncate" title={user.id}>
+                {user.id.slice(0, 12)}...
               </p>
             </div>
           </div>
@@ -928,7 +930,7 @@ function UserSettingsPage() {
       </div>
 
       {/* Purchase Simulated SOL Section */}
-      <div className="bg-gradient-to-br from-orange-100 to-yellow-100 rounded-xl border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)]">
+      <div className="rounded-xl border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] overflow-hidden">
         <div className="bg-gradient-to-r from-orange-500 to-yellow-500 p-4 border-b-4 border-[var(--outline-black)]">
           <h2 className="text-2xl font-mario text-white flex items-center gap-2 drop-shadow-[2px_2px_0_var(--outline-black)]">
             <ShoppingCart className="h-6 w-6" />
@@ -938,7 +940,7 @@ function UserSettingsPage() {
             Add more simulated SOL to your trading balance with real SOL
           </p>
         </div>
-        <div className="p-6 space-y-6">
+        <div className="p-6 space-y-6 bg-gradient-to-br from-orange-50 to-yellow-50">
           {/* Current Balance Display */}
           <div className="bg-gradient-to-br from-[var(--star-yellow)]/30 to-yellow-200/50 rounded-lg p-6 border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)]">
             <div className="flex items-center justify-between">

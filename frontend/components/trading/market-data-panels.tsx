@@ -31,7 +31,7 @@ export function MarketDataPanels({ tokenMint }: MarketDataPanelsProps) {
   return (
     <div className="flex flex-col h-full bg-white border-4 border-[var(--outline-black)] rounded-[16px] shadow-[6px_6px_0_var(--outline-black)] overflow-hidden">
       {/* Tabs */}
-      <div className="border-b-4 border-[var(--outline-black)] bg-gradient-to-r from-[var(--pipe-100)] to-white px-4 py-3 overflow-x-auto flex-shrink-0">
+      <div className="border-b-4 border-[var(--outline-black)] bg-gradient-to-r from-[var(--star-yellow)]/20 via-[var(--pipe-100)] to-[var(--sky-blue)]/20 px-4 py-3 overflow-x-auto flex-shrink-0">
         <div className="flex gap-2 text-xs font-mario font-bold justify-start sm:justify-center min-w-max">
           <button
             onClick={() => setActiveTab('trades')}
@@ -96,7 +96,7 @@ export function MarketDataPanels({ tokenMint }: MarketDataPanelsProps) {
       </div>
 
       {/* Data Panel Content */}
-      <div className="flex-1 overflow-y-auto p-4 bg-white">
+      <div className="flex-1 overflow-y-auto p-4 bg-gradient-to-br from-[var(--pipe-100)]/30 via-white to-[var(--sky-blue)]/10">
         {activeTab === 'trades' && <RecentTradesPanel tokenMint={tokenMint} />}
         {activeTab === 'traders' && <TopTradersPanel tokenMint={tokenMint} />}
         {activeTab === 'holders' && <HoldersPanel tokenMint={tokenMint} />}
@@ -116,8 +116,8 @@ function RecentTradesPanel({ tokenMint }: { tokenMint: string }) {
   })
 
   return (
-    <div className="border-4 border-[var(--outline-black)] rounded-[16px] shadow-mario bg-white p-4 min-h-[200px]">
-      <div className="flex items-center gap-2 mb-4">
+    <div className="border-4 border-[var(--outline-black)] rounded-[16px] shadow-[6px_6px_0_var(--outline-black)] bg-gradient-to-br from-green-50 to-emerald-50 p-4 min-h-[200px]">
+      <div className="flex items-center gap-2 mb-4 bg-white rounded-lg p-3 border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)]">
         <div className="h-8 w-8 rounded-lg bg-[var(--luigi-green)] border-3 border-[var(--outline-black)] flex items-center justify-center shadow-[2px_2px_0_var(--outline-black)]">
           <Activity className="h-4 w-4 text-white" />
         </div>
@@ -193,8 +193,8 @@ function TopTradersPanel({ tokenMint }: { tokenMint: string }) {
   })
 
   return (
-    <div className="border-4 border-[var(--outline-black)] rounded-[16px] shadow-mario bg-white p-4 min-h-[200px]">
-      <div className="flex items-center gap-2 mb-4">
+    <div className="border-4 border-[var(--outline-black)] rounded-[16px] shadow-[6px_6px_0_var(--outline-black)] bg-gradient-to-br from-yellow-50 to-amber-50 p-4 min-h-[200px]">
+      <div className="flex items-center gap-2 mb-4 bg-white rounded-lg p-3 border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)]">
         <div className="h-8 w-8 rounded-lg bg-[var(--star-yellow)] border-3 border-[var(--outline-black)] flex items-center justify-center shadow-[2px_2px_0_var(--outline-black)]">
           <TrendingUp className="h-4 w-4 text-[var(--outline-black)]" />
         </div>
@@ -271,10 +271,12 @@ function HoldersPanel({ tokenMint }: { tokenMint: string }) {
   }
 
   return (
-    <div className="border-4 border-[var(--outline-black)] rounded-[16px] shadow-[4px_4px_0_var(--outline-black)] bg-gradient-to-br from-[var(--sky-blue)]/10 via-white to-[var(--sky-blue)]/5 p-4 min-h-[200px]">
-      <div className="flex items-center gap-2 mb-4">
-        <Users className="h-4 w-4 text-[var(--sky-blue)]" />
-        <h3 className="font-bold text-sm text-[var(--outline-black)]">Token Holders & Distribution</h3>
+    <div className="border-4 border-[var(--outline-black)] rounded-[16px] shadow-[6px_6px_0_var(--outline-black)] bg-gradient-to-br from-blue-50 to-cyan-50 p-4 min-h-[200px]">
+      <div className="flex items-center gap-2 mb-4 bg-white rounded-lg p-3 border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)]">
+        <div className="h-8 w-8 rounded-lg bg-[var(--sky-blue)] border-3 border-[var(--outline-black)] flex items-center justify-center shadow-[2px_2px_0_var(--outline-black)]">
+          <Users className="h-4 w-4 text-white" />
+        </div>
+        <h3 className="font-mario font-bold text-sm text-[var(--outline-black)]">Token Holders & Distribution</h3>
         {holderCount > 0 && (
           <span className="text-xs text-[var(--outline-black)] opacity-70">({holderCount} total)</span>
         )}
@@ -282,7 +284,7 @@ function HoldersPanel({ tokenMint }: { tokenMint: string }) {
 
       {/* Liquidity Pool Summary */}
       {liquidityPoolPercentage > 0 && (
-        <div className="mb-4 p-3 bg-[var(--sky-blue)]/10 border-2 border-[var(--sky-blue)]/30 rounded-lg">
+        <div className="mb-4 p-3 bg-white border-3 border-[var(--sky-blue)] rounded-lg shadow-[3px_3px_0_var(--sky-blue)]/40">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <span className="text-lg">🏊</span>
@@ -382,7 +384,7 @@ function HoldersPanel({ tokenMint }: { tokenMint: string }) {
 
       {/* Distribution Summary */}
       {holders.length > 0 && (
-        <div className="mt-4 p-3 bg-muted/30 rounded-lg border-2 border-[var(--outline-black)]/10">
+        <div className="mt-4 p-3 bg-white rounded-lg border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)]">
           <div className="text-xs font-bold mb-2">Distribution Analysis</div>
           <div className="grid grid-cols-2 gap-2 text-[10px]">
             <div>
@@ -415,7 +417,7 @@ function BubbleMapsPanel({ tokenMint }: { tokenMint: string }) {
   const [iframeLoaded, setIframeLoaded] = useState(false)
 
   return (
-    <div className="border-4 border-[var(--outline-black)] rounded-[16px] shadow-[4px_4px_0_var(--outline-black)] bg-white overflow-hidden min-h-[400px] relative">
+    <div className="border-4 border-[var(--outline-black)] rounded-[16px] shadow-[6px_6px_0_var(--outline-black)] bg-gradient-to-br from-purple-50 to-pink-50 overflow-hidden min-h-[400px] relative">
       {isLoading ? (
         <div className="flex items-center justify-center h-[400px]">
           <div className="text-center">
@@ -467,7 +469,7 @@ function UserPositionsPanel() {
 
   if (!isAuthenticated) {
     return (
-      <div className="border-4 border-[var(--outline-black)] rounded-[16px] shadow-[4px_4px_0_var(--outline-black)] bg-white p-6 min-h-[300px] flex items-center justify-center">
+      <div className="border-4 border-[var(--outline-black)] rounded-[16px] shadow-[6px_6px_0_var(--outline-black)] bg-gradient-to-br from-red-50 to-pink-50 p-6 min-h-[300px] flex items-center justify-center">
         <div className="text-center max-w-md">
           <Wallet className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
           <h3 className="font-bold text-lg mb-2">Login Required</h3>
@@ -487,7 +489,7 @@ function UserPositionsPanel() {
 
   if (isLoading) {
     return (
-      <div className="border-4 border-[var(--outline-black)] rounded-[16px] shadow-[4px_4px_0_var(--outline-black)] bg-white p-6 min-h-[300px] flex items-center justify-center">
+      <div className="border-4 border-[var(--outline-black)] rounded-[16px] shadow-[6px_6px_0_var(--outline-black)] bg-gradient-to-br from-red-50 to-pink-50 p-6 min-h-[300px] flex items-center justify-center">
         <div className="text-center">
           <Loader2 className="h-8 w-8 animate-spin mx-auto mb-3 text-[var(--luigi-green)]" />
           <p className="text-sm font-bold">Loading your positions...</p>
@@ -500,7 +502,7 @@ function UserPositionsPanel() {
 
   if (positions.length === 0) {
     return (
-      <div className="border-4 border-[var(--outline-black)] rounded-[16px] shadow-[4px_4px_0_var(--outline-black)] bg-white p-6 min-h-[300px] flex items-center justify-center">
+      <div className="border-4 border-[var(--outline-black)] rounded-[16px] shadow-[6px_6px_0_var(--outline-black)] bg-gradient-to-br from-red-50 to-pink-50 p-6 min-h-[300px] flex items-center justify-center">
         <div className="text-center max-w-md">
           <Wallet className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
           <h3 className="font-bold text-lg mb-2">No Positions Yet</h3>
@@ -513,10 +515,12 @@ function UserPositionsPanel() {
   }
 
   return (
-    <div className="border-4 border-[var(--outline-black)] rounded-[16px] shadow-[4px_4px_0_var(--outline-black)] bg-white p-4 min-h-[200px]">
-      <div className="flex items-center gap-2 mb-4">
-        <Wallet className="h-4 w-4 text-[var(--mario-red)]" />
-        <h3 className="font-bold text-sm">Your Portfolio</h3>
+    <div className="border-4 border-[var(--outline-black)] rounded-[16px] shadow-[6px_6px_0_var(--outline-black)] bg-gradient-to-br from-red-50 to-pink-50 p-4 min-h-[200px]">
+      <div className="flex items-center gap-2 mb-4 bg-white rounded-lg p-3 border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)]">
+        <div className="h-8 w-8 rounded-lg bg-[var(--mario-red)] border-3 border-[var(--outline-black)] flex items-center justify-center shadow-[2px_2px_0_var(--outline-black)]">
+          <Wallet className="h-4 w-4 text-white" />
+        </div>
+        <h3 className="font-mario font-bold text-sm">Your Portfolio</h3>
         <span className="text-xs text-muted-foreground">({positions.length} positions)</span>
       </div>
 

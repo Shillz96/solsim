@@ -1308,10 +1308,10 @@ export default {
 // ============================================================================
 
 /**
- * Get recent trades for a specific token from our database
+ * Get recent trades for a specific token from blockchain (PumpPortal + DexScreener)
  */
 export async function getMarketTrades(tokenMint: string): Promise<any[]> {
-  const res = await fetch(`${API}/api/trades/token/${tokenMint}?limit=20`, {
+  const res = await fetch(`${API}/api/market/trades/${tokenMint}`, {
     headers: getAuthHeaders(),
   });
   if (!res.ok) throw new Error('Failed to fetch market trades');

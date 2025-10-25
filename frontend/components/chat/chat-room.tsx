@@ -47,12 +47,21 @@ export function ChatRoom({ tokenMint, className }: ChatRoomProps) {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
 
-  // Join room when component mounts
+  // Join room when component mounts or status changes
   useEffect(() => {
     if (user && status === 'connected' && currentRoom !== tokenMint) {
+      console.log(`💬 Auto-joining room: ${tokenMint}`)
       joinRoom(tokenMint)
     }
   }, [user, status, tokenMint, currentRoom, joinRoom])
+
+  // Auto-retry join if not in room when trying to send
+  useEffect(() => {
+    if (user && status === 'connected' && !currentRoom && tokenMint) {
+      console.log(`💬 Retry joining room: ${tokenMint}`)
+      joinRoom(tokenMint)
+    }
+  }, [user, status, currentRoom, tokenMint, joinRoom])
 
   const handleSendMessage = () => {
     if (!inputValue.trim() || !user) return

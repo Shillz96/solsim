@@ -127,7 +127,8 @@ export function ChatProvider({ children, roomId }: ChatProviderProps) {
    */
   const sendMessage = useCallback((content: string) => {
     if (!currentRoom) {
-      console.error('No room joined');
+      console.error('No room joined - cannot send message');
+      setError('Not in a chat room. Please wait while we connect...');
       return;
     }
     wsSendMessage(currentRoom, content);
