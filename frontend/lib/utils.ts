@@ -549,4 +549,65 @@ export const marioStyles = {
       'border-[5px]': size === 'xl',
     }
   ),
+
+  /* ============================================
+     WARP PIPES TOKEN CARD UTILITIES
+     ============================================ */
+
+  /**
+   * Format metric labels consistently for token cards
+   * @param label The metric label (e.g., "MC", "Vol", "24h")
+   */
+  formatMetricLabel: (label: string) => cn(
+    'text-[11px] font-bold uppercase text-[var(--metric-label-color)]',
+    'tracking-wide'
+  ),
+
+  /**
+   * Get security status color based on freeze and mint authority
+   * @param freezeRevoked Whether freeze authority is revoked
+   * @param mintRenounced Whether mint authority is renounced
+   */
+  getSecurityStatus: (freezeRevoked?: boolean | null, mintRenounced?: boolean | null) => {
+    if (freezeRevoked && mintRenounced) return 'green';
+    if (freezeRevoked || mintRenounced) return 'yellow';
+    return 'red';
+  },
+
+  /**
+   * Get security shield icon color classes
+   * @param freezeRevoked Whether freeze authority is revoked
+   * @param mintRenounced Whether mint authority is renounced
+   */
+  getSecurityIconColor: (freezeRevoked?: boolean | null, mintRenounced?: boolean | null) => {
+    const status = marioStyles.getSecurityStatus(freezeRevoked, mintRenounced);
+    return cn(
+      'w-4 h-4',
+      {
+        'text-[var(--luigi-green)]': status === 'green',
+        'text-[var(--star-yellow)]': status === 'yellow',
+        'text-[var(--mario-red)]': status === 'red',
+      }
+    );
+  },
+
+  /**
+   * Format metric value with appropriate color coding
+   * @param value The numeric value
+   * @param type The metric type for color coding
+   */
+  formatMetricValue: (value: number | null | undefined, type: 'positive' | 'negative' | 'neutral' = 'neutral') => {
+    if (value === null || value === undefined) return '—';
+    
+    const colorClasses = {
+      positive: 'text-[var(--metric-positive)]',
+      negative: 'text-[var(--metric-negative)]',
+      neutral: 'text-[var(--metric-value-color)]',
+    };
+
+    return cn(
+      'text-[14px] font-mono font-bold',
+      colorClasses[type]
+    );
+  },
 }

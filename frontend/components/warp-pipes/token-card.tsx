@@ -1,14 +1,13 @@
 /**
- * Token Card Component - Vertical stock-style layout with Mario theme
+ * Token Card Component - Redesigned for better readability and information hierarchy
  *
- * Clean vertical card matching site design system:
- * - Token logo at top
- * - Symbol and name
- * - Large market cap display
- * - 24h change with color coding
- * - Volume and Market Cap row
- * - Green "Trade Now" button
- * - Uses theme tokens from tailwind.config.js
+ * Enhanced horizontal layout with:
+ * - Larger token image (120px) with no white border
+ * - Clear metric labels and values
+ * - Security status indicator
+ * - Removed redundant badges
+ * - Improved typography and spacing
+ * - Better information organization for quick trading decisions
  */
 
 "use client"
@@ -18,8 +17,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { cn, marioStyles } from "@/lib/utils"
 import { motion } from "framer-motion"
-import { ExternalLink } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { Shield, Users, Activity, TrendingUp, TrendingDown } from "lucide-react"
 import {
   HoverCard,
   HoverCardContent,
@@ -95,8 +93,11 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
   const img = data.imageUrl || data.logoURI || undefined;
   const priceChg = data.priceChange24h ?? null;
   const [imageError, setImageError] = useState(false);
-  const security = securityBadge(data.freezeRevoked, data.mintRenounced);
   const age = timeAgo(data.firstSeenAt);
+
+  // Security status for shield icon
+  const securityStatus = marioStyles.getSecurityStatus(data.freezeRevoked, data.mintRenounced);
+  const securityIconColor = marioStyles.getSecurityIconColor(data.freezeRevoked, data.mintRenounced);
 
   const handleToggleWatch = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -114,17 +115,18 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
         transition={{ duration: 0.2 }}
         className={cn("w-full", className)}
       >
-        {/* Horizontal Layout Token Card - Axiom Style */}
+        {/* Redesigned Token Card - Enhanced Layout */}
         <div className={cn(
           marioStyles.interactiveCard('lg'),
-          'relative overflow-hidden bg-[var(--sky-blue)]/20 h-[160px] min-h-[160px]'
+          'relative overflow-hidden bg-[var(--sky-blue)]/20',
+          'h-[var(--token-card-height)] min-h-[var(--token-card-height)]'
         )}>
           <div className="flex items-center gap-4 p-4 h-full">
 
-            {/* LEFT: Token Logo */}
+            {/* LEFT: Larger Token Logo */}
             <div className={cn(
-              marioStyles.card(false),
-              'relative shrink-0 w-24 h-24 overflow-hidden'
+              'relative shrink-0 overflow-hidden rounded-[14px]',
+              'w-[var(--token-card-image-size)] h-[var(--token-card-image-size)]'
             )}>
               {img && !imageError ? (
                 <img
@@ -135,95 +137,111 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
                   loading="lazy"
                 />
               ) : (
-                <div className="h-full w-full grid place-items-center bg-[var(--star-yellow)] text-[var(--outline-black)] text-4xl font-bold">🪙</div>
+                <div className="h-full w-full grid place-items-center bg-[var(--star-yellow)] text-[var(--outline-black)] text-5xl font-bold">🪙</div>
               )}
             </div>
 
-            {/* MIDDLE: Token Info */}
+            {/* MIDDLE: Enhanced Token Info */}
             <div className="flex-1 min-w-0">
-              {/* Top Row: Symbol, Name, Age */}
-              <div className="flex items-center gap-2 mb-1">
-                <h3 className={cn(marioStyles.heading(4), 'text-[18px]')}>
+              {/* Header Row: Symbol, Name, Age, Security */}
+              <div className="flex items-center gap-3 mb-2">
+                <h3 className={cn(marioStyles.heading(4), 'text-[22px]')}>
                   {data.symbol}
                 </h3>
-                <span className={cn(marioStyles.bodyText('semibold'), 'text-[13px] truncate max-w-[120px]')} title={data.name || undefined}>
+                <span className={cn(marioStyles.bodyText('semibold'), 'text-[15px] truncate max-w-[140px]')} title={data.name || undefined}>
                   {data.name}
                 </span>
-                <span className={cn(marioStyles.bodyText('bold'), 'text-[11px] ml-auto')}>
+                <span className={cn(marioStyles.bodyText('bold'), 'text-[12px] ml-auto')}>
                   {age}
                 </span>
+                {/* Security Shield Icon */}
+                <Shield className={securityIconColor} />
               </div>
 
               {/* Description (if available, truncated) */}
               {data.description && (
-                <div className="text-[10px] text-[var(--outline-black)] font-medium mb-1 truncate max-w-[280px] opacity-90" title={data.description}>
+                <div className="text-[12px] text-[var(--outline-black)] font-medium mb-2 truncate max-w-[320px]" title={data.description}>
                   {data.description}
                 </div>
               )}
 
-              {/* Middle Row: Stats and Badges */}
-              <div className="flex items-center gap-2 flex-wrap">
-                {/* Status Badge */}
-                {data.status && (
-                  <div className={cn(
-                    "px-1.5 py-0.5 rounded-[4px] border-2 text-[10px] font-bold uppercase font-mario shadow-[1px_1px_0_var(--outline-black)]",
-                    data.status === 'LAUNCHING' && "bg-[var(--sky-blue)]/20 text-[var(--sky-blue)] border-[var(--sky-blue)]",
-                    data.status === 'ACTIVE' && "bg-[var(--luigi-green)]/20 text-[var(--luigi-green)] border-[var(--luigi-green)]",
-                    data.status === 'ABOUT_TO_BOND' && "bg-[var(--star-yellow)]/20 text-[var(--star-yellow)] border-[var(--star-yellow)]",
-                    data.status === 'BONDED' && "bg-[var(--coin-yellow)]/20 text-[var(--coin-yellow)] border-[var(--coin-yellow)]",
-                    data.status === 'DEAD' && "bg-[var(--mario-red)]/20 text-[var(--mario-red)] border-[var(--mario-red)]"
-                  )}>
-                    {data.status === 'ABOUT_TO_BOND' ? '🔥 BOND' : data.status}
+              {/* Metrics Grid - 3 columns */}
+              <div className="grid grid-cols-3 gap-4 mb-2">
+                {/* Market Cap */}
+                <div className="flex flex-col">
+                  <div className={marioStyles.formatMetricLabel('MC')}>
+                    Market Cap
                   </div>
-                )}
-
-                {/* Security Badge */}
-                <div className={cn(
-                  "px-1.5 py-0.5 rounded-[4px] border-2 text-[10px] font-bold uppercase font-mario shadow-[1px_1px_0_var(--outline-black)]",
-                  security.cls
-                )}>
-                  {security.label}
+                  <div className={marioStyles.formatMetricValue(data.marketCapUsd)}>
+                    {fmtCurrency(data.marketCapUsd)}
+                  </div>
                 </div>
 
-                {/* Bonding Progress (if available) */}
-                {data.bondingCurveProgress != null && (
-                  <div className="flex items-center gap-1 text-[11px]">
-                    <span className="text-[var(--outline-black)]">⚡</span>
-                    <span className="font-mono font-bold text-[var(--outline-black)]">
-                      {data.bondingCurveProgress.toFixed(0)}%
-                    </span>
+                {/* Volume */}
+                <div className="flex flex-col">
+                  <div className={marioStyles.formatMetricLabel('Vol')}>
+                    Volume 24h
                   </div>
-                )}
+                  <div className={marioStyles.formatMetricValue(data.volume24h)}>
+                    {fmtCurrency(data.volume24h)}
+                  </div>
+                </div>
 
-                {/* Holder Count */}
-                {data.holderCount != null && (
-                  <div className="flex items-center gap-1 text-[11px] text-[var(--outline-black)] font-semibold">
-                    <span>👥</span>
-                    <span className="font-mono font-bold">{data.holderCount}</span>
+                {/* 24h Change */}
+                <div className="flex flex-col">
+                  <div className={marioStyles.formatMetricLabel('24h')}>
+                    24h Change
                   </div>
-                )}
+                  {priceChg != null ? (
+                    <div className={cn(
+                      marioStyles.formatMetricValue(priceChg, priceChg >= 0 ? 'positive' : 'negative'),
+                      'flex items-center gap-1'
+                    )}>
+                      {priceChg >= 0 ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
+                      {priceChg >= 0 ? "+" : ""}{priceChg.toFixed(1)}%
+                    </div>
+                  ) : (
+                    <div className={marioStyles.formatMetricValue(null)}>—</div>
+                  )}
+                </div>
+              </div>
 
-                {/* Transaction Count */}
-                {data.txCount24h != null && (
-                  <div className="flex items-center gap-1 text-[11px] text-[var(--outline-black)] font-semibold">
-                    <span>📝</span>
-                    <span className="font-mono font-bold">{data.txCount24h}</span>
+              {/* Secondary Metrics Row */}
+              <div className="grid grid-cols-3 gap-4 mb-2">
+                {/* Holders */}
+                <div className="flex flex-col">
+                  <div className={marioStyles.formatMetricLabel('Holders')}>
+                    Holders
                   </div>
-                )}
+                  <div className={marioStyles.formatMetricValue(data.holderCount)}>
+                    {data.holderCount ? data.holderCount.toLocaleString() : '—'}
+                  </div>
+                </div>
 
-                {/* Buy/Sell Ratio - Commented out until data is available */}
-                {/* {data.buys24h != null && data.sells24h != null && (
-                  <div className="flex items-center gap-1 text-[12px]">
-                    <span className="text-luigi-green-600 font-mono font-bold">↗{data.buys24h}</span>
-                    <span className="text-pipe-400">/</span>
-                    <span className="text-mario-red-600 font-mono font-bold">↘{data.sells24h}</span>
+                {/* Transactions */}
+                <div className="flex flex-col">
+                  <div className={marioStyles.formatMetricLabel('Txns')}>
+                    Transactions
                   </div>
-                )} */}
+                  <div className={marioStyles.formatMetricValue(data.txCount24h)}>
+                    {data.txCount24h ? data.txCount24h.toLocaleString() : '—'}
+                  </div>
+                </div>
+
+                {/* Liquidity */}
+                <div className="flex flex-col">
+                  <div className={marioStyles.formatMetricLabel('Liq')}>
+                    Liquidity
+                  </div>
+                  <div className={marioStyles.formatMetricValue(data.liqUsd)}>
+                    {fmtCurrency(data.liqUsd)}
+                  </div>
+                </div>
               </div>
 
               {/* SOL to Graduate Progress Bar - Only for ABOUT_TO_BOND */}
               {data.status === 'ABOUT_TO_BOND' && data.bondingCurveProgress != null && data.solToGraduate != null && (
-                <div className="mt-1 relative">
+                <div className="mt-2 relative">
                   <div className="bg-[var(--card)] border-2 border-[var(--outline-black)] rounded-full h-3 overflow-hidden relative shadow-[1px_1px_0_var(--outline-black)]">
                     <div
                       className="bg-[var(--star-yellow)] h-full flex items-center justify-center border-r-2 border-[var(--outline-black)] transition-all duration-500 relative"
@@ -240,7 +258,7 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
               )}
 
               {/* Bottom Row: Social Links & Creator */}
-              <div className="flex items-center gap-2 mt-1">
+              <div className="flex items-center gap-2 mt-2">
                 {/* Social Links */}
                 {(data.twitter || data.telegram || data.website) && (
                   <div className="flex items-center gap-1.5">
@@ -375,48 +393,13 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
 
                 {/* Creator Wallet */}
                 {data.creatorWallet && (
-                  <div className="text-[10px] text-[var(--outline-black)] opacity-50 font-mono ml-auto" title={data.creatorWallet}>
+                  <div className="text-[11px] text-[var(--outline-black)] opacity-50 font-mono ml-auto" title={data.creatorWallet}>
                     👨‍💻 {shorten(data.creatorWallet, 3, 3)}
                   </div>
                 )}
               </div>
             </div>
 
-            {/* RIGHT: Price & Volume */}
-            <div className="text-right shrink-0">
-              {/* Market Cap */}
-              <div className="mb-1">
-                <div className="text-[9px] text-[var(--outline-black)] opacity-80 uppercase font-bold font-mario">MC</div>
-                <div className="text-[14px] font-bold text-[var(--outline-black)] font-mono">
-                  {fmtCurrency(data.marketCapUsd)}
-                </div>
-              </div>
-
-              {/* Volume - USD and SOL */}
-              <div className="mb-1">
-                <div className="text-[9px] text-[var(--outline-black)] opacity-80 uppercase font-bold font-mario">Vol 24h</div>
-                <div className="text-[12px] font-bold text-[var(--outline-black)] font-mono">
-                  {fmtCurrency(data.volume24h)}
-                </div>
-                {data.volume24hSol != null && data.volume24hSol > 0 && (
-                  <div className="text-[8px] text-[var(--outline-black)] opacity-80 font-mono">
-                    {data.volume24hSol.toFixed(2)} SOL
-                  </div>
-                )}
-              </div>
-
-              {/* 24h Change */}
-              {priceChg != null && (
-                <div className={cn(
-                  "inline-flex items-center gap-1 px-1.5 py-0.5 rounded-[6px] border-2 border-[var(--outline-black)]",
-                  priceChg >= 0 ? "bg-[var(--luigi-green)]" : "bg-[var(--mario-red)]"
-                )}>
-                  <span className="text-white font-bold text-[10px] font-mono">
-                    {priceChg >= 0 ? "+" : ""}{priceChg.toFixed(1)}%
-                  </span>
-                </div>
-              )}
-            </div>
 
           </div>
         </div>
