@@ -102,48 +102,43 @@ export function CombinedProfileBalance({
               "border-3 border-[var(--outline-black)]",
               "shadow-[3px_3px_0_var(--outline-black)] md:shadow-[4px_4px_0_var(--outline-black)]",
               "hover:shadow-[4px_4px_0_var(--outline-black)] md:hover:shadow-[5px_5px_0_var(--outline-black)]",
-              "flex items-center justify-between gap-2",
+              "flex items-center gap-2",
               "transition-all duration-200",
               "relative"
             )}
             aria-label="Account and balance menu"
           >
-            {/* LEFT: Profile info */}
-            <div className="flex items-center gap-2">
-              {/* Avatar */}
-              <div
-                className={cn(
-                  "grid place-items-center flex-shrink-0",
-                  "h-7 w-7 md:h-8 md:w-8",
-                  "rounded-[8px] md:rounded-[10px]",
-                  "bg-[var(--mario-red)]",
-                  "border-3 border-[var(--outline-black)]",
-                  "overflow-hidden"
-                )}
-              >
-                <Avatar className="h-full w-full rounded-none border-0">
-                  <AvatarImage src={avatarUrl} alt={displayName} className="rounded-none object-cover" />
-                  <AvatarFallback className="rounded-none font-bold bg-[var(--mario-red)] text-white text-[10px] md:text-[12px]">
-                    {displayName?.[0]?.toUpperCase() || "U"}
-                  </AvatarFallback>
-                </Avatar>
-              </div>
-
-              {/* Name + Level */}
-              <div className="flex flex-col items-start justify-center leading-tight space-y-0 min-w-0">
-                <span className="font-extrabold text-[11px] md:text-[12px] tracking-tight text-[var(--outline-black)] truncate max-w-[80px] md:max-w-[100px]">
-                  {displayName}
-                </span>
-                <div className="flex items-center gap-1">
-                  <span className="text-[8px] md:text-[9px] font-black uppercase text-foreground/90 whitespace-nowrap">
-                    LVL {level}
-                  </span>
-                </div>
-              </div>
+            {/* LEFT: Avatar */}
+            <div
+              className={cn(
+                "grid place-items-center flex-shrink-0",
+                "h-7 w-7 md:h-8 md:w-8",
+                "rounded-[8px] md:rounded-[10px]",
+                "bg-[var(--mario-red)]",
+                "border-3 border-[var(--outline-black)]",
+                "overflow-hidden"
+              )}
+            >
+              <Avatar className="h-full w-full rounded-none border-0">
+                <AvatarImage src={avatarUrl} alt={displayName} className="rounded-none object-cover" />
+                <AvatarFallback className="rounded-none font-bold bg-[var(--mario-red)] text-white text-[10px] md:text-[12px]">
+                  {displayName?.[0]?.toUpperCase() || "U"}
+                </AvatarFallback>
+              </Avatar>
             </div>
 
-            {/* CENTER: Balance */}
-            <div className="flex flex-col items-end leading-none space-y-0">
+            {/* Name + Level (compact) */}
+            <div className="flex flex-col items-start justify-center leading-tight space-y-0 min-w-0">
+              <span className="font-extrabold text-[11px] md:text-[12px] tracking-tight text-[var(--outline-black)] truncate max-w-[70px] md:max-w-[90px]">
+                {displayName}
+              </span>
+              <span className="text-[8px] md:text-[9px] font-black uppercase text-foreground/90 whitespace-nowrap">
+                LVL {level}
+              </span>
+            </div>
+
+            {/* Balance */}
+            <div className="flex flex-col items-end leading-none space-y-0 flex-1">
               <span className="tabular-nums font-extrabold text-[12px] md:text-[14px] tracking-tight text-[var(--outline-black)]">
                 {Number(activeBalance ?? 0).toFixed(2)}
               </span>
@@ -178,7 +173,7 @@ export function CombinedProfileBalance({
           </motion.button>
         </DropdownMenuTrigger>
 
-        <DropdownMenuContent align="end" className="w-80 max-h-[60vh] overflow-y-auto bg-[var(--card)] border border-[var(--color-border)] shadow-[var(--shadow-dropdown)]">
+        <DropdownMenuContent align="end" className="w-80 max-h-[60vh] overflow-y-auto scrollbar-none bg-[var(--card)] border border-[var(--color-border)] shadow-[var(--shadow-dropdown)]">
           <DropdownMenuLabel>My Account</DropdownMenuLabel>
 
           {/* Account Balance Overview */}
@@ -389,7 +384,7 @@ export function CombinedProfileBalance({
                   )}
                 </div>
 
-                <div className="space-y-1 max-h-64 overflow-y-auto">
+                <div className="space-y-1 max-h-64 overflow-y-auto scrollbar-none">
                   {notifications.slice(0, 5).map((notification) => (
                     <div
                       key={notification.id}

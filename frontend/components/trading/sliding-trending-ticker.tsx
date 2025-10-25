@@ -222,7 +222,7 @@ export function SlidingTrendingTicker() {
         <div className="absolute top-0 right-0 h-full w-20 bg-gradient-to-l from-[var(--brick-brown)] to-transparent pointer-events-none z-5" />
         
         {/* Hourly Rewards Timer Overlay - Centered */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 translate-y-4 z-20 pointer-events-auto">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 translate-y-4 z-[99999] pointer-events-auto">
           <HourlyRewardTimer />
         </div>
       </div>

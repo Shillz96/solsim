@@ -39,7 +39,7 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
       </div>
       <main
         id="main-content"
-        className="relative"
+        className="relative scrollbar-none"
         style={{
           height: 'calc(100dvh - var(--navbar-height, 56px) - var(--trending-ticker-height, 60px) - var(--bottom-nav-height, 64px))',
           marginTop: 'calc(var(--navbar-height, 56px) + var(--trending-ticker-height, 60px))',
