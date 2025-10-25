@@ -4,7 +4,8 @@ import { useState, useRef, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Trophy, Target, RefreshCw, TrendingUp, Users, Flame, Crown, Medal, Star, ChevronRight, Award } from "lucide-react"
+import { Trophy, Target, RefreshCw, Crown, Medal, Star, ChevronRight } from "lucide-react"
+import Image from "next/image"
 import { useAuth } from "@/hooks/use-auth"
 import { useQuery } from "@tanstack/react-query"
 import * as api from "@/lib/api"
@@ -137,7 +138,7 @@ export default function LeaderboardPage() {
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="mb-6"
+          className="mb-6 flex items-center justify-between"
         >
           <MarioPageHeader
             src="/leaderboard-header.png"
@@ -146,54 +147,28 @@ export default function LeaderboardPage() {
             height={120}
             priority
           />
-        </motion.div>
-
-        {/* Header Controls */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-          className="mb-6"
-        >
-          <div className={cn(
-            marioStyles.cardLg(false),
-            'flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between'
-          )}>
-            <div className="flex items-center gap-4 flex-wrap">
-              <Tabs value={timeRange} onValueChange={(v) => setTimeRange(v as TimeRange)}>
-                <TabsList>
-                  <TabsTrigger value="all" className="mario-tab-yellow">
-                    <Trophy className="h-4 w-4 mr-2" />
-                    All Time
-                  </TabsTrigger>
-                </TabsList>
-              </Tabs>
-              <span className="text-xs text-[var(--outline-black)] opacity-70 font-semibold">
-                (24h and 7d filters coming soon)
-              </span>
-            </div>
-
-            <div className="flex items-center gap-2">
-              {currentUser && (
-                <Button 
-                  variant="outline" 
-                  onClick={scrollToUserRank} 
-                  className={cn(marioStyles.button('secondary', 'md'))}
-                >
-                  <Target className="h-4 w-4 mr-2" />
-                  View My Rank
-                </Button>
-              )}
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={handleRefresh}
-                disabled={refreshing}
-                className={cn(marioStyles.iconButton('primary'), 'w-10 h-10')}
+          
+          {/* Controls moved to header level */}
+          <div className="flex items-center gap-2">
+            {currentUser && (
+              <Button 
+                variant="outline" 
+                onClick={scrollToUserRank} 
+                className={cn(marioStyles.button('secondary', 'md'))}
               >
-                <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
+                <Target className="h-4 w-4 mr-2" />
+                View My Rank
               </Button>
-            </div>
+            )}
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={handleRefresh}
+              disabled={refreshing}
+              className={cn(marioStyles.iconButton('primary'), 'w-10 h-10')}
+            >
+              <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
+            </Button>
           </div>
         </motion.div>
 
@@ -206,7 +181,7 @@ export default function LeaderboardPage() {
               exit={{ opacity: 0, y: -10 }}
               className={cn(
                 marioStyles.cardSm(false),
-                'mb-6 bg-gradient-to-br from-[var(--mario-red)]/10 to-white'
+                'mb-6 bg-gradient-to-br from-[var(--mario-red)]/10 to-[var(--mario-red)]/5'
               )}
             >
               <p className="text-[var(--mario-red)] font-bold">{String(error)}</p>
@@ -214,7 +189,7 @@ export default function LeaderboardPage() {
           )}
         </AnimatePresence>
 
-        {/* Competition Stats Overview - Full Width Cards */}
+        {/* Competition Stats Overview - Docs Style Cards */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -223,76 +198,92 @@ export default function LeaderboardPage() {
         >
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {/* Total Traders Card */}
-            <div className={cn(
-              marioStyles.cardGradient('from-[var(--luigi-green)]/20 to-white'),
-              'text-center'
-            )}>
-              <div className={cn(
-                marioStyles.iconContainer('lg', '[var(--luigi-green)]'),
-                'mx-auto mb-3'
-              )}>
-                <Users className="h-6 w-6 text-white" />
+            <div className="mario-card">
+              <div className="flex items-start gap-4">
+                <div className="h-10 w-10 rounded-lg bg-[var(--luigi-green)] border-3 border-[var(--outline-black)] flex items-center justify-center flex-shrink-0 shadow-[2px_2px_0_var(--outline-black)]">
+                  <Image 
+                    src="/icons/mario/user.png" 
+                    alt="Traders" 
+                    width={24} 
+                    height={24}
+                    className="object-contain"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <h3 className="font-bold text-lg text-[var(--outline-black)]">Total Traders</h3>
+                  <p className="text-2xl font-bold text-[var(--outline-black)]">
+                    {totalTraders.toLocaleString()}
+                  </p>
+                </div>
               </div>
-              <h3 className={cn(marioStyles.heading(4), 'mb-2')}>Total Traders</h3>
-              <p className="text-3xl font-bold text-[var(--outline-black)]">
-                {totalTraders.toLocaleString()}
-              </p>
             </div>
 
             {/* Active Today Card */}
-            <div className={cn(
-              marioStyles.cardGradient('from-[var(--star-yellow)]/20 to-white'),
-              'text-center'
-            )}>
-              <div className={cn(
-                marioStyles.iconContainer('lg', '[var(--star-yellow)]'),
-                'mx-auto mb-3'
-              )}>
-                <Flame className="h-6 w-6 text-[var(--outline-black)]" />
+            <div className="mario-card">
+              <div className="flex items-start gap-4">
+                <div className="h-10 w-10 rounded-lg bg-[var(--star-yellow)] border-3 border-[var(--outline-black)] flex items-center justify-center flex-shrink-0 shadow-[2px_2px_0_var(--outline-black)]">
+                  <Image 
+                    src="/icons/mario/fire.png" 
+                    alt="Active" 
+                    width={24} 
+                    height={24}
+                    className="object-contain"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <h3 className="font-bold text-lg text-[var(--outline-black)]">Active Today</h3>
+                  <p className="text-2xl font-bold text-[var(--outline-black)]">
+                    {activeToday.toLocaleString()}
+                  </p>
+                </div>
               </div>
-              <h3 className={cn(marioStyles.heading(4), 'mb-2')}>Active Today</h3>
-              <p className="text-3xl font-bold text-[var(--outline-black)]">
-                {activeToday.toLocaleString()}
-              </p>
             </div>
 
             {/* Average PnL Card */}
-            <div className={cn(
-              marioStyles.cardGradient('from-[var(--sky-blue)]/20 to-white'),
-              'text-center'
-            )}>
-              <div className={cn(
-                marioStyles.iconContainer('lg', '[var(--sky-blue)]'),
-                'mx-auto mb-3'
-              )}>
-                <TrendingUp className="h-6 w-6 text-white" />
-              </div>
-              <h3 className={cn(marioStyles.heading(4), 'mb-2')}>Avg PnL</h3>
-              <div className={`text-2xl font-bold ${avgROI >= 0 ? 'text-[var(--luigi-green)]' : 'text-[var(--mario-red)]'}`}>
-                <UsdWithSol
-                  usd={avgROI}
-                  prefix={avgROI >= 0 ? '+' : ''}
-                  className="text-2xl font-bold"
-                  solClassName="text-xs"
-                />
+            <div className="mario-card">
+              <div className="flex items-start gap-4">
+                <div className="h-10 w-10 rounded-lg bg-[var(--sky-blue)] border-3 border-[var(--outline-black)] flex items-center justify-center flex-shrink-0 shadow-[2px_2px_0_var(--outline-black)]">
+                  <Image 
+                    src="/icons/mario/trending.png" 
+                    alt="PnL" 
+                    width={24} 
+                    height={24}
+                    className="object-contain"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <h3 className="font-bold text-lg text-[var(--outline-black)]">Avg PnL</h3>
+                  <div className={`text-2xl font-bold ${avgROI >= 0 ? 'text-[var(--luigi-green)]' : 'text-[var(--mario-red)]'}`}>
+                    <UsdWithSol
+                      usd={avgROI}
+                      prefix={avgROI >= 0 ? '+' : ''}
+                      className="text-2xl font-bold"
+                      solClassName="text-xs"
+                    />
+                  </div>
+                </div>
               </div>
             </div>
 
-            {/* Total Volume Card */}
-            <div className={cn(
-              marioStyles.cardGradient('from-[var(--coin-gold)]/20 to-white'),
-              'text-center'
-            )}>
-              <div className={cn(
-                marioStyles.iconContainer('lg', '[var(--coin-gold)]'),
-                'mx-auto mb-3'
-              )}>
-                <Award className="h-6 w-6 text-[var(--outline-black)]" />
+            {/* Total Trades Card */}
+            <div className="mario-card">
+              <div className="flex items-start gap-4">
+                <div className="h-10 w-10 rounded-lg bg-[var(--coin-yellow)] border-3 border-[var(--outline-black)] flex items-center justify-center flex-shrink-0 shadow-[2px_2px_0_var(--outline-black)]">
+                  <Image 
+                    src="/icons/mario/trophy.png" 
+                    alt="Trades" 
+                    width={24} 
+                    height={24}
+                    className="object-contain"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <h3 className="font-bold text-lg text-[var(--outline-black)]">Total Trades</h3>
+                  <p className="text-2xl font-bold text-[var(--outline-black)]">
+                    {formatNumber(totalVolume, { useCompact: true })}
+                  </p>
+                </div>
               </div>
-              <h3 className={cn(marioStyles.heading(4), 'mb-2')}>Total Trades</h3>
-              <p className="text-3xl font-bold text-[var(--outline-black)]">
-                {formatNumber(totalVolume, { useCompact: true })}
-              </p>
             </div>
           </div>
         </motion.div>
@@ -415,7 +406,7 @@ export default function LeaderboardPage() {
               >
                 <div className={cn(
                   marioStyles.cardLg(false),
-                  'bg-gradient-to-br from-[var(--star-yellow)]/30 to-white'
+                  'bg-gradient-to-br from-[var(--star-yellow)]/30 to-[var(--star-yellow)]/5'
                 )}>
                   <div className="mb-4">
                     <div className="flex items-center justify-between mb-4">
@@ -437,7 +428,7 @@ export default function LeaderboardPage() {
                   <div className="grid grid-cols-2 gap-4">
                     <div className={cn(
                       'p-3 rounded-lg',
-                      'bg-white/50 border-2 border-[var(--outline-black)]'
+                      'bg-[var(--star-yellow)]/20 border-2 border-[var(--outline-black)]'
                     )}>
                       <p className={cn(marioStyles.bodyText('semibold'), 'text-xs mb-2 opacity-70')}>
                         💰 Total PnL
@@ -459,7 +450,7 @@ export default function LeaderboardPage() {
 
                     <div className={cn(
                       'p-3 rounded-lg',
-                      'bg-white/50 border-2 border-[var(--outline-black)]'
+                      'bg-[var(--sky-blue)]/20 border-2 border-[var(--outline-black)]'
                     )}>
                       <p className={cn(marioStyles.bodyText('semibold'), 'text-xs mb-2 opacity-70')}>
                         📊 Trades
@@ -471,7 +462,7 @@ export default function LeaderboardPage() {
 
                     <div className={cn(
                       'p-3 rounded-lg',
-                      'bg-white/50 border-2 border-[var(--outline-black)]'
+                      'bg-[var(--luigi-green)]/20 border-2 border-[var(--outline-black)]'
                     )}>
                       <p className={cn(marioStyles.bodyText('semibold'), 'text-xs mb-2 opacity-70')}>
                         🎯 Win Rate
@@ -483,7 +474,7 @@ export default function LeaderboardPage() {
 
                     <div className={cn(
                       'p-3 rounded-lg',
-                      'bg-white/50 border-2 border-[var(--outline-black)]'
+                      'bg-[var(--coin-gold)]/20 border-2 border-[var(--outline-black)]'
                     )}>
                       <p className={cn(marioStyles.bodyText('semibold'), 'text-xs mb-2 opacity-70')}>
                         💎 Balance
@@ -554,8 +545,8 @@ export default function LeaderboardPage() {
                             'grid grid-cols-12 gap-4 p-3 rounded-lg',
                             'border-3 transition-all',
                             isCurrentUser 
-                              ? 'bg-gradient-to-r from-[var(--star-yellow)]/30 to-white border-[var(--star-yellow)] shadow-[4px_4px_0_var(--star-yellow)]'
-                              : 'bg-white border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-0.5'
+                              ? 'bg-gradient-to-r from-[var(--star-yellow)]/30 to-[var(--star-yellow)]/10 border-[var(--star-yellow)] shadow-[4px_4px_0_var(--star-yellow)]'
+                              : 'bg-[var(--card)] border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-0.5'
                           )}
                         >
                           {/* Rank */}

@@ -33,7 +33,7 @@ export function TradePanelPresets({
         const isDisabled = disabled?.(value) || false
         const isSelected = selected === value
         
-        if (editable && onUpdate) {
+        if (editable && onUpdate && maxValue !== undefined) {
           return (
             <EditablePresetButton
               key={index}
