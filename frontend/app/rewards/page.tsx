@@ -96,7 +96,7 @@ export default function RewardsPage() {
           className="space-y-6 mb-12"
         >
           <Link href="/">
-            <Button variant="ghost" className="gap-2 mario-btn bg-white border-3 border-[var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)]">
+            <Button variant="ghost" className="gap-2 mario-btn bg-[var(--card)] border-3 border-[var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)]">
               <ArrowLeft className="h-4 w-4" />
               Back to Home
             </Button>
@@ -124,7 +124,7 @@ export default function RewardsPage() {
         >
           <h2 className="font-mario text-3xl text-[var(--outline-black)]">What Are 1UP Points?</h2>
 
-          <div className="mario-card bg-white p-6 border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)]">
+          <div className="mario-card bg-[var(--card)] p-6 border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)]">
             <div className="space-y-4">
               <p className="text-[var(--outline-black)] leading-relaxed">
                 1UP Points are the core currency of progression on the platform. They turn your trading activity — paper or real — into XP, tokens, badges, and rewards.
@@ -150,7 +150,7 @@ export default function RewardsPage() {
 
           <div className="grid gap-4 md:grid-cols-2">
             {earningMethods.map((method, i) => (
-              <div key={i} className="mario-card bg-white p-6 border-4 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)]">
+              <div key={i} className="mario-card bg-[var(--card)] p-6 border-4 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)]">
                 <div className="flex items-start gap-4 mb-3">
                   <div className="text-2xl">{method.icon}</div>
                   <div className="flex-1">
@@ -200,7 +200,7 @@ export default function RewardsPage() {
         >
           <h2 className="font-mario text-3xl text-[var(--outline-black)]">Level Progression — "Power-Up Ladder"</h2>
 
-          <div className="mario-card bg-white p-6 border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)]">
+          <div className="mario-card bg-[var(--card)] p-6 border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)]">
             <p className="text-[var(--outline-black)] mb-4">
               Every trader climbs through 20 Mario-inspired levels, each with unique visuals, perks, and XP requirements.
             </p>
@@ -238,7 +238,7 @@ export default function RewardsPage() {
         >
           <h2 className="font-mario text-3xl text-[var(--outline-black)]">Redeeming Points</h2>
 
-          <div className="mario-card bg-white p-6 border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)]">
+          <div className="mario-card bg-[var(--card)] p-6 border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)]">
             <p className="text-[var(--outline-black)] mb-4 font-semibold">1UP Points = real utility. You can:</p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {redemptionOptions.map((option, i) => (
@@ -263,7 +263,7 @@ export default function RewardsPage() {
         >
           <h2 className="font-mario text-3xl text-[var(--outline-black)]">Weekly Rewards System</h2>
 
-          <div className="mario-card bg-white p-6 border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)]">
+          <div className="mario-card bg-[var(--card)] p-6 border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)]">
             <p className="text-[var(--outline-black)] mb-4">
               Every week, a portion of platform fees (50%) goes into a trader rewards pool.
             </p>
@@ -287,7 +287,7 @@ export default function RewardsPage() {
         >
           <h2 className="font-mario text-3xl text-[var(--outline-black)]">Achievement System</h2>
 
-          <div className="mario-card bg-white p-6 border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)]">
+          <div className="mario-card bg-[var(--card)] p-6 border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)]">
             <p className="text-[var(--outline-black)] mb-4">
               Achievements = hidden challenges that give instant XP, badges, or boosts.
             </p>
@@ -334,7 +334,7 @@ export default function RewardsPage() {
                   </Button>
                 </Link>
                 <Link href="/leaderboard">
-                  <Button className="mario-btn bg-white text-[var(--outline-black)] border-4 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)] hover:shadow-[2px_2px_0_var(--outline-black)] font-bold px-6 py-3">
+                  <Button className="mario-btn bg-[var(--card)] text-[var(--outline-black)] border-4 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)] hover:shadow-[2px_2px_0_var(--outline-black)] font-bold px-6 py-3">
                     View Leaderboard 🏆
                   </Button>
                 </Link>

@@ -135,7 +135,7 @@ function PortfolioChartComponent() {
             onClick={() => setPeriod(p)}
             className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
               period === p
-                ? 'bg-primary text-primary-foreground shadow-sm'
+                ? 'bg-primary text-primary-foreground shadow-[2px_2px_0_var(--outline-black)]'
                 : 'bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground'
             }`}
           >
@@ -190,7 +190,7 @@ function PortfolioChartComponent() {
                 if (active && payload && payload.length) {
                   const data = payload[0].payload
                   return (
-                    <div className="rounded-lg border-3 border-[var(--outline-black)] bg-white p-3 shadow-[4px_4px_0_var(--outline-black)]">
+                    <div className="rounded-lg border-3 border-[var(--outline-black)] bg-[var(--card)] p-3 shadow-[4px_4px_0_var(--outline-black)]">
                       <p className="text-xs text-muted-foreground mb-2">{data.formattedDate}</p>
                       <div>
                         <p className="font-mono text-sm font-semibold text-foreground">

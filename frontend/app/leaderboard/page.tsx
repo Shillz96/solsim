@@ -146,7 +146,7 @@ export default function LeaderboardPage() {
             size="icon"
             onClick={handleRefresh}
             disabled={refreshing}
-            className="border-3 border-[var(--outline-black)] bg-white hover:bg-[var(--mario-red-500)] hover:text-white shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] transition-all duration-200"
+            className="border-3 border-[var(--outline-black)] bg-[var(--card)] hover:bg-[var(--mario-red-500)] hover:text-white shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] transition-all duration-200"
           >
             <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
           </Button>
@@ -166,7 +166,7 @@ export default function LeaderboardPage() {
           transition={{ duration: 0.5, delay: 0.1 }}
           className="mb-4"
         >
-          <div className="bg-white border-4 border-[var(--outline-black)] rounded-[16px] shadow-[6px_6px_0_var(--outline-black)] px-6 py-3 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+          <div className="bg-[var(--card)] border-4 border-[var(--outline-black)] rounded-[16px] shadow-[6px_6px_0_var(--outline-black)] px-6 py-3 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
             <div className="flex items-center gap-4">
               <Tabs value={timeRange} onValueChange={(v) => setTimeRange(v as TimeRange)}>
                 <TabsList>
@@ -187,7 +187,7 @@ export default function LeaderboardPage() {
               <Button 
                 variant="outline" 
                 onClick={scrollToUserRank} 
-                className="md:hidden border-3 border-[var(--outline-black)] bg-white hover:bg-[var(--luigi-green-500)] hover:text-white shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] transition-all duration-200 font-bold"
+                className="md:hidden border-3 border-[var(--outline-black)] bg-[var(--card)] hover:bg-[var(--luigi-green-500)] hover:text-white shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] transition-all duration-200 font-bold"
               >
                 <Target className="h-4 w-4 mr-2" />
                 View My Rank
@@ -222,7 +222,7 @@ export default function LeaderboardPage() {
             <div className="lg:hidden">
               <Button 
                 variant="outline" 
-                className="w-full mb-4 border-3 border-[var(--outline-black)] bg-white hover:bg-[var(--mario-red-500)] hover:text-white shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] transition-all duration-200 font-bold" 
+                className="w-full mb-4 border-3 border-[var(--outline-black)] bg-[var(--card)] hover:bg-[var(--mario-red-500)] hover:text-white shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] transition-all duration-200 font-bold" 
                 onClick={() => setShowStats(!showStats)}
               >
                 {showStats ? "Hide" : "Show"} Stats
@@ -278,7 +278,7 @@ export default function LeaderboardPage() {
 
               {/* Top Performers */}
               {topPerformers.length > 0 && (
-                <div className="p-6 rounded-[16px] bg-white border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)]">
+                <div className="p-6 rounded-[16px] bg-[var(--card)] border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)]">
                   <div className="mb-6">
                     <div className="flex items-center gap-2 mb-2">
                       <Trophy className="h-5 w-5 text-[var(--star-yellow-500)]" />
@@ -328,7 +328,7 @@ export default function LeaderboardPage() {
               )}
 
               {/* Competition Stats */}
-              <div className="p-6 rounded-[16px] bg-white border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)]">
+              <div className="p-6 rounded-[16px] bg-[var(--card)] border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)]">
                 <div className="mb-6">
                   <h3 className="font-bold text-lg text-[var(--outline-black)] font-mario">📊 Competition Stats</h3>
                 </div>

@@ -163,7 +163,7 @@ export function ModernLeaderboard({
           >
             <div className={cn(
               "relative overflow-hidden rounded-[16px] p-6 transition-all duration-500",
-              "bg-white border-4 shadow-[8px_8px_0_var(--outline-black)]",
+              "bg-[var(--card)] border-4 shadow-[8px_8px_0_var(--outline-black)]",
               index === 0 && "border-[var(--star-yellow-500)] bg-gradient-to-br from-[var(--star-yellow-50)] to-white",
               index === 1 && "border-[var(--pipe-500)] bg-gradient-to-br from-[var(--pipe-50)] to-white",
               index === 2 && "border-[var(--coin-yellow-500)] bg-gradient-to-br from-[var(--coin-yellow-50)] to-white",
@@ -186,7 +186,7 @@ export function ModernLeaderboard({
                 <img
                   src={index === 0 ? '/icons/mario/1st.png' : index === 1 ? '/icons/mario/2nd-place.png' : '/icons/mario/3rd.png'}
                   alt={`${index + 1} place trophy`}
-                  className="w-16 h-16 drop-shadow-lg"
+                  className="w-16 h-16 drop-shadow-[6px_6px_0_var(--outline-black)]"
                 />
               </motion.div>
 
@@ -202,7 +202,7 @@ export function ModernLeaderboard({
                       <img
                         src={entry.avatarUrl}
                         alt={entry.handle || entry.displayName || 'User avatar'}
-                        className="w-12 h-12 rounded-full shadow-lg border-2 border-primary/20 object-cover"
+                        className="w-12 h-12 rounded-full shadow-[6px_6px_0_var(--outline-black)] border-2 border-primary/20 object-cover"
                         onError={(e) => {
                           // Fallback to gradient circle if image fails to load
                           const target = e.target as HTMLImageElement;

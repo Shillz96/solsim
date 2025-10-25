@@ -224,14 +224,14 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
               {/* SOL to Graduate Progress Bar - Only for ABOUT_TO_BOND */}
               {data.status === 'ABOUT_TO_BOND' && data.bondingCurveProgress != null && data.solToGraduate != null && (
                 <div className="mt-1 relative">
-                  <div className="bg-white border-2 border-[var(--outline-black)] rounded-full h-3 overflow-hidden relative shadow-[1px_1px_0_var(--outline-black)]">
+                  <div className="bg-[var(--card)] border-2 border-[var(--outline-black)] rounded-full h-3 overflow-hidden relative shadow-[1px_1px_0_var(--outline-black)]">
                     <div
                       className="bg-[var(--star-yellow)] h-full flex items-center justify-center border-r-2 border-[var(--outline-black)] transition-all duration-500 relative"
                       style={{ width: `${Math.min(data.bondingCurveProgress, 100)}%` }}
                     >
                       {/* Glow effect */}
                       <div className="absolute inset-0 bg-[var(--star-yellow)] opacity-50 animate-pulse" />
-                      <span className="text-[8px] font-bold text-[var(--outline-black)] z-10 relative drop-shadow-sm">
+                      <span className="text-[8px] font-bold text-[var(--outline-black)] z-10 relative drop-shadow-[2px_2px_0_var(--outline-black)]">
                         🎯 {data.solToGraduate.toFixed(1)} SOL
                       </span>
                     </div>
@@ -264,7 +264,7 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
                           </a>
                         </HoverCardTrigger>
                         <HoverCardContent 
-                          className="w-80 p-4 bg-white border-4 border-[var(--outline-black)] rounded-xl shadow-[6px_6px_0_var(--outline-black)] z-50" 
+                          className="w-80 p-4 bg-[var(--card)] border-4 border-[var(--outline-black)] rounded-xl shadow-[6px_6px_0_var(--outline-black)] z-50" 
                           side="top"
                           onClick={(e) => e.stopPropagation()}
                         >
@@ -306,7 +306,7 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
                           </a>
                         </HoverCardTrigger>
                         <HoverCardContent 
-                          className="w-80 p-4 bg-white border-4 border-[var(--outline-black)] rounded-xl shadow-[6px_6px_0_var(--outline-black)] z-50" 
+                          className="w-80 p-4 bg-[var(--card)] border-4 border-[var(--outline-black)] rounded-xl shadow-[6px_6px_0_var(--outline-black)] z-50" 
                           side="top"
                           onClick={(e) => e.stopPropagation()}
                         >
@@ -348,7 +348,7 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
                           </a>
                         </HoverCardTrigger>
                         <HoverCardContent 
-                          className="w-80 p-4 bg-white border-4 border-[var(--outline-black)] rounded-xl shadow-[6px_6px_0_var(--outline-black)] z-50" 
+                          className="w-80 p-4 bg-[var(--card)] border-4 border-[var(--outline-black)] rounded-xl shadow-[6px_6px_0_var(--outline-black)] z-50" 
                           side="top"
                           onClick={(e) => e.stopPropagation()}
                         >
@@ -431,7 +431,7 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
 export function TokenCardSkeleton() {
   return (
     <div className="w-full">
-      <div className="rounded-[16px] overflow-hidden bg-white border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] animate-pulse">
+      <div className="rounded-[16px] overflow-hidden bg-[var(--card)] border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] animate-pulse">
         <div className="flex items-center gap-4 p-4">
           {/* Logo skeleton */}
           <div className="w-20 h-20 bg-[var(--background)] rounded-[14px] border-4 border-[var(--outline-black)]" />

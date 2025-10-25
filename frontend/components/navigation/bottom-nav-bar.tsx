@@ -201,12 +201,11 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
     <>
       {/* Mobile Bottom Nav */}
       <nav className={cn(
-        "fixed bottom-0 left-0 right-0 z-50 border-t border-[var(--color-border)] bg-[var(--background)] md:hidden pb-[env(safe-area-inset-bottom)]",
+        "fixed bottom-0 left-0 right-0 z-50 border-t-3 border-[var(--outline-black)] bg-[var(--card)] md:hidden pb-[env(safe-area-inset-bottom)] shadow-[0_-4px_0_var(--outline-black)]",
         className
       )}>
-        <div className="flex items-center justify-around h-12">
+        <div className="flex items-center justify-around h-14 px-2">
           {navItems.map((item, index) => {
-            const Icon = item.icon
             const isActive = pathname === item.href
             return (
               <motion.div
@@ -214,54 +213,41 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3, delay: index * 0.05 }}
-                className="relative"
+                className="relative flex-1 flex justify-center"
               >
                 <Link
                   href={item.href}
                   className={cn(
-                    "relative z-10 flex flex-col items-center justify-center gap-0.5 px-2 py-1 rounded-lg transition-all duration-200",
-                    isActive
-                      ? "bg-primary/20 text-primary shadow-sm"
-                      : "text-foreground/70 hover:text-foreground hover:bg-muted/50"
+                    "relative z-10 flex items-center justify-center rounded-lg transition-all duration-200 touch-target",
+                    "min-w-[44px] min-h-[44px]", // Accessibility: minimum touch target
+                    isActive && "scale-110"
                   )}
                   aria-current={isActive ? "page" : undefined}
+                  aria-label={item.label}
                 >
-                  <div className="flex items-center gap-1">
-                    {/* Small icon */}
-                    <Image 
-                      src={item.iconSrc} 
-                      alt={item.label} 
-                      width={12} 
-                      height={12} 
-                      className="object-contain" 
-                    />
-                    {/* Mario text image */}
-                    <Image 
-                      src={
-                        item.href === "/" ? "/Home-10-24-2025.png" :
-                        item.href === "/warp-pipes" ? "/Trade-10-24-2025.png" :
-                        item.href === "/pipe-network" ? "/Pipe-Network-10-24-2025.png" :
-                        item.href === "/portfolio" ? "/Portfolio-10-24-2025.png" :
-                        item.href === "/trending" ? "/Trending-10-24-2025.png" :
-                        item.iconSrc
-                      }
-                      alt={item.label} 
-                      width={40} 
-                      height={10} 
-                      className="h-[10px] w-auto object-contain" 
-                    />
-                  </div>
-                  <span className={cn(
-                    "text-[9px] font-mario truncate max-w-[50px] transition-colors",
-                    isActive ? "text-primary font-semibold" : "text-foreground/70"
-                  )}>
-                    {item.label}
-                  </span>
+                  {/* Mario text image - larger for better visibility */}
+                  <Image 
+                    src={
+                      item.href === "/" ? "/Home-10-24-2025.png" :
+                      item.href === "/warp-pipes" ? "/Trade-10-24-2025.png" :
+                      item.href === "/pipe-network" ? "/Pipe-Network-10-24-2025.png" :
+                      item.href === "/portfolio" ? "/Portfolio-10-24-2025.png" :
+                      item.href === "/trending" ? "/Trending-10-24-2025.png" :
+                      item.iconSrc
+                    }
+                    alt={item.label} 
+                    width={64}
+                    height={16}
+                    className={cn(
+                      "h-auto w-auto max-w-[64px] object-contain transition-all duration-200",
+                      isActive ? "opacity-100 drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]" : "opacity-70"
+                    )}
+                    priority={index < 3} // Prioritize first 3 images
+                  />
                 </Link>
               </motion.div>
             )
           })}
-          
         </div>
       </nav>
 
@@ -275,7 +261,7 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
         <Button
           size="icon"
           onClick={openWalletTrackerWindow}
-          className="h-14 w-14 rounded-full shadow-lg hover:shadow-xl transition-all hover:scale-110 bg-gradient-to-br from-primary to-primary/80"
+          className="h-14 w-14 rounded-full shadow-[6px_6px_0_var(--outline-black)] hover:shadow-xl transition-all hover:scale-110 bg-gradient-to-br from-primary to-primary/80"
           aria-label="Open Wallet Tracker"
         >
           <Eye className="h-6 w-6" />
@@ -295,7 +281,7 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
               {/* Market Lighthouse Hover - Left side */}
               <MarketHover
                 trigger={
-                  <div className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg bg-transparent hover:bg-white/10 transition-colors">
+                  <div className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg bg-transparent hover:bg-[var(--card)]/10 transition-colors">
                     <div className="flex items-center gap-1.5">
                       <div className="relative w-7 h-7 animate-bounce">
                         <Image
@@ -415,7 +401,7 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
                   <DropdownMenuContent 
                     align="center"
                     side="top"
-                    className="bg-white border-3 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)] mb-2"
+                    className="bg-[var(--card)] border-3 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)] mb-2"
                     sideOffset={8}
                   >
                     {infoItems.map((item) => (
@@ -472,7 +458,7 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
               {/* Market Lighthouse Hover - Left side */}
               <MarketHover
                 trigger={
-                  <div className="flex items-center gap-1.5 md:gap-2 px-2 md:px-3 py-1 md:py-1.5 rounded-lg bg-transparent hover:bg-white/10 transition-colors">
+                  <div className="flex items-center gap-1.5 md:gap-2 px-2 md:px-3 py-1 md:py-1.5 rounded-lg bg-transparent hover:bg-[var(--card)]/10 transition-colors">
                     <div className="flex items-center gap-1 md:gap-1.5">
                       <div className="relative w-10 h-10 animate-bounce">
                         <Image
@@ -563,7 +549,7 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
                 <DropdownMenuContent 
                   align="center"
                   side="top"
-                  className="bg-white border-3 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)] mb-2"
+                  className="bg-[var(--card)] border-3 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)] mb-2"
                   sideOffset={8}
                 >
                   {infoItems.map((item) => (
