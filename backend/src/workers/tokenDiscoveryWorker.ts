@@ -86,8 +86,17 @@ async function fetchTokenMetadata(uri: string): Promise<{
       website: metadata.website || metadata.external_url || undefined,
       image: metadata.image ? (convertIPFStoHTTP(metadata.image) || undefined) : undefined,
     };
-  } catch (error) {
-    console.error('[TokenDiscovery] Error fetching metadata:', error);
+  } catch (error: any) {
+    // Silently skip common errors (timeouts, network issues, 404s)
+    const isExpectedError =
+      error.name === 'AbortError' ||
+      error.name === 'TimeoutError' ||
+      error.code === 'ENOTFOUND' ||
+      error.message?.includes('fetch failed');
+
+    if (!isExpectedError) {
+      console.error('[TokenDiscovery] Unexpected metadata error:', error.message);
+    }
     return {};
   }
 }
@@ -845,31 +854,41 @@ async function recalculateHotScores(): Promise<void> {
 
     let updated = 0;
     for (const token of tokens) {
-      const ageHours = (Date.now() - token.firstSeenAt.getTime()) / 3600000;
-      const progress = token.bondingCurveProgress ? parseFloat(token.bondingCurveProgress.toString()) : 0;
-      
-      // Progress-based state transitions (regardless of age)
-      if (token.state === 'new' && progress >= 50 && progress < 100) {
-        // Actively progressing → GRADUATING
-        await updateState(token.mint, 'graduating', token.state);
-        console.log(`[TokenDiscovery] Progress transition: ${token.mint} NEW → GRADUATING (progress: ${progress}%)`);
-      } else if (token.state === 'graduating' && (progress >= 100 || token.poolAddress)) {
-        // Completed bonding or has LP → BONDED
-        await updateState(token.mint, 'bonded', token.state);
-        console.log(`[TokenDiscovery] Completion transition: ${token.mint} GRADUATING → BONDED (progress: ${progress}%)`);
-      } else if (token.state === 'new' && (progress >= 100 || token.poolAddress)) {
-        // Skip graduating if already at 100% → BONDED
-        await updateState(token.mint, 'bonded', token.state);
-        console.log(`[TokenDiscovery] Fast completion: ${token.mint} NEW → BONDED (progress: ${progress}%)`);
+      try {
+        const ageHours = (Date.now() - token.firstSeenAt.getTime()) / 3600000;
+        const progress = token.bondingCurveProgress ? parseFloat(token.bondingCurveProgress.toString()) : 0;
+
+        // Progress-based state transitions (regardless of age)
+        if (token.state === 'new' && progress >= 50 && progress < 100) {
+          // Actively progressing → GRADUATING
+          await updateState(token.mint, 'graduating', token.state);
+          console.log(`[TokenDiscovery] Progress transition: ${token.mint} NEW → GRADUATING (progress: ${progress}%)`);
+        } else if (token.state === 'graduating' && (progress >= 100 || token.poolAddress)) {
+          // Completed bonding or has LP → BONDED
+          await updateState(token.mint, 'bonded', token.state);
+          console.log(`[TokenDiscovery] Completion transition: ${token.mint} GRADUATING → BONDED (progress: ${progress}%)`);
+        } else if (token.state === 'new' && (progress >= 100 || token.poolAddress)) {
+          // Skip graduating if already at 100% → BONDED
+          await updateState(token.mint, 'bonded', token.state);
+          console.log(`[TokenDiscovery] Fast completion: ${token.mint} NEW → BONDED (progress: ${progress}%)`);
+        }
+
+        // Calculate and update hot score
+        const newScore = await calculateHotScore(token.mint);
+        await prisma.tokenDiscovery.update({
+          where: { mint: token.mint },
+          data: { hotScore: new Decimal(newScore) },
+        });
+        updated++;
+      } catch (error: any) {
+        // Gracefully handle tokens that were deleted during this loop (race condition with cleanupOldTokens)
+        if (error.code === 'P2025' || error.message?.includes('Record to update not found')) {
+          // Token was deleted by cleanup job - this is expected, skip silently
+          continue;
+        }
+        // Log unexpected errors
+        console.error(`[TokenDiscovery] Error updating hot score for ${token.mint}:`, error.message);
       }
-      
-      // Calculate and update hot score
-      const newScore = await calculateHotScore(token.mint);
-      await prisma.tokenDiscovery.update({
-        where: { mint: token.mint },
-        data: { hotScore: new Decimal(newScore) },
-      });
-      updated++;
     }
 
     console.log(`[TokenDiscovery] Hot scores updated for ${updated} tokens`);

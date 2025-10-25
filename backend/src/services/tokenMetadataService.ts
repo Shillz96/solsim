@@ -47,8 +47,7 @@ class TokenMetadataService {
         metadataUrl = `${this.ipfsGateways[0]}${ipfsHash}`;
       }
 
-      console.log(`[TokenMetadata] Fetching metadata from: ${metadataUrl}`);
-
+      // Reduced verbosity - only log on success or unexpected errors
       const response = await fetch(metadataUrl, {
         signal: AbortSignal.timeout(8000),
       });
@@ -74,10 +73,17 @@ class TokenMetadataService {
         website,
       };
     } catch (error: any) {
-      if (error.code === 'ENOTFOUND' || error.name === 'AbortError') {
-        console.log('[TokenMetadata] IPFS timeout or unreachable, skipping');
-      } else {
-        console.error('[TokenMetadata] Error fetching IPFS metadata:', error.message);
+      // Silently skip common errors (404, timeouts, network issues)
+      // Only log unexpected errors for debugging
+      const isExpectedError =
+        error.code === 'ENOTFOUND' ||
+        error.name === 'AbortError' ||
+        error.name === 'TimeoutError' ||
+        error.message?.includes('404') ||
+        error.message?.includes('fetch failed');
+
+      if (!isExpectedError) {
+        console.error('[TokenMetadata] Unexpected IPFS error:', error.message);
       }
       return {};
     }
@@ -85,53 +91,12 @@ class TokenMetadataService {
 
   /**
    * Fetch market data from DexScreener
+   * DISABLED: DexScreener rate limits are too aggressive - use PumpPortal/Jupiter instead
    */
   async fetchMarketData(mint: string): Promise<MarketData> {
-    try {
-      const url = `${this.dexScreenerBase}/dex/tokens/${mint}`;
-
-      const response = await fetch(url, {
-        signal: AbortSignal.timeout(5000),
-      });
-
-      if (!response.ok) {
-        throw new Error(`DexScreener API error: ${response.status}`);
-      }
-
-      const data = await response.json() as any;
-
-      if (!data.pairs || data.pairs.length === 0) {
-        return {};
-      }
-
-      // Get the pair with highest liquidity (most reliable)
-      const pairs = data.pairs;
-      pairs.sort((a: any, b: any) => {
-        const liqA = parseFloat(a.liquidity?.usd || '0');
-        const liqB = parseFloat(b.liquidity?.usd || '0');
-        return liqB - liqA;
-      });
-
-      const topPair = pairs[0];
-
-      return {
-        marketCapUsd: topPair.fdv ? parseFloat(topPair.fdv) : undefined,
-        volume24h: topPair.volume?.h24 ? parseFloat(topPair.volume.h24) : undefined,
-        volumeChange24h: topPair.volume?.h24Change
-          ? parseFloat(topPair.volume.h24Change)
-          : undefined,
-        priceUsd: topPair.priceUsd ? parseFloat(topPair.priceUsd) : undefined,
-        priceChange24h: topPair.priceChange?.h24
-          ? parseFloat(topPair.priceChange.h24)
-          : undefined,
-        txCount24h: topPair.txns?.h24?.buys && topPair.txns?.h24?.sells
-          ? topPair.txns.h24.buys + topPair.txns.h24.sells
-          : undefined,
-      };
-    } catch (error) {
-      console.error('[TokenMetadata] Error fetching DexScreener data:', error);
-      return {};
-    }
+    // DexScreener disabled to prevent 429 rate limit errors
+    // Market data now comes from PumpPortal WebSocket and Jupiter API in priceService-optimized.ts
+    return {};
   }
 
   /**
