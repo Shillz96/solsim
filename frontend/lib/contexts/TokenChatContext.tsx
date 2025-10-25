@@ -19,15 +19,18 @@ export interface ChatMessage {
   user: {
     id: string
     handle: string
-    displayName: string
+    displayName: string | null
     avatarUrl: string | null
     userTier: string
-    userBadges: Array<{
+    userBadges?: Array<{
       id: string
       badge: {
         id: string
+        name: string
         displayName: string
+        description: string
         iconUrl: string | null
+        category: string
       }
     }>
   }
