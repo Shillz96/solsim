@@ -177,7 +177,7 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
                   {props.currentStep > 0 && (
                     <button
                       onClick={props.prevStep}
-                      className="px-4 py-2 text-sm font-bold text-[var(--outline-black)] bg-white border-3 border-[var(--outline-black)] rounded-lg shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all"
+                      className="px-4 py-2 text-sm font-bold text-[var(--outline-black)] bg-[var(--card)] border-3 border-[var(--outline-black)] rounded-lg shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all"
                     >
                       Back
                     </button>

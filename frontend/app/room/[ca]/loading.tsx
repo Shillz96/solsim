@@ -2,7 +2,12 @@ import { Loader2 } from 'lucide-react'
 
 export default function Loading() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[var(--background)]">
+    <div 
+      className="flex items-center justify-center bg-[var(--background)]"
+      style={{
+        height: 'calc(100dvh - var(--navbar-height, 56px) - var(--trending-ticker-height, 60px) - var(--bottom-nav-height, 64px))'
+      }}
+    >
       <div className="text-center space-y-4">
         <div className="relative">
           <Loader2 className="h-12 w-12 animate-spin mx-auto text-[var(--luigi-green)]" />

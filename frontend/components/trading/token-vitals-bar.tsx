@@ -65,10 +65,8 @@ export function TokenVitalsBar({
 
   return (
     <div className={cn(
-      "w-full p-4",
-      "grid grid-cols-2 gap-4",
-      "bg-[var(--card)] rounded-lg border-4 border-[var(--outline-black)]",
-      "shadow-mario",
+      marioStyles.cardLg(false),
+      "w-full p-4 grid grid-cols-2 gap-4",
       className
     )}>
       {/* 24h Volume */}
@@ -77,21 +75,21 @@ export function TokenVitalsBar({
           <DollarSign className="h-8 w-8 text-[var(--outline-black)]" />
         </div>
         <div className="text-center">
-          <div className="text-xs font-mario font-bold uppercase text-muted-foreground mb-1">24h Vol</div>
-          <div className="font-mono text-lg font-bold text-foreground">
+          <div className="text-xs font-mario font-bold uppercase text-[var(--outline-black)]/60 mb-1">24h Vol</div>
+          <div className="font-mono text-lg font-bold text-[var(--outline-black)]">
             {volume24h ? formatUSD(volume24h) : "$0"}
           </div>
         </div>
       </div>
 
       {/* Holders */}
-      <div className={marioStyles.vitalsCard('from-[var(--sky-blue)]/20 to-blue-100/10')}>
+      <div className={marioStyles.vitalsCard('from-[var(--sky-blue)]/20 to-[var(--sky-blue)]/10')}>
         <div className={marioStyles.vitalsIcon('var(--sky-blue)')}>
           <Users className="h-8 w-8 text-white" />
         </div>
         <div className="text-center">
-          <div className="text-xs font-mario font-bold uppercase text-muted-foreground mb-1">Holders</div>
-          <div className="font-mono text-lg font-bold text-foreground">
+          <div className="text-xs font-mario font-bold uppercase text-[var(--outline-black)]/60 mb-1">Holders</div>
+          <div className="font-mono text-lg font-bold text-[var(--outline-black)]">
             {holders ? formatNumber(holders) : "0"}
           </div>
         </div>
@@ -116,7 +114,7 @@ export function TokenVitalsBar({
           <PriceIcon className="h-8 w-8 text-white" />
         </div>
         <div className="text-center">
-          <div className="text-xs font-mario font-bold uppercase text-muted-foreground mb-1">5m Change</div>
+          <div className="text-xs font-mario font-bold uppercase text-[var(--outline-black)]/60 mb-1">5m Change</div>
           {priceChange5m !== undefined ? (
             <AnimatedNumber
               value={priceChange5m}
@@ -128,7 +126,7 @@ export function TokenVitalsBar({
               glowOnChange={true}
             />
           ) : (
-            <div className="font-mono text-lg font-bold text-muted-foreground">N/A</div>
+            <div className="font-mono text-lg font-bold text-[var(--outline-black)]/60">N/A</div>
           )}
         </div>
       </div>

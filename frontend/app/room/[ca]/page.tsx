@@ -26,6 +26,7 @@ import { useToast } from '@/hooks/use-toast'
 import { usePortfolio, usePosition } from '@/hooks/use-portfolio'
 import { usePriceStreamContext } from '@/lib/price-stream-provider'
 import { formatTokenQuantity, formatUSD, formatNumber } from '@/lib/format'
+import { formatPrice, formatTimeAgo, getPriceChangeColor } from '@/lib/token-utils'
 import { MarketDataPanels } from '@/components/trading/market-data-panels'
 import { ChatRoom } from '@/components/chat/chat-room'
 import { Button } from '@/components/ui/button'
@@ -40,27 +41,6 @@ function TradeRoomContent() {
   const router = useRouter()
   const ca = params?.ca as string
 
-  // Dynamic price precision based on magnitude
-  const formatPrice = (price: number) => {
-    if (price >= 100) return price.toFixed(2)
-    if (price >= 1) return price.toFixed(4)
-    if (price >= 0.01) return price.toFixed(6)
-    if (price >= 0.0001) return price.toFixed(8)
-    return price.toFixed(10)
-  }
-
-  // Format time ago
-  const formatTimeAgo = (timestamp: number) => {
-    const now = Date.now()
-    const diff = now - timestamp
-    const seconds = Math.floor(diff / 1000)
-    const minutes = Math.floor(seconds / 60)
-    const hours = Math.floor(minutes / 60)
-
-    if (seconds < 60) return `${seconds}s ago`
-    if (minutes < 60) return `${minutes}m ago`
-    return `${hours}h ago`
-  }
   const { isAuthenticated, user, getUserId } = useAuth()
   const { toast } = useToast()
   const queryClient = useQueryClient()
@@ -166,7 +146,12 @@ function TradeRoomContent() {
   const marketCap = parseFloat(tokenDetails.marketCapUsd || '0')
 
   return (
-    <div className="flex flex-col bg-[var(--background)] h-full">
+    <div 
+      className="flex flex-col bg-[var(--background)] overflow-hidden"
+      style={{
+        height: 'calc(100dvh - var(--navbar-height, 56px) - var(--trending-ticker-height, 60px) - var(--bottom-nav-height, 64px))'
+      }}
+    >
       {/* Header - Token Info */}
       <header className={cn(
         marioStyles.border('lg'),
@@ -219,7 +204,7 @@ function TradeRoomContent() {
                   className={cn(
                     marioStyles.bodyText('bold'),
                     "flex items-center gap-1",
-                    priceChange24h >= 0 ? "text-[var(--luigi-green)]" : "text-[var(--mario-red)]"
+                    getPriceChangeColor(priceChange24h)
                   )}
                 >
                   {priceChange24h >= 0 ? (
@@ -322,7 +307,7 @@ function TradeRoomContent() {
       </header>
 
       {/* Main Content Area */}
-      <main className="flex flex-1 w-full overflow-hidden">
+      <main className="flex flex-1 w-full overflow-hidden min-h-0">
         {/* MOBILE LAYOUT */}
         <div className="md:hidden flex flex-col w-full h-full overflow-hidden">
           {/* Chart */}

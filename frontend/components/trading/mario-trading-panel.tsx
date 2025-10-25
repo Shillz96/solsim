@@ -333,7 +333,7 @@ function MarioTradingPanelComponent({ tokenAddress: propTokenAddress }: MarioTra
   return (
     <div id="trade-panel" className={cn(
       marioStyles.cardLg(false),
-      'flex flex-col w-full bg-gradient-to-br from-white to-[var(--star-yellow)]/10'
+      'flex flex-col w-full'
     )}>
       {/* Compact Header Section - Position Stats */}
       <div className="flex-shrink-0 p-2 border-b-3 border-[var(--outline-black)]/20">
@@ -396,8 +396,8 @@ function MarioTradingPanelComponent({ tokenAddress: propTokenAddress }: MarioTra
 
           {/* Price Display - Compact */}
           <div className={cn(
-            marioStyles.card(false),
-            'bg-gradient-to-br from-[var(--star-yellow)] to-[var(--coin-gold)] p-2 relative overflow-hidden'
+            marioStyles.cardGradient('from-[var(--star-yellow)] to-[var(--coin-gold)]'),
+            'p-2 relative overflow-hidden'
           )}>
             <div className="absolute top-1 right-1 text-xl opacity-20">⭐</div>
             <div className={cn(marioStyles.bodyText('bold'), 'text-[9px] text-[var(--outline-black)]/80 uppercase')}>
