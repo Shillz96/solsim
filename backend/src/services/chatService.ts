@@ -8,6 +8,7 @@ import prisma from '../plugins/prisma.js';
 import redis from '../plugins/redis.js';
 import { ModerationBot } from './moderationBot.js';
 import { BadgeService } from './badgeService.js';
+import crypto from 'crypto';
 
 export interface SendMessageResult {
   success: boolean;
@@ -204,7 +205,6 @@ async function checkRateLimit(key: string, limit: number): Promise<{ allowed: bo
  * Get message hash for duplicate detection
  */
 function getMessageHash(userId: string, content: string): string {
-  const crypto = require('crypto');
   return crypto.createHash('md5').update(`${userId}:${content.toLowerCase()}`).digest('hex');
 }
 
