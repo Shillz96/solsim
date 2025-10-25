@@ -15,7 +15,13 @@ import { ChatRoom } from '@/components/chat/chat-room'
 
 export default function PipeNetworkPage() {
   return (
-    <div className="w-full flex flex-col bg-[var(--background)] h-full">
+    <div 
+      className="w-full flex flex-col bg-[var(--background)]"
+      style={{ 
+        height: 'calc(100vh - 120px)', // Account for navbar and ticker
+        minHeight: 'calc(100vh - 120px)'
+      }}
+    >
       {/* Centered Header Image */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
