@@ -118,7 +118,7 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
         {/* Redesigned Token Card - Enhanced Layout */}
         <div className={cn(
           'cursor-pointer transition-all duration-200',
-          'rounded-2xl border-4 border-[var(--outline-black)] p-6 bg-white',
+          'rounded-2xl border-4 border-[var(--outline-black)] p-6 bg-[var(--card)]',
           'shadow-[6px_0_0_var(--outline-black)] hover:shadow-[8px_0_0_var(--outline-black)] hover:-translate-y-1',
           'relative overflow-hidden bg-[var(--sky-blue)]/20',
           'h-[var(--token-card-height)] min-h-[var(--token-card-height)]'

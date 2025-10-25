@@ -210,7 +210,7 @@ export function WalletBalanceDisplay({
         variant === "minimal"
           ? [
               // Minimal: ensure visibility with white background and better contrast
-              "border border-[var(--color-border)] bg-white text-foreground shadow-sm",
+              "border border-[var(--color-border)] bg-[var(--card)] text-foreground shadow-sm",
               // Subtle hover with better visibility
               "hover:bg-[color-mix(in_oklab,white,black_5%)] hover:shadow-md transition-all"
             ]

@@ -255,7 +255,11 @@ function MarioTradingPanelComponent({ tokenAddress: propTokenAddress }: MarioTra
 
 
 
-  const handleTrade = async (action: 'buy' | 'sell') => {
+  // Calculate current price early for use in callbacks
+  const livePrice = livePrices.get(tokenAddress)
+  const currentPrice = livePrice ? livePrice.price : (tokenDetails?.price || 0)
+
+  const handleTrade = useCallback(async (action: 'buy' | 'sell') => {
     if (!user || !tokenDetails) return
 
     // Paper trading logic
@@ -301,7 +305,7 @@ function MarioTradingPanelComponent({ tokenAddress: propTokenAddress }: MarioTra
       // Note: The optimistic trade will auto-clear after 5 seconds
       // or will be replaced by real server data
     }
-  }
+  }, [user, tokenDetails, selectedSolAmount, customSolAmount, tokenHolding, selectedPercentage, currentPrice, solPrice, addOptimisticTrade, executeBuy, executeSell, tokenAddress, toast])
 
   if (loadingToken) {
     return (
@@ -324,9 +328,6 @@ function MarioTradingPanelComponent({ tokenAddress: propTokenAddress }: MarioTra
       </div>
     )
   }
-
-  const livePrice = livePrices.get(tokenAddress)
-  const currentPrice = livePrice ? livePrice.price : (tokenDetails.price || 0)
   const balance = userBalance
   const tokenBalance = tokenHolding ? parseFloat(tokenHolding.qty) : 0
 

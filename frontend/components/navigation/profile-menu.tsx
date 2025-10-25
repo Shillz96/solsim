@@ -100,7 +100,7 @@ export function ProfileMenu({
         </motion.button>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent align="end" className="w-80 max-h-[60vh] overflow-y-auto bg-white border border-[var(--color-border)] shadow-[var(--shadow-dropdown)]">
+      <DropdownMenuContent align="end" className="w-80 max-h-[60vh] overflow-y-auto bg-[var(--card)] border border-[var(--color-border)] shadow-[var(--shadow-dropdown)]">
         <DropdownMenuLabel>My Account</DropdownMenuLabel>
 
         {/* Notifications Section */}

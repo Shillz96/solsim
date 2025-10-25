@@ -238,7 +238,7 @@ export function ResizableSplit({
         onMouseDown={handleMouseDown}
         onTouchStart={handleTouchStart}
         role="separator"
-        aria-label="Resize panels"
+        aria-label="Resize panels - drag to adjust panel sizes"
         tabIndex={0}
         onKeyDown={(e) => {
           if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {

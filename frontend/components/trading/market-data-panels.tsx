@@ -9,9 +9,9 @@
  * - Holders (distribution)
  */
 
-import { useState } from 'react'
+import { useState, memo } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { cn } from '@/lib/utils'
+import { cn, marioStyles } from '@/lib/utils'
 import { Loader2, TrendingUp, TrendingDown, Users, Activity, Network, Wallet } from 'lucide-react'
 import { formatUSD, formatNumber, formatTokenQuantity } from '@/lib/format'
 import { usePortfolio } from '@/hooks/use-portfolio'
@@ -35,11 +35,11 @@ export function MarketDataPanels({ tokenMint }: MarketDataPanelsProps) {
     )}>
       {/* Tabs */}
       <div className="border-b-4 border-[var(--outline-black)] bg-gradient-to-r from-[var(--star-yellow)]/20 via-[var(--pipe-green)]/20 to-[var(--sky-blue)]/20 px-4 py-3 overflow-x-auto flex-shrink-0">
-        <div className="flex gap-2 text-xs font-mario font-bold justify-start sm:justify-center min-w-max">
+        <div className="flex gap-2 text-xs font-mario font-bold justify-start sm:justify-center min-w-max snap-x snap-mandatory">
           <button
             onClick={() => setActiveTab('trades')}
             className={cn(
-              "px-4 py-2.5 rounded-lg border-3 border-[var(--outline-black)] transition-all whitespace-nowrap",
+              "px-4 py-2.5 rounded-lg border-3 border-[var(--outline-black)] transition-all whitespace-nowrap snap-start",
               activeTab === 'trades'
                 ? "bg-gradient-to-br from-[var(--luigi-green)] to-emerald-500 text-white shadow-[4px_4px_0_var(--outline-black)] -translate-y-[2px]"
                 : "bg-[var(--card)] hover:bg-[var(--pipe-green)]/10 shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-[1px]"
@@ -51,7 +51,7 @@ export function MarketDataPanels({ tokenMint }: MarketDataPanelsProps) {
           <button
             onClick={() => setActiveTab('traders')}
             className={cn(
-              "px-4 py-2.5 rounded-lg border-3 border-[var(--outline-black)] transition-all whitespace-nowrap",
+              "px-4 py-2.5 rounded-lg border-3 border-[var(--outline-black)] transition-all whitespace-nowrap snap-start",
               activeTab === 'traders'
                 ? "bg-gradient-to-br from-[var(--star-yellow)] to-amber-400 text-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)] -translate-y-[2px]"
                 : "bg-[var(--card)] hover:bg-[var(--pipe-green)]/10 shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-[1px]"
@@ -63,7 +63,7 @@ export function MarketDataPanels({ tokenMint }: MarketDataPanelsProps) {
           <button
             onClick={() => setActiveTab('holders')}
             className={cn(
-              "px-4 py-2.5 rounded-lg border-3 border-[var(--outline-black)] transition-all whitespace-nowrap",
+              "px-4 py-2.5 rounded-lg border-3 border-[var(--outline-black)] transition-all whitespace-nowrap snap-start",
               activeTab === 'holders'
                 ? "bg-gradient-to-br from-[var(--coin-gold)] to-[var(--coin-yellow)] text-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)] -translate-y-[2px]"
                 : "bg-[var(--card)] hover:bg-[var(--pipe-green)]/10 shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-[1px]"
@@ -75,7 +75,7 @@ export function MarketDataPanels({ tokenMint }: MarketDataPanelsProps) {
           <button
             onClick={() => setActiveTab('bubblemap')}
             className={cn(
-              "px-4 py-2.5 rounded-lg border-3 border-[var(--outline-black)] transition-all whitespace-nowrap",
+              "px-4 py-2.5 rounded-lg border-3 border-[var(--outline-black)] transition-all whitespace-nowrap snap-start",
               activeTab === 'bubblemap'
                 ? "bg-gradient-to-br from-[var(--sky-blue)] to-blue-400 text-white shadow-[4px_4px_0_var(--outline-black)] -translate-y-[2px]"
                 : "bg-[var(--card)] hover:bg-[var(--pipe-green)]/10 shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-[1px]"
@@ -87,7 +87,7 @@ export function MarketDataPanels({ tokenMint }: MarketDataPanelsProps) {
           <button
             onClick={() => setActiveTab('positions')}
             className={cn(
-              "px-4 py-2.5 rounded-lg border-3 border-[var(--outline-black)] transition-all whitespace-nowrap",
+              "px-4 py-2.5 rounded-lg border-3 border-[var(--outline-black)] transition-all whitespace-nowrap snap-start",
               activeTab === 'positions'
                 ? "bg-gradient-to-br from-[var(--mario-red)] to-red-500 text-white shadow-[4px_4px_0_var(--outline-black)] -translate-y-[2px]"
                 : "bg-[var(--card)] hover:bg-[var(--pipe-green)]/10 shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-[1px]"
@@ -111,7 +111,7 @@ export function MarketDataPanels({ tokenMint }: MarketDataPanelsProps) {
 }
 
 // Recent Trades Panel
-function RecentTradesPanel({ tokenMint }: { tokenMint: string }) {
+const RecentTradesPanel = memo(function RecentTradesPanel({ tokenMint }: { tokenMint: string }) {
   const { data: trades = [], isLoading } = useQuery({
     queryKey: ['market-trades', tokenMint],
     queryFn: () => api.getMarketTrades(tokenMint),
@@ -188,7 +188,7 @@ function RecentTradesPanel({ tokenMint }: { tokenMint: string }) {
       )}
     </div>
   )
-}
+})
 
 // Top Traders Panel
 function TopTradersPanel({ tokenMint }: { tokenMint: string }) {

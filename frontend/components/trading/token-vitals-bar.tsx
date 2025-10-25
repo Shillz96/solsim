@@ -3,7 +3,7 @@
 import { TrendingUp, TrendingDown, Users, DollarSign, Trophy } from "lucide-react"
 import { cn, marioStyles } from "@/lib/utils"
 import { formatUSD, formatNumber } from "@/lib/format"
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, useMemo } from "react"
 import { usePriceStreamContext } from "@/lib/price-stream-provider"
 import { AnimatedNumber } from "@/components/ui/animated-number"
 
@@ -57,11 +57,17 @@ export function TokenVitalsBar({
     }
   }, [livePrices, tokenAddress])
 
-  const priceChangeColor = priceChange5m !== undefined && priceChange5m >= 0
-    ? "text-[var(--luigi-green)]"
-    : "text-[var(--mario-red)]"
+  const priceChangeColor = useMemo(() => 
+    priceChange5m !== undefined && priceChange5m >= 0
+      ? "text-[var(--luigi-green)]"
+      : "text-[var(--mario-red)]",
+    [priceChange5m]
+  )
 
-  const PriceIcon = priceChange5m !== undefined && priceChange5m >= 0 ? TrendingUp : TrendingDown
+  const PriceIcon = useMemo(() => 
+    priceChange5m !== undefined && priceChange5m >= 0 ? TrendingUp : TrendingDown,
+    [priceChange5m]
+  )
 
   return (
     <div className={cn(

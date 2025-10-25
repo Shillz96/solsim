@@ -12,6 +12,10 @@
  * - Responsive mobile/desktop layouts
  *
  * IMPORTANT: This is a fully dynamic page that re-renders on route changes
+ * 
+ * @fileoverview Main trading room page with fixed viewport layout
+ * @author 1UP SOL Development Team
+ * @since 2025-01-27
  */
 
 import { useEffect, useState, Suspense, useRef } from 'react'
@@ -36,6 +40,16 @@ import { DexScreenerChart } from '@/components/trading/dexscreener-chart'
 import { ResizableSplit } from '@/components/ui/resizable-split'
 import { PositionPnLBadge } from '@/components/trading/position-pnl-badge'
 
+/**
+ * Main trade room content component
+ * 
+ * Handles the core trading interface with responsive layouts:
+ * - Mobile: Single column with floating trade button
+ * - Tablet: Chat + Chart/Data + Trade panel
+ * - Desktop: Full three-column layout
+ * 
+ * @returns JSX.Element The complete trading room interface
+ */
 function TradeRoomContent() {
   const params = useParams()
   const router = useRouter()
@@ -168,7 +182,7 @@ function TradeRoomContent() {
                 marioStyles.iconButton('outline'),
                 'h-8 w-8 p-0'
               )}
-              aria-label="Go back"
+              aria-label="Go back to previous page"
             >
               <ArrowLeft className="h-3 w-3" />
             </Button>
@@ -185,7 +199,10 @@ function TradeRoomContent() {
             )}
 
             <div className="min-w-0">
-              <div className={cn(marioStyles.heading(3), 'text-sm sm:text-base truncate')}>
+              <div 
+                className={cn(marioStyles.heading(3), 'text-sm sm:text-base truncate')}
+                title={tokenDetails.name || 'Unknown Token'}
+              >
                 {tokenDetails.name || 'Unknown Token'}
               </div>
               <div className={cn(
@@ -240,10 +257,13 @@ function TradeRoomContent() {
                 marioStyles.bodyText('normal'),
                 'text-[10px] text-[var(--outline-black)]/60 uppercase leading-tight'
               )}>MCap</div>
-              <div className={cn(
-                marioStyles.bodyText('bold'),
-                'text-xs sm:text-sm truncate max-w-[80px] sm:max-w-none'
-              )}>{formatUSD(marketCap)}</div>
+              <div 
+                className={cn(
+                  marioStyles.bodyText('bold'),
+                  'text-xs sm:text-sm truncate max-w-[80px] sm:max-w-none'
+                )}
+                title={formatUSD(marketCap)}
+              >{formatUSD(marketCap)}</div>
             </div>
 
             {/* Volume - Hidden on mobile, shown on tablet+ */}
@@ -275,7 +295,7 @@ function TradeRoomContent() {
                 marioStyles.iconButton('secondary'),
                 'shrink-0 h-8 w-8 p-0'
               )}
-              aria-label="Share token page"
+              aria-label="Copy shareable link for this token"
             >
               {shareCopied ? (
                 <Check className="h-3 w-3 text-green-600" />
@@ -297,7 +317,7 @@ function TradeRoomContent() {
                 href={`https://dexscreener.com/solana/${ca}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label="View on DexScreener"
+                aria-label="View this token on DexScreener (opens in new tab)"
               >
                 <ExternalLink className="h-3 w-3" />
               </a>
@@ -336,14 +356,14 @@ function TradeRoomContent() {
                   marioStyles.button('danger', 'lg'),
                   'rounded-full h-14 w-14 text-sm'
                 )}
-                aria-label="Open trade panel"
+                aria-label="Open trading panel for this token"
               >
                 TRADE
               </Button>
             </DialogTrigger>
             <DialogContent className={cn(
               marioStyles.cardLg(false),
-              'max-w-md mx-4 bg-[var(--card)]'
+              'max-w-[90vw] sm:max-w-md mx-4 bg-[var(--card)]'
             )}>
               <DialogHeader>
                 <DialogTitle className={cn(
@@ -466,6 +486,14 @@ function TradeRoomContent() {
   )
 }
 
+/**
+ * Trade Room Page Component
+ * 
+ * Wraps the main content with Suspense for loading states.
+ * Provides fallback UI while the trading interface loads.
+ * 
+ * @returns JSX.Element The complete trade room page
+ */
 export default function TradeRoomPage() {
   return (
     <Suspense

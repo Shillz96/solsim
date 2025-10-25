@@ -93,7 +93,7 @@ export function ChatRoom({ tokenMint, className, headerImage, headerImageAlt = '
     <div className={cn("flex flex-col h-full", className)}>
       {/* Chat Header */}
       <div className={cn(
-        marioStyles.headerGradient('var(--luigi-green)', 'emerald-500')
+        marioStyles.headerGradient('var(--luigi-green)')
       )}>
         <div className="flex items-center gap-3 flex-1">
           {headerImage ? (
@@ -160,7 +160,7 @@ export function ChatRoom({ tokenMint, className, headerImage, headerImageAlt = '
       {/* Messages Area */}
       <div
         ref={messagesContainerRef}
-        className="flex-1 overflow-y-auto p-4 space-y-3 bg-gradient-to-br from-[var(--sky-blue)]/10 via-[var(--background)] to-[var(--luigi-green)]/5 chat-scrollbar"
+        className="flex-1 overflow-y-auto p-4 space-y-3 bg-gradient-to-br from-[var(--sky-blue)]/10 via-[var(--card)] to-[var(--luigi-green)]/5 chat-scrollbar"
       >
         {!user ? (
           <div className="flex flex-col items-center justify-center h-full text-center p-6">

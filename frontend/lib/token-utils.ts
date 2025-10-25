@@ -3,6 +3,10 @@
  * 
  * Shared utility functions for token-related operations across components.
  * Extracted to reduce duplication and ensure consistency.
+ * 
+ * @fileoverview Token-related utility functions for consistent formatting and calculations
+ * @author 1UP SOL Development Team
+ * @since 2025-01-27
  */
 
 /**
@@ -37,8 +41,13 @@ export function formatTimeAgo(timestamp: number): string {
 
 /**
  * Get price change color classes based on value
- * @param value The price change value
- * @returns CSS classes for positive/negative styling
+ * @param value The price change value (positive or negative)
+ * @returns CSS classes for positive/negative styling using Mario theme colors
+ * @example
+ * ```typescript
+ * const colorClass = getPriceChangeColor(5.2) // "text-[var(--luigi-green)]"
+ * const colorClass = getPriceChangeColor(-3.1) // "text-[var(--mario-red)]"
+ * ```
  */
 export function getPriceChangeColor(value: number): string {
   return value >= 0 
@@ -47,10 +56,15 @@ export function getPriceChangeColor(value: number): string {
 }
 
 /**
- * Get price change icon based on value
- * @param value The price change value
- * @returns TrendingUp or TrendingDown icon component
+ * Get price change icon component name based on value
+ * @param value The price change value (positive or negative)
+ * @returns Icon component name as string ("TrendingUp" or "TrendingDown")
+ * @example
+ * ```typescript
+ * const iconName = getPriceChangeIcon(5.2) // "TrendingUp"
+ * const iconName = getPriceChangeIcon(-3.1) // "TrendingDown"
+ * ```
  */
-export function getPriceChangeIcon(value: number) {
+export function getPriceChangeIcon(value: number): "TrendingUp" | "TrendingDown" {
   return value >= 0 ? "TrendingUp" : "TrendingDown"
 }

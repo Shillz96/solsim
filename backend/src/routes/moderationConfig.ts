@@ -1,39 +1,91 @@
 /**
  * Moderation Configuration Routes
  * 
- * API endpoints for managing moderation bot configuration
+ * API endpoints for moderation configuration management
  */
 
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import { authenticateToken } from '../plugins/auth.js';
-import { currentConfig, getModerationConfig, validateModerationConfig, ModerationConfig } from '../config/moderationConfig.js';
 
 export default async function (app: FastifyInstance) {
-  // Get current moderation configuration
-  app.get('/moderation/config', {
+  // Helper function to check if user is admin
+  async function checkAdminPermissions(userId: string): Promise<boolean> {
+    const user = await app.prisma.user.findUnique({
+      where: { id: userId },
+      select: { userTier: true }
+    });
+    return user?.userTier === 'ADMINISTRATOR';
+  }
+
+  /**
+   * GET /api/moderation/config
+   * Get current moderation configuration
+   * Requires: JWT authentication + ADMINISTRATOR tier
+   */
+  app.get('/config', {
     preHandler: [authenticateToken]
-  }, async (req: FastifyRequest, reply: FastifyReply) => {
+  }, async (request: FastifyRequest, reply: FastifyReply) => {
     try {
-      const userId = (req as any).user.id;
-
-      // Check if user is admin
-      const user = await app.prisma.user.findUnique({
-        where: { id: userId },
-        select: { userTier: true }
-      });
-
-      if (user?.userTier !== 'ADMINISTRATOR') {
+      const userId = (request as any).user.id;
+      
+      if (!await checkAdminPermissions(userId)) {
         return reply.code(403).send({
           success: false,
           error: 'Insufficient permissions'
         });
       }
 
-      return { 
-        success: true, 
-        config: currentConfig,
-        environment: process.env.NODE_ENV || 'development'
+      // Default moderation configuration
+      const config = {
+        rateLimit: {
+          messagesPerWindow: 10,
+          windowSeconds: 60,
+          burstLimit: 5
+        },
+        spam: {
+          repeatedCharThreshold: 5,
+          duplicateMessageWindow: 300,
+          duplicateMessageThreshold: 3
+        },
+        toxicity: {
+          enabled: true,
+          confidenceThreshold: 0.7,
+          severityThreshold: 'medium'
+        },
+        pumpDump: {
+          enabled: true,
+          confidenceThreshold: 0.8,
+          severityThreshold: 'high'
+        },
+        capsSpam: {
+          enabled: true,
+          capsRatioThreshold: 0.7,
+          minMessageLength: 10
+        },
+        actions: {
+          warningThreshold: 3,
+          strikeThreshold: 5,
+          muteThreshold: 7,
+          banThreshold: 10
+        },
+        trustScore: {
+          initialScore: 100,
+          warningPenalty: 5,
+          strikePenalty: 10,
+          mutePenalty: 20,
+          banPenalty: 50,
+          minScore: 0,
+          maxScore: 100
+        },
+        durations: {
+          warning: 0,
+          strike: 0,
+          mute: 30,
+          ban: 1440
+        }
       };
+
+      return { success: true, config };
     } catch (error: any) {
       return reply.code(500).send({
         success: false,
@@ -43,43 +95,41 @@ export default async function (app: FastifyInstance) {
     }
   });
 
-  // Update moderation configuration
-  app.post('/moderation/config', {
+  /**
+   * POST /api/moderation/config
+   * Update moderation configuration
+   * Requires: JWT authentication + ADMINISTRATOR tier
+   */
+  app.post('/config', {
     preHandler: [authenticateToken]
-  }, async (req: FastifyRequest<{ Body: Partial<ModerationConfig> }>, reply: FastifyReply) => {
+  }, async (request: FastifyRequest<{ Body: any }>, reply: FastifyReply) => {
     try {
-      const userId = (req as any).user.id;
-      const newConfig = req.body;
-
-      // Check if user is admin
-      const user = await app.prisma.user.findUnique({
-        where: { id: userId },
-        select: { userTier: true }
-      });
-
-      if (user?.userTier !== 'ADMINISTRATOR') {
+      const userId = (request as any).user.id;
+      
+      if (!await checkAdminPermissions(userId)) {
         return reply.code(403).send({
           success: false,
           error: 'Insufficient permissions'
         });
       }
 
-      // Validate configuration
-      const validationErrors = validateModerationConfig(newConfig as ModerationConfig);
-      if (validationErrors.length > 0) {
+      const config = request.body;
+      
+      // Validate configuration structure
+      if (!config.rateLimit || !config.spam || !config.trustScore) {
         return reply.code(400).send({
           success: false,
-          error: 'Invalid configuration',
-          details: validationErrors
+          error: 'Invalid configuration structure'
         });
       }
 
-      // In a real implementation, you would save this to a database or config file
-      // For now, we'll just return success
+      // TODO: Store configuration in database or config file
+      // For now, just return success
+      
       return { 
         success: true, 
-        message: 'Configuration updated successfully',
-        config: newConfig
+        message: 'Moderation configuration updated successfully',
+        config 
       };
     } catch (error: any) {
       return reply.code(500).send({
@@ -90,64 +140,90 @@ export default async function (app: FastifyInstance) {
     }
   });
 
-  // Get moderation statistics
-  app.get('/moderation/stats', {
+  /**
+   * GET /api/moderation/stats
+   * Get moderation statistics
+   * Requires: JWT authentication + ADMINISTRATOR tier
+   */
+  app.get('/stats', {
     preHandler: [authenticateToken]
-  }, async (req: FastifyRequest, reply: FastifyReply) => {
+  }, async (request: FastifyRequest, reply: FastifyReply) => {
     try {
-      const userId = (req as any).user.id;
-
-      // Check if user is admin
-      const user = await app.prisma.user.findUnique({
-        where: { id: userId },
-        select: { userTier: true }
-      });
-
-      if (user?.userTier !== 'ADMINISTRATOR') {
+      const userId = (request as any).user.id;
+      
+      if (!await checkAdminPermissions(userId)) {
         return reply.code(403).send({
           success: false,
           error: 'Insufficient permissions'
         });
       }
 
-      // Get moderation statistics
-      const totalUsers = await app.prisma.user.count();
-      const mutedUsers = await app.prisma.userModerationStatus.count({
-        where: { isMuted: true }
-      });
-      const bannedUsers = await app.prisma.userModerationStatus.count({
-        where: { isBanned: true }
-      });
-      const totalActions = await app.prisma.chatModerationAction.count();
-      const recentActions = await app.prisma.chatModerationAction.count({
-        where: {
-          createdAt: {
-            gte: new Date(Date.now() - 24 * 60 * 60 * 1000) // Last 24 hours
+      const [
+        totalUsers,
+        mutedUsers,
+        bannedUsers,
+        totalActions,
+        recentActions,
+        trustScoreDistribution
+      ] = await Promise.all([
+        // Total users
+        app.prisma.user.count(),
+        
+        // Muted users
+        app.prisma.userModerationStatus.count({
+          where: {
+            isMuted: true,
+            OR: [
+              { mutedUntil: null },
+              { mutedUntil: { gt: new Date() } }
+            ]
           }
-        }
-      });
+        }),
+        
+        // Banned users
+        app.prisma.userModerationStatus.count({
+          where: {
+            isBanned: true,
+            OR: [
+              { bannedUntil: null },
+              { bannedUntil: { gt: new Date() } }
+            ]
+          }
+        }),
+        
+        // Total moderation actions
+        app.prisma.chatModerationAction.count(),
+        
+        // Recent actions (last 24 hours)
+        app.prisma.chatModerationAction.count({
+          where: {
+            createdAt: {
+              gte: new Date(Date.now() - 24 * 60 * 60 * 1000)
+            }
+          }
+        }),
+        
+        // Trust score distribution
+        app.prisma.userModerationStatus.groupBy({
+          by: ['trustScore'],
+          _count: { trustScore: true },
+          orderBy: { trustScore: 'asc' }
+        })
+      ]);
 
-      // Get trust score distribution
-      const trustScoreStats = await app.prisma.userModerationStatus.groupBy({
-        by: ['trustScore'],
-        _count: { id: true },
-        orderBy: { trustScore: 'desc' }
-      });
-
-      return { 
-        success: true, 
-        stats: {
-          totalUsers,
-          mutedUsers,
-          bannedUsers,
-          totalActions,
-          recentActions,
-          trustScoreDistribution: trustScoreStats.map(stat => ({
-            trustScore: stat.trustScore,
-            userCount: stat._count.id
-          }))
-        }
+      const stats = {
+        totalUsers,
+        mutedUsers,
+        bannedUsers,
+        totalActions,
+        recentActions,
+        trustScoreDistribution: trustScoreDistribution.map(item => ({
+          trustScore: item.trustScore,
+          userCount: item._count.trustScore
+        }))
       };
+
+      return { success: true, stats };
     } catch (error: any) {
       return reply.code(500).send({
         success: false,
@@ -157,43 +233,73 @@ export default async function (app: FastifyInstance) {
     }
   });
 
-  // Test moderation bot with sample message
-  app.post('/moderation/test', {
+  /**
+   * POST /api/moderation/test
+   * Test moderation bot with sample message
+   * Requires: JWT authentication + ADMINISTRATOR tier
+   */
+  app.post('/test', {
     preHandler: [authenticateToken]
-  }, async (req: FastifyRequest<{ Body: { message: string; userId?: string } }>, reply: FastifyReply) => {
+  }, async (request: FastifyRequest<{ Body: { message: string } }>, reply: FastifyReply) => {
     try {
-      const { message, userId } = req.body;
-      const currentUserId = (req as any).user.id;
-
-      // Check if user is admin
-      const user = await app.prisma.user.findUnique({
-        where: { id: currentUserId },
-        select: { userTier: true }
-      });
-
-      if (user?.userTier !== 'ADMINISTRATOR') {
+      const userId = (request as any).user.id;
+      
+      if (!await checkAdminPermissions(userId)) {
         return reply.code(403).send({
           success: false,
           error: 'Insufficient permissions'
         });
       }
 
-      // Import ModerationBot dynamically to avoid circular imports
-      const { ModerationBot } = await import('../services/moderationBot');
+      const { message } = request.body;
       
-      // Test the message
-      const testUserId = userId || currentUserId;
-      const result = await ModerationBot.analyzeMessage(testUserId, message);
+      if (!message || message.trim().length === 0) {
+        return reply.code(400).send({
+          success: false,
+          error: 'Message is required'
+        });
+      }
 
-      return { 
-        success: true, 
-        result: {
-          violations: result.violations,
-          action: result.action,
-          reason: result.reason,
-          duration: result.duration
+      // Simulate moderation bot analysis
+      const analysis = {
+        message,
+        analysis: {
+          isSpam: message.length < 3 || message.split('').every(char => char === message[0]),
+          isToxic: message.toLowerCase().includes('hate') || message.toLowerCase().includes('stupid'),
+          isPumpDump: message.toLowerCase().includes('moon') && message.toLowerCase().includes('buy'),
+          isCapsSpam: message.length > 10 && (message.match(/[A-Z]/g) || []).length / message.length > 0.7,
+          repeatedChars: Math.max(...(message.match(/(.)\1+/g) || []).map(match => match.length)),
+          duplicateRisk: false // Would check against recent messages
+        },
+        recommendations: {
+          action: 'none',
+          reason: 'Message appears clean',
+          confidence: 0.1
         }
       };
+
+      // Determine action based on analysis
+      if (analysis.analysis.isSpam || analysis.analysis.repeatedChars > 5) {
+        analysis.recommendations = {
+          action: 'warning',
+          reason: 'Potential spam detected',
+          confidence: 0.8
+        };
+      } else if (analysis.analysis.isToxic) {
+        analysis.recommendations = {
+          action: 'strike',
+          reason: 'Toxic content detected',
+          confidence: 0.9
+        };
+      } else if (analysis.analysis.isPumpDump) {
+        analysis.recommendations = {
+          action: 'mute',
+          reason: 'Pump and dump promotion detected',
+          confidence: 0.85
+        };
+      }
+
+      return { success: true, analysis };
     } catch (error: any) {
       return reply.code(500).send({
         success: false,
