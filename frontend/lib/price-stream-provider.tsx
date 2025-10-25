@@ -209,14 +209,15 @@ function usePriceStream(options: {
       
       // Create WebSocket with better error handling and browser compatibility
       let ws: WebSocket
+      
+      // Create WebSocket - check if URL already includes the path
+      let wsUrl = env.NEXT_PUBLIC_WS_URL
+      // Only append /ws/prices if not already in the URL
+      if (!wsUrl.includes('/ws/prices') && !wsUrl.includes('/prices')) {
+        wsUrl = `${wsUrl}/ws/prices`
+      }
 
       try {
-        // Create WebSocket - check if URL already includes the path
-        let wsUrl = env.NEXT_PUBLIC_WS_URL
-        // Only append /ws/prices if not already in the URL
-        if (!wsUrl.includes('/ws/prices') && !wsUrl.includes('/prices')) {
-          wsUrl = `${wsUrl}/ws/prices`
-        }
         ws = new WebSocket(wsUrl)
         wsRef.current = ws
 

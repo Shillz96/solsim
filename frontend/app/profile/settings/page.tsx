@@ -553,13 +553,13 @@ function UserSettingsPage() {
       </div>
 
       {/* Security Settings */}
-      <div className="mario-card-standard">
-        <div className="mario-header-card mb-6">
-          <h2 className="mario-title-standard flex items-center gap-2">
-            <Shield className="h-5 w-5" />
+      <div className="bg-gradient-to-br from-red-100 to-pink-100 rounded-xl border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)]">
+        <div className="bg-gradient-to-r from-[var(--mario-red)] to-red-600 p-4 border-b-4 border-[var(--outline-black)]">
+          <h2 className="text-2xl font-mario text-white flex items-center gap-2 drop-shadow-[2px_2px_0_var(--outline-black)]">
+            <Shield className="h-6 w-6" />
             Security
           </h2>
-          <p className="mario-subtitle-standard">Change your password and manage security</p>
+          <p className="text-sm font-bold text-white/90 mt-1">Change your password and manage security</p>
         </div>
         <div className="p-6">
           <form onSubmit={(e => {
@@ -567,7 +567,7 @@ function UserSettingsPage() {
             changePasswordMutation.mutate()
           })} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="currentPassword">Current Password</Label>
+              <Label htmlFor="currentPassword" className="font-bold">Current Password</Label>
               <div className="relative">
                 <Input
                   id="currentPassword"
@@ -577,6 +577,7 @@ function UserSettingsPage() {
                   placeholder="Enter current password"
                   autoComplete="current-password"
                   required
+                  className="border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)] bg-white"
                 />
                 <Button
                   type="button"
@@ -591,7 +592,7 @@ function UserSettingsPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="newPassword">New Password</Label>
+              <Label htmlFor="newPassword" className="font-bold">New Password</Label>
               <div className="relative">
                 <Input
                   id="newPassword"
@@ -602,6 +603,7 @@ function UserSettingsPage() {
                   minLength={8}
                   autoComplete="new-password"
                   required
+                  className="border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)] bg-white"
                 />
                 <Button
                   type="button"
@@ -616,7 +618,7 @@ function UserSettingsPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Confirm New Password</Label>
+              <Label htmlFor="confirmPassword" className="font-bold">Confirm New Password</Label>
               <Input
                 id="confirmPassword"
                 type="password"
@@ -626,8 +628,9 @@ function UserSettingsPage() {
                 minLength={8}
                 autoComplete="new-password"
                 required
+                className="border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)] bg-white"
               />
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-muted-foreground font-semibold">
                 Must be 8+ characters with uppercase, lowercase, and number
               </p>
             </div>
@@ -636,7 +639,7 @@ function UserSettingsPage() {
               <Button
                 type="submit"
                 disabled={changePasswordMutation.isPending || !passwordData.currentPassword || !passwordData.newPassword}
-                className="mario-btn-standard"
+                className="font-mario border-3 border-[var(--outline-black)] bg-[var(--mario-red)] text-white hover:bg-[var(--mario-red)]/90 shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all"
               >
                 <Lock className="h-4 w-4 mr-2" />
                 {changePasswordMutation.isPending ? 'Changing...' : 'Change Password'}
@@ -647,25 +650,25 @@ function UserSettingsPage() {
       </div>
 
       {/* App Settings */}
-      <div className="mario-card-standard">
-        <div className="mario-header-card mb-6">
-          <h2 className="mario-title-standard flex items-center gap-2">
-            <Settings className="h-5 w-5" />
+      <div className="bg-gradient-to-br from-blue-100 to-cyan-100 rounded-xl border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)]">
+        <div className="bg-gradient-to-r from-[var(--sky-blue)] to-blue-400 p-4 border-b-4 border-[var(--outline-black)]">
+          <h2 className="text-2xl font-mario text-white flex items-center gap-2 drop-shadow-[2px_2px_0_var(--outline-black)]">
+            <Settings className="h-6 w-6" />
             Preferences
           </h2>
-          <p className="mario-subtitle-standard">Customize your app experience</p>
+          <p className="text-sm font-bold text-white/90 mt-1">Customize your app experience</p>
         </div>
         <div className="p-6 space-y-6">
           {/* Notifications */}
           <div>
-            <h4 className="text-sm font-medium mb-3 flex items-center gap-2">
-              <Bell className="h-4 w-4" />
+            <h4 className="text-lg font-mario mb-3 flex items-center gap-2">
+              <Bell className="h-5 w-5" />
               Notifications
             </h4>
             <div className="space-y-3 pl-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <Label htmlFor="email-notifications">Email Notifications</Label>
+                  <Label htmlFor="email-notifications" className="font-bold">Email Notifications</Label>
                   <p className="text-xs text-muted-foreground">Receive updates via email</p>
                 </div>
                 <Switch
@@ -681,7 +684,7 @@ function UserSettingsPage() {
               </div>
               <div className="flex items-center justify-between">
                 <div>
-                  <Label htmlFor="browser-notifications">Browser Notifications</Label>
+                  <Label htmlFor="browser-notifications" className="font-bold">Browser Notifications</Label>
                   <p className="text-xs text-muted-foreground">Show notifications in browser</p>
                 </div>
                 <Switch
@@ -697,7 +700,7 @@ function UserSettingsPage() {
               </div>
               <div className="flex items-center justify-between">
                 <div>
-                  <Label htmlFor="trading-notifications">Trading Alerts</Label>
+                  <Label htmlFor="trading-notifications" className="font-bold">Trading Alerts</Label>
                   <p className="text-xs text-muted-foreground">Alerts for trades and price changes</p>
                 </div>
                 <Switch
@@ -713,7 +716,7 @@ function UserSettingsPage() {
               </div>
               <div className="flex items-center justify-between">
                 <div>
-                  <Label htmlFor="portfolio-notifications">Portfolio Updates</Label>
+                  <Label htmlFor="portfolio-notifications" className="font-bold">Portfolio Updates</Label>
                   <p className="text-xs text-muted-foreground">Notifications about your portfolio</p>
                 </div>
                 <Switch
@@ -730,18 +733,18 @@ function UserSettingsPage() {
             </div>
           </div>
 
-          <Separator />
+          <Separator className="bg-[var(--outline-black)] h-1" />
 
           {/* Privacy */}
           <div>
-            <h4 className="text-sm font-medium mb-3 flex items-center gap-2">
-              <Eye className="h-4 w-4" />
+            <h4 className="text-lg font-mario mb-3 flex items-center gap-2">
+              <Eye className="h-5 w-5" />
               Privacy
             </h4>
             <div className="space-y-3 pl-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <Label htmlFor="public-profile">Public Profile</Label>
+                  <Label htmlFor="public-profile" className="font-bold">Public Profile</Label>
                   <p className="text-xs text-muted-foreground">Allow others to view your profile</p>
                 </div>
                 <Switch
@@ -757,7 +760,7 @@ function UserSettingsPage() {
               </div>
               <div className="flex items-center justify-between">
                 <div>
-                  <Label htmlFor="show-balance">Show Balance</Label>
+                  <Label htmlFor="show-balance" className="font-bold">Show Balance</Label>
                   <p className="text-xs text-muted-foreground">Display your balance on public profile</p>
                 </div>
                 <Switch
@@ -774,7 +777,7 @@ function UserSettingsPage() {
               </div>
               <div className="flex items-center justify-between">
                 <div>
-                  <Label htmlFor="show-trades">Show Trading Activity</Label>
+                  <Label htmlFor="show-trades" className="font-bold">Show Trading Activity</Label>
                   <p className="text-xs text-muted-foreground">Display recent trades on profile</p>
                 </div>
                 <Switch
@@ -792,18 +795,18 @@ function UserSettingsPage() {
             </div>
           </div>
 
-          <Separator />
+          <Separator className="bg-[var(--outline-black)] h-1" />
 
           {/* Trading Preferences */}
           <div>
-            <h4 className="text-sm font-medium mb-3 flex items-center gap-2">
-              <DollarSign className="h-4 w-4" />
+            <h4 className="text-lg font-mario mb-3 flex items-center gap-2">
+              <DollarSign className="h-5 w-5" />
               Trading
             </h4>
             <div className="space-y-3 pl-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <Label htmlFor="confirm-trades">Confirm Trades</Label>
+                  <Label htmlFor="confirm-trades" className="font-bold">Confirm Trades</Label>
                   <p className="text-xs text-muted-foreground">Show confirmation dialog before executing trades</p>
                 </div>
                 <Switch
@@ -819,7 +822,7 @@ function UserSettingsPage() {
               </div>
               <div className="flex items-center justify-between">
                 <div>
-                  <Label htmlFor="auto-refresh">Auto Refresh</Label>
+                  <Label htmlFor="auto-refresh" className="font-bold">Auto Refresh</Label>
                   <p className="text-xs text-muted-foreground">Automatically refresh portfolio and prices</p>
                 </div>
                 <Switch
@@ -835,7 +838,7 @@ function UserSettingsPage() {
               </div>
               <div className="flex items-center justify-between">
                 <div>
-                  <Label htmlFor="show-trade-strip">Show Trade Strip</Label>
+                  <Label htmlFor="show-trade-strip" className="font-bold">Show Trade Strip</Label>
                   <p className="text-xs text-muted-foreground">Display the real-time trade strip at the top of pages</p>
                 </div>
                 <Switch
@@ -852,7 +855,7 @@ function UserSettingsPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="default-slippage">Default Slippage (%)</Label>
+                <Label htmlFor="default-slippage" className="font-bold">Default Slippage (%)</Label>
                 <Input
                   id="default-slippage"
                   type="number"
@@ -869,7 +872,7 @@ function UserSettingsPage() {
                       }))
                     }
                   }}
-                  className="max-w-[200px]"
+                  className="max-w-[200px] border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)] bg-white"
                 />
                 <p className="text-xs text-muted-foreground">
                   Maximum price slippage for trades
@@ -879,7 +882,7 @@ function UserSettingsPage() {
           </div>
 
           <div className="flex justify-end">
-            <Button onClick={handleSettingsUpdate} className="mario-btn-standard">
+            <Button onClick={handleSettingsUpdate} className="font-mario border-3 border-[var(--outline-black)] bg-[var(--star-yellow)] text-[var(--outline-black)] hover:bg-[var(--star-yellow)]/90 shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all">
               <Save className="h-4 w-4 mr-2" />
               Save Preferences
             </Button>
@@ -888,9 +891,9 @@ function UserSettingsPage() {
       </div>
 
       {/* Account Info */}
-      <div className="mario-card-standard">
-        <div className="mario-header-card mb-6">
-          <h2 className="mario-title-standard">Account Information</h2>
+      <div className="bg-gradient-to-br from-purple-100 to-pink-100 rounded-xl border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)]">
+        <div className="bg-gradient-to-r from-purple-500 to-pink-500 p-4 border-b-4 border-[var(--outline-black)]">
+          <h2 className="text-2xl font-mario text-white drop-shadow-[2px_2px_0_var(--outline-black)]">Account Information</h2>
         </div>
         <div className="p-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -925,29 +928,29 @@ function UserSettingsPage() {
       </div>
 
       {/* Purchase Simulated SOL Section */}
-      <div className="mario-card-standard">
-        <div className="mario-header-card mb-6">
-          <h2 className="mario-title-standard flex items-center gap-2">
-            <ShoppingCart className="h-5 w-5" />
+      <div className="bg-gradient-to-br from-orange-100 to-yellow-100 rounded-xl border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)]">
+        <div className="bg-gradient-to-r from-orange-500 to-yellow-500 p-4 border-b-4 border-[var(--outline-black)]">
+          <h2 className="text-2xl font-mario text-white flex items-center gap-2 drop-shadow-[2px_2px_0_var(--outline-black)]">
+            <ShoppingCart className="h-6 w-6" />
             Purchase Simulated SOL
           </h2>
-          <p className="mario-subtitle-standard">
+          <p className="text-sm font-bold text-white/90 mt-1">
             Add more simulated SOL to your trading balance with real SOL
           </p>
         </div>
         <div className="p-6 space-y-6">
           {/* Current Balance Display */}
-          <div className="bg-gradient-to-br from-primary/10 to-primary/5 rounded-lg p-6">
+          <div className="bg-gradient-to-br from-[var(--star-yellow)]/30 to-yellow-200/50 rounded-lg p-6 border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)]">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground mb-1">Current Balance</p>
-                <p className="text-3xl font-bold text-primary">
+                <p className="text-sm font-bold text-[var(--outline-black)]/70 mb-1">Current Balance</p>
+                <p className="text-3xl font-mario text-[var(--outline-black)]">
                   {profile?.virtualSolBalance 
                     ? parseFloat(profile.virtualSolBalance).toFixed(2)
                     : '0.00'} SOL
                 </p>
               </div>
-              <Wallet className="h-12 w-12 text-primary/50" />
+              <Wallet className="h-12 w-12 text-[var(--star-yellow)]" />
             </div>
           </div>
 
@@ -956,18 +959,18 @@ function UserSettingsPage() {
             <Button
               size="lg"
               onClick={() => setPurchaseModalOpen(true)}
-              className="mario-btn-standard w-full md:w-auto"
+              className="font-mario border-3 border-[var(--outline-black)] bg-[var(--luigi-green)] text-white hover:bg-[var(--luigi-green)]/90 shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all w-full md:w-auto"
             >
               <ShoppingCart className="h-4 w-4 mr-2" />
               Buy More Simulated SOL
             </Button>
           </div>
 
-          <Separator />
+          <Separator className="bg-[var(--outline-black)] h-1" />
 
           {/* Purchase History */}
           <div>
-            <h4 className="text-sm font-medium mb-4">Recent Purchases</h4>
+            <h4 className="text-lg font-mario mb-4">Recent Purchases</h4>
             <PurchaseHistorySection userId={user?.id || ''} />
           </div>
         </div>
