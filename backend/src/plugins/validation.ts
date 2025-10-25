@@ -50,7 +50,7 @@ const commonPatterns = {
 export const authSchemas = {
   emailSignup: {
     type: 'object',
-    required: ['email', 'password', 'rewardWalletAddress'],
+    required: ['email', 'password'],
     properties: {
       email: commonPatterns.email,
       password: commonPatterns.password,
@@ -65,7 +65,7 @@ export const authSchemas = {
       profileImage: { ...commonPatterns.url, nullable: true },
       rewardWalletAddress: {
         ...commonPatterns.solanaAddress,
-        nullable: false
+        nullable: true
       }
     },
     additionalProperties: false
