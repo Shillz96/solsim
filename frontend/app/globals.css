@@ -6,257 +6,18 @@
 @import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;500;600;700&display=swap&v=2');
 @import url('https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&display=swap&v=2');
 
-/* ---------------------------
-   FONTS & THEME VARIABLES
---------------------------- */
-
-/* Force font loading for mobile devices */
-* {
-  font-display: swap;
-}
-:root {
-  /* 1UP SOL Design System - Mario Light Mode Only! */
-  /* Fun, Colorful Mario Aesthetic */
-
-  /* Mario Theme Colors - Core Brand Colors */
-  --mario-red: #E52521;
-  --luigi-green: #43B047;
-  --star-yellow: #FFD800;
-  --coin-gold: #FFB915;
-  --coin-yellow: #FFD700;
-  --sky-blue: #A6D8FF;
-  --super-blue: #2B4EF9;
-  --pipe-green: #00994C;
-  --brick-brown: #9C5818;
-  --outline-black: #1C1C1C;
-
-  /* Base UI Colors - Warm Paper Cream Background */
-  --background: #FFFAE9; /* Warm Paper Cream */
-  --background-oklch: oklch(0.98 0.03 95);
-  --foreground: #000000;
-  --foreground-oklch: oklch(0 0 0);
-  
-  /* Card and Surface Colors */
-  --card: #FFFAE9;
-  --card-oklch: oklch(0.98 0.03 95);
-  --card-foreground: #000000;
-  --card-foreground-oklch: oklch(0 0 0);
-
-  /* Popover and Dialog Colors */
-  --popover: #FFFAE9;
-  --popover-oklch: oklch(0.98 0.03 95);
-  --popover-foreground: #000000;
-  --popover-foreground-oklch: oklch(0 0 0);
-
-  /* Dropdown Menu Colors - OPAQUE (Not Transparent) */
-  --dropdown: 46 100% 96%; /* Cream #FFFAE9 - for HSL */
-  --dropdown-oklch: oklch(0.98 0.03 95);
-  --dropdown-foreground: 0 0% 0%; /* Black - for HSL */
-  --dropdown-foreground-oklch: oklch(0 0 0);
-  --dropdown-border: 0 0% 90%; /* Light gray - for HSL */
-  --dropdown-border-oklch: oklch(0.92 0 0);
-
-  /* Modal Colors - OPAQUE (Not Transparent) */
-  --modal: 46 100% 96%; /* Cream #FFFAE9 - for HSL */
-  --modal-oklch: oklch(0.98 0.03 95);
-  --modal-foreground: 0 0% 0%; /* Black - for HSL */
-  --modal-foreground-oklch: oklch(0 0 0);
-  --modal-border: 0 0% 90%; /* Light gray - for HSL */
-  --modal-border-oklch: oklch(0.92 0 0);
-
-  /* Primary - Subtle Gray */
-  --primary: #444444;
-  --primary-oklch: oklch(0.35 0 0);
-  --primary-foreground: #ffffff;
-  --primary-foreground-oklch: oklch(1 0 0);
-
-  /* Secondary UI Colors */
-  --secondary: #f5f5f5;
-  --secondary-oklch: oklch(0.97 0 0);
-  --secondary-foreground: #000000;
-  --secondary-foreground-oklch: oklch(0 0 0);
-  
-  /* Muted UI Elements - WCAG AA Compliant */
-  --muted: #f5f5f5;
-  --muted-oklch: oklch(0.97 0 0);
-  --muted-foreground: #525252; /* WCAG AA 7:1 contrast ratio */
-  --muted-foreground-oklch: oklch(0.40 0 0); /* Darker for accessibility */
-
-  /* Accent - Black */
-  --accent: #000000;
-  --accent-oklch: oklch(0 0 0);
-  --accent-foreground: #ffffff;
-  --accent-foreground-oklch: oklch(1 0 0);
-
-  /* Destructive/Error Elements - Flat Red */
-  --destructive: #ff4d4d;
-  --destructive-oklch: oklch(0.65 0.25 27);
-  --destructive-foreground: #ffffff;
-  --destructive-foreground-oklch: oklch(1 0 0);
-  
-  /* Borders and Inputs */
-  --border: #e5e5e5;
-  --border-oklch: oklch(0.92 0 0);
-  --input: #e5e5e5;
-  --input-oklch: oklch(0.92 0 0);
-  --ring: #000000;
-  --ring-oklch: oklch(0 0 0);
-
-  /* Trading-Specific Colors - WCAG AA Compliant */
-  --profit: #16a34a; /* WCAG AA compliant green */
-  --profit-oklch: oklch(0.62 0.20 142);
-  --profit-foreground: #ffffff;
-  --profit-foreground-oklch: oklch(1 0 0);
-  
-  --loss: #dc2626; /* WCAG AA compliant red */
-  --loss-oklch: oklch(0.55 0.22 27);
-  --loss-foreground: #ffffff;
-  --loss-foreground-oklch: oklch(1 0 0);
-  
-  /* Chart Colors - Minimal Palette */
-  --chart-1: #000000; /* Primary/Black */
-  --chart-1-oklch: oklch(0 0 0);
-  --chart-2: #00ff85; /* Profit/Green */
-  --chart-2-oklch: oklch(0.85 0.30 150);
-  --chart-3: #ff4d4d; /* Loss/Red */
-  --chart-3-oklch: oklch(0.65 0.25 27);
-  --chart-4: #666666; /* Neutral Gray */
-  --chart-4-oklch: oklch(0.45 0 0);
-  --chart-5: #999999; /* Light Gray */
-  --chart-5-oklch: oklch(0.65 0 0);
-  
-  /* UI Elements - Modern border radius for 2025 aesthetic */
-  --radius: 0.625rem; /* 10px - balanced modern radius */
-  --sidebar: #ffffff;
-  --sidebar-oklch: oklch(1 0 0);
-  --sidebar-foreground: #000000;
-  --sidebar-foreground-oklch: oklch(0 0 0);
-  --sidebar-primary: #000000;
-  --sidebar-primary-oklch: oklch(0 0 0);
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-primary-foreground-oklch: oklch(1 0 0);
-  --sidebar-accent: #f5f5f5;
-  --sidebar-accent-oklch: oklch(0.97 0 0);
-  --sidebar-accent-foreground: #000000;
-  --sidebar-accent-foreground-oklch: oklch(0 0 0);
-  --sidebar-border: #e5e5e5;
-  --sidebar-border-oklch: oklch(0.92 0 0);
-  --sidebar-ring: #000000;
-  --sidebar-ring-oklch: oklch(0 0 0);
-}
-
-/* Dark mode removed - 1UP SOL is light mode only! */
-
-/* Tailwind theme extensions */
-:root {
-  /* Added font variables to match layout.tsx */
-  --font-sans: var(--font-radnika-next);
-  --font-heading: var(--font-ibm-plex-sans);
-  --font-mono: var(--font-jetbrains-mono);
-
-  /* Layout height variables for consistent spacing */
-  --navbar-height: 3.5rem;
-  --trade-strip-height: 2rem;
-  --bottom-nav-height: 4rem;
-  --trending-ticker-height: 3.75rem;
-  --token-header-compact-height: 4rem;
-  --bottom-nav-desktop-height: 3rem;
-
-  /* Standardized content max-width */
-  --content-max-width: 1920px;
-  --content-max-width-xl: 2000px;
-
-  /* Use oklch with hex fallbacks */
-  --color-background: var(--background-oklch, var(--background));
-  --color-foreground: var(--foreground-oklch, var(--foreground));
-  --color-card: var(--card-oklch, var(--card));
-  --color-card-foreground: var(--card-foreground-oklch, var(--card-foreground));
-  --color-popover: var(--popover-oklch, var(--popover));
-  --color-popover-foreground: var(--popover-foreground-oklch, var(--popover-foreground));
-  --color-primary: var(--primary-oklch, var(--primary));
-  --color-primary-foreground: var(--primary-foreground-oklch, var(--primary-foreground));
-  --color-secondary: var(--secondary-oklch, var(--secondary));
-  --color-secondary-foreground: var(--secondary-foreground-oklch, var(--secondary-foreground));
-  --color-muted: var(--muted-oklch, var(--muted));
-  --color-muted-foreground: var(--muted-foreground-oklch, var(--muted-foreground));
-  --color-accent: var(--accent-oklch, var(--accent));
-  --color-accent-foreground: var(--accent-foreground-oklch, var(--accent-foreground));
-  --color-destructive: var(--destructive-oklch, var(--destructive));
-  --color-destructive-foreground: var(--destructive-foreground-oklch, var(--destructive-foreground));
-  --color-border: var(--border-oklch, var(--border));
-  --color-input: var(--input-oklch, var(--input));
-  --color-ring: var(--ring-oklch, var(--ring));
-  --color-chart-1: var(--chart-1-oklch, var(--chart-1));
-  --color-chart-2: var(--chart-2-oklch, var(--chart-2));
-  --color-chart-3: var(--chart-3-oklch, var(--chart-3));
-  --color-chart-4: var(--chart-4-oklch, var(--chart-4));
-  --color-chart-5: var(--chart-5-oklch, var(--chart-5));
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
-  --color-sidebar: var(--sidebar-oklch, var(--sidebar));
-  --color-sidebar-foreground: var(--sidebar-foreground-oklch, var(--sidebar-foreground));
-  --color-sidebar-primary: var(--sidebar-primary-oklch, var(--sidebar-primary));
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground-oklch, var(--sidebar-primary-foreground));
-  --color-sidebar-accent: var(--sidebar-accent-oklch, var(--sidebar-accent));
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground-oklch, var(--sidebar-accent-foreground));
-  --color-sidebar-border: var(--sidebar-border-oklch, var(--sidebar-border));
-  --color-sidebar-ring: var(--sidebar-ring-oklch, var(--sidebar-ring));
-}
+/* ============================================================
+   1UP SOL - MARIO THEME DESIGN SYSTEM
+   ============================================================ */
 
 /* ---------------------------
-   WIDE-GAMUT COLOR ENHANCEMENT (Display-P3) - 2025
---------------------------- */
-/* Enhanced colors for modern wide-gamut displays (MacBooks, iPhones, high-end monitors) */
-@media (color-gamut: p3) {
-  :root {
-    /* Enhanced profit/loss colors for trading UI */
-    --profit: color(display-p3 0.12 0.85 0.45);
-    --profit-oklch: oklch(72% 0.20 142);
-    --profit-foreground: #ffffff;
-    --profit-foreground-oklch: oklch(1 0 0);
-
-    --loss: color(display-p3 0.92 0.20 0.18);
-    --loss-oklch: oklch(62% 0.22 27);
-    --loss-foreground: #ffffff;
-    --loss-foreground-oklch: oklch(1 0 0);
-
-    /* Enhanced chart colors - more vivid on P3 displays */
-    --chart-2: color(display-p3 0 1 0.52); /* Profit green */
-    --chart-2-oklch: oklch(85% 0.30 150);
-
-    --chart-3: color(display-p3 1 0.30 0.30); /* Loss red */
-    --chart-3-oklch: oklch(65% 0.25 27);
-
-    /* Update color references for P3 */
-    --color-profit: var(--profit-oklch, var(--profit));
-    --color-loss: var(--loss-oklch, var(--loss));
-    --color-chart-2: var(--chart-2-oklch, var(--chart-2));
-    --color-chart-3: var(--chart-3-oklch, var(--chart-3));
-  }
-
-}
-
-/* ---------------------------
-   PERFORMANCE OPTIMIZATIONS - 2025
---------------------------- */
-/* Global GPU acceleration for common animated elements */
-@media (prefers-reduced-motion: no-preference) {
-  :root {
-    /* Enable GPU compositing for smooth animations */
-    backface-visibility: hidden;
-    -webkit-backface-visibility: hidden;
-  }
-}
-
-/* ---------------------------
-   BASE STYLES
+   BASE STYLES & RESET
 --------------------------- */
 @layer base {
   * {
     border-color: hsl(var(--border));
     outline-color: hsl(var(--ring) / 0.5);
+    font-display: swap;
   }
 
   body {
@@ -266,57 +27,19 @@
     -moz-osx-font-smoothing: grayscale;
     font-family: var(--font-radnika-next), "Radnika Next", "Inter", "Manrope", "Nunito Sans", "Rubik", "Segoe UI", "Roboto", "Helvetica Neue", "Arial", sans-serif;
     position: relative;
-    line-height: 1.65; /* Enhanced readability */
-    /* Note: transform removed - it breaks position: fixed for modals/dropdowns */
-    /* Use will-change sparingly for GPU optimization only when needed */
-    
-    /* Force font loading to prevent FOUT */
+    line-height: 1.65;
     font-display: swap;
     text-rendering: optimizeLegibility;
-
-    /* iOS Safe Area Insets - Account for notch and home indicator */
     padding-top: env(safe-area-inset-top);
     padding-bottom: max(env(safe-area-inset-bottom), var(--bottom-nav-height, 64px));
     padding-left: env(safe-area-inset-left);
     padding-right: env(safe-area-inset-right);
-
-    /* Touch interactions - Remove tap highlight and ensure smooth scrolling */
     -webkit-tap-highlight-color: transparent;
     -webkit-touch-callout: none;
-    touch-action: manipulation; /* Prevent double-tap zoom delay */
-  }
-
-  /* Touch-optimized interactive elements */
-  button,
-  a,
-  [role="button"],
-  [role="tab"],
-  [role="link"] {
-    -webkit-tap-highlight-color: transparent;
-    touch-action: manipulation; /* Disable double-tap zoom on buttons */
-    -webkit-user-select: none;
-    user-select: none;
-  }
-
-  /* Minimum touch target size: 44x44px (iOS HIG) / 48x48px (Material Design) */
-  button,
-  [role="button"] {
-    min-height: 44px;
-    min-width: 44px;
-  }
-
-  /* Input fields should allow text selection */
-  input,
-  textarea,
-  [contenteditable] {
-    -webkit-user-select: text;
-    user-select: text;
     touch-action: manipulation;
   }
 
-  /* Dual-layer paper texture system */
-
-  /* Base texture layer - papertexturre-2.avif (main overlay behind content) */
+  /* Paper Texture System */
   body::before {
     content: "";
     position: fixed;
@@ -325,19 +48,17 @@
     width: 100%;
     height: 100%;
     background-image: url('/papertexturre-2.avif');
-    background-repeat: repeat; /* Full coverage without gaps */
-    background-size: 2000px 2000px; /* Much larger size to reduce visible repetition */
-    background-position: 15% 25%; /* Offset positioning to break up pattern alignment */
-    opacity: 0.45; /* 45% opacity for more visible texture */
+    background-repeat: repeat;
+    background-size: 2000px 2000px;
+    background-position: 15% 25%;
+    opacity: 0.45;
     pointer-events: none;
     z-index: 1;
-    mix-blend-mode: multiply; /* Realistic paper texture blending */
-    /* Subtle transformations to break up grid pattern */
+    mix-blend-mode: multiply;
     transform: rotate(1.2deg) scale(1.03);
-    filter: blur(0.8px); /* Stronger blur to hide seams and reduce pattern visibility */
+    filter: blur(0.8px);
   }
 
-  /* Top texture layer - Paper-Texture-7.jpg (highest z-index, in front of everything) */
   body::after {
     content: "";
     position: fixed;
@@ -347,1377 +68,443 @@
     height: 100%;
     background-image: url('/Paper-Texture-7.jpg');
     background-repeat: repeat;
-    background-size: 1200px 1200px; /* Larger size reduces visible repetition */
-    opacity: 0.12; /* 12% opacity - subtle grain effect without overwhelming */
+    background-size: 1200px 1200px;
+    opacity: 0.12;
     pointer-events: none;
-    z-index: 9999; /* Highest z-index - appears in front of everything */
-    mix-blend-mode: multiply; /* Subtle paper grain effect */
-    /* Slight rotation breaks up grid pattern */
+    z-index: 9999;
+    mix-blend-mode: multiply;
     transform: rotate(0.5deg) scale(1.02);
   }
 
-  /* Content sits between the two texture layers */
   body > * {
     position: relative;
-    z-index: 10; /* Between base texture (1) and top texture (9999) */
+    z-index: 10;
   }
 
-
-  /* ---------------------------
-     TEXT & HIGHLIGHTS
-  --------------------------- */
-  /* Typography Hierarchy: IBM Plex Sans Bold for headings, Radnika Next for body */
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
+  /* Typography */
+  h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-ibm-plex-sans), "IBM Plex Sans", "Inter", "Manrope", "Nunito Sans", "Rubik", "Segoe UI", "Roboto", "Helvetica Neue", "Arial", sans-serif;
     font-weight: 700;
     color: var(--foreground);
-    letter-spacing: -0.015em; /* Refined letter spacing for 2025 */
+    letter-spacing: -0.015em;
     line-height: 1.3;
   }
 
-  p,
-  span,
-  a,
-  li {
+  p, span, a, li {
     font-family: var(--font-radnika-next), "Radnika Next", "Inter", "Manrope", "Nunito Sans", "Rubik", "Segoe UI", "Roboto", "Helvetica Neue", "Arial", sans-serif;
     color: var(--foreground);
   }
 
-  code,
-  pre {
+  code, pre {
     font-family: var(--font-jetbrains-mono), 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
     background-color: var(--input);
     color: var(--foreground);
     padding: 0.2rem 0.4rem;
-    border-radius: var(--radius-sm);
+    border-radius: calc(var(--radius) - 4px);
   }
 
-  /* Remove gradient text - use solid foreground color */
-  .gradient-text {
-    color: var(--foreground);
-    font-weight: inherit;
+  /* Interactive Elements */
+  button, a, [role="button"], [role="tab"], [role="link"] {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    -webkit-user-select: none;
+    user-select: none;
+    min-height: 44px;
+    min-width: 44px;
   }
 
-  /* ---------------------------
-     CARD STYLING - MARIO THEME (FLAT DESIGN)
-  --------------------------- */
-  /* Bold black outline cards - Mario block shadow style */
-  .card {
-    background-color: var(--card);
-    color: var(--foreground);
-    border-radius: 16px;
-    border: 4px solid var(--outline-black);
-    padding: 1.5rem;
-    box-shadow: 6px 6px 0 var(--outline-black);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-  }
-
-  .card:hover {
-    transform: translateY(-2px);
-    box-shadow: 8px 8px 0 var(--outline-black);
-  }
-
-  /* ---------------------------
-     CHART STYLING
-  --------------------------- */
-  .chart-bar {
-    border-radius: calc(var(--radius) - 2px);
-  }
-
-  /* ---------------------------
-     ENHANCED EFFECTS & ANIMATIONS
-  --------------------------- */
-  
-  /* Hard shadows - Mario style */
-  .glow-primary {
-    box-shadow: 3px 3px 0 var(--outline-black);
-    transition: box-shadow 0.2s ease, transform 0.2s ease;
-  }
-
-  .glow-primary:hover {
-    box-shadow: 4px 4px 0 var(--outline-black);
-    transform: translateY(-1px);
-  }
-
-  .glow-accent {
-    box-shadow: 3px 3px 0 var(--outline-black);
-    transition: box-shadow 0.2s ease, transform 0.2s ease;
-  }
-
-  .glow-accent:hover {
-    box-shadow: 4px 4px 0 var(--outline-black);
-    transform: translateY(-1px);
-  }
-
-  /* Opaque card effects - No glass morphism */
-  .glass,
-  .glass-overlay,
-  .glass-solid {
-    background: var(--card);
-    border: 3px solid var(--outline-black);
-    box-shadow: 4px 4px 0 var(--outline-black);
-    /* GPU acceleration hints */
-    will-change: transform, opacity;
-    transform: translate3d(0, 0, 0);
-    /* Only transition specific properties, not all */
-    transition: background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1),
-                border-color 0.2s cubic-bezier(0.4, 0, 0.2, 1),
-                opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1),
-                box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  .glass:hover,
-  .glass-overlay:hover,
-  .glass-solid:hover {
-    background: var(--card);
-    border-color: var(--outline-black);
-    box-shadow: 6px 6px 0 var(--outline-black);
-    transform: translateY(-2px);
-  }
-
-  /* Navigation specific styling - flat */
-  .glass-nav {
-    background: var(--card);
-    border: none;
-    border-bottom: 2px solid var(--border);
-  }
-
-  /* Flat backgrounds - no gradients */
-  .gradient-trading {
-    background: var(--card);
-  }
-
-  .gradient-mesh {
-    background: var(--card);
-  }
-
-  /* Floating elements animation */
-  .float {
-    animation: float 6s ease-in-out infinite;
-  }
-
-  @keyframes float {
-    0%, 100% { transform: translateY(0px) rotate(0deg); }
-    33% { transform: translateY(-10px) rotate(1deg); }
-    66% { transform: translateY(-5px) rotate(-1deg); }
-  }
-
-  /* Flat pulse - no glow */
-  .pulse-glow {
-    animation: pulseFade 2s ease-in-out infinite;
-  }
-
-  @keyframes pulseFade {
-    0%, 100% { 
-      opacity: 0.8;
-    }
-    50% { 
-      opacity: 1;
-    }
-  }
-
-  /* Shimmer removed - use simple opacity pulse for loading states */
-
-  /* ---------------------------
-     FLAT CARD SYSTEM - BOLD BLACK OUTLINES
-  --------------------------- */
-
-  /* Enhanced Mario-style card - bold black outline with deep shadow */
-  .card-enhanced {
-    background: var(--card);
-    border: 4px solid var(--outline-black);
-    border-radius: 16px;
-    padding: 1.5rem;
-    box-shadow: 6px 6px 0 var(--outline-black);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-  }
-
-  .card-enhanced:hover {
-    transform: translateY(-2px);
-    box-shadow: 8px 8px 0 var(--outline-black);
-  }
-
-  /* Bento-style grid cards - bold black outline with deep shadow */
-  .bento-card {
-    background: var(--card);
-    border: 4px solid var(--outline-black);
-    border-radius: 16px;
-    padding: 1.5rem;
-    box-shadow: 6px 6px 0 var(--outline-black);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-  }
-
-  .bento-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 8px 8px 0 var(--outline-black);
-  }
-
-  /* Trading-specific card styles - bold black outline with deep shadow */
-  .trading-card {
-    background: var(--card);
-    border: 4px solid var(--outline-black);
-    border-radius: 16px;
-    padding: 1.5rem;
-    box-shadow: 6px 6px 0 var(--outline-black);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-  }
-
-  .trading-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 8px 8px 0 var(--outline-black);
-  }
-
-  /* ---------------------------
-     INTERACTIVE ELEMENTS
-  --------------------------- */
-
-  /* Enhanced button hover effects - 2025 micro-interactions - GPU Optimized */
-  .btn-enhanced {
-    position: relative;
-    overflow: hidden;
-    isolation: isolate;
-    /* GPU optimization */
-    will-change: transform, opacity;
-    transform: translate3d(0, 0, 0);
-    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1),
-                opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  /* Modern button hover with subtle scale */
-  .btn-enhanced:hover {
-    transform: scale3d(1.02, 1.02, 1);
-    opacity: 0.95;
-  }
-
-  .btn-enhanced:active {
-    transform: scale3d(0.98, 0.98, 1);
-    transition: transform 0.1s ease;
-  }
-
-  /* Input focus states */
-  .glass-solid:focus,
-  input.bg-card:focus {
-    border-color: var(--outline-black);
-    box-shadow: 0 0 0 3px var(--star-yellow);
-  }
-
-  /* Minimal icon hover */
-  .icon-morph {
-    transition: opacity 0.2s ease;
-  }
-
-  .icon-morph:hover {
-    opacity: 0.7;
-  }
-
-  /* Number counters */
-  .number-display {
-    font-variant-numeric: tabular-nums;
-    transition: all 0.3s ease;
-  }
-
-  /* Flat profit/loss numbers - no glows */
-  .number-positive {
-    color: var(--profit);
-  }
-
-  .number-negative {
-    color: var(--loss);
-  }
-
-  /* Flat progress indicators - no gradients or glows */
-  .progress-glow {
-    background: var(--foreground);
-    animation: progressPulse 2s ease-in-out infinite;
-  }
-
-  @keyframes progressPulse {
-    0%, 100% { opacity: 0.8; }
-    50% { opacity: 1; }
-  }
-
-  /* Respect user's motion preferences */
-  @media (prefers-reduced-motion: reduce) {
-    *,
-    *::before,
-    *::after {
-      animation-duration: 0.01ms !important;
-      animation-iteration-count: 1 !important;
-      transition-duration: 0.01ms !important;
-      scroll-behavior: auto !important;
-    }
-
-    /* Disable all animations */
-    .float,
-    .pulse-glow,
-    .progress-glow {
-      animation: none !important;
-    }
-
-    /* Remove transitions */
-    .btn-enhanced,
-    .icon-morph {
-      transition: none !important;
-    }
-  }
-
-  /* Hide scrollbar utility */
-  .scrollbar-none {
-    -ms-overflow-style: none;  /* IE and Edge */
-    scrollbar-width: none;  /* Firefox */
-  }
-
-  .scrollbar-none::-webkit-scrollbar {
-    display: none;  /* Chrome, Safari and Opera */
-  }
-
-  /* Mobile-optimized table scrolling */
-  [data-slot="table-container"] {
-    -webkit-overflow-scrolling: touch; /* iOS momentum scrolling */
-    overscroll-behavior-x: contain; /* Prevent overscroll from affecting parent */
-    scroll-behavior: smooth;
-  }
-
-  /* Horizontal scroll hint for tables on mobile */
-  @media (max-width: 768px) {
-    [data-slot="table-container"]::after {
-      content: "";
-      position: absolute;
-      top: 0;
-      right: 0;
-      bottom: 0;
-      width: 40px;
-      background: linear-gradient(to left, rgba(0, 0, 0, 0.05), transparent);
-      pointer-events: none;
-      opacity: 0;
-      transition: opacity 0.3s ease;
-    }
-
-    [data-slot="table-container"]:not(.scrolled-end)::after {
-      opacity: 1;
-    }
+  input, textarea, [contenteditable] {
+    -webkit-user-select: text;
+    user-select: text;
+    touch-action: manipulation;
   }
 }
 
-/* ============================================================
-   Trading-Specific Button Styles - Glowy Green/Red
-   ============================================================ */
+/* ---------------------------
+   MARIO THEME COMPONENTS
+   Uses theme.css variables for consistency
+--------------------------- */
 
-/* Buy Button - Green Glow */
+/* Mario Card System */
+.mario-card {
+  background: var(--card);
+  border: 4px solid var(--color-outline-black);
+  border-radius: var(--radius-xl);
+  padding: 1.5rem;
+  box-shadow: 6px 6px 0 var(--color-outline-black);
+  transition: transform var(--transition), box-shadow var(--transition);
+}
+
+.mario-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 8px 8px 0 var(--color-outline-black);
+}
+
+/* Mario Button System */
+.mario-btn {
+  background: var(--color-star);
+  color: var(--color-outline-black);
+  border: 3px solid var(--color-outline-black);
+  border-radius: var(--radius);
+  font-family: var(--font-radnika-next), "Radnika Next", "Inter", "Manrope", "Nunito Sans", "Rubik", "Segoe UI", "Roboto", "Helvetica Neue", "Arial", sans-serif;
+  padding: 0.6rem 1rem;
+  box-shadow: 3px 3px 0 var(--color-outline-black);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 700;
+}
+
+.mario-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 4px 4px 0 var(--color-outline-black);
+}
+
+.mario-btn:active {
+  transform: translateY(1px);
+  box-shadow: 2px 2px 0 var(--color-outline-black);
+}
+
+/* Mario Button Variants */
+.mario-btn-red {
+  background: var(--color-brand);
+  color: #ffffff;
+}
+
+.mario-btn-green {
+  background: var(--color-luigi);
+  color: #ffffff;
+}
+
+.mario-btn-blue {
+  background: var(--color-super);
+  color: #ffffff;
+}
+
+/* Trading Buttons - Using theme.css colors */
 .btn-buy {
-  position: relative;
-  background: #00ff85;
-  color: #000000;
-  border: none;
-  box-shadow: 0 0 20px rgba(0, 255, 133, 0.3);
-  transition: all 0.3s ease;
+  background: var(--color-buy);
+  color: #ffffff;
+  border: 3px solid var(--color-outline-black);
+  box-shadow: 0 0 20px rgba(67, 176, 71, 0.3), 3px 3px 0 var(--color-outline-black);
+  transition: all var(--transition);
+  font-family: var(--font-radnika-next), "Radnika Next", "Inter", "Manrope", "Nunito Sans", "Rubik", "Segoe UI", "Roboto", "Helvetica Neue", "Arial", sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 700;
 }
 
 .btn-buy:hover:not(:disabled) {
-  background: #00ff85;
-  box-shadow: 0 0 30px rgba(0, 255, 133, 0.5), 0 0 60px rgba(0, 255, 133, 0.2);
-  transform: translateY(-1px);
+  background: var(--color-buy);
+  box-shadow: 0 0 30px rgba(67, 176, 71, 0.5), 4px 4px 0 var(--color-outline-black);
+  transform: translateY(-2px);
 }
 
 .btn-buy:active:not(:disabled) {
-  transform: translateY(0);
-  box-shadow: 0 0 15px rgba(0, 255, 133, 0.4);
+  transform: translateY(1px);
+  box-shadow: 0 0 15px rgba(67, 176, 71, 0.4), 2px 2px 0 var(--color-outline-black);
 }
 
 .btn-buy:disabled {
-  background: #00ff85;
   opacity: 0.5;
-  box-shadow: none;
   cursor: not-allowed;
+  box-shadow: none;
 }
 
-/* Sell Button - Red Glow */
 .btn-sell {
-  position: relative;
-  background: #ff4d4d;
+  background: var(--color-sell);
   color: #ffffff;
-  border: none;
-  box-shadow: 0 0 20px rgba(255, 77, 77, 0.3);
-  transition: all 0.3s ease;
+  border: 3px solid var(--color-outline-black);
+  box-shadow: 0 0 20px rgba(229, 37, 33, 0.3), 3px 3px 0 var(--color-outline-black);
+  transition: all var(--transition);
+  font-family: var(--font-radnika-next), "Radnika Next", "Inter", "Manrope", "Nunito Sans", "Rubik", "Segoe UI", "Roboto", "Helvetica Neue", "Arial", sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 700;
 }
 
 .btn-sell:hover:not(:disabled) {
-  background: #ff4d4d;
-  box-shadow: 0 0 30px rgba(255, 77, 77, 0.5), 0 0 60px rgba(255, 77, 77, 0.2);
-  transform: translateY(-1px);
+  background: var(--color-sell);
+  box-shadow: 0 0 30px rgba(229, 37, 33, 0.5), 4px 4px 0 var(--color-outline-black);
+  transform: translateY(-2px);
 }
 
 .btn-sell:active:not(:disabled) {
-  transform: translateY(0);
-  box-shadow: 0 0 15px rgba(255, 77, 77, 0.4);
+  transform: translateY(1px);
+  box-shadow: 0 0 15px rgba(229, 37, 33, 0.4), 2px 2px 0 var(--color-outline-black);
 }
 
 .btn-sell:disabled {
-  background: #ff4d4d;
   opacity: 0.5;
-  box-shadow: none;
   cursor: not-allowed;
+  box-shadow: none;
 }
 
-/* Shimmer animation for enhanced loading */
+/* Mario Tab System */
+[data-slot="tabs-list"] {
+  background: white;
+  border: 4px solid var(--color-outline-black);
+  box-shadow: 4px 4px 0 var(--color-outline-black);
+  border-radius: var(--radius-lg);
+  padding: 4px;
+  gap: 4px;
+  height: auto;
+  min-height: 48px;
+  width: 100%;
+  display: inline-flex;
+}
+
+[data-slot="tabs-trigger"] {
+  background: white;
+  color: var(--color-outline-black);
+  border: 3px solid transparent;
+  border-radius: var(--radius-md);
+  font-family: var(--font-radnika-next), "Radnika Next", "Inter", "Manrope", "Nunito Sans", "Rubik", "Segoe UI", "Roboto", "Helvetica Neue", "Arial", sans-serif;
+  font-weight: 700;
+  font-size: 0.875rem;
+  padding: 0.75rem 1rem;
+  transition: all var(--transition);
+  position: relative;
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+
+[data-slot="tabs-trigger"]:hover:not([data-state="active"]):not(:disabled) {
+  background: rgba(255, 216, 0, 0.15);
+  transform: translateY(-1px);
+}
+
+[data-slot="tabs-trigger"][data-state="active"] {
+  background: var(--color-star);
+  color: var(--color-outline-black);
+  border-color: var(--color-outline-black);
+  box-shadow: 0 2px 0 var(--color-outline-black), inset 0 -2px 0 rgba(0, 0, 0, 0.15);
+  transform: translateY(2px);
+}
+
+[data-slot="tabs-trigger"]:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  background: #e5e5e5;
+  color: #999;
+  pointer-events: none;
+  transform: none;
+}
+
+[data-slot="tabs-trigger"]:focus-visible {
+  outline: 3px solid var(--color-outline-black);
+  outline-offset: 2px;
+  z-index: 10;
+}
+
+/* Tab Color Variants */
+.mario-tab-green[data-state="active"] {
+  background: var(--color-luigi);
+  color: white;
+  border-color: var(--color-outline-black);
+  box-shadow: 0 3px 0 rgba(0, 100, 0, 0.4), inset 0 -2px 0 rgba(0, 0, 0, 0.2);
+}
+
+.mario-tab-green:hover:not([data-state="active"]):not(:disabled) {
+  background: rgba(67, 176, 71, 0.15);
+}
+
+.mario-tab-yellow[data-state="active"] {
+  background: var(--color-star);
+  color: var(--color-outline-black);
+  border-color: var(--color-outline-black);
+  box-shadow: 0 3px 0 rgba(200, 150, 0, 0.4), inset 0 -2px 0 rgba(0, 0, 0, 0.15);
+}
+
+.mario-tab-yellow:hover:not([data-state="active"]):not(:disabled) {
+  background: rgba(255, 216, 0, 0.15);
+}
+
+.mario-tab-red[data-state="active"] {
+  background: var(--color-brand);
+  color: white;
+  border-color: var(--color-outline-black);
+  box-shadow: 0 3px 0 rgba(150, 0, 0, 0.5), inset 0 -2px 0 rgba(0, 0, 0, 0.2);
+}
+
+.mario-tab-red:hover:not([data-state="active"]):not(:disabled) {
+  background: rgba(229, 37, 33, 0.15);
+}
+
+.mario-tab-blue[data-state="active"] {
+  background: var(--color-super);
+  color: white;
+  border-color: var(--color-outline-black);
+  box-shadow: 0 3px 0 rgba(0, 50, 150, 0.5), inset 0 -2px 0 rgba(0, 0, 0, 0.2);
+}
+
+.mario-tab-blue:hover:not([data-state="active"]):not(:disabled) {
+  background: rgba(43, 78, 249, 0.15);
+}
+
+.mario-tab-gold[data-state="active"] {
+  background: var(--color-coin);
+  color: var(--color-outline-black);
+  border-color: var(--color-outline-black);
+  box-shadow: 0 3px 0 rgba(200, 130, 0, 0.5), inset 0 -2px 0 rgba(0, 0, 0, 0.15);
+}
+
+.mario-tab-gold:hover:not([data-state="active"]):not(:disabled) {
+  background: rgba(255, 185, 21, 0.15);
+}
+
+/* ---------------------------
+   ANIMATIONS & EFFECTS
+--------------------------- */
+
+/* Shimmer Animation */
 @keyframes shimmer {
-  0% {
-    transform: translateX(-100%);
-  }
-  100% {
-    transform: translateX(100%);
-  }
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
 }
 
 .animate-shimmer {
   animation: shimmer 2s infinite;
 }
 
-/* Modern live dot pulse animation */
+/* Live Pulse Animation */
 @keyframes live-pulse {
-  0%, 100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.6;
-    transform: scale(1.2);
-  }
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(1.2); }
 }
 
 .live-indicator {
   animation: live-pulse 2s ease-in-out infinite;
 }
 
-/* Smooth number change animation */
+/* Smooth Number Animation */
 @keyframes smooth-number {
-  0% {
-    opacity: 0.7;
-    transform: translateY(2px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  0% { opacity: 0.7; transform: translateY(2px); }
+  100% { opacity: 1; transform: translateY(0); }
 }
 
 .number-update {
   animation: smooth-number 0.3s ease-out;
 }
 
-/* ============================================================
-   MARIO TAB SYSTEM - Unified Mario-themed tabs
-   ============================================================ */
-
-/* Base Mario Tab List Container - Clean white background with bold outline */
-[data-slot="tabs-list"] {
-  background: white !important;
-  border: 4px solid var(--outline-black) !important;
-  box-shadow: 4px 4px 0 var(--outline-black) !important;
-  border-radius: 14px !important;
-  padding: 4px !important;
-  gap: 4px !important;
-  height: auto !important;
-  min-height: 48px !important;
-  width: 100% !important;
-  display: inline-flex !important;
-}
-
-/* Base Mario Tab Trigger - All tabs start with clean white */
-[data-slot="tabs-trigger"] {
-  background: white !important;
-  color: var(--outline-black) !important;
-  border: 3px solid transparent !important;
-  border-radius: 10px !important;
-  font-family: var(--font-radnika-next), "Radnika Next", "Inter", "Manrope", "Nunito Sans", "Rubik", "Segoe UI", "Roboto", "Helvetica Neue", "Arial", sans-serif !important;
-  font-weight: 700 !important;
-  font-size: 0.875rem !important;
-  padding: 0.75rem 1rem !important;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
-  position: relative !important;
-  min-height: 40px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  gap: 0.5rem !important;
-  cursor: pointer !important;
-}
-
-/* Mario Tab Trigger Hover State - Subtle yellow glow */
-[data-slot="tabs-trigger"]:hover:not([data-state="active"]):not(:disabled) {
-  background: rgba(255, 216, 0, 0.15) !important;
-  transform: translateY(-1px) !important;
-}
-
-/* Mario Tab Trigger Active State - Star Yellow Default with 3D press effect */
-[data-slot="tabs-trigger"][data-state="active"] {
-  background: var(--star-yellow) !important;
-  color: var(--outline-black) !important;
-  border-color: var(--outline-black) !important;
-  box-shadow: 0 2px 0 var(--outline-black), inset 0 -2px 0 rgba(0, 0, 0, 0.15) !important;
-  transform: translateY(2px) !important;
-}
-
-/* Buy Tab - Luigi Green with 3D effect */
-.tab-buy {
-  background: white !important;
-  color: var(--outline-black) !important;
-  border: 3px solid transparent !important;
-  border-radius: 10px !important;
-  font-weight: 700 !important;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
-}
-
-.tab-buy:hover:not([data-state="active"]):not(:disabled) {
-  background: rgba(67, 176, 71, 0.15) !important;
-  transform: translateY(-1px) !important;
-}
-
-.tab-buy[data-state="active"] {
-  background: var(--luigi-green) !important;
-  color: white !important;
-  border-color: var(--outline-black) !important;
-  box-shadow: 0 3px 0 rgba(0, 100, 0, 0.4), inset 0 -2px 0 rgba(0, 0, 0, 0.2) !important;
-  transform: translateY(2px) !important;
-}
-
-/* Sell Tab - Mario Red with 3D effect */
-.tab-sell {
-  background: white !important;
-  color: var(--outline-black) !important;
-  border: 3px solid transparent !important;
-  border-radius: 10px !important;
-  font-weight: 700 !important;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
-}
-
-.tab-sell:hover:not([data-state="active"]):not(:disabled) {
-  background: rgba(229, 37, 33, 0.15) !important;
-  transform: translateY(-1px) !important;
-}
-
-.tab-sell[data-state="active"] {
-  background: var(--mario-red) !important;
-  color: white !important;
-  border-color: var(--outline-black) !important;
-  box-shadow: 0 3px 0 rgba(150, 0, 0, 0.5), inset 0 -2px 0 rgba(0, 0, 0, 0.2) !important;
-  transform: translateY(2px) !important;
-}
-
-/* Disabled Tab State */
-[data-slot="tabs-trigger"]:disabled,
-.tab-buy:disabled,
-.tab-sell:disabled {
-  opacity: 0.4 !important;
-  cursor: not-allowed !important;
-  background: #e5e5e5 !important;
-  color: #999 !important;
-  pointer-events: none !important;
-  transform: none !important;
-}
-
-/* Tab Focus State - Accessibility */
-[data-slot="tabs-trigger"]:focus-visible {
-  outline: 3px solid var(--outline-black) !important;
-  outline-offset: 2px !important;
-  z-index: 10 !important;
-}
-
-/* Tab Trigger Fast Transitions */
-[role="tablist"] [role="tab"] {
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
-}
-
-/* ============================================================
-   MARIO TAB COLOR VARIANTS - Use these classes for colored tabs
-   ============================================================ */
-
-/* Green Tab (Luigi Green) - For new/success states */
-.mario-tab-green[data-state="active"] {
-  background: var(--luigi-green) !important;
-  color: white !important;
-  border-color: var(--outline-black) !important;
-  box-shadow: 0 3px 0 rgba(0, 100, 0, 0.4), inset 0 -2px 0 rgba(0, 0, 0, 0.2) !important;
-}
-
-.mario-tab-green:hover:not([data-state="active"]):not(:disabled) {
-  background: rgba(67, 176, 71, 0.15) !important;
-}
-
-/* Yellow Tab (Star Yellow) - For featured/highlighted states */
-.mario-tab-yellow[data-state="active"] {
-  background: var(--star-yellow) !important;
-  color: var(--outline-black) !important;
-  border-color: var(--outline-black) !important;
-  box-shadow: 0 3px 0 rgba(200, 150, 0, 0.4), inset 0 -2px 0 rgba(0, 0, 0, 0.15) !important;
-}
-
-.mario-tab-yellow:hover:not([data-state="active"]):not(:disabled) {
-  background: rgba(255, 216, 0, 0.15) !important;
-}
-
-/* Red Tab (Mario Red) - For important/warning states */
-.mario-tab-red[data-state="active"] {
-  background: var(--mario-red) !important;
-  color: white !important;
-  border-color: var(--outline-black) !important;
-  box-shadow: 0 3px 0 rgba(150, 0, 0, 0.5), inset 0 -2px 0 rgba(0, 0, 0, 0.2) !important;
-}
-
-.mario-tab-red:hover:not([data-state="active"]):not(:disabled) {
-  background: rgba(229, 37, 33, 0.15) !important;
-}
-
-/* Blue Tab (Super Blue) - For info/primary states */
-.mario-tab-blue[data-state="active"] {
-  background: var(--super-blue) !important;
-  color: white !important;
-  border-color: var(--outline-black) !important;
-  box-shadow: 0 3px 0 rgba(0, 50, 150, 0.5), inset 0 -2px 0 rgba(0, 0, 0, 0.2) !important;
-}
-
-.mario-tab-blue:hover:not([data-state="active"]):not(:disabled) {
-  background: rgba(43, 78, 249, 0.15) !important;
-}
-
-/* Gold Tab (Coin Gold) - For premium/special states */
-.mario-tab-gold[data-state="active"] {
-  background: var(--coin-gold) !important;
-  color: var(--outline-black) !important;
-  border-color: var(--outline-black) !important;
-  box-shadow: 0 3px 0 rgba(200, 130, 0, 0.5), inset 0 -2px 0 rgba(0, 0, 0, 0.15) !important;
-}
-
-.mario-tab-gold:hover:not([data-state="active"]):not(:disabled) {
-  background: rgba(255, 185, 21, 0.15) !important;
-}
-
-/* ============================================================
-   MARIO TAB VARIANT - Horizontal Border Style (for filter panels)
-   ============================================================ */
-
-/* Horizontal border tab list - no background, bottom border only */
-.mario-tabs-horizontal {
-  background: transparent !important;
-  border: none !important;
-  border-bottom: 4px solid var(--outline-black) !important;
-  box-shadow: none !important;
-  border-radius: 0 !important;
-  padding: 0 !important;
-  gap: 0 !important;
-}
-
-/* Horizontal tab triggers - border-right between tabs */
-.mario-tabs-horizontal [data-slot="tabs-trigger"] {
-  border-radius: 0 !important;
-  border-right: 4px solid var(--outline-black) !important;
-  border-top: none !important;
-  border-left: none !important;
-  border-bottom: none !important;
-  min-height: 56px !important;
-  padding: 1rem !important;
-}
-
-.mario-tabs-horizontal [data-slot="tabs-trigger"]:last-child {
-  border-right: none !important;
-}
-
-.mario-tabs-horizontal [data-slot="tabs-trigger"]:hover:not([data-state="active"]):not(:disabled) {
-  transform: none !important;
-}
-
-.mario-tabs-horizontal [data-slot="tabs-trigger"][data-state="active"] {
-  transform: none !important;
-  box-shadow: none !important;
-  border-bottom: none !important;
-}
-
-/* ============================================================
-   DATA-HEAVY PAGE ENHANCEMENTS - 2025 STYLE
-   ============================================================ */
-
-/* Mario-style data display cards - bold black outline with deep shadow */
-.data-card {
-  background: var(--card);
-  border: 4px solid var(--outline-black);
-  border-radius: 16px;
-  padding: 1.5rem;
-  box-shadow: 6px 6px 0 var(--outline-black);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.data-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 8px 8px 0 var(--outline-black);
-}
-
-/* Stat cards with Mario-style design - bold black outline with deep shadow */
-.stat-card {
-  background: var(--card);
-  border: 4px solid var(--outline-black);
-  border-radius: 16px;
-  padding: 1.5rem;
-  box-shadow: 6px 6px 0 var(--outline-black);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.stat-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 8px 8px 0 var(--outline-black);
-}
-
-/* Leaderboard row styles - Mario theme with bold outline and deep shadow */
-.leaderboard-row {
-  background: var(--card);
-  border: 4px solid var(--outline-black);
-  border-radius: 16px;
-  padding: 1rem 1.25rem;
-  box-shadow: 6px 6px 0 var(--outline-black);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  position: relative;
-}
-
-.leaderboard-row:hover {
-  transform: translateY(-2px);
-  box-shadow: 8px 8px 0 var(--outline-black);
-}
-
-.leaderboard-row.user-row {
-  background: var(--star-yellow);
-  border: 4px solid var(--outline-black);
-}
-
-/* Rank badges */
-.rank-badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 2.5rem;
-  height: 2.5rem;
-  border-radius: var(--radius-md);
-  font-weight: 700;
-  font-size: 1.125rem;
-  transition: all 0.3s ease;
-}
-
-.rank-badge.rank-1 {
-  background: linear-gradient(135deg, #FFD700, #FFA500);
-  color: #000;
-  box-shadow: 4px 4px 0 var(--outline-black);
-  border: 3px solid var(--outline-black);
-  animation: pulse-gold 2s infinite;
-}
-
-.rank-badge.rank-2 {
-  background: linear-gradient(135deg, #C0C0C0, #A8A8A8);
-  color: #000;
-  box-shadow: 4px 4px 0 var(--outline-black);
-  border: 3px solid var(--outline-black);
-}
-
-.rank-badge.rank-3 {
-  background: linear-gradient(135deg, #CD7F32, #B87333);
-  color: #fff;
-  box-shadow: 4px 4px 0 var(--outline-black);
-  border: 3px solid var(--outline-black);
-}
-
-@keyframes pulse-gold {
-  0%, 100% {
-    box-shadow: 4px 4px 0 var(--outline-black);
-    transform: scale(1);
-  }
-  50% {
-    box-shadow: 5px 5px 0 var(--outline-black);
-    transform: scale(1.05);
-  }
-}
-
-/* Progress bars - modern style */
-.progress-bar {
-  height: 0.5rem;
-  background: var(--muted);
-  border-radius: var(--radius-sm);
-  overflow: hidden;
-  position: relative;
+/* Level Up Animation */
+@keyframes level-up-pop {
+  0% { transform: scale(0) rotate(0deg); opacity: 0; }
+  50% { transform: scale(1.2) rotate(180deg); }
+  100% { transform: scale(1) rotate(360deg); opacity: 1; }
 }
 
-.progress-bar-fill {
-  height: 100%;
-  background: linear-gradient(90deg, var(--primary), var(--accent));
-  border-radius: var(--radius-sm);
-  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
-  overflow: hidden;
+.level-up-animation {
+  animation: level-up-pop 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
 
-.progress-bar-fill::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.3),
-    transparent
-  );
-  animation: shimmer 2s infinite;
+/* Coin Bounce Animation */
+@keyframes coin-bounce {
+  0%, 100% { transform: translateY(0) rotateY(0deg); }
+  50% { transform: translateY(-10px) rotateY(180deg); }
 }
 
-/* Rank animation */
-@keyframes rank-up {
-  0% {
-    transform: translateY(4px);
-    opacity: 0;
-  }
-  100% {
-    transform: translateY(0);
-    opacity: 1;
-  }
+.coin-bounce {
+  animation: coin-bounce 1s ease-in-out infinite;
 }
 
-.rank-change-up {
-  animation: rank-up 0.5s ease-out;
-  color: var(--profit);
+/* Pulse Ring Animation */
+@keyframes pulse-ring {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+  50% { box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
 }
 
-.rank-change-down {
-  animation: rank-up 0.5s ease-out reverse;
-  color: var(--loss);
+.animate-pulse-ring {
+  animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
-/* Info cards for rewards page - bold black outline with deep shadow */
-.info-card {
-  background: var(--card);
-  border: 4px solid var(--outline-black);
-  border-radius: 16px;
-  padding: 1.5rem;
-  box-shadow: 6px 6px 0 var(--outline-black);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.info-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 8px 8px 0 var(--outline-black);
-}
-
-/* Rewards tier card - bold black outline with deep shadow and color variants */
-.tier-card {
-  background: var(--card);
-  border: 4px solid var(--outline-black);
-  border-radius: 16px;
-  padding: 1.5rem;
-  position: relative;
-  box-shadow: 6px 6px 0 var(--outline-black);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.tier-card.bronze {
-  background: color-mix(in srgb, #CD7F32 5%, var(--card));
-}
-
-.tier-card.silver {
-  background: color-mix(in srgb, #C0C0C0 5%, var(--card));
-}
-
-.tier-card.gold {
-  background: color-mix(in srgb, #FFD700 5%, var(--card));
-}
-
-.tier-card.platinum {
-  background: color-mix(in srgb, #E5E4E2 10%, var(--card));
-}
-
-.tier-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 8px 8px 0 var(--outline-black);
-}
-
-/* ============================================================
-   VIEW TRANSITIONS API - 2025 MODERNIZATION
-   ============================================================ */
-
-/*
- * Smooth, native-feeling page transitions using the View Transitions API.
- * Supported in Chrome 111+, Safari 18+, Firefox 129+
- * Fallback: Instant navigation (no animation)
- */
-
-/* Customize the default page transition */
-::view-transition-old(root),
-::view-transition-new(root) {
-  animation-duration: 0.3s;
-  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* Fade out the old page */
-::view-transition-old(root) {
-  animation-name: fade-out-transition;
-}
-
-/* Fade in the new page */
-::view-transition-new(root) {
-  animation-name: fade-in-transition;
-}
-
-@keyframes fade-out-transition {
-  from {
-    opacity: 1;
-  }
-  to {
-    opacity: 0;
-  }
-}
-
-@keyframes fade-in-transition {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-/* Accessibility: Respect reduced motion preference */
-@media (prefers-reduced-motion: reduce) {
-  ::view-transition-group(*),
-  ::view-transition-old(*),
-  ::view-transition-new(*) {
-    animation: none !important;
-    animation-duration: 0.01ms !important;
-  }
-}
-
-/* ============================================================
-   SCROLL-DRIVEN ANIMATIONS - 2025 MODERNIZATION
-   ============================================================ */
-
-/*
- * GPU-accelerated scroll animations using the Scroll-driven Animations API.
- * Supported in Chrome 115+, Edge 115+, Safari 17.5+ (partial)
- * Fallback: Static elements (no animation)
- */
-
-/* Utility: Fade in element as it enters viewport */
-@keyframes fade-in-up {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.animate-on-scroll {
-  animation: fade-in-up linear;
-  animation-timeline: view();
-  animation-range: entry 0% cover 40%;
-}
-
-/* Utility: Fade in with delay for staggered effects */
-.animate-on-scroll-delay {
-  animation: fade-in-up linear;
-  animation-timeline: view();
-  animation-range: entry 10% cover 50%;
-}
-
-/* Utility: Subtle parallax effect */
-@keyframes parallax-slow {
-  to {
-    transform: translateY(-15%);
-  }
-}
-
-.parallax-scroll {
-  animation: parallax-slow linear;
-  animation-timeline: scroll();
-}
-
-/* Utility: Scale up on scroll */
-@keyframes scale-in {
-  from {
-    opacity: 0;
-    transform: scale(0.9);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-.animate-scale-in {
-  animation: scale-in linear;
-  animation-timeline: view();
-  animation-range: entry 0% cover 30%;
-}
-
-/* Accessibility: Disable scroll animations if user prefers reduced motion */
-@media (prefers-reduced-motion: reduce) {
-  .animate-on-scroll,
-  .animate-on-scroll-delay,
-  .parallax-scroll,
-  .animate-scale-in {
-    animation: none !important;
-    opacity: 1 !important;
-    transform: none !important;
-  }
-}
-
-/* ============================================================
-   PERFORMANCE OPTIMIZATIONS - TARGETED FIXES
-   ============================================================ */
-
-/*
- * Targeted performance improvements without broad selectors.
- * Only use will-change for known animations, not globally.
- */
-
-/* Utility: Fast transitions for specific elements */
-.transition-fast {
-  transition-duration: 0.15s;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* Utility: Optimized card hover (use transform + opacity only) */
-.card-hover-optimized {
-  transition-property: transform, opacity, box-shadow;
-  transition-duration: 0.2s;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.card-hover-optimized:hover {
-  transform: translateY(-2px);
-}
-
-/* Fix tab transitions - faster feel */
-[role="tablist"] [role="tab"] {
-  transition-duration: 0.15s;
-  transition-property: background-color, border-color, color;
-}
-
-/* ============================================================
-   1UP SOL - MARIO THEME STYLES
-   ============================================================ */
-
-/* Mario Color Variables - MOVED TO theme.css for consolidation */
-
-/* ============================================================
-   MARIO THEME UTILITY CLASSES - CONSISTENCY ACROSS ALL PAGES
-   ============================================================ */
-
-/* Standard Mario Page Background - Use on ALL pages */
-.mario-page-bg {
-  background: linear-gradient(to bottom right, var(--background), var(--background), hsl(var(--muted) / 0.2));
-}
-
-/* Standard Mario Card - Use for ALL cards */
-.mario-card-standard {
-  background: var(--card);
-  border: 4px solid var(--outline-black);
-  border-radius: 16px;
-  padding: 1.5rem;
-  box-shadow: 6px 6px 0 var(--outline-black);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.mario-card-standard:hover {
-  transform: translateY(-2px);
-  box-shadow: 8px 8px 0 var(--outline-black);
-}
-
-/* Standard Mario Button - Use for ALL buttons */
-.mario-btn-standard {
-  background: var(--star-yellow);
-  color: var(--outline-black);
-  border: 3px solid var(--outline-black);
-  border-radius: 8px;
-  font-family: var(--font-radnika-next), "Radnika Next", "Inter", "Manrope", "Nunito Sans", "Rubik", "Segoe UI", "Roboto", "Helvetica Neue", "Arial", sans-serif;
-  padding: 0.6rem 1rem;
-  box-shadow: 3px 3px 0 var(--outline-black);
-  transition: transform 0.1s ease, box-shadow 0.1s ease;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-
-.mario-btn-standard:hover {
-  transform: translateY(-2px);
-  box-shadow: 4px 4px 0 var(--outline-black);
-}
-
-.mario-btn-standard:active {
-  transform: translateY(1px);
-  box-shadow: 2px 2px 0 var(--outline-black);
-}
-
-/* Standard Mario Header Card - Use for page headers */
-.mario-header-card {
-  background: var(--sky-blue);
-  background: color-mix(in srgb, var(--sky-blue) 20%, transparent);
-  border: 4px solid var(--outline-black);
-  border-radius: 16px;
-  padding: 1.5rem;
-  box-shadow: 8px 8px 0 var(--outline-black);
-  position: relative;
-  overflow: hidden;
-}
-
-/* Standard Mario Section Card - Use for content sections */
-.mario-section-card {
-  background: var(--card);
-  border: 4px solid var(--outline-black);
-  border-radius: 16px;
-  padding: 1.5rem;
-  box-shadow: 6px 6px 0 var(--outline-black);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.mario-section-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 8px 8px 0 var(--outline-black);
-}
-
-/* Standard Mario Icon Container - Use for icon backgrounds */
-.mario-icon-container {
-  background: var(--mario-red);
-  border: 4px solid var(--outline-black);
-  border-radius: 8px;
-  padding: 0.75rem;
-  box-shadow: 4px 4px 0 var(--outline-black);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* Standard Mario Title - Use for page titles */
-.mario-title-standard {
-  font-family: var(--font-radnika-next), "Radnika Next", "Inter", "Manrope", "Nunito Sans", "Rubik", "Segoe UI", "Roboto", "Helvetica Neue", "Arial", sans-serif;
-  font-size: 1.875rem;
-  font-weight: 700;
-  color: var(--outline-black);
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-
-/* Standard Mario Subtitle - Use for page subtitles */
-.mario-subtitle-standard {
-  font-size: 0.875rem;
-  color: var(--muted-foreground);
-  font-weight: 600;
-  margin-top: 0.25rem;
-}
+/* ---------------------------
+   UTILITY CLASSES
+--------------------------- */
 
-/* Mario Font Base Class */
+/* Mario Font Base */
 .mario-font {
   font-family: var(--font-radnika-next), "Radnika Next", "Inter", "Manrope", "Nunito Sans", "Rubik", "Segoe UI", "Roboto", "Helvetica Neue", "Arial", sans-serif;
   letter-spacing: 1px;
   text-transform: uppercase;
 }
 
-/* Mario Title/Headline Style - Bold with outline and shadow */
+/* Mario Title */
 .mario-title {
   font-family: var(--font-radnika-next), "Radnika Next", "Inter", "Manrope", "Nunito Sans", "Rubik", "Segoe UI", "Roboto", "Helvetica Neue", "Arial", sans-serif;
-  color: var(--mario-red);
-  -webkit-text-stroke: 2px var(--outline-black);
-  text-shadow:
-    3px 3px 0 var(--outline-black),
-    6px 6px 0 rgba(0,0,0,0.25);
+  color: var(--color-brand);
+  -webkit-text-stroke: 2px var(--color-outline-black);
+  text-shadow: 3px 3px 0 var(--color-outline-black), 6px 6px 0 rgba(0,0,0,0.25);
   letter-spacing: 2px;
   text-transform: uppercase;
 }
 
-/* Mario Button Style - 3D with bold outline */
-.mario-btn {
-  background: var(--star-yellow);
-  color: var(--outline-black);
-  border: 3px solid var(--outline-black);
-  border-radius: 8px;
+/* Mario Header Text */
+.mario-header-text {
   font-family: var(--font-radnika-next), "Radnika Next", "Inter", "Manrope", "Nunito Sans", "Rubik", "Segoe UI", "Roboto", "Helvetica Neue", "Arial", sans-serif;
-  padding: 0.6rem 1rem;
-  box-shadow: 3px 3px 0 var(--outline-black);
-  transition: transform 0.1s ease, box-shadow 0.1s ease;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-
-.mario-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 4px 4px 0 var(--outline-black);
-}
-
-.mario-btn:active {
-  transform: translateY(1px);
-  box-shadow: 2px 2px 0 var(--outline-black);
-}
-
-/* Mario Button Variants */
-.mario-btn-red {
-  background: var(--mario-red);
-  color: #ffffff;
-  border: 3px solid var(--outline-black);
-  border-radius: 8px;
-  font-family: var(--font-radnika-next), "Radnika Next", "Inter", "Manrope", "Nunito Sans", "Rubik", "Segoe UI", "Roboto", "Helvetica Neue", "Arial", sans-serif;
-  padding: 0.6rem 1rem;
-  box-shadow: 3px 3px 0 var(--outline-black);
-  transition: transform 0.1s ease, box-shadow 0.1s ease;
+  background: linear-gradient(90deg, var(--color-super), var(--color-brand), var(--color-star), var(--color-luigi));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  -webkit-text-stroke: 2px var(--color-outline-black);
+  filter: drop-shadow(3px 3px 0 var(--color-outline-black));
+  letter-spacing: 2px;
   text-transform: uppercase;
 }
 
-.mario-btn-red:hover {
-  transform: translateY(-2px);
-  box-shadow: 4px 4px 0 var(--outline-black);
-}
-
-.mario-btn-green {
-  background: var(--luigi-green);
-  color: #ffffff;
-  border: 3px solid var(--outline-black);
-  border-radius: 8px;
-  font-family: var(--font-radnika-next), "Radnika Next", "Inter", "Manrope", "Nunito Sans", "Rubik", "Segoe UI", "Roboto", "Helvetica Neue", "Arial", sans-serif;
-  padding: 0.6rem 1rem;
-  box-shadow: 3px 3px 0 var(--outline-black);
-  transition: transform 0.1s ease, box-shadow 0.1s ease;
-  text-transform: uppercase;
-}
-
-.mario-btn-green:hover {
-  transform: translateY(-2px);
-  box-shadow: 4px 4px 0 var(--outline-black);
-}
-
-.mario-btn-blue {
-  background: var(--super-blue);
-  color: #ffffff;
-  border: 3px solid var(--outline-black);
-  border-radius: 8px;
-  font-family: var(--font-radnika-next), "Radnika Next", "Inter", "Manrope", "Nunito Sans", "Rubik", "Segoe UI", "Roboto", "Helvetica Neue", "Arial", sans-serif;
-  padding: 0.6rem 1rem;
-  box-shadow: 3px 3px 0 var(--outline-black);
-  transition: transform 0.1s ease, box-shadow 0.1s ease;
-  text-transform: uppercase;
-}
-
-.mario-btn-blue:hover {
-  transform: translateY(-2px);
-  box-shadow: 4px 4px 0 var(--outline-black);
-}
-
-/* Mario Card Style - Bold black outline with deep drop shadow */
-.mario-card {
-  background: var(--card);
-  border: 4px solid var(--outline-black);
-  border-radius: 16px;
-  padding: 1.5rem;
-  box-shadow: 6px 6px 0 var(--outline-black);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.mario-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 8px 8px 0 var(--outline-black);
-}
-
-/* Mario Badge/Tag Style */
+/* Mario Badge */
 .mario-badge {
   display: inline-flex;
   align-items: center;
   padding: 0.25rem 0.75rem;
-  background: var(--coin-gold);
-  border: 2px solid var(--outline-black);
+  background: var(--color-coin);
+  border: 2px solid var(--color-outline-black);
   border-radius: 20px;
   font-family: var(--font-radnika-next), "Radnika Next", "Inter", "Manrope", "Nunito Sans", "Rubik", "Segoe UI", "Roboto", "Helvetica Neue", "Arial", sans-serif;
   font-size: 0.875rem;
-  color: var(--outline-black);
-  box-shadow: 2px 2px 0 var(--outline-black);
+  color: var(--color-outline-black);
+  box-shadow: 2px 2px 0 var(--color-outline-black);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
-/* Mario Header Text - Colorful with outline */
-.mario-header-text {
+/* Level Badge */
+.level-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 3rem;
+  height: 3rem;
+  background: var(--color-star);
+  border: 3px solid var(--color-outline-black);
+  border-radius: 50%;
   font-family: var(--font-radnika-next), "Radnika Next", "Inter", "Manrope", "Nunito Sans", "Rubik", "Segoe UI", "Roboto", "Helvetica Neue", "Arial", sans-serif;
-  background: linear-gradient(90deg,
-    var(--super-blue),
-    var(--mario-red),
-    var(--star-yellow),
-    var(--luigi-green)
-  );
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  -webkit-text-stroke: 2px var(--outline-black);
-  filter: drop-shadow(3px 3px 0 var(--outline-black));
-  letter-spacing: 2px;
-  text-transform: uppercase;
+  font-size: 1.25rem;
+  color: var(--color-outline-black);
+  box-shadow: 3px 3px 0 var(--color-outline-black);
+  transition: all var(--transition);
 }
 
-/* Update Buy/Sell buttons with Mario theme */
-.btn-buy {
-  position: relative;
-  background: var(--luigi-green) !important;
-  color: #ffffff;
-  border: 3px solid var(--outline-black) !important;
-  box-shadow: 0 0 20px rgba(67, 176, 71, 0.3), 3px 3px 0 var(--outline-black);
-  transition: all 0.2s ease;
-  font-family: var(--font-radnika-next), "Radnika Next", "Inter", "Manrope", "Nunito Sans", "Rubik", "Segoe UI", "Roboto", "Helvetica Neue", "Arial", sans-serif;
-  text-transform: uppercase;
-  letter-spacing: 1px;
+.level-badge:hover {
+  transform: rotate(5deg) scale(1.1);
+  box-shadow: 4px 4px 0 var(--color-outline-black);
 }
 
-.btn-buy:hover:not(:disabled) {
-  background: var(--luigi-green) !important;
-  box-shadow: 0 0 30px rgba(67, 176, 71, 0.5), 4px 4px 0 var(--outline-black);
-  transform: translateY(-2px);
-}
-
-.btn-buy:active:not(:disabled) {
-  transform: translateY(1px);
-  box-shadow: 0 0 15px rgba(67, 176, 71, 0.4), 2px 2px 0 var(--outline-black);
-}
-
-.btn-sell {
-  position: relative;
-  background: var(--mario-red) !important;
-  color: #ffffff;
-  border: 3px solid var(--outline-black) !important;
-  box-shadow: 0 0 20px rgba(229, 37, 33, 0.3), 3px 3px 0 var(--outline-black);
-  transition: all 0.2s ease;
-  font-family: var(--font-radnika-next), "Radnika Next", "Inter", "Manrope", "Nunito Sans", "Rubik", "Segoe UI", "Roboto", "Helvetica Neue", "Arial", sans-serif;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-
-.btn-sell:hover:not(:disabled) {
-  background: var(--mario-red) !important;
-  box-shadow: 0 0 30px rgba(229, 37, 33, 0.5), 4px 4px 0 var(--outline-black);
-  transform: translateY(-2px);
-}
-
-.btn-sell:active:not(:disabled) {
-  transform: translateY(1px);
-  box-shadow: 0 0 15px rgba(229, 37, 33, 0.4), 2px 2px 0 var(--outline-black);
-}
-
-/* XP Progress Bar - Mario Coin Style */
+/* XP Progress Bar */
 .xp-progress-bar {
-  background: var(--brick-brown);
-  border: 3px solid var(--outline-black);
+  background: var(--color-brick);
+  border: 3px solid var(--color-outline-black);
   border-radius: 20px;
   overflow: hidden;
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .xp-progress-fill {
-  background: linear-gradient(90deg, var(--coin-gold), var(--star-yellow));
+  background: linear-gradient(90deg, var(--color-coin), var(--color-star));
   height: 100%;
   transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
@@ -1730,147 +517,78 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.3),
-    transparent
-  );
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
   animation: shimmer 2s infinite;
 }
 
-/* Level Badge - Mario Power-up Style */
-.level-badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 3rem;
-  height: 3rem;
-  background: var(--star-yellow);
-  border: 3px solid var(--outline-black);
-  border-radius: 50%;
-  font-family: var(--font-radnika-next), "Radnika Next", "Inter", "Manrope", "Nunito Sans", "Rubik", "Segoe UI", "Roboto", "Helvetica Neue", "Arial", sans-serif;
-  font-size: 1.25rem;
-  color: var(--outline-black);
-  box-shadow: 3px 3px 0 var(--outline-black);
-  transition: all 0.2s ease;
-}
-
-.level-badge:hover {
-  transform: rotate(5deg) scale(1.1);
-  box-shadow: 4px 4px 0 var(--outline-black);
-}
-
-/* Level-up Animation - Coin Pop */
-@keyframes level-up-pop {
-  0% {
-    transform: scale(0) rotate(0deg);
-    opacity: 0;
-  }
-  50% {
-    transform: scale(1.2) rotate(180deg);
-  }
-  100% {
-    transform: scale(1) rotate(360deg);
-    opacity: 1;
-  }
-}
-
-.level-up-animation {
-  animation: level-up-pop 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-}
-
-/* Coin Bounce Animation */
-@keyframes coin-bounce {
-  0%, 100% {
-    transform: translateY(0) rotateY(0deg);
-  }
-  50% {
-    transform: translateY(-10px) rotateY(180deg);
-  }
-}
-
-.coin-bounce {
-  animation: coin-bounce 1s ease-in-out infinite;
-}
-
-/* Pulse Ring Animation for Real Trading Zero Balance Alert */
-@keyframes pulse-ring {
-  0%, 100% {
-    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
-  }
-  50% {
-    box-shadow: 0 0 0 8px rgba(239, 68, 68, 0);
-  }
-}
-
-.animate-pulse-ring {
-  animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-
-/* ----------------------------
-   VIEWPORT-AWARE UTILITIES (2025)
-   - Modern dvh/svh/lvh units with vh fallback
-   - Ensures proper layout on mobile browsers
---------------------------- */
-@layer utilities {
-  /* Dynamic Viewport Height (dvh) - Best for scrollable layouts */
-  .h-dvh-screen {
-    height: 100vh; /* Fallback for older browsers */
-    height: 100dvh; /* Modern dynamic viewport height */
-  }
-
-  .min-h-dvh-screen {
-    min-height: 100vh; /* Fallback */
-    min-height: 100dvh; /* Modern */
-  }
-
-  .max-h-dvh-screen {
-    max-height: 100vh; /* Fallback */
-    max-height: 100dvh; /* Modern */
-  }
-}
-
-/* ----------------------------
-   CHAT-SPECIFIC ENHANCEMENTS
-   - Custom scrollbar styling
-   - Message animations
-   - Hover effects
+/* ---------------------------
+   ACCESSIBILITY & PERFORMANCE
 --------------------------- */
 
-/* Custom scrollbar for chat */
+/* Respect reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  
+  .animate-shimmer,
+  .live-indicator,
+  .number-update,
+  .level-up-animation,
+  .coin-bounce,
+  .animate-pulse-ring {
+    animation: none !important;
+  }
+}
+
+/* Scrollbar Styling */
 .chat-scrollbar::-webkit-scrollbar {
   width: 8px;
 }
 
 .chat-scrollbar::-webkit-scrollbar-track {
   background: var(--background);
-  border-left: 2px solid var(--outline-black);
+  border-left: 2px solid var(--color-outline-black);
 }
 
 .chat-scrollbar::-webkit-scrollbar-thumb {
-  background: var(--luigi-green);
-  border: 2px solid var(--outline-black);
+  background: var(--color-luigi);
+  border: 2px solid var(--color-outline-black);
   border-radius: 4px;
 }
 
 .chat-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: var(--pipe-green);
+  background: var(--color-pipe);
 }
 
-/* Message fade-in animation */
+/* Message Animation */
 @keyframes messageSlideIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .chat-message-enter {
   animation: messageSlideIn 0.3s ease-out;
+}
+
+/* Viewport Utilities */
+@layer utilities {
+  .h-dvh-screen {
+    height: 100vh;
+    height: 100dvh;
+  }
+  
+  .min-h-dvh-screen {
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
+  
+  .max-h-dvh-screen {
+    max-height: 100vh;
+    max-height: 100dvh;
+  }
 }
 
