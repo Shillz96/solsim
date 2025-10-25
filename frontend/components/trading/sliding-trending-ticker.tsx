@@ -7,8 +7,10 @@ import { Button } from "@/components/ui/button"
 import { AnimatedNumber } from "@/components/ui/animated-number"
 import { TokenLogo } from "@/components/ui/token-logo"
 import { useTrendingTokens } from "@/hooks/use-react-query-hooks"
+import * as api from "@/lib/api"
 import { cn } from "@/lib/utils"
 import { useState, useEffect } from "react"
+import { useQuery } from "@tanstack/react-query"
 import "@/styles/ticker.css"
 
 /**
@@ -26,7 +28,12 @@ import "@/styles/ticker.css"
  * 2025 Design: Gamified ticker reminiscent of classic Mario level displays
  */
 export function SlidingTrendingTicker() {
-  const { data: trendingTokens, isLoading, error, refetch } = useTrendingTokens(20)
+  const { data: trendingTokens, isLoading, error, refetch } = useQuery({
+    queryKey: ['trending-ticker'],
+    queryFn: () => api.getTrendingTokens().then(tokens => tokens.slice(0, 20)),
+    staleTime: 1000 * 60 * 2, // 2 minutes
+    refetchInterval: 30000, // Refresh every 30 seconds
+  })
   const router = useRouter()
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [isVisible, setIsVisible] = useState(true)

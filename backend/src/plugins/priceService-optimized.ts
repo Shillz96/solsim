@@ -602,8 +602,15 @@ class OptimizedPriceService extends EventEmitter {
 
   private async updateSolPrice() {
     try {
+      // Try CoinGecko first
       const response = await fetch(
-        "https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd&include_24hr_change=true"
+        "https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd&include_24hr_change=true",
+        { 
+          signal: AbortSignal.timeout(5000),
+          headers: {
+            'User-Agent': 'VirtualSol/1.0'
+          }
+        }
       );
 
       if (!response.ok) {
@@ -634,9 +641,61 @@ class OptimizedPriceService extends EventEmitter {
         };
 
         await this.updatePrice(solTick);
+        return;
       }
     } catch (error) {
-      logger.error({ error }, "Failed to update SOL price");
+      logger.warn({ error }, "CoinGecko SOL price fetch failed, trying fallback");
+    }
+
+    // Fallback to Jupiter API
+    try {
+      const response = await fetch(
+        "https://price.jup.ag/v6/price?ids=So11111111111111111111111111111111111111112",
+        { 
+          signal: AbortSignal.timeout(5000),
+          headers: {
+            'Accept': 'application/json',
+            'User-Agent': 'VirtualSol/1.0'
+          }
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.data && data.data['So11111111111111111111111111111111111111112']?.price) {
+          const oldPrice = this.solPriceUsd;
+          this.solPriceUsd = parseFloat(data.data['So11111111111111111111111111111111111111112'].price);
+
+          logger.info({ oldPrice, newPrice: this.solPriceUsd }, "SOL price updated from Jupiter fallback");
+
+          // Update PumpPortal WebSocket with new SOL price
+          if (this.pumpPortalWs) {
+            this.pumpPortalWs.updateSolPrice(this.solPriceUsd);
+          }
+
+          const solTick: PriceTick = {
+            mint: "So11111111111111111111111111111111111111112",
+            priceUsd: this.solPriceUsd,
+            priceSol: 1,
+            solUsd: this.solPriceUsd,
+            timestamp: Date.now(),
+            source: "jupiter-fallback"
+          };
+
+          await this.updatePrice(solTick);
+          return;
+        }
+      }
+    } catch (error) {
+      logger.warn({ error }, "Jupiter SOL price fallback failed");
+    }
+
+    // Final fallback: use cached price or default
+    if (this.solPriceUsd <= 0) {
+      this.solPriceUsd = 200; // Default SOL price if all sources fail
+      logger.warn({ fallbackPrice: this.solPriceUsd }, "Using fallback SOL price");
+    } else {
+      logger.warn({ currentPrice: this.solPriceUsd }, "Could not fetch SOL price, using fallback");
     }
   }
 
