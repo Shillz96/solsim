@@ -94,10 +94,10 @@ export function WalletBalanceDisplay({
     if (isPaperMode) {
       return {
         icon: Sparkles,
-        label: 'Virtual',
+        label: '', // Removed "Virtual" to save space
         balance: isLoadingBalance ? 0 : virtualSolBalance,
         color: 'luigi-green',
-        badge: 'PRACTICE',
+        badge: '', // Removed "PRACTICE" to save space
         isLoading: isLoadingBalance,
       };
     }
@@ -209,10 +209,12 @@ export function WalletBalanceDisplay({
         "h-8 md:h-9 px-2 md:px-2.5 rounded-md flex items-center gap-1.5 md:gap-2 tabular-nums cursor-pointer",
         variant === "minimal"
           ? [
-              // Minimal: ensure visibility with white background and better contrast
-              "border border-[var(--color-border)] bg-[var(--card)] text-foreground shadow-sm",
-              // Subtle hover with better visibility
-              "hover:bg-[color-mix(in_oklab,white,black_5%)] hover:shadow-md transition-all"
+              // Minimal: Mario-themed with glow effect
+              "border-3 border-[var(--outline-black)] bg-[var(--star-yellow)] text-[var(--outline-black)]",
+              "shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)]",
+              // Add a subtle glow for emphasis
+              "ring-2 ring-[var(--coin-yellow)]/30",
+              "hover:bg-[var(--star-yellow)]/90 hover:-translate-y-[1px] transition-all duration-150"
             ]
           : [
               // keep your current colorful card look for non-header uses
@@ -225,32 +227,36 @@ export function WalletBalanceDisplay({
         className
       )}
     >
-      {/* left: tiny icon + label */}
-      <div className="flex items-center gap-1 md:gap-1.5 min-w-0">
-        <Icon
-          className="w-3.5 md:w-4 h-3.5 md:h-4 opacity-80 flex-shrink-0"
-          aria-hidden="false"
-          aria-label={`${config.label} balance`}
-        />
-        <span className="text-[10px] md:text-[11px] leading-none truncate opacity-80 max-w-[60px] md:max-w-none">
-          {config.label}
-        </span>
-      </div>
+      {/* left: tiny icon (only if label exists) */}
+      {config.label && (
+        <div className="flex items-center gap-1 md:gap-1.5 min-w-0">
+          <Icon
+            className="w-3.5 md:w-4 h-3.5 md:h-4 opacity-80 flex-shrink-0"
+            aria-hidden="false"
+            aria-label={`${config.label} balance`}
+          />
+          <span className="text-[10px] md:text-[11px] leading-none truncate opacity-80 max-w-[60px] md:max-w-none">
+            {config.label}
+          </span>
+        </div>
+      )}
 
       {/* middle: strong number */}
       <div className="flex items-baseline gap-0.5 md:gap-1 ml-0.5 md:ml-1">
         {config.isLoading ? (
           <span className="text-xs md:text-sm font-bold leading-none opacity-50">--</span>
         ) : (
-          <AnimatedNumber value={config.balance} decimals={2} className="text-xs md:text-sm font-bold leading-none" />
+          <AnimatedNumber value={config.balance} decimals={2} className="text-xs md:text-sm font-extrabold leading-none" />
         )}
-        <span className="text-[10px] md:text-[11px] leading-none opacity-70">SOL</span>
+        <span className="text-[10px] md:text-[11px] leading-none font-bold uppercase">SOL</span>
       </div>
 
-      {/* right: micro badge */}
-      <span className="ml-0.5 md:ml-1 text-[9px] md:text-[10px] leading-none px-1 py-[2px] rounded border uppercase tracking-wide opacity-80">
-        {config.badge}
-      </span>
+      {/* right: micro badge (only if badge exists) */}
+      {config.badge && (
+        <span className="ml-0.5 md:ml-1 text-[9px] md:text-[10px] leading-none px-1 py-[2px] rounded border uppercase tracking-wide opacity-80">
+          {config.badge}
+        </span>
+      )}
 
       {/* Status indicator for accessibility */}
       {config.badge === 'FUND' && (

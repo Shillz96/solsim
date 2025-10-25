@@ -121,7 +121,7 @@ export function SearchBar() {
   }, [isSearchOpen, searchResults.length, selectedResultIndex, handleTokenSelect])
 
   return (
-    <div className="hidden md:flex flex-1 max-w-[400px] lg:max-w-[520px] mx-2 lg:mx-4">
+    <div className="hidden md:flex flex-1 max-w-[320px] lg:max-w-[400px] mx-2 lg:mx-3">
       <Popover open={isSearchOpen} onOpenChange={setIsSearchOpen}>
         <PopoverTrigger asChild>
           <div className="relative w-full">

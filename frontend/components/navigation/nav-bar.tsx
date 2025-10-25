@@ -108,17 +108,17 @@ export function NavBar() {
           {/* Desktop Navigation - Centered */}
           <DesktopNavigation />
 
-          {/* Enhanced Search Bar */}
+          {/* Hourly Rewards Timer - Left of search */}
+          <HourlyRewardTimer />
+
+          {/* Enhanced Search Bar - Narrower */}
           <SearchBar />
 
           {/* Right Side Actions */}
           <div className="flex items-center gap-3 flex-shrink-0">
-            {/* Hourly Rewards Timer - Always visible */}
-            <HourlyRewardTimer />
-
             {isAuthenticated ? (
               <>
-                {/* Minimal balance pill with constrained width on mobile */}
+                {/* Minimal balance pill with Mario glow effect */}
                 <WalletBalanceDisplay variant="minimal" showDropdown className="h-9 max-w-[140px] sm:max-w-none" />
 
                 {/* New compact Profile Menu with integrated notifications */}
