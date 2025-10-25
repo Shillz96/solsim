@@ -36,40 +36,10 @@ async function getJupiterToken(mint: string, useAllList: boolean = false): Promi
     return cache.get(mint) || null;
   }
 
-  // Fetch and cache the token list
-  try {
-    const url = useAllList 
-      ? 'https://tokens.jup.ag/tokens' 
-      : 'https://tokens.jup.ag/tokens?tags=verified';
-    const tokenList = await fetchJSON<any[]>(url, {
-      timeout: 15000, // Increased timeout for large list
-      retries: 1,
-      retryDelay: 500
-    });
-
-    // Build cache map
-    const cacheMap = new Map<string, any>();
-    tokenList.forEach(token => {
-      if (token.address) {
-        cacheMap.set(token.address, token);
-      }
-    });
-
-    // Store cache
-    if (useAllList) {
-      jupiterAllCache = cacheMap;
-    } else {
-      jupiterStrictCache = cacheMap;
-    }
-    jupiterCacheExpiry = now + JUPITER_CACHE_TTL;
-
-    console.log(`[TokenService] Cached ${cacheMap.size} tokens from Jupiter ${useAllList ? 'all' : 'strict'} list`);
-
-    return cacheMap.get(mint) || null;
-  } catch (e: any) {
-    console.warn(`Failed to fetch Jupiter ${useAllList ? 'all' : 'strict'} list:`, e.message);
-    return null;
-  }
+  // Note: Jupiter token list endpoints now require authentication
+  // Skip Jupiter token list and rely on other metadata sources
+  console.log('[TokenService] Skipping Jupiter token list (requires auth) - using other metadata sources');
+  return null;
 }
 
 // Enrich token metadata (caches in Redis -> DB -> external APIs)
