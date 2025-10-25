@@ -371,6 +371,20 @@ process.on('unhandledRejection', (reason, promise) => {
   gracefulShutdown('unhandledRejection');
 });
 
+// ============ INITIALIZE REAL-TIME PNL SERVICE ============
+import { realtimePnLService } from './services/realtimePnLService.js';
+import priceService from './plugins/priceService.js';
+
+// Start price tick broadcasting at 5 Hz (200ms intervals)
+realtimePnLService.startPriceTicks(200);
+
+// Hook price service updates into real-time PnL service
+priceService.subscribe((tick) => {
+  realtimePnLService.updatePrice(tick.mint, tick.priceUsd);
+});
+
+console.log('⚡ Real-time PnL service initialized with 5 Hz updates');
+
 app.listen({ port, host: "0.0.0.0" }).then(() => {
   app.log.info(`🚀 VirtualSol API running on :${port}`);
   app.log.info(`🔒 Security: JWT, Production Rate Limiting, Input Validation, Secure Nonces`);

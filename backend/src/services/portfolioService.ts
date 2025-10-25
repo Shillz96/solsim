@@ -521,6 +521,8 @@ export async function getTokenTradingStats(
     totalBoughtUsd: totalBoughtUsd.toFixed(2),
     totalSoldUsd: totalSoldUsd.toFixed(2),
     currentHoldingValue: currentHoldingValue.toFixed(2),
+    currentHoldingQty: position && D(position.qty).gt(0) ? D(position.qty).toFixed(9) : '0',
+    costBasis: position && D(position.qty).gt(0) ? D(position.costBasis).toFixed(2) : '0',
     realizedPnL: totalRealizedPnL.toFixed(2),
     unrealizedPnL: unrealizedPnL.toFixed(2),
     totalPnL: totalRealizedPnL.add(unrealizedPnL).toFixed(2),

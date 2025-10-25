@@ -33,6 +33,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { cn } from '@/lib/utils'
 import { DexScreenerChart } from '@/components/trading/dexscreener-chart'
 import { ResizableSplit } from '@/components/ui/resizable-split'
+import { PositionPnLBadge } from '@/components/trading/position-pnl-badge'
 
 function TradeRoomContent() {
   const params = useParams()
@@ -222,6 +223,8 @@ function TradeRoomContent() {
                     <span className="text-[var(--mario-red)] font-bold">
                       Holding: {formatTokenQuantity(tokenHolding.qty)}
                     </span>
+                    <span>•</span>
+                    <PositionPnLBadge mint={ca} tradeMode="PAPER" className="inline-flex" />
                   </>
                 )}
               </div>
@@ -358,10 +361,10 @@ function TradeRoomContent() {
           <aside className="flex flex-col w-[280px] border-l-4 border-[var(--outline-black)] bg-white">
             <div className="flex-1 p-3 overflow-y-auto space-y-3">
               <MarioTradingPanel tokenAddress={ca} />
-              <TokenVitalsBar 
+              <TokenVitalsBar
+                tokenAddress={ca}
                 volume24h={volume24h}
                 holders={tokenDetails.holderCount ? parseInt(tokenDetails.holderCount) : undefined}
-                priceChange5m={undefined}
                 userRank={null}
               />
             </div>
@@ -400,10 +403,10 @@ function TradeRoomContent() {
           <aside className="flex flex-col w-[380px] border-l-4 border-[var(--outline-black)] bg-white">
             <div className="flex-1 p-3 overflow-y-auto space-y-3">
               <MarioTradingPanel tokenAddress={ca} />
-              <TokenVitalsBar 
+              <TokenVitalsBar
+                tokenAddress={ca}
                 volume24h={volume24h}
                 holders={tokenDetails.holderCount ? parseInt(tokenDetails.holderCount) : undefined}
-                priceChange5m={undefined}
                 userRank={null}
               />
             </div>

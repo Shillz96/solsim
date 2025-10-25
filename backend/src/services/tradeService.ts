@@ -8,6 +8,7 @@ import { addTradePoints } from "./rewardService.js";
 import { portfolioCoalescer } from "../utils/requestCoalescer.js";
 import * as notificationService from "./notificationService.js";
 import redlock from "../plugins/redlock.js";
+import { realtimePnLService } from "./realtimePnLService.js";
 
 // Helper for market cap VWAP
 function mcVwapUpdate(oldQty: Decimal, oldMcVwap: Decimal, buyQty: Decimal, mcAtFillUsd: Decimal | null) {
@@ -357,6 +358,31 @@ async function executeTradeLogic({
 
     return { trade, position: pos, realizedPnL };
   });
+
+  // ============ REAL-TIME PNL: Emit fill event ============
+  try {
+    const fillEvent = {
+      userId,
+      mint,
+      tradeMode: 'PAPER' as const,
+      side,
+      qty: q.toNumber(),
+      price: priceUsd.toNumber(), // USD price per token
+      fees: totalFees.mul(solUsdAtFill).toNumber(), // Fees in USD
+      timestamp: Date.now()
+    };
+
+    if (side === 'BUY') {
+      await realtimePnLService.processBuyFill(fillEvent);
+    } else {
+      await realtimePnLService.processSellFill(fillEvent);
+    }
+
+    console.log(`[Trade] Real-time PnL event emitted for ${side} of ${mint.slice(0, 8)}`);
+  } catch (pnlError) {
+    console.error('[Trade] Failed to update real-time PnL:', pnlError);
+    // Don't fail the trade if PnL service fails
+  }
 
   // Add reward points for this trade (outside transaction for performance)
   const tradeValueUsd = tradeCostUsd;

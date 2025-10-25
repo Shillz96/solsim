@@ -1,6 +1,7 @@
 // WebSocket plugin for real-time updates with contract-compliant formatting
 import { FastifyInstance } from "fastify";
 import priceService from "./priceService.js";
+import { realtimePnLService } from "../services/realtimePnLService.js";
 
 // Convert SOL price to lamports (for contract compliance)
 function solToLamports(solPrice: number): string {
@@ -226,4 +227,101 @@ export default async function wsPlugin(app: FastifyInstance) {
 
   // Price broadcasts are handled by the price service subscriptions above
   // Real-time prices are emitted when the price service detects updates
+
+  // ============ REAL-TIME PNL WEBSOCKET ============
+  // WebSocket endpoint for real-time PnL streaming (5-10 Hz)
+  app.get("/ws/pnl", { websocket: true }, (socket, req) => {
+    const userId = req.query.userId as string;
+    const tradeMode = (req.query.tradeMode as string || 'PAPER') as 'PAPER' | 'REAL';
+
+    if (!userId) {
+      socket.send(JSON.stringify({
+        type: 'error',
+        error: 'userId query parameter required'
+      }));
+      socket.close();
+      return;
+    }
+
+    console.log(`[PnL WS] Client connected: ${userId} (${tradeMode})`);
+
+    // Send initial position state
+    const positions = realtimePnLService.getUserPositions(userId, tradeMode);
+    socket.send(JSON.stringify({
+      type: 'initial',
+      positions: positions.map(pos => ({
+        mint: pos.mint,
+        qty: pos.qty.toString(),
+        avgCost: pos.avgCost.toString(),
+        costBasis: pos.costBasis.toString(),
+        realizedPnL: pos.realizedPnL.toString()
+      }))
+    }));
+
+    // Subscribe to position-specific PnL updates
+    const pnlTickHandler = (event: any) => {
+      // Only send updates for this user's positions
+      if (event.userId === userId && event.tradeMode === tradeMode) {
+        try {
+          socket.send(JSON.stringify({
+            type: 'pnlTick',
+            data: event
+          }));
+        } catch (err) {
+          console.error('[PnL WS] Failed to send update:', err);
+        }
+      }
+    };
+
+    // Subscribe to portfolio-wide PnL updates
+    const portfolioPnlHandler = (event: any) => {
+      // Only send updates for this user's portfolio
+      if (event.userId === userId && event.tradeMode === tradeMode) {
+        try {
+          socket.send(JSON.stringify({
+            type: 'portfolioPnl',
+            data: event
+          }));
+        } catch (err) {
+          console.error('[PnL WS] Failed to send portfolio update:', err);
+        }
+      }
+    };
+
+    realtimePnLService.on('pnlTick', pnlTickHandler);
+    realtimePnLService.on('portfolioPnl', portfolioPnlHandler);
+
+    // Handle client messages
+    socket.on('message', (message) => {
+      try {
+        const data = JSON.parse(message.toString());
+
+        // Handle ping/pong for keepalive
+        if (data.type === 'ping') {
+          socket.send(JSON.stringify({ type: 'pong', timestamp: Date.now() }));
+        }
+      } catch (err) {
+        console.error('[PnL WS] Failed to parse message:', err);
+      }
+    });
+
+    // Handle pong responses
+    socket.on("pong", () => {
+      // Connection is healthy
+    });
+
+    // Handle disconnection
+    socket.on('close', () => {
+      console.log(`[PnL WS] Client disconnected: ${userId}`);
+      realtimePnLService.off('pnlTick', pnlTickHandler);
+      realtimePnLService.off('portfolioPnl', portfolioPnlHandler);
+    });
+
+    // Handle errors
+    socket.on('error', (err) => {
+      console.error('[PnL WS] Socket error:', err);
+      realtimePnLService.off('pnlTick', pnlTickHandler);
+      realtimePnLService.off('portfolioPnl', portfolioPnlHandler);
+    });
+  });
 }

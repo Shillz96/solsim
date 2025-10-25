@@ -75,7 +75,9 @@
       "WebFetch(domain:www.tradingview.com)",
       "Bash(git check-ignore:*)",
       "Bash(cat:*)",
-      "WebFetch(domain:docs.bubblemaps.io)"
+      "WebFetch(domain:docs.bubblemaps.io)",
+      "mcp__Railway__check-railway-status",
+      "mcp__Railway__get-logs"
     ],
     "deny": [],
     "ask": []

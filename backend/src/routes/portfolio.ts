@@ -7,6 +7,7 @@ import {
   getPortfolioPerformance,
   getTokenTradingStats
 } from "../services/portfolioService.js";
+import { realtimePnLService } from "../services/realtimePnLService.js";
 
 export default async function (app: FastifyInstance) {
   // Main portfolio endpoint with metadata enrichment
@@ -113,6 +114,32 @@ export default async function (app: FastifyInstance) {
       console.error("Token stats fetch error:", error);
       return reply.code(500).send({
         error: "Failed to fetch token statistics"
+      });
+    }
+  });
+
+  // Historical PnL endpoint for charting
+  app.get("/pnl-history", async (req, reply) => {
+    const userId = (req.query as any).userId;
+    const tradeMode = (req.query as any).tradeMode || 'PAPER';
+
+    if (!userId) return reply.code(400).send({ error: "userId required" });
+    if (!['PAPER', 'REAL'].includes(tradeMode)) {
+      return reply.code(400).send({ error: "tradeMode must be 'PAPER' or 'REAL'" });
+    }
+
+    try {
+      const history = await realtimePnLService.getHistoricalPnL(userId, tradeMode);
+      return {
+        userId,
+        tradeMode,
+        data: history,
+        count: history.length
+      };
+    } catch (error) {
+      console.error("Historical PnL fetch error:", error);
+      return reply.code(500).send({
+        error: "Failed to fetch historical PnL data"
       });
     }
   });

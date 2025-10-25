@@ -33,6 +33,7 @@ import { AnimatedNumber } from "@/components/ui/animated-number"
 import { useAuth } from "@/hooks/use-auth"
 import { usePortfolio, usePosition } from "@/hooks/use-portfolio"
 import { motion, AnimatePresence } from "framer-motion"
+import { useRealtimePnL } from "@/hooks/use-realtime-pnl"
 // New advanced trading components
 import { PositionStatsBox } from "./position-stats-box"
 import { FeeDisplay } from "./fee-display"
@@ -53,6 +54,9 @@ function MarioTradingPanelComponent({ tokenAddress: propTokenAddress }: MarioTra
   const portfolioError = portfolioErrorObj ? (portfolioErrorObj as Error).message : null
 
   const { activeBalance, refreshBalances, tradeMode } = useTradingMode()
+
+  // Real-time PnL hook for optimistic updates
+  const { addOptimisticTrade, positions: realtimePositions } = useRealtimePnL(tradeMode)
 
   const [userBalance, setUserBalance] = useState<number>(0)
   const [isTrading, setIsTrading] = useState(false)
@@ -277,6 +281,15 @@ function MarioTradingPanelComponent({ tokenAddress: propTokenAddress }: MarioTra
 
     tokenQuantity = Math.round(tokenQuantity * 1e9) / 1e9
 
+    // ============ OPTIMISTIC UI UPDATE ============
+    // Show the trade result immediately before server confirms
+    addOptimisticTrade(
+      tokenAddress,
+      action.toUpperCase() as 'BUY' | 'SELL',
+      tokenQuantity,
+      currentPrice
+    )
+
     try {
       if (action === 'buy') {
         await executeBuy(tokenAddress, tokenQuantity)
@@ -285,6 +298,8 @@ function MarioTradingPanelComponent({ tokenAddress: propTokenAddress }: MarioTra
       }
     } catch (error) {
       console.error('Trade failed:', error)
+      // Note: The optimistic trade will auto-clear after 5 seconds
+      // or will be replaced by real server data
     }
   }
 
