@@ -63,8 +63,11 @@ export function TokenLogo({
   }, [src, mint])
 
   const handleError = () => {
+    console.log(`🖼️ TokenLogo error for ${mint || alt}:`, currentSrc, 'attempt:', attemptIndex)
+    
     if (mint) {
       const alternatives = getTokenLogoAlternatives(mint)
+      console.log(`🔄 Trying alternatives for ${mint}:`, alternatives)
 
       if (attemptIndex < alternatives.length) {
         // Try next alternative
@@ -75,6 +78,7 @@ export function TokenLogo({
     }
 
     // No more alternatives, show fallback
+    console.log(`❌ All logo attempts failed for ${mint || alt}, showing fallback`)
     setHasError(true)
   }
 
