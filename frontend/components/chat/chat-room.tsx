@@ -4,7 +4,7 @@
  * Chat Room Component
  *
  * Token-specific chat with:
- * - SIWS (Sign In With Solana) authentication via JWT
+ * - Email/password authentication via JWT (no wallet required)
  * - Real-time WebSocket messages
  * - Auto-scroll to latest
  * - Rate limiting UI
