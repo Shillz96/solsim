@@ -152,80 +152,83 @@ export function SlidingTrendingTicker() {
   }
 
   return (
-    <div className="fixed top-[var(--navbar-height)] left-0 right-0 z-[95] w-full overflow-hidden bg-gradient-to-r from-[var(--brick-brown)] to-[var(--brick-brown)]/80 border-b-4 border-[var(--outline-black)] shadow-md">
-      {/* Scrolling Container - Pause on Hover */}
-      <div className="group relative py-2">
-        <div className="ticker-scroll-container">
-          <div className="ticker-scroll group-hover:paused">
-            {duplicatedTokens.map((token, index) => {
-              const change = parseFloat(token.priceChange24h?.toString() || '0') || 0
-              const isPositive = change > 0.01
-              const isNegative = change < -0.01
+    <>
+      {/* Hourly Rewards Timer - Floating above everything */}
+      <div className="fixed top-[calc(var(--navbar-height)+2rem)] left-1/2 -translate-x-1/2 z-[99999] pointer-events-auto">
+        <HourlyRewardTimer />
+      </div>
+      
+      {/* Trending Ticker */}
+      <div className="fixed top-[var(--navbar-height)] left-0 right-0 z-[95] w-full overflow-hidden bg-gradient-to-r from-[var(--brick-brown)] to-[var(--brick-brown)]/80 border-b-4 border-[var(--outline-black)] shadow-md">
+        {/* Scrolling Container - Pause on Hover */}
+        <div className="group relative py-2">
+          <div className="ticker-scroll-container">
+            <div className="ticker-scroll group-hover:paused">
+              {duplicatedTokens.map((token, index) => {
+                const change = parseFloat(token.priceChange24h?.toString() || '0') || 0
+                const isPositive = change > 0.01
+                const isNegative = change < -0.01
 
-              return (
-                <button
-                  key={`${token.mint}-${index}`}
-                  onClick={() => handleTokenClick(token.mint)}
-                  className="ticker-item mario-badge flex-shrink-0 mx-2 px-3 py-1.5 bg-[var(--coin-gold)] border-2 border-[var(--outline-black)] rounded-full shadow-[2px_2px_0_var(--outline-black)] hover:scale-110 hover:shadow-[3px_3px_0_var(--outline-black)] transition-all duration-200 active:scale-95 coin-bounce-hover"
-                >
-                  <div className="flex items-center gap-2 whitespace-nowrap">
-                    {/* Token Logo */}
-                    <TokenLogo
-                      src={token.logoURI || undefined}
-                      alt={token.name || token.symbol || 'Token'}
-                      mint={token.mint}
-                      className="w-6 h-6 flex-shrink-0 ring-2 ring-[var(--outline-black)]"
-                    />
-
-                    {/* Token Symbol */}
-                    <span className="mario-font text-[var(--outline-black)] text-sm tracking-wide">
-                      {token.symbol || 'N/A'}
-                    </span>
-
-                    {/* Price */}
-                    <div className="flex items-center gap-2">
-                      <AnimatedNumber
-                        value={token.priceUsd}
-                        prefix="$"
-                        decimals={token.priceUsd < 0.001 ? 6 : 4}
-                        className="font-mono text-xs font-bold text-[var(--outline-black)]"
-                        formatLarge={false}
+                return (
+                  <button
+                    key={`${token.mint}-${index}`}
+                    onClick={() => handleTokenClick(token.mint)}
+                    className="ticker-item mario-badge flex-shrink-0 mx-2 px-3 py-1.5 bg-[var(--coin-gold)] border-2 border-[var(--outline-black)] rounded-full shadow-[2px_2px_0_var(--outline-black)] hover:scale-110 hover:shadow-[3px_3px_0_var(--outline-black)] transition-all duration-200 active:scale-95 coin-bounce-hover"
+                  >
+                    <div className="flex items-center gap-2 whitespace-nowrap">
+                      {/* Token Logo */}
+                      <TokenLogo
+                        src={token.logoURI || undefined}
+                        alt={token.name || token.symbol || 'Token'}
+                        mint={token.mint}
+                        className="w-6 h-6 flex-shrink-0 ring-2 ring-[var(--outline-black)]"
                       />
 
-                      {/* Price Change with Icon */}
-                      <div className={cn(
-                        "flex items-center gap-0.5 text-xs font-bold",
-                        isPositive && "text-[var(--luigi-green)]",
-                        isNegative && "text-[var(--mario-red)]"
-                      )}>
-                        {isPositive && <TrendingUp className="h-3 w-3" />}
-                        {isNegative && <TrendingDown className="h-3 w-3" />}
+                      {/* Token Symbol */}
+                      <span className="mario-font text-[var(--outline-black)] text-sm tracking-wide">
+                        {token.symbol || 'N/A'}
+                      </span>
+
+                      {/* Price */}
+                      <div className="flex items-center gap-2">
                         <AnimatedNumber
-                          value={change}
-                          suffix="%"
-                          prefix={change > 0.01 ? "+" : ""}
-                          decimals={1}
-                          className="font-mono"
-                          colorize={false}
+                          value={token.priceUsd}
+                          prefix="$"
+                          decimals={token.priceUsd < 0.001 ? 6 : 4}
+                          className="font-mono text-xs font-bold text-[var(--outline-black)]"
+                          formatLarge={false}
                         />
+
+                        {/* Price Change with Icon */}
+                        <div className={cn(
+                          "flex items-center gap-0.5 text-xs font-bold",
+                          isPositive && "text-[var(--luigi-green)]",
+                          isNegative && "text-[var(--mario-red)]"
+                        )}>
+                          {isPositive && <TrendingUp className="h-3 w-3" />}
+                          {isNegative && <TrendingDown className="h-3 w-3" />}
+                          <AnimatedNumber
+                            value={change}
+                            suffix="%"
+                            prefix={change > 0.01 ? "+" : ""}
+                            decimals={1}
+                            className="font-mono"
+                            colorize={false}
+                          />
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </button>
-              )
-            })}
+                  </button>
+                )
+              })}
+            </div>
           </div>
-        </div>
 
-        {/* Gradient Fade Edges */}
-        <div className="absolute top-0 left-0 h-full w-20 bg-gradient-to-r from-[var(--brick-brown)] to-transparent pointer-events-none z-5" />
-        <div className="absolute top-0 right-0 h-full w-20 bg-gradient-to-l from-[var(--brick-brown)] to-transparent pointer-events-none z-5" />
-        
-        {/* Hourly Rewards Timer Overlay - Centered */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 translate-y-4 z-[99999] pointer-events-auto">
-          <HourlyRewardTimer />
+          {/* Gradient Fade Edges */}
+          <div className="absolute top-0 left-0 h-full w-20 bg-gradient-to-r from-[var(--brick-brown)] to-transparent pointer-events-none z-5" />
+          <div className="absolute top-0 right-0 h-full w-20 bg-gradient-to-l from-[var(--brick-brown)] to-transparent pointer-events-none z-5" />
         </div>
       </div>
-    </div>
+    </>
   )
 }
