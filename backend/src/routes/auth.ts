@@ -36,9 +36,9 @@ async function checkAndUpgradeVSOLHolder(userId: string, walletAddress: string) 
 }
 
 export default async function (app: FastifyInstance) {
-  // Email signup with validation and rate limiting
+  // Email signup with validation (rate limiting temporarily disabled)
   app.post("/signup-email", {
-    preHandler: [authRateLimit, validateBody(authSchemas.emailSignup)]
+    preHandler: [validateBody(authSchemas.emailSignup)]
   }, async (req: FastifyRequest, reply: FastifyReply) => {
     try {
       const sanitizedBody = sanitizeInput(req.body) as {
@@ -136,9 +136,9 @@ export default async function (app: FastifyInstance) {
     }
   });
 
-  // Email login with validation and rate limiting
+  // Email login with validation (rate limiting temporarily disabled)
   app.post("/login-email", {
-    preHandler: [authRateLimit, validateBody(authSchemas.emailLogin)]
+    preHandler: [validateBody(authSchemas.emailLogin)]
   }, async (req: FastifyRequest, reply: FastifyReply) => {
     try {
       const sanitizedBody = sanitizeInput(req.body) as {
