@@ -4,6 +4,8 @@ import { useQuery } from "@tanstack/react-query";
 import { X } from "lucide-react";
 import Image from "next/image";
 import { CartridgePill } from "@/components/ui/cartridge-pill";
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 
 interface Winner {
   rank: number;
@@ -31,6 +33,12 @@ interface HourlyRewardWinnersModalProps {
 }
 
 export function HourlyRewardWinnersModal({ isOpen, onClose }: HourlyRewardWinnersModalProps) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   // Fetch last distribution data
   const { data, isLoading, error } = useQuery<DistributionData>({
     queryKey: ["lastDistribution"],
@@ -42,8 +50,6 @@ export function HourlyRewardWinnersModal({ isOpen, onClose }: HourlyRewardWinner
     refetchInterval: 60000, // Refresh every minute
     enabled: isOpen, // Only fetch when modal is open
   });
-
-  if (!isOpen) return null;
 
   // Format distribution time
   const formatTime = (isoString: string) => {
@@ -65,13 +71,25 @@ export function HourlyRewardWinnersModal({ isOpen, onClose }: HourlyRewardWinner
     return "";
   };
 
-  return (
-    <div className="fixed inset-0 z-[100000] flex items-center justify-center bg-black/50 p-4">
-      <div className="relative max-h-[90vh] w-full max-w-2xl overflow-y-auto bg-white border-4 border-[var(--outline-black)] shadow-[8px_8px_0_var(--outline-black)] rounded-[16px] p-6">
+  if (!isOpen || !mounted) return null;
+
+  const modalContent = (
+    <div 
+      className="fixed inset-0 z-[100000] flex items-center justify-center p-4"
+      style={{ 
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        backdropFilter: 'blur(4px)'
+      }}
+      onClick={onClose}
+    >
+      <div 
+        className="relative max-h-[90vh] w-full max-w-2xl overflow-y-auto bg-white border-4 border-[var(--outline-black)] shadow-[8px_8px_0_var(--outline-black)] rounded-[16px] p-6"
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Close button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 p-2 hover:bg-gray-100 rounded-[8px] transition-colors"
+          className="absolute top-4 right-4 p-2 hover:bg-gray-100 rounded-[8px] transition-colors z-10"
           aria-label="Close modal"
         >
           <X className="w-6 h-6" />
@@ -205,4 +223,6 @@ export function HourlyRewardWinnersModal({ isOpen, onClose }: HourlyRewardWinner
       </div>
     </div>
   );
+
+  return createPortal(modalContent, document.body);
 }
