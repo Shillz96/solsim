@@ -144,31 +144,31 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
             </div>
 
             {/* MIDDLE: Enhanced Token Info */}
-            <div className="flex-1 min-w-0">
+            <div className="flex-1 min-w-0 overflow-hidden">
               {/* Header Row: Symbol, Name, Age, Security */}
               <div className="flex items-center gap-3 mb-2">
-                <h3 className={cn(marioStyles.heading(4), 'text-[22px]')}>
+                <h3 className={cn(marioStyles.heading(4), 'text-[22px] truncate max-w-[120px]')} title={data.symbol}>
                   {data.symbol}
                 </h3>
-                <span className={cn(marioStyles.bodyText('semibold'), 'text-[15px] truncate max-w-[140px]')} title={data.name || undefined}>
+                <span className={cn(marioStyles.bodyText('semibold'), 'text-[15px] truncate max-w-[120px]')} title={data.name || undefined}>
                   {data.name}
                 </span>
-                <span className={cn(marioStyles.bodyText('bold'), 'text-[12px] ml-auto')}>
+                <span className={cn(marioStyles.bodyText('bold'), 'text-[12px] ml-auto flex-shrink-0')}>
                   {age}
                 </span>
                 {/* Security Shield Icon */}
-                <Shield className={securityIconColor} />
+                <Shield className={cn(securityIconColor, 'flex-shrink-0')} />
               </div>
 
               {/* Description (if available, with better truncation) */}
               {data.description && (
-                <div className="text-[12px] text-[var(--outline-black)] font-medium mb-2 line-clamp-2 max-w-[320px]" title={data.description}>
-                  {data.description}
+                <div className="text-[12px] text-[var(--outline-black)] font-medium mb-2 line-clamp-2 max-w-[280px] overflow-hidden" title={data.description}>
+                  {data.description.length > 120 ? `${data.description.substring(0, 120)}...` : data.description}
                 </div>
               )}
 
               {/* Metrics Grid - 3 columns */}
-              <div className="grid grid-cols-3 gap-3 mb-2">
+              <div className="grid grid-cols-3 gap-3 mb-2 flex-shrink-0">
                 {/* Market Cap */}
                 <div className="flex flex-col">
                   <div className={marioStyles.formatMetricLabel('MC')}>
@@ -209,7 +209,7 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
               </div>
 
               {/* Secondary Metrics Row */}
-              <div className="grid grid-cols-3 gap-3 mb-2">
+              <div className="grid grid-cols-3 gap-3 mb-2 flex-shrink-0">
                 {/* Holders */}
                 <div className="flex flex-col">
                   <div className={marioStyles.formatMetricLabel('Holders')}>
@@ -260,7 +260,7 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
               )}
 
               {/* Bottom Row: Social Links & Creator */}
-              <div className="flex items-center gap-2 mt-1">
+              <div className="flex items-center gap-2 mt-1 flex-shrink-0">
                 {/* Social Links */}
                 {(data.twitter || data.telegram || data.website) && (
                   <div className="flex items-center gap-1.5">
