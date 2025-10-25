@@ -331,10 +331,7 @@ function MarioTradingPanelComponent({ tokenAddress: propTokenAddress }: MarioTra
   const tokenBalance = tokenHolding ? parseFloat(tokenHolding.qty) : 0
 
   return (
-    <div id="trade-panel" className={cn(
-      "flex flex-col w-full bg-gradient-to-br from-white to-[var(--star-yellow)]/10",
-      marioStyles.cardLg(false)
-    )}>
+    <div id="trade-panel" className="flex flex-col w-full border-4 border-[var(--outline-black)] rounded-2xl shadow-[6px_6px_0_var(--outline-black)] bg-gradient-to-br from-white to-[var(--star-yellow)]/10">
       {/* Compact Header Section - Position Stats */}
       <div className="flex-shrink-0 p-2 border-b-3 border-[var(--outline-black)]/20">
         <PositionStatsBox
