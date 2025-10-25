@@ -170,7 +170,7 @@ function TradeRoomContent() {
       {/* Header - Token Info */}
       <header className={cn(
         marioStyles.border('lg'),
-        'border-b-4 bg-white p-2 sm:p-2.5 flex-shrink-0'
+        'border-b-4 bg-[var(--card)] p-2 sm:p-2.5 flex-shrink-0'
       )}>
         <div className="w-full flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-2">
           {/* Left: Back + Token Info */}
@@ -328,7 +328,7 @@ function TradeRoomContent() {
           {/* Chart */}
           <div className={cn(
             marioStyles.border('lg'),
-            'bg-white border-b-4'
+            'bg-[var(--card)] border-b-4'
           )}>
             <div className="min-h-[400px] h-[400px]">
               <DexScreenerChart tokenAddress={ca} />
@@ -336,7 +336,7 @@ function TradeRoomContent() {
           </div>
 
           {/* Market Data Panels */}
-          <div className="bg-white flex-1 overflow-hidden">
+          <div className="bg-[var(--card)] flex-1 overflow-hidden">
             <MarketDataPanels tokenMint={ca} />
           </div>
         </div>
@@ -358,7 +358,7 @@ function TradeRoomContent() {
             </DialogTrigger>
             <DialogContent className={cn(
               marioStyles.cardLg(false),
-              'max-w-md mx-4 bg-white'
+              'max-w-md mx-4 bg-[var(--card)]'
             )}>
               <DialogHeader>
                 <DialogTitle className={cn(
@@ -380,7 +380,7 @@ function TradeRoomContent() {
           {/* Left: Chat Room */}
           <aside className={cn(
             marioStyles.border('lg'),
-            'flex flex-col w-[280px] border-r-4 bg-white overflow-hidden'
+            'flex flex-col w-[280px] border-r-4 bg-[var(--card)] overflow-hidden'
           )}>
             <div className="flex-1 overflow-hidden">
               <ChatRoom tokenMint={ca} />
@@ -388,7 +388,7 @@ function TradeRoomContent() {
           </aside>
 
           {/* Center: Resizable Chart & Data */}
-          <section className="flex-1 flex flex-col bg-white overflow-hidden">
+          <section className="flex-1 flex flex-col bg-[var(--card)] overflow-hidden">
             <ResizableSplit
               orientation="vertical"
               defaultRatio={50}
@@ -412,7 +412,7 @@ function TradeRoomContent() {
           {/* Right: Trade Panel */}
           <aside className={cn(
             marioStyles.border('lg'),
-            'flex flex-col w-[280px] border-l-4 bg-white'
+            'flex flex-col w-[280px] border-l-4 bg-[var(--card)]'
           )}>
             <div className="flex-1 p-3 overflow-y-auto space-y-3">
               <MarioTradingPanel tokenAddress={ca} />
@@ -431,7 +431,7 @@ function TradeRoomContent() {
           {/* Left Sidebar - Chat Room */}
           <aside className={cn(
             marioStyles.border('lg'),
-            'flex flex-col w-[320px] border-r-4 bg-white overflow-hidden'
+            'flex flex-col w-[320px] border-r-4 bg-[var(--card)] overflow-hidden'
           )}>
             <div className="flex-1 overflow-hidden">
               <ChatRoom tokenMint={ca} />
@@ -439,7 +439,7 @@ function TradeRoomContent() {
           </aside>
 
           {/* Center Section - Resizable Chart & Data Panels */}
-          <section className="flex-1 flex flex-col bg-white overflow-hidden">
+          <section className="flex-1 flex flex-col bg-[var(--card)] overflow-hidden">
             <ResizableSplit
               orientation="vertical"
               defaultRatio={60}
@@ -463,7 +463,7 @@ function TradeRoomContent() {
           {/* Right Sidebar - Trade Panel Only */}
           <aside className={cn(
             marioStyles.border('lg'),
-            'flex flex-col w-[380px] border-l-4 bg-white'
+            'flex flex-col w-[380px] border-l-4 bg-[var(--card)]'
           )}>
             <div className="flex-1 p-3 overflow-y-auto space-y-3">
               <MarioTradingPanel tokenAddress={ca} />

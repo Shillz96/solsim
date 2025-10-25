@@ -368,7 +368,7 @@ export function NavBar() {
               <PopoverContent
                 align="start"
                 className={cn(
-                  'w-full p-0 bg-white max-h-80 overflow-y-auto',
+                  'w-full p-0 bg-[var(--card)] max-h-80 overflow-y-auto',
                   marioStyles.border('lg'),
                   'border-[var(--outline-black)]',
                   marioStyles.shadowLg,
@@ -513,7 +513,7 @@ export function NavBar() {
                   size="sm"
                   className={cn(
                     marioStyles.card(true),
-                    'lg:hidden bg-white hover:bg-[var(--star-yellow)]/20 h-9 w-9 p-0'
+                    'lg:hidden bg-[var(--card)] hover:bg-[var(--star-yellow)]/20 h-9 w-9 p-0'
                   )}
                   aria-label="Open navigation menu"
                 >
