@@ -20,7 +20,7 @@ export interface HealthData {
 
 class HealthCapsuleService {
   private connection: Connection;
-  private jupiterApiBase = 'https://quote-api.jup.ag/v6';
+  private jupiterApiBase = 'https://lite-api.jup.ag/swap/v1';
   private dexScreenerBase = 'https://api.dexscreener.com/latest';
 
   constructor() {

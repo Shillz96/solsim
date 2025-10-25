@@ -7,7 +7,7 @@ import { tokenMetadataCoalescer } from "../utils/requestCoalescer.js";
 
 const HELIUS = process.env.HELIUS_API!;
 const DEX = "https://api.dexscreener.com";
-const JUPITER = "https://price.jup.ag/v6";
+const JUPITER = "https://lite-api.jup.ag/price/v3";
 
 // Redis cache TTL: 1 hour for metadata (logos, names rarely change)
 const REDIS_TOKEN_META_TTL = 3600;
@@ -38,7 +38,9 @@ async function getJupiterToken(mint: string, useAllList: boolean = false): Promi
 
   // Fetch and cache the token list
   try {
-    const url = useAllList ? 'https://token.jup.ag/all' : 'https://token.jup.ag/strict';
+    const url = useAllList 
+      ? 'https://tokens.jup.ag/tokens' 
+      : 'https://tokens.jup.ag/tokens?tags=verified';
     const tokenList = await fetchJSON<any[]>(url, {
       timeout: 15000, // Increased timeout for large list
       retries: 1,

@@ -31,7 +31,7 @@ const envSchema = z.object({
 
   // External APIs
   DEXSCREENER_BASE: z.string().default('https://api.dexscreener.com'),
-  JUPITER_BASE: z.string().default('https://quote-api.jup.ag'),
+  JUPITER_BASE: z.string().default('https://lite-api.jup.ag'),
   BIRDEYE_API_KEY: z.string().optional(),
 
   // Token Configuration

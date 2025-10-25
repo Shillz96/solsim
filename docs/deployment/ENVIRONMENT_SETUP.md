@@ -53,7 +53,7 @@ HELIUS_API=YOUR_HELIUS_API_KEY
 
 # External APIs
 DEXSCREENER_BASE=https://api.dexscreener.com
-JUPITER_BASE=https://quote-api.jup.ag
+JUPITER_BASE=https://lite-api.jup.ag
 BIRDEYE_API_KEY=your-birdeye-api-key-if-you-have-one
 
 # Token Configuration

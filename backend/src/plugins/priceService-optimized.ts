@@ -650,7 +650,7 @@ class OptimizedPriceService extends EventEmitter {
     // Fallback to Jupiter API
     try {
       const response = await fetch(
-        "https://price.jup.ag/v6/price?ids=So11111111111111111111111111111111111111112",
+        "https://lite-api.jup.ag/price/v3?ids=So11111111111111111111111111111111111111112",
         { 
           signal: AbortSignal.timeout(5000),
           headers: {
@@ -986,7 +986,7 @@ class OptimizedPriceService extends EventEmitter {
 
         try {
           const response = await fetch(
-            `https://price.jup.ag/v6/price?ids=${mint}`,
+            `https://lite-api.jup.ag/price/v3?ids=${mint}`,
             {
               signal: controller.signal,
               headers: {

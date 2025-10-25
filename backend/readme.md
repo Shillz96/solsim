@@ -65,7 +65,7 @@ HELIUS_API=YOUR_HELIUS_API_KEY
 
 # External APIs
 DEXSCREENER_BASE=https://api.dexscreener.com
-JUPITER_BASE=https://quote-api.jup.ag
+JUPITER_BASE=https://lite-api.jup.ag
 
 # Token Configuration
 VSOL_TOKEN_MINT=YourVsolTokenMintAddress
@@ -152,7 +152,7 @@ SOLANA_RPC_URL=https://mainnet.helius-rpc.com/?api-key=...
 
 # External APIs
 DEXSCREENER_BASE=https://api.dexscreener.com
-JUPITER_BASE=https://quote-api.jup.ag
+JUPITER_BASE=https://lite-api.jup.ag
 ```
 
 **Deployment Steps:**
