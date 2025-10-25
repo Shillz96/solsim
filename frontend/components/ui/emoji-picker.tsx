@@ -18,6 +18,7 @@ import { Input } from '@/components/ui/input'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Smile, Search } from 'lucide-react'
 import { cn, marioStyles } from '@/lib/utils'
+import Image from 'next/image'
 
 interface EmojiPickerProps {
   onEmojiSelect: (emoji: string) => void
@@ -31,55 +32,74 @@ interface EmojiCategory {
   emojis: string[]
 }
 
+// Custom emoji images from /public/emojis
 const EMOJI_CATEGORIES: EmojiCategory[] = [
   {
-    name: 'Smileys',
-    icon: '😀',
+    name: 'Reactions',
+    icon: '/emojis/1263-pepecrypto.png',
     emojis: [
-      '😀', '😃', '😄', '😁', '😆', '😅', '🤣', '😂',
-      '🙂', '🙃', '😉', '😊', '😇', '🥰', '😍', '🤩',
-      '😘', '😗', '😚', '😙', '🥲', '😋', '😛', '😜',
-      '🤪', '😝', '🤑', '🤗', '🤭', '🤫', '🤔', '🤐',
+      '/emojis/1263-pepecrypto.png',
+      '/emojis/9266-pepecrypto.png',
+      '/emojis/2452-peeponotstonks.png',
+      '/emojis/3264-peepostonks.png',
+      '/emojis/2884-pou-sob.png',
+      '/emojis/1560_Panik.png',
+      '/emojis/5852_hodl.png',
+      '/emojis/7727-kiisu-crypto.png',
     ]
   },
   {
-    name: 'Symbols',
-    icon: '🔥',
+    name: 'Stonks',
+    icon: '/emojis/37710-stonks.png',
     emojis: [
-      '❤️', '🧡', '💛', '💚', '💙', '💜', '🖤', '🤍',
-      '💔', '❣️', '💕', '💞', '💓', '💗', '💖', '💘',
-      '🔥', '⭐', '✨', '💫', '⚡', '💥', '💢', '💯',
-      '✅', '❌', '⭕', '🚫', '⚠️', '❓', '❗', '💤',
+      '/emojis/37710-stonks.png',
+      '/emojis/9861-caostonks.png',
+      '/emojis/7554-notstonks.png',
+      '/emojis/8052-caonotstonks.png',
+      '/emojis/9274-stonkz.gif',
+      '/emojis/5279-cryptopathetic.png',
     ]
   },
   {
-    name: 'Objects',
-    icon: '🎮',
+    name: 'Crypto',
+    icon: '/emojis/1425-bitcoin.png',
     emojis: [
-      '🎮', '🕹️', '🎯', '🎲', '🎰', '🎪', '🎨', '🖼️',
-      '💰', '💵', '💴', '💶', '💷', '💸', '💳', '🪙',
-      '🏆', '🥇', '🥈', '🥉', '🏅', '🎖️', '👑', '💎',
-      '🚀', '🛸', '🌟', '⚽', '🏀', '🎾', '🏈', '⚾',
+      '/emojis/1425-bitcoin.png',
+      '/emojis/23493-bitcoin.gif',
+      '/emojis/19845-solana.png',
+      '/emojis/3031-ethereum.png',
+      '/emojis/6121-tether.png',
+      '/emojis/41342-trxcrypto.png',
+      '/emojis/45166-avalanche.png',
+      '/emojis/47311-ltc.png',
+      '/emojis/8488-cryptoinstitute.png',
     ]
   },
   {
-    name: 'Activities',
-    icon: '🎨',
+    name: 'Special',
+    icon: '/emojis/18998-crown.gif',
     emojis: [
-      '🎉', '🎊', '🎈', '🎁', '🎀', '🎂', '🍰', '🧁',
-      '🍕', '🍔', '🍟', '🌭', '🍿', '🧃', '🥤', '🍻',
-      '🍀', '🌈', '☀️', '⛅', '🌙', '⭐', '💫', '✨',
-      '🎵', '🎶', '🎤', '🎧', '🎸', '🎹', '🎺', '🎻',
+      '/emojis/18998-crown.gif',
+      '/emojis/16985-fire.gif',
+      '/emojis/92152-diamond.gif',
+      '/emojis/91872-money.gif',
+      '/emojis/98603-verified.gif',
+      '/emojis/30489-pioneer.gif',
+      '/emojis/4328-3d-whale-emoji.png',
+      '/emojis/41304-kittyspin.gif',
     ]
   },
   {
-    name: 'Travel',
-    icon: '🚀',
+    name: 'Tools',
+    icon: '/emojis/4224-phantom-wallet.png',
     emojis: [
-      '🚗', '🚕', '🚙', '🚌', '🚎', '🏎️', '🚓', '🚑',
-      '🚒', '🚐', '🛻', '🚚', '🚛', '🚜', '🏍️', '🛵',
-      '🚲', '🛴', '🛹', '🛼', '🚁', '🛩️', '✈️', '🚀',
-      '🛸', '🚂', '🚆', '🚇', '🚈', '🚉', '🚊', '🚝',
+      '/emojis/4224-phantom-wallet.png',
+      '/emojis/6190-phantom-solana.png',
+      '/emojis/6833-poocoin.png',
+      '/emojis/37700-sellix-logo.png',
+      '/emojis/51662-matrix.gif',
+      '/emojis/80206-hacker.gif',
+      '/emojis/91118-caw2.png',
     ]
   },
 ]
@@ -121,7 +141,7 @@ export function EmojiPicker({ onEmojiSelect, position = 'auto', className }: Emo
 
   const filteredEmojis = searchQuery
     ? EMOJI_CATEGORIES.flatMap(cat => cat.emojis).filter(emoji =>
-        emoji.includes(searchQuery)
+        emoji.toLowerCase().includes(searchQuery.toLowerCase())
       )
     : EMOJI_CATEGORIES[selectedCategory].emojis
 
@@ -183,12 +203,19 @@ export function EmojiPicker({ onEmojiSelect, position = 'auto', className }: Emo
                     key={`recent-${idx}`}
                     onClick={() => handleEmojiClick(emoji)}
                     className={cn(
-                      'text-2xl p-1 rounded hover:bg-[var(--star-yellow)]/30',
+                      'p-1 rounded hover:bg-[var(--star-yellow)]/30',
                       'transition-colors duration-150',
-                      'active:scale-95 transform'
+                      'active:scale-95 transform',
+                      'w-10 h-10 flex items-center justify-center'
                     )}
                   >
-                    {emoji}
+                    <Image 
+                      src={emoji} 
+                      alt="emoji" 
+                      width={32} 
+                      height={32}
+                      className="object-contain"
+                    />
                   </button>
                 ))}
               </div>
@@ -203,14 +230,21 @@ export function EmojiPicker({ onEmojiSelect, position = 'auto', className }: Emo
                   key={category.name}
                   onClick={() => setSelectedCategory(idx)}
                   className={cn(
-                    'flex-1 text-xl p-2 rounded transition-colors',
+                    'flex-1 p-2 rounded transition-colors',
+                    'w-10 h-10 flex items-center justify-center',
                     selectedCategory === idx
                       ? 'bg-[var(--star-yellow)] shadow-[0_4px_0_rgba(0,0,0,0.1)]'
                       : 'hover:bg-[var(--pipe-green)]/20'
                   )}
                   title={category.name}
                 >
-                  {category.icon}
+                  <Image 
+                    src={category.icon} 
+                    alt={category.name} 
+                    width={24} 
+                    height={24}
+                    className="object-contain"
+                  />
                 </button>
               ))}
             </div>
@@ -224,12 +258,19 @@ export function EmojiPicker({ onEmojiSelect, position = 'auto', className }: Emo
                   key={`emoji-${idx}`}
                   onClick={() => handleEmojiClick(emoji)}
                   className={cn(
-                    'text-2xl p-2 rounded hover:bg-[var(--star-yellow)]/30',
+                    'p-2 rounded hover:bg-[var(--star-yellow)]/30',
                     'transition-colors duration-150',
-                    'active:scale-95 transform'
+                    'active:scale-95 transform',
+                    'w-10 h-10 flex items-center justify-center'
                   )}
                 >
-                  {emoji}
+                  <Image 
+                    src={emoji} 
+                    alt="emoji" 
+                    width={32} 
+                    height={32}
+                    className="object-contain"
+                  />
                 </button>
               ))}
             </div>

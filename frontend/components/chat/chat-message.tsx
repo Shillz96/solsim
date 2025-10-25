@@ -12,6 +12,7 @@
 
 import { useState } from 'react'
 import { cn, marioStyles } from '@/lib/utils'
+import Image from 'next/image'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,6 +24,31 @@ import { Button } from '@/components/ui/button'
 import { MoreVertical, Trash2, UserX, AlertCircle, Shield } from 'lucide-react'
 import { useModeration } from '@/hooks/use-moderation'
 import { useAuth } from '@/hooks/use-auth'
+
+// Helper function to parse message content and render emojis as images
+function renderMessageContent(content: string) {
+  // Regex to match /emojis/filename.png or /emojis/filename.gif
+  const emojiRegex = /(\/emojis\/[a-zA-Z0-9_-]+\.(png|gif))/g
+  const parts = content.split(emojiRegex)
+  
+  return parts.map((part, index) => {
+    // Check if this part is an emoji path
+    if (part.match(emojiRegex)) {
+      return (
+        <Image 
+          key={index}
+          src={part} 
+          alt="emoji" 
+          width={20} 
+          height={20}
+          className="inline-block object-contain mx-0.5 align-middle"
+        />
+      )
+    }
+    // Regular text
+    return <span key={index}>{part}</span>
+  })
+}
 
 interface ChatMessageProps {
   message: {
@@ -218,7 +244,7 @@ export function ChatMessage({ message, onUserClick }: ChatMessageProps) {
           'text-sm whitespace-pre-wrap break-words leading-relaxed'
         )}
       >
-        {message.content}
+        {renderMessageContent(message.content)}
       </div>
     </div>
   )
