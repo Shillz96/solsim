@@ -10,7 +10,7 @@
  * - Get moderation stats and history
  */
 
-import { apiClient } from './client'
+import apiClient from '../api'
 
 export interface ModerationStatus {
   canChat: boolean
