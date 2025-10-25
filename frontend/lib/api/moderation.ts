@@ -10,7 +10,7 @@
  * - Get moderation stats and history
  */
 
-import apiClient from '../api'
+import { api as apiClient } from '../api'
 
 export interface ModerationStatus {
   canChat: boolean
@@ -53,7 +53,7 @@ export interface ModerationAction {
  * Get moderation status for a user
  */
 export async function getUserModerationStatus(userId: string): Promise<ModerationStatus> {
-  const response = await apiClient.get(`/chat/moderation/status/${userId}`)
+  const response = await apiClient.get<{ status: ModerationStatus }>(`/chat/moderation/status/${userId}`)
   return response.data.status
 }
 
@@ -65,7 +65,7 @@ export async function muteUser(
   durationMinutes: number,
   reason?: string
 ): Promise<ModerationStatus> {
-  const response = await apiClient.post('/chat/moderation/mute', {
+  const response = await apiClient.post<{ status: ModerationStatus }>('/chat/moderation/mute', {
     userId,
     durationMinutes,
     reason
@@ -77,7 +77,7 @@ export async function muteUser(
  * Unmute a user (remove mute early)
  */
 export async function unmuteUser(userId: string): Promise<ModerationStatus> {
-  const response = await apiClient.post('/chat/moderation/unmute', {
+  const response = await apiClient.post<{ status: ModerationStatus }>('/chat/moderation/unmute', {
     userId
   })
   return response.data.status
@@ -87,7 +87,7 @@ export async function unmuteUser(userId: string): Promise<ModerationStatus> {
  * Ban a user from chat permanently
  */
 export async function banUser(userId: string, reason?: string): Promise<ModerationStatus> {
-  const response = await apiClient.post('/chat/moderation/ban', {
+  const response = await apiClient.post<{ status: ModerationStatus }>('/chat/moderation/ban', {
     userId,
     reason
   })
@@ -98,7 +98,7 @@ export async function banUser(userId: string, reason?: string): Promise<Moderati
  * Unban a user from chat
  */
 export async function unbanUser(userId: string): Promise<ModerationStatus> {
-  const response = await apiClient.post('/chat/moderation/unban', {
+  const response = await apiClient.post<{ status: ModerationStatus }>('/chat/moderation/unban', {
     userId
   })
   return response.data.status
@@ -108,7 +108,7 @@ export async function unbanUser(userId: string): Promise<ModerationStatus> {
  * Add a strike to a user (triggers auto-escalation)
  */
 export async function addStrike(userId: string, reason?: string): Promise<ModerationStatus> {
-  const response = await apiClient.post('/chat/moderation/strike', {
+  const response = await apiClient.post<{ status: ModerationStatus }>('/chat/moderation/strike', {
     userId,
     reason
   })
@@ -119,7 +119,7 @@ export async function addStrike(userId: string, reason?: string): Promise<Modera
  * Clear all strikes for a user
  */
 export async function clearStrikes(userId: string): Promise<ModerationStatus> {
-  const response = await apiClient.delete(`/chat/moderation/clear-strikes/${userId}`)
+  const response = await apiClient.delete<{ status: ModerationStatus }>(`/chat/moderation/clear-strikes/${userId}`)
   return response.data.status
 }
 
@@ -127,7 +127,7 @@ export async function clearStrikes(userId: string): Promise<ModerationStatus> {
  * Delete a chat message
  */
 export async function deleteMessage(messageId: string): Promise<boolean> {
-  const response = await apiClient.delete(`/chat/messages/${messageId}`)
+  const response = await apiClient.delete<{ success: boolean }>(`/chat/messages/${messageId}`)
   return response.data.success
 }
 
@@ -138,7 +138,7 @@ export async function getModerationHistory(
   userId: string,
   limit: number = 20
 ): Promise<ModerationAction[]> {
-  const response = await apiClient.get(`/chat/moderation/history/${userId}`, {
+  const response = await apiClient.get<{ history: ModerationAction[] }>(`/chat/moderation/history/${userId}`, {
     params: { limit }
   })
   return response.data.history
@@ -151,7 +151,7 @@ export async function upgradeUserTier(
   userId: string,
   newTier: 'EMAIL_USER' | 'WALLET_USER' | 'VSOL_HOLDER' | 'MODERATOR' | 'ADMINISTRATOR'
 ): Promise<{ id: string; handle: string; userTier: string }> {
-  const response = await apiClient.post(`/admin/users/${userId}/upgrade-tier`, {
+  const response = await apiClient.post<{ user: { id: string; handle: string; userTier: string } }>(`/admin/users/${userId}/upgrade-tier`, {
     newTier
   })
   return response.data.user
@@ -161,7 +161,7 @@ export async function upgradeUserTier(
  * Get moderation statistics dashboard data
  */
 export async function getModerationStats(): Promise<ModerationStats> {
-  const response = await apiClient.get('/admin/moderation/stats')
+  const response = await apiClient.get<{ stats: ModerationStats }>('/admin/moderation/stats')
   return response.data.stats
 }
 

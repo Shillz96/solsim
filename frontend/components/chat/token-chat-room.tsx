@@ -16,10 +16,13 @@
 import { useState, useEffect, useRef } from 'react'
 import { useAuth } from '@/hooks/use-auth'
 import { useTokenChat } from '@/lib/contexts/TokenChatContext'
+import { useModeration } from '@/hooks/use-moderation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { EmojiPicker } from '@/components/ui/emoji-picker'
-import { Loader2, Send, Users, AlertCircle, Wifi, WifiOff, MessageSquare } from 'lucide-react'
+import { ChatMessage } from '@/components/chat/chat-message'
+import { UserModerationSheet } from '@/components/moderation/user-moderation-sheet'
+import { Loader2, Send, Users, AlertCircle, Wifi, WifiOff, MessageSquare, Shield } from 'lucide-react'
 import { cn, marioStyles } from '@/lib/utils'
 
 interface TokenChatRoomProps {
@@ -29,6 +32,7 @@ interface TokenChatRoomProps {
 
 export function TokenChatRoom({ tokenMint, className }: TokenChatRoomProps) {
   const { user } = useAuth()
+  const { canModerate } = useModeration()
   const {
     messages,
     status,
@@ -41,6 +45,8 @@ export function TokenChatRoom({ tokenMint, className }: TokenChatRoomProps) {
   } = useTokenChat()
 
   const [inputValue, setInputValue] = useState('')
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null)
+  const [moderationSheetOpen, setModerationSheetOpen] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const messagesContainerRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -86,6 +92,13 @@ export function TokenChatRoom({ tokenMint, className }: TokenChatRoomProps) {
     setTimeout(() => inputRef.current?.focus(), 100)
   }
 
+  const handleUserClick = (userId: string) => {
+    if (canModerate && userId !== user?.id) {
+      setSelectedUserId(userId)
+      setModerationSheetOpen(true)
+    }
+  }
+
   // Connection status indicator
   const statusColor =
     status === 'connected' ? 'var(--luigi-green)' :
@@ -120,6 +133,17 @@ export function TokenChatRoom({ tokenMint, className }: TokenChatRoomProps) {
 
         {/* Connection Status */}
         <div className="flex items-center gap-2">
+          {/* Moderator Badge */}
+          {canModerate && (
+            <div className={cn(
+              marioStyles.badgeLg('admin'),
+              'bg-[var(--luigi-green)] border-[var(--luigi-green)]'
+            )}>
+              <Shield className="h-3 w-3 mr-1" />
+              MOD
+            </div>
+          )}
+          
           <div
             className={marioStyles.statusBox(statusColor)}
             style={{ backgroundColor: statusColor }}
@@ -191,79 +215,9 @@ export function TokenChatRoom({ tokenMint, className }: TokenChatRoomProps) {
         ) : (
           <>
             {/* Message List */}
-            {messages.map((msg) => {
-              const isOwnMessage = msg.userId === user?.id
-              const timestamp = new Date(msg.createdAt).toLocaleTimeString([], {
-                hour: '2-digit',
-                minute: '2-digit',
-              })
-
-              return (
-                <div
-                  key={msg.id}
-                  className={cn(
-                    marioStyles.card(true),
-                    isOwnMessage && 'bg-gradient-to-br from-[var(--mario-red)]/20 to-[var(--mario-red)]/5 border-[var(--mario-red)]'
-                  )}
-                >
-                  <div className="flex items-center gap-2 mb-1.5">
-                    {/* Avatar */}
-                    <div className={marioStyles.avatar('sm')}>
-                      <img
-                        src={isOwnMessage ? "/icons/mario/money-bag.png" : "/icons/mario/user.png"}
-                        alt={isOwnMessage ? "Money Bag" : "User"}
-                        className="h-full w-full object-cover"
-                      />
-                    </div>
-
-                    {/* Username */}
-                    <div className={cn(marioStyles.bodyText('bold'), 'text-sm')}>
-                      {msg.user.displayName || `@${msg.user.handle}`}
-                    </div>
-
-                    {/* User Badges */}
-                    {msg.user.userBadges && msg.user.userBadges.length > 0 && (
-                      <div className="flex items-center gap-1">
-                        {msg.user.userBadges.slice(0, 2).map((userBadge) => (
-                          <div
-                            key={userBadge.id}
-                            title={userBadge.badge.displayName}
-                            className={marioStyles.badge}
-                          >
-                            {userBadge.badge.iconUrl ? (
-                              <img
-                                src={userBadge.badge.iconUrl}
-                                alt={userBadge.badge.displayName}
-                                className="h-full w-full object-cover"
-                              />
-                            ) : (
-                              <span className="text-[8px]">🏆</span>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    )}
-
-                    {/* Tier Badge */}
-                    {msg.user.userTier === 'ADMINISTRATOR' && (
-                      <div className={marioStyles.badgeLg('admin')}>
-                        ADMIN
-                      </div>
-                    )}
-
-                    {/* Timestamp */}
-                    <div className={cn(marioStyles.bodyText('medium'), 'text-[11px] opacity-60 ml-auto')}>
-                      {timestamp}
-                    </div>
-                  </div>
-
-                  {/* Message Content */}
-                  <div className={cn(marioStyles.bodyText('medium'), 'text-sm whitespace-pre-wrap break-words leading-relaxed')}>
-                    {msg.content}
-                  </div>
-                </div>
-              )
-            })}
+            {messages.map((msg) => (
+              <ChatMessage key={msg.id} message={msg} onUserClick={handleUserClick} />
+            ))}
           </>
         )}
 
@@ -298,6 +252,12 @@ export function TokenChatRoom({ tokenMint, className }: TokenChatRoomProps) {
           </div>
         )}
       </div>
+
+      <UserModerationSheet
+        userId={selectedUserId}
+        open={moderationSheetOpen}
+        onOpenChange={setModerationSheetOpen}
+      />
     </div>
   )
 }
