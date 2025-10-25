@@ -205,6 +205,39 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
         className
       )}>
         <div className="flex items-center justify-around h-14 px-2">
+          {/* X (Twitter) Logo - Far Left */}
+          <a
+            href="https://x.com/1upsol_fun"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-center min-w-[44px] min-h-[44px] touch-target"
+            aria-label="Follow us on X (Twitter)"
+          >
+            <Image 
+              src="/x-logo/logo.svg" 
+              alt="X" 
+              width={20} 
+              height={20}
+              className="opacity-70 hover:opacity-100 transition-opacity"
+            />
+          </a>
+
+          {/* Market Lighthouse - Next to X logo */}
+          <MarketHover
+            trigger={
+              <div className="flex items-center justify-center min-w-[44px] min-h-[44px] touch-target">
+                <div className="relative w-7 h-7">
+                  <Image
+                    src="/icons/market-data.png"
+                    alt="Market Data"
+                    fill
+                    className="object-contain"
+                  />
+                </div>
+              </div>
+            }
+          />
+          
           {navItems.map((item, index) => {
             const isActive = pathname === item.href
             return (
@@ -267,7 +300,7 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
                 trigger={
                   <div className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg bg-transparent hover:bg-[var(--card)]/10 transition-colors">
                     <div className="flex items-center gap-1.5">
-                      <div className="relative w-7 h-7 animate-bounce">
+                      <div className="relative w-7 h-7">
                         <Image
                           src="/icons/market-data.png"
                           alt="Market Data"
@@ -444,7 +477,7 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
                 trigger={
                   <div className="flex items-center gap-1.5 md:gap-2 px-2 md:px-3 py-1 md:py-1.5 rounded-lg bg-transparent hover:bg-[var(--card)]/10 transition-colors">
                     <div className="flex items-center gap-1 md:gap-1.5">
-                      <div className="relative w-10 h-10 animate-bounce">
+                      <div className="relative w-10 h-10">
                         <Image
                           src="/icons/market-data.png"
                           alt="Market Data"
