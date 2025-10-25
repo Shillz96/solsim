@@ -1,91 +1,90 @@
-import Image from "next/image"
-
 export default function PortfolioLoading() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
-      <main className="container mx-auto px-4 py-6 max-w-page-xl">
-        {/* Header Skeleton - Mario Theme */}
-        <div className="mb-8">
-          <div className="bg-[var(--sky-blue)]/20 border-4 border-[var(--outline-black)] rounded-xl p-6 shadow-[8px_8px_0_var(--outline-black)]">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-4">
-                <div className="bg-[var(--mario-red)] p-3 rounded-lg border-4 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)]">
-                  <Image src="/icons/mario/money-bag.png" alt="Portfolio" width={32} height={32} />
-                </div>
-                <div className="space-y-2">
-                  <div className="h-8 w-48 bg-[var(--sky-200)] border-2 border-[var(--outline-black)] rounded-lg animate-pulse"></div>
-                  <div className="h-4 w-64 bg-[var(--sky-200)] border-2 border-[var(--outline-black)] rounded-lg animate-pulse"></div>
-                </div>
-              </div>
-              
-              {/* Level Badge Skeleton */}
-              <div className="bg-[var(--star-yellow)] border-4 border-[var(--outline-black)] rounded-lg px-4 py-3 shadow-[4px_4px_0_var(--outline-black)]">
-                <div className="h-12 w-16 bg-[var(--coin-gold)] border-2 border-[var(--outline-black)] rounded animate-pulse"></div>
-              </div>
-            </div>
-            
-            {/* XP Bar Skeleton */}
-            <div className="h-6 bg-gray-200 border-3 border-[var(--outline-black)] rounded-full animate-pulse"></div>
-          </div>
+    <div className="min-h-screen p-4 animate-pulse">
+      <div className="max-w-7xl mx-auto">
+        {/* Header skeleton */}
+        <div className="mb-6">
+          <div className="h-10 w-64 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-lg border-2 border-purple-500/30 mb-4" />
+          <div className="h-6 w-48 bg-purple-400/20 rounded" />
         </div>
 
-        {/* Portfolio Metrics Skeleton */}
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
-          {[1, 2, 3, 4].map((i) => (
+        {/* Portfolio stats cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          {[1, 2, 3].map((i) => (
             <div
               key={i}
-              className="bg-[var(--sky-blue)]/20 border-4 border-[var(--outline-black)] rounded-xl shadow-[6px_6px_0_var(--outline-black)] p-6"
+              className="bg-gradient-to-br from-blue-600/20 to-purple-600/20 rounded-xl p-6 border-2 border-blue-500/30"
             >
-              <div className="flex items-center justify-between mb-4">
-                <div className="w-12 h-12 bg-[var(--sky-200)] border-3 border-[var(--outline-black)] rounded-lg animate-pulse" />
-                <div className="h-6 w-20 bg-[var(--sky-200)] border-2 border-[var(--outline-black)] rounded-lg animate-pulse"></div>
-              </div>
-              <div className="h-4 w-24 bg-[var(--sky-200)] rounded mb-2 animate-pulse" />
-              <div className="h-8 w-32 bg-[var(--sky-200)] rounded mb-2 animate-pulse" />
-              <div className="h-3 w-28 bg-[var(--sky-200)] rounded animate-pulse" />
+              <div className="h-5 w-32 bg-blue-400/30 rounded mb-3" />
+              <div className="h-8 w-40 bg-blue-400/30 rounded mb-2" />
+              <div className="h-4 w-24 bg-blue-400/30 rounded" />
             </div>
           ))}
         </div>
 
-        {/* Main Grid Layout */}
-        <div className="grid grid-cols-1 xl:grid-cols-[3fr_1fr] gap-6">
-          {/* Left Column - Main Content */}
-          <div className="space-y-6">
-            {/* PnL Card Skeleton */}
-            <div className="bg-[var(--card)] border-4 border-[var(--outline-black)] rounded-xl shadow-[6px_6px_0_var(--outline-black)] p-6">
-              <div className="flex flex-col items-center justify-center h-48">
-                <div className="relative mb-4">
-                  <div className="h-16 w-16 border-4 border-[var(--luigi-green)]/30 border-t-[var(--luigi-green)] rounded-full animate-spin"></div>
-                  <div className="absolute inset-0 h-16 w-16 flex items-center justify-center">
-                    <Image src="/icons/mario/money-bag.png" alt="Loading" width={24} height={24} className="animate-pulse" />
-                  </div>
-                </div>
-                <span className="font-bold text-[var(--outline-black)] font-mario">LOADING PORTFOLIO...</span>
-                <p className="text-sm text-muted-foreground font-semibold mt-2">Counting your coins!</p>
-              </div>
-            </div>
-
-            {/* Positions Table Skeleton */}
-            <div className="bg-[var(--card)] border-4 border-[var(--pipe-700)] rounded-xl shadow-[6px_6px_0_var(--outline-black)] p-6">
-              <div className="space-y-4">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <div key={i} className="h-16 bg-[var(--sky-200)] border-2 border-[var(--outline-black)] rounded-lg animate-pulse" />
-                ))}
-              </div>
-            </div>
+        {/* Holdings section */}
+        <div className="bg-gradient-to-br from-green-600/20 to-yellow-600/20 rounded-xl p-6 border-4 border-yellow-500/30 mb-6">
+          <div className="flex items-center justify-between mb-4">
+            <div className="h-8 w-48 bg-yellow-400/30 rounded" />
+            <div className="h-10 w-32 bg-green-500/30 rounded-lg border-2 border-green-600/30" />
           </div>
 
-          {/* Right Sidebar Skeleton */}
-          <aside className="space-y-6">
-            <div className="bg-[var(--sky-blue)]/20 border-4 border-[var(--outline-black)] rounded-xl shadow-[6px_6px_0_var(--outline-black)] p-6">
-              <div className="h-32 bg-[var(--sky-200)] border-2 border-[var(--outline-black)] rounded-lg animate-pulse" />
+          {/* Holdings table skeleton */}
+          <div className="space-y-3">
+            {/* Table header */}
+            <div className="grid grid-cols-5 gap-4 pb-3 border-b-2 border-yellow-500/30">
+              {['Token', 'Amount', 'Value', 'P/L', 'Actions'].map((label, i) => (
+                <div key={i} className="h-5 bg-yellow-400/30 rounded" />
+              ))}
             </div>
-            <div className="bg-[var(--sky-blue)]/20 border-4 border-[var(--outline-black)] rounded-xl shadow-[6px_6px_0_var(--outline-black)] p-6">
-              <div className="h-48 bg-[var(--sky-200)] border-2 border-[var(--outline-black)] rounded-lg animate-pulse" />
-            </div>
-          </aside>
+
+            {/* Table rows */}
+            {[1, 2, 3, 4, 5].map((i) => (
+              <div key={i} className="grid grid-cols-5 gap-4 py-3 border-b border-yellow-500/20">
+                <div className="h-6 bg-yellow-400/30 rounded" />
+                <div className="h-6 bg-yellow-400/30 rounded" />
+                <div className="h-6 bg-yellow-400/30 rounded" />
+                <div className="h-6 bg-green-400/30 rounded" />
+                <div className="h-8 w-20 bg-blue-500/30 rounded-lg border-2 border-blue-600/30" />
+              </div>
+            ))}
+          </div>
         </div>
-      </main>
+
+        {/* Transaction history */}
+        <div className="bg-gradient-to-br from-pink-600/20 to-red-600/20 rounded-xl p-6 border-2 border-pink-500/30">
+          <div className="h-8 w-56 bg-pink-400/30 rounded mb-4" />
+
+          <div className="space-y-3">
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <div
+                key={i}
+                className="flex items-center justify-between p-4 bg-black/40 rounded-lg border border-pink-500/30"
+              >
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 bg-pink-400/30 rounded-full" />
+                  <div className="space-y-2">
+                    <div className="h-5 w-32 bg-pink-400/30 rounded" />
+                    <div className="h-4 w-24 bg-pink-400/30 rounded" />
+                  </div>
+                </div>
+                <div className="text-right space-y-2">
+                  <div className="h-5 w-24 bg-pink-400/30 rounded ml-auto" />
+                  <div className="h-4 w-20 bg-pink-400/30 rounded ml-auto" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Loading message */}
+        <div className="mt-6 text-center">
+          <div className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-full border-2 border-purple-500/30">
+            <span className="text-2xl animate-bounce">💰</span>
+            <span className="text-purple-300 font-bold">Loading Portfolio...</span>
+          </div>
+        </div>
+      </div>
     </div>
-  )
+  );
 }
