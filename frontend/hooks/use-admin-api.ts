@@ -193,11 +193,14 @@ const apiCall = async (url: string, options: RequestInit = {}) => {
 
 // Hooks
 export function useAdminStats() {
-  return useQuery<{ success: boolean; stats: AdminStats }>({
+  return useQuery<{ success: boolean; stats: AdminStats }, Error>({
     queryKey: ['admin', 'stats'],
-    queryFn: () => apiCall('/api/admin/stats'),
+    queryFn: async () => {
+      const response = await apiCall('/api/admin/stats');
+      return response as { success: boolean; stats: AdminStats };
+    },
     staleTime: 30000, // 30 seconds
-    cacheTime: 300000, // 5 minutes
+    gcTime: 300000, // 5 minutes (formerly cacheTime)
   });
 }
 
@@ -222,7 +225,7 @@ export function useUsers(
     queryKey: ['admin', 'users', query, filters, page, limit],
     queryFn: () => apiCall(`/api/admin/users?${searchParams}`),
     staleTime: 30000,
-    cacheTime: 300000,
+    gcTime: 300000,
   });
 }
 
@@ -232,7 +235,7 @@ export function useUserDetails(userId: string) {
     queryFn: () => apiCall(`/api/admin/users/${userId}`),
     enabled: !!userId,
     staleTime: 60000, // 1 minute
-    cacheTime: 300000, // 5 minutes
+    gcTime: 300000, // 5 minutes
   });
 }
 
@@ -269,20 +272,26 @@ export function useUpdateUserBalance() {
 }
 
 export function useAnalytics() {
-  return useQuery({
+  return useQuery<{ success: boolean; analytics: Analytics }, Error>({
     queryKey: ['admin', 'analytics'],
-    queryFn: () => apiCall('/api/admin/analytics'),
+    queryFn: async () => {
+      const response = await apiCall('/api/admin/analytics');
+      return response as { success: boolean; analytics: Analytics };
+    },
     staleTime: 300000, // 5 minutes
-    cacheTime: 600000, // 10 minutes
+    gcTime: 600000, // 10 minutes
   });
 }
 
 export function useRecentActivity(limit: number = 20) {
-  return useQuery<{ success: boolean; activity: RecentActivity[] }>({
+  return useQuery<{ success: boolean; activity: RecentActivity[] }, Error>({
     queryKey: ['admin', 'activity', limit],
-    queryFn: () => apiCall(`/api/admin/activity?limit=${limit}`),
+    queryFn: async () => {
+      const response = await apiCall(`/api/admin/activity?limit=${limit}`);
+      return response as { success: boolean; activity: RecentActivity[] };
+    },
     staleTime: 30000, // 30 seconds
-    cacheTime: 300000, // 5 minutes
+    gcTime: 300000, // 5 minutes
   });
 }
 
@@ -291,7 +300,7 @@ export function useModerationConfig() {
     queryKey: ['moderation', 'config'],
     queryFn: () => apiCall('/api/moderation/config'),
     staleTime: 300000, // 5 minutes
-    cacheTime: 600000, // 10 minutes
+    gcTime: 600000, // 10 minutes
   });
 }
 
@@ -315,7 +324,7 @@ export function useModerationStats() {
     queryKey: ['moderation', 'stats'],
     queryFn: () => apiCall('/api/moderation/stats'),
     staleTime: 30000, // 30 seconds
-    cacheTime: 300000, // 5 minutes
+    gcTime: 300000, // 5 minutes
   });
 }
 
@@ -336,7 +345,7 @@ export function useBadges() {
     queryKey: ['badges'],
     queryFn: () => apiCall('/api/badges'),
     staleTime: 300000, // 5 minutes
-    cacheTime: 600000, // 10 minutes
+    gcTime: 600000, // 10 minutes
   });
 }
 
@@ -345,7 +354,7 @@ export function useBadgeStats() {
     queryKey: ['badges', 'stats'],
     queryFn: () => apiCall('/api/badges/stats'),
     staleTime: 30000, // 30 seconds
-    cacheTime: 300000, // 5 minutes
+    gcTime: 300000, // 5 minutes
   });
 }
 

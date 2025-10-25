@@ -7,6 +7,32 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import { authenticateToken } from '../plugins/auth.js';
 
+// Moderation configuration type
+interface ModerationConfig {
+  rateLimit: {
+    messagesPerWindow: number;
+    windowSeconds: number;
+    burstLimit: number;
+  };
+  spam: {
+    repeatedCharThreshold: number;
+    duplicateMessageWindow: number;
+    capsThreshold: number;
+  };
+  trustScore: {
+    initialScore: number;
+    minScore: number;
+    maxScore: number;
+    decayPerStrike: number;
+    recoveryPerDay: number;
+  };
+  autoModeration: {
+    enabled: boolean;
+    muteThreshold: number;
+    banThreshold: number;
+  };
+}
+
 export default async function (app: FastifyInstance) {
   // Helper function to check if user is admin
   async function checkAdminPermissions(userId: string): Promise<boolean> {
@@ -102,7 +128,7 @@ export default async function (app: FastifyInstance) {
    */
   app.post('/config', {
     preHandler: [authenticateToken]
-  }, async (request: FastifyRequest<{ Body: any }>, reply: FastifyReply) => {
+  }, async (request: FastifyRequest<{ Body: ModerationConfig }>, reply: FastifyReply) => {
     try {
       const userId = (request as any).user.id;
       
@@ -113,7 +139,7 @@ export default async function (app: FastifyInstance) {
         });
       }
 
-      const config = request.body;
+      const config = request.body as ModerationConfig;
       
       // Validate configuration structure
       if (!config.rateLimit || !config.spam || !config.trustScore) {
