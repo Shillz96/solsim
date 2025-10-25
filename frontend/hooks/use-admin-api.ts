@@ -193,7 +193,7 @@ const apiCall = async (url: string, options: RequestInit = {}) => {
 
 // Hooks
 export function useAdminStats() {
-  return useQuery({
+  return useQuery<{ success: boolean; stats: AdminStats }>({
     queryKey: ['admin', 'stats'],
     queryFn: () => apiCall('/api/admin/stats'),
     staleTime: 30000, // 30 seconds
@@ -278,7 +278,7 @@ export function useAnalytics() {
 }
 
 export function useRecentActivity(limit: number = 20) {
-  return useQuery({
+  return useQuery<{ success: boolean; activity: RecentActivity[] }>({
     queryKey: ['admin', 'activity', limit],
     queryFn: () => apiCall(`/api/admin/activity?limit=${limit}`),
     staleTime: 30000, // 30 seconds

@@ -134,7 +134,7 @@ export class AdminService {
           updatedAt: {
             gte: new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
           }
-        })
+        }
       }),
       
       // Total badges available
@@ -315,9 +315,9 @@ export class AdminService {
       id: user.id,
       handle: user.handle,
       email: user.email,
-      displayName: user.displayName,
-      bio: user.bio,
-      avatarUrl: user.avatarUrl,
+      displayName: user.displayName ?? undefined,
+      bio: user.bio ?? undefined,
+      avatarUrl: user.avatarUrl ?? undefined,
       userTier: user.userTier,
       virtualSolBalance: Number(user.virtualSolBalance),
       realSolBalance: Number(user.realSolBalance),
@@ -340,9 +340,9 @@ export class AdminService {
         trustScore: user.userModerationStatus.trustScore,
         strikes: user.userModerationStatus.strikes,
         isMuted: user.userModerationStatus.isMuted,
-        mutedUntil: user.userModerationStatus.mutedUntil,
+        mutedUntil: user.userModerationStatus.mutedUntil ?? undefined,
         isBanned: user.userModerationStatus.isBanned,
-        bannedUntil: user.userModerationStatus.bannedUntil
+        bannedUntil: user.userModerationStatus.bannedUntil ?? undefined
       } : undefined,
       stats: {
         totalTrades: user._count.trades,
