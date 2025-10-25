@@ -201,7 +201,7 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
     <>
       {/* Mobile Bottom Nav */}
       <nav className={cn(
-        "fixed bottom-0 left-0 right-0 z-50 border-t-3 border-[var(--outline-black)] bg-[var(--card)] md:hidden pb-[env(safe-area-inset-bottom)] shadow-[0_-4px_0_var(--outline-black)]",
+        "fixed bottom-0 left-0 right-0 z-50 border-t-3 border-[var(--outline-black)] bg-[var(--card)] lg:hidden pb-[env(safe-area-inset-bottom)] shadow-[0_-4px_0_var(--outline-black)]",
         className
       )}>
         <div className="flex items-center justify-around h-14 px-2">
@@ -410,7 +410,7 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
         </div>
 
         {/* Large screens: Horizontal layout */}
-        <div className="hidden lg:block">
+        <div className="hidden lg:block fixed bottom-0 left-0 right-0 z-50 border-t-3 border-[var(--outline-black)] bg-[var(--card)] shadow-[0_-4px_0_var(--outline-black)]">
           <div className="mx-auto flex h-[var(--bottom-nav-height)] items-center justify-between px-4 max-w-content">
             {/* Left: Social Links */}
             <div className="flex items-center gap-2 md:gap-4">
