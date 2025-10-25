@@ -163,7 +163,7 @@ function TradeRoomContent() {
     <div 
       className="flex flex-col bg-[var(--background)] overflow-hidden"
       style={{
-        height: 'calc(100dvh - var(--navbar-height, 56px) - var(--trending-ticker-height, 60px) - var(--bottom-nav-height, 64px))'
+        height: 'calc(100dvh - var(--navbar-height, 56px) - var(--bottom-nav-height, 64px))'
       }}
     >
       {/* Header - Token Info */}

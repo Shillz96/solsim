@@ -17,8 +17,8 @@ export default function PipeNetworkPage() {
     <div 
       className="w-full flex flex-col bg-[var(--background)]" 
       style={{ 
-        height: 'calc(100dvh - var(--navbar-height, 56px) - var(--trending-ticker-height, 60px) - var(--bottom-nav-height, 64px))',
-        maxHeight: 'calc(100dvh - var(--navbar-height, 56px) - var(--trending-ticker-height, 60px) - var(--bottom-nav-height, 64px))',
+        height: 'calc(100dvh - var(--navbar-height, 56px) - var(--bottom-nav-height, 64px))',
+        maxHeight: 'calc(100dvh - var(--navbar-height, 56px) - var(--bottom-nav-height, 64px))',
         overflow: 'hidden'
       }}
     >

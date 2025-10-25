@@ -96,6 +96,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               className="relative"
               style={{
                 minHeight: 'calc(100dvh - var(--navbar-height, 56px) - var(--trending-ticker-height, 60px) - var(--bottom-nav-height, 64px))',
+                paddingTop: 'var(--trending-ticker-height, 60px)', // Add padding for fixed ticker
                 touchAction: 'pan-y', // Optimize touch scrolling on mobile
               }}
               role="main"
