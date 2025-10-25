@@ -81,6 +81,8 @@ export function useChatWebSocket(options: UseChatWebSocketOptions = {}) {
   const [participantCount, setParticipantCount] = useState(0);
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const reconnectAttemptsRef = useRef(0);
+  const maxReconnectAttempts = 10; // Maximum reconnection attempts
+  const isManuallyDisconnectedRef = useRef(false);
   const currentRoomRef = useRef<string | null>(null);
   const messageQueueRef = useRef<Array<any>>([]);
 
@@ -209,16 +211,16 @@ export function useChatWebSocket(options: UseChatWebSocketOptions = {}) {
         console.log('💬 Chat WebSocket closed');
         updateStatus('disconnected');
 
-        // Auto-reconnect with exponential backoff
-        if (reconnectAttemptsRef.current < 10) {
+        // Only reconnect if not manually disconnected and under max attempts
+        if (!isManuallyDisconnectedRef.current && reconnectAttemptsRef.current < maxReconnectAttempts) {
           const delay = Math.min(1000 * Math.pow(2, reconnectAttemptsRef.current), 30000);
-          console.log(`Reconnecting in ${delay}ms (attempt ${reconnectAttemptsRef.current + 1})`);
+          console.log(`Reconnecting in ${delay}ms (attempt ${reconnectAttemptsRef.current + 1}/${maxReconnectAttempts})`);
 
           reconnectTimeoutRef.current = setTimeout(() => {
             reconnectAttemptsRef.current++;
             connect();
           }, delay);
-        } else {
+        } else if (reconnectAttemptsRef.current >= maxReconnectAttempts) {
           setError('Failed to connect after multiple attempts');
         }
       };
@@ -233,8 +235,11 @@ export function useChatWebSocket(options: UseChatWebSocketOptions = {}) {
    * Disconnect from WebSocket
    */
   const disconnect = useCallback(() => {
+    isManuallyDisconnectedRef.current = true;
+    
     if (reconnectTimeoutRef.current) {
       clearTimeout(reconnectTimeoutRef.current);
+      reconnectTimeoutRef.current = null;
     }
     if (wsRef.current) {
       wsRef.current.close();
@@ -325,6 +330,15 @@ export function useChatWebSocket(options: UseChatWebSocketOptions = {}) {
     return () => clearInterval(interval);
   }, [status]);
 
+  // Manual reconnect function
+  const manualReconnect = useCallback(() => {
+    console.log('💬 Manual reconnect requested');
+    disconnect(); // Clean up existing connection
+    reconnectAttemptsRef.current = 0; // Reset attempts
+    isManuallyDisconnectedRef.current = false;
+    setTimeout(() => connect(), 100); // Small delay to ensure cleanup
+  }, [connect, disconnect]);
+
   return {
     status,
     error,
@@ -332,7 +346,9 @@ export function useChatWebSocket(options: UseChatWebSocketOptions = {}) {
     joinRoom,
     leaveRoom,
     sendMessage,
-    reconnect: connect,
+    reconnect: manualReconnect,
     disconnect,
+    reconnectAttempts: reconnectAttemptsRef.current,
+    maxReconnectAttempts,
   };
 }

@@ -50,12 +50,25 @@ export function useRealtimePnL(tradeMode: 'PAPER' | 'REAL' = 'PAPER') {
   const wsRef = useRef<WebSocket | null>(null);
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const reconnectAttemptsRef = useRef(0);
+  const maxReconnectAttempts = 10; // Maximum reconnection attempts
+  const isManuallyDisconnectedRef = useRef(false);
 
   // Get WebSocket URL
   const getWsUrl = useCallback(() => {
+    // Use NEXT_PUBLIC_WS_URL if available (production)
+    if (process.env.NEXT_PUBLIC_WS_URL) {
+      const wsUrl = process.env.NEXT_PUBLIC_WS_URL;
+      // If URL already includes /ws/pnl, use as-is
+      if (wsUrl.includes('/ws/pnl')) {
+        return `${wsUrl}?userId=${user?.id}&tradeMode=${tradeMode}`;
+      }
+      // Otherwise append the path
+      return `${wsUrl}/ws/pnl?userId=${user?.id}&tradeMode=${tradeMode}`;
+    }
+
+    // Fallback to API URL or localhost for development
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const host = process.env.NEXT_PUBLIC_WS_URL?.replace(/^https?:\/\//, '')
-      || process.env.NEXT_PUBLIC_API_URL?.replace(/^https?:\/\//, '')
+    const host = process.env.NEXT_PUBLIC_API_URL?.replace(/^https?:\/\//, '')
       || 'localhost:4000';
 
     return `${protocol}//${host}/ws/pnl?userId=${user?.id}&tradeMode=${tradeMode}`;
@@ -67,13 +80,29 @@ export function useRealtimePnL(tradeMode: 'PAPER' | 'REAL' = 'PAPER') {
       return;
     }
 
+    // Check if we've exceeded max reconnection attempts
+    if (reconnectAttemptsRef.current >= maxReconnectAttempts) {
+      console.error(`[PnL] Max reconnection attempts (${maxReconnectAttempts}) exceeded. Stopping reconnection.`);
+      return;
+    }
+
     try {
       const ws = new WebSocket(getWsUrl());
+      
+      // Connection timeout (10 seconds)
+      const connectionTimeout = setTimeout(() => {
+        if (ws.readyState === WebSocket.CONNECTING) {
+          console.error('[PnL] WebSocket connection timeout');
+          ws.close();
+        }
+      }, 10000);
 
       ws.onopen = () => {
+        clearTimeout(connectionTimeout);
         console.log('[PnL] WebSocket connected');
         setConnected(true);
-        reconnectAttemptsRef.current = 0;
+        reconnectAttemptsRef.current = 0; // Reset on successful connection
+        isManuallyDisconnectedRef.current = false;
       };
 
       ws.onmessage = (event) => {
@@ -117,23 +146,38 @@ export function useRealtimePnL(tradeMode: 'PAPER' | 'REAL' = 'PAPER') {
         }
       };
 
-      ws.onclose = () => {
-        console.log('[PnL] WebSocket disconnected');
+      ws.onclose = (event) => {
+        clearTimeout(connectionTimeout);
+        console.log('[PnL] WebSocket disconnected', { code: event.code, reason: event.reason });
         setConnected(false);
         wsRef.current = null;
 
-        // Exponential backoff reconnect
-        const delay = Math.min(1000 * Math.pow(2, reconnectAttemptsRef.current), 30000);
-        reconnectAttemptsRef.current++;
+        // Only reconnect if not manually disconnected and under max attempts
+        if (!isManuallyDisconnectedRef.current && reconnectAttemptsRef.current < maxReconnectAttempts) {
+          // Exponential backoff reconnect with jitter
+          const baseDelay = Math.min(1000 * Math.pow(2, reconnectAttemptsRef.current), 30000);
+          const jitter = Math.random() * 1000; // Add up to 1 second of jitter
+          const delay = baseDelay + jitter;
+          
+          reconnectAttemptsRef.current++;
 
-        reconnectTimeoutRef.current = setTimeout(() => {
-          console.log(`[PnL] Reconnecting... (attempt ${reconnectAttemptsRef.current})`);
-          connect();
-        }, delay);
+          reconnectTimeoutRef.current = setTimeout(() => {
+            console.log(`[PnL] Reconnecting... (attempt ${reconnectAttemptsRef.current}/${maxReconnectAttempts})`);
+            connect();
+          }, delay);
+        } else if (reconnectAttemptsRef.current >= maxReconnectAttempts) {
+          console.error(`[PnL] Max reconnection attempts reached. WebSocket will not reconnect automatically.`);
+        }
       };
 
       ws.onerror = (error) => {
-        console.error('[PnL] WebSocket error:', error);
+        clearTimeout(connectionTimeout);
+        console.error('[PnL] WebSocket error:', {
+          error,
+          url: getWsUrl(),
+          readyState: ws.readyState,
+          attempt: reconnectAttemptsRef.current + 1
+        });
       };
 
       wsRef.current = ws;
@@ -144,8 +188,11 @@ export function useRealtimePnL(tradeMode: 'PAPER' | 'REAL' = 'PAPER') {
 
   // Disconnect
   const disconnect = useCallback(() => {
+    isManuallyDisconnectedRef.current = true;
+    
     if (reconnectTimeoutRef.current) {
       clearTimeout(reconnectTimeoutRef.current);
+      reconnectTimeoutRef.current = null;
     }
 
     if (wsRef.current) {
@@ -254,6 +301,15 @@ export function useRealtimePnL(tradeMode: 'PAPER' | 'REAL' = 'PAPER') {
     return () => clearInterval(interval);
   }, [connected]);
 
+  // Manual reconnect function
+  const manualReconnect = useCallback(() => {
+    console.log('[PnL] Manual reconnect requested');
+    disconnect(); // Clean up existing connection
+    reconnectAttemptsRef.current = 0; // Reset attempts
+    isManuallyDisconnectedRef.current = false;
+    setTimeout(() => connect(), 100); // Small delay to ensure cleanup
+  }, [connect, disconnect]);
+
   return {
     positions,
     portfolio,
@@ -261,6 +317,8 @@ export function useRealtimePnL(tradeMode: 'PAPER' | 'REAL' = 'PAPER') {
     optimisticTrades,
     addOptimisticTrade,
     clearOptimisticTrades,
-    reconnect: connect
+    reconnect: manualReconnect,
+    reconnectAttempts: reconnectAttemptsRef.current,
+    maxReconnectAttempts
   };
 }
