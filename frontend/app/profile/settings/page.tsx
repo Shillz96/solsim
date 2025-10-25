@@ -337,28 +337,28 @@ function UserSettingsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
+    <div className="min-h-screen bg-gradient-to-br from-[var(--sky-blue)] via-blue-100 to-blue-200">
       <div className="container max-w-4xl mx-auto py-8 pb-24 space-y-6">
         {/* Header */}
-        <div className="mario-header-card">
-          <h1 className="mario-title-standard">Account Settings</h1>
-          <p className="mario-subtitle-standard">Manage your profile and preferences</p>
+        <div className="bg-gradient-to-r from-[var(--mario-red)] to-red-600 p-6 rounded-xl border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)]">
+          <h1 className="text-4xl font-mario text-white drop-shadow-[3px_3px_0_var(--outline-black)]">Account Settings</h1>
+          <p className="text-lg font-bold text-white/90 mt-2">Manage your profile and preferences</p>
         </div>
 
         {/* Avatar Section */}
-        <div className="mario-card-standard">
-        <div className="mario-header-card mb-6">
-          <h2 className="mario-title-standard flex items-center gap-2">
-            <Camera className="h-5 w-5" />
+        <div className="bg-gradient-to-br from-yellow-100 to-orange-100 rounded-xl border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)]">
+        <div className="bg-gradient-to-r from-[var(--star-yellow)] to-yellow-400 p-4 border-b-4 border-[var(--outline-black)]">
+          <h2 className="text-2xl font-mario text-[var(--outline-black)] flex items-center gap-2">
+            <Camera className="h-6 w-6" />
             Profile Picture
           </h2>
-          <p className="mario-subtitle-standard">Update your avatar image</p>
+          <p className="text-sm font-bold text-[var(--outline-black)]/80 mt-1">Update your avatar image</p>
         </div>
         <div className="p-6 space-y-4">
           <div className="flex items-center gap-6">
-            <Avatar className="h-24 w-24 border-4 border-[var(--outline-black)]">
+            <Avatar className="h-24 w-24 border-4 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)]">
               <AvatarImage src={avatarUrl} alt={displayHandle || 'User'} />
-              <AvatarFallback className="text-2xl bg-muted">
+              <AvatarFallback className="text-2xl bg-gradient-to-br from-[var(--luigi-green)] to-emerald-500 text-white font-mario">
                 {displayHandle?.[0]?.toUpperCase() || displayEmail?.[0]?.toUpperCase() || 'U'}
               </AvatarFallback>
             </Avatar>
@@ -368,7 +368,7 @@ function UserSettingsPage() {
                   onClick={() => fileInputRef.current?.click()}
                   disabled={uploadAvatarMutation.isPending}
                   size="sm"
-                  className="mario-btn-standard"
+                  className="font-mario border-3 border-[var(--outline-black)] bg-[var(--luigi-green)] text-white hover:bg-[var(--luigi-green)]/90 shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all"
                 >
                   <Upload className="h-4 w-4 mr-2" />
                   {uploadAvatarMutation.isPending ? 'Uploading...' : 'Upload New'}
@@ -378,7 +378,7 @@ function UserSettingsPage() {
                     onClick={() => removeAvatarMutation.mutate()}
                     disabled={removeAvatarMutation.isPending}
                     size="sm"
-                    className="mario-btn-standard"
+                    className="font-mario border-3 border-[var(--outline-black)] bg-[var(--mario-red)] text-white hover:bg-[var(--mario-red)]/90 shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all"
                   >
                     <Trash2 className="h-4 w-4 mr-2" />
                     {removeAvatarMutation.isPending ? 'Removing...' : 'Remove'}
@@ -404,13 +404,13 @@ function UserSettingsPage() {
       </div>
 
       {/* Profile Information */}
-      <div className="mario-card-standard">
-        <div className="mario-header-card mb-6">
-          <h2 className="mario-title-standard flex items-center gap-2">
-            <User className="h-5 w-5" />
+      <div className="bg-gradient-to-br from-green-100 to-emerald-100 rounded-xl border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)]">
+        <div className="bg-gradient-to-r from-[var(--luigi-green)] to-emerald-500 p-4 border-b-4 border-[var(--outline-black)]">
+          <h2 className="text-2xl font-mario text-white flex items-center gap-2 drop-shadow-[2px_2px_0_var(--outline-black)]">
+            <User className="h-6 w-6" />
             Profile Information
           </h2>
-          <p className="mario-subtitle-standard">Update your personal information</p>
+          <p className="text-sm font-bold text-white/90 mt-1">Update your personal information</p>
         </div>
         <div className="p-6">
           <form onSubmit={(e) => {
@@ -419,47 +419,49 @@ function UserSettingsPage() {
           }} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="username">Username</Label>
+                <Label htmlFor="username" className="font-bold">Username</Label>
                 <div className="flex items-center gap-2">
-                  <span className="text-muted-foreground">@</span>
+                  <span className="text-muted-foreground font-bold">@</span>
                   <Input
                     id="username"
                     value={profileData.handle}
                     onChange={(e) => setProfileData(prev => ({ ...prev, handle: e.target.value }))}
                     placeholder="username"
                     maxLength={30}
+                    className="border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)] bg-white"
                   />
                 </div>
-                <p className="text-xs text-muted-foreground">Your unique handle</p>
+                <p className="text-xs text-muted-foreground font-semibold">Your unique handle</p>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email" className="font-bold">Email</Label>
                 <Input
                   id="email"
                   value={displayEmail}
                   disabled
-                  className="bg-muted opacity-60"
+                  className="bg-gray-200 opacity-60 border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)]"
                 />
-                <p className="text-xs text-muted-foreground">Email cannot be changed</p>
+                <p className="text-xs text-muted-foreground font-semibold">Email cannot be changed</p>
               </div>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="displayName">Display Name</Label>
+              <Label htmlFor="displayName" className="font-bold">Display Name</Label>
               <Input
                 id="displayName"
                 value={profileData.displayName}
                 onChange={(e) => setProfileData(prev => ({ ...prev, displayName: e.target.value }))}
                 placeholder="Your display name"
                 maxLength={50}
+                className="border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)] bg-white"
               />
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-muted-foreground font-semibold">
                 This is how your name appears on the leaderboard
               </p>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="bio">Bio</Label>
+              <Label htmlFor="bio" className="font-bold">Bio</Label>
               <Textarea
                 id="bio"
                 value={profileData.bio}
@@ -467,21 +469,21 @@ function UserSettingsPage() {
                 placeholder="Tell us about yourself..."
                 maxLength={500}
                 rows={3}
-                className="resize-none"
+                className="resize-none border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)] bg-white"
               />
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-muted-foreground font-semibold">
                 {profileData.bio.length}/500 characters
               </p>
             </div>
 
-            <Separator />
+            <Separator className="bg-[var(--outline-black)] h-1" />
 
             <div className="space-y-4">
-              <h4 className="text-sm font-medium">Social Links</h4>
+              <h4 className="text-lg font-mario">Social Links</h4>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="website" className="flex items-center gap-2">
+                  <Label htmlFor="website" className="flex items-center gap-2 font-bold">
                     <Globe className="h-4 w-4" />
                     Website
                   </Label>
@@ -491,10 +493,11 @@ function UserSettingsPage() {
                     value={profileData.website}
                     onChange={(e) => setProfileData(prev => ({ ...prev, website: e.target.value }))}
                     placeholder="https://yourwebsite.com"
+                    className="border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)] bg-white"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="twitter" className="flex items-center gap-2">
+                  <Label htmlFor="twitter" className="flex items-center gap-2 font-bold">
                     <MessageSquare className="h-4 w-4" />
                     X (Twitter)
                   </Label>
@@ -503,10 +506,11 @@ function UserSettingsPage() {
                     value={profileData.twitter}
                     onChange={(e) => setProfileData(prev => ({ ...prev, twitter: e.target.value }))}
                     placeholder="@username"
+                    className="border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)] bg-white"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="discord" className="flex items-center gap-2">
+                  <Label htmlFor="discord" className="flex items-center gap-2 font-bold">
                     <MessageSquare className="h-4 w-4" />
                     Discord
                   </Label>
@@ -515,10 +519,11 @@ function UserSettingsPage() {
                     value={profileData.discord}
                     onChange={(e) => setProfileData(prev => ({ ...prev, discord: e.target.value }))}
                     placeholder="username#1234"
+                    className="border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)] bg-white"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="telegram" className="flex items-center gap-2">
+                  <Label htmlFor="telegram" className="flex items-center gap-2 font-bold">
                     <MessageSquare className="h-4 w-4" />
                     Telegram
                   </Label>
@@ -527,6 +532,7 @@ function UserSettingsPage() {
                     value={profileData.telegram}
                     onChange={(e) => setProfileData(prev => ({ ...prev, telegram: e.target.value }))}
                     placeholder="@username"
+                    className="border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)] bg-white"
                   />
                 </div>
               </div>
@@ -536,7 +542,7 @@ function UserSettingsPage() {
               <Button
                 type="submit"
                 disabled={updateProfileMutation.isPending}
-                className="mario-btn-standard"
+                className="font-mario border-3 border-[var(--outline-black)] bg-[var(--luigi-green)] text-white hover:bg-[var(--luigi-green)]/90 shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all"
               >
                 <Save className="h-4 w-4 mr-2" />
                 {updateProfileMutation.isPending ? 'Saving...' : 'Save Profile'}
