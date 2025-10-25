@@ -32,7 +32,7 @@ import {
   Info
 } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
-import { cn } from '@/lib/utils';
+import { cn, marioStyles } from '@/lib/utils';
 import { usePriceStreamContext } from "@/lib/price-stream-provider";
 // ✅ Import standardized table cells instead of manual formatting
 import { PriceCell, formatUSD, safePercent } from "@/components/ui/table-cells"
@@ -198,13 +198,17 @@ export function TrendingTokensList({
               <div
                 key={token.mint}
                 className={cn(
-                  "flex items-center justify-between p-4 rounded-xl border-4 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)] bg-white",
-                  onSelectToken ? "cursor-pointer hover:shadow-[6px_6px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all duration-200" : ""
+                  marioStyles.card(!!onSelectToken),
+                  "flex items-center justify-between p-4",
+                  onSelectToken && "cursor-pointer"
                 )}
                 onClick={() => handleTokenSelect(token.mint)}
               >
                 <div className="flex items-center">
-                  <div className="flex items-center justify-center w-8 h-8 rounded-full bg-[var(--star-yellow)]/20 border-2 border-[var(--outline-black)] mr-3 overflow-hidden">
+                  <div className={cn(
+                    marioStyles.avatar('md'),
+                    "bg-[var(--star-yellow)]/20 mr-3"
+                  )}>
                     {token.logoURI ? (
                       <img
                         src={token.logoURI}
@@ -269,9 +273,9 @@ export function TrendingTokensList({
 // Skeleton loader for tokens
 function TokenSkeleton() {
   return (
-    <div className="flex items-center justify-between p-4 border-4 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)] rounded-xl bg-white animate-pulse">
+    <div className={cn(marioStyles.card(false), "flex items-center justify-between p-4 animate-pulse")}>
       <div className="flex items-center">
-        <div className="h-8 w-8 rounded-full mr-3 bg-muted border-2 border-[var(--outline-black)]" />
+        <div className={cn(marioStyles.avatar('md'), "mr-3 bg-muted")} />
         <div>
           <div className="h-5 w-24 mb-1 bg-muted rounded" />
           <div className="h-3 w-12 bg-muted rounded" />

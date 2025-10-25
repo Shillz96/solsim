@@ -82,7 +82,7 @@ export function ChatRoom({ tokenMint, className }: ChatRoomProps) {
     status === 'connected' ? 'var(--luigi-green)' :
     status === 'connecting' ? 'var(--star-yellow)' :
     status === 'error' ? 'var(--mario-red)' :
-    'var(--pipe-300)'
+    'var(--pipe-green)'
 
   const StatusIcon = status === 'connected' || status === 'connecting' ? Wifi : WifiOff
 

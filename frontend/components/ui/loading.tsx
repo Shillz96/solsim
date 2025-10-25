@@ -4,7 +4,7 @@ import React from 'react'
 import { motion } from 'framer-motion'
 import { Loader2, TrendingUp, Activity, Wallet, BarChart3 } from 'lucide-react'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
-import { cn } from '@/lib/utils'
+import { cn, marioStyles } from '@/lib/utils'
 
 interface LoadingProps {
   message?: string
@@ -114,7 +114,7 @@ export const ContextualLoader: React.FC<{
  */
 export const PortfolioMetricSkeleton: React.FC = () => {
   return (
-    <Card className="p-6 border-4 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)]">
+    <Card className={cn(marioStyles.card(false), "p-6")}>
       <div className="flex items-start justify-between">
         <div className="space-y-3 flex-1">
           <div className="flex items-center gap-2">
@@ -137,7 +137,7 @@ export const PortfolioMetricSkeleton: React.FC = () => {
  */
 export const TradingFormSkeleton: React.FC = () => {
   return (
-    <Card className="p-6 border-4 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)]">
+    <Card className={cn(marioStyles.card(false), "p-6")}>
       <div className="space-y-4">
         <div className="flex items-center gap-2">
           <ShimmerSkeleton width={24} height={24} className="rounded" />

@@ -25,7 +25,7 @@ import { TrendingUp, TrendingDown, Wallet, AlertCircle, CheckCircle, Loader2, St
 import { usePriceStreamContext } from "@/lib/price-stream-provider"
 import { useTradingMode } from "@/lib/trading-mode-context"
 import { useToast } from "@/hooks/use-toast"
-import { cn } from "@/lib/utils"
+import { cn, marioStyles } from "@/lib/utils"
 import { formatUSD, formatNumber, formatTokenQuantity, formatPriceUSD } from "@/lib/format"
 import { formatSolEquivalent } from "@/lib/sol-equivalent-utils"
 import * as api from "@/lib/api"
@@ -331,9 +331,12 @@ function MarioTradingPanelComponent({ tokenAddress: propTokenAddress }: MarioTra
   const tokenBalance = tokenHolding ? parseFloat(tokenHolding.qty) : 0
 
   return (
-    <div id="trade-panel" className="flex flex-col w-full border-4 border-[var(--outline-black)] rounded-[16px] shadow-[6px_6px_0_var(--outline-black)] bg-gradient-to-br from-white to-amber-50/30">
+    <div id="trade-panel" className={cn(
+      "flex flex-col w-full bg-gradient-to-br from-white to-[var(--star-yellow)]/10",
+      marioStyles.cardLg(false)
+    )}>
       {/* Compact Header Section - Position Stats */}
-      <div className="flex-shrink-0 p-2 border-b-2 border-[var(--outline-black)]/20">
+      <div className="flex-shrink-0 p-2 border-b-3 border-[var(--outline-black)]/20">
         <PositionStatsBox
           tokenAddress={tokenAddress}
           tradeMode={tradeMode}
@@ -387,7 +390,7 @@ function MarioTradingPanelComponent({ tokenAddress: propTokenAddress }: MarioTra
           </div>
 
           {/* Price Display - Compact */}
-          <div className="bg-gradient-to-br from-[var(--star-yellow)] to-amber-300 border-3 border-[var(--outline-black)] rounded-lg p-2 shadow-[2px_2px_0_var(--outline-black)] relative overflow-hidden">
+          <div className="bg-gradient-to-br from-[var(--star-yellow)] to-[var(--coin-gold)] border-3 border-[var(--outline-black)] rounded-lg p-2 shadow-[2px_2px_0_var(--outline-black)] relative overflow-hidden">
             <div className="absolute top-1 right-1 text-xl opacity-20">⭐</div>
             <div className="text-[9px] font-mario font-bold text-[var(--outline-black)]/80 uppercase">
               Current Price
@@ -443,7 +446,7 @@ function MarioTradingPanelComponent({ tokenAddress: propTokenAddress }: MarioTra
 
             {/* Estimated Tokens Display */}
             {(selectedSolAmount || customSolAmount) && currentPrice > 0 && solPrice > 0 && (
-              <div className="bg-gradient-to-br from-green-100 to-emerald-100 border-2 border-[var(--luigi-green)] rounded-lg p-1.5 shadow-[2px_2px_0_var(--outline-black)]">
+              <div className="bg-gradient-to-br from-[var(--luigi-green)]/20 to-[var(--pipe-green)]/20 border-2 border-[var(--luigi-green)] rounded-lg p-1.5 shadow-[2px_2px_0_var(--outline-black)]">
                 <div className="text-[8px] font-mario font-bold text-[var(--outline-black)]/70 uppercase">
                   You'll Receive
                 </div>
@@ -520,7 +523,7 @@ function MarioTradingPanelComponent({ tokenAddress: propTokenAddress }: MarioTra
 
             {/* Estimated SOL Display */}
             {tokenHolding && selectedPercentage && currentPrice > 0 && solPrice > 0 && (
-              <div className="bg-gradient-to-br from-red-100 to-pink-100 border-2 border-[var(--mario-red)] rounded-lg p-1.5 shadow-[2px_2px_0_var(--outline-black)]">
+              <div className="bg-gradient-to-br from-[var(--mario-red)]/20 to-[var(--mario-red)]/10 border-2 border-[var(--mario-red)] rounded-lg p-1.5 shadow-[2px_2px_0_var(--outline-black)]">
                 <div className="text-[8px] font-mario font-bold text-[var(--outline-black)]/70 uppercase">
                   You'll Receive
                 </div>
