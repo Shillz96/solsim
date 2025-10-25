@@ -1,5 +1,6 @@
 "use client"
 
+import "./globals.css"
 import { WindowManager } from "@/components/window"
 import { FloatingWindows } from "@/components/window"
 import { NavBar } from "@/components/navigation/nav-bar"
