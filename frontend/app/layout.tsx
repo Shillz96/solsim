@@ -28,7 +28,7 @@ export default function RootLayout({
       <body className={cn("h-full bg-[var(--background)] text-[var(--foreground)] antialiased")}>
         <AppProviders>
           <WindowManager>
-            <div className="min-h-screen flex flex-col">
+            <div>
               <a
                 href="#main-content"
                 className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:px-4 focus:py-2 focus:bg-mario-red-500 focus:text-white focus:rounded focus:shadow-mario focus:font-mario focus:text-sm focus:border-2 focus:border-white"
@@ -37,13 +37,12 @@ export default function RootLayout({
               </a>
               <NavBar aria-label="Primary navigation" />
               <SlidingTrendingTicker />
-              {/* Spacer div to account for fixed ticker height */}
-              <div style={{ height: 'var(--trending-ticker-height, 60px)' }} />
             </div>
             <main
               id="main-content"
               className="relative"
               style={{
+                paddingTop: 'calc(var(--navbar-height, 56px) + var(--trending-ticker-height, 60px))',
                 minHeight: 'calc(100dvh - var(--navbar-height, 56px) - var(--trending-ticker-height, 60px) - var(--bottom-nav-height, 64px))',
                 touchAction: 'pan-y', // Optimize touch scrolling on mobile
               }}
