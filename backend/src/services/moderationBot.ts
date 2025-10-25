@@ -8,6 +8,7 @@
 import prisma from '../plugins/prisma.js';
 import redis from '../plugins/redis.js';
 import { currentConfig, ModerationConfig } from '../config/moderationConfig.js';
+import crypto from 'crypto';
 
 export interface ModerationResult {
   violations: Violation[];
@@ -433,7 +434,6 @@ export class ModerationBot {
    * Get message hash for duplicate detection
    */
   private static getMessageHash(userId: string, content: string): string {
-    const crypto = require('crypto');
     return crypto.createHash('md5').update(`${userId}:${content.toLowerCase()}`).digest('hex');
   }
 
