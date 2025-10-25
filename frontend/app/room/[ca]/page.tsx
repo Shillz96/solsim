@@ -91,7 +91,7 @@ function TradeRoomContent() {
       <div className="min-h-screen flex items-center justify-center bg-[var(--background)]">
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-2">Invalid Token Address</h1>
-          <p className="text-muted-foreground mb-4">No contract address provided</p>
+          <p className="text-[var(--outline-black)]/70 mb-4">No contract address provided</p>
           <Button onClick={() => router.push('/warp-pipes')}>
             Browse Tokens
           </Button>
@@ -128,7 +128,7 @@ function TradeRoomContent() {
           <Loader2 className="h-12 w-12 animate-spin mx-auto text-[var(--luigi-green)]" />
           <div>
             <h3 className="text-lg font-semibold">Loading Token Data</h3>
-            <p className="text-sm text-muted-foreground">Fetching market information...</p>
+            <p className="text-sm text-[var(--outline-black)]/70">Fetching market information...</p>
           </div>
         </div>
       </div>
@@ -142,7 +142,7 @@ function TradeRoomContent() {
         <div className="text-center space-y-4">
           <div>
             <h1 className="text-2xl font-bold mb-2">Token Not Found</h1>
-            <p className="text-muted-foreground">Unable to load token information</p>
+            <p className="text-[var(--outline-black)]/70">Unable to load token information</p>
           </div>
           <div className="flex gap-3 justify-center">
             <Button
@@ -205,7 +205,7 @@ function TradeRoomContent() {
               </div>
               <div className={cn(
                 marioStyles.bodyText('normal'),
-                'text-xs text-muted-foreground flex items-center gap-2 flex-wrap'
+                'text-xs text-[var(--outline-black)]/70 flex items-center gap-2 flex-wrap'
               )}>
                 <span className={marioStyles.bodyText('bold')}>{tokenDetails.symbol}</span>
                 <span>•</span>
@@ -253,7 +253,7 @@ function TradeRoomContent() {
             <div className="text-right min-w-0">
               <div className={cn(
                 marioStyles.bodyText('normal'),
-                'text-[10px] text-muted-foreground uppercase leading-tight'
+                'text-[10px] text-[var(--outline-black)]/60 uppercase leading-tight'
               )}>MCap</div>
               <div className={cn(
                 marioStyles.bodyText('bold'),
@@ -265,7 +265,7 @@ function TradeRoomContent() {
             <div className="hidden md:block text-right min-w-0">
               <div className={cn(
                 marioStyles.bodyText('normal'),
-                'text-[10px] text-muted-foreground uppercase leading-tight'
+                'text-[10px] text-[var(--outline-black)]/60 uppercase leading-tight'
               )}>Vol 24h</div>
               <div className={cn(
                 marioStyles.bodyText('bold'),
@@ -490,7 +490,7 @@ export default function TradeRoomPage() {
             <Loader2 className="h-12 w-12 animate-spin mx-auto text-[var(--luigi-green)]" />
             <div>
               <h3 className="text-lg font-semibold">Loading Trade Room</h3>
-              <p className="text-sm text-muted-foreground">Preparing your trading interface...</p>
+              <p className="text-sm text-[var(--outline-black)]/70">Preparing your trading interface...</p>
             </div>
           </div>
         </div>

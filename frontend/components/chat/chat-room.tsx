@@ -97,7 +97,7 @@ export function ChatRoom({ tokenMint, className, headerImage, headerImageAlt = '
       )}>
         <div className="flex items-center gap-3 flex-1">
           {headerImage ? (
-            <div className="relative h-12 w-auto">
+            <div className="relative h-12 w-auto flex-1">
               <Image
                 src={headerImage}
                 alt={headerImageAlt}
@@ -108,17 +108,19 @@ export function ChatRoom({ tokenMint, className, headerImage, headerImageAlt = '
               />
             </div>
           ) : (
-            <div className={cn(marioStyles.iconContainer('md', 'white'), 'text-2xl h-12 w-12 rounded-xl')}>
-              💬
-            </div>
+            <>
+              <div className={cn(marioStyles.iconContainer('md', 'white'), 'text-2xl h-12 w-12 rounded-xl')}>
+                💬
+              </div>
+              <div className="flex-1">
+                <div className="font-mario font-bold text-2xl text-white drop-shadow-[2px_2px_0_rgba(0,0,0,0.3)]">COMMUNITY CHAT</div>
+                <div className={cn(marioStyles.bodyText('bold'), 'text-sm text-white/90 flex items-center gap-2')}>
+                  <Users className="h-4 w-4" />
+                  <span>{participantCount > 0 ? `${participantCount} online` : 'Connect with traders & get help'}</span>
+                </div>
+              </div>
+            </>
           )}
-          <div className="flex-1">
-            <div className="font-mario font-bold text-2xl text-white drop-shadow-[2px_2px_0_rgba(0,0,0,0.3)]">COMMUNITY CHAT</div>
-            <div className={cn(marioStyles.bodyText('bold'), 'text-sm text-white/90 flex items-center gap-2')}>
-              <Users className="h-4 w-4" />
-              <span>{participantCount > 0 ? `${participantCount} online` : 'Connect with traders & get help'}</span>
-            </div>
-          </div>
         </div>
 
         {/* Connection Status */}

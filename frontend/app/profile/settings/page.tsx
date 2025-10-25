@@ -337,7 +337,7 @@ function UserSettingsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[var(--sky-blue)] via-blue-100 to-blue-200">
+    <div className="min-h-screen bg-gradient-to-br from-[var(--sky-blue)]/20 via-[var(--super-blue)]/10 to-[var(--sky-blue)]/20">
       <div className="container max-w-4xl mx-auto py-8 pb-24 space-y-6">
         {/* Header */}
         <div className="bg-gradient-to-r from-[var(--mario-red)] to-red-600 p-6 rounded-xl border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)]">
@@ -346,15 +346,15 @@ function UserSettingsPage() {
         </div>
 
         {/* Avatar Section */}
-        <div className="rounded-xl border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] overflow-hidden">
-        <div className="bg-gradient-to-r from-[var(--star-yellow)] to-yellow-400 p-4 border-b-4 border-[var(--outline-black)]">
+        <div className="rounded-[16px] border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] overflow-hidden">
+        <div className="bg-gradient-to-r from-[var(--star-yellow)] to-[var(--coin-gold)] p-4 border-b-4 border-[var(--outline-black)]">
           <h2 className="text-2xl font-mario text-[var(--outline-black)] flex items-center gap-2">
             <Camera className="h-6 w-6" />
             Profile Picture
           </h2>
           <p className="text-sm font-bold text-[var(--outline-black)]/80 mt-1">Update your avatar image</p>
         </div>
-        <div className="p-6 space-y-4 bg-gradient-to-br from-yellow-50 to-orange-50">
+        <div className="p-6 space-y-4 bg-gradient-to-br from-[var(--star-yellow)]/10 to-[var(--coin-gold)]/10">
           <div className="flex items-center gap-6">
             <Avatar className="h-24 w-24 border-4 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)]">
               <AvatarImage src={avatarUrl} alt={displayHandle || 'User'} />
@@ -404,15 +404,15 @@ function UserSettingsPage() {
       </div>
 
       {/* Profile Information */}
-      <div className="rounded-xl border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] overflow-hidden">
-        <div className="bg-gradient-to-r from-[var(--luigi-green)] to-emerald-500 p-4 border-b-4 border-[var(--outline-black)]">
+      <div className="rounded-[16px] border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] overflow-hidden">
+        <div className="bg-gradient-to-r from-[var(--luigi-green)] to-[var(--pipe-green)] p-4 border-b-4 border-[var(--outline-black)]">
           <h2 className="text-2xl font-mario text-white flex items-center gap-2 drop-shadow-[2px_2px_0_var(--outline-black)]">
             <User className="h-6 w-6" />
             Profile Information
           </h2>
           <p className="text-sm font-bold text-white/90 mt-1">Update your personal information</p>
         </div>
-        <div className="p-6 bg-gradient-to-br from-green-50 to-emerald-50">
+        <div className="p-6 bg-gradient-to-br from-[var(--luigi-green)]/10 to-[var(--pipe-green)]/10">
           <form onSubmit={(e) => {
             e.preventDefault()
             updateProfileMutation.mutate(profileData)
@@ -428,7 +428,7 @@ function UserSettingsPage() {
                     onChange={(e) => setProfileData(prev => ({ ...prev, handle: e.target.value }))}
                     placeholder="username"
                     maxLength={30}
-                    className="border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)] bg-white"
+                    className="border-4 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] focus:shadow-[4px_4px_0_var(--outline-black)] bg-[var(--card)]"
                   />
                 </div>
                 <p className="text-xs text-muted-foreground font-semibold">Your unique handle</p>
@@ -478,7 +478,7 @@ function UserSettingsPage() {
 
             <Separator className="bg-[var(--outline-black)] h-1" />
 
-            <div className="space-y-4 bg-white rounded-lg p-4 border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)]">
+            <div className="space-y-4 bg-[var(--card)] rounded-[12px] p-4 border-4 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)]">
               <h4 className="text-lg font-mario">Social Links</h4>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -493,7 +493,7 @@ function UserSettingsPage() {
                     value={profileData.website}
                     onChange={(e) => setProfileData(prev => ({ ...prev, website: e.target.value }))}
                     placeholder="https://yourwebsite.com"
-                    className="border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)] bg-white"
+                    className="border-4 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] focus:shadow-[4px_4px_0_var(--outline-black)] bg-[var(--card)]"
                   />
                 </div>
                 <div className="space-y-2">
@@ -506,7 +506,7 @@ function UserSettingsPage() {
                     value={profileData.twitter}
                     onChange={(e) => setProfileData(prev => ({ ...prev, twitter: e.target.value }))}
                     placeholder="@username"
-                    className="border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)] bg-white"
+                    className="border-4 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] focus:shadow-[4px_4px_0_var(--outline-black)] bg-[var(--card)]"
                   />
                 </div>
                 <div className="space-y-2">
@@ -519,7 +519,7 @@ function UserSettingsPage() {
                     value={profileData.discord}
                     onChange={(e) => setProfileData(prev => ({ ...prev, discord: e.target.value }))}
                     placeholder="username#1234"
-                    className="border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)] bg-white"
+                    className="border-4 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] focus:shadow-[4px_4px_0_var(--outline-black)] bg-[var(--card)]"
                   />
                 </div>
                 <div className="space-y-2">
@@ -532,7 +532,7 @@ function UserSettingsPage() {
                     value={profileData.telegram}
                     onChange={(e) => setProfileData(prev => ({ ...prev, telegram: e.target.value }))}
                     placeholder="@username"
-                    className="border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)] bg-white"
+                    className="border-4 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] focus:shadow-[4px_4px_0_var(--outline-black)] bg-[var(--card)]"
                   />
                 </div>
               </div>
@@ -553,15 +553,15 @@ function UserSettingsPage() {
       </div>
 
       {/* Security Settings */}
-      <div className="rounded-xl border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] overflow-hidden">
-        <div className="bg-gradient-to-r from-[var(--mario-red)] to-red-600 p-4 border-b-4 border-[var(--outline-black)]">
+      <div className="rounded-[16px] border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] overflow-hidden">
+        <div className="bg-gradient-to-r from-[var(--mario-red)] to-[var(--mario-red)]/80 p-4 border-b-4 border-[var(--outline-black)]">
           <h2 className="text-2xl font-mario text-white flex items-center gap-2 drop-shadow-[2px_2px_0_var(--outline-black)]">
             <Shield className="h-6 w-6" />
             Security
           </h2>
           <p className="text-sm font-bold text-white/90 mt-1">Change your password and manage security</p>
         </div>
-        <div className="p-6 bg-gradient-to-br from-red-50 to-pink-50">
+        <div className="p-6 bg-gradient-to-br from-[var(--mario-red)]/10 to-[var(--mario-red)]/5">
           <form onSubmit={(e => {
             e.preventDefault()
             changePasswordMutation.mutate()
@@ -650,17 +650,17 @@ function UserSettingsPage() {
       </div>
 
       {/* App Settings */}
-      <div className="rounded-xl border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] overflow-hidden">
-        <div className="bg-gradient-to-r from-[var(--sky-blue)] to-blue-400 p-4 border-b-4 border-[var(--outline-black)]">
+      <div className="rounded-[16px] border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] overflow-hidden">
+        <div className="bg-gradient-to-r from-[var(--sky-blue)] to-[var(--super-blue)] p-4 border-b-4 border-[var(--outline-black)]">
           <h2 className="text-2xl font-mario text-white flex items-center gap-2 drop-shadow-[2px_2px_0_var(--outline-black)]">
             <Settings className="h-6 w-6" />
             Preferences
           </h2>
           <p className="text-sm font-bold text-white/90 mt-1">Customize your app experience</p>
         </div>
-        <div className="p-6 space-y-6 bg-gradient-to-br from-blue-50 to-cyan-50">
+        <div className="p-6 space-y-6 bg-gradient-to-br from-[var(--sky-blue)]/10 to-[var(--super-blue)]/10">
           {/* Notifications */}
-          <div className="bg-white rounded-lg p-4 border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)]">
+          <div className="bg-[var(--card)] rounded-[12px] p-4 border-4 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)]">
             <h4 className="text-lg font-mario mb-3 flex items-center gap-2">
               <Bell className="h-5 w-5" />
               Notifications
@@ -736,7 +736,7 @@ function UserSettingsPage() {
           <Separator className="bg-[var(--outline-black)] h-1" />
 
           {/* Privacy */}
-          <div className="bg-white rounded-lg p-4 border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)]">
+          <div className="bg-[var(--card)] rounded-[12px] p-4 border-4 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)]">
             <h4 className="text-lg font-mario mb-3 flex items-center gap-2">
               <Eye className="h-5 w-5" />
               Privacy
@@ -798,7 +798,7 @@ function UserSettingsPage() {
           <Separator className="bg-[var(--outline-black)] h-1" />
 
           {/* Trading Preferences */}
-          <div className="bg-white rounded-lg p-4 border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)]">
+          <div className="bg-[var(--card)] rounded-[12px] p-4 border-4 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)]">
             <h4 className="text-lg font-mario mb-3 flex items-center gap-2">
               <DollarSign className="h-5 w-5" />
               Trading
@@ -891,19 +891,19 @@ function UserSettingsPage() {
       </div>
 
       {/* Account Info */}
-      <div className="rounded-xl border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] overflow-hidden">
-        <div className="bg-gradient-to-r from-purple-500 to-pink-500 p-4 border-b-4 border-[var(--outline-black)]">
+      <div className="rounded-[16px] border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] overflow-hidden">
+        <div className="bg-gradient-to-r from-[var(--super-blue)] to-[var(--sky-blue)] p-4 border-b-4 border-[var(--outline-black)]">
           <h2 className="text-2xl font-mario text-white drop-shadow-[2px_2px_0_var(--outline-black)]">Account Information</h2>
         </div>
-        <div className="p-6 bg-gradient-to-br from-purple-50 to-pink-50">
+        <div className="p-6 bg-gradient-to-br from-[var(--super-blue)]/10 to-[var(--sky-blue)]/10">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="bg-white rounded-lg p-4 border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)]">
+            <div className="bg-[var(--card)] rounded-[12px] p-4 border-4 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)]">
               <p className="text-sm font-bold text-[var(--outline-black)]/60 mb-2">Account Type</p>
               <Badge variant="secondary" className="border-2 border-[var(--outline-black)] bg-purple-200 text-[var(--outline-black)] font-bold">
                 {profile?.userTier || 'Standard'}
               </Badge>
             </div>
-            <div className="bg-white rounded-lg p-4 border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)]">
+            <div className="bg-[var(--card)] rounded-[12px] p-4 border-4 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)]">
               <p className="text-sm font-bold text-[var(--outline-black)]/60 mb-2">Balance</p>
               <p className="text-lg font-mario text-[var(--outline-black)]">
                 {profile?.virtualSolBalance
@@ -911,7 +911,7 @@ function UserSettingsPage() {
                   : '10.00'} SOL
               </p>
             </div>
-            <div className="bg-white rounded-lg p-4 border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)]">
+            <div className="bg-[var(--card)] rounded-[12px] p-4 border-4 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)]">
               <p className="text-sm font-bold text-[var(--outline-black)]/60 mb-2">Member Since</p>
               <p className="text-sm font-bold text-[var(--outline-black)]">
                 {profile?.createdAt
@@ -919,7 +919,7 @@ function UserSettingsPage() {
                   : 'Unknown'}
               </p>
             </div>
-            <div className="bg-white rounded-lg p-4 border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)]">
+            <div className="bg-[var(--card)] rounded-[12px] p-4 border-4 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)]">
               <p className="text-sm font-bold text-[var(--outline-black)]/60 mb-2">User ID</p>
               <p className="text-xs font-mono font-bold text-[var(--outline-black)] truncate" title={user.id}>
                 {user.id.slice(0, 12)}...
@@ -930,8 +930,8 @@ function UserSettingsPage() {
       </div>
 
       {/* Purchase Simulated SOL Section */}
-      <div className="rounded-xl border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] overflow-hidden">
-        <div className="bg-gradient-to-r from-orange-500 to-yellow-500 p-4 border-b-4 border-[var(--outline-black)]">
+      <div className="rounded-[16px] border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] overflow-hidden">
+        <div className="bg-gradient-to-r from-[var(--coin-gold)] to-[var(--star-yellow)] p-4 border-b-4 border-[var(--outline-black)]">
           <h2 className="text-2xl font-mario text-white flex items-center gap-2 drop-shadow-[2px_2px_0_var(--outline-black)]">
             <ShoppingCart className="h-6 w-6" />
             Purchase Simulated SOL
@@ -940,9 +940,9 @@ function UserSettingsPage() {
             Add more simulated SOL to your trading balance with real SOL
           </p>
         </div>
-        <div className="p-6 space-y-6 bg-gradient-to-br from-orange-50 to-yellow-50">
+        <div className="p-6 space-y-6 bg-gradient-to-br from-[var(--coin-gold)]/10 to-[var(--star-yellow)]/10">
           {/* Current Balance Display */}
-          <div className="bg-gradient-to-br from-[var(--star-yellow)]/30 to-yellow-200/50 rounded-lg p-6 border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)]">
+          <div className="bg-gradient-to-br from-[var(--star-yellow)]/30 to-[var(--coin-gold)]/30 rounded-[12px] p-6 border-4 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)]">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-bold text-[var(--outline-black)]/70 mb-1">Current Balance</p>
