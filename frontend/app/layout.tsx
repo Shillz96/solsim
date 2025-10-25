@@ -81,7 +81,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
              * Content (z-auto): Main content area
           */}
           <WindowManager>
-            <div className="sticky top-0 z-50">
+            <div>
               <a
                 href="#main-content"
                 className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:px-4 focus:py-2 focus:bg-mario-red-500 focus:text-white focus:rounded focus:shadow-mario focus:font-mario focus:text-sm focus:border-2 focus:border-white"
