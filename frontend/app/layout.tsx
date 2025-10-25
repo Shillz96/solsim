@@ -5,7 +5,7 @@ import { FloatingWindows } from "@/components/window"
 import { NavBar } from "@/components/navigation/nav-bar"
 import { BottomNavBar } from "@/components/navigation/bottom-nav-bar"
 import { SlidingTrendingTicker } from "@/components/trading/sliding-trending-ticker"
-import { QueryProvider } from "@/lib/query-provider"
+import { AppProviders } from "@/components/providers"
 import { cn } from "@/lib/utils"
 
 export default function RootLayout({
@@ -23,7 +23,7 @@ export default function RootLayout({
         <title>1UP SOL - Mario Paper Trading</title>
       </head>
       <body className={cn("h-full bg-[var(--background)] text-[var(--foreground)] antialiased")}>
-        <QueryProvider>
+        <AppProviders>
           <WindowManager>
             <div className="min-h-screen flex flex-col">
               <a
@@ -52,7 +52,7 @@ export default function RootLayout({
             {/* Floating windows render here, positioned absolutely over the page */}
             <FloatingWindows />
           </WindowManager>
-        </QueryProvider>
+        </AppProviders>
       </body>
     </html>
   )
