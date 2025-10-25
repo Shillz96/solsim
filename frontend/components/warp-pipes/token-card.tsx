@@ -169,30 +169,6 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
 
               {/* Metrics Grid - 3 columns */}
               <div className="grid grid-cols-3 gap-2 mb-1 flex-shrink-0">
-                {/* Market Cap */}
-                <div className="flex flex-col">
-                  <div className={marioStyles.formatMetricLabel('MC')}>
-                    Market Cap
-                  </div>
-                  <div className={cn(
-                    marioStyles.formatMetricValue(data.marketCapUsd),
-                    // Highlight market cap > $100k in green
-                    data.marketCapUsd && data.marketCapUsd >= 100000 && 'text-[var(--luigi-green)] font-extrabold text-[15px]'
-                  )}>
-                    {fmtCurrency(data.marketCapUsd)}
-                  </div>
-                </div>
-
-                {/* Volume */}
-                <div className="flex flex-col">
-                  <div className={marioStyles.formatMetricLabel('Vol')}>
-                    Volume 24h
-                  </div>
-                  <div className={marioStyles.formatMetricValue(data.volume24h)}>
-                    {fmtCurrency(data.volume24h)}
-                  </div>
-                </div>
-
                 {/* 24h Change */}
                 <div className="flex flex-col">
                   <div className={marioStyles.formatMetricLabel('24h')}>
@@ -209,6 +185,30 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
                   ) : (
                     <div className={marioStyles.formatMetricValue(null)}>—</div>
                   )}
+                </div>
+
+                {/* Volume */}
+                <div className="flex flex-col">
+                  <div className={marioStyles.formatMetricLabel('Vol')}>
+                    Volume 24h
+                  </div>
+                  <div className={marioStyles.formatMetricValue(data.volume24h)}>
+                    {fmtCurrency(data.volume24h)}
+                  </div>
+                </div>
+
+                {/* Market Cap */}
+                <div className="flex flex-col">
+                  <div className={marioStyles.formatMetricLabel('MC')}>
+                    Market Cap
+                  </div>
+                  <div className={cn(
+                    marioStyles.formatMetricValue(data.marketCapUsd),
+                    // Highlight market cap > $100k in green
+                    data.marketCapUsd && data.marketCapUsd >= 100000 && 'text-[var(--luigi-green)] font-extrabold text-[15px]'
+                  )}>
+                    {fmtCurrency(data.marketCapUsd)}
+                  </div>
                 </div>
               </div>
 
