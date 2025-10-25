@@ -26,8 +26,7 @@ import { useQuery } from "@tanstack/react-query"
 import * as api from "@/lib/api"
 import { useNotifications } from "@/hooks/use-notifications"
 import { useOnboardingContext } from "@/lib/onboarding-provider"
-import { ProfileMenu } from "@/components/navigation/profile-menu"
-import { WalletBalanceDisplay } from "@/components/navigation/wallet-balance-display"
+import { CombinedProfileBalance } from "@/components/navigation/combined-profile-balance"
 import { useBalance } from "@/hooks/use-react-query-hooks"
 import { HourlyRewardTimer } from "@/components/navbar/HourlyRewardTimer"
 
@@ -115,16 +114,14 @@ export function NavBar() {
           <div className="flex items-center gap-3 flex-shrink-0">
             {isAuthenticated ? (
               <>
-                {/* Minimal balance pill with Mario glow effect */}
-                <WalletBalanceDisplay variant="minimal" showDropdown className="h-9 max-w-[140px] sm:max-w-none" />
-
-                {/* New compact Profile Menu with integrated notifications */}
+                {/* Combined Profile + Balance Card */}
                 {user && (
                   <div className="hidden md:block">
-                    <ProfileMenu
+                    <CombinedProfileBalance
                       displayName={displayName}
                       avatarUrl={avatarUrl}
                       xp={parseFloat(user.rewardPoints?.toString() || '0')}
+                      userId={user.id}
                       onLogout={handleLogout}
                       onOpenLevelModal={() => setLevelModalOpen(true)}
                       onStartOnboarding={startOnboarding}
