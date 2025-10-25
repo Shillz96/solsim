@@ -15,13 +15,13 @@ import { ChatRoom } from '@/components/chat/chat-room'
 
 export default function PipeNetworkPage() {
   return (
-    <div className="w-full flex flex-col bg-[var(--background)] min-h-full">
+    <div className="w-full flex flex-col bg-[var(--background)] h-full">
       {/* Centered Header Image */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="flex justify-center items-center py-6 flex-shrink-0"
+        className="flex justify-center items-center py-4 flex-shrink-0"
       >
         <Image
           src="/Pipe-Network-10-24-2025.png"
@@ -32,15 +32,15 @@ export default function PipeNetworkPage() {
         />
       </motion.div>
 
-      {/* Main Chat Area - Centered and Full Height */}
+      {/* Main Chat Area - Full Height to Navigation Bar */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.1 }}
-        className="flex-1 min-h-0 px-4 pb-4"
+        className="flex-1 flex flex-col px-4 pb-4 min-h-0"
       >
-        <div className="bg-gradient-to-br from-[var(--luigi-green)]/10 via-white to-[var(--sky-blue)]/10 border-4 border-[var(--outline-black)] rounded-2xl shadow-[8px_8px_0_var(--outline-black)] overflow-hidden h-full">
-          <div className="bg-gradient-to-r from-[var(--luigi-green)] via-emerald-500 to-[var(--pipe-green)] p-5 border-b-4 border-[var(--outline-black)]">
+        <div className="bg-gradient-to-br from-[var(--luigi-green)]/10 via-white to-[var(--sky-blue)]/10 border-4 border-[var(--outline-black)] rounded-2xl shadow-[8px_8px_0_var(--outline-black)] overflow-hidden flex-1 flex flex-col">
+          <div className="bg-gradient-to-r from-[var(--luigi-green)] via-emerald-500 to-[var(--pipe-green)] p-5 border-b-4 border-[var(--outline-black)] flex-shrink-0">
             <div className="flex items-center gap-4">
               <div className="h-12 w-12 rounded-xl bg-white border-4 border-[var(--outline-black)] flex items-center justify-center shadow-[4px_4px_0_var(--outline-black)] text-2xl">
                 💬
