@@ -29,6 +29,7 @@ import { useOnboardingContext } from "@/lib/onboarding-provider"
 import { ProfileMenu } from "@/components/navigation/profile-menu"
 import { WalletBalanceDisplay } from "@/components/navigation/wallet-balance-display"
 import { useBalance } from "@/hooks/use-react-query-hooks"
+import { HourlyRewardTimer } from "@/components/navbar/HourlyRewardTimer"
 
 // Import extracted components
 import { SearchBar } from "./search-bar"
@@ -112,6 +113,9 @@ export function NavBar() {
 
           {/* Right Side Actions */}
           <div className="flex items-center gap-3 flex-shrink-0">
+            {/* Hourly Rewards Timer - Always visible */}
+            <HourlyRewardTimer />
+
             {isAuthenticated ? (
               <>
                 {/* Minimal balance pill with constrained width on mobile */}

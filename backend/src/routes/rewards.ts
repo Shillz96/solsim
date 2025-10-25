@@ -324,10 +324,10 @@ export default async function rewardsRoutes(app: FastifyInstance) {
 
       // Retry the claim
       app.log.info(`Retrying claim for user ${userId}, epoch ${epoch}`);
-      
+
       try {
         const result = await claimReward(userId, epoch, wallet);
-        
+
         return {
           message: "Claim processed successfully!",
           txSig: result.sig,
@@ -346,6 +346,163 @@ export default async function rewardsRoutes(app: FastifyInstance) {
     } catch (error: any) {
       app.log.error(error);
       return reply.code(500).send({ error: "Failed to retry claim" });
+    }
+  });
+
+  // =====================================================
+  // HOURLY REWARDS ENDPOINTS (NEW SYSTEM)
+  // =====================================================
+
+  // Get seconds until next hourly distribution
+  app.get("/hourly/next-distribution", async (req, reply) => {
+    try {
+      const now = new Date();
+      const nextHour = new Date(now);
+      nextHour.setHours(now.getHours() + 1, 0, 0, 0);
+      const secondsUntilNext = Math.floor((nextHour.getTime() - now.getTime()) / 1000);
+
+      return {
+        secondsUntilNext,
+        nextDistributionTime: nextHour.toISOString()
+      };
+    } catch (error: any) {
+      app.log.error(error);
+      return reply.code(500).send({ error: "Failed to calculate next distribution" });
+    }
+  });
+
+  // Get last hourly distribution with winners (MOCK DATA for now)
+  app.get("/hourly/last-distribution", async (req, reply) => {
+    try {
+      // TODO: Replace with real data from HourlyRewardPayout table when worker is running
+      // For now, return mock data so frontend can be built and tested
+
+      const lastHour = new Date();
+      lastHour.setHours(lastHour.getHours() - 1, 0, 0, 0);
+
+      const mockWinners = [
+        {
+          rank: 1,
+          userId: "mock-user-1",
+          handle: "TradeKing",
+          avatarUrl: null,
+          profitPercent: "127.5",
+          rewardAmount: "0.035",
+          walletAddress: "DemoWallet1111111111111111111111111111",
+          txSignature: "5j7s8K9mN3pQ4rT6vX8yZ1aB2cD3eF4gH5iJ6kL7mN8oP9qR0sT1uV2wX3yZ4",
+          status: "COMPLETED"
+        },
+        {
+          rank: 2,
+          userId: "mock-user-2",
+          handle: "MoonShot",
+          avatarUrl: null,
+          profitPercent: "98.3",
+          rewardAmount: "0.020",
+          walletAddress: "DemoWallet2222222222222222222222222222",
+          txSignature: "6k8t9L0nO4pR5sU7wY9zA2bC3dE4fG5hI6jK7lM8nO9pQ0rS1tU2vW3xY4zA",
+          status: "COMPLETED"
+        },
+        {
+          rank: 3,
+          userId: "mock-user-3",
+          handle: "DiamondHands",
+          avatarUrl: null,
+          profitPercent: "76.2",
+          rewardAmount: "0.010",
+          walletAddress: "DemoWallet3333333333333333333333333333",
+          txSignature: "7l9u0M1oP5qS6tV8xZ0aB3cD4eF5gH6iJ7kL8mN9oP0qR1sT2uV3wX4yZ5aB",
+          status: "COMPLETED"
+        },
+        {
+          rank: 4,
+          userId: "mock-user-4",
+          handle: "SolanaWhale",
+          avatarUrl: null,
+          profitPercent: "54.8",
+          rewardAmount: "0.005",
+          walletAddress: "DemoWallet4444444444444444444444444444",
+          txSignature: "8m0v1N2pQ6rT7uW9yA1bC4dE5fG6hI7jK8lM9nO0pQ1rS2tU3vW4xY5zA6bC",
+          status: "COMPLETED"
+        },
+        {
+          rank: 5,
+          userId: "mock-user-5",
+          handle: "CryptoNinja",
+          avatarUrl: null,
+          profitPercent: "43.1",
+          rewardAmount: "0.005",
+          walletAddress: "DemoWallet5555555555555555555555555555",
+          txSignature: "9n1w2O3qR7sU8vX0yB2cD5eF6gH7iJ8kL9mN0oP1qR2sT3uV4wX5yZ6aB7cD",
+          status: "COMPLETED"
+        },
+        {
+          rank: 6,
+          userId: "mock-user-6",
+          handle: "DeFiMaster",
+          avatarUrl: null,
+          profitPercent: "38.7",
+          rewardAmount: "0.005",
+          walletAddress: "DemoWallet6666666666666666666666666666",
+          txSignature: "0o2x3P4rS8tV9wY1zA3cE6fG7hI8jK9lM0nO1pQ2rS3tU4vW5xY6zA7bC8dE",
+          status: "COMPLETED"
+        },
+        {
+          rank: 7,
+          userId: "mock-user-7",
+          handle: "TokenHunter",
+          avatarUrl: null,
+          profitPercent: "32.4",
+          rewardAmount: "0.005",
+          walletAddress: "DemoWallet7777777777777777777777777777",
+          txSignature: "1p3y4Q5sT9uW0xZ2aB4cF7gH8iJ9kL0mN1oP2qR3sT4uV5wX6yZ7aB8cD9eF",
+          status: "COMPLETED"
+        },
+        {
+          rank: 8,
+          userId: "mock-user-8",
+          handle: "PumpChaser",
+          avatarUrl: null,
+          profitPercent: "28.9",
+          rewardAmount: "0.005",
+          walletAddress: "DemoWallet8888888888888888888888888888",
+          txSignature: "2q4z5R6tU0vX1yA3bC5cG8hI9jK0lM1nO2pQ3rS4tU5vW6xY7zA8bC9dE0fG",
+          status: "COMPLETED"
+        },
+        {
+          rank: 9,
+          userId: "mock-user-9",
+          handle: "ApeStrong",
+          avatarUrl: null,
+          profitPercent: "24.6",
+          rewardAmount: "0.005",
+          walletAddress: "DemoWallet9999999999999999999999999999",
+          txSignature: "3r5a6S7uV1wY2zA4bD6cH9iJ0kL1mN2oP3qR4sT5uV6wX7yZ8aB9cD0eF1gH",
+          status: "COMPLETED"
+        },
+        {
+          rank: 10,
+          userId: "mock-user-10",
+          handle: "GemFinder",
+          avatarUrl: null,
+          profitPercent: "19.3",
+          rewardAmount: "0.005",
+          walletAddress: "DemoWallet0000000000000000000000000000",
+          txSignature: "4s6b7T8vW2xZ3aB5cE7dI0jK1lM2nO3pQ4rS5tU6vW7xY8zA9bC0dE1fG2hI",
+          status: "COMPLETED"
+        }
+      ];
+
+      return {
+        poolId: "mock-pool-id",
+        distributedAt: lastHour.toISOString(),
+        totalPoolAmount: "0.100",
+        winnersCount: 10,
+        winners: mockWinners
+      };
+    } catch (error: any) {
+      app.log.error(error);
+      return reply.code(500).send({ error: "Failed to fetch last distribution" });
     }
   });
 }
