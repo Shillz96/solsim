@@ -331,7 +331,10 @@ function MarioTradingPanelComponent({ tokenAddress: propTokenAddress }: MarioTra
   const tokenBalance = tokenHolding ? parseFloat(tokenHolding.qty) : 0
 
   return (
-    <div id="trade-panel" className="flex flex-col w-full border-4 border-[var(--outline-black)] rounded-2xl shadow-[6px_6px_0_var(--outline-black)] bg-gradient-to-br from-white to-[var(--star-yellow)]/10">
+    <div id="trade-panel" className={cn(
+      marioStyles.cardLg(false),
+      'flex flex-col w-full bg-gradient-to-br from-white to-[var(--star-yellow)]/10'
+    )}>
       {/* Compact Header Section - Position Stats */}
       <div className="flex-shrink-0 p-2 border-b-3 border-[var(--outline-black)]/20">
         <PositionStatsBox
@@ -362,16 +365,21 @@ function MarioTradingPanelComponent({ tokenAddress: propTokenAddress }: MarioTra
           {(tradeError || lastTradeSuccess) && (
             <div className="mb-2">
               {tradeError && (
-                <Alert variant="destructive" className="border-2 border-[var(--mario-red)] py-2">
+                <Alert variant="destructive" className={cn(marioStyles.border('sm'), 'border-[var(--mario-red)] py-2')}>
                   <AlertCircle className="h-3 w-3" />
                   <AlertDescription className="text-xs">{tradeError}</AlertDescription>
                 </Alert>
               )}
 
               {lastTradeSuccess && (
-                <Alert className="border-2 border-[var(--luigi-green)] bg-[var(--luigi-green)]/10 py-2">
+                <Alert className={cn(
+                  marioStyles.border('sm'),
+                  'border-[var(--luigi-green)] bg-[var(--luigi-green)]/10 py-2'
+                )}>
                   <CheckCircle className="h-3 w-3 text-[var(--luigi-green)]" />
-                  <AlertDescription className="text-[var(--luigi-green)] font-bold text-xs">1-UP! Trade executed!</AlertDescription>
+                  <AlertDescription className={cn(marioStyles.bodyText('bold'), 'text-[var(--luigi-green)] text-xs')}>
+                    1-UP! Trade executed!
+                  </AlertDescription>
                 </Alert>
               )}
             </div>
@@ -379,24 +387,27 @@ function MarioTradingPanelComponent({ tokenAddress: propTokenAddress }: MarioTra
 
           {/* Header - Compact */}
           <div className="flex items-center justify-between mb-2">
-            <h3 className="mario-font text-xs truncate">TRADE {tokenDetails.tokenSymbol}</h3>
+            <h3 className={cn(marioStyles.heading(4), 'text-xs truncate')}>TRADE {tokenDetails.tokenSymbol}</h3>
             <div className="flex items-center gap-1 text-xs flex-shrink-0">
               <Wallet className="h-3 w-3 text-[var(--star-yellow)]" />
-              <span className="font-mono font-bold">{balance.toFixed(2)} SOL</span>
+              <span className={cn(marioStyles.bodyText('bold'), 'font-mono')}>{balance.toFixed(2)} SOL</span>
             </div>
           </div>
 
           {/* Price Display - Compact */}
-          <div className="bg-gradient-to-br from-[var(--star-yellow)] to-[var(--coin-gold)] border-3 border-[var(--outline-black)] rounded-lg p-2 shadow-[2px_2px_0_var(--outline-black)] relative overflow-hidden">
+          <div className={cn(
+            marioStyles.card(false),
+            'bg-gradient-to-br from-[var(--star-yellow)] to-[var(--coin-gold)] p-2 relative overflow-hidden'
+          )}>
             <div className="absolute top-1 right-1 text-xl opacity-20">⭐</div>
-            <div className="text-[9px] font-mario font-bold text-[var(--outline-black)]/80 uppercase">
+            <div className={cn(marioStyles.bodyText('bold'), 'text-[9px] text-[var(--outline-black)]/80 uppercase')}>
               Current Price
             </div>
             <AnimatedNumber
               value={currentPrice}
               prefix="$"
               decimals={8}
-              className="font-mono text-sm font-bold text-[var(--outline-black)] break-all relative z-10"
+              className={cn(marioStyles.bodyText('bold'), 'font-mono text-sm break-all relative z-10')}
               colorize={false}
               glowOnChange={true}
             />

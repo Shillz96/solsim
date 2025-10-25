@@ -93,12 +93,12 @@ export function ChatRoom({ tokenMint, className }: ChatRoomProps) {
         marioStyles.headerGradient('var(--luigi-green)', 'emerald-500')
       )}>
         <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-lg bg-white border-3 border-[var(--outline-black)] flex items-center justify-center shadow-[3px_3px_0_var(--outline-black)] text-xl">
+          <div className={cn(marioStyles.iconContainer('md', 'white'), 'text-xl')}>
             💬
           </div>
           <div>
-            <div className="font-mario font-bold text-base text-white">Chat Room</div>
-            <div className="text-xs text-white/90 flex items-center gap-1.5 font-bold">
+            <div className={marioStyles.heading(4)}>Chat Room</div>
+            <div className={cn(marioStyles.bodyText('bold'), 'text-xs text-white/90 flex items-center gap-1.5')}>
               <Users className="h-3.5 w-3.5" />
               <span>{participantCount > 0 ? `${participantCount} online` : 'Loading...'}</span>
             </div>
@@ -121,12 +121,18 @@ export function ChatRoom({ tokenMint, className }: ChatRoomProps) {
 
       {/* Error Banner */}
       {error && (
-        <div className="p-3 bg-[var(--mario-red)] border-b-4 border-[var(--outline-black)] flex items-center gap-2 flex-shrink-0 shadow-[0_4px_0_rgba(0,0,0,0.2)]">
+        <div className={cn(
+          'p-3 border-b-4 border-[var(--outline-black)] flex items-center gap-2 flex-shrink-0',
+          'bg-[var(--mario-red)] shadow-[0_4px_0_rgba(0,0,0,0.2)]'
+        )}>
           <AlertCircle className="h-4 w-4 text-white" />
-          <span className="text-sm text-white font-bold flex-1">{error}</span>
+          <span className={cn(marioStyles.bodyText('bold'), 'text-sm text-white flex-1')}>{error}</span>
           <button
             onClick={clearError}
-            className="text-white hover:text-[var(--star-yellow)] transition-colors text-lg font-bold"
+            className={cn(
+              marioStyles.bodyText('bold'),
+              'text-white hover:text-[var(--star-yellow)] transition-colors text-lg'
+            )}
           >
             ✕
           </button>
@@ -146,15 +152,15 @@ export function ChatRoom({ tokenMint, className }: ChatRoomProps) {
             )}>
               🔒
             </div>
-            <div className="font-mario font-bold text-base mb-2">Sign In to Chat</div>
-            <div className="text-sm text-[var(--outline-black)] opacity-70 font-medium">
+            <div className={marioStyles.heading(4)}>Sign In to Chat</div>
+            <div className={cn(marioStyles.bodyText('medium'), 'text-sm opacity-70')}>
               Sign in to join the conversation
             </div>
           </div>
         ) : status === 'connecting' ? (
           <div className="flex flex-col items-center justify-center h-full text-center p-6">
             <Loader2 className="h-10 w-10 animate-spin text-[var(--luigi-green)] mb-4" />
-            <div className="font-mario font-bold text-base">Connecting to chat...</div>
+            <div className={marioStyles.heading(4)}>Connecting to chat...</div>
           </div>
         ) : messages.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-center p-6">
@@ -164,8 +170,8 @@ export function ChatRoom({ tokenMint, className }: ChatRoomProps) {
             )}>
               💬
             </div>
-            <div className="font-mario font-bold text-base mb-2">No messages yet</div>
-            <div className="text-sm text-[var(--outline-black)] opacity-70 font-medium">
+            <div className={marioStyles.heading(4)}>No messages yet</div>
+            <div className={cn(marioStyles.bodyText('medium'), 'text-sm opacity-70')}>
               Be the first to say something!
             </div>
           </div>
@@ -198,7 +204,7 @@ export function ChatRoom({ tokenMint, className }: ChatRoomProps) {
                     </div>
 
                     {/* Username */}
-                    <div className="text-sm font-bold text-[var(--outline-black)]">
+                    <div className={cn(marioStyles.bodyText('bold'), 'text-sm')}>
                       {msg.user.displayName || `@${msg.user.handle}`}
                     </div>
 
@@ -227,19 +233,19 @@ export function ChatRoom({ tokenMint, className }: ChatRoomProps) {
 
                     {/* Tier Badge */}
                     {msg.user.userTier === 'ADMINISTRATOR' && (
-                      <div className="px-2 py-0.5 rounded-md bg-[var(--mario-red)] border-2 border-[var(--outline-black)] text-[10px] font-mario font-bold text-white shadow-[2px_2px_0_var(--outline-black)]">
+                      <div className={marioStyles.badgeLg('admin')}>
                         ADMIN
                       </div>
                     )}
 
                     {/* Timestamp */}
-                    <div className="text-[11px] text-[var(--outline-black)] opacity-60 ml-auto font-medium">
+                    <div className={cn(marioStyles.bodyText('medium'), 'text-[11px] opacity-60 ml-auto')}>
                       {timestamp}
                     </div>
                   </div>
 
                   {/* Message Content */}
-                  <div className="text-sm whitespace-pre-wrap break-words font-medium text-[var(--outline-black)] leading-relaxed">
+                  <div className={cn(marioStyles.bodyText('medium'), 'text-sm whitespace-pre-wrap break-words leading-relaxed')}>
                     {msg.content}
                   </div>
                 </div>
@@ -260,7 +266,7 @@ export function ChatRoom({ tokenMint, className }: ChatRoomProps) {
             onKeyPress={handleKeyPress}
             placeholder={user ? 'Type a message...' : 'Sign in to chat'}
             disabled={!user || status !== 'connected'}
-            className={cn(marioStyles.input, 'flex-1')}
+            className={cn(marioStyles.input(), 'flex-1')}
             maxLength={280}
           />
           <Button
@@ -272,7 +278,7 @@ export function ChatRoom({ tokenMint, className }: ChatRoomProps) {
           </Button>
         </div>
         {user && inputValue && (
-          <div className="text-xs text-[var(--outline-black)] opacity-60 mt-2 text-right font-medium">
+          <div className={cn(marioStyles.bodyText('medium'), 'text-xs opacity-60 mt-2 text-right')}>
             {inputValue.length}/280
           </div>
         )}

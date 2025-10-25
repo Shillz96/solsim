@@ -8,7 +8,7 @@ import { motion } from "framer-motion"
 
 export function HeroSection() {
   return (
-    <section className="relative overflow-hidden py-20 md:py-32 bg-gradient-to-br from-mario-blue via-mario-red to-mario-yellow">
+    <section className="relative overflow-hidden py-20 md:py-32 bg-gradient-to-br from-sky-blue via-sky-blue to-white">
       {/* Mario-themed gradient background */}
 
       {/* Animated background elements */}

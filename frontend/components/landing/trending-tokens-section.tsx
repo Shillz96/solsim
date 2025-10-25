@@ -22,7 +22,7 @@ export function TrendingTokensSection() {
   const solPrice = livePrices.get('So11111111111111111111111111111111111111112')?.price || 0
 
   return (
-    <section className="py-20 md:py-32 bg-gradient-to-b from-mario-red/10 via-mario-yellow/10 to-mario-green/10 border-t-4 border-b-4 border-mario-red/30">
+    <section className="py-20 md:py-32 bg-gradient-to-b from-sky-blue/10 via-sky-blue/10 to-white/10 border-t-4 border-b-4 border-sky-blue/30">
       <div className="container mx-auto px-4">
         <motion.div
           className="text-center space-y-4 mb-12"

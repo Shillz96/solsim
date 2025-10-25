@@ -184,7 +184,7 @@ export const marioStyles = {
    * @param variant Color variant
    * @param size Size variant: 'sm', 'md', 'lg'
    */
-  button: (variant: 'primary' | 'danger' | 'success' | 'secondary' | 'outline' = 'primary', size: 'sm' | 'md' | 'lg' = 'md') => cn(
+  button: (variant: MarioButtonVariant = 'primary', size: 'sm' | 'md' | 'lg' = 'md') => cn(
     'border-3 border-[var(--outline-black)] font-bold transition-all rounded-lg',
     'shadow-[3px_3px_0_var(--outline-black)]',
     'hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5',
@@ -207,10 +207,12 @@ export const marioStyles = {
 
   /**
    * Icon button - Circular button for icon-only actions
+  /**
+   * Icon button - Circular button for icon-only actions
    * @param variant Color variant
    * @param size Size in pixels (default: 40)
    */
-  iconButton: (variant: 'primary' | 'danger' | 'success' | 'secondary' = 'primary', size: number = 40) => cn(
+  iconButton: (variant: MarioButtonVariant = 'primary', size: number = 40) => cn(
     'rounded-full border-3 border-[var(--outline-black)] font-bold transition-all',
     'shadow-[2px_2px_0_var(--outline-black)]',
     'hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-0.5',
@@ -256,7 +258,7 @@ export const marioStyles = {
    * Larger badge with text - For achievements, tiers, etc.
    * @param variant Color variant
    */
-  badgeLg: (variant: 'gold' | 'silver' | 'bronze' | 'admin' | 'verified' = 'gold') => cn(
+  badgeLg: (variant: MarioBadgeVariant = 'gold') => cn(
     'px-2 py-1 rounded-lg border-3 border-[var(--outline-black)]',
     'shadow-[2px_2px_0_var(--outline-black)]',
     'text-xs font-mario font-bold text-white uppercase',
@@ -270,6 +272,29 @@ export const marioStyles = {
   ),
 
   /* ============================================
+     ICON CONTAINER VARIANTS
+     ============================================ */
+
+  /**
+   * Icon container with Mario styling - For decorative icons
+   * @param size Size variant: 'xs' (24px), 'sm' (32px), 'md' (40px), 'lg' (48px), 'xl' (64px)
+   * @param bgColor Background color (default: white)
+   */
+  iconContainer: (size: MarioSize = 'md', bgColor: string = 'white') => cn(
+    'rounded-lg border-3 border-[var(--outline-black)]',
+    'flex items-center justify-center',
+    'shadow-[3px_3px_0_var(--outline-black)]',
+    `bg-${bgColor}`,
+    {
+      'h-6 w-6 text-sm border-2 shadow-[2px_2px_0_var(--outline-black)]': size === 'xs',
+      'h-8 w-8 text-base': size === 'sm',
+      'h-10 w-10 text-xl': size === 'md',
+      'h-12 w-12 text-2xl': size === 'lg',
+      'h-16 w-16 text-3xl border-4 shadow-[4px_4px_0_var(--outline-black)]': size === 'xl',
+    }
+  ),
+
+  /* ============================================
      AVATAR VARIANTS
      ============================================ */
 
@@ -277,7 +302,7 @@ export const marioStyles = {
    * Avatar with Mario border styling
    * @param size Size variant: 'xs' (16px), 'sm' (24px), 'md' (40px), 'lg' (64px), 'xl' (96px)
    */
-  avatar: (size: 'xs' | 'sm' | 'md' | 'lg' | 'xl' = 'md') => cn(
+  avatar: (size: MarioSize = 'md') => cn(
     'rounded-full border-3 border-[var(--outline-black)]',
     'shadow-[2px_2px_0_var(--outline-black)] overflow-hidden',
     {
@@ -403,7 +428,7 @@ export const marioStyles = {
    * Divider line with Mario styling
    * @param orientation 'horizontal' or 'vertical'
    */
-  divider: (orientation: 'horizontal' | 'vertical' = 'horizontal') => cn(
+  divider: (orientation: MarioOrientation = 'horizontal') => cn(
     'bg-[var(--outline-black)]',
     {
       'h-[3px] w-full my-4': orientation === 'horizontal',
@@ -418,5 +443,110 @@ export const marioStyles = {
     'animate-pulse bg-[var(--sky-blue)]/20',
     'border-3 border-[var(--outline-black)]',
     'rounded-lg'
+  ),
+
+  /* ============================================
+     ROUNDED CORNER UTILITIES - Standardized border radius
+     ============================================ */
+
+  /**
+   * Standardized rounded corners for consistent visual hierarchy
+   * @param size Rounded size variant
+   */
+  rounded: (size: MarioRounded = 'md') => {
+    const roundedMap: Record<MarioRounded, string> = {
+      'sm': 'rounded-lg',    // 8px - small elements, badges
+      'md': 'rounded-xl',    // 12px - cards, inputs
+      'lg': 'rounded-2xl',   // 16px - large cards, panels
+      'xl': 'rounded-[16px]', // 16px - special containers
+      '2xl': 'rounded-[20px]', // 20px - hero sections
+      'full': 'rounded-full',  // circular elements
+    }
+    return roundedMap[size]
+  },
+
+  /* ============================================
+     HOVER TRANSFORM UTILITIES - Standardized lift effects
+     ============================================ */
+
+  /**
+   * Standardized hover lift effect for interactive elements
+   * @param intensity Lift intensity: 'subtle' (0.5px), 'normal' (1px), 'strong' (2px)
+   */
+  hoverLift: (intensity: 'subtle' | 'normal' | 'strong' = 'normal') => cn(
+    'transition-all duration-200',
+    {
+      'hover:-translate-y-0.5': intensity === 'subtle',
+      'hover:-translate-y-[1px]': intensity === 'normal',
+      'hover:-translate-y-[2px]': intensity === 'strong',
+    }
+  ),
+
+  /* ============================================
+     COMBINED INTERACTIVE ELEMENTS - Complete button-like elements
+     ============================================ */
+
+  /**
+   * Interactive card that acts as a button/link
+   * Combines card styling with hover effects
+   * @param size Card size variant
+   */
+  interactiveCard: (size: 'sm' | 'md' | 'lg' = 'md') => cn(
+    'cursor-pointer transition-all duration-200',
+    {
+      'rounded-lg border-2 border-[var(--outline-black)] p-2 bg-white shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-0.5': size === 'sm',
+      'rounded-xl border-3 border-[var(--outline-black)] p-3 bg-white shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5': size === 'md',
+      'rounded-2xl border-4 border-[var(--outline-black)] p-6 bg-white shadow-[6px_6px_0_var(--outline-black)] hover:shadow-[8px_8px_0_var(--outline-black)] hover:-translate-y-1': size === 'lg',
+    }
+  ),
+
+  /* ============================================
+     TEXT UTILITIES - Typography consistency
+     ============================================ */
+
+  /**
+   * Mario-styled heading text
+   * @param level Heading level for semantic sizing
+   */
+  heading: (level: 1 | 2 | 3 | 4 = 2) => cn(
+    'font-mario font-bold text-[var(--outline-black)]',
+    {
+      'text-3xl md:text-4xl': level === 1,
+      'text-2xl md:text-3xl': level === 2,
+      'text-xl md:text-2xl': level === 3,
+      'text-lg md:text-xl': level === 4,
+    }
+  ),
+
+  /**
+   * Body text with consistent styling
+   * @param weight Font weight variant
+   */
+  bodyText: (weight: 'normal' | 'medium' | 'semibold' | 'bold' = 'normal') => cn(
+    'text-[var(--outline-black)]',
+    {
+      'font-normal': weight === 'normal',
+      'font-medium': weight === 'medium',
+      'font-semibold': weight === 'semibold',
+      'font-bold': weight === 'bold',
+    }
+  ),
+
+  /* ============================================
+     BORDER WIDTH UTILITIES - Semantic border system
+     ============================================ */
+
+  /**
+   * Standardized border width for Mario theme
+   * @param size Border size based on element prominence
+   */
+  border: (size: 'sm' | 'md' | 'lg' | 'xl' = 'md') => cn(
+    'border-[var(--outline-black)]',
+    {
+      'border-2': size === 'sm',
+      'border-3': size === 'md',
+      'border-4': size === 'lg',
+      'border-[5px]': size === 'xl',
+    }
   ),
 }

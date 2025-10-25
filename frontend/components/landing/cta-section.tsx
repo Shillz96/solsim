@@ -6,7 +6,7 @@ import { motion } from "framer-motion"
 
 export function CTASection() {
   return (
-    <section className="py-20 md:py-32 bg-gradient-to-br from-mario-red via-mario-yellow to-mario-green relative overflow-hidden">
+    <section className="py-20 md:py-32 bg-gradient-to-br from-sky-blue via-sky-blue to-white relative overflow-hidden">
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-10">
         <motion.div

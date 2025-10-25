@@ -39,7 +39,7 @@ const PurchaseModal = dynamic(() => import("@/components/modals/purchase-modal")
 const LevelProgressModal = dynamic(() => import("@/components/level/level-progress-modal").then(mod => ({ default: mod.LevelProgressModal })), {
   ssr: false
 })
-import { cn } from "@/lib/utils"
+import { cn, marioStyles } from "@/lib/utils"
 import { motion, AnimatePresence } from "framer-motion"
 import { useRouter } from "next/navigation"
 import { useDebounce } from "@/hooks/use-debounce"
@@ -354,7 +354,11 @@ export function NavBar() {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     onKeyDown={handleSearchKeyDown}
-                    className="pl-8 md:pl-10 pr-8 md:pr-10 w-full h-8 md:h-9 text-xs md:text-sm border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)] transition-all font-semibold"
+                    className={cn(
+                      marioStyles.input('sm'),
+                      'pl-8 md:pl-10 pr-8 md:pr-10 w-full h-8 md:h-9 text-xs md:text-sm',
+                      marioStyles.bodyText('semibold')
+                    )}
                   />
                   {isSearching && (
                     <Loader2 className="absolute right-2 md:right-3 top-1/2 transform -translate-y-1/2 h-3.5 md:h-4 w-3.5 md:w-4 animate-spin text-muted-foreground" />
@@ -363,7 +367,13 @@ export function NavBar() {
               </PopoverTrigger>
               <PopoverContent
                 align="start"
-                className="w-full p-0 bg-white border-3 md:border-4 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)] md:shadow-[6px_6px_0_var(--outline-black)] rounded-lg md:rounded-xl max-h-80 overflow-y-auto"
+                className={cn(
+                  'w-full p-0 bg-white max-h-80 overflow-y-auto',
+                  marioStyles.border('lg'),
+                  'border-[var(--outline-black)]',
+                  marioStyles.shadowLg,
+                  marioStyles.rounded('xl')
+                )}
                 sideOffset={8}
               >
                 <AnimatePresence>
@@ -375,7 +385,12 @@ export function NavBar() {
                       transition={{ duration: 0.15 }}
                     >
                       <div className="p-1.5 md:p-2">
-                        <div className="text-[10px] md:text-xs text-muted-foreground px-2 py-1.5 md:py-2 font-mario font-bold border-b-2 md:border-b-3 border-[var(--outline-black)] mb-1 uppercase tracking-wide">
+                        <div className={cn(
+                          marioStyles.heading(4),
+                          'text-[10px] md:text-xs text-muted-foreground px-2 py-1.5 md:py-2',
+                          marioStyles.border('sm'),
+                          'border-b border-[var(--outline-black)] mb-1 uppercase tracking-wide'
+                        )}>
                           Search Results
                         </div>
                         {searchResults.map((token, index) => (

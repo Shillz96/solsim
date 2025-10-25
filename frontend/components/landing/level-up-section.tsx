@@ -41,7 +41,7 @@ const levelExamples = [
 
 export function LevelUpSection() {
   return (
-    <section className="py-20 md:py-32 bg-gradient-to-b from-mario-blue/20 via-mario-red/10 to-mario-yellow/20 border-t-4 border-mario-yellow">
+    <section className="py-20 md:py-32 bg-gradient-to-b from-sky-blue/20 via-sky-blue/10 to-white/20 border-t-4 border-sky-blue">
       <div className="container mx-auto px-4">
         <motion.div
           className="text-center space-y-4 mb-16"
