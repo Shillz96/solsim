@@ -87,8 +87,8 @@ export const defaultModerationConfig: ModerationConfig = {
   // Spam Detection - Only detect obvious spam patterns
   spam: {
     repeatedCharThreshold: 8, // 8+ repeated characters = spam (was 4)
-    duplicateMessageWindow: 10, // Check last 10 seconds (was 30)
-    duplicateMessageThreshold: 10 // 10+ identical messages = spam (was 3)
+    duplicateMessageWindow: 60, // Check last 60 seconds (was 10)
+    duplicateMessageThreshold: 20 // 20+ identical messages = spam (was 10)
   },
 
   // Toxicity Detection - Disabled for lenient moderation

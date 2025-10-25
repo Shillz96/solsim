@@ -108,9 +108,6 @@ export function NavBar() {
           {/* Desktop Navigation - Centered */}
           <DesktopNavigation />
 
-          {/* Hourly Rewards Timer - Left of search */}
-          <HourlyRewardTimer />
-
           {/* Enhanced Search Bar - Narrower */}
           <SearchBar />
 

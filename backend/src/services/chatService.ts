@@ -98,10 +98,10 @@ export async function sendMessage(
       };
     }
 
-    // 4. Duplicate detection (skip for admins)
+    // 4. Duplicate detection (skip for admins) - More lenient now
     if (!isAdmin) {
       const messageHash = getMessageHash(userId, sanitized);
-      const isDuplicate = await isDuplicateMessage(messageHash);
+      const isDuplicate = await isDuplicateMessage(messageHash, 60); // 60 second window instead of 30
       if (isDuplicate) {
         return {
           success: false,
@@ -240,7 +240,7 @@ function getMessageHash(userId: string, content: string): string {
 /**
  * Check if message is duplicate
  */
-async function isDuplicateMessage(hash: string): Promise<boolean> {
+async function isDuplicateMessage(hash: string, windowSeconds: number = 30): Promise<boolean> {
   const key = `chat:duplicate:${hash}`;
   const exists = await redis.exists(key);
   
@@ -248,7 +248,7 @@ async function isDuplicateMessage(hash: string): Promise<boolean> {
     return true;
   }
 
-  await redis.setex(key, 30, '1'); // 30 seconds
+  await redis.setex(key, windowSeconds, '1'); // Use configurable window
   return false;
 }
 

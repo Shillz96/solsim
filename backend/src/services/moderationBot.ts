@@ -31,10 +31,9 @@ export interface ModerationAction {
 }
 
 export class ModerationBot {
+  // Only flag extreme spam - 8+ repeated characters
   private static readonly SPAM_PATTERNS = [
-    /(.)\1{4,}/g, // Repeated characters
-    /(.)\1{3,}/g, // Repeated characters (less strict)
-    /(.)\1{2,}/g, // Repeated characters (even less strict)
+    /(.)\1{7,}/g, // 8+ repeated characters
   ];
 
   private static readonly TOXICITY_PATTERNS = [
@@ -120,30 +119,19 @@ export class ModerationBot {
       };
     }
 
-    // Check for repeated characters
-    for (const pattern of this.SPAM_PATTERNS) {
-      if (pattern.test(content)) {
-        return {
-          type: 'SPAM',
-          severity: 'MEDIUM',
-          confidence: 80,
-          details: 'Repeated characters detected'
-        };
-      }
-    }
-
-    // Check for duplicate messages
-    const messageHash = this.getMessageHash(userId, content);
-    const isDuplicate = await this.isDuplicateMessage(messageHash);
-    
-    if (isDuplicate) {
+    // Check for repeated characters (only extreme cases)
+    const repeatedCharPattern = /(.)\1{7,}/g; // 8+ repeated characters
+    if (repeatedCharPattern.test(content)) {
       return {
         type: 'SPAM',
-        severity: 'HIGH',
-        confidence: 90,
-        details: 'Duplicate message detected'
+        severity: 'MEDIUM',
+        confidence: 80,
+        details: 'Repeated characters detected'
       };
     }
+
+    // Duplicate message detection is handled in chatService.ts
+    // Don't double-check here to avoid being too strict
 
     return null;
   }

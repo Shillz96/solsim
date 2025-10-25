@@ -11,6 +11,7 @@ import * as api from "@/lib/api"
 import { cn } from "@/lib/utils"
 import { useState, useEffect } from "react"
 import { useQuery } from "@tanstack/react-query"
+import { HourlyRewardTimer } from "@/components/navbar/HourlyRewardTimer"
 import "@/styles/ticker.css"
 
 /**
@@ -219,6 +220,11 @@ export function SlidingTrendingTicker() {
         {/* Gradient Fade Edges */}
         <div className="absolute top-0 left-0 h-full w-20 bg-gradient-to-r from-[var(--brick-brown)] to-transparent pointer-events-none z-5" />
         <div className="absolute top-0 right-0 h-full w-20 bg-gradient-to-l from-[var(--brick-brown)] to-transparent pointer-events-none z-5" />
+        
+        {/* Hourly Rewards Timer Overlay - Centered */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 pointer-events-auto">
+          <HourlyRewardTimer />
+        </div>
       </div>
     </div>
   )
