@@ -313,21 +313,30 @@ module.exports = {
         'modal': '0 20px 40px -8px rgba(0, 0, 0, 0.2)',
       },
       
-      // Z-index Scale for Proper Layering
+      // Z-index Scale - Uses CSS custom properties from theme.css
+      // This provides consistent z-index values across Tailwind utilities and raw CSS
       zIndex: {
         '0': '0',
-        '10': '10',
-        '20': '20',
-        '30': '30',
-        '40': '40',
-        '50': '50',
-        '75': '75',
-        '100': '100',
-        'dropdown': '1000',
-        'sticky': '1100',
-        'modal': '1300',
-        'popover': '1400',
-        'tooltip': '1500',
+        'base': 'var(--z-base)',
+        'background-texture': 'var(--z-background-texture)',
+        'content': 'var(--z-content)',
+        'foreground-texture': 'var(--z-foreground-texture)',
+        'header': 'var(--z-header)',
+        'nav': 'var(--z-nav)',
+        'dropdown': 'var(--z-dropdown)',
+        'sidebar': 'var(--z-sidebar)',
+        'sticky': 'var(--z-sticky)',
+        'modal-backdrop': 'var(--z-modal-backdrop)',
+        'modal': 'var(--z-modal)',
+        'wallet-modal-backdrop': 'var(--z-wallet-modal-backdrop)',
+        'wallet-modal': 'var(--z-wallet-modal)',
+        'popover': 'var(--z-popover)',
+        'badge-tooltip': 'var(--z-badge-tooltip)',
+        'tooltip': 'var(--z-tooltip)',
+        'toast': 'var(--z-toast)',
+        'loading': 'var(--z-loading)',
+        'onboarding': 'var(--z-onboarding)',
+        'debug': 'var(--z-debug)',
       },
       
       keyframes: {

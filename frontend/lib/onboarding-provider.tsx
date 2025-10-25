@@ -131,7 +131,7 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
                 boxShadow: "6px 6px 0 var(--outline-black)",
                 padding: "1.5rem",
                 maxWidth: "400px",
-                zIndex: 9999,
+                zIndex: "var(--z-onboarding)",
               }}
             >
               {/* Icon */}

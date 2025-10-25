@@ -6,34 +6,10 @@
  * - Z-index conflicts causing overlapping content
  * - Heavy backdrop filters that impact mobile performance
  * - Inconsistent panel appearance across components
+ * 
+ * NOTE: Z-index values are now defined in theme.css as CSS custom properties.
+ * This file uses those tokens for consistency across the application.
  */
-
-/* =============================================================================
-   Z-INDEX HIERARCHY - Single source of truth
-   ============================================================================= */
-
-:root {
-  /* Base layers */
-  --z-base: 1;
-  --z-content: 10;
-  
-  /* Interface layers */
-  --z-header: 100;
-  --z-nav: 200;
-  --z-dropdown: 300;
-  --z-sidebar: 400;
-  
-  /* Overlay layers */
-  --z-modal-backdrop: 1000;
-  --z-modal: 1010;
-  --z-popover: 1020;
-  --z-tooltip: 1030;
-  
-  /* System layers */
-  --z-toast: 1100;
-  --z-loading: 1200;
-  --z-debug: 9999;
-}
 
 /* =============================================================================
    PANEL FOUNDATION - Solid, readable backgrounds

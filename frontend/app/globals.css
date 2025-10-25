@@ -61,7 +61,7 @@
     opacity: 0.2;
     mix-blend-mode: multiply;
     pointer-events: none;
-    z-index: 1;
+    z-index: var(--z-background-texture);
     filter: blur(0.5px); /* Slight blur to hide any remaining seams */
   }
 
@@ -80,13 +80,13 @@
     opacity: 0.08;
     mix-blend-mode: multiply;
     pointer-events: none;
-    z-index: 9999;
+    z-index: var(--z-foreground-texture);
     filter: blur(0.3px); /* Slight blur for smooth grain */
   }
 
   body > * {
     position: relative;
-    z-index: 2;
+    z-index: var(--z-content);
   }
 
   /* Typography */
@@ -572,7 +572,7 @@
 [data-slot="tabs-trigger"]:focus-visible {
   outline: 3px solid var(--color-outline-black);
   outline-offset: 2px;
-  z-index: 10;
+  z-index: var(--z-content);
 }
 
 /* Tab Color Variants */

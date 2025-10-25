@@ -142,6 +142,54 @@
   --metric-positive: var(--luigi-green);
   --metric-negative: var(--mario-red);
   --metric-neutral: var(--pipe-green);
+
+  /**
+   * Z-INDEX SCALE - Single source of truth for all layering
+   * 
+   * This unified system replaces conflicting z-index values across:
+   * - panel.css
+   * - tailwind.config.js
+   * - wallet-modal-override.css
+   * - globals.css
+   * - All component inline styles
+   * 
+   * Scale Structure:
+   * 0-10: Base content layers
+   * 100-900: Interface elements (headers, nav, dropdowns)
+   * 1000-1900: Overlays (modals, popovers, tooltips)
+   * 2000+: System overlays (toasts, loading, alerts)
+   * 9999: Debug & texture overlays
+   */
+  
+  /* Base Content Layers (0-10) */
+  --z-base: 0;
+  --z-background-texture: 1;      /* Background texture layer */
+  --z-content: 2;                 /* Main content layer */
+  --z-foreground-texture: 9999;   /* Top texture overlay */
+  
+  /* Interface Elements (100-900) */
+  --z-header: 100;
+  --z-nav: 200;
+  --z-dropdown: 300;
+  --z-sidebar: 400;
+  --z-sticky: 500;
+  
+  /* Overlay Elements (1000-1900) */
+  --z-modal-backdrop: 1000;
+  --z-modal: 1010;
+  --z-wallet-modal-backdrop: 1100;  /* Wallet modal system */
+  --z-wallet-modal: 1110;           /* Wallet modal content */
+  --z-popover: 1200;
+  --z-badge-tooltip: 1300;
+  --z-tooltip: 1400;
+  
+  /* System Overlays (2000+) */
+  --z-toast: 2000;
+  --z-loading: 2100;
+  --z-onboarding: 2200;
+  
+  /* Debug & Special (9999) */
+  --z-debug: 9998;
 }
 
 /**

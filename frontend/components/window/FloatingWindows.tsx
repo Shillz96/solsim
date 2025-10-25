@@ -5,6 +5,10 @@ import { useWindowManager } from './WindowManager';
 import type { WinState } from './WindowManager';
 import { useCallback, useState, Component, ReactNode, useEffect } from 'react';
 
+// Z-index base for floating windows container
+// Windows themselves have dynamic z-index managed by WindowManager
+const FLOATING_WINDOWS_CONTAINER_Z = 'var(--z-header)';
+
 // react-rnd exports a named Rnd; dynamic import to avoid SSR issues
 const Rnd = dynamic(async () => {
   try {
@@ -177,7 +181,7 @@ export default function FloatingWindows() {
 
   return (
     <FloatingWindowsErrorBoundary>
-      <div className="fixed inset-0 pointer-events-none" style={{ zIndex: 100 }}>
+      <div className="fixed inset-0 pointer-events-none" style={{ zIndex: FLOATING_WINDOWS_CONTAINER_Z }}>
         {windows.map(w => (
           <Rnd
             key={w.id}

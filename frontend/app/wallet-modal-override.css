@@ -1,20 +1,20 @@
 /* Wallet Modal Z-Index Override */
-/* Ensures wallet modal appears above other dialogs */
+/* Ensures wallet modal appears above other dialogs using unified z-index system */
 .wallet-adapter-modal-wrapper {
-  z-index: 9999 !important;
+  z-index: var(--z-wallet-modal) !important;
 }
 
 .wallet-adapter-modal-overlay {
-  z-index: 9998 !important;
+  z-index: var(--z-wallet-modal-backdrop) !important;
 }
 
 .wallet-adapter-modal {
-  z-index: 9999 !important;
+  z-index: var(--z-wallet-modal) !important;
 }
 
 /* Ensure modal container and its children are clickable */
 .wallet-adapter-modal-container {
-  z-index: 9999 !important;
+  z-index: var(--z-wallet-modal) !important;
   pointer-events: auto !important;
 }
 
@@ -24,11 +24,11 @@
 
 /* Fix for wallet buttons inside the modal */
 .wallet-adapter-modal-list {
-  z-index: 9999 !important;
+  z-index: var(--z-wallet-modal) !important;
 }
 
 .wallet-adapter-modal-list-more {
-  z-index: 9999 !important;
+  z-index: var(--z-wallet-modal) !important;
 }
 
 .wallet-adapter-button {
