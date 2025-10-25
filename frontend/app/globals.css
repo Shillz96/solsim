@@ -245,7 +245,59 @@
    Reusable styling patterns for consistent Mario theme
 --------------------------- */
 
-/* Mario Shadow System - Standardized box shadows */
+/* ============================================
+   MARIO CARD SYSTEM - Semantic card variants
+   ============================================ */
+
+/* Standard Mario Card - Most common use case */
+.mario-card {
+  background: white;
+  border: 3px solid var(--outline-black);
+  border-radius: var(--radius-xl);
+  box-shadow: 3px 3px 0 var(--outline-black);
+  padding: 0.75rem;
+  transition: all 0.2s;
+}
+
+.mario-card:hover {
+  box-shadow: 4px 4px 0 var(--outline-black);
+  transform: translateY(-2px);
+}
+
+/* Large Prominent Card - Headers, hero sections */
+.mario-card-lg {
+  background: white;
+  border: 4px solid var(--outline-black);
+  border-radius: var(--radius-2xl);
+  box-shadow: 6px 6px 0 var(--outline-black);
+  padding: 1.5rem;
+  transition: all 0.2s;
+}
+
+.mario-card-lg:hover {
+  box-shadow: 8px 8px 0 var(--outline-black);
+  transform: translateY(-4px);
+}
+
+/* Compact Card - List items, tight layouts */
+.mario-card-sm {
+  background: white;
+  border: 2px solid var(--outline-black);
+  border-radius: var(--radius-lg);
+  box-shadow: 2px 2px 0 var(--outline-black);
+  padding: 0.5rem;
+  transition: all 0.2s;
+}
+
+.mario-card-sm:hover {
+  box-shadow: 3px 3px 0 var(--outline-black);
+  transform: translateY(-2px);
+}
+
+/* ============================================
+   MARIO SHADOW SYSTEM - Semantic shadows
+   ============================================ */
+
 .mario-shadow-sm {
   box-shadow: 2px 2px 0 var(--outline-black);
 }
@@ -254,11 +306,26 @@
   box-shadow: 3px 3px 0 var(--outline-black);
 }
 
-.mario-shadow-lg {
+.mario-shadow-md {
   box-shadow: 4px 4px 0 var(--outline-black);
 }
 
-/* Mario Border System - Consistent borders */
+.mario-shadow-lg {
+  box-shadow: 6px 6px 0 var(--outline-black);
+}
+
+.mario-shadow-xl {
+  box-shadow: 8px 8px 0 var(--outline-black);
+}
+
+/* ============================================
+   MARIO BORDER SYSTEM - Semantic borders
+   ============================================ */
+
+.mario-border-sm {
+  border: 2px solid var(--outline-black);
+}
+
 .mario-border {
   border: 3px solid var(--outline-black);
 }
@@ -267,7 +334,10 @@
   border: 4px solid var(--outline-black);
 }
 
-/* Mario Interactive Elements - Hover effects */
+/* ============================================
+   MARIO INTERACTIVE ELEMENTS - Hover effects
+   ============================================ */
+
 .mario-interactive {
   border: 3px solid var(--outline-black);
   box-shadow: 3px 3px 0 var(--outline-black);
@@ -276,15 +346,30 @@
 
 .mario-interactive:hover {
   box-shadow: 4px 4px 0 var(--outline-black);
-  transform: translateY(-1px);
+  transform: translateY(-2px);
 }
 
-/* Mario Avatar System - Avatar styling */
+.mario-interactive:active {
+  box-shadow: 2px 2px 0 var(--outline-black);
+  transform: translateY(0);
+}
+
+/* ============================================
+   MARIO AVATAR SYSTEM
+   ============================================ */
+
 .mario-avatar {
   border: 3px solid var(--outline-black);
   box-shadow: 2px 2px 0 var(--outline-black);
   border-radius: 9999px;
   overflow: hidden;
+}
+
+.mario-avatar-xs {
+  height: 1rem;
+  width: 1rem;
+  border: 2px solid var(--outline-black);
+  box-shadow: 1px 1px 0 var(--outline-black);
 }
 
 .mario-avatar-sm {
@@ -300,9 +385,22 @@
 .mario-avatar-lg {
   height: 4rem;
   width: 4rem;
+  border: 4px solid var(--outline-black);
+  box-shadow: 3px 3px 0 var(--outline-black);
 }
 
-/* Mario Badge System - Small badges */
+.mario-avatar-xl {
+  height: 6rem;
+  width: 6rem;
+  border: 4px solid var(--outline-black);
+  box-shadow: 4px 4px 0 var(--outline-black);
+}
+
+/* ============================================
+   MARIO BADGE SYSTEM
+   ============================================ */
+
+/* Small icon badge */
 .mario-badge {
   border: 2px solid var(--outline-black);
   box-shadow: 1px 1px 0 var(--outline-black);
@@ -316,7 +414,7 @@
   width: 1rem;
 }
 
-/* Mario Status Box - Status indicators */
+/* Status indicators */
 .mario-status-box {
   border: 3px solid var(--outline-black);
   box-shadow: 2px 2px 0 var(--outline-black);
@@ -326,6 +424,87 @@
   font-weight: 700;
   font-size: 0.75rem;
   color: white;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.mario-status-box-sm {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.625rem;
+}
+
+/* ============================================
+   MARIO BUTTON HELPERS - Quick button classes
+   ============================================ */
+
+.mario-btn-primary {
+  background: var(--star-yellow);
+  color: var(--outline-black);
+  border: 3px solid var(--outline-black);
+  box-shadow: 3px 3px 0 var(--outline-black);
+  border-radius: var(--radius-lg);
+  padding: 0.5rem 1rem;
+  font-weight: 700;
+  transition: all 0.2s;
+}
+
+.mario-btn-primary:hover {
+  background: var(--coin-gold);
+  box-shadow: 4px 4px 0 var(--outline-black);
+  transform: translateY(-2px);
+}
+
+.mario-btn-success {
+  background: var(--luigi-green);
+  color: white;
+  border: 3px solid var(--outline-black);
+  box-shadow: 3px 3px 0 var(--outline-black);
+  border-radius: var(--radius-lg);
+  padding: 0.5rem 1rem;
+  font-weight: 700;
+  transition: all 0.2s;
+}
+
+.mario-btn-success:hover {
+  background: var(--pipe-green);
+  box-shadow: 4px 4px 0 var(--outline-black);
+  transform: translateY(-2px);
+}
+
+.mario-btn-danger {
+  background: var(--mario-red);
+  color: white;
+  border: 3px solid var(--outline-black);
+  box-shadow: 3px 3px 0 var(--outline-black);
+  border-radius: var(--radius-lg);
+  padding: 0.5rem 1rem;
+  font-weight: 700;
+  transition: all 0.2s;
+}
+
+.mario-btn-danger:hover {
+  opacity: 0.9;
+  box-shadow: 4px 4px 0 var(--outline-black);
+  transform: translateY(-2px);
+}
+
+/* ============================================
+   MARIO DIVIDER
+   ============================================ */
+
+.mario-divider {
+  height: 3px;
+  width: 100%;
+  background: var(--outline-black);
+  margin: 1rem 0;
+}
+
+.mario-divider-vertical {
+  width: 3px;
+  height: 100%;
+  background: var(--outline-black);
+  margin: 0 1rem;
 }
 
 /* Mario Tab System */

@@ -56,6 +56,13 @@
   --pipe-green: #00994C;
   --outline-black: #1C1C1C;
 
+  /* Additional Mario theme colors for ticker and components */
+  --color-mario-red: var(--mario-red);
+  --color-luigi-green: var(--luigi-green);
+  --color-star-yellow: var(--star-yellow);
+  --color-coin-gold: var(--coin-gold);
+  --color-brick-brown: var(--brick-brown);
+
   /* Trading-specific colors - Luigi Green for profit, Mario Red for loss */
   --color-profit: oklch(62% 0.18 145);      /* Luigi Green - WCAG AA compliant */
   --color-loss: oklch(55% 0.22 27);         /* Mario Red - WCAG AA compliant */
