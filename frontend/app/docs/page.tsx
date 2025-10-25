@@ -45,7 +45,7 @@ export default function DocumentationPage() {
         >
           <h2 className="font-mario text-3xl text-[var(--outline-black)]">Getting Started</h2>
 
-          <div className="mario-card bg-white p-6 border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)]">
+          <div className="mario-card-lg">
             <div className="space-y-4">
               <h3 className="font-bold text-xl text-[var(--outline-black)]">Quick Start Guide</h3>
               <ol className="space-y-3 list-decimal list-inside text-[var(--outline-black)]">
@@ -79,7 +79,7 @@ export default function DocumentationPage() {
           <h2 className="font-mario text-3xl text-[var(--outline-black)]">Platform Features</h2>
 
           <div className="grid gap-4 md:grid-cols-2">
-            <div className="mario-card bg-white p-6 border-4 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)]">
+            <div className="mario-card">
               <div className="flex items-start gap-4">
                 <div className="h-10 w-10 rounded-lg bg-[var(--sky-blue)] border-3 border-[var(--outline-black)] flex items-center justify-center flex-shrink-0 shadow-[2px_2px_0_var(--outline-black)]">
                   <TrendingUp className="h-5 w-5 text-[var(--outline-black)]" />
@@ -93,7 +93,7 @@ export default function DocumentationPage() {
               </div>
             </div>
 
-            <div className="mario-card bg-white p-6 border-4 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)]">
+            <div className="mario-card">
               <div className="flex items-start gap-4">
                 <div className="h-10 w-10 rounded-lg bg-[var(--coin-yellow)] border-3 border-[var(--outline-black)] flex items-center justify-center flex-shrink-0 shadow-[2px_2px_0_var(--outline-black)]">
                   <Wallet className="h-5 w-5 text-[var(--outline-black)]" />
@@ -107,7 +107,7 @@ export default function DocumentationPage() {
               </div>
             </div>
 
-            <div className="mario-card bg-white p-6 border-4 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)]">
+            <div className="mario-card">
               <div className="flex items-start gap-4">
                 <div className="h-10 w-10 rounded-lg bg-[var(--luigi-green)] border-3 border-[var(--outline-black)] flex items-center justify-center flex-shrink-0 shadow-[2px_2px_0_var(--outline-black)]">
                   <BarChart3 className="h-5 w-5 text-white" />
@@ -121,7 +121,7 @@ export default function DocumentationPage() {
               </div>
             </div>
 
-            <div className="mario-card bg-white p-6 border-4 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)]">
+            <div className="mario-card">
               <div className="flex items-start gap-4">
                 <div className="h-10 w-10 rounded-lg bg-[var(--star-yellow)] border-3 border-[var(--outline-black)] flex items-center justify-center flex-shrink-0 shadow-[2px_2px_0_var(--outline-black)]">
                   <Trophy className="h-5 w-5 text-[var(--outline-black)]" />
@@ -147,7 +147,7 @@ export default function DocumentationPage() {
           <h2 className="font-mario text-3xl text-[var(--outline-black)]">Trading Modes</h2>
 
           <div className="grid gap-6 md:grid-cols-2">
-            <div className="mario-card bg-white p-6 border-4 border-[var(--luigi-green)] shadow-[6px_6px_0_var(--luigi-green)]">
+            <div className="mario-card-lg border-[var(--luigi-green)] shadow-[6px_6px_0_var(--luigi-green)]">
               <div className="space-y-4">
                 <div className="flex items-center gap-3">
                   <div className="h-10 w-10 rounded-lg bg-[var(--luigi-green)] border-3 border-[var(--outline-black)] flex items-center justify-center shadow-[2px_2px_0_var(--outline-black)]">
@@ -167,7 +167,7 @@ export default function DocumentationPage() {
               </div>
             </div>
 
-            <div className="mario-card bg-white p-6 border-4 border-[var(--mario-red)] shadow-[6px_6px_0_var(--mario-red)]">
+            <div className="mario-card-lg border-[var(--mario-red)] shadow-[6px_6px_0_var(--mario-red)]">
               <div className="space-y-4">
                 <div className="flex items-center gap-3">
                   <div className="h-10 w-10 rounded-lg bg-[var(--mario-red)] border-3 border-[var(--outline-black)] flex items-center justify-center shadow-[2px_2px_0_var(--outline-black)]">
@@ -198,7 +198,7 @@ export default function DocumentationPage() {
         >
           <h2 className="font-mario text-3xl text-[var(--outline-black)]">Trading Guide</h2>
 
-          <div className="mario-card bg-white p-6 border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)]">
+          <div className="mario-card-lg">
             <div className="space-y-6">
               <div className="space-y-2">
                 <h3 className="font-bold text-lg flex items-center gap-2 text-[var(--outline-black)]">
@@ -242,7 +242,7 @@ export default function DocumentationPage() {
         >
           <h2 className="font-mario text-3xl text-[var(--outline-black)]">Wallet Tracker & Copy Trading</h2>
 
-          <div className="mario-card bg-white p-6 border-4 border-[var(--star-yellow)] shadow-[6px_6px_0_var(--star-yellow)]">
+          <div className="mario-card-lg border-[var(--star-yellow)] shadow-[6px_6px_0_var(--star-yellow)]">
             <div className="space-y-6">
               <div className="space-y-2">
                 <h3 className="font-bold text-lg flex items-center gap-2 text-[var(--outline-black)]">
@@ -301,7 +301,7 @@ export default function DocumentationPage() {
         >
           <h2 className="font-mario text-3xl text-[var(--outline-black)]">XP & Rewards System</h2>
 
-          <div className="mario-card bg-white p-6 border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)]">
+          <div className="mario-card-lg">
             <div className="space-y-6">
               <div className="space-y-2">
                 <h3 className="font-bold text-lg flex items-center gap-2 text-[var(--outline-black)]">
@@ -377,7 +377,7 @@ export default function DocumentationPage() {
           <h2 className="font-mario text-3xl text-[var(--outline-black)]">Platform Features</h2>
 
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            <div className="mario-card bg-white p-6 border-4 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)]">
+            <div className="mario-card">
               <div className="flex items-start gap-4">
                 <div className="h-10 w-10 rounded-lg bg-[var(--mario-red)] border-3 border-[var(--outline-black)] flex items-center justify-center flex-shrink-0 shadow-[2px_2px_0_var(--outline-black)]">
                   <TrendingUp className="h-5 w-5 text-white" />
@@ -391,7 +391,7 @@ export default function DocumentationPage() {
               </div>
             </div>
 
-            <div className="mario-card bg-white p-6 border-4 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)]">
+            <div className="mario-card">
               <div className="flex items-start gap-4">
                 <div className="h-10 w-10 rounded-lg bg-[var(--luigi-green)] border-3 border-[var(--outline-black)] flex items-center justify-center flex-shrink-0 shadow-[2px_2px_0_var(--outline-black)]">
                   <Wallet className="h-5 w-5 text-white" />
@@ -405,7 +405,7 @@ export default function DocumentationPage() {
               </div>
             </div>
 
-            <div className="mario-card bg-white p-6 border-4 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)]">
+            <div className="mario-card">
               <div className="flex items-start gap-4">
                 <div className="h-10 w-10 rounded-lg bg-[var(--star-yellow)] border-3 border-[var(--outline-black)] flex items-center justify-center flex-shrink-0 shadow-[2px_2px_0_var(--outline-black)]">
                   <Trophy className="h-5 w-5 text-[var(--outline-black)]" />
@@ -419,7 +419,7 @@ export default function DocumentationPage() {
               </div>
             </div>
 
-            <div className="mario-card bg-white p-6 border-4 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)]">
+            <div className="mario-card">
               <div className="flex items-start gap-4">
                 <div className="h-10 w-10 rounded-lg bg-[var(--sky-blue)] border-3 border-[var(--outline-black)] flex items-center justify-center flex-shrink-0 shadow-[2px_2px_0_var(--outline-black)]">
                   <BarChart3 className="h-5 w-5 text-[var(--outline-black)]" />
@@ -433,7 +433,7 @@ export default function DocumentationPage() {
               </div>
             </div>
 
-            <div className="mario-card bg-white p-6 border-4 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)]">
+            <div className="mario-card">
               <div className="flex items-start gap-4">
                 <div className="h-10 w-10 rounded-lg bg-[var(--coin-yellow)] border-3 border-[var(--outline-black)] flex items-center justify-center flex-shrink-0 shadow-[2px_2px_0_var(--outline-black)]">
                   <Coins className="h-5 w-5 text-[var(--outline-black)]" />
@@ -447,7 +447,7 @@ export default function DocumentationPage() {
               </div>
             </div>
 
-            <div className="mario-card bg-white p-6 border-4 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)]">
+            <div className="mario-card">
               <div className="flex items-start gap-4">
                 <div className="h-10 w-10 rounded-lg bg-[var(--mario-red)] border-3 border-[var(--outline-black)] flex items-center justify-center flex-shrink-0 shadow-[2px_2px_0_var(--outline-black)]">
                   <Wallet className="h-5 w-5 text-white" />
@@ -461,7 +461,7 @@ export default function DocumentationPage() {
               </div>
             </div>
 
-            <div className="mario-card bg-white p-6 border-4 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)]">
+            <div className="mario-card">
               <div className="flex items-start gap-4">
                 <div className="h-10 w-10 rounded-lg bg-[var(--luigi-green)] border-3 border-[var(--outline-black)] flex items-center justify-center flex-shrink-0 shadow-[2px_2px_0_var(--outline-black)]">
                   <TrendingUp className="h-5 w-5 text-white" />
@@ -475,7 +475,7 @@ export default function DocumentationPage() {
               </div>
             </div>
 
-            <div className="mario-card bg-white p-6 border-4 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)]">
+            <div className="mario-card">
               <div className="flex items-start gap-4">
                 <div className="h-10 w-10 rounded-lg bg-[var(--star-yellow)] border-3 border-[var(--outline-black)] flex items-center justify-center flex-shrink-0 shadow-[2px_2px_0_var(--outline-black)]">
                   <Zap className="h-5 w-5 text-[var(--outline-black)]" />
@@ -489,7 +489,7 @@ export default function DocumentationPage() {
               </div>
             </div>
 
-            <div className="mario-card bg-white p-6 border-4 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)]">
+            <div className="mario-card">
               <div className="flex items-start gap-4">
                 <div className="h-10 w-10 rounded-lg bg-[var(--sky-blue)] border-3 border-[var(--outline-black)] flex items-center justify-center flex-shrink-0 shadow-[2px_2px_0_var(--outline-black)]">
                   <BarChart3 className="h-5 w-5 text-[var(--outline-black)]" />
@@ -515,7 +515,7 @@ export default function DocumentationPage() {
           <h2 className="font-mario text-3xl text-[var(--outline-black)]">Safety & Disclaimer</h2>
 
           <div className="space-y-4">
-            <div className="mario-card bg-white p-6 border-4 border-[var(--luigi-green)] shadow-[6px_6px_0_var(--luigi-green)]">
+            <div className="mario-card-lg border-[var(--luigi-green)] shadow-[6px_6px_0_var(--luigi-green)]">
               <div className="flex items-start gap-4">
                 <div className="h-10 w-10 rounded-lg bg-[var(--luigi-green)] border-3 border-[var(--outline-black)] flex items-center justify-center flex-shrink-0 shadow-[2px_2px_0_var(--outline-black)]">
                   <Shield className="h-5 w-5 text-white" />
@@ -540,7 +540,7 @@ export default function DocumentationPage() {
               </div>
             </div>
 
-            <div className="mario-card bg-white p-6 border-4 border-[var(--mario-red)] shadow-[6px_6px_0_var(--mario-red)]">
+            <div className="mario-card-lg border-[var(--mario-red)] shadow-[6px_6px_0_var(--mario-red)]">
               <div className="flex items-start gap-4">
                 <div className="h-10 w-10 rounded-lg bg-[var(--mario-red)] border-3 border-[var(--outline-black)] flex items-center justify-center flex-shrink-0 shadow-[2px_2px_0_var(--outline-black)]">
                   <Shield className="h-5 w-5 text-white" />
@@ -569,7 +569,7 @@ export default function DocumentationPage() {
               </div>
             </div>
 
-            <div className="mario-card bg-white p-6 border-4 border-[var(--star-yellow)] shadow-[6px_6px_0_var(--star-yellow)]">
+            <div className="mario-card-lg border-[var(--star-yellow)] shadow-[6px_6px_0_var(--star-yellow)]">
               <div className="flex items-start gap-4">
                 <div className="h-10 w-10 rounded-lg bg-[var(--star-yellow)] border-3 border-[var(--outline-black)] flex items-center justify-center flex-shrink-0 shadow-[2px_2px_0_var(--outline-black)]">
                   <Shield className="h-5 w-5 text-[var(--outline-black)]" />
