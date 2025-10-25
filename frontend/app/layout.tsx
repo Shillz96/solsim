@@ -1,6 +1,8 @@
 "use client"
 
+import "./theme.css"
 import "./globals.css"
+import "./wallet-modal-override.css"
 import { WindowManager } from "@/components/window"
 import { FloatingWindows } from "@/components/window"
 import { NavBar } from "@/components/navigation/nav-bar"
