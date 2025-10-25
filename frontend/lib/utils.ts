@@ -610,4 +610,41 @@ export const marioStyles = {
       colorClasses[type]
     );
   },
+
+  /* ============================================
+     PAGE TITLE UTILITIES
+     ============================================ */
+
+  /**
+   * Generate page title with consistent branding
+   * @param pageName The name of the current page
+   * @param includeBrand Whether to include "1UP SOL" branding
+   */
+  generatePageTitle: (pageName: string, includeBrand: boolean = true): string => {
+    if (includeBrand) {
+      return `${pageName} | 1UP SOL`;
+    }
+    return pageName;
+  },
+
+  /**
+   * Generate page description for SEO
+   * @param pageName The name of the current page
+   * @param description Custom description for the page
+   */
+  generatePageDescription: (pageName: string, description?: string): string => {
+    if (description) return description;
+    
+    const defaultDescriptions: Record<string, string> = {
+      'Home': 'Level up your trading skills! Practice Solana trading, earn XP, compete on leaderboards. Real-time market data, zero financial risk.',
+      'Trade': 'Trade Solana tokens with paper money. Practice trading strategies, track your performance, and compete on leaderboards.',
+      'Warp Pipes Hub': 'Discover new Solana tokens as they progress from new pairs to about to graduate to bonded. Track token health, liquidity, and migration status in real-time.',
+      'Portfolio': 'Track your trading performance, view your positions, and monitor your PnL. See your trading history and portfolio analytics.',
+      'Leaderboard': 'Compete with other traders! See the top performers, track your ranking, and climb the leaderboard.',
+      'Docs': 'Learn how to use 1UP SOL. Trading guides, feature explanations, and platform documentation.',
+      'About': 'Learn about 1UP SOL - the Solana paper trading game that helps you level up your trading skills.',
+    };
+
+    return defaultDescriptions[pageName] || `Explore ${pageName} on 1UP SOL - the Solana paper trading game.`;
+  },
 }

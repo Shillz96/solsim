@@ -604,44 +604,47 @@ export function NavBar() {
                         const isActive = pathname === item.href
 
                         return (
-                          <Link key={item.href} href={item.href} onClick={() => setMobileMenuOpen(false)}>
-                            <div className={cn(
-                              "flex items-center gap-3 px-3 py-3 rounded-lg transition-colors",
+                          <Link 
+                            key={item.href} 
+                            href={item.href} 
+                            onClick={() => setMobileMenuOpen(false)}
+                            className={cn(
+                              "flex items-center gap-3 px-3 py-3 rounded-lg transition-colors touch-target min-h-[44px]",
                               isActive ? "bg-primary/10 text-primary" : "hover:bg-muted"
-                            )}>
-                              {/* Small icon */}
-                              <Image 
-                                src={
-                                  item.name === 'Trade' ? '/icons/mario/trade.png' :
-                                  item.name === 'Portfolio' ? '/icons/mario/wallet.png' :
-                                  item.name === 'Trending' ? '/icons/mario/trending.png' :
-                                  item.name === 'Dashboard' ? '/icons/mario/home.png' :
-                                  item.name === 'Pipe Network' ? '/icons/mario/chat.png' :
-                                  item.iconSrc
-                                }
-                                alt={item.name} 
-                                width={20} 
-                                height={20} 
-                                className="object-contain" 
-                              />
-                              {/* Mario text image */}
-                              <Image 
-                                src={
-                                  item.name === 'Trade' ? '/Trade-10-24-2025.png' :
-                                  item.name === 'Portfolio' ? '/Portfolio-10-24-2025.png' :
-                                  item.name === 'Trending' ? '/Trending-10-24-2025.png' :
-                                  item.name === 'Dashboard' ? '/Home-10-24-2025.png' :
-                                  item.name === 'Pipe Network' ? '/Pipe-Network-10-24-2025.png' :
-                                  item.iconSrc
-                                }
-                                alt={item.name} 
-                                width={80} 
-                                height={20} 
-                                className="h-[20px] w-auto object-contain" 
-                              />
-                              <div>
-                                <div className="text-xs text-muted-foreground">{item.description}</div>
-                              </div>
+                            )}
+                          >
+                            {/* Small icon */}
+                            <Image 
+                              src={
+                                item.name === 'Trade' ? '/icons/mario/trade.png' :
+                                item.name === 'Portfolio' ? '/icons/mario/wallet.png' :
+                                item.name === 'Trending' ? '/icons/mario/trending.png' :
+                                item.name === 'Dashboard' ? '/icons/mario/home.png' :
+                                item.name === 'Pipe Network' ? '/icons/mario/chat.png' :
+                                item.iconSrc
+                              }
+                              alt={item.name} 
+                              width={20} 
+                              height={20} 
+                              className="object-contain" 
+                            />
+                            {/* Mario text image */}
+                            <Image 
+                              src={
+                                item.name === 'Trade' ? '/Trade-10-24-2025.png' :
+                                item.name === 'Portfolio' ? '/Portfolio-10-24-2025.png' :
+                                item.name === 'Trending' ? '/Trending-10-24-2025.png' :
+                                item.name === 'Dashboard' ? '/Home-10-24-2025.png' :
+                                item.name === 'Pipe Network' ? '/Pipe-Network-10-24-2025.png' :
+                                item.iconSrc
+                              }
+                              alt={item.name} 
+                              width={80} 
+                              height={20} 
+                              className="h-[20px] w-auto object-contain" 
+                            />
+                            <div>
+                              <div className="text-xs text-muted-foreground">{item.description}</div>
                             </div>
                           </Link>
                         )

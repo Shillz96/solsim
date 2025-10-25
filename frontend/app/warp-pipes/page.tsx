@@ -6,13 +6,14 @@
 
 import { Metadata } from "next"
 import { WarpPipesHub } from "@/components/warp-pipes/warp-pipes-hub"
+import { marioStyles } from "@/lib/utils"
 
 export const metadata: Metadata = {
-  title: "Warp Pipes Hub | 1UP SOL",
-  description: "Discover new Solana tokens as they progress from new pairs to about to graduate to bonded. Track token health, liquidity, and migration status in real-time.",
+  title: marioStyles.generatePageTitle("Warp Pipes Hub"),
+  description: marioStyles.generatePageDescription("Warp Pipes Hub"),
   openGraph: {
-    title: "Warp Pipes Hub | 1UP SOL",
-    description: "Discover new Solana tokens in real-time. Watch tokens progress from new pairs to bonded curve.",
+    title: marioStyles.generatePageTitle("Warp Pipes Hub"),
+    description: marioStyles.generatePageDescription("Warp Pipes Hub"),
     images: ["/og-image.svg"],
   },
 }

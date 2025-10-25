@@ -1,6 +1,8 @@
 "use client"
 
 import { Suspense, useState, useEffect } from "react"
+import { Metadata } from "next"
+import { marioStyles } from "@/lib/utils"
 import dynamic from "next/dynamic"
 import { useSearchParams } from "next/navigation"
 import { motion } from "framer-motion"
@@ -206,9 +208,9 @@ function TradePageContent() {
           </motion.aside>
         </div>
 
-        {/* Token Chat Section - Full width below main content */}
+        {/* Token Chat Section - Desktop only, full width below main content */}
         <motion.div
-          className="mt-6"
+          className="mt-6 hidden lg:block"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.4 }}

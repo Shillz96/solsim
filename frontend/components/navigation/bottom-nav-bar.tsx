@@ -251,22 +251,6 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
         </div>
       </nav>
 
-      {/* Floating Wallet Tracker Button (Mobile) */}
-      <motion.div
-        className="fixed bottom-[5rem] right-4 z-[51] md:hidden"
-        initial={{ scale: 0, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ delay: 0.5, type: "spring", stiffness: 200 }}
-      >
-        <Button
-          size="icon"
-          onClick={openWalletTrackerWindow}
-          className="h-14 w-14 rounded-full shadow-[6px_6px_0_var(--outline-black)] hover:shadow-xl transition-all hover:scale-110 bg-gradient-to-br from-primary to-primary/80"
-          aria-label="Open Wallet Tracker"
-        >
-          <Eye className="h-6 w-6" />
-        </Button>
-      </motion.div>
 
       {/* Desktop/Tablet Bottom Info Bar */}
       <div className={cn(
