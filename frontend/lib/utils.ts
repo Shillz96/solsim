@@ -96,8 +96,12 @@ export function formatCompactNumber(value: number, decimals: number = 1): string
  * and reduce duplication across components.
  */
 export const marioStyles = {
+  /* ============================================
+     CARD VARIANTS - Semantic sizes for different use cases
+     ============================================ */
+  
   /**
-   * Interactive card with standard Mario styling
+   * Standard Mario card - Most common use case
    * @param hover Whether to include hover effects (default: true)
    */
   card: (hover: boolean = true) => cn(
@@ -105,32 +109,131 @@ export const marioStyles = {
     'shadow-[3px_3px_0_var(--outline-black)] transition-all',
     hover && 'hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5'
   ),
-  
+
+  /**
+   * Large prominent card - For headers, hero sections, featured content
+   * Uses 4px border and 6px shadow for maximum impact
+   */
+  cardLg: (hover: boolean = true) => cn(
+    'rounded-2xl border-4 border-[var(--outline-black)] p-6 bg-white',
+    'shadow-[6px_6px_0_var(--outline-black)] transition-all',
+    hover && 'hover:shadow-[8px_8px_0_var(--outline-black)] hover:-translate-y-1'
+  ),
+
+  /**
+   * Compact card - For list items, tight layouts
+   * Uses 2px border and 2px shadow for subtle effect
+   */
+  cardSm: (hover: boolean = true) => cn(
+    'rounded-lg border-2 border-[var(--outline-black)] p-2 bg-white',
+    'shadow-[2px_2px_0_var(--outline-black)] transition-all',
+    hover && 'hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-0.5'
+  ),
+
+  /**
+   * Card with colored background gradient
+   * @param bgGradient Tailwind gradient classes (e.g., 'from-[var(--sky-blue)]/20 to-white')
+   * @param hover Whether to include hover effects (default: true)
+   */
+  cardGradient: (bgGradient: string, hover: boolean = true) => cn(
+    'rounded-xl border-4 border-[var(--outline-black)] p-4',
+    'shadow-[4px_4px_0_var(--outline-black)] transition-all',
+    `bg-gradient-to-br ${bgGradient}`,
+    hover && 'hover:shadow-[6px_6px_0_var(--outline-black)] hover:-translate-y-0.5'
+  ),
+
+  /* ============================================
+     SHADOW UTILITIES - Semantic shadow system
+     ============================================ */
+
+  /**
+   * Small shadow - For subtle depth on compact elements
+   */
+  shadowSm: 'shadow-[2px_2px_0_var(--outline-black)]',
+
+  /**
+   * Medium shadow - Standard shadow for most elements
+   */
+  shadowMd: 'shadow-[3px_3px_0_var(--outline-black)]',
+
+  /**
+   * Large shadow - For prominent elements and containers
+   */
+  shadowLg: 'shadow-[6px_6px_0_var(--outline-black)]',
+
+  /**
+   * Extra large shadow - For hero sections and major features
+   */
+  shadowXl: 'shadow-[8px_8px_0_var(--outline-black)]',
+
+  /* ============================================
+     BUTTON VARIANTS - Extended color options
+     ============================================ */
+
+  /**
+   * Standard button with Mario styling
+   * @param variant Color variant
+   * @param size Size variant: 'sm', 'md', 'lg'
+   */
+  button: (variant: 'primary' | 'danger' | 'success' | 'secondary' | 'outline' = 'primary', size: 'sm' | 'md' | 'lg' = 'md') => cn(
+    'border-3 border-[var(--outline-black)] font-bold transition-all rounded-lg',
+    'shadow-[3px_3px_0_var(--outline-black)]',
+    'hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5',
+    'active:shadow-[2px_2px_0_var(--outline-black)] active:translate-y-0',
+    // Size variants
+    {
+      'px-3 py-1.5 text-sm': size === 'sm',
+      'px-4 py-2 text-base': size === 'md',
+      'px-6 py-3 text-lg': size === 'lg',
+    },
+    // Color variants
+    {
+      'bg-[var(--star-yellow)] hover:bg-[var(--coin-gold)] text-[var(--outline-black)]': variant === 'primary',
+      'bg-[var(--mario-red)] hover:bg-[var(--mario-red)]/90 text-white': variant === 'danger',
+      'bg-[var(--luigi-green)] hover:bg-[var(--pipe-green)] text-white': variant === 'success',
+      'bg-[var(--sky-blue)] hover:bg-[var(--super-blue)] text-white': variant === 'secondary',
+      'bg-white hover:bg-[var(--background)] text-[var(--outline-black)]': variant === 'outline',
+    }
+  ),
+
+  /**
+   * Icon button - Circular button for icon-only actions
+   * @param variant Color variant
+   * @param size Size in pixels (default: 40)
+   */
+  iconButton: (variant: 'primary' | 'danger' | 'success' | 'secondary' = 'primary', size: number = 40) => cn(
+    'rounded-full border-3 border-[var(--outline-black)] font-bold transition-all',
+    'shadow-[2px_2px_0_var(--outline-black)]',
+    'hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-0.5',
+    'flex items-center justify-center',
+    {
+      'bg-[var(--star-yellow)] hover:bg-[var(--coin-gold)] text-[var(--outline-black)]': variant === 'primary',
+      'bg-[var(--mario-red)] hover:bg-[var(--mario-red)]/90 text-white': variant === 'danger',
+      'bg-[var(--luigi-green)] hover:bg-[var(--pipe-green)] text-white': variant === 'success',
+      'bg-[var(--sky-blue)] hover:bg-[var(--super-blue)] text-white': variant === 'secondary',
+    }
+  ),
+
+  /* ============================================
+     BADGE & TAG VARIANTS
+     ============================================ */
+
   /**
    * Status indicator box with colored background
    * @param color CSS color value (use var(--color-name) or direct color)
+   * @param size Size variant: 'sm', 'md'
    */
-  statusBox: (color: string) => cn(
-    'flex items-center gap-1.5 px-3 py-1.5 rounded-lg',
+  statusBox: (color: string, size: 'sm' | 'md' = 'md') => cn(
+    'flex items-center gap-1.5 rounded-lg',
     'border-3 border-[var(--outline-black)]',
     'shadow-[2px_2px_0_var(--outline-black)]',
-    'font-mario font-bold text-xs text-white capitalize'
-  ),
-  
-  /**
-   * Avatar with Mario border styling
-   * @param size Size variant: 'sm' (24px), 'md' (40px), 'lg' (64px)
-   */
-  avatar: (size: 'sm' | 'md' | 'lg' = 'md') => cn(
-    'rounded-full border-3 border-[var(--outline-black)]',
-    'shadow-[2px_2px_0_var(--outline-black)] overflow-hidden',
+    'font-mario font-bold text-white capitalize',
     {
-      'h-6 w-6': size === 'sm',
-      'h-10 w-10': size === 'md',
-      'h-16 w-16': size === 'lg',
+      'px-2 py-1 text-[10px]': size === 'sm',
+      'px-3 py-1.5 text-xs': size === 'md',
     }
   ),
-  
+
   /**
    * Small badge icon for user badges
    */
@@ -139,7 +242,48 @@ export const marioStyles = {
     'bg-white flex items-center justify-center overflow-hidden',
     'shadow-[1px_1px_0_var(--outline-black)]'
   ),
-  
+
+  /**
+   * Larger badge with text - For achievements, tiers, etc.
+   * @param variant Color variant
+   */
+  badgeLg: (variant: 'gold' | 'silver' | 'bronze' | 'admin' | 'verified' = 'gold') => cn(
+    'px-2 py-1 rounded-lg border-3 border-[var(--outline-black)]',
+    'shadow-[2px_2px_0_var(--outline-black)]',
+    'text-xs font-mario font-bold text-white uppercase',
+    {
+      'bg-[var(--coin-gold)]': variant === 'gold',
+      'bg-[var(--pipe-300)]': variant === 'silver',
+      'bg-[var(--brick-brown)]': variant === 'bronze',
+      'bg-[var(--mario-red)]': variant === 'admin',
+      'bg-[var(--luigi-green)]': variant === 'verified',
+    }
+  ),
+
+  /* ============================================
+     AVATAR VARIANTS
+     ============================================ */
+
+  /**
+   * Avatar with Mario border styling
+   * @param size Size variant: 'xs' (16px), 'sm' (24px), 'md' (40px), 'lg' (64px), 'xl' (96px)
+   */
+  avatar: (size: 'xs' | 'sm' | 'md' | 'lg' | 'xl' = 'md') => cn(
+    'rounded-full border-3 border-[var(--outline-black)]',
+    'shadow-[2px_2px_0_var(--outline-black)] overflow-hidden',
+    {
+      'h-4 w-4 border-2': size === 'xs',
+      'h-6 w-6': size === 'sm',
+      'h-10 w-10': size === 'md',
+      'h-16 w-16 border-4 shadow-[3px_3px_0_var(--outline-black)]': size === 'lg',
+      'h-24 w-24 border-4 shadow-[4px_4px_0_var(--outline-black)]': size === 'xl',
+    }
+  ),
+
+  /* ============================================
+     HEADER & SECTION STYLES
+     ============================================ */
+
   /**
    * Header gradient with bottom border
    * @param fromColor Starting gradient color (e.g., 'var(--luigi-green)')
@@ -152,30 +296,49 @@ export const marioStyles = {
     `bg-gradient-to-r from-[${fromColor}]`,
     toColor && `to-${toColor}`
   ),
-  
+
+  /**
+   * Section header with icon - For major page sections
+   */
+  sectionHeader: cn(
+    'flex items-center gap-3 mb-4 p-4',
+    'bg-[var(--sky-blue)]/20 border-l-4 border-[var(--outline-black)]',
+    'rounded-r-lg'
+  ),
+
+  /* ============================================
+     FORM ELEMENTS
+     ============================================ */
+
   /**
    * Input field with Mario styling
+   * @param size Size variant: 'sm', 'md', 'lg'
    */
-  input: cn(
+  input: (size: 'sm' | 'md' | 'lg' = 'md') => cn(
     'border-3 border-[var(--outline-black)] rounded-lg font-medium',
     'shadow-[2px_2px_0_var(--outline-black)]',
-    'focus:shadow-[3px_3px_0_var(--outline-black)] transition-all'
-  ),
-  
-  /**
-   * Button with Mario styling
-   * @param variant Color variant: 'primary', 'danger', 'success'
-   */
-  button: (variant: 'primary' | 'danger' | 'success' = 'primary') => cn(
-    'border-3 border-[var(--outline-black)] font-bold px-4',
-    'shadow-[3px_3px_0_var(--outline-black)] transition-all',
-    'hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5',
+    'focus:shadow-[3px_3px_0_var(--outline-black)] transition-all',
+    'focus:border-[var(--luigi-green)]',
     {
-      'bg-[var(--luigi-green)] hover:bg-[var(--pipe-green)] text-white': variant === 'success',
-      'bg-[var(--mario-red)] hover:bg-[var(--mario-red)]/90 text-white': variant === 'danger',
-      'bg-[var(--star-yellow)] hover:bg-[var(--coin-gold)] text-[var(--outline-black)]': variant === 'primary',
+      'px-2 py-1 text-sm': size === 'sm',
+      'px-3 py-2 text-base': size === 'md',
+      'px-4 py-3 text-lg': size === 'lg',
     }
   ),
+
+  /**
+   * Select dropdown with Mario styling
+   */
+  select: cn(
+    'border-3 border-[var(--outline-black)] rounded-lg font-medium',
+    'shadow-[2px_2px_0_var(--outline-black)]',
+    'focus:shadow-[3px_3px_0_var(--outline-black)] transition-all',
+    'bg-white px-3 py-2'
+  ),
+
+  /* ============================================
+     UTILITY STYLES
+     ============================================ */
   
   /**
    * Empty state icon container
@@ -225,5 +388,26 @@ export const marioStyles = {
   navBar: cn(
     'bg-[var(--background)] border-[var(--color-border)]',
     'backdrop-blur-sm' // Subtle blur for depth
+  ),
+
+  /**
+   * Divider line with Mario styling
+   * @param orientation 'horizontal' or 'vertical'
+   */
+  divider: (orientation: 'horizontal' | 'vertical' = 'horizontal') => cn(
+    'bg-[var(--outline-black)]',
+    {
+      'h-[3px] w-full my-4': orientation === 'horizontal',
+      'w-[3px] h-full mx-4': orientation === 'vertical',
+    }
+  ),
+
+  /**
+   * Loading skeleton with Mario styling
+   */
+  skeleton: cn(
+    'animate-pulse bg-[var(--sky-blue)]/20',
+    'border-3 border-[var(--outline-black)]',
+    'rounded-lg'
   ),
 }
