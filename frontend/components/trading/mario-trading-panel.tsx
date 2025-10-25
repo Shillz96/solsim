@@ -331,13 +331,15 @@ function MarioTradingPanelComponent({ tokenAddress: propTokenAddress }: MarioTra
   const tokenBalance = tokenHolding ? parseFloat(tokenHolding.qty) : 0
 
   return (
-    <div id="trade-panel" className="mario-card p-2 sm:p-3 lg:p-4 relative w-full border-4 border-[var(--outline-black)] rounded-[16px] shadow-[6px_6px_0_var(--outline-black)] bg-gradient-to-br from-white to-amber-50/30">
-      {/* Position Stats Box */}
-      <PositionStatsBox
-        tokenAddress={tokenAddress}
-        tradeMode={tradeMode}
-        className="mb-3"
-      />
+    <div id="trade-panel" className="flex flex-col h-full w-full border-4 border-[var(--outline-black)] rounded-[16px] shadow-[6px_6px_0_var(--outline-black)] bg-gradient-to-br from-white to-amber-50/30">
+      {/* Fixed Header Section - Position Stats */}
+      <div className="flex-shrink-0 p-2 sm:p-3 border-b-3 border-[var(--outline-black)]/20">
+        <PositionStatsBox
+          tokenAddress={tokenAddress}
+          tradeMode={tradeMode}
+          className="mb-0"
+        />
+      </div>
 
       {/* Power-up Animation */}
       <AnimatePresence>
@@ -353,80 +355,86 @@ function MarioTradingPanelComponent({ tokenAddress: propTokenAddress }: MarioTra
         )}
       </AnimatePresence>
 
-      <div className="space-y-2 sm:space-y-3">
-        {/* Trade Status */}
-        {tradeError && (
-          <Alert variant="destructive" className="border-3 border-[var(--mario-red)]">
-            <AlertCircle className="h-4 w-4" />
-            <AlertDescription>{tradeError}</AlertDescription>
-          </Alert>
-        )}
+      {/* Scrollable Content Area */}
+      <div className="flex-1 overflow-y-auto p-2 sm:p-3 lg:p-4">
+        <div className="space-y-2 sm:space-y-3">
+          {/* Trade Status - Fixed Height */}
+          <div className="min-h-[60px]">
+            {tradeError && (
+              <Alert variant="destructive" className="border-3 border-[var(--mario-red)]">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>{tradeError}</AlertDescription>
+              </Alert>
+            )}
 
-        {lastTradeSuccess && (
-          <Alert className="border-3 border-[var(--luigi-green)] bg-[var(--luigi-green)]/10">
-            <CheckCircle className="h-4 w-4 text-[var(--luigi-green)]" />
-            <AlertDescription className="text-[var(--luigi-green)] font-bold">1-UP! Trade executed!</AlertDescription>
-          </Alert>
-        )}
+            {lastTradeSuccess && (
+              <Alert className="border-3 border-[var(--luigi-green)] bg-[var(--luigi-green)]/10">
+                <CheckCircle className="h-4 w-4 text-[var(--luigi-green)]" />
+                <AlertDescription className="text-[var(--luigi-green)] font-bold">1-UP! Trade executed!</AlertDescription>
+              </Alert>
+            )}
+          </div>
 
-        {/* Header */}
-        <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center gap-1">
-            <h3 className="mario-font text-xs sm:text-sm lg:text-base">TRADE {tokenDetails.tokenSymbol}</h3>
-          </div>
-          <div className="flex items-center gap-1 text-xs">
-            <Wallet className="h-3 w-3 text-[var(--star-yellow)]" />
-            <span className="font-mono font-bold">{balance.toFixed(2)} SOL</span>
-          </div>
-        </div>
-
-        {/* Price Display - Enhanced Mario Theme */}
-        <div className="bg-gradient-to-br from-[var(--star-yellow)] to-amber-300 border-4 border-[var(--outline-black)] rounded-[14px] p-3 shadow-[3px_3px_0_var(--outline-black)] relative overflow-hidden">
-          {/* Coin decoration */}
-          <div className="absolute top-1 right-1 text-2xl opacity-20">⭐</div>
-          <div className="text-[9px] sm:text-[10px] font-mario font-bold text-[var(--outline-black)]/80 uppercase mb-1">
-            Current Price
-          </div>
-          <AnimatedNumber
-            value={currentPrice}
-            prefix="$"
-            decimals={8}
-            className="font-mono text-sm sm:text-lg lg:text-xl font-bold text-[var(--outline-black)] break-all relative z-10"
-            colorize={false}
-            glowOnChange={true}
-          />
-          {solPrice > 0 && (
-            <div className="text-[10px] sm:text-xs font-bold text-[var(--outline-black)]/60 mt-1">
-              {formatSolEquivalent(currentPrice, solPrice)}
+          {/* Header - Fixed */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-1">
+              <h3 className="mario-font text-xs sm:text-sm lg:text-base truncate">TRADE {tokenDetails.tokenSymbol}</h3>
             </div>
-          )}
-        </div>
-
-        {/* Holdings Display - Mario theme */}
-        {tokenHolding && (
-          <div className="bg-[var(--star-yellow)]/20 border-3 border-[var(--star-yellow)] rounded-lg p-2 shadow-[2px_2px_0_var(--outline-black)]">
-            <div className="text-[10px] sm:text-xs text-[var(--outline-black)]/70 font-bold mb-0.5">Holdings</div>
-            <div className="font-mono font-bold text-sm sm:text-base text-[var(--outline-black)] break-words">
-              {formatTokenQuantity(tokenHolding.qty)} {tokenDetails.tokenSymbol}
+            <div className="flex items-center gap-1 text-xs flex-shrink-0">
+              <Wallet className="h-3 w-3 text-[var(--star-yellow)]" />
+              <span className="font-mono font-bold">{balance.toFixed(2)} SOL</span>
             </div>
           </div>
-        )}
 
-        {/* Tabs - Ensure proper sizing on mobile */}
-        <Tabs defaultValue="buy" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 gap-2 bg-transparent p-1">
-            <TabsTrigger
-              value="buy"
-              className="mario-btn mario-btn-green data-[state=active]:scale-105 transition-transform text-xs sm:text-sm"
-            >
-              <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-              BUY
-            </TabsTrigger>
-            <TabsTrigger
-              value="sell"
-              className="mario-btn mario-btn-red data-[state=active]:scale-105 transition-transform text-xs sm:text-sm"
-              disabled={!tokenHolding || tokenBalance <= 0}
-            >
+          {/* Price Display - Fixed Height */}
+          <div className="bg-gradient-to-br from-[var(--star-yellow)] to-amber-300 border-4 border-[var(--outline-black)] rounded-[14px] p-3 shadow-[3px_3px_0_var(--outline-black)] relative overflow-hidden min-h-[100px]">
+            {/* Coin decoration */}
+            <div className="absolute top-1 right-1 text-2xl opacity-20">⭐</div>
+            <div className="text-[9px] sm:text-[10px] font-mario font-bold text-[var(--outline-black)]/80 uppercase mb-1">
+              Current Price
+            </div>
+            <AnimatedNumber
+              value={currentPrice}
+              prefix="$"
+              decimals={8}
+              className="font-mono text-sm sm:text-lg lg:text-xl font-bold text-[var(--outline-black)] break-all relative z-10"
+              colorize={false}
+              glowOnChange={true}
+            />
+            {solPrice > 0 && (
+              <div className="text-[10px] sm:text-xs font-bold text-[var(--outline-black)]/60 mt-1">
+                {formatSolEquivalent(currentPrice, solPrice)}
+              </div>
+            )}
+          </div>
+
+          {/* Holdings Display - Fixed Height */}
+          <div className="min-h-[70px]">
+            {tokenHolding && (
+              <div className="bg-[var(--star-yellow)]/20 border-3 border-[var(--star-yellow)] rounded-lg p-2 shadow-[2px_2px_0_var(--outline-black)]">
+                <div className="text-[10px] sm:text-xs text-[var(--outline-black)]/70 font-bold mb-0.5">Holdings</div>
+                <div className="font-mono font-bold text-sm sm:text-base text-[var(--outline-black)] break-words">
+                  {formatTokenQuantity(tokenHolding.qty)} {tokenDetails.tokenSymbol}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Tabs */}
+          <Tabs defaultValue="buy" className="w-full">
+            <TabsList className="grid w-full grid-cols-2 gap-2 bg-transparent p-1">
+              <TabsTrigger
+                value="buy"
+                className="mario-btn mario-btn-green data-[state=active]:scale-105 transition-transform text-xs sm:text-sm"
+              >
+                <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                BUY
+              </TabsTrigger>
+              <TabsTrigger
+                value="sell"
+                className="mario-btn mario-btn-red data-[state=active]:scale-105 transition-transform text-xs sm:text-sm"
+                disabled={!tokenHolding || tokenBalance <= 0}
+              >
               <TrendingDown className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
               SELL
             </TabsTrigger>
@@ -579,8 +587,8 @@ function MarioTradingPanelComponent({ tokenAddress: propTokenAddress }: MarioTra
             </Button>
           </TabsContent>
         </Tabs>
+        </div>
       </div>
-
     </div>
   )
 }
