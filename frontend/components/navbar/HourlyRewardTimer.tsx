@@ -68,7 +68,7 @@ export function HourlyRewardTimer() {
         <CartridgePill
           label="Next Rewards"
           value={formatTime(secondsUntilNext)}
-          bgColor="var(--star-yellow)"
+          bgColor="var(--luigi-green)"
           size="sm"
         />
       </button>
