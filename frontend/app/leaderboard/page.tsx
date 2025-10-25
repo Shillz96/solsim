@@ -132,7 +132,7 @@ export default function LeaderboardPage() {
   return (
     <div className="min-h-screen bg-[var(--background)]">
       {/* Full Width Container */}
-      <main className="w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-6 max-w-[1600px] mx-auto">
+      <main className="w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
         {/* Mario Page Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}

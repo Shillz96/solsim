@@ -20,7 +20,7 @@
 
 import { useEffect, useState, Suspense, useRef } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { MarioTradingPanel } from '@/components/trading/mario-trading-panel'
+import { TradePanel } from '@/components/trade-panel'
 import { TokenVitalsBar } from '@/components/trading/token-vitals-bar'
 import { useAuth } from '@/hooks/use-auth'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
@@ -374,7 +374,7 @@ function TradeRoomContent() {
                 </DialogTitle>
               </DialogHeader>
               <div className="mt-4">
-                <MarioTradingPanel tokenAddress={ca} />
+                <TradePanel tokenAddress={ca} />
               </div>
             </DialogContent>
           </Dialog>
@@ -420,7 +420,7 @@ function TradeRoomContent() {
             'flex flex-col w-[280px] border-l-4 bg-[var(--card)]'
           )}>
             <div className="flex-1 p-3 overflow-y-auto space-y-3">
-              <MarioTradingPanel tokenAddress={ca} />
+              <TradePanel tokenAddress={ca} />
               <TokenVitalsBar
                 tokenAddress={ca}
                 volume24h={volume24h}
@@ -471,7 +471,7 @@ function TradeRoomContent() {
             'flex flex-col w-[380px] border-l-4 bg-[var(--card)]'
           )}>
             <div className="flex-1 p-3 overflow-y-auto space-y-3">
-              <MarioTradingPanel tokenAddress={ca} />
+              <TradePanel tokenAddress={ca} />
               <TokenVitalsBar
                 tokenAddress={ca}
                 volume24h={volume24h}

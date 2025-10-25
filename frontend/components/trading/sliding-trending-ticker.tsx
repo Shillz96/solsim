@@ -92,7 +92,7 @@ export function SlidingTrendingTicker() {
 
   if (isLoading && !trendingTokens) {
     return (
-      <div className="relative overflow-hidden bg-gradient-to-r from-[var(--brick-brown)] to-[var(--brick-brown)]/80 border-4 border-[var(--outline-black)] rounded-lg p-4">
+      <div className="sticky top-[var(--navbar-height)] z-[90] overflow-hidden bg-gradient-to-r from-[var(--brick-brown)] to-[var(--brick-brown)]/80 border-4 border-[var(--outline-black)] rounded-lg p-4">
         <div className="flex items-center justify-center gap-2">
           <Loader2 className="h-4 w-4 animate-spin text-[var(--star-yellow)]" />
           <span className="text-sm mario-font text-white">Loading Trending...</span>
@@ -115,7 +115,7 @@ export function SlidingTrendingTicker() {
 
   if (error || !trendingTokens || trendingTokens.length === 0) {
     return (
-      <div className="relative overflow-hidden bg-gradient-to-r from-[var(--brick-brown)] to-[var(--brick-brown)]/80 border-4 border-[var(--outline-black)] rounded-lg p-3">
+      <div className="sticky top-[var(--navbar-height)] z-[90] overflow-hidden bg-gradient-to-r from-[var(--brick-brown)] to-[var(--brick-brown)]/80 border-4 border-[var(--outline-black)] rounded-lg p-3">
         <Alert variant="destructive" className="border-none bg-transparent">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription className="text-xs flex items-center gap-2">
@@ -150,7 +150,7 @@ export function SlidingTrendingTicker() {
   }
 
   return (
-    <div className="w-full overflow-hidden bg-gradient-to-r from-[var(--brick-brown)] to-[var(--brick-brown)]/80 border-b-4 border-[var(--outline-black)] shadow-md">
+    <div className="sticky top-[var(--navbar-height)] z-[90] w-full overflow-hidden bg-gradient-to-r from-[var(--brick-brown)] to-[var(--brick-brown)]/80 border-b-4 border-[var(--outline-black)] shadow-md">
       {/* Scrolling Container - Pause on Hover */}
       <div className="group relative py-2">
         <div className="ticker-scroll-container">
