@@ -90,6 +90,15 @@ export function formatCompactNumber(value: number, decimals: number = 1): string
 }
 
 /**
+ * TypeScript types for Mario styling utilities
+ */
+export type MarioSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl'
+export type MarioButtonVariant = 'primary' | 'danger' | 'success' | 'secondary' | 'outline'
+export type MarioBadgeVariant = 'gold' | 'silver' | 'bronze' | 'admin' | 'verified'
+export type MarioOrientation = 'horizontal' | 'vertical'
+export type MarioRounded = 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'full'
+
+/**
  * Mario-themed className generators for consistent styling
  * 
  * These utilities provide reusable styling patterns that match the Mario theme
