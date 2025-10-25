@@ -158,15 +158,15 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
                 <Shield className={securityIconColor} />
               </div>
 
-              {/* Description (if available, truncated) */}
+              {/* Description (if available, with better truncation) */}
               {data.description && (
-                <div className="text-[12px] text-[var(--outline-black)] font-medium mb-2 truncate max-w-[320px]" title={data.description}>
+                <div className="text-[12px] text-[var(--outline-black)] font-medium mb-2 line-clamp-2 max-w-[320px]" title={data.description}>
                   {data.description}
                 </div>
               )}
 
               {/* Metrics Grid - 3 columns */}
-              <div className="grid grid-cols-3 gap-4 mb-2">
+              <div className="grid grid-cols-3 gap-3 mb-2">
                 {/* Market Cap */}
                 <div className="flex flex-col">
                   <div className={marioStyles.formatMetricLabel('MC')}>
@@ -207,7 +207,7 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
               </div>
 
               {/* Secondary Metrics Row */}
-              <div className="grid grid-cols-3 gap-4 mb-2">
+              <div className="grid grid-cols-3 gap-3 mb-2">
                 {/* Holders */}
                 <div className="flex flex-col">
                   <div className={marioStyles.formatMetricLabel('Holders')}>
@@ -258,7 +258,7 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
               )}
 
               {/* Bottom Row: Social Links & Creator */}
-              <div className="flex items-center gap-2 mt-2">
+              <div className="flex items-center gap-2 mt-1">
                 {/* Social Links */}
                 {(data.twitter || data.telegram || data.website) && (
                   <div className="flex items-center gap-1.5">

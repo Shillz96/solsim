@@ -184,7 +184,7 @@ export function TokenDetailsHeader({ tokenAddress }: TokenDetailsHeaderProps) {
   };
 
   return (
-    <div className="mario-card relative overflow-hidden bg-white">
+    <div className="mario-card relative overflow-hidden bg-[var(--card)]">
       {/* Animated Background */}
       <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-blue-500/5 opacity-50"></div>
       <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-blue-500"></div>

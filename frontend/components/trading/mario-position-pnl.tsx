@@ -257,7 +257,7 @@ export function MarioPositionPnL({ tokenAddress, tokenSymbol, tokenName }: Mario
 
       {/* Quick Stats - Mario Block Style */}
       <div className="grid grid-cols-2 gap-2 mb-3">
-        <div className="bg-white border-3 border-[var(--outline-black)] rounded-lg p-2 shadow-sm">
+        <div className="bg-[var(--card)] border-3 border-[var(--outline-black)] rounded-lg p-2 shadow-sm">
           <div className="flex items-center gap-1 mb-1">
             <Star className="h-3 w-3 text-[var(--star-yellow)]" />
             <span className="text-xs font-semibold text-[var(--outline-black)]">Value</span>
@@ -265,7 +265,7 @@ export function MarioPositionPnL({ tokenAddress, tokenSymbol, tokenName }: Mario
           <UsdWithSol usd={safeCurrentValue} className="text-sm font-bold text-[var(--outline-black)]" solClassName="text-xs" />
         </div>
 
-        <div className="bg-white border-3 border-[var(--outline-black)] rounded-lg p-2 shadow-sm">
+        <div className="bg-[var(--card)] border-3 border-[var(--outline-black)] rounded-lg p-2 shadow-sm">
           <div className="flex items-center gap-1 mb-1">
             <Target className="h-3 w-3 text-[var(--super-blue)]" />
             <span className="text-xs font-semibold text-[var(--outline-black)]">Cost</span>

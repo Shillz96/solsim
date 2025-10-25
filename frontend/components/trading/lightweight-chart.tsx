@@ -501,7 +501,7 @@ export function LightweightChart({
   const priceChangePercent = priceChange24h
 
   return (
-    <div className={cn('space-y-2 border-4 border-[var(--outline-black)] rounded-xl shadow-[6px_6px_0_var(--outline-black)] bg-white overflow-hidden', className)}>
+    <div className={cn('space-y-2 border-4 border-[var(--outline-black)] rounded-xl shadow-[6px_6px_0_var(--outline-black)] bg-[var(--card)] overflow-hidden', className)}>
       {/* Token Info Header */}
       <div className="flex items-center justify-between p-3 bg-gradient-to-r from-[var(--luigi-green)]/20 to-[var(--sky-blue)]/20 border-3 border-[var(--outline-black)] rounded-lg shadow-[3px_3px_0_var(--outline-black)]">
         <div>
@@ -533,7 +533,7 @@ export function LightweightChart({
                 'px-2 md:px-2.5 py-1 md:py-1.5 text-[10px] md:text-xs font-bold rounded-lg border-2 border-[var(--outline-black)] transition-all',
                 chartType === type
                   ? 'bg-[var(--luigi-green)] text-white shadow-[2px_2px_0_var(--outline-black)]'
-                  : 'bg-white hover:bg-gray-100 shadow-[1px_1px_0_var(--outline-black)]'
+                  : 'bg-[var(--card)] hover:bg-gray-100 shadow-[1px_1px_0_var(--outline-black)]'
               )}
             >
               {label}
@@ -550,7 +550,7 @@ export function LightweightChart({
               'px-2.5 md:px-3 py-1 md:py-1.5 text-[10px] md:text-xs font-bold rounded-lg border-2 md:border-3 border-[var(--outline-black)] transition-all',
               timeframe === tf
                 ? 'bg-[var(--star-yellow)] shadow-[2px_2px_0_var(--outline-black)] md:shadow-[3px_3px_0_var(--outline-black)] -translate-y-[1px]'
-                : 'bg-white hover:bg-[var(--pipe-100)] shadow-[1px_1px_0_var(--outline-black)] md:shadow-[2px_2px_0_var(--outline-black)]'
+                : 'bg-[var(--card)] hover:bg-[var(--pipe-100)] shadow-[1px_1px_0_var(--outline-black)] md:shadow-[2px_2px_0_var(--outline-black)]'
             )}
           >
             {tf.toUpperCase()}

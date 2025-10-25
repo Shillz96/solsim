@@ -67,7 +67,7 @@ export function TokenVitalsBar({
     <div className={cn(
       "w-full p-4",
       "grid grid-cols-2 gap-4",
-      "bg-white rounded-lg border-4 border-[var(--outline-black)]",
+      "bg-[var(--card)] rounded-lg border-4 border-[var(--outline-black)]",
       "shadow-mario",
       className
     )}>

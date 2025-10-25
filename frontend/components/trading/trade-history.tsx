@@ -98,7 +98,7 @@ export function TradeHistory({
         <span className="ml-2 font-bold text-[var(--outline-black)] mt-2">Loading trade history...</span>
       </div>
     )
-    return noCard ? loadingContent : <div className="bg-white border-4 border-[var(--outline-black)] rounded-xl shadow-[6px_6px_0_var(--outline-black)] p-6">{loadingContent}</div>
+    return noCard ? loadingContent : <div className="bg-[var(--card)] border-4 border-[var(--outline-black)] rounded-xl shadow-[6px_6px_0_var(--outline-black)] p-6">{loadingContent}</div>
   }
 
   if (error) {
@@ -110,7 +110,7 @@ export function TradeHistory({
         </AlertDescription>
       </Alert>
     )
-    return noCard ? errorContent : <div className="bg-white border-4 border-[var(--outline-black)] rounded-xl shadow-[6px_6px_0_var(--outline-black)] p-6">{errorContent}</div>
+    return noCard ? errorContent : <div className="bg-[var(--card)] border-4 border-[var(--outline-black)] rounded-xl shadow-[6px_6px_0_var(--outline-black)] p-6">{errorContent}</div>
   }
 
   const content = (
@@ -124,7 +124,7 @@ export function TradeHistory({
             variant="outline" 
             size="sm" 
             onClick={loadTrades}
-            className="border-3 border-[var(--outline-black)] bg-white hover:bg-[var(--mario-red)] hover:text-white shadow-[2px_2px_0_var(--outline-black)] font-bold"
+            className="border-3 border-[var(--outline-black)] bg-[var(--card)] hover:bg-[var(--mario-red)] hover:text-white shadow-[2px_2px_0_var(--outline-black)] font-bold"
           >
             Refresh
           </Button>
@@ -159,7 +159,7 @@ export function TradeHistory({
           {displayTrades.map((trade) => (
             <div
               key={trade.id}
-              className="flex items-center justify-between rounded-lg border-3 border-[var(--outline-black)] bg-white p-3 transition-all hover:bg-[var(--sky-blue)]/10 hover:shadow-[3px_3px_0_var(--outline-black)]"
+              className="flex items-center justify-between rounded-lg border-3 border-[var(--outline-black)] bg-[var(--card)] p-3 transition-all hover:bg-[var(--sky-blue)]/10 hover:shadow-[3px_3px_0_var(--outline-black)]"
             >
               <div className="flex items-center gap-3">
                 <div className={`flex h-8 w-8 items-center justify-center rounded-full border-2 border-[var(--outline-black)] ${
@@ -233,7 +233,7 @@ export function TradeHistory({
           {trades.length > 10 && (
             <Button
               variant="outline"
-              className="w-full border-3 border-[var(--outline-black)] bg-white hover:bg-[var(--star-yellow)] hover:text-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] font-bold"
+              className="w-full border-3 border-[var(--outline-black)] bg-[var(--card)] hover:bg-[var(--star-yellow)] hover:text-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] font-bold"
               onClick={() => setShowAll(!showAll)}
             >
               {showAll ? "Show Less" : `Show All (${trades.length})`}
@@ -248,6 +248,6 @@ export function TradeHistory({
   return noCard ? (
     <div className="space-y-4">{content}</div>
   ) : (
-    <div className="bg-white border-4 border-[var(--outline-black)] rounded-xl shadow-[6px_6px_0_var(--outline-black)] p-6 space-y-4">{content}</div>
+    <div className="bg-[var(--card)] border-4 border-[var(--outline-black)] rounded-xl shadow-[6px_6px_0_var(--outline-black)] p-6 space-y-4">{content}</div>
   )
 }

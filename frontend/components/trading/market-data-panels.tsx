@@ -29,7 +29,7 @@ export function MarketDataPanels({ tokenMint }: MarketDataPanelsProps) {
   const [activeTab, setActiveTab] = useState<TabType>('trades')
 
   return (
-    <div className="flex flex-col h-full bg-white border-4 border-[var(--outline-black)] rounded-[16px] shadow-[6px_6px_0_var(--outline-black)] overflow-hidden">
+    <div className="flex flex-col h-full bg-[var(--card)] border-4 border-[var(--outline-black)] rounded-[16px] shadow-[6px_6px_0_var(--outline-black)] overflow-hidden">
       {/* Tabs */}
       <div className="border-b-4 border-[var(--outline-black)] bg-gradient-to-r from-[var(--star-yellow)]/20 via-[var(--pipe-green)]/20 to-[var(--sky-blue)]/20 px-4 py-3 overflow-x-auto flex-shrink-0">
         <div className="flex gap-2 text-xs font-mario font-bold justify-start sm:justify-center min-w-max">
@@ -39,7 +39,7 @@ export function MarketDataPanels({ tokenMint }: MarketDataPanelsProps) {
               "px-4 py-2.5 rounded-lg border-3 border-[var(--outline-black)] transition-all whitespace-nowrap",
               activeTab === 'trades'
                 ? "bg-gradient-to-br from-[var(--luigi-green)] to-emerald-500 text-white shadow-[4px_4px_0_var(--outline-black)] -translate-y-[2px]"
-                : "bg-white hover:bg-[var(--pipe-green)]/10 shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-[1px]"
+                : "bg-[var(--card)] hover:bg-[var(--pipe-green)]/10 shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-[1px]"
             )}
           >
             📊 Trades
@@ -51,7 +51,7 @@ export function MarketDataPanels({ tokenMint }: MarketDataPanelsProps) {
               "px-4 py-2.5 rounded-lg border-3 border-[var(--outline-black)] transition-all whitespace-nowrap",
               activeTab === 'traders'
                 ? "bg-gradient-to-br from-[var(--star-yellow)] to-amber-400 text-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)] -translate-y-[2px]"
-                : "bg-white hover:bg-[var(--pipe-green)]/10 shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-[1px]"
+                : "bg-[var(--card)] hover:bg-[var(--pipe-green)]/10 shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-[1px]"
             )}
           >
             🏆 Top Traders
@@ -63,7 +63,7 @@ export function MarketDataPanels({ tokenMint }: MarketDataPanelsProps) {
               "px-4 py-2.5 rounded-lg border-3 border-[var(--outline-black)] transition-all whitespace-nowrap",
               activeTab === 'holders'
                 ? "bg-gradient-to-br from-[var(--coin-gold)] to-[var(--coin-yellow)] text-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)] -translate-y-[2px]"
-                : "bg-white hover:bg-[var(--pipe-green)]/10 shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-[1px]"
+                : "bg-[var(--card)] hover:bg-[var(--pipe-green)]/10 shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-[1px]"
             )}
           >
             👥 Holders
@@ -75,7 +75,7 @@ export function MarketDataPanels({ tokenMint }: MarketDataPanelsProps) {
               "px-4 py-2.5 rounded-lg border-3 border-[var(--outline-black)] transition-all whitespace-nowrap",
               activeTab === 'bubblemap'
                 ? "bg-gradient-to-br from-[var(--sky-blue)] to-blue-400 text-white shadow-[4px_4px_0_var(--outline-black)] -translate-y-[2px]"
-                : "bg-white hover:bg-[var(--pipe-green)]/10 shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-[1px]"
+                : "bg-[var(--card)] hover:bg-[var(--pipe-green)]/10 shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-[1px]"
             )}
           >
             🫧 Bubble Map
@@ -87,7 +87,7 @@ export function MarketDataPanels({ tokenMint }: MarketDataPanelsProps) {
               "px-4 py-2.5 rounded-lg border-3 border-[var(--outline-black)] transition-all whitespace-nowrap",
               activeTab === 'positions'
                 ? "bg-gradient-to-br from-[var(--mario-red)] to-red-500 text-white shadow-[4px_4px_0_var(--outline-black)] -translate-y-[2px]"
-                : "bg-white hover:bg-[var(--pipe-green)]/10 shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-[1px]"
+                : "bg-[var(--card)] hover:bg-[var(--pipe-green)]/10 shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-[1px]"
             )}
           >
             💼 Portfolio
@@ -117,7 +117,7 @@ function RecentTradesPanel({ tokenMint }: { tokenMint: string }) {
 
   return (
     <div className="border-4 border-[var(--outline-black)] rounded-[16px] shadow-[6px_6px_0_var(--outline-black)] bg-gradient-to-br from-green-50 to-emerald-50 p-4 min-h-[200px]">
-      <div className="flex items-center gap-2 mb-4 bg-white rounded-lg p-3 border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)]">
+      <div className="flex items-center gap-2 mb-4 bg-[var(--card)] rounded-lg p-3 border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)]">
         <div className="h-8 w-8 rounded-lg bg-[var(--luigi-green)] border-3 border-[var(--outline-black)] flex items-center justify-center shadow-[2px_2px_0_var(--outline-black)]">
           <Activity className="h-4 w-4 text-white" />
         </div>
@@ -194,7 +194,7 @@ function TopTradersPanel({ tokenMint }: { tokenMint: string }) {
 
   return (
     <div className="border-4 border-[var(--outline-black)] rounded-[16px] shadow-[6px_6px_0_var(--outline-black)] bg-gradient-to-br from-yellow-50 to-amber-50 p-4 min-h-[200px]">
-      <div className="flex items-center gap-2 mb-4 bg-white rounded-lg p-3 border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)]">
+      <div className="flex items-center gap-2 mb-4 bg-[var(--card)] rounded-lg p-3 border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)]">
         <div className="h-8 w-8 rounded-lg bg-[var(--star-yellow)] border-3 border-[var(--outline-black)] flex items-center justify-center shadow-[2px_2px_0_var(--outline-black)]">
           <TrendingUp className="h-4 w-4 text-[var(--outline-black)]" />
         </div>
@@ -272,7 +272,7 @@ function HoldersPanel({ tokenMint }: { tokenMint: string }) {
 
   return (
     <div className="border-4 border-[var(--outline-black)] rounded-[16px] shadow-[6px_6px_0_var(--outline-black)] bg-gradient-to-br from-blue-50 to-cyan-50 p-4 min-h-[200px]">
-      <div className="flex items-center gap-2 mb-4 bg-white rounded-lg p-3 border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)]">
+      <div className="flex items-center gap-2 mb-4 bg-[var(--card)] rounded-lg p-3 border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)]">
         <div className="h-8 w-8 rounded-lg bg-[var(--sky-blue)] border-3 border-[var(--outline-black)] flex items-center justify-center shadow-[2px_2px_0_var(--outline-black)]">
           <Users className="h-4 w-4 text-white" />
         </div>
@@ -284,7 +284,7 @@ function HoldersPanel({ tokenMint }: { tokenMint: string }) {
 
       {/* Liquidity Pool Summary */}
       {liquidityPoolPercentage > 0 && (
-        <div className="mb-4 p-3 bg-white border-3 border-[var(--sky-blue)] rounded-lg shadow-[3px_3px_0_var(--sky-blue)]/40">
+        <div className="mb-4 p-3 bg-[var(--card)] border-3 border-[var(--sky-blue)] rounded-lg shadow-[3px_3px_0_var(--sky-blue)]/40">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <span className="text-lg">🏊</span>
@@ -384,7 +384,7 @@ function HoldersPanel({ tokenMint }: { tokenMint: string }) {
 
       {/* Distribution Summary */}
       {holders.length > 0 && (
-        <div className="mt-4 p-3 bg-white rounded-lg border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)]">
+        <div className="mt-4 p-3 bg-[var(--card)] rounded-lg border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)]">
           <div className="text-xs font-bold mb-2">Distribution Analysis</div>
           <div className="grid grid-cols-2 gap-2 text-[10px]">
             <div>
@@ -441,7 +441,7 @@ function BubbleMapsPanel({ tokenMint }: { tokenMint: string }) {
       ) : (
         <>
           {!iframeLoaded && (
-            <div className="absolute inset-0 flex items-center justify-center bg-white z-10">
+            <div className="absolute inset-0 flex items-center justify-center bg-[var(--card)] z-10">
               <div className="text-center">
                 <Loader2 className="h-8 w-8 animate-spin mx-auto mb-3 text-[var(--luigi-green)]" />
                 <p className="text-sm font-bold">Loading Bubble Map...</p>
@@ -516,7 +516,7 @@ function UserPositionsPanel() {
 
   return (
     <div className="border-4 border-[var(--outline-black)] rounded-[16px] shadow-[6px_6px_0_var(--outline-black)] bg-gradient-to-br from-red-50 to-pink-50 p-4 min-h-[200px]">
-      <div className="flex items-center gap-2 mb-4 bg-white rounded-lg p-3 border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)]">
+      <div className="flex items-center gap-2 mb-4 bg-[var(--card)] rounded-lg p-3 border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)]">
         <div className="h-8 w-8 rounded-lg bg-[var(--mario-red)] border-3 border-[var(--outline-black)] flex items-center justify-center shadow-[2px_2px_0_var(--outline-black)]">
           <Wallet className="h-4 w-4 text-white" />
         </div>
@@ -529,7 +529,7 @@ function UserPositionsPanel() {
           <button
             key={position.mint}
             onClick={() => router.push(`/room/${position.mint}`)}
-            className="w-full p-3 bg-white border-2 border-[var(--outline-black)] rounded-lg shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-[1px] transition-all text-left"
+            className="w-full p-3 bg-[var(--card)] border-2 border-[var(--outline-black)] rounded-lg shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-[1px] transition-all text-left"
           >
             <div className="flex items-center gap-3">
               {/* Token Image */}

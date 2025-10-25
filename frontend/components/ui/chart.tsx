@@ -81,7 +81,7 @@ function ChartContainer({
         data-chart={chartId}
         className={cn(
           // Mario-themed chart styling
-          "border-4 border-[var(--outline-black)] rounded-xl shadow-[6px_6px_0_var(--outline-black)] bg-white",
+          "border-4 border-[var(--outline-black)] rounded-xl shadow-[6px_6px_0_var(--outline-black)] bg-[var(--card)]",
           // Recharts styling
           "[&_.recharts-cartesian-axis-tick_text]:fill-[var(--outline-black)] [&_.recharts-cartesian-grid_line[stroke='#ccc']]:stroke-[var(--pipe-200)] [&_.recharts-curve.recharts-tooltip-cursor]:stroke-[var(--outline-black)] [&_.recharts-polar-grid_[stroke='#ccc']]:stroke-[var(--pipe-200)] [&_.recharts-radial-bar-background-sector]:fill-[var(--pipe-100)] [&_.recharts-rectangle.recharts-tooltip-cursor]:fill-[var(--pipe-100)] [&_.recharts-reference-line_[stroke='#ccc']]:stroke-[var(--outline-black)]",
           // Layout
@@ -215,7 +215,7 @@ function ChartTooltipContent({
     <div
       className={cn(
         // Mario-themed tooltip styling
-        'border-3 border-[var(--outline-black)] bg-white grid min-w-[8rem] items-start gap-1.5 rounded-lg px-3 py-2 text-xs shadow-[4px_4px_0_var(--outline-black)]',
+        'border-3 border-[var(--outline-black)] bg-[var(--card)] grid min-w-[8rem] items-start gap-1.5 rounded-lg px-3 py-2 text-xs shadow-[4px_4px_0_var(--outline-black)]',
         className,
       )}
     >

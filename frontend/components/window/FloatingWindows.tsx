@@ -282,7 +282,7 @@ export default function FloatingWindows() {
             </div>
 
             {/* Content */}
-            <div className="flex-1 min-h-0 overflow-hidden bg-white/90 rounded-b-md pointer-events-auto">
+            <div className="flex-1 min-h-0 overflow-hidden bg-[var(--card)]/90 rounded-b-md pointer-events-auto">
               {w.content}
             </div>
 

@@ -154,7 +154,7 @@ export function PositionStatsBox({
     )}>
       <div className="grid grid-cols-4 gap-0">
         {/* Bought */}
-        <div className="flex flex-col items-center justify-center border-r-3 border-[var(--outline-black)] px-2 py-3 bg-white/40">
+        <div className="flex flex-col items-center justify-center border-r-3 border-[var(--outline-black)] px-2 py-3 bg-[var(--card)]/40">
           <div className="text-[10px] font-bold uppercase text-[var(--outline-black)]/70 mb-1 font-mario">
             Bought
           </div>
@@ -164,7 +164,7 @@ export function PositionStatsBox({
         </div>
 
         {/* Sold */}
-        <div className="flex flex-col items-center justify-center border-r-3 border-[var(--outline-black)] px-2 py-3 bg-white/40">
+        <div className="flex flex-col items-center justify-center border-r-3 border-[var(--outline-black)] px-2 py-3 bg-[var(--card)]/40">
           <div className="text-[10px] font-bold uppercase text-[var(--outline-black)]/70 mb-1 font-mario">
             Sold
           </div>
@@ -174,7 +174,7 @@ export function PositionStatsBox({
         </div>
 
         {/* Holding */}
-        <div className="flex flex-col items-center justify-center border-r-3 border-[var(--outline-black)] px-2 py-3 bg-white/40">
+        <div className="flex flex-col items-center justify-center border-r-3 border-[var(--outline-black)] px-2 py-3 bg-[var(--card)]/40">
           <div className="text-[10px] font-bold uppercase text-[var(--outline-black)]/70 mb-1 font-mario">
             Holding
           </div>

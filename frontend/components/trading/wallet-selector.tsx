@@ -154,7 +154,7 @@ export function WalletSelector({ onWalletChange, className = '' }: WalletSelecto
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <button
-            className={`w-full flex items-center justify-between p-3 bg-white border-3 border-pipe-400 rounded hover:border-mario-red-500 transition-colors ${className}`}
+            className={`w-full flex items-center justify-between p-3 bg-[var(--card)] border-3 border-pipe-400 rounded hover:border-mario-red-500 transition-colors ${className}`}
             disabled={isChanging}
           >
             <div className="flex items-center gap-2 flex-1 min-w-0">
@@ -174,7 +174,7 @@ export function WalletSelector({ onWalletChange, className = '' }: WalletSelecto
 
         <DropdownMenuContent
           align="start"
-          className="w-[300px] mario-card bg-white border-3 border-pipe-400"
+          className="w-[300px] mario-card bg-[var(--card)] border-3 border-pipe-400"
         >
           <DropdownMenuLabel className="text-xs text-pipe-600 uppercase">
             Select Trading Wallet

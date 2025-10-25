@@ -23,7 +23,7 @@ function StockCardPreview({ token, onClick }: { token: Backend.TrendingToken; on
 
   return (
     <div
-      className="bg-white rounded-2xl border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] p-4 hover:shadow-[8px_8px_0_var(--outline-black)] hover:-translate-y-1 transition-all cursor-pointer"
+      className="bg-[var(--card)] rounded-2xl border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] p-4 hover:shadow-[8px_8px_0_var(--outline-black)] hover:-translate-y-1 transition-all cursor-pointer"
       onClick={onClick}
     >
       <div className="space-y-3">
@@ -175,7 +175,7 @@ export function TradeEmptyState() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.1 * index, duration: 0.4 }}
                   >
-                    <div className="bg-white rounded-2xl border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] p-4 hover:shadow-[8px_8px_0_var(--outline-black)] hover:-translate-y-1 transition-all cursor-pointer h-full"
+                    <div className="bg-[var(--card)] rounded-2xl border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] p-4 hover:shadow-[8px_8px_0_var(--outline-black)] hover:-translate-y-1 transition-all cursor-pointer h-full"
                       onClick={() => handleTokenClick(token)}
                     >
                       <div className="space-y-3">
@@ -287,7 +287,7 @@ export function TradeEmptyState() {
           transition={{ delay: 0.5, duration: 0.6 }}
           className="grid grid-cols-1 md:grid-cols-3 gap-6"
         >
-          <div className="bg-white rounded-2xl border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] p-6">
+          <div className="bg-[var(--card)] rounded-2xl border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] p-6">
             <div className="space-y-3">
               <div className="h-12 w-12 rounded-xl bg-[var(--luigi-green)] border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] flex items-center justify-center">
                 <TrendingUp className="h-6 w-6 text-white" />
@@ -299,7 +299,7 @@ export function TradeEmptyState() {
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] p-6">
+          <div className="bg-[var(--card)] rounded-2xl border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] p-6">
             <div className="space-y-3">
               <div className="h-12 w-12 rounded-xl bg-[var(--sky-blue)] border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] flex items-center justify-center">
                 <Sparkles className="h-6 w-6 text-white" />
@@ -311,7 +311,7 @@ export function TradeEmptyState() {
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] p-6">
+          <div className="bg-[var(--card)] rounded-2xl border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] p-6">
             <div className="space-y-3">
               <div className="h-12 w-12 rounded-xl bg-[var(--mario-red)] border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] flex items-center justify-center">
                 <Search className="h-6 w-6 text-white" />

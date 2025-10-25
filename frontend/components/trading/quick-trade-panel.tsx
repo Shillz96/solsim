@@ -122,7 +122,7 @@ export function QuickTradePanel({
             className={cn(
               "fixed bottom-6 right-6 z-50",
               "w-80 p-4",
-              "bg-white",
+              "bg-[var(--card)]",
               "border-4 border-[var(--outline-black)]",
               "shadow-[8px_8px_0_var(--outline-black)]",
               "rounded-[16px]",
