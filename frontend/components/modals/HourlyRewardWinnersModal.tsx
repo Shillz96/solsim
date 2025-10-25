@@ -34,7 +34,7 @@ export function HourlyRewardWinnersModal({ isOpen, onClose }: HourlyRewardWinner
   const { data, isLoading, error } = useQuery<DistributionData>({
     queryKey: ["lastDistribution"],
     queryFn: async () => {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/rewards/hourly/last-distribution`);
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/rewards/hourly/last-distribution`);
       if (!res.ok) throw new Error("Failed to fetch distribution data");
       return res.json();
     },
