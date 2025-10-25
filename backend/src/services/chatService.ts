@@ -20,8 +20,21 @@ export interface SendMessageResult {
 }
 
 // Constants
-const CHAT_MESSAGE_LIMIT = 10; // 10 messages per 15 seconds
 const MESSAGE_LENGTH_LIMIT = 280;
+
+// Dynamic rate limits based on user tier
+const getRateLimitForUser = (userTier: string): number => {
+  switch (userTier) {
+    case 'ADMINISTRATOR':
+      return 1000; // Admins: 1000 messages per 15 seconds (effectively unlimited)
+    case 'VIP':
+      return 200; // VIP: 200 messages per 15 seconds
+    case 'PREMIUM':
+      return 150; // Premium: 150 messages per 15 seconds
+    default:
+      return 100; // Regular: 100 messages per 15 seconds
+  }
+};
 
 /**
  * Send a chat message with enhanced moderation and badge checking
@@ -32,21 +45,32 @@ export async function sendMessage(
   content: string
 ): Promise<SendMessageResult> {
   try {
-    // 1. Check moderation status
-    const modStatus = await ModerationBot.getUserModerationStatus(userId);
-    if (!modStatus.canChat) {
-      if (modStatus.isBanned) {
-        return {
-          success: false,
-          error: 'You are banned from chat',
-        };
-      }
-      if (modStatus.isMuted) {
-        const mutedUntil = modStatus.mutedUntil?.toISOString();
-        return {
-          success: false,
-          error: `You are muted until ${mutedUntil}`,
-        };
+    // 1. Get user info for tier-based rate limiting
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { userTier: true }
+    });
+
+    const isAdmin = user?.userTier === 'ADMINISTRATOR';
+    const userTier = user?.userTier || 'REGULAR';
+
+    // 2. Check moderation status (skip for admins)
+    if (!isAdmin) {
+      const modStatus = await ModerationBot.getUserModerationStatus(userId);
+      if (!modStatus.canChat) {
+        if (modStatus.isBanned) {
+          return {
+            success: false,
+            error: 'You are banned from chat',
+          };
+        }
+        if (modStatus.isMuted) {
+          const mutedUntil = modStatus.mutedUntil?.toISOString();
+          return {
+            success: false,
+            error: `You are muted until ${mutedUntil}`,
+          };
+        }
       }
     }
 
@@ -61,9 +85,10 @@ export async function sendMessage(
       };
     }
 
-    // 3. Rate limit check
+    // 3. Rate limit check (tier-based limits)
+    const userRateLimit = getRateLimitForUser(userTier);
     const rateLimitKey = `chat:ratelimit:${userId}`;
-    const rateLimit = await checkRateLimit(rateLimitKey, CHAT_MESSAGE_LIMIT);
+    const rateLimit = await checkRateLimit(rateLimitKey, userRateLimit);
     if (!rateLimit.allowed) {
       return {
         success: false,
@@ -73,26 +98,30 @@ export async function sendMessage(
       };
     }
 
-    // 4. Duplicate detection
-    const messageHash = getMessageHash(userId, sanitized);
-    const isDuplicate = await isDuplicateMessage(messageHash);
-    if (isDuplicate) {
-      return {
-        success: false,
-        error: 'Duplicate message detected. Please wait before sending the same message again.',
-      };
+    // 4. Duplicate detection (skip for admins)
+    if (!isAdmin) {
+      const messageHash = getMessageHash(userId, sanitized);
+      const isDuplicate = await isDuplicateMessage(messageHash);
+      if (isDuplicate) {
+        return {
+          success: false,
+          error: 'Duplicate message detected. Please wait before sending the same message again.',
+        };
+      }
     }
 
-    // 5. Automated moderation check
-    const moderationResult = await ModerationBot.analyzeMessage(userId, sanitized);
-    if (moderationResult.violations.length > 0) {
-      // Execute moderation action
-      await ModerationBot.executeAction(userId, moderationResult.action);
-      
-      return {
-        success: false,
-        error: `Message blocked: ${moderationResult.reason}`,
-      };
+    // 5. Automated moderation check (skip for admins)
+    if (!isAdmin) {
+      const moderationResult = await ModerationBot.analyzeMessage(userId, sanitized);
+      if (moderationResult.violations.length > 0) {
+        // Execute moderation action
+        await ModerationBot.executeAction(userId, moderationResult.action);
+        
+        return {
+          success: false,
+          error: `Message blocked: ${moderationResult.reason}`,
+        };
+      }
     }
 
     // 6. Save message to database
@@ -423,5 +452,107 @@ export async function deleteMessage(messageId: string, moderatorId: string): Pro
   } catch (error) {
     console.error('Error deleting message:', error);
     return false;
+  }
+}
+
+/**
+ * Clean up old chat messages to prevent database growth
+ * @param daysToKeep Number of days to keep messages (default: 30)
+ */
+export async function cleanupOldMessages(daysToKeep: number = 30): Promise<{
+  deletedCount: number;
+  error?: string;
+}> {
+  try {
+    const cutoffDate = new Date(Date.now() - daysToKeep * 24 * 60 * 60 * 1000);
+    
+    console.log(`🧹 Cleaning up chat messages older than ${daysToKeep} days (before ${cutoffDate.toISOString()})`);
+    
+    // Count messages to be deleted
+    const countToDelete = await prisma.chatMessage.count({
+      where: {
+        createdAt: {
+          lt: cutoffDate
+        }
+      }
+    });
+
+    if (countToDelete === 0) {
+      console.log('✅ No old messages to clean up');
+      return { deletedCount: 0 };
+    }
+
+    // Delete old messages
+    const result = await prisma.chatMessage.deleteMany({
+      where: {
+        createdAt: {
+          lt: cutoffDate
+        }
+      }
+    });
+
+    console.log(`✅ Cleaned up ${result.count} old chat messages`);
+    
+    return { deletedCount: result.count };
+  } catch (error) {
+    console.error('❌ Error cleaning up old messages:', error);
+    return { 
+      deletedCount: 0, 
+      error: error instanceof Error ? error.message : 'Unknown error' 
+    };
+  }
+}
+
+/**
+ * Get chat statistics for monitoring
+ */
+export async function getChatStatistics(): Promise<{
+  totalMessages: number;
+  messagesLast24h: number;
+  messagesLast7d: number;
+  activeRooms: number;
+  oldestMessage?: Date;
+}> {
+  try {
+    const now = new Date();
+    const last24h = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+    const last7d = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+
+    const [totalMessages, messagesLast24h, messagesLast7d, oldestMessage] = await Promise.all([
+      prisma.chatMessage.count(),
+      prisma.chatMessage.count({
+        where: { createdAt: { gte: last24h } }
+      }),
+      prisma.chatMessage.count({
+        where: { createdAt: { gte: last7d } }
+      }),
+      prisma.chatMessage.findFirst({
+        orderBy: { createdAt: 'asc' },
+        select: { createdAt: true }
+      })
+    ]);
+
+    // Count active rooms (rooms with messages in last 24h)
+    const activeRooms = await prisma.chatMessage.groupBy({
+      by: ['roomId'],
+      where: { createdAt: { gte: last24h } },
+      _count: { roomId: true }
+    });
+
+    return {
+      totalMessages,
+      messagesLast24h,
+      messagesLast7d,
+      activeRooms: activeRooms.length,
+      oldestMessage: oldestMessage?.createdAt
+    };
+  } catch (error) {
+    console.error('Error getting chat statistics:', error);
+    return {
+      totalMessages: 0,
+      messagesLast24h: 0,
+      messagesLast7d: 0,
+      activeRooms: 0
+    };
   }
 }

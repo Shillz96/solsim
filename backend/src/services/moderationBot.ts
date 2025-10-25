@@ -320,6 +320,17 @@ export class ModerationBot {
    */
   static async executeAction(userId: string, action: ModerationAction, moderatorId?: string): Promise<boolean> {
     try {
+      // Check if user is admin - admins cannot be moderated
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { userTier: true }
+      });
+
+      if (user?.userTier === 'ADMINISTRATOR') {
+        console.log(`Admin user ${userId} attempted moderation - action blocked`);
+        return false; // Don't execute action on admins
+      }
+
       const moderationAction = await prisma.chatModerationAction.create({
         data: {
           userId,
@@ -477,6 +488,22 @@ export class ModerationBot {
     trustScore: number;
     strikes: number;
   }> {
+    // Check if user is admin - admins always can chat
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { userTier: true }
+    });
+
+    if (user?.userTier === 'ADMINISTRATOR') {
+      return {
+        canChat: true,
+        isMuted: false,
+        isBanned: false,
+        trustScore: currentConfig.trustScore.maxScore,
+        strikes: 0
+      };
+    }
+
     const status = await prisma.userModerationStatus.findUnique({
       where: { userId }
     });

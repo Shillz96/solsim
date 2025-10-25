@@ -3,7 +3,7 @@
 import type { ReactNode } from "react"
 
 import { ThemeProvider } from "@/components/theme-provider"
-import { GlobalErrorBoundary } from "@/components/error-boundary-enhanced"
+import { GlobalErrorBoundary } from "@/components/error-boundary"
 import { QueryProvider } from "@/lib/query-provider"
 import { PriceStreamProvider } from "@/lib/price-stream-provider"
 import { SolanaWalletProvider } from "@/lib/solana-wallet-provider"
@@ -23,7 +23,7 @@ interface AppProvidersProps {
  * Maintains proper provider hierarchy for optimal functionality
  *
  * Provider Order (outer to inner):
- * 1. GlobalErrorBoundary - Catches all React errors
+ * 1. GlobalErrorBoundary - Catches all React errors (enhanced)
  * 2. QueryProvider - React Query for data fetching
  * 3. SolanaWalletProvider - Wallet connectivity
  * 4. TradingModeProvider - Paper/Real trading mode management

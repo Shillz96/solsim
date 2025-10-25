@@ -77,66 +77,66 @@ export interface ModerationConfig {
 }
 
 export const defaultModerationConfig: ModerationConfig = {
-  // Rate Limiting - Prevent spam by limiting message frequency
+  // Rate Limiting - Much more lenient, only prevent excessive spam
   rateLimit: {
-    messagesPerWindow: 10, // 10 messages
+    messagesPerWindow: 50, // 50 messages (was 10)
     windowSeconds: 15, // per 15 seconds
-    burstLimit: 5 // Allow 5 messages in quick succession
+    burstLimit: 20 // Allow 20 messages in quick succession (was 5)
   },
 
-  // Spam Detection - Detect and prevent spam patterns
+  // Spam Detection - Only detect obvious spam patterns
   spam: {
-    repeatedCharThreshold: 4, // 4+ repeated characters = spam
-    duplicateMessageWindow: 30, // Check last 30 seconds
-    duplicateMessageThreshold: 3 // 3+ identical messages = spam
+    repeatedCharThreshold: 8, // 8+ repeated characters = spam (was 4)
+    duplicateMessageWindow: 10, // Check last 10 seconds (was 30)
+    duplicateMessageThreshold: 10 // 10+ identical messages = spam (was 3)
   },
 
-  // Toxicity Detection - Filter harmful language
+  // Toxicity Detection - Disabled for lenient moderation
   toxicity: {
-    enabled: true,
-    confidenceThreshold: 80, // 80% confidence required
-    severityThreshold: 'MEDIUM' // Medium severity and above
+    enabled: false, // Disabled - let users express themselves
+    confidenceThreshold: 95, // 95% confidence required (was 80%)
+    severityThreshold: 'CRITICAL' // Only critical severity (was MEDIUM)
   },
 
-  // Pump & Dump Detection - Prevent market manipulation
+  // Pump & Dump Detection - Disabled for lenient moderation
   pumpDump: {
-    enabled: true,
-    confidenceThreshold: 85, // 85% confidence required
-    severityThreshold: 'HIGH' // High severity and above
+    enabled: false, // Disabled - allow trading discussion
+    confidenceThreshold: 95, // 95% confidence required (was 85%)
+    severityThreshold: 'CRITICAL' // Only critical severity (was HIGH)
   },
 
-  // Caps Spam Detection - Prevent excessive caps usage
+  // Caps Spam Detection - Much more lenient
   capsSpam: {
     enabled: true,
-    capsRatioThreshold: 0.7, // 70% caps = spam
-    minMessageLength: 10 // Only check messages 10+ characters
+    capsRatioThreshold: 0.9, // 90% caps = spam (was 70%)
+    minMessageLength: 20 // Only check messages 20+ characters (was 10)
   },
 
-  // Action Thresholds - Escalation system
+  // Action Thresholds - Much more lenient escalation
   actions: {
-    warningThreshold: 1, // 1 violation = warning
-    strikeThreshold: 2, // 2 violations = strike
-    muteThreshold: 3, // 3 violations = mute
-    banThreshold: 5 // 5 violations = ban
+    warningThreshold: 5, // 5 violations = warning (was 1)
+    strikeThreshold: 10, // 10 violations = strike (was 2)
+    muteThreshold: 20, // 20 violations = mute (was 3)
+    banThreshold: 50 // 50 violations = ban (was 5)
   },
 
-  // Trust Score System - User reputation tracking
+  // Trust Score System - More forgiving
   trustScore: {
     initialScore: 100, // Start with perfect trust
-    warningPenalty: 5, // -5 points for warning
-    strikePenalty: 10, // -10 points for strike
-    mutePenalty: 20, // -20 points for mute
-    banPenalty: 50, // -50 points for ban
+    warningPenalty: 2, // -2 points for warning (was 5)
+    strikePenalty: 5, // -5 points for strike (was 10)
+    mutePenalty: 10, // -10 points for mute (was 20)
+    banPenalty: 25, // -25 points for ban (was 50)
     minScore: 0, // Minimum trust score
     maxScore: 100 // Maximum trust score
   },
 
-  // Duration Settings - How long actions last
+  // Duration Settings - Shorter durations
   durations: {
     warning: 0, // Warnings don't expire
     strike: 0, // Strikes don't expire
-    mute: 30, // 30 minutes mute
-    ban: 1440 // 24 hours ban (1440 minutes)
+    mute: 5, // 5 minutes mute (was 30)
+    ban: 60 // 1 hour ban (was 24 hours)
   },
 
   // Mario Theme Settings - Fun moderation messages
@@ -164,32 +164,32 @@ export const getModerationConfig = (): ModerationConfig => {
     case 'production':
       return {
         ...defaultModerationConfig,
-        // Stricter settings for production
+        // Lenient settings for production - only block obvious spam
         rateLimit: {
-          messagesPerWindow: 8,
+          messagesPerWindow: 30, // 30 messages (was 8)
           windowSeconds: 15,
-          burstLimit: 3
+          burstLimit: 15 // Allow 15 messages in quick succession (was 3)
         },
         actions: {
-          warningThreshold: 1,
-          strikeThreshold: 2,
-          muteThreshold: 3,
-          banThreshold: 4 // Stricter ban threshold
+          warningThreshold: 10, // 10 violations = warning (was 1)
+          strikeThreshold: 20, // 20 violations = strike (was 2)
+          muteThreshold: 30, // 30 violations = mute (was 3)
+          banThreshold: 50 // 50 violations = ban (was 4)
         },
         trustScore: {
           ...defaultModerationConfig.trustScore,
-          banPenalty: 75 // Harsher ban penalty
+          banPenalty: 25 // Same as default (was 75)
         }
       };
 
     case 'staging':
       return {
         ...defaultModerationConfig,
-        // Moderate settings for staging
+        // Lenient settings for staging
         rateLimit: {
-          messagesPerWindow: 12,
+          messagesPerWindow: 40, // 40 messages (was 12)
           windowSeconds: 15,
-          burstLimit: 4
+          burstLimit: 20 // Allow 20 messages in quick succession (was 4)
         }
       };
 
@@ -197,17 +197,17 @@ export const getModerationConfig = (): ModerationConfig => {
     default:
       return {
         ...defaultModerationConfig,
-        // Lenient settings for development
+        // Very lenient settings for development
         rateLimit: {
-          messagesPerWindow: 20,
+          messagesPerWindow: 100, // 100 messages (was 20)
           windowSeconds: 15,
-          burstLimit: 10
+          burstLimit: 50 // Allow 50 messages in quick succession (was 10)
         },
         actions: {
-          warningThreshold: 2,
-          strikeThreshold: 4,
-          muteThreshold: 6,
-          banThreshold: 10 // Very lenient for testing
+          warningThreshold: 20, // 20 violations = warning (was 2)
+          strikeThreshold: 40, // 40 violations = strike (was 4)
+          muteThreshold: 60, // 60 violations = mute (was 6)
+          banThreshold: 100 // 100 violations = ban (was 10)
         }
       };
   }

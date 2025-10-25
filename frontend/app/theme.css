@@ -105,6 +105,18 @@
   --ease: cubic-bezier(0.4, 0, 0.2, 1);
   --ease-in: cubic-bezier(0.4, 0, 1, 1);
   --ease-out: cubic-bezier(0, 0, 0.2, 1);
+
+  /* Base UI Colors - Warm Paper Cream Background */
+  --background: #FFFAE9;
+  --foreground: #000000;
+  --card: #FFFFFF;
+  --border: #E5E5E5;
+  --color-border: #E5E5E5;
+
+  /* Navigation Heights */
+  --navbar-height: 56px;
+  --bottom-nav-height: 64px;
+  --trending-ticker-height: 60px;
 }
 
 /**

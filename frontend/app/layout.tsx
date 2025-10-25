@@ -15,49 +15,23 @@ import "./theme.css"
 import "./globals.css"
 import "./wallet-modal-override.css"
 
-// Font Loading Strategy:
-// - display: 'swap' prevents invisible text during font load
-// - preload: true for critical fonts (Radnika Next = main body font)
-// - JetBrains Mono loads globally as it's used for monospace text throughout app
-// - Fallback fonts ensure text is always readable
-
-// Typography: IBM Plex Sans Bold for headings, Radnika Next for body
+// Simplified font configuration
 const radnikaNext = localFont({
   src: "./fonts/Radnika-Medium.otf",
   variable: "--font-radnika-next",
-  fallback: [
-    'Nunito Sans',
-    'Baloo 2',
-    'Fredoka',
-    'Poppins',
-    'Rubik',
-    'Quicksand',
-    'Segoe UI',
-    'Roboto',
-    'Helvetica Neue',
-    'Arial Rounded MT Bold',
-    'sans-serif',
-  ],
   display: 'swap',
-  preload: true, // Critical: main body font
+  preload: true,
 })
+
 const ibmPlexSans = IBM_Plex_Sans({
   subsets: ["latin"],
   weight: ["700"],
   variable: "--font-ibm-plex-sans",
-  fallback: [
-    '-apple-system',
-    'BlinkMacSystemFont',
-    'system-ui',
-    'Segoe UI',
-    'sans-serif',
-  ],
   display: 'swap',
 })
-// JetBrains Mono kept for code/monospace elements only
-const jetBrainsMono = JetBrains_Mono({
+
+const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
-  weight: ["400"],
   variable: "--font-jetbrains-mono",
   display: 'swap',
 })
@@ -89,7 +63,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" dir="ltr">
       <body
-        className={`${radnikaNext.variable} ${ibmPlexSans.variable} ${jetBrainsMono.variable} font-sans`}
+        className={`${radnikaNext.variable} ${ibmPlexSans.variable} ${jetbrainsMono.variable} font-sans`}
         style={{
           // iOS safe area insets for notch and home indicator
           paddingTop: 'env(safe-area-inset-top)',
