@@ -17,6 +17,8 @@ import { TradeTimeline } from "@/components/trading/trade-timeline"
 import { SlidingTrendingTicker } from "@/components/trading/sliding-trending-ticker"
 import { MarioPositionPnL } from "@/components/trading/mario-position-pnl"
 import { MarioTradingPanel } from "@/components/trading/mario-trading-panel"
+import { TokenChatRoom } from "@/components/chat/token-chat-room"
+import { TokenChatProvider } from "@/lib/contexts/TokenChatContext"
 
 const DexScreenerChart = dynamic(
   () => import("@/components/trading/dexscreener-chart").then((mod) => ({ default: mod.DexScreenerChart })),
@@ -116,6 +118,20 @@ function TradePageContent() {
           >
             <MarioTradingPanel tokenAddress={currentTokenAddress} />
           </motion.div>
+
+          {/* Token Chat - Mobile */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.2 }}
+            className="flex-shrink-0"
+          >
+            <TokenChatProvider roomId={currentTokenAddress}>
+              <div className="h-[300px]">
+                <TokenChatRoom tokenMint={currentTokenAddress} />
+              </div>
+            </TokenChatProvider>
+          </motion.div>
         </div>
 
         {/* DESKTOP LAYOUT: Grid layout */}
@@ -189,6 +205,20 @@ function TradePageContent() {
             />
           </motion.aside>
         </div>
+
+        {/* Token Chat Section - Full width below main content */}
+        <motion.div
+          className="mt-6"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.4 }}
+        >
+          <TokenChatProvider roomId={currentTokenAddress}>
+            <div className="h-[400px]">
+              <TokenChatRoom tokenMint={currentTokenAddress} />
+            </div>
+          </TokenChatProvider>
+        </motion.div>
 
         {/* Decorative Elements */}
         <div className="fixed inset-0 pointer-events-none -z-20 overflow-hidden">

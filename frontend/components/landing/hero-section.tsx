@@ -8,7 +8,7 @@ import { motion } from "framer-motion"
 
 export function HeroSection() {
   return (
-    <section className="relative overflow-hidden py-20 md:py-32 bg-gradient-to-br from-sky-blue via-sky-blue to-white">
+    <section className="relative overflow-hidden py-20 md:py-32 bg-gradient-to-br from-[var(--background)] via-[var(--background)] to-white">
       {/* Mario-themed gradient background */}
 
       {/* Animated background elements */}
@@ -130,16 +130,16 @@ export function HeroSection() {
                 </div>
               </motion.div>
 
-              {/* Ice Flower Block - Blue */}
+              {/* Ice Flower Block - Sky Blue */}
               <motion.div
-                className="relative space-y-2 bg-gradient-to-br from-[#00BFFF] via-[#00A8FF] to-[#0090FF] rounded-xl p-4 sm:p-6 border-4 border-[#004B87] shadow-[4px_4px_0px_0px_rgba(0,75,135,0.8)] hover:shadow-[6px_6px_0px_0px_rgba(0,75,135,0.8)] hover:-translate-y-1 transition-all duration-200"
+                className="relative space-y-2 bg-gradient-to-br from-[var(--sky-blue)] via-[var(--sky-blue)]/80 to-[var(--sky-blue)]/60 rounded-xl p-4 sm:p-6 border-4 border-[var(--outline-black)] shadow-[4px_4px_0px_0px_var(--outline-black)] hover:shadow-[6px_6px_0px_0px_var(--outline-black)] hover:-translate-y-1 transition-all duration-200"
                 whileHover={{ scale: 1.05 }}
               >
                 {/* Shine effect */}
                 <div className="absolute top-2 left-2 w-8 h-8 bg-white/40 rounded-full blur-sm"></div>
                 <div className="relative">
-                  <div className="text-xl sm:text-2xl md:text-3xl font-mario text-white drop-shadow-[2px_2px_0px_rgba(0,75,135,0.8)]">Zero Risk</div>
-                  <p className="text-xs sm:text-sm text-white font-bold drop-shadow-[1px_1px_0px_rgba(0,75,135,0.8)]">Practice safely</p>
+                  <div className="text-xl sm:text-2xl md:text-3xl font-mario text-white drop-shadow-[2px_2px_0px_var(--outline-black)]">Zero Risk</div>
+                  <p className="text-xs sm:text-sm text-white font-bold drop-shadow-[1px_1px_0px_var(--outline-black)]">Practice safely</p>
                 </div>
               </motion.div>
             </div>

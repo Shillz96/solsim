@@ -35,7 +35,7 @@ export function LeaderboardPreview() {
         { rank: 5, username: "PumpMaster", roi: 152.8, trades: 178, balance: 252.8, isRising: false },
       ]
   return (
-    <section className="py-20 md:py-32 bg-gradient-to-br from-sky-blue via-sky-blue to-white border-t-4 border-b-4 border-sky-blue/50 relative overflow-hidden">
+    <section className="py-20 md:py-32 bg-gradient-to-br from-[var(--background)] via-[var(--background)] to-white border-t-4 border-b-4 border-[var(--outline-black)]/20 relative overflow-hidden">
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-10">
         <motion.div

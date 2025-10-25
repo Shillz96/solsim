@@ -444,7 +444,7 @@ export function NavBar() {
                         ))}
 
                         {hasMoreResults && (
-                          <div className="border-t border-[var(--outline-black)] mt-2 pt-2">
+                          <div className={cn(marioStyles.border('sm'), 'border-t border-[var(--outline-black)] mt-2 pt-2')}>
                             <button
                               onMouseDown={(e) => {
                                 e.preventDefault()
@@ -455,7 +455,10 @@ export function NavBar() {
                                 setIsSearchOpen(false)
                                 setSelectedResultIndex(-1)
                               }}
-                              className="w-full text-center px-2 md:px-3 py-2 rounded-lg bg-[var(--mario-red)] border-2 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] transition-all duration-150 font-mario text-xs md:text-sm font-bold text-white hover:bg-[var(--mario-red)]/90"
+                              className={cn(
+                                marioStyles.button('danger', 'sm'),
+                                'w-full text-center md:text-sm'
+                              )}
                             >
                               View all results
                             </button>
@@ -508,7 +511,10 @@ export function NavBar() {
                 <Button
                   variant="outline"
                   size="sm"
-                  className="lg:hidden border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] bg-white hover:bg-[var(--star-yellow)]/20 h-9 w-9 p-0"
+                  className={cn(
+                    marioStyles.card(true),
+                    'lg:hidden bg-white hover:bg-[var(--star-yellow)]/20 h-9 w-9 p-0'
+                  )}
                   aria-label="Open navigation menu"
                 >
                   <Menu className="h-5 w-5" />

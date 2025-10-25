@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { cn, marioStyles } from "@/lib/utils"
 
 interface SettingsModalProps {
   isOpen: boolean
@@ -222,18 +223,25 @@ export function WalletTrackerSettingsModal({ isOpen, onClose, onSettingsSaved }:
             onClick={(e) => e.stopPropagation()}
             className="w-full max-w-md max-h-[90vh] overflow-y-auto"
           >
-            <div className="bg-white rounded-2xl border-4 border-[var(--outline-black)] shadow-[8px_8px_0_var(--outline-black)] p-6">
+            <div className={cn(marioStyles.cardLg(false), 'bg-white p-6')}>
             {/* Header */}
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-2">
-                <div className="h-8 w-8 rounded-lg bg-[var(--mario-red)] border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] flex items-center justify-center">
+                <div className={cn(
+                  marioStyles.iconContainer('sm', '[var(--mario-red)]'),
+                  'bg-[var(--mario-red)]'
+                )}>
                   <Settings className="h-4 w-4 text-white" />
                 </div>
-                <h2 className="text-2xl font-mario text-[var(--outline-black)]">Live Trades Filters</h2>
+                <h2 className={cn(marioStyles.heading(2), 'text-2xl')}>Live Trades Filters</h2>
               </div>
               <button
                 onClick={onClose}
-                className="h-8 w-8 rounded-lg border-3 border-[var(--outline-black)] bg-white hover:bg-gray-50 shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all flex items-center justify-center"
+                className={cn(
+                  marioStyles.iconContainer('sm'),
+                  'hover:bg-gray-50',
+                  marioStyles.hoverLift('subtle')
+                )}
               >
                 <X className="h-4 w-4" />
               </button>
@@ -299,11 +307,14 @@ export function WalletTrackerSettingsModal({ isOpen, onClose, onSettingsSaved }:
                   <Label className="text-sm font-bold text-[var(--outline-black)]">Market Cap (USD)</Label>
                   <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-1">
-                      <Label htmlFor="minMarketCap" className="text-xs font-bold text-[var(--outline-black)]">
+                      <Label htmlFor="minMarketCap" className={cn(marioStyles.bodyText('bold'), 'text-xs')}>
                         Min
                       </Label>
                       <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-bold text-[var(--outline-black)]">
+                        <span className={cn(
+                          marioStyles.bodyText('bold'),
+                          'absolute left-3 top-1/2 -translate-y-1/2 text-sm'
+                        )}>
                           $
                         </span>
                         <Input
@@ -312,12 +323,12 @@ export function WalletTrackerSettingsModal({ isOpen, onClose, onSettingsSaved }:
                           placeholder="e.g., 50000"
                           value={minMarketCap ? formatNumberInput(minMarketCap) : ''}
                           onChange={(e) => handleMinMarketCapChange(e.target.value)}
-                          className="pl-8 bg-white border-3 border-[var(--outline-black)] rounded-lg shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)] font-bold"
+                          className={cn(marioStyles.input(), 'pl-8 bg-white', marioStyles.bodyText('bold'))}
                         />
                       </div>
                     </div>
                     <div className="space-y-1">
-                      <Label htmlFor="maxMarketCap" className="text-xs font-bold text-[var(--outline-black)]">
+                      <Label htmlFor="maxMarketCap" className={cn(marioStyles.bodyText('bold'), 'text-xs')}>
                         Max
                       </Label>
                       <div className="relative">
@@ -461,20 +472,29 @@ export function WalletTrackerSettingsModal({ isOpen, onClose, onSettingsSaved }:
                 <div className="flex gap-2 pt-4">
                   <button
                     onClick={onClose}
-                    className="flex-1 h-10 px-4 rounded-lg border-3 border-[var(--outline-black)] bg-white hover:bg-gray-50 shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all font-mario"
+                    className={cn(
+                      marioStyles.button('outline'),
+                      'flex-1 h-10 px-4'
+                    )}
                   >
                     Cancel
                   </button>
                   <button
                     onClick={resetToDefaults}
-                    className="flex-1 h-10 px-4 rounded-lg border-3 border-[var(--outline-black)] bg-[var(--mario-red)] text-white hover:bg-[var(--mario-red)]/90 shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all font-mario"
+                    className={cn(
+                      marioStyles.button('danger'),
+                      'flex-1 h-10 px-4'
+                    )}
                   >
                     Reset
                   </button>
                   <button
                     onClick={() => saveMutation.mutate()}
                     disabled={saveMutation.isPending || !!marketCapError || !!transactionError}
-                    className="flex-1 h-10 px-4 rounded-lg border-3 border-[var(--outline-black)] bg-[var(--luigi-green)] text-white hover:bg-[var(--luigi-green)]/90 shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all font-mario disabled:opacity-50"
+                    className={cn(
+                      marioStyles.button('success'),
+                      'flex-1 h-10 px-4 disabled:opacity-50'
+                    )}
                   >
                     {saveMutation.isPending ? (
                       <>

@@ -25,6 +25,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { cn, marioStyles } from "@/lib/utils"
 import {
   Dialog,
   DialogContent,
@@ -35,7 +36,6 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useToast } from "@/hooks/use-toast"
 import { useAuth } from "@/hooks/use-auth"
-import { cn } from "@/lib/utils"
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
 

@@ -16,7 +16,7 @@
 import { useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { cn } from "@/lib/utils"
+import { cn, marioStyles } from "@/lib/utils"
 import { motion } from "framer-motion"
 import { ExternalLink } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -115,11 +115,17 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
         className={cn("w-full", className)}
       >
         {/* Horizontal Layout Token Card - Axiom Style */}
-        <div className="relative rounded-[16px] overflow-hidden bg-[var(--sky-blue)]/20 border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] hover:shadow-[8px_8px_0_var(--outline-black)] hover:-translate-y-[2px] transition-all duration-200 cursor-pointer h-[160px] min-h-[160px]">
+        <div className={cn(
+          marioStyles.interactiveCard('lg'),
+          'relative overflow-hidden bg-[var(--sky-blue)]/20 h-[160px] min-h-[160px]'
+        )}>
           <div className="flex items-center gap-4 p-4 h-full">
 
             {/* LEFT: Token Logo */}
-            <div className="relative shrink-0 w-24 h-24 rounded-[14px] overflow-hidden border-4 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)]">
+            <div className={cn(
+              marioStyles.card(false),
+              'relative shrink-0 w-24 h-24 overflow-hidden'
+            )}>
               {img && !imageError ? (
                 <img
                   src={img}
@@ -137,13 +143,13 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
             <div className="flex-1 min-w-0">
               {/* Top Row: Symbol, Name, Age */}
               <div className="flex items-center gap-2 mb-1">
-                <h3 className="font-bold text-[18px] text-[var(--outline-black)] font-mario">
+                <h3 className={cn(marioStyles.heading(4), 'text-[18px]')}>
                   {data.symbol}
                 </h3>
-                <span className="text-[13px] text-[var(--outline-black)] font-semibold truncate max-w-[120px]" title={data.name || undefined}>
+                <span className={cn(marioStyles.bodyText('semibold'), 'text-[13px] truncate max-w-[120px]')} title={data.name || undefined}>
                   {data.name}
                 </span>
-                <span className="text-[11px] text-[var(--outline-black)] font-bold ml-auto">
+                <span className={cn(marioStyles.bodyText('bold'), 'text-[11px] ml-auto')}>
                   {age}
                 </span>
               </div>
