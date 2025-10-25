@@ -1,4 +1,5 @@
 // Fastify app entrypoint
+// UUID fix deployed - using database-generated UUIDs
 import Fastify from "fastify";
 import websocket from "@fastify/websocket";
 import cors from "@fastify/cors";
