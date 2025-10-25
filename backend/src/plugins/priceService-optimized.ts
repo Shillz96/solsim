@@ -168,7 +168,8 @@ class OptimizedPriceService extends EventEmitter {
   private ws: WebSocket | null = null;
   private pingInterval: NodeJS.Timeout | null = null;
   private updateIntervals: NodeJS.Timeout[] = [];
-  private dexScreenerBreaker = new CircuitBreaker('DexScreener');
+  // DexScreener disabled to prevent rate limit issues
+  // private dexScreenerBreaker = new CircuitBreaker('DexScreener');
   private jupiterBreaker = new CircuitBreaker('Jupiter');
 
   // Request coalescing to prevent duplicate concurrent requests
@@ -837,125 +838,30 @@ class OptimizedPriceService extends EventEmitter {
   }
 
   /**
-   * Batch fetch token prices from DexScreener (up to 30 tokens at once)
-   * This reduces API calls by ~30x compared to individual requests
+   * Batch fetch token prices - DexScreener disabled to prevent rate limit issues
+   * Using only PumpPortal and Jupiter as fallback
    */
   async fetchTokenPricesBatch(mints: string[]): Promise<Map<string, PriceTick>> {
     const result = new Map<string, PriceTick>();
 
     if (mints.length === 0) return result;
 
-    // DexScreener supports up to 30 tokens per request
-    const BATCH_SIZE = 30;
-    const batches: string[][] = [];
-
-    for (let i = 0; i < mints.length; i += BATCH_SIZE) {
-      batches.push(mints.slice(i, i + BATCH_SIZE));
-    }
-
-    for (const batch of batches) {
+    logger.debug({ requested: mints.length }, "DexScreener batch disabled - using individual fetches");
+    
+    // Fall back to individual price fetches using PumpPortal and Jupiter
+    for (const mint of mints) {
       try {
-        const dexResult = await this.dexScreenerBreaker.execute(async () => {
-          const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s for batch
-
-          try {
-            // Use DexScreener batch endpoint: /tokens/v1/{chainId}/{addresses}
-            const addressesParam = batch.join(',');
-            const response = await fetch(
-              `https://api.dexscreener.com/tokens/v1/solana/${addressesParam}`,
-              {
-                signal: controller.signal,
-                headers: {
-                  'Accept': 'application/json',
-                  'User-Agent': 'VirtualSol/1.0'
-                }
-              }
-            );
-            clearTimeout(timeoutId);
-
-            if (!response.ok) {
-              if (response.status === 429) {
-                logger.warn({ batchSize: batch.length }, "DexScreener batch rate limit hit");
-                throw new Error('Rate limited');
-              }
-              throw new Error(`HTTP ${response.status}`);
-            }
-
-            const data = await response.json();
-
-            // Process pairs from batch response
-            // NOTE: DexScreener /tokens/v1/ endpoint returns array directly, not {pairs: [...]}
-            const pairs = Array.isArray(data) ? data : (data.pairs || []);
-
-            if (Array.isArray(pairs) && pairs.length > 0) {
-              // Group pairs by token address
-              const pairsByToken = new Map<string, any[]>();
-
-              for (const pair of pairs) {
-                const baseAddress = pair.baseToken?.address;
-                if (!baseAddress) continue;
-
-                if (!pairsByToken.has(baseAddress)) {
-                  pairsByToken.set(baseAddress, []);
-                }
-                pairsByToken.get(baseAddress)!.push(pair);
-              }
-
-              // Create PriceTick for each token (use highest liquidity pair)
-              for (const [mint, pairs] of pairsByToken.entries()) {
-                const sortedPairs = pairs.sort((a: any, b: any) => {
-                  const liqA = parseFloat(a.liquidity?.usd || "0");
-                  const liqB = parseFloat(b.liquidity?.usd || "0");
-                  return liqB - liqA;
-                });
-
-                const pair = sortedPairs[0];
-                const priceUsd = parseFloat(pair.priceUsd || "0");
-
-                if (priceUsd > 0) {
-                  const tick: PriceTick = {
-                    mint,
-                    priceUsd,
-                    priceSol: priceUsd / this.solPriceUsd,
-                    solUsd: this.solPriceUsd,
-                    timestamp: Date.now(),
-                    source: "dexscreener-batch",
-                    change24h: parseFloat(pair.priceChange?.h24 || "0"),
-                    volume: parseFloat(pair.volume?.h24 || "0"),
-                    marketCapUsd: parseFloat(pair.marketCap || "0")
-                  };
-                  result.set(mint, tick);
-                }
-              }
-            }
-
-            return result;
-          } catch (err) {
-            clearTimeout(timeoutId);
-            throw err;
-          }
-        });
-
-        if (dexResult) {
-          // Merge batch results
-          for (const [mint, tick] of dexResult.entries()) {
-            result.set(mint, tick);
-          }
+        const price = await this.fetchTokenPrice(mint);
+        if (price) {
+          result.set(mint, price);
         }
-      } catch (error: any) {
-        if (error.message !== 'Circuit breaker is OPEN') {
-          logger.warn({ batchSize: batch.length, error: error.message }, "DexScreener batch fetch failed");
-        }
-      }
-
-      // Small delay between batches to respect rate limits (300 req/min = 5 req/s)
-      if (batches.length > 1) {
-        await new Promise(resolve => setTimeout(resolve, 250));
+      } catch (error) {
+        // Silent fail for individual tokens
+        logger.debug({ mint: mint.slice(0, 8) }, "Individual price fetch failed");
       }
     }
 
-    logger.info({ requested: mints.length, found: result.size }, "Batch price fetch completed");
+    logger.info({ requested: mints.length, found: result.size }, "Batch price fetch completed (DexScreener disabled)");
     return result;
   }
 
@@ -1009,80 +915,9 @@ class OptimizedPriceService extends EventEmitter {
       // Fall through to try DexScreener/Jupiter
     }
 
-    // Try DexScreener first (best for SPL tokens and graduated pump.fun tokens)
-    try {
-      const dexResult = await this.dexScreenerBreaker.execute(async () => {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 8000);
-
-        try {
-          const response = await fetch(
-            `https://api.dexscreener.com/latest/dex/tokens/${mint}`,
-            {
-              signal: controller.signal,
-              headers: {
-                'Accept': 'application/json',
-                'User-Agent': 'VirtualSol/1.0'
-              }
-            }
-          );
-          clearTimeout(timeoutId);
-
-          if (!response.ok) {
-            if (response.status === 429) {
-              logger.warn({ mint }, "DexScreener rate limit hit");
-              throw new Error('Rate limited');
-            }
-            throw new Error(`HTTP ${response.status}`);
-          }
-
-          const data = await response.json();
-
-          if (data.pairs && data.pairs.length > 0) {
-            const sortedPairs = data.pairs.sort((a: any, b: any) => {
-              const liqA = parseFloat(a.liquidity?.usd || "0");
-              const liqB = parseFloat(b.liquidity?.usd || "0");
-              return liqB - liqA;
-            });
-
-            const pair = sortedPairs[0];
-            const priceUsd = parseFloat(pair.priceUsd || "0");
-
-            if (priceUsd > 0) {
-              return {
-                mint,
-                priceUsd,
-                priceSol: priceUsd / this.solPriceUsd,
-                solUsd: this.solPriceUsd,
-                timestamp: Date.now(),
-                source: "dexscreener",
-                change24h: parseFloat(pair.priceChange?.h24 || "0"),
-                volume: parseFloat(pair.volume?.h24 || "0"),
-                marketCapUsd: parseFloat(pair.marketCap || "0")
-              };
-            }
-          }
-          return null;
-        } catch (err) {
-          clearTimeout(timeoutId);
-          throw err;
-        }
-      });
-
-      if (dexResult) return dexResult;
-    } catch (error: any) {
-      // Only log unexpected errors (not timeouts, not 404s) - reduces log spam
-      const isExpectedError =
-        error.message === 'Circuit breaker is OPEN' ||
-        error.message?.includes('aborted') ||
-        error.message?.includes('fetch failed') ||
-        error.message?.includes('404') ||
-        error.message?.includes('204');
-
-      if (!isExpectedError) {
-        logger.warn({ mint: mint.slice(0, 8), error: error.message }, "DexScreener unexpected error");
-      }
-    }
+    // DexScreener disabled to prevent rate limit issues
+    // Using only PumpPortal and Jupiter as fallback
+    logger.debug({ mint: mint.slice(0, 8) }, "Skipping DexScreener to avoid rate limits");
 
     // Try Jupiter as fallback
     try {
@@ -1434,7 +1269,7 @@ class OptimizedPriceService extends EventEmitter {
       wsConnected: this.ws?.readyState === WebSocket.OPEN,
       reconnectAttempts: this.reconnectAttempts,
       circuitBreakers: {
-        dexscreener: this.dexScreenerBreaker.getState(),
+        dexscreener: 'DISABLED', // DexScreener disabled to prevent rate limits
         jupiter: this.jupiterBreaker.getState()
       },
       // Health check metrics
