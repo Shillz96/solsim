@@ -283,10 +283,10 @@ export function WalletTrackerContent({ compact = false }: WalletTrackerContentPr
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 flex items-center justify-center p-4">
-        <div className="mario-card bg-white border-4 border-pipe-700 shadow-mario p-8 text-center max-w-md">
-          <Wallet className="h-16 w-16 text-mario-red mx-auto mb-4" />
-          <h2 className="text-2xl font-bold mb-3 text-pipe-900">Sign In Required</h2>
-          <p className="text-pipe-700 font-semibold mb-6">
+        <div className="mario-card bg-white border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] p-8 text-center max-w-md">
+          <Wallet className="h-16 w-16 text-[var(--mario-red)] mx-auto mb-4" />
+          <h2 className="text-2xl font-bold mb-3 text-[var(--outline-black)]">Sign In Required</h2>
+          <p className="text-[var(--outline-black)] font-semibold mb-6">
             Please sign in to track wallet activities
           </p>
           <Button
@@ -436,7 +436,7 @@ export function WalletTrackerContent({ compact = false }: WalletTrackerContentPr
                     className="h-auto w-auto max-w-full"
                   />
                 </div>
-                <p className="text-base font-semibold text-pipe-700">
+                <p className="text-base font-semibold text-[var(--outline-black)]">
                   Track and copy trades from top Solana wallets in real-time
                 </p>
               </div>
@@ -446,12 +446,12 @@ export function WalletTrackerContent({ compact = false }: WalletTrackerContentPr
                   variant={connected ? "default" : "secondary"}
                   className={cn(
                     "gap-1 border-2 font-bold",
-                    connected ? "bg-luigi-green-500 text-white border-black" : "bg-pipe-200 text-pipe-900 border-pipe-700"
+                    connected ? "bg-[var(--luigi-green)] text-white border-[var(--outline-black)]" : "bg-[var(--pipe-200)] text-[var(--outline-black)] border-[var(--outline-black)]"
                   )}
                 >
                   <div className={cn(
                     "h-2 w-2 rounded-full",
-                    connected ? (hasNewActivities ? "bg-white animate-pulse" : "bg-white") : "bg-pipe-700"
+                    connected ? (hasNewActivities ? "bg-white animate-pulse" : "bg-white") : "bg-[var(--outline-black)]"
                   )} />
                   {connected ? "Live" : "Offline"}
                 </Badge>
@@ -461,7 +461,7 @@ export function WalletTrackerContent({ compact = false }: WalletTrackerContentPr
                   size="sm"
                   onClick={() => fetchActivities(true)}
                   disabled={isLoadingMore}
-                  className="border-3 border-pipe-700 hover:bg-sky-100"
+                  className="border-3 border-[var(--outline-black)] hover:bg-sky-100"
                 >
                   <RefreshCw className={cn("h-4 w-4", isLoadingMore && "animate-spin")} />
                 </Button>
@@ -470,14 +470,14 @@ export function WalletTrackerContent({ compact = false }: WalletTrackerContentPr
                   variant="outline"
                   size="sm"
                   onClick={() => setShowSettings(true)}
-                  className="gap-2 border-3 border-pipe-700 hover:bg-sky-100 font-bold relative"
+                  className="gap-2 border-3 border-[var(--outline-black)] hover:bg-sky-100 font-bold relative"
                 >
                   <Settings className="h-4 w-4" />
                   Filters
                   {(filterType !== 'all' || selectedWallets.length > 0 || searchTerm) && (
                     <Badge
                       variant="destructive"
-                      className="absolute -top-2 -right-2 h-5 w-5 p-0 flex items-center justify-center text-xs bg-mario-red border-2 border-white"
+                      className="absolute -top-2 -right-2 h-5 w-5 p-0 flex items-center justify-center text-xs bg-[var(--mario-red)] border-2 border-white"
                     >
                       !
                     </Badge>
@@ -509,24 +509,24 @@ export function WalletTrackerContent({ compact = false }: WalletTrackerContentPr
             </motion.div>
 
             {/* Filters - Sticky bar - Full mode only */}
-            <div className="sticky top-0 z-10 mario-card bg-white border-4 border-pipe-700 shadow-mario p-4 backdrop-blur-sm">
+            <div className="sticky top-0 z-10 mario-card bg-white border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] p-4 backdrop-blur-sm">
               <div className="flex flex-col sm:flex-row gap-4">
                 <div className="relative flex-1">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-pipe-700" />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-[var(--outline-black)]" />
                   <Input
                     placeholder="Search token symbol or wallet..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-9 border-3 border-pipe-500 focus:border-mario-red font-semibold"
+                    className="pl-9 border-3 border-[var(--outline-black)] focus:border-[var(--mario-red)] font-semibold"
                   />
                 </div>
 
                 <Select value={filterType} onValueChange={(v: any) => setFilterType(v)}>
-                  <SelectTrigger className="w-[140px] border-3 border-pipe-500 font-bold">
+                  <SelectTrigger className="w-[140px] border-3 border-[var(--outline-black)] font-bold">
                     <Filter className="h-4 w-4 mr-2" />
                     <SelectValue placeholder="Filter" />
                   </SelectTrigger>
-                  <SelectContent className="border-3 border-pipe-700">
+                  <SelectContent className="border-3 border-[var(--outline-black)]">
                     <SelectItem value="all">All Trades</SelectItem>
                     <SelectItem value="buy">Buys Only</SelectItem>
                     <SelectItem value="sell">Sells Only</SelectItem>
@@ -539,7 +539,7 @@ export function WalletTrackerContent({ compact = false }: WalletTrackerContentPr
                   variant="outline"
                   size="sm"
                   onClick={() => setDensity(prev => prev === 'comfortable' ? 'compact' : 'comfortable')}
-                  className="border-3 border-pipe-500 font-bold whitespace-nowrap"
+                  className="border-3 border-[var(--outline-black)] font-bold whitespace-nowrap"
                 >
                   {density === 'comfortable' ? 'Comfortable' : 'Compact'}
                 </Button>
@@ -547,7 +547,7 @@ export function WalletTrackerContent({ compact = false }: WalletTrackerContentPr
                 {trackedWallets && trackedWallets.length > 0 && (
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="outline" size="sm" className="border-3 border-pipe-500 font-bold">
+                      <Button variant="outline" size="sm" className="border-3 border-[var(--outline-black)] font-bold">
                         <Wallet className="h-4 w-4 mr-2" />
                         {selectedWallets.length === 0
                           ? "All Wallets"
@@ -555,7 +555,7 @@ export function WalletTrackerContent({ compact = false }: WalletTrackerContentPr
                         <ChevronDown className="h-4 w-4 ml-2" />
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-64 border-3 border-pipe-700">
+                    <DropdownMenuContent align="end" className="w-64 border-3 border-[var(--outline-black)]">
                       <DropdownMenuItem onClick={() => setSelectedWallets([])}>
                         All Wallets
                       </DropdownMenuItem>

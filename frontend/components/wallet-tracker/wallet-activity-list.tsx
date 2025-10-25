@@ -116,7 +116,7 @@ const ActivityRow = React.memo(function ActivityRow({
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
-              <span className="text-xs font-bold text-[var(--pipe-700)] cursor-help">
+              <span className="text-xs font-bold text-[var(--outline-black)] cursor-help">
                 {activity.timeAgo}
               </span>
             </TooltipTrigger>
@@ -148,7 +148,7 @@ const ActivityRow = React.memo(function ActivityRow({
           />
         </div>
         <div className="flex flex-col min-w-0">
-          <span className="font-bold text-sm text-[var(--pipe-900)] truncate leading-tight">
+          <span className="font-bold text-sm text-[var(--outline-black)] truncate leading-tight">
             {tokenSymbol}
           </span>
           {activity.tokenAge && (
@@ -177,8 +177,8 @@ const ActivityRow = React.memo(function ActivityRow({
       {/* Market Cap */}
       <div className="flex items-center justify-end">
         <div className="text-right">
-          <div className="text-[9px] text-[var(--pipe-600)] font-medium">MCap</div>
-          <div className="text-xs font-bold text-[var(--pipe-900)] tabular-nums">
+          <div className="text-[9px] text-[var(--outline-black)] font-medium">MCap</div>
+          <div className="text-xs font-bold text-[var(--outline-black)] tabular-nums">
             {formatMarketCap(marketCapNum)}
           </div>
         </div>
@@ -243,11 +243,11 @@ export function WalletActivityList({
       <div className="bg-[var(--sky-blue)]/20 border-4 border-[var(--outline-black)] rounded-xl shadow-[6px_6px_0_var(--outline-black)] overflow-hidden h-full flex flex-col">
         {/* Column Headers */}
         <div className="grid grid-cols-[50px_80px_1fr_80px_60px] sm:grid-cols-[60px_100px_1fr_100px_80px] gap-2 sm:gap-3 px-3 sm:px-4 py-2 bg-[var(--star-yellow)] border-b-4 border-[var(--outline-black)] flex-shrink-0">
-          <div className="text-[10px] font-mario text-[var(--pipe-900)] uppercase">Time</div>
-          <div className="text-[10px] font-mario text-[var(--pipe-900)] uppercase">Wallet</div>
-          <div className="text-[10px] font-mario text-[var(--pipe-900)] uppercase">Token</div>
-          <div className="text-[10px] font-mario text-[var(--pipe-900)] uppercase text-right">Amount</div>
-          <div className="text-[10px] font-mario text-[var(--pipe-900)] uppercase text-right">MCap</div>
+            <div className="text-[10px] font-mario text-[var(--outline-black)] uppercase">Time</div>
+            <div className="text-[10px] font-mario text-[var(--outline-black)] uppercase">Wallet</div>
+            <div className="text-[10px] font-mario text-[var(--outline-black)] uppercase">Token</div>
+            <div className="text-[10px] font-mario text-[var(--outline-black)] uppercase text-right">Amount</div>
+            <div className="text-[10px] font-mario text-[var(--outline-black)] uppercase text-right">MCap</div>
         </div>
 
         {/* Loading Skeletons */}
@@ -278,11 +278,11 @@ export function WalletActivityList({
       <div className="bg-[var(--sky-blue)]/20 border-4 border-[var(--outline-black)] rounded-xl shadow-[6px_6px_0_var(--outline-black)] overflow-hidden h-full flex flex-col">
         {/* Column Headers */}
         <div className="grid grid-cols-[50px_80px_1fr_80px_60px] sm:grid-cols-[60px_100px_1fr_100px_80px] gap-2 sm:gap-3 px-3 sm:px-4 py-2 bg-[var(--star-yellow)] border-b-4 border-[var(--outline-black)] flex-shrink-0">
-          <div className="text-[10px] font-mario text-[var(--pipe-900)] uppercase">Time</div>
-          <div className="text-[10px] font-mario text-[var(--pipe-900)] uppercase">Wallet</div>
-          <div className="text-[10px] font-mario text-[var(--pipe-900)] uppercase">Token</div>
-          <div className="text-[10px] font-mario text-[var(--pipe-900)] uppercase text-right">Amount</div>
-          <div className="text-[10px] font-mario text-[var(--pipe-900)] uppercase text-right">MCap</div>
+            <div className="text-[10px] font-mario text-[var(--outline-black)] uppercase">Time</div>
+            <div className="text-[10px] font-mario text-[var(--outline-black)] uppercase">Wallet</div>
+            <div className="text-[10px] font-mario text-[var(--outline-black)] uppercase">Token</div>
+            <div className="text-[10px] font-mario text-[var(--outline-black)] uppercase text-right">Amount</div>
+            <div className="text-[10px] font-mario text-[var(--outline-black)] uppercase text-right">MCap</div>
         </div>
 
         {/* Empty state content */}
@@ -305,11 +305,11 @@ export function WalletActivityList({
     <div className="bg-[var(--sky-blue)]/20 border-4 border-[var(--outline-black)] rounded-xl shadow-[6px_6px_0_var(--outline-black)] overflow-hidden h-full flex flex-col">
       {/* Column Headers */}
       <div className="grid grid-cols-[50px_80px_1fr_80px_60px] sm:grid-cols-[60px_100px_1fr_100px_80px] gap-2 sm:gap-3 px-3 sm:px-4 py-2 bg-[var(--star-yellow)] border-b-4 border-[var(--outline-black)] flex-shrink-0">
-        <div className="text-[10px] font-mario text-[var(--pipe-900)] uppercase">Time</div>
-        <div className="text-[10px] font-mario text-[var(--pipe-900)] uppercase">Wallet</div>
-        <div className="text-[10px] font-mario text-[var(--pipe-900)] uppercase">Token</div>
-        <div className="text-[10px] font-mario text-[var(--pipe-900)] uppercase text-right">Amount</div>
-        <div className="text-[10px] font-mario text-[var(--pipe-900)] uppercase text-right">MCap</div>
+            <div className="text-[10px] font-mario text-[var(--outline-black)] uppercase">Time</div>
+            <div className="text-[10px] font-mario text-[var(--outline-black)] uppercase">Wallet</div>
+            <div className="text-[10px] font-mario text-[var(--outline-black)] uppercase">Token</div>
+            <div className="text-[10px] font-mario text-[var(--outline-black)] uppercase text-right">Amount</div>
+            <div className="text-[10px] font-mario text-[var(--outline-black)] uppercase text-right">MCap</div>
       </div>
 
       {/* Activity List - Fixed height container */}
@@ -331,15 +331,15 @@ export function WalletActivityList({
           endReached={hasMore ? onLoadMore : undefined}
           components={{
             Footer: () => hasMore && isLoading ? (
-              <div className="py-4 border-t-2 border-pipe-300 bg-white">
+              <div className="py-4 border-t-2 border-[var(--outline-black)] bg-white">
                 <div className="flex items-center justify-center gap-2">
-                  <Loader2 className="h-4 w-4 animate-spin text-mario-red" />
-                  <span className="text-sm font-semibold text-pipe-700">Loading more activities...</span>
+                  <Loader2 className="h-4 w-4 animate-spin text-[var(--mario-red)]" />
+                  <span className="text-sm font-semibold text-[var(--outline-black)]">Loading more activities...</span>
                 </div>
               </div>
             ) : !hasMore && filteredActivities.length > 0 ? (
-              <div className="py-3 text-center border-t-2 border-pipe-300 bg-[var(--star-yellow)]/20">
-                <span className="text-xs font-bold text-pipe-700">End of activity feed</span>
+              <div className="py-3 text-center border-t-2 border-[var(--outline-black)] bg-[var(--star-yellow)]/20">
+                <span className="text-xs font-bold text-[var(--outline-black)]">End of activity feed</span>
               </div>
             ) : null
           }}

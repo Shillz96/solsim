@@ -134,7 +134,7 @@ export function SlidingTrendingTicker() {
                   <div className="flex items-center gap-2 whitespace-nowrap">
                     {/* Token Logo */}
                     <TokenLogo
-                      src={token.logoURI || token.imageUrl || undefined}
+                      src={token.logoURI || undefined}
                       alt={token.name || token.symbol || 'Token'}
                       mint={token.mint}
                       className="w-6 h-6 flex-shrink-0 ring-2 ring-[var(--outline-black)]"
