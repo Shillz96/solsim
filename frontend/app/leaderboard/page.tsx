@@ -169,10 +169,10 @@ export default function LeaderboardPage() {
           <div className="bg-white border-4 border-[var(--outline-black)] rounded-[16px] shadow-[6px_6px_0_var(--outline-black)] px-6 py-3 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
             <div className="flex items-center gap-4">
               <Tabs value={timeRange} onValueChange={(v) => setTimeRange(v as TimeRange)}>
-                <TabsList className="bg-[var(--sky-100)] border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] rounded-[12px] p-1">
+                <TabsList>
                   <TabsTrigger 
                     value="all" 
-                    className="data-[state=active]:bg-[var(--mario-red-500)] data-[state=active]:text-white data-[state=active]:shadow-[2px_2px_0_var(--outline-black)] rounded-[8px] font-bold transition-all text-[var(--outline-black)]"
+                    className="mario-tab-red"
                   >
                     All Time
                   </TabsTrigger>

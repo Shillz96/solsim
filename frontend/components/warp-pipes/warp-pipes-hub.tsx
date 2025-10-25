@@ -261,7 +261,7 @@ export function WarpPipesHub() {
             </TabsTrigger>
             <TabsTrigger
               value="bonded"
-              className="mario-tab-gold"
+              className="mario-tab-red"
             >
               🪙 Bonded ({bonded.length})
             </TabsTrigger>

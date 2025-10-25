@@ -10,7 +10,7 @@
 
 import Decimal from 'decimal.js';
 import EventEmitter from 'events';
-import redis from '../plugins/redis';
+import redis from '../plugins/redis.js';
 
 // In-memory position state
 interface PositionState {

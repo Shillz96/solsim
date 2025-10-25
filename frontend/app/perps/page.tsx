@@ -880,10 +880,10 @@ function PerpsContent() {
             <div className="flex items-center justify-between flex-wrap gap-4">
               <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)} className="flex-1">
                 <TabsList className="grid w-full max-w-md grid-cols-2">
-                  <TabsTrigger value="positions">
+                  <TabsTrigger value="positions" className="mario-tab-yellow">
                     Open Positions ({positions.length})
                   </TabsTrigger>
-                  <TabsTrigger value="history">
+                  <TabsTrigger value="history" className="mario-tab-blue">
                     Trade History
                   </TabsTrigger>
                 </TabsList>
