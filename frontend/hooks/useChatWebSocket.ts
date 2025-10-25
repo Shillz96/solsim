@@ -82,7 +82,7 @@ export function useChatWebSocket(options: UseChatWebSocketOptions = {}) {
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const reconnectAttemptsRef = useRef(0);
   const currentRoomRef = useRef<string | null>(null);
-  const messageQueueRef = useRef<Array<{ type: string; data: any }>>([]);
+  const messageQueueRef = useRef<Array<any>>([]);
 
   // Get WebSocket URL from environment
   const WS_URL = process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:4000';
