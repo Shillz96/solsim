@@ -342,7 +342,7 @@ export default function LeaderboardPage() {
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-1">
                             <h3 className="font-bold text-lg text-[var(--outline-black)] truncate">
-                              {entry.username || 'Anonymous'}
+                              {entry.displayName || entry.handle || 'Anonymous'}
                             </h3>
                             {index === 0 && (
                               <Crown className="h-5 w-5 text-[var(--coin-gold)] flex-shrink-0" />
@@ -439,7 +439,7 @@ export default function LeaderboardPage() {
                               "font-bold text-lg truncate",
                               isCurrentUser ? "text-[var(--outline-black)]" : "text-[var(--outline-black)]"
                             )}>
-                              {entry.username || 'Anonymous'}
+                              {entry.displayName || entry.handle || 'Anonymous'}
                             </h3>
                             {isCurrentUser && (
                               <Badge variant="secondary" className="bg-[var(--star-yellow)] text-[var(--outline-black)] border-[var(--outline-black)]">
