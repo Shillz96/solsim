@@ -71,13 +71,28 @@ export async function getWarpPipesFeed(
 
   const url = `${API_BASE_URL}/api/warp-pipes/feed${params.toString() ? `?${params}` : ""}`
 
+  console.log('🔮 [WARP PIPES DEBUG] Fetching from:', url);
+
   const response = await fetch(url, { headers: getAuthHeaders() })
 
+  console.log('🔮 [WARP PIPES DEBUG] Response status:', response.status, response.statusText);
+
   if (!response.ok) {
-    throw new Error("Failed to fetch warp pipes feed")
+    const errorText = await response.text().catch(() => 'No error details');
+    console.error('🔮 [WARP PIPES DEBUG] API error:', {
+      status: response.status,
+      statusText: response.statusText,
+      body: errorText
+    });
+    throw new Error(`Failed to fetch warp pipes feed: ${response.status} ${response.statusText}`)
   }
 
-  return response.json()
+  const data = await response.json();
+  console.log('🔮 [WARP PIPES DEBUG] API response:', {
+    hasData: !!data,
+    keys: Object.keys(data || {})
+  });
+  return data;
 }
 
 /**

@@ -105,14 +105,23 @@ export function useChatWebSocket(options: UseChatWebSocketOptions = {}) {
    */
   const connect = useCallback(() => {
     const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
-    
+
+    console.log('💬 [CHAT DEBUG] Connection attempt:', {
+      hasToken: !!token,
+      tokenLength: token?.length || 0,
+      WS_URL,
+      userLoggedIn: !!user,
+    });
+
     if (!token) {
-      console.warn('No access token available for chat WebSocket');
+      console.error('💬 [CHAT DEBUG] No access token - user needs to log in');
+      setError('Please log in to use chat');
       return;
     }
 
     // Don't reconnect if already connected or connecting
     if (wsRef.current?.readyState === WebSocket.OPEN || wsRef.current?.readyState === WebSocket.CONNECTING) {
+      console.log('💬 [CHAT DEBUG] Already connected/connecting, skipping');
       return;
     }
 
@@ -122,8 +131,13 @@ export function useChatWebSocket(options: UseChatWebSocketOptions = {}) {
     try {
       // Strip any existing paths from WS_URL to get base URL
       const baseUrl = WS_URL.replace(/\/(ws\/)?prices?\/?$/, '');
+      const fullWsUrl = `${baseUrl}/ws/chat?token=${token.substring(0, 20)}...`;
+      console.log('💬 [CHAT DEBUG] WebSocket URL:', fullWsUrl);
+
       const ws = new WebSocket(`${baseUrl}/ws/chat?token=${token}`);
       wsRef.current = ws;
+
+      console.log('💬 [CHAT DEBUG] WebSocket object created, waiting for connection...');
 
       ws.onopen = () => {
         console.log('✅ Chat WebSocket connected');
@@ -202,13 +216,23 @@ export function useChatWebSocket(options: UseChatWebSocketOptions = {}) {
       };
 
       ws.onerror = (event) => {
-        console.error('💬 Chat WebSocket error:', event);
+        console.error('💬 [CHAT DEBUG] WebSocket error event:', {
+          type: event.type,
+          target: event.target,
+          readyState: wsRef.current?.readyState,
+          url: wsRef.current?.url
+        });
         updateStatus('error');
-        setError('Connection error');
+        setError('Connection error - check console for details');
       };
 
-      ws.onclose = () => {
-        console.log('💬 Chat WebSocket closed');
+      ws.onclose = (event) => {
+        console.log('💬 [CHAT DEBUG] WebSocket closed:', {
+          code: event.code,
+          reason: event.reason,
+          wasClean: event.wasClean,
+          manual: isManuallyDisconnectedRef.current
+        });
         updateStatus('disconnected');
 
         // Only reconnect if not manually disconnected and under max attempts

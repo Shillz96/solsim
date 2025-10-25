@@ -30,13 +30,41 @@ import "@/styles/ticker.css"
 export function SlidingTrendingTicker() {
   const { data: trendingTokens, isLoading, error, refetch } = useQuery({
     queryKey: ['trending-ticker'],
-    queryFn: () => api.getTrendingTokens().then(tokens => tokens.slice(0, 20)),
+    queryFn: () => {
+      console.log('🎯 [TRENDING DEBUG] Fetching trending tokens...');
+      return api.getTrendingTokens()
+        .then(tokens => {
+          console.log('🎯 [TRENDING DEBUG] API response:', {
+            count: tokens?.length || 0,
+            firstToken: tokens?.[0]
+          });
+          return tokens.slice(0, 20);
+        })
+        .catch(err => {
+          console.error('🎯 [TRENDING DEBUG] API error:', {
+            message: err.message,
+            stack: err.stack
+          });
+          throw err;
+        });
+    },
     staleTime: 1000 * 60 * 2, // 2 minutes
     refetchInterval: 30000, // Refresh every 30 seconds
   })
   const router = useRouter()
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [isVisible, setIsVisible] = useState(true)
+
+  // Debug query state
+  useEffect(() => {
+    console.log('🎯 [TRENDING DEBUG] Query state:', {
+      isLoading,
+      hasError: !!error,
+      errorMessage: error?.message,
+      hasData: !!trendingTokens,
+      tokenCount: trendingTokens?.length || 0
+    });
+  }, [isLoading, error, trendingTokens]);
 
   // Load visibility setting from localStorage
   useEffect(() => {

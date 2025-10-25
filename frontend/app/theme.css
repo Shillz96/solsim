@@ -43,7 +43,10 @@
 
   /* Brick Brown */
   --color-brick: oklch(48% 0.10 45);        /* Brick Brown #9C5818 */
-  --color-outline-black: oklch(12% 0 0);    /* Outline Black #1C1C1C */
+  
+  /* Unified Outline Token - Single source of truth */
+  --outline-black: oklch(12% 0 0);          /* Outline Black #1C1C1C */
+  --color-outline-black: var(--outline-black); /* Alias for backward compatibility */
 
   /* COMPREHENSIVE MARIO THEME COLORS - All components */
   /* Primary Mario colors - used throughout the app */
@@ -55,7 +58,6 @@
   --sky-blue: #A6D8FF;
   --brick-brown: #9C5818;
   --pipe-green: #00994C;
-  --outline-black: #1C1C1C;
 
   /* Color aliases for new theme system compatibility */
   --color-mario-red: var(--mario-red);

@@ -16,8 +16,7 @@
 @layer base {
   * {
     border-color: hsl(var(--border));
-    outline-color: hsl(var(--ring) / 0.5);
-    font-display: swap;
+    outline-color: var(--outline-black);
   }
 
   body {
@@ -28,7 +27,6 @@
     font-family: var(--font-radnika-next), "Radnika Next", "Inter", "Manrope", "Nunito Sans", "Rubik", "Segoe UI", "Roboto", "Helvetica Neue", "Arial", sans-serif;
     position: relative;
     line-height: 1.65;
-    font-display: swap;
     text-rendering: optimizeLegibility;
     padding-top: env(safe-area-inset-top);
     padding-bottom: max(env(safe-area-inset-bottom), var(--bottom-nav-height, 64px));
@@ -39,7 +37,7 @@
     touch-action: manipulation;
   }
 
-  /* Paper Texture System */
+  /* Paper Texture System - Optimized */
   body::before {
     content: "";
     position: fixed;
@@ -47,38 +45,18 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background-image: url('/papertexturre-2.avif');
+    background-image: url('/papertexture-2.avif');
     background-repeat: repeat;
-    background-size: 2000px 2000px;
-    background-position: 15% 25%;
-    opacity: 0.45;
-    pointer-events: none;
-    z-index: 1;
+    background-size: 1600px 1600px;
+    opacity: 0.25;
     mix-blend-mode: multiply;
-    transform: rotate(1.2deg) scale(1.03);
-    filter: blur(0.8px);
-  }
-
-  body::after {
-    content: "";
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-image: url('/Paper-Texture-7.jpg');
-    background-repeat: repeat;
-    background-size: 1200px 1200px;
-    opacity: 0.12;
     pointer-events: none;
-    z-index: 9999;
-    mix-blend-mode: multiply;
-    transform: rotate(0.5deg) scale(1.02);
+    z-index: 0;
   }
 
   body > * {
     position: relative;
-    z-index: 10;
+    z-index: 1;
   }
 
   /* Typography */
@@ -109,8 +87,17 @@
     touch-action: manipulation;
     -webkit-user-select: none;
     user-select: none;
-    min-height: 44px;
-    min-width: 44px;
+  }
+
+  /* High-contrast focus ring */
+  button:focus-visible, 
+  a:focus-visible, 
+  [role="button"]:focus-visible, 
+  [role="tab"]:focus-visible, 
+  [role="link"]:focus-visible {
+    outline: 3px solid var(--color-star);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 2px #fff, 0 0 0 5px var(--outline-black);
   }
 
   input, textarea, [contenteditable] {
@@ -118,26 +105,60 @@
     user-select: text;
     touch-action: manipulation;
   }
-  }
+}
 
   /* ---------------------------
    MARIO THEME COMPONENTS
    Uses theme.css variables for consistency
   --------------------------- */
 
-/* Mario Card System */
+/* ============================================
+   MARIO CARD SYSTEM - Single source of truth
+   ============================================ */
+
+/* Standard Mario Card - Default/medium size */
 .mario-card {
-    background: var(--card);
-  border: 4px solid var(--color-outline-black);
+  background: var(--card);
+  border: 3px solid var(--outline-black);
   border-radius: var(--radius-xl);
-    padding: 1.5rem;
-  box-shadow: 6px 6px 0 var(--color-outline-black);
+  box-shadow: 3px 3px 0 var(--outline-black);
+  padding: 0.75rem;
   transition: transform var(--transition), box-shadow var(--transition);
-  }
+}
 
 .mario-card:hover {
-    transform: translateY(-2px);
-  box-shadow: 8px 8px 0 var(--color-outline-black);
+  transform: translateY(-2px);
+  box-shadow: 4px 4px 0 var(--outline-black);
+}
+
+/* Small Card - Compact layouts, list items */
+.mario-card-sm {
+  background: var(--card);
+  border: 2px solid var(--outline-black);
+  border-radius: var(--radius-lg);
+  box-shadow: 2px 2px 0 var(--outline-black);
+  padding: 0.5rem;
+  transition: transform var(--transition), box-shadow var(--transition);
+}
+
+.mario-card-sm:hover {
+  transform: translateY(-2px);
+  box-shadow: 3px 3px 0 var(--outline-black);
+}
+
+/* Large Card - Hero sections, prominent content */
+.mario-card-lg {
+  background: var(--card);
+  border: 4px solid var(--outline-black);
+  border-radius: var(--radius-2xl);
+  box-shadow: 6px 6px 0 var(--outline-black);
+  padding: 1.25rem;
+  transition: transform var(--transition), box-shadow var(--transition);
+}
+
+.mario-card-lg:hover {
+  transform: translateY(-2px);
+  box-shadow: 8px 8px 0 var(--outline-black);
 }
 
 /* Mario Button System */
@@ -181,63 +202,61 @@
   color: #ffffff;
 }
 
-/* Trading Buttons - Using theme.css colors */
+/* Trading Buttons - Clean, consistent motion */
 .btn-buy {
   background: var(--color-buy);
   color: #ffffff;
-  border: 3px solid var(--color-outline-black);
-  box-shadow: 0 0 20px rgba(67, 176, 71, 0.3), 3px 3px 0 var(--color-outline-black);
-  transition: all var(--transition);
+  border: 3px solid var(--outline-black);
+  box-shadow: 3px 3px 0 var(--outline-black);
+  transition: transform var(--transition), box-shadow var(--transition);
   font-family: var(--font-radnika-next), "Radnika Next", "Inter", "Manrope", "Nunito Sans", "Rubik", "Segoe UI", "Roboto", "Helvetica Neue", "Arial", sans-serif;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 0.5px;
   font-weight: 700;
 }
 
 .btn-buy:hover:not(:disabled) {
-  background: var(--color-buy);
-  box-shadow: 0 0 30px rgba(67, 176, 71, 0.5), 4px 4px 0 var(--color-outline-black);
   transform: translateY(-2px);
+  box-shadow: 4px 4px 0 var(--outline-black);
 }
 
 .btn-buy:active:not(:disabled) {
   transform: translateY(1px);
-  box-shadow: 0 0 15px rgba(67, 176, 71, 0.4), 2px 2px 0 var(--color-outline-black);
+  box-shadow: 2px 2px 0 var(--outline-black);
 }
 
 .btn-buy:disabled {
   opacity: 0.5;
   cursor: not-allowed;
-  box-shadow: none;
+  box-shadow: 3px 3px 0 var(--outline-black);
 }
 
 .btn-sell {
   background: var(--color-sell);
   color: #ffffff;
-  border: 3px solid var(--color-outline-black);
-  box-shadow: 0 0 20px rgba(229, 37, 33, 0.3), 3px 3px 0 var(--color-outline-black);
-  transition: all var(--transition);
+  border: 3px solid var(--outline-black);
+  box-shadow: 3px 3px 0 var(--outline-black);
+  transition: transform var(--transition), box-shadow var(--transition);
   font-family: var(--font-radnika-next), "Radnika Next", "Inter", "Manrope", "Nunito Sans", "Rubik", "Segoe UI", "Roboto", "Helvetica Neue", "Arial", sans-serif;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 0.5px;
   font-weight: 700;
 }
 
 .btn-sell:hover:not(:disabled) {
-  background: var(--color-sell);
-  box-shadow: 0 0 30px rgba(229, 37, 33, 0.5), 4px 4px 0 var(--color-outline-black);
   transform: translateY(-2px);
+  box-shadow: 4px 4px 0 var(--outline-black);
 }
 
 .btn-sell:active:not(:disabled) {
   transform: translateY(1px);
-  box-shadow: 0 0 15px rgba(229, 37, 33, 0.4), 2px 2px 0 var(--color-outline-black);
+  box-shadow: 2px 2px 0 var(--outline-black);
 }
 
 .btn-sell:disabled {
   opacity: 0.5;
   cursor: not-allowed;
-  box-shadow: none;
+  box-shadow: 3px 3px 0 var(--outline-black);
 }
 
 /* ---------------------------
@@ -245,54 +264,7 @@
    Reusable styling patterns for consistent Mario theme
 --------------------------- */
 
-/* ============================================
-   MARIO CARD SYSTEM - Semantic card variants
-   ============================================ */
-
-/* Standard Mario Card - Most common use case */
-.mario-card {
-  background: white;
-  border: 3px solid var(--outline-black);
-  border-radius: var(--radius-xl);
-  box-shadow: 3px 3px 0 var(--outline-black);
-  padding: 0.75rem;
-  transition: all 0.2s;
-}
-
-.mario-card:hover {
-  box-shadow: 4px 4px 0 var(--outline-black);
-  transform: translateY(-2px);
-}
-
-/* Large Prominent Card - Headers, hero sections */
-.mario-card-lg {
-  background: white;
-  border: 4px solid var(--outline-black);
-  border-radius: var(--radius-2xl);
-  box-shadow: 6px 6px 0 var(--outline-black);
-  padding: 1.5rem;
-  transition: all 0.2s;
-}
-
-.mario-card-lg:hover {
-  box-shadow: 8px 8px 0 var(--outline-black);
-  transform: translateY(-4px);
-}
-
-/* Compact Card - List items, tight layouts */
-.mario-card-sm {
-  background: white;
-  border: 2px solid var(--outline-black);
-  border-radius: var(--radius-lg);
-  box-shadow: 2px 2px 0 var(--outline-black);
-  padding: 0.5rem;
-  transition: all 0.2s;
-}
-
-.mario-card-sm:hover {
-  box-shadow: 3px 3px 0 var(--outline-black);
-  transform: translateY(-2px);
-}
+/* (Card system moved to top of file - single source of truth) */
 
 /* ============================================
    MARIO SHADOW SYSTEM - Semantic shadows
@@ -397,21 +369,26 @@
 }
 
 /* ============================================
-   MARIO BADGE SYSTEM
+   MARIO BADGE SYSTEM - Single source of truth
    ============================================ */
 
-/* Small icon badge */
+/* Standard Mario Badge */
 .mario-badge {
-  border: 2px solid var(--outline-black);
-  box-shadow: 1px 1px 0 var(--outline-black);
-  border-radius: 9999px;
-  background: white;
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  height: 1rem;
-  width: 1rem;
+  gap: 0.375rem;
+  padding: 0.25rem 0.75rem;
+  border: 2px solid var(--outline-black);
+  border-radius: 9999px;
+  background: var(--color-coin);
+  color: var(--outline-black);
+  box-shadow: 2px 2px 0 var(--outline-black);
+  font-family: var(--font-radnika-next), "Radnika Next", Inter, system-ui, sans-serif;
+  font-size: 0.875rem;
+  font-weight: 700;
+  line-height: 1;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 /* Status indicators */
@@ -696,48 +673,34 @@
 /* Mario Font Base */
 .mario-font {
   font-family: var(--font-radnika-next), "Radnika Next", "Inter", "Manrope", "Nunito Sans", "Rubik", "Segoe UI", "Roboto", "Helvetica Neue", "Arial", sans-serif;
-  letter-spacing: 1px;
+  letter-spacing: 0.5px;
   text-transform: uppercase;
 }
 
-/* Mario Title */
+/* Mario Title - Lighter stroke for better legibility */
 .mario-title {
   font-family: var(--font-radnika-next), "Radnika Next", "Inter", "Manrope", "Nunito Sans", "Rubik", "Segoe UI", "Roboto", "Helvetica Neue", "Arial", sans-serif;
   color: var(--color-brand);
-  -webkit-text-stroke: 2px var(--color-outline-black);
-  text-shadow: 3px 3px 0 var(--color-outline-black), 6px 6px 0 rgba(0,0,0,0.25);
-  letter-spacing: 2px;
+  -webkit-text-stroke: 1px var(--color-outline-black);
+  text-shadow: 2px 2px 0 var(--color-outline-black), 4px 4px 0 rgba(0,0,0,0.15);
+  letter-spacing: 0.5px;
   text-transform: uppercase;
 }
 
-/* Mario Header Text */
+/* Mario Header Text - Lighter stroke for better legibility */
 .mario-header-text {
   font-family: var(--font-radnika-next), "Radnika Next", "Inter", "Manrope", "Nunito Sans", "Rubik", "Segoe UI", "Roboto", "Helvetica Neue", "Arial", sans-serif;
   background: linear-gradient(90deg, var(--color-super), var(--color-brand), var(--color-star), var(--color-luigi));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  -webkit-text-stroke: 2px var(--color-outline-black);
-  filter: drop-shadow(3px 3px 0 var(--color-outline-black));
-  letter-spacing: 2px;
+  -webkit-text-stroke: 1px var(--color-outline-black);
+  filter: drop-shadow(2px 2px 0 var(--color-outline-black));
+  letter-spacing: 0.5px;
   text-transform: uppercase;
 }
 
-/* Mario Badge */
-.mario-badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.25rem 0.75rem;
-  background: var(--color-coin);
-  border: 2px solid var(--color-outline-black);
-  border-radius: 20px;
-  font-family: var(--font-radnika-next), "Radnika Next", "Inter", "Manrope", "Nunito Sans", "Rubik", "Segoe UI", "Roboto", "Helvetica Neue", "Arial", sans-serif;
-  font-size: 0.875rem;
-  color: var(--color-outline-black);
-  box-shadow: 2px 2px 0 var(--color-outline-black);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
+/* (Badge system moved to top of file - single source of truth) */
 
 /* Level Badge */
 .level-badge {
@@ -856,6 +819,12 @@
   .max-h-dvh-screen {
     max-height: 100vh;
     max-height: 100dvh;
+  }
+
+  /* Touch Target - Use on compact UI elements that need 44px tap area */
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
   }
 }
 

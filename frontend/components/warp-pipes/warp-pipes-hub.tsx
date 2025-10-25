@@ -110,6 +110,19 @@ export function WarpPipesHub() {
     // Don't apply filters here - they're applied per-column in client-side filtering
   })
 
+  // Debug feed state
+  useEffect(() => {
+    console.log('🔮 [WARP PIPES DEBUG] Feed state:', {
+      isLoading,
+      hasError: !!error,
+      errorMessage: error?.message,
+      hasData: !!data,
+      newCount: data?.newTokens?.length || 0,
+      graduatingCount: data?.graduatingTokens?.length || 0,
+      bondedCount: data?.bondedTokens?.length || 0
+    });
+  }, [isLoading, error, data]);
+
   // Watch mutations
   const addWatch = useAddTokenWatch()
   const removeWatch = useRemoveTokenWatch()
