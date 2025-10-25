@@ -63,6 +63,33 @@ export function ChatProvider({ children, roomId }: ChatProviderProps) {
   }, []);
 
   /**
+   * Auto-delete messages older than 90 seconds
+   */
+  useEffect(() => {
+    const cleanupInterval = setInterval(() => {
+      const now = Date.now();
+      const MESSAGE_LIFETIME_MS = 90000; // 90 seconds
+
+      setMessages((prev) => {
+        const filtered = prev.filter((msg) => {
+          const messageTime = new Date(msg.createdAt).getTime();
+          const age = now - messageTime;
+          return age < MESSAGE_LIFETIME_MS;
+        });
+
+        // Only update if messages were actually removed
+        if (filtered.length !== prev.length) {
+          console.log(`🗑️ Cleaned up ${prev.length - filtered.length} old chat messages`);
+          return filtered;
+        }
+        return prev;
+      });
+    }, 5000); // Check every 5 seconds
+
+    return () => clearInterval(cleanupInterval);
+  }, []);
+
+  /**
    * Handle message history
    */
   const handleHistory = useCallback((newMessages: ChatMessage[]) => {

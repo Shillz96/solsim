@@ -7,7 +7,7 @@
  * from the main pipe chat system. Uses token mint as room ID.
  */
 
-import { createContext, useContext, useState, useCallback, ReactNode } from 'react'
+import { createContext, useContext, useState, useCallback, ReactNode, useEffect } from 'react'
 import { useChatWebSocket } from '@/hooks/useChatWebSocket'
 
 export interface ChatMessage {
@@ -74,6 +74,33 @@ export function TokenChatProvider({ children, roomId }: TokenChatProviderProps) 
       }
       return [...prev, message]
     })
+  }, [])
+
+  /**
+   * Auto-delete messages older than 90 seconds
+   */
+  useEffect(() => {
+    const cleanupInterval = setInterval(() => {
+      const now = Date.now()
+      const MESSAGE_LIFETIME_MS = 90000 // 90 seconds
+
+      setMessages((prev) => {
+        const filtered = prev.filter((msg) => {
+          const messageTime = new Date(msg.createdAt).getTime()
+          const age = now - messageTime
+          return age < MESSAGE_LIFETIME_MS
+        })
+
+        // Only update if messages were actually removed
+        if (filtered.length !== prev.length) {
+          console.log(`🗑️ Cleaned up ${prev.length - filtered.length} old token chat messages`)
+          return filtered
+        }
+        return prev
+      })
+    }, 5000) // Check every 5 seconds
+
+    return () => clearInterval(cleanupInterval)
   }, [])
 
   /**

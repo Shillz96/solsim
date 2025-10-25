@@ -28,26 +28,38 @@ import { useAuth } from '@/hooks/use-auth'
 // Helper function to parse message content and render emojis as images
 function renderMessageContent(content: string) {
   // Regex to match /emojis/filename.png or /emojis/filename.gif
-  const emojiRegex = /(\/emojis\/[a-zA-Z0-9_-]+\.(png|gif))/g
-  const parts = content.split(emojiRegex)
+  const emojiRegex = /\/emojis\/[a-zA-Z0-9_-]+\.(png|gif)/g
+  const parts: React.ReactNode[] = []
+  let lastIndex = 0
+  let match
   
-  return parts.map((part, index) => {
-    // Check if this part is an emoji path
-    if (part.match(emojiRegex)) {
-      return (
-        <Image 
-          key={index}
-          src={part} 
-          alt="emoji" 
-          width={20} 
-          height={20}
-          className="inline-block object-contain mx-0.5 align-middle"
-        />
-      )
+  while ((match = emojiRegex.exec(content)) !== null) {
+    // Add text before the emoji
+    if (match.index > lastIndex) {
+      parts.push(<span key={`text-${lastIndex}`}>{content.slice(lastIndex, match.index)}</span>)
     }
-    // Regular text
-    return <span key={index}>{part}</span>
-  })
+    
+    // Add the emoji image
+    parts.push(
+      <Image 
+        key={`emoji-${match.index}`}
+        src={match[0]} 
+        alt="emoji" 
+        width={20} 
+        height={20}
+        className="inline-block object-contain mx-0.5 align-middle"
+      />
+    )
+    
+    lastIndex = match.index + match[0].length
+  }
+  
+  // Add remaining text after the last emoji
+  if (lastIndex < content.length) {
+    parts.push(<span key={`text-${lastIndex}`}>{content.slice(lastIndex)}</span>)
+  }
+  
+  return parts.length > 0 ? parts : <span>{content}</span>
 }
 
 interface ChatMessageProps {

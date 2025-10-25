@@ -66,7 +66,7 @@ export function HourlyRewardWinnersModal({ isOpen, onClose }: HourlyRewardWinner
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+    <div className="fixed inset-0 z-[100000] flex items-center justify-center bg-black/50 p-4">
       <div className="relative max-h-[90vh] w-full max-w-2xl overflow-y-auto bg-white border-4 border-[var(--outline-black)] shadow-[8px_8px_0_var(--outline-black)] rounded-[16px] p-6">
         {/* Close button */}
         <button
