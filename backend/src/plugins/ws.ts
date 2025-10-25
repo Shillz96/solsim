@@ -231,8 +231,9 @@ export default async function wsPlugin(app: FastifyInstance) {
   // ============ REAL-TIME PNL WEBSOCKET ============
   // WebSocket endpoint for real-time PnL streaming (5-10 Hz)
   app.get("/ws/pnl", { websocket: true }, (socket, req) => {
-    const userId = req.query.userId as string;
-    const tradeMode = (req.query.tradeMode as string || 'PAPER') as 'PAPER' | 'REAL';
+    const query = req.query as { userId?: string; tradeMode?: string };
+    const userId = query.userId;
+    const tradeMode = (query.tradeMode || 'PAPER') as 'PAPER' | 'REAL';
 
     if (!userId) {
       socket.send(JSON.stringify({

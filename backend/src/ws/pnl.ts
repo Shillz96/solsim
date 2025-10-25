@@ -6,7 +6,6 @@
  */
 
 import { FastifyRequest } from 'fastify';
-import { SocketStream } from '@fastify/websocket';
 import { realtimePnLService } from '../services/realtimePnLService.js';
 
 interface PnLQuery {
@@ -15,7 +14,7 @@ interface PnLQuery {
 }
 
 export async function handlePnLWebSocket(
-  connection: SocketStream,
+  connection: any,
   req: FastifyRequest
 ) {
   const query = req.query as PnLQuery;
@@ -90,7 +89,7 @@ export async function handlePnLWebSocket(
   });
 
   // Handle errors
-  connection.socket.on('error', (err) => {
+  connection.socket.on('error', (err: Error) => {
     console.error('[PnL WS] Socket error:', err);
     realtimePnLService.off('pnlTick', pnlTickHandler);
   });

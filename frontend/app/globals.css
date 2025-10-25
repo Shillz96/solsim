@@ -810,28 +810,232 @@
   animation: smooth-number 0.3s ease-out;
 }
 
-/* Tab Triggers - Subtle Glow */
+/* ============================================================
+   MARIO TAB SYSTEM - Unified Mario-themed tabs
+   ============================================================ */
+
+/* Base Mario Tab List Container - Clean white background with bold outline */
+[data-slot="tabs-list"] {
+  background: white !important;
+  border: 4px solid var(--outline-black) !important;
+  box-shadow: 4px 4px 0 var(--outline-black) !important;
+  border-radius: 14px !important;
+  padding: 4px !important;
+  gap: 4px !important;
+  height: auto !important;
+  min-height: 48px !important;
+  width: 100% !important;
+  display: inline-flex !important;
+}
+
+/* Base Mario Tab Trigger - All tabs start with clean white */
+[data-slot="tabs-trigger"] {
+  background: white !important;
+  color: var(--outline-black) !important;
+  border: 3px solid transparent !important;
+  border-radius: 10px !important;
+  font-family: var(--font-radnika-next), "Radnika Next", "Inter", "Manrope", "Nunito Sans", "Rubik", "Segoe UI", "Roboto", "Helvetica Neue", "Arial", sans-serif !important;
+  font-weight: 700 !important;
+  font-size: 0.875rem !important;
+  padding: 0.75rem 1rem !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  position: relative !important;
+  min-height: 40px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.5rem !important;
+  cursor: pointer !important;
+}
+
+/* Mario Tab Trigger Hover State - Subtle yellow glow */
+[data-slot="tabs-trigger"]:hover:not([data-state="active"]):not(:disabled) {
+  background: rgba(255, 216, 0, 0.15) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* Mario Tab Trigger Active State - Star Yellow Default with 3D press effect */
+[data-slot="tabs-trigger"][data-state="active"] {
+  background: var(--star-yellow) !important;
+  color: var(--outline-black) !important;
+  border-color: var(--outline-black) !important;
+  box-shadow: 0 2px 0 var(--outline-black), inset 0 -2px 0 rgba(0, 0, 0, 0.15) !important;
+  transform: translateY(2px) !important;
+}
+
+/* Buy Tab - Luigi Green with 3D effect */
 .tab-buy {
-  transition: all 0.3s ease;
+  background: white !important;
+  color: var(--outline-black) !important;
+  border: 3px solid transparent !important;
+  border-radius: 10px !important;
+  font-weight: 700 !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.tab-buy:hover:not([data-state="active"]):not(:disabled) {
+  background: rgba(67, 176, 71, 0.15) !important;
+  transform: translateY(-1px) !important;
 }
 
 .tab-buy[data-state="active"] {
-  background: #00ff85 !important;
-  color: #000000 !important;
-  box-shadow: 0 0 15px rgba(0, 255, 133, 0.3);
+  background: var(--luigi-green) !important;
+  color: white !important;
+  border-color: var(--outline-black) !important;
+  box-shadow: 0 3px 0 rgba(0, 100, 0, 0.4), inset 0 -2px 0 rgba(0, 0, 0, 0.2) !important;
+  transform: translateY(2px) !important;
 }
 
+/* Sell Tab - Mario Red with 3D effect */
 .tab-sell {
-  transition: all 0.3s ease;
+  background: white !important;
+  color: var(--outline-black) !important;
+  border: 3px solid transparent !important;
+  border-radius: 10px !important;
+  font-weight: 700 !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.tab-sell:hover:not([data-state="active"]):not(:disabled) {
+  background: rgba(229, 37, 33, 0.15) !important;
+  transform: translateY(-1px) !important;
 }
 
 .tab-sell[data-state="active"] {
-  background: #ff4d4d !important;
-  color: #ffffff !important;
-  box-shadow: 0 0 15px rgba(255, 77, 77, 0.3);
+  background: var(--mario-red) !important;
+  color: white !important;
+  border-color: var(--outline-black) !important;
+  box-shadow: 0 3px 0 rgba(150, 0, 0, 0.5), inset 0 -2px 0 rgba(0, 0, 0, 0.2) !important;
+  transform: translateY(2px) !important;
 }
 
-/* Dark mode removed - light mode only! */
+/* Disabled Tab State */
+[data-slot="tabs-trigger"]:disabled,
+.tab-buy:disabled,
+.tab-sell:disabled {
+  opacity: 0.4 !important;
+  cursor: not-allowed !important;
+  background: #e5e5e5 !important;
+  color: #999 !important;
+  pointer-events: none !important;
+  transform: none !important;
+}
+
+/* Tab Focus State - Accessibility */
+[data-slot="tabs-trigger"]:focus-visible {
+  outline: 3px solid var(--outline-black) !important;
+  outline-offset: 2px !important;
+  z-index: 10 !important;
+}
+
+/* Tab Trigger Fast Transitions */
+[role="tablist"] [role="tab"] {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+/* ============================================================
+   MARIO TAB COLOR VARIANTS - Use these classes for colored tabs
+   ============================================================ */
+
+/* Green Tab (Luigi Green) - For new/success states */
+.mario-tab-green[data-state="active"] {
+  background: var(--luigi-green) !important;
+  color: white !important;
+  border-color: var(--outline-black) !important;
+  box-shadow: 0 3px 0 rgba(0, 100, 0, 0.4), inset 0 -2px 0 rgba(0, 0, 0, 0.2) !important;
+}
+
+.mario-tab-green:hover:not([data-state="active"]):not(:disabled) {
+  background: rgba(67, 176, 71, 0.15) !important;
+}
+
+/* Yellow Tab (Star Yellow) - For featured/highlighted states */
+.mario-tab-yellow[data-state="active"] {
+  background: var(--star-yellow) !important;
+  color: var(--outline-black) !important;
+  border-color: var(--outline-black) !important;
+  box-shadow: 0 3px 0 rgba(200, 150, 0, 0.4), inset 0 -2px 0 rgba(0, 0, 0, 0.15) !important;
+}
+
+.mario-tab-yellow:hover:not([data-state="active"]):not(:disabled) {
+  background: rgba(255, 216, 0, 0.15) !important;
+}
+
+/* Red Tab (Mario Red) - For important/warning states */
+.mario-tab-red[data-state="active"] {
+  background: var(--mario-red) !important;
+  color: white !important;
+  border-color: var(--outline-black) !important;
+  box-shadow: 0 3px 0 rgba(150, 0, 0, 0.5), inset 0 -2px 0 rgba(0, 0, 0, 0.2) !important;
+}
+
+.mario-tab-red:hover:not([data-state="active"]):not(:disabled) {
+  background: rgba(229, 37, 33, 0.15) !important;
+}
+
+/* Blue Tab (Super Blue) - For info/primary states */
+.mario-tab-blue[data-state="active"] {
+  background: var(--super-blue) !important;
+  color: white !important;
+  border-color: var(--outline-black) !important;
+  box-shadow: 0 3px 0 rgba(0, 50, 150, 0.5), inset 0 -2px 0 rgba(0, 0, 0, 0.2) !important;
+}
+
+.mario-tab-blue:hover:not([data-state="active"]):not(:disabled) {
+  background: rgba(43, 78, 249, 0.15) !important;
+}
+
+/* Gold Tab (Coin Gold) - For premium/special states */
+.mario-tab-gold[data-state="active"] {
+  background: var(--coin-gold) !important;
+  color: var(--outline-black) !important;
+  border-color: var(--outline-black) !important;
+  box-shadow: 0 3px 0 rgba(200, 130, 0, 0.5), inset 0 -2px 0 rgba(0, 0, 0, 0.15) !important;
+}
+
+.mario-tab-gold:hover:not([data-state="active"]):not(:disabled) {
+  background: rgba(255, 185, 21, 0.15) !important;
+}
+
+/* ============================================================
+   MARIO TAB VARIANT - Horizontal Border Style (for filter panels)
+   ============================================================ */
+
+/* Horizontal border tab list - no background, bottom border only */
+.mario-tabs-horizontal {
+  background: transparent !important;
+  border: none !important;
+  border-bottom: 4px solid var(--outline-black) !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+  gap: 0 !important;
+}
+
+/* Horizontal tab triggers - border-right between tabs */
+.mario-tabs-horizontal [data-slot="tabs-trigger"] {
+  border-radius: 0 !important;
+  border-right: 4px solid var(--outline-black) !important;
+  border-top: none !important;
+  border-left: none !important;
+  border-bottom: none !important;
+  min-height: 56px !important;
+  padding: 1rem !important;
+}
+
+.mario-tabs-horizontal [data-slot="tabs-trigger"]:last-child {
+  border-right: none !important;
+}
+
+.mario-tabs-horizontal [data-slot="tabs-trigger"]:hover:not([data-state="active"]):not(:disabled) {
+  transform: none !important;
+}
+
+.mario-tabs-horizontal [data-slot="tabs-trigger"][data-state="active"] {
+  transform: none !important;
+  box-shadow: none !important;
+  border-bottom: none !important;
+}
 
 /* ============================================================
    DATA-HEAVY PAGE ENHANCEMENTS - 2025 STYLE
@@ -1436,39 +1640,6 @@
   box-shadow: 2px 2px 0 var(--outline-black);
   text-transform: uppercase;
   letter-spacing: 0.5px;
-}
-
-/* Mario Tabs - Fits nicely in cards with proper spacing */
-[data-slot="tabs-list"] {
-  background: #e5e5e5 !important;
-  border: 3px solid var(--outline-black) !important;
-  border-radius: 12px !important;
-  padding: 4px !important;
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1) !important;
-  width: 100% !important;
-  display: inline-flex !important;
-}
-
-[data-slot="tabs-trigger"] {
-  border-radius: 8px !important;
-  font-family: var(--font-radnika-next), "Radnika Next", "Inter", "Manrope", "Nunito Sans", "Rubik", "Segoe UI", "Roboto", "Helvetica Neue", "Arial", sans-serif !important;
-  font-weight: 600 !important;
-  color: #666666 !important;
-  transition: all 0.2s ease !important;
-  border: 2px solid transparent !important;
-}
-
-[data-slot="tabs-trigger"][data-state="active"] {
-  background: white !important;
-  color: var(--outline-black) !important;
-  border: 2px solid var(--outline-black) !important;
-  box-shadow: 2px 2px 0 var(--outline-black) !important;
-  transform: translateY(-1px) !important;
-}
-
-[data-slot="tabs-trigger"]:hover:not([data-state="active"]) {
-  color: var(--outline-black) !important;
-  background: rgba(255, 255, 255, 0.5) !important;
 }
 
 /* Mario Header Text - Colorful with outline */

@@ -10,7 +10,7 @@
 
 import Decimal from 'decimal.js';
 import EventEmitter from 'events';
-import { redis } from '../plugins/redis';
+import redis from '../plugins/redis';
 
 // In-memory position state
 interface PositionState {
@@ -79,22 +79,22 @@ class RealtimePnLService extends EventEmitter {
    */
   private async initializeRedisSubscriber() {
     try {
-      // Create a separate Redis client for subscribing
-      const { createClient } = await import('redis');
-      this.redisSubscriber = createClient({
-        url: process.env.REDIS_URL || 'redis://localhost:6379'
-      });
-
-      await this.redisSubscriber.connect();
+      // Create a separate Redis client for subscribing using ioredis
+      const Redis = await import('ioredis');
+      this.redisSubscriber = new Redis.default(process.env.REDIS_URL || 'redis://localhost:6379');
 
       // Subscribe to PnL updates from other instances
-      await this.redisSubscriber.subscribe('pnl:broadcast', (message: string) => {
-        try {
-          const event = JSON.parse(message);
-          // Re-emit locally so WebSocket clients on this instance get the update
-          this.emit('pnlTick', event);
-        } catch (err) {
-          console.error('[RealtimePnL] Failed to parse Redis pub/sub message:', err);
+      this.redisSubscriber.subscribe('pnl:broadcast');
+      
+      this.redisSubscriber.on('message', (channel: string, message: string) => {
+        if (channel === 'pnl:broadcast') {
+          try {
+            const event = JSON.parse(message);
+            // Re-emit locally so WebSocket clients on this instance get the update
+            this.emit('pnlTick', event);
+          } catch (err) {
+            console.error('[RealtimePnL] Failed to parse Redis pub/sub message:', err);
+          }
         }
       });
 

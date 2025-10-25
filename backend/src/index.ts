@@ -373,7 +373,6 @@ process.on('unhandledRejection', (reason, promise) => {
 
 // ============ INITIALIZE REAL-TIME PNL SERVICE ============
 import { realtimePnLService } from './services/realtimePnLService.js';
-import priceService from './plugins/priceService.js';
 
 // Start price tick broadcasting at 5 Hz (200ms intervals)
 realtimePnLService.startPriceTicks(200);

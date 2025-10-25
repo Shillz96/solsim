@@ -193,16 +193,10 @@ export function FilterPanel({
             <div className={cn("", panelBgColors[headerColor])}>
               {/* Tabbed Interface */}
               <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as any)} className="w-full">
-                <TabsList className="grid w-full grid-cols-3 border-b-4 border-[var(--outline-black)] rounded-none bg-transparent p-0 gap-0 h-auto">
+                <TabsList className="mario-tabs-horizontal grid w-full grid-cols-3">
                   <TabsTrigger
                     value="audit"
-                    className={cn(
-                      "rounded-none border-r-4 border-[var(--outline-black)] font-bold transition-all flex items-center justify-center gap-2 h-14 px-4",
-                      "bg-white text-[var(--outline-black)]",
-                      "data-[state=active]:bg-[var(--mario-red)] data-[state=active]:text-white",
-                      "hover:bg-[var(--mario-red)]/10",
-                      "data-[state=active]:hover:bg-[var(--mario-red)]"
-                    )}
+                    className="mario-tab-red flex items-center justify-center gap-2"
                   >
                     <Shield className="h-4 w-4" />
                     <span className="hidden sm:inline">Audit</span>
@@ -214,13 +208,7 @@ export function FilterPanel({
                   </TabsTrigger>
                   <TabsTrigger
                     value="metrics"
-                    className={cn(
-                      "rounded-none border-r-4 border-[var(--outline-black)] font-bold transition-all flex items-center justify-center gap-2 h-14 px-4",
-                      "bg-white text-[var(--outline-black)]",
-                      "data-[state=active]:bg-[var(--star-yellow)] data-[state=active]:text-[var(--outline-black)]",
-                      "hover:bg-[var(--star-yellow)]/10",
-                      "data-[state=active]:hover:bg-[var(--star-yellow)]"
-                    )}
+                    className="mario-tab-yellow flex items-center justify-center gap-2"
                   >
                     <DollarSign className="h-4 w-4" />
                     <span className="hidden sm:inline">$ Metrics</span>
@@ -233,13 +221,7 @@ export function FilterPanel({
                   </TabsTrigger>
                   <TabsTrigger
                     value="socials"
-                    className={cn(
-                      "rounded-none font-bold transition-all flex items-center justify-center gap-2 h-14 px-4",
-                      "bg-white text-[var(--outline-black)]",
-                      "data-[state=active]:bg-[var(--luigi-green)] data-[state=active]:text-white",
-                      "hover:bg-[var(--luigi-green)]/10",
-                      "data-[state=active]:hover:bg-[var(--luigi-green)]"
-                    )}
+                    className="mario-tab-green flex items-center justify-center gap-2"
                   >
                     <Users className="h-4 w-4" />
                     <span className="hidden sm:inline">Socials</span>

@@ -246,22 +246,22 @@ export function WarpPipesHub() {
       {/* Mobile: Tabs Layout */}
       <div className="lg:hidden flex flex-col flex-1 min-h-0 px-4 py-6">
         <Tabs defaultValue="new" className="w-full h-full flex flex-col">
-          <TabsList className="grid w-full grid-cols-3 mb-4 border-4 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)] rounded-[14px] bg-white p-1">
+          <TabsList className="grid w-full grid-cols-3 mb-4">
             <TabsTrigger
               value="new"
-              className="data-[state=active]:bg-[var(--luigi-green)] data-[state=active]:text-white data-[state=active]:shadow-[2px_2px_0_var(--outline-black)] rounded-[10px] font-bold transition-all text-[var(--outline-black)]"
+              className="mario-tab-green"
             >
               🆕 New ({newTokens.length})
             </TabsTrigger>
             <TabsTrigger
               value="graduating"
-              className="data-[state=active]:bg-[var(--star-yellow)] data-[state=active]:text-[var(--outline-black)] data-[state=active]:shadow-[2px_2px_0_var(--outline-black)] rounded-[10px] font-bold transition-all text-[var(--outline-black)]"
+              className="mario-tab-yellow"
             >
               ⭐ Graduate ({graduating.length})
             </TabsTrigger>
             <TabsTrigger
               value="bonded"
-              className="data-[state=active]:bg-[var(--coin-yellow)] data-[state=active]:text-[var(--outline-black)] data-[state=active]:shadow-[2px_2px_0_var(--outline-black)] rounded-[10px] font-bold transition-all text-[var(--outline-black)]"
+              className="mario-tab-gold"
             >
               🪙 Bonded ({bonded.length})
             </TabsTrigger>

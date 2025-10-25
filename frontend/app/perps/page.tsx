@@ -692,11 +692,11 @@ function PerpsContent() {
                 <Label>Direction</Label>
                 <Tabs value={side} onValueChange={(v) => setSide(v as "LONG" | "SHORT")}>
                   <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="LONG" className="data-[state=active]:bg-green-600 data-[state=active]:text-white">
+                    <TabsTrigger value="LONG" className="mario-tab-green">
                       <TrendingUp className="mr-2 h-4 w-4" />
                       LONG
                     </TabsTrigger>
-                    <TabsTrigger value="SHORT" className="data-[state=active]:bg-red-600 data-[state=active]:text-white">
+                    <TabsTrigger value="SHORT" className="mario-tab-red">
                       <TrendingDown className="mr-2 h-4 w-4" />
                       SHORT
                     </TabsTrigger>
