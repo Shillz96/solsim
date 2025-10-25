@@ -108,23 +108,21 @@ export function ChatRoom({ tokenMint, className, headerImage, headerImageAlt = '
               />
             </div>
           ) : (
-            <>
-              <div className={cn(marioStyles.iconContainer('md', 'white'), 'text-2xl h-12 w-12 rounded-xl')}>
-                💬
-              </div>
-              <div className="flex-1">
-                <div className="font-mario font-bold text-2xl text-white drop-shadow-[2px_2px_0_rgba(0,0,0,0.3)]">COMMUNITY CHAT</div>
-                <div className={cn(marioStyles.bodyText('bold'), 'text-sm text-white/90 flex items-center gap-2')}>
-                  <Users className="h-4 w-4" />
-                  <span>{participantCount > 0 ? `${participantCount} online` : 'Connect with traders & get help'}</span>
-                </div>
-              </div>
-            </>
+            <div className="relative h-12 w-auto flex-1">
+              <Image
+                src="/chat-10-25-2025.png"
+                alt="Chat"
+                width={200}
+                height={48}
+                className="object-contain h-12 w-auto"
+                priority
+              />
+            </div>
           )}
         </div>
 
         {/* Connection Status */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-shrink-0">
           <div
             className={marioStyles.statusBox(statusColor)}
             style={{ backgroundColor: statusColor }}
@@ -277,20 +275,20 @@ export function ChatRoom({ tokenMint, className, headerImage, headerImageAlt = '
 
       {/* Input Area */}
       <div className="p-4 border-t-4 border-[var(--outline-black)] bg-gradient-to-r from-white to-[var(--sky-blue)]/10 flex-shrink-0 shadow-[0_-4px_0_rgba(0,0,0,0.05)]">
-        <div className="flex gap-2">
+        <div className="flex gap-2 items-end">
           <Input
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             onKeyPress={handleKeyPress}
             placeholder={user ? 'Type a message...' : 'Sign in to chat'}
             disabled={!user || status !== 'connected'}
-            className={cn(marioStyles.input(), 'flex-1')}
+            className={cn(marioStyles.input(), 'flex-1 min-w-0')}
             maxLength={280}
           />
           <Button
             onClick={handleSendMessage}
             disabled={!user || !inputValue.trim() || status !== 'connected'}
-            className={marioStyles.button('success')}
+            className={cn(marioStyles.button('success'), 'flex-shrink-0')}
           >
             <Send className="h-4 w-4" />
           </Button>
