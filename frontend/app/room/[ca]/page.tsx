@@ -161,10 +161,7 @@ function TradeRoomContent() {
 
   return (
     <div 
-      className="flex flex-col bg-[var(--background)] overflow-hidden"
-      style={{
-        height: 'calc(100dvh - var(--navbar-height, 56px) - var(--bottom-nav-height, 64px))'
-      }}
+      className="flex flex-col h-full bg-[var(--background)] overflow-hidden"
     >
       {/* Header - Token Info */}
       <header className={cn(

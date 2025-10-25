@@ -41,17 +41,17 @@ export function TokenColumn({
   const theme = {
     bonded: {
       header: "bg-gradient-to-br from-[var(--coin-gold)] to-[var(--coin-yellow)] text-[var(--outline-black)]",
-      body: "bg-gradient-to-b from-amber-50/30 to-white",
+      body: "bg-gradient-to-b from-amber-100/40 to-amber-50/20",
       image: "/bonded-10-23-2025.png",
     },
     graduating: {
       header: "bg-gradient-to-br from-[var(--star-yellow)] to-amber-400 text-[var(--outline-black)]",
-      body: "bg-gradient-to-b from-yellow-50/30 to-white",
+      body: "bg-gradient-to-b from-yellow-100/40 to-yellow-50/20",
       image: "/About-to-Graduate-10-23-2025.png",
     },
     new: {
       header: "bg-gradient-to-br from-[var(--luigi-green)] to-emerald-500 text-white",
-      body: "bg-gradient-to-b from-green-50/30 to-white",
+      body: "bg-gradient-to-b from-green-100/40 to-green-50/20",
       image: "/New-Pairs-10-23-2025.png",
     },
   }[headerColor]
@@ -77,10 +77,6 @@ export function TokenColumn({
               className="h-16 w-auto object-contain drop-shadow-lg"
               priority
             />
-            {/* Add black bar for NEW PAIRS to match other sections */}
-            {headerColor === "new" && (
-              <div className="absolute bottom-0 left-0 right-0 h-1 bg-[var(--outline-black)] rounded-sm"></div>
-            )}
           </div>
         </div>
 

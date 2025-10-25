@@ -15,12 +15,7 @@ import { ChatRoom } from '@/components/chat/chat-room'
 export default function PipeNetworkPage() {
   return (
     <div 
-      className="w-full flex flex-col bg-[var(--background)]" 
-      style={{ 
-        height: 'calc(100dvh - var(--navbar-height, 56px) - var(--bottom-nav-height, 64px))',
-        maxHeight: 'calc(100dvh - var(--navbar-height, 56px) - var(--bottom-nav-height, 64px))',
-        overflow: 'hidden'
-      }}
+      className="w-full h-full flex flex-col bg-[var(--background)] overflow-hidden"
     >
       {/* Main Chat Area - Full Height */}
       <div className="flex-1 flex flex-col px-4 py-4 min-h-0">

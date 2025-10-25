@@ -42,8 +42,9 @@ export default function RootLayout({
               id="main-content"
               className="relative"
               style={{
-                paddingTop: 'calc(var(--navbar-height, 56px) + var(--trending-ticker-height, 60px))',
-                minHeight: 'calc(100dvh - var(--navbar-height, 56px) - var(--trending-ticker-height, 60px) - var(--bottom-nav-height, 64px))',
+                height: 'calc(100dvh - var(--navbar-height, 56px) - var(--trending-ticker-height, 60px) - var(--bottom-nav-height, 64px))',
+                marginTop: 'calc(var(--navbar-height, 56px) + var(--trending-ticker-height, 60px))',
+                overflow: 'hidden',
                 touchAction: 'pan-y', // Optimize touch scrolling on mobile
               }}
               role="main"
