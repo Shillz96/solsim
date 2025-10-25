@@ -108,26 +108,7 @@ export function CombinedProfileBalance({
             )}
             aria-label="Account and balance menu"
           >
-            {/* LEFT: Avatar */}
-            <div
-              className={cn(
-                "grid place-items-center flex-shrink-0",
-                "h-7 w-7 md:h-8 md:w-8",
-                "rounded-[8px] md:rounded-[10px]",
-                "bg-[var(--mario-red)]",
-                "border-3 border-[var(--outline-black)]",
-                "overflow-hidden"
-              )}
-            >
-              <Avatar className="h-full w-full rounded-none border-0">
-                <AvatarImage src={avatarUrl} alt={displayName} className="rounded-none object-cover" />
-                <AvatarFallback className="rounded-none font-bold bg-[var(--mario-red)] text-white text-[10px] md:text-[12px]">
-                  {displayName?.[0]?.toUpperCase() || "U"}
-                </AvatarFallback>
-              </Avatar>
-            </div>
-
-            {/* Name + Level (compact) */}
+            {/* Name + Level */}
             <div className="flex flex-col items-start justify-center leading-tight space-y-0 min-w-0">
               <span className="font-extrabold text-[11px] md:text-[12px] tracking-tight text-[var(--outline-black)] truncate max-w-[70px] md:max-w-[90px]">
                 {displayName}
@@ -144,19 +125,23 @@ export function CombinedProfileBalance({
               </span>
             </div>
 
-            {/* RIGHT: Badge indicator */}
+            {/* RIGHT: Avatar */}
             <div
               className={cn(
                 "grid place-items-center flex-shrink-0",
-                "h-6 w-6 md:h-7 md:w-7",
-                "rounded-[6px] md:rounded-[8px]",
-                "bg-[var(--mario-red)] text-white",
-                "border-3 border-[var(--outline-black)]"
+                "h-7 w-7 md:h-8 md:w-8",
+                "rounded-[8px] md:rounded-[10px]",
+                "bg-[var(--mario-red)]",
+                "border-3 border-[var(--outline-black)]",
+                "overflow-hidden"
               )}
             >
-              <span className="font-extrabold text-[9px] md:text-[10px] leading-none">
-                {balanceBadge}
-              </span>
+              <Avatar className="h-full w-full rounded-none border-0">
+                <AvatarImage src={avatarUrl} alt={displayName} className="rounded-none object-cover" />
+                <AvatarFallback className="rounded-none font-bold bg-[var(--mario-red)] text-white text-[10px] md:text-[12px]">
+                  {displayName?.[0]?.toUpperCase() || "U"}
+                </AvatarFallback>
+              </Avatar>
             </div>
 
             {/* Notification badge */}
