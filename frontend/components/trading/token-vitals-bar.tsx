@@ -1,7 +1,7 @@
 "use client"
 
 import { TrendingUp, TrendingDown, Users, DollarSign, Trophy } from "lucide-react"
-import { cn } from "@/lib/utils"
+import { cn, marioStyles } from "@/lib/utils"
 import { formatUSD, formatNumber } from "@/lib/format"
 import { useState, useEffect, useRef } from "react"
 import { usePriceStreamContext } from "@/lib/price-stream-provider"
@@ -72,8 +72,8 @@ export function TokenVitalsBar({
       className
     )}>
       {/* 24h Volume */}
-      <div className="flex flex-col items-center justify-center gap-3 p-6 aspect-square bg-gradient-to-br from-[var(--coin-gold)]/20 to-[var(--star-yellow)]/10 rounded-lg border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)]">
-        <div className="h-16 w-16 rounded-full bg-[var(--coin-gold)] border-4 border-[var(--outline-black)] flex items-center justify-center shadow-[3px_3px_0_var(--outline-black)]">
+      <div className={marioStyles.vitalsCard('from-[var(--coin-gold)]/20 to-[var(--star-yellow)]/10')}>
+        <div className={marioStyles.vitalsIcon('var(--coin-gold)')}>
           <DollarSign className="h-8 w-8 text-[var(--outline-black)]" />
         </div>
         <div className="text-center">
@@ -85,8 +85,8 @@ export function TokenVitalsBar({
       </div>
 
       {/* Holders */}
-      <div className="flex flex-col items-center justify-center gap-3 p-6 aspect-square bg-gradient-to-br from-[var(--sky-blue)]/20 to-blue-100/10 rounded-lg border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)]">
-        <div className="h-16 w-16 rounded-full bg-[var(--sky-blue)] border-4 border-[var(--outline-black)] flex items-center justify-center shadow-[3px_3px_0_var(--outline-black)]">
+      <div className={marioStyles.vitalsCard('from-[var(--sky-blue)]/20 to-blue-100/10')}>
+        <div className={marioStyles.vitalsIcon('var(--sky-blue)')}>
           <Users className="h-8 w-8 text-white" />
         </div>
         <div className="text-center">
@@ -99,14 +99,19 @@ export function TokenVitalsBar({
 
       {/* 5m Price Change - REAL-TIME */}
       <div className={cn(
-        "flex flex-col items-center justify-center gap-3 p-6 aspect-square rounded-lg border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] transition-all",
+        marioStyles.vitalsCard(),
+        'transition-all',
         priceChange5m !== undefined && priceChange5m >= 0
           ? "bg-gradient-to-br from-[var(--luigi-green)]/20 to-green-100/10"
           : "bg-gradient-to-br from-[var(--mario-red)]/20 to-red-100/10"
       )}>
         <div className={cn(
-          "h-16 w-16 rounded-full border-4 border-[var(--outline-black)] flex items-center justify-center shadow-[3px_3px_0_var(--outline-black)] transition-colors",
-          priceChange5m !== undefined && priceChange5m >= 0 ? "bg-[var(--luigi-green)]" : "bg-[var(--mario-red)]"
+          marioStyles.vitalsIcon(
+            priceChange5m !== undefined && priceChange5m >= 0 
+              ? 'var(--luigi-green)' 
+              : 'var(--mario-red)'
+          ),
+          'transition-colors'
         )}>
           <PriceIcon className="h-8 w-8 text-white" />
         </div>
@@ -129,8 +134,8 @@ export function TokenVitalsBar({
       </div>
 
       {/* User Rank */}
-      <div className="flex flex-col items-center justify-center gap-3 p-6 aspect-square bg-gradient-to-br from-[var(--star-yellow)]/20 to-yellow-100/10 rounded-lg border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)]">
-        <div className="h-16 w-16 rounded-full bg-[var(--star-yellow)] border-4 border-[var(--outline-black)] flex items-center justify-center shadow-[3px_3px_0_var(--outline-black)]">
+      <div className={marioStyles.vitalsCard('from-[var(--star-yellow)]/20 to-yellow-100/10')}>
+        <div className={marioStyles.vitalsIcon('var(--star-yellow)')}>
           <Trophy className="h-8 w-8 text-[var(--outline-black)]" />
         </div>
         <div className="text-center">

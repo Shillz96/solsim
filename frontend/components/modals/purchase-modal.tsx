@@ -16,6 +16,7 @@ import { MarioPageHeader } from '@/components/shared/mario-page-header';
 import * as api from '@/lib/api';
 import * as purchaseTransaction from '@/lib/purchase-transaction';
 import type { PurchaseTier } from '@/lib/types/backend';
+import { cn, marioStyles } from '@/lib/utils';
 
 interface PurchaseModalProps {
   open: boolean;
@@ -284,7 +285,10 @@ export function PurchaseModal({ open, onOpenChange, userId }: PurchaseModalProps
               )}
 
               {!connected && (
-                <Alert className="bg-[var(--sky-blue)] border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] animate-in slide-in-from-bottom-2">
+                <Alert className={cn(
+                  marioStyles.card(false),
+                  'bg-[var(--sky-blue)] animate-in slide-in-from-bottom-2'
+                )}>
                   <Wallet className="h-5 w-5 text-[var(--outline-black)]" />
                   <AlertDescription className="text-[var(--outline-black)] font-semibold">
                     <strong className="font-bold text-[var(--outline-black)]">Connect your wallet</strong> to purchase simulated SOL and start trading
@@ -333,7 +337,10 @@ export function PurchaseModal({ open, onOpenChange, userId }: PurchaseModalProps
           <>
             <DialogHeader className="space-y-4 pb-6">
               <div className="flex justify-center items-center gap-3">
-                <div className="h-12 w-12 rounded-lg bg-[var(--luigi-green)] border-3 border-[var(--outline-black)] flex items-center justify-center shadow-[3px_3px_0_var(--outline-black)]">
+                <div className={cn(
+                  'h-12 w-12 rounded-lg flex items-center justify-center',
+                  marioStyles.button('success').replace('px-4', '')
+                )}>
                   <CheckCircle className="h-6 w-6 text-white" />
                 </div>
                 <h2 className="text-3xl font-mario text-[var(--outline-black)]">
@@ -358,7 +365,10 @@ export function PurchaseModal({ open, onOpenChange, userId }: PurchaseModalProps
                   {/* Main transaction details */}
                   <div className="space-y-4">
                     {/* You pay */}
-                    <div className="flex justify-between items-center p-4 rounded-xl bg-[var(--sky-blue)] border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)]">
+                    <div className={cn(
+                      marioStyles.card(false),
+                      'flex justify-between items-center p-4 bg-[var(--sky-blue)]'
+                    )}>
                       <span className="text-sm font-bold text-[var(--outline-black)] uppercase tracking-wide">You Pay</span>
                       <div className="flex items-baseline gap-2">
                         <span className="text-3xl font-mario text-[var(--outline-black)]">
@@ -378,7 +388,10 @@ export function PurchaseModal({ open, onOpenChange, userId }: PurchaseModalProps
                     </div>
 
                     {/* You receive */}
-                    <div className="flex justify-between items-center p-4 rounded-xl bg-[var(--luigi-green)] border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)]">
+                    <div className={cn(
+                      marioStyles.card(false),
+                      'flex justify-between items-center p-4 bg-[var(--luigi-green)]'
+                    )}>
                       <span className="text-sm font-bold text-white uppercase tracking-wide">You Receive</span>
                       <div className="flex items-baseline gap-2">
                         <span className="text-3xl font-mario text-white">

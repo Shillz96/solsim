@@ -18,7 +18,7 @@ import { useChat } from '@/lib/contexts/ChatContext'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Loader2, Send, Users, AlertCircle, Wifi, WifiOff } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { cn, marioStyles } from '@/lib/utils'
 
 interface ChatRoomProps {
   tokenMint: string
@@ -89,7 +89,9 @@ export function ChatRoom({ tokenMint, className }: ChatRoomProps) {
   return (
     <div className={cn("flex flex-col h-full", className)}>
       {/* Chat Header */}
-      <div className="p-4 border-b-4 border-[var(--outline-black)] bg-gradient-to-r from-[var(--luigi-green)] to-emerald-500 flex items-center justify-between flex-shrink-0 shadow-[0_4px_0_var(--outline-black)]">
+      <div className={cn(
+        marioStyles.headerGradient('var(--luigi-green)', 'emerald-500')
+      )}>
         <div className="flex items-center gap-3">
           <div className="h-10 w-10 rounded-lg bg-white border-3 border-[var(--outline-black)] flex items-center justify-center shadow-[3px_3px_0_var(--outline-black)] text-xl">
             💬
@@ -106,7 +108,7 @@ export function ChatRoom({ tokenMint, className }: ChatRoomProps) {
         {/* Connection Status */}
         <div className="flex items-center gap-2">
           <div
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)]"
+            className={marioStyles.statusBox(statusColor)}
             style={{ backgroundColor: statusColor }}
           >
             <StatusIcon className="h-3.5 w-3.5 text-white" />
@@ -138,7 +140,10 @@ export function ChatRoom({ tokenMint, className }: ChatRoomProps) {
       >
         {!user ? (
           <div className="flex flex-col items-center justify-center h-full text-center p-6">
-            <div className="w-20 h-20 rounded-xl bg-gradient-to-br from-[var(--pipe-green)] to-[var(--luigi-green)] border-4 border-[var(--outline-black)] flex items-center justify-center mb-4 shadow-[4px_4px_0_var(--outline-black)] text-3xl">
+            <div className={cn(
+              marioStyles.emptyStateIcon('var(--pipe-green)', 'w-20 h-20'),
+              'to-[var(--luigi-green)]'
+            )}>
               🔒
             </div>
             <div className="font-mario font-bold text-base mb-2">Sign In to Chat</div>
@@ -153,7 +158,10 @@ export function ChatRoom({ tokenMint, className }: ChatRoomProps) {
           </div>
         ) : messages.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-center p-6">
-            <div className="w-20 h-20 rounded-xl bg-gradient-to-br from-[var(--sky-blue)] to-[var(--super-blue)] border-4 border-[var(--outline-black)] flex items-center justify-center mb-4 shadow-[4px_4px_0_var(--outline-black)] text-3xl">
+            <div className={cn(
+              marioStyles.emptyStateIcon('var(--sky-blue)', 'w-20 h-20'),
+              'to-[var(--super-blue)]'
+            )}>
               💬
             </div>
             <div className="font-mario font-bold text-base mb-2">No messages yet</div>
@@ -175,13 +183,13 @@ export function ChatRoom({ tokenMint, className }: ChatRoomProps) {
                 <div
                   key={msg.id}
                   className={cn(
-                    'p-3 bg-white rounded-xl border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] transition-all hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5',
+                    marioStyles.card(true),
                     isOwnMessage && 'bg-gradient-to-br from-[var(--sky-blue)]/30 to-[var(--sky-blue)]/10 border-[var(--sky-blue)]'
                   )}
                 >
                   <div className="flex items-center gap-2 mb-1.5">
                     {/* Avatar */}
-                    <div className="h-6 w-6 rounded-full border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] overflow-hidden">
+                    <div className={marioStyles.avatar('sm')}>
                       <img
                         src={isOwnMessage ? "/icons/mario/money-bag.png" : "/icons/mario/user.png"}
                         alt={isOwnMessage ? "Money Bag" : "User"}
@@ -201,7 +209,7 @@ export function ChatRoom({ tokenMint, className }: ChatRoomProps) {
                           <div
                             key={userBadge.id}
                             title={userBadge.badge.displayName}
-                            className="h-4 w-4 rounded-full border-2 border-[var(--outline-black)] bg-white flex items-center justify-center overflow-hidden shadow-[1px_1px_0_var(--outline-black)]"
+                            className={marioStyles.badge}
                           >
                             {userBadge.badge.iconUrl ? (
                               <img
@@ -252,13 +260,13 @@ export function ChatRoom({ tokenMint, className }: ChatRoomProps) {
             onKeyPress={handleKeyPress}
             placeholder={user ? 'Type a message...' : 'Sign in to chat'}
             disabled={!user || status !== 'connected'}
-            className="flex-1 border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)] transition-all rounded-lg font-medium"
+            className={cn(marioStyles.input, 'flex-1')}
             maxLength={280}
           />
           <Button
             onClick={handleSendMessage}
             disabled={!user || !inputValue.trim() || status !== 'connected'}
-            className="bg-[var(--luigi-green)] hover:bg-[var(--pipe-green)] border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all text-white font-bold px-4"
+            className={marioStyles.button('success')}
           >
             <Send className="h-4 w-4" />
           </Button>

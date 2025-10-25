@@ -118,25 +118,25 @@
     user-select: text;
     touch-action: manipulation;
   }
-}
+  }
 
-/* ---------------------------
+  /* ---------------------------
    MARIO THEME COMPONENTS
    Uses theme.css variables for consistency
---------------------------- */
+  --------------------------- */
 
 /* Mario Card System */
 .mario-card {
-  background: var(--card);
+    background: var(--card);
   border: 4px solid var(--color-outline-black);
   border-radius: var(--radius-xl);
-  padding: 1.5rem;
+    padding: 1.5rem;
   box-shadow: 6px 6px 0 var(--color-outline-black);
   transition: transform var(--transition), box-shadow var(--transition);
-}
+  }
 
 .mario-card:hover {
-  transform: translateY(-2px);
+    transform: translateY(-2px);
   box-shadow: 8px 8px 0 var(--color-outline-black);
 }
 
@@ -156,7 +156,7 @@
 }
 
 .mario-btn:hover {
-  transform: translateY(-2px);
+    transform: translateY(-2px);
   box-shadow: 4px 4px 0 var(--color-outline-black);
 }
 
@@ -238,6 +238,94 @@
   opacity: 0.5;
   cursor: not-allowed;
   box-shadow: none;
+}
+
+/* ---------------------------
+   MARIO UTILITY CLASSES
+   Reusable styling patterns for consistent Mario theme
+--------------------------- */
+
+/* Mario Shadow System - Standardized box shadows */
+.mario-shadow-sm {
+  box-shadow: 2px 2px 0 var(--outline-black);
+}
+
+.mario-shadow {
+  box-shadow: 3px 3px 0 var(--outline-black);
+}
+
+.mario-shadow-lg {
+  box-shadow: 4px 4px 0 var(--outline-black);
+}
+
+/* Mario Border System - Consistent borders */
+.mario-border {
+  border: 3px solid var(--outline-black);
+}
+
+.mario-border-lg {
+  border: 4px solid var(--outline-black);
+}
+
+/* Mario Interactive Elements - Hover effects */
+.mario-interactive {
+  border: 3px solid var(--outline-black);
+  box-shadow: 3px 3px 0 var(--outline-black);
+  transition: all 0.2s;
+}
+
+.mario-interactive:hover {
+  box-shadow: 4px 4px 0 var(--outline-black);
+  transform: translateY(-1px);
+}
+
+/* Mario Avatar System - Avatar styling */
+.mario-avatar {
+  border: 3px solid var(--outline-black);
+  box-shadow: 2px 2px 0 var(--outline-black);
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.mario-avatar-sm {
+  height: 1.5rem;
+  width: 1.5rem;
+}
+
+.mario-avatar-md {
+  height: 2.5rem;
+  width: 2.5rem;
+}
+
+.mario-avatar-lg {
+  height: 4rem;
+  width: 4rem;
+}
+
+/* Mario Badge System - Small badges */
+.mario-badge {
+  border: 2px solid var(--outline-black);
+  box-shadow: 1px 1px 0 var(--outline-black);
+  border-radius: 9999px;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  height: 1rem;
+  width: 1rem;
+}
+
+/* Mario Status Box - Status indicators */
+.mario-status-box {
+  border: 3px solid var(--outline-black);
+  box-shadow: 2px 2px 0 var(--outline-black);
+  border-radius: var(--radius);
+  padding: 0.375rem 0.75rem;
+  font-family: var(--font-radnika-next), "Radnika Next", "Inter", "Manrope", "Nunito Sans", "Rubik", "Segoe UI", "Roboto", "Helvetica Neue", "Arial", sans-serif;
+  font-weight: 700;
+  font-size: 0.75rem;
+  color: white;
 }
 
 /* Mario Tab System */
@@ -539,7 +627,7 @@
   .number-update,
   .level-up-animation,
   .coin-bounce,
-  .animate-pulse-ring {
+.animate-pulse-ring {
     animation: none !important;
   }
 }

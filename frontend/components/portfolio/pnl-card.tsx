@@ -48,7 +48,7 @@ import * as api from "@/lib/api"
 import { formatUSD, safePercent } from "@/lib/format"
 import { UsdWithSol } from "@/lib/sol-equivalent"
 import { CurrencyValue, PnLDisplay } from "@/components/shared/currency-display"
-import { cn } from "@/lib/utils"
+import { cn, marioStyles } from "@/lib/utils"
 
 /**
  * Animated gradient background based on P&L performance
@@ -88,7 +88,10 @@ function EmptyPnLState() {
   return (
     <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
       <div className="relative mb-4">
-        <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[var(--star-yellow)] to-[var(--coin-gold)] border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] flex items-center justify-center">
+        <div className={cn(
+          marioStyles.vitalsIcon('var(--star-yellow)', 'md'),
+          'bg-gradient-to-br from-[var(--star-yellow)] to-[var(--coin-gold)]'
+        )}>
           <Activity className="w-8 h-8 text-white" />
         </div>
         <Sparkles className="w-4 h-4 text-[var(--star-yellow)] absolute -top-1 -right-1 animate-pulse" />
@@ -342,7 +345,8 @@ export function PnLCard() {
             animate={{ scale: 1, opacity: 1 }}
             transition={{ delay: 0.1 }}
             className={cn(
-              "p-6 rounded-xl border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)]",
+              marioStyles.card(false),
+              'p-6',
               isPositive 
                 ? "bg-[var(--luigi-green)]/10" 
                 : "bg-[var(--mario-red)]/10"
