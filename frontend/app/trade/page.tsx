@@ -18,7 +18,7 @@ import { TradeTimeline } from "@/components/trading/trade-timeline"
 // Mario-themed components
 import { SlidingTrendingTicker } from "@/components/trading/sliding-trending-ticker"
 import { MarioPositionPnL } from "@/components/trading/mario-position-pnl"
-import { MarioTradingPanel } from "@/components/trading/mario-trading-panel"
+import { TradePanel } from "@/components/trade-panel"
 import { TokenChatRoom } from "@/components/chat/token-chat-room"
 import { TokenChatProvider } from "@/lib/contexts/TokenChatContext"
 
@@ -118,7 +118,7 @@ function TradePageContent() {
             transition={{ duration: 0.4, delay: 0.1 }}
             className="flex-shrink-0"
           >
-            <MarioTradingPanel tokenAddress={currentTokenAddress} />
+            <TradePanel tokenAddress={currentTokenAddress} />
           </motion.div>
 
           {/* Token Chat - Mobile */}
@@ -199,7 +199,7 @@ function TradePageContent() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
           >
-            <MarioTradingPanel tokenAddress={currentTokenAddress} />
+            <TradePanel tokenAddress={currentTokenAddress} />
             <TradeTimeline
               tokenAddress={currentTokenAddress}
               maxTrades={10}
