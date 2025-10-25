@@ -6,6 +6,8 @@
  * - Unicode confusables and zero-width characters
  * - Excessive whitespace and malformed content
  * - Phishing patterns
+ * 
+ * IMPORTANT: Allows native emojis (Unicode emoji ranges) for user expression
  */
 
 /**
@@ -24,11 +26,12 @@ export function sanitizeChatMessage(content: string): string {
   sanitized = sanitized.trim();
 
   // 2. Limit length to 280 characters (Twitter-style)
+  // Note: Emojis are counted as they appear (some take 2+ chars)
   if (sanitized.length > 280) {
     sanitized = sanitized.substring(0, 280);
   }
 
-  // 3. Remove zero-width characters and invisible Unicode
+  // 3. Remove zero-width characters and invisible Unicode (but keep emojis)
   sanitized = removeInvisibleCharacters(sanitized);
 
   // 4. Strip HTML tags (basic sanitization)

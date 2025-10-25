@@ -77,6 +77,9 @@ export function ModerationAdmin() {
   const [activeTab, setActiveTab] = useState<'config' | 'stats' | 'test'>('config');
   const [testMessage, setTestMessage] = useState('');
   const [testResult, setTestResult] = useState<any>(null);
+  const [config, setConfig] = useState<ModerationConfig | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState<string>('');
 
   // API hooks
   const { data: configData, isLoading: configLoading, error: configError } = useModerationConfig();
@@ -87,22 +90,42 @@ export function ModerationAdmin() {
   // Check if user is admin
   const isAdmin = user?.userTier === 'ADMINISTRATOR';
 
-  const handleSaveConfig = async (newConfig: ModerationConfig) => {
+  // Initialize local config state from API data
+  useEffect(() => {
+    if (configData?.config && !config) {
+      setConfig(configData.config);
+    }
+  }, [configData?.config, config]);
+
+  const handleSaveConfig = async () => {
+    if (!config) return;
+
+    setSaving(true);
     try {
-      await updateConfig.mutateAsync(newConfig);
+      await updateConfig.mutateAsync(config);
+      setMessage('✅ Configuration saved successfully!');
+      setTimeout(() => setMessage(''), 5000);
     } catch (error) {
       console.error('Failed to save config:', error);
+      setMessage('❌ Failed to save configuration. Please try again.');
+      setTimeout(() => setMessage(''), 5000);
+    } finally {
+      setSaving(false);
     }
   };
 
   const handleTestBot = async () => {
     if (!testMessage.trim()) return;
-    
+
     try {
       const result = await testBot.mutateAsync(testMessage);
-      setTestResult(result.analysis);
+      setTestResult(result);
+      setMessage('✅ Moderation test completed!');
+      setTimeout(() => setMessage(''), 5000);
     } catch (error) {
       console.error('Failed to test bot:', error);
+      setMessage('❌ Failed to test moderation bot. Please try again.');
+      setTimeout(() => setMessage(''), 5000);
     }
   };
 
@@ -169,7 +192,7 @@ export function ModerationAdmin() {
       </div>
 
         {/* Configuration Tab */}
-        {activeTab === 'config' && configData?.config && (
+        {activeTab === 'config' && config && (
         <div className="space-y-6">
           {/* Rate Limiting */}
           <div className="bg-pipe-50 rounded-lg p-4 border-2 border-pipe-200">
@@ -188,7 +211,7 @@ export function ModerationAdmin() {
                         messagesPerWindow: parseInt(e.target.value) 
                       }
                     };
-                    handleSaveConfig(newConfig);
+                    handleSaveConfig();
                   }}
                   className="w-full px-3 py-2 border-2 border-pipe-300 rounded-lg font-mario"
                 />
@@ -358,14 +381,14 @@ export function ModerationAdmin() {
           <div className="bg-pipe-50 rounded-lg p-4 border-2 border-pipe-200">
             <h3 className="font-mario text-lg text-pipe-800 mb-4">📊 Trust Score Distribution</h3>
             <div className="space-y-2">
-              {stats.trustScoreDistribution.map((item, index) => (
+              {statsData.stats.trustScoreDistribution.map((item: { trustScore: number; userCount: number }, index: number) => (
                 <div key={index} className="flex items-center justify-between">
                   <span className="font-mario text-pipe-700">Score {item.trustScore}</span>
                   <div className="flex items-center gap-2">
                     <div className="w-32 bg-pipe-200 rounded-full h-2">
                       <div 
                         className="bg-mario-red-500 h-2 rounded-full" 
-                        style={{ width: `${(item.userCount / Math.max(...stats.trustScoreDistribution.map(d => d.userCount))) * 100}%` }}
+                        style={{ width: `${(item.userCount / Math.max(...statsData.stats.trustScoreDistribution.map((d: { trustScore: number; userCount: number }) => d.userCount))) * 100}%` }}
                       ></div>
                     </div>
                     <span className="text-sm text-pipe-600">{item.userCount} users</span>

@@ -219,4 +219,21 @@ export const requireAdmin = async (request: AuthenticatedRequest, reply: Fastify
   }
 };
 
+// Admin or Moderator middleware (for moderation features)
+export const requireAdminOrModerator = async (request: AuthenticatedRequest, reply: FastifyReply) => {
+  if (!request.user) {
+    return reply.code(401).send({ 
+      error: 'UNAUTHORIZED', 
+      message: 'Authentication required' 
+    });
+  }
+
+  if (request.user.userTier !== 'ADMINISTRATOR' && request.user.userTier !== 'MODERATOR') {
+    return reply.code(403).send({ 
+      error: 'FORBIDDEN', 
+      message: 'Administrator or Moderator access required' 
+    });
+  }
+};
+
 export { AuthService };

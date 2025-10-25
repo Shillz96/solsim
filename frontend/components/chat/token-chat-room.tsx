@@ -18,6 +18,7 @@ import { useAuth } from '@/hooks/use-auth'
 import { useTokenChat } from '@/lib/contexts/TokenChatContext'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { EmojiPicker } from '@/components/ui/emoji-picker'
 import { Loader2, Send, Users, AlertCircle, Wifi, WifiOff, MessageSquare } from 'lucide-react'
 import { cn, marioStyles } from '@/lib/utils'
 
@@ -42,6 +43,7 @@ export function TokenChatRoom({ tokenMint, className }: TokenChatRoomProps) {
   const [inputValue, setInputValue] = useState('')
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const messagesContainerRef = useRef<HTMLDivElement>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
@@ -76,6 +78,12 @@ export function TokenChatRoom({ tokenMint, className }: TokenChatRoomProps) {
       e.preventDefault()
       handleSendMessage()
     }
+  }
+
+  const handleEmojiSelect = (emoji: string) => {
+    setInputValue(prev => prev + emoji)
+    // Focus input after emoji selection
+    setTimeout(() => inputRef.current?.focus(), 100)
   }
 
   // Connection status indicator
@@ -264,8 +272,9 @@ export function TokenChatRoom({ tokenMint, className }: TokenChatRoomProps) {
 
       {/* Input Area */}
       <div className="p-4 border-t-4 border-[var(--outline-black)] bg-gradient-to-r from-white to-[var(--mario-red)]/10 flex-shrink-0 shadow-[0_-4px_0_rgba(0,0,0,0.05)]">
-        <div className="flex gap-2">
+        <div className="flex gap-2 items-end">
           <Input
+            ref={inputRef}
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             onKeyPress={handleKeyPress}
@@ -274,6 +283,7 @@ export function TokenChatRoom({ tokenMint, className }: TokenChatRoomProps) {
             className={cn(marioStyles.input(), 'flex-1')}
             maxLength={280}
           />
+          <EmojiPicker onEmojiSelect={handleEmojiSelect} />
           <Button
             onClick={handleSendMessage}
             disabled={!user || !inputValue.trim() || status !== 'connected'}

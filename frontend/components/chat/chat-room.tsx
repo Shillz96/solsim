@@ -17,6 +17,7 @@ import { useAuth } from '@/hooks/use-auth'
 import { useChat } from '@/lib/contexts/ChatContext'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { EmojiPicker } from '@/components/ui/emoji-picker'
 import { Loader2, Send, Users, AlertCircle, Wifi, WifiOff } from 'lucide-react'
 import { cn, marioStyles } from '@/lib/utils'
 import Image from 'next/image'
@@ -44,6 +45,7 @@ export function ChatRoom({ tokenMint, className, headerImage, headerImageAlt = '
   const [inputValue, setInputValue] = useState('')
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const messagesContainerRef = useRef<HTMLDivElement>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
@@ -78,6 +80,12 @@ export function ChatRoom({ tokenMint, className, headerImage, headerImageAlt = '
       e.preventDefault()
       handleSendMessage()
     }
+  }
+
+  const handleEmojiSelect = (emoji: string) => {
+    setInputValue(prev => prev + emoji)
+    // Focus input after emoji selection
+    setTimeout(() => inputRef.current?.focus(), 100)
   }
 
   // Connection status indicator
@@ -277,6 +285,7 @@ export function ChatRoom({ tokenMint, className, headerImage, headerImageAlt = '
       <div className="p-4 border-t-4 border-[var(--outline-black)] bg-gradient-to-r from-white to-[var(--sky-blue)]/10 flex-shrink-0 shadow-[0_-4px_0_rgba(0,0,0,0.05)]">
         <div className="flex gap-2 items-end">
           <Input
+            ref={inputRef}
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             onKeyPress={handleKeyPress}
@@ -285,6 +294,7 @@ export function ChatRoom({ tokenMint, className, headerImage, headerImageAlt = '
             className={cn(marioStyles.input(), 'flex-1 min-w-0')}
             maxLength={280}
           />
+          <EmojiPicker onEmojiSelect={handleEmojiSelect} />
           <Button
             onClick={handleSendMessage}
             disabled={!user || !inputValue.trim() || status !== 'connected'}

@@ -8,7 +8,7 @@
 
 import React, { useState } from 'react';
 import { useAuth } from '@/hooks/use-auth';
-import { useUsers, useUserDetails, useUpdateUserTier, useUpdateUserBalance } from '@/hooks/use-admin-api';
+import { useUsers, useUserDetails, useUpdateUserTier, useUpdateUserBalance, UserSearchResult } from '@/hooks/use-admin-api';
 import { 
   AdminCard, 
   AdminButton, 
@@ -197,7 +197,7 @@ export function UserManagement() {
         ) : (
           <>
             <AdminTable headers={['User', 'Tier', 'Balance', 'Badges', 'Status', 'Actions']}>
-              {usersData.users.map((user) => (
+              {usersData.users.map((user: UserSearchResult) => (
                 <AdminTableRow
                   key={user.id}
                   onClick={() => handleUserClick(user.id)}

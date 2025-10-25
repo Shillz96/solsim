@@ -9,7 +9,7 @@
 
 import { FastifyInstance } from 'fastify';
 import { z } from 'zod';
-import { authenticateToken, requireAdmin } from '../plugins/auth.js';
+import { authenticateToken, requireAdmin, requireAdminOrModerator } from '../plugins/auth.js';
 import {
   getRecentMessages,
   getRoomMetadata,
@@ -114,7 +114,7 @@ export default async function chatRoutes(app: FastifyInstance) {
    */
   app.get(
     '/api/chat/moderation/status/:userId',
-    { preHandler: requireAdmin },
+    { preHandler: requireAdminOrModerator },
     async (req, reply) => {
       try {
         const { userId } = req.params as { userId: string };
@@ -136,11 +136,11 @@ export default async function chatRoutes(app: FastifyInstance) {
 
   /**
    * POST /api/chat/moderation/mute
-   * Mute a user (admin only)
+   * Mute a user (admin/moderator only)
    */
   app.post(
     '/api/chat/moderation/mute',
-    { preHandler: requireAdmin },
+    { preHandler: requireAdminOrModerator },
     async (req, reply) => {
       try {
         const data = muteSchema.parse(req.body);
@@ -170,11 +170,11 @@ export default async function chatRoutes(app: FastifyInstance) {
 
   /**
    * POST /api/chat/moderation/unmute
-   * Unmute a user (admin only)
+   * Unmute a user (admin/moderator only)
    */
   app.post(
     '/api/chat/moderation/unmute',
-    { preHandler: requireAdmin },
+    { preHandler: requireAdminOrModerator },
     async (req, reply) => {
       try {
         const data = moderationActionSchema.parse(req.body);
@@ -199,11 +199,11 @@ export default async function chatRoutes(app: FastifyInstance) {
 
   /**
    * POST /api/chat/moderation/ban
-   * Ban a user from chat (admin only)
+   * Ban a user from chat (admin/moderator only)
    */
   app.post(
     '/api/chat/moderation/ban',
-    { preHandler: requireAdmin },
+    { preHandler: requireAdminOrModerator },
     async (req, reply) => {
       try {
         const data = moderationActionSchema.parse(req.body);
@@ -228,11 +228,11 @@ export default async function chatRoutes(app: FastifyInstance) {
 
   /**
    * POST /api/chat/moderation/unban
-   * Unban a user from chat (admin only)
+   * Unban a user from chat (admin/moderator only)
    */
   app.post(
     '/api/chat/moderation/unban',
-    { preHandler: requireAdmin },
+    { preHandler: requireAdminOrModerator },
     async (req, reply) => {
       try {
         const data = moderationActionSchema.parse(req.body);
@@ -257,11 +257,11 @@ export default async function chatRoutes(app: FastifyInstance) {
 
   /**
    * POST /api/chat/moderation/strike
-   * Add a strike to user (admin only)
+   * Add a strike to user (admin/moderator only)
    */
   app.post(
     '/api/chat/moderation/strike',
-    { preHandler: requireAdmin },
+    { preHandler: requireAdminOrModerator },
     async (req, reply) => {
       try {
         const data = strikeSchema.parse(req.body);
@@ -285,11 +285,11 @@ export default async function chatRoutes(app: FastifyInstance) {
 
   /**
    * DELETE /api/chat/moderation/clear-strikes/:userId
-   * Clear all strikes for user (admin only)
+   * Clear all strikes for user (admin/moderator only)
    */
   app.delete(
     '/api/chat/moderation/clear-strikes/:userId',
-    { preHandler: requireAdmin },
+    { preHandler: requireAdminOrModerator },
     async (req, reply) => {
       try {
         const { userId } = req.params as { userId: string };
@@ -314,11 +314,11 @@ export default async function chatRoutes(app: FastifyInstance) {
 
   /**
    * GET /api/chat/moderation/history/:userId
-   * Get moderation history for user (admin only)
+   * Get moderation history for user (admin/moderator only)
    */
   app.get(
     '/api/chat/moderation/history/:userId',
-    { preHandler: requireAdmin },
+    { preHandler: requireAdminOrModerator },
     async (req, reply) => {
       try {
         const { userId } = req.params as { userId: string };
@@ -343,11 +343,11 @@ export default async function chatRoutes(app: FastifyInstance) {
 
   /**
    * DELETE /api/chat/messages/:messageId
-   * Delete a message (admin only)
+   * Delete a message (admin/moderator only)
    */
   app.delete(
     '/api/chat/messages/:messageId',
-    { preHandler: requireAdmin },
+    { preHandler: requireAdminOrModerator },
     async (req, reply) => {
       try {
         const { messageId } = req.params as { messageId: string };

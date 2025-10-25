@@ -18,6 +18,7 @@ export function BadgeAdmin() {
   const [selectedBadge, setSelectedBadge] = useState<string>('');
   const [targetUser, setTargetUser] = useState('');
   const [activeTab, setActiveTab] = useState<'badges' | 'award' | 'stats'>('badges');
+  const [message, setMessage] = useState<string>('');
 
   // API hooks
   const { data: badgesData, isLoading: badgesLoading, error: badgesError } = useBadges();
@@ -29,7 +30,7 @@ export function BadgeAdmin() {
 
   const handleAwardBadge = async () => {
     if (!selectedBadge || !targetUser.trim()) return;
-    
+
     try {
       await awardBadge.mutateAsync({
         badgeId: selectedBadge,
@@ -37,8 +38,12 @@ export function BadgeAdmin() {
       });
       setTargetUser('');
       setSelectedBadge('');
+      setMessage('✅ Badge awarded successfully!');
+      setTimeout(() => setMessage(''), 5000);
     } catch (error) {
       console.error('Failed to award badge:', error);
+      setMessage('❌ Failed to award badge. Please try again.');
+      setTimeout(() => setMessage(''), 5000);
     }
   };
 
@@ -108,7 +113,7 @@ export function BadgeAdmin() {
       {activeTab === 'badges' && (
         <div className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {badgesData?.badges?.map((badge) => (
+            {badgesData?.badges?.map((badge: BadgeType) => (
               <div
                 key={badge.id}
                 className="bg-pipe-50 rounded-lg p-4 border-2 border-pipe-200 hover:border-pipe-300 transition-colors"
@@ -149,7 +154,7 @@ export function BadgeAdmin() {
                            focus:border-mario-red-500 focus:outline-none"
                 >
                   <option value="">Choose a badge...</option>
-                  {badgesData?.badges?.map((badge) => (
+                  {badgesData?.badges?.map((badge: BadgeType) => (
                     <option key={badge.id} value={badge.id}>
                       {badge.icon} {badge.name} ({badge.rarity})
                     </option>
@@ -175,7 +180,7 @@ export function BadgeAdmin() {
                 <div className="bg-[var(--card)] rounded-lg p-4 border-2 border-pipe-300">
                   <div className="flex items-center gap-3">
                     {(() => {
-                      const badge = badgesData?.badges?.find(b => b.id === selectedBadge);
+                      const badge = badgesData?.badges?.find((b: BadgeType) => b.id === selectedBadge);
                       return badge ? (
                         <>
                           <Badge badge={badge} size="lg" />
@@ -241,10 +246,10 @@ export function BadgeAdmin() {
                     <div className="w-32 bg-pipe-200 rounded-full h-2">
                       <div 
                         className="bg-mario-red-500 h-2 rounded-full" 
-                        style={{ width: `${(count / Math.max(...Object.values(stats.badgesByRarity))) * 100}%` }}
+                        style={{ width: `${(count as number / Math.max(...(Object.values(statsData.stats.badgesByRarity) as number[]))) * 100}%` }}
                       ></div>
                     </div>
-                    <span className="text-sm text-pipe-600">{count} badges</span>
+                    <span className="text-sm text-pipe-600">{count as number} badges</span>
                   </div>
                 </div>
               ))}
@@ -262,10 +267,10 @@ export function BadgeAdmin() {
                     <div className="w-32 bg-pipe-200 rounded-full h-2">
                       <div 
                         className="bg-star-yellow-500 h-2 rounded-full" 
-                        style={{ width: `${(count / Math.max(...Object.values(stats.badgesByCategory))) * 100}%` }}
+                        style={{ width: `${(count as number / Math.max(...(Object.values(statsData.stats.badgesByCategory) as number[]))) * 100}%` }}
                       ></div>
                     </div>
-                    <span className="text-sm text-pipe-600">{count} badges</span>
+                    <span className="text-sm text-pipe-600">{count as number} badges</span>
                   </div>
                 </div>
               ))}
@@ -276,7 +281,7 @@ export function BadgeAdmin() {
           <div className="bg-pipe-50 rounded-lg p-4 border-2 border-pipe-200">
             <h3 className="font-mario text-lg text-pipe-800 mb-4">🆕 Recent Badges</h3>
             <div className="space-y-2">
-              {stats.recentBadges.map((userBadge) => (
+              {statsData.stats.recentBadges.map((userBadge: UserBadge) => (
                 <div key={userBadge.id} className="flex items-center gap-3">
                   <Badge badge={userBadge.badge} size="sm" />
                   <div className="flex-1">
