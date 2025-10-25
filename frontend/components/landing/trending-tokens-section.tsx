@@ -66,7 +66,7 @@ export function TrendingTokensSection() {
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1 }}
               >
-                <div className="bg-white rounded-2xl border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] p-6 h-full">
+                <div className="bg-[var(--card)] rounded-[24px] border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] p-6 h-full">
                   <div className="space-y-4">
                     <div className="flex items-center gap-3">
                       <div className="h-12 w-12 rounded-full bg-muted animate-pulse border-2 border-[var(--outline-black)]" />
@@ -98,7 +98,7 @@ export function TrendingTokensSection() {
                 transition={{ delay: index * 0.1 }}
               >
                 <Link href={`/trade?token=${token.mint}`}>
-                  <div className="bg-white rounded-2xl border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] p-6 hover:shadow-[8px_8px_0_var(--outline-black)] hover:-translate-y-1 transition-all duration-300 cursor-pointer h-full">
+                  <div className="bg-[var(--card)] rounded-[24px] border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] p-6 hover:shadow-[8px_8px_0_var(--outline-black)] hover:-translate-y-1 transition-all duration-300 cursor-pointer h-full">
                     <div className="space-y-4">
                       <div className="flex items-center gap-3">
                         <div className="relative h-12 w-12 rounded-full overflow-hidden bg-muted border-2 border-[var(--outline-black)]">
@@ -197,7 +197,7 @@ export function TrendingTokensSection() {
                       </div>
                     </div>
 
-                    <button className="w-full bg-[var(--luigi-green)] hover:bg-[var(--luigi-green)]/90 text-white font-mario text-base px-6 py-3 rounded-xl border-3 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)] hover:shadow-[6px_6px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all duration-200">
+                    <button className="w-full bg-[var(--luigi-green)] hover:bg-[var(--luigi-green)]/90 text-white font-mario text-base px-6 py-3 rounded-[16px] border-4 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)] hover:shadow-[6px_6px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all duration-200">
                       <span className="flex items-center justify-center gap-2">
                         Trade Now!
                         <Image
@@ -231,7 +231,7 @@ export function TrendingTokensSection() {
           viewport={{ once: true }}
         >
           <Link href="/trade">
-            <button className="bg-[var(--star-yellow)] hover:bg-[var(--star-yellow)]/90 text-black font-mario text-lg px-8 py-4 rounded-xl border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] hover:shadow-[8px_8px_0_var(--outline-black)] hover:-translate-y-1 transition-all duration-200">
+            <button className="bg-[var(--star-yellow)] hover:bg-[var(--star-yellow)]/90 text-black font-mario text-lg px-8 py-4 rounded-[16px] border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] hover:shadow-[8px_8px_0_var(--outline-black)] hover:-translate-y-1 transition-all duration-200">
               <span className="flex items-center justify-center gap-2">
                 View All Tokens
                 <Image

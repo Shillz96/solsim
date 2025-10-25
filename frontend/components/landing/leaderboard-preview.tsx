@@ -85,7 +85,7 @@ export function LeaderboardPreview() {
           viewport={{ once: true }}
           transition={{ delay: 0.2 }}
         >
-          <div className="mario-card max-w-4xl mx-auto bg-card border-4 border-mario-yellow overflow-hidden">
+          <div className="mario-card max-w-4xl mx-auto bg-[var(--card)] border-4 border-[var(--star-yellow)] overflow-hidden shadow-[6px_6px_0_var(--outline-black)]">
             {isLoading ? (
               <div className="py-12 text-center">
                 <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-foreground"></div>
@@ -94,7 +94,7 @@ export function LeaderboardPreview() {
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full">
-                  <thead className="bg-gradient-to-r from-mario-red via-mario-yellow to-mario-green">
+                  <thead className="bg-gradient-to-r from-[var(--mario-red)] via-[var(--star-yellow)] to-[var(--luigi-green)]">
                     <tr>
                       <th className="px-6 py-4 text-left text-sm font-mario text-white">Rank</th>
                       <th className="px-6 py-4 text-left text-sm font-mario text-white">Trader</th>
@@ -155,7 +155,7 @@ export function LeaderboardPreview() {
           transition={{ delay: 0.4 }}
         >
           <Link href="/leaderboard">
-            <button className="mario-btn mario-btn-lg bg-white text-mario-red hover:bg-white/90 border-3 border-white group">
+            <button className="mario-btn mario-btn-lg bg-[var(--card)] text-[var(--mario-red)] hover:bg-[var(--card)]/90 border-4 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)] hover:shadow-[6px_6px_0_var(--outline-black)] hover:-translate-y-1 group">
               <span className="flex items-center justify-center gap-2">
                 View Full Leaderboard 🏆
                 <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />

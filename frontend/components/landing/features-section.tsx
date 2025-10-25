@@ -96,7 +96,7 @@ export function FeaturesSection() {
               viewport={{ once: true }}
               transition={{ delay: index * 0.05, duration: 0.4 }}
             >
-              <div className="mario-card p-6 bg-gradient-to-br from-white/90 to-white/70 border-3 border-mario-yellow/40 hover:border-mario-yellow transition-all duration-300 group h-full">
+              <div className="mario-card p-6 bg-[var(--card)] border-4 border-[var(--outline-black)] hover:border-[var(--star-yellow)] transition-all duration-300 group h-full">
                 <div className="space-y-4">
                   <div className="group-hover:scale-110 transition-transform duration-300">
                     <Image src={feature.iconSrc} alt="" width={50} height={50} className="object-contain" />

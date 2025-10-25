@@ -19,13 +19,16 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Loader2, Send, Users, AlertCircle, Wifi, WifiOff } from 'lucide-react'
 import { cn, marioStyles } from '@/lib/utils'
+import Image from 'next/image'
 
 interface ChatRoomProps {
   tokenMint: string
   className?: string
+  headerImage?: string
+  headerImageAlt?: string
 }
 
-export function ChatRoom({ tokenMint, className }: ChatRoomProps) {
+export function ChatRoom({ tokenMint, className, headerImage, headerImageAlt = 'Chat Header' }: ChatRoomProps) {
   const { user } = useAuth()
   const {
     messages,
@@ -92,15 +95,28 @@ export function ChatRoom({ tokenMint, className }: ChatRoomProps) {
       <div className={cn(
         marioStyles.headerGradient('var(--luigi-green)', 'emerald-500')
       )}>
-        <div className="flex items-center gap-3">
-          <div className={cn(marioStyles.iconContainer('md', 'white'), 'text-xl')}>
-            💬
-          </div>
-          <div>
-            <div className={marioStyles.heading(4)}>Chat Room</div>
-            <div className={cn(marioStyles.bodyText('bold'), 'text-xs text-white/90 flex items-center gap-1.5')}>
-              <Users className="h-3.5 w-3.5" />
-              <span>{participantCount > 0 ? `${participantCount} online` : 'Loading...'}</span>
+        <div className="flex items-center gap-3 flex-1">
+          {headerImage ? (
+            <div className="relative h-12 w-auto">
+              <Image
+                src={headerImage}
+                alt={headerImageAlt}
+                width={200}
+                height={48}
+                className="object-contain h-12 w-auto"
+                priority
+              />
+            </div>
+          ) : (
+            <div className={cn(marioStyles.iconContainer('md', 'white'), 'text-2xl h-12 w-12 rounded-xl')}>
+              💬
+            </div>
+          )}
+          <div className="flex-1">
+            <div className="font-mario font-bold text-2xl text-white drop-shadow-[2px_2px_0_rgba(0,0,0,0.3)]">COMMUNITY CHAT</div>
+            <div className={cn(marioStyles.bodyText('bold'), 'text-sm text-white/90 flex items-center gap-2')}>
+              <Users className="h-4 w-4" />
+              <span>{participantCount > 0 ? `${participantCount} online` : 'Connect with traders & get help'}</span>
             </div>
           </div>
         </div>

@@ -41,15 +41,15 @@ const steps = [
 export function HowItWorksSection() {
   // Colorful icon backgrounds to match "HOW IT WORKS" header
   const iconColors = [
-    'bg-mario-red-500',      // 1. Sign up - Red
-    'bg-super-blue-500',     // 2. Explore - Blue
-    'bg-luigi-green-500',    // 3. Trade - Green
-    'bg-mario-yellow-500',   // 4. Level up - Yellow
-    'bg-super-blue-500',     // 5. Compete - Blue
+    'bg-[var(--mario-red)]',      // 1. Sign up - Red
+    'bg-[var(--super-blue)]',     // 2. Explore - Blue
+    'bg-[var(--luigi-green)]',    // 3. Trade - Green
+    'bg-[var(--star-yellow)]',    // 4. Level up - Yellow
+    'bg-[var(--super-blue)]',     // 5. Compete - Blue
   ]
 
   return (
-    <section className="py-20 md:py-32 bg-gradient-to-b from-[var(--mario-yellow)]/10 via-[var(--super-blue)]/5 to-background border-t-4 border-[var(--mario-yellow)]/30">
+    <section className="py-20 md:py-32 bg-gradient-to-b from-[var(--star-yellow)]/10 via-[var(--super-blue)]/5 to-background border-t-4 border-[var(--star-yellow)]/30">
       <div className="container mx-auto px-4">
         <div className="text-center space-y-4 mb-16">
           {/* Mario header */}
@@ -85,10 +85,10 @@ export function HowItWorksSection() {
                 <div className="flex flex-col items-center text-center space-y-4">
                   {/* Step icon */}
                   <div className="relative">
-                    <div className={`h-20 w-20 rounded-lg ${iconColors[index]} border-4 border-[var(--outline-black)] flex items-center justify-center hover:scale-110 transition-all`} style={{ boxShadow: '6px 6px 0 var(--outline-black)' }}>
+                    <div className={`h-20 w-20 rounded-[12px] ${iconColors[index]} border-4 border-[var(--outline-black)] flex items-center justify-center hover:scale-110 transition-all shadow-[6px_6px_0_var(--outline-black)]`}>
                       <Image src={step.iconSrc} alt="" width={40} height={40} className="object-contain" />
                     </div>
-                    <div className="absolute -top-2 -right-2 h-10 w-10 rounded-full bg-[var(--mario-red)] text-white border-3 border-[var(--outline-black)] flex items-center justify-center text-lg font-mario" style={{ boxShadow: '4px 4px 0 var(--outline-black)' }}>
+                    <div className="absolute -top-2 -right-2 h-10 w-10 rounded-full bg-[var(--mario-red)] text-white border-4 border-[var(--outline-black)] flex items-center justify-center text-lg font-mario shadow-[4px_4px_0_var(--outline-black)]">
                       {index + 1}
                     </div>
                   </div>

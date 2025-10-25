@@ -38,9 +38,9 @@ export function RewardsSection() {
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
         >
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-4">
-            <Gift className="h-5 w-5 text-primary" />
-            <span className="text-sm font-semibold text-primary">Earn $vSOL Tokens</span>
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--star-yellow)]/20 border-4 border-[var(--star-yellow)]/50 mb-4">
+            <Gift className="h-5 w-5 text-[var(--star-yellow)]" />
+            <span className="text-sm font-bold text-[var(--outline-black)]">Earn $vSOL Tokens</span>
           </div>
           <h2 className="font-heading text-4xl md:text-5xl font-bold text-balance">
             Earn $vSOL While You Trade
@@ -59,17 +59,17 @@ export function RewardsSection() {
               viewport={{ once: true }}
               transition={{ delay: index * 0.1, duration: 0.5 }}
             >
-              <EnhancedCard className="p-6 bg-card hover:border-primary/50 transition-all duration-300 group h-full shadow-md hover:shadow-lg">
+              <div className="mario-card p-6 bg-[var(--card)] border-4 border-[var(--outline-black)] hover:border-[var(--coin-gold)] transition-all duration-300 group h-full shadow-[6px_6px_0_var(--outline-black)] hover:shadow-[8px_8px_0_var(--outline-black)] hover:-translate-y-1">
                 <div className="space-y-4">
-                  <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center group-hover:scale-110 group-hover:bg-primary/20 transition-all duration-300">
-                    <reward.icon className="h-6 w-6 text-primary" />
+                  <div className="h-12 w-12 rounded-full bg-[var(--coin-gold)]/20 border-4 border-[var(--outline-black)] flex items-center justify-center group-hover:scale-110 group-hover:bg-[var(--coin-gold)]/30 transition-all duration-300">
+                    <reward.icon className="h-6 w-6 text-[var(--coin-gold)]" />
                   </div>
                   <div className="space-y-2">
-                    <h3 className="font-heading text-xl font-bold">{reward.title}</h3>
-                    <p className="text-base text-muted-foreground leading-relaxed">{reward.description}</p>
+                    <h3 className="font-mario text-xl text-[var(--mario-red)]">{reward.title}</h3>
+                    <p className="text-base text-[var(--outline-black)]/70 leading-relaxed">{reward.description}</p>
                   </div>
                 </div>
-              </EnhancedCard>
+              </div>
             </motion.div>
           ))}
         </div>
@@ -81,30 +81,30 @@ export function RewardsSection() {
           viewport={{ once: true }}
           transition={{ delay: 0.4, duration: 0.6 }}
         >
-          <EnhancedCard className="max-w-4xl mx-auto p-8 bg-gradient-to-br from-primary/5 via-primary/10 to-primary/5 border-4 border-primary/30 shadow-md">
+          <div className="mario-card max-w-4xl mx-auto p-8 bg-gradient-to-br from-[var(--coin-gold)]/10 via-[var(--star-yellow)]/10 to-[var(--coin-gold)]/10 border-4 border-[var(--coin-gold)]/60 shadow-[6px_6px_0_var(--outline-black)]">
             <div className="text-center space-y-4">
-              <div className="inline-flex h-16 w-16 rounded-full bg-primary/20 items-center justify-center mb-2">
-                <Gift className="h-8 w-8 text-primary" />
+              <div className="inline-flex h-16 w-16 rounded-full bg-[var(--coin-gold)]/30 border-4 border-[var(--outline-black)] items-center justify-center mb-2">
+                <Gift className="h-8 w-8 text-[var(--coin-gold)]" />
               </div>
-              <h3 className="font-heading text-2xl md:text-3xl font-bold">
+              <h3 className="font-mario text-2xl md:text-3xl text-[var(--outline-black)]">
                 How $vSOL Rewards Work
               </h3>
-              <div className="space-y-3 text-base md:text-lg text-muted-foreground max-w-2xl mx-auto">
+              <div className="space-y-3 text-base md:text-lg text-[var(--outline-black)] max-w-2xl mx-auto">
                 <p>
-                  <span className="font-semibold text-foreground">Trade to earn $vSOL.</span> Every trade you make earns you $vSOL tokens. Higher trading volume = higher rewards.
+                  <span className="font-bold text-[var(--luigi-green)]">Trade to earn $vSOL.</span> Every trade you make earns you $vSOL tokens. Higher trading volume = higher rewards.
                 </p>
                 <p>
-                  <span className="font-semibold text-foreground">Hold $vSOL to boost earnings.</span> Holding $vSOL tokens increases your reward multiplier, earning you even more $vSOL from your trades.
+                  <span className="font-bold text-[var(--super-blue)]">Hold $vSOL to boost earnings.</span> Holding $vSOL tokens increases your reward multiplier, earning you even more $vSOL from your trades.
                 </p>
                 <p>
-                  <span className="font-semibold text-foreground">Climb the leaderboard.</span> Top traders receive exclusive $vSOL airdrops and premium multipliers.
+                  <span className="font-bold text-[var(--mario-red)]">Climb the leaderboard.</span> Top traders receive exclusive $vSOL airdrops and premium multipliers.
                 </p>
                 <p className="pt-2 border-t border-primary/20">
                   <span className="font-semibold text-primary text-lg">The more you trade and hold, the more $vSOL you claim!</span>
                 </p>
               </div>
             </div>
-          </EnhancedCard>
+          </div>
         </motion.div>
       </div>
     </section>

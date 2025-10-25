@@ -50,8 +50,8 @@ export function LevelUpSection() {
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
         >
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-[var(--mario-yellow)]/20 to-[var(--mario-orange)]/20 border-2 border-[var(--mario-yellow)]/50 mb-4">
-            <Star className="h-5 w-5 text-[var(--mario-yellow)] animate-pulse" />
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-[var(--star-yellow)]/20 to-[var(--mario-red)]/20 border-4 border-[var(--star-yellow)]/50 mb-4">
+            <Star className="h-5 w-5 text-[var(--star-yellow)] animate-pulse" />
             <span className="text-sm font-bold text-foreground">Level Up System</span>
           </div>
 
@@ -147,7 +147,7 @@ export function LevelUpSection() {
           viewport={{ once: true }}
           transition={{ delay: 0.4, duration: 0.6 }}
         >
-          <div className="max-w-4xl mx-auto mario-card p-8 bg-gradient-to-br from-[var(--mario-yellow)]/10 via-[var(--mario-orange)]/10 to-[var(--mario-red)]/10 border-4 border-[var(--mario-yellow)]/60">
+          <div className="max-w-4xl mx-auto mario-card p-8 bg-gradient-to-br from-[var(--star-yellow)]/10 via-[var(--mario-red)]/10 to-[var(--mario-red)]/10 border-4 border-[var(--star-yellow)]/60">
             <div className="text-center space-y-4">
               <div className="mb-4">
                 <img src="/icons/mario/controller.png" alt="" className="w-16 h-16 object-contain mx-auto" />
@@ -165,7 +165,7 @@ export function LevelUpSection() {
                 <p>
                   <span className="font-bold text-[var(--luigi-green)]">3. Dominate the Leaderboard:</span> Reach Top 100 for +200 XP, Top 10 for +1,500 XP, or #1 for a whopping +5,000 XP!
                 </p>
-                <p className="pt-4 border-t-2 border-[var(--mario-yellow)]/50">
+                <p className="pt-4 border-t-4 border-[var(--star-yellow)]/50">
                   <span className="font-mario text-xl text-[var(--mario-red)] flex items-center justify-center gap-2" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.3)' }}>
                     <img src="/icons/mario/mushroom.png" alt="" className="w-6 h-6 object-contain inline-block" />
                     From Goomba to Legend - Start Your Journey Today!
