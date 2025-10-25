@@ -7,13 +7,11 @@
 
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { cn } from "@/lib/utils"
 import { TokenCard, TokenCardSkeleton } from "./token-card"
 import { FilterPanel } from "./filter-panel"
 import type { TokenRow, AdvancedFilters } from "@/lib/types/warp-pipes"
-import { getDefaultFilters } from "@/lib/warp-pipes-filter-presets"
-// Removed duplicate filter management - handled by parent component
 import Image from "next/image"
 
 interface TokenColumnProps {
@@ -39,35 +37,24 @@ export function TokenColumn({
 }: TokenColumnProps) {
   const [filtersOpen, setFiltersOpen] = useState(false)
 
-  const handleFiltersChange = (newFilters: AdvancedFilters) => {
-    onFiltersChange(newFilters)
-  }
-
-  const handleApplyFilters = () => {
-    // Filters are already applied through onFiltersChange
-    setFiltersOpen(false)
-  }
-
-  // Header colors based on column type
-  const headerColors = {
-    bonded: "bg-gradient-to-br from-[var(--coin-gold)] to-[var(--coin-yellow)] text-[var(--outline-black)]", // Gold/Yellow gradient
-    graduating: "bg-gradient-to-br from-[var(--star-yellow)] to-amber-400 text-[var(--outline-black)]", // Bright Yellow gradient
-    new: "bg-gradient-to-br from-[var(--luigi-green)] to-emerald-500 text-white", // Green gradient
-  }
-
-  // Body background colors based on column type
-  const bodyColors = {
-    bonded: "bg-gradient-to-b from-amber-50/30 to-white", // Subtle gold tint
-    graduating: "bg-gradient-to-b from-yellow-50/30 to-white", // Subtle yellow tint
-    new: "bg-gradient-to-b from-green-50/30 to-white", // Subtle green tint
-  }
-
-  // Header images based on column type
-  const headerImages = {
-    bonded: "/bonded-10-23-2025.png",
-    graduating: "/About-to-Graduate-10-23-2025.png",
-    new: "/New-Pairs-10-23-2025.png",
-  }
+  // Consolidated theme configuration
+  const theme = {
+    bonded: {
+      header: "bg-gradient-to-br from-[var(--coin-gold)] to-[var(--coin-yellow)] text-[var(--outline-black)]",
+      body: "bg-gradient-to-b from-amber-50/30 to-white",
+      image: "/bonded-10-23-2025.png",
+    },
+    graduating: {
+      header: "bg-gradient-to-br from-[var(--star-yellow)] to-amber-400 text-[var(--outline-black)]",
+      body: "bg-gradient-to-b from-yellow-50/30 to-white",
+      image: "/About-to-Graduate-10-23-2025.png",
+    },
+    new: {
+      header: "bg-gradient-to-br from-[var(--luigi-green)] to-emerald-500 text-white",
+      body: "bg-gradient-to-b from-green-50/30 to-white",
+      image: "/New-Pairs-10-23-2025.png",
+    },
+  }[headerColor]
 
   return (
     <div className={cn("flex flex-col h-full min-h-0", className)}>
@@ -78,12 +65,12 @@ export function TokenColumn({
           className={cn(
             "p-4 flex-shrink-0 text-center border-b-4 border-[var(--outline-black)]",
             "flex items-center justify-center",
-            headerColors[headerColor]
+            theme.header
           )}
         >
           <div className="relative">
             <Image
-              src={headerImages[headerColor]}
+              src={theme.image}
               alt={title}
               width={400}
               height={80}
@@ -98,17 +85,14 @@ export function TokenColumn({
         </div>
 
         {/* Filter Panel - Modal Trigger */}
-        <div className={cn(
-          "px-3 pt-3 pb-3 flex-shrink-0",
-          bodyColors[headerColor]
-        )}>
+        <div className={cn("px-3 pt-3 pb-3 flex-shrink-0", theme.body)}>
           <FilterPanel
             filters={filters}
-            onFiltersChange={handleFiltersChange}
+            onFiltersChange={onFiltersChange}
             category={headerColor}
             isOpen={filtersOpen}
             onToggle={() => setFiltersOpen(!filtersOpen)}
-            onApply={handleApplyFilters}
+            onApply={() => setFiltersOpen(false)}
             headerColor={headerColor}
           />
         </div>
@@ -117,8 +101,8 @@ export function TokenColumn({
         <div
           className={cn(
             "flex-1 overflow-y-auto p-3 pt-0 space-y-3 min-h-0",
-            "scrollbar-none", // Hide scrollbars while maintaining scroll functionality
-            bodyColors[headerColor]
+            "scrollbar-none",
+            theme.body
           )}
         >
         {/* Loading State */}

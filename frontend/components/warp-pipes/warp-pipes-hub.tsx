@@ -32,19 +32,13 @@ function loadFilters(key: string, category: 'new' | 'graduating' | 'bonded'): Ad
     const stored = localStorage.getItem(key)
     if (stored) {
       const parsed = JSON.parse(stored)
-      // Validate that parsed data is a valid AdvancedFilters object
       if (parsed && typeof parsed === 'object') {
         return parsed
       }
     }
   } catch (error) {
-    console.warn(`Failed to load filters from ${key}:`, error)
-    // Clear corrupted data
-    try {
-      localStorage.removeItem(key)
-    } catch (clearError) {
-      console.warn(`Failed to clear corrupted filters from ${key}:`, clearError)
-    }
+    console.warn(`Failed to load filters from ${key}`)
+    localStorage.removeItem(key)
   }
   
   return getDefaultFilters(category)
@@ -55,15 +49,13 @@ function saveFilters(key: string, filters: AdvancedFilters) {
   if (typeof window === 'undefined') return
   
   try {
-    // Only save if filters have actual values (not just empty object)
     if (filters && Object.keys(filters).length > 0) {
       localStorage.setItem(key, JSON.stringify(filters))
     } else {
-      // Remove empty filters from storage
       localStorage.removeItem(key)
     }
   } catch (error) {
-    console.warn(`Failed to save filters to ${key}:`, error)
+    console.warn(`Failed to save filters to ${key}`)
   }
 }
 
@@ -86,42 +78,18 @@ export function WarpPipesHub() {
 
   // Save filters to localStorage whenever they change (but only after initial load)
   useEffect(() => {
-    if (isFiltersLoaded) {
-      saveFilters(STORAGE_KEYS.NEW, newFilters)
-    }
-  }, [newFilters, isFiltersLoaded])
-
-  useEffect(() => {
-    if (isFiltersLoaded) {
-      saveFilters(STORAGE_KEYS.GRADUATING, graduatingFilters)
-    }
-  }, [graduatingFilters, isFiltersLoaded])
-
-  useEffect(() => {
-    if (isFiltersLoaded) {
-      saveFilters(STORAGE_KEYS.BONDED, bondedFilters)
-    }
-  }, [bondedFilters, isFiltersLoaded])
+    if (!isFiltersLoaded) return
+    
+    saveFilters(STORAGE_KEYS.NEW, newFilters)
+    saveFilters(STORAGE_KEYS.GRADUATING, graduatingFilters)
+    saveFilters(STORAGE_KEYS.BONDED, bondedFilters)
+  }, [newFilters, graduatingFilters, bondedFilters, isFiltersLoaded])
 
   // Fetch feed data - filters are applied per-column on the client side
   const { data, isLoading, error, refetch } = useWarpPipesFeed({
     searchQuery: "",
     sortBy: "volume",
-    // Don't apply filters here - they're applied per-column in client-side filtering
   })
-
-  // Debug feed state
-  useEffect(() => {
-    console.log('🔮 [WARP PIPES DEBUG] Feed state:', {
-      isLoading,
-      hasError: !!error,
-      errorMessage: error?.message,
-      hasData: !!data,
-      newCount: data?.new?.length || 0,
-      graduatingCount: data?.graduating?.length || 0,
-      bondedCount: data?.bonded?.length || 0
-    });
-  }, [isLoading, error, data]);
 
   // Watch mutations
   const addWatch = useAddTokenWatch()

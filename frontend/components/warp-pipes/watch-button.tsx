@@ -16,104 +16,22 @@ import { motion } from "framer-motion"
 interface WatchButtonProps {
   mint: string
   isWatched: boolean
-  watcherCount: number
+  watcherCount?: number
   onToggle: (mint: string, isWatched: boolean) => Promise<void>
   className?: string
   size?: "sm" | "md" | "lg"
+  compact?: boolean
 }
 
-export function WatchButton({
-  mint,
-  isWatched,
-  watcherCount,
-  onToggle,
-  className,
-  size = "md",
-}: WatchButtonProps) {
-  const [isLoading, setIsLoading] = useState(false)
-  const [isWatchedState, setIsWatchedState] = useState(isWatched)
-
-  const handleToggle = async (e: React.MouseEvent) => {
-    e.preventDefault() // Prevent navigation if inside a Link
-    e.stopPropagation()
-
-    setIsLoading(true)
-    try {
-      await onToggle(mint, isWatchedState)
-      setIsWatchedState(!isWatchedState)
-    } catch (error) {
-      console.error("Failed to toggle watch:", error)
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  const sizes = {
-    sm: "h-7 w-7",
-    md: "h-8 w-8",
-    lg: "h-10 w-10",
-  }
-
-  const iconSizes = {
-    sm: "h-3 w-3",
-    md: "h-4 w-4",
-    lg: "h-5 w-5",
-  }
-
-  return (
-    <div className="flex items-center gap-1.5">
-      <Button
-        variant="outline"
-        size="icon"
-        onClick={handleToggle}
-        disabled={isLoading}
-        className={cn(
-          sizes[size],
-          "border-3 rounded-[10px] transition-all duration-200 shadow-[2px_2px_0_var(--outline-black)]",
-          isWatchedState
-            ? "bg-[var(--mario-red)] border-[var(--outline-black)] text-white hover:bg-[var(--mario-red)] hover:-translate-y-[1px] hover:shadow-[3px_3px_0_var(--outline-black)]"
-            : "bg-[var(--card)] border-[var(--outline-black)] text-[var(--outline-black)] hover:bg-[var(--background)] hover:-translate-y-[1px]",
-          className
-        )}
-        title={isWatchedState ? "Remove from watchlist" : "Add to watchlist"}
-      >
-        <motion.div
-          initial={false}
-          animate={{
-            scale: isWatchedState ? [1, 1.3, 1] : 1,
-          }}
-          transition={{ duration: 0.3 }}
-        >
-          <Heart
-            className={cn(
-              iconSizes[size],
-              isWatchedState ? "fill-current" : ""
-            )}
-          />
-        </motion.div>
-      </Button>
-
-      {/* Watcher Count */}
-      {watcherCount > 0 && (
-        <span className="text-xs font-mono font-bold text-[var(--outline-black)] bg-[var(--background)] px-2 py-0.5 rounded-[6px] border-2 border-[var(--outline-black)]">
-          {watcherCount}
-        </span>
-      )}
-    </div>
-  )
+const SIZE_CONFIG = {
+  sm: { container: "h-7 w-7", icon: "h-3 w-3" },
+  md: { container: "h-8 w-8", icon: "h-4 w-4" },
+  lg: { container: "h-10 w-10", icon: "h-5 w-5" },
 }
 
-/**
- * Compact Watch Button - Just the icon, no count
- */
-export function CompactWatchButton({
-  mint,
-  isWatched,
-  onToggle,
-  className,
-}: Omit<WatchButtonProps, "watcherCount" | "size">) {
+function useWatchToggle(mint: string, initialWatched: boolean, onToggle: WatchButtonProps['onToggle']) {
   const [isLoading, setIsLoading] = useState(false)
-  const [isWatchedState, setIsWatchedState] = useState(isWatched)
+  const [isWatchedState, setIsWatchedState] = useState(initialWatched)
 
   const handleToggle = async (e: React.MouseEvent) => {
     e.preventDefault()
@@ -130,33 +48,97 @@ export function CompactWatchButton({
     }
   }
 
-  return (
-    <button
-      onClick={handleToggle}
-      disabled={isLoading}
-      className={cn(
-        "p-2 rounded-[10px] border-3 transition-all duration-200 shadow-[2px_2px_0_var(--outline-black)]",
-        isWatchedState
-          ? "bg-[var(--mario-red)] border-[var(--outline-black)] text-white hover:bg-[var(--mario-red)] hover:-translate-y-[1px]"
-          : "bg-[var(--card)] border-[var(--outline-black)] text-[var(--outline-black)] hover:bg-[var(--background)] hover:-translate-y-[1px]",
-        className
-      )}
-      title={isWatchedState ? "Remove from watchlist" : "Add to watchlist"}
-    >
-      <motion.div
-        initial={false}
-        animate={{
-          scale: isWatchedState ? [1, 1.2, 1] : 1,
-        }}
-        transition={{ duration: 0.2 }}
+  return { isLoading, isWatchedState, handleToggle }
+}
+
+export function WatchButton({
+  mint,
+  isWatched,
+  watcherCount = 0,
+  onToggle,
+  className,
+  size = "md",
+  compact = false,
+}: WatchButtonProps) {
+  const { isLoading, isWatchedState, handleToggle } = useWatchToggle(mint, isWatched, onToggle)
+  const sizeConfig = SIZE_CONFIG[size]
+
+  if (compact) {
+    return (
+      <button
+        onClick={handleToggle}
+        disabled={isLoading}
+        className={cn(
+          "p-2 rounded-[10px] border-3 transition-all duration-200 shadow-[2px_2px_0_var(--outline-black)]",
+          isWatchedState
+            ? "bg-[var(--mario-red)] border-[var(--outline-black)] text-white hover:bg-[var(--mario-red)] hover:-translate-y-[1px]"
+            : "bg-[var(--card)] border-[var(--outline-black)] text-[var(--outline-black)] hover:bg-[var(--background)] hover:-translate-y-[1px]",
+          className
+        )}
+        title={isWatchedState ? "Remove from watchlist" : "Add to watchlist"}
       >
-        <Heart
-          className={cn(
-            "h-4 w-4",
-            isWatchedState ? "fill-current" : ""
-          )}
-        />
-      </motion.div>
-    </button>
+        <motion.div
+          initial={false}
+          animate={{ scale: isWatchedState ? [1, 1.2, 1] : 1 }}
+          transition={{ duration: 0.2 }}
+        >
+          <Heart className={cn("h-4 w-4", isWatchedState ? "fill-current" : "")} />
+        </motion.div>
+      </button>
+    )
+  }
+
+  return (
+    <div className="flex items-center gap-1.5">
+      <Button
+        variant="outline"
+        size="icon"
+        onClick={handleToggle}
+        disabled={isLoading}
+        className={cn(
+          sizeConfig.container,
+          "border-3 rounded-[10px] transition-all duration-200 shadow-[2px_2px_0_var(--outline-black)]",
+          isWatchedState
+            ? "bg-[var(--mario-red)] border-[var(--outline-black)] text-white hover:bg-[var(--mario-red)] hover:-translate-y-[1px] hover:shadow-[3px_3px_0_var(--outline-black)]"
+            : "bg-[var(--card)] border-[var(--outline-black)] text-[var(--outline-black)] hover:bg-[var(--background)] hover:-translate-y-[1px]",
+          className
+        )}
+        title={isWatchedState ? "Remove from watchlist" : "Add to watchlist"}
+      >
+        <motion.div
+          initial={false}
+          animate={{ scale: isWatchedState ? [1, 1.3, 1] : 1 }}
+          transition={{ duration: 0.3 }}
+        >
+          <Heart className={cn(sizeConfig.icon, isWatchedState ? "fill-current" : "")} />
+        </motion.div>
+      </Button>
+
+      {watcherCount > 0 && (
+        <span className="text-xs font-mono font-bold text-[var(--outline-black)] bg-[var(--background)] px-2 py-0.5 rounded-[6px] border-2 border-[var(--outline-black)]">
+          {watcherCount}
+        </span>
+      )}
+    </div>
+  )
+}
+
+/**
+ * Compact Watch Button - Deprecated: Use WatchButton with compact prop instead
+ */
+export function CompactWatchButton({
+  mint,
+  isWatched,
+  onToggle,
+  className,
+}: Omit<WatchButtonProps, "watcherCount" | "size" | "compact">) {
+  return (
+    <WatchButton 
+      mint={mint} 
+      isWatched={isWatched} 
+      onToggle={onToggle} 
+      className={className} 
+      compact 
+    />
   )
 }

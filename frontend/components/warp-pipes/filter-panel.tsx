@@ -61,56 +61,34 @@ export function FilterPanel({
   const [activeTab, setActiveTab] = useState<'audit' | 'metrics' | 'socials'>('audit')
   const [importError, setImportError] = useState<string | null>(null)
 
-  // Color-coded styling based on column type
-  const buttonColors = {
-    bonded: "bg-[var(--coin-yellow)] hover:bg-[var(--coin-yellow)]",
-    graduating: "bg-[var(--star-yellow)] hover:bg-[var(--star-yellow)]",
-    new: "bg-[var(--luigi-green)] hover:bg-[var(--luigi-green)]",
-  }
-
-  const textColors = {
-    bonded: "text-[var(--outline-black)]",
-    graduating: "text-[var(--outline-black)]",
-    new: "text-white",
-  }
-
-  const panelBgColors = {
-    bonded: "bg-[var(--coin-yellow)]/5",
-    graduating: "bg-[var(--star-yellow)]/5",
-    new: "bg-[var(--luigi-green)]/5",
-  }
+  // Consolidated color-coded styling based on column type
+  const colorTheme = {
+    bonded: {
+      button: "bg-[var(--coin-yellow)] hover:bg-[var(--coin-yellow)]",
+      text: "text-[var(--outline-black)]",
+      panelBg: "bg-[var(--coin-yellow)]/5",
+    },
+    graduating: {
+      button: "bg-[var(--star-yellow)] hover:bg-[var(--star-yellow)]",
+      text: "text-[var(--outline-black)]",
+      panelBg: "bg-[var(--star-yellow)]/5",
+    },
+    new: {
+      button: "bg-[var(--luigi-green)] hover:bg-[var(--luigi-green)]",
+      text: "text-white",
+      panelBg: "bg-[var(--luigi-green)]/5",
+    },
+  }[headerColor]
 
   // Count active filters for badge display
   const filterCounts = useMemo(() => {
-    const auditCount = [
-      filters.dexPaid,
-      filters.minAge,
-      filters.maxAge,
-      filters.maxTop10Holders,
-      filters.maxDevHolding,
-      filters.maxSnipers,
-    ].filter(Boolean).length
-
-    const metricsCount = [
-      filters.minLiquidityUsd,
-      filters.maxLiquidityUsd,
-      filters.minVolume24h,
-      filters.maxVolume24h,
-      filters.minMarketCap,
-      filters.maxMarketCap,
-    ].filter(Boolean).length
-
-    const socialsCount = [
-      filters.requireTwitter,
-      filters.requireTelegram,
-      filters.requireWebsite,
-    ].filter(Boolean).length
-
+    const countDefined = (...values: any[]) => values.filter(v => v !== undefined && v !== null && v !== false).length
+    
     return {
-      audit: auditCount,
-      metrics: metricsCount,
-      socials: socialsCount,
-      total: auditCount + metricsCount + socialsCount,
+      audit: countDefined(filters.dexPaid, filters.minAge, filters.maxAge, filters.maxTop10Holders, filters.maxDevHolding, filters.maxSnipers),
+      metrics: countDefined(filters.minLiquidityUsd, filters.maxLiquidityUsd, filters.minVolume24h, filters.maxVolume24h, filters.minMarketCap, filters.maxMarketCap),
+      socials: countDefined(filters.requireTwitter, filters.requireTelegram, filters.requireWebsite),
+      get total() { return this.audit + this.metrics + this.socials }
     }
   }, [filters])
 
@@ -167,8 +145,8 @@ export function FilterPanel({
             variant="outline"
             className={cn(
               "flex items-center gap-2 border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-[1px] transition-all duration-200 font-bold w-full justify-center relative",
-              buttonColors[headerColor],
-              textColors[headerColor]
+              colorTheme.button,
+              colorTheme.text
             )}
           >
             <Settings className="h-4 w-4" />
@@ -190,7 +168,7 @@ export function FilterPanel({
           </DialogHeader>
 
           <div className="overflow-y-auto max-h-[calc(90vh-200px)]">
-            <div className={cn("", panelBgColors[headerColor])}>
+            <div className={colorTheme.panelBg}>
               {/* Tabbed Interface */}
               <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as any)} className="w-full">
                 <TabsList className="mario-tabs-horizontal grid w-full grid-cols-3">
@@ -503,8 +481,8 @@ export function FilterPanel({
               }}
               className={cn(
                 "border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-[1px] transition-all duration-200 font-bold",
-                buttonColors[headerColor],
-                textColors[headerColor]
+                colorTheme.button,
+                colorTheme.text
               )}
             >
               Apply All

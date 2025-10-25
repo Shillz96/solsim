@@ -6,10 +6,8 @@
 
 "use client"
 
-import { useState } from "react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
 import { Search, TrendingUp, Clock, Heart, SortAsc } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -23,6 +21,13 @@ interface FilterBarProps {
   className?: string
 }
 
+const SORT_OPTIONS: { value: SortBy; label: string; icon: React.ReactNode }[] = [
+  { value: "hot", label: "🔥 Hot", icon: <TrendingUp className="h-4 w-4" /> },
+  { value: "new", label: "⏰ New", icon: <Clock className="h-4 w-4" /> },
+  { value: "watched", label: "❤️ Watched", icon: <Heart className="h-4 w-4" /> },
+  { value: "alphabetical", label: "🔤 A-Z", icon: <SortAsc className="h-4 w-4" /> },
+]
+
 export function FilterBar({
   searchQuery,
   sortBy,
@@ -30,13 +35,6 @@ export function FilterBar({
   onSortChange,
   className,
 }: FilterBarProps) {
-  const sortOptions: { value: SortBy; label: string; icon: React.ReactNode }[] = [
-    { value: "hot", label: "🔥 Hot", icon: <TrendingUp className="h-4 w-4" /> },
-    { value: "new", label: "⏰ New", icon: <Clock className="h-4 w-4" /> },
-    { value: "watched", label: "❤️ Watched", icon: <Heart className="h-4 w-4" /> },
-    { value: "alphabetical", label: "🔤 A-Z", icon: <SortAsc className="h-4 w-4" /> },
-  ]
-
   return (
     <div className={cn("flex flex-col sm:flex-row gap-3 p-4 bg-[var(--card)] rounded-[16px] border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)]", className)}>
       {/* Search Input */}
@@ -53,7 +51,7 @@ export function FilterBar({
 
       {/* Sort Buttons */}
       <div className="flex gap-2 flex-wrap">
-        {sortOptions.map((option) => (
+        {SORT_OPTIONS.map((option) => (
           <Button
             key={option.value}
             variant={sortBy === option.value ? "default" : "outline"}

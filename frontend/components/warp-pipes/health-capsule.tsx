@@ -16,60 +16,70 @@ interface HealthCapsuleProps {
   className?: string
 }
 
-/**
- * Get health level from liquidity
- */
-function getLiquidityHealth(liqUsd?: number | null): HealthLevel {
-  if (!liqUsd) return "red"
-  if (liqUsd >= 50000) return "green" // $50k+ = Luigi Green
-  if (liqUsd >= 10000) return "yellow" // $10k-$50k = Star Yellow
-  return "red" // <$10k = Mario Red
+// Consolidated health styling configuration
+const HEALTH_CONFIG = {
+  green: {
+    color: "bg-[var(--luigi-green)] text-white border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)]",
+    icon: "✅",
+    label: "Healthy"
+  },
+  yellow: {
+    color: "bg-[var(--star-yellow)] text-[var(--outline-black)] border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)]",
+    icon: "⚠️",
+    label: "Caution"
+  },
+  red: {
+    color: "bg-[var(--mario-red)] text-white border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)]",
+    icon: "🔥",
+    label: "Risky"
+  }
 }
 
 /**
- * Get health level from price impact
+ * Get health level based on value and thresholds
  */
-function getPriceImpactHealth(priceImpact?: number | null): HealthLevel {
-  if (!priceImpact) return "yellow"
-  if (priceImpact <= 1) return "green" // <1% = Safe
-  if (priceImpact <= 5) return "yellow" // 1-5% = Caution
-  return "red" // >5% = Danger
+function getHealthLevel(
+  value: number | null | undefined,
+  thresholds: { green: number; yellow: number },
+  inverted = false
+): HealthLevel {
+  if (value == null) return "yellow"
+  
+  if (inverted) {
+    // For metrics where lower is better (e.g., price impact)
+    if (value <= thresholds.green) return "green"
+    if (value <= thresholds.yellow) return "yellow"
+    return "red"
+  } else {
+    // For metrics where higher is better (e.g., liquidity)
+    if (value >= thresholds.green) return "green"
+    if (value >= thresholds.yellow) return "yellow"
+    return "red"
+  }
 }
 
 /**
  * Get security health from freeze/mint status
  */
 function getSecurityHealth(freezeRevoked?: boolean | null, mintRenounced?: boolean | null): HealthLevel {
-  if (freezeRevoked && mintRenounced) return "green" // Both revoked = Safe
-  if (freezeRevoked || mintRenounced) return "yellow" // One revoked = Caution
-  return "red" // Neither revoked = Danger
+  if (freezeRevoked && mintRenounced) return "green"
+  if (freezeRevoked || mintRenounced) return "yellow"
+  return "red"
+}
+
+/**
+ * Calculate overall health level (worst of all checks)
+ */
+function getOverallHealth(...levels: HealthLevel[]): HealthLevel {
+  if (levels.includes("red")) return "red"
+  if (levels.includes("yellow")) return "yellow"
+  return "green"
 }
 
 export function HealthCapsule({ token, className }: HealthCapsuleProps) {
-  const liquidityHealth = getLiquidityHealth(token.liqUsd ?? undefined)
-  const priceImpactHealth = getPriceImpactHealth(token.priceImpactPctAt1pct ?? undefined)
-  const securityHealth = getSecurityHealth(token.freezeRevoked ?? undefined, token.mintRenounced ?? undefined)
-
-  // Overall health = worst of the three
-  const overall: HealthLevel =
-    [liquidityHealth, priceImpactHealth, securityHealth].includes("red")
-      ? "red"
-      : [liquidityHealth, priceImpactHealth, securityHealth].includes("yellow")
-        ? "yellow"
-        : "green"
-
-  // Mario-themed color classes
-  const healthColors = {
-    green: "bg-[var(--luigi-green)] text-white border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)]", // Luigi Green
-    yellow: "bg-[var(--star-yellow)] text-[var(--outline-black)] border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)]", // Star Yellow
-    red: "bg-[var(--mario-red)] text-white border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)]", // Mario Red
-  }
-
-  const healthIcons = {
-    green: "✅", // 1-Up Mushroom
-    yellow: "⚠️", // ? Block
-    red: "🔥", // Bowser/Danger
-  }
+  const liquidityHealth = getHealthLevel(token.liqUsd, { green: 50000, yellow: 10000 })
+  const priceImpactHealth = getHealthLevel(token.priceImpactPctAt1pct, { green: 1, yellow: 5 }, true)
+  const securityHealth = getSecurityHealth(token.freezeRevoked, token.mintRenounced)
 
   return (
     <div className={cn("flex flex-wrap gap-1.5", className)}>
@@ -79,10 +89,10 @@ export function HealthCapsule({ token, className }: HealthCapsuleProps) {
           variant="outline"
           className={cn(
             "text-xs font-bold border-3 rounded-[8px] px-2 py-0.5",
-            healthColors[liquidityHealth]
+            HEALTH_CONFIG[liquidityHealth].color
           )}
         >
-          {healthIcons[liquidityHealth]} ${token.liqUsd ? `${(token.liqUsd / 1000).toFixed(0)}k` : "?"}
+          {HEALTH_CONFIG[liquidityHealth].icon} ${token.liqUsd ? `${(token.liqUsd / 1000).toFixed(0)}k` : "?"}
         </Badge>
       )}
 
@@ -92,10 +102,10 @@ export function HealthCapsule({ token, className }: HealthCapsuleProps) {
           variant="outline"
           className={cn(
             "text-xs font-bold border-3 rounded-[8px] px-2 py-0.5",
-            healthColors[priceImpactHealth]
+            HEALTH_CONFIG[priceImpactHealth].color
           )}
         >
-          {healthIcons[priceImpactHealth]} {token.priceImpactPctAt1pct.toFixed(1)}%
+          {HEALTH_CONFIG[priceImpactHealth].icon} {token.priceImpactPctAt1pct.toFixed(1)}%
         </Badge>
       )}
 
@@ -104,11 +114,11 @@ export function HealthCapsule({ token, className }: HealthCapsuleProps) {
         variant="outline"
         className={cn(
           "text-xs font-bold border-3 rounded-[8px] px-2 py-0.5",
-          healthColors[securityHealth]
+          HEALTH_CONFIG[securityHealth].color
         )}
         title={`Freeze: ${token.freezeRevoked ? "✓" : "✗"}, Mint: ${token.mintRenounced ? "✓" : "✗"}`}
       >
-        {healthIcons[securityHealth]}{" "}
+        {HEALTH_CONFIG[securityHealth].icon}{" "}
         {token.freezeRevoked && token.mintRenounced
           ? "Safe"
           : token.freezeRevoked || token.mintRenounced
@@ -143,39 +153,21 @@ export function HealthCapsule({ token, className }: HealthCapsuleProps) {
  * Compact Health Capsule - Single badge showing overall health
  */
 export function CompactHealthCapsule({ token, className }: HealthCapsuleProps) {
-  const liquidityHealth = getLiquidityHealth(token.liqUsd ?? undefined)
-  const priceImpactHealth = getPriceImpactHealth(token.priceImpactPctAt1pct ?? undefined)
-  const securityHealth = getSecurityHealth(token.freezeRevoked ?? undefined, token.mintRenounced ?? undefined)
-
-  const overall: HealthLevel =
-    [liquidityHealth, priceImpactHealth, securityHealth].includes("red")
-      ? "red"
-      : [liquidityHealth, priceImpactHealth, securityHealth].includes("yellow")
-        ? "yellow"
-        : "green"
-
-  const healthColors = {
-    green: "bg-[var(--luigi-green)] text-white border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)]",
-    yellow: "bg-[var(--star-yellow)] text-[var(--outline-black)] border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)]",
-    red: "bg-[var(--mario-red)] text-white border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)]",
-  }
-
-  const healthLabels = {
-    green: "✅ Healthy",
-    yellow: "⚠️ Caution",
-    red: "🔥 Risky",
-  }
+  const liquidityHealth = getHealthLevel(token.liqUsd, { green: 50000, yellow: 10000 })
+  const priceImpactHealth = getHealthLevel(token.priceImpactPctAt1pct, { green: 1, yellow: 5 }, true)
+  const securityHealth = getSecurityHealth(token.freezeRevoked, token.mintRenounced)
+  const overall = getOverallHealth(liquidityHealth, priceImpactHealth, securityHealth)
 
   return (
     <Badge
       variant="outline"
       className={cn(
         "text-xs font-bold border-3 rounded-[8px] px-2 py-0.5",
-        healthColors[overall],
+        HEALTH_CONFIG[overall].color,
         className
       )}
     >
-      {healthLabels[overall]}
+      {HEALTH_CONFIG[overall].icon} {HEALTH_CONFIG[overall].label}
     </Badge>
   )
 }

@@ -14,15 +14,10 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import Image from "next/image"
 import { cn, marioStyles } from "@/lib/utils"
 import { motion } from "framer-motion"
-import { Shield, Users, Activity, TrendingUp, TrendingDown } from "lucide-react"
-import {
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
-} from "@/components/ui/hover-card"
+import { Shield, TrendingUp, TrendingDown } from "lucide-react"
+import { SocialHoverCard } from "./social-hover-card"
 import type { TokenRow } from "@/lib/types/warp-pipes"
 
 interface TokenCardProps {
@@ -56,37 +51,6 @@ const timeAgo = (iso?: string | null) => {
 const shorten = (addr?: string | null, s = 4, e = 4) => {
   if (!addr) return "—";
   return addr.length <= s + e ? addr : `${addr.slice(0, s)}…${addr.slice(-e)}`;
-};
-
-const stateColors = (state: TokenRow["state"]) => {
-  switch (state) {
-    case "bonded":
-      return {
-        ring: "#fcd34d",
-        gradFrom: "#fde68a",
-        gradTo: "#facc15",
-      };
-    case "graduating":
-      return {
-        ring: "#34d399",
-        gradFrom: "#bbf7d0",
-        gradTo: "#10b981",
-      };
-    default:
-      return {
-        ring: "#60a5fa",
-        gradFrom: "#bfdbfe",
-        gradTo: "#60a5fa",
-      };
-  }
-};
-
-const securityBadge = (freezeRevoked?: boolean | null, mintRenounced?: boolean | null) => {
-  if (freezeRevoked && mintRenounced)
-    return { label: "SAFE", cls: "bg-[var(--luigi-green)]/10 text-[var(--luigi-green)] border-[var(--luigi-green)]" };
-  if (freezeRevoked || mintRenounced)
-    return { label: "WARN", cls: "bg-[var(--star-yellow)]/10 text-[var(--star-yellow)] border-[var(--star-yellow)]" };
-  return { label: "RISK", cls: "bg-[var(--mario-red)]/10 text-[var(--mario-red)] border-[var(--mario-red)]" };
 };
 
 export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
@@ -269,130 +233,31 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
                 {(data.twitter || data.telegram || data.website) && (
                   <div className="flex items-center gap-1">
                     {data.twitter && (
-                      <HoverCard openDelay={200}>
-                        <HoverCardTrigger asChild>
-                          <a
-                            href={data.twitter.startsWith('http') ? data.twitter : `https://twitter.com/${data.twitter}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="hover:scale-110 transition-transform"
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            <Image 
-                              src="/x-logo/logo.svg" 
-                              alt="X/Twitter" 
-                              width={14} 
-                              height={14}
-                              className="inline-block filter brightness-0"
-                            />
-                          </a>
-                        </HoverCardTrigger>
-                        <HoverCardContent 
-                          className="w-80 p-4 bg-[var(--card)] border-4 border-[var(--outline-black)] rounded-xl shadow-[6px_6px_0_var(--outline-black)] z-50" 
-                          side="top"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          <div className="space-y-2">
-                            <div className="flex items-start gap-3">
-                              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-bold text-xl border-3 border-[var(--outline-black)]">
-                                {data.symbol?.[0] || '?'}
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <div className="font-bold text-base truncate text-[var(--outline-black)]">{data.name || data.symbol}</div>
-                                <div className="text-sm text-pipe-600 truncate">@{data.twitter}</div>
-                              </div>
-                            </div>
-                            <p className="text-sm line-clamp-3 text-[var(--outline-black)]">{data.description || 'No description available'}</p>
-                            <div className="flex gap-4 text-xs text-pipe-600 font-bold">
-                              <span>Click to view on X →</span>
-                            </div>
-                          </div>
-                        </HoverCardContent>
-                      </HoverCard>
+                      <SocialHoverCard
+                        platform="twitter"
+                        url={data.twitter}
+                        tokenName={data.name || undefined}
+                        tokenSymbol={data.symbol}
+                        description={data.description || undefined}
+                      />
                     )}
                     {data.telegram && (
-                      <HoverCard openDelay={200}>
-                        <HoverCardTrigger asChild>
-                          <a
-                            href={data.telegram.startsWith('http') ? data.telegram : `https://t.me/${data.telegram}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="hover:scale-110 transition-transform"
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            <Image 
-                              src="/icons/social/telegram-icon.svg" 
-                              alt="Telegram" 
-                              width={14} 
-                              height={14}
-                              className="inline-block"
-                            />
-                          </a>
-                        </HoverCardTrigger>
-                        <HoverCardContent 
-                          className="w-80 p-4 bg-[var(--card)] border-4 border-[var(--outline-black)] rounded-xl shadow-[6px_6px_0_var(--outline-black)] z-50" 
-                          side="top"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          <div className="space-y-2">
-                            <div className="flex items-start gap-3">
-                              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-white text-2xl border-3 border-[var(--outline-black)]">
-                                ✈️
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <div className="font-bold text-base truncate text-[var(--outline-black)]">{data.name || data.symbol}</div>
-                                <div className="text-sm text-pipe-600 truncate">{data.telegram}</div>
-                              </div>
-                            </div>
-                            <p className="text-sm line-clamp-3 text-[var(--outline-black)]">{data.description || 'Join the Telegram community'}</p>
-                            <div className="flex gap-4 text-xs text-pipe-600 font-bold">
-                              <span>Click to join Telegram →</span>
-                            </div>
-                          </div>
-                        </HoverCardContent>
-                      </HoverCard>
+                      <SocialHoverCard
+                        platform="telegram"
+                        url={data.telegram}
+                        tokenName={data.name || undefined}
+                        tokenSymbol={data.symbol}
+                        description={data.description || undefined}
+                      />
                     )}
                     {data.website && (
-                      <HoverCard openDelay={200}>
-                        <HoverCardTrigger asChild>
-                          <a
-                            href={data.website.startsWith('http') ? data.website : `https://${data.website}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="hover:scale-110 transition-transform"
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            <Image 
-                              src="/icons/social/globe-icon.svg" 
-                              alt="Website" 
-                              width={14} 
-                              height={14}
-                              className="inline-block"
-                            />
-                          </a>
-                        </HoverCardTrigger>
-                        <HoverCardContent 
-                          className="w-80 p-4 bg-[var(--card)] border-4 border-[var(--outline-black)] rounded-xl shadow-[6px_6px_0_var(--outline-black)] z-50" 
-                          side="top"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          <div className="space-y-2">
-                            <div className="flex items-start gap-3">
-                              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white text-2xl border-3 border-[var(--outline-black)]">
-                                🌐
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <div className="font-bold text-base truncate text-[var(--outline-black)]">{data.name || data.symbol}</div>
-                                <div className="text-sm text-pipe-600 truncate break-all">{data.website}</div>
-                              </div>
-                            </div>
-                            <p className="text-sm line-clamp-3 text-[var(--outline-black)]">{data.description || 'Visit official website'}</p>
-                            <div className="flex gap-4 text-xs text-pipe-600 font-bold">
-                              <span>Click to visit website →</span>
-                            </div>
-                          </div>
-                        </HoverCardContent>
-                      </HoverCard>
+                      <SocialHoverCard
+                        platform="website"
+                        url={data.website}
+                        tokenName={data.name || undefined}
+                        tokenSymbol={data.symbol}
+                        description={data.description || undefined}
+                      />
                     )}
                   </div>
                 )}

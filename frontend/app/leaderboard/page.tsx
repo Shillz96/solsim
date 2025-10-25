@@ -13,7 +13,6 @@ import type * as Backend from "@/lib/types/backend"
 import { UsdWithSol } from "@/lib/sol-equivalent"
 import { formatUSD, formatNumber } from "@/lib/format"
 import { motion, AnimatePresence } from "framer-motion"
-import { MarioPageHeader } from "@/components/shared/mario-page-header"
 import { cn, marioStyles } from "@/lib/utils"
 
 type TimeRange = "24h" | "7d" | "all"
@@ -133,19 +132,20 @@ export default function LeaderboardPage() {
     <div className="min-h-screen bg-[var(--background)]">
       {/* Full Width Container */}
       <main className="w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
-        {/* Mario Page Header */}
+        {/* Leaderboard Header Image */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
           className="mb-6 flex items-center justify-between"
         >
-          <MarioPageHeader
-            src="/leaderboard-header.png"
+          <Image
+            src="/leaderboard-10-25-2025.png"
             alt="Leaderboard"
             width={750}
             height={120}
             priority
+            className="w-auto h-auto max-w-full"
           />
           
           {/* Controls moved to header level */}
@@ -299,194 +299,84 @@ export default function LeaderboardPage() {
           >
             <div className={marioStyles.cardLg(false)}>
               <div className="mb-6">
-                <div className="flex items-center gap-2 mb-2">
-                  <Trophy className="h-6 w-6 text-[var(--coin-gold)]" />
-                  <h2 className={marioStyles.heading(3)}>Top Performers</h2>
-                </div>
-                <p className={cn(marioStyles.bodyText('semibold'), 'text-sm opacity-70')}>
-                  Leading the competition
+                <h2 className={marioStyles.heading(3)}>Top Performers</h2>
+                <p className={cn(marioStyles.bodyText('semibold'), 'text-sm opacity-70 mt-1')}>
+                  Podium finishers
                 </p>
               </div>
 
-              <div className="space-y-4">
-                {loading ? (
-                  <div className="text-center py-12">
-                    <div className="animate-spin rounded-full h-12 w-12 border-4 border-[var(--outline-black)] border-t-[var(--star-yellow)] mx-auto"></div>
-                    <p className={cn(marioStyles.bodyText('semibold'), 'mt-4')}>Loading...</p>
-                  </div>
-                ) : topPerformers.length > 0 ? (
-                  topPerformers.map((performer, index) => {
-                    const rankColors = [
-                      { 
-                        bg: 'from-[var(--coin-gold)] to-[var(--star-yellow)]',
-                        border: 'border-[var(--coin-gold)]',
-                        text: 'text-[var(--outline-black)]'
-                      },
-                      { 
-                        bg: 'from-gray-300 to-gray-400',
-                        border: 'border-gray-400',
-                        text: 'text-[var(--outline-black)]'
-                      },
-                      { 
-                        bg: 'from-[var(--brick-brown)] to-amber-700',
-                        border: 'border-[var(--brick-brown)]',
-                        text: 'text-white'
-                      }
-                    ]
-                    const color = rankColors[index]
-                    
-                    return (
-                      <motion.div
-                        key={performer.userId}
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ duration: 0.3, delay: index * 0.1 }}
-                        className={cn(
-                          'p-4 rounded-xl border-4 border-[var(--outline-black)]',
-                          'shadow-[4px_4px_0_var(--outline-black)]',
-                          `bg-gradient-to-br ${color.bg}`,
-                          'hover:shadow-[6px_6px_0_var(--outline-black)]',
-                          'hover:-translate-y-1 transition-all'
-                        )}
-                      >
-                        <div className="flex items-start justify-between gap-4">
-                          <div className="flex items-center gap-3 flex-1">
-                            <div className={cn(
-                              'flex items-center justify-center w-12 h-12',
-                              'rounded-full border-3 border-[var(--outline-black)]',
-                              'bg-white shadow-[2px_2px_0_var(--outline-black)]'
-                            )}>
-                              {getMedalIcon(index + 1)}
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <p className={cn('font-bold text-lg truncate', color.text)}>
-                                {performer.handle || performer.displayName || `User ${performer.userId.slice(0, 8)}`}
-                              </p>
-                              <p className={cn('text-sm font-semibold opacity-90', color.text)}>
-                                {performer.totalTrades} trades • {performer.winRate.toFixed(1)}% win
-                              </p>
-                            </div>
+              {loading ? (
+                <div className="text-center py-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-4 border-[var(--outline-black)] border-t-[var(--star-yellow)] mx-auto"></div>
+                  <p className={cn(marioStyles.bodyText('semibold'), 'mt-3 text-sm')}>Loading...</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {topPerformers.map((entry, index) => (
+                    <motion.div
+                      key={entry.userId}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.3, delay: index * 0.1 }}
+                      className={cn(
+                        "relative p-4 rounded-lg border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] transition-all duration-200 hover:scale-105",
+                        index === 0 && "bg-gradient-to-br from-[var(--coin-gold)]/20 to-[var(--coin-gold)]/10",
+                        index === 1 && "bg-gradient-to-br from-[var(--pipe-300)]/20 to-[var(--pipe-300)]/10",
+                        index === 2 && "bg-gradient-to-br from-[var(--brick-brown)]/20 to-[var(--brick-brown)]/10"
+                      )}
+                    >
+                      {/* Rank Badge */}
+                      <div className="absolute -top-2 -left-2 w-8 h-8 bg-[var(--outline-black)] border-2 border-[var(--outline-black)] rounded-full flex items-center justify-center shadow-[2px_2px_0_var(--outline-black)]">
+                        <span className="text-white font-bold text-sm">
+                          {index + 1}
+                        </span>
+                      </div>
+
+                      <div className="flex items-center gap-3">
+                        {/* Medal Icon */}
+                        <div className="flex-shrink-0">
+                          {getMedalIcon(index + 1)}
+                        </div>
+
+                        {/* User Info */}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <h3 className="font-bold text-lg text-[var(--outline-black)] truncate">
+                              {entry.username || 'Anonymous'}
+                            </h3>
+                            {index === 0 && (
+                              <Crown className="h-5 w-5 text-[var(--coin-gold)] flex-shrink-0" />
+                            )}
                           </div>
-                          <div className="text-right">
-                            <div className={cn(
-                              'font-bold text-lg',
-                              parseFloat(performer.totalPnlUsd) >= 0 
-                                ? 'text-[var(--luigi-green)]' 
-                                : 'text-[var(--mario-red)]'
-                            )}>
-                              <UsdWithSol 
-                                usd={parseFloat(performer.totalPnlUsd)} 
-                                prefix={parseFloat(performer.totalPnlUsd) >= 0 ? '+' : ''}
-                                className="font-bold text-lg"
-                                solClassName="text-xs"
-                              />
+                          <div className="flex items-center gap-4 text-sm">
+                            <div className="flex items-center gap-1">
+                              <span className="text-[var(--outline-black)] font-semibold">PnL:</span>
+                              <span className={cn(
+                                "font-bold",
+                                parseFloat(entry.totalPnlUsd) >= 0 ? 'text-[var(--luigi-green)]' : 'text-[var(--mario-red)]'
+                              )}>
+                                <UsdWithSol
+                                  usd={parseFloat(entry.totalPnlUsd)}
+                                  prefix={parseFloat(entry.totalPnlUsd) >= 0 ? '+' : ''}
+                                  className="font-bold"
+                                  solClassName="text-xs"
+                                />
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <span className="text-[var(--outline-black)] font-semibold">Trades:</span>
+                              <span className="font-bold text-[var(--outline-black)]">
+                                {entry.totalTrades}
+                              </span>
                             </div>
                           </div>
                         </div>
-                      </motion.div>
-                    )
-                  })
-                ) : (
-                  <div className="text-center py-12">
-                    <Trophy className="h-12 w-12 mx-auto mb-4 text-[var(--outline-black)] opacity-30" />
-                    <p className={marioStyles.bodyText('semibold')}>No data available</p>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Current User Rank Card */}
-            {currentUser && (
-              <motion.div
-                ref={userRowRef}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.4 }}
-                className="mt-6"
-              >
-                <div className={cn(
-                  marioStyles.cardLg(false),
-                  'bg-gradient-to-br from-[var(--star-yellow)]/30 to-[var(--star-yellow)]/5'
-                )}>
-                  <div className="mb-4">
-                    <div className="flex items-center justify-between mb-4">
-                      <h3 className={marioStyles.heading(3)}>
-                        🎯 Your Rank
-                      </h3>
-                      <Badge className={cn(
-                        'text-xl px-4 py-2',
-                        'bg-[var(--coin-gold)] text-[var(--outline-black)]',
-                        'border-3 border-[var(--outline-black)]',
-                        marioStyles.shadowMd,
-                        'font-bold'
-                      )}>
-                        #{currentUser.rank}
-                      </Badge>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className={cn(
-                      'p-3 rounded-lg',
-                      'bg-[var(--star-yellow)]/20 border-2 border-[var(--outline-black)]'
-                    )}>
-                      <p className={cn(marioStyles.bodyText('semibold'), 'text-xs mb-2 opacity-70')}>
-                        💰 Total PnL
-                      </p>
-                      <div className={cn(
-                        'font-bold text-lg',
-                        parseFloat(currentUser.totalPnlUsd) >= 0 
-                          ? 'text-[var(--luigi-green)]' 
-                          : 'text-[var(--mario-red)]'
-                      )}>
-                        <UsdWithSol 
-                          usd={parseFloat(currentUser.totalPnlUsd)} 
-                          prefix={parseFloat(currentUser.totalPnlUsd) >= 0 ? '+' : ''}
-                          className="text-lg font-bold"
-                          solClassName="text-xs"
-                        />
                       </div>
-                    </div>
-
-                    <div className={cn(
-                      'p-3 rounded-lg',
-                      'bg-[var(--sky-blue)]/20 border-2 border-[var(--outline-black)]'
-                    )}>
-                      <p className={cn(marioStyles.bodyText('semibold'), 'text-xs mb-2 opacity-70')}>
-                        📊 Trades
-                      </p>
-                      <p className="font-bold text-lg text-[var(--outline-black)]">
-                        {currentUser.totalTrades}
-                      </p>
-                    </div>
-
-                    <div className={cn(
-                      'p-3 rounded-lg',
-                      'bg-[var(--luigi-green)]/20 border-2 border-[var(--outline-black)]'
-                    )}>
-                      <p className={cn(marioStyles.bodyText('semibold'), 'text-xs mb-2 opacity-70')}>
-                        🎯 Win Rate
-                      </p>
-                      <p className="font-bold text-lg text-[var(--outline-black)]">
-                        {currentUser.winRate.toFixed(1)}%
-                      </p>
-                    </div>
-
-                    <div className={cn(
-                      'p-3 rounded-lg',
-                      'bg-[var(--coin-gold)]/20 border-2 border-[var(--outline-black)]'
-                    )}>
-                      <p className={cn(marioStyles.bodyText('semibold'), 'text-xs mb-2 opacity-70')}>
-                        💎 Balance
-                      </p>
-                      <p className="font-bold text-lg font-mono text-[var(--outline-black)]">
-                        {balanceData ? `${parseFloat(balanceData.balance).toFixed(2)} SOL` : 'Loading...'}
-                      </p>
-                    </div>
-                  </div>
+                    </motion.div>
+                  ))}
                 </div>
-              </motion.div>
-            )}
+              )}
+            </div>
           </motion.div>
 
           {/* Right Side: Full Leaderboard Table */}
@@ -498,10 +388,7 @@ export default function LeaderboardPage() {
           >
             <div className={marioStyles.cardLg(false)}>
               <div className="mb-6">
-                <h2 className={marioStyles.heading(3)}>Full Leaderboard</h2>
-                <p className={cn(marioStyles.bodyText('semibold'), 'text-sm opacity-70 mt-1')}>
-                  All competitors ranked by total PnL
-                </p>
+                {/* Removed "Full Leaderboard" title and description */}
               </div>
 
               {loading ? (
@@ -509,129 +396,85 @@ export default function LeaderboardPage() {
                   <div className="animate-spin rounded-full h-12 w-12 border-4 border-[var(--outline-black)] border-t-[var(--star-yellow)] mx-auto"></div>
                   <p className={cn(marioStyles.bodyText('semibold'), 'mt-4')}>Loading leaderboard...</p>
                 </div>
-              ) : leaderboardData.length > 0 ? (
+              ) : (
                 <div className="space-y-2">
-                  {/* Table Header */}
-                  <div className={cn(
-                    'grid grid-cols-12 gap-4 p-3 rounded-lg',
-                    'bg-gradient-to-r from-[var(--luigi-green)] to-[var(--pipe-green)]',
-                    'border-3 border-[var(--outline-black)]',
-                    marioStyles.shadowSm,
-                    'text-white font-bold text-sm'
-                  )}>
-                    <div className="col-span-1">Rank</div>
-                    <div className="col-span-3">Player</div>
-                    <div className="col-span-2 text-right">PnL</div>
-                    <div className="col-span-2 text-right">Trades</div>
-                    <div className="col-span-2 text-right">Win Rate</div>
-                    <div className="col-span-2 text-right">ROI</div>
-                  </div>
+                  {leaderboardData.map((entry, index) => {
+                    const isCurrentUser = entry.userId === currentUserId
+                    const rank = index + 1
+                    
+                    return (
+                      <motion.div
+                        key={entry.userId}
+                        ref={isCurrentUser ? userRowRef : null}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.3, delay: index * 0.02 }}
+                        className={cn(
+                          "flex items-center gap-4 p-3 rounded-lg border-2 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] transition-all duration-200 hover:scale-[1.02] hover:shadow-[3px_3px_0_var(--outline-black)]",
+                          isCurrentUser && "bg-gradient-to-r from-[var(--star-yellow)]/20 to-[var(--coin-gold)]/20 border-[var(--star-yellow)]",
+                          rank <= 3 && "bg-gradient-to-r from-[var(--coin-gold)]/10 to-[var(--star-yellow)]/10"
+                        )}
+                      >
+                        {/* Rank */}
+                        <div className="flex-shrink-0 w-8 text-center">
+                          <span className={cn(
+                            "font-bold text-lg",
+                            rank <= 3 ? "text-[var(--outline-black)]" : "text-[var(--pipe-600)]"
+                          )}>
+                            #{rank}
+                          </span>
+                        </div>
 
-                  {/* Leaderboard Rows */}
-                  <div className="max-h-[800px] overflow-y-auto space-y-2 pr-2">
-                    {leaderboardData.map((entry, index) => {
-                      const isCurrentUser = entry.userId === currentUserId
-                      const pnl = parseFloat(entry.totalPnlUsd)
-                      const volume = parseFloat(entry.totalVolumeUsd)
-                      const roi = volume > 0 ? (pnl / volume) * 100 : 0
-
-                      return (
-                        <motion.div
-                          key={entry.userId}
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ duration: 0.2, delay: index * 0.02 }}
-                          className={cn(
-                            'grid grid-cols-12 gap-4 p-3 rounded-lg',
-                            'border-3 transition-all',
-                            isCurrentUser 
-                              ? 'bg-gradient-to-r from-[var(--star-yellow)]/30 to-[var(--star-yellow)]/10 border-[var(--star-yellow)] shadow-[4px_4px_0_var(--star-yellow)]'
-                              : 'bg-[var(--card)] border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-0.5'
-                          )}
-                        >
-                          {/* Rank */}
-                          <div className="col-span-1 flex items-center">
-                            <div className={cn(
-                              'w-8 h-8 rounded-full flex items-center justify-center',
-                              'border-2 border-[var(--outline-black)]',
-                              'font-bold text-sm',
-                              entry.rank <= 3 
-                                ? 'bg-gradient-to-br from-[var(--coin-gold)] to-[var(--star-yellow)] text-[var(--outline-black)]'
-                                : 'bg-[var(--sky-blue)] text-white'
-                            )}>
-                              {entry.rank}
-                            </div>
+                        {/* Medal Icon for top 3 */}
+                        {rank <= 3 && (
+                          <div className="flex-shrink-0">
+                            {getMedalIcon(rank)}
                           </div>
+                        )}
 
-                          {/* Player */}
-                          <div className="col-span-3 flex items-center">
-                            <div className="truncate">
-                              <p className={cn(
-                                'font-bold truncate',
-                                isCurrentUser && 'text-[var(--mario-red)]'
-                              )}>
-                                {entry.handle || entry.displayName || `User ${entry.userId.slice(0, 8)}`}
-                                {isCurrentUser && ' (You)'}
-                              </p>
-                            </div>
-                          </div>
-
-                          {/* PnL */}
-                          <div className="col-span-2 flex items-center justify-end">
-                            <div className={cn(
-                              'font-bold',
-                              pnl >= 0 ? 'text-[var(--luigi-green)]' : 'text-[var(--mario-red)]'
+                        {/* User Info */}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <h3 className={cn(
+                              "font-bold text-lg truncate",
+                              isCurrentUser ? "text-[var(--outline-black)]" : "text-[var(--outline-black)]"
                             )}>
-                              <UsdWithSol 
-                                usd={pnl} 
-                                prefix={pnl >= 0 ? '+' : ''}
+                              {entry.username || 'Anonymous'}
+                            </h3>
+                            {isCurrentUser && (
+                              <Badge variant="secondary" className="bg-[var(--star-yellow)] text-[var(--outline-black)] border-[var(--outline-black)]">
+                                You
+                              </Badge>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Stats */}
+                        <div className="flex items-center gap-6 text-sm">
+                          <div className="text-center">
+                            <p className="text-[var(--pipe-600)] font-semibold">PnL</p>
+                            <p className={cn(
+                              "font-bold text-lg",
+                              parseFloat(entry.totalPnlUsd) >= 0 ? 'text-[var(--luigi-green)]' : 'text-[var(--mario-red)]'
+                            )}>
+                              <UsdWithSol
+                                usd={parseFloat(entry.totalPnlUsd)}
+                                prefix={parseFloat(entry.totalPnlUsd) >= 0 ? '+' : ''}
                                 className="font-bold"
                                 solClassName="text-xs"
                               />
-                            </div>
+                            </p>
                           </div>
-
-                          {/* Trades */}
-                          <div className="col-span-2 flex items-center justify-end">
-                            <span className={marioStyles.bodyText('bold')}>
+                          <div className="text-center">
+                            <p className="text-[var(--pipe-600)] font-semibold">Trades</p>
+                            <p className="font-bold text-lg text-[var(--outline-black)]">
                               {entry.totalTrades}
-                            </span>
+                            </p>
                           </div>
-
-                          {/* Win Rate */}
-                          <div className="col-span-2 flex items-center justify-end">
-                            <Badge className={cn(
-                              'border-2 border-[var(--outline-black)]',
-                              entry.winRate >= 50 
-                                ? 'bg-[var(--luigi-green)] text-white'
-                                : 'bg-[var(--mario-red)] text-white',
-                              'font-bold'
-                            )}>
-                              {entry.winRate.toFixed(1)}%
-                            </Badge>
-                          </div>
-
-                          {/* ROI */}
-                          <div className="col-span-2 flex items-center justify-end">
-                            <span className={cn(
-                              'font-bold',
-                              roi >= 0 ? 'text-[var(--luigi-green)]' : 'text-[var(--mario-red)]'
-                            )}>
-                              {roi >= 0 ? '+' : ''}{roi.toFixed(1)}%
-                            </span>
-                          </div>
-                        </motion.div>
-                      )
-                    })}
-                  </div>
-                </div>
-              ) : (
-                <div className="text-center py-12">
-                  <Trophy className="h-16 w-16 mx-auto mb-4 text-[var(--outline-black)] opacity-30" />
-                  <p className={marioStyles.heading(4)}>No leaderboard data</p>
-                  <p className={cn(marioStyles.bodyText('semibold'), 'text-sm mt-2 opacity-70')}>
-                    Start trading to appear on the leaderboard!
-                  </p>
+                        </div>
+                      </motion.div>
+                    )
+                  })}
                 </div>
               )}
             </div>
