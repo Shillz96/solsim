@@ -35,6 +35,7 @@ model User {
   conversionResetAt       DateTime?
   premiumFeatures         String?                @default("[]")
   rewardPoints            Decimal                @default(0)
+  rewardWalletAddress     String?                // Solana wallet address for receiving hourly rewards
   emailVerified           Boolean                @default(false)
   emailVerificationToken  String?                @unique
   emailVerificationExpiry DateTime?

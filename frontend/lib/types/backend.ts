@@ -334,6 +334,7 @@ export interface AuthSignupRequest {
   password: string;
   handle?: string;
   avatarUrl?: string;
+  rewardWalletAddress?: string;
 }
 
 export interface AuthLoginRequest {

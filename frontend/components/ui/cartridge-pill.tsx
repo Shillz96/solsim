@@ -39,8 +39,8 @@ export function CartridgePill({
   )
 
   const dims = size === "sm"
-    ? "h-8 md:h-8 px-2.5 md:px-2.5 gap-2 md:gap-2"
-    : "h-9 md:h-10 px-3 md:px-3 gap-3 md:gap-3"
+    ? "h-10 md:h-10 px-2.5 md:px-2.5 gap-2 md:gap-2"  // 40px - acceptable with padding
+    : "h-11 md:h-12 px-3 md:px-3 gap-3 md:gap-3"      // 44px mobile, 48px desktop - WCAG AA compliant
 
   const inner = layout === "col"
     ? "grid grid-rows-[auto_auto] items-center leading-none -space-y-0.5"

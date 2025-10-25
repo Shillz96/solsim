@@ -121,8 +121,8 @@ export function useAuth() {
     return response
   }, [queryClient])
 
-  const signup = useCallback(async (email: string, password: string, handle?: string) => {
-    const response = await api.signupEmail({ email, password, handle })
+  const signup = useCallback(async (email: string, password: string, handle?: string, rewardWalletAddress?: string) => {
+    const response = await api.signupEmail({ email, password, handle, rewardWalletAddress })
     const user: AuthUser = {
       id: response.userId,
       email,

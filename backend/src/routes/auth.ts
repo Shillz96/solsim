@@ -46,9 +46,10 @@ export default async function (app: FastifyInstance) {
         password: string;
         handle?: string;
         avatarUrl?: string;
+        rewardWalletAddress?: string;
       };
 
-      const { email, password, handle, avatarUrl } = sanitizedBody;
+      const { email, password, handle, avatarUrl, rewardWalletAddress } = sanitizedBody;
 
       // Validate password strength
       const passwordValidation = validatePasswordStrength(password);
@@ -83,6 +84,7 @@ export default async function (app: FastifyInstance) {
           passwordHash: hash,
           handle: handle || email.split('@')[0],
           avatarUrl: avatarUrl || null,
+          rewardWalletAddress: rewardWalletAddress || null,
           virtualSolBalance: 100,
           userTier: 'EMAIL_USER',
           emailVerified: false,

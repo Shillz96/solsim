@@ -2,6 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { X } from "lucide-react";
+import Image from "next/image";
 import { CartridgePill } from "@/components/ui/cartridge-pill";
 
 interface Winner {
@@ -78,9 +79,16 @@ export function HourlyRewardWinnersModal({ isOpen, onClose }: HourlyRewardWinner
 
         {/* Header */}
         <div className="mb-6">
-          <h2 className="font-mario text-[20px] text-[var(--mario-red)] mb-2">
-            Hourly Rewards - Winners 🏆
-          </h2>
+          <div className="mb-2 flex justify-center">
+            <Image
+              src="/Hourly-Rewards-Winners-10-25-2025.png"
+              alt="Hourly Rewards - Winners"
+              width={800}
+              height={200}
+              className="w-full h-auto max-w-[600px]"
+              priority
+            />
+          </div>
           {data && (
             <p className="text-[14px] text-[var(--outline-black)] opacity-70">
               Distributed at {formatTime(data.distributedAt)}

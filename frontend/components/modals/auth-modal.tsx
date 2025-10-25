@@ -110,10 +110,18 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
     const password = formData.get('password') as string
     const confirmPassword = formData.get('confirmPassword') as string
     const handle = formData.get('handle') as string
+    const rewardWalletAddress = formData.get('rewardWalletAddress') as string
 
     // Client-side validation
-    if (!email || !password || !handle) {
-      setError('Please fill in all fields')
+    if (!email || !password || !handle || !rewardWalletAddress) {
+      setError('Please fill in all required fields')
+      setIsLoading(false)
+      return
+    }
+
+    // Validate Solana wallet address format (base58, 32-44 characters)
+    if (!/^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(rewardWalletAddress)) {
+      setError('Please enter a valid Solana wallet address')
       setIsLoading(false)
       return
     }
@@ -130,14 +138,6 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
       return
     }
 
-    // Validate password requirements
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[a-zA-Z\d@$!%*?&]{8,}$/
-    if (!passwordRegex.test(password)) {
-      setError('Password must be 8+ characters with uppercase, lowercase, number, and special character')
-      setIsLoading(false)
-      return
-    }
-
     // Validate password with utility function
     const passwordValidation = validatePassword(password)
     if (!passwordValidation.valid) {
@@ -147,7 +147,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
     }
 
     try {
-      await signup(email, password, handle.trim())
+      await signup(email, password, handle.trim(), rewardWalletAddress.trim())
 
       // Mark that user needs onboarding tour
       markOnboardingNeeded()
@@ -433,7 +433,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
                         placeholder="••••••••"
                         className="pl-10 bg-[var(--card)] border-3 border-[var(--outline-black)] h-11 rounded-lg shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)]"
                         required
-                        minLength={8}
+                        minLength={12}
                         disabled={isLoading}
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
@@ -456,6 +456,30 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
                         onChange={(e) => setConfirmPassword(e.target.value)}
                       />
                     </div>
+                  </div>
+
+                  {/* Solana Wallet Address Field */}
+                  <div className="space-y-2">
+                    <Label htmlFor="register-wallet" className="text-foreground font-bold">
+                      Solana Wallet Address <span className="text-[var(--mario-red)]">*</span>
+                    </Label>
+                    <div className="relative">
+                      <Wallet className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                      <Input
+                        id="register-wallet"
+                        name="rewardWalletAddress"
+                        type="text"
+                        placeholder="Your Solana wallet address for rewards"
+                        className="pl-10 bg-[var(--card)] border-3 border-[var(--outline-black)] h-11 rounded-lg shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)] font-mono text-xs sm:text-sm"
+                        required
+                        disabled={isLoading}
+                        pattern="[1-9A-HJ-NP-Za-km-z]{32,44}"
+                        title="Please enter a valid Solana wallet address"
+                      />
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Enter your Solana wallet address to receive hourly trading rewards
+                    </p>
                   </div>
 
                   {/* Password Strength Indicator */}

@@ -19,22 +19,6 @@ export function PasswordStrengthIndicator({ password, confirmPassword }: Passwor
       {
         label: "At least 12 characters",
         met: password.length >= 12
-      },
-      {
-        label: "One uppercase letter",
-        met: /[A-Z]/.test(password)
-      },
-      {
-        label: "One lowercase letter",
-        met: /[a-z]/.test(password)
-      },
-      {
-        label: "One number",
-        met: /\d/.test(password)
-      },
-      {
-        label: "One special character",
-        met: /[^A-Za-z0-9]/.test(password)
       }
     ]
   }, [password])
@@ -61,7 +45,24 @@ export function PasswordStrengthIndicator({ password, confirmPassword }: Passwor
     return (requirements.filter(r => r.met).length / requirements.length) * 100
   }, [requirements])
 
+  // Check if all requirements are met
+  const allRequirementsMet = useMemo(() => {
+    const allPasswordReqsMet = requirements.every(r => r.met)
+    const passwordMatchCheck = confirmPassword === undefined || confirmPassword === "" || password === confirmPassword
+    return allPasswordReqsMet && passwordMatchCheck
+  }, [requirements, password, confirmPassword])
+
   if (!password) return null
+
+  // Collapse the indicator when all requirements are met
+  if (allRequirementsMet) {
+    return (
+      <div className="flex items-center gap-2 p-2 bg-green-50 rounded-lg border-2 border-green-500">
+        <Check className="h-4 w-4 text-green-500 flex-shrink-0" />
+        <span className="text-sm font-medium text-green-700">Password meets all requirements ✓</span>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-3">
@@ -124,22 +125,6 @@ export function validatePassword(password: string): { valid: boolean; errors: st
 
   if (password.length < 12) {
     errors.push("Password must be at least 12 characters long")
-  }
-
-  if (!/[A-Z]/.test(password)) {
-    errors.push("Password must contain at least one uppercase letter")
-  }
-
-  if (!/[a-z]/.test(password)) {
-    errors.push("Password must contain at least one lowercase letter")
-  }
-
-  if (!/\d/.test(password)) {
-    errors.push("Password must contain at least one number")
-  }
-
-  if (!/[^A-Za-z0-9]/.test(password)) {
-    errors.push("Password must contain at least one special character")
   }
 
   return {
