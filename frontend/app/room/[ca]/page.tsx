@@ -166,7 +166,7 @@ function TradeRoomContent() {
   const marketCap = parseFloat(tokenDetails.marketCapUsd || '0')
 
   return (
-    <div className="flex flex-col bg-[var(--background)] min-h-full">
+    <div className="flex flex-col bg-[var(--background)] h-full">
       {/* Header - Token Info */}
       <header className="border-b-4 border-[var(--outline-black)] bg-white p-2 sm:p-2.5 flex-shrink-0">
         <div className="w-full flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-2">
@@ -290,7 +290,7 @@ function TradeRoomContent() {
       {/* Main Content Area */}
       <main className="flex flex-1 w-full overflow-hidden">
         {/* MOBILE LAYOUT */}
-        <div className="md:hidden flex flex-col w-full overflow-y-auto">
+        <div className="md:hidden flex flex-col w-full h-full overflow-hidden">
           {/* Chart */}
           <div className="bg-white border-b-4 border-[var(--outline-black)]">
             <div className="min-h-[400px] h-[400px]">
@@ -299,7 +299,7 @@ function TradeRoomContent() {
           </div>
 
           {/* Market Data Panels */}
-          <div className="bg-white">
+          <div className="bg-white flex-1 overflow-hidden">
             <MarketDataPanels tokenMint={ca} />
           </div>
         </div>
@@ -330,7 +330,7 @@ function TradeRoomContent() {
         </div>
 
         {/* TABLET LAYOUT */}
-        <div className="hidden md:flex lg:hidden w-full overflow-hidden">
+        <div className="hidden md:flex lg:hidden w-full h-full overflow-hidden">
           {/* Left: Chat Room */}
           <aside className="flex flex-col w-[280px] border-r-4 border-[var(--outline-black)] bg-white overflow-hidden">
             <div className="flex-1 overflow-hidden">
@@ -372,7 +372,7 @@ function TradeRoomContent() {
         </div>
 
         {/* DESKTOP LAYOUT */}
-        <div className="hidden lg:flex w-full overflow-hidden">
+        <div className="hidden lg:flex w-full h-full overflow-hidden">
           {/* Left Sidebar - Chat Room */}
           <aside className="flex flex-col w-[320px] border-r-4 border-[var(--outline-black)] bg-white overflow-hidden">
             <div className="flex-1 overflow-hidden">
