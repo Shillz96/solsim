@@ -38,7 +38,7 @@ export function FilterBar({
   ]
 
   return (
-    <div className={cn("flex flex-col sm:flex-row gap-3 p-4 bg-white rounded-[16px] border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)]", className)}>
+    <div className={cn("flex flex-col sm:flex-row gap-3 p-4 bg-[var(--card)] rounded-[16px] border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)]", className)}>
       {/* Search Input */}
       <div className="relative flex-1">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--outline-black)] opacity-70" />
@@ -63,7 +63,7 @@ export function FilterBar({
               "border-3 rounded-[12px] font-bold transition-all duration-200 shadow-[3px_3px_0_var(--outline-black)]",
               sortBy === option.value
                 ? "bg-[var(--mario-red)] border-[var(--outline-black)] text-white hover:bg-[var(--mario-red)] hover:-translate-y-[1px] hover:shadow-[4px_4px_0_var(--outline-black)]"
-                : "bg-white border-[var(--outline-black)] text-[var(--outline-black)] hover:bg-[var(--background)] hover:-translate-y-[1px]"
+                : "bg-[var(--card)] border-[var(--outline-black)] text-[var(--outline-black)] hover:bg-[var(--background)] hover:-translate-y-[1px]"
             )}
           >
             <span>{option.label}</span>

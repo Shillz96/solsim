@@ -223,7 +223,7 @@ export function WalletTrackerSettingsModal({ isOpen, onClose, onSettingsSaved }:
             onClick={(e) => e.stopPropagation()}
             className="w-full max-w-md max-h-[90vh] overflow-y-auto"
           >
-            <div className={cn(marioStyles.cardLg(false), 'bg-white p-6')}>
+            <div className={cn(marioStyles.cardLg(false), 'bg-[var(--card)] p-6')}>
             {/* Header */}
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-2">
@@ -323,7 +323,7 @@ export function WalletTrackerSettingsModal({ isOpen, onClose, onSettingsSaved }:
                           placeholder="e.g., 50000"
                           value={minMarketCap ? formatNumberInput(minMarketCap) : ''}
                           onChange={(e) => handleMinMarketCapChange(e.target.value)}
-                          className={cn(marioStyles.input(), 'pl-8 bg-white', marioStyles.bodyText('bold'))}
+                          className={cn(marioStyles.input(), 'pl-8 bg-[var(--card)]', marioStyles.bodyText('bold'))}
                         />
                       </div>
                     </div>
@@ -341,7 +341,7 @@ export function WalletTrackerSettingsModal({ isOpen, onClose, onSettingsSaved }:
                           placeholder="e.g., 1000000"
                           value={maxMarketCap ? formatNumberInput(maxMarketCap) : ''}
                           onChange={(e) => handleMaxMarketCapChange(e.target.value)}
-                          className="pl-8 bg-white border-3 border-[var(--outline-black)] rounded-lg shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)] font-bold"
+                          className="pl-8 bg-[var(--card)] border-3 border-[var(--outline-black)] rounded-lg shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)] font-bold"
                         />
                       </div>
                     </div>
@@ -369,7 +369,7 @@ export function WalletTrackerSettingsModal({ isOpen, onClose, onSettingsSaved }:
                           placeholder="e.g., 100"
                           value={minTransactionUsd ? formatNumberInput(minTransactionUsd) : ''}
                           onChange={(e) => handleMinTransactionChange(e.target.value)}
-                          className="pl-8 bg-white border-3 border-[var(--outline-black)] rounded-lg shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)] font-bold"
+                          className="pl-8 bg-[var(--card)] border-3 border-[var(--outline-black)] rounded-lg shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)] font-bold"
                         />
                       </div>
                     </div>
@@ -387,7 +387,7 @@ export function WalletTrackerSettingsModal({ isOpen, onClose, onSettingsSaved }:
                           placeholder="e.g., 10000"
                           value={maxTransactionUsd ? formatNumberInput(maxTransactionUsd) : ''}
                           onChange={(e) => handleMaxTransactionChange(e.target.value)}
-                          className="pl-8 bg-white border-3 border-[var(--outline-black)] rounded-lg shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)] font-bold"
+                          className="pl-8 bg-[var(--card)] border-3 border-[var(--outline-black)] rounded-lg shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)] font-bold"
                         />
                       </div>
                     </div>

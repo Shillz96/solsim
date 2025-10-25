@@ -207,7 +207,7 @@ export function WarpPipesHub() {
       {/* Error State */}
       {error && (
         <div className="px-4 pt-4 pb-2 flex-shrink-0">
-          <Alert variant="destructive" className="border-4 border-[var(--mario-red)] shadow-[6px_6px_0_var(--outline-black)] rounded-[16px] bg-white">
+          <Alert variant="destructive" className="border-4 border-[var(--mario-red)] shadow-[6px_6px_0_var(--outline-black)] rounded-[16px] bg-[var(--card)]">
             <AlertCircle className="h-5 w-5" />
             <AlertDescription className="flex items-center justify-between">
               <span className="text-[var(--outline-black)] font-bold">Failed to load tokens. Please try again.</span>
@@ -320,8 +320,8 @@ export function WarpPipesHub() {
 
       {/* Loading Overlay */}
       {isLoading && (
-        <div className="fixed inset-0 bg-white/80 backdrop-blur-sm flex items-center justify-center z-50">
-          <div className="bg-white border-4 border-[var(--outline-black)] shadow-[8px_8px_0_var(--outline-black)] rounded-[16px] p-8">
+        <div className="fixed inset-0 bg-[var(--card)]/80 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-[var(--card)] border-4 border-[var(--outline-black)] shadow-[8px_8px_0_var(--outline-black)] rounded-[16px] p-8">
             <Loader2 className="h-12 w-12 animate-spin text-[var(--mario-red)] mx-auto mb-4" />
             <p className="text-center font-bold text-[var(--outline-black)] text-[18px]">Loading Warp Pipes...</p>
             <p className="text-center text-[var(--outline-black)] opacity-70 text-sm mt-2">🍄 Discovering tokens...</p>

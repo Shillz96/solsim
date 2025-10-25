@@ -17,7 +17,7 @@ export default function DocumentationPage() {
           className="space-y-6 mb-12"
         >
           <Link href="/">
-            <Button variant="ghost" className="gap-2 mario-btn bg-white border-3 border-[var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)]">
+            <Button variant="ghost" className="gap-2 mario-btn bg-[var(--card)] border-3 border-[var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)]">
               <ArrowLeft className="h-4 w-4" />
               Back to Home
             </Button>
@@ -614,7 +614,7 @@ export default function DocumentationPage() {
             <h2 className="font-mario text-3xl text-[var(--outline-black)]">Badge System</h2>
           </div>
 
-          <div className="bg-white rounded-lg border-3 border-[var(--outline-black)] p-6 shadow-[4px_4px_0_var(--outline-black)]">
+          <div className="bg-[var(--card)] rounded-lg border-3 border-[var(--outline-black)] p-6 shadow-[4px_4px_0_var(--outline-black)]">
             <div className="space-y-6">
               <p className="text-[var(--outline-black)] font-semibold text-lg">
                 Earn badges by completing achievements and participating in the community! Each badge represents a unique accomplishment in your 1UP SOL journey.

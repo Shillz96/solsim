@@ -132,7 +132,7 @@ export function TokenColumn({
 
         {/* Empty State */}
         {!isLoading && tokens.length === 0 && (
-          <div className="flex flex-col items-center justify-center h-full text-center p-6 bg-white rounded-[16px] border-3 border-[var(--outline-black)]">
+          <div className="flex flex-col items-center justify-center h-full text-center p-6 bg-[var(--card)] rounded-[16px] border-3 border-[var(--outline-black)]">
             <div className="text-6xl mb-4">🍄</div>
             <p className="text-[var(--outline-black)] font-bold text-[16px]">No tokens in this column</p>
             <p className="text-[14px] text-[var(--outline-black)] opacity-70 mt-2">Check back soon for new discoveries!</p>

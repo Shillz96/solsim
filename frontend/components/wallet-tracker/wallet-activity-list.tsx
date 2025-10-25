@@ -108,7 +108,7 @@ const ActivityRow = React.memo(function ActivityRow({
   return (
     <Link
       href={`/room/${tokenMint}`}
-      className="grid grid-cols-[50px_80px_1fr_80px_60px] sm:grid-cols-[60px_100px_1fr_100px_80px] gap-2 sm:gap-3 px-3 sm:px-4 py-2.5 bg-white border-2 border-[var(--outline-black)] rounded-lg shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all duration-150 cursor-pointer"
+      className="grid grid-cols-[50px_80px_1fr_80px_60px] sm:grid-cols-[60px_100px_1fr_100px_80px] gap-2 sm:gap-3 px-3 sm:px-4 py-2.5 bg-[var(--card)] border-2 border-[var(--outline-black)] rounded-lg shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all duration-150 cursor-pointer"
       aria-label={`${isBuy ? 'Buy' : 'Sell'} ${amount.toFixed(2)} SOL of ${tokenSymbol} by ${walletLabel}`}
     >
       {/* Time */}
@@ -331,7 +331,7 @@ export function WalletActivityList({
           endReached={hasMore ? onLoadMore : undefined}
           components={{
             Footer: () => hasMore && isLoading ? (
-              <div className="py-4 border-t-2 border-[var(--outline-black)] bg-white">
+              <div className="py-4 border-t-2 border-[var(--outline-black)] bg-[var(--card)]">
                 <div className="flex items-center justify-center gap-2">
                   <Loader2 className="h-4 w-4 animate-spin text-[var(--mario-red)]" />
                   <span className="text-sm font-semibold text-[var(--outline-black)]">Loading more activities...</span>

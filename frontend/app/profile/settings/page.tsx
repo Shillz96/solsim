@@ -453,7 +453,7 @@ function UserSettingsPage() {
                 onChange={(e) => setProfileData(prev => ({ ...prev, displayName: e.target.value }))}
                 placeholder="Your display name"
                 maxLength={50}
-                className="border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)] bg-white"
+                className="border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)] bg-[var(--card)]"
               />
               <p className="text-xs text-muted-foreground font-semibold">
                 This is how your name appears on the leaderboard
@@ -469,7 +469,7 @@ function UserSettingsPage() {
                 placeholder="Tell us about yourself..."
                 maxLength={500}
                 rows={3}
-                className="resize-none border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)] bg-white"
+                className="resize-none border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)] bg-[var(--card)]"
               />
               <p className="text-xs text-muted-foreground font-semibold">
                 {profileData.bio.length}/500 characters
@@ -577,7 +577,7 @@ function UserSettingsPage() {
                   placeholder="Enter current password"
                   autoComplete="current-password"
                   required
-                  className="border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)] bg-white"
+                  className="border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)] bg-[var(--card)]"
                 />
                 <Button
                   type="button"
@@ -603,7 +603,7 @@ function UserSettingsPage() {
                   minLength={8}
                   autoComplete="new-password"
                   required
-                  className="border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)] bg-white"
+                  className="border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)] bg-[var(--card)]"
                 />
                 <Button
                   type="button"
@@ -628,7 +628,7 @@ function UserSettingsPage() {
                 minLength={8}
                 autoComplete="new-password"
                 required
-                className="border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)] bg-white"
+                className="border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)] bg-[var(--card)]"
               />
               <p className="text-xs text-muted-foreground font-semibold">
                 Must be 8+ characters with uppercase, lowercase, and number
@@ -872,7 +872,7 @@ function UserSettingsPage() {
                       }))
                     }
                   }}
-                  className="max-w-[200px] border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)] bg-white"
+                  className="max-w-[200px] border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)] bg-[var(--card)]"
                 />
                 <p className="text-xs text-muted-foreground">
                   Maximum price slippage for trades

@@ -72,7 +72,7 @@ export function WatchButton({
           "border-3 rounded-[10px] transition-all duration-200 shadow-[2px_2px_0_var(--outline-black)]",
           isWatchedState
             ? "bg-[var(--mario-red)] border-[var(--outline-black)] text-white hover:bg-[var(--mario-red)] hover:-translate-y-[1px] hover:shadow-[3px_3px_0_var(--outline-black)]"
-            : "bg-white border-[var(--outline-black)] text-[var(--outline-black)] hover:bg-[var(--background)] hover:-translate-y-[1px]",
+            : "bg-[var(--card)] border-[var(--outline-black)] text-[var(--outline-black)] hover:bg-[var(--background)] hover:-translate-y-[1px]",
           className
         )}
         title={isWatchedState ? "Remove from watchlist" : "Add to watchlist"}
@@ -138,7 +138,7 @@ export function CompactWatchButton({
         "p-2 rounded-[10px] border-3 transition-all duration-200 shadow-[2px_2px_0_var(--outline-black)]",
         isWatchedState
           ? "bg-[var(--mario-red)] border-[var(--outline-black)] text-white hover:bg-[var(--mario-red)] hover:-translate-y-[1px]"
-          : "bg-white border-[var(--outline-black)] text-[var(--outline-black)] hover:bg-[var(--background)] hover:-translate-y-[1px]",
+          : "bg-[var(--card)] border-[var(--outline-black)] text-[var(--outline-black)] hover:bg-[var(--background)] hover:-translate-y-[1px]",
         className
       )}
       title={isWatchedState ? "Remove from watchlist" : "Add to watchlist"}

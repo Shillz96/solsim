@@ -93,7 +93,7 @@ export function WalletStats({
     return (
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {Array.from({ length: 4 }).map((_, index) => (
-          <div key={index} className="mario-card bg-white border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] p-4">
+          <div key={index} className="mario-card bg-[var(--card)] border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] p-4">
             <div className="flex items-start justify-between">
               <div className="space-y-1">
                 <div className="h-3 bg-[var(--pipe-200)] rounded animate-pulse" />

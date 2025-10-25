@@ -472,7 +472,7 @@ export function WalletManager({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className={cn(
         marioStyles.cardLg(false),
-        'w-[95vw] max-w-2xl max-h-[85vh] sm:max-h-[80vh] overflow-hidden flex flex-col bg-white p-4 sm:p-6'
+        'w-[95vw] max-w-2xl max-h-[85vh] sm:max-h-[80vh] overflow-hidden flex flex-col bg-[var(--card)] p-4 sm:p-6'
       )}>
         <DialogHeader>
           <DialogTitle className={cn('flex items-center gap-2 text-2xl', marioStyles.heading(2))}>
@@ -490,7 +490,7 @@ export function WalletManager({
         </DialogHeader>
 
         <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)} className="flex-1 overflow-hidden flex flex-col">
-          <TabsList className="grid w-full grid-cols-3 bg-white border-3 border-[var(--outline-black)] p-1 gap-1 sm:gap-2 flex-shrink-0 h-auto">
+          <TabsList className="grid w-full grid-cols-3 bg-[var(--card)] border-3 border-[var(--outline-black)] p-1 gap-1 sm:gap-2 flex-shrink-0 h-auto">
             <TabsTrigger
               value="tracked"
               className="flex items-center justify-center gap-1 font-mario text-[10px] sm:text-[11px] py-1.5 sm:py-2 px-1 sm:px-2 whitespace-nowrap data-[state=active]:bg-[var(--star-yellow)] data-[state=active]:text-[var(--outline-black)] data-[state=active]:border-2 data-[state=active]:border-[var(--outline-black)] data-[state=active]:shadow-[2px_2px_0_var(--outline-black)] rounded-md"
@@ -528,7 +528,7 @@ export function WalletManager({
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className={cn(
                     marioStyles.input(),
-                    'pl-9 bg-white',
+                    'pl-9 bg-[var(--card)]',
                     marioStyles.bodyText('bold')
                   )}
                 />
@@ -672,7 +672,7 @@ export function WalletManager({
                               value={editLabel}
                               onChange={(e) => setEditLabel(e.target.value)}
                               placeholder="Enter wallet label..."
-                              className={cn(marioStyles.input(), 'flex-1 bg-white')}
+                              className={cn(marioStyles.input(), 'flex-1 bg-[var(--card)]')}
                               autoFocus
                               onKeyDown={(e) => {
                                 if (e.key === 'Enter') {
@@ -821,7 +821,7 @@ export function WalletManager({
           </TabsContent>
 
           <TabsContent value="add" className="mt-4">
-            <div className={cn(marioStyles.cardLg(false), 'bg-white p-6')}>
+            <div className={cn(marioStyles.cardLg(false), 'bg-[var(--card)] p-6')}>
               <div className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="wallet-address" className={marioStyles.bodyText('bold')}>Wallet Address *</Label>
@@ -832,7 +832,7 @@ export function WalletManager({
                     onChange={(e) => setNewWalletAddress(e.target.value)}
                     className={cn(
                       marioStyles.input(),
-                      "font-mono bg-white",
+                      "font-mono bg-[var(--card)]",
                       addressValidation.isValid === true ? "border-[var(--luigi-green)]" :
                       addressValidation.isValid === false ? "border-[var(--mario-red)]" :
                       ""
@@ -950,7 +950,7 @@ export function WalletManager({
                       placeholder="e.g., 'Ansem', 'Top Trader'..."
                       value={newWalletLabel}
                       onChange={(e) => setNewWalletLabel(e.target.value)}
-                      className={cn(marioStyles.input(), 'flex-1 bg-white')}
+                      className={cn(marioStyles.input(), 'flex-1 bg-[var(--card)]')}
                     />
                   </div>
                 </div>
@@ -1007,7 +1007,7 @@ export function WalletManager({
           </TabsContent>
 
           <TabsContent value="import" className="mt-4 overflow-y-auto flex-1 min-h-0">
-            <div className={cn(marioStyles.cardLg(false), 'bg-white p-6')}>
+            <div className={cn(marioStyles.cardLg(false), 'bg-[var(--card)] p-6')}>
               <div className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="bulk-wallets" className={marioStyles.bodyText('bold')}>Wallet Addresses</Label>
@@ -1019,7 +1019,7 @@ export function WalletManager({
                     rows={6}
                     className={cn(
                       marioStyles.input(),
-                      'w-full px-3 py-2 bg-white font-mono text-sm resize-none focus:outline-none focus:ring-0'
+                      'w-full px-3 py-2 bg-[var(--card)] font-mono text-sm resize-none focus:outline-none focus:ring-0'
                     )}
                   />
                   <p className="text-xs text-[var(--pipe-600)] font-semibold">

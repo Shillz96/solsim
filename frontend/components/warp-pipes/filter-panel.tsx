@@ -234,7 +234,7 @@ export function FilterPanel({
                 </TabsList>
 
                 {/* Audit Tab */}
-                <TabsContent value="audit" className="p-6 space-y-4 bg-white">
+                <TabsContent value="audit" className="p-6 space-y-4 bg-[var(--card)]">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {/* DEX Paid */}
                     <div className="flex items-center space-x-2">
@@ -327,7 +327,7 @@ export function FilterPanel({
                 </TabsContent>
 
                 {/* $ Metrics Tab */}
-                <TabsContent value="metrics" className="p-6 space-y-4 bg-white">
+                <TabsContent value="metrics" className="p-6 space-y-4 bg-[var(--card)]">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {/* Liquidity */}
                     <div className="space-y-2">
@@ -410,7 +410,7 @@ export function FilterPanel({
                 </TabsContent>
 
                 {/* Socials Tab */}
-                <TabsContent value="socials" className="p-6 space-y-4 bg-white">
+                <TabsContent value="socials" className="p-6 space-y-4 bg-[var(--card)]">
                   <div className="space-y-4">
                     {/* Social Requirements */}
                     <div className="space-y-3">
@@ -457,7 +457,7 @@ export function FilterPanel({
           </div>
 
           {/* Action Buttons */}
-          <div className="flex items-center justify-between p-6 pt-4 border-t-4 border-[var(--outline-black)] bg-white">
+          <div className="flex items-center justify-between p-6 pt-4 border-t-4 border-[var(--outline-black)] bg-[var(--card)]">
             <div className="flex gap-2">
               <Button
                 onClick={handleImport}
@@ -465,7 +465,7 @@ export function FilterPanel({
                 size="sm"
                 className={cn(
                   marioStyles.button('outline', 'sm'),
-                  'bg-white'
+                  'bg-[var(--card)]'
                 )}
               >
                 <Upload className="h-4 w-4 mr-1" />
@@ -477,7 +477,7 @@ export function FilterPanel({
                 size="sm"
                 className={cn(
                   marioStyles.button('outline', 'sm'),
-                  'bg-white'
+                  'bg-[var(--card)]'
                 )}
               >
                 <Download className="h-4 w-4 mr-1" />
@@ -489,7 +489,7 @@ export function FilterPanel({
                 size="sm"
                 className={cn(
                   marioStyles.button('outline', 'sm'),
-                  'bg-white'
+                  'bg-[var(--card)]'
                 )}
               >
                 Reset

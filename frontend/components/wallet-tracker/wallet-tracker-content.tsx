@@ -283,7 +283,7 @@ export function WalletTrackerContent({ compact = false }: WalletTrackerContentPr
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 flex items-center justify-center p-4">
-        <div className="mario-card bg-white border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] p-8 text-center max-w-md">
+        <div className="mario-card bg-[var(--card)] border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] p-8 text-center max-w-md">
           <Wallet className="h-16 w-16 text-[var(--mario-red)] mx-auto mb-4" />
           <h2 className="text-2xl font-bold mb-3 text-[var(--outline-black)]">Sign In Required</h2>
           <p className="text-[var(--outline-black)] font-semibold mb-6">
@@ -346,7 +346,7 @@ export function WalletTrackerContent({ compact = false }: WalletTrackerContentPr
                   >
                     <div className={cn(
                       "h-1.5 w-1.5 rounded-full",
-                      connected ? "bg-white animate-pulse" : "bg-[var(--outline-black)]"
+                      connected ? "bg-[var(--card)] animate-pulse" : "bg-[var(--outline-black)]"
                     )} />
                     {connected ? "LIVE" : "OFFLINE"}
                   </Badge>
@@ -391,7 +391,7 @@ export function WalletTrackerContent({ compact = false }: WalletTrackerContentPr
                   onClick={() => setShowSettings(true)}
                   className={cn(
                     marioStyles.button('outline', 'sm'),
-                    'gap-1.5 bg-white/80 text-xs'
+                    'gap-1.5 bg-[var(--card)]/80 text-xs'
                   )}
                   title="Filters"
                 >
@@ -463,7 +463,7 @@ export function WalletTrackerContent({ compact = false }: WalletTrackerContentPr
                 >
                   <div className={cn(
                     "h-2 w-2 rounded-full",
-                    connected ? (hasNewActivities ? "bg-white animate-pulse" : "bg-white") : "bg-[var(--outline-black)]"
+                    connected ? (hasNewActivities ? "bg-[var(--card)] animate-pulse" : "bg-[var(--card)]") : "bg-[var(--outline-black)]"
                   )} />
                   {connected ? "Live" : "Offline"}
                 </Badge>
@@ -521,7 +521,7 @@ export function WalletTrackerContent({ compact = false }: WalletTrackerContentPr
             </motion.div>
 
             {/* Filters - Sticky bar - Full mode only */}
-            <div className="sticky top-0 z-10 mario-card bg-white border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] p-4 backdrop-blur-sm">
+            <div className="sticky top-0 z-10 mario-card bg-[var(--card)] border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] p-4 backdrop-blur-sm">
               <div className="flex flex-col sm:flex-row gap-4">
                 <div className="relative flex-1">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-[var(--outline-black)]" />
