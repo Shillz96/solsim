@@ -66,7 +66,7 @@ export function HourlyRewardTimer() {
     <>
       <button onClick={() => setShowWinnersModal(true)} className="cursor-pointer relative z-[99999]">
         <CartridgePill
-          label="Next Rewards"
+          label="Rewards in"
           value={formatTime(secondsUntilNext)}
           bgColor="var(--luigi-green)"
           size="sm"
