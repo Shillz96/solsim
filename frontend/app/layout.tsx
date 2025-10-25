@@ -1,12 +1,11 @@
 "use client"
 
-import { WindowManager } from "@/components/window-manager"
-import { FloatingWindows } from "@/components/floating-windows"
+import { WindowManager } from "@/components/window"
+import { FloatingWindows } from "@/components/window"
 import { NavBar } from "@/components/navigation/nav-bar"
 import { BottomNavBar } from "@/components/navigation/bottom-nav-bar"
 import { SlidingTrendingTicker } from "@/components/trading/sliding-trending-ticker"
-import { AppProviders } from "@/lib/app-providers"
-import { Analytics } from "@/components/analytics"
+import { QueryProvider } from "@/lib/query-provider"
 import { cn } from "@/lib/utils"
 
 export default function RootLayout({
@@ -24,7 +23,7 @@ export default function RootLayout({
         <title>1UP SOL - Mario Paper Trading</title>
       </head>
       <body className={cn("h-full bg-[var(--background)] text-[var(--foreground)] antialiased")}>
-        <AppProviders>
+        <QueryProvider>
           <WindowManager>
             <div className="min-h-screen flex flex-col">
               <a
@@ -53,8 +52,7 @@ export default function RootLayout({
             {/* Floating windows render here, positioned absolutely over the page */}
             <FloatingWindows />
           </WindowManager>
-        </AppProviders>
-        <Analytics />
+        </QueryProvider>
       </body>
     </html>
   )

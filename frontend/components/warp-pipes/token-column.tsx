@@ -41,17 +41,17 @@ export function TokenColumn({
   const theme = {
     bonded: {
       header: "bg-gradient-to-br from-[var(--coin-gold)] to-[var(--coin-yellow)] text-[var(--outline-black)]",
-      body: "bg-gradient-to-b from-amber-50/30 to-white",
+      body: "bg-gradient-to-b from-amber-50/50 to-amber-100/30",
       image: "/bonded-10-23-2025.png",
     },
     graduating: {
       header: "bg-gradient-to-br from-[var(--star-yellow)] to-amber-400 text-[var(--outline-black)]",
-      body: "bg-gradient-to-b from-yellow-50/30 to-white",
+      body: "bg-gradient-to-b from-yellow-50/50 to-yellow-100/30",
       image: "/About-to-Graduate-10-23-2025.png",
     },
     new: {
       header: "bg-gradient-to-br from-[var(--luigi-green)] to-emerald-500 text-white",
-      body: "bg-gradient-to-b from-green-50/30 to-white",
+      body: "bg-gradient-to-b from-emerald-50/50 to-green-100/30",
       image: "/New-Pairs-10-23-2025.png",
     },
   }[headerColor]
@@ -77,10 +77,6 @@ export function TokenColumn({
               className="h-16 w-auto object-contain drop-shadow-lg"
               priority
             />
-            {/* Add black bar for NEW PAIRS to match other sections */}
-            {headerColor === "new" && (
-              <div className="absolute bottom-0 left-0 right-0 h-1 bg-[var(--outline-black)] rounded-sm"></div>
-            )}
           </div>
         </div>
 
@@ -100,8 +96,7 @@ export function TokenColumn({
         {/* Column Body - Scrollable List */}
         <div
           className={cn(
-            "flex-1 overflow-y-auto p-3 pt-0 space-y-3 min-h-0",
-            "scrollbar-none",
+            "flex-1 overflow-y-auto p-3 pt-0 space-y-3 min-h-0 scrollbar-hidden",
             theme.body
           )}
         >

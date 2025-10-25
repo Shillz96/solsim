@@ -144,13 +144,13 @@ export function FilterPanel({
           <Button
             variant="outline"
             className={cn(
-              "flex items-center gap-2 border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-[1px] transition-all duration-200 font-bold w-full justify-center relative",
+              "flex items-center gap-2 border-3 border-[var(--outline-black)] rounded-[12px] shadow-[4px_4px_0_var(--outline-black)] hover:shadow-[6px_6px_0_var(--outline-black)] hover:-translate-y-[1px] transition-all duration-200 font-bold w-full justify-center relative",
               colorTheme.button,
               colorTheme.text
             )}
           >
             <Settings className="h-4 w-4" />
-            🎛️ Filters
+            <span className="text-sm">Filters</span>
             {filterCounts.total > 0 && (
               <span className="absolute -top-2 -right-2 bg-[var(--mario-red)] text-white text-xs w-5 h-5 rounded-full flex items-center justify-center border-2 border-[var(--outline-black)] font-bold">
                 {filterCounts.total}
@@ -160,10 +160,11 @@ export function FilterPanel({
         </DialogTrigger>
 
         {/* Filter Modal Content */}
-        <DialogContent className="max-w-4xl max-h-[90vh] p-0 overflow-hidden">
-          <DialogHeader className="p-6 pb-4 border-b-4 border-[var(--outline-black)]">
-            <DialogTitle className="font-mario text-[24px] text-[var(--outline-black)]">
-              🎛️ Advanced Filters
+        <DialogContent className="max-w-4xl max-h-[90vh] p-0 overflow-hidden rounded-[20px] border-4 border-[var(--outline-black)] shadow-[8px_8px_0_var(--outline-black)]">
+          <DialogHeader className="p-6 pb-4 border-b-4 border-[var(--outline-black)] bg-gradient-to-r from-[var(--star-yellow)] to-amber-300">
+            <DialogTitle className="font-mario text-[24px] text-[var(--outline-black)] flex items-center gap-2">
+              <Settings className="h-6 w-6" />
+              Advanced Filters
             </DialogTitle>
           </DialogHeader>
 

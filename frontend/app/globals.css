@@ -824,6 +824,16 @@
   background: var(--color-pipe);
 }
 
+/* Hidden Scrollbar (scrolling still works) */
+.scrollbar-hidden::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hidden {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
 /* Message Animation */
 @keyframes messageSlideIn {
   from { opacity: 0; transform: translateY(10px); }
