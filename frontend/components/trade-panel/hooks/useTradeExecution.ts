@@ -3,7 +3,7 @@
  * Handles buy/sell trade execution with optimistic updates
  */
 
-import { useCallback } from 'react'
+import { useCallback, useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { useToast } from '@/hooks/use-toast'
 import { useAuth } from '@/hooks/use-auth'
@@ -18,16 +18,30 @@ export function useTradeExecution() {
   const queryClient = useQueryClient()
   const { tradeMode } = useTradingMode()
   const { addOptimisticTrade } = useRealtimePnL(tradeMode)
+  
+  // Track execution state
+  const [isExecuting, setIsExecuting] = useState(false)
 
   const executeBuy = useCallback(async (
     tokenAddress: string,
     tokenQuantity: number,
+    solAmount: number,
     onSuccess?: () => void,
     onError?: (error: string) => void
   ) => {
+    setIsExecuting(true)
     try {
       const userId = getUserId()
       if (!userId) throw new Error('Not authenticated')
+
+      // Optimistic balance update
+      queryClient.setQueryData(['user-balance', userId], (old: any) => {
+        if (!old) return old
+        return {
+          ...old,
+          balance: (parseFloat(old.balance) - solAmount).toString()
+        }
+      })
 
       const result = await api.trade({
         userId,
@@ -48,30 +62,53 @@ export function useTradeExecution() {
         })
 
         onSuccess?.()
+      } else {
+        // Revert optimistic update on failure
+        queryClient.invalidateQueries({ queryKey: ['user-balance', userId] })
       }
 
       return result
     } catch (err) {
       const errorMessage = (err as Error).message
+      
+      // Revert optimistic update on error
+      const userId = getUserId()
+      if (userId) {
+        queryClient.invalidateQueries({ queryKey: ['user-balance', userId] })
+      }
+      
       toast({
-        title: "Trade Failed",
+        title: "❌ Trade Failed",
         description: errorMessage,
         variant: "destructive",
       })
       onError?.(errorMessage)
       throw err
+    } finally {
+      setIsExecuting(false)
     }
   }, [getUserId, toast, queryClient])
 
   const executeSell = useCallback(async (
     tokenAddress: string,
     tokenQuantity: number,
+    solAmount: number,
     onSuccess?: () => void,
     onError?: (error: string) => void
   ) => {
+    setIsExecuting(true)
     try {
       const userId = getUserId()
       if (!userId) throw new Error('Not authenticated')
+
+      // Optimistic balance update
+      queryClient.setQueryData(['user-balance', userId], (old: any) => {
+        if (!old) return old
+        return {
+          ...old,
+          balance: (parseFloat(old.balance) + solAmount).toString()
+        }
+      })
 
       const result = await api.trade({
         userId,
@@ -92,24 +129,38 @@ export function useTradeExecution() {
         })
 
         onSuccess?.()
+      } else {
+        // Revert optimistic update on failure
+        queryClient.invalidateQueries({ queryKey: ['user-balance', userId] })
       }
 
       return result
     } catch (err) {
       const errorMessage = (err as Error).message
+      
+      // Revert optimistic update on error
+      const userId = getUserId()
+      if (userId) {
+        queryClient.invalidateQueries({ queryKey: ['user-balance', userId] })
+      }
+      
       toast({
-        title: "Trade Failed",
+        title: "❌ Trade Failed",
         description: errorMessage,
         variant: "destructive",
       })
       onError?.(errorMessage)
       throw err
+    } finally {
+      setIsExecuting(false)
     }
   }, [getUserId, toast, queryClient])
 
   return {
     executeBuy,
     executeSell,
-    addOptimisticTrade
+    addOptimisticTrade,
+    isExecuting
   }
 }
+

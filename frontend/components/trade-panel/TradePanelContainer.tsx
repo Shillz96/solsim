@@ -32,12 +32,14 @@ import { TradePanelSellTab } from './TradePanelSellTab'
 // Import utilities
 import { 
   calculateBuyEstimate, 
-  calculateSellQuantity, 
+  calculateSellQuantity,
+  calculateSellEstimate, 
   roundTokenQuantity,
   validateBuyAmount,
   validateSellPercentage 
 } from './utils/calculations'
 import type { TokenDetails } from './types'
+
 
 interface TradePanelContainerProps {
   tokenAddress?: string
@@ -54,7 +56,7 @@ export function TradePanelContainer({ tokenAddress: propTokenAddress }: TradePan
 
   // Custom hooks
   const tradePanelState = useTradePanelState()
-  const { executeBuy, executeSell, addOptimisticTrade } = useTradeExecution()
+  const { executeBuy, executeSell, addOptimisticTrade, isExecuting } = useTradeExecution()
   const { position, pnl, currentPrice, hasPosition } = usePositionPnL(tokenAddress)
 
   // Local state
@@ -139,6 +141,7 @@ export function TradePanelContainer({ tokenAddress: propTokenAddress }: TradePan
       await executeBuy(
         tokenAddress,
         tokenQuantity,
+        solAmount, // Pass solAmount for optimistic balance update
         () => {
           // Success callback
           tradePanelState.setTradeSuccessState(true)
@@ -151,6 +154,7 @@ export function TradePanelContainer({ tokenAddress: propTokenAddress }: TradePan
             setUserBalance(parseFloat(data.balance))
           })
         },
+
         (error) => {
           // Error callback
           tradePanelState.setTradeErrorState(error)
@@ -192,6 +196,10 @@ export function TradePanelContainer({ tokenAddress: propTokenAddress }: TradePan
     const holdingQty = parseFloat(position.qty)
     const tokenQuantity = roundTokenQuantity(calculateSellQuantity(holdingQty, percentage))
 
+    // Calculate expected SOL amount for optimistic update
+    const sellEstimate = calculateSellEstimate(tokenQuantity, currentPrice, solPrice)
+    const expectedSolAmount = sellEstimate.solAmount
+
     // Set trading state
     tradePanelState.setTradingState(true)
     tradePanelState.setTradeErrorState(null)
@@ -203,6 +211,7 @@ export function TradePanelContainer({ tokenAddress: propTokenAddress }: TradePan
       await executeSell(
         tokenAddress,
         tokenQuantity,
+        expectedSolAmount, // Pass solAmount for optimistic balance update
         () => {
           // Success callback
           tradePanelState.setTradeSuccessState(true)
@@ -213,6 +222,7 @@ export function TradePanelContainer({ tokenAddress: propTokenAddress }: TradePan
             setUserBalance(parseFloat(data.balance))
           })
         },
+
         (error) => {
           // Error callback
           tradePanelState.setTradeErrorState(error)

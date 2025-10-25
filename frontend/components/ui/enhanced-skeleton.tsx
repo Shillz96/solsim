@@ -101,5 +101,169 @@ function TableSkeleton({ rows = 5, className }: { rows?: number; className?: str
   )
 }
 
-export { Skeleton, ChartSkeleton, CardSkeleton, TableSkeleton }
+/**
+ * ============================================
+ * MARIO-THEMED SKELETON COMPONENTS
+ * ============================================
+ */
+
+/**
+ * MarioCardSkeleton
+ * Card skeleton with Mario borders and shadows
+ */
+function MarioCardSkeleton({ rows = 3, className }: { rows?: number; className?: string }) {
+  return (
+    <div className={cn(
+      "bg-[var(--card)] border-4 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)] rounded-xl p-6 space-y-3",
+      className
+    )}>
+      {Array.from({ length: rows }).map((_, i) => (
+        <div 
+          key={i} 
+          className="h-6 bg-[var(--sky-200)] rounded animate-pulse motion-reduce:animate-none"
+        />
+      ))}
+    </div>
+  )
+}
+
+/**
+ * MarioTableRowSkeleton
+ * Table row skeleton with proper Mario spacing
+ */
+function MarioTableRowSkeleton({ className }: { className?: string }) {
+  return (
+    <div className={cn(
+      "flex items-center gap-4 p-3 bg-[var(--card)] border-2 border-[var(--outline-black)] rounded-lg",
+      className
+    )}>
+      <div className="h-10 w-10 bg-[var(--sky-200)] rounded-full animate-pulse motion-reduce:animate-none" />
+      <div className="flex-1 space-y-2">
+        <div className="h-4 bg-[var(--sky-200)] rounded w-3/4 animate-pulse motion-reduce:animate-none" />
+        <div className="h-3 bg-[var(--sky-200)] rounded w-1/2 animate-pulse motion-reduce:animate-none" />
+      </div>
+      <div className="h-6 w-20 bg-[var(--sky-200)] rounded animate-pulse motion-reduce:animate-none" />
+    </div>
+  )
+}
+
+/**
+ * MarioStatSkeleton
+ * Stat card skeleton (label + value + optional icon)
+ */
+function MarioStatSkeleton({ className }: { className?: string }) {
+  return (
+    <div className={cn(
+      "bg-[var(--card)] border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] rounded-lg p-4",
+      className
+    )}>
+      <div className="flex items-center justify-between mb-2">
+        <div className="h-4 w-24 bg-[var(--sky-200)] rounded animate-pulse motion-reduce:animate-none" />
+        <div className="h-5 w-5 bg-[var(--sky-200)] rounded animate-pulse motion-reduce:animate-none" />
+      </div>
+      <div className="h-8 w-32 bg-[var(--sky-200)] rounded animate-pulse motion-reduce:animate-none" />
+    </div>
+  )
+}
+
+/**
+ * MarioTokenCardSkeleton
+ * Token display card skeleton with image + metadata
+ */
+function MarioTokenCardSkeleton({ className }: { className?: string }) {
+  return (
+    <div className={cn(
+      "bg-[var(--card)] border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] rounded-xl p-4",
+      className
+    )}>
+      <div className="flex items-center gap-3 mb-3">
+        <div className="h-12 w-12 bg-[var(--sky-200)] rounded-full animate-pulse motion-reduce:animate-none" />
+        <div className="flex-1 space-y-2">
+          <div className="h-5 bg-[var(--sky-200)] rounded w-32 animate-pulse motion-reduce:animate-none" />
+          <div className="h-4 bg-[var(--sky-200)] rounded w-20 animate-pulse motion-reduce:animate-none" />
+        </div>
+      </div>
+      <div className="space-y-2">
+        <div className="flex justify-between">
+          <div className="h-4 bg-[var(--sky-200)] rounded w-16 animate-pulse motion-reduce:animate-none" />
+          <div className="h-4 bg-[var(--sky-200)] rounded w-24 animate-pulse motion-reduce:animate-none" />
+        </div>
+        <div className="flex justify-between">
+          <div className="h-4 bg-[var(--sky-200)] rounded w-20 animate-pulse motion-reduce:animate-none" />
+          <div className="h-4 bg-[var(--sky-200)] rounded w-20 animate-pulse motion-reduce:animate-none" />
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/**
+ * MarioChartSkeleton
+ * Chart skeleton with Mario theme
+ */
+function MarioChartSkeleton({ className }: { className?: string }) {
+  return (
+    <div className={cn(
+      "bg-[var(--card)] border-4 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)] rounded-xl p-6",
+      className
+    )}>
+      <div className="flex items-center justify-between mb-4">
+        <div className="h-6 w-32 bg-[var(--sky-200)] rounded animate-pulse motion-reduce:animate-none" />
+        <div className="h-8 w-24 bg-[var(--sky-200)] rounded animate-pulse motion-reduce:animate-none" />
+      </div>
+      <div className="h-[300px] bg-[var(--sky-200)] rounded-lg animate-pulse motion-reduce:animate-none" />
+      <div className="flex gap-2 mt-4">
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="h-6 w-16 bg-[var(--sky-200)] rounded animate-pulse motion-reduce:animate-none" />
+        ))}
+      </div>
+    </div>
+  )
+}
+
+/**
+ * MarioTableSkeleton
+ * Full table skeleton with Mario theme
+ */
+function MarioTableSkeleton({ rows = 5, className }: { rows?: number; className?: string }) {
+  return (
+    <div className={cn(
+      "bg-[var(--card)] border-4 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)] rounded-xl overflow-hidden",
+      className
+    )}>
+      {/* Header */}
+      <div className="flex gap-4 p-4 bg-[var(--sky-100)] border-b-3 border-[var(--outline-black)]">
+        <div className="h-4 w-32 bg-[var(--sky-300)] rounded animate-pulse motion-reduce:animate-none" />
+        <div className="h-4 w-24 bg-[var(--sky-300)] rounded animate-pulse motion-reduce:animate-none" />
+        <div className="h-4 w-24 bg-[var(--sky-300)] rounded animate-pulse motion-reduce:animate-none" />
+        <div className="h-4 w-20 bg-[var(--sky-300)] rounded animate-pulse motion-reduce:animate-none" />
+      </div>
+      {/* Rows */}
+      <div className="divide-y-2 divide-[var(--outline-black)]">
+        {Array.from({ length: rows }).map((_, i) => (
+          <div key={i} className="flex gap-4 p-4">
+            <div className="h-10 w-32 bg-[var(--sky-200)] rounded animate-pulse motion-reduce:animate-none" />
+            <div className="h-10 w-24 bg-[var(--sky-200)] rounded animate-pulse motion-reduce:animate-none" />
+            <div className="h-10 w-24 bg-[var(--sky-200)] rounded animate-pulse motion-reduce:animate-none" />
+            <div className="h-10 w-20 bg-[var(--sky-200)] rounded animate-pulse motion-reduce:animate-none" />
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+export { 
+  Skeleton, 
+  ChartSkeleton, 
+  CardSkeleton, 
+  TableSkeleton,
+  // Mario-themed skeletons
+  MarioCardSkeleton,
+  MarioTableRowSkeleton,
+  MarioStatSkeleton,
+  MarioTokenCardSkeleton,
+  MarioChartSkeleton,
+  MarioTableSkeleton,
+}
 

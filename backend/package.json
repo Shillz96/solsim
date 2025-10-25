@@ -26,6 +26,7 @@
     "db:optimize": "tsx src/scripts/create-performance-indexes.ts",
     "db:fix-enum": "tsx scripts/fix-enum-migration.ts",
     "db:seed-tokens": "tsx scripts/seed-warp-pipes-tokens.ts",
+    "db:fix-uuid": "tsx scripts/fix-uuid-defaults.ts",
     "chat:cleanup": "tsx scripts/chat-cleanup.ts",
     "test": "jest"
   },

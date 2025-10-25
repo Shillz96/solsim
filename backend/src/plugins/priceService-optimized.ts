@@ -209,6 +209,9 @@ class OptimizedPriceService extends EventEmitter {
   constructor() {
     super();
 
+    // Fix EventEmitter memory leak warning
+    this.setMaxListeners(100); // Allow up to 100 listeners for price service
+
     const apiKey = process.env.HELIUS_API;
     if (!apiKey) {
       throw new Error("HELIUS_API environment variable is required");
