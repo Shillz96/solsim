@@ -64,11 +64,11 @@ export function AdminButton({
 interface AdminInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
   error?: string;
-  size?: 'sm' | 'md' | 'lg';
+  inputSize?: 'sm' | 'md' | 'lg';
 }
 
-export function AdminInput({ label, error, size = 'md', className, ...props }: AdminInputProps) {
-  const inputClass = marioStyles.input(size);
+export function AdminInput({ label, error, inputSize = 'md', className, ...props }: AdminInputProps) {
+  const inputClass = marioStyles.input(inputSize);
   
   return (
     <div className="space-y-2">
