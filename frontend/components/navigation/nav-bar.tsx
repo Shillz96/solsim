@@ -273,7 +273,8 @@ export function NavBar() {
     <motion.header
       initial={{ y: -100 }}
       animate={{ y: 0 }}
-      className="sticky top-0 z-50 w-full border-b border-[var(--color-border)] bg-[var(--background)]"
+      style={{ position: 'sticky', top: 0 }}
+      className="z-50 w-full border-b border-[var(--color-border)] bg-[var(--background)]"
     >
       <div className="w-full px-4 md:px-6">
         <div className="flex items-center justify-between gap-4 h-[var(--navbar-height)]">
