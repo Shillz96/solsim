@@ -97,7 +97,7 @@ export function TrendingTokensSection() {
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1 }}
               >
-                <Link href={`/trade?token=${token.mint}`}>
+                <Link href={`/room/${token.mint}`}>
                   <div className="bg-[var(--card)] rounded-[24px] border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] p-6 hover:shadow-[8px_8px_0_var(--outline-black)] hover:-translate-y-1 transition-all duration-300 cursor-pointer h-full">
                     <div className="space-y-4">
                       <div className="flex items-center gap-3">

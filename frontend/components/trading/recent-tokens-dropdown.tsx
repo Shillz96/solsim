@@ -78,7 +78,7 @@ export function RecentTokensDropdown({ currentTokenAddress }: { currentTokenAddr
   }
 
   const handleTokenSelect = (token: RecentToken) => {
-    router.push(`/trade?token=${token.mint}&symbol=${token.symbol}&name=${encodeURIComponent(token.name)}`)
+    router.push(`/room/${token.mint}`)
   }
 
   const getTimeAgo = (timestamp: number) => {

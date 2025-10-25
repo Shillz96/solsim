@@ -147,7 +147,7 @@ export const TradeNotifications = {
             Current price: {formatUSD(currentPrice)}
           </p>
           <Button variant="outline" size="sm" asChild>
-            <Link href={`/trade?token=${symbol}`}>
+            <Link href={`/room/${symbol}`}>
               Trade {symbol}
             </Link>
           </Button>

@@ -118,12 +118,12 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
         {/* Redesigned Token Card - Enhanced Layout */}
         <div className={cn(
           'cursor-pointer transition-all duration-200',
-          'rounded-2xl border-4 border-[var(--outline-black)] p-6 bg-[var(--card)]',
+          'rounded-2xl border-4 border-[var(--outline-black)] bg-[var(--card)]',
           'shadow-[6px_0_0_var(--outline-black)] hover:shadow-[8px_0_0_var(--outline-black)] hover:-translate-y-1',
           'relative overflow-hidden bg-[var(--sky-blue)]/20',
           'h-[var(--token-card-height)] min-h-[var(--token-card-height)]'
         )}>
-          <div className="flex items-center gap-4 p-4 h-full">
+          <div className="flex items-center gap-6 p-4 h-full">
 
             {/* LEFT: Larger Token Logo */}
             <div className={cn(
@@ -144,37 +144,41 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
             </div>
 
             {/* MIDDLE: Enhanced Token Info */}
-            <div className="flex-1 min-w-0 overflow-hidden">
+            <div className="flex-1 min-w-0 overflow-hidden flex flex-col justify-between h-full">
               {/* Header Row: Symbol, Name, Age, Security */}
-              <div className="flex items-center gap-3 mb-2">
-                <h3 className={cn(marioStyles.heading(4), 'text-[22px] truncate max-w-[120px]')} title={data.symbol}>
+              <div className="flex items-center gap-2 mb-1">
+                <h3 className={cn(marioStyles.heading(4), 'text-[20px] truncate max-w-[100px]')} title={data.symbol}>
                   {data.symbol}
                 </h3>
-                <span className={cn(marioStyles.bodyText('semibold'), 'text-[15px] truncate max-w-[120px]')} title={data.name || undefined}>
+                <span className={cn(marioStyles.bodyText('semibold'), 'text-[14px] truncate max-w-[140px]')} title={data.name || undefined}>
                   {data.name}
                 </span>
-                <span className={cn(marioStyles.bodyText('bold'), 'text-[12px] ml-auto flex-shrink-0')}>
+                <span className={cn(marioStyles.bodyText('bold'), 'text-[11px] ml-auto flex-shrink-0')}>
                   {age}
                 </span>
                 {/* Security Shield Icon */}
-                <Shield className={cn(securityIconColor, 'flex-shrink-0')} />
+                <Shield className={cn(securityIconColor, 'flex-shrink-0 w-4 h-4')} />
               </div>
 
               {/* Description (if available, with better truncation) */}
               {data.description && (
-                <div className="text-[12px] text-[var(--outline-black)] font-medium mb-2 line-clamp-2 max-w-[280px] overflow-hidden" title={data.description}>
-                  {data.description.length > 120 ? `${data.description.substring(0, 120)}...` : data.description}
+                <div className="text-[11px] text-[var(--outline-black)] font-medium mb-1 line-clamp-1 max-w-full overflow-hidden" title={data.description}>
+                  {data.description.length > 100 ? `${data.description.substring(0, 100)}...` : data.description}
                 </div>
               )}
 
               {/* Metrics Grid - 3 columns */}
-              <div className="grid grid-cols-3 gap-3 mb-2 flex-shrink-0">
+              <div className="grid grid-cols-3 gap-2 mb-1 flex-shrink-0">
                 {/* Market Cap */}
                 <div className="flex flex-col">
                   <div className={marioStyles.formatMetricLabel('MC')}>
                     Market Cap
                   </div>
-                  <div className={marioStyles.formatMetricValue(data.marketCapUsd)}>
+                  <div className={cn(
+                    marioStyles.formatMetricValue(data.marketCapUsd),
+                    // Highlight market cap > $100k in green
+                    data.marketCapUsd && data.marketCapUsd >= 100000 && 'text-[var(--luigi-green)] font-extrabold text-[15px]'
+                  )}>
                     {fmtCurrency(data.marketCapUsd)}
                   </div>
                 </div>
@@ -197,7 +201,7 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
                   {priceChg != null ? (
                     <div className={cn(
                       marioStyles.formatMetricValue(priceChg, priceChg >= 0 ? 'positive' : 'negative'),
-                      'flex items-center gap-1'
+                      'flex items-center gap-0.5'
                     )}>
                       {priceChg >= 0 ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
                       {priceChg >= 0 ? "+" : ""}{priceChg.toFixed(1)}%
@@ -209,7 +213,7 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
               </div>
 
               {/* Secondary Metrics Row */}
-              <div className="grid grid-cols-3 gap-3 mb-2 flex-shrink-0">
+              <div className="grid grid-cols-3 gap-2 mb-1 flex-shrink-0">
                 {/* Holders */}
                 <div className="flex flex-col">
                   <div className={marioStyles.formatMetricLabel('Holders')}>
@@ -243,15 +247,15 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
 
               {/* SOL to Graduate Progress Bar - Only for ABOUT_TO_BOND */}
               {data.status === 'ABOUT_TO_BOND' && data.bondingCurveProgress != null && data.solToGraduate != null && (
-                <div className="mt-2 relative">
-                  <div className="bg-[var(--card)] border-2 border-[var(--outline-black)] rounded-full h-3 overflow-hidden relative shadow-[1px_1px_0_var(--outline-black)]">
+                <div className="mt-1 relative">
+                  <div className="bg-[var(--card)] border-2 border-[var(--outline-black)] rounded-full h-2.5 overflow-hidden relative shadow-[1px_1px_0_var(--outline-black)]">
                     <div
                       className="bg-[var(--star-yellow)] h-full flex items-center justify-center border-r-2 border-[var(--outline-black)] transition-all duration-500 relative"
                       style={{ width: `${Math.min(data.bondingCurveProgress, 100)}%` }}
                     >
                       {/* Glow effect */}
                       <div className="absolute inset-0 bg-[var(--star-yellow)] opacity-50 animate-pulse" />
-                      <span className="text-[8px] font-bold text-[var(--outline-black)] z-10 relative drop-shadow-[2px_2px_0_var(--outline-black)]">
+                      <span className="text-[7px] font-bold text-[var(--outline-black)] z-10 relative drop-shadow-[1px_1px_0_var(--outline-black)]">
                         🎯 {data.solToGraduate.toFixed(1)} SOL
                       </span>
                     </div>
@@ -260,10 +264,10 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
               )}
 
               {/* Bottom Row: Social Links & Creator */}
-              <div className="flex items-center gap-2 mt-1 flex-shrink-0">
+              <div className="flex items-center gap-2 flex-shrink-0">
                 {/* Social Links */}
                 {(data.twitter || data.telegram || data.website) && (
-                  <div className="flex items-center gap-1.5">
+                  <div className="flex items-center gap-1">
                     {data.twitter && (
                       <HoverCard openDelay={200}>
                         <HoverCardTrigger asChild>
@@ -277,8 +281,8 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
                             <Image 
                               src="/x-logo/logo.svg" 
                               alt="X/Twitter" 
-                              width={16} 
-                              height={16}
+                              width={14} 
+                              height={14}
                               className="inline-block filter brightness-0"
                             />
                           </a>
@@ -319,8 +323,8 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
                             <Image 
                               src="/icons/social/telegram-icon.svg" 
                               alt="Telegram" 
-                              width={16} 
-                              height={16}
+                              width={14} 
+                              height={14}
                               className="inline-block"
                             />
                           </a>
@@ -361,8 +365,8 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
                             <Image 
                               src="/icons/social/globe-icon.svg" 
                               alt="Website" 
-                              width={16} 
-                              height={16}
+                              width={14} 
+                              height={14}
                               className="inline-block"
                             />
                           </a>
@@ -395,7 +399,7 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
 
                 {/* Creator Wallet */}
                 {data.creatorWallet && (
-                  <div className="text-[11px] text-[var(--outline-black)] opacity-50 font-mono ml-auto" title={data.creatorWallet}>
+                  <div className="text-[10px] text-[var(--outline-black)] opacity-50 font-mono ml-auto" title={data.creatorWallet}>
                     👨‍💻 {shorten(data.creatorWallet, 3, 3)}
                   </div>
                 )}

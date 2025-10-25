@@ -25,7 +25,7 @@ export function EnhancedTrendingList() {
   }
 
   const handleTokenClick = (tokenAddress: string) => {
-    router.push(`/trade?token=${tokenAddress}`)
+    router.push(`/room/${tokenAddress}`)
   }
 
   if (loading && !trendingTokens) {

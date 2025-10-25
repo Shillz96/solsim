@@ -101,8 +101,7 @@ export function TradeEmptyState() {
   })
 
   const handleTokenClick = (token: any) => {
-    const name = token.name || token.symbol || "Unknown"
-    router.push(`/trade?token=${token.mint}&symbol=${token.symbol || ""}&name=${encodeURIComponent(name)}`)
+    router.push(`/room/${token.mint}`)
   }
 
   // Get top 8 trending tokens for display

@@ -192,7 +192,7 @@ const apiCall = async (url: string, options: RequestInit = {}) => {
 };
 
 // Hooks
-export function useAdminStats() {
+export function useAdminStats(options?: { enabled?: boolean }) {
   return useQuery<{ success: boolean; stats: AdminStats }, Error>({
     queryKey: ['admin', 'stats'],
     queryFn: async () => {
@@ -201,6 +201,7 @@ export function useAdminStats() {
     },
     staleTime: 30000, // 30 seconds
     gcTime: 300000, // 5 minutes (formerly cacheTime)
+    enabled: options?.enabled ?? true, // Allow disabling the query
   });
 }
 
@@ -208,7 +209,8 @@ export function useUsers(
   query: string = '',
   filters: UserSearchFilters = {},
   page: number = 1,
-  limit: number = 20
+  limit: number = 20,
+  options?: { enabled?: boolean }
 ) {
   const searchParams = new URLSearchParams({
     page: page.toString(),
@@ -226,6 +228,7 @@ export function useUsers(
     queryFn: () => apiCall(`/api/admin/users?${searchParams}`),
     staleTime: 30000,
     gcTime: 300000,
+    enabled: options?.enabled ?? true, // Allow disabling the query
   });
 }
 
@@ -283,7 +286,7 @@ export function useAnalytics() {
   });
 }
 
-export function useRecentActivity(limit: number = 20) {
+export function useRecentActivity(limit: number = 20, options?: { enabled?: boolean }) {
   return useQuery<{ success: boolean; activity: RecentActivity[] }, Error>({
     queryKey: ['admin', 'activity', limit],
     queryFn: async () => {
@@ -292,6 +295,7 @@ export function useRecentActivity(limit: number = 20) {
     },
     staleTime: 30000, // 30 seconds
     gcTime: 300000, // 5 minutes
+    enabled: options?.enabled ?? true, // Allow disabling the query
   });
 }
 

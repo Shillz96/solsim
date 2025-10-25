@@ -43,7 +43,7 @@ export function UserManagement() {
   // Check if user is admin
   const isAdmin = user?.userTier === 'ADMINISTRATOR';
 
-  // API hooks
+  // API hooks - only fetch when user is admin
   const { data: usersData, isLoading: usersLoading, error: usersError } = useUsers(
     searchQuery,
     {
@@ -54,7 +54,8 @@ export function UserManagement() {
       endDate: filters.endDate ? new Date(filters.endDate) : undefined,
     },
     currentPage,
-    20
+    20,
+    { enabled: isAdmin } // Only fetch when admin
   );
 
   const { data: userDetails, isLoading: userDetailsLoading } = useUserDetails(selectedUser || '');

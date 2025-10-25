@@ -82,8 +82,8 @@ export function TrendingTokensList({
     if (onSelectToken) {
       onSelectToken(tokenAddress);
     } else {
-      // Navigate to trade page with token parameter
-      router.push(`/trade?token=${tokenAddress}`);
+      // Navigate to room page with token parameter
+      router.push(`/room/${tokenAddress}`);
     }
   };
 

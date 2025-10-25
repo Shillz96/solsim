@@ -32,7 +32,7 @@ function StockCard({ token }: { token: Backend.TrendingToken }) {
   const [imageError, setImageError] = React.useState(false)
 
   return (
-    <Link href={`/trade?token=${token.mint}`}>
+    <Link href={`/room/${token.mint}`}>
       <motion.div
         whileHover={{ scale: 1.02, y: -4 }}
         whileTap={{ scale: 0.98 }}

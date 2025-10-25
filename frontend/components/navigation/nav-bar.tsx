@@ -228,7 +228,7 @@ export function NavBar() {
     const tokenToSelect = token || (index !== undefined && searchResults[index])
     if (!tokenToSelect) return
 
-    router.push(`/trade?token=${tokenToSelect.mint}&symbol=${tokenToSelect.symbol}&name=${encodeURIComponent(tokenToSelect.name)}`)
+    router.push(`/room/${tokenToSelect.mint}`)
     setSearchQuery('')
     setIsSearchOpen(false)
     setSelectedResultIndex(-1)

@@ -14,6 +14,7 @@ import { UsdWithSol } from "@/lib/sol-equivalent"
 import { formatUSD, formatNumber } from "@/lib/format"
 import { motion } from "framer-motion"
 import { MarioPageHeader } from "@/components/shared/mario-page-header"
+import { cn, marioStyles } from "@/lib/utils"
 
 type TimeRange = "24h" | "7d" | "all"
 
@@ -116,8 +117,8 @@ export default function LeaderboardPage() {
   const totalVolume = leaderboardData.reduce((sum, entry) => sum + entry.totalTrades, 0)
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
-      <main id="leaderboard-table" className="w-full px-4 sm:px-6 lg:px-8 py-2 sm:py-4 max-w-page-xl mx-auto">
+    <div className="min-h-screen bg-[var(--background)]">
+      <main id="leaderboard-table" className="w-full px-4 sm:px-6 lg:px-8 py-2 sm:py-4 max-w-7xl mx-auto">
         {/* Mario Page Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -134,7 +135,7 @@ export default function LeaderboardPage() {
           />
         </motion.div>
 
-        {/* Header */}
+        {/* Header with Refresh Button */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -146,7 +147,10 @@ export default function LeaderboardPage() {
             size="icon"
             onClick={handleRefresh}
             disabled={refreshing}
-            className="border-3 border-[var(--outline-black)] bg-[var(--card)] hover:bg-[var(--mario-red-500)] hover:text-white shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] transition-all duration-200"
+            className={cn(
+              marioStyles.iconButton('primary'),
+              'w-10 h-10'
+            )}
           >
             <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
           </Button>
@@ -154,8 +158,11 @@ export default function LeaderboardPage() {
 
         {/* Error Message */}
         {error && (
-          <div className="mb-6 p-4 rounded-[12px] bg-[var(--mario-red-50)] border-3 border-[var(--mario-red-500)] shadow-[3px_3px_0_var(--mario-red-500)]">
-            <p className="text-[var(--mario-red-700)] font-semibold">{String(error)}</p>
+          <div className={cn(
+            marioStyles.cardSm(false),
+            'mb-6 bg-gradient-to-br from-[var(--mario-red)]/10 to-white'
+          )}>
+            <p className="text-[var(--mario-red)] font-bold">{String(error)}</p>
           </div>
         )}
 
@@ -166,7 +173,10 @@ export default function LeaderboardPage() {
           transition={{ duration: 0.5, delay: 0.1 }}
           className="mb-4"
         >
-          <div className="bg-[var(--card)] border-4 border-[var(--outline-black)] rounded-[16px] shadow-[6px_6px_0_var(--outline-black)] px-6 py-3 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+          <div className={cn(
+            marioStyles.cardLg(false),
+            'flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between'
+          )}>
             <div className="flex items-center gap-4">
               <Tabs value={timeRange} onValueChange={(v) => setTimeRange(v as TimeRange)}>
                 <TabsList>
@@ -187,7 +197,10 @@ export default function LeaderboardPage() {
               <Button 
                 variant="outline" 
                 onClick={scrollToUserRank} 
-                className="md:hidden border-3 border-[var(--outline-black)] bg-[var(--card)] hover:bg-[var(--luigi-green-500)] hover:text-white shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] transition-all duration-200 font-bold"
+                className={cn(
+                  'md:hidden',
+                  marioStyles.button('secondary', 'md')
+                )}
               >
                 <Target className="h-4 w-4 mr-2" />
                 View My Rank
@@ -222,7 +235,10 @@ export default function LeaderboardPage() {
             <div className="lg:hidden">
               <Button 
                 variant="outline" 
-                className="w-full mb-4 border-3 border-[var(--outline-black)] bg-[var(--card)] hover:bg-[var(--mario-red-500)] hover:text-white shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] transition-all duration-200 font-bold" 
+                className={cn(
+                  'w-full mb-4',
+                  marioStyles.button('danger', 'md')
+                )}
                 onClick={() => setShowStats(!showStats)}
               >
                 {showStats ? "Hide" : "Show"} Stats
@@ -232,15 +248,22 @@ export default function LeaderboardPage() {
             <div className={`space-y-6 ${!showStats && "hidden lg:block"}`}>
               {/* Current User Rank */}
               {currentUser && (
-                <div className="p-6 rounded-[16px] bg-[var(--sky-50)] border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)]">
+                <div className={cn(
+                  marioStyles.cardLg(false),
+                  'bg-gradient-to-br from-[var(--sky-blue)]/20 to-white'
+                )}>
                   <div className="mb-4">
-                    <h3 className="font-bold text-lg mb-2 text-[var(--outline-black)] font-mario">🎯 Your Rank</h3>
+                    <h3 className={cn(marioStyles.heading(4), 'mb-2')}>🎯 Your Rank</h3>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <Target className="h-4 w-4 text-[var(--mario-red-500)]" />
-                        <span className="text-sm text-[var(--outline-black)] font-semibold">Current Position</span>
+                        <Target className="h-4 w-4 text-[var(--mario-red)]" />
+                        <span className={marioStyles.bodyText('semibold')}>Current Position</span>
                       </div>
-                      <Badge className="text-lg px-3 py-1 bg-[var(--star-yellow-500)] text-[var(--outline-black)] border-2 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] font-bold">
+                      <Badge className={cn(
+                        'text-lg px-3 py-1 bg-[var(--star-yellow)] text-[var(--outline-black)]',
+                        marioStyles.shadowSm,
+                        'border-2 border-[var(--outline-black)] font-bold'
+                      )}>
                         #{currentUser.rank}
                       </Badge>
                     </div>
@@ -248,8 +271,8 @@ export default function LeaderboardPage() {
 
                   <div className="grid grid-cols-2 gap-4 pt-4 border-t-3 border-[var(--outline-black)]">
                     <div>
-                      <p className="text-sm text-[var(--outline-black)] mb-2 font-semibold">💰 Total PnL</p>
-                      <div className={`font-bold text-lg ${parseFloat(currentUser.totalPnlUsd) >= 0 ? 'text-[var(--luigi-green-700)]' : 'text-[var(--mario-red-700)]'}`}>
+                      <p className={cn(marioStyles.bodyText('semibold'), 'text-sm mb-2')}>💰 Total PnL</p>
+                      <div className={`font-bold text-lg ${parseFloat(currentUser.totalPnlUsd) >= 0 ? 'text-[var(--luigi-green)]' : 'text-[var(--mario-red)]'}`}>
                         <UsdWithSol 
                           usd={parseFloat(currentUser.totalPnlUsd)} 
                           prefix={parseFloat(currentUser.totalPnlUsd) >= 0 ? '+' : ''}
@@ -259,15 +282,15 @@ export default function LeaderboardPage() {
                       </div>
                     </div>
                     <div>
-                      <p className="text-sm text-[var(--outline-black)] mb-2 font-semibold">📊 Trades</p>
+                      <p className={cn(marioStyles.bodyText('semibold'), 'text-sm mb-2')}>📊 Trades</p>
                       <p className="font-bold text-lg text-[var(--outline-black)]">{currentUser.totalTrades}</p>
                     </div>
                     <div>
-                      <p className="text-sm text-[var(--outline-black)] mb-2 font-semibold">🎯 Win Rate</p>
+                      <p className={cn(marioStyles.bodyText('semibold'), 'text-sm mb-2')}>🎯 Win Rate</p>
                       <p className="font-bold text-lg text-[var(--outline-black)]">{currentUser.winRate.toFixed(1)}%</p>
                     </div>
                     <div>
-                      <p className="text-sm text-[var(--outline-black)] mb-2 font-semibold">💎 Balance</p>
+                      <p className={cn(marioStyles.bodyText('semibold'), 'text-sm mb-2')}>💎 Balance</p>
                       <p className="font-bold text-lg font-mono text-[var(--outline-black)]">
                         {balanceData ? `${parseFloat(balanceData.balance).toFixed(2)} SOL` : 'Loading...'}
                       </p>
@@ -278,13 +301,13 @@ export default function LeaderboardPage() {
 
               {/* Top Performers */}
               {topPerformers.length > 0 && (
-                <div className="p-6 rounded-[16px] bg-[var(--card)] border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)]">
+                <div className={marioStyles.cardLg(false)}>
                   <div className="mb-6">
                     <div className="flex items-center gap-2 mb-2">
-                      <Trophy className="h-5 w-5 text-[var(--star-yellow-500)]" />
-                      <h3 className="font-bold text-lg text-[var(--outline-black)] font-mario">🏆 Top Performers</h3>
+                      <Trophy className="h-5 w-5 text-[var(--star-yellow)]" />
+                      <h3 className={marioStyles.heading(4)}>🏆 Top Performers</h3>
                     </div>
-                    <span className="text-sm text-[var(--outline-black)] font-semibold opacity-70">Leading traders</span>
+                    <span className={cn(marioStyles.bodyText('semibold'), 'text-sm opacity-70')}>Leading traders</span>
                   </div>
                   <div className="space-y-3">
                     {topPerformers.map((performer, index) => {
@@ -298,19 +321,27 @@ export default function LeaderboardPage() {
                       return (
                         <div
                           key={performer.userId}
-                          className={`flex items-center justify-between p-3 rounded-[12px] ${color.bg} border-2 ${color.border} hover:opacity-90 transition-opacity shadow-[2px_2px_0_var(--outline-black)]`}
+                          className={cn(
+                            `flex items-center justify-between p-3 rounded-xl ${color.bg} border-2 ${color.border}`,
+                            marioStyles.shadowSm,
+                            'hover:opacity-90 transition-opacity'
+                          )}
                         >
                           <div className="flex items-center gap-3">
-                            <div className={`flex items-center justify-center w-8 h-8 rounded-full ${color.rank} text-[var(--outline-black)] border-2 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] font-bold text-sm`}>
+                            <div className={cn(
+                              `flex items-center justify-center w-8 h-8 rounded-full ${color.rank} text-[var(--outline-black)]`,
+                              marioStyles.shadowSm,
+                              'border-2 border-[var(--outline-black)] font-bold text-sm'
+                            )}>
                               {index + 1}
                             </div>
                             <div>
                               <p className="font-bold text-[var(--outline-black)]">{performer.handle || performer.displayName || `User ${performer.userId.slice(0, 8)}`}</p>
-                              <p className="text-xs text-[var(--outline-black)] opacity-70 font-semibold">{performer.totalTrades} trades</p>
+                              <p className={cn(marioStyles.bodyText('semibold'), 'text-xs opacity-70')}>{performer.totalTrades} trades</p>
                             </div>
                           </div>
                           <div className="text-right">
-                            <div className={`font-bold ${parseFloat(performer.totalPnlUsd) >= 0 ? 'text-[var(--luigi-green-700)]' : 'text-[var(--mario-red-700)]'}`}>
+                            <div className={`font-bold ${parseFloat(performer.totalPnlUsd) >= 0 ? 'text-[var(--luigi-green)]' : 'text-[var(--mario-red)]'}`}>
                               <UsdWithSol 
                                 usd={parseFloat(performer.totalPnlUsd)} 
                                 prefix={parseFloat(performer.totalPnlUsd) >= 0 ? '+' : ''}
@@ -318,7 +349,7 @@ export default function LeaderboardPage() {
                                 solClassName="text-xs"
                               />
                             </div>
-                            <p className="text-xs text-[var(--outline-black)] opacity-70 font-semibold">{performer.winRate.toFixed(1)}% win</p>
+                            <p className={cn(marioStyles.bodyText('semibold'), 'text-xs opacity-70')}>{performer.winRate.toFixed(1)}% win</p>
                           </div>
                         </div>
                       )
@@ -328,22 +359,22 @@ export default function LeaderboardPage() {
               )}
 
               {/* Competition Stats */}
-              <div className="p-6 rounded-[16px] bg-[var(--card)] border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)]">
+              <div className={marioStyles.cardLg(false)}>
                 <div className="mb-6">
-                  <h3 className="font-bold text-lg text-[var(--outline-black)] font-mario">📊 Competition Stats</h3>
+                  <h3 className={marioStyles.heading(4)}>📊 Competition Stats</h3>
                 </div>
                 <div className="space-y-4">
                   <div className="flex justify-between items-center pb-3 border-b-2 border-[var(--outline-black)] border-opacity-20">
-                    <span className="text-sm text-[var(--outline-black)] font-semibold opacity-70">Total Traders</span>
+                    <span className={cn(marioStyles.bodyText('semibold'), 'text-sm opacity-70')}>Total Traders</span>
                     <span className="font-bold text-lg text-[var(--outline-black)]">{totalTraders.toLocaleString()}</span>
                   </div>
                   <div className="flex justify-between items-center pb-3 border-b-2 border-[var(--outline-black)] border-opacity-20">
-                    <span className="text-sm text-[var(--outline-black)] font-semibold opacity-70">Active Today</span>
+                    <span className={cn(marioStyles.bodyText('semibold'), 'text-sm opacity-70')}>Active Today</span>
                     <span className="font-bold text-lg text-[var(--outline-black)]">{activeToday.toLocaleString()}</span>
                   </div>
                   <div className="flex justify-between items-center pb-3 border-b-2 border-[var(--outline-black)] border-opacity-20">
-                    <span className="text-sm text-[var(--outline-black)] font-semibold opacity-70">Avg PnL</span>
-                    <div className={`font-bold text-lg ${avgROI >= 0 ? 'text-[var(--luigi-green-700)]' : 'text-[var(--mario-red-700)]'}`}>
+                    <span className={cn(marioStyles.bodyText('semibold'), 'text-sm opacity-70')}>Avg PnL</span>
+                    <div className={`font-bold text-lg ${avgROI >= 0 ? 'text-[var(--luigi-green)]' : 'text-[var(--mario-red)]'}`}>
                       <UsdWithSol
                         usd={avgROI}
                         prefix={avgROI >= 0 ? '+' : ''}
@@ -353,20 +384,13 @@ export default function LeaderboardPage() {
                     </div>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-[var(--outline-black)] font-semibold opacity-70">Total Trades</span>
+                    <span className={cn(marioStyles.bodyText('semibold'), 'text-sm opacity-70')}>Total Trades</span>
                     <span className="font-bold text-lg text-[var(--outline-black)]">{formatNumber(totalVolume, { useCompact: true })}</span>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-
-        {/* Decorative Elements */}
-        <div className="fixed inset-0 pointer-events-none -z-20 overflow-hidden">
-          <div className="absolute top-1/3 left-1/5 w-96 h-96 bg-primary/3 rounded-full blur-3xl"></div>
-          <div className="absolute bottom-1/3 right-1/5 w-96 h-96 bg-green-500/3 rounded-full blur-3xl"></div>
-          <div className="absolute top-2/3 left-2/3 w-64 h-64 bg-blue-500/3 rounded-full blur-2xl"></div>
         </div>
       </main>
     </div>
