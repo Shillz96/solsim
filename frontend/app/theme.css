@@ -45,7 +45,8 @@
   --color-brick: oklch(48% 0.10 45);        /* Brick Brown #9C5818 */
   --color-outline-black: oklch(12% 0 0);    /* Outline Black #1C1C1C */
 
-  /* BACKWARD COMPATIBILITY - Legacy variable names from globals.css */
+  /* COMPREHENSIVE MARIO THEME COLORS - All components */
+  /* Primary Mario colors - used throughout the app */
   --mario-red: #E52521;
   --luigi-green: #43B047;
   --star-yellow: #FFD800;
@@ -56,12 +57,14 @@
   --pipe-green: #00994C;
   --outline-black: #1C1C1C;
 
-  /* Additional Mario theme colors for ticker and components */
+  /* Color aliases for new theme system compatibility */
   --color-mario-red: var(--mario-red);
   --color-luigi-green: var(--luigi-green);
   --color-star-yellow: var(--star-yellow);
   --color-coin-gold: var(--coin-gold);
   --color-brick-brown: var(--brick-brown);
+  --color-sky-blue: var(--sky-blue);
+  --color-pipe-green: var(--pipe-green);
 
   /* Trading-specific colors - Luigi Green for profit, Mario Red for loss */
   --color-profit: oklch(62% 0.18 145);      /* Luigi Green - WCAG AA compliant */
