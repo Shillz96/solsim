@@ -153,7 +153,7 @@ export default function TrendingPage() {
   const isBigMover = (priceChange: number) => Math.abs(priceChange) > 50
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
+    <div className="min-h-screen bg-background">
       <main id="trending-section" className="w-full px-4 sm:px-6 lg:px-8 py-8 max-w-page-xl mx-auto">
         {/* Filters & Search with Header */}
         <motion.div
@@ -162,7 +162,7 @@ export default function TrendingPage() {
           transition={{ duration: 0.5, delay: 0.1 }}
           className="mb-4"
         >
-          <div className="mario-card bg-[var(--card)] border-4 border-pipe-700 shadow-mario p-6">
+          <div className="mario-card-lg p-6">
           {/* Header Image inside filter bar */}
           <div className="mb-6 flex justify-center">
             <Image
@@ -179,8 +179,8 @@ export default function TrendingPage() {
             {/* Birdeye Sort Filters */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
               <div className="flex items-center gap-2">
-                <Filter className="h-5 w-5 text-pipe-700" />
-                <span className="text-sm font-bold text-pipe-900 mr-2">Sort by:</span>
+                <Filter className="h-5 w-5 text-foreground" />
+                <span className="text-sm font-bold text-foreground mr-2">Sort by:</span>
                 <div className="flex gap-2">
                   {[
                     { value: "rank" as BirdeyeSortBy, label: "Rank" },
@@ -192,7 +192,7 @@ export default function TrendingPage() {
                       variant={birdeyeSortBy === option.value ? "default" : "outline"}
                       size="sm"
                       onClick={() => setBirdeyeSortBy(option.value)}
-                      className={birdeyeSortBy === option.value ? "mario-btn mario-btn-red" : "border-3 border-pipe-500"}
+                      className={birdeyeSortBy === option.value ? "mario-btn mario-btn-red" : "border-3 border-[var(--outline-black)]"}
                     >
                       {option.label}
                     </Button>
@@ -203,12 +203,12 @@ export default function TrendingPage() {
 
             {/* Search */}
             <div className="relative w-full md:w-64">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-pipe-700" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder="Search tokens..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9 border-3 border-pipe-500 focus:border-mario-red"
+                className="pl-9 border-3 border-[var(--outline-black)] focus:border-[var(--color-brand)]"
               />
             </div>
           </div>
@@ -221,17 +221,17 @@ export default function TrendingPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
         >
-          <div className="mario-card bg-[var(--card)] border-4 border-pipe-700 shadow-mario overflow-hidden">
+          <div className="mario-card-lg overflow-hidden">
           {loading && (
-            <div className="flex items-center justify-center h-64 bg-sky-50">
-              <Loader2 className="h-8 w-8 animate-spin text-mario-red" />
-              <span className="ml-3 font-bold text-pipe-900">Loading trending tokens...</span>
+            <div className="flex items-center justify-center h-64 bg-card">
+              <Loader2 className="h-8 w-8 animate-spin text-[var(--color-brand)]" />
+              <span className="ml-3 font-bold text-foreground">Loading trending tokens...</span>
             </div>
           )}
 
           {error && (
             <div className="p-6">
-              <Alert variant="destructive" className="border-3 border-mario-red bg-red-50">
+              <Alert variant="destructive" className="border-3 border-[var(--color-brand)] bg-destructive/10">
                 <AlertCircle className="h-5 w-5" />
                 <AlertDescription className="font-bold">
                   Failed to load trending tokens: {error?.message || 'Unknown error'}
@@ -244,65 +244,65 @@ export default function TrendingPage() {
           )}
 
           {!loading && !error && filteredAndSortedTokens.length === 0 && (
-            <div className="p-8 text-center bg-sky-50">
-              <p className="text-lg font-bold text-pipe-900">No trending tokens found</p>
-              <p className="text-sm text-pipe-700 mt-2">Try adjusting your search or filters</p>
+            <div className="p-8 text-center bg-card">
+              <p className="text-lg font-bold text-foreground">No trending tokens found</p>
+              <p className="text-sm text-muted-foreground mt-2">Try adjusting your search or filters</p>
             </div>
           )}
 
           {!loading && !error && filteredAndSortedTokens.length > 0 && (
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="border-b-3 border-pipe-700 bg-sky-100">
+                <thead className="border-b-3 border-[var(--outline-black)] bg-muted/30">
                   <tr>
-                    <th className="text-left p-4 text-sm font-bold text-pipe-900">#</th>
-                    <th className="text-left p-4 text-sm font-bold text-pipe-900">Token</th>
-                    <th className="text-left p-4 text-sm font-bold text-pipe-900">
+                    <th className="text-left p-4 text-sm font-bold text-foreground">#</th>
+                    <th className="text-left p-4 text-sm font-bold text-foreground">Token</th>
+                    <th className="text-left p-4 text-sm font-bold text-foreground">
                       <button
                         onClick={() => handleSort("price")}
-                        className="flex items-center hover:text-mario-red transition-colors"
+                        className="flex items-center hover:text-[var(--color-brand)] transition-colors"
                       >
                         Price
                         <SortIcon field="price" />
                       </button>
                     </th>
-                    <th className="text-left p-4 text-sm font-bold text-pipe-900">
+                    <th className="text-left p-4 text-sm font-bold text-foreground">
                       <button
                         onClick={() => handleSort("priceChange24h")}
-                        className="flex items-center hover:text-mario-red transition-colors"
+                        className="flex items-center hover:text-[var(--color-brand)] transition-colors"
                       >
                         24h Change
                         <SortIcon field="priceChange24h" />
                       </button>
                     </th>
-                    <th className="text-left p-4 text-sm font-bold text-pipe-900">
+                    <th className="text-left p-4 text-sm font-bold text-foreground">
                       <button
                         onClick={() => handleSort("marketCapUsd")}
-                        className="flex items-center hover:text-mario-red transition-colors"
+                        className="flex items-center hover:text-[var(--color-brand)] transition-colors"
                       >
                         Market Cap
                         <SortIcon field="marketCapUsd" />
                       </button>
                     </th>
-                    <th className="text-left p-4 text-sm font-bold text-pipe-900">
+                    <th className="text-left p-4 text-sm font-bold text-foreground">
                       <button
                         onClick={() => handleSort("volume24h")}
-                        className="flex items-center hover:text-mario-red transition-colors"
+                        className="flex items-center hover:text-[var(--color-brand)] transition-colors"
                       >
                         Volume
                         <SortIcon field="volume24h" />
                       </button>
                     </th>
-                    <th className="text-left p-4 text-sm font-bold text-pipe-900">
+                    <th className="text-left p-4 text-sm font-bold text-foreground">
                       <button
                         onClick={() => handleSort("trendScore")}
-                        className="flex items-center hover:text-mario-red transition-colors"
+                        className="flex items-center hover:text-[var(--color-brand)] transition-colors"
                       >
                         Trend Score
                         <SortIcon field="trendScore" />
                       </button>
                     </th>
-                    <th className="text-right p-4 text-sm font-bold text-pipe-900">Action</th>
+                    <th className="text-right p-4 text-sm font-bold text-foreground">Action</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -314,7 +314,7 @@ export default function TrendingPage() {
                     return (
                       <tr
                         key={token.mint}
-                        className="border-b-2 border-pipe-300 transition-all duration-200 relative group hover:bg-sky-50"
+                        className="border-b-2 border-[var(--outline-black)]/20 transition-all duration-200 relative group hover:bg-muted/30"
                         onMouseEnter={() => setHoveredRow(token.mint)}
                         onMouseLeave={() => setHoveredRow(null)}
                       >
@@ -330,7 +330,7 @@ export default function TrendingPage() {
                               className="object-contain"
                             />
                           ) : (
-                            <span className="text-sm font-bold text-pipe-900">{index + 1}</span>
+                            <span className="text-sm font-bold text-foreground">{index + 1}</span>
                           )}
                         </td>
 
@@ -346,7 +346,7 @@ export default function TrendingPage() {
                                 alt={token.name || 'Unknown Token'}
                                 width={40}
                                 height={40}
-                                className="rounded-full border-2 border-pipe-700"
+                                className="rounded-full border-2 border-[var(--outline-black)]"
                                 onError={(e) => {
                                   e.currentTarget.src = "/placeholder-token.svg"
                                 }}
@@ -364,7 +364,7 @@ export default function TrendingPage() {
                                   </motion.div>
                                 )}
                               </div>
-                              <div className="text-xs text-pipe-700">{token.symbol || 'N/A'}</div>
+                              <div className="text-xs text-muted-foreground">{token.symbol || 'N/A'}</div>
                             </div>
                           </Link>
                         </td>
@@ -417,7 +417,7 @@ export default function TrendingPage() {
                               compact
                             />
                           ) : (
-                            <div className="text-sm font-bold text-pipe-700">N/A</div>
+                            <div className="text-sm font-bold text-muted-foreground">N/A</div>
                           )}
                         </td>
 
@@ -435,7 +435,7 @@ export default function TrendingPage() {
                         <td className="p-5">
                           <Badge
                             variant="secondary"
-                            className={`text-xs font-bold border-2 ${bigMover ? 'bg-orange-500 text-white border-black' : 'bg-pipe-200 text-pipe-900 border-pipe-700'}`}
+                            className={`text-xs font-bold border-2 ${bigMover ? 'bg-orange-500 text-white border-[var(--outline-black)]' : 'bg-muted text-foreground border-[var(--outline-black)]'}`}
                           >
                             {Math.abs(token.priceChange24h).toFixed(1)}
                           </Badge>
