@@ -30,7 +30,7 @@ import { MarketDataPanels } from '@/components/trading/market-data-panels'
 import { ChatRoom } from '@/components/chat/chat-room'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
-import { cn } from '@/lib/utils'
+import { cn, marioStyles } from '@/lib/utils'
 import { DexScreenerChart } from '@/components/trading/dexscreener-chart'
 import { ResizableSplit } from '@/components/ui/resizable-split'
 import { PositionPnLBadge } from '@/components/trading/position-pnl-badge'
@@ -148,7 +148,7 @@ function TradeRoomContent() {
             <Button
               variant="outline"
               onClick={() => queryClient.invalidateQueries({ queryKey: ['token-details', ca] })}
-              className="border-2 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] transition-all"
+              className={marioStyles.button('outline')}
             >
               Try Again
             </Button>
@@ -168,7 +168,10 @@ function TradeRoomContent() {
   return (
     <div className="flex flex-col bg-[var(--background)] h-full">
       {/* Header - Token Info */}
-      <header className="border-b-4 border-[var(--outline-black)] bg-white p-2 sm:p-2.5 flex-shrink-0">
+      <header className={cn(
+        marioStyles.border('lg'),
+        'border-b-4 bg-white p-2 sm:p-2.5 flex-shrink-0'
+      )}>
         <div className="w-full flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-2">
           {/* Left: Back + Token Info */}
           <div className="flex items-center gap-2 min-w-0">
@@ -176,7 +179,10 @@ function TradeRoomContent() {
               variant="outline"
               size="sm"
               onClick={() => router.back()}
-              className="border-2 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] transition-all h-8 w-8 p-0"
+              className={cn(
+                marioStyles.iconButton('outline'),
+                'h-8 w-8 p-0'
+              )}
               aria-label="Go back"
             >
               <ArrowLeft className="h-3 w-3" />
@@ -186,16 +192,22 @@ function TradeRoomContent() {
               <img
                 src={tokenDetails.imageUrl}
                 alt={tokenDetails.symbol || 'Token'}
-                className="h-8 w-8 sm:h-10 sm:w-10 rounded-lg border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)]"
+                className={cn(
+                  marioStyles.card(),
+                  'h-8 w-8 sm:h-10 sm:w-10 rounded-lg'
+                )}
               />
             )}
 
             <div className="min-w-0">
-              <div className="font-black text-sm sm:text-base truncate">
+              <div className={cn(marioStyles.heading(3), 'text-sm sm:text-base truncate')}>
                 {tokenDetails.name || 'Unknown Token'}
               </div>
-              <div className="text-xs text-muted-foreground flex items-center gap-2 flex-wrap">
-                <span className="font-bold">{tokenDetails.symbol}</span>
+              <div className={cn(
+                marioStyles.bodyText('normal'),
+                'text-xs text-muted-foreground flex items-center gap-2 flex-wrap'
+              )}>
+                <span className={marioStyles.bodyText('bold')}>{tokenDetails.symbol}</span>
                 <span>•</span>
                 <span className={cn(
                   "font-mono transition-colors duration-300",
@@ -205,7 +217,8 @@ function TradeRoomContent() {
                 </span>
                 <span
                   className={cn(
-                    "font-bold flex items-center gap-1",
+                    marioStyles.bodyText('bold'),
+                    "flex items-center gap-1",
                     priceChange24h >= 0 ? "text-[var(--luigi-green)]" : "text-[var(--mario-red)]"
                   )}
                 >
@@ -220,7 +233,10 @@ function TradeRoomContent() {
                 {tokenHolding && parseFloat(tokenHolding.qty) > 0 && (
                   <>
                     <span>•</span>
-                    <span className="text-[var(--mario-red)] font-bold">
+                    <span className={cn(
+                      marioStyles.bodyText('bold'),
+                      'text-[var(--mario-red)]'
+                    )}>
                       Holding: {formatTokenQuantity(tokenHolding.qty)}
                     </span>
                     <span>•</span>
@@ -235,14 +251,26 @@ function TradeRoomContent() {
           <div className="flex items-center gap-2 sm:gap-3 md:gap-4 flex-wrap justify-end min-w-0">
             {/* Market Cap - Always show */}
             <div className="text-right min-w-0">
-              <div className="text-[10px] text-muted-foreground uppercase leading-tight">MCap</div>
-              <div className="text-xs sm:text-sm font-bold truncate max-w-[80px] sm:max-w-none">{formatUSD(marketCap)}</div>
+              <div className={cn(
+                marioStyles.bodyText('normal'),
+                'text-[10px] text-muted-foreground uppercase leading-tight'
+              )}>MCap</div>
+              <div className={cn(
+                marioStyles.bodyText('bold'),
+                'text-xs sm:text-sm truncate max-w-[80px] sm:max-w-none'
+              )}>{formatUSD(marketCap)}</div>
             </div>
 
             {/* Volume - Hidden on mobile, shown on tablet+ */}
             <div className="hidden md:block text-right min-w-0">
-              <div className="text-[10px] text-muted-foreground uppercase leading-tight">Vol 24h</div>
-              <div className="text-sm font-bold truncate max-w-[80px]">{formatUSD(volume24h)}</div>
+              <div className={cn(
+                marioStyles.bodyText('normal'),
+                'text-[10px] text-muted-foreground uppercase leading-tight'
+              )}>Vol 24h</div>
+              <div className={cn(
+                marioStyles.bodyText('bold'),
+                'text-sm truncate max-w-[80px]'
+              )}>{formatUSD(volume24h)}</div>
             </div>
 
             <Button
@@ -258,7 +286,10 @@ function TradeRoomContent() {
                   toast({ title: "Failed to copy", description: "Please copy the URL manually", variant: "destructive" })
                 }
               }}
-              className="border-2 border-[var(--outline-black)] bg-[var(--sky-blue)] shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] transition-all shrink-0 h-8 w-8 p-0"
+              className={cn(
+                marioStyles.iconButton('secondary'),
+                'shrink-0 h-8 w-8 p-0'
+              )}
               aria-label="Share token page"
             >
               {shareCopied ? (
@@ -272,7 +303,10 @@ function TradeRoomContent() {
               variant="outline"
               size="sm"
               asChild
-              className="border-2 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] transition-all shrink-0 h-8 w-8 p-0"
+              className={cn(
+                marioStyles.iconButton('outline'),
+                'shrink-0 h-8 w-8 p-0'
+              )}
             >
               <a
                 href={`https://dexscreener.com/solana/${ca}`}
@@ -292,7 +326,10 @@ function TradeRoomContent() {
         {/* MOBILE LAYOUT */}
         <div className="md:hidden flex flex-col w-full h-full overflow-hidden">
           {/* Chart */}
-          <div className="bg-white border-b-4 border-[var(--outline-black)]">
+          <div className={cn(
+            marioStyles.border('lg'),
+            'bg-white border-b-4'
+          )}>
             <div className="min-h-[400px] h-[400px]">
               <DexScreenerChart tokenAddress={ca} />
             </div>
@@ -310,15 +347,24 @@ function TradeRoomContent() {
             <DialogTrigger asChild>
               <Button
                 size="lg"
-                className="rounded-full h-14 w-14 bg-[var(--mario-red)] hover:bg-[var(--mario-red-hover)] text-white border-3 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)] hover:shadow-[6px_6px_0_var(--outline-black)] transition-all font-mario text-sm"
+                className={cn(
+                  marioStyles.button('danger', 'lg'),
+                  'rounded-full h-14 w-14 text-sm'
+                )}
                 aria-label="Open trade panel"
               >
                 TRADE
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-md mx-4 bg-white border-4 border-[var(--outline-black)] shadow-[8px_8px_0_var(--outline-black)]">
+            <DialogContent className={cn(
+              marioStyles.cardLg(false),
+              'max-w-md mx-4 bg-white'
+            )}>
               <DialogHeader>
-                <DialogTitle className="font-mario text-lg text-center">
+                <DialogTitle className={cn(
+                  marioStyles.heading(2),
+                  'text-lg text-center'
+                )}>
                   Trade {tokenDetails.symbol}
                 </DialogTitle>
               </DialogHeader>
@@ -332,7 +378,10 @@ function TradeRoomContent() {
         {/* TABLET LAYOUT */}
         <div className="hidden md:flex lg:hidden w-full h-full overflow-hidden">
           {/* Left: Chat Room */}
-          <aside className="flex flex-col w-[280px] border-r-4 border-[var(--outline-black)] bg-white overflow-hidden">
+          <aside className={cn(
+            marioStyles.border('lg'),
+            'flex flex-col w-[280px] border-r-4 bg-white overflow-hidden'
+          )}>
             <div className="flex-1 overflow-hidden">
               <ChatRoom tokenMint={ca} />
             </div>
@@ -348,7 +397,10 @@ function TradeRoomContent() {
               storageKey="trade-room-chart-split-tablet"
               className="h-full"
             >
-              <div className="h-full border-b-4 border-[var(--outline-black)]">
+              <div className={cn(
+                marioStyles.border('lg'),
+                'h-full border-b-4'
+              )}>
                 <DexScreenerChart tokenAddress={ca} />
               </div>
               <div className="h-full overflow-y-auto">
@@ -358,7 +410,10 @@ function TradeRoomContent() {
           </section>
 
           {/* Right: Trade Panel */}
-          <aside className="flex flex-col w-[280px] border-l-4 border-[var(--outline-black)] bg-white">
+          <aside className={cn(
+            marioStyles.border('lg'),
+            'flex flex-col w-[280px] border-l-4 bg-white'
+          )}>
             <div className="flex-1 p-3 overflow-y-auto space-y-3">
               <MarioTradingPanel tokenAddress={ca} />
               <TokenVitalsBar
@@ -374,7 +429,10 @@ function TradeRoomContent() {
         {/* DESKTOP LAYOUT */}
         <div className="hidden lg:flex w-full h-full overflow-hidden">
           {/* Left Sidebar - Chat Room */}
-          <aside className="flex flex-col w-[320px] border-r-4 border-[var(--outline-black)] bg-white overflow-hidden">
+          <aside className={cn(
+            marioStyles.border('lg'),
+            'flex flex-col w-[320px] border-r-4 bg-white overflow-hidden'
+          )}>
             <div className="flex-1 overflow-hidden">
               <ChatRoom tokenMint={ca} />
             </div>
@@ -390,7 +448,10 @@ function TradeRoomContent() {
               storageKey="trade-room-chart-split"
               className="h-full"
             >
-              <div className="h-full border-b-4 border-[var(--outline-black)]">
+              <div className={cn(
+                marioStyles.border('lg'),
+                'h-full border-b-4'
+              )}>
                 <DexScreenerChart tokenAddress={ca} />
               </div>
               <div className="h-full overflow-y-auto">
@@ -400,7 +461,10 @@ function TradeRoomContent() {
           </section>
 
           {/* Right Sidebar - Trade Panel Only */}
-          <aside className="flex flex-col w-[380px] border-l-4 border-[var(--outline-black)] bg-white">
+          <aside className={cn(
+            marioStyles.border('lg'),
+            'flex flex-col w-[380px] border-l-4 bg-white'
+          )}>
             <div className="flex-1 p-3 overflow-y-auto space-y-3">
               <MarioTradingPanel tokenAddress={ca} />
               <TokenVitalsBar
