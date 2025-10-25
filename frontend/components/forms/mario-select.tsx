@@ -14,7 +14,7 @@ export const MarioSelect = forwardRef<HTMLSelectElement, MarioSelectProps>(
       <MarioFormField label={label} error={error} required={required}>
         <select
           ref={ref}
-          className={`w-full px-3 py-2 border-4 border-[var(--outline-black)] rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-[var(--star-yellow)] focus:border-[var(--star-yellow)] font-mario ${className || ''}`}
+          className={`w-full px-3 py-2 border-4 border-[var(--outline-black)] rounded-lg bg-[var(--card)] focus:outline-none focus:ring-2 focus:ring-[var(--star-yellow)] focus:border-[var(--star-yellow)] font-mario ${className || ''}`}
           {...props}
         >
           {options.map((option) => (

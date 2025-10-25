@@ -11,19 +11,26 @@ import { useAuth } from '@/hooks/use-auth';
 import { BadgeAdmin } from './badge-admin';
 import { ModerationAdmin } from './moderation-admin';
 import { DebugAdmin } from './debug-admin';
+import { UserManagement } from './user-management';
+import { AnalyticsAdmin } from './analytics-admin';
+import { useAdminStats, useRecentActivity } from '@/hooks/use-admin-api';
 
 export function AdminDashboard() {
   const { user } = useAuth();
-  const [activePanel, setActivePanel] = useState<'overview' | 'badges' | 'moderation' | 'debug'>('debug');
+  const [activePanel, setActivePanel] = useState<'overview' | 'users' | 'badges' | 'moderation' | 'analytics' | 'debug'>('overview');
 
   // Check if user is admin
   const isAdmin = user?.userTier === 'ADMINISTRATOR';
+
+  // Fetch real-time data for overview
+  const { data: statsData, isLoading: statsLoading } = useAdminStats();
+  const { data: activityData, isLoading: activityLoading } = useRecentActivity(10);
 
   if (!isAdmin) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-sky-50 to-luigi-green-50 p-4">
         <div className="w-3/4 mx-auto">
-          <div className="bg-white rounded-lg border-4 border-pipe-300 p-8 text-center mb-6 shadow-mario">
+          <div className="bg-[var(--card)] rounded-lg border-4 border-pipe-300 p-8 text-center mb-6 shadow-mario">
             <div className="font-mario text-4xl text-pipe-800 mb-4">👑</div>
             <div className="font-mario text-2xl text-pipe-600 mb-2">Admin Access Required</div>
             <div className="text-pipe-500">You need administrator privileges to access this dashboard</div>
@@ -58,6 +65,16 @@ export function AdminDashboard() {
             📊 Overview
           </button>
           <button
+            onClick={() => setActivePanel('users')}
+            className={`px-6 py-3 rounded-lg font-mario border-3 transition-all ${
+              activePanel === 'users'
+                ? 'bg-mario-red-500 text-white border-mario-red-600 shadow-mario'
+                : 'bg-pipe-100 text-pipe-700 border-pipe-300 hover:bg-pipe-200'
+            }`}
+          >
+            👥 User Management
+          </button>
+          <button
             onClick={() => setActivePanel('badges')}
             className={`px-6 py-3 rounded-lg font-mario border-3 transition-all ${
               activePanel === 'badges'
@@ -78,6 +95,16 @@ export function AdminDashboard() {
             🛡️ Moderation Control
           </button>
           <button
+            onClick={() => setActivePanel('analytics')}
+            className={`px-6 py-3 rounded-lg font-mario border-3 transition-all ${
+              activePanel === 'analytics'
+                ? 'bg-mario-red-500 text-white border-mario-red-600 shadow-mario'
+                : 'bg-pipe-100 text-pipe-700 border-pipe-300 hover:bg-pipe-200'
+            }`}
+          >
+            📈 Analytics
+          </button>
+          <button
             onClick={() => setActivePanel('debug')}
             className={`px-6 py-3 rounded-lg font-mario border-3 transition-all ${
               activePanel === 'debug'
@@ -94,30 +121,50 @@ export function AdminDashboard() {
           <div className="space-y-6">
             {/* Quick Stats */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <div className="bg-white rounded-lg border-4 border-luigi-green-300 p-6">
+              <div className="bg-[var(--card)] rounded-lg border-4 border-luigi-green-300 p-6">
                 <div className="font-mario text-3xl text-luigi-green-800 mb-2">👥</div>
-                <div className="font-mario text-2xl text-luigi-green-800">Users</div>
-                <div className="text-sm text-luigi-green-600">Total community members</div>
+                <div className="font-mario text-2xl text-luigi-green-800">
+                  {statsLoading ? '...' : statsData?.stats?.totalUsers || 0}
+                </div>
+                <div className="text-sm text-luigi-green-600">Total Users</div>
+                <div className="text-xs text-star-yellow-600 mt-1">
+                  +{statsData?.stats?.userGrowth24h || 0} in 24h
+                </div>
               </div>
-              <div className="bg-white rounded-lg border-4 border-star-yellow-300 p-6">
+              <div className="bg-[var(--card)] rounded-lg border-4 border-star-yellow-300 p-6">
                 <div className="font-mario text-3xl text-star-yellow-800 mb-2">🏆</div>
-                <div className="font-mario text-2xl text-star-yellow-800">Badges</div>
-                <div className="text-sm text-star-yellow-600">Available achievements</div>
+                <div className="font-mario text-2xl text-star-yellow-800">
+                  {statsLoading ? '...' : statsData?.stats?.badgesAwarded || 0}
+                </div>
+                <div className="text-sm text-star-yellow-600">Badges Awarded</div>
+                <div className="text-xs text-star-yellow-600 mt-1">
+                  +{statsData?.stats?.badgeGrowth24h || 0} in 24h
+                </div>
               </div>
-              <div className="bg-white rounded-lg border-4 border-mario-red-300 p-6">
+              <div className="bg-[var(--card)] rounded-lg border-4 border-mario-red-300 p-6">
                 <div className="font-mario text-3xl text-mario-red-800 mb-2">🛡️</div>
-                <div className="font-mario text-2xl text-mario-red-800">Moderation</div>
-                <div className="text-sm text-mario-red-600">Active moderation actions</div>
+                <div className="font-mario text-2xl text-mario-red-800">
+                  {statsLoading ? '...' : statsData?.stats?.moderationActions || 0}
+                </div>
+                <div className="text-sm text-mario-red-600">Moderation Actions</div>
+                <div className="text-xs text-star-yellow-600 mt-1">
+                  Platform Health
+                </div>
               </div>
-              <div className="bg-white rounded-lg border-4 border-sky-blue-300 p-6">
+              <div className="bg-[var(--card)] rounded-lg border-4 border-sky-blue-300 p-6">
                 <div className="font-mario text-3xl text-sky-blue-800 mb-2">⭐</div>
-                <div className="font-mario text-2xl text-sky-blue-800">Trust</div>
-                <div className="text-sm text-sky-blue-600">Community trust scores</div>
+                <div className="font-mario text-2xl text-sky-blue-800">
+                  {statsLoading ? '...' : statsData?.stats?.averageTrustScore || 100}
+                </div>
+                <div className="text-sm text-sky-blue-600">Avg Trust Score</div>
+                <div className="text-xs text-star-yellow-600 mt-1">
+                  Community Health
+                </div>
               </div>
             </div>
 
             {/* Quick Actions */}
-            <div className="bg-white rounded-lg border-4 border-pipe-300 p-6">
+            <div className="bg-[var(--card)] rounded-lg border-4 border-pipe-300 p-6">
               <h2 className="font-mario text-2xl text-pipe-800 mb-4">🚀 Quick Actions</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 <button
@@ -168,40 +215,52 @@ export function AdminDashboard() {
             </div>
 
             {/* Recent Activity */}
-            <div className="bg-white rounded-lg border-4 border-pipe-300 p-6">
+            <div className="bg-[var(--card)] rounded-lg border-4 border-pipe-300 p-6">
               <h2 className="font-mario text-2xl text-pipe-800 mb-4">📈 Recent Activity</h2>
               <div className="space-y-3">
-                <div className="flex items-center gap-3 p-3 bg-luigi-green-50 rounded-lg border-2 border-luigi-green-200">
-                  <div className="text-2xl">🏆</div>
-                  <div>
-                    <div className="font-mario text-luigi-green-800">New badge earned!</div>
-                    <div className="text-sm text-luigi-green-600">User "MarioTrader" earned the "Founder" badge</div>
+                {activityLoading ? (
+                  <div className="text-center py-4">
+                    <div className="animate-spin w-6 h-6 border-2 border-pipe-300 border-t-pipe-600 rounded-full mx-auto"></div>
+                    <div className="text-sm text-pipe-600 mt-2">Loading activity...</div>
                   </div>
-                </div>
-                <div className="flex items-center gap-3 p-3 bg-mario-red-50 rounded-lg border-2 border-mario-red-200">
-                  <div className="text-2xl">🛡️</div>
-                  <div>
-                    <div className="font-mario text-mario-red-800">Moderation action taken</div>
-                    <div className="text-sm text-mario-red-600">User "SpamBot" was muted for 30 minutes</div>
+                ) : activityData?.activity?.length ? (
+                  activityData.activity.map((activity) => (
+                    <div key={activity.id} className="flex items-center gap-3 p-3 bg-pipe-50 rounded-lg border-2 border-pipe-200">
+                      <div className="text-2xl">
+                        {activity.type === 'USER_REGISTERED' && '👤'}
+                        {activity.type === 'BADGE_AWARDED' && '🏆'}
+                        {activity.type === 'MODERATION_ACTION' && '🛡️'}
+                        {activity.type === 'TRADE_EXECUTED' && '💰'}
+                      </div>
+                      <div>
+                        <div className="font-mario text-pipe-800">{activity.description}</div>
+                        <div className="text-sm text-pipe-600">
+                          {new Date(activity.createdAt).toLocaleString()}
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-center py-4 text-pipe-600">
+                    No recent activity to display
                   </div>
-                </div>
-                <div className="flex items-center gap-3 p-3 bg-star-yellow-50 rounded-lg border-2 border-star-yellow-200">
-                  <div className="text-2xl">⭐</div>
-                  <div>
-                    <div className="font-mario text-star-yellow-800">Trust score updated</div>
-                    <div className="text-sm text-star-yellow-600">User "HelpfulUser" gained 5 trust points</div>
-                  </div>
-                </div>
+                )}
               </div>
             </div>
           </div>
         )}
+
+        {/* User Management Panel */}
+        {activePanel === 'users' && <UserManagement />}
 
         {/* Badge Management Panel */}
         {activePanel === 'badges' && <BadgeAdmin />}
 
         {/* Moderation Panel */}
         {activePanel === 'moderation' && <ModerationAdmin />}
+
+        {/* Analytics Panel */}
+        {activePanel === 'analytics' && <AnalyticsAdmin />}
 
         {/* Debug Panel */}
         {activePanel === 'debug' && <DebugAdmin />}

@@ -38,7 +38,7 @@ export function ModerationPanel({ className = '' }: ModerationPanelProps) {
 
   if (!isModerator) {
     return (
-      <div className={`bg-white rounded-lg border-4 border-pipe-300 p-6 ${className}`}>
+      <div className={`bg-[var(--card)] rounded-lg border-4 border-pipe-300 p-6 ${className}`}>
         <div className="text-center">
           <div className="font-mario text-xl text-pipe-800 mb-2">🛡️</div>
           <div className="font-mario text-lg text-pipe-600">Moderator Access Required</div>
@@ -92,7 +92,7 @@ export function ModerationPanel({ className = '' }: ModerationPanelProps) {
   };
 
   return (
-    <div className={`bg-white rounded-lg border-4 border-pipe-300 p-6 ${className}`}>
+    <div className={`bg-[var(--card)] rounded-lg border-4 border-pipe-300 p-6 ${className}`}>
       <div className="mb-6">
         <h2 className="font-mario text-2xl text-pipe-800 mb-2">🛡️ Moderation Panel</h2>
         <div className="text-sm text-pipe-600">Mario-themed moderation tools for community management</div>

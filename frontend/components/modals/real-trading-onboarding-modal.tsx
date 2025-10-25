@@ -292,7 +292,7 @@ function FundingChoiceStep({
             "relative p-6 rounded-xl border-4 cursor-pointer transition-all duration-300",
             hoveredCard === 'deposit'
               ? "border-star-yellow-700 bg-star-yellow-50 shadow-[6px_6px_0_0_rgba(0,0,0,1)]"
-              : "border-pipe-900 bg-white shadow-[4px_4px_0_0_rgba(0,0,0,1)]"
+              : "border-pipe-900 bg-[var(--card)] shadow-[4px_4px_0_0_rgba(0,0,0,1)]"
           )}
           onClick={onDepositChoice}
         >
@@ -358,7 +358,7 @@ function FundingChoiceStep({
             "p-6 rounded-xl border-4 cursor-pointer transition-all duration-300",
             hoveredCard === 'wallet'
               ? "border-coin-yellow-700 bg-coin-yellow-50 shadow-[6px_6px_0_0_rgba(0,0,0,1)]"
-              : "border-pipe-900 bg-white shadow-[4px_4px_0_0_rgba(0,0,0,1)]"
+              : "border-pipe-900 bg-[var(--card)] shadow-[4px_4px_0_0_rgba(0,0,0,1)]"
           )}
           onClick={onWalletChoice}
         >

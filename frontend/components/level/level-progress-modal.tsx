@@ -41,7 +41,7 @@ export function LevelProgressModal({ open, onOpenChange, currentXP }: LevelProgr
                 </div>
               </div>
             </div>
-            <div className="text-right bg-white/40 backdrop-blur-sm px-3 py-2 rounded-lg border-2 border-white/60">
+            <div className="text-right bg-[var(--card)]/40 backdrop-blur-sm px-3 py-2 rounded-lg border-2 border-white/60">
               <div className="text-xs text-pipe-700 font-bold">Total XP</div>
               <div className="font-mario text-xl text-pipe-900">
                 {formatXP(currentXP)}
@@ -50,7 +50,7 @@ export function LevelProgressModal({ open, onOpenChange, currentXP }: LevelProgr
           </div>
 
           {/* Progress to Next Level */}
-          <div className="bg-white rounded-lg p-3 border-2 border-pipe-300 shadow-sm">
+          <div className="bg-[var(--card)] rounded-lg p-3 border-2 border-pipe-300 shadow-sm">
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm font-bold text-pipe-800">Progress to Level {levelInfo.level + 1}</span>
               <span className="text-sm font-bold text-mario-red-500">{Math.floor(progressPercent)}%</span>
@@ -69,7 +69,7 @@ export function LevelProgressModal({ open, onOpenChange, currentXP }: LevelProgr
         </div>
 
         {/* All Levels Grid */}
-        <div className="bg-white rounded-lg p-4 border-2 border-pipe-300">
+        <div className="bg-[var(--card)] rounded-lg p-4 border-2 border-pipe-300">
           <h3 className="font-mario text-base text-pipe-900 mb-3 flex items-center gap-2 border-b-2 border-pipe-200 pb-2">
             <Trophy className="h-4 w-4 text-coin-yellow-600" />
             All Levels
@@ -158,28 +158,28 @@ export function LevelProgressModal({ open, onOpenChange, currentXP }: LevelProgr
             How to Earn XP
           </h4>
           <div className="grid grid-cols-2 gap-3 text-xs">
-            <div className="flex items-start gap-2 bg-white p-2 rounded border border-sky-200">
+            <div className="flex items-start gap-2 bg-[var(--card)] p-2 rounded border border-sky-200">
               <div className="text-base">💰</div>
               <div>
                 <div className="font-bold text-pipe-900">Trading Volume</div>
                 <div className="text-pipe-600 text-[11px]">10 XP per $100 traded</div>
               </div>
             </div>
-            <div className="flex items-start gap-2 bg-white p-2 rounded border border-sky-200">
+            <div className="flex items-start gap-2 bg-[var(--card)] p-2 rounded border border-sky-200">
               <div className="text-base">📈</div>
               <div>
                 <div className="font-bold text-pipe-900">Profitable Trades</div>
                 <div className="text-pipe-600 text-[11px]">25 XP + 50 XP per $100 profit</div>
               </div>
             </div>
-            <div className="flex items-start gap-2 bg-white p-2 rounded border border-sky-200">
+            <div className="flex items-start gap-2 bg-[var(--card)] p-2 rounded border border-sky-200">
               <div className="text-base">🏆</div>
               <div>
                 <div className="font-bold text-pipe-900">Leaderboard</div>
                 <div className="text-pipe-600 text-[11px]">Up to 5,000 XP for #1</div>
               </div>
             </div>
-            <div className="flex items-start gap-2 bg-white p-2 rounded border border-sky-200">
+            <div className="flex items-start gap-2 bg-[var(--card)] p-2 rounded border border-sky-200">
               <div className="text-base">🎯</div>
               <div>
                 <div className="font-bold text-pipe-900">Achievements</div>

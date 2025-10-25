@@ -93,7 +93,7 @@ export function HeroSection() {
                 </button>
               </Link>
               <button
-                className="mario-btn mario-btn-lg mario-btn-outline border-2 border-white text-white hover:bg-white hover:text-mario-red w-full sm:w-auto"
+                className="mario-btn mario-btn-lg mario-btn-outline border-2 border-white text-white hover:bg-[var(--card)] hover:text-mario-red w-full sm:w-auto"
                 onClick={() => document.getElementById("features")?.scrollIntoView({ behavior: "smooth" })}
               >
                 <span className="flex items-center justify-center gap-2">

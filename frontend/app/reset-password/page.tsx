@@ -156,7 +156,7 @@ function ResetPasswordContent() {
         </div>
 
         {/* Form */}
-        <div className="bg-white border-4 border-[var(--outline-black)] rounded-xl shadow-[6px_6px_0_var(--outline-black)] p-6">
+        <div className="bg-[var(--card)] border-4 border-[var(--outline-black)] rounded-xl shadow-[6px_6px_0_var(--outline-black)] p-6">
           <form onSubmit={handleSubmit} className="space-y-4">
             {message && status === 'error' && (
               <div className="bg-[var(--mario-red)]/10 border-3 border-[var(--mario-red)] rounded-lg p-3">

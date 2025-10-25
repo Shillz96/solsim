@@ -134,7 +134,7 @@ export function DepositModal({ open, onOpenChange }: DepositModalProps) {
           ) : (
             <>
               {/* QR Code */}
-              <div className="flex justify-center p-4 bg-white rounded-lg border-3 border-pipe-300">
+              <div className="flex justify-center p-4 bg-[var(--card)] rounded-lg border-3 border-pipe-300">
                 <QRCodeSVG
                   value={depositAddress}
                   size={200}

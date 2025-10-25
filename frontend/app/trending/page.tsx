@@ -162,7 +162,7 @@ export default function TrendingPage() {
           transition={{ duration: 0.5, delay: 0.1 }}
           className="mb-4"
         >
-          <div className="mario-card bg-white border-4 border-pipe-700 shadow-mario p-6">
+          <div className="mario-card bg-[var(--card)] border-4 border-pipe-700 shadow-mario p-6">
           {/* Header Image inside filter bar */}
           <div className="mb-6 flex justify-center">
             <Image
@@ -221,7 +221,7 @@ export default function TrendingPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
         >
-          <div className="mario-card bg-white border-4 border-pipe-700 shadow-mario overflow-hidden">
+          <div className="mario-card bg-[var(--card)] border-4 border-pipe-700 shadow-mario overflow-hidden">
           {loading && (
             <div className="flex items-center justify-center h-64 bg-sky-50">
               <Loader2 className="h-8 w-8 animate-spin text-mario-red" />

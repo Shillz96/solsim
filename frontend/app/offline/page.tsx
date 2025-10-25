@@ -103,7 +103,7 @@ export default function OfflinePage() {
         </div>
 
         {/* Retry Button */}
-        <div className="bg-white border-4 border-[var(--outline-black)] rounded-xl shadow-[6px_6px_0_var(--outline-black)] p-6">
+        <div className="bg-[var(--card)] border-4 border-[var(--outline-black)] rounded-xl shadow-[6px_6px_0_var(--outline-black)] p-6">
           <Button 
             onClick={handleRetry} 
             className="w-full mario-btn bg-[var(--luigi-green)] text-white border-3 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)] hover:shadow-[6px_6px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all font-mario"
@@ -116,7 +116,7 @@ export default function OfflinePage() {
 
         {/* Show cached data if available */}
         {balance && (
-          <div className="bg-white border-4 border-[var(--outline-black)] rounded-xl shadow-[6px_6px_0_var(--outline-black)] p-6 space-y-4">
+          <div className="bg-[var(--card)] border-4 border-[var(--outline-black)] rounded-xl shadow-[6px_6px_0_var(--outline-black)] p-6 space-y-4">
             <div className="flex items-center gap-2 mb-4">
               <div className="h-8 w-8 rounded-lg bg-[var(--luigi-green)] border-3 border-[var(--outline-black)] flex items-center justify-center shadow-[2px_2px_0_var(--outline-black)]">
                 <TrendingUp className="h-4 w-4 text-white" />
@@ -142,7 +142,7 @@ export default function OfflinePage() {
           </div>
         )}
 
-        <div className="text-center space-y-3 bg-white border-4 border-[var(--outline-black)] rounded-xl shadow-[6px_6px_0_var(--outline-black)] p-6">
+        <div className="text-center space-y-3 bg-[var(--card)] border-4 border-[var(--outline-black)] rounded-xl shadow-[6px_6px_0_var(--outline-black)] p-6">
           <p className="text-sm text-[var(--outline-black)] font-bold">
             💡 <strong>PWA Features Active:</strong>
           </p>

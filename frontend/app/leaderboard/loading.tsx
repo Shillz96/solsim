@@ -11,7 +11,7 @@ export default function LeaderboardLoading() {
 
         {/* Time Filter Skeleton */}
         <div className="mb-6">
-          <div className="bg-white border-4 border-[var(--outline-black)] rounded-[16px] shadow-[6px_6px_0_var(--outline-black)] px-6 py-3">
+          <div className="bg-[var(--card)] border-4 border-[var(--outline-black)] rounded-[16px] shadow-[6px_6px_0_var(--outline-black)] px-6 py-3">
             <div className="h-10 w-64 bg-[var(--sky-200)] border-3 border-[var(--outline-black)] rounded-[12px] animate-pulse"></div>
           </div>
         </div>
@@ -20,7 +20,7 @@ export default function LeaderboardLoading() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left: Leaderboard Table Skeleton */}
           <div className="lg:col-span-2">
-            <div className="bg-white border-4 border-[var(--outline-black)] rounded-[16px] shadow-[6px_6px_0_var(--outline-black)] p-6">
+            <div className="bg-[var(--card)] border-4 border-[var(--outline-black)] rounded-[16px] shadow-[6px_6px_0_var(--outline-black)] p-6">
               {/* Loading spinner */}
               <div className="flex flex-col items-center justify-center h-96">
                 <div className="relative mb-4">
@@ -43,7 +43,7 @@ export default function LeaderboardLoading() {
             </div>
             
             {/* Top Performers Skeleton */}
-            <div className="p-6 bg-white border-4 border-[var(--outline-black)] rounded-[16px] shadow-[6px_6px_0_var(--outline-black)]">
+            <div className="p-6 bg-[var(--card)] border-4 border-[var(--outline-black)] rounded-[16px] shadow-[6px_6px_0_var(--outline-black)]">
               <div className="h-48 w-full bg-[var(--sky-200)] border-2 border-[var(--outline-black)] rounded-[12px] animate-pulse"></div>
             </div>
           </div>

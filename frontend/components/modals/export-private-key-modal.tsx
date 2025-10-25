@@ -167,7 +167,7 @@ export function ExportPrivateKeyModal({
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-w-2xl bg-white border-4 border-[var(--outline-black)] shadow-[8px_8px_0_var(--outline-black)]">
+      <DialogContent className="max-w-2xl bg-[var(--card)] border-4 border-[var(--outline-black)] shadow-[8px_8px_0_var(--outline-black)]">
         <AnimatePresence mode="wait">
           {step === 'warning' && (
             <motion.div
@@ -210,7 +210,7 @@ export function ExportPrivateKeyModal({
 
                 {/* Security Warnings */}
                 <div className="space-y-3">
-                  <div className="flex items-start gap-3 p-3 bg-white border-2 border-pipe-900 rounded-lg">
+                  <div className="flex items-start gap-3 p-3 bg-[var(--card)] border-2 border-pipe-900 rounded-lg">
                     <Shield className="w-5 h-5 text-mario-red-600 mt-0.5 flex-shrink-0" />
                     <div>
                       <div className="font-bold text-sm text-pipe-900 mb-1">
@@ -222,7 +222,7 @@ export function ExportPrivateKeyModal({
                     </div>
                   </div>
 
-                  <div className="flex items-start gap-3 p-3 bg-white border-2 border-pipe-900 rounded-lg">
+                  <div className="flex items-start gap-3 p-3 bg-[var(--card)] border-2 border-pipe-900 rounded-lg">
                     <Lock className="w-5 h-5 text-star-yellow-600 mt-0.5 flex-shrink-0" />
                     <div>
                       <div className="font-bold text-sm text-pipe-900 mb-1">
@@ -234,7 +234,7 @@ export function ExportPrivateKeyModal({
                     </div>
                   </div>
 
-                  <div className="flex items-start gap-3 p-3 bg-white border-2 border-pipe-900 rounded-lg">
+                  <div className="flex items-start gap-3 p-3 bg-[var(--card)] border-2 border-pipe-900 rounded-lg">
                     <AlertTriangle className="w-5 h-5 text-mario-red-600 mt-0.5 flex-shrink-0" />
                     <div>
                       <div className="font-bold text-sm text-pipe-900 mb-1">

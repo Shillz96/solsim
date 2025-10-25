@@ -8,6 +8,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/use-auth';
+import { useModerationConfig, useUpdateModerationConfig, useModerationStats, useTestModerationBot } from '@/hooks/use-admin-api';
+import { AdminCard, AdminButton, AdminInput, AdminSelect, AdminLoadingSkeleton } from './admin-ui';
 
 interface ModerationConfig {
   rateLimit: {
@@ -72,102 +74,42 @@ interface ModerationStats {
 
 export function ModerationAdmin() {
   const { user } = useAuth();
-  const [config, setConfig] = useState<ModerationConfig | null>(null);
-  const [stats, setStats] = useState<ModerationStats | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [message, setMessage] = useState('');
   const [activeTab, setActiveTab] = useState<'config' | 'stats' | 'test'>('config');
+  const [testMessage, setTestMessage] = useState('');
+  const [testResult, setTestResult] = useState<any>(null);
+
+  // API hooks
+  const { data: configData, isLoading: configLoading, error: configError } = useModerationConfig();
+  const { data: statsData, isLoading: statsLoading, error: statsError } = useModerationStats();
+  const updateConfig = useUpdateModerationConfig();
+  const testBot = useTestModerationBot();
 
   // Check if user is admin
   const isAdmin = user?.userTier === 'ADMINISTRATOR';
 
-  useEffect(() => {
-    if (!isAdmin) return;
-
-    const fetchData = async () => {
-      try {
-        const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
-        const [configResponse, statsResponse] = await Promise.all([
-          fetch('/api/moderation/config', {
-            headers: { 'Authorization': `Bearer ${token}` }
-          }),
-          fetch('/api/moderation/stats', {
-            headers: { 'Authorization': `Bearer ${token}` }
-          })
-        ]);
-
-        const [configData, statsData] = await Promise.all([
-          configResponse.json(),
-          statsResponse.json()
-        ]);
-
-        if (configData.success) {
-          setConfig(configData.config);
-        }
-        if (statsData.success) {
-          setStats(statsData.stats);
-        }
-      } catch (error) {
-        console.error('Failed to fetch moderation data:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [isAdmin]);
-
-  const handleSaveConfig = async () => {
-    if (!config) return;
-
-    setSaving(true);
+  const handleSaveConfig = async (newConfig: ModerationConfig) => {
     try {
-      const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
-      const response = await fetch('/api/moderation/config', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(config)
-      });
-
-      const data = await response.json();
-      if (data.success) {
-        setMessage('✅ Configuration saved successfully!');
-      } else {
-        setMessage(`❌ ${data.error}`);
-      }
+      await updateConfig.mutateAsync(newConfig);
     } catch (error) {
-      setMessage('❌ Failed to save configuration');
-    } finally {
-      setSaving(false);
+      console.error('Failed to save config:', error);
     }
   };
 
-  const testModerationBot = async (testMessage: string) => {
+  const handleTestBot = async () => {
+    if (!testMessage.trim()) return;
+    
     try {
-      const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
-      const response = await fetch('/api/moderation/test', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ message: testMessage })
-      });
-
-      const data = await response.json();
-      return data;
+      const result = await testBot.mutateAsync(testMessage);
+      setTestResult(result.analysis);
     } catch (error) {
-      return { success: false, error: 'Failed to test moderation bot' };
+      console.error('Failed to test bot:', error);
     }
   };
+
 
   if (!isAdmin) {
     return (
-      <div className="bg-white rounded-lg border-4 border-pipe-300 p-6 shadow-mario">
+      <div className="bg-[var(--card)] rounded-lg border-4 border-pipe-300 p-6 shadow-mario">
         <div className="text-center">
           <div className="font-mario text-xl text-pipe-800 mb-2">👑</div>
           <div className="font-mario text-lg text-pipe-600">Admin Access Required</div>
@@ -177,23 +119,16 @@ export function ModerationAdmin() {
     );
   }
 
-  if (loading) {
+  if (configLoading || statsLoading) {
     return (
-      <div className="bg-white rounded-lg border-4 border-pipe-300 p-6 shadow-mario">
-        <div className="animate-pulse">
-          <div className="h-8 bg-pipe-200 rounded mb-4"></div>
-          <div className="space-y-2">
-            {[...Array(5)].map((_, i) => (
-              <div key={i} className="h-16 bg-pipe-200 rounded"></div>
-            ))}
-          </div>
-        </div>
-      </div>
+      <AdminCard>
+        <AdminLoadingSkeleton lines={8} />
+      </AdminCard>
     );
   }
 
   return (
-    <div className="bg-white rounded-lg border-4 border-pipe-300 p-6 shadow-mario">
+    <div className="bg-[var(--card)] rounded-lg border-4 border-pipe-300 p-6 shadow-mario">
       <div className="mb-6">
         <h2 className="font-mario text-3xl text-pipe-800 mb-2">🛡️ Moderation Admin Panel</h2>
         <div className="text-pipe-600">Manage moderation settings and view statistics</div>
@@ -233,8 +168,8 @@ export function ModerationAdmin() {
         </button>
       </div>
 
-      {/* Configuration Tab */}
-      {activeTab === 'config' && config && (
+        {/* Configuration Tab */}
+        {activeTab === 'config' && configData?.config && (
         <div className="space-y-6">
           {/* Rate Limiting */}
           <div className="bg-pipe-50 rounded-lg p-4 border-2 border-pipe-200">
@@ -244,11 +179,17 @@ export function ModerationAdmin() {
                 <label className="block font-mario text-pipe-700 mb-2">Messages per Window</label>
                 <input
                   type="number"
-                  value={config.rateLimit.messagesPerWindow}
-                  onChange={(e) => setConfig({
-                    ...config,
-                    rateLimit: { ...config.rateLimit, messagesPerWindow: parseInt(e.target.value) }
-                  })}
+                  value={configData.config.rateLimit.messagesPerWindow}
+                  onChange={(e) => {
+                    const newConfig = {
+                      ...configData.config,
+                      rateLimit: { 
+                        ...configData.config.rateLimit, 
+                        messagesPerWindow: parseInt(e.target.value) 
+                      }
+                    };
+                    handleSaveConfig(newConfig);
+                  }}
                   className="w-full px-3 py-2 border-2 border-pipe-300 rounded-lg font-mario"
                 />
               </div>
@@ -390,25 +331,25 @@ export function ModerationAdmin() {
         </div>
       )}
 
-      {/* Statistics Tab */}
-      {activeTab === 'stats' && stats && (
+        {/* Statistics Tab */}
+        {activeTab === 'stats' && statsData?.stats && (
         <div className="space-y-6">
           {/* Overview Stats */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="bg-luigi-green-50 rounded-lg p-4 border-2 border-luigi-green-300">
-              <div className="font-mario text-2xl text-luigi-green-800">{stats.totalUsers}</div>
+              <div className="font-mario text-2xl text-luigi-green-800">{statsData.stats.totalUsers}</div>
               <div className="text-sm text-luigi-green-600">Total Users</div>
             </div>
             <div className="bg-mario-red-50 rounded-lg p-4 border-2 border-mario-red-300">
-              <div className="font-mario text-2xl text-mario-red-800">{stats.mutedUsers}</div>
+              <div className="font-mario text-2xl text-mario-red-800">{statsData.stats.mutedUsers}</div>
               <div className="text-sm text-mario-red-600">Muted Users</div>
             </div>
             <div className="bg-mario-red-50 rounded-lg p-4 border-2 border-mario-red-300">
-              <div className="font-mario text-2xl text-mario-red-800">{stats.bannedUsers}</div>
+              <div className="font-mario text-2xl text-mario-red-800">{statsData.stats.bannedUsers}</div>
               <div className="text-sm text-mario-red-600">Banned Users</div>
             </div>
             <div className="bg-star-yellow-50 rounded-lg p-4 border-2 border-star-yellow-300">
-              <div className="font-mario text-2xl text-star-yellow-800">{stats.totalActions}</div>
+              <div className="font-mario text-2xl text-star-yellow-800">{statsData.stats.totalActions}</div>
               <div className="text-sm text-star-yellow-600">Total Actions</div>
             </div>
           </div>
@@ -442,6 +383,8 @@ export function ModerationAdmin() {
           <div>
             <label className="block font-mario text-pipe-800 mb-2">Test Message</label>
             <textarea
+              value={testMessage}
+              onChange={(e) => setTestMessage(e.target.value)}
               placeholder="Enter a message to test moderation bot..."
               className="w-full px-4 py-2 border-2 border-pipe-300 rounded-lg font-mario
                        focus:border-mario-red-500 focus:outline-none"
@@ -449,14 +392,58 @@ export function ModerationAdmin() {
             />
           </div>
           <button
-            onClick={() => {
-              // Test moderation bot
-            }}
+            onClick={handleTestBot}
+            disabled={testBot.isPending}
             className="w-full px-6 py-3 rounded-lg font-mario text-white border-3
-                     bg-mario-red-500 hover:bg-mario-red-600 border-mario-red-600 shadow-mario"
+                     bg-mario-red-500 hover:bg-mario-red-600 border-mario-red-600 shadow-mario
+                     disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            🧪 Test Moderation Bot
+            {testBot.isPending ? '⏳ Testing...' : '🧪 Test Moderation Bot'}
           </button>
+          
+          {testResult && (
+            <div className="mt-4 p-4 bg-[var(--card)] rounded-lg border-2 border-pipe-300">
+              <h4 className="font-mario text-lg text-pipe-800 mb-2">Analysis Result</h4>
+              <div className="space-y-2">
+                <div className="flex justify-between">
+                  <span className="font-medium">Spam:</span>
+                  <span className={testResult.analysis.isSpam ? 'text-mario-red-600' : 'text-luigi-green-600'}>
+                    {testResult.analysis.isSpam ? 'Yes' : 'No'}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="font-medium">Toxic:</span>
+                  <span className={testResult.analysis.isToxic ? 'text-mario-red-600' : 'text-luigi-green-600'}>
+                    {testResult.analysis.isToxic ? 'Yes' : 'No'}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="font-medium">Pump & Dump:</span>
+                  <span className={testResult.analysis.isPumpDump ? 'text-mario-red-600' : 'text-luigi-green-600'}>
+                    {testResult.analysis.isPumpDump ? 'Yes' : 'No'}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="font-medium">Caps Spam:</span>
+                  <span className={testResult.analysis.isCapsSpam ? 'text-mario-red-600' : 'text-luigi-green-600'}>
+                    {testResult.analysis.isCapsSpam ? 'Yes' : 'No'}
+                  </span>
+                </div>
+                <div className="mt-3 p-3 bg-pipe-100 rounded-lg">
+                  <div className="font-medium text-pipe-800">Recommendation:</div>
+                  <div className="text-sm text-pipe-600">
+                    {testResult.recommendations.action === 'none' ? '✅ Message appears clean' : 
+                     testResult.recommendations.action === 'warning' ? '⚠️ Warning recommended' :
+                     testResult.recommendations.action === 'strike' ? '⚡ Strike recommended' :
+                     testResult.recommendations.action === 'mute' ? '🔇 Mute recommended' : 'Message appears clean'}
+                  </div>
+                  <div className="text-xs text-pipe-500 mt-1">
+                    Reason: {testResult.recommendations.reason}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       )}
 

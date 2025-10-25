@@ -58,7 +58,7 @@ export function CTASection() {
               </button>
             </Link>
             <Link href="/docs">
-              <button className="mario-btn mario-btn-lg mario-btn-outline border-2 border-white text-white hover:bg-white hover:text-mario-red w-full sm:w-auto">
+              <button className="mario-btn mario-btn-lg mario-btn-outline border-2 border-white text-white hover:bg-[var(--card)] hover:text-mario-red w-full sm:w-auto">
                 <span className="flex items-center justify-center gap-2">
                   Learn How to Play
                   <img src="/icons/mario/game.png" alt="" className="w-5 h-5 object-contain inline-block" />

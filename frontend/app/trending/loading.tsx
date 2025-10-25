@@ -6,7 +6,7 @@ export default function TrendingLoading() {
       <main className="w-full px-4 sm:px-6 lg:px-8 py-8 max-w-page-xl mx-auto">
         {/* Header Skeleton */}
         <div className="mb-4">
-          <div className="bg-white border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] rounded-xl p-6">
+          <div className="bg-[var(--card)] border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] rounded-xl p-6">
             <div className="mb-6 flex justify-center">
               <div className="h-24 w-full max-w-[600px] bg-[var(--sky-200)] border-2 border-[var(--outline-black)] rounded-lg animate-pulse"></div>
             </div>
@@ -26,7 +26,7 @@ export default function TrendingLoading() {
         </div>
 
         {/* Table Skeleton - Mario Theme */}
-        <div className="bg-white border-4 border-[var(--pipe-700)] shadow-[6px_6px_0_var(--outline-black)] rounded-xl overflow-hidden">
+        <div className="bg-[var(--card)] border-4 border-[var(--pipe-700)] shadow-[6px_6px_0_var(--outline-black)] rounded-xl overflow-hidden">
           {/* Loading spinner */}
           <div className="flex flex-col items-center justify-center h-64 bg-[var(--sky-50)]">
             <div className="relative mb-4">

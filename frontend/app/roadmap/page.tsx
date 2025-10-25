@@ -84,7 +84,7 @@ const airdropPoints = [
 ]
 
 const Card = ({ children, className = "" }: { children: React.ReactNode; className?: string }) => (
-  <div className={`mario-card bg-white rounded-2xl border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] ${className}`}>
+  <div className={`mario-card bg-[var(--card)] rounded-2xl border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] ${className}`}>
     {children}
   </div>
 )
@@ -109,7 +109,7 @@ export default function RoadmapPage() {
           <Link href="/">
             <Button 
               variant="ghost" 
-              className="gap-2 mario-btn bg-white border-3 border-[var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)]"
+              className="gap-2 mario-btn bg-[var(--card)] border-3 border-[var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)]"
             >
               <ArrowLeft className="h-4 w-4" />
               Back to Home
@@ -239,7 +239,7 @@ export default function RoadmapPage() {
                 </Link>
                 <Link href="/rewards">
                   <Button
-                    className="inline-flex items-center justify-center rounded-xl border-[3px] border-[var(--outline-black)] bg-white px-4 py-2 text-sm font-black shadow-[4px_4px_0_var(--outline-black)] transition-transform active:translate-y-0.5 hover:bg-gray-100 text-[var(--outline-black)]"
+                    className="inline-flex items-center justify-center rounded-xl border-[3px] border-[var(--outline-black)] bg-[var(--card)] px-4 py-2 text-sm font-black shadow-[4px_4px_0_var(--outline-black)] transition-transform active:translate-y-0.5 hover:bg-gray-100 text-[var(--outline-black)]"
                   >
                     View Rewards Dashboard 💰
                   </Button>
