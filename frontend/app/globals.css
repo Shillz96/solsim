@@ -37,7 +37,9 @@
     touch-action: manipulation;
   }
 
-  /* Paper Texture System - Optimized */
+  /* Paper Texture System - Two-Layer Design */
+
+  /* Layer 1 - Base Texture (Behind Content) */
   body::before {
     content: "";
     position: fixed;
@@ -45,18 +47,35 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background-image: url('/papertexture-2.avif');
+    background-image: url('/papertexturre-2.avif');
     background-repeat: repeat;
     background-size: 1600px 1600px;
-    opacity: 0.25;
+    opacity: 0.2;
     mix-blend-mode: multiply;
     pointer-events: none;
-    z-index: 0;
+    z-index: 1;
+  }
+
+  /* Layer 2 - Top Texture (In Front of Content) */
+  body::after {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('/Paper-Texture-7.jpg');
+    background-repeat: repeat;
+    background-size: 1600px 1600px;
+    opacity: 0.9;
+    mix-blend-mode: multiply;
+    pointer-events: none;
+    z-index: 9999;
   }
 
   body > * {
     position: relative;
-    z-index: 1;
+    z-index: 2;
   }
 
   /* Typography */
