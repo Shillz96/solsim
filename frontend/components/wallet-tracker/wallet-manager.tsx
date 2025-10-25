@@ -470,10 +470,16 @@ export function WalletManager({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-[95vw] max-w-2xl max-h-[85vh] sm:max-h-[80vh] overflow-hidden flex flex-col bg-white border-4 border-[var(--outline-black)] shadow-[8px_8px_0_var(--outline-black)] p-4 sm:p-6">
+      <DialogContent className={cn(
+        marioStyles.cardLg(false),
+        'w-[95vw] max-w-2xl max-h-[85vh] sm:max-h-[80vh] overflow-hidden flex flex-col bg-white p-4 sm:p-6'
+      )}>
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-2xl font-mario text-[var(--outline-black)]">
-            <div className="h-8 w-8 rounded-lg bg-[var(--mario-red)] border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] flex items-center justify-center">
+          <DialogTitle className={cn('flex items-center gap-2 text-2xl', marioStyles.heading(2))}>
+            <div className={cn(
+              marioStyles.iconContainer('sm', '[var(--mario-red)]'),
+              'bg-[var(--mario-red)]'
+            )}>
               <Eye className="h-4 w-4 text-white" />
             </div>
             Manage Tracked Wallets
@@ -520,18 +526,28 @@ export function WalletManager({
                   placeholder="Search wallets..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-9 bg-white border-3 border-[var(--outline-black)] rounded-lg shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)] font-bold"
+                  className={cn(
+                    marioStyles.input(),
+                    'pl-9 bg-white',
+                    marioStyles.bodyText('bold')
+                  )}
                 />
               </div>
             )}
 
             {/* Wallet List */}
             {filteredWallets.length === 0 ? (
-              <div className="bg-[var(--sky-blue)]/20 rounded-xl border-3 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)] p-8 text-center">
-                <div className="h-12 w-12 rounded-full bg-[var(--mario-red)] border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] flex items-center justify-center mx-auto mb-4">
+              <div className={cn(
+                marioStyles.card(),
+                'bg-[var(--sky-blue)]/20 p-8 text-center'
+              )}>
+                <div className={cn(
+                  marioStyles.iconContainer('lg', '[var(--mario-red)]'),
+                  'bg-[var(--mario-red)] mx-auto mb-4'
+                )}>
                   <Eye className="h-6 w-6 text-white" />
                 </div>
-                <p className="text-sm font-bold text-[var(--outline-black)]">
+                <p className={cn(marioStyles.bodyText('bold'), 'text-sm')}>
                   {searchTerm ? "No wallets found" : "No wallets tracked yet"}
                 </p>
                 {!searchTerm && (
