@@ -6,7 +6,7 @@
 -- Option 1: Update by email (recommended)
 UPDATE "User" 
 SET "userTier" = 'ADMINISTRATOR' 
-WHERE "email" = 'your-email@example.com';
+WHERE "email" = 'admin@admin.com';
 
 -- Option 2: Update by username (alternative)
 -- UPDATE "User" 

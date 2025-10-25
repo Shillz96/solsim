@@ -154,7 +154,7 @@ export function SlidingTrendingTicker() {
   return (
     <>
       {/* Hourly Rewards Timer - Floating above everything */}
-      <div className="fixed top-[calc(var(--navbar-height)+2rem)] left-1/2 -translate-x-1/2 z-[99999] pointer-events-auto">
+      <div className="fixed top-[calc(var(--navbar-height)+3rem)] left-1/2 -translate-x-1/2 z-[99999] pointer-events-auto">
         <HourlyRewardTimer />
       </div>
       
