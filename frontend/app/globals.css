@@ -67,7 +67,7 @@
     background-image: url('/Paper-Texture-7.jpg');
     background-repeat: repeat;
     background-size: 1600px 1600px;
-    opacity: 0.9;
+    opacity: 0.08;
     mix-blend-mode: multiply;
     pointer-events: none;
     z-index: 9999;
