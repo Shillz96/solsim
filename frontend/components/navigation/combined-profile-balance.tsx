@@ -96,7 +96,7 @@ export function CombinedProfileBalance({
           <motion.button
             whileHover={{ y: -1 }}
             className={cn(
-              "h-9 md:h-10 min-w-[200px] md:min-w-[240px]",
+              "h-9 md:h-10 min-w-[160px] md:min-w-[180px]",
               "px-2.5 md:px-3 rounded-[10px] md:rounded-[12px]",
               "bg-[var(--star-yellow)]",
               "border-3 border-[var(--outline-black)]",
@@ -138,12 +138,9 @@ export function CombinedProfileBalance({
             </div>
 
             {/* Balance */}
-            <div className="flex flex-col items-end leading-none space-y-0 flex-1">
-              <span className="tabular-nums font-extrabold text-[12px] md:text-[14px] tracking-tight text-[var(--outline-black)]">
+            <div className="flex items-center leading-none flex-1 justify-end">
+              <span className="tabular-nums font-extrabold text-[13px] md:text-[15px] tracking-tight text-[var(--outline-black)]">
                 {Number(activeBalance ?? 0).toFixed(2)}
-              </span>
-              <span className="text-[8px] md:text-[9px] font-black uppercase text-foreground/70 whitespace-nowrap">
-                {balanceLabel} SOL
               </span>
             </div>
 

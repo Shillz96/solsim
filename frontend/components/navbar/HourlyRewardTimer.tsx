@@ -45,7 +45,7 @@ export function HourlyRewardTimer() {
   if (justDistributed) {
     return (
       <>
-        <button onClick={() => setShowWinnersModal(true)} className="cursor-pointer">
+        <button onClick={() => setShowWinnersModal(true)} className="cursor-pointer relative z-[99999]">
           <CartridgePill
             value="Rewards Sent! 🎉"
             bgColor="var(--luigi-green)"
