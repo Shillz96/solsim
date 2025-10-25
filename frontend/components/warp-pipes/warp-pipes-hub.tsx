@@ -117,9 +117,9 @@ export function WarpPipesHub() {
       hasError: !!error,
       errorMessage: error?.message,
       hasData: !!data,
-      newCount: data?.newTokens?.length || 0,
-      graduatingCount: data?.graduatingTokens?.length || 0,
-      bondedCount: data?.bondedTokens?.length || 0
+      newCount: data?.new?.length || 0,
+      graduatingCount: data?.graduating?.length || 0,
+      bondedCount: data?.bonded?.length || 0
     });
   }, [isLoading, error, data]);
 
