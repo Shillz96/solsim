@@ -52,7 +52,7 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator
 } from "@/components/ui/dropdown-menu"
-import { cn } from "@/lib/utils"
+import { cn, marioStyles } from "@/lib/utils"
 import { formatUSD, formatNumber } from "@/lib/format"
 import { useWalletTrackerWebSocket } from "@/hooks/use-wallet-tracker-ws"
 import { WalletActivityList } from "./wallet-activity-list"
@@ -360,7 +360,10 @@ export function WalletTrackerContent({ compact = false }: WalletTrackerContentPr
                         damping: 15,
                         delay: 0.2 
                       }}
-                      className="bg-[var(--star-yellow)] border-2 border-[var(--outline-black)] rounded-lg px-2 py-1 shadow-[2px_2px_0_var(--outline-black)]"
+                      className={cn(
+                        marioStyles.badgeLg('gold'),
+                        'bg-[var(--star-yellow)] text-[var(--outline-black)] px-2 py-1'
+                      )}
                     >
                       <motion.span 
                         animate={{ 
@@ -386,7 +389,10 @@ export function WalletTrackerContent({ compact = false }: WalletTrackerContentPr
                   variant="outline"
                   size="sm"
                   onClick={() => setShowSettings(true)}
-                  className="gap-1.5 bg-white/80 border-2 border-[var(--outline-black)] hover:bg-[var(--star-yellow)]/20 font-mario h-8 text-xs shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all"
+                  className={cn(
+                    marioStyles.button('outline', 'sm'),
+                    'gap-1.5 bg-white/80 text-xs'
+                  )}
                   title="Filters"
                 >
                   <Settings className="h-3.5 w-3.5" />
@@ -396,7 +402,10 @@ export function WalletTrackerContent({ compact = false }: WalletTrackerContentPr
                 <Button
                   size="sm"
                   onClick={() => setShowWalletManager(true)}
-                  className="gap-1.5 bg-[var(--mario-red)] border-2 border-[var(--outline-black)] text-white font-mario h-8 text-xs shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all"
+                  className={cn(
+                    marioStyles.button('danger', 'sm'),
+                    'gap-1.5 text-xs'
+                  )}
                   title="Manage Wallets"
                 >
                   <Plus className="h-3.5 w-3.5" />
@@ -406,7 +415,10 @@ export function WalletTrackerContent({ compact = false }: WalletTrackerContentPr
                 <Button
                   size="sm"
                   onClick={() => window.location.href = '/wallet-tracker'}
-                  className="gap-1.5 bg-[var(--star-yellow)] border-2 border-[var(--outline-black)] text-[var(--outline-black)] font-mario h-8 text-xs shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all"
+                  className={cn(
+                    marioStyles.button('primary', 'sm'),
+                    'gap-1.5 text-xs'
+                  )}
                   title="Full View"
                 >
                   <ExternalLink className="h-3.5 w-3.5" />

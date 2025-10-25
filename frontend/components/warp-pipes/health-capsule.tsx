@@ -8,7 +8,7 @@
  */
 
 import { Badge } from "@/components/ui/badge"
-import { cn } from "@/lib/utils"
+import { cn, marioStyles } from "@/lib/utils"
 import type { TokenRow, HealthLevel } from "@/lib/types/warp-pipes"
 
 interface HealthCapsuleProps {
@@ -118,14 +118,20 @@ export function HealthCapsule({ token, className }: HealthCapsuleProps) {
 
       {/* Pool Age (for NEW tokens) */}
       {token.state === "new" && token.poolAgeMin != null && (
-        <Badge variant="outline" className="text-xs font-mono font-bold border-3 border-[var(--outline-black)] bg-[var(--background)] text-[var(--outline-black)] px-2 py-0.5 rounded-[8px] shadow-[2px_2px_0_var(--outline-black)]">
+        <Badge variant="outline" className={cn(
+          marioStyles.badgeLg('gold'),
+          'text-xs font-mono bg-[var(--background)] text-[var(--outline-black)] px-2 py-0.5 rounded-[8px]'
+        )}>
           🕐 {token.poolAgeMin < 60 ? `${token.poolAgeMin}m` : `${Math.floor(token.poolAgeMin / 60)}h`}
         </Badge>
       )}
 
       {/* Bonding Progress (for BONDED/GRADUATING) */}
       {(token.state === "bonded" || token.state === "graduating") && token.bondingCurveProgress != null && (
-        <Badge variant="outline" className="text-xs font-mono font-bold border-3 border-[var(--outline-black)] bg-[var(--coin-yellow)]/20 text-[var(--outline-black)] px-2 py-0.5 rounded-[8px] shadow-[2px_2px_0_var(--outline-black)]">
+        <Badge variant="outline" className={cn(
+          marioStyles.badgeLg('gold'),
+          'text-xs font-mono bg-[var(--coin-yellow)]/20 text-[var(--outline-black)] px-2 py-0.5 rounded-[8px]'
+        )}>
           📈 {token.bondingCurveProgress.toFixed(0)}%
         </Badge>
       )}

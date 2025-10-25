@@ -8,7 +8,7 @@
 "use client"
 
 import { useState, useMemo } from "react"
-import { cn } from "@/lib/utils"
+import { cn, marioStyles } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -463,7 +463,10 @@ export function FilterPanel({
                 onClick={handleImport}
                 variant="outline"
                 size="sm"
-                className="border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-[1px] transition-all duration-200 bg-white text-[var(--outline-black)] font-bold"
+                className={cn(
+                  marioStyles.button('outline', 'sm'),
+                  'bg-white'
+                )}
               >
                 <Upload className="h-4 w-4 mr-1" />
                 Import
@@ -472,7 +475,10 @@ export function FilterPanel({
                 onClick={handleExport}
                 variant="outline"
                 size="sm"
-                className="border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-[1px] transition-all duration-200 bg-white text-[var(--outline-black)] font-bold"
+                className={cn(
+                  marioStyles.button('outline', 'sm'),
+                  'bg-white'
+                )}
               >
                 <Download className="h-4 w-4 mr-1" />
                 Export
@@ -481,7 +487,10 @@ export function FilterPanel({
                 onClick={resetFilters}
                 variant="outline"
                 size="sm"
-                className="border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-[1px] transition-all duration-200 bg-white text-[var(--outline-black)] font-bold"
+                className={cn(
+                  marioStyles.button('outline', 'sm'),
+                  'bg-white'
+                )}
               >
                 Reset
               </Button>

@@ -553,7 +553,10 @@ export function WalletManager({
                 {!searchTerm && (
                   <button
                     onClick={() => setActiveTab("add")}
-                    className="mt-4 gap-2 h-9 px-4 rounded-lg border-3 border-[var(--outline-black)] bg-[var(--mario-red)] text-white hover:bg-[var(--mario-red)]/90 shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all flex items-center font-mario mx-auto"
+                    className={cn(
+                      marioStyles.button('danger'),
+                      'mt-4 gap-2 mx-auto flex items-center'
+                    )}
                   >
                     <Plus className="h-4 w-4" />
                     Track Your First Wallet
@@ -566,7 +569,7 @@ export function WalletManager({
                   const isEditing = editingWallet === wallet.id
 
                   return (
-                    <div key={wallet.id} className="bg-white rounded-xl border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] p-3">
+                    <div key={wallet.id} className={marioStyles.card()}>
                       {isEditing ? (
                         // Edit Mode
                         <div className="space-y-3">
@@ -575,7 +578,10 @@ export function WalletManager({
                             <div className="relative">
                               <button
                                 onClick={() => setShowIconPicker(!showIconPicker)}
-                                className="h-10 w-10 rounded-lg border-3 border-[var(--outline-black)] bg-[var(--star-yellow)] hover:bg-[var(--star-yellow)]/80 shadow-[2px_2px_0_var(--outline-black)] flex items-center justify-center transition-all p-1.5"
+                                className={cn(
+                                  marioStyles.iconContainer('md', '[var(--star-yellow)]'),
+                                  'hover:bg-[var(--star-yellow)]/80 p-1.5'
+                                )}
                               >
                                 {editIcon && getIconById(editIcon) ? (
                                   <Image
@@ -593,7 +599,10 @@ export function WalletManager({
 
                               {/* Icon Picker Dropdown */}
                               {showIconPicker && (
-                                <div className="absolute top-12 left-0 z-[60] bg-white rounded-lg border-3 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)] p-2 grid grid-cols-4 gap-1.5 min-w-[180px]">
+                                <div className={cn(
+                                  marioStyles.card(),
+                                  'absolute top-12 left-0 z-[60] p-2 grid grid-cols-4 gap-1.5 min-w-[180px]'
+                                )}>
                                   {MARIO_ICONS.map((icon, index) => (
                                     <button
                                       key={icon.id}
@@ -612,7 +621,8 @@ export function WalletManager({
                                         }
                                       }}
                                       className={cn(
-                                        "h-10 w-10 rounded border-2 flex items-center justify-center hover:bg-gray-100 focus:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-[var(--mario-red)] transition-colors p-1.5",
+                                        marioStyles.iconContainer('md'),
+                                        "hover:bg-gray-100 focus:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-[var(--mario-red)] transition-colors p-1.5",
                                         editIcon === icon.id ? "border-[var(--mario-red)] bg-[var(--mario-red)]/10" : "border-gray-300"
                                       )}
                                       title={icon.name}
@@ -644,7 +654,10 @@ export function WalletManager({
                                           setShowIconPicker(false)
                                         }
                                       }}
-                                      className="h-12 rounded-lg border-2 border-[var(--mario-red)] bg-[var(--mario-red)] text-white hover:bg-[var(--mario-red)]/90 focus:bg-[var(--mario-red)]/90 focus:outline-none focus:ring-2 focus:ring-[var(--mario-red)] flex items-center justify-center text-xs font-mario col-span-4 px-2 py-1"
+                                      className={cn(
+                                        marioStyles.button('danger', 'sm'),
+                                        'col-span-4 px-2 py-1 text-xs'
+                                      )}
                                       aria-label="Remove selected icon"
                                     >
                                       Remove Icon
@@ -659,7 +672,7 @@ export function WalletManager({
                               value={editLabel}
                               onChange={(e) => setEditLabel(e.target.value)}
                               placeholder="Enter wallet label..."
-                              className="flex-1 bg-white border-3 border-[var(--outline-black)] rounded-lg shadow-[2px_2px_0_var(--outline-black)]"
+                              className={cn(marioStyles.input(), 'flex-1 bg-white')}
                               autoFocus
                               onKeyDown={(e) => {
                                 if (e.key === 'Enter') {
@@ -675,7 +688,10 @@ export function WalletManager({
                             <button
                               onClick={handleCancelEdit}
                               disabled={updatingWallet}
-                              className="h-8 px-3 rounded-lg border-2 border-[var(--outline-black)] bg-white hover:bg-gray-50 shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all flex items-center gap-1 font-mario text-xs disabled:opacity-50"
+                              className={cn(
+                                marioStyles.button('outline', 'sm'),
+                                'gap-1 text-xs'
+                              )}
                             >
                               <XCircle className="h-3 w-3" />
                               Cancel
@@ -683,7 +699,10 @@ export function WalletManager({
                             <button
                               onClick={() => handleUpdateLabel(wallet.id)}
                               disabled={updatingWallet}
-                              className="h-8 px-3 rounded-lg border-2 border-[var(--outline-black)] bg-[var(--luigi-green)] text-white hover:bg-[var(--luigi-green)]/90 shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all flex items-center gap-1 font-mario text-xs disabled:opacity-50"
+                              className={cn(
+                                marioStyles.button('success', 'sm'),
+                                'gap-1 text-xs'
+                              )}
                             >
                               {updatingWallet ? (
                                 <Loader2 className="h-3 w-3 animate-spin" />
@@ -703,7 +722,10 @@ export function WalletManager({
                                 const { iconId, text } = parseLabel(wallet.label)
                                 const icon = iconId ? getIconById(iconId) : null
                                 return (
-                                  <Badge variant="secondary" className="flex items-center gap-1.5 text-xs font-mario border-2 border-[var(--outline-black)] bg-[var(--star-yellow)] text-[var(--outline-black)]">
+                                  <Badge variant="secondary" className={cn(
+                                    marioStyles.badgeLg('gold'),
+                                    'flex items-center gap-1.5 text-xs bg-[var(--star-yellow)] text-[var(--outline-black)]'
+                                  )}>
                                     {icon && (
                                       <Image
                                         src={icon.path}
@@ -751,7 +773,10 @@ export function WalletManager({
                           <div className="flex items-center gap-2 flex-shrink-0">
                             <button
                               onClick={() => handleStartEdit(wallet)}
-                              className="h-8 w-8 rounded-lg border-2 border-[var(--outline-black)] bg-white hover:bg-gray-50 shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all flex items-center justify-center"
+                              className={cn(
+                                marioStyles.iconButton('outline'),
+                                'h-8 w-8'
+                              )}
                               title="Edit label"
                             >
                               <Edit2 className="h-4 w-4" />
@@ -759,7 +784,10 @@ export function WalletManager({
                             <button
                               onClick={() => handleSyncWallet(wallet.walletAddress)}
                               disabled={syncingWallets.has(wallet.walletAddress)}
-                              className="h-8 w-8 rounded-lg border-2 border-[var(--outline-black)] bg-white hover:bg-gray-50 shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all flex items-center justify-center disabled:opacity-50"
+                              className={cn(
+                                marioStyles.iconButton('outline'),
+                                'h-8 w-8'
+                              )}
                               title="Sync wallet"
                             >
                               <RefreshCw className={cn(
@@ -770,7 +798,10 @@ export function WalletManager({
                             <button
                               onClick={() => handleRemoveWallet(wallet.id)}
                               disabled={removingWallets.has(wallet.id)}
-                              className="h-8 w-8 rounded-lg border-2 border-[var(--mario-red)] bg-white hover:bg-[var(--mario-red)]/10 shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all flex items-center justify-center disabled:opacity-50 text-[var(--mario-red)]"
+                              className={cn(
+                                marioStyles.iconButton('outline'),
+                                'h-8 w-8 border-[var(--mario-red)] hover:bg-[var(--mario-red)]/10 text-[var(--mario-red)]'
+                              )}
                               title="Delete wallet"
                             >
                               {removingWallets.has(wallet.id) ? (
@@ -790,20 +821,21 @@ export function WalletManager({
           </TabsContent>
 
           <TabsContent value="add" className="mt-4">
-            <div className="bg-white rounded-xl border-4 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)] p-6">
+            <div className={cn(marioStyles.cardLg(false), 'bg-white p-6')}>
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="wallet-address" className="font-bold text-[var(--outline-black)]">Wallet Address *</Label>
+                  <Label htmlFor="wallet-address" className={marioStyles.bodyText('bold')}>Wallet Address *</Label>
                   <Input
                     id="wallet-address"
                     placeholder="Enter Solana wallet address..."
                     value={newWalletAddress}
                     onChange={(e) => setNewWalletAddress(e.target.value)}
                     className={cn(
-                      "font-mono bg-white border-3 rounded-lg shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)]",
+                      marioStyles.input(),
+                      "font-mono bg-white",
                       addressValidation.isValid === true ? "border-[var(--luigi-green)]" :
                       addressValidation.isValid === false ? "border-[var(--mario-red)]" :
-                      "border-[var(--outline-black)]"
+                      ""
                     )}
                   />
                   {addressValidation.message && (
@@ -819,14 +851,17 @@ export function WalletManager({
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="wallet-label" className="font-bold text-[var(--outline-black)]">Label (Optional)</Label>
+                  <Label htmlFor="wallet-label" className={marioStyles.bodyText('bold')}>Label (Optional)</Label>
                   <div className="flex items-center gap-2">
                     {/* Icon Picker Button */}
                     <div className="relative">
                       <button
                         type="button"
                         onClick={() => setShowNewWalletIconPicker(!showNewWalletIconPicker)}
-                        className="h-10 w-10 rounded-lg border-3 border-[var(--outline-black)] bg-[var(--star-yellow)] hover:bg-[var(--star-yellow)]/80 shadow-[2px_2px_0_var(--outline-black)] flex items-center justify-center transition-all flex-shrink-0 p-1.5"
+                        className={cn(
+                          marioStyles.iconContainer('md', '[var(--star-yellow)]'),
+                          'hover:bg-[var(--star-yellow)]/80 flex-shrink-0 p-1.5'
+                        )}
                       >
                         {newWalletIcon && getIconById(newWalletIcon) ? (
                           <Image
@@ -843,7 +878,10 @@ export function WalletManager({
 
                       {/* Icon Picker Dropdown */}
                       {showNewWalletIconPicker && (
-                        <div className="absolute top-12 left-0 z-[60] bg-white rounded-lg border-3 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)] p-2 grid grid-cols-4 gap-1.5 min-w-[180px]">
+                        <div className={cn(
+                          marioStyles.card(),
+                          'absolute top-12 left-0 z-[60] p-2 grid grid-cols-4 gap-1.5 min-w-[180px]'
+                        )}>
                           {MARIO_ICONS.map((icon) => (
                             <button
                               key={icon.id}
@@ -863,7 +901,8 @@ export function WalletManager({
                                 }
                               }}
                               className={cn(
-                                "h-10 w-10 rounded border-2 flex items-center justify-center hover:bg-gray-100 focus:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-[var(--mario-red)] transition-colors p-1.5",
+                                marioStyles.iconContainer('md'),
+                                "hover:bg-gray-100 focus:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-[var(--mario-red)] transition-colors p-1.5",
                                 newWalletIcon === icon.id ? "border-[var(--mario-red)] bg-[var(--mario-red)]/10" : "border-gray-300"
                               )}
                               title={icon.name}
@@ -911,13 +950,16 @@ export function WalletManager({
                       placeholder="e.g., 'Ansem', 'Top Trader'..."
                       value={newWalletLabel}
                       onChange={(e) => setNewWalletLabel(e.target.value)}
-                      className="flex-1 bg-white border-3 border-[var(--outline-black)] rounded-lg shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)]"
+                      className={cn(marioStyles.input(), 'flex-1 bg-white')}
                     />
                   </div>
                 </div>
 
-                <div className="bg-[var(--sky-blue)]/20 rounded-lg border-3 border-[var(--outline-black)] p-4 text-sm">
-                  <p className="font-mario mb-2 text-[var(--outline-black)]">Popular KOL Wallets:</p>
+                <div className={cn(
+                  marioStyles.card(),
+                  'bg-[var(--sky-blue)]/20 p-4 text-sm'
+                )}>
+                  <p className={cn(marioStyles.bodyText('bold'), 'mb-2')}>Popular KOL Wallets:</p>
                   <div className="space-y-1">
                     <div className="flex items-center justify-between">
                       <span className="font-bold text-[var(--outline-black)]">Example Wallet 1</span>
@@ -943,7 +985,10 @@ export function WalletManager({
                 <button
                   onClick={handleAddWallet}
                   disabled={isAddingWallet || !newWalletAddress.trim()}
-                  className="w-full gap-2 h-10 px-4 rounded-lg border-3 border-[var(--outline-black)] bg-[var(--luigi-green)] text-white hover:bg-[var(--luigi-green)]/90 shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all flex items-center justify-center font-mario disabled:opacity-50"
+                  className={cn(
+                    marioStyles.button('success'),
+                    'w-full gap-2'
+                  )}
                 >
                   {isAddingWallet ? (
                     <>
@@ -962,17 +1007,20 @@ export function WalletManager({
           </TabsContent>
 
           <TabsContent value="import" className="mt-4 overflow-y-auto flex-1 min-h-0">
-            <div className="bg-white rounded-xl border-4 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)] p-6">
+            <div className={cn(marioStyles.cardLg(false), 'bg-white p-6')}>
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="bulk-wallets" className="font-bold text-[var(--outline-black)]">Wallet Addresses</Label>
+                  <Label htmlFor="bulk-wallets" className={marioStyles.bodyText('bold')}>Wallet Addresses</Label>
                   <textarea
                     id="bulk-wallets"
                     value={bulkWalletText}
                     onChange={(e) => setBulkWalletText(e.target.value)}
                     placeholder="Paste wallet addresses here (one per line, or comma/space separated)&#10;&#10;Example:&#10;GJQzW...abc123&#10;9HzJP...xyz789&#10;ABcdE...efg456"
                     rows={6}
-                    className="w-full px-3 py-2 bg-white border-3 border-[var(--outline-black)] rounded-lg shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)] font-mono text-sm resize-none focus:outline-none focus:ring-0"
+                    className={cn(
+                      marioStyles.input(),
+                      'w-full px-3 py-2 bg-white font-mono text-sm resize-none focus:outline-none focus:ring-0'
+                    )}
                   />
                   <p className="text-xs text-[var(--pipe-600)] font-semibold">
                     Supports newline, comma, or space separated addresses
@@ -981,11 +1029,17 @@ export function WalletManager({
 
                 {/* Progress Indicator */}
                 {importProgress && (
-                  <div className="bg-[var(--star-yellow)]/20 rounded-lg border-3 border-[var(--outline-black)] p-3 text-center">
-                    <div className="text-sm font-mario text-[var(--outline-black)] mb-2">
+                  <div className={cn(
+                    marioStyles.card(),
+                    'bg-[var(--star-yellow)]/20 p-3 text-center'
+                  )}>
+                    <div className={cn(marioStyles.bodyText('bold'), 'text-sm mb-2')}>
                       Importing {importProgress.current} of {importProgress.total}
                     </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2 border-2 border-[var(--outline-black)]">
+                    <div className={cn(
+                      marioStyles.border(),
+                      'w-full bg-gray-200 rounded-full h-2'
+                    )}>
                       <div
                         className="bg-[var(--luigi-green)] h-full rounded-full transition-all duration-300"
                         style={{ width: `${(importProgress.current / importProgress.total) * 100}%` }}
@@ -1000,7 +1054,10 @@ export function WalletManager({
                 <button
                   onClick={handleBulkImport}
                   disabled={isImporting || !bulkWalletText.trim()}
-                  className="w-full gap-2 h-10 px-4 rounded-lg border-3 border-[var(--outline-black)] bg-[var(--luigi-green)] text-white hover:bg-[var(--luigi-green)]/90 shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all flex items-center justify-center font-mario disabled:opacity-50"
+                  className={cn(
+                    marioStyles.button('success'),
+                    'w-full gap-2'
+                  )}
                 >
                   {isImporting ? (
                     <>
