@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/badge"
 import { TrendingUp, TrendingDown } from "lucide-react"
 import { formatUSD, formatNumber, safePercent } from "@/lib/format"
 import { CurrencyValue, PriceDisplay, PnLDisplay } from "@/components/shared/currency-display"
-import { cn } from "@/lib/utils"
+import { cn, marioStyles } from "@/lib/utils"
 import type * as Backend from "@/lib/types/backend"
 import type { EnhancedPosition } from "./types"
 
@@ -32,7 +32,7 @@ export function PositionCard({ position }: PositionCardProps) {
   const PnLIcon = isProfitable ? TrendingUp : TrendingDown
 
   return (
-    <div className="p-4 rounded-lg border bg-card hover:bg-muted/20 transition-colors">
+    <div className={cn(marioStyles.card(true), "p-4")}>
       <div className="flex items-start justify-between mb-3">
         {/* Token Info */}
         <div className="flex items-center gap-3">
@@ -40,7 +40,7 @@ export function PositionCard({ position }: PositionCardProps) {
             <img
               src={position.tokenImage}
               alt={position.tokenSymbol || 'Token'}
-              className="w-10 h-10 rounded-full"
+              className={cn(marioStyles.avatar('md'))}
               onError={(e) => {
                 (e.target as HTMLImageElement).style.display = 'none'
               }}
@@ -56,7 +56,7 @@ export function PositionCard({ position }: PositionCardProps) {
 
         {/* Action Button */}
         <Link href={`/room/${position.mint}`}>
-          <Button variant="outline" size="sm">
+          <Button variant="outline" size="sm" className={marioStyles.shadowSm}>
             Trade
           </Button>
         </Link>

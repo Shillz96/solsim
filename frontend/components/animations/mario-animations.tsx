@@ -10,15 +10,21 @@ import { Variants } from 'framer-motion'
 // Page-level animations
 export const marioPageVariants: Variants = {
   initial: { opacity: 0, y: -20 },
-  animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.5, ease: "easeOut" }
+  animate: { 
+    opacity: 1, 
+    y: 0,
+    transition: { duration: 0.5, ease: "easeOut" }
+  }
 }
 
 // Card animations
 export const marioCardVariants: Variants = {
   initial: { opacity: 0, scale: 0.95 },
-  animate: { opacity: 1, scale: 1 },
-  transition: { duration: 0.3, ease: "easeOut" }
+  animate: { 
+    opacity: 1, 
+    scale: 1,
+    transition: { duration: 0.3, ease: "easeOut" }
+  }
 }
 
 // Stagger animations for lists
@@ -76,15 +82,25 @@ export const marioBounceVariants: Variants = {
 // Slide animations for modals/drawers
 export const marioSlideVariants: Variants = {
   initial: { x: "100%" },
-  animate: { x: 0 },
-  exit: { x: "100%" },
-  transition: { duration: 0.3, ease: "easeInOut" }
+  animate: { 
+    x: 0,
+    transition: { duration: 0.3, ease: "easeInOut" }
+  },
+  exit: { 
+    x: "100%",
+    transition: { duration: 0.3, ease: "easeInOut" }
+  }
 }
 
 // Fade animations
 export const marioFadeVariants: Variants = {
   initial: { opacity: 0 },
-  animate: { opacity: 1 },
-  exit: { opacity: 0 },
-  transition: { duration: 0.3 }
+  animate: { 
+    opacity: 1,
+    transition: { duration: 0.3 }
+  },
+  exit: { 
+    opacity: 0,
+    transition: { duration: 0.3 }
+  }
 }
