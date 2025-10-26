@@ -27,39 +27,75 @@ import { useAuth } from '@/hooks/use-auth'
 
 // Helper function to parse message content and render emojis as images
 function renderMessageContent(content: string) {
+  // Decode any HTML entities that might have been encoded
+  let decodedContent = content
+  if (typeof window !== 'undefined') {
+    const textarea = document.createElement('textarea')
+    textarea.innerHTML = content
+    decodedContent = textarea.value
+  }
+  
   // Regex to match /emojis/filename.png or /emojis/filename.gif
+  // Updated to be more flexible with special characters in filenames
   const emojiRegex = /\/emojis\/[a-zA-Z0-9_-]+\.(png|gif)/g
   const parts: React.ReactNode[] = []
   let lastIndex = 0
-  let match
   
-  while ((match = emojiRegex.exec(content)) !== null) {
+  // Use matchAll for cleaner iteration
+  const matches = Array.from(decodedContent.matchAll(emojiRegex))
+  
+  // Debug logging (remove in production)
+  if (matches.length > 0 && typeof window !== 'undefined') {
+    console.log('🎨 Rendering emojis:', matches.map(m => m[0]))
+  }
+  
+  matches.forEach((match, idx) => {
+    const matchIndex = match.index!
+    
     // Add text before the emoji
-    if (match.index > lastIndex) {
-      parts.push(<span key={`text-${lastIndex}`}>{content.slice(lastIndex, match.index)}</span>)
+    if (matchIndex > lastIndex) {
+      const textBefore = decodedContent.slice(lastIndex, matchIndex)
+      if (textBefore) {
+        parts.push(
+          <span key={`text-${lastIndex}-${idx}`}>{textBefore}</span>
+        )
+      }
     }
     
     // Add the emoji image
+    const emojiPath = match[0]
     parts.push(
       <Image 
-        key={`emoji-${match.index}`}
-        src={match[0]} 
+        key={`emoji-${matchIndex}-${idx}`}
+        src={emojiPath}
         alt="emoji" 
         width={20} 
         height={20}
         className="inline-block object-contain mx-0.5 align-middle"
+        unoptimized // Use unoptimized for emoji images for faster loading
+        onError={(e) => {
+          // Fallback if image fails to load
+          console.error('Failed to load emoji:', emojiPath)
+          e.currentTarget.style.display = 'none'
+        }}
       />
     )
     
-    lastIndex = match.index + match[0].length
-  }
+    lastIndex = matchIndex + match[0].length
+  })
   
   // Add remaining text after the last emoji
-  if (lastIndex < content.length) {
-    parts.push(<span key={`text-${lastIndex}`}>{content.slice(lastIndex)}</span>)
+  if (lastIndex < decodedContent.length) {
+    const textAfter = decodedContent.slice(lastIndex)
+    if (textAfter) {
+      parts.push(
+        <span key={`text-end-${lastIndex}`}>{textAfter}</span>
+      )
+    }
   }
   
-  return parts.length > 0 ? parts : <span>{content}</span>
+  // Always return a fragment to maintain consistent return type
+  return <>{parts.length > 0 ? parts : decodedContent}</>
 }
 
 interface ChatMessageProps {
