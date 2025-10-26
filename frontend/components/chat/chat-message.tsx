@@ -135,7 +135,7 @@ export function ChatMessage({ message, onUserClick }: ChatMessageProps) {
           onClick={() => onUserClick?.(message.userId)}
           className={cn(
             marioStyles.avatar('sm'),
-            'cursor-pointer hover:ring-2 hover:ring-[var(--star-yellow)] transition-all'
+            'cursor-pointer'
           )}
         >
           <img
@@ -148,7 +148,7 @@ export function ChatMessage({ message, onUserClick }: ChatMessageProps) {
         {/* Username */}
         <button
           onClick={() => onUserClick?.(message.userId)}
-          className={cn(marioStyles.bodyText('bold'), 'text-sm hover:underline cursor-pointer')}
+          className={cn(marioStyles.bodyText('bold'), 'text-sm cursor-pointer')}
         >
           {message.user.displayName || `@${message.user.handle}`}
         </button>
@@ -202,7 +202,7 @@ export function ChatMessage({ message, onUserClick }: ChatMessageProps) {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-6 w-6 hover:bg-[var(--mario-red)]/10"
+                  className="h-6 w-6"
                 >
                   <MoreVertical className="h-4 w-4" />
                 </Button>

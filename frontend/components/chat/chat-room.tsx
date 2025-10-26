@@ -21,7 +21,7 @@ import { Input } from '@/components/ui/input'
 import { EmojiPicker } from '@/components/ui/emoji-picker'
 import { ChatMessage } from '@/components/chat/chat-message'
 import { UserModerationSheet } from '@/components/moderation/user-moderation-sheet'
-import { Loader2, Send, AlertCircle, Wifi, WifiOff } from 'lucide-react'
+import { Loader2, Send, AlertCircle, Wifi, WifiOff, Users } from 'lucide-react'
 import { cn, marioStyles } from '@/lib/utils'
 import Image from 'next/image'
 
@@ -138,7 +138,7 @@ export function ChatRoom({ tokenMint, className, headerImage, headerImageAlt = '
             onClick={clearError}
             className={cn(
               marioStyles.bodyText('bold'),
-              'text-white hover:text-[var(--star-yellow)] transition-colors text-lg'
+              'text-white text-lg'
             )}
           >
             ✕
