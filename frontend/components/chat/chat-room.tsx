@@ -203,6 +203,10 @@ export function ChatRoom({ tokenMint, className, headerImage, headerImageAlt = '
           className="flex-1 px-3 py-2.5 text-sm rounded-lg border-3 border-[var(--outline-black)] bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-star)] shadow-[2px_2px_0_var(--outline-black)]"
           maxLength={280}
         />
+        <EmojiPicker 
+          onEmojiSelect={handleEmojiSelect}
+          position="top"
+        />
         <button 
           onClick={handleSendMessage}
           disabled={!inputValue.trim() || !user || status !== 'connected'}

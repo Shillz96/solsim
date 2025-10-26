@@ -58,12 +58,23 @@ export function ChatProvider({ children, roomId }: ChatProviderProps) {
       if (prev.some((m) => m.id === message.id)) {
         return prev;
       }
+      
+      // Track when this message was loaded
+      messagesLoadTimeRef.current[message.id] = Date.now();
+      
       return [...prev, message];
     });
   }, []);
 
   /**
+   * Track when messages were loaded (to avoid cleaning up history on first load)
+   */
+  const messagesLoadTimeRef = React.useRef<Record<string, number>>({});
+
+  /**
    * Auto-delete messages older than 90 seconds
+   * BUT: Only delete messages that were loaded MORE than 90 seconds ago
+   * This prevents immediate cleanup of history messages on refresh
    */
   useEffect(() => {
     const cleanupInterval = setInterval(() => {
@@ -72,13 +83,29 @@ export function ChatProvider({ children, roomId }: ChatProviderProps) {
 
       setMessages((prev) => {
         const filtered = prev.filter((msg) => {
-          const messageTime = new Date(msg.createdAt).getTime();
-          const age = now - messageTime;
-          return age < MESSAGE_LIFETIME_MS;
+          // Get when this message was first loaded into memory
+          const loadTime = messagesLoadTimeRef.current[msg.id];
+          
+          // If we don't know when it was loaded, record it now
+          if (!loadTime) {
+            messagesLoadTimeRef.current[msg.id] = now;
+            return true; // Keep the message
+          }
+          
+          // Only delete messages that have been in memory for more than 90 seconds
+          const timeInMemory = now - loadTime;
+          return timeInMemory < MESSAGE_LIFETIME_MS;
         });
 
-        // Only update if messages were actually removed
+        // Clean up tracking for removed messages
         if (filtered.length !== prev.length) {
+          const remainingIds = new Set(filtered.map(m => m.id));
+          Object.keys(messagesLoadTimeRef.current).forEach(id => {
+            if (!remainingIds.has(id)) {
+              delete messagesLoadTimeRef.current[id];
+            }
+          });
+          
           console.log(`🗑️ Cleaned up ${prev.length - filtered.length} old chat messages`);
           return filtered;
         }
@@ -93,6 +120,12 @@ export function ChatProvider({ children, roomId }: ChatProviderProps) {
    * Handle message history
    */
   const handleHistory = useCallback((newMessages: ChatMessage[]) => {
+    // Track when all history messages were loaded
+    const now = Date.now();
+    newMessages.forEach((msg) => {
+      messagesLoadTimeRef.current[msg.id] = now;
+    });
+    
     setMessages(newMessages);
   }, []);
 
@@ -134,6 +167,8 @@ export function ChatProvider({ children, roomId }: ChatProviderProps) {
 
     // Clear messages when switching rooms
     setMessages([]);
+    // Clear message tracking
+    messagesLoadTimeRef.current = {};
     setCurrentRoom(roomId);
     wsJoinRoom(roomId);
   }, [currentRoom, wsJoinRoom, wsLeaveRoom]);
@@ -146,6 +181,8 @@ export function ChatProvider({ children, roomId }: ChatProviderProps) {
       wsLeaveRoom(currentRoom);
       setCurrentRoom(null);
       setMessages([]);
+      // Clear message tracking
+      messagesLoadTimeRef.current = {};
     }
   }, [currentRoom, wsLeaveRoom]);
 

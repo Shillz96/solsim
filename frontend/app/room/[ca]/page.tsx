@@ -160,9 +160,9 @@ function TradeRoomContent() {
   const marketCap = parseFloat(tokenDetails.marketCapUsd || '0')
 
   return (
-    <div className="min-h-screen flex flex-col bg-[var(--background)]">
+    <div className="w-full h-full flex flex-col bg-[var(--background)] overflow-hidden">
       {/* Header - Token Info */}
-      <header className="mario-card-lg mx-4 mt-4 mb-0">
+      <header className="mario-card-lg mx-4 mt-4 mb-0 flex-shrink-0">
         <div className="flex items-center justify-between flex-wrap gap-4">
           {/* Left: Token Info */}
           <div className="flex items-center gap-4">
@@ -284,7 +284,7 @@ function TradeRoomContent() {
         </div>
 
         {/* Mobile Floating Trade Button */}
-        <div className="md:hidden fixed bottom-6 right-6 z-50">
+        <div className="md:hidden fixed right-6 z-50" style={{ bottom: 'calc(var(--bottom-nav-height, 64px) + 1rem)' }}>
           <Dialog open={showTradeModal} onOpenChange={setShowTradeModal}>
             <DialogTrigger asChild>
               <button className="btn-buy h-14 w-14 rounded-full text-sm">
