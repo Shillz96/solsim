@@ -125,7 +125,7 @@ export default async function marketRoutes(app: FastifyInstance) {
 
   /**
    * Get holder distribution for a specific token
-   * Uses Helius/Solana RPC to get current holders
+   * Uses Helius RPC via holderCountService for accurate holder counts
    */
   app.get('/market/holders/:mint', async (req, reply) => {
     const { mint } = req.params as { mint: string };
@@ -142,65 +142,44 @@ export default async function marketRoutes(app: FastifyInstance) {
         return JSON.parse(cached);
       }
 
-      // Fetch token holders from Helius
-      const heliusUrl = process.env.HELIUS_RPC_URL;
-      if (!heliusUrl) {
-        app.log.warn('HELIUS_RPC_URL not configured');
+      // Import holderCountService
+      const { holderCountService } = await import('../services/holderCountService.js');
+
+      // Fetch both top holders and total holder count in parallel
+      const [topHoldersAccounts, totalHolderCount] = await Promise.all([
+        holderCountService.getTopHolders(mint),
+        holderCountService.getHolderCount(mint)
+      ]);
+
+      if (!topHoldersAccounts || topHoldersAccounts.length === 0) {
+        app.log.warn('No holder data returned from holderCountService');
         return {
           holders: [],
-          totalSupply: 0,
-          holderCount: 0,
-          message: 'Holder data service unavailable'
+          totalSupply: '0',
+          holderCount: totalHolderCount || 0,
+          message: 'Holder data unavailable'
         };
       }
 
-      // Get token accounts for this mint
-      const response = await fetch(heliusUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          jsonrpc: '2.0',
-          id: 1,
-          method: 'getTokenLargestAccounts',
-          params: [mint]
-        })
-      });
-
-      if (!response.ok) {
-        throw new Error(`Helius API error: ${response.status}`);
-      }
-
-      const data = await response.json();
-
-      if (data.error) {
-        app.log.error({ error: data.error }, 'Helius API error');
-        return {
-          holders: [],
-          totalSupply: 0,
-          holderCount: 0,
-          message: 'Failed to fetch holder data'
-        };
-      }
-
-      const accounts = data.result?.value || [];
-      const totalSupply = accounts.reduce((sum: number, acc: any) =>
-        sum + Number(acc.amount), 0
+      // Calculate total supply from top holders
+      const totalSupply = topHoldersAccounts.reduce((sum, acc) => 
+        sum + parseFloat(acc.amount), 0
       );
 
-      // Transform to holder format
-      const holders = accounts
+      // Transform to expected format
+      const holders = topHoldersAccounts
         .slice(0, parseInt(limit))
-        .map((acc: any, index: number) => ({
+        .map((acc, index) => ({
           address: acc.address,
           balance: acc.amount,
-          percentage: totalSupply > 0 ? (Number(acc.amount) / totalSupply) * 100 : 0,
+          percentage: totalSupply > 0 ? (parseFloat(acc.amount) / totalSupply) * 100 : 0,
           rank: index + 1
         }));
 
       const result = {
         holders,
         totalSupply: totalSupply.toString(),
-        holderCount: accounts.length,
+        holderCount: totalHolderCount || topHoldersAccounts.length,
       };
 
       // Cache for 5 minutes
