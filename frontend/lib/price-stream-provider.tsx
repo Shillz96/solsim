@@ -198,6 +198,13 @@ function usePriceStream(options: {
       updateConnectionState(reconnectAttemptsRef.current > 0 ? ConnectionState.Reconnecting : ConnectionState.Connecting)
       setError(null)
       
+      // Create WebSocket - check if URL already includes the path
+      let wsUrl = env.NEXT_PUBLIC_WS_URL
+      // Only append /ws/prices if not already in the URL
+      if (!wsUrl.includes('/ws/prices') && !wsUrl.includes('/prices')) {
+        wsUrl = `${wsUrl}/ws/prices`
+      }
+      
       const attemptNum = reconnectAttemptsRef.current + 1
       console.log(`🔌 ${attemptNum > 1 ? 'Reconnecting' : 'Connecting'} to WebSocket (attempt ${attemptNum}/${options.maxReconnectAttempts})`)
       // Debug logging for WebSocket connection troubleshooting
@@ -207,13 +214,6 @@ function usePriceStream(options: {
       
       // Create WebSocket with better error handling and browser compatibility
       let ws: WebSocket
-      
-      // Create WebSocket - check if URL already includes the path
-      let wsUrl = env.NEXT_PUBLIC_WS_URL
-      // Only append /ws/prices if not already in the URL
-      if (!wsUrl.includes('/ws/prices') && !wsUrl.includes('/prices')) {
-        wsUrl = `${wsUrl}/ws/prices`
-      }
 
       try {
         ws = new WebSocket(wsUrl)
