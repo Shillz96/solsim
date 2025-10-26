@@ -706,66 +706,9 @@
   margin: 0 1rem;
 }
 
-/* Mario Tab System */
-[data-slot="tabs-list"] {
-  background: white;
-  border: 4px solid var(--color-outline-black);
-  box-shadow: 4px 4px 0 var(--color-outline-black);
-  border-radius: var(--radius-lg);
-  padding: 4px;
-  gap: 4px;
-  height: auto;
-  min-height: 48px;
-  width: 100%;
-  display: inline-flex;
-}
-
-[data-slot="tabs-trigger"] {
-  background: white;
-  color: var(--color-outline-black);
-  border: 3px solid transparent;
-  border-radius: var(--radius-md);
-  font-family: var(--font-radnika-next), "Radnika Next", "Inter", "Manrope", "Nunito Sans", "Rubik", "Segoe UI", "Roboto", "Helvetica Neue", "Arial", sans-serif;
-  font-weight: 700;
-  font-size: 0.875rem;
-  padding: 0.75rem 1rem;
-  transition: all var(--transition);
-  position: relative;
-  min-height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  cursor: pointer;
-}
-
-[data-slot="tabs-trigger"]:hover:not([data-state="active"]):not(:disabled) {
-  background: rgba(255, 216, 0, 0.15);
-  transform: translateY(-1px);
-}
-
-[data-slot="tabs-trigger"][data-state="active"] {
-  background: var(--color-star);
-  color: var(--color-outline-black);
-  border-color: var(--color-outline-black);
-  box-shadow: 0 2px 0 var(--color-outline-black), inset 0 -2px 0 rgba(0, 0, 0, 0.15);
-  transform: translateY(2px);
-}
-
-[data-slot="tabs-trigger"]:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-  background: #e5e5e5;
-  color: #999;
-  pointer-events: none;
-  transform: none;
-}
-
-[data-slot="tabs-trigger"]:focus-visible {
-  outline: 3px solid var(--color-outline-black);
-  outline-offset: 2px;
-  z-index: var(--z-content);
-}
+/* Mario Tab System - Now using component-level styles (components/ui/tabs.tsx) */
+/* Global overrides removed to allow new segmented control design */
+/* Legacy color variants kept below for backward compatibility */
 
 /* Tab Color Variants */
 .mario-tab-green[data-state="active"] {

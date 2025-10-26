@@ -372,17 +372,17 @@ export function TradePanelContainer({ tokenAddress: propTokenAddress }: TradePan
 
           {/* Trading Tabs */}
           <Tabs defaultValue="buy" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 gap-0 bg-transparent p-0">
+            <TabsList className="w-full">
               <TabsTrigger
                 value="buy"
-                className="data-[state=active]:bg-[var(--luigi-green)]"
+                className="flex-1 data-[state=active]:bg-[var(--luigi-green)]"
               >
                 <TrendingUp className="h-4 w-4 mr-1.5" />
                 Buy
               </TabsTrigger>
               <TabsTrigger
                 value="sell"
-                className="data-[state=active]:bg-[var(--mario-red)]"
+                className="flex-1 data-[state=active]:bg-[var(--mario-red)]"
                 disabled={!hasPosition}
               >
                 <TrendingDown className="h-4 w-4 mr-1.5" />
