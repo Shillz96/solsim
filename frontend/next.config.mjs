@@ -132,6 +132,11 @@ const nextConfig = {
       },
       {
         protocol: 'https',
+        hostname: 'coin-images.coingecko.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
         hostname: 'arweave.net',
         pathname: '/**',
       },

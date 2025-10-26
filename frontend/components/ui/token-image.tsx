@@ -32,26 +32,28 @@ export function TokenImage({
   // Process image source to ensure it loads properly
   let processedSrc = src
   if (src) {
+    // Block HTTP IP addresses (security risk)
+    if (src.match(/^http:\/\/\d+\.\d+\.\d+\.\d+/)) {
+      console.warn(`Blocked unsafe HTTP IP address image: ${src}`)
+      processedSrc = fallback
+    }
     // Handle DexScreener URLs
-    if (src.includes('dd.dexscreener.com')) {
+    else if (src.includes('dd.dexscreener.com')) {
       // Ensure the URL has a proper https:// prefix if missing
       if (!src.startsWith('http')) {
         processedSrc = `https://${src}`
       }
     }
-    
     // Handle other potential issues with URLs
-    if (src.startsWith('//')) {
+    else if (src.startsWith('//')) {
       processedSrc = `https:${src}`
     }
-    
     // Handle IPFS URLs
-    if (src.startsWith('ipfs://')) {
+    else if (src.startsWith('ipfs://')) {
       processedSrc = `https://ipfs.io/ipfs/${src.replace('ipfs://', '')}`
     }
-    
     // Handle arweave URLs
-    if (src.startsWith('ar://')) {
+    else if (src.startsWith('ar://')) {
       processedSrc = `https://arweave.net/${src.replace('ar://', '')}`
     }
     

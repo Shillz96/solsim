@@ -11,8 +11,7 @@
  */
 
 import { useState } from 'react'
-import { cn, marioStyles, createSafeImageProps } from '@/lib/utils'
-import Image from 'next/image'
+import { cn, marioStyles } from '@/lib/utils'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,6 +19,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { MoreVertical, Trash2, UserX, AlertCircle, Shield } from 'lucide-react'
 import { useModeration } from '@/hooks/use-moderation'
@@ -59,14 +59,11 @@ function renderMessageContent(content: string) {
     // Add the emoji image
     const emojiPath = match[0]
     parts.push(
-      <Image 
+      <img
         key={`emoji-${matchIndex}-${idx}`}
         src={emojiPath}
-        alt="emoji" 
-        width={20} 
-        height={20}
-        className="inline-block object-contain mx-0.5 align-middle"
-        unoptimized // Use unoptimized for emoji images for faster loading
+        alt="emoji"
+        className="inline-block object-contain mx-0.5 align-middle h-5 w-5"
         onError={(e) => {
           // Fallback if image fails to load
           console.error('Failed to load emoji:', emojiPath)
@@ -164,18 +161,20 @@ export function ChatMessage({ message, onUserClick }: ChatMessageProps) {
         <button
           onClick={() => onUserClick?.(message.userId)}
           className={cn(
-            marioStyles.avatar('sm'),
-            'cursor-pointer'
+            marioStyles.chatAvatar('sm'),
+            'cursor-pointer hover:scale-105 transition-transform'
           )}
         >
-          <img
-            {...createSafeImageProps(
-              message.user.avatarUrl,
-              isOwnMessage ? '/icons/mario/money-bag.png' : '/icons/mario/user.png',
-              message.user.displayName || message.user.handle
-            )}
-            className="h-full w-full object-cover"
-          />
+          <Avatar className="h-full w-full rounded-none border-0">
+            <AvatarImage
+              src={message.user.avatarUrl || undefined}
+              alt={message.user.displayName || message.user.handle}
+              className="rounded-none object-cover"
+            />
+            <AvatarFallback className="rounded-none bg-gradient-to-br from-[var(--mario-red)] to-red-600 text-white font-mario text-[10px] font-bold">
+              {(message.user.displayName || message.user.handle || 'U')[0].toUpperCase()}
+            </AvatarFallback>
+          </Avatar>
         </button>
 
         {/* Username */}
@@ -195,27 +194,21 @@ export function ChatMessage({ message, onUserClick }: ChatMessageProps) {
                 title={userBadge.badge.displayName}
                 className={marioStyles.badge}
               >
-                {userBadge.badge.iconUrl ? (() => {
-                  const safeProps = createSafeImageProps(
-                    userBadge.badge.iconUrl,
-                    '/icons/mario/coin.png', // Use a fallback image
-                    userBadge.badge.displayName
-                  );
-                  return (
-                    <img
-                      {...safeProps}
-                      className="h-full w-full object-cover"
-                      onError={(e) => {
-                        // Replace with emoji span if both image and fallback fail
-                        const target = e.currentTarget;
-                        const emojiSpan = document.createElement('span');
-                        emojiSpan.className = 'text-[8px]';
-                        emojiSpan.textContent = '🏆';
-                        target.parentNode?.replaceChild(emojiSpan, target);
-                      }}
-                    />
-                  );
-                })() : (
+                {userBadge.badge.iconUrl ? (
+                  <img
+                    src={userBadge.badge.iconUrl}
+                    alt={userBadge.badge.displayName}
+                    className="h-full w-full object-cover"
+                    onError={(e) => {
+                      // Replace with emoji span if image fails
+                      const target = e.currentTarget;
+                      const emojiSpan = document.createElement('span');
+                      emojiSpan.className = 'text-[8px]';
+                      emojiSpan.textContent = '🏆';
+                      target.parentNode?.replaceChild(emojiSpan, target);
+                    }}
+                  />
+                ) : (
                   <span className="text-[8px]">🏆</span>
                 )}
               </div>

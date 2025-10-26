@@ -299,18 +299,31 @@ export const marioStyles = {
      ============================================ */
 
   /**
+   * Chat-specific avatar with better visibility
+   * @param size Size variant: 'sm' (28px), 'md' (40px)
+   */
+  chatAvatar: (size: 'sm' | 'md' = 'sm') => cn(
+    'rounded-full overflow-hidden border border-[var(--outline-black)]/40',
+    'shadow-[1px_1px_0_var(--outline-black)]/30',
+    {
+      'h-7 w-7': size === 'sm',
+      'h-10 w-10 border-2 border-[var(--outline-black)]/60 shadow-[2px_2px_0_var(--outline-black)]/40': size === 'md',
+    }
+  ),
+
+  /**
    * Avatar with Mario border styling
    * @param size Size variant: 'xs' (16px), 'sm' (24px), 'md' (40px), 'lg' (64px), 'xl' (96px)
    */
   avatar: (size: MarioSize = 'md') => cn(
-    'rounded-full border-3 border-[var(--outline-black)]',
-    'shadow-[2px_2px_0_var(--outline-black)] overflow-hidden',
+    'rounded-full overflow-hidden',
+    // Lighter borders for better visibility on small avatars
     {
-      'h-4 w-4 border-2': size === 'xs',
-      'h-6 w-6': size === 'sm',
-      'h-10 w-10': size === 'md',
-      'h-16 w-16 border-4 shadow-[3px_3px_0_var(--outline-black)]': size === 'lg',
-      'h-24 w-24 border-4 shadow-[4px_4px_0_var(--outline-black)]': size === 'xl',
+      'h-4 w-4 border border-[var(--outline-black)]/40 shadow-[1px_1px_0_var(--outline-black)]/30': size === 'xs',
+      'h-7 w-7 border-2 border-[var(--outline-black)]/60 shadow-[1px_1px_0_var(--outline-black)]/40': size === 'sm',
+      'h-10 w-10 border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)]': size === 'md',
+      'h-16 w-16 border-4 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)]': size === 'lg',
+      'h-24 w-24 border-4 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)]': size === 'xl',
     }
   ),
 
@@ -664,12 +677,17 @@ export function isValidImageUrl(url: string | null | undefined): boolean {
   // Allow data URLs
   if (url.startsWith('data:')) return true;
 
+  // Block IP addresses with HTTP (security risk)
+  if (url.match(/^http:\/\/\d+\.\d+\.\d+\.\d+/)) {
+    return false;
+  }
+
   // In production, only allow HTTPS
   if (process.env.NODE_ENV === 'production') {
     return url.startsWith('https://');
   }
 
-  // In development, allow both HTTP and HTTPS
+  // In development, allow both HTTP and HTTPS (except IP addresses)
   return url.startsWith('http://') || url.startsWith('https://');
 }
 
@@ -687,7 +705,10 @@ export function getSafeImageUrl(originalUrl: string | null | undefined, fallback
 
   // Only log warning if URL is not null/undefined (i.e., it's an actual invalid URL)
   if (originalUrl !== null && originalUrl !== undefined) {
-    console.warn('Blocked unsafe image URL in production:', originalUrl);
+    // Suppress warnings for HTTP IP addresses as they're handled gracefully
+    if (!originalUrl.match(/^http:\/\/\d+\.\d+\.\d+\.\d+/)) {
+      console.warn('Blocked unsafe image URL in production:', originalUrl);
+    }
   }
 
   return fallbackUrl;
@@ -720,7 +741,10 @@ export function createSafeImageProps(
       const target = e.currentTarget;
       // Only replace if it's not already the fallback
       if (target.src !== fallbackSrc) {
-        console.warn('Image failed to load, using fallback:', src);
+        // Suppress warnings for HTTP IP addresses as they're handled gracefully
+        if (!src?.match(/^http:\/\/\d+\.\d+\.\d+\.\d+/)) {
+          console.warn('Image failed to load, using fallback:', src);
+        }
         target.src = fallbackSrc;
       }
     },

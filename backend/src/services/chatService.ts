@@ -8,6 +8,13 @@ import prisma from '../plugins/prisma.js';
 import redis from '../plugins/redis.js';
 import { ModerationBot } from './moderationBot.js';
 import { BadgeService } from './badgeService.js';
+import { sanitizeChatMessage } from '../utils/chatSanitizer.js';
+import { 
+  checkRateLimit, 
+  isDuplicateMessage, 
+  CHAT_MESSAGE_LIMIT,
+  RateLimitConfig 
+} from '../utils/chatRateLimiter.js';
 import crypto from 'crypto';
 
 // Types
@@ -20,29 +27,15 @@ export interface SendMessageResult {
   newBadges?: any[];
 }
 
-interface RateLimitCheck {
-  allowed: boolean;
-  remaining: number;
-  resetAt: number;
-}
-
-interface ModerationStatus {
-  canChat: boolean;
-  isBanned?: boolean;
-  isMuted?: boolean;
-  mutedUntil?: Date;
-}
-
 // Constants
 const MESSAGE_LENGTH_LIMIT = 280;
-const RATE_LIMIT_WINDOW_SECONDS = 15;
-const DUPLICATE_DETECTION_WINDOW_SECONDS = 60;
+const DUPLICATE_DETECTION_WINDOW_SECONDS = 30;
 
-const RATE_LIMITS_BY_TIER: Record<string, number> = {
-  ADMINISTRATOR: 1000,
-  VIP: 200,
-  PREMIUM: 150,
-  REGULAR: 100,
+const RATE_LIMITS_BY_TIER: Record<string, RateLimitConfig> = {
+  ADMINISTRATOR: { capacity: 1000, refillRate: 1000 / 15, cost: 1 },
+  VIP: { capacity: 200, refillRate: 200 / 15, cost: 1 },
+  PREMIUM: { capacity: 150, refillRate: 150 / 15, cost: 1 },
+  REGULAR: CHAT_MESSAGE_LIMIT, // 10 messages per 15 seconds
 };
 
 const USER_SELECT_FIELDS = {
@@ -59,7 +52,7 @@ const USER_SELECT_FIELDS = {
 };
 
 // Helper Functions
-const getRateLimitForUser = (userTier: string): number => {
+const getRateLimitForUser = (userTier: string): RateLimitConfig => {
   return RATE_LIMITS_BY_TIER[userTier] || RATE_LIMITS_BY_TIER.REGULAR;
 };
 
@@ -78,16 +71,17 @@ const createSuccessResult = (message: any, newBadges: any[] = []): SendMessageRe
 /**
  * Check if user is allowed to chat
  */
-async function checkModerationStatus(userId: string): Promise<string | null> {
+async function checkUserModerationStatus(userId: string): Promise<string | null> {
   const modStatus = await ModerationBot.getUserModerationStatus(userId);
   
   if (!modStatus.canChat) {
     if (modStatus.isBanned) {
       return 'You are banned from chat';
     }
-    if (modStatus.isMuted) {
-      const mutedUntil = modStatus.mutedUntil?.toISOString();
-      return `You are muted until ${mutedUntil}`;
+    if (modStatus.isMuted && modStatus.mutedUntil) {
+      const now = new Date();
+      const minutesRemaining = Math.ceil((modStatus.mutedUntil.getTime() - now.getTime()) / 60000);
+      return `You are muted for ${minutesRemaining} more minute${minutesRemaining !== 1 ? 's' : ''}`;
     }
   }
   
@@ -130,7 +124,7 @@ async function checkMessageRateLimit(userId: string, userTier: string): Promise<
  * Check for duplicate messages
  */
 async function checkDuplicateMessage(userId: string, content: string): Promise<boolean> {
-  const messageHash = getMessageHash(userId, content);
+  const messageHash = `${userId}:${content.toLowerCase()}`;
   return await isDuplicateMessage(messageHash, DUPLICATE_DETECTION_WINDOW_SECONDS);
 }
 
@@ -155,6 +149,11 @@ export async function sendMessage(
   content: string
 ): Promise<SendMessageResult> {
   try {
+    // Validate inputs
+    if (!userId || !roomId || !content) {
+      return createErrorResult('Invalid input: userId, roomId, and content are required');
+    }
+
     // Fetch user info
     const user = await prisma.user.findUnique({
       where: { id: userId },
@@ -166,7 +165,7 @@ export async function sendMessage(
 
     // Check moderation status (skip for admins)
     if (!isAdmin) {
-      const moderationError = await checkModerationStatus(userId);
+      const moderationError = await checkUserModerationStatus(userId);
       if (moderationError) {
         return createErrorResult(moderationError);
       }
@@ -206,84 +205,20 @@ export async function sendMessage(
     // Save message to database
     const message = await createChatMessage(roomId, userId, sanitized.content!);
 
-    // Check for badge awards
-    const newBadges = await BadgeService.checkCommunityBadges(userId, message);
-
-    // Broadcast to WebSocket subscribers
+    // Broadcast to WebSocket subscribers (before badge check to minimize latency)
     await broadcastMessage(message);
+
+    // Check for badge awards (non-blocking)
+    const newBadges = await BadgeService.checkCommunityBadges(userId, message).catch(err => {
+      console.error('Error checking badges:', err);
+      return [];
+    });
 
     return createSuccessResult(message, newBadges);
   } catch (error: any) {
     console.error('Error sending message:', error);
     return createErrorResult('Failed to send message');
   }
-}
-
-/**
- * Sanitize chat message content
- */
-function sanitizeChatMessage(content: string): string {
-  if (!content || typeof content !== 'string') {
-    throw new Error('Message content is required');
-  }
-
-  let sanitized = content.trim();
-
-  if (sanitized.length === 0) {
-    throw new Error('Message cannot be empty');
-  }
-
-  if (sanitized.length > MESSAGE_LENGTH_LIMIT) {
-    throw new Error(`Message too long. Maximum ${MESSAGE_LENGTH_LIMIT} characters.`);
-  }
-
-  // Remove HTML tags and dangerous characters
-  sanitized = sanitized.replace(/<[^>]*>/g, '').replace(/[<>]/g, '');
-
-  // Normalize whitespace
-  sanitized = sanitized.replace(/\s+/g, ' ');
-
-  return sanitized;
-}
-
-/**
- * Check rate limit using simple counter
- */
-async function checkRateLimit(key: string, limit: number): Promise<RateLimitCheck> {
-  const current = await redis.get(key);
-  const count = current ? parseInt(current) : 0;
-  
-  if (count >= limit) {
-    const resetAt = Math.floor(Date.now() / 1000) + RATE_LIMIT_WINDOW_SECONDS;
-    return { allowed: false, remaining: 0, resetAt };
-  }
-
-  await redis.incr(key);
-  await redis.expire(key, RATE_LIMIT_WINDOW_SECONDS);
-  
-  const resetAt = Math.floor(Date.now() / 1000) + RATE_LIMIT_WINDOW_SECONDS;
-  return { allowed: true, remaining: limit - count - 1, resetAt };
-}
-
-/**
- * Generate message hash for duplicate detection
- */
-function getMessageHash(userId: string, content: string): string {
-  const normalized = `${userId}:${content.toLowerCase()}`;
-  return crypto.createHash('md5').update(normalized).digest('hex');
-}
-
-/**
- * Check if message is a duplicate
- */
-async function isDuplicateMessage(hash: string, windowSeconds: number): Promise<boolean> {
-  const key = `chat:duplicate:${hash}`;
-  const exists = await redis.exists(key);
-  
-  if (exists) return true;
-
-  await redis.setex(key, windowSeconds, '1');
-  return false;
 }
 
 /**

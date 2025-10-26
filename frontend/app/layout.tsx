@@ -24,6 +24,35 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     setIsScrollable(scrollablePages.includes(pathname))
   }, [pathname])
+
+  // Suppress Mixed Content warnings for HTTP IP addresses that are handled gracefully
+  useEffect(() => {
+    const originalError = console.error
+    const originalWarn = console.warn
+    
+    console.error = (...args) => {
+      const message = args[0]?.toString() || ''
+      // Suppress Mixed Content warnings for HTTP IP addresses
+      if (message.includes('Mixed Content') && message.includes('66.135.23.176')) {
+        return
+      }
+      originalError.apply(console, args)
+    }
+    
+    console.warn = (...args) => {
+      const message = args[0]?.toString() || ''
+      // Suppress Mixed Content warnings for HTTP IP addresses
+      if (message.includes('Mixed Content') && message.includes('66.135.23.176')) {
+        return
+      }
+      originalWarn.apply(console, args)
+    }
+
+    return () => {
+      console.error = originalError
+      console.warn = originalWarn
+    }
+  }, [])
   
   return (
     <>
