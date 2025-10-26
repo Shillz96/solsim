@@ -2,6 +2,8 @@
 
 A gamified Solana paper trading platform with real-time price tracking, XP progression, leaderboards, and Mario-themed UI.
 
+<!-- Trigger Vercel deployment -->
+
 **Live**: [oneupsol.fun](https://oneupsol.fun)
 
 ---
