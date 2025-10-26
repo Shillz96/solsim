@@ -24,10 +24,19 @@ export function TokenVitalsBar({
   userRank,
   className
 }: TokenVitalsBarProps) {
-  const { prices: livePrices } = usePriceStreamContext()
+  const { prices: livePrices, subscribe, unsubscribe } = usePriceStreamContext()
   const [priceChange5m, setPriceChange5m] = useState<number | undefined>(staticPriceChange5m)
   const price5mAgoRef = useRef<number | null>(null)
   const timestampRef = useRef<number>(Date.now())
+
+  // Subscribe to live price updates for this token
+  useEffect(() => {
+    if (!tokenAddress) return
+    subscribe(tokenAddress)
+    return () => {
+      unsubscribe(tokenAddress)
+    }
+  }, [tokenAddress, subscribe, unsubscribe])
 
   // Calculate live 5-minute price change
   useEffect(() => {

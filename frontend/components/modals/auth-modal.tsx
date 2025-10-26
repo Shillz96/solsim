@@ -351,6 +351,8 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
                         type="email" 
                         placeholder="you@example.com" 
                         className="pl-10 bg-[var(--card)] border-3 border-[var(--outline-black)] h-11 rounded-lg shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)]" 
+                        autoComplete="username"
+                        data-form-type="auth"
                         required 
                         disabled={isLoading}
                       />
@@ -366,6 +368,8 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
                         type="password" 
                         placeholder="••••••••" 
                         className="pl-10 bg-[var(--card)] border-3 border-[var(--outline-black)] h-11 rounded-lg shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)]" 
+                        autoComplete="current-password"
+                        data-form-type="auth"
                         required 
                         disabled={isLoading}
                       />
@@ -403,6 +407,8 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
                         type="text"
                         placeholder="trader123"
                         className="pl-10 bg-[var(--card)] border-3 border-[var(--outline-black)] h-11 rounded-lg shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)]"
+                        autoComplete="username"
+                        data-form-type="auth"
                         required
                         minLength={3}
                         maxLength={20}
@@ -420,6 +426,8 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
                         type="email" 
                         placeholder="you@example.com" 
                         className="pl-10 bg-[var(--card)] border-3 border-[var(--outline-black)] h-11 rounded-lg shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)]" 
+                        autoComplete="email"
+                        data-form-type="auth"
                         required 
                         disabled={isLoading}
                       />
@@ -435,6 +443,8 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
                         type="password"
                         placeholder="••••••••"
                         className="pl-10 bg-[var(--card)] border-3 border-[var(--outline-black)] h-11 rounded-lg shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)]"
+                        autoComplete="new-password"
+                        data-form-type="auth"
                         required
                         minLength={12}
                         disabled={isLoading}
@@ -453,6 +463,8 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
                         type="password"
                         placeholder="••••••••"
                         className="pl-10 bg-[var(--card)] border-3 border-[var(--outline-black)] h-11 rounded-lg shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)]"
+                        autoComplete="new-password"
+                        data-form-type="auth"
                         required
                         disabled={isLoading}
                         value={confirmPassword}
@@ -474,6 +486,8 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
                         type="text"
                         placeholder="Your Solana wallet address for rewards"
                         className="pl-10 bg-[var(--card)] border-3 border-[var(--outline-black)] h-11 rounded-lg shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)] font-mono text-xs sm:text-sm"
+                        autoComplete="off"
+                        data-form-type="other"
                         required
                         disabled={isLoading}
                         pattern="[1-9A-HJ-NP-Za-km-z]{32,44}"

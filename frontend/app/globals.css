@@ -45,12 +45,24 @@
   }
 
   /* Prevent Apple Password Autofill on non-password fields */
+  input[data-form-type="other"],
   input[type="text"]:not([name*="password"]):not([name*="email"]):not([name*="username"]):not([name*="login"]),
-  input[type="number"]:not([name*="password"]):not([name*="email"]):not([name*="username"]):not([name*="login"]),
-  input[data-form-type="other"] {
+  input[type="number"]:not([name*="password"]):not([name*="email"]):not([name*="username"]):not([name*="login"]) {
     -webkit-text-security: none !important;
     -webkit-autofill: none !important;
     -webkit-credentials: none !important;
+    -webkit-autocomplete: off !important;
+    -webkit-user-select: text !important;
+    user-select: text !important;
+  }
+  
+  /* Additional prevention for password managers */
+  input[data-1p-ignore],
+  input[data-lpignore="true"] {
+    -webkit-text-security: none !important;
+    -webkit-autofill: none !important;
+    -webkit-credentials: none !important;
+    -webkit-autocomplete: off !important;
   }
 
   /* Paper Texture System - Two-Layer Design */

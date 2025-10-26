@@ -171,6 +171,8 @@ export function BadgeAdmin() {
                   onChange={(e) => setTargetUser(e.target.value)}
                   autoComplete="off"
                   data-form-type="other"
+                  data-1p-ignore
+                  data-lpignore="true"
                   placeholder="Enter user ID or handle..."
                   className="w-full px-4 py-2 border-2 border-pipe-300 rounded-lg font-mario
                            focus:border-mario-red-500 focus:outline-none"

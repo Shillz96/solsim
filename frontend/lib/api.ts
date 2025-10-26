@@ -194,7 +194,7 @@ export async function getTokenDetails(mint: string): Promise<Backend.Token> {
   
   const data = await response.json();
 
-  // Map backend fields to the expected frontend fields
+  // Map backend fields to the expected frontend fields with comprehensive fallbacks
   return {
     ...data,
     address: data.mint || data.address,
@@ -202,6 +202,8 @@ export async function getTokenDetails(mint: string): Promise<Backend.Token> {
     price: data.price || (data.lastPrice ? parseFloat(data.lastPrice) : 0), // Only parse for display
     isNew: data.isNew || false,
     isTrending: data.isTrending || false,
+    // Ensure holder count is available with fallback
+    holderCount: data.holderCount || data.holders || undefined,
     // Preserve social links and websites from backend
     websites: data.websites || '[]',
     socials: data.socials || '[]',

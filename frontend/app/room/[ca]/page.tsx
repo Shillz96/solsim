@@ -177,6 +177,11 @@ function TradeRoomContent() {
   const priceChange24h = parseFloat(tokenDetails.priceChange24h || '0')
   const volume24h = parseFloat(tokenDetails.volume24h || '0')
   const marketCap = parseFloat(tokenDetails.marketCapUsd || '0')
+  const holderCount = tokenDetails.holderCount 
+    ? (typeof tokenDetails.holderCount === 'string' 
+        ? parseInt(tokenDetails.holderCount, 10) 
+        : tokenDetails.holderCount)
+    : undefined
 
   return (
     <div className="w-full h-full flex flex-col bg-[var(--background)] overflow-hidden">
@@ -354,7 +359,7 @@ function TradeRoomContent() {
               <TokenVitalsBar
                 tokenAddress={ca}
                 volume24h={volume24h}
-                holders={tokenDetails.holderCount ? parseInt(tokenDetails.holderCount) : undefined}
+                holders={holderCount}
                 userRank={null}
               />
             </div>

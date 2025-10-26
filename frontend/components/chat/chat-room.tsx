@@ -209,6 +209,8 @@ export function ChatRoom({ tokenMint, className, headerImage, headerImageAlt = '
             maxLength={280}
             autoComplete="off"
             data-form-type="other"
+            data-1p-ignore
+            data-lpignore="true"
           />
           <EmojiPicker 
             onEmojiSelect={handleEmojiSelect}

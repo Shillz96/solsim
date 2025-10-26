@@ -103,6 +103,8 @@ export function BadgeCollection({ userId, className = '' }: BadgeCollectionProps
             value={searchTerm}
             autoComplete="off"
             data-form-type="other"
+            data-1p-ignore
+            data-lpignore="true"
             onChange={(e) => setSearchTerm(e.target.value)}
             className="flex-1 px-4 py-2 border-2 border-pipe-300 rounded-lg font-mario
                      focus:border-mario-red-500 focus:outline-none"

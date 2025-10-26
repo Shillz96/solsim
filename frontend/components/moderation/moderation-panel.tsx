@@ -125,6 +125,10 @@ export function ModerationPanel({ className = '' }: ModerationPanelProps) {
               value={action.username}
               onChange={(e) => setAction({ ...action, username: e.target.value })}
               placeholder="Enter username..."
+              autoComplete="off"
+              data-form-type="other"
+              data-1p-ignore
+              data-lpignore="true"
               className="w-full px-4 py-2 border-2 border-pipe-300 rounded-lg font-mario
                        focus:border-mario-red-500 focus:outline-none"
               required
@@ -145,6 +149,10 @@ export function ModerationPanel({ className = '' }: ModerationPanelProps) {
               placeholder="5"
               min="1"
               max="10080"
+              autoComplete="off"
+              data-form-type="other"
+              data-1p-ignore
+              data-lpignore="true"
               className="w-full px-4 py-2 border-2 border-pipe-300 rounded-lg font-mario
                        focus:border-mario-red-500 focus:outline-none"
             />
@@ -162,6 +170,10 @@ export function ModerationPanel({ className = '' }: ModerationPanelProps) {
               placeholder="10"
               min="1"
               max="100"
+              autoComplete="off"
+              data-form-type="other"
+              data-1p-ignore
+              data-lpignore="true"
               className="w-full px-4 py-2 border-2 border-pipe-300 rounded-lg font-mario
                        focus:border-mario-red-500 focus:outline-none"
               required
@@ -177,6 +189,10 @@ export function ModerationPanel({ className = '' }: ModerationPanelProps) {
             value={action.roomId}
             onChange={(e) => setAction({ ...action, roomId: e.target.value })}
             placeholder="lobby, token-mint, etc."
+            autoComplete="off"
+            data-form-type="other"
+            data-1p-ignore
+            data-lpignore="true"
             className="w-full px-4 py-2 border-2 border-pipe-300 rounded-lg font-mario
                      focus:border-mario-red-500 focus:outline-none"
           />

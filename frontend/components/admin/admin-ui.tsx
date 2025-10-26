@@ -352,6 +352,8 @@ export function AdminSearchInput({ value, onChange, placeholder = 'Search...', c
         onChange={(e) => onChange(e.target.value)}
         autoComplete="off"
         data-form-type="other"
+        data-1p-ignore
+        data-lpignore="true"
         placeholder={placeholder}
         className={cn(
           'w-full pl-10 pr-4 py-2 border-3 border-[var(--outline-black)] rounded-lg',
