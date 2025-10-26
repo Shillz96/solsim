@@ -124,14 +124,28 @@ export default async function searchRoutes(app: FastifyInstance) {
     try {
       let tokenInfo = await getTokenInfo(mint);
       
-      // If not found in main Token table, try Warp Pipes tokenDiscovery table
-      if (!tokenInfo) {
-        const warpPipesToken = await prisma.tokenDiscovery.findUnique({
-          where: { mint },
-        });
+      // Always check TokenDiscovery for newer/better data (especially holderCount)
+      const warpPipesToken = await prisma.tokenDiscovery.findUnique({
+        where: { mint },
+      });
 
-        if (warpPipesToken) {
-          // Convert Warp Pipes token to expected format
+      // If found in TokenDiscovery, use it (or merge with Token table data)
+      if (warpPipesToken) {
+        // If we have data from both tables, merge them (TokenDiscovery takes precedence for holder count)
+        if (tokenInfo) {
+          tokenInfo = {
+            ...tokenInfo,
+            // Override with TokenDiscovery data (especially holderCount)
+            holderCount: warpPipesToken.holderCount !== null && warpPipesToken.holderCount !== undefined 
+              ? warpPipesToken.holderCount 
+              : tokenInfo.holderCount,
+            volume24h: warpPipesToken.volume24h ? parseFloat(warpPipesToken.volume24h.toString()) : tokenInfo.volume24h,
+            priceChange24h: warpPipesToken.priceChange24h ? parseFloat(warpPipesToken.priceChange24h.toString()) : tokenInfo.priceChange24h,
+            marketCapUsd: warpPipesToken.marketCapUsd ? parseFloat(warpPipesToken.marketCapUsd.toString()) : tokenInfo.marketCapUsd,
+            lastUpdated: warpPipesToken.lastUpdatedAt,
+          };
+        } else {
+          // Only in TokenDiscovery - convert to expected format
           tokenInfo = {
             address: warpPipesToken.mint,
             symbol: warpPipesToken.symbol || '',
