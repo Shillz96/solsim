@@ -27,12 +27,22 @@ import { useAuth } from '@/hooks/use-auth'
 
 // Helper function to parse message content and render emojis as images
 function renderMessageContent(content: string) {
+  // DEBUG: Log original content
+  if (typeof window !== 'undefined') {
+    console.log('📝 Original content:', JSON.stringify(content))
+  }
+  
   // Decode any HTML entities that might have been encoded
   let decodedContent = content
   if (typeof window !== 'undefined') {
     const textarea = document.createElement('textarea')
     textarea.innerHTML = content
     decodedContent = textarea.value
+    
+    // DEBUG: Log decoded content if different
+    if (decodedContent !== content) {
+      console.log('🔓 Decoded content:', JSON.stringify(decodedContent))
+    }
   }
   
   // Regex to match /emojis/filename.png or /emojis/filename.gif
@@ -44,9 +54,14 @@ function renderMessageContent(content: string) {
   // Use matchAll for cleaner iteration
   const matches = Array.from(decodedContent.matchAll(emojiRegex))
   
-  // Debug logging (remove in production)
-  if (matches.length > 0 && typeof window !== 'undefined') {
-    console.log('🎨 Rendering emojis:', matches.map(m => m[0]))
+  // DEBUG: Always log match attempts
+  if (typeof window !== 'undefined') {
+    console.log('🔍 Emoji regex test:', {
+      content: decodedContent,
+      regex: emojiRegex.toString(),
+      matches: matches.length,
+      matchedPaths: matches.map(m => m[0])
+    })
   }
   
   matches.forEach((match, idx) => {

@@ -88,7 +88,11 @@ export function TokenChatRoom({ tokenMint, className }: TokenChatRoomProps) {
   }
 
   const handleEmojiSelect = (emoji: string) => {
-    setInputValue(prev => prev + emoji)
+    setInputValue(prev => {
+      // Add a space before emoji if there's already content
+      const needsSpace = prev.length > 0 && !prev.endsWith(' ')
+      return prev + (needsSpace ? ' ' : '') + emoji
+    })
     // Focus input after emoji selection
     setTimeout(() => inputRef.current?.focus(), 100)
   }

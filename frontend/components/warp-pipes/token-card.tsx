@@ -20,6 +20,7 @@ import { Shield, TrendingUp, TrendingDown } from "lucide-react"
 import { SocialHoverCard } from "./social-hover-card"
 import type { TokenRow } from "@/lib/types/warp-pipes"
 import { usePumpPortalMetadata, usePumpPortalTrades } from "@/hooks/use-pumpportal-trades"
+import { usePriceStreamContext } from "@/lib/price-stream-provider"
 
 interface TokenCardProps {
   data: TokenRow

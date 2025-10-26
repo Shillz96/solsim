@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Emoji Rendering Test</title>
+</head>
+<body>
+    <h1>Emoji Path Rendering Test</h1>
+    <div id="output"></div>
+
+    <script>
+        function testEmojiRendering() {
+            const testCases = [
+                '/emojis/3264-peepostonks.png',
+                'Hello /emojis/3264-peepostonks.png world',
+                '/emojis/1560_Panik.png',
+                'Multiple /emojis/3264-peepostonks.png and /emojis/1425-bitcoin.png emojis',
+            ];
+
+            const emojiRegex = /\/emojis\/[a-zA-Z0-9_-]+\.(png|gif)/g;
+
+            const output = document.getElementById('output');
+            
+            testCases.forEach((testCase, idx) => {
+                const matches = testCase.match(emojiRegex);
+                
+                const div = document.createElement('div');
+                div.style.margin = '20px 0';
+                div.style.padding = '10px';
+                div.style.border = '1px solid #ccc';
+                
+                const input = document.createElement('div');
+                input.innerHTML = `<strong>Input:</strong> ${testCase}`;
+                
+                const matchesDiv = document.createElement('div');
+                matchesDiv.innerHTML = `<strong>Matches:</strong> ${matches ? matches.join(', ') : 'None'}`;
+                
+                const rendered = document.createElement('div');
+                rendered.innerHTML = `<strong>Rendered:</strong> `;
+                
+                if (matches) {
+                    let lastIndex = 0;
+                    matches.forEach(match => {
+                        const index = testCase.indexOf(match, lastIndex);
+                        
+                        // Add text before match
+                        if (index > lastIndex) {
+                            rendered.appendChild(document.createTextNode(testCase.slice(lastIndex, index)));
+                        }
+                        
+                        // Add image
+                        const img = document.createElement('img');
+                        img.src = match;
+                        img.style.width = '20px';
+                        img.style.height = '20px';
+                        img.style.display = 'inline-block';
+                        img.alt = 'emoji';
+                        rendered.appendChild(img);
+                        
+                        lastIndex = index + match.length;
+                    });
+                    
+                    // Add remaining text
+                    if (lastIndex < testCase.length) {
+                        rendered.appendChild(document.createTextNode(testCase.slice(lastIndex)));
+                    }
+                } else {
+                    rendered.appendChild(document.createTextNode(testCase));
+                }
+                
+                div.appendChild(input);
+                div.appendChild(matchesDiv);
+                div.appendChild(rendered);
+                output.appendChild(div);
+            });
+        }
+
+        testEmojiRendering();
+    </script>
+</body>
+</html>

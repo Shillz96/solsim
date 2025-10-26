@@ -11,7 +11,7 @@
  * - Portfolio
  */
 
-import { useState, memo } from 'react'
+import React, { useState, memo } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { cn } from '@/lib/utils'
 import { Loader2, TrendingUp, TrendingDown, Users, Network, Wallet } from 'lucide-react'
@@ -19,6 +19,7 @@ import { formatUSD, formatNumber } from '@/lib/format'
 import { usePortfolio } from '@/hooks/use-portfolio'
 import { useRouter } from 'next/navigation'
 import { usePumpPortalTradesWithHistory } from '@/hooks/use-pumpportal-trades'
+import { getTopTraders, getTokenHolders, checkBubbleMapAvailability } from '@/lib/api'
 
 interface MarketDataPanelsProps {
   tokenMint: string
@@ -178,6 +179,13 @@ const RecentTradesPanel = memo(function RecentTradesPanel({ tokenMint }: { token
 
 // Top Traders Panel
 const TopTradersPanel = memo(function TopTradersPanel({ tokenMint }: { tokenMint: string }) {
+  const { data: traders, isLoading } = useQuery({
+    queryKey: ['top-traders', tokenMint],
+    queryFn: () => getTopTraders(tokenMint, 10),
+    refetchInterval: 15000, // Refresh every 15 seconds
+    staleTime: 10000, // Consider data stale after 10 seconds
+  })
+
   return (
     <div className="mario-card bg-white p-4">
       <div className="flex items-center gap-3 mb-4">
@@ -186,20 +194,60 @@ const TopTradersPanel = memo(function TopTradersPanel({ tokenMint }: { tokenMint
         </div>
         <div>
           <h3 className="font-bold text-sm uppercase">Top Traders</h3>
-          <p className="text-xs text-[var(--foreground)] opacity-70">Loading...</p>
+          <p className="text-xs text-[var(--foreground)] opacity-70">24h activity</p>
         </div>
       </div>
-      <div className="text-center py-8">
-        <div className="text-4xl mb-2">🏆</div>
-        <h4 className="font-bold mb-1">Coming Soon</h4>
-        <p className="text-sm text-[var(--foreground)] opacity-70">Top trader data loading...</p>
-      </div>
+
+      {isLoading ? (
+        <div className="text-center py-4">
+          <div className="text-2xl mb-2">⏳</div>
+          <p className="text-sm text-[var(--foreground)] opacity-70">Loading traders...</p>
+        </div>
+      ) : !traders || traders.length === 0 ? (
+        <div className="text-center py-4">
+          <div className="text-2xl mb-2">📊</div>
+          <p className="text-sm text-[var(--foreground)] opacity-70">No trader data yet</p>
+        </div>
+      ) : (
+        <div className="space-y-2 max-h-[300px] overflow-y-auto">
+          {traders.map((trader: any, index: number) => (
+            <div
+              key={trader.address}
+              className="flex items-center justify-between p-2 rounded-lg border-2 border-[var(--outline-black)] bg-[var(--background)] hover:bg-[var(--color-star)] hover:bg-opacity-10 transition-colors"
+            >
+              <div className="flex items-center gap-2">
+                <span className="font-bold text-sm">{index + 1}.</span>
+                <span className="text-xs font-mono">
+                  {trader.address.slice(0, 4)}...{trader.address.slice(-4)}
+                </span>
+              </div>
+              <div className="text-right">
+                {trader.pnl !== undefined && (
+                  <div className={`text-sm font-bold ${trader.pnl >= 0 ? 'text-[var(--luigi-green)]' : 'text-[var(--mario-red)]'}`}>
+                    {trader.pnl >= 0 ? '+' : ''}{trader.pnl.toFixed(2)} SOL
+                  </div>
+                )}
+                {trader.tradeCount && (
+                  <div className="text-xs opacity-70">{trader.tradeCount} trades</div>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   )
 })
 
 // Holders Panel
 const HoldersPanel = memo(function HoldersPanel({ tokenMint }: { tokenMint: string }) {
+  const { data: holderData, isLoading } = useQuery({
+    queryKey: ['token-holders', tokenMint],
+    queryFn: () => getTokenHolders(tokenMint, 10),
+    refetchInterval: 60000, // Refresh every 60 seconds (data doesn't change as frequently)
+    staleTime: 30000, // Consider data stale after 30 seconds
+  })
+
   return (
     <div className="mario-card bg-white p-4">
       <div className="flex items-center gap-3 mb-4">
@@ -207,21 +255,105 @@ const HoldersPanel = memo(function HoldersPanel({ tokenMint }: { tokenMint: stri
           <Wallet className="w-5 h-5 text-[var(--outline-black)]" />
         </div>
         <div>
-          <h3 className="font-bold text-sm uppercase">Holders</h3>
-          <p className="text-xs text-[var(--foreground)] opacity-70">Loading...</p>
+          <h3 className="font-bold text-sm uppercase">Top Holders</h3>
+          {holderData && (
+            <p className="text-xs text-[var(--foreground)] opacity-70">
+              {holderData.holderCount} total holders
+            </p>
+          )}
         </div>
       </div>
-      <div className="text-center py-8">
-        <div className="text-4xl mb-2">👥</div>
-        <h4 className="font-bold mb-1">Coming Soon</h4>
-        <p className="text-sm text-[var(--foreground)] opacity-70">Holder data loading...</p>
-      </div>
+
+      {isLoading ? (
+        <div className="text-center py-4">
+          <div className="text-2xl mb-2">⏳</div>
+          <p className="text-sm text-[var(--foreground)] opacity-70">Loading holders...</p>
+        </div>
+      ) : !holderData || holderData.holders.length === 0 ? (
+        <div className="text-center py-4">
+          <div className="text-2xl mb-2">👥</div>
+          <p className="text-sm text-[var(--foreground)] opacity-70">No holder data available</p>
+        </div>
+      ) : (
+        <div className="space-y-2 max-h-[300px] overflow-y-auto">
+          {holderData.holders.map((holder) => (
+            <div
+              key={holder.address}
+              className="flex items-center justify-between p-2 rounded-lg border-2 border-[var(--outline-black)] bg-[var(--background)] hover:bg-[var(--color-coin)] hover:bg-opacity-10 transition-colors"
+            >
+              <div className="flex items-center gap-2">
+                <span className="font-bold text-sm">#{holder.rank}</span>
+                <span className="text-xs font-mono">
+                  {holder.address.slice(0, 4)}...{holder.address.slice(-4)}
+                </span>
+              </div>
+              <div className="text-right">
+                <div className="text-sm font-bold">{holder.percentage.toFixed(2)}%</div>
+                <div className="text-xs opacity-70 font-mono">
+                  {parseInt(holder.balance).toLocaleString()}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   )
 })
 
 // Bubble Maps Panel
 const BubbleMapsPanel = memo(function BubbleMapsPanel({ tokenMint }: { tokenMint: string }) {
+  const [isAvailable, setIsAvailable] = React.useState<boolean | null>(null)
+  const [showIframe, setShowIframe] = React.useState(false)
+
+  React.useEffect(() => {
+    checkBubbleMapAvailability(tokenMint).then(available => {
+      setIsAvailable(available)
+    })
+  }, [tokenMint])
+
+  if (isAvailable === null) {
+    return (
+      <div className="mario-card bg-white p-4">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-10 h-10 rounded-lg bg-[var(--color-super)] border-3 border-[var(--outline-black)] flex items-center justify-center shadow-[2px_2px_0_var(--outline-black)]">
+            <Network className="w-5 h-5 text-white" />
+          </div>
+          <div>
+            <h3 className="font-bold text-sm uppercase">Bubble Map</h3>
+            <p className="text-xs text-[var(--foreground)] opacity-70">Checking...</p>
+          </div>
+        </div>
+        <div className="text-center py-4">
+          <div className="text-2xl mb-2">⏳</div>
+          <p className="text-sm text-[var(--foreground)] opacity-70">Loading...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (!isAvailable) {
+    return (
+      <div className="mario-card bg-white p-4">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-10 h-10 rounded-lg bg-[var(--color-super)] border-3 border-[var(--outline-black)] flex items-center justify-center shadow-[2px_2px_0_var(--outline-black)]">
+            <Network className="w-5 h-5 text-white" />
+          </div>
+          <div>
+            <h3 className="font-bold text-sm uppercase">Bubble Map</h3>
+            <p className="text-xs text-[var(--foreground)] opacity-70">Not available</p>
+          </div>
+        </div>
+        <div className="text-center py-4">
+          <div className="text-2xl mb-2">🫧</div>
+          <p className="text-sm text-[var(--foreground)] opacity-70">
+            Bubble map not available for this token
+          </p>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="mario-card bg-white p-4">
       <div className="flex items-center gap-3 mb-4">
@@ -230,14 +362,34 @@ const BubbleMapsPanel = memo(function BubbleMapsPanel({ tokenMint }: { tokenMint
         </div>
         <div>
           <h3 className="font-bold text-sm uppercase">Bubble Map</h3>
-          <p className="text-xs text-[var(--foreground)] opacity-70">Loading...</p>
+          <p className="text-xs text-[var(--foreground)] opacity-70">Interactive visualization</p>
         </div>
       </div>
-      <div className="text-center py-8">
-        <div className="text-4xl mb-2">🫧</div>
-        <h4 className="font-bold mb-1">Coming Soon</h4>
-        <p className="text-sm text-[var(--foreground)] opacity-70">Bubble map visualization loading...</p>
-      </div>
+
+      {!showIframe ? (
+        <div className="text-center py-4">
+          <div className="text-4xl mb-3">🫧</div>
+          <button
+            onClick={() => setShowIframe(true)}
+            className="px-4 py-2 bg-[var(--color-super)] text-white rounded-lg border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-[1px] transition-all font-bold text-sm"
+          >
+            Load Bubble Map
+          </button>
+          <p className="text-xs text-[var(--foreground)] opacity-70 mt-2">
+            Click to visualize holder distribution
+          </p>
+        </div>
+      ) : (
+        <div className="relative w-full h-[400px] rounded-lg overflow-hidden border-3 border-[var(--outline-black)]">
+          <iframe
+            src={`https://bubblemaps.io/sol/token/${tokenMint}`}
+            className="w-full h-full"
+            title="Bubble Map"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"
+          />
+        </div>
+      )}
     </div>
   )
 })
