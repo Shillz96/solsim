@@ -47,9 +47,14 @@ export class HeliusTradeStreamService extends EventEmitter {
   constructor() {
     super();
     
-    this.heliusApiKey = process.env.HELIUS_API_KEY || '';
+    // Check multiple possible env var names
+    this.heliusApiKey = process.env.HELIUS_API_KEY || process.env.HELIUS_API || '';
+    
     if (!this.heliusApiKey) {
-      throw new Error('HELIUS_API_KEY environment variable is required');
+      console.error('[HeliusTradeService] HELIUS_API_KEY environment variable is not set');
+      console.error('[HeliusTradeService] Available env vars:', Object.keys(process.env).filter(k => k.includes('HELIUS')));
+      // Don't throw error, just log warning - service will be disabled
+      this.heliusApiKey = 'missing';
     }
     
     this.heliusRpcUrl = `https://mainnet.helius-rpc.com/?api-key=${this.heliusApiKey}`;
@@ -61,6 +66,11 @@ export class HeliusTradeStreamService extends EventEmitter {
    * Start monitoring trades for specific token mints
    */
   public async subscribeToTokens(mints: string[]) {
+    if (this.heliusApiKey === 'missing') {
+      console.warn('[HeliusTradeService] Cannot subscribe - API key not configured');
+      return;
+    }
+
     for (const mint of mints) {
       if (!this.subscribedTokens.has(mint)) {
         this.subscribedTokens.set(mint, { lastSignature: '' });
