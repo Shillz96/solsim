@@ -62,6 +62,10 @@ export function TokenCard({ data, onToggleWatch, className, enableLiveUpdates = 
   const [imageError, setImageError] = useState(false);
   const age = timeAgo(data.firstSeenAt);
 
+  // Get real-time SOL price from price stream
+  const { prices: livePrices } = usePriceStreamContext();
+  const solPrice = livePrices.get('So11111111111111111111111111111111111111112')?.price || 150; // Fallback to 150 if not available
+
   // Real-time metadata updates from PumpPortal (if enabled)
   const { metadata: liveMetadata, status: metadataStatus } = usePumpPortalMetadata({
     tokenMint: data.mint,
@@ -82,13 +86,13 @@ export function TokenCard({ data, onToggleWatch, className, enableLiveUpdates = 
     return {
       ...data,
       holderCount: liveMetadata.holderCount ?? data.holderCount,
-      marketCapUsd: liveMetadata.marketCapSol 
-        ? liveMetadata.marketCapSol * 150 // Rough SOL -> USD conversion (update with real price if needed)
+      marketCapUsd: liveMetadata.marketCapSol
+        ? liveMetadata.marketCapSol * solPrice // Real-time SOL -> USD conversion
         : data.marketCapUsd,
       vSolInBondingCurve: liveMetadata.vSolInBondingCurve ?? data.vSolInBondingCurve,
       bondingCurveProgress: liveMetadata.bondingCurveProgress ?? data.bondingCurveProgress,
     };
-  }, [data, liveMetadata, enableLiveUpdates]);
+  }, [data, liveMetadata, enableLiveUpdates, solPrice]);
 
   // Calculate live transaction count from recent trades
   const liveTxCount = useMemo(() => {

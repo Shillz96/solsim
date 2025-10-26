@@ -70,11 +70,29 @@ function TradeRoomContent() {
   const { data: portfolio, refetch: refreshPortfolio } = usePortfolio()
   const tokenHolding = usePosition(ca)
 
-  // Get live prices
-  const { prices: livePrices } = usePriceStreamContext()
+  // Get live prices and subscribe to price updates
+  const priceStreamContext = usePriceStreamContext()
+  const { prices: livePrices, subscribe, unsubscribe } = priceStreamContext
   const solPrice = livePrices.get('So11111111111111111111111111111111111111112')?.price || 208
   const currentPriceData = livePrices.get(ca)
   const priceLastUpdated = currentPriceData?.timestamp || Date.now()
+
+  // Subscribe to price updates for this token and SOL
+  useEffect(() => {
+    if (ca && subscribe) {
+      console.log(`[Room] Subscribing to price updates for ${ca.slice(0, 8)}...`)
+      subscribe(ca)
+      subscribe('So11111111111111111111111111111111111111112') // SOL
+
+      return () => {
+        if (unsubscribe) {
+          console.log(`[Room] Unsubscribing from price updates for ${ca.slice(0, 8)}...`)
+          unsubscribe(ca)
+          unsubscribe('So11111111111111111111111111111111111111112')
+        }
+      }
+    }
+  }, [ca, subscribe, unsubscribe])
 
   // Track price changes for loading animation (will be initialized after tokenDetails)
   const prevPriceRef = useRef<number | undefined>(undefined)
@@ -94,11 +112,12 @@ function TradeRoomContent() {
     )
   }
 
-  // Fetch token details
+  // Fetch token details (improved refresh rate from 2min to 30s)
   const { data: tokenDetails, isLoading: loadingToken } = useQuery({
     queryKey: ['token-details', ca],
     queryFn: () => api.getTokenDetails(ca),
-    staleTime: 120000, // 2 minutes - reduce excessive refetching
+    staleTime: 30000, // 30 seconds (improved from 2 minutes)
+    refetchInterval: 60000, // Background refetch every 60 seconds
   })
 
   // Calculate current price

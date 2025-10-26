@@ -27,6 +27,9 @@ import { useAuth } from '@/hooks/use-auth'
 
 // Helper function to parse message content and render emojis as images
 function renderMessageContent(content: string) {
+  // DEBUG: ALWAYS log - this proves the function is being called
+  console.log('🚀 EMOJI PARSER CALLED:', content)
+  
   // DEBUG: Log original content
   if (typeof window !== 'undefined') {
     console.log('📝 Original content:', JSON.stringify(content))
@@ -315,6 +318,10 @@ export function ChatMessage({ message, onUserClick }: ChatMessageProps) {
           'text-sm whitespace-pre-wrap break-words leading-relaxed'
         )}
       >
+        {/* DEBUG: Show raw content for inspection */}
+        <div className="text-xs opacity-50 mb-1 font-mono">
+          RAW: {JSON.stringify(message.content)}
+        </div>
         {renderMessageContent(message.content)}
       </div>
     </div>

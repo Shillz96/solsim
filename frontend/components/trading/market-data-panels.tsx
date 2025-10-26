@@ -18,8 +18,8 @@ import { Loader2, TrendingUp, TrendingDown, Users, Network, Wallet } from 'lucid
 import { formatUSD, formatNumber } from '@/lib/format'
 import { usePortfolio } from '@/hooks/use-portfolio'
 import { useRouter } from 'next/navigation'
-import { usePumpPortalTradesWithHistory } from '@/hooks/use-pumpportal-trades'
-import { getTopTraders, getTokenHolders, checkBubbleMapAvailability } from '@/lib/api'
+import { usePumpPortalTradesWithHistory, useTopTradersFromStream } from '@/hooks/use-pumpportal-trades'
+import { getTokenHolders, checkBubbleMapAvailability } from '@/lib/api'
 
 interface MarketDataPanelsProps {
   tokenMint: string
@@ -177,14 +177,16 @@ const RecentTradesPanel = memo(function RecentTradesPanel({ tokenMint }: { token
   )
 })
 
-// Top Traders Panel
+// Top Traders Panel - Now using real-time PumpPortal WebSocket
 const TopTradersPanel = memo(function TopTradersPanel({ tokenMint }: { tokenMint: string }) {
-  const { data: traders, isLoading } = useQuery({
-    queryKey: ['top-traders', tokenMint],
-    queryFn: () => getTopTraders(tokenMint, 10),
-    refetchInterval: 15000, // Refresh every 15 seconds
-    staleTime: 10000, // Consider data stale after 10 seconds
+  const { topTraders: traders, status } = useTopTradersFromStream({
+    tokenMint,
+    limit: 10,
+    enabled: true,
   })
+
+  const isLoading = status === 'connecting' || status === 'loading-history'
+  const isConnected = status === 'connected'
 
   return (
     <div className="mario-card bg-white p-4">
@@ -192,25 +194,33 @@ const TopTradersPanel = memo(function TopTradersPanel({ tokenMint }: { tokenMint
         <div className="w-10 h-10 rounded-lg bg-[var(--color-star)] border-3 border-[var(--outline-black)] flex items-center justify-center shadow-[2px_2px_0_var(--outline-black)]">
           <Users className="w-5 h-5 text-[var(--outline-black)]" />
         </div>
-        <div>
+        <div className="flex-1">
           <h3 className="font-bold text-sm uppercase">Top Traders</h3>
-          <p className="text-xs text-[var(--foreground)] opacity-70">24h activity</p>
+          <div className="flex items-center gap-2">
+            <p className="text-xs text-[var(--foreground)] opacity-70">Real-time activity</p>
+            {isConnected && (
+              <span className="inline-flex items-center gap-1 text-[10px] text-[var(--luigi-green)] font-bold">
+                <span className="w-1.5 h-1.5 bg-[var(--luigi-green)] rounded-full animate-pulse"></span>
+                LIVE
+              </span>
+            )}
+          </div>
         </div>
       </div>
 
       {isLoading ? (
         <div className="text-center py-4">
           <div className="text-2xl mb-2">⏳</div>
-          <p className="text-sm text-[var(--foreground)] opacity-70">Loading traders...</p>
+          <p className="text-sm text-[var(--foreground)] opacity-70">Connecting to live data...</p>
         </div>
       ) : !traders || traders.length === 0 ? (
         <div className="text-center py-4">
           <div className="text-2xl mb-2">📊</div>
-          <p className="text-sm text-[var(--foreground)] opacity-70">No trader data yet</p>
+          <p className="text-sm text-[var(--foreground)] opacity-70">No trading activity yet</p>
         </div>
       ) : (
         <div className="space-y-2 max-h-[300px] overflow-y-auto">
-          {traders.map((trader: any, index: number) => (
+          {traders.map((trader, index: number) => (
             <div
               key={trader.address}
               className="flex items-center justify-between p-2 rounded-lg border-2 border-[var(--outline-black)] bg-[var(--background)] hover:bg-[var(--color-star)] hover:bg-opacity-10 transition-colors"
@@ -222,14 +232,10 @@ const TopTradersPanel = memo(function TopTradersPanel({ tokenMint }: { tokenMint
                 </span>
               </div>
               <div className="text-right">
-                {trader.pnl !== undefined && (
-                  <div className={`text-sm font-bold ${trader.pnl >= 0 ? 'text-[var(--luigi-green)]' : 'text-[var(--mario-red)]'}`}>
-                    {trader.pnl >= 0 ? '+' : ''}{trader.pnl.toFixed(2)} SOL
-                  </div>
-                )}
-                {trader.tradeCount && (
-                  <div className="text-xs opacity-70">{trader.tradeCount} trades</div>
-                )}
+                <div className={`text-sm font-bold ${trader.profitSol >= 0 ? 'text-[var(--luigi-green)]' : 'text-[var(--mario-red)]'}`}>
+                  {trader.profitSol >= 0 ? '+' : ''}{trader.profitSol.toFixed(3)} SOL
+                </div>
+                <div className="text-xs opacity-70">{trader.trades} trades</div>
               </div>
             </div>
           ))}
@@ -244,8 +250,8 @@ const HoldersPanel = memo(function HoldersPanel({ tokenMint }: { tokenMint: stri
   const { data: holderData, isLoading } = useQuery({
     queryKey: ['token-holders', tokenMint],
     queryFn: () => getTokenHolders(tokenMint, 10),
-    refetchInterval: 60000, // Refresh every 60 seconds (data doesn't change as frequently)
-    staleTime: 30000, // Consider data stale after 30 seconds
+    refetchInterval: 30000, // Refresh every 30 seconds (improved from 60s)
+    staleTime: 15000, // Consider data stale after 15 seconds (improved from 30s)
   })
 
   return (
