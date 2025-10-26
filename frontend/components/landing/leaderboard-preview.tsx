@@ -94,13 +94,13 @@ export function LeaderboardPreview() {
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full">
-                  <thead className="bg-gradient-to-r from-[var(--mario-red)] via-[var(--star-yellow)] to-[var(--luigi-green)]">
+                  <thead className="bg-[var(--card)]">
                     <tr>
-                      <th className="px-6 py-4 text-left text-sm font-mario text-white">Rank</th>
-                      <th className="px-6 py-4 text-left text-sm font-mario text-white">Trader</th>
-                      <th className="px-6 py-4 text-right text-sm font-mario text-white">PnL (USD)</th>
-                      <th className="px-6 py-4 text-right text-sm font-mario text-white">Trades</th>
-                      <th className="px-6 py-4 text-right text-sm font-mario text-white">Volume (USD)</th>
+                      <th className="px-6 py-4 text-left text-sm font-mario text-[var(--outline-black)] border-b-4 border-[var(--outline-black)]">Rank</th>
+                      <th className="px-6 py-4 text-left text-sm font-mario text-[var(--outline-black)] border-b-4 border-[var(--outline-black)]">Trader</th>
+                      <th className="px-6 py-4 text-right text-sm font-mario text-[var(--outline-black)] border-b-4 border-[var(--outline-black)]">PnL (USD)</th>
+                      <th className="px-6 py-4 text-right text-sm font-mario text-[var(--outline-black)] border-b-4 border-[var(--outline-black)]">Trades</th>
+                      <th className="px-6 py-4 text-right text-sm font-mario text-[var(--outline-black)] border-b-4 border-[var(--outline-black)]">Volume (USD)</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border">

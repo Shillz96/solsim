@@ -39,17 +39,17 @@ const steps = [
 ]
 
 export function HowItWorksSection() {
-  // Colorful icon backgrounds to match "HOW IT WORKS" header
+  // Solid Mario-themed icon backgrounds using theme tokens
   const iconColors = [
     'bg-[var(--mario-red)]',      // 1. Sign up - Red
-    'bg-[var(--super-blue)]',     // 2. Explore - Blue
+    'bg-[var(--sky-blue)]',       // 2. Explore - Blue
     'bg-[var(--luigi-green)]',    // 3. Trade - Green
     'bg-[var(--star-yellow)]',    // 4. Level up - Yellow
-    'bg-[var(--super-blue)]',     // 5. Compete - Blue
+    'bg-[var(--coin-gold)]',      // 5. Compete - Gold
   ]
 
   return (
-    <section className="py-20 md:py-32 bg-gradient-to-b from-[var(--star-yellow)]/10 via-[var(--super-blue)]/5 to-background border-t-4 border-[var(--star-yellow)]/30">
+    <section className="py-20 md:py-32 bg-background border-t-4 border-[var(--outline-black)]/20">
       <div className="container mx-auto px-4">
         <div className="text-center space-y-4 mb-16">
           {/* Mario header */}

@@ -40,17 +40,20 @@ export function TokenColumn({
   // Consolidated theme configuration
   const theme = {
     bonded: {
-      header: "bg-gradient-to-br from-[var(--coin-gold)] to-[var(--coin-yellow)] text-[var(--outline-black)]",
+      header: "text-[var(--outline-black)]",
+      headerBg: "bg-[var(--coin-gold)]",
       body: "bg-gradient-to-b from-amber-100/40 to-amber-50/20",
       image: "/bonded-10-23-2025.png",
     },
     graduating: {
-      header: "bg-gradient-to-br from-[var(--star-yellow)] to-amber-400 text-[var(--outline-black)]",
+      header: "text-[var(--outline-black)]",
+      headerBg: "bg-[var(--star-yellow)]",
       body: "bg-gradient-to-b from-yellow-100/40 to-yellow-50/20",
       image: "/About-to-Graduate-10-23-2025.png",
     },
     new: {
-      header: "bg-gradient-to-br from-[var(--luigi-green)] to-emerald-500 text-white",
+      header: "text-white",
+      headerBg: "bg-[var(--luigi-green)]",
       body: "bg-gradient-to-b from-green-100/40 to-green-50/20",
       image: "/New-Pairs-10-23-2025.png",
     },
@@ -65,7 +68,8 @@ export function TokenColumn({
           className={cn(
             "p-4 flex-shrink-0 text-center border-b-4 border-[var(--outline-black)]",
             "flex items-center justify-center",
-            theme.header
+            theme.header,
+            theme.headerBg
           )}
         >
           <div className="relative">
