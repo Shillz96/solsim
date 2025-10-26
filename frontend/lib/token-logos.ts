@@ -11,7 +11,7 @@
 
 export const TOKEN_LOGO_FALLBACKS: Record<string, string> = {
   // SOL - Solana (native token)
-  "So11111111111111111111111111111111111111112": "https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/So11111111111111111111111111111111111111112/logo.png",
+  "So11111111111111111111111111111111111111112": "https://cryptologos.cc/logos/solana-sol-logo.png?v=040",
 
   // USDC - USD Coin
   "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v": "https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v/logo.png",

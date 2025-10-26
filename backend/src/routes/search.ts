@@ -56,6 +56,63 @@ export default async function searchRoutes(app: FastifyInstance) {
     }
   });
 
+  // Manual holder count update endpoint (for immediate updates)
+  app.post("/update-holder-count/:mint", async (req, reply) => {
+    const { mint } = req.params as { mint: string };
+    
+    if (!mint) {
+      return reply.code(400).send({ error: "mint required" });
+    }
+    
+    try {
+      const { holderCountService } = await import("../services/holderCountService.js");
+      
+      // Fetch fresh holder count
+      const holderCount = await holderCountService.getHolderCount(mint);
+      
+      if (holderCount === null) {
+        return reply.code(404).send({ 
+          error: "Unable to fetch holder count",
+          mint 
+        });
+      }
+      
+      // Update TokenDiscovery table
+      const updated = await prisma.tokenDiscovery.update({
+        where: { mint },
+        data: { 
+          holderCount,
+          lastUpdatedAt: new Date()
+        }
+      });
+      
+      return reply.send({
+        success: true,
+        mint,
+        holderCount,
+        previousCount: updated.holderCount,
+        updated: true,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error: any) {
+      console.error("[Update] Holder count error:", error);
+      
+      // If token doesn't exist in TokenDiscovery, provide helpful message
+      if (error.code === 'P2025') {
+        return reply.code(404).send({ 
+          error: "Token not found in TokenDiscovery table",
+          mint,
+          suggestion: "Token may not be tracked yet. Worker will add it on next discovery cycle."
+        });
+      }
+      
+      return reply.code(500).send({ 
+        error: error.message,
+        mint
+      });
+    }
+  });
+
   // Get token details by mint address with price data
   app.get("/token/:mint", async (req, reply) => {
     const { mint } = req.params as { mint: string };

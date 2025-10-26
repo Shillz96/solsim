@@ -355,6 +355,16 @@ async function getTokenMetaUncached(mint: string) {
     }
   }
 
+  // Special handling for native SOL token
+  if (mint === 'So11111111111111111111111111111111111111112') {
+    return {
+      ...token,
+      name: 'SOL',
+      symbol: 'SOL',
+      logoURI: 'https://cryptologos.cc/logos/solana-sol-logo.png?v=040'
+    };
+  }
+
   return token;
 }
 
