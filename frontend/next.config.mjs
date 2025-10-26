@@ -31,14 +31,8 @@ const nextConfig = {
       '@solana/wallet-adapter-react',
     ],
     
-    // Type-safe environment variables with IntelliSense
+    // Type-safe environment variables with IntelliSense (Next.js 15.1+)
     typedEnv: true,
-    
-    // External packages that should not be bundled for server
-    serverExternalPackages: [
-      '@solana/web3.js',
-      'ws',
-    ],
   },
 
   // Production optimizations
@@ -55,10 +49,6 @@ const nextConfig = {
   // Image optimization
   images: {
     formats: ['image/avif', 'image/webp'],
-    // Image quality levels - REQUIRED in Next.js 16+ for security
-    qualities: [50, 75, 90],
-    // Limit redirects for security - default changed from unlimited to 3 in Next.js 16
-    maximumRedirects: 3,
     remotePatterns: [
       // Pump.fun main domain
       {
