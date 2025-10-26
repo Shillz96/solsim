@@ -209,6 +209,8 @@ export function TokenChatRoom({ tokenMint, className }: TokenChatRoomProps) {
             disabled={!user || status !== 'connected'}
             className={cn(marioStyles.input(), 'flex-1 h-10')}
             maxLength={280}
+            autoComplete="off"
+            data-form-type="other"
           />
           <EmojiPicker onEmojiSelect={handleEmojiSelect} />
           <button

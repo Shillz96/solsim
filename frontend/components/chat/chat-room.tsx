@@ -207,6 +207,8 @@ export function ChatRoom({ tokenMint, className, headerImage, headerImageAlt = '
             disabled={!user || status !== 'connected'}
             className="flex-1 h-10 px-3 text-sm rounded-lg border-3 border-[var(--outline-black)] bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-star)] shadow-[2px_2px_0_var(--outline-black)]"
             maxLength={280}
+            autoComplete="off"
+            data-form-type="other"
           />
           <EmojiPicker 
             onEmojiSelect={handleEmojiSelect}

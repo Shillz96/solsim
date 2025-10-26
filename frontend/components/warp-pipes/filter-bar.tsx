@@ -44,6 +44,8 @@ export function FilterBar({
           type="text"
           placeholder="🔍 Search tokens..."
           value={searchQuery}
+          autoComplete="off"
+          data-form-type="other"
           onChange={(e) => onSearchChange(e.target.value)}
           className="pl-10 border-3 border-[var(--outline-black)] focus:border-[var(--mario-red)] rounded-[12px] font-semibold text-[var(--outline-black)] placeholder:text-[var(--outline-black)] placeholder:opacity-60"
         />

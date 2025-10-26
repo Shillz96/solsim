@@ -45,17 +45,19 @@ export default async function (app: FastifyInstance) {
         currentTick = await priceService.fetchTokenPrice(mint);
       }
       
-      // CRITICAL FIX: Use last known price from trade result as fallback
-      // This prevents 500 errors when price service is temporarily unavailable
-      // Trade already executed successfully, so we must return success with best available data
-      if (!currentTick && result.trade.fillPriceUsd) {
+      // CRITICAL FIX: Use last known fill price from trade record as fallback
+      // Prevents failures when the price service is briefly unavailable right after a trade
+      if (!currentTick && result?.trade?.price) {
         console.warn(`[Trade] Price service unavailable for ${mint.slice(0, 8)}, using trade fill price as fallback`);
-        currentTick = {
-          mint,
-          priceUsd: parseFloat(result.trade.fillPriceUsd.toString()),
-          timestamp: Date.now(),
-          source: 'trade-fallback'
-        };
+        const fallbackPrice = Number(String(result.trade.price));
+        if (Number.isFinite(fallbackPrice) && fallbackPrice > 0) {
+          currentTick = {
+            mint,
+            priceUsd: fallbackPrice,
+            timestamp: Date.now(),
+            source: 'trade-fallback'
+          };
+        }
       }
       
       // If still no price (shouldn't happen since fillTrade requires price), return 503 not 500
@@ -82,30 +84,32 @@ export default async function (app: FastifyInstance) {
           userId: result.trade.userId,
           tokenAddress: result.trade.tokenAddress,
           side: result.trade.side,
-          quantity: result.trade.quantity.toString(),
-          price: result.trade.price.toString(),
-          totalCost: result.trade.totalCost.toString(),
-          costUsd: result.trade.costUsd?.toString(),
+          quantity: String(result.trade.quantity),
+          price: String(result.trade.price),
+          totalCost: String(result.trade.totalCost),
+          costUsd: result.trade.costUsd ? String(result.trade.costUsd) : undefined,
           timestamp: result.trade.timestamp,
-          marketCapUsd: result.trade.marketCapUsd?.toString()
+          marketCapUsd: result.trade.marketCapUsd ? String(result.trade.marketCapUsd) : undefined
         },
         position: {
           mint: result.position.mint,
-          quantity: result.position.qty.toString(),
-          costBasis: result.position.costBasis.toString(),
-          currentPrice: currentTick.priceUsd.toString(),
-          unrealizedPnL: result.position.qty.mul(currentTick.priceUsd).sub(
-            result.position.qty.mul(result.position.costBasis)
-          ).toString()
+          quantity: String(result.position.qty),
+          costBasis: String(result.position.costBasis),
+          currentPrice: String(currentTick.priceUsd),
+          unrealizedPnL: String(
+            result.position.qty
+              .mul(currentTick.priceUsd)
+              .sub(result.position.qty.mul(result.position.costBasis))
+          )
         },
         portfolioTotals: {
-          totalValueUsd: result.portfolioTotals.totalValueUsd.toString(),
-          totalCostBasis: result.portfolioTotals.totalCostBasis.toString(),
-          unrealizedPnL: result.portfolioTotals.unrealizedPnL.toString(),
-          realizedPnL: result.portfolioTotals.realizedPnL.toString(),
-          solBalance: result.portfolioTotals.solBalance.toString()
+          totalValueUsd: String(result.portfolioTotals.totalValueUsd),
+          totalCostBasis: String(result.portfolioTotals.totalCostBasis),
+          unrealizedPnL: String(result.portfolioTotals.unrealizedPnL),
+          realizedPnL: String(result.portfolioTotals.realizedPnL),
+          solBalance: String(result.portfolioTotals.solBalance)
         },
-        rewardPointsEarned: result.rewardPointsEarned.toString(),
+        rewardPointsEarned: String(result.rewardPointsEarned),
         currentPrice: currentTick.priceUsd
       };
     } catch (error: any) {

@@ -94,6 +94,8 @@ export function TradePanelBuyTab({
           value={customSolAmount}
           onChange={(e) => onCustomAmountChange(e.target.value)}
           className="border-2 border-[var(--outline-black)] font-mono text-sm h-8"
+          autoComplete="off"
+          data-form-type="other"
         />
       )}
 

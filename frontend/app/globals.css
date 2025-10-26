@@ -44,6 +44,15 @@
     width: 100%;
   }
 
+  /* Prevent Apple Password Autofill on non-password fields */
+  input[type="text"]:not([name*="password"]):not([name*="email"]):not([name*="username"]):not([name*="login"]),
+  input[type="number"]:not([name*="password"]):not([name*="email"]):not([name*="username"]):not([name*="login"]),
+  input[data-form-type="other"] {
+    -webkit-text-security: none !important;
+    -webkit-autofill: none !important;
+    -webkit-credentials: none !important;
+  }
+
   /* Paper Texture System - Two-Layer Design */
 
   /* Layer 1 - Base Texture (Behind Content) */
