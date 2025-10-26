@@ -78,16 +78,6 @@ export function DexScreenerChart({
         sandbox="allow-scripts allow-same-origin allow-forms"
         loading="eager"
       />
-      
-      {/* Custom attribution overlay with better styling */}
-      <div className="absolute bottom-2 right-2 z-20">
-        <div className={cn(
-          marioStyles.badgeLg('admin'),
-          "text-[10px] px-2 py-1"
-        )}>
-          Tracked by DexScreener
-        </div>
-      </div>
     </div>
   )
 }

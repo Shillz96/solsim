@@ -170,7 +170,7 @@ function TradeRoomContent() {
               variant="outline"
               size="sm"
               onClick={() => router.back()}
-              className="h-10 w-10 p-0 rounded-full border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all"
+              className="h-10 w-10 p-0 rounded-full border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)]"
               aria-label="Go back"
             >
               <ArrowLeft className="h-4 w-4" />
@@ -238,7 +238,7 @@ function TradeRoomContent() {
                     toast({ title: "Failed to copy", description: "Please copy the URL manually", variant: "destructive" })
                   }
                 }}
-                className="h-10 w-10 p-0 rounded-lg border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all"
+                className="h-10 w-10 p-0 rounded-lg border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)]"
                 aria-label="Share"
               >
                 {shareCopied ? (
@@ -252,7 +252,7 @@ function TradeRoomContent() {
                 variant="outline"
                 size="sm"
                 asChild
-                className="h-10 w-10 p-0 rounded-lg border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all"
+                className="h-10 w-10 p-0 rounded-lg border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)]"
               >
                 <a
                   href={`https://dexscreener.com/solana/${ca}`}
@@ -273,7 +273,7 @@ function TradeRoomContent() {
         {/* MOBILE LAYOUT */}
         <div className="md:hidden flex flex-col w-full h-full gap-4">
           {/* Chart */}
-          <div className="mario-card-lg min-h-[400px] h-[400px] p-0 overflow-hidden">
+          <div className="min-h-[400px] h-[400px] overflow-hidden rounded-2xl">
             <DexScreenerChart tokenAddress={ca} />
           </div>
 
@@ -316,7 +316,7 @@ function TradeRoomContent() {
           {/* Center: Market Data Panel with Chart */}
           <section className="flex-1 min-w-0 flex flex-col gap-4">
             {/* Chart */}
-            <div className="mario-card-lg flex-1 min-h-[400px] p-0 overflow-hidden">
+            <div className="flex-1 min-h-[400px] overflow-hidden rounded-2xl">
               <DexScreenerChart tokenAddress={ca} />
             </div>
 
