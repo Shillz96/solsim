@@ -77,6 +77,75 @@ const nextConfig = {
         hostname: 'cloudflare-ipfs.com',
         pathname: '/ipfs/**',
       },
+      // Additional token metadata sources
+      {
+        protocol: 'https',
+        hostname: 'fidelion.io',
+        pathname: '/metadata/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'pump.mypinata.cloud',
+        pathname: '/ipfs/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'gateway.irys.xyz',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'ipfs.erebrus.io',
+        pathname: '/ipfs/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'cdn.moonshot.com',
+        pathname: '/**',
+      },
+      // External service logos
+      {
+        protocol: 'https',
+        hostname: 'images.seeklogo.com',
+        pathname: '/logo-png/**',
+      },
+      // Token logo sources
+      {
+        protocol: 'https',
+        hostname: 'static.jup.ag',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'cryptologos.cc',
+        pathname: '/logos/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'cdn.jsdelivr.net',
+        pathname: '/gh/trustwallet/assets/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'assets.coingecko.com',
+        pathname: '/coins/images/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'arweave.net',
+        pathname: '/**',
+      },
+      // External content providers
+      {
+        protocol: 'https',
+        hostname: 'cdn.prod.website-files.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'xstocks.fi',
+        pathname: '/**',
+      },
       // Only allow HTTP in development
       ...(process.env.NODE_ENV === 'development' ? [{
         protocol: 'http',

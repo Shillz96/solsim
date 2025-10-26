@@ -1,7 +1,7 @@
 /**
  * Chat Rate Limiter (Token Bucket Algorithm)
  *
- * Implements token bucket rate limiting using Redis for:
+ * Implements token bucket rate limiting using Redis:
  * - Message rate limiting (10 msgs / 15 seconds)
  * - Duplicate message detection (30 second window)
  * - Per-user and per-IP rate limits
@@ -9,33 +9,32 @@
 
 import { getRedis } from '../plugins/redis.js';
 
-/**
- * Rate limit configuration
- */
+// Types
 export interface RateLimitConfig {
-  capacity: number; // Max tokens in bucket
-  refillRate: number; // Tokens added per second
-  cost: number; // Tokens consumed per action
+  capacity: number;
+  refillRate: number;
+  cost: number;
 }
 
-/**
- * Default rate limit for chat messages
- * 10 messages per 15 seconds with burst of 6
- */
+export interface RateLimitResult {
+  allowed: boolean;
+  remaining: number;
+  resetAt: number;
+}
+
+interface BucketState {
+  tokens: number;
+  lastRefill: number;
+}
+
+// Constants
+const BUCKET_EXPIRY_SECONDS = 60;
+
 export const CHAT_MESSAGE_LIMIT: RateLimitConfig = {
   capacity: 10,
   refillRate: 10 / 15, // 0.666 tokens per second
   cost: 1,
 };
-
-/**
- * Rate limit result
- */
-export interface RateLimitResult {
-  allowed: boolean;
-  remaining: number;
-  resetAt: number; // Unix timestamp when bucket refills
-}
 
 /**
  * Check rate limit using token bucket algorithm

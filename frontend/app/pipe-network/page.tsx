@@ -21,10 +21,10 @@ export default function PipeNetworkPage() {
       <div className="flex-1 flex flex-col px-4 py-4 min-h-0">
         <div className="bg-gradient-to-br from-[var(--luigi-green)]/10 via-white to-[var(--sky-blue)]/10 border-4 border-[var(--outline-black)] rounded-2xl shadow-[8px_8px_0_var(--outline-black)] overflow-hidden flex-1 flex flex-col">
           <div className="flex-1 min-h-0">
-            <ChatRoom 
-              tokenMint="community" 
+            <ChatRoom
+              tokenMint="community"
               className="h-full"
-              headerImage="https://oneupsol.fun/_next/image?url=%2FPipe-Network-10-24-2025.png&w=640&q=75"
+              headerImage="/Pipe-Network-10-24-2025.png"
               headerImageAlt="Pipe Network"
             />
           </div>

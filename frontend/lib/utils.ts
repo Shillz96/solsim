@@ -656,7 +656,7 @@ export const marioStyles = {
  * @returns true if URL is HTTPS or relative, false if HTTP (blocked in production)
  */
 export function isValidImageUrl(url: string | null | undefined): boolean {
-  if (!url) return false;
+  if (url === null || url === undefined) return false;
 
   // Allow relative URLs (internal images)
   if (url.startsWith('/')) return true;
@@ -685,7 +685,11 @@ export function getSafeImageUrl(originalUrl: string | null | undefined, fallback
     return originalUrl || fallbackUrl;
   }
 
-  console.warn('Blocked unsafe image URL in production:', originalUrl);
+  // Only log warning if URL is not null/undefined (i.e., it's an actual invalid URL)
+  if (originalUrl !== null && originalUrl !== undefined) {
+    console.warn('Blocked unsafe image URL in production:', originalUrl);
+  }
+
   return fallbackUrl;
 }
 

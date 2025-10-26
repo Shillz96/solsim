@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { formatNumber } from "@/lib/format"
+import { createSafeImageProps } from "@/lib/utils"
 import { EnhancedCard, CardGrid, CardSection } from "@/components/ui/enhanced-card-system"
 import { Badge } from "@/components/ui/badge"
 import {
@@ -157,9 +158,19 @@ export function TokenDetailsHeader({ tokenAddress }: TokenDetailsHeaderProps) {
   // DexScreener Icon Component
   const DexScreenerIcon = ({ className }: { className?: string }) => (
     <img
-      src="https://images.seeklogo.com/logo-png/52/1/dex-screener-logo-png_seeklogo-527276.png"
-      alt="DexScreener"
+      {...createSafeImageProps(
+        "https://images.seeklogo.com/logo-png/52/1/dex-screener-logo-png_seeklogo-527276.png",
+        "/icons/external-link.png", // Fallback icon
+        "DexScreener"
+      )}
       className={className}
+      onError={(e) => {
+        // If both image and fallback fail, replace with icon
+        const target = e.currentTarget;
+        const iconSpan = document.createElement('span');
+        iconSpan.innerHTML = '<svg class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3"/></svg>';
+        target.parentNode?.replaceChild(iconSpan, target);
+      }}
     />
   );
 
