@@ -196,7 +196,7 @@ export const PageLoadingOverlay: React.FC<{
   message?: string
 }> = ({ message = "Loading..." }) => {
   return (
-    <div className="fixed inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center z-loading">
       <Loading message={message} variant="enhanced" size="lg" />
     </div>
   )

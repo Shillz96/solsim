@@ -219,8 +219,9 @@ const TopTradersPanel = memo(function TopTradersPanel({ tokenMint }: { tokenMint
         </div>
       ) : !traders || traders.length === 0 ? (
         <div className="text-center py-4">
-          <div className="text-2xl mb-2">📊</div>
-          <p className="text-sm text-foreground opacity-70">No trading activity yet</p>
+          <div className="text-2xl mb-2">�</div>
+          <p className="text-sm text-foreground opacity-70 font-bold">Available after bonding</p>
+          <p className="text-xs text-foreground opacity-50 mt-1">Data tracked post-migration to Raydium</p>
         </div>
       ) : (
         <div className="space-y-2 max-h-[300px] overflow-y-auto">
