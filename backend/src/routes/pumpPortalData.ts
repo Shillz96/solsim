@@ -90,9 +90,6 @@ const pumpPortalDataRoutes: FastifyPluginAsync = async (fastify) => {
         const { mint } = MintParamSchema.parse(request.params);
         const { limit } = TradeQuerySchema.parse(request.query);
 
-        // Subscribe to this token in Helius stream
-        await heliusTradeStreamService.subscribeToTokens([mint]);
-
         // Set up SSE headers
         reply.raw.writeHead(200, {
           'Content-Type': 'text/event-stream',
@@ -101,47 +98,68 @@ const pumpPortalDataRoutes: FastifyPluginAsync = async (fastify) => {
           'Access-Control-Allow-Origin': '*',
         });
 
-        // Send initial trade history from Helius service
-        const recentTrades = heliusTradeStreamService.getRecentTrades(mint, limit);
-        const trades: RecentTrade[] = recentTrades.map(t => ({
-          ts: t.timestamp,
-          side: t.side,
-          priceSol: t.priceSol,
-          amountSol: t.amountSol,
-          amountToken: t.amountToken,
-          signer: t.signer,
-          sig: t.signature,
-          mint: t.mint,
-        }));
-
-        // If no trades yet from Helius, try pump.fun API as fallback
-        if (trades.length === 0) {
-          try {
-            console.log(`[TradeData] No Helius trades yet for ${mint}, fetching from pump.fun API...`);
-            const pumpFunResponse = await fetch(`https://frontend-api.pump.fun/coins/${mint}/trades?limit=${limit}&minimumSize=0`, {
-              signal: AbortSignal.timeout(5000),
-            });
+        // Start with pump.fun API for immediate data
+        const trades: RecentTrade[] = [];
+        
+        try {
+          console.log(`[TradeData] Fetching initial trades from pump.fun API for ${mint}...`);
+          const pumpFunResponse = await fetch(`https://frontend-api.pump.fun/coins/${mint}/trades?limit=${limit}&minimumSize=0`, {
+            signal: AbortSignal.timeout(5000),
+          });
+          
+          if (pumpFunResponse.ok) {
+            const pumpFunTrades = await pumpFunResponse.json();
             
-            if (pumpFunResponse.ok) {
-              const pumpFunTrades = await pumpFunResponse.json();
+            if (Array.isArray(pumpFunTrades)) {
+              trades.push(...pumpFunTrades.slice(0, limit).map((t: any) => ({
+                ts: t.timestamp * 1000 || Date.now(),
+                side: (t.is_buy ? 'buy' : 'sell') as 'buy' | 'sell',
+                amountSol: t.sol_amount,
+                amountToken: t.token_amount,
+                signer: t.user || 'unknown',
+                sig: t.signature || 'unknown',
+                mint: mint,
+              })));
               
-              if (Array.isArray(pumpFunTrades)) {
-                trades.push(...pumpFunTrades.slice(0, limit).map((t: any) => ({
-                  ts: t.timestamp * 1000 || Date.now(),
-                  side: (t.is_buy ? 'buy' : 'sell') as 'buy' | 'sell',
-                  amountSol: t.sol_amount,
-                  amountToken: t.token_amount,
-                  signer: t.user || 'unknown',
-                  sig: t.signature || 'unknown',
-                  mint: mint,
-                })));
-                
-                console.log(`✅ Fetched ${trades.length} trades from pump.fun API`);
-              }
+              console.log(`✅ Loaded ${trades.length} initial trades from pump.fun API`);
             }
-          } catch (err) {
-            console.warn('[TradeData] Failed to fetch trades from pump.fun API:', err);
           }
+        } catch (err) {
+          console.warn('[TradeData] Failed to fetch trades from pump.fun API:', err);
+        }
+
+        // Subscribe to Helius for real-time updates (async, won't block initial response)
+        heliusTradeStreamService.subscribeToTokens([mint]).catch(err => {
+          console.error(`[TradeData] Failed to subscribe to Helius stream:`, err);
+        });
+
+        // Check if Helius has any trades already cached
+        const heliusTrades = heliusTradeStreamService.getRecentTrades(mint, limit);
+        if (heliusTrades.length > 0) {
+          console.log(`[TradeData] Found ${heliusTrades.length} trades from Helius cache`);
+          // Merge Helius trades with pump.fun trades (dedupe by signature)
+          const tradeMap = new Map<string, RecentTrade>();
+          
+          // Add pump.fun trades first
+          trades.forEach(t => tradeMap.set(t.sig, t));
+          
+          // Add Helius trades (will overwrite if same signature)
+          heliusTrades.forEach(t => {
+            tradeMap.set(t.signature, {
+              ts: t.timestamp,
+              side: t.side,
+              priceSol: t.priceSol,
+              amountSol: t.amountSol,
+              amountToken: t.amountToken,
+              signer: t.signer,
+              sig: t.signature,
+              mint: t.mint,
+            });
+          });
+          
+          // Replace trades with merged results
+          trades.length = 0;
+          trades.push(...Array.from(tradeMap.values()).sort((a, b) => b.ts - a.ts).slice(0, limit));
         }
 
         // Send initial history
