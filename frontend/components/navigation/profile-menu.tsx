@@ -85,8 +85,8 @@ export function ProfileMenu({
                 "h-7 w-7 md:h-8 md:w-8",
                 "rounded-[8px] md:rounded-[10px]",
                 "bg-[var(--mario-red)]",
-                "border-4 border-[var(--outline-black)]",
-                "overflow-hidden"
+                "border-2 border-[var(--outline-black)]/60",
+                "overflow-hidden shadow-[1px_1px_0_var(--outline-black)]/40"
               )}
             >
               <Avatar className="h-full w-full rounded-none border-0">

@@ -113,6 +113,37 @@ const pumpPortalDataRoutes: FastifyPluginAsync = async (fastify) => {
           }
         }
 
+        // If no cached trades, try fetching from pump.fun API as fallback
+        if (trades.length === 0) {
+          try {
+            console.log(`[PumpPortalData] No cached trades for ${mint}, fetching from pump.fun API...`);
+            const pumpFunResponse = await fetch(`https://frontend-api.pump.fun/coins/${mint}/trades?limit=${limit}&minimumSize=0`, {
+              signal: AbortSignal.timeout(5000),
+            });
+            
+            if (pumpFunResponse.ok) {
+              const pumpFunTrades = await pumpFunResponse.json();
+              
+              // Transform pump.fun trade format to our format
+              if (Array.isArray(pumpFunTrades)) {
+                trades.push(...pumpFunTrades.slice(0, limit).map((t: any) => ({
+                  ts: t.timestamp * 1000 || Date.now(),
+                  side: (t.is_buy ? 'buy' : 'sell') as 'buy' | 'sell',
+                  amountSol: t.sol_amount,
+                  amountToken: t.token_amount,
+                  signer: t.user || 'unknown',
+                  sig: t.signature || 'unknown',
+                  mint: mint,
+                })));
+                
+                console.log(`✅ Fetched ${trades.length} trades from pump.fun API`);
+              }
+            }
+          } catch (err) {
+            console.warn('[PumpPortalData] Failed to fetch trades from pump.fun API:', err);
+          }
+        }
+
         // Send initial history
         reply.raw.write(`data: ${JSON.stringify({ type: 'history', trades })}\n\n`);
 
@@ -181,9 +212,42 @@ const pumpPortalDataRoutes: FastifyPluginAsync = async (fastify) => {
         const cacheKey = REDIS_KEYS.metadata(mint);
         const metadataStr = await redis.get(cacheKey);
 
+        let metadata: TokenMetadata | null = null;
+        
         if (metadataStr) {
-          const metadata: TokenMetadata = JSON.parse(metadataStr);
+          metadata = JSON.parse(metadataStr);
           reply.raw.write(`data: ${JSON.stringify({ type: 'metadata', metadata })}\n\n`);
+        } else {
+          // No cached metadata - fetch from pump.fun API as fallback
+          try {
+            console.log(`[PumpPortalData] No cached metadata for ${mint}, fetching from pump.fun API...`);
+            const pumpFunResponse = await fetch(`https://frontend-api.pump.fun/coins/${mint}`, {
+              signal: AbortSignal.timeout(5000),
+            });
+            
+            if (pumpFunResponse.ok) {
+              const coinData = await pumpFunResponse.json();
+              
+              metadata = {
+                mint: mint,
+                name: coinData.name,
+                symbol: coinData.symbol,
+                description: coinData.description,
+                imageUrl: coinData.image_uri,
+                twitter: coinData.twitter,
+                telegram: coinData.telegram,
+                website: coinData.website,
+                holderCount: coinData.usd_market_cap ? Math.floor(coinData.usd_market_cap / 1000) : undefined, // Estimate
+                marketCapSol: coinData.usd_market_cap ? coinData.usd_market_cap / 150 : undefined, // Rough estimate
+                timestamp: Date.now(),
+              };
+              
+              reply.raw.write(`data: ${JSON.stringify({ type: 'metadata', metadata })}\n\n`);
+              console.log(`✅ Fetched metadata from pump.fun API`);
+            }
+          } catch (err) {
+            console.warn('[PumpPortalData] Failed to fetch metadata from pump.fun API:', err);
+          }
         }
 
         // Listen for new token events (contains updated metadata)

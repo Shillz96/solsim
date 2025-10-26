@@ -129,11 +129,11 @@ export function CombinedProfileBalance({
             <div
               className={cn(
                 "grid place-items-center flex-shrink-0",
-                "h-7 w-7 md:h-8 md:w-8",
+                "h-8 w-8 md:h-9 md:w-9",
                 "rounded-[8px] md:rounded-[10px]",
                 "bg-[var(--mario-red)]",
-                "border-3 border-[var(--outline-black)]",
-                "overflow-hidden"
+                "border border-[var(--outline-black)]/50",
+                "overflow-hidden shadow-[1px_1px_0_var(--outline-black)]/30"
               )}
             >
               <Avatar className="h-full w-full rounded-none border-0">

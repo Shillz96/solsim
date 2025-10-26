@@ -118,7 +118,7 @@ export default async function wsPlugin(app: FastifyInstance) {
               }));
             } else {
               // For other tokens, try the cache first
-              priceService.getLastTick(data.mint).then(tick => {
+              priceService.getLastTick(data.mint).then(async tick => {
                 if (tick) {
                   socket.send(JSON.stringify({
                     type: "price",
@@ -129,15 +129,42 @@ export default async function wsPlugin(app: FastifyInstance) {
                   }));
                   // Cached price sent successfully (log removed to reduce noise)
                 } else {
-                  // Send a placeholder response when no price is available
-                  socket.send(JSON.stringify({
-                    type: "price",
-                    mint: data.mint,
-                    price: 0,
-                    change24h: 0,
-                    timestamp: Date.now()
-                  }));
-                  // No cached price (log removed to reduce noise)
+                  // No cached price - fetch fresh data from API
+                  console.log(`🔍 No cached price for ${data.mint.slice(0, 8)}, fetching fresh data...`);
+                  
+                  try {
+                    const freshTick = await priceService.fetchTokenPrice(data.mint);
+                    
+                    if (freshTick) {
+                      socket.send(JSON.stringify({
+                        type: "price",
+                        mint: data.mint,
+                        price: freshTick.priceUsd,
+                        change24h: freshTick.change24h || 0,
+                        timestamp: freshTick.timestamp
+                      }));
+                      console.log(`✅ Fresh price fetched for ${data.mint.slice(0, 8)}: $${freshTick.priceUsd}`);
+                    } else {
+                      // Still no price available after fetch
+                      socket.send(JSON.stringify({
+                        type: "price",
+                        mint: data.mint,
+                        price: 0,
+                        change24h: 0,
+                        timestamp: Date.now()
+                      }));
+                      console.warn(`⚠️ No price available for ${data.mint.slice(0, 8)} after fetch`);
+                    }
+                  } catch (err) {
+                    console.error(`❌ Failed to fetch fresh price for ${data.mint.slice(0, 8)}:`, err);
+                    socket.send(JSON.stringify({
+                      type: "price",
+                      mint: data.mint,
+                      price: 0,
+                      change24h: 0,
+                      timestamp: Date.now()
+                    }));
+                  }
                 }
               }).catch(err => {
                 console.error(`❌ Failed to get price for ${data.mint}:`, err);
