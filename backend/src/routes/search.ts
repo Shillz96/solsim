@@ -10,6 +10,33 @@ const DEX = process.env.DEXSCREENER_BASE || "https://api.dexscreener.com";
 const BIRDEYE = process.env.BIRDEYE_BASE || "https://public-api.birdeye.so";
 
 export default async function searchRoutes(app: FastifyInstance) {
+  // Test endpoint for Helius holder count service
+  app.get("/test/holders/:mint", async (req, reply) => {
+    const { mint } = req.params as { mint: string };
+    
+    if (!mint) {
+      return reply.code(400).send({ error: "mint required" });
+    }
+    
+    try {
+      const { holderCountService } = await import("../services/holderCountService.js");
+      const holderCount = await holderCountService.getHolderCount(mint);
+      
+      return reply.send({
+        mint,
+        holderCount,
+        timestamp: new Date().toISOString(),
+        source: "Helius RPC getProgramAccounts"
+      });
+    } catch (error: any) {
+      console.error("[Test] Holder count error:", error);
+      return reply.code(500).send({ 
+        error: error.message,
+        details: "Check HELIUS_API environment variable is set"
+      });
+    }
+  });
+
   // Get token details by mint address with price data
   app.get("/token/:mint", async (req, reply) => {
     const { mint } = req.params as { mint: string };
