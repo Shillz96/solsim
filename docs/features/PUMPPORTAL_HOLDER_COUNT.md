@@ -1,8 +1,11 @@
-# PumpPortal Real-Time Holder Count Integration
+# PumpPortal Real-Time Data Integration
 
 ## Overview
 
-The warp-pipes token cards now support real-time holder count updates via PumpPortal's WebSocket API. This provides live data for better trading decisions.
+The application now features comprehensive real-time data updates via PumpPortal's WebSocket API across multiple components:
+- **Warp Pipes Cards** - Live holder count, market cap, bonding curve progress
+- **Room Page Market Data Panels** - Live trades, top traders, active holders
+- All data updates instantly without polling or manual refresh
 
 ## Implementation Details
 
