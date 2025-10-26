@@ -21,8 +21,8 @@ const steps = [
   {
     icon: TrendingUp,
     iconSrc: "/icons/mario/arrow-up.png",
-    title: "Practice then go live",
-    description: "Start with paper trading to learn risk-free, then switch to real trading when you're confident. Your choice!",
+    title: "Practice trading",
+    description: "Start trading with virtual SOL risk-free. Perfect your strategies and learn the market without any financial risk!",
   },
   {
     icon: Star,

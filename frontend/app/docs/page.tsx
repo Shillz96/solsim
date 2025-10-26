@@ -8,8 +8,8 @@ import { MarioPageHeader } from "@/components/shared/mario-page-header"
 
 export default function DocumentationPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
-      <div className="container mx-auto px-4 py-6">
+    <div className="min-h-screen bg-background overflow-y-auto">
+      <div className="container mx-auto px-4 py-6 pb-20">{/* Added pb-20 for bottom padding */}
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}

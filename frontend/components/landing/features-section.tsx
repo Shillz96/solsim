@@ -16,8 +16,8 @@ const features = [
   {
     icon: Wallet,
     iconSrc: "/icons/mario/money-bag.png",
-    title: "Paper & Real Trading",
-    description: "Start with virtual SOL to practice risk-free, then switch to real trading when you're ready. Learn first, earn later!",
+    title: "Paper Trading Platform",
+    description: "Practice trading risk-free with virtual SOL! Master strategies and build confidence before any real money is involved!",
   },
   {
     icon: Eye,

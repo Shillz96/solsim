@@ -78,7 +78,7 @@ export function HeroSection() {
             transition={{ duration: 0.6, delay: 0.2 }}
           >
             <p className="text-xl text-[var(--outline-black)] leading-relaxed font-bold drop-shadow-lg flex items-center justify-center gap-2 flex-wrap">
-              Discover new Solana tokens, practice with paper trading, then go live with real trades - track wallets, earn XP, and level up your skills in one gamified platform!
+              Discover new Solana tokens, practice with paper trading, earn hourly rewards, track wallets, gain XP, and level up your skills in one gamified platform!
               <Image src="/icons/mario/controller.png" alt="" width={24} height={24} className="object-contain inline-block" />
             </p>
 
@@ -125,8 +125,8 @@ export function HeroSection() {
                 {/* Shine effect */}
                 <div className="absolute top-2 left-2 w-8 h-8 bg-[var(--card)]/40 rounded-full blur-sm"></div>
                 <div className="relative">
-                  <div className="text-xl sm:text-2xl md:text-3xl font-mario text-white drop-shadow-[2px_2px_0px_var(--outline-black)]">Earn XP</div>
-                  <p className="text-xs sm:text-sm text-white font-bold drop-shadow-[1px_1px_0px_var(--outline-black)]">Level up with trades</p>
+                  <div className="text-xl sm:text-2xl md:text-3xl font-mario text-[var(--outline-black)] drop-shadow-[2px_2px_0px_white]">Earn XP</div>
+                  <p className="text-xs sm:text-sm text-[var(--outline-black)] font-bold drop-shadow-[1px_1px_0px_white]">Level up with trades</p>
                 </div>
               </motion.div>
 
@@ -138,8 +138,8 @@ export function HeroSection() {
                 {/* Shine effect */}
                 <div className="absolute top-2 left-2 w-8 h-8 bg-[var(--card)]/40 rounded-full blur-sm"></div>
                 <div className="relative">
-                  <div className="text-xl sm:text-2xl md:text-3xl font-mario text-white drop-shadow-[2px_2px_0px_var(--outline-black)]">Zero Risk</div>
-                  <p className="text-xs sm:text-sm text-white font-bold drop-shadow-[1px_1px_0px_var(--outline-black)]">Practice safely</p>
+                  <div className="text-xl sm:text-2xl md:text-3xl font-mario text-[var(--outline-black)] drop-shadow-[2px_2px_0px_white]">Zero Risk</div>
+                  <p className="text-xs sm:text-sm text-[var(--outline-black)] font-bold drop-shadow-[1px_1px_0px_white]">Practice safely</p>
                 </div>
               </motion.div>
             </div>

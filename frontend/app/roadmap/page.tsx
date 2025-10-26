@@ -17,70 +17,77 @@ const phases = [
     title: "Phase 1 — The Game Begins",
     eta: "Live Now",
     items: [
-      "Real-time Solana prices",
-      "Paper trading with full PnL",
-      "Mario-style levels & badges",
-      "Global leaderboards + daily rewards"
+      "Real-time Solana price feeds",
+      "Paper trading with full PnL tracking",
+      "Mario-style levels & badges system",
+      "Global leaderboards + XP rewards",
+      "Wallet tracker & copy trading",
+      "$1UP rewards based on activity"
     ],
-    footnote: "Build skills before real trading unlocks.",
+    footnote: "Build your skills and earn rewards with paper trading!",
     icon: "🎮",
   },
   {
     id: "phase2",
-    title: "Phase 2 — The 1UP Revolution",
-    eta: "Week 1–2",
+    title: "Phase 2 — Live Trading Launch",
+    eta: "Coming Soon",
     items: [
       "Real SOL trading (Jupiter-powered)",
-      "1UP Points → Tokenized rewards",
-      "Airdrop snapshots for early players",
-      "Weekly competitions + social leaderboards",
+      "Trade with actual on-chain tokens",
+      "Choice: Deposit SOL or use wallet directly",
+      "Enhanced XP multipliers for live trades",
+      "Continue earning $1UP rewards",
+      "Airdrop snapshots for early traders"
     ],
-    footnote: "Every trade counts toward your airdrop.",
+    footnote: "Go live when you're ready - paper trading stays available!",
     icon: "🪙",
   },
   {
     id: "phase3",
     title: "Phase 3 — Power Trader Era",
-    eta: "Week 3+",
+    eta: "Future",
     items: [
-      "Claim 1UP Airdrop #1 in-app",
+      "Claim $1UP airdrop in-app",
       "Mystery boxes & trader missions",
-      "NFT badges with perks",
-      "Seasonal leaderboards & team battles",
+      "NFT badges with exclusive perks",
+      "Seasonal competitions & team battles",
+      "Advanced analytics & tools"
     ],
-    footnote: "The most fun, rewarding trading on Solana.",
+    footnote: "The ultimate trading experience on Solana.",
     icon: "🌟",
   },
 ]
 
 const timeline = [
-  { date: "Week 1", items: [
-    "Real trading goes live (Jupiter)",
-    "Dual Mode: Paper ↔ Real",
-    "Safety: slippage & scam filters",
-    "XP multiplier for early testers (2×)",
+  { date: "Now", items: [
+    "Paper trading with virtual SOL",
+    "XP system and leaderboards active",
+    "$1UP rewards based on trading activity",
+    "Track wallets and copy trades",
   ]},
-  { date: "End of Week 1", items: [
-    "Airdrop Snapshot #1 (activity, volume, XP)",
+  { date: "Phase 2 Launch", items: [
+    "Live trading with real SOL unlocks",
+    "Jupiter integration for on-chain swaps",
+    "Enhanced XP multipliers for live trades",
   ]},
-  { date: "Mid Week 2", items: [
-    "Airdrop Dashboard opens (live estimate)",
+  { date: "Ongoing", items: [
+    "Regular airdrop snapshots for active traders",
+    "Continuous platform improvements",
   ]},
-  { date: "End of Week 2", items: [
-    "Airdrop Snapshot #2 (finalize eligibility)",
-  ]},
-  { date: "Week 3", items: [
-    "Airdrop #1 claim in-app (Phantom/Solflare)",
-    "Trading rewards pool goes live (50% fees → traders)",
+  { date: "Phase 3", items: [
+    "$1UP token claim directly in-app",
+    "Advanced features and trading tools",
+    "Community governance and voting",
   ]},
 ]
 
 const airdropPoints = [
-  { label: "Volume Bonus", desc: "+1 token / $100 volume (example rate for launch)" },
-  { label: "Profit Bonus", desc: "Up to +20% multiplier for profitable traders" },
-  { label: "Early Adopter", desc: "+50 tokens / active day during launch window" },
-  { label: "Rank Bonus", desc: "2×–10× multipliers based on leaderboard finish" },
-  { label: "Referral Bonus", desc: "+10% of referred trader's earned score" },
+  { label: "Trading Activity", desc: "Earn points for every trade you make (paper or live when available)" },
+  { label: "XP & Levels", desc: "Higher XP and levels = better multipliers on your rewards" },
+  { label: "Win Rate Bonus", desc: "Profitable traders get up to +20% multiplier" },
+  { label: "Consistency Bonus", desc: "Active daily traders earn streak bonuses" },
+  { label: "Leaderboard Rank", desc: "Top ranked traders get 2×–10× reward multipliers" },
+  { label: "Referral Bonus", desc: "+10% of your referred traders' earned rewards" },
 ]
 
 const Card = ({ children, className = "" }: { children: React.ReactNode; className?: string }) => (
@@ -98,8 +105,8 @@ const Bullet = ({ children }: { children: React.ReactNode }) => (
 
 export default function RoadmapPage() {
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-12 max-w-6xl">
+    <div className="min-h-screen bg-background overflow-y-auto">
+      <div className="container mx-auto px-4 py-12 max-w-6xl pb-20">{/* Added pb-20 for bottom padding */}
         {/* Back Button */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -181,15 +188,15 @@ export default function RoadmapPage() {
           transition={{ delay: 0.2 }}
           className="space-y-6 mb-12"
         >
-          <h2 className="font-mario text-3xl text-[var(--outline-black)]">Airdrop Details</h2>
+          <h2 className="font-mario text-3xl text-[var(--outline-black)]">Rewards & Airdrop Details</h2>
           <Card className="p-6">
             <div className="mb-4 flex items-center gap-3">
               <span className="text-2xl">💎</span>
-              <h3 className="text-xl font-extrabold text-[var(--outline-black)]">Airdrop — How It Works (2–3 weeks)</h3>
+              <h3 className="text-xl font-extrabold text-[var(--outline-black)]">$1UP Rewards & Airdrop System</h3>
             </div>
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
               <div>
-                <h3 className="mb-2 text-sm font-black uppercase tracking-wide text-[var(--outline-black)]">Scoring (public‑friendly)</h3>
+                <h3 className="mb-2 text-sm font-black uppercase tracking-wide text-[var(--outline-black)]">How Rewards Work</h3>
                 <ul className="space-y-2 text-sm">
                   {airdropPoints.map((pt) => (
                     <Bullet key={pt.label}>
@@ -199,7 +206,7 @@ export default function RoadmapPage() {
                 </ul>
               </div>
               <div>
-                <h3 className="mb-2 text-sm font-black uppercase tracking-wide text-[var(--outline-black)]">Timeline</h3>
+                <h3 className="mb-2 text-sm font-black uppercase tracking-wide text-[var(--outline-black)]">Development Timeline</h3>
                 <ul className="space-y-2 text-sm">
                   {timeline.map((t) => (
                     <Bullet key={t.date}>
@@ -211,7 +218,7 @@ export default function RoadmapPage() {
               </div>
             </div>
             <div className="mt-4 rounded-xl border-2 border-[var(--outline-black)] bg-[var(--luigi-green)] px-4 py-3 text-sm font-semibold text-[var(--outline-black)]">
-              TL;DR: Trade now, stay active for both snapshots, then claim your 1UP in Week 3. 🚀
+              Start earning now! Every trade counts toward your rewards, whether you're paper trading or live trading (when available). Check your progress on the Rewards page! 🚀
             </div>
           </Card>
         </motion.section>

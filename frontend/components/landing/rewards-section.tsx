@@ -7,23 +7,23 @@ import { motion } from "framer-motion"
 const rewards = [
   {
     icon: TrendingUp,
-    title: "Trading Volume Multiplier",
-    description: "Earn $vSOL tokens based on your trading activity. Higher volume = bigger multipliers and more rewards.",
-  },
-  {
-    icon: Wallet,
-    title: "Hold $vSOL, Earn More",
-    description: "Hold $vSOL tokens to boost your reward multiplier. The more you hold, the more you earn from trading.",
+    title: "Trade & Earn",
+    description: "Every trade earns you $1UP rewards! More trades and better performance = higher rewards and multipliers.",
   },
   {
     icon: Zap,
-    title: "Daily Streak Bonuses",
-    description: "Log in daily to maintain your streak and unlock exponentially higher $vSOL rewards.",
+    title: "XP & Levels",
+    description: "Climb through 20 levels from Goomba to Legendary Luigi. Higher levels unlock bigger reward multipliers!",
   },
   {
     icon: Trophy,
-    title: "Leaderboard Rewards",
-    description: "Top traders earn exclusive $vSOL airdrops and bonus multipliers based on rankings.",
+    title: "Leaderboard Bonuses",
+    description: "Top-ranked traders earn 2×–10× multipliers on their rewards. Compete to maximize your earnings!",
+  },
+  {
+    icon: Coins,
+    title: "Future Airdrops",
+    description: "Active traders will qualify for exclusive $1UP airdrops when live trading launches. Start earning now!",
   },
 ]
 
@@ -40,13 +40,13 @@ export function RewardsSection() {
         >
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--star-yellow)]/20 border-4 border-[var(--star-yellow)]/50 mb-4">
             <Gift className="h-5 w-5 text-[var(--star-yellow)]" />
-            <span className="text-sm font-bold text-[var(--outline-black)]">Earn $vSOL Tokens</span>
+            <span className="text-sm font-bold text-[var(--outline-black)]">Earn $1UP Rewards</span>
           </div>
           <h2 className="font-heading text-4xl md:text-5xl font-bold text-balance">
-            Earn $vSOL While You Trade
+            Earn $1UP While You Trade
           </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            Trade more, hold $vSOL, and earn multiplied rewards. The ultimate trading-to-earn platform.
+            Trade with paper SOL, climb the leaderboard, and earn real $1UP rewards. Start earning now!
           </p>
         </motion.div>
 
@@ -87,20 +87,20 @@ export function RewardsSection() {
                 <Gift className="h-8 w-8 text-[var(--coin-gold)]" />
               </div>
               <h3 className="font-mario text-2xl md:text-3xl text-[var(--outline-black)]">
-                How $vSOL Rewards Work
+                How $1UP Rewards Work
               </h3>
               <div className="space-y-3 text-base md:text-lg text-[var(--outline-black)] max-w-2xl mx-auto">
                 <p>
-                  <span className="font-bold text-[var(--luigi-green)]">Trade to earn $vSOL.</span> Every trade you make earns you $vSOL tokens. Higher trading volume = higher rewards.
+                  <span className="font-bold text-[var(--luigi-green)]">Every trade counts.</span> Paper trading earns you XP and $1UP rewards based on your activity and performance.
                 </p>
                 <p>
-                  <span className="font-bold text-[var(--super-blue)]">Hold $vSOL to boost earnings.</span> Holding $vSOL tokens increases your reward multiplier, earning you even more $vSOL from your trades.
+                  <span className="font-bold text-[var(--super-blue)]">Level up for multipliers.</span> Progress through 20 levels to unlock bigger reward multipliers. Top ranks earn even more!
                 </p>
                 <p>
-                  <span className="font-bold text-[var(--mario-red)]">Climb the leaderboard.</span> Top traders receive exclusive $vSOL airdrops and premium multipliers.
+                  <span className="font-bold text-[var(--mario-red)]">Check your earnings.</span> Visit the Rewards page anytime to see your accumulated $1UP and claim when ready.
                 </p>
                 <p className="pt-2 border-t border-primary/20">
-                  <span className="font-semibold text-primary text-lg">The more you trade and hold, the more $vSOL you claim!</span>
+                  <span className="font-semibold text-primary text-lg">Start trading now to maximize your $1UP rewards!</span>
                 </p>
               </div>
             </div>
