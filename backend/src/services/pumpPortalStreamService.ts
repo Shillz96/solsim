@@ -410,6 +410,11 @@ class PumpPortalStreamService extends EventEmitter {
             marketCapSol: message.marketCapSol,
             vTokensInBondingCurve: message.vTokensInBondingCurve,
             vSolInBondingCurve: message.vSolInBondingCurve,
+            holderCount: message.holderCount || message.holder_count || message.holders,
+            twitter: message.twitter,
+            telegram: message.telegram,
+            website: message.website,
+            description: message.description,
           },
           timestamp: message.timestamp || Date.now(),
         };
@@ -428,6 +433,11 @@ class PumpPortalStreamService extends EventEmitter {
             uri: message.uri || message.token?.uri,
             creator: message.creator || message.token?.creator,
             bondingCurve: message.bondingCurve || message.token?.bondingCurve,
+            holderCount: message.holderCount || message.holder_count || message.holders || message.token?.holderCount,
+            twitter: message.twitter || message.token?.twitter,
+            telegram: message.telegram || message.token?.telegram,
+            website: message.website || message.token?.website,
+            description: message.description || message.token?.description,
           },
           timestamp: message.timestamp || Date.now(),
         };

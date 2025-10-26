@@ -47,7 +47,7 @@ export default async function searchRoutes(app: FastifyInstance) {
             priceChange24h: warpPipesToken.priceChange24h ? parseFloat(warpPipesToken.priceChange24h.toString()) : null,
             marketCapUsd: warpPipesToken.marketCapUsd ? parseFloat(warpPipesToken.marketCapUsd.toString()) : null,
             liquidityUsd: warpPipesToken.liquidityUsd ? parseFloat(warpPipesToken.liquidityUsd.toString()) : null,
-            holderCount: warpPipesToken.holderCount || null,
+            holderCount: warpPipesToken.holderCount !== null && warpPipesToken.holderCount !== undefined ? warpPipesToken.holderCount : null,
             firstSeenAt: warpPipesToken.firstSeenAt,
             isNew: warpPipesToken.state === 'new',
             isTrending: false,
