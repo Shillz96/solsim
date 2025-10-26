@@ -99,10 +99,10 @@ function TradeRoomContent() {
   // Early return if no CA
   if (!ca) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[var(--background)]">
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-2">Invalid Token Address</h1>
-          <p className="text-[var(--outline-black)]/70 mb-4">No contract address provided</p>
+          <p className="text-outline/70 mb-4">No contract address provided</p>
           <Button onClick={() => router.push('/warp-pipes')}>
             Browse Tokens
           </Button>
@@ -135,12 +135,12 @@ function TradeRoomContent() {
   // Loading state
   if (loadingToken) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[var(--background)]">
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center space-y-4">
-          <Loader2 className="h-12 w-12 animate-spin mx-auto text-[var(--luigi-green)]" />
+          <Loader2 className="h-12 w-12 animate-spin mx-auto text-luigi" />
           <div>
             <h3 className="text-lg font-semibold">Loading Token Data</h3>
-            <p className="text-sm text-[var(--outline-black)]/70">Fetching market information...</p>
+            <p className="text-sm text-outline/70">Fetching market information...</p>
           </div>
         </div>
       </div>
@@ -150,11 +150,11 @@ function TradeRoomContent() {
   // Error state
   if (!tokenDetails) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[var(--background)]">
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center space-y-4">
           <div>
             <h1 className="text-2xl font-bold mb-2">Token Not Found</h1>
-            <p className="text-[var(--outline-black)]/70">Unable to load token information</p>
+            <p className="text-outline/70">Unable to load token information</p>
           </div>
           <div className="flex gap-3 justify-center">
             <Button
@@ -183,7 +183,7 @@ function TradeRoomContent() {
     : undefined
 
   return (
-    <div className="w-full h-full flex flex-col bg-[var(--background)] overflow-hidden">
+    <div className="w-full h-full flex flex-col bg-background overflow-hidden">
       {/* Header - Token Info */}
       <header className="mario-card-lg mx-4 mt-4 mb-0 flex-shrink-0">
         <div className="flex items-center justify-between flex-wrap gap-4">
@@ -193,14 +193,14 @@ function TradeRoomContent() {
               variant="outline"
               size="sm"
               onClick={() => router.back()}
-              className="h-10 w-10 p-0 rounded-full border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)]"
+              className="h-10 w-10 p-0 rounded-full border-3 border-outline shadow-[2px_2px_0_var(--outline-black)]"
               aria-label="Go back"
             >
               <ArrowLeft className="h-4 w-4" />
             </Button>
 
             {tokenDetails.imageUrl && (
-              <div className="w-12 h-12 rounded-full border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] overflow-hidden">
+              <div className="w-12 h-12 rounded-full border-3 border-outline shadow-[2px_2px_0_var(--outline-black)] overflow-hidden">
                 <img
                   src={tokenDetails.imageUrl}
                   alt={tokenDetails.symbol || 'Token'}
@@ -210,15 +210,15 @@ function TradeRoomContent() {
             )}
 
             <div>
-              <h1 className="text-2xl font-bold text-[var(--foreground)]">
+              <h1 className="text-2xl font-bold text-foreground">
                 {tokenDetails.name || 'Unknown Token'}
               </h1>
               <div className="flex items-center gap-2 text-sm flex-wrap">
                 <span className="font-mono">${formatPrice(currentPrice)}</span>
                 <span
                   className={cn(
-                    "mario-badge text-white border-[var(--outline-black)]",
-                    priceChange24h >= 0 ? "bg-[var(--color-luigi)]" : "bg-[var(--color-sell)]"
+                    "mario-badge text-white border-outline",
+                    priceChange24h >= 0 ? "bg-luigi" : "bg-mario"
                   )}
                 >
                   {priceChange24h >= 0 ? (
@@ -229,7 +229,7 @@ function TradeRoomContent() {
                   {priceChange24h >= 0 ? "+" : ""}{priceChange24h.toFixed(2)}%
                 </span>
                 {tokenHolding && parseFloat(tokenHolding.qty) > 0 && (
-                  <span className="mario-badge bg-[var(--color-star)] text-[var(--outline-black)]">
+                  <span className="mario-badge bg-star text-outline">
                     Holding: {formatTokenQuantity(tokenHolding.qty)}
                   </span>
                 )}
@@ -240,11 +240,11 @@ function TradeRoomContent() {
           {/* Right: Stats + Actions */}
           <div className="flex items-center gap-6">
             <div className="text-right">
-              <div className="text-xs text-[var(--foreground)] opacity-70 uppercase tracking-wide">MCAP</div>
+              <div className="text-xs text-foreground opacity-70 uppercase tracking-wide">MCAP</div>
               <div className="text-lg font-bold">{formatUSD(marketCap)}</div>
             </div>
             <div className="text-right hidden md:block">
-              <div className="text-xs text-[var(--foreground)] opacity-70 uppercase tracking-wide">VOL 24H</div>
+              <div className="text-xs text-foreground opacity-70 uppercase tracking-wide">VOL 24H</div>
               <div className="text-lg font-bold">{formatUSD(volume24h)}</div>
             </div>
             <div className="flex gap-2">
@@ -261,7 +261,7 @@ function TradeRoomContent() {
                     toast({ title: "Failed to copy", description: "Please copy the URL manually", variant: "destructive" })
                   }
                 }}
-                className="h-10 w-10 p-0 rounded-lg border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)]"
+                className="h-10 w-10 p-0 rounded-lg border-3 border-outline shadow-[2px_2px_0_var(--outline-black)]"
                 aria-label="Share"
               >
                 {shareCopied ? (
@@ -275,7 +275,7 @@ function TradeRoomContent() {
                 variant="outline"
                 size="sm"
                 asChild
-                className="h-10 w-10 p-0 rounded-lg border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)]"
+                className="h-10 w-10 p-0 rounded-lg border-3 border-outline shadow-[2px_2px_0_var(--outline-black)]"
               >
                 <a
                   href={`https://dexscreener.com/solana/${ca}`}
@@ -383,12 +383,12 @@ export default function TradeRoomPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen flex items-center justify-center bg-[var(--background)]">
+        <div className="min-h-screen flex items-center justify-center bg-background">
           <div className="text-center space-y-4">
-            <Loader2 className="h-12 w-12 animate-spin mx-auto text-[var(--luigi-green)]" />
+            <Loader2 className="h-12 w-12 animate-spin mx-auto text-luigi" />
             <div>
               <h3 className="text-lg font-semibold">Loading Trade Room</h3>
-              <p className="text-sm text-[var(--outline-black)]/70">Preparing your trading interface...</p>
+              <p className="text-sm text-outline/70">Preparing your trading interface...</p>
             </div>
           </div>
         </div>

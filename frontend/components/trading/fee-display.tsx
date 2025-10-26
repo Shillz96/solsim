@@ -40,22 +40,22 @@ export function FeeDisplay({
   return (
     <div className={cn(
       "flex items-center justify-between gap-2 px-3 py-1.5",
-      "bg-[var(--background)]/50 border-2 border-[var(--outline-black)]/20",
-      "rounded-[8px]",
+      "bg-background/50 border-2 border-outline/20",
+      "rounded",
       className
     )}>
       <div className="flex items-center gap-1.5">
-        <Info className="h-3 w-3 text-[var(--outline-black)]/60" />
-        <span className="text-[10px] font-bold text-[var(--outline-black)]/70 uppercase">
+        <Info className="h-3 w-3 text-outline/60" />
+        <span className="text-[10px] font-bold text-outline/70 uppercase">
           Est. Fees
         </span>
       </div>
 
       <div className="flex flex-col items-end">
-        <div className="font-mono text-[11px] font-extrabold text-[var(--outline-black)]">
+        <div className="font-mono text-[11px] font-extrabold text-outline">
           {totalFeeSol.toFixed(6)} SOL
         </div>
-        <div className="text-[9px] text-[var(--outline-black)]/60">
+        <div className="text-[9px] text-outline/60">
           {formatSolEquivalent(totalFeeUsd, solPrice)}
         </div>
       </div>
@@ -81,19 +81,19 @@ export function FeeBreakdown({
   return (
     <div className="space-y-1.5 text-[10px]">
       <div className="flex justify-between gap-4">
-        <span className="text-[var(--outline-black)]/70">DEX Fee (0.25%)</span>
+        <span className="text-outline/70">DEX Fee (0.25%)</span>
         <span className="font-mono font-bold">{dexFeeSol.toFixed(6)} SOL</span>
       </div>
       <div className="flex justify-between gap-4">
-        <span className="text-[var(--outline-black)]/70">PumpPortal (1%)</span>
+        <span className="text-outline/70">PumpPortal (1%)</span>
         <span className="font-mono font-bold">{pumpPortalFeeSol.toFixed(6)} SOL</span>
       </div>
       <div className="flex justify-between gap-4">
-        <span className="text-[var(--outline-black)]/70">Network Fee</span>
+        <span className="text-outline/70">Network Fee</span>
         <span className="font-mono font-bold">{networkFeeSol.toFixed(6)} SOL</span>
       </div>
-      <div className="border-t border-[var(--outline-black)]/20 pt-1.5 flex justify-between gap-4 font-bold">
-        <span className="text-[var(--outline-black)]">Total</span>
+      <div className="border-t border-outline/20 pt-1.5 flex justify-between gap-4 font-bold">
+        <span className="text-outline">Total</span>
         <span className="font-mono">
           {(dexFeeSol + pumpPortalFeeSol + networkFeeSol).toFixed(6)} SOL
         </span>

@@ -64,12 +64,12 @@ export class MarioErrorBoundary extends Component<
       // Default Mario-themed error UI
       return (
         <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 flex items-center justify-center p-4">
-          <Card className="max-w-md w-full border-4 border-[var(--outline-black)] shadow-[8px_8px_0_var(--outline-black)]">
+          <Card className="max-w-md w-full border-4 border-outline shadow-[8px_8px_0_var(--outline-black)]">
             <CardHeader className="text-center">
-              <div className="mx-auto mb-4 w-16 h-16 bg-[var(--mario-red)] rounded-full border-4 border-[var(--outline-black)] flex items-center justify-center">
+              <div className="mx-auto mb-4 w-16 h-16 bg-mario rounded-full border-4 border-outline flex items-center justify-center">
                 <AlertTriangle className="w-8 h-8 text-white" />
               </div>
-              <CardTitle className="text-2xl font-mario text-[var(--outline-black)]">
+              <CardTitle className="text-2xl font-mario text-outline">
                 Oops! Something went wrong!
               </CardTitle>
             </CardHeader>
@@ -94,7 +94,7 @@ export class MarioErrorBoundary extends Component<
               <div className="flex gap-2">
                 <Button 
                   onClick={this.handleReset}
-                  className="flex-1 bg-[var(--star-yellow)] hover:bg-[var(--star-yellow)]/90 text-[var(--outline-black)] border-2 border-[var(--outline-black)] font-mario"
+                  className="flex-1 bg-star hover:bg-star/90 text-outline border-2 border-outline font-mario"
                 >
                   <RefreshCw className="w-4 h-4 mr-2" />
                   Try Again
@@ -102,7 +102,7 @@ export class MarioErrorBoundary extends Component<
                 <Button 
                   variant="outline"
                   onClick={() => window.location.reload()}
-                  className="flex-1 border-2 border-[var(--outline-black)] font-mario"
+                  className="flex-1 border-2 border-outline font-mario"
                 >
                   Refresh Page
                 </Button>

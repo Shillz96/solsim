@@ -114,7 +114,7 @@ function TableSkeleton({ rows = 5, className }: { rows?: number; className?: str
 function MarioCardSkeleton({ rows = 3, className }: { rows?: number; className?: string }) {
   return (
     <div className={cn(
-      "bg-[var(--card)] border-4 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)] rounded-xl p-6 space-y-3",
+      "bg-card border-4 border-outline shadow-[4px_4px_0_var(--outline-black)] rounded-xl p-6 space-y-3",
       className
     )}>
       {Array.from({ length: rows }).map((_, i) => (
@@ -134,7 +134,7 @@ function MarioCardSkeleton({ rows = 3, className }: { rows?: number; className?:
 function MarioTableRowSkeleton({ className }: { className?: string }) {
   return (
     <div className={cn(
-      "flex items-center gap-4 p-3 bg-[var(--card)] border-2 border-[var(--outline-black)] rounded-lg",
+      "flex items-center gap-4 p-3 bg-card border-2 border-outline rounded-lg",
       className
     )}>
       <div className="h-10 w-10 bg-[var(--sky-200)] rounded-full animate-pulse motion-reduce:animate-none" />
@@ -154,7 +154,7 @@ function MarioTableRowSkeleton({ className }: { className?: string }) {
 function MarioStatSkeleton({ className }: { className?: string }) {
   return (
     <div className={cn(
-      "bg-[var(--card)] border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] rounded-lg p-4",
+      "bg-card border-3 border-outline shadow-[3px_3px_0_var(--outline-black)] rounded-lg p-4",
       className
     )}>
       <div className="flex items-center justify-between mb-2">
@@ -173,7 +173,7 @@ function MarioStatSkeleton({ className }: { className?: string }) {
 function MarioTokenCardSkeleton({ className }: { className?: string }) {
   return (
     <div className={cn(
-      "bg-[var(--card)] border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] rounded-xl p-4",
+      "bg-card border-3 border-outline shadow-[3px_3px_0_var(--outline-black)] rounded-xl p-4",
       className
     )}>
       <div className="flex items-center gap-3 mb-3">
@@ -204,7 +204,7 @@ function MarioTokenCardSkeleton({ className }: { className?: string }) {
 function MarioChartSkeleton({ className }: { className?: string }) {
   return (
     <div className={cn(
-      "bg-[var(--card)] border-4 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)] rounded-xl p-6",
+      "bg-card border-4 border-outline shadow-[4px_4px_0_var(--outline-black)] rounded-xl p-6",
       className
     )}>
       <div className="flex items-center justify-between mb-4">
@@ -228,11 +228,11 @@ function MarioChartSkeleton({ className }: { className?: string }) {
 function MarioTableSkeleton({ rows = 5, className }: { rows?: number; className?: string }) {
   return (
     <div className={cn(
-      "bg-[var(--card)] border-4 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)] rounded-xl overflow-hidden",
+      "bg-card border-4 border-outline shadow-[4px_4px_0_var(--outline-black)] rounded-xl overflow-hidden",
       className
     )}>
       {/* Header */}
-      <div className="flex gap-4 p-4 bg-[var(--sky-100)] border-b-3 border-[var(--outline-black)]">
+      <div className="flex gap-4 p-4 bg-[var(--sky-100)] border-b-3 border-outline">
         <div className="h-4 w-32 bg-[var(--sky-300)] rounded animate-pulse motion-reduce:animate-none" />
         <div className="h-4 w-24 bg-[var(--sky-300)] rounded animate-pulse motion-reduce:animate-none" />
         <div className="h-4 w-24 bg-[var(--sky-300)] rounded animate-pulse motion-reduce:animate-none" />

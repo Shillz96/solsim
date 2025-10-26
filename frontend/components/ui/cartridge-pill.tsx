@@ -32,9 +32,9 @@ export function CartridgePill({
 }: Props) {
   const base = cn(
     "relative grid items-center",
-    "border-3 md:border-4 border-[var(--outline-black)]",
+    "border-3 md:border-4 border-outline",
     "shadow-[3px_3px_0_var(--outline-black)] md:shadow-[4px_4px_0_var(--outline-black)]",
-    "rounded-[10px] md:rounded-[12px]",
+    "rounded-md md:rounded-lg",
     "transition-transform hover:-translate-y-[1px]"
   )
 
@@ -68,9 +68,9 @@ export function CartridgePill({
     <div
       className={cn(
         "ml-auto grid place-items-center flex-shrink-0",
-        size === "sm" ? "h-6 w-6 md:h-6 md:w-6 rounded-[8px] md:rounded-[8px]" : "h-7 w-7 md:h-7 md:w-7 rounded-[10px] md:rounded-[10px]",
+        size === "sm" ? "h-6 w-6 md:h-6 md:w-6 rounded md:rounded" : "h-7 w-7 md:h-7 md:w-7 rounded-md md:rounded-md",
         "text-white",
-        "border-3 md:border-4 border-[var(--outline-black)]"
+        "border-3 md:border-4 border-outline"
       )}
       style={{ backgroundColor: badgeColor }}
     >

@@ -105,7 +105,7 @@ export function UserModerationSheet({ userId, open, onOpenChange }: UserModerati
         className={cn(
           'w-[400px] sm:w-[500px]',
           marioStyles.border('lg'),
-          'border-l-4 border-[var(--outline-black)] bg-gradient-to-br from-white to-[var(--pipe-green)]/5'
+          'border-l-4 border-outline bg-gradient-to-br from-white to-[var(--pipe-green)]/5'
         )}
       >
         <SheetHeader>
@@ -117,7 +117,7 @@ export function UserModerationSheet({ userId, open, onOpenChange }: UserModerati
 
         {loadingStatus ? (
           <div className="flex items-center justify-center py-8">
-            <Loader2 className="h-8 w-8 animate-spin text-[var(--luigi-green)]" />
+            <Loader2 className="h-8 w-8 animate-spin text-luigi" />
           </div>
         ) : moderationStatus ? (
           <div className="mt-6 space-y-6">
@@ -144,13 +144,13 @@ export function UserModerationSheet({ userId, open, onOpenChange }: UserModerati
                   </Badge>
                 )}
                 {!moderationStatus.isMuted && !moderationStatus.isBanned && moderationStatus.strikes === 0 && (
-                  <Badge variant="outline" className="bg-[var(--luigi-green)]/10">
+                  <Badge variant="outline" className="bg-luigi/10">
                     Clean Record
                   </Badge>
                 )}
               </div>
               {moderationStatus.mutedUntil && (
-                <div className={cn(marioStyles.bodyText('medium'), 'text-xs text-[var(--mario-red)]')}>
+                <div className={cn(marioStyles.bodyText('medium'), 'text-xs text-mario')}>
                   Muted until: {new Date(moderationStatus.mutedUntil).toLocaleString()}
                 </div>
               )}
@@ -285,11 +285,11 @@ export function UserModerationSheet({ userId, open, onOpenChange }: UserModerati
                   {moderationHistory.map((action) => (
                     <div
                       key={action.id}
-                      className="text-xs p-2 bg-[var(--pipe-green)]/5 rounded border border-[var(--outline-black)]/10"
+                      className="text-xs p-2 bg-pipe/5 rounded border border-outline/10"
                     >
                       <div className="font-bold">{action.action}</div>
-                      {action.reason && <div className="text-[var(--outline-black)]/70">{action.reason}</div>}
-                      <div className="text-[var(--outline-black)]/50">
+                      {action.reason && <div className="text-outline/70">{action.reason}</div>}
+                      <div className="text-outline/50">
                         {new Date(action.createdAt).toLocaleString()}
                       </div>
                     </div>
@@ -299,7 +299,7 @@ export function UserModerationSheet({ userId, open, onOpenChange }: UserModerati
             )}
           </div>
         ) : (
-          <div className="text-center py-8 text-[var(--outline-black)]/50">
+          <div className="text-center py-8 text-outline/50">
             <div className={marioStyles.bodyText('medium')}>Unable to load user data</div>
           </div>
         )}

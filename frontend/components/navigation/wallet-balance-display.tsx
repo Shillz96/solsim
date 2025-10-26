@@ -162,12 +162,12 @@ export function WalletBalanceDisplay({
           // container - fluid sizing for smooth responsive behavior
           "group relative h-[clamp(36px,4vw,44px)] min-w-[clamp(140px,15vw,180px)]",
           "px-[clamp(10px,2vw,14px)] rounded-[clamp(10px,1.5vw,14px)]",
-          "bg-[var(--star-yellow)]",
-          "border-3 md:border-4 border-[var(--outline-black)]",
+          "bg-star",
+          "border-3 md:border-4 border-outline",
           "shadow-[clamp(3px,0.5vw,4px)_clamp(3px,0.5vw,4px)_0_var(--outline-black)]",
           "flex items-center gap-[clamp(8px,1.5vw,16px)]",
           "transition-all duration-150",
-          "hover:-translate-y-[1px] hover:bg-[var(--star-yellow)]/90",
+          "hover:-translate-y-[1px] hover:bg-star/90",
           "hover:shadow-[4px_4px_0_var(--outline-black)] md:hover:shadow-[6px_6px_0_var(--outline-black)]",
           "active:translate-y-0 active:shadow-[2px_2px_0_var(--outline-black)] md:active:shadow-[3px_3px_0_var(--outline-black)]",
           className
@@ -175,7 +175,7 @@ export function WalletBalanceDisplay({
       >
         {/* Amount + small label */}
         <div className="flex flex-col leading-none -space-y-[clamp(1px,0.5vw,2px)]">
-          <span className="tabular-nums font-extrabold text-[clamp(13px,2.5vw,17px)] tracking-tight text-[var(--outline-black)]">
+          <span className="tabular-nums font-extrabold text-[clamp(13px,2.5vw,17px)] tracking-tight text-outline">
             {Number(activeBalance ?? 0).toFixed(2)}
           </span>
           <span className="text-[clamp(9px,1.5vw,11px)] font-black uppercase text-foreground/80 truncate max-w-[80px] md:max-w-none">
@@ -189,8 +189,8 @@ export function WalletBalanceDisplay({
             "ml-auto grid place-items-center flex-shrink-0",
             "h-[clamp(24px,3vw,32px)] w-[clamp(24px,3vw,32px)]",
             "rounded-[clamp(8px,1vw,12px)]",
-            "bg-[var(--mario-red)] text-white",
-            "border-[clamp(3px,0.5vw,4px)] border-[var(--outline-black)]"
+            "bg-mario text-white",
+            "border-[clamp(3px,0.5vw,4px)] border-outline"
           )}
         >
           <span className="font-extrabold text-[clamp(10px,1.5vw,12px)] leading-none">
@@ -210,11 +210,11 @@ export function WalletBalanceDisplay({
         variant === "minimal"
           ? [
               // Minimal: Mario-themed with glow effect
-              "border-3 border-[var(--outline-black)] bg-[var(--star-yellow)] text-[var(--outline-black)]",
+              "border-3 border-outline bg-star text-outline",
               "shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)]",
               // Add a subtle glow for emphasis
               "ring-2 ring-[var(--coin-yellow)]/30",
-              "hover:bg-[var(--star-yellow)]/90 hover:-translate-y-[1px] transition-all duration-150"
+              "hover:bg-star/90 hover:-translate-y-[1px] transition-all duration-150"
             ]
           : [
               // keep your current colorful card look for non-header uses

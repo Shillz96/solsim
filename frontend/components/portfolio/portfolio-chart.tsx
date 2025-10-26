@@ -163,7 +163,7 @@ function PortfolioChartComponent() {
               axisLine={{ stroke: 'var(--outline-black)', strokeWidth: 2 }}
               interval="preserveStartEnd"
               tick={{ fill: 'var(--outline-black)', fontWeight: 'bold' }}
-              className="text-[var(--outline-black)]"
+              className="text-outline"
             />
             <YAxis
               fontSize={12}
@@ -172,7 +172,7 @@ function PortfolioChartComponent() {
               tickFormatter={(value) => `$${Number(value).toFixed(0)}`}
               domain={[valueRange.min, valueRange.max]}
               tick={{ fill: 'var(--outline-black)', fontWeight: 'bold' }}
-              className="text-[var(--outline-black)]"
+              className="text-outline"
               label={{
                 value: 'Portfolio Value',
                 angle: -90,
@@ -190,7 +190,7 @@ function PortfolioChartComponent() {
                 if (active && payload && payload.length) {
                   const data = payload[0].payload
                   return (
-                    <div className="rounded-lg border-3 border-[var(--outline-black)] bg-[var(--card)] p-3 shadow-[4px_4px_0_var(--outline-black)]">
+                    <div className="rounded-lg border-3 border-outline bg-card p-3 shadow-[4px_4px_0_var(--outline-black)]">
                       <p className="text-xs text-muted-foreground mb-2">{data.formattedDate}</p>
                       <div>
                         <p className="font-mono text-sm font-semibold text-foreground">

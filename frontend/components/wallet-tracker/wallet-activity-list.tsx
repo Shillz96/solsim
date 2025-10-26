@@ -108,7 +108,7 @@ const ActivityRow = React.memo(function ActivityRow({
   return (
     <Link
       href={`/room/${tokenMint}`}
-      className="grid grid-cols-[50px_80px_1fr_80px_60px] sm:grid-cols-[60px_100px_1fr_100px_80px] gap-2 sm:gap-3 px-3 sm:px-4 py-2.5 bg-[var(--card)] border-2 border-[var(--outline-black)] rounded-lg shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all duration-150 cursor-pointer"
+      className="grid grid-cols-[50px_80px_1fr_80px_60px] sm:grid-cols-[60px_100px_1fr_100px_80px] gap-2 sm:gap-3 px-3 sm:px-4 py-2.5 bg-card border-2 border-outline rounded-lg shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all duration-150 cursor-pointer"
       aria-label={`${isBuy ? 'Buy' : 'Sell'} ${amount.toFixed(2)} SOL of ${tokenSymbol} by ${walletLabel}`}
     >
       {/* Time */}
@@ -116,7 +116,7 @@ const ActivityRow = React.memo(function ActivityRow({
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
-              <span className="text-xs font-bold text-[var(--outline-black)] cursor-help">
+              <span className="text-xs font-bold text-outline cursor-help">
                 {activity.timeAgo}
               </span>
             </TooltipTrigger>
@@ -132,14 +132,14 @@ const ActivityRow = React.memo(function ActivityRow({
       {/* Wallet */}
       <div className="flex items-center gap-1.5 min-w-0">
         <Circle className={cn("h-4 w-4 flex-shrink-0", walletColor)} fill="currentColor" />
-        <span className="text-xs font-bold text-[var(--mario-red)] truncate">
+        <span className="text-xs font-bold text-mario truncate">
           {walletLabel}
         </span>
       </div>
 
       {/* Token */}
       <div className="flex items-center gap-2 min-w-0">
-        <div className="bg-[var(--sky-blue)] border-2 border-[var(--outline-black)] rounded-lg p-1 flex-shrink-0">
+        <div className="bg-sky border-2 border-outline rounded-lg p-1 flex-shrink-0">
           <TokenLogo
             src={tokenLogoURI || undefined}
             alt={tokenSymbol}
@@ -148,11 +148,11 @@ const ActivityRow = React.memo(function ActivityRow({
           />
         </div>
         <div className="flex flex-col min-w-0">
-          <span className="font-bold text-sm text-[var(--outline-black)] truncate leading-tight">
+          <span className="font-bold text-sm text-outline truncate leading-tight">
             {tokenSymbol}
           </span>
           {activity.tokenAge && (
-            <span className="text-[10px] text-[var(--luigi-green)] font-medium">
+            <span className="text-[10px] text-luigi font-medium">
               {activity.tokenAge} old
             </span>
           )}
@@ -162,13 +162,13 @@ const ActivityRow = React.memo(function ActivityRow({
       {/* Amount (SOL) - Simple colored number */}
       <div className="flex items-center justify-end gap-1">
         {isBuy ? (
-          <TrendingUp className="h-3 w-3 text-[var(--luigi-green)] flex-shrink-0" />
+          <TrendingUp className="h-3 w-3 text-luigi flex-shrink-0" />
         ) : (
-          <TrendingDown className="h-3 w-3 text-[var(--mario-red)] flex-shrink-0" />
+          <TrendingDown className="h-3 w-3 text-mario flex-shrink-0" />
         )}
         <span className={cn(
           "text-sm font-bold font-mono tabular-nums",
-          isBuy ? "text-[var(--luigi-green)]" : "text-[var(--mario-red)]"
+          isBuy ? "text-luigi" : "text-mario"
         )}>
           {amount.toFixed(2)} SOL
         </span>
@@ -177,8 +177,8 @@ const ActivityRow = React.memo(function ActivityRow({
       {/* Market Cap */}
       <div className="flex items-center justify-end">
         <div className="text-right">
-          <div className="text-[9px] text-[var(--outline-black)] font-medium">MCap</div>
-          <div className="text-xs font-bold text-[var(--outline-black)] tabular-nums">
+          <div className="text-[9px] text-outline font-medium">MCap</div>
+          <div className="text-xs font-bold text-outline tabular-nums">
             {formatMarketCap(marketCapNum)}
           </div>
         </div>
@@ -240,14 +240,14 @@ export function WalletActivityList({
   // Loading state - skeleton matches grid layout
   if (isLoading && filteredActivities.length === 0) {
     return (
-      <div className="bg-[var(--sky-blue)]/20 border-4 border-[var(--outline-black)] rounded-xl shadow-[6px_6px_0_var(--outline-black)] overflow-hidden h-full flex flex-col">
+      <div className="bg-sky/20 border-4 border-outline rounded-xl shadow-[6px_6px_0_var(--outline-black)] overflow-hidden h-full flex flex-col">
         {/* Column Headers */}
-        <div className="grid grid-cols-[50px_80px_1fr_80px_60px] sm:grid-cols-[60px_100px_1fr_100px_80px] gap-2 sm:gap-3 px-3 sm:px-4 py-2 bg-[var(--star-yellow)] border-b-4 border-[var(--outline-black)] flex-shrink-0">
-            <div className="text-[10px] font-mario text-[var(--outline-black)] uppercase">Time</div>
-            <div className="text-[10px] font-mario text-[var(--outline-black)] uppercase">Wallet</div>
-            <div className="text-[10px] font-mario text-[var(--outline-black)] uppercase">Token</div>
-            <div className="text-[10px] font-mario text-[var(--outline-black)] uppercase text-right">Amount</div>
-            <div className="text-[10px] font-mario text-[var(--outline-black)] uppercase text-right">MCap</div>
+        <div className="grid grid-cols-[50px_80px_1fr_80px_60px] sm:grid-cols-[60px_100px_1fr_100px_80px] gap-2 sm:gap-3 px-3 sm:px-4 py-2 bg-star border-b-4 border-outline flex-shrink-0">
+            <div className="text-[10px] font-mario text-outline uppercase">Time</div>
+            <div className="text-[10px] font-mario text-outline uppercase">Wallet</div>
+            <div className="text-[10px] font-mario text-outline uppercase">Token</div>
+            <div className="text-[10px] font-mario text-outline uppercase text-right">Amount</div>
+            <div className="text-[10px] font-mario text-outline uppercase text-right">MCap</div>
         </div>
 
         {/* Loading Skeletons */}
@@ -275,23 +275,23 @@ export function WalletActivityList({
   // Empty state
   if (filteredActivities.length === 0) {
     return (
-      <div className="bg-[var(--sky-blue)]/20 border-4 border-[var(--outline-black)] rounded-xl shadow-[6px_6px_0_var(--outline-black)] overflow-hidden h-full flex flex-col">
+      <div className="bg-sky/20 border-4 border-outline rounded-xl shadow-[6px_6px_0_var(--outline-black)] overflow-hidden h-full flex flex-col">
         {/* Column Headers */}
-        <div className="grid grid-cols-[50px_80px_1fr_80px_60px] sm:grid-cols-[60px_100px_1fr_100px_80px] gap-2 sm:gap-3 px-3 sm:px-4 py-2 bg-[var(--star-yellow)] border-b-4 border-[var(--outline-black)] flex-shrink-0">
-            <div className="text-[10px] font-mario text-[var(--outline-black)] uppercase">Time</div>
-            <div className="text-[10px] font-mario text-[var(--outline-black)] uppercase">Wallet</div>
-            <div className="text-[10px] font-mario text-[var(--outline-black)] uppercase">Token</div>
-            <div className="text-[10px] font-mario text-[var(--outline-black)] uppercase text-right">Amount</div>
-            <div className="text-[10px] font-mario text-[var(--outline-black)] uppercase text-right">MCap</div>
+        <div className="grid grid-cols-[50px_80px_1fr_80px_60px] sm:grid-cols-[60px_100px_1fr_100px_80px] gap-2 sm:gap-3 px-3 sm:px-4 py-2 bg-star border-b-4 border-outline flex-shrink-0">
+            <div className="text-[10px] font-mario text-outline uppercase">Time</div>
+            <div className="text-[10px] font-mario text-outline uppercase">Wallet</div>
+            <div className="text-[10px] font-mario text-outline uppercase">Token</div>
+            <div className="text-[10px] font-mario text-outline uppercase text-right">Amount</div>
+            <div className="text-[10px] font-mario text-outline uppercase text-right">MCap</div>
         </div>
 
         {/* Empty state content */}
         <div className="flex-1 flex items-center justify-center p-12">
           <div className="text-center">
-            <div className="bg-[var(--mario-red)] border-2 border-[var(--outline-black)] rounded-lg p-4 mx-auto mb-4 w-16 h-16 flex items-center justify-center">
+            <div className="bg-mario border-2 border-outline rounded-lg p-4 mx-auto mb-4 w-16 h-16 flex items-center justify-center">
               <Image src="/icons/mario/eyes.png" alt="No Activities" width={32} height={32} />
             </div>
-            <h3 className="text-lg font-mario font-bold mb-2 text-[var(--outline-black)]">NO ACTIVITIES FOUND</h3>
+            <h3 className="text-lg font-mario font-bold mb-2 text-outline">NO ACTIVITIES FOUND</h3>
             <p className="text-sm text-muted-foreground font-bold">
               {emptyMessage || (filterType ? `No ${filterType.toLowerCase()} activities found. Try adjusting your filters.` : "Start tracking wallets to see their trading activities here")}
             </p>
@@ -302,14 +302,14 @@ export function WalletActivityList({
   }
 
   return (
-    <div className="bg-[var(--sky-blue)]/20 border-4 border-[var(--outline-black)] rounded-xl shadow-[6px_6px_0_var(--outline-black)] overflow-hidden h-full flex flex-col">
+    <div className="bg-sky/20 border-4 border-outline rounded-xl shadow-[6px_6px_0_var(--outline-black)] overflow-hidden h-full flex flex-col">
       {/* Column Headers */}
-      <div className="grid grid-cols-[50px_80px_1fr_80px_60px] sm:grid-cols-[60px_100px_1fr_100px_80px] gap-2 sm:gap-3 px-3 sm:px-4 py-2 bg-[var(--star-yellow)] border-b-4 border-[var(--outline-black)] flex-shrink-0">
-            <div className="text-[10px] font-mario text-[var(--outline-black)] uppercase">Time</div>
-            <div className="text-[10px] font-mario text-[var(--outline-black)] uppercase">Wallet</div>
-            <div className="text-[10px] font-mario text-[var(--outline-black)] uppercase">Token</div>
-            <div className="text-[10px] font-mario text-[var(--outline-black)] uppercase text-right">Amount</div>
-            <div className="text-[10px] font-mario text-[var(--outline-black)] uppercase text-right">MCap</div>
+      <div className="grid grid-cols-[50px_80px_1fr_80px_60px] sm:grid-cols-[60px_100px_1fr_100px_80px] gap-2 sm:gap-3 px-3 sm:px-4 py-2 bg-star border-b-4 border-outline flex-shrink-0">
+            <div className="text-[10px] font-mario text-outline uppercase">Time</div>
+            <div className="text-[10px] font-mario text-outline uppercase">Wallet</div>
+            <div className="text-[10px] font-mario text-outline uppercase">Token</div>
+            <div className="text-[10px] font-mario text-outline uppercase text-right">Amount</div>
+            <div className="text-[10px] font-mario text-outline uppercase text-right">MCap</div>
       </div>
 
       {/* Activity List - Fixed height container */}
@@ -331,15 +331,15 @@ export function WalletActivityList({
           endReached={hasMore ? onLoadMore : undefined}
           components={{
             Footer: () => hasMore && isLoading ? (
-              <div className="py-4 border-t-2 border-[var(--outline-black)] bg-[var(--card)]">
+              <div className="py-4 border-t-2 border-outline bg-card">
                 <div className="flex items-center justify-center gap-2">
-                  <Loader2 className="h-4 w-4 animate-spin text-[var(--mario-red)]" />
-                  <span className="text-sm font-semibold text-[var(--outline-black)]">Loading more activities...</span>
+                  <Loader2 className="h-4 w-4 animate-spin text-mario" />
+                  <span className="text-sm font-semibold text-outline">Loading more activities...</span>
                 </div>
               </div>
             ) : !hasMore && filteredActivities.length > 0 ? (
-              <div className="py-3 text-center border-t-2 border-[var(--outline-black)] bg-[var(--star-yellow)]/20">
-                <span className="text-xs font-bold text-[var(--outline-black)]">End of activity feed</span>
+              <div className="py-3 text-center border-t-2 border-outline bg-star/20">
+                <span className="text-xs font-bold text-outline">End of activity feed</span>
               </div>
             ) : null
           }}

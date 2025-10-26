@@ -121,23 +121,23 @@ export function ConnectionDiagnostics() {
 
   if (isLoading) {
     return (
-      <div className="p-4 border-2 border-[var(--outline-black)] bg-[var(--card)] rounded-lg">
+      <div className="p-4 border-2 border-outline bg-card rounded-lg">
         <h3 className="font-mario text-sm mb-2">🔍 Running Diagnostics...</h3>
       </div>
     )
   }
 
   return (
-    <div className="p-4 border-2 border-[var(--outline-black)] bg-[var(--card)] rounded-lg">
+    <div className="p-4 border-2 border-outline bg-card rounded-lg">
       <h3 className="font-mario text-sm mb-3">🔍 Connection Diagnostics</h3>
       
       <div className="space-y-2">
         {diagnostics.map((diag, index) => (
           <div key={index} className="flex items-start gap-2 text-xs">
             <span className={`w-2 h-2 rounded-full mt-1 ${
-              diag.status === 'success' ? 'bg-[var(--luigi-green)]' :
-              diag.status === 'warning' ? 'bg-[var(--star-yellow)]' :
-              'bg-[var(--mario-red)]'
+              diag.status === 'success' ? 'bg-luigi' :
+              diag.status === 'warning' ? 'bg-star' :
+              'bg-mario'
             }`} />
             
             <div className="flex-1">
@@ -153,7 +153,7 @@ export function ConnectionDiagnostics() {
         ))}
       </div>
       
-      <div className="mt-3 pt-2 border-t border-[var(--outline-black)]">
+      <div className="mt-3 pt-2 border-t border-outline">
         <div className="text-[10px] opacity-60">
           💡 If WebSocket/API are failing, check if backend is running on port 4000
         </div>

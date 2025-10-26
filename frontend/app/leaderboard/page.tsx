@@ -128,7 +128,7 @@ export default function LeaderboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[var(--background)]">
+    <div className="min-h-screen bg-background">
       {/* Full Width Container */}
       <main className="w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
         {/* Leaderboard Header Image */}
@@ -183,7 +183,7 @@ export default function LeaderboardPage() {
                 'mb-6 bg-gradient-to-br from-[var(--mario-red)]/10 to-[var(--mario-red)]/5'
               )}
             >
-              <p className="text-[var(--mario-red)] font-bold">{String(error)}</p>
+              <p className="text-mario font-bold">{String(error)}</p>
             </motion.div>
           )}
         </AnimatePresence>
@@ -199,7 +199,7 @@ export default function LeaderboardPage() {
             {/* Total Traders Card */}
             <div className="mario-card">
               <div className="flex items-start gap-4">
-                <div className="h-10 w-10 rounded-lg bg-[var(--luigi-green)] border-3 border-[var(--outline-black)] flex items-center justify-center flex-shrink-0 shadow-[2px_2px_0_var(--outline-black)]">
+                <div className="h-10 w-10 rounded-lg bg-luigi border-3 border-outline flex items-center justify-center flex-shrink-0 shadow-[2px_2px_0_var(--outline-black)]">
                   <Image 
                     src="/icons/mario/user.png" 
                     alt="Traders" 
@@ -209,8 +209,8 @@ export default function LeaderboardPage() {
                   />
                 </div>
                 <div className="space-y-1">
-                  <h3 className="font-bold text-lg text-[var(--outline-black)]">Total Traders</h3>
-                  <p className="text-2xl font-bold text-[var(--outline-black)]">
+                  <h3 className="font-bold text-lg text-outline">Total Traders</h3>
+                  <p className="text-2xl font-bold text-outline">
                     {totalTraders.toLocaleString()}
                   </p>
                 </div>
@@ -220,7 +220,7 @@ export default function LeaderboardPage() {
             {/* Active Today Card */}
             <div className="mario-card">
               <div className="flex items-start gap-4">
-                <div className="h-10 w-10 rounded-lg bg-[var(--star-yellow)] border-3 border-[var(--outline-black)] flex items-center justify-center flex-shrink-0 shadow-[2px_2px_0_var(--outline-black)]">
+                <div className="h-10 w-10 rounded-lg bg-star border-3 border-outline flex items-center justify-center flex-shrink-0 shadow-[2px_2px_0_var(--outline-black)]">
                   <Image 
                     src="/icons/mario/fire.png" 
                     alt="Active" 
@@ -230,8 +230,8 @@ export default function LeaderboardPage() {
                   />
                 </div>
                 <div className="space-y-1">
-                  <h3 className="font-bold text-lg text-[var(--outline-black)]">Active Today</h3>
-                  <p className="text-2xl font-bold text-[var(--outline-black)]">
+                  <h3 className="font-bold text-lg text-outline">Active Today</h3>
+                  <p className="text-2xl font-bold text-outline">
                     {activeToday.toLocaleString()}
                   </p>
                 </div>
@@ -241,7 +241,7 @@ export default function LeaderboardPage() {
             {/* Average PnL Card */}
             <div className="mario-card">
               <div className="flex items-start gap-4">
-                <div className="h-10 w-10 rounded-lg bg-[var(--sky-blue)] border-3 border-[var(--outline-black)] flex items-center justify-center flex-shrink-0 shadow-[2px_2px_0_var(--outline-black)]">
+                <div className="h-10 w-10 rounded-lg bg-sky border-3 border-outline flex items-center justify-center flex-shrink-0 shadow-[2px_2px_0_var(--outline-black)]">
                   <Image 
                     src="/icons/mario/trending.png" 
                     alt="PnL" 
@@ -251,8 +251,8 @@ export default function LeaderboardPage() {
                   />
                 </div>
                 <div className="space-y-1">
-                  <h3 className="font-bold text-lg text-[var(--outline-black)]">Avg PnL</h3>
-                  <div className={`text-2xl font-bold ${avgROI >= 0 ? 'text-[var(--luigi-green)]' : 'text-[var(--mario-red)]'}`}>
+                  <h3 className="font-bold text-lg text-outline">Avg PnL</h3>
+                  <div className={`text-2xl font-bold ${avgROI >= 0 ? 'text-luigi' : 'text-mario'}`}>
                     <UsdWithSol
                       usd={avgROI}
                       prefix={avgROI >= 0 ? '+' : ''}
@@ -267,7 +267,7 @@ export default function LeaderboardPage() {
             {/* Total Trades Card */}
             <div className="mario-card">
               <div className="flex items-start gap-4">
-                <div className="h-10 w-10 rounded-lg bg-[var(--coin-yellow)] border-3 border-[var(--outline-black)] flex items-center justify-center flex-shrink-0 shadow-[2px_2px_0_var(--outline-black)]">
+                <div className="h-10 w-10 rounded-lg bg-coin border-3 border-outline flex items-center justify-center flex-shrink-0 shadow-[2px_2px_0_var(--outline-black)]">
                   <Image 
                     src="/icons/mario/trophy.png" 
                     alt="Trades" 
@@ -277,8 +277,8 @@ export default function LeaderboardPage() {
                   />
                 </div>
                 <div className="space-y-1">
-                  <h3 className="font-bold text-lg text-[var(--outline-black)]">Total Trades</h3>
-                  <p className="text-2xl font-bold text-[var(--outline-black)]">
+                  <h3 className="font-bold text-lg text-outline">Total Trades</h3>
+                  <p className="text-2xl font-bold text-outline">
                     {formatNumber(totalVolume, { useCompact: true })}
                   </p>
                 </div>
@@ -297,7 +297,7 @@ export default function LeaderboardPage() {
           <div className={marioStyles.cardLg(false)}>
             {loading ? (
               <div className="text-center py-12">
-                <div className="animate-spin rounded-full h-12 w-12 border-4 border-[var(--outline-black)] border-t-[var(--star-yellow)] mx-auto"></div>
+                <div className="animate-spin rounded-full h-12 w-12 border-4 border-outline border-t-[var(--star-yellow)] mx-auto"></div>
                 <p className={cn(marioStyles.bodyText('semibold'), 'mt-4')}>Loading leaderboard...</p>
               </div>
             ) : (
@@ -314,8 +314,8 @@ export default function LeaderboardPage() {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.3, delay: index * 0.02 }}
                       className={cn(
-                        "flex items-center gap-4 p-3 rounded-lg border-2 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] transition-all duration-200 hover:scale-[1.02] hover:shadow-[3px_3px_0_var(--outline-black)]",
-                        isCurrentUser && "bg-gradient-to-r from-[var(--star-yellow)]/20 to-[var(--coin-gold)]/20 border-[var(--star-yellow)]",
+                        "flex items-center gap-4 p-3 rounded-lg border-2 border-outline shadow-[2px_2px_0_var(--outline-black)] transition-all duration-200 hover:scale-[1.02] hover:shadow-[3px_3px_0_var(--outline-black)]",
+                        isCurrentUser && "bg-gradient-to-r from-[var(--star-yellow)]/20 to-[var(--coin-gold)]/20 border-star",
                         rank <= 3 && "bg-gradient-to-r from-[var(--coin-gold)]/10 to-[var(--star-yellow)]/10"
                       )}
                     >
@@ -323,7 +323,7 @@ export default function LeaderboardPage() {
                       <div className="flex-shrink-0 w-8 text-center">
                         <span className={cn(
                           "font-bold text-lg",
-                          rank <= 3 ? "text-[var(--outline-black)]" : "text-[var(--pipe-600)]"
+                          rank <= 3 ? "text-outline" : "text-[var(--pipe-600)]"
                         )}>
                           #{rank}
                         </span>
@@ -341,12 +341,12 @@ export default function LeaderboardPage() {
                         <div className="flex items-center gap-2">
                           <h3 className={cn(
                             "font-bold text-lg truncate",
-                            isCurrentUser ? "text-[var(--outline-black)]" : "text-[var(--outline-black)]"
+                            isCurrentUser ? "text-outline" : "text-outline"
                           )}>
                             {entry.displayName || entry.handle || 'Anonymous'}
                           </h3>
                           {isCurrentUser && (
-                            <Badge variant="secondary" className="bg-[var(--star-yellow)] text-[var(--outline-black)] border-[var(--outline-black)]">
+                            <Badge variant="secondary" className="bg-star text-outline border-outline">
                               You
                             </Badge>
                           )}
@@ -359,7 +359,7 @@ export default function LeaderboardPage() {
                           <p className="text-[var(--pipe-600)] font-semibold">PnL</p>
                           <p className={cn(
                             "font-bold text-lg",
-                            parseFloat(entry.totalPnlUsd) >= 0 ? 'text-[var(--luigi-green)]' : 'text-[var(--mario-red)]'
+                            parseFloat(entry.totalPnlUsd) >= 0 ? 'text-luigi' : 'text-mario'
                           )}>
                             <UsdWithSol
                               usd={parseFloat(entry.totalPnlUsd)}
@@ -371,7 +371,7 @@ export default function LeaderboardPage() {
                         </div>
                         <div className="text-center">
                           <p className="text-[var(--pipe-600)] font-semibold">Trades</p>
-                          <p className="font-bold text-lg text-[var(--outline-black)]">
+                          <p className="font-bold text-lg text-outline">
                             {entry.totalTrades}
                           </p>
                         </div>

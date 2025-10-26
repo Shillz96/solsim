@@ -62,12 +62,12 @@ export function WalletTrackerPanel() {
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.5, delay: 0.25 }}
       >
-        <div className="bg-[var(--sky-blue)]/20 border-4 border-[var(--outline-black)] rounded-xl shadow-[6px_6px_0_var(--outline-black)] p-6">
+        <div className="bg-sky/20 border-4 border-outline rounded-xl shadow-[6px_6px_0_var(--outline-black)] p-6">
           {/* Header */}
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <Image src="/icons/mario/user.png" alt="Wallet" width={24} height={24} />
-              <h3 className="text-lg font-mario font-bold text-[var(--outline-black)]">WALLET TRACKER</h3>
+              <h3 className="text-lg font-mario font-bold text-outline">WALLET TRACKER</h3>
             </div>
             
             {/* Live Status Badge */}
@@ -80,7 +80,7 @@ export function WalletTrackerPanel() {
             >
               <div className={cn(
                 "h-1.5 w-1.5 rounded-full",
-                connected ? "bg-[var(--card)] animate-pulse" : "bg-pipe-700"
+                connected ? "bg-card animate-pulse" : "bg-pipe-700"
               )} />
               {connected ? "Live" : "Offline"}
             </Badge>
@@ -96,9 +96,9 @@ export function WalletTrackerPanel() {
           {/* Empty State */}
           {!isLoading && (!trackedWallets || trackedWallets.length === 0) && (
             <div className="text-center py-6">
-              <div className="bg-[var(--star-yellow)]/20 border-3 border-[var(--star-yellow)] rounded-lg p-4 mb-4">
+              <div className="bg-star/20 border-3 border-star rounded-lg p-4 mb-4">
                 <Eye className="h-8 w-8 text-mario-red mx-auto mb-2" />
-                <p className="text-sm font-bold text-[var(--outline-black)] mb-1">No Wallets Tracked</p>
+                <p className="text-sm font-bold text-outline mb-1">No Wallets Tracked</p>
                 <p className="text-xs text-muted-foreground font-semibold">Start tracking KOL wallets to copy their trades!</p>
               </div>
               <Button
@@ -119,12 +119,12 @@ export function WalletTrackerPanel() {
               {trackedWallets.slice(0, 3).map((wallet) => (
                 <div
                   key={wallet.id}
-                  className="bg-[var(--card)]/80 border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] rounded-lg p-3 hover:bg-[var(--card)] transition-colors"
+                  className="bg-card/80 border-3 border-outline shadow-[3px_3px_0_var(--outline-black)] rounded-lg p-3 hover:bg-card transition-colors"
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex-1 min-w-0">
                       {wallet.label && (
-                        <div className="text-sm font-mario font-bold text-[var(--outline-black)] truncate mb-1">
+                        <div className="text-sm font-mario font-bold text-outline truncate mb-1">
                           {wallet.label}
                         </div>
                       )}
@@ -159,7 +159,7 @@ export function WalletTrackerPanel() {
                 <Button
                   onClick={() => setShowWalletManager(true)}
                   variant="outline"
-                  className="flex-1 border-3 border-[var(--outline-black)] font-bold text-xs h-9"
+                  className="flex-1 border-3 border-outline font-bold text-xs h-9"
                   size="sm"
                 >
                   <Plus className="h-3 w-3 mr-1" />

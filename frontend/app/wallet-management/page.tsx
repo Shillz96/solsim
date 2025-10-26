@@ -60,7 +60,7 @@ export default function WalletManagementPage() {
                 variant="outline"
                 size="sm"
                 onClick={() => router.back()}
-                className="border-3 border-pipe-700 bg-[var(--card)] hover:bg-pipe-50 shadow-[3px_3px_0_rgba(0,0,0,1)]"
+                className="border-3 border-pipe-700 bg-card hover:bg-pipe-50 shadow-[3px_3px_0_rgba(0,0,0,1)]"
               >
                 <ArrowLeft className="h-4 w-4" />
               </Button>

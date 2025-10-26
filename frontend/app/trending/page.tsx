@@ -192,7 +192,7 @@ export default function TrendingPage() {
                       variant={birdeyeSortBy === option.value ? "default" : "outline"}
                       size="sm"
                       onClick={() => setBirdeyeSortBy(option.value)}
-                      className={birdeyeSortBy === option.value ? "mario-btn mario-btn-red" : "border-3 border-[var(--outline-black)]"}
+                      className={birdeyeSortBy === option.value ? "mario-btn mario-btn-red" : "border-3 border-outline"}
                     >
                       {option.label}
                     </Button>
@@ -208,7 +208,7 @@ export default function TrendingPage() {
                 placeholder="Search tokens..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9 border-3 border-[var(--outline-black)] focus:border-[var(--color-brand)]"
+                className="pl-9 border-3 border-outline focus:border-mario"
               />
             </div>
           </div>
@@ -224,14 +224,14 @@ export default function TrendingPage() {
           <div className="mario-card-lg overflow-hidden">
           {loading && (
             <div className="flex items-center justify-center h-64 bg-card">
-              <Loader2 className="h-8 w-8 animate-spin text-[var(--color-brand)]" />
+              <Loader2 className="h-8 w-8 animate-spin text-mario" />
               <span className="ml-3 font-bold text-foreground">Loading trending tokens...</span>
             </div>
           )}
 
           {error && (
             <div className="p-6">
-              <Alert variant="destructive" className="border-3 border-[var(--color-brand)] bg-destructive/10">
+              <Alert variant="destructive" className="border-3 border-mario bg-destructive/10">
                 <AlertCircle className="h-5 w-5" />
                 <AlertDescription className="font-bold">
                   Failed to load trending tokens: {error?.message || 'Unknown error'}
@@ -253,14 +253,14 @@ export default function TrendingPage() {
           {!loading && !error && filteredAndSortedTokens.length > 0 && (
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="border-b-3 border-[var(--outline-black)] bg-muted/30">
+                <thead className="border-b-3 border-outline bg-muted/30">
                   <tr>
                     <th className="text-left p-4 text-sm font-bold text-foreground">#</th>
                     <th className="text-left p-4 text-sm font-bold text-foreground">Token</th>
                     <th className="text-left p-4 text-sm font-bold text-foreground">
                       <button
                         onClick={() => handleSort("price")}
-                        className="flex items-center hover:text-[var(--color-brand)] transition-colors"
+                        className="flex items-center hover:text-mario transition-colors"
                       >
                         Price
                         <SortIcon field="price" />
@@ -269,7 +269,7 @@ export default function TrendingPage() {
                     <th className="text-left p-4 text-sm font-bold text-foreground">
                       <button
                         onClick={() => handleSort("priceChange24h")}
-                        className="flex items-center hover:text-[var(--color-brand)] transition-colors"
+                        className="flex items-center hover:text-mario transition-colors"
                       >
                         24h Change
                         <SortIcon field="priceChange24h" />
@@ -278,7 +278,7 @@ export default function TrendingPage() {
                     <th className="text-left p-4 text-sm font-bold text-foreground">
                       <button
                         onClick={() => handleSort("marketCapUsd")}
-                        className="flex items-center hover:text-[var(--color-brand)] transition-colors"
+                        className="flex items-center hover:text-mario transition-colors"
                       >
                         Market Cap
                         <SortIcon field="marketCapUsd" />
@@ -287,7 +287,7 @@ export default function TrendingPage() {
                     <th className="text-left p-4 text-sm font-bold text-foreground">
                       <button
                         onClick={() => handleSort("volume24h")}
-                        className="flex items-center hover:text-[var(--color-brand)] transition-colors"
+                        className="flex items-center hover:text-mario transition-colors"
                       >
                         Volume
                         <SortIcon field="volume24h" />
@@ -296,7 +296,7 @@ export default function TrendingPage() {
                     <th className="text-left p-4 text-sm font-bold text-foreground">
                       <button
                         onClick={() => handleSort("trendScore")}
-                        className="flex items-center hover:text-[var(--color-brand)] transition-colors"
+                        className="flex items-center hover:text-mario transition-colors"
                       >
                         Trend Score
                         <SortIcon field="trendScore" />
@@ -314,7 +314,7 @@ export default function TrendingPage() {
                     return (
                       <tr
                         key={token.mint}
-                        className="border-b-2 border-[var(--outline-black)]/20 transition-all duration-200 relative group hover:bg-muted/30"
+                        className="border-b-2 border-outline/20 transition-all duration-200 relative group hover:bg-muted/30"
                         onMouseEnter={() => setHoveredRow(token.mint)}
                         onMouseLeave={() => setHoveredRow(null)}
                       >
@@ -346,7 +346,7 @@ export default function TrendingPage() {
                                 alt={token.name || 'Unknown Token'}
                                 width={40}
                                 height={40}
-                                className="rounded-full border-2 border-[var(--outline-black)]"
+                                className="rounded-full border-2 border-outline"
                                 onError={(e) => {
                                   e.currentTarget.src = "/placeholder-token.svg"
                                 }}
@@ -383,7 +383,7 @@ export default function TrendingPage() {
                           <div className="flex items-center gap-2">
                             <motion.div
                               className={`text-sm font-bold font-mono ${
-                                token.priceChange24h >= 0 ? "text-[var(--luigi-green)]" : "text-[#ff4d4d]"
+                                token.priceChange24h >= 0 ? "text-luigi" : "text-[#ff4d4d]"
                               }`}
                               animate={bigMover ? {
                                 opacity: [1, 0.6, 1],
@@ -435,7 +435,7 @@ export default function TrendingPage() {
                         <td className="p-5">
                           <Badge
                             variant="secondary"
-                            className={`text-xs font-bold border-2 ${bigMover ? 'bg-orange-500 text-white border-[var(--outline-black)]' : 'bg-muted text-foreground border-[var(--outline-black)]'}`}
+                            className={`text-xs font-bold border-2 ${bigMover ? 'bg-orange-500 text-white border-outline' : 'bg-muted text-foreground border-outline'}`}
                           >
                             {Math.abs(token.priceChange24h).toFixed(1)}
                           </Badge>

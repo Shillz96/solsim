@@ -91,7 +91,7 @@ const airdropPoints = [
 ]
 
 const Card = ({ children, className = "" }: { children: React.ReactNode; className?: string }) => (
-  <div className={`mario-card bg-[var(--card)] rounded-2xl border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] ${className}`}>
+  <div className={`mario-card bg-card rounded-2xl border-4 border-outline shadow-[6px_6px_0_var(--outline-black)] ${className}`}>
     {children}
   </div>
 )
@@ -99,7 +99,7 @@ const Card = ({ children, className = "" }: { children: React.ReactNode; classNa
 const Bullet = ({ children }: { children: React.ReactNode }) => (
   <li className="flex items-start gap-2 leading-relaxed">
     <span className="mt-1 text-base">🍄</span>
-    <span className="text-[var(--outline-black)]">{children}</span>
+    <span className="text-outline">{children}</span>
   </li>
 )
 
@@ -116,7 +116,7 @@ export default function RoadmapPage() {
           <Link href="/">
             <Button 
               variant="ghost" 
-              className="gap-2 mario-btn bg-[var(--card)] border-3 border-[var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)]"
+              className="gap-2 mario-btn bg-card border-3 border-outline hover:shadow-[3px_3px_0_var(--outline-black)]"
             >
               <ArrowLeft className="h-4 w-4" />
               Back to Home
@@ -132,14 +132,14 @@ export default function RoadmapPage() {
           className="mb-10 space-y-4"
         >
           <div className="flex items-center justify-center gap-3">
-            <div className="h-12 w-12 rounded-lg bg-[var(--star-yellow)] border-3 border-[var(--outline-black)] flex items-center justify-center shadow-[3px_3px_0_var(--outline-black)]">
+            <div className="h-12 w-12 rounded-lg bg-star border-3 border-outline flex items-center justify-center shadow-[3px_3px_0_var(--outline-black)]">
               <span className="text-2xl">🗺️</span>
             </div>
-            <h1 className="font-mario text-4xl md:text-5xl text-[var(--outline-black)]">
+            <h1 className="font-mario text-4xl md:text-5xl text-outline">
               1UP SOL Roadmap
             </h1>
           </div>
-          <p className="mx-auto mt-3 max-w-2xl text-xl text-[var(--outline-black)] font-semibold text-center">
+          <p className="mx-auto mt-3 max-w-2xl text-xl text-outline font-semibold text-center">
             From paper trades to real rewards — every trade is a power‑up. 🍄💰
           </p>
         </motion.div>
@@ -151,7 +151,7 @@ export default function RoadmapPage() {
           transition={{ delay: 0.1 }}
           className="space-y-6 mb-12"
         >
-          <h2 className="font-mario text-3xl text-[var(--outline-black)]">Roadmap Phases</h2>
+          <h2 className="font-mario text-3xl text-outline">Roadmap Phases</h2>
           <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
           {phases.map((p, i) => (
             <motion.div
@@ -164,17 +164,17 @@ export default function RoadmapPage() {
               <Card className="p-5 h-full">
                 <div className="mb-3 flex items-center justify-between">
                   <div className="text-2xl">{p.icon}</div>
-                  <span className="rounded-full border-2 border-[var(--outline-black)] px-3 py-1 text-xs font-bold bg-[var(--star-yellow)] text-[var(--outline-black)]">
+                  <span className="rounded-full border-2 border-outline px-3 py-1 text-xs font-bold bg-star text-outline">
                     {p.eta}
                   </span>
                 </div>
-                <h3 className="mb-2 text-lg font-extrabold text-[var(--outline-black)]">{p.title}</h3>
+                <h3 className="mb-2 text-lg font-extrabold text-outline">{p.title}</h3>
                 <ul className="mb-3 space-y-2 text-sm">
                   {p.items.map((item) => (
                     <Bullet key={item}>{item}</Bullet>
                   ))}
                 </ul>
-                <p className="text-xs font-semibold text-[var(--outline-black)] opacity-70">{p.footnote}</p>
+                <p className="text-xs font-semibold text-outline opacity-70">{p.footnote}</p>
               </Card>
             </motion.div>
           ))}
@@ -188,15 +188,15 @@ export default function RoadmapPage() {
           transition={{ delay: 0.2 }}
           className="space-y-6 mb-12"
         >
-          <h2 className="font-mario text-3xl text-[var(--outline-black)]">Rewards & Airdrop Details</h2>
+          <h2 className="font-mario text-3xl text-outline">Rewards & Airdrop Details</h2>
           <Card className="p-6">
             <div className="mb-4 flex items-center gap-3">
               <span className="text-2xl">💎</span>
-              <h3 className="text-xl font-extrabold text-[var(--outline-black)]">$1UP Rewards & Airdrop System</h3>
+              <h3 className="text-xl font-extrabold text-outline">$1UP Rewards & Airdrop System</h3>
             </div>
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
               <div>
-                <h3 className="mb-2 text-sm font-black uppercase tracking-wide text-[var(--outline-black)]">How Rewards Work</h3>
+                <h3 className="mb-2 text-sm font-black uppercase tracking-wide text-outline">How Rewards Work</h3>
                 <ul className="space-y-2 text-sm">
                   {airdropPoints.map((pt) => (
                     <Bullet key={pt.label}>
@@ -206,7 +206,7 @@ export default function RoadmapPage() {
                 </ul>
               </div>
               <div>
-                <h3 className="mb-2 text-sm font-black uppercase tracking-wide text-[var(--outline-black)]">Development Timeline</h3>
+                <h3 className="mb-2 text-sm font-black uppercase tracking-wide text-outline">Development Timeline</h3>
                 <ul className="space-y-2 text-sm">
                   {timeline.map((t) => (
                     <Bullet key={t.date}>
@@ -217,7 +217,7 @@ export default function RoadmapPage() {
                 </ul>
               </div>
             </div>
-            <div className="mt-4 rounded-xl border-2 border-[var(--outline-black)] bg-[var(--luigi-green)] px-4 py-3 text-sm font-semibold text-[var(--outline-black)]">
+            <div className="mt-4 rounded-xl border-2 border-outline bg-luigi px-4 py-3 text-sm font-semibold text-outline">
               Start earning now! Every trade counts toward your rewards, whether you're paper trading or live trading (when available). Check your progress on the Rewards page! 🚀
             </div>
           </Card>
@@ -232,21 +232,21 @@ export default function RoadmapPage() {
         >
           <Card className="mt-8 bg-gradient-to-br from-[var(--mario-red)] via-[var(--star-yellow)] to-[var(--luigi-green)] p-6">
             <div className="flex flex-col items-center gap-3 text-center">
-              <h3 className="text-xl font-extrabold text-[var(--outline-black)]">Trade. Level Up. Get Paid.</h3>
-              <p className="text-sm text-[var(--outline-black)] opacity-80 font-semibold">
+              <h3 className="text-xl font-extrabold text-outline">Trade. Level Up. Get Paid.</h3>
+              <p className="text-sm text-outline opacity-80 font-semibold">
                 Every trade is a power‑up. Your XP and 1UP Points flow straight into the airdrop.
               </p>
               <div className="mt-2 flex flex-wrap items-center justify-center gap-3">
                 <Link href="/warp-pipes">
                   <Button
-                    className="inline-flex items-center justify-center rounded-xl border-[3px] border-[var(--outline-black)] bg-[var(--star-yellow)] px-4 py-2 text-sm font-black shadow-[4px_4px_0_var(--outline-black)] transition-transform active:translate-y-0.5 hover:bg-[var(--coin-yellow)] text-[var(--outline-black)]"
+                    className="inline-flex items-center justify-center rounded-xl border-[3px] border-outline bg-star px-4 py-2 text-sm font-black shadow-[4px_4px_0_var(--outline-black)] transition-transform active:translate-y-0.5 hover:bg-coin text-outline"
                   >
                     Start Trading 🚀
                   </Button>
                 </Link>
                 <Link href="/rewards">
                   <Button
-                    className="inline-flex items-center justify-center rounded-xl border-[3px] border-[var(--outline-black)] bg-[var(--card)] px-4 py-2 text-sm font-black shadow-[4px_4px_0_var(--outline-black)] transition-transform active:translate-y-0.5 hover:bg-gray-100 text-[var(--outline-black)]"
+                    className="inline-flex items-center justify-center rounded-xl border-[3px] border-outline bg-card px-4 py-2 text-sm font-black shadow-[4px_4px_0_var(--outline-black)] transition-transform active:translate-y-0.5 hover:bg-gray-100 text-outline"
                   >
                     View Rewards Dashboard 💰
                   </Button>

@@ -43,7 +43,7 @@ export function WelcomeModal({ open, onClose, onStartTour }: WelcomeModalProps) 
   return (
     <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
       <DialogContent
-        className="w-[90vw] max-w-2xl mx-auto bg-[var(--card)] border-4 border-[var(--outline-black)] shadow-[8px_8px_0_var(--outline-black)] rounded-2xl p-6 sm:p-8 max-h-[90vh] overflow-y-auto"
+        className="w-[90vw] max-w-2xl mx-auto bg-card border-4 border-outline shadow-[8px_8px_0_var(--outline-black)] rounded-2xl p-6 sm:p-8 max-h-[90vh] overflow-y-auto"
         aria-describedby="welcome-description"
       >
         <DialogHeader className="space-y-4">
@@ -62,7 +62,7 @@ export function WelcomeModal({ open, onClose, onStartTour }: WelcomeModalProps) 
 
           {/* Hero Message */}
           <div className="text-center space-y-3">
-            <h2 className="text-2xl sm:text-3xl font-mario text-[var(--outline-black)] drop-shadow-[2px_2px_0_var(--star-yellow)]">
+            <h2 className="text-2xl sm:text-3xl font-mario text-outline drop-shadow-[2px_2px_0_var(--star-yellow)]">
               Level Up Your Trading Skills! 🎮
             </h2>
             <p
@@ -79,13 +79,13 @@ export function WelcomeModal({ open, onClose, onStartTour }: WelcomeModalProps) 
           {features.map((feature, index) => (
             <div
               key={index}
-              className="flex gap-3 p-4 bg-sky-50 rounded-xl border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all"
+              className="flex gap-3 p-4 bg-sky-50 rounded-xl border-3 border-outline shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all"
             >
-              <div className="flex-shrink-0 h-12 w-12 rounded-lg bg-[var(--star-yellow)] border-3 border-[var(--outline-black)] flex items-center justify-center text-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)]">
+              <div className="flex-shrink-0 h-12 w-12 rounded-lg bg-star border-3 border-outline flex items-center justify-center text-outline shadow-[2px_2px_0_var(--outline-black)]">
                 {feature.icon}
               </div>
               <div className="flex-1 min-w-0">
-                <h3 className="font-bold text-sm sm:text-base text-[var(--outline-black)] mb-1">
+                <h3 className="font-bold text-sm sm:text-base text-outline mb-1">
                   {feature.title}
                 </h3>
                 <p className="text-xs sm:text-sm text-[var(--pipe-600)] font-semibold">
@@ -97,8 +97,8 @@ export function WelcomeModal({ open, onClose, onStartTour }: WelcomeModalProps) 
         </div>
 
         {/* Call to Action Message */}
-        <div className="bg-gradient-to-r from-[var(--luigi-green)]/10 to-[var(--star-yellow)]/10 rounded-xl border-3 border-[var(--outline-black)] p-4 mb-6">
-          <p className="text-center text-sm sm:text-base text-[var(--outline-black)] font-bold">
+        <div className="bg-gradient-to-r from-[var(--luigi-green)]/10 to-[var(--star-yellow)]/10 rounded-xl border-3 border-outline p-4 mb-6">
+          <p className="text-center text-sm sm:text-base text-outline font-bold">
             🚀 Ready to explore? Let's take a quick tour of the platform!
           </p>
         </div>
@@ -107,7 +107,7 @@ export function WelcomeModal({ open, onClose, onStartTour }: WelcomeModalProps) 
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <Button
             onClick={handleStartTour}
-            className="h-12 px-6 sm:px-8 text-base border-3 border-[var(--outline-black)] bg-[var(--luigi-green)] text-white hover:bg-[var(--luigi-green)]/90 shadow-[4px_4px_0_var(--outline-black)] hover:shadow-[5px_5px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all font-mario rounded-lg"
+            className="h-12 px-6 sm:px-8 text-base border-3 border-outline bg-luigi text-white hover:bg-luigi/90 shadow-[4px_4px_0_var(--outline-black)] hover:shadow-[5px_5px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all font-mario rounded-lg"
           >
             <Rocket className="mr-2 h-5 w-5" />
             Start Tour
@@ -115,7 +115,7 @@ export function WelcomeModal({ open, onClose, onStartTour }: WelcomeModalProps) 
           <Button
             onClick={onClose}
             variant="ghost"
-            className="h-12 px-6 sm:px-8 text-base text-[var(--pipe-600)] hover:text-[var(--outline-black)] font-bold underline"
+            className="h-12 px-6 sm:px-8 text-base text-[var(--pipe-600)] hover:text-outline font-bold underline"
           >
             Skip for now
           </Button>

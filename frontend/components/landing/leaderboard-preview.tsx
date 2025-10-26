@@ -35,7 +35,7 @@ export function LeaderboardPreview() {
         { rank: 5, username: "PumpMaster", roi: 152.8, trades: 178, balance: 252.8, isRising: false },
       ]
   return (
-    <section className="py-20 md:py-32 bg-gradient-to-br from-[var(--background)] via-[var(--background)] to-white border-t-4 border-b-4 border-[var(--outline-black)]/20 relative overflow-hidden">
+    <section className="py-20 md:py-32 bg-gradient-to-br from-[var(--background)] via-[var(--background)] to-white border-t-4 border-b-4 border-outline/20 relative overflow-hidden">
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-10">
         <motion.div
@@ -85,7 +85,7 @@ export function LeaderboardPreview() {
           viewport={{ once: true }}
           transition={{ delay: 0.2 }}
         >
-          <div className="mario-card max-w-4xl mx-auto bg-[var(--card)] border-4 border-[var(--star-yellow)] overflow-hidden shadow-[6px_6px_0_var(--outline-black)]">
+          <div className="mario-card max-w-4xl mx-auto bg-card border-4 border-star overflow-hidden shadow-[6px_6px_0_var(--outline-black)]">
             {isLoading ? (
               <div className="py-12 text-center">
                 <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-foreground"></div>
@@ -94,13 +94,13 @@ export function LeaderboardPreview() {
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full">
-                  <thead className="bg-[var(--card)]">
+                  <thead className="bg-card">
                     <tr>
-                      <th className="px-6 py-4 text-left text-sm font-mario text-[var(--outline-black)] border-b-4 border-[var(--outline-black)]">Rank</th>
-                      <th className="px-6 py-4 text-left text-sm font-mario text-[var(--outline-black)] border-b-4 border-[var(--outline-black)]">Trader</th>
-                      <th className="px-6 py-4 text-right text-sm font-mario text-[var(--outline-black)] border-b-4 border-[var(--outline-black)]">PnL (USD)</th>
-                      <th className="px-6 py-4 text-right text-sm font-mario text-[var(--outline-black)] border-b-4 border-[var(--outline-black)]">Trades</th>
-                      <th className="px-6 py-4 text-right text-sm font-mario text-[var(--outline-black)] border-b-4 border-[var(--outline-black)]">Volume (USD)</th>
+                      <th className="px-6 py-4 text-left text-sm font-mario text-outline border-b-4 border-outline">Rank</th>
+                      <th className="px-6 py-4 text-left text-sm font-mario text-outline border-b-4 border-outline">Trader</th>
+                      <th className="px-6 py-4 text-right text-sm font-mario text-outline border-b-4 border-outline">PnL (USD)</th>
+                      <th className="px-6 py-4 text-right text-sm font-mario text-outline border-b-4 border-outline">Trades</th>
+                      <th className="px-6 py-4 text-right text-sm font-mario text-outline border-b-4 border-outline">Volume (USD)</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border">
@@ -155,7 +155,7 @@ export function LeaderboardPreview() {
           transition={{ delay: 0.4 }}
         >
           <Link href="/leaderboard">
-            <button className="mario-btn mario-btn-lg bg-[var(--card)] text-[var(--mario-red)] hover:bg-[var(--card)]/90 border-4 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)] hover:shadow-[6px_6px_0_var(--outline-black)] hover:-translate-y-1 group">
+            <button className="mario-btn mario-btn-lg bg-card text-mario hover:bg-card/90 border-4 border-outline shadow-[4px_4px_0_var(--outline-black)] hover:shadow-[6px_6px_0_var(--outline-black)] hover:-translate-y-1 group">
               <span className="flex items-center justify-center gap-2">
                 View Full Leaderboard 🏆
                 <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />

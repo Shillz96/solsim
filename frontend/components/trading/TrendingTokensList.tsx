@@ -207,7 +207,7 @@ export function TrendingTokensList({
                 <div className="flex items-center">
                   <div className={cn(
                     marioStyles.avatar('md'),
-                    "bg-[var(--star-yellow)]/20 mr-3"
+                    "bg-star/20 mr-3"
                   )}>
                     {token.logoURI ? (
                       <img
@@ -225,7 +225,7 @@ export function TrendingTokensList({
                   <div>
                     <div className="font-mario">
                       {token.name || 'Unknown Token'}
-                      <Badge variant="outline" className="ml-2 font-normal border-2 border-[var(--outline-black)]">
+                      <Badge variant="outline" className="ml-2 font-normal border-2 border-outline">
                         #{index + 1}
                       </Badge>
                     </div>
@@ -245,8 +245,8 @@ export function TrendingTokensList({
                     />
                     <div className={cn(
                       "text-xs flex items-center justify-end mt-1 font-bold",
-                      getChangePercent(token) > 0 ? "text-[var(--luigi-green)]" : 
-                      getChangePercent(token) < 0 ? "text-[var(--mario-red)]" : 
+                      getChangePercent(token) > 0 ? "text-luigi" : 
+                      getChangePercent(token) < 0 ? "text-mario" : 
                       "text-muted-foreground"
                     )}>
                       {renderTrendIcon(getChangePercent(token))}

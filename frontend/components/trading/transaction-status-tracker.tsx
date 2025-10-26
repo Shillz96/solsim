@@ -155,7 +155,7 @@ export function TransactionStatusTracker({
       return <CheckCircle2 className="w-6 h-6 text-luigi-green-500" />;
     }
 
-    return <div className="w-6 h-6 rounded-full border-2 border-pipe-300 bg-[var(--card)]" />;
+    return <div className="w-6 h-6 rounded-full border-2 border-pipe-300 bg-card" />;
   };
 
   return (

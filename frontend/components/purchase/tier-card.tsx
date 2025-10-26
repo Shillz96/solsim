@@ -25,19 +25,19 @@ export function TierCard({ tier, selected, onSelect }: TierCardProps) {
       <Card
         className={cn(
           'relative h-full transition-all duration-200 mario-card',
-          'border-4 border-[var(--outline-black)] bg-card',
+          'border-4 border-outline bg-card',
           'shadow-[4px_4px_0_var(--outline-black)]',
           selected
-            ? 'bg-[var(--star-yellow)] border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)]'
+            ? 'bg-star border-outline shadow-[6px_6px_0_var(--outline-black)]'
             : 'hover:shadow-[6px_6px_0_var(--outline-black)] hover:-translate-y-1',
-          tier.popular && !selected && 'border-[var(--mario-red)]'
+          tier.popular && !selected && 'border-mario'
         )}
       >
         <CardContent className="p-5 relative space-y-4">
           {/* Popular badge */}
           {tier.popular && (
             <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
-              <Badge className="bg-[var(--mario-red)] text-white border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] px-3 py-1.5 text-xs font-mario">
+              <Badge className="bg-mario text-white border-3 border-outline shadow-[2px_2px_0_var(--outline-black)] px-3 py-1.5 text-xs font-mario">
                 <Sparkles className="h-3 w-3 mr-1" />
                 MOST POPULAR
               </Badge>
@@ -47,7 +47,7 @@ export function TierCard({ tier, selected, onSelect }: TierCardProps) {
           {/* Selection indicator */}
           {selected && (
             <div className="absolute top-3 right-3 z-10">
-              <div className="h-7 w-7 rounded-full bg-[var(--luigi-green)] border-3 border-[var(--outline-black)] flex items-center justify-center shadow-[2px_2px_0_var(--outline-black)]">
+              <div className="h-7 w-7 rounded-full bg-luigi border-3 border-outline flex items-center justify-center shadow-[2px_2px_0_var(--outline-black)]">
                 <Check className="h-4 w-4 text-white stroke-[3]" />
               </div>
             </div>
@@ -55,11 +55,11 @@ export function TierCard({ tier, selected, onSelect }: TierCardProps) {
 
           {/* Tier label */}
           <div className="flex items-center justify-between pt-1 mb-3">
-            <div className="text-xs font-mario uppercase tracking-widest text-[var(--outline-black)]">
+            <div className="text-xs font-mario uppercase tracking-widest text-outline">
               {tier.label}
             </div>
             {tier.bonus > 0 && (
-              <Badge variant="secondary" className="bg-[var(--luigi-green)] text-white border-2 border-[var(--outline-black)] text-[10px] font-mario px-2 py-0.5">
+              <Badge variant="secondary" className="bg-luigi text-white border-2 border-outline text-[10px] font-mario px-2 py-0.5">
                 +{tier.bonus}%
               </Badge>
             )}
@@ -68,11 +68,11 @@ export function TierCard({ tier, selected, onSelect }: TierCardProps) {
           {/* Main display */}
           <div className="space-y-3">
             {/* Simulated SOL amount */}
-            <div className="text-center py-5 px-3 rounded-lg border-3 border-[var(--outline-black)] bg-[var(--card)] shadow-[3px_3px_0_var(--outline-black)]">
-              <div className="text-4xl font-mario leading-tight mb-1 text-[var(--outline-black)]">
+            <div className="text-center py-5 px-3 rounded-lg border-3 border-outline bg-card shadow-[3px_3px_0_var(--outline-black)]">
+              <div className="text-4xl font-mario leading-tight mb-1 text-outline">
                 {tier.simulatedSol}
               </div>
-              <div className="text-[10px] font-bold text-[var(--outline-black)] uppercase tracking-wider mt-1">
+              <div className="text-[10px] font-bold text-outline uppercase tracking-wider mt-1">
                 Simulated SOL
               </div>
             </div>
@@ -80,23 +80,23 @@ export function TierCard({ tier, selected, onSelect }: TierCardProps) {
             {/* Divider */}
             <div className="flex items-center gap-2 py-0.5">
               <div className="h-1 flex-1 bg-[var(--outline-black)] rounded-full" />
-              <Zap className="h-3.5 w-3.5 text-[var(--star-yellow)]" />
+              <Zap className="h-3.5 w-3.5 text-star" />
               <div className="h-1 flex-1 bg-[var(--outline-black)] rounded-full" />
             </div>
 
             {/* Price */}
             <div className="text-center space-y-1.5">
               <div className="flex items-baseline justify-center gap-2">
-                <span className="text-3xl font-mario text-[var(--outline-black)]">
+                <span className="text-3xl font-mario text-outline">
                   {tier.realSol}
                 </span>
-                <span className="text-base font-bold text-[var(--outline-black)]">
+                <span className="text-base font-bold text-outline">
                   SOL
                 </span>
               </div>
-              <div className="text-xs text-[var(--outline-black)] font-semibold min-h-[18px]">
+              <div className="text-xs text-outline font-semibold min-h-[18px]">
                 {tier.bonus > 0 ? (
-                  <span className="text-[var(--luigi-green)]">
+                  <span className="text-luigi">
                     Save {(tier.realSol * tier.bonus / 100).toFixed(3)} SOL
                   </span>
                 ) : (
@@ -108,10 +108,10 @@ export function TierCard({ tier, selected, onSelect }: TierCardProps) {
 
           {/* Select indicator at bottom */}
           <div className={cn(
-            "text-center text-xs font-mario py-2.5 px-4 rounded-lg transition-all duration-200 mt-3 border-3 border-[var(--outline-black)]",
+            "text-center text-xs font-mario py-2.5 px-4 rounded-lg transition-all duration-200 mt-3 border-3 border-outline",
             selected
-              ? "bg-[var(--luigi-green)] text-white shadow-[3px_3px_0_var(--outline-black)] scale-105"
-              : "bg-[var(--card)] text-[var(--outline-black)] group-hover:shadow-[3px_3px_0_var(--outline-black)] group-hover:scale-105"
+              ? "bg-luigi text-white shadow-[3px_3px_0_var(--outline-black)] scale-105"
+              : "bg-card text-outline group-hover:shadow-[3px_3px_0_var(--outline-black)] group-hover:scale-105"
           )}>
             {selected ? '✓ SELECTED' : 'SELECT TIER'}
           </div>

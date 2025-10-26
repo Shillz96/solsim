@@ -45,14 +45,14 @@ export function formatTimeAgo(timestamp: number): string {
  * @returns CSS classes for positive/negative styling using Mario theme colors
  * @example
  * ```typescript
- * const colorClass = getPriceChangeColor(5.2) // "text-[var(--luigi-green)]"
- * const colorClass = getPriceChangeColor(-3.1) // "text-[var(--mario-red)]"
+ * const colorClass = getPriceChangeColor(5.2) // "text-luigi"
+ * const colorClass = getPriceChangeColor(-3.1) // "text-mario"
  * ```
  */
 export function getPriceChangeColor(value: number): string {
   return value >= 0 
-    ? "text-[var(--luigi-green)]" 
-    : "text-[var(--mario-red)]"
+    ? "text-luigi" 
+    : "text-mario"
 }
 
 /**

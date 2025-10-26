@@ -19,11 +19,11 @@ export function TradePanelEstimate({ type, tokenSymbol, estimate }: TradePanelEs
   const isBuy = type === 'buy'
 
   return (
-    <div className="text-[11px] text-[var(--outline-black)]/70 font-medium">
+    <div className="text-[11px] text-outline/70 font-medium">
       <span className="font-bold">You'll Receive:</span>{' '}
       <span className={cn(
         'font-mono font-bold',
-        isBuy ? 'text-[var(--luigi-green)]' : 'text-[var(--mario-red)]'
+        isBuy ? 'text-luigi' : 'text-mario'
       )}>
         {isBuy && estimate.tokens !== undefined && (
           <>~{formatTokenAmount(estimate.tokens)} {tokenSymbol}</>

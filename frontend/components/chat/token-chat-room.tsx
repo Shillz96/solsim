@@ -116,7 +116,7 @@ export function TokenChatRoom({ tokenMint, className }: TokenChatRoomProps) {
   return (
     <div className={cn("flex flex-col h-full", className)}>
       {/* Token Chat Header */}
-      <div className="flex items-center justify-start mb-3 pb-3 border-b-3 border-[var(--outline-black)]">
+      <div className="flex items-center justify-start mb-3 pb-3 border-b-3 border-outline">
         <div className="h-8 flex items-center">
           <Image
             src="/chat-10-25-2025.png"
@@ -132,8 +132,8 @@ export function TokenChatRoom({ tokenMint, className }: TokenChatRoomProps) {
       {/* Error Banner */}
       {error && (
         <div className={cn(
-          'p-3 border-b-4 border-[var(--outline-black)] flex items-center gap-2 flex-shrink-0',
-          'bg-[var(--mario-red)] shadow-[0_4px_0_rgba(0,0,0,0.2)]'
+          'p-3 border-b-4 border-outline flex items-center gap-2 flex-shrink-0',
+          'bg-mario shadow-[0_4px_0_rgba(0,0,0,0.2)]'
         )}>
           <AlertCircle className="h-4 w-4 text-white" />
           <span className={cn(marioStyles.bodyText('bold'), 'text-sm text-white flex-1')}>{error}</span>
@@ -141,7 +141,7 @@ export function TokenChatRoom({ tokenMint, className }: TokenChatRoomProps) {
             onClick={clearError}
             className={cn(
               marioStyles.bodyText('bold'),
-              'text-white hover:text-[var(--star-yellow)] transition-colors text-lg'
+              'text-white hover:text-star transition-colors text-lg'
             )}
           >
             ✕
@@ -169,7 +169,7 @@ export function TokenChatRoom({ tokenMint, className }: TokenChatRoomProps) {
           </div>
         ) : status === 'connecting' ? (
           <div className="flex flex-col items-center justify-center h-full text-center p-6">
-            <Loader2 className="h-10 w-10 animate-spin text-[var(--mario-red)] mb-4" />
+            <Loader2 className="h-10 w-10 animate-spin text-mario mb-4" />
             <div className={marioStyles.heading(4)}>Connecting to token chat...</div>
           </div>
         ) : messages.length === 0 ? (
@@ -198,7 +198,7 @@ export function TokenChatRoom({ tokenMint, className }: TokenChatRoomProps) {
       </div>
 
       {/* Input Area */}
-      <div className="p-4 border-t-4 border-[var(--outline-black)] bg-gradient-to-r from-white to-[var(--mario-red)]/10 flex-shrink-0 shadow-[0_-4px_0_rgba(0,0,0,0.05)]">
+      <div className="p-4 border-t-4 border-outline bg-gradient-to-r from-white to-[var(--mario-red)]/10 flex-shrink-0 shadow-[0_-4px_0_rgba(0,0,0,0.05)]">
         <div className="flex gap-2 items-end">
           <Input
             ref={inputRef}
@@ -216,7 +216,7 @@ export function TokenChatRoom({ tokenMint, className }: TokenChatRoomProps) {
           <button
             onClick={handleSendMessage}
             disabled={!user || !inputValue.trim() || status !== 'connected'}
-            className="h-10 w-10 rounded-lg border-3 border-[var(--outline-black)] bg-[var(--luigi-green)] hover:bg-[var(--pipe-green)] text-white font-bold transition-all shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 active:shadow-[2px_2px_0_var(--outline-black)] active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+            className="h-10 w-10 rounded-lg border-3 border-outline bg-luigi hover:bg-pipe text-white font-bold transition-all shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 active:shadow-[2px_2px_0_var(--outline-black)] active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
           >
             <Send className="h-4 w-4" />
           </button>

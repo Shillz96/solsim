@@ -88,11 +88,11 @@ const styleDiagnostic = {
     document.body.appendChild(testDiv);
 
     const colorTests = [
-      { name: 'Mario Red (var)', class: 'bg-[var(--mario-red)]', expected: 'rgb(229, 37, 33)' },
+      { name: 'Mario Red (var)', class: 'bg-mario', expected: 'rgb(229, 37, 33)' },
       { name: 'Mario Red (Tailwind)', class: 'bg-mario', expected: 'rgb(229, 37, 33)' },
-      { name: 'Luigi Green (var)', class: 'bg-[var(--luigi-green)]', expected: 'rgb(67, 176, 71)' },
+      { name: 'Luigi Green (var)', class: 'bg-luigi', expected: 'rgb(67, 176, 71)' },
       { name: 'Luigi Green (Tailwind)', class: 'bg-luigi', expected: 'rgb(67, 176, 71)' },
-      { name: 'Star Yellow (var)', class: 'bg-[var(--star-yellow)]', expected: 'rgb(255, 216, 0)' },
+      { name: 'Star Yellow (var)', class: 'bg-star', expected: 'rgb(255, 216, 0)' },
       { name: 'Star Yellow (Tailwind)', class: 'bg-star', expected: 'rgb(255, 216, 0)' },
     ];
 

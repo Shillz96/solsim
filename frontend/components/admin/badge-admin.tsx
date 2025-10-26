@@ -50,7 +50,7 @@ export function BadgeAdmin() {
 
   if (!isAdmin) {
     return (
-      <div className="bg-[var(--card)] rounded-lg border-4 border-pipe-300 p-6 shadow-mario">
+      <div className="bg-card rounded-lg border-4 border-pipe-300 p-6 shadow-mario">
         <div className="text-center">
           <div className="font-mario text-xl text-pipe-800 mb-2">👑</div>
           <div className="font-mario text-lg text-pipe-600">Admin Access Required</div>
@@ -69,7 +69,7 @@ export function BadgeAdmin() {
   }
 
   return (
-    <div className="bg-[var(--card)] rounded-lg border-4 border-pipe-300 p-6 shadow-mario">
+    <div className="bg-card rounded-lg border-4 border-pipe-300 p-6 shadow-mario">
       <div className="mb-6">
         <h2 className="font-mario text-3xl text-pipe-800 mb-2">🏆 Badge Admin Panel</h2>
         <div className="text-pipe-600">Manage badges and award them to users</div>
@@ -181,7 +181,7 @@ export function BadgeAdmin() {
 
               {/* Selected Badge Preview */}
               {selectedBadge && (
-                <div className="bg-[var(--card)] rounded-lg p-4 border-2 border-pipe-300">
+                <div className="bg-card rounded-lg p-4 border-2 border-pipe-300">
                   <div className="flex items-center gap-3">
                     {(() => {
                       const badge = badgesData?.badges?.find((b: BadgeType) => b.id === selectedBadge);

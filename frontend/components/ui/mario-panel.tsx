@@ -31,9 +31,9 @@ export function MarioPanel({
   return (
     <section 
       className={`
-        bg-[var(--card)] 
+        bg-card 
         border-[3px] 
-        border-[var(--outline-black)] 
+        border-outline 
         rounded-[var(--radius-xl)] 
         shadow-[3px_3px_0_var(--outline-black)] 
         p-4 

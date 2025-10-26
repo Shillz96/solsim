@@ -83,7 +83,7 @@ export function NavBar() {
     <motion.header
       initial={{ y: -100 }}
       animate={{ y: 0 }}
-      className="fixed top-0 left-0 right-0 z-[100] w-full border-b border-[var(--color-border)] bg-[var(--background)]"
+      className="fixed top-0 left-0 right-0 z-[100] w-full border-b border-[var(--color-border)] bg-background"
       style={{
         paddingTop: 'env(safe-area-inset-top)',
       }}

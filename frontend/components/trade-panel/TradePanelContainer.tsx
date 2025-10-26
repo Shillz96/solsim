@@ -299,8 +299,8 @@ export function TradePanelContainer({
     return (
       <div className="mario-card p-6 animate-pulse">
         <div className="space-y-4">
-          <div className="h-6 bg-[var(--coin-gold)]/20 rounded w-3/4"></div>
-          <div className="h-32 bg-[var(--coin-gold)]/20 rounded"></div>
+          <div className="h-6 bg-coin/20 rounded w-3/4"></div>
+          <div className="h-32 bg-coin/20 rounded"></div>
         </div>
       </div>
     )
@@ -340,16 +340,16 @@ export function TradePanelContainer({
           {(tradePanelState.tradeError || tradePanelState.lastTradeSuccess) && (
             <div className="mb-2">
               {tradePanelState.tradeError && (
-                <Alert variant="destructive" className="border-2 border-[var(--mario-red)] py-2">
+                <Alert variant="destructive" className="border-2 border-mario py-2">
                   <AlertCircle className="h-3 w-3" />
                   <AlertDescription className="text-xs">{tradePanelState.tradeError}</AlertDescription>
                 </Alert>
               )}
 
               {tradePanelState.lastTradeSuccess && (
-                <Alert className="border-2 border-[var(--luigi-green)] bg-[var(--luigi-green)]/10 py-2">
-                  <CheckCircle className="h-3 w-3 text-[var(--luigi-green)]" />
-                  <AlertDescription className="font-bold text-[var(--luigi-green)] text-xs">
+                <Alert className="border-2 border-luigi bg-luigi/10 py-2">
+                  <CheckCircle className="h-3 w-3 text-luigi" />
+                  <AlertDescription className="font-bold text-luigi text-xs">
                     1-UP! Trade executed!
                   </AlertDescription>
                 </Alert>
@@ -383,14 +383,14 @@ export function TradePanelContainer({
             <TabsList className="w-full">
               <TabsTrigger
                 value="buy"
-                className="flex-1 data-[state=active]:bg-[var(--luigi-green)]"
+                className="flex-1 data-[state=active]:bg-luigi"
               >
                 <TrendingUp className="h-4 w-4 mr-1.5" />
                 Buy
               </TabsTrigger>
               <TabsTrigger
                 value="sell"
-                className="flex-1 data-[state=active]:bg-[var(--mario-red)]"
+                className="flex-1 data-[state=active]:bg-mario"
                 disabled={!hasPosition}
               >
                 <TrendingDown className="h-4 w-4 mr-1.5" />

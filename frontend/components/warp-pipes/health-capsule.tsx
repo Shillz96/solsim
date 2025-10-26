@@ -19,17 +19,17 @@ interface HealthCapsuleProps {
 // Consolidated health styling configuration
 const HEALTH_CONFIG = {
   green: {
-    color: "bg-[var(--luigi-green)] text-white border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)]",
+    color: "bg-luigi text-white border-outline shadow-[2px_2px_0_var(--outline-black)]",
     icon: "✅",
     label: "Healthy"
   },
   yellow: {
-    color: "bg-[var(--star-yellow)] text-[var(--outline-black)] border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)]",
+    color: "bg-star text-outline border-outline shadow-[2px_2px_0_var(--outline-black)]",
     icon: "⚠️",
     label: "Caution"
   },
   red: {
-    color: "bg-[var(--mario-red)] text-white border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)]",
+    color: "bg-mario text-white border-outline shadow-[2px_2px_0_var(--outline-black)]",
     icon: "🔥",
     label: "Risky"
   }
@@ -88,7 +88,7 @@ export function HealthCapsule({ token, className }: HealthCapsuleProps) {
         <Badge
           variant="outline"
           className={cn(
-            "text-xs font-bold border-3 rounded-[8px] px-2 py-0.5",
+            "text-xs font-bold border-3 rounded px-2 py-0.5",
             HEALTH_CONFIG[liquidityHealth].color
           )}
         >
@@ -101,7 +101,7 @@ export function HealthCapsule({ token, className }: HealthCapsuleProps) {
         <Badge
           variant="outline"
           className={cn(
-            "text-xs font-bold border-3 rounded-[8px] px-2 py-0.5",
+            "text-xs font-bold border-3 rounded px-2 py-0.5",
             HEALTH_CONFIG[priceImpactHealth].color
           )}
         >
@@ -113,7 +113,7 @@ export function HealthCapsule({ token, className }: HealthCapsuleProps) {
       <Badge
         variant="outline"
         className={cn(
-          "text-xs font-bold border-3 rounded-[8px] px-2 py-0.5",
+          "text-xs font-bold border-3 rounded px-2 py-0.5",
           HEALTH_CONFIG[securityHealth].color
         )}
         title={`Freeze: ${token.freezeRevoked ? "✓" : "✗"}, Mint: ${token.mintRenounced ? "✓" : "✗"}`}
@@ -130,7 +130,7 @@ export function HealthCapsule({ token, className }: HealthCapsuleProps) {
       {token.state === "new" && token.poolAgeMin != null && (
         <Badge variant="outline" className={cn(
           marioStyles.badgeLg('gold'),
-          'text-xs font-mono bg-[var(--background)] text-[var(--outline-black)] px-2 py-0.5 rounded-[8px]'
+          'text-xs font-mono bg-background text-outline px-2 py-0.5 rounded'
         )}>
           🕐 {token.poolAgeMin < 60 ? `${token.poolAgeMin}m` : `${Math.floor(token.poolAgeMin / 60)}h`}
         </Badge>
@@ -140,7 +140,7 @@ export function HealthCapsule({ token, className }: HealthCapsuleProps) {
       {(token.state === "bonded" || token.state === "graduating") && token.bondingCurveProgress != null && (
         <Badge variant="outline" className={cn(
           marioStyles.badgeLg('gold'),
-          'text-xs font-mono bg-[var(--coin-yellow)]/20 text-[var(--outline-black)] px-2 py-0.5 rounded-[8px]'
+          'text-xs font-mono bg-coin/20 text-outline px-2 py-0.5 rounded'
         )}>
           📈 {token.bondingCurveProgress.toFixed(0)}%
         </Badge>
@@ -162,7 +162,7 @@ export function CompactHealthCapsule({ token, className }: HealthCapsuleProps) {
     <Badge
       variant="outline"
       className={cn(
-        "text-xs font-bold border-3 rounded-[8px] px-2 py-0.5",
+        "text-xs font-bold border-3 rounded px-2 py-0.5",
         HEALTH_CONFIG[overall].color,
         className
       )}

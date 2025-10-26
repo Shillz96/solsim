@@ -71,27 +71,27 @@ function StatCard({
   // Mario theme variant styles - bold borders and colors
   const variantStyles = {
     default: {
-      bg: 'bg-[var(--sky-blue)]/20',
-      border: 'border-[var(--outline-black)]',
-      iconBg: 'bg-[var(--sky-blue)]',
+      bg: 'bg-sky/20',
+      border: 'border-outline',
+      iconBg: 'bg-sky',
       iconColor: 'text-white'
     },
     success: {
-      bg: 'bg-[var(--luigi-green)]/10',
-      border: 'border-[var(--outline-black)]',
-      iconBg: 'bg-[var(--luigi-green)]',
+      bg: 'bg-luigi/10',
+      border: 'border-outline',
+      iconBg: 'bg-luigi',
       iconColor: 'text-white'
     },
     danger: {
-      bg: 'bg-[var(--mario-red)]/10',
-      border: 'border-[var(--outline-black)]',
-      iconBg: 'bg-[var(--mario-red)]',
+      bg: 'bg-mario/10',
+      border: 'border-outline',
+      iconBg: 'bg-mario',
       iconColor: 'text-white'
     }
   };
 
   const changeColor = change !== undefined
-    ? change >= 0 ? 'text-[var(--luigi-green)]' : 'text-[var(--mario-red)]'
+    ? change >= 0 ? 'text-luigi' : 'text-mario'
     : 'text-muted-foreground';
 
   const ChangeIcon = change !== undefined
@@ -127,7 +127,7 @@ function StatCard({
             <div className={cn(
               "p-3 rounded-lg border-3",
               style.iconBg,
-              "border-[var(--outline-black)]",
+              "border-outline",
               "shadow-[3px_3px_0_var(--outline-black)]",
               "flex items-center justify-center"
             )}>
@@ -139,8 +139,8 @@ function StatCard({
             </div>
             {change !== undefined && ChangeIcon && (
               <div className={cn(
-                "flex items-center gap-1 px-2 py-1 rounded-lg border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)]",
-                change >= 0 ? "bg-[var(--luigi-green)]/10" : "bg-[var(--mario-red)]/10",
+                "flex items-center gap-1 px-2 py-1 rounded-lg border-3 border-outline shadow-[2px_2px_0_var(--outline-black)]",
+                change >= 0 ? "bg-luigi/10" : "bg-mario/10",
                 "font-bold text-xs"
               )}>
                 <ChangeIcon className="h-3 w-3" />
@@ -150,7 +150,7 @@ function StatCard({
           </div>
 
           {/* Title - Pixel Font */}
-          <p className="text-xs font-mario font-bold text-[var(--outline-black)] mb-2 uppercase tracking-wide">{title}</p>
+          <p className="text-xs font-mario font-bold text-outline mb-2 uppercase tracking-wide">{title}</p>
 
           {/* Value */}
           {isLoading ? (
@@ -163,11 +163,11 @@ function StatCard({
               {format === 'currency' && showSolEquiv && typeof value === 'number' ? (
                 <UsdWithSol
                   usd={value}
-                  className="text-2xl font-bold text-[var(--outline-black)]"
+                  className="text-2xl font-bold text-outline"
                   solClassName="text-xs text-muted-foreground font-bold"
                 />
               ) : (
-                <p className="text-2xl font-bold text-[var(--outline-black)] mb-1">{formattedValue}</p>
+                <p className="text-2xl font-bold text-outline mb-1">{formattedValue}</p>
               )}
             </>
           )}
@@ -191,10 +191,10 @@ function MetricsLoadingSkeleton() {
       {[1, 2, 3, 4].map((i) => (
         <div
           key={i}
-          className="bg-[var(--sky-blue)]/20 border-4 border-[var(--outline-black)] rounded-xl shadow-[6px_6px_0_var(--outline-black)] p-6 animate-pulse"
+          className="bg-sky/20 border-4 border-outline rounded-xl shadow-[6px_6px_0_var(--outline-black)] p-6 animate-pulse"
         >
           <div className="flex items-center justify-between mb-4">
-            <div className="w-12 h-12 bg-muted border-2 border-[var(--outline-black)] rounded-lg" />
+            <div className="w-12 h-12 bg-muted border-2 border-outline rounded-lg" />
           </div>
           <div className="h-4 bg-muted rounded w-1/2 mb-2" />
           <div className="h-8 bg-muted rounded w-3/4 mb-2" />

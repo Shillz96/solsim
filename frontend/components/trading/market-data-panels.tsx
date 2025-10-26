@@ -39,8 +39,8 @@ export function MarketDataPanels({ tokenMint }: MarketDataPanelsProps) {
           className={cn(
             "mario-btn px-4 py-2 text-sm flex items-center gap-2",
             activeTab === 'trades'
-              ? "bg-[var(--color-luigi)] text-white"
-              : "bg-white text-[var(--outline-black)] opacity-50"
+              ? "bg-luigi text-white"
+              : "bg-white text-outline opacity-50"
           )}
         >
           <TrendingUp className="w-4 h-4" />
@@ -51,8 +51,8 @@ export function MarketDataPanels({ tokenMint }: MarketDataPanelsProps) {
           className={cn(
             "mario-btn px-4 py-2 text-sm flex items-center gap-2",
             activeTab === 'traders'
-              ? "bg-[var(--color-luigi)] text-white"
-              : "bg-white text-[var(--outline-black)] opacity-50"
+              ? "bg-luigi text-white"
+              : "bg-white text-outline opacity-50"
           )}
         >
           <Users className="w-4 h-4" />
@@ -63,8 +63,8 @@ export function MarketDataPanels({ tokenMint }: MarketDataPanelsProps) {
           className={cn(
             "mario-btn px-4 py-2 text-sm flex items-center gap-2",
             activeTab === 'holders'
-              ? "bg-[var(--color-luigi)] text-white"
-              : "bg-white text-[var(--outline-black)] opacity-50"
+              ? "bg-luigi text-white"
+              : "bg-white text-outline opacity-50"
           )}
         >
           <Users className="w-4 h-4" />
@@ -75,8 +75,8 @@ export function MarketDataPanels({ tokenMint }: MarketDataPanelsProps) {
           className={cn(
             "mario-btn px-4 py-2 text-sm flex items-center gap-2",
             activeTab === 'bubblemap'
-              ? "bg-[var(--color-luigi)] text-white"
-              : "bg-white text-[var(--outline-black)] opacity-50"
+              ? "bg-luigi text-white"
+              : "bg-white text-outline opacity-50"
           )}
         >
           <Network className="w-4 h-4" />
@@ -87,8 +87,8 @@ export function MarketDataPanels({ tokenMint }: MarketDataPanelsProps) {
           className={cn(
             "mario-btn px-4 py-2 text-sm flex items-center gap-2",
             activeTab === 'positions'
-              ? "bg-[var(--color-luigi)] text-white"
-              : "bg-white text-[var(--outline-black)] opacity-50"
+              ? "bg-luigi text-white"
+              : "bg-white text-outline opacity-50"
           )}
         >
           <Wallet className="w-4 h-4" />
@@ -122,12 +122,12 @@ const RecentTradesPanel = memo(function RecentTradesPanel({ tokenMint }: { token
   return (
     <div className="mario-card bg-white p-4 h-full overflow-hidden flex flex-col">
       <div className="flex items-center gap-3 mb-4">
-        <div className="w-10 h-10 rounded-lg bg-[var(--color-luigi)] border-3 border-[var(--outline-black)] flex items-center justify-center shadow-[2px_2px_0_var(--outline-black)]">
+        <div className="w-10 h-10 rounded-lg bg-luigi border-3 border-outline flex items-center justify-center shadow-[2px_2px_0_var(--outline-black)]">
           <TrendingUp className="w-5 h-5 text-white" />
         </div>
         <div>
           <h3 className="font-bold text-sm uppercase">Recent Market Activity</h3>
-          <p className="text-xs text-[var(--foreground)] opacity-70">
+          <p className="text-xs text-foreground opacity-70">
             {isConnected ? 'Live' : status}
           </p>
         </div>
@@ -135,13 +135,13 @@ const RecentTradesPanel = memo(function RecentTradesPanel({ tokenMint }: { token
 
       {isLoading ? (
         <div className="flex items-center justify-center py-8">
-          <Loader2 className="h-5 w-5 animate-spin text-[var(--color-luigi)]" />
+          <Loader2 className="h-5 w-5 animate-spin text-luigi" />
         </div>
       ) : trades.length === 0 ? (
         <div className="text-center py-8">
           <div className="text-4xl mb-2">📊</div>
           <h4 className="font-bold mb-1">No recent trades</h4>
-          <p className="text-sm text-[var(--foreground)] opacity-70">Waiting for market activity...</p>
+          <p className="text-sm text-foreground opacity-70">Waiting for market activity...</p>
         </div>
       ) : (
         <div className="space-y-2 overflow-y-auto flex-1">
@@ -150,8 +150,8 @@ const RecentTradesPanel = memo(function RecentTradesPanel({ tokenMint }: { token
             return (
               <div key={index} className="mario-card-sm bg-white p-3 flex items-center gap-3">
                 <div className={cn(
-                  "w-8 h-8 rounded-lg border-3 border-[var(--outline-black)] flex items-center justify-center shadow-[2px_2px_0_var(--outline-black)]",
-                  isBuy ? "bg-[var(--color-luigi)]" : "bg-[var(--color-sell)]"
+                  "w-8 h-8 rounded-lg border-3 border-outline flex items-center justify-center shadow-[2px_2px_0_var(--outline-black)]",
+                  isBuy ? "bg-luigi" : "bg-mario"
                 )}>
                   {isBuy ? (
                     <TrendingUp className="w-4 h-4 text-white" />
@@ -164,7 +164,7 @@ const RecentTradesPanel = memo(function RecentTradesPanel({ tokenMint }: { token
                     <span className="font-bold text-sm">{isBuy ? 'BUY' : 'SELL'}</span>
                     <span className="text-xs font-mono">{formatNumber(trade.amountSol || 0)} SOL</span>
                   </div>
-                  <div className="text-xs text-[var(--foreground)] opacity-70 truncate">
+                  <div className="text-xs text-foreground opacity-70 truncate">
                     {formatNumber(trade.amountToken || 0)} tokens
                   </div>
                 </div>
@@ -195,16 +195,16 @@ const TopTradersPanel = memo(function TopTradersPanel({ tokenMint }: { tokenMint
   return (
     <div className="mario-card bg-white p-4">
       <div className="flex items-center gap-3 mb-4">
-        <div className="w-10 h-10 rounded-lg bg-[var(--color-star)] border-3 border-[var(--outline-black)] flex items-center justify-center shadow-[2px_2px_0_var(--outline-black)]">
-          <Users className="w-5 h-5 text-[var(--outline-black)]" />
+        <div className="w-10 h-10 rounded-lg bg-star border-3 border-outline flex items-center justify-center shadow-[2px_2px_0_var(--outline-black)]">
+          <Users className="w-5 h-5 text-outline" />
         </div>
         <div className="flex-1">
           <h3 className="font-bold text-sm uppercase">Top Traders</h3>
           <div className="flex items-center gap-2">
-            <p className="text-xs text-[var(--foreground)] opacity-70">Helius on-chain data</p>
+            <p className="text-xs text-foreground opacity-70">Helius on-chain data</p>
             {!isLoading && traders.length > 0 && (
-              <span className="inline-flex items-center gap-1 text-[10px] text-[var(--luigi-green)] font-bold">
-                <span className="w-1.5 h-1.5 bg-[var(--luigi-green)] rounded-full animate-pulse"></span>
+              <span className="inline-flex items-center gap-1 text-[10px] text-luigi font-bold">
+                <span className="w-1.5 h-1.5 bg-luigi rounded-full animate-pulse"></span>
                 LIVE
               </span>
             )}
@@ -215,19 +215,19 @@ const TopTradersPanel = memo(function TopTradersPanel({ tokenMint }: { tokenMint
       {isLoading ? (
         <div className="text-center py-4">
           <div className="text-2xl mb-2">⏳</div>
-          <p className="text-sm text-[var(--foreground)] opacity-70">Loading traders...</p>
+          <p className="text-sm text-foreground opacity-70">Loading traders...</p>
         </div>
       ) : !traders || traders.length === 0 ? (
         <div className="text-center py-4">
           <div className="text-2xl mb-2">📊</div>
-          <p className="text-sm text-[var(--foreground)] opacity-70">No trading activity yet</p>
+          <p className="text-sm text-foreground opacity-70">No trading activity yet</p>
         </div>
       ) : (
         <div className="space-y-2 max-h-[300px] overflow-y-auto">
           {traders.map((trader: any, index: number) => (
             <div
               key={trader.address}
-              className="flex items-center justify-between p-2 rounded-lg border-2 border-[var(--outline-black)] bg-[var(--background)] hover:bg-[var(--color-star)] hover:bg-opacity-10 transition-colors"
+              className="flex items-center justify-between p-2 rounded-lg border-2 border-outline bg-background hover:bg-star hover:bg-opacity-10 transition-colors"
             >
               <div className="flex items-center gap-2">
                 <span className="font-bold text-sm">{index + 1}.</span>
@@ -236,7 +236,7 @@ const TopTradersPanel = memo(function TopTradersPanel({ tokenMint }: { tokenMint
                 </span>
               </div>
               <div className="text-right">
-                <div className={`text-sm font-bold ${trader.profitSol >= 0 ? 'text-[var(--luigi-green)]' : 'text-[var(--mario-red)]'}`}>
+                <div className={`text-sm font-bold ${trader.profitSol >= 0 ? 'text-luigi' : 'text-mario'}`}>
                   {trader.profitSol >= 0 ? '+' : ''}{trader.profitSol.toFixed(3)} SOL
                 </div>
                 <div className="text-xs opacity-70">{trader.trades} trades</div>
@@ -261,13 +261,13 @@ const HoldersPanel = memo(function HoldersPanel({ tokenMint }: { tokenMint: stri
   return (
     <div className="mario-card bg-white p-4">
       <div className="flex items-center gap-3 mb-4">
-        <div className="w-10 h-10 rounded-lg bg-[var(--color-coin)] border-3 border-[var(--outline-black)] flex items-center justify-center shadow-[2px_2px_0_var(--outline-black)]">
-          <Wallet className="w-5 h-5 text-[var(--outline-black)]" />
+        <div className="w-10 h-10 rounded-lg bg-coin border-3 border-outline flex items-center justify-center shadow-[2px_2px_0_var(--outline-black)]">
+          <Wallet className="w-5 h-5 text-outline" />
         </div>
         <div>
           <h3 className="font-bold text-sm uppercase">Top Holders</h3>
           {holderData && (
-            <p className="text-xs text-[var(--foreground)] opacity-70">
+            <p className="text-xs text-foreground opacity-70">
               {holderData.holderCount} total holders
             </p>
           )}
@@ -277,19 +277,19 @@ const HoldersPanel = memo(function HoldersPanel({ tokenMint }: { tokenMint: stri
       {isLoading ? (
         <div className="text-center py-4">
           <div className="text-2xl mb-2">⏳</div>
-          <p className="text-sm text-[var(--foreground)] opacity-70">Loading holders...</p>
+          <p className="text-sm text-foreground opacity-70">Loading holders...</p>
         </div>
       ) : !holderData || holderData.holders.length === 0 ? (
         <div className="text-center py-4">
           <div className="text-2xl mb-2">👥</div>
-          <p className="text-sm text-[var(--foreground)] opacity-70">No holder data available</p>
+          <p className="text-sm text-foreground opacity-70">No holder data available</p>
         </div>
       ) : (
         <div className="space-y-2 max-h-[300px] overflow-y-auto">
           {holderData.holders.map((holder) => (
             <div
               key={holder.address}
-              className="flex items-center justify-between p-2 rounded-lg border-2 border-[var(--outline-black)] bg-[var(--background)] hover:bg-[var(--color-coin)] hover:bg-opacity-10 transition-colors"
+              className="flex items-center justify-between p-2 rounded-lg border-2 border-outline bg-background hover:bg-coin hover:bg-opacity-10 transition-colors"
             >
               <div className="flex items-center gap-2">
                 <span className="font-bold text-sm">#{holder.rank}</span>
@@ -326,17 +326,17 @@ const BubbleMapsPanel = memo(function BubbleMapsPanel({ tokenMint }: { tokenMint
     return (
       <div className="mario-card bg-white p-4">
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 rounded-lg bg-[var(--color-super)] border-3 border-[var(--outline-black)] flex items-center justify-center shadow-[2px_2px_0_var(--outline-black)]">
+          <div className="w-10 h-10 rounded-lg bg-super border-3 border-outline flex items-center justify-center shadow-[2px_2px_0_var(--outline-black)]">
             <Network className="w-5 h-5 text-white" />
           </div>
           <div>
             <h3 className="font-bold text-sm uppercase">Bubble Map</h3>
-            <p className="text-xs text-[var(--foreground)] opacity-70">Checking...</p>
+            <p className="text-xs text-foreground opacity-70">Checking...</p>
           </div>
         </div>
         <div className="text-center py-4">
           <div className="text-2xl mb-2">⏳</div>
-          <p className="text-sm text-[var(--foreground)] opacity-70">Loading...</p>
+          <p className="text-sm text-foreground opacity-70">Loading...</p>
         </div>
       </div>
     )
@@ -346,17 +346,17 @@ const BubbleMapsPanel = memo(function BubbleMapsPanel({ tokenMint }: { tokenMint
     return (
       <div className="mario-card bg-white p-4">
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 rounded-lg bg-[var(--color-super)] border-3 border-[var(--outline-black)] flex items-center justify-center shadow-[2px_2px_0_var(--outline-black)]">
+          <div className="w-10 h-10 rounded-lg bg-super border-3 border-outline flex items-center justify-center shadow-[2px_2px_0_var(--outline-black)]">
             <Network className="w-5 h-5 text-white" />
           </div>
           <div>
             <h3 className="font-bold text-sm uppercase">Bubble Map</h3>
-            <p className="text-xs text-[var(--foreground)] opacity-70">Not available</p>
+            <p className="text-xs text-foreground opacity-70">Not available</p>
           </div>
         </div>
         <div className="text-center py-4">
           <div className="text-2xl mb-2">🫧</div>
-          <p className="text-sm text-[var(--foreground)] opacity-70">
+          <p className="text-sm text-foreground opacity-70">
             Bubble map not available for this token
           </p>
         </div>
@@ -367,12 +367,12 @@ const BubbleMapsPanel = memo(function BubbleMapsPanel({ tokenMint }: { tokenMint
   return (
     <div className="mario-card bg-white p-4">
       <div className="flex items-center gap-3 mb-4">
-        <div className="w-10 h-10 rounded-lg bg-[var(--color-super)] border-3 border-[var(--outline-black)] flex items-center justify-center shadow-[2px_2px_0_var(--outline-black)]">
+        <div className="w-10 h-10 rounded-lg bg-super border-3 border-outline flex items-center justify-center shadow-[2px_2px_0_var(--outline-black)]">
           <Network className="w-5 h-5 text-white" />
         </div>
         <div>
           <h3 className="font-bold text-sm uppercase">Bubble Map</h3>
-          <p className="text-xs text-[var(--foreground)] opacity-70">Interactive visualization</p>
+          <p className="text-xs text-foreground opacity-70">Interactive visualization</p>
         </div>
       </div>
 
@@ -381,16 +381,16 @@ const BubbleMapsPanel = memo(function BubbleMapsPanel({ tokenMint }: { tokenMint
           <div className="text-4xl mb-3">🫧</div>
           <button
             onClick={() => setShowIframe(true)}
-            className="px-4 py-2 bg-[var(--color-super)] text-white rounded-lg border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-[1px] transition-all font-bold text-sm"
+            className="px-4 py-2 bg-super text-white rounded-lg border-3 border-outline shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-[1px] transition-all font-bold text-sm"
           >
             Load Bubble Map
           </button>
-          <p className="text-xs text-[var(--foreground)] opacity-70 mt-2">
+          <p className="text-xs text-foreground opacity-70 mt-2">
             Click to visualize holder distribution
           </p>
         </div>
       ) : (
-        <div className="relative w-full h-[400px] rounded-lg overflow-hidden border-3 border-[var(--outline-black)]">
+        <div className="relative w-full h-[400px] rounded-lg overflow-hidden border-3 border-outline">
           <iframe
             src={`https://bubblemaps.io/sol/token/${tokenMint}`}
             className="w-full h-full"
@@ -411,12 +411,12 @@ const UserPositionsPanel = memo(function UserPositionsPanel() {
   return (
     <div className="mario-card bg-white p-4">
       <div className="flex items-center gap-3 mb-4">
-        <div className="w-10 h-10 rounded-lg bg-[var(--color-brand)] border-3 border-[var(--outline-black)] flex items-center justify-center shadow-[2px_2px_0_var(--outline-black)]">
+        <div className="w-10 h-10 rounded-lg bg-mario border-3 border-outline flex items-center justify-center shadow-[2px_2px_0_var(--outline-black)]">
           <Wallet className="w-5 h-5 text-white" />
         </div>
         <div>
           <h3 className="font-bold text-sm uppercase">Your Portfolio</h3>
-          <p className="text-xs text-[var(--foreground)] opacity-70">
+          <p className="text-xs text-foreground opacity-70">
             {portfolio?.positions?.length || 0} positions
           </p>
         </div>
@@ -424,7 +424,7 @@ const UserPositionsPanel = memo(function UserPositionsPanel() {
       <div className="text-center py-8">
         <div className="text-4xl mb-2">💼</div>
         <h4 className="font-bold mb-1">Portfolio View</h4>
-        <p className="text-sm text-[var(--foreground)] opacity-70">Your active positions...</p>
+        <p className="text-sm text-foreground opacity-70">Your active positions...</p>
       </div>
     </div>
   )

@@ -211,15 +211,15 @@ export function RealtimeTradeStrip({
       <button
         onClick={() => setIsExpanded(!isExpanded)}
         className={cn(
-          "absolute right-3 w-8 h-8 bg-[var(--coin-gold)] border-3 border-[var(--outline-black)] rounded-full shadow-mario hover:scale-110 transition-all duration-200 flex items-center justify-center z-20",
+          "absolute right-3 w-8 h-8 bg-coin border-3 border-outline rounded-full shadow-mario hover:scale-110 transition-all duration-200 flex items-center justify-center z-20",
           isExpanded ? "top-1/2 -translate-y-1/2" : "top-1/2 -translate-y-1/2"
         )}
         aria-label={isExpanded ? "Collapse trade strip" : "Expand trade strip"}
       >
         {isExpanded ? (
-          <ChevronUp className="h-4 w-4 text-[var(--outline-black)]" />
+          <ChevronUp className="h-4 w-4 text-outline" />
         ) : (
-          <ChevronDown className="h-4 w-4 text-[var(--outline-black)]" />
+          <ChevronDown className="h-4 w-4 text-outline" />
         )}
       </button>
     </div>

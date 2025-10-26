@@ -163,7 +163,7 @@ export function RewardsLeaderboard() {
             )}
             <CardHeader className="mario-header-card mb-4">
               <div className="flex items-center gap-3">
-                <Avatar className="h-12 w-12 border-3 border-[var(--outline-black)]">
+                <Avatar className="h-12 w-12 border-3 border-outline">
                   <AvatarImage
                     src={
                       leader.avatarUrl ||
@@ -220,7 +220,7 @@ export function RewardsLeaderboard() {
           <div className="space-y-3">
             {leaders?.map((leader) => (
               <div key={leader.userId} className={cn(
-                "flex items-center justify-between p-4 rounded-lg border-3 border-[var(--outline-black)]",
+                "flex items-center justify-between p-4 rounded-lg border-3 border-outline",
                 "hover:bg-muted/50 transition-all hover:shadow-[2px_2px_0_var(--outline-black)]",
                 user?.id === leader.userId && "bg-primary/5 border-primary shadow-[3px_3px_0_var(--outline-black)]"
               )}>

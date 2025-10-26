@@ -70,37 +70,37 @@ export function AchievementsTab() {
       <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-[var(--star-yellow)]/20 border-4 border-[var(--outline-black)] rounded-xl shadow-[6px_6px_0_var(--outline-black)] p-6"
+        className="bg-star/20 border-4 border-outline rounded-xl shadow-[6px_6px_0_var(--outline-black)] p-6"
       >
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
             <Image src="/icons/mario/trophy.png" alt="Trophy" width={48} height={48} className="animate-pulse" />
             <div>
-              <h2 className="text-2xl font-mario font-bold text-[var(--outline-black)]">ACHIEVEMENTS</h2>
+              <h2 className="text-2xl font-mario font-bold text-outline">ACHIEVEMENTS</h2>
               <p className="text-sm text-muted-foreground font-bold mt-1">
                 Unlock badges by completing challenges!
               </p>
             </div>
           </div>
-          <div className="bg-[var(--star-yellow)] border-3 border-[var(--outline-black)] rounded-lg px-6 py-3 shadow-[3px_3px_0_var(--outline-black)]">
+          <div className="bg-star border-3 border-outline rounded-lg px-6 py-3 shadow-[3px_3px_0_var(--outline-black)]">
             <div className="text-center">
-              <div className="text-3xl font-mario font-bold text-[var(--outline-black)]">
+              <div className="text-3xl font-mario font-bold text-outline">
                 {unlockedCount}/{totalCount}
               </div>
-              <div className="text-xs font-bold text-[var(--outline-black)] mt-1">UNLOCKED</div>
+              <div className="text-xs font-bold text-outline mt-1">UNLOCKED</div>
             </div>
           </div>
         </div>
 
         {/* Progress Bar */}
-        <div className="bg-gray-200 border-3 border-[var(--outline-black)] rounded-full h-6 overflow-hidden">
+        <div className="bg-gray-200 border-3 border-outline rounded-full h-6 overflow-hidden">
           <motion.div
             className="bg-gradient-to-r from-[var(--star-yellow)] to-[var(--star-yellow)]/80 h-full flex items-center justify-center"
             initial={{ width: 0 }}
             animate={{ width: `${(unlockedCount / totalCount) * 100}%` }}
             transition={{ duration: 1 }}
           >
-            <span className="text-xs font-mario font-bold text-[var(--outline-black)]">
+            <span className="text-xs font-mario font-bold text-outline">
               {Math.round((unlockedCount / totalCount) * 100)}%
             </span>
           </motion.div>
@@ -124,7 +124,7 @@ export function AchievementsTab() {
           >
             {/* Unlocked Badge */}
             {achievement.unlocked && (
-              <div className="absolute -top-2 -right-2 bg-[var(--luigi-green)] border-3 border-[var(--outline-black)] rounded-full p-2 shadow-[2px_2px_0_var(--outline-black)]">
+              <div className="absolute -top-2 -right-2 bg-luigi border-3 border-outline rounded-full p-2 shadow-[2px_2px_0_var(--outline-black)]">
                 <Star className="h-4 w-4 text-white fill-white" />
               </div>
             )}
@@ -142,7 +142,7 @@ export function AchievementsTab() {
                 />
               </div>
               <div className="flex-1">
-                <h3 className="text-lg font-mario font-bold text-[var(--outline-black)]">
+                <h3 className="text-lg font-mario font-bold text-outline">
                   {achievement.title}
                 </h3>
                 <p className="text-xs text-muted-foreground font-bold mt-1">
@@ -152,12 +152,12 @@ export function AchievementsTab() {
             </div>
 
             {/* Status */}
-            <div className="flex items-center justify-between mt-4 pt-4 border-t-2 border-[var(--outline-black)]">
+            <div className="flex items-center justify-between mt-4 pt-4 border-t-2 border-outline">
               <span className="text-xs font-bold text-muted-foreground">
                 {achievement.unlocked ? 'UNLOCKED!' : 'LOCKED'}
               </span>
               {achievement.unlocked && (
-                <div className="text-xs font-mario font-bold text-[var(--luigi-green)]">
+                <div className="text-xs font-mario font-bold text-luigi">
                   +50 XP
                 </div>
               )}
@@ -171,29 +171,29 @@ export function AchievementsTab() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
-        className="bg-gradient-to-br from-[var(--mario-red)]/20 to-[var(--star-yellow)]/20 border-4 border-[var(--outline-black)] rounded-xl shadow-[6px_6px_0_var(--outline-black)] p-6"
+        className="bg-gradient-to-br from-[var(--mario-red)]/20 to-[var(--star-yellow)]/20 border-4 border-outline rounded-xl shadow-[6px_6px_0_var(--outline-black)] p-6"
       >
         <div className="flex items-center gap-3 mb-4">
           <Image src="/icons/mario/star.png" alt="Leaderboard" width={32} height={32} className="animate-pulse" />
-          <h3 className="text-xl font-mario font-bold text-[var(--outline-black)]">LEADERBOARD RANK</h3>
+          <h3 className="text-xl font-mario font-bold text-outline">LEADERBOARD RANK</h3>
         </div>
 
         <div className="grid grid-cols-3 gap-4">
-          <div className="bg-[var(--card)]/50 border-3 border-[var(--outline-black)] rounded-lg p-4 text-center">
+          <div className="bg-card/50 border-3 border-outline rounded-lg p-4 text-center">
             <Image src="/icons/mario/trophy.png" alt="Global" width={32} height={32} className="mx-auto mb-2" />
-            <div className="text-2xl font-mario font-bold text-[var(--outline-black)]">#127</div>
+            <div className="text-2xl font-mario font-bold text-outline">#127</div>
             <div className="text-xs text-muted-foreground font-bold mt-1">Global</div>
           </div>
           
-          <div className="bg-[var(--card)]/50 border-3 border-[var(--outline-black)] rounded-lg p-4 text-center">
+          <div className="bg-card/50 border-3 border-outline rounded-lg p-4 text-center">
             <Image src="/icons/mario/fire.png" alt="Weekly" width={32} height={32} className="mx-auto mb-2" />
-            <div className="text-2xl font-mario font-bold text-[var(--outline-black)]">#45</div>
+            <div className="text-2xl font-mario font-bold text-outline">#45</div>
             <div className="text-xs text-muted-foreground font-bold mt-1">This Week</div>
           </div>
           
-          <div className="bg-[var(--card)]/50 border-3 border-[var(--outline-black)] rounded-lg p-4 text-center">
+          <div className="bg-card/50 border-3 border-outline rounded-lg p-4 text-center">
             <Image src="/icons/mario/star.png" alt="Daily" width={32} height={32} className="mx-auto mb-2" />
-            <div className="text-2xl font-mario font-bold text-[var(--outline-black)]">#23</div>
+            <div className="text-2xl font-mario font-bold text-outline">#23</div>
             <div className="text-xs text-muted-foreground font-bold mt-1">Today</div>
           </div>
         </div>

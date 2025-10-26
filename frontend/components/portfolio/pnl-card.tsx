@@ -94,7 +94,7 @@ function EmptyPnLState() {
         )}>
           <Activity className="w-8 h-8 text-white" />
         </div>
-        <Sparkles className="w-4 h-4 text-[var(--star-yellow)] absolute -top-1 -right-1 animate-pulse" />
+        <Sparkles className="w-4 h-4 text-star absolute -top-1 -right-1 animate-pulse" />
       </div>
       
       <h3 className="text-lg font-mario font-bold mb-2">No Trading Activity Yet</h3>
@@ -104,7 +104,7 @@ function EmptyPnLState() {
       
       <button 
         onClick={() => window.location.href = '/warp-pipes'}
-        className="gap-2 h-10 px-6 rounded-lg border-3 border-[var(--outline-black)] bg-[var(--luigi-green)] text-white hover:bg-[var(--luigi-green)]/90 shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all flex items-center font-mario"
+        className="gap-2 h-10 px-6 rounded-lg border-3 border-outline bg-luigi text-white hover:bg-luigi/90 shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all flex items-center font-mario"
       >
         <TrendingUp className="w-4 h-4" />
         Start Trading
@@ -228,7 +228,7 @@ export function PnLCard() {
   // Loading state
   if (isLoading) {
     return (
-      <div className="bg-[var(--card)] rounded-2xl border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] relative overflow-hidden">
+      <div className="bg-card rounded-2xl border-4 border-outline shadow-[6px_6px_0_var(--outline-black)] relative overflow-hidden">
         <PnLLoadingSkeleton />
       </div>
     );
@@ -237,9 +237,9 @@ export function PnLCard() {
   // Error state
   if (error) {
     return (
-      <div className="bg-[var(--card)] rounded-2xl border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] relative overflow-hidden">
+      <div className="bg-card rounded-2xl border-4 border-outline shadow-[6px_6px_0_var(--outline-black)] relative overflow-hidden">
         <div className="p-6">
-          <Alert variant="destructive" className="border-3 border-[var(--mario-red)] shadow-[3px_3px_0_var(--outline-black)]">
+          <Alert variant="destructive" className="border-3 border-mario shadow-[3px_3px_0_var(--outline-black)]">
             <AlertCircle className="h-4 w-4" />
             <AlertDescription className="flex items-center justify-between">
               <span className="font-bold">
@@ -247,7 +247,7 @@ export function PnLCard() {
               </span>
               <button 
                 onClick={handleRefresh}
-                className="h-8 px-3 rounded-lg border-3 border-[var(--outline-black)] bg-[var(--card)] hover:bg-gray-50 shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all font-mario text-sm"
+                className="h-8 px-3 rounded-lg border-3 border-outline bg-card hover:bg-gray-50 shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all font-mario text-sm"
               >
                 Retry
               </button>
@@ -261,7 +261,7 @@ export function PnLCard() {
   // Empty state
   if (!portfolio || !portfolio.positions || portfolio.positions.length === 0) {
     return (
-      <div className="bg-[var(--card)] rounded-2xl border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] relative overflow-hidden">
+      <div className="bg-card rounded-2xl border-4 border-outline shadow-[6px_6px_0_var(--outline-black)] relative overflow-hidden">
         <EmptyPnLState />
       </div>
     );
@@ -286,7 +286,7 @@ export function PnLCard() {
 
   return (
     <>
-      <div className="bg-[var(--card)] rounded-2xl border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] relative overflow-hidden">
+      <div className="bg-card rounded-2xl border-4 border-outline shadow-[6px_6px_0_var(--outline-black)] relative overflow-hidden">
         {/* Animated Background */}
         <AnimatedBackground isPositive={isPositive} />
 
@@ -295,8 +295,8 @@ export function PnLCard() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className={cn(
-                "p-2 rounded-lg border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)]",
-                isPositive ? "bg-[var(--luigi-green)]" : "bg-[var(--mario-red)]"
+                "p-2 rounded-lg border-3 border-outline shadow-[2px_2px_0_var(--outline-black)]",
+                isPositive ? "bg-luigi" : "bg-mario"
               )}>
                 <PnLIcon className="h-5 w-5 text-white" />
               </div>
@@ -304,8 +304,8 @@ export function PnLCard() {
                 <div className="flex items-center gap-2">
                   <h3 className="text-lg font-mario font-bold">Profit & Loss</h3>
                   {isLiveUpdating && (
-                    <Badge variant="outline" className="gap-1 text-[10px] px-1.5 py-0 h-5 border-[var(--luigi-green)] text-[var(--luigi-green)] bg-[var(--luigi-green)]/5">
-                      <div className="w-1.5 h-1.5 rounded-full bg-[var(--luigi-green)] animate-pulse" />
+                    <Badge variant="outline" className="gap-1 text-[10px] px-1.5 py-0 h-5 border-luigi text-luigi bg-luigi/5">
+                      <div className="w-1.5 h-1.5 rounded-full bg-luigi animate-pulse" />
                       LIVE
                     </Badge>
                   )}
@@ -321,7 +321,7 @@ export function PnLCard() {
               <button
                 onClick={handleRefresh}
                 disabled={isRefetching}
-                className="shrink-0 h-9 w-9 rounded-lg border-3 border-[var(--outline-black)] bg-[var(--card)] hover:bg-gray-50 shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all flex items-center justify-center"
+                className="shrink-0 h-9 w-9 rounded-lg border-3 border-outline bg-card hover:bg-gray-50 shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all flex items-center justify-center"
               >
                 <RefreshCw className={cn(
                   "h-4 w-4",
@@ -331,7 +331,7 @@ export function PnLCard() {
               
               <button
                 onClick={handleShare}
-                className="gap-2 h-9 px-4 rounded-lg border-3 border-[var(--outline-black)] bg-[var(--card)] hover:bg-gray-50 shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all flex items-center font-mario text-sm"
+                className="gap-2 h-9 px-4 rounded-lg border-3 border-outline bg-card hover:bg-gray-50 shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all flex items-center font-mario text-sm"
               >
                 <Share2 className="h-4 w-4" />
                 <span className="hidden sm:inline">Share</span>
@@ -348,8 +348,8 @@ export function PnLCard() {
               marioStyles.card(false),
               'p-6',
               isPositive 
-                ? "bg-[var(--luigi-green)]/10" 
-                : "bg-[var(--mario-red)]/10"
+                ? "bg-luigi/10" 
+                : "bg-mario/10"
             )}
           >
             <StatItem
@@ -366,7 +366,7 @@ export function PnLCard() {
           </motion.div>
 
           {/* Detailed Metrics Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-[var(--outline-black)]">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-outline">
             <StatItem
               label="Realized P&L"
               value={realizedPnL}
@@ -404,10 +404,10 @@ export function PnLCard() {
 
           {/* Performance Badge */}
           {totalTrades >= 5 && (
-            <div className="flex items-center gap-2 pt-4 border-t border-[var(--outline-black)]">
+            <div className="flex items-center gap-2 pt-4 border-t border-outline">
               <Badge 
                 variant={winRate >= 50 ? "default" : "secondary"}
-                className="gap-1 border-2 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] font-mario"
+                className="gap-1 border-2 border-outline shadow-[2px_2px_0_var(--outline-black)] font-mario"
               >
                 <Award className="h-3 w-3" />
                 {winRate >= 70 ? "Outstanding" : winRate >= 50 ? "Profitable" : "Building Experience"}

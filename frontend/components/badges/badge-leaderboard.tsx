@@ -57,7 +57,7 @@ export function BadgeLeaderboard({ limit = 10, className = '' }: BadgeLeaderboar
 
   if (loading) {
     return (
-      <div className={`bg-[var(--card)] rounded-lg border-4 border-pipe-300 p-6 ${className}`}>
+      <div className={`bg-card rounded-lg border-4 border-pipe-300 p-6 ${className}`}>
         <div className="animate-pulse">
           <div className="h-8 bg-pipe-200 rounded mb-4"></div>
           <div className="space-y-4">
@@ -71,7 +71,7 @@ export function BadgeLeaderboard({ limit = 10, className = '' }: BadgeLeaderboar
   }
 
   return (
-    <div className={`bg-[var(--card)] rounded-lg border-4 border-pipe-300 p-6 ${className}`}>
+    <div className={`bg-card rounded-lg border-4 border-pipe-300 p-6 ${className}`}>
       <h2 className="font-mario text-2xl text-pipe-800 mb-6">Badge Leaders</h2>
       
       <div className="space-y-4">
@@ -79,7 +79,7 @@ export function BadgeLeaderboard({ limit = 10, className = '' }: BadgeLeaderboar
           <div
             key={entry.userId}
             className={`
-              bg-[var(--card)] rounded-lg border-3 p-4 flex items-center gap-4
+              bg-card rounded-lg border-3 p-4 flex items-center gap-4
               ${index === 0 ? 'border-coin-yellow-500 shadow-coin-glow' : ''}
               ${index === 1 ? 'border-pipe-400 shadow-mario' : ''}
               ${index === 2 ? 'border-luigi-green-500 shadow-mario' : ''}

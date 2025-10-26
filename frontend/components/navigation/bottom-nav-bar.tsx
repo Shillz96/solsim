@@ -201,7 +201,7 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
     <>
       {/* Mobile Bottom Nav */}
       <nav className={cn(
-        "fixed bottom-0 left-0 right-0 z-50 border-t-3 border-[var(--outline-black)] bg-[var(--card)] lg:hidden pb-[env(safe-area-inset-bottom)] shadow-[0_-4px_0_var(--outline-black)]",
+        "fixed bottom-0 left-0 right-0 z-50 border-t-3 border-outline bg-card lg:hidden pb-[env(safe-area-inset-bottom)] shadow-[0_-4px_0_var(--outline-black)]",
         className
       )}>
         <div className="flex items-center justify-around h-14 px-2">
@@ -287,7 +287,7 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
 
       {/* Desktop/Tablet Bottom Info Bar */}
       <div className={cn(
-        "hidden md:block fixed bottom-0 left-0 right-0 z-40 border-t border-[var(--color-border)] bg-[var(--background)]",
+        "hidden md:block fixed bottom-0 left-0 right-0 z-40 border-t border-[var(--color-border)] bg-background",
         className
       )}>
         {/* Medium screens: Vertical stack */}
@@ -298,7 +298,7 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
               {/* Market Lighthouse Hover - Left side */}
               <MarketHover
                 trigger={
-                  <div className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg bg-transparent hover:bg-[var(--card)]/10 transition-colors">
+                  <div className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg bg-transparent hover:bg-card/10 transition-colors">
                     <div className="flex items-center gap-1.5">
                       <div className="relative w-7 h-7">
                         <Image
@@ -319,10 +319,10 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
                 // Define glow colors for each crypto
                 const getGlowColor = (symbol: string) => {
                   switch (symbol) {
-                    case 'SOL': return 'text-[var(--luigi-green)]'; // Luigi green
+                    case 'SOL': return 'text-luigi'; // Luigi green
                     case 'BTC': return 'text-[#F7931A]'; // Bitcoin orange  
                     case 'ETH': return 'text-[#627EEA]'; // Ethereum blue
-                    default: return 'text-[var(--star-yellow)]';
+                    default: return 'text-star';
                   }
                 };
 
@@ -411,14 +411,14 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
                         value="More Info"
                         size="sm"
                         bgColor="white"
-                        className="cursor-pointer border-2 border-[var(--outline-black)] text-[var(--outline-black)]"
+                        className="cursor-pointer border-2 border-outline text-outline"
                       />
                     </div>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent 
                     align="center"
                     side="top"
-                    className="bg-[var(--card)] border-3 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)] mb-2"
+                    className="bg-card border-3 border-outline shadow-[4px_4px_0_var(--outline-black)] mb-2"
                     sideOffset={8}
                   >
                     {infoItems.map((item) => (
@@ -443,7 +443,7 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
         </div>
 
         {/* Large screens: Horizontal layout */}
-        <div className="hidden lg:block fixed bottom-0 left-0 right-0 z-50 border-t-3 border-[var(--outline-black)] bg-[var(--card)] shadow-[0_-4px_0_var(--outline-black)]">
+        <div className="hidden lg:block fixed bottom-0 left-0 right-0 z-50 border-t-3 border-outline bg-card shadow-[0_-4px_0_var(--outline-black)]">
           <div className="mx-auto flex h-[var(--bottom-nav-height)] items-center justify-between px-4 max-w-content">
             {/* Left: Social Links */}
             <div className="flex items-center gap-2 md:gap-4">
@@ -475,7 +475,7 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
               {/* Market Lighthouse Hover - Left side */}
               <MarketHover
                 trigger={
-                  <div className="flex items-center gap-1.5 md:gap-2 px-2 md:px-3 py-1 md:py-1.5 rounded-lg bg-transparent hover:bg-[var(--card)]/10 transition-colors">
+                  <div className="flex items-center gap-1.5 md:gap-2 px-2 md:px-3 py-1 md:py-1.5 rounded-lg bg-transparent hover:bg-card/10 transition-colors">
                     <div className="flex items-center gap-1 md:gap-1.5">
                       <div className="relative w-10 h-10">
                         <Image
@@ -496,10 +496,10 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
                 // Define glow colors for each crypto
                 const getGlowColor = (symbol: string) => {
                   switch (symbol) {
-                    case 'SOL': return 'text-[var(--luigi-green)]'; // Luigi green
+                    case 'SOL': return 'text-luigi'; // Luigi green
                     case 'BTC': return 'text-[#F7931A]'; // Bitcoin orange  
                     case 'ETH': return 'text-[#627EEA]'; // Ethereum blue
-                    default: return 'text-[var(--star-yellow)]';
+                    default: return 'text-star';
                   }
                 };
 
@@ -559,14 +559,14 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
                       value="More Info"
                       size="sm"
                       bgColor="white"
-                      className="hidden lg:inline-grid cursor-pointer border-2 border-[var(--outline-black)] text-[var(--outline-black)]"
+                      className="hidden lg:inline-grid cursor-pointer border-2 border-outline text-outline"
                     />
                   </div>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent 
                   align="center"
                   side="top"
-                  className="bg-[var(--card)] border-3 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)] mb-2"
+                  className="bg-card border-3 border-outline shadow-[4px_4px_0_var(--outline-black)] mb-2"
                   sideOffset={8}
                 >
                   {infoItems.map((item) => (

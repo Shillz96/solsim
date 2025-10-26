@@ -38,7 +38,7 @@ function StockCard({ token }: { token: Backend.TrendingToken }) {
         whileTap={{ scale: 0.98 }}
         transition={{ duration: 0.2 }}
       >
-        <div className="h-full cursor-pointer bg-[var(--sky-blue)]/20 border-4 border-[var(--outline-black)] rounded-xl shadow-[6px_6px_0_var(--outline-black)] hover:shadow-[8px_8px_0_var(--outline-black)] hover:-translate-y-1 transition-all duration-300">
+        <div className="h-full cursor-pointer bg-sky/20 border-4 border-outline rounded-xl shadow-[6px_6px_0_var(--outline-black)] hover:shadow-[8px_8px_0_var(--outline-black)] hover:-translate-y-1 transition-all duration-300">
           <div className="p-6">
             {/* Header with logo and symbol */}
             <div className="flex items-start justify-between mb-4">
@@ -53,7 +53,7 @@ function StockCard({ token }: { token: Backend.TrendingToken }) {
                       onError={() => setImageError(true)}
                     />
                   ) : (
-                    <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)]">
+                    <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center border-3 border-outline shadow-[3px_3px_0_var(--outline-black)]">
                       <span className="text-white text-base font-bold tracking-tight">
                         {token.symbol?.replace('x', '').replace('X', '').slice(0, 4) || '??'}
                       </span>
@@ -114,7 +114,7 @@ function StockCard({ token }: { token: Backend.TrendingToken }) {
             </div>
 
             {/* Trade button */}
-            <Button className="w-full mt-4 bg-[var(--luigi-green)] hover:bg-[var(--luigi-green)]/90 text-white border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all font-mario" size="sm">
+            <Button className="w-full mt-4 bg-luigi hover:bg-luigi/90 text-white border-3 border-outline shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all font-mario" size="sm">
               Trade Now
             </Button>
           </div>
@@ -194,7 +194,7 @@ export default function StocksPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <div className="bg-[var(--sky-blue)]/20 border-4 border-[var(--outline-black)] rounded-xl shadow-[8px_8px_0_var(--outline-black)] p-6 relative overflow-hidden">
+          <div className="bg-sky/20 border-4 border-outline rounded-xl shadow-[8px_8px_0_var(--outline-black)] p-6 relative overflow-hidden">
             {/* Decorative Mario icons */}
             <div className="absolute top-2 right-2 flex gap-2">
               <Image src="/icons/mario/star.png" alt="Star" width={24} height={24} className="animate-pulse" />
@@ -229,7 +229,7 @@ export default function StocksPage() {
           transition={{ duration: 0.5, delay: 0.1 }}
           className="mb-6"
         >
-          <div className="bg-[var(--sky-blue)]/20 border-4 border-[var(--outline-black)] rounded-xl shadow-[6px_6px_0_var(--outline-black)] py-4">
+          <div className="bg-sky/20 border-4 border-outline rounded-xl shadow-[6px_6px_0_var(--outline-black)] py-4">
             <div className="px-6 space-y-4">
               {/* Search */}
               <div className="relative">
@@ -238,7 +238,7 @@ export default function StocksPage() {
                   placeholder="Search stocks by name or symbol..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-9 h-12 text-lg border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)] rounded-lg"
+                  className="pl-9 h-12 text-lg border-3 border-outline shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)] rounded-lg"
                 />
               </div>
 
@@ -249,8 +249,8 @@ export default function StocksPage() {
                   size="sm"
                   onClick={() => setSelectedCategory('all')}
                   className={cn(
-                    "border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all font-mario",
-                    selectedCategory === 'all' ? "bg-[var(--mario-red)] text-white" : ""
+                    "border-3 border-outline shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all font-mario",
+                    selectedCategory === 'all' ? "bg-mario text-white" : ""
                   )}
                 >
                   All Stocks
@@ -262,8 +262,8 @@ export default function StocksPage() {
                     size="sm"
                     onClick={() => setSelectedCategory(key as Category)}
                     className={cn(
-                      "border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all font-mario",
-                      selectedCategory === key ? "bg-[var(--luigi-green)] text-white" : ""
+                      "border-3 border-outline shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all font-mario",
+                      selectedCategory === key ? "bg-luigi text-white" : ""
                     )}
                   >
                     <span className="mr-1">{category.icon}</span>
@@ -277,34 +277,34 @@ export default function StocksPage() {
 
         {/* Loading State */}
         {loading && (
-          <div className="bg-[var(--sky-blue)]/20 border-4 border-[var(--outline-black)] rounded-xl shadow-[6px_6px_0_var(--outline-black)] p-12">
+          <div className="bg-sky/20 border-4 border-outline rounded-xl shadow-[6px_6px_0_var(--outline-black)] p-12">
             <div className="flex flex-col items-center justify-center gap-4">
               <div className="relative">
-                <div className="h-20 w-20 border-4 border-[var(--luigi-green)]/30 border-t-[var(--luigi-green)] rounded-full animate-spin"></div>
+                <div className="h-20 w-20 border-4 border-luigi/30 border-t-[var(--luigi-green)] rounded-full animate-spin"></div>
                 <div className="absolute inset-0 h-20 w-20 flex items-center justify-center">
                   <Image src="/icons/mario/star.png" alt="Loading" width={32} height={32} className="animate-pulse" />
                 </div>
               </div>
-              <span className="font-mario text-lg font-bold text-[var(--outline-black)]">Loading tokenized stocks...</span>
+              <span className="font-mario text-lg font-bold text-outline">Loading tokenized stocks...</span>
             </div>
           </div>
         )}
 
         {/* Error State */}
         {error && (
-          <div className="bg-[var(--mario-red)]/10 border-4 border-[var(--mario-red)] rounded-xl shadow-[6px_6px_0_var(--outline-black)] p-6">
+          <div className="bg-mario/10 border-4 border-mario rounded-xl shadow-[6px_6px_0_var(--outline-black)] p-6">
             <div className="flex items-start gap-3">
-              <div className="bg-[var(--mario-red)] p-2 rounded-lg border-3 border-[var(--outline-black)]">
+              <div className="bg-mario p-2 rounded-lg border-3 border-outline">
                 <AlertCircle className="h-5 w-5 text-white" />
               </div>
               <div className="flex-1">
-                <h3 className="font-mario font-bold text-[var(--outline-black)] mb-2">Failed to load stocks</h3>
+                <h3 className="font-mario font-bold text-outline mb-2">Failed to load stocks</h3>
                 <p className="text-sm text-muted-foreground font-bold mb-3">
                   {error?.message || 'Unknown error'}
                 </p>
                 <Button
                   onClick={() => refresh()}
-                  className="bg-[var(--luigi-green)] hover:bg-[var(--luigi-green)]/90 text-white border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all font-mario"
+                  className="bg-luigi hover:bg-luigi/90 text-white border-3 border-outline shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all font-mario"
                   size="sm"
                 >
                   Try Again
@@ -316,12 +316,12 @@ export default function StocksPage() {
 
         {/* Empty State */}
         {!loading && !error && filteredStocks.length === 0 && (
-          <div className="bg-[var(--sky-blue)]/20 border-4 border-[var(--outline-black)] rounded-xl shadow-[6px_6px_0_var(--outline-black)] p-12">
+          <div className="bg-sky/20 border-4 border-outline rounded-xl shadow-[6px_6px_0_var(--outline-black)] p-12">
             <div className="text-center">
-              <div className="bg-[var(--star-yellow)] p-4 rounded-lg border-4 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)] w-20 h-20 mx-auto mb-4 flex items-center justify-center">
-                <Building2 className="h-10 w-10 text-[var(--outline-black)]" />
+              <div className="bg-star p-4 rounded-lg border-4 border-outline shadow-[4px_4px_0_var(--outline-black)] w-20 h-20 mx-auto mb-4 flex items-center justify-center">
+                <Building2 className="h-10 w-10 text-outline" />
               </div>
-              <h3 className="text-xl font-mario font-bold text-[var(--outline-black)] mb-2">No stocks found</h3>
+              <h3 className="text-xl font-mario font-bold text-outline mb-2">No stocks found</h3>
               <p className="text-muted-foreground font-bold">
                 {searchQuery ? "Try adjusting your search" : "No tokenized stocks available"}
               </p>
@@ -368,11 +368,11 @@ export default function StocksPage() {
                       transition={{ duration: 0.5 }}
                     >
                       <div className="mb-4 flex items-center gap-3">
-                        <div className="bg-[var(--star-yellow)] p-2 rounded-lg border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)]">
+                        <div className="bg-star p-2 rounded-lg border-3 border-outline shadow-[3px_3px_0_var(--outline-black)]">
                           <span className="text-2xl">{categoryInfo?.icon || '📈'}</span>
                         </div>
-                        <h2 className="text-2xl font-mario font-bold text-[var(--outline-black)]">{categoryInfo?.name || 'Other'}</h2>
-                        <Badge className="ml-2 bg-[var(--luigi-green)] text-white border-2 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] font-bold">
+                        <h2 className="text-2xl font-mario font-bold text-outline">{categoryInfo?.name || 'Other'}</h2>
+                        <Badge className="ml-2 bg-luigi text-white border-2 border-outline shadow-[2px_2px_0_var(--outline-black)] font-bold">
                           {categoryStocks.length} {categoryStocks.length === 1 ? 'stock' : 'stocks'}
                         </Badge>
                       </div>

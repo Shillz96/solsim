@@ -68,8 +68,8 @@ export function TokenVitalsBar({
 
   const priceChangeColor = useMemo(() => 
     priceChange5m !== undefined && priceChange5m >= 0
-      ? "text-[var(--luigi-green)]"
-      : "text-[var(--mario-red)]",
+      ? "text-luigi"
+      : "text-mario",
     [priceChange5m]
   )
 
@@ -85,26 +85,26 @@ export function TokenVitalsBar({
       className
     )}>
       {/* 24h Volume */}
-      <div className="flex items-center gap-2 p-2 rounded-lg border-2 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] bg-gradient-to-br from-[var(--coin-gold)]/20 to-[var(--star-yellow)]/10">
-        <div className="h-10 w-10 rounded-full border-2 border-[var(--outline-black)] flex items-center justify-center shadow-[2px_2px_0_var(--outline-black)] bg-[var(--coin-gold)] flex-shrink-0">
-          <DollarSign className="h-5 w-5 text-[var(--outline-black)]" />
+      <div className="flex items-center gap-2 p-2 rounded-lg border-2 border-outline shadow-[2px_2px_0_var(--outline-black)] bg-gradient-to-br from-[var(--coin-gold)]/20 to-[var(--star-yellow)]/10">
+        <div className="h-10 w-10 rounded-full border-2 border-outline flex items-center justify-center shadow-[2px_2px_0_var(--outline-black)] bg-coin flex-shrink-0">
+          <DollarSign className="h-5 w-5 text-outline" />
         </div>
         <div className="min-w-0 flex-1">
-          <div className="text-[10px] font-mario font-bold uppercase text-[var(--outline-black)]/60">24h Vol</div>
-          <div className="font-mono text-sm font-bold text-[var(--outline-black)] truncate">
+          <div className="text-[10px] font-mario font-bold uppercase text-outline/60">24h Vol</div>
+          <div className="font-mono text-sm font-bold text-outline truncate">
             {volume24h ? formatUSD(volume24h) : "$0"}
           </div>
         </div>
       </div>
 
       {/* Holders */}
-      <div className="flex items-center gap-2 p-2 rounded-lg border-2 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] bg-gradient-to-br from-[var(--sky-blue)]/20 to-[var(--sky-blue)]/10">
-        <div className="h-10 w-10 rounded-full border-2 border-[var(--outline-black)] flex items-center justify-center shadow-[2px_2px_0_var(--outline-black)] bg-[var(--sky-blue)] flex-shrink-0">
+      <div className="flex items-center gap-2 p-2 rounded-lg border-2 border-outline shadow-[2px_2px_0_var(--outline-black)] bg-gradient-to-br from-[var(--sky-blue)]/20 to-[var(--sky-blue)]/10">
+        <div className="h-10 w-10 rounded-full border-2 border-outline flex items-center justify-center shadow-[2px_2px_0_var(--outline-black)] bg-sky flex-shrink-0">
           <Users className="h-5 w-5 text-white" />
         </div>
         <div className="min-w-0 flex-1">
-          <div className="text-[10px] font-mario font-bold uppercase text-[var(--outline-black)]/60">Holders</div>
-          <div className="font-mono text-sm font-bold text-[var(--outline-black)] truncate">
+          <div className="text-[10px] font-mario font-bold uppercase text-outline/60">Holders</div>
+          <div className="font-mono text-sm font-bold text-outline truncate">
             {holders ? formatNumber(holders) : "0"}
           </div>
         </div>
@@ -112,21 +112,21 @@ export function TokenVitalsBar({
 
       {/* 5m Price Change - REAL-TIME */}
       <div className={cn(
-        "flex items-center gap-2 p-2 rounded-lg border-2 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] transition-all",
+        "flex items-center gap-2 p-2 rounded-lg border-2 border-outline shadow-[2px_2px_0_var(--outline-black)] transition-all",
         priceChange5m !== undefined && priceChange5m >= 0
           ? "bg-gradient-to-br from-[var(--luigi-green)]/20 to-green-100/10"
           : "bg-gradient-to-br from-[var(--mario-red)]/20 to-red-100/10"
       )}>
         <div className={cn(
-          "h-10 w-10 rounded-full border-2 border-[var(--outline-black)] flex items-center justify-center shadow-[2px_2px_0_var(--outline-black)] flex-shrink-0 transition-colors",
+          "h-10 w-10 rounded-full border-2 border-outline flex items-center justify-center shadow-[2px_2px_0_var(--outline-black)] flex-shrink-0 transition-colors",
           priceChange5m !== undefined && priceChange5m >= 0 
-            ? 'bg-[var(--luigi-green)]' 
-            : 'bg-[var(--mario-red)]'
+            ? 'bg-luigi' 
+            : 'bg-mario'
         )}>
           <PriceIcon className="h-5 w-5 text-white" />
         </div>
         <div className="min-w-0 flex-1">
-          <div className="text-[10px] font-mario font-bold uppercase text-[var(--outline-black)]/60">5m Change</div>
+          <div className="text-[10px] font-mario font-bold uppercase text-outline/60">5m Change</div>
           {priceChange5m !== undefined ? (
             <AnimatedNumber
               value={priceChange5m}
@@ -138,19 +138,19 @@ export function TokenVitalsBar({
               glowOnChange={true}
             />
           ) : (
-            <div className="font-mono text-sm font-bold text-[var(--outline-black)]/60">N/A</div>
+            <div className="font-mono text-sm font-bold text-outline/60">N/A</div>
           )}
         </div>
       </div>
 
       {/* User Rank */}
-      <div className="flex items-center gap-2 p-2 rounded-lg border-2 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] bg-gradient-to-br from-[var(--star-yellow)]/20 to-[var(--star-yellow)]/10">
-        <div className="h-10 w-10 rounded-full border-2 border-[var(--outline-black)] flex items-center justify-center shadow-[2px_2px_0_var(--outline-black)] bg-[var(--star-yellow)] flex-shrink-0">
-          <Trophy className="h-5 w-5 text-[var(--outline-black)]" />
+      <div className="flex items-center gap-2 p-2 rounded-lg border-2 border-outline shadow-[2px_2px_0_var(--outline-black)] bg-gradient-to-br from-[var(--star-yellow)]/20 to-[var(--star-yellow)]/10">
+        <div className="h-10 w-10 rounded-full border-2 border-outline flex items-center justify-center shadow-[2px_2px_0_var(--outline-black)] bg-star flex-shrink-0">
+          <Trophy className="h-5 w-5 text-outline" />
         </div>
         <div className="min-w-0 flex-1">
-          <div className="text-[10px] font-mario font-bold uppercase text-[var(--outline-black)]/60">Your Rank</div>
-          <div className="font-mono text-sm font-bold text-[var(--outline-black)] truncate">
+          <div className="text-[10px] font-mario font-bold uppercase text-outline/60">Your Rank</div>
+          <div className="font-mono text-sm font-bold text-outline truncate">
             {userRank ? `#${userRank}` : "Unranked"}
           </div>
         </div>

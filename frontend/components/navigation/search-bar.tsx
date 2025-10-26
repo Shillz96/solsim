@@ -146,9 +146,9 @@ export function SearchBar() {
         <PopoverContent
           align="start"
           className={cn(
-            'w-full p-0 bg-[var(--card)] max-h-80 overflow-y-auto',
+            'w-full p-0 bg-card max-h-80 overflow-y-auto',
             marioStyles.border('lg'),
-            'border-[var(--outline-black)]',
+            'border-outline',
             marioStyles.shadowLg,
             marioStyles.rounded('xl')
           )}
@@ -167,7 +167,7 @@ export function SearchBar() {
                     marioStyles.heading(4),
                     'text-[10px] md:text-xs text-muted-foreground px-2 py-1.5 md:py-2',
                     marioStyles.border('sm'),
-                    'border-b border-[var(--outline-black)] mb-1 uppercase tracking-wide'
+                    'border-b border-outline mb-1 uppercase tracking-wide'
                   )}>
                     Search Results
                   </div>
@@ -182,8 +182,8 @@ export function SearchBar() {
                       className={cn(
                         "w-full text-left px-2 md:px-3 py-2 md:py-2.5 rounded-lg border-2 transition-colors duration-150 focus:outline-none",
                         selectedResultIndex === index
-                          ? "bg-[var(--star-yellow)]/30 border-[var(--outline-black)]"
-                          : "hover:bg-[var(--star-yellow)]/20 border-transparent hover:border-[var(--outline-black)] focus:bg-[var(--star-yellow)]/20 focus:border-[var(--outline-black)]"
+                          ? "bg-star/30 border-outline"
+                          : "hover:bg-star/20 border-transparent hover:border-outline focus:bg-star/20 focus:border-outline"
                       )}
                     >
                       <div className="flex items-center justify-between">
@@ -192,7 +192,7 @@ export function SearchBar() {
                             <img
                               src={token.logoURI}
                               alt={token.symbol}
-                              className="w-7 h-7 rounded-full border-2 border-[var(--outline-black)] flex-shrink-0"
+                              className="w-7 h-7 rounded-full border-2 border-outline flex-shrink-0"
                               onError={(e) => {
                                 (e.target as HTMLImageElement).style.display = 'none'
                               }}
@@ -222,7 +222,7 @@ export function SearchBar() {
                   ))}
 
                   {hasMoreResults && (
-                    <div className={cn(marioStyles.border('sm'), 'border-t border-[var(--outline-black)] mt-2 pt-2')}>
+                    <div className={cn(marioStyles.border('sm'), 'border-t border-outline mt-2 pt-2')}>
                       <button
                         onMouseDown={(e) => {
                           e.preventDefault()

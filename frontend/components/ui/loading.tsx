@@ -64,8 +64,8 @@ export function Loading({
   // Basic Mario loading (default)
   return (
     <div className={cn("flex flex-col items-center justify-center p-8", className)}>
-      <div className={`${sizeClasses[size]} border-4 border-[var(--outline-black)] border-t-[var(--star-yellow)] rounded-full animate-spin`} />
-      <p className="mt-4 text-[var(--outline-black)] font-mario">{message}</p>
+      <div className={`${sizeClasses[size]} border-4 border-outline border-t-[var(--star-yellow)] rounded-full animate-spin`} />
+      <p className="mt-4 text-outline font-mario">{message}</p>
     </div>
   )
 }
@@ -214,7 +214,7 @@ export const EmptyState: React.FC<{
   return (
     <div className="flex flex-col items-center justify-center p-8 text-center">
       {icon && <div className="mb-4">{icon}</div>}
-      <h3 className="text-lg font-mario text-[var(--outline-black)] mb-2">{title}</h3>
+      <h3 className="text-lg font-mario text-outline mb-2">{title}</h3>
       <p className="text-muted-foreground mb-4 max-w-sm">{description}</p>
       {action}
     </div>

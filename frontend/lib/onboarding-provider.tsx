@@ -136,14 +136,14 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
             >
               {/* Icon */}
               {props.step.icon && (
-                <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--star-yellow)] border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)]">
+                <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-star border-3 border-outline shadow-[2px_2px_0_var(--outline-black)]">
                   {props.step.icon}
                 </div>
               )}
 
               {/* Title */}
               {props.step.title && (
-                <h3 className="mb-2 text-lg font-mario text-[var(--outline-black)]">
+                <h3 className="mb-2 text-lg font-mario text-outline">
                   {props.step.title}
                 </h3>
               )}
@@ -160,7 +160,7 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
                 {/* Skip button */}
                 <button
                   onClick={handleTourComplete}
-                  className="text-sm font-semibold text-[var(--pipe-500)] hover:text-[var(--outline-black)] underline transition-colors"
+                  className="text-sm font-semibold text-[var(--pipe-500)] hover:text-outline underline transition-colors"
                 >
                   Skip Tour
                 </button>
@@ -177,14 +177,14 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
                   {props.currentStep > 0 && (
                     <button
                       onClick={props.prevStep}
-                      className="px-4 py-2 text-sm font-bold text-[var(--outline-black)] bg-[var(--card)] border-3 border-[var(--outline-black)] rounded-lg shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all"
+                      className="px-4 py-2 text-sm font-bold text-outline bg-card border-3 border-outline rounded-lg shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all"
                     >
                       Back
                     </button>
                   )}
                   <button
                     onClick={isLastStep ? handleTourComplete : props.nextStep}
-                    className="px-4 py-2 text-sm font-mario text-white bg-[var(--luigi-green)] border-3 border-[var(--outline-black)] rounded-lg shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all"
+                    className="px-4 py-2 text-sm font-mario text-white bg-luigi border-3 border-outline rounded-lg shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all"
                   >
                     {isLastStep ? "Finish" : "Next"}
                   </button>

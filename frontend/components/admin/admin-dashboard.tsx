@@ -38,7 +38,7 @@ export function AdminDashboard() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-sky-50 to-luigi-green-50 p-4">
         <div className="w-3/4 mx-auto">
-          <div className="bg-[var(--card)] rounded-lg border-4 border-pipe-300 p-8 text-center">
+          <div className="bg-card rounded-lg border-4 border-pipe-300 p-8 text-center">
             <div className="font-mario text-2xl text-pipe-600">Loading...</div>
           </div>
         </div>
@@ -48,11 +48,11 @@ export function AdminDashboard() {
 
   if (!isAdmin) {
     return (
-      <div className="min-h-screen bg-[var(--background)] p-4 sm:p-6">
+      <div className="min-h-screen bg-background p-4 sm:p-6">
         <div className="max-w-4xl mx-auto">
           <div className={cn(
             marioStyles.cardLg(false),
-            'text-center bg-[var(--card)] mb-6'
+            'text-center bg-card mb-6'
           )}>
             <div className="text-6xl mb-4">👑</div>
             <h2 className={cn(marioStyles.heading(2), 'mb-2')}>Admin Access Required</h2>
@@ -67,7 +67,7 @@ export function AdminDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-[var(--background)] p-4 sm:p-6">
+    <div className="min-h-screen bg-background p-4 sm:p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
@@ -82,8 +82,8 @@ export function AdminDashboard() {
             className={cn(
               marioStyles.button('primary', 'md'),
               activePanel === 'overview'
-                ? 'bg-[var(--mario-red)] text-white'
-                : 'bg-white text-[var(--outline-black)]'
+                ? 'bg-mario text-white'
+                : 'bg-white text-outline'
             )}
           >
             📊 Overview
@@ -93,8 +93,8 @@ export function AdminDashboard() {
             className={cn(
               marioStyles.button('primary', 'md'),
               activePanel === 'users'
-                ? 'bg-[var(--mario-red)] text-white'
-                : 'bg-white text-[var(--outline-black)]'
+                ? 'bg-mario text-white'
+                : 'bg-white text-outline'
             )}
           >
             👥 User Management
@@ -104,8 +104,8 @@ export function AdminDashboard() {
             className={cn(
               marioStyles.button('primary', 'md'),
               activePanel === 'badges'
-                ? 'bg-[var(--mario-red)] text-white'
-                : 'bg-white text-[var(--outline-black)]'
+                ? 'bg-mario text-white'
+                : 'bg-white text-outline'
             )}
           >
             🏆 Badge Management
@@ -115,8 +115,8 @@ export function AdminDashboard() {
             className={cn(
               marioStyles.button('primary', 'md'),
               activePanel === 'moderation'
-                ? 'bg-[var(--mario-red)] text-white'
-                : 'bg-white text-[var(--outline-black)]'
+                ? 'bg-mario text-white'
+                : 'bg-white text-outline'
             )}
           >
             🛡️ Moderation Control
@@ -126,8 +126,8 @@ export function AdminDashboard() {
             className={cn(
               marioStyles.button('primary', 'md'),
               activePanel === 'analytics'
-                ? 'bg-[var(--mario-red)] text-white'
-                : 'bg-white text-[var(--outline-black)]'
+                ? 'bg-mario text-white'
+                : 'bg-white text-outline'
             )}
           >
             📈 Analytics
@@ -137,8 +137,8 @@ export function AdminDashboard() {
             className={cn(
               marioStyles.button('primary', 'md'),
               activePanel === 'debug'
-                ? 'bg-[var(--mario-red)] text-white'
-                : 'bg-white text-[var(--outline-black)]'
+                ? 'bg-mario text-white'
+                : 'bg-white text-outline'
             )}
           >
             🔍 Debug
@@ -159,7 +159,7 @@ export function AdminDashboard() {
                   {statsLoading ? '...' : statsData?.stats?.totalUsers || 0}
                 </div>
                 <div className={marioStyles.bodyText('semibold')}>Total Users</div>
-                <div className="text-xs text-[var(--luigi-green)] font-bold mt-1">
+                <div className="text-xs text-luigi font-bold mt-1">
                   +{statsData?.stats?.userGrowth24h || 0} in 24h
                 </div>
               </div>
@@ -172,7 +172,7 @@ export function AdminDashboard() {
                   {statsLoading ? '...' : statsData?.stats?.badgesAwarded || 0}
                 </div>
                 <div className={marioStyles.bodyText('semibold')}>Badges Awarded</div>
-                <div className="text-xs text-[var(--coin-gold)] font-bold mt-1">
+                <div className="text-xs text-coin font-bold mt-1">
                   +{statsData?.stats?.badgeGrowth24h || 0} in 24h
                 </div>
               </div>
@@ -185,7 +185,7 @@ export function AdminDashboard() {
                   {statsLoading ? '...' : statsData?.stats?.moderationActions || 0}
                 </div>
                 <div className={marioStyles.bodyText('semibold')}>Moderation Actions</div>
-                <div className="text-xs text-[var(--mario-red)] font-bold mt-1">
+                <div className="text-xs text-mario font-bold mt-1">
                   Platform Health
                 </div>
               </div>
@@ -198,7 +198,7 @@ export function AdminDashboard() {
                   {statsLoading ? '...' : statsData?.stats?.averageTrustScore || 100}
                 </div>
                 <div className={marioStyles.bodyText('semibold')}>Avg Trust Score</div>
-                <div className="text-xs text-[var(--super-blue)] font-bold mt-1">
+                <div className="text-xs text-super font-bold mt-1">
                   Community Health
                 </div>
               </div>
@@ -215,7 +215,7 @@ export function AdminDashboard() {
                     'bg-gradient-to-br from-[var(--luigi-green)]/10 to-white text-left'
                   )}
                 >
-                  <div className={cn(marioStyles.heading(4), 'text-[var(--luigi-green)] mb-1')}>🏆 Award Badge</div>
+                  <div className={cn(marioStyles.heading(4), 'text-luigi mb-1')}>🏆 Award Badge</div>
                   <div className={marioStyles.bodyText('normal')}>Give badges to deserving users</div>
                 </button>
                 <button
@@ -225,7 +225,7 @@ export function AdminDashboard() {
                     'bg-gradient-to-br from-[var(--mario-red)]/10 to-white text-left'
                   )}
                 >
-                  <div className={cn(marioStyles.heading(4), 'text-[var(--mario-red)] mb-1')}>🛡️ Moderation</div>
+                  <div className={cn(marioStyles.heading(4), 'text-mario mb-1')}>🛡️ Moderation</div>
                   <div className={marioStyles.bodyText('normal')}>Manage community moderation</div>
                 </button>
                 <button
@@ -235,7 +235,7 @@ export function AdminDashboard() {
                     'bg-gradient-to-br from-[var(--star-yellow)]/10 to-white text-left'
                   )}
                 >
-                  <div className={cn(marioStyles.heading(4), 'text-[var(--coin-gold)] mb-1')}>📊 Analytics</div>
+                  <div className={cn(marioStyles.heading(4), 'text-coin mb-1')}>📊 Analytics</div>
                   <div className={marioStyles.bodyText('normal')}>View community analytics</div>
                 </button>
                 <button
@@ -244,7 +244,7 @@ export function AdminDashboard() {
                     'bg-gradient-to-br from-[var(--sky-blue)]/10 to-white text-left'
                   )}
                 >
-                  <div className={cn(marioStyles.heading(4), 'text-[var(--super-blue)] mb-1')}>⚙️ Settings</div>
+                  <div className={cn(marioStyles.heading(4), 'text-super mb-1')}>⚙️ Settings</div>
                   <div className={marioStyles.bodyText('normal')}>Configure system settings</div>
                 </button>
                 <button
@@ -253,7 +253,7 @@ export function AdminDashboard() {
                     'bg-gradient-to-br from-[var(--coin-gold)]/10 to-white text-left'
                   )}
                 >
-                  <div className={cn(marioStyles.heading(4), 'text-[var(--brick-brown)] mb-1')}>🎮 Events</div>
+                  <div className={cn(marioStyles.heading(4), 'text-brick mb-1')}>🎮 Events</div>
                   <div className={marioStyles.bodyText('normal')}>Manage community events</div>
                 </button>
                 <button
@@ -262,7 +262,7 @@ export function AdminDashboard() {
                     'bg-gradient-to-br from-[var(--pipe-green)]/10 to-white text-left'
                   )}
                 >
-                  <div className={cn(marioStyles.heading(4), 'text-[var(--pipe-green)] mb-1')}>📝 Reports</div>
+                  <div className={cn(marioStyles.heading(4), 'text-pipe mb-1')}>📝 Reports</div>
                   <div className={marioStyles.bodyText('normal')}>Generate community reports</div>
                 </button>
               </div>
@@ -274,7 +274,7 @@ export function AdminDashboard() {
               <div className="space-y-3">
                 {activityLoading ? (
                   <div className="text-center py-4">
-                    <div className="animate-spin w-8 h-8 border-4 border-[var(--outline-black)] border-t-[var(--star-yellow)] rounded-full mx-auto"></div>
+                    <div className="animate-spin w-8 h-8 border-4 border-outline border-t-[var(--star-yellow)] rounded-full mx-auto"></div>
                     <div className={cn(marioStyles.bodyText('normal'), 'mt-2')}>Loading activity...</div>
                   </div>
                 ) : activityData?.activity?.length ? (

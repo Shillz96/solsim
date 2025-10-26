@@ -88,7 +88,7 @@ export function FundingSourceSelector({
             'flex flex-col items-start gap-2',
             fundingSource === 'DEPOSITED'
               ? 'bg-star-yellow-500 border-star-yellow-700 shadow-[6px_6px_0_0_rgba(0,0,0,1)]'
-              : 'bg-[var(--card)] border-pipe-900 hover:border-star-yellow-400 shadow-[4px_4px_0_0_rgba(0,0,0,1)]'
+              : 'bg-card border-pipe-900 hover:border-star-yellow-400 shadow-[4px_4px_0_0_rgba(0,0,0,1)]'
           )}
         >
           {/* Icon & Title */}
@@ -96,7 +96,7 @@ export function FundingSourceSelector({
             <div className={cn(
               "w-8 h-8 rounded flex items-center justify-center",
               fundingSource === 'DEPOSITED'
-                ? "bg-[var(--card)]"
+                ? "bg-card"
                 : "bg-star-yellow-100"
             )}>
               <Sparkles className={cn(
@@ -170,7 +170,7 @@ export function FundingSourceSelector({
             !connected && 'opacity-50 cursor-not-allowed',
             fundingSource === 'WALLET' && connected
               ? 'bg-coin-yellow-500 border-coin-yellow-700 shadow-[6px_6px_0_0_rgba(0,0,0,1)]'
-              : 'bg-[var(--card)] border-pipe-900 hover:border-coin-yellow-400 shadow-[4px_4px_0_0_rgba(0,0,0,1)]'
+              : 'bg-card border-pipe-900 hover:border-coin-yellow-400 shadow-[4px_4px_0_0_rgba(0,0,0,1)]'
           )}
         >
           {/* Icon & Title */}
@@ -178,7 +178,7 @@ export function FundingSourceSelector({
             <div className={cn(
               "w-8 h-8 rounded flex items-center justify-center",
               fundingSource === 'WALLET' && connected
-                ? "bg-[var(--card)]"
+                ? "bg-card"
                 : "bg-coin-yellow-100"
             )}>
               <Wallet className={cn(

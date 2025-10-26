@@ -95,11 +95,11 @@ export default function MarketHover({ trigger }: { trigger: React.ReactNode }) {
           pointer-events-none group-hover:pointer-events-auto
         "
       >
-        <div className="rounded-[16px] border-4 border-[var(--outline-black)] bg-[var(--card)] p-4 shadow-[8px_8px_0_var(--outline-black)]">
+        <div className="rounded-xl border-4 border-outline bg-card p-4 shadow-[8px_8px_0_var(--outline-black)]">
           {/* Header */}
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
-              <span className="inline-flex h-2.5 w-2.5 rounded-full bg-[var(--luigi-green)] live-indicator" />
+              <span className="inline-flex h-2.5 w-2.5 rounded-full bg-luigi live-indicator" />
               <span className="font-mario text-sm tracking-wide uppercase">Market Lighthouse</span>
             </div>
             <span className="text-xs opacity-60">Updated {getTimeAgo()}</span>
@@ -149,7 +149,7 @@ export default function MarketHover({ trigger }: { trigger: React.ReactNode }) {
           </div>
 
           {/* Footer */}
-          <div className="mt-3 pt-2.5 border-t-2 border-[var(--outline-black)]">
+          <div className="mt-3 pt-2.5 border-t-2 border-outline">
             <p className="text-[10px] text-center opacity-60">
               Real-time data from CoinMarketCap & PumpPortal
             </p>
@@ -174,7 +174,7 @@ function StatRow({
   icon?: string; 
 }) {
   return (
-    <div className="rounded-[12px] border-3 border-[var(--outline-black)] px-3 py-2.5 shadow-[4px_4px_0_var(--outline-black)] bg-gradient-to-br from-[var(--card)] to-[var(--card-hover)] hover:shadow-[5px_5px_0_var(--outline-black)] transition-all">
+    <div className="rounded-lg border-3 border-outline px-3 py-2.5 shadow-[4px_4px_0_var(--outline-black)] bg-gradient-to-br from-[var(--card)] to-[var(--card-hover)] hover:shadow-[5px_5px_0_var(--outline-black)] transition-all">
       <div className="flex justify-between items-center gap-3">
         <div className="flex items-center gap-2 flex-1">
           {icon && <span className="text-base">{icon}</span>}

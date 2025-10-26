@@ -65,7 +65,7 @@ function VerifyEmailContent() {
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         {/* Mario-themed Header */}
-        <div className="bg-gradient-to-r from-[var(--luigi-green)]/20 to-[var(--sky-blue)]/20 border-4 border-[var(--outline-black)] rounded-xl p-6 shadow-[8px_8px_0_var(--outline-black)] relative overflow-hidden mb-6">
+        <div className="bg-gradient-to-r from-[var(--luigi-green)]/20 to-[var(--sky-blue)]/20 border-4 border-outline rounded-xl p-6 shadow-[8px_8px_0_var(--outline-black)] relative overflow-hidden mb-6">
           <div className="absolute top-2 right-2 flex gap-2">
             <img src="/icons/mario/star.png" alt="Star" width={24} height={24} className="animate-pulse" />
             <img src="/icons/mario/mushroom.png" alt="Mushroom" width={24} height={24} />
@@ -74,31 +74,31 @@ function VerifyEmailContent() {
             <div className="flex justify-center mb-4">
               {status === 'loading' && (
                 <div className="relative">
-                  <div className="h-16 w-16 border-4 border-[var(--luigi-green)]/30 border-t-[var(--luigi-green)] rounded-full animate-spin"></div>
+                  <div className="h-16 w-16 border-4 border-luigi/30 border-t-[var(--luigi-green)] rounded-full animate-spin"></div>
                   <div className="absolute inset-0 h-16 w-16 flex items-center justify-center">
                     <img src="/icons/mario/star.png" alt="Loading" width={32} height={32} className="animate-pulse" />
                   </div>
                 </div>
               )}
               {status === 'success' && (
-                <div className="h-16 w-16 rounded-full bg-[var(--luigi-green)] border-4 border-[var(--outline-black)] flex items-center justify-center shadow-[4px_4px_0_var(--outline-black)]">
+                <div className="h-16 w-16 rounded-full bg-luigi border-4 border-outline flex items-center justify-center shadow-[4px_4px_0_var(--outline-black)]">
                   <CheckCircle className="h-10 w-10 text-white" />
                 </div>
               )}
               {status === 'error' && (
-                <div className="h-16 w-16 rounded-full bg-[var(--mario-red)] border-4 border-[var(--outline-black)] flex items-center justify-center shadow-[4px_4px_0_var(--outline-black)]">
+                <div className="h-16 w-16 rounded-full bg-mario border-4 border-outline flex items-center justify-center shadow-[4px_4px_0_var(--outline-black)]">
                   <AlertCircle className="h-10 w-10 text-white" />
                 </div>
               )}
             </div>
 
-            <h1 className="font-mario text-2xl text-[var(--outline-black)]">
+            <h1 className="font-mario text-2xl text-outline">
               {status === 'loading' && 'Verifying your email...'}
               {status === 'success' && 'Email Verified!'}
               {status === 'error' && 'Verification Failed'}
             </h1>
 
-            <p className="text-[var(--outline-black)] font-bold text-center">
+            <p className="text-outline font-bold text-center">
               {message}
             </p>
           </div>
@@ -108,11 +108,11 @@ function VerifyEmailContent() {
         <div className="space-y-4">
           {status === 'success' && (
             <div className="text-center space-y-4">
-              <p className="text-sm text-[var(--outline-black)] font-bold">
+              <p className="text-sm text-outline font-bold">
                 Redirecting you to the homepage...
               </p>
               <Button
-                className="w-full mario-btn bg-[var(--luigi-green)] text-white border-3 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)] hover:shadow-[6px_6px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all font-mario"
+                className="w-full mario-btn bg-luigi text-white border-3 border-outline shadow-[4px_4px_0_var(--outline-black)] hover:shadow-[6px_6px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all font-mario"
                 onClick={() => window.location.href = '/'}
               >
                 Go to Homepage
@@ -123,11 +123,11 @@ function VerifyEmailContent() {
           {status === 'error' && (
             <div className="space-y-3">
               <Link href="/">
-                <Button className="w-full mario-btn bg-[var(--mario-red)] text-white border-3 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)] hover:shadow-[6px_6px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all font-mario">
+                <Button className="w-full mario-btn bg-mario text-white border-3 border-outline shadow-[4px_4px_0_var(--outline-black)] hover:shadow-[6px_6px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all font-mario">
                   Return to Homepage
                 </Button>
               </Link>
-              <p className="text-xs text-center text-[var(--outline-black)] font-bold">
+              <p className="text-xs text-center text-outline font-bold">
                 Need help? Contact support or try signing up again.
               </p>
             </div>

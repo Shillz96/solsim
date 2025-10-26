@@ -125,7 +125,7 @@ export function MarioPositionPnL({ tokenAddress, tokenSymbol, tokenName }: Mario
     return (
       <div className="mario-card p-4 animate-pulse">
         <div className="flex items-center gap-2">
-          <div className="h-6 w-6 bg-[var(--star-yellow)] rounded-full animate-bounce" />
+          <div className="h-6 w-6 bg-star rounded-full animate-bounce" />
           <div className="h-4 bg-muted rounded w-32" />
         </div>
       </div>
@@ -186,11 +186,11 @@ export function MarioPositionPnL({ tokenAddress, tokenSymbol, tokenName }: Mario
       <div className="flex items-center justify-between mb-3 relative z-10">
         <div className="flex items-center gap-2">
           <div className="mario-badge px-2 py-1">
-            <Coins className="h-4 w-4 text-[var(--outline-black)]" />
+            <Coins className="h-4 w-4 text-outline" />
           </div>
-          <span className="mario-font text-sm text-[var(--outline-black)]">P&L</span>
+          <span className="mario-font text-sm text-outline">P&L</span>
           {livePrice && (
-            <Badge variant="secondary" className="text-xs bg-[var(--star-yellow)] text-[var(--outline-black)] border-2 border-[var(--outline-black)]">
+            <Badge variant="secondary" className="text-xs bg-star text-outline border-2 border-outline">
               LIVE
             </Badge>
           )}
@@ -201,7 +201,7 @@ export function MarioPositionPnL({ tokenAddress, tokenSymbol, tokenName }: Mario
           size="icon"
           onClick={handleRefresh}
           disabled={isRefreshing}
-          className="h-7 w-7 hover:bg-[var(--star-yellow)]/20"
+          className="h-7 w-7 hover:bg-star/20"
         >
           <RefreshCw className={cn("h-3.5 w-3.5", isRefreshing && "animate-spin")} />
         </Button>
@@ -212,7 +212,7 @@ export function MarioPositionPnL({ tokenAddress, tokenSymbol, tokenName }: Mario
         initial={{ scale: 0.95, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         className={cn(
-          "p-3 rounded-lg border-3 border-[var(--outline-black)] mb-3 shadow-md relative overflow-hidden",
+          "p-3 rounded-lg border-3 border-outline mb-3 shadow-md relative overflow-hidden",
           isPositive
             ? "bg-gradient-to-br from-[var(--luigi-green)]/20 to-[var(--luigi-green)]/10"
             : "bg-gradient-to-br from-[var(--mario-red)]/20 to-[var(--mario-red)]/10"
@@ -221,8 +221,8 @@ export function MarioPositionPnL({ tokenAddress, tokenSymbol, tokenName }: Mario
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className={cn(
-              "w-8 h-8 rounded-full border-2 border-[var(--outline-black)] flex items-center justify-center",
-              isPositive ? "bg-[var(--luigi-green)]" : "bg-[var(--mario-red)]"
+              "w-8 h-8 rounded-full border-2 border-outline flex items-center justify-center",
+              isPositive ? "bg-luigi" : "bg-mario"
             )}>
               <PnLIcon className="h-4 w-4 text-white" />
             </div>
@@ -232,7 +232,7 @@ export function MarioPositionPnL({ tokenAddress, tokenSymbol, tokenName }: Mario
                 usd={safeUnrealizedPnL}
                 className={cn(
                   "text-xl font-bold mario-font",
-                  isPositive ? "text-[var(--luigi-green)]" : "text-[var(--mario-red)]"
+                  isPositive ? "text-luigi" : "text-mario"
                 )}
                 solClassName="text-xs"
               />
@@ -240,10 +240,10 @@ export function MarioPositionPnL({ tokenAddress, tokenSymbol, tokenName }: Mario
           </div>
 
           <div className={cn(
-            "px-3 py-1 rounded-full border-2 border-[var(--outline-black)] mario-font text-sm",
+            "px-3 py-1 rounded-full border-2 border-outline mario-font text-sm",
             isPositive
-              ? "bg-[var(--luigi-green)] text-white"
-              : "bg-[var(--mario-red)] text-white"
+              ? "bg-luigi text-white"
+              : "bg-mario text-white"
           )}>
             {pnlPercent}
           </div>
@@ -257,26 +257,26 @@ export function MarioPositionPnL({ tokenAddress, tokenSymbol, tokenName }: Mario
 
       {/* Quick Stats - Mario Block Style */}
       <div className="grid grid-cols-2 gap-2 mb-3">
-        <div className="bg-[var(--card)] border-3 border-[var(--outline-black)] rounded-lg p-2 shadow-sm">
+        <div className="bg-card border-3 border-outline rounded-lg p-2 shadow-sm">
           <div className="flex items-center gap-1 mb-1">
-            <Star className="h-3 w-3 text-[var(--star-yellow)]" />
-            <span className="text-xs font-semibold text-[var(--outline-black)]">Value</span>
+            <Star className="h-3 w-3 text-star" />
+            <span className="text-xs font-semibold text-outline">Value</span>
           </div>
-          <UsdWithSol usd={safeCurrentValue} className="text-sm font-bold text-[var(--outline-black)]" solClassName="text-xs" />
+          <UsdWithSol usd={safeCurrentValue} className="text-sm font-bold text-outline" solClassName="text-xs" />
         </div>
 
-        <div className="bg-[var(--card)] border-3 border-[var(--outline-black)] rounded-lg p-2 shadow-sm">
+        <div className="bg-card border-3 border-outline rounded-lg p-2 shadow-sm">
           <div className="flex items-center gap-1 mb-1">
-            <Target className="h-3 w-3 text-[var(--super-blue)]" />
-            <span className="text-xs font-semibold text-[var(--outline-black)]">Cost</span>
+            <Target className="h-3 w-3 text-super" />
+            <span className="text-xs font-semibold text-outline">Cost</span>
           </div>
-          <UsdWithSol usd={safeCostBasis} className="text-sm font-bold text-[var(--outline-black)]" solClassName="text-xs" />
+          <UsdWithSol usd={safeCostBasis} className="text-sm font-bold text-outline" solClassName="text-xs" />
         </div>
       </div>
 
       {/* Position Details */}
       {tokenPosition && (
-        <div className="space-y-2 border-t-2 border-[var(--outline-black)] pt-3">
+        <div className="space-y-2 border-t-2 border-outline pt-3">
           <div className="flex items-center justify-between text-xs">
             <span className="text-muted-foreground">Quantity</span>
             <span className="font-mono font-semibold">
@@ -305,13 +305,13 @@ export function MarioPositionPnL({ tokenAddress, tokenSymbol, tokenName }: Mario
       )}
 
       {/* Power-up Style Footer */}
-      <div className="mt-3 pt-3 border-t-2 border-[var(--outline-black)]">
+      <div className="mt-3 pt-3 border-t-2 border-outline">
         <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
-          <Zap className="h-3 w-3 text-[var(--star-yellow)]" />
+          <Zap className="h-3 w-3 text-star" />
           <span className="mario-font text-xs">
             {isPositive ? "WINNING!" : "HODL STRONG!"}
           </span>
-          <Trophy className="h-3 w-3 text-[var(--star-yellow)]" />
+          <Trophy className="h-3 w-3 text-star" />
         </div>
       </div>
     </div>

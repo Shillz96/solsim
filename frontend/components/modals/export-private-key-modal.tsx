@@ -167,7 +167,7 @@ export function ExportPrivateKeyModal({
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-w-2xl bg-[var(--card)] border-4 border-[var(--outline-black)] shadow-[8px_8px_0_var(--outline-black)]">
+      <DialogContent className="max-w-2xl bg-card border-4 border-outline shadow-[8px_8px_0_var(--outline-black)]">
         <AnimatePresence mode="wait">
           {step === 'warning' && (
             <motion.div
@@ -177,8 +177,8 @@ export function ExportPrivateKeyModal({
               exit={{ opacity: 0, y: -20 }}
             >
               <DialogHeader>
-                <DialogTitle className="font-mario text-xl text-[var(--outline-black)] flex items-center gap-3">
-                  <AlertTriangle className="w-6 h-6 text-[var(--mario-red)]" />
+                <DialogTitle className="font-mario text-xl text-outline flex items-center gap-3">
+                  <AlertTriangle className="w-6 h-6 text-mario" />
                   Export Private Key
                 </DialogTitle>
                 <DialogDescription className="text-sm text-pipe-600">
@@ -188,9 +188,9 @@ export function ExportPrivateKeyModal({
 
               <div className="space-y-4 py-6">
                 {/* Critical Warning */}
-                <Alert className="border-3 border-[var(--mario-red)] bg-mario-red-50">
-                  <AlertTriangle className="h-5 w-5 text-[var(--mario-red)]" />
-                  <AlertDescription className="text-[var(--mario-red)] font-bold ml-2">
+                <Alert className="border-3 border-mario bg-mario-red-50">
+                  <AlertTriangle className="h-5 w-5 text-mario" />
+                  <AlertDescription className="text-mario font-bold ml-2">
                     ⚠️ CRITICAL SECURITY WARNING
                   </AlertDescription>
                 </Alert>
@@ -210,7 +210,7 @@ export function ExportPrivateKeyModal({
 
                 {/* Security Warnings */}
                 <div className="space-y-3">
-                  <div className="flex items-start gap-3 p-3 bg-[var(--card)] border-2 border-pipe-900 rounded-lg">
+                  <div className="flex items-start gap-3 p-3 bg-card border-2 border-pipe-900 rounded-lg">
                     <Shield className="w-5 h-5 text-mario-red-600 mt-0.5 flex-shrink-0" />
                     <div>
                       <div className="font-bold text-sm text-pipe-900 mb-1">
@@ -222,7 +222,7 @@ export function ExportPrivateKeyModal({
                     </div>
                   </div>
 
-                  <div className="flex items-start gap-3 p-3 bg-[var(--card)] border-2 border-pipe-900 rounded-lg">
+                  <div className="flex items-start gap-3 p-3 bg-card border-2 border-pipe-900 rounded-lg">
                     <Lock className="w-5 h-5 text-star-yellow-600 mt-0.5 flex-shrink-0" />
                     <div>
                       <div className="font-bold text-sm text-pipe-900 mb-1">
@@ -234,7 +234,7 @@ export function ExportPrivateKeyModal({
                     </div>
                   </div>
 
-                  <div className="flex items-start gap-3 p-3 bg-[var(--card)] border-2 border-pipe-900 rounded-lg">
+                  <div className="flex items-start gap-3 p-3 bg-card border-2 border-pipe-900 rounded-lg">
                     <AlertTriangle className="w-5 h-5 text-mario-red-600 mt-0.5 flex-shrink-0" />
                     <div>
                       <div className="font-bold text-sm text-pipe-900 mb-1">
@@ -317,7 +317,7 @@ export function ExportPrivateKeyModal({
               exit={{ opacity: 0, y: -20 }}
             >
               <DialogHeader>
-                <DialogTitle className="font-mario text-xl text-[var(--outline-black)] flex items-center gap-3">
+                <DialogTitle className="font-mario text-xl text-outline flex items-center gap-3">
                   <CheckCircle2 className="w-6 h-6 text-luigi-green-600" />
                   Your Private Key
                 </DialogTitle>

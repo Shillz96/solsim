@@ -132,16 +132,16 @@ export function TokenCard({ data, onToggleWatch, className, enableLiveUpdates = 
         {/* Redesigned Token Card - Enhanced Layout */}
         <div className={cn(
           'cursor-pointer transition-all duration-200',
-          'rounded-2xl border-4 border-[var(--outline-black)] bg-[var(--card)]',
+          'rounded-2xl border-4 border-outline bg-card',
           'shadow-[6px_0_0_var(--outline-black)] hover:shadow-[8px_0_0_var(--outline-black)] hover:-translate-y-1',
-          'relative overflow-hidden bg-[var(--sky-blue)]/20',
+          'relative overflow-hidden bg-sky/20',
           'h-[var(--token-card-height)] min-h-[var(--token-card-height)]'
         )}>
           <div className="flex items-center gap-6 p-4 h-full">
 
             {/* LEFT: Larger Token Logo */}
             <div className={cn(
-              'relative shrink-0 overflow-hidden rounded-[14px]',
+              'relative shrink-0 overflow-hidden rounded-lg',
               'w-[var(--token-card-image-size)] h-[var(--token-card-image-size)]'
             )}>
               {img && !imageError ? (
@@ -153,7 +153,7 @@ export function TokenCard({ data, onToggleWatch, className, enableLiveUpdates = 
                   loading="lazy"
                 />
               ) : (
-                <div className="h-full w-full grid place-items-center bg-[var(--star-yellow)] text-[var(--outline-black)] text-5xl font-bold">🪙</div>
+                <div className="h-full w-full grid place-items-center bg-star text-outline text-5xl font-bold">🪙</div>
               )}
             </div>
 
@@ -172,8 +172,8 @@ export function TokenCard({ data, onToggleWatch, className, enableLiveUpdates = 
                 </span>
                 {/* Live Indicator */}
                 {isLive && (
-                  <div className="flex items-center gap-1 text-[10px] font-bold text-[var(--luigi-green)] bg-[var(--luigi-green)]/10 px-1.5 py-0.5 rounded-full border border-[var(--luigi-green)]">
-                    <span className="inline-block w-1.5 h-1.5 rounded-full bg-[var(--luigi-green)] animate-pulse" />
+                  <div className="flex items-center gap-1 text-[10px] font-bold text-luigi bg-luigi/10 px-1.5 py-0.5 rounded-full border border-luigi">
+                    <span className="inline-block w-1.5 h-1.5 rounded-full bg-luigi animate-pulse" />
                     LIVE
                   </div>
                 )}
@@ -183,7 +183,7 @@ export function TokenCard({ data, onToggleWatch, className, enableLiveUpdates = 
 
               {/* Description (if available, with better truncation) */}
               {data.description && (
-                <div className="text-[11px] text-[var(--outline-black)] font-medium mb-1 line-clamp-1 max-w-full overflow-hidden" title={data.description}>
+                <div className="text-[11px] text-outline font-medium mb-1 line-clamp-1 max-w-full overflow-hidden" title={data.description}>
                   {data.description.length > 100 ? `${data.description.substring(0, 100)}...` : data.description}
                 </div>
               )}
@@ -226,7 +226,7 @@ export function TokenCard({ data, onToggleWatch, className, enableLiveUpdates = 
                   <div className={cn(
                     marioStyles.formatMetricValue(mergedData.marketCapUsd),
                     // Highlight market cap > $100k in green
-                    mergedData.marketCapUsd && mergedData.marketCapUsd >= 100000 && 'text-[var(--luigi-green)] font-extrabold text-[15px]'
+                    mergedData.marketCapUsd && mergedData.marketCapUsd >= 100000 && 'text-luigi font-extrabold text-[15px]'
                   )}>
                     {fmtCurrency(mergedData.marketCapUsd)}
                   </div>
@@ -242,7 +242,7 @@ export function TokenCard({ data, onToggleWatch, className, enableLiveUpdates = 
                   </div>
                   <div className={cn(
                     marioStyles.formatMetricValue(mergedData.holderCount),
-                    isLive && 'text-[var(--luigi-green)]'
+                    isLive && 'text-luigi'
                   )}>
                     {mergedData.holderCount ? mergedData.holderCount.toLocaleString() : '—'}
                   </div>
@@ -255,7 +255,7 @@ export function TokenCard({ data, onToggleWatch, className, enableLiveUpdates = 
                   </div>
                   <div className={cn(
                     marioStyles.formatMetricValue(liveTxCount),
-                    isLive && 'text-[var(--luigi-green)]'
+                    isLive && 'text-luigi'
                   )}>
                     {liveTxCount ? liveTxCount.toLocaleString() : '—'}
                   </div>
@@ -275,14 +275,14 @@ export function TokenCard({ data, onToggleWatch, className, enableLiveUpdates = 
               {/* SOL to Graduate Progress Bar - Only for ABOUT_TO_BOND - Now with real-time updates */}
               {data.status === 'ABOUT_TO_BOND' && mergedData.bondingCurveProgress != null && data.solToGraduate != null && (
                 <div className="mt-1 relative">
-                  <div className="bg-[var(--card)] border-2 border-[var(--outline-black)] rounded-full h-2.5 overflow-hidden relative shadow-[1px_1px_0_var(--outline-black)]">
+                  <div className="bg-card border-2 border-outline rounded-full h-2.5 overflow-hidden relative shadow-[1px_1px_0_var(--outline-black)]">
                     <div
-                      className="bg-[var(--star-yellow)] h-full flex items-center justify-center border-r-2 border-[var(--outline-black)] transition-all duration-500 relative"
+                      className="bg-star h-full flex items-center justify-center border-r-2 border-outline transition-all duration-500 relative"
                       style={{ width: `${Math.min(mergedData.bondingCurveProgress, 100)}%` }}
                     >
                       {/* Glow effect */}
-                      <div className="absolute inset-0 bg-[var(--star-yellow)] opacity-50 animate-pulse" />
-                      <span className="text-[7px] font-bold text-[var(--outline-black)] z-10 relative drop-shadow-[1px_1px_0_var(--outline-black)]">
+                      <div className="absolute inset-0 bg-star opacity-50 animate-pulse" />
+                      <span className="text-[7px] font-bold text-outline z-10 relative drop-shadow-[1px_1px_0_var(--outline-black)]">
                         🎯 {data.solToGraduate.toFixed(1)} SOL
                       </span>
                     </div>
@@ -327,7 +327,7 @@ export function TokenCard({ data, onToggleWatch, className, enableLiveUpdates = 
 
                 {/* Creator Wallet */}
                 {data.creatorWallet && (
-                  <div className="text-[10px] text-[var(--outline-black)] opacity-50 font-mono ml-auto" title={data.creatorWallet}>
+                  <div className="text-[10px] text-outline opacity-50 font-mono ml-auto" title={data.creatorWallet}>
                     👨‍💻 {shorten(data.creatorWallet, 3, 3)}
                   </div>
                 )}
@@ -348,28 +348,28 @@ export function TokenCard({ data, onToggleWatch, className, enableLiveUpdates = 
 export function TokenCardSkeleton() {
   return (
     <div className="w-full">
-      <div className="rounded-[16px] overflow-hidden bg-[var(--card)] border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] animate-pulse">
+      <div className="rounded-xl overflow-hidden bg-card border-4 border-outline shadow-[6px_6px_0_var(--outline-black)] animate-pulse">
         <div className="flex items-center gap-4 p-4">
           {/* Logo skeleton */}
-          <div className="w-20 h-20 bg-[var(--background)] rounded-[14px] border-4 border-[var(--outline-black)]" />
+          <div className="w-20 h-20 bg-background rounded-lg border-4 border-outline" />
 
           {/* Middle content skeleton */}
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-2">
-              <div className="h-5 bg-[var(--background)] rounded w-20" />
-              <div className="h-4 bg-[var(--background)] opacity-60 rounded w-32" />
+              <div className="h-5 bg-background rounded w-20" />
+              <div className="h-4 bg-background opacity-60 rounded w-32" />
             </div>
             <div className="flex items-center gap-3">
-              <div className="h-5 w-12 bg-[var(--background)] rounded-[6px]" />
-              <div className="h-4 w-16 bg-[var(--background)] opacity-60 rounded" />
+              <div className="h-5 w-12 bg-background rounded-sm" />
+              <div className="h-4 w-16 bg-background opacity-60 rounded" />
             </div>
           </div>
 
           {/* Right content skeleton */}
           <div className="text-right shrink-0">
-            <div className="h-4 bg-[var(--background)] opacity-60 rounded w-16 mb-1 ml-auto" />
-            <div className="h-5 bg-[var(--background)] rounded w-20 mb-2 ml-auto" />
-            <div className="h-7 w-16 bg-[var(--background)] rounded-[8px] border-2 border-[var(--outline-black)] ml-auto" />
+            <div className="h-4 bg-background opacity-60 rounded w-16 mb-1 ml-auto" />
+            <div className="h-5 bg-background rounded w-20 mb-2 ml-auto" />
+            <div className="h-7 w-16 bg-background rounded border-2 border-outline ml-auto" />
           </div>
         </div>
       </div>

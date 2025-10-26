@@ -216,7 +216,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-[90vw] max-w-md mx-auto bg-[var(--card)] border-4 border-[var(--outline-black)] shadow-[8px_8px_0_var(--outline-black)] rounded-2xl max-h-[85vh] overflow-y-auto p-4 sm:p-6">
+      <DialogContent className="w-[90vw] max-w-md mx-auto bg-card border-4 border-outline shadow-[8px_8px_0_var(--outline-black)] rounded-2xl max-h-[85vh] overflow-y-auto p-4 sm:p-6">
         <div className="relative z-10">
         <DialogHeader className="space-y-3">
           <div className="flex items-center justify-center mb-4">
@@ -242,14 +242,14 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
 
         {/* Message Display */}
         {error && (
-          <Alert className="border-3 border-[var(--mario-red)] bg-[var(--mario-red)]/10 text-[var(--mario-red)] shadow-[3px_3px_0_var(--outline-black)]">
+          <Alert className="border-3 border-mario bg-mario/10 text-mario shadow-[3px_3px_0_var(--outline-black)]">
             <AlertCircle className="h-4 w-4" />
             <AlertDescription className="font-bold">{String(error)}</AlertDescription>
           </Alert>
         )}
 
                 {success && (
-          <Alert className="border-3 border-[var(--luigi-green)] bg-[var(--luigi-green)]/10 text-[var(--luigi-green)] shadow-[3px_3px_0_var(--outline-black)]">
+          <Alert className="border-3 border-luigi bg-luigi/10 text-luigi shadow-[3px_3px_0_var(--outline-black)]">
             <CheckCircle className="h-4 w-4" />
             <AlertDescription className="font-bold">{success}</AlertDescription>
           </Alert>
@@ -257,7 +257,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
 
         {/* Forgot Password View */}
         {currentView === 'forgot-password' && (
-          <div className="bg-[var(--card)] rounded-xl border-3 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)] p-6 space-y-4">
+          <div className="bg-card rounded-xl border-3 border-outline shadow-[4px_4px_0_var(--outline-black)] p-6 space-y-4">
             <div className="space-y-2">
               <div className="flex items-center gap-3">
                 <button
@@ -266,7 +266,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
                 >
                   <ArrowLeft className="h-4 w-4" />
                 </button>
-                <h3 className="text-lg font-mario text-[var(--outline-black)]">Reset Password</h3>
+                <h3 className="text-lg font-mario text-outline">Reset Password</h3>
               </div>
               <p className="text-sm text-muted-foreground font-bold">
                 Enter your email address and we'll send you a link to reset your password.
@@ -282,7 +282,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
                     name="email"
                     type="email"
                     placeholder="your@email.com"
-                    className="pl-10 bg-[var(--card)] border-3 border-[var(--outline-black)] h-11 rounded-lg shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)]"
+                    className="pl-10 bg-card border-3 border-outline h-11 rounded-lg shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)]"
                     required
                     disabled={isLoading}
                   />
@@ -290,7 +290,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
               </div>
               <button 
                 type="submit" 
-                className="w-full h-11 px-4 rounded-lg border-3 border-[var(--outline-black)] bg-[var(--luigi-green)] text-white hover:bg-[var(--luigi-green)]/90 shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all font-mario disabled:opacity-50" 
+                className="w-full h-11 px-4 rounded-lg border-3 border-outline bg-luigi text-white hover:bg-luigi/90 shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all font-mario disabled:opacity-50" 
                 disabled={isLoading}
               >
                   {isLoading ? 'Sending...' : 'Send Reset Link'}
@@ -299,20 +299,20 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
           </div>
         )}        {/* Reset Success View */}
         {currentView === 'reset-success' && (
-          <div className="bg-[var(--card)] rounded-xl border-3 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)] p-6">
+          <div className="bg-card rounded-xl border-3 border-outline shadow-[4px_4px_0_var(--outline-black)] p-6">
             <div className="text-center space-y-4">
               <div className="flex justify-center">
-                <div className="h-16 w-16 rounded-full bg-[var(--luigi-green)] border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] flex items-center justify-center">
+                <div className="h-16 w-16 rounded-full bg-luigi border-3 border-outline shadow-[3px_3px_0_var(--outline-black)] flex items-center justify-center">
                   <CheckCircle className="h-8 w-8 text-white" />
                 </div>
               </div>
-              <h3 className="text-xl font-mario text-[var(--outline-black)]">Check your email</h3>
+              <h3 className="text-xl font-mario text-outline">Check your email</h3>
               <p className="text-sm text-muted-foreground font-bold">
                 We've sent password reset instructions to your email address.
               </p>
               <button 
                 onClick={() => setCurrentView('login')} 
-                className="w-full h-11 px-4 rounded-lg border-3 border-[var(--outline-black)] bg-[var(--card)] hover:bg-gray-50 shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all font-mario"
+                className="w-full h-11 px-4 rounded-lg border-3 border-outline bg-card hover:bg-gray-50 shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all font-mario"
               >
                 Back to Login
               </button>
@@ -324,16 +324,16 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
         {(currentView === 'login' || currentView === 'register') && (
           <div className="space-y-6">
             <Tabs value={currentView} onValueChange={(value) => setCurrentView(value as AuthView)} className="w-full">
-              <TabsList className="grid w-full grid-cols-2 bg-[var(--card)] border-3 border-[var(--outline-black)] p-1 gap-1 shadow-[3px_3px_0_var(--outline-black)]">
+              <TabsList className="grid w-full grid-cols-2 bg-card border-3 border-outline p-1 gap-1 shadow-[3px_3px_0_var(--outline-black)]">
                 <TabsTrigger 
                   value="login" 
-                  className="font-mario border-3 border-[var(--outline-black)] bg-[var(--card)] text-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all data-[state=active]:bg-[var(--star-yellow)] data-[state=active]:shadow-[3px_3px_0_var(--outline-black)] data-[state=active]:translate-y-0"
+                  className="font-mario border-3 border-outline bg-card text-outline shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all data-[state=active]:bg-star data-[state=active]:shadow-[3px_3px_0_var(--outline-black)] data-[state=active]:translate-y-0"
                 >
                   Login
                 </TabsTrigger>
                 <TabsTrigger 
                   value="register" 
-                  className="font-mario border-3 border-[var(--outline-black)] bg-[var(--card)] text-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all data-[state=active]:bg-[var(--star-yellow)] data-[state=active]:shadow-[3px_3px_0_var(--outline-black)] data-[state=active]:translate-y-0"
+                  className="font-mario border-3 border-outline bg-card text-outline shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all data-[state=active]:bg-star data-[state=active]:shadow-[3px_3px_0_var(--outline-black)] data-[state=active]:translate-y-0"
                 >
                   Register
                 </TabsTrigger>
@@ -350,7 +350,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
                         name="email"
                         type="email" 
                         placeholder="you@example.com" 
-                        className="pl-10 bg-[var(--card)] border-3 border-[var(--outline-black)] h-11 rounded-lg shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)]" 
+                        className="pl-10 bg-card border-3 border-outline h-11 rounded-lg shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)]" 
                         autoComplete="username"
                         data-form-type="auth"
                         required 
@@ -367,7 +367,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
                         name="password"
                         type="password" 
                         placeholder="••••••••" 
-                        className="pl-10 bg-[var(--card)] border-3 border-[var(--outline-black)] h-11 rounded-lg shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)]" 
+                        className="pl-10 bg-card border-3 border-outline h-11 rounded-lg shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)]" 
                         autoComplete="current-password"
                         data-form-type="auth"
                         required 
@@ -378,7 +378,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
                   <div className="flex justify-end">
                     <button
                       type="button"
-                      className="px-0 text-sm text-[var(--luigi-green)] hover:text-[var(--luigi-green)]/80 font-bold underline"
+                      className="px-0 text-sm text-luigi hover:text-luigi/80 font-bold underline"
                       onClick={() => setCurrentView('forgot-password')}
                       disabled={isLoading}
                     >
@@ -387,7 +387,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
                   </div>
                   <button 
                     type="submit" 
-                    className="w-full h-11 px-4 rounded-lg border-3 border-[var(--outline-black)] bg-[var(--luigi-green)] text-white hover:bg-[var(--luigi-green)]/90 shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all font-mario disabled:opacity-50" 
+                    className="w-full h-11 px-4 rounded-lg border-3 border-outline bg-luigi text-white hover:bg-luigi/90 shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all font-mario disabled:opacity-50" 
                     disabled={isLoading}
                   >
                     {isLoading ? "Logging in..." : "Login"}
@@ -406,7 +406,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
                         name="handle"
                         type="text"
                         placeholder="trader123"
-                        className="pl-10 bg-[var(--card)] border-3 border-[var(--outline-black)] h-11 rounded-lg shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)]"
+                        className="pl-10 bg-card border-3 border-outline h-11 rounded-lg shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)]"
                         autoComplete="username"
                         data-form-type="auth"
                         required
@@ -425,7 +425,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
                         name="email"
                         type="email" 
                         placeholder="you@example.com" 
-                        className="pl-10 bg-[var(--card)] border-3 border-[var(--outline-black)] h-11 rounded-lg shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)]" 
+                        className="pl-10 bg-card border-3 border-outline h-11 rounded-lg shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)]" 
                         autoComplete="email"
                         data-form-type="auth"
                         required 
@@ -442,7 +442,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
                         name="password"
                         type="password"
                         placeholder="••••••••"
-                        className="pl-10 bg-[var(--card)] border-3 border-[var(--outline-black)] h-11 rounded-lg shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)]"
+                        className="pl-10 bg-card border-3 border-outline h-11 rounded-lg shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)]"
                         autoComplete="new-password"
                         data-form-type="auth"
                         required
@@ -462,7 +462,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
                         name="confirmPassword"
                         type="password"
                         placeholder="••••••••"
-                        className="pl-10 bg-[var(--card)] border-3 border-[var(--outline-black)] h-11 rounded-lg shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)]"
+                        className="pl-10 bg-card border-3 border-outline h-11 rounded-lg shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)]"
                         autoComplete="new-password"
                         data-form-type="auth"
                         required
@@ -476,7 +476,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
                   {/* Solana Wallet Address Field */}
                   <div className="space-y-2">
                     <Label htmlFor="register-wallet" className="text-foreground font-bold">
-                      Solana Wallet Address <span className="text-[var(--mario-red)]">*</span>
+                      Solana Wallet Address <span className="text-mario">*</span>
                     </Label>
                     <div className="relative">
                       <Wallet className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -485,7 +485,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
                         name="rewardWalletAddress"
                         type="text"
                         placeholder="Your Solana wallet address for rewards"
-                        className="pl-10 bg-[var(--card)] border-3 border-[var(--outline-black)] h-11 rounded-lg shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)] font-mono text-xs sm:text-sm"
+                        className="pl-10 bg-card border-3 border-outline h-11 rounded-lg shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)] font-mono text-xs sm:text-sm"
                         autoComplete="off"
                         data-form-type="other"
                         required
@@ -501,18 +501,18 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
 
                   {/* Password Strength Indicator */}
                   {password && (
-                    <div className="bg-gray-50 rounded-lg p-3 sm:p-4 border-2 border-[var(--outline-black)]">
+                    <div className="bg-gray-50 rounded-lg p-3 sm:p-4 border-2 border-outline">
                       <PasswordStrengthIndicator password={password} confirmPassword={confirmPassword} />
                     </div>
                   )}
 
                   {/* Wallet Connection Section */}
-                  <div className="space-y-3 py-3 sm:py-4 border-t-3 border-[var(--outline-black)] mt-2">
+                  <div className="space-y-3 py-3 sm:py-4 border-t-3 border-outline mt-2">
                     <div className="flex items-center gap-2 mb-1">
                       <Wallet className="h-4 w-4 text-muted-foreground" />
                       <Label className="text-sm sm:text-base text-foreground font-bold">Wallet Connection (Optional)</Label>
                     </div>
-                    <div className="bg-gray-50 rounded-lg p-3 sm:p-4 border-2 border-[var(--outline-black)]">
+                    <div className="bg-gray-50 rounded-lg p-3 sm:p-4 border-2 border-outline">
                       <p className="text-xs sm:text-sm text-muted-foreground mb-3 font-bold">
                         Connect your Solana wallet to unlock premium features and higher starting balance.
                       </p>
@@ -524,8 +524,8 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
                         className="w-full"
                       />
                       {walletConnected && (
-                        <div className="mt-2 p-2 sm:p-3 bg-[var(--luigi-green)]/10 rounded border-2 border-[var(--luigi-green)]">
-                          <p className="text-xs sm:text-sm text-[var(--luigi-green)] font-bold">
+                        <div className="mt-2 p-2 sm:p-3 bg-luigi/10 rounded border-2 border-luigi">
+                          <p className="text-xs sm:text-sm text-luigi font-bold">
                             ✓ Wallet connected - You'll receive enhanced tier benefits!
                           </p>
                         </div>
@@ -535,7 +535,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
                   
                   <button
                     type="submit"
-                    className="w-full h-11 px-4 rounded-lg border-3 border-[var(--outline-black)] bg-[var(--luigi-green)] text-white hover:bg-[var(--luigi-green)]/90 shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all font-mario mt-2 disabled:opacity-50"
+                    className="w-full h-11 px-4 rounded-lg border-3 border-outline bg-luigi text-white hover:bg-luigi/90 shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all font-mario mt-2 disabled:opacity-50"
                     disabled={isLoading}
                   >
                     {isLoading ? "Creating account..." : "Create Account"}

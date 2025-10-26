@@ -340,23 +340,23 @@ function UserSettingsPage() {
     <div className="min-h-screen bg-gradient-to-br from-[var(--sky-blue)]/20 via-[var(--super-blue)]/10 to-[var(--sky-blue)]/20">
       <div className="container max-w-4xl mx-auto py-8 pb-24 space-y-6">
         {/* Header */}
-        <div className="bg-gradient-to-r from-[var(--mario-red)] to-red-600 p-6 rounded-xl border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)]">
+        <div className="bg-gradient-to-r from-[var(--mario-red)] to-red-600 p-6 rounded-xl border-4 border-outline shadow-[6px_6px_0_var(--outline-black)]">
           <h1 className="text-4xl font-mario text-white drop-shadow-[3px_3px_0_var(--outline-black)]">Account Settings</h1>
           <p className="text-lg font-bold text-white/90 mt-2">Manage your profile and preferences</p>
         </div>
 
         {/* Avatar Section */}
-        <div className="rounded-[16px] border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] overflow-hidden">
-        <div className="bg-gradient-to-r from-[var(--star-yellow)] to-[var(--coin-gold)] p-4 border-b-4 border-[var(--outline-black)]">
-          <h2 className="text-2xl font-mario text-[var(--outline-black)] flex items-center gap-2">
+        <div className="rounded-xl border-4 border-outline shadow-[6px_6px_0_var(--outline-black)] overflow-hidden">
+        <div className="bg-gradient-to-r from-[var(--star-yellow)] to-[var(--coin-gold)] p-4 border-b-4 border-outline">
+          <h2 className="text-2xl font-mario text-outline flex items-center gap-2">
             <Camera className="h-6 w-6" />
             Profile Picture
           </h2>
-          <p className="text-sm font-bold text-[var(--outline-black)]/80 mt-1">Update your avatar image</p>
+          <p className="text-sm font-bold text-outline/80 mt-1">Update your avatar image</p>
         </div>
         <div className="p-6 space-y-4 bg-gradient-to-br from-[var(--star-yellow)]/10 to-[var(--coin-gold)]/10">
           <div className="flex items-center gap-6">
-            <Avatar className="h-24 w-24 border-4 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)]">
+            <Avatar className="h-24 w-24 border-4 border-outline shadow-[4px_4px_0_var(--outline-black)]">
               <AvatarImage src={avatarUrl} alt={displayHandle || 'User'} />
               <AvatarFallback className="text-2xl bg-gradient-to-br from-[var(--luigi-green)] to-emerald-500 text-white font-mario">
                 {displayHandle?.[0]?.toUpperCase() || displayEmail?.[0]?.toUpperCase() || 'U'}
@@ -368,7 +368,7 @@ function UserSettingsPage() {
                   onClick={() => fileInputRef.current?.click()}
                   disabled={uploadAvatarMutation.isPending}
                   size="sm"
-                  className="font-mario border-3 border-[var(--outline-black)] bg-[var(--luigi-green)] text-white hover:bg-[var(--luigi-green)]/90 shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all"
+                  className="font-mario border-3 border-outline bg-luigi text-white hover:bg-luigi/90 shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all"
                 >
                   <Upload className="h-4 w-4 mr-2" />
                   {uploadAvatarMutation.isPending ? 'Uploading...' : 'Upload New'}
@@ -378,7 +378,7 @@ function UserSettingsPage() {
                     onClick={() => removeAvatarMutation.mutate()}
                     disabled={removeAvatarMutation.isPending}
                     size="sm"
-                    className="font-mario border-3 border-[var(--outline-black)] bg-[var(--mario-red)] text-white hover:bg-[var(--mario-red)]/90 shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all"
+                    className="font-mario border-3 border-outline bg-mario text-white hover:bg-mario/90 shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all"
                   >
                     <Trash2 className="h-4 w-4 mr-2" />
                     {removeAvatarMutation.isPending ? 'Removing...' : 'Remove'}
@@ -404,8 +404,8 @@ function UserSettingsPage() {
       </div>
 
       {/* Profile Information */}
-      <div className="rounded-[16px] border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] overflow-hidden">
-        <div className="bg-gradient-to-r from-[var(--luigi-green)] to-[var(--pipe-green)] p-4 border-b-4 border-[var(--outline-black)]">
+      <div className="rounded-xl border-4 border-outline shadow-[6px_6px_0_var(--outline-black)] overflow-hidden">
+        <div className="bg-gradient-to-r from-[var(--luigi-green)] to-[var(--pipe-green)] p-4 border-b-4 border-outline">
           <h2 className="text-2xl font-mario text-white flex items-center gap-2 drop-shadow-[2px_2px_0_var(--outline-black)]">
             <User className="h-6 w-6" />
             Profile Information
@@ -428,7 +428,7 @@ function UserSettingsPage() {
                     onChange={(e) => setProfileData(prev => ({ ...prev, handle: e.target.value }))}
                     placeholder="username"
                     maxLength={30}
-                    className="border-4 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] focus:shadow-[4px_4px_0_var(--outline-black)] bg-[var(--card)]"
+                    className="border-4 border-outline shadow-[3px_3px_0_var(--outline-black)] focus:shadow-[4px_4px_0_var(--outline-black)] bg-card"
                   />
                 </div>
                 <p className="text-xs text-muted-foreground font-semibold">Your unique handle</p>
@@ -439,7 +439,7 @@ function UserSettingsPage() {
                   id="email"
                   value={displayEmail}
                   disabled
-                  className="bg-gray-200 opacity-60 border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)]"
+                  className="bg-gray-200 opacity-60 border-3 border-outline shadow-[2px_2px_0_var(--outline-black)]"
                 />
                 <p className="text-xs text-muted-foreground font-semibold">Email cannot be changed</p>
               </div>
@@ -453,7 +453,7 @@ function UserSettingsPage() {
                 onChange={(e) => setProfileData(prev => ({ ...prev, displayName: e.target.value }))}
                 placeholder="Your display name"
                 maxLength={50}
-                className="border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)] bg-[var(--card)]"
+                className="border-3 border-outline shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)] bg-card"
               />
               <p className="text-xs text-muted-foreground font-semibold">
                 This is how your name appears on the leaderboard
@@ -469,7 +469,7 @@ function UserSettingsPage() {
                 placeholder="Tell us about yourself..."
                 maxLength={500}
                 rows={3}
-                className="resize-none border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)] bg-[var(--card)]"
+                className="resize-none border-3 border-outline shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)] bg-card"
               />
               <p className="text-xs text-muted-foreground font-semibold">
                 {profileData.bio.length}/500 characters
@@ -478,7 +478,7 @@ function UserSettingsPage() {
 
             <Separator className="bg-[var(--outline-black)] h-1" />
 
-            <div className="space-y-4 bg-[var(--card)] rounded-[12px] p-4 border-4 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)]">
+            <div className="space-y-4 bg-card rounded-lg p-4 border-4 border-outline shadow-[4px_4px_0_var(--outline-black)]">
               <h4 className="text-lg font-mario">Social Links</h4>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -493,7 +493,7 @@ function UserSettingsPage() {
                     value={profileData.website}
                     onChange={(e) => setProfileData(prev => ({ ...prev, website: e.target.value }))}
                     placeholder="https://yourwebsite.com"
-                    className="border-4 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] focus:shadow-[4px_4px_0_var(--outline-black)] bg-[var(--card)]"
+                    className="border-4 border-outline shadow-[3px_3px_0_var(--outline-black)] focus:shadow-[4px_4px_0_var(--outline-black)] bg-card"
                   />
                 </div>
                 <div className="space-y-2">
@@ -506,7 +506,7 @@ function UserSettingsPage() {
                     value={profileData.twitter}
                     onChange={(e) => setProfileData(prev => ({ ...prev, twitter: e.target.value }))}
                     placeholder="@username"
-                    className="border-4 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] focus:shadow-[4px_4px_0_var(--outline-black)] bg-[var(--card)]"
+                    className="border-4 border-outline shadow-[3px_3px_0_var(--outline-black)] focus:shadow-[4px_4px_0_var(--outline-black)] bg-card"
                   />
                 </div>
                 <div className="space-y-2">
@@ -519,7 +519,7 @@ function UserSettingsPage() {
                     value={profileData.discord}
                     onChange={(e) => setProfileData(prev => ({ ...prev, discord: e.target.value }))}
                     placeholder="username#1234"
-                    className="border-4 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] focus:shadow-[4px_4px_0_var(--outline-black)] bg-[var(--card)]"
+                    className="border-4 border-outline shadow-[3px_3px_0_var(--outline-black)] focus:shadow-[4px_4px_0_var(--outline-black)] bg-card"
                   />
                 </div>
                 <div className="space-y-2">
@@ -532,7 +532,7 @@ function UserSettingsPage() {
                     value={profileData.telegram}
                     onChange={(e) => setProfileData(prev => ({ ...prev, telegram: e.target.value }))}
                     placeholder="@username"
-                    className="border-4 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] focus:shadow-[4px_4px_0_var(--outline-black)] bg-[var(--card)]"
+                    className="border-4 border-outline shadow-[3px_3px_0_var(--outline-black)] focus:shadow-[4px_4px_0_var(--outline-black)] bg-card"
                   />
                 </div>
               </div>
@@ -542,7 +542,7 @@ function UserSettingsPage() {
               <Button
                 type="submit"
                 disabled={updateProfileMutation.isPending}
-                className="font-mario border-3 border-[var(--outline-black)] bg-[var(--luigi-green)] text-white hover:bg-[var(--luigi-green)]/90 shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all"
+                className="font-mario border-3 border-outline bg-luigi text-white hover:bg-luigi/90 shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all"
               >
                 <Save className="h-4 w-4 mr-2" />
                 {updateProfileMutation.isPending ? 'Saving...' : 'Save Profile'}
@@ -553,8 +553,8 @@ function UserSettingsPage() {
       </div>
 
       {/* Security Settings */}
-      <div className="rounded-[16px] border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] overflow-hidden">
-        <div className="bg-gradient-to-r from-[var(--mario-red)] to-[var(--mario-red)]/80 p-4 border-b-4 border-[var(--outline-black)]">
+      <div className="rounded-xl border-4 border-outline shadow-[6px_6px_0_var(--outline-black)] overflow-hidden">
+        <div className="bg-gradient-to-r from-[var(--mario-red)] to-[var(--mario-red)]/80 p-4 border-b-4 border-outline">
           <h2 className="text-2xl font-mario text-white flex items-center gap-2 drop-shadow-[2px_2px_0_var(--outline-black)]">
             <Shield className="h-6 w-6" />
             Security
@@ -577,7 +577,7 @@ function UserSettingsPage() {
                   placeholder="Enter current password"
                   autoComplete="current-password"
                   required
-                  className="border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)] bg-[var(--card)]"
+                  className="border-3 border-outline shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)] bg-card"
                 />
                 <Button
                   type="button"
@@ -603,7 +603,7 @@ function UserSettingsPage() {
                   minLength={8}
                   autoComplete="new-password"
                   required
-                  className="border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)] bg-[var(--card)]"
+                  className="border-3 border-outline shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)] bg-card"
                 />
                 <Button
                   type="button"
@@ -628,7 +628,7 @@ function UserSettingsPage() {
                 minLength={8}
                 autoComplete="new-password"
                 required
-                className="border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)] bg-[var(--card)]"
+                className="border-3 border-outline shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)] bg-card"
               />
               <p className="text-xs text-muted-foreground font-semibold">
                 Must be 8+ characters with uppercase, lowercase, and number
@@ -639,7 +639,7 @@ function UserSettingsPage() {
               <Button
                 type="submit"
                 disabled={changePasswordMutation.isPending || !passwordData.currentPassword || !passwordData.newPassword}
-                className="font-mario border-3 border-[var(--outline-black)] bg-[var(--mario-red)] text-white hover:bg-[var(--mario-red)]/90 shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all"
+                className="font-mario border-3 border-outline bg-mario text-white hover:bg-mario/90 shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all"
               >
                 <Lock className="h-4 w-4 mr-2" />
                 {changePasswordMutation.isPending ? 'Changing...' : 'Change Password'}
@@ -650,8 +650,8 @@ function UserSettingsPage() {
       </div>
 
       {/* App Settings */}
-      <div className="rounded-[16px] border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] overflow-hidden">
-        <div className="bg-gradient-to-r from-[var(--sky-blue)] to-[var(--super-blue)] p-4 border-b-4 border-[var(--outline-black)]">
+      <div className="rounded-xl border-4 border-outline shadow-[6px_6px_0_var(--outline-black)] overflow-hidden">
+        <div className="bg-gradient-to-r from-[var(--sky-blue)] to-[var(--super-blue)] p-4 border-b-4 border-outline">
           <h2 className="text-2xl font-mario text-white flex items-center gap-2 drop-shadow-[2px_2px_0_var(--outline-black)]">
             <Settings className="h-6 w-6" />
             Preferences
@@ -660,7 +660,7 @@ function UserSettingsPage() {
         </div>
         <div className="p-6 space-y-6 bg-gradient-to-br from-[var(--sky-blue)]/10 to-[var(--super-blue)]/10">
           {/* Notifications */}
-          <div className="bg-[var(--card)] rounded-[12px] p-4 border-4 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)]">
+          <div className="bg-card rounded-lg p-4 border-4 border-outline shadow-[4px_4px_0_var(--outline-black)]">
             <h4 className="text-lg font-mario mb-3 flex items-center gap-2">
               <Bell className="h-5 w-5" />
               Notifications
@@ -736,7 +736,7 @@ function UserSettingsPage() {
           <Separator className="bg-[var(--outline-black)] h-1" />
 
           {/* Privacy */}
-          <div className="bg-[var(--card)] rounded-[12px] p-4 border-4 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)]">
+          <div className="bg-card rounded-lg p-4 border-4 border-outline shadow-[4px_4px_0_var(--outline-black)]">
             <h4 className="text-lg font-mario mb-3 flex items-center gap-2">
               <Eye className="h-5 w-5" />
               Privacy
@@ -798,7 +798,7 @@ function UserSettingsPage() {
           <Separator className="bg-[var(--outline-black)] h-1" />
 
           {/* Trading Preferences */}
-          <div className="bg-[var(--card)] rounded-[12px] p-4 border-4 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)]">
+          <div className="bg-card rounded-lg p-4 border-4 border-outline shadow-[4px_4px_0_var(--outline-black)]">
             <h4 className="text-lg font-mario mb-3 flex items-center gap-2">
               <DollarSign className="h-5 w-5" />
               Trading
@@ -872,7 +872,7 @@ function UserSettingsPage() {
                       }))
                     }
                   }}
-                  className="max-w-[200px] border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)] bg-[var(--card)]"
+                  className="max-w-[200px] border-3 border-outline shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)] bg-card"
                 />
                 <p className="text-xs text-muted-foreground">
                   Maximum price slippage for trades
@@ -882,7 +882,7 @@ function UserSettingsPage() {
           </div>
 
           <div className="flex justify-end">
-            <Button onClick={handleSettingsUpdate} className="font-mario border-3 border-[var(--outline-black)] bg-[var(--star-yellow)] text-[var(--outline-black)] hover:bg-[var(--star-yellow)]/90 shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all">
+            <Button onClick={handleSettingsUpdate} className="font-mario border-3 border-outline bg-star text-outline hover:bg-star/90 shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all">
               <Save className="h-4 w-4 mr-2" />
               Save Preferences
             </Button>
@@ -891,37 +891,37 @@ function UserSettingsPage() {
       </div>
 
       {/* Account Info */}
-      <div className="rounded-[16px] border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] overflow-hidden">
-        <div className="bg-gradient-to-r from-[var(--super-blue)] to-[var(--sky-blue)] p-4 border-b-4 border-[var(--outline-black)]">
+      <div className="rounded-xl border-4 border-outline shadow-[6px_6px_0_var(--outline-black)] overflow-hidden">
+        <div className="bg-gradient-to-r from-[var(--super-blue)] to-[var(--sky-blue)] p-4 border-b-4 border-outline">
           <h2 className="text-2xl font-mario text-white drop-shadow-[2px_2px_0_var(--outline-black)]">Account Information</h2>
         </div>
         <div className="p-6 bg-gradient-to-br from-[var(--super-blue)]/10 to-[var(--sky-blue)]/10">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="bg-[var(--card)] rounded-[12px] p-4 border-4 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)]">
-              <p className="text-sm font-bold text-[var(--outline-black)]/60 mb-2">Account Type</p>
-              <Badge variant="secondary" className="border-2 border-[var(--outline-black)] bg-purple-200 text-[var(--outline-black)] font-bold">
+            <div className="bg-card rounded-lg p-4 border-4 border-outline shadow-[3px_3px_0_var(--outline-black)]">
+              <p className="text-sm font-bold text-outline/60 mb-2">Account Type</p>
+              <Badge variant="secondary" className="border-2 border-outline bg-purple-200 text-outline font-bold">
                 {profile?.userTier || 'Standard'}
               </Badge>
             </div>
-            <div className="bg-[var(--card)] rounded-[12px] p-4 border-4 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)]">
-              <p className="text-sm font-bold text-[var(--outline-black)]/60 mb-2">Balance</p>
-              <p className="text-lg font-mario text-[var(--outline-black)]">
+            <div className="bg-card rounded-lg p-4 border-4 border-outline shadow-[3px_3px_0_var(--outline-black)]">
+              <p className="text-sm font-bold text-outline/60 mb-2">Balance</p>
+              <p className="text-lg font-mario text-outline">
                 {profile?.virtualSolBalance
                   ? parseFloat(profile.virtualSolBalance).toFixed(2)
                   : '10.00'} SOL
               </p>
             </div>
-            <div className="bg-[var(--card)] rounded-[12px] p-4 border-4 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)]">
-              <p className="text-sm font-bold text-[var(--outline-black)]/60 mb-2">Member Since</p>
-              <p className="text-sm font-bold text-[var(--outline-black)]">
+            <div className="bg-card rounded-lg p-4 border-4 border-outline shadow-[3px_3px_0_var(--outline-black)]">
+              <p className="text-sm font-bold text-outline/60 mb-2">Member Since</p>
+              <p className="text-sm font-bold text-outline">
                 {profile?.createdAt
                   ? new Date(profile.createdAt).toLocaleDateString()
                   : 'Unknown'}
               </p>
             </div>
-            <div className="bg-[var(--card)] rounded-[12px] p-4 border-4 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)]">
-              <p className="text-sm font-bold text-[var(--outline-black)]/60 mb-2">User ID</p>
-              <p className="text-xs font-mono font-bold text-[var(--outline-black)] truncate" title={user.id}>
+            <div className="bg-card rounded-lg p-4 border-4 border-outline shadow-[3px_3px_0_var(--outline-black)]">
+              <p className="text-sm font-bold text-outline/60 mb-2">User ID</p>
+              <p className="text-xs font-mono font-bold text-outline truncate" title={user.id}>
                 {user.id.slice(0, 12)}...
               </p>
             </div>
@@ -930,8 +930,8 @@ function UserSettingsPage() {
       </div>
 
       {/* Purchase Simulated SOL Section */}
-      <div className="rounded-[16px] border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] overflow-hidden">
-        <div className="bg-gradient-to-r from-[var(--coin-gold)] to-[var(--star-yellow)] p-4 border-b-4 border-[var(--outline-black)]">
+      <div className="rounded-xl border-4 border-outline shadow-[6px_6px_0_var(--outline-black)] overflow-hidden">
+        <div className="bg-gradient-to-r from-[var(--coin-gold)] to-[var(--star-yellow)] p-4 border-b-4 border-outline">
           <h2 className="text-2xl font-mario text-white flex items-center gap-2 drop-shadow-[2px_2px_0_var(--outline-black)]">
             <ShoppingCart className="h-6 w-6" />
             Purchase Simulated SOL
@@ -942,17 +942,17 @@ function UserSettingsPage() {
         </div>
         <div className="p-6 space-y-6 bg-gradient-to-br from-[var(--coin-gold)]/10 to-[var(--star-yellow)]/10">
           {/* Current Balance Display */}
-          <div className="bg-gradient-to-br from-[var(--star-yellow)]/30 to-[var(--coin-gold)]/30 rounded-[12px] p-6 border-4 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)]">
+          <div className="bg-gradient-to-br from-[var(--star-yellow)]/30 to-[var(--coin-gold)]/30 rounded-lg p-6 border-4 border-outline shadow-[4px_4px_0_var(--outline-black)]">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-bold text-[var(--outline-black)]/70 mb-1">Current Balance</p>
-                <p className="text-3xl font-mario text-[var(--outline-black)]">
+                <p className="text-sm font-bold text-outline/70 mb-1">Current Balance</p>
+                <p className="text-3xl font-mario text-outline">
                   {profile?.virtualSolBalance 
                     ? parseFloat(profile.virtualSolBalance).toFixed(2)
                     : '0.00'} SOL
                 </p>
               </div>
-              <Wallet className="h-12 w-12 text-[var(--star-yellow)]" />
+              <Wallet className="h-12 w-12 text-star" />
             </div>
           </div>
 
@@ -961,7 +961,7 @@ function UserSettingsPage() {
             <Button
               size="lg"
               onClick={() => setPurchaseModalOpen(true)}
-              className="font-mario border-3 border-[var(--outline-black)] bg-[var(--luigi-green)] text-white hover:bg-[var(--luigi-green)]/90 shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all w-full md:w-auto"
+              className="font-mario border-3 border-outline bg-luigi text-white hover:bg-luigi/90 shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all w-full md:w-auto"
             >
               <ShoppingCart className="h-4 w-4 mr-2" />
               Buy More Simulated SOL

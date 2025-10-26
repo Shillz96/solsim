@@ -254,7 +254,7 @@ export function PurchaseModal({ open, onOpenChange, userId }: PurchaseModalProps
                   priority
                 />
               </div>
-              <DialogDescription className="text-base text-center text-[var(--outline-black)] font-semibold">
+              <DialogDescription className="text-base text-center text-outline font-semibold">
                 Choose your tier and boost your trading balance instantly
               </DialogDescription>
             </DialogHeader>
@@ -279,7 +279,7 @@ export function PurchaseModal({ open, onOpenChange, userId }: PurchaseModalProps
               )}
 
               {error && (
-                <Alert variant="destructive" className="animate-in slide-in-from-top-2 border-3 border-[var(--mario-red)] bg-card shadow-[3px_3px_0_var(--mario-red)]">
+                <Alert variant="destructive" className="animate-in slide-in-from-top-2 border-3 border-mario bg-card shadow-[3px_3px_0_var(--mario-red)]">
                   <AlertCircle className="h-4 w-4" />
                   <AlertDescription className="font-semibold">{error}</AlertDescription>
                 </Alert>
@@ -288,27 +288,27 @@ export function PurchaseModal({ open, onOpenChange, userId }: PurchaseModalProps
               {!connected && (
                 <Alert className={cn(
                   marioStyles.card(false),
-                  'bg-[var(--sky-blue)] animate-in slide-in-from-bottom-2'
+                  'bg-sky animate-in slide-in-from-bottom-2'
                 )}>
-                  <Wallet className="h-5 w-5 text-[var(--outline-black)]" />
-                  <AlertDescription className="text-[var(--outline-black)] font-semibold">
-                    <strong className="font-bold text-[var(--outline-black)]">Connect your wallet</strong> to purchase simulated SOL and start trading
+                  <Wallet className="h-5 w-5 text-outline" />
+                  <AlertDescription className="text-outline font-semibold">
+                    <strong className="font-bold text-outline">Connect your wallet</strong> to purchase simulated SOL and start trading
                   </AlertDescription>
                 </Alert>
               )}
 
-              <div className="flex gap-3 justify-end pt-4 border-t-4 border-[var(--outline-black)]">
+              <div className="flex gap-3 justify-end pt-4 border-t-4 border-outline">
                 <Button
                   variant="outline"
                   onClick={handleClose}
-                  className="px-8 mario-btn bg-card border-3 border-[var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)]"
+                  className="px-8 mario-btn bg-card border-3 border-outline hover:shadow-[3px_3px_0_var(--outline-black)]"
                 >
                   Cancel
                 </Button>
                 <Button
                   onClick={handleContinue}
                   disabled={!selectedTier || isConnecting}
-                  className="min-w-[180px] mario-btn bg-[var(--luigi-green)] text-white border-3 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)] hover:shadow-[6px_6px_0_var(--outline-black)] font-mario disabled:opacity-50"
+                  className="min-w-[180px] mario-btn bg-luigi text-white border-3 border-outline shadow-[4px_4px_0_var(--outline-black)] hover:shadow-[6px_6px_0_var(--outline-black)] font-mario disabled:opacity-50"
                   size="lg"
                 >
                   {isConnecting ? (
@@ -344,21 +344,21 @@ export function PurchaseModal({ open, onOpenChange, userId }: PurchaseModalProps
                 )}>
                   <CheckCircle className="h-6 w-6 text-white" />
                 </div>
-                <h2 className="text-3xl font-mario text-[var(--outline-black)]">
+                <h2 className="text-3xl font-mario text-outline">
                   Confirm Purchase
                 </h2>
               </div>
-              <DialogDescription className="text-base text-center text-[var(--outline-black)] font-semibold">
+              <DialogDescription className="text-base text-center text-outline font-semibold">
                 Review your purchase details before proceeding
               </DialogDescription>
             </DialogHeader>
 
             <div className="space-y-6">
               <div className="relative">
-                <div className="relative bg-card rounded-2xl p-8 space-y-6 border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)]">
+                <div className="relative bg-card rounded-2xl p-8 space-y-6 border-4 border-outline shadow-[6px_6px_0_var(--outline-black)]">
                   {/* Tier badge */}
                   <div className="flex justify-center">
-                    <Badge className="text-base px-4 py-1.5 bg-[var(--star-yellow)] border-3 border-[var(--outline-black)] text-[var(--outline-black)] font-mario shadow-[2px_2px_0_var(--outline-black)]">
+                    <Badge className="text-base px-4 py-1.5 bg-star border-3 border-outline text-outline font-mario shadow-[2px_2px_0_var(--outline-black)]">
                       {selectedTier?.label} TIER
                     </Badge>
                   </div>
@@ -368,21 +368,21 @@ export function PurchaseModal({ open, onOpenChange, userId }: PurchaseModalProps
                     {/* You pay */}
                     <div className={cn(
                       marioStyles.card(false),
-                      'flex justify-between items-center p-4 bg-[var(--sky-blue)]'
+                      'flex justify-between items-center p-4 bg-sky'
                     )}>
-                      <span className="text-sm font-bold text-[var(--outline-black)] uppercase tracking-wide">You Pay</span>
+                      <span className="text-sm font-bold text-outline uppercase tracking-wide">You Pay</span>
                       <div className="flex items-baseline gap-2">
-                        <span className="text-3xl font-mario text-[var(--outline-black)]">
+                        <span className="text-3xl font-mario text-outline">
                           {selectedTier?.realSol}
                         </span>
-                        <span className="text-lg font-bold text-[var(--outline-black)]">SOL</span>
+                        <span className="text-lg font-bold text-outline">SOL</span>
                       </div>
                     </div>
 
                     {/* Arrow */}
                     <div className="flex justify-center">
-                      <div className="h-8 w-8 rounded-lg bg-[var(--star-yellow)] border-3 border-[var(--outline-black)] flex items-center justify-center shadow-[2px_2px_0_var(--outline-black)]">
-                        <svg className="h-5 w-5 text-[var(--outline-black)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <div className="h-8 w-8 rounded-lg bg-star border-3 border-outline flex items-center justify-center shadow-[2px_2px_0_var(--outline-black)]">
+                        <svg className="h-5 w-5 text-outline" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
                         </svg>
                       </div>
@@ -391,7 +391,7 @@ export function PurchaseModal({ open, onOpenChange, userId }: PurchaseModalProps
                     {/* You receive */}
                     <div className={cn(
                       marioStyles.card(false),
-                      'flex justify-between items-center p-4 bg-[var(--luigi-green)]'
+                      'flex justify-between items-center p-4 bg-luigi'
                     )}>
                       <span className="text-sm font-bold text-white uppercase tracking-wide">You Receive</span>
                       <div className="flex items-baseline gap-2">
@@ -406,10 +406,10 @@ export function PurchaseModal({ open, onOpenChange, userId }: PurchaseModalProps
                   {/* Bonus */}
                   {selectedTier && selectedTier.bonus > 0 && (
                     <div className="flex justify-center">
-                      <div className="px-6 py-3 rounded-full bg-[var(--star-yellow)] border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)]">
+                      <div className="px-6 py-3 rounded-full bg-star border-3 border-outline shadow-[3px_3px_0_var(--outline-black)]">
                         <div className="flex items-center gap-2">
-                          <Sparkles className="h-4 w-4 text-[var(--outline-black)]" />
-                          <span className="text-base font-mario text-[var(--outline-black)]">
+                          <Sparkles className="h-4 w-4 text-outline" />
+                          <span className="text-base font-mario text-outline">
                             +{selectedTier.bonus}% BONUS INCLUDED
                           </span>
                         </div>
@@ -418,15 +418,15 @@ export function PurchaseModal({ open, onOpenChange, userId }: PurchaseModalProps
                   )}
 
                   {/* Transaction details */}
-                  <div className="pt-4 border-t-3 border-[var(--outline-black)]">
+                  <div className="pt-4 border-t-3 border-outline">
                     <div className="space-y-3 text-xs">
                       <div className="flex items-center justify-between">
-                        <span className="text-[var(--outline-black)] font-semibold">Network:</span>
-                        <span className="text-[var(--outline-black)] font-bold">Solana Mainnet</span>
+                        <span className="text-outline font-semibold">Network:</span>
+                        <span className="text-outline font-bold">Solana Mainnet</span>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-[var(--outline-black)] font-semibold">Recipient:</span>
-                        <code className="text-[var(--outline-black)] bg-[var(--sky-blue)] px-2 py-1 rounded-lg border-2 border-[var(--outline-black)] font-mono text-xs font-bold">
+                        <span className="text-outline font-semibold">Recipient:</span>
+                        <code className="text-outline bg-sky px-2 py-1 rounded-lg border-2 border-outline font-mono text-xs font-bold">
                           8i6H...xf1iL
                         </code>
                       </div>
@@ -436,23 +436,23 @@ export function PurchaseModal({ open, onOpenChange, userId }: PurchaseModalProps
               </div>
 
               {error && (
-                <Alert variant="destructive" className="border-3 border-[var(--mario-red)] bg-card shadow-[3px_3px_0_var(--mario-red)] animate-in slide-in-from-top-2">
+                <Alert variant="destructive" className="border-3 border-mario bg-card shadow-[3px_3px_0_var(--mario-red)] animate-in slide-in-from-top-2">
                   <AlertCircle className="h-4 w-4" />
                   <AlertDescription className="font-semibold">{error}</AlertDescription>
                 </Alert>
               )}
 
-              <div className="flex gap-3 justify-end pt-4 border-t-4 border-[var(--outline-black)]">
+              <div className="flex gap-3 justify-end pt-4 border-t-4 border-outline">
                 <Button
                   variant="outline"
                   onClick={handleCancel}
-                  className="px-8 mario-btn bg-card border-3 border-[var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)]"
+                  className="px-8 mario-btn bg-card border-3 border-outline hover:shadow-[3px_3px_0_var(--outline-black)]"
                 >
                   Back
                 </Button>
                 <Button
                   onClick={handlePurchase}
-                  className="min-w-[200px] mario-btn bg-[var(--luigi-green)] text-white border-3 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)] hover:shadow-[6px_6px_0_var(--outline-black)] font-mario"
+                  className="min-w-[200px] mario-btn bg-luigi text-white border-3 border-outline shadow-[4px_4px_0_var(--outline-black)] hover:shadow-[6px_6px_0_var(--outline-black)] font-mario"
                   size="lg"
                 >
                   <Wallet className="h-4 w-4 mr-2" />
@@ -607,7 +607,7 @@ export function PurchaseModal({ open, onOpenChange, userId }: PurchaseModalProps
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-w-[90vw] lg:max-w-6xl max-h-[90vh] overflow-y-auto p-8 bg-card border-4 border-[var(--outline-black)] shadow-[8px_8px_0_var(--outline-black)]">
+      <DialogContent className="max-w-[90vw] lg:max-w-6xl max-h-[90vh] overflow-y-auto p-8 bg-card border-4 border-outline shadow-[8px_8px_0_var(--outline-black)]">
         {renderContent()}
       </DialogContent>
     </Dialog>

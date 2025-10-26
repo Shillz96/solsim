@@ -51,9 +51,9 @@ export function ProfileMenu({
           whileHover={{ y: -1 }}
           className={cn(
             "h-9 md:h-10 min-w-[140px] md:min-w-[160px]",
-            "px-2.5 md:px-3 rounded-[10px] md:rounded-[12px]",
-            "bg-[var(--star-yellow)]",
-            "border-3 border-[var(--outline-black)]",
+            "px-2.5 md:px-3 rounded-md md:rounded-lg",
+            "bg-star",
+            "border-3 border-outline",
             "shadow-[3px_3px_0_var(--outline-black)] md:shadow-[4px_4px_0_var(--outline-black)]",
             "hover:shadow-[4px_4px_0_var(--outline-black)] md:hover:shadow-[5px_5px_0_var(--outline-black)]",
             "flex items-center justify-between gap-2 md:gap-2.5",
@@ -64,7 +64,7 @@ export function ProfileMenu({
         >
           {/* Name + Level info - LEFT SIDE compact */}
           <div className="flex flex-col items-start justify-center leading-tight space-y-0 flex-1 min-w-0">
-            <span className="font-extrabold text-[11px] md:text-[13px] tracking-tight text-[var(--outline-black)] truncate max-w-full">
+            <span className="font-extrabold text-[11px] md:text-[13px] tracking-tight text-outline truncate max-w-full">
               {displayName}
             </span>
             <div className="flex items-center gap-1 md:gap-1.5">
@@ -83,15 +83,15 @@ export function ProfileMenu({
               className={cn(
                 "grid place-items-center flex-shrink-0",
                 "h-7 w-7 md:h-8 md:w-8",
-                "rounded-[8px] md:rounded-[10px]",
-                "bg-[var(--mario-red)]",
-                "border-2 border-[var(--outline-black)]/60",
+                "rounded md:rounded-md",
+                "bg-mario",
+                "border-2 border-outline/60",
                 "overflow-hidden shadow-[1px_1px_0_var(--outline-black)]/40"
               )}
             >
               <Avatar className="h-full w-full rounded-none border-0">
                 <AvatarImage src={avatarUrl} alt={displayName} className="rounded-none object-cover" />
-                <AvatarFallback className="rounded-none font-bold bg-[var(--mario-red)] text-white text-[10px] md:text-[12px]">
+                <AvatarFallback className="rounded-none font-bold bg-mario text-white text-[10px] md:text-[12px]">
                   {displayName?.[0]?.toUpperCase() || "U"}
                 </AvatarFallback>
               </Avatar>
@@ -100,7 +100,7 @@ export function ProfileMenu({
         </motion.button>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent align="end" className="w-80 max-h-[60vh] overflow-y-auto bg-[var(--card)] border border-[var(--color-border)] shadow-[var(--shadow-dropdown)]">
+      <DropdownMenuContent align="end" className="w-80 max-h-[60vh] overflow-y-auto bg-card border border-[var(--color-border)] shadow-[var(--shadow-dropdown)]">
         <DropdownMenuLabel>My Account</DropdownMenuLabel>
 
         {/* Notifications Section */}

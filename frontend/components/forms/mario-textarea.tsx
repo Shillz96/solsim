@@ -13,7 +13,7 @@ export const MarioTextarea = forwardRef<HTMLTextAreaElement, MarioTextareaProps>
       <MarioFormField label={label} error={error} required={required}>
         <textarea
           ref={ref}
-          className={`w-full px-3 py-2 border-4 border-[var(--outline-black)] rounded-lg bg-[var(--card)] focus:outline-none focus:ring-2 focus:ring-[var(--star-yellow)] focus:border-[var(--star-yellow)] font-mario resize-vertical min-h-[100px] ${className || ''}`}
+          className={`w-full px-3 py-2 border-4 border-outline rounded-lg bg-card focus:outline-none focus:ring-2 focus:ring-[var(--star-yellow)] focus:border-star font-mario resize-vertical min-h-[100px] ${className || ''}`}
           {...props}
         />
       </MarioFormField>

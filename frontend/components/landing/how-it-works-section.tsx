@@ -41,15 +41,15 @@ const steps = [
 export function HowItWorksSection() {
   // Solid Mario-themed icon backgrounds using theme tokens
   const iconColors = [
-    'bg-[var(--mario-red)]',      // 1. Sign up - Red
-    'bg-[var(--sky-blue)]',       // 2. Explore - Blue
-    'bg-[var(--luigi-green)]',    // 3. Trade - Green
-    'bg-[var(--star-yellow)]',    // 4. Level up - Yellow
-    'bg-[var(--coin-gold)]',      // 5. Compete - Gold
+    'bg-mario',      // 1. Sign up - Red
+    'bg-sky',       // 2. Explore - Blue
+    'bg-luigi',    // 3. Trade - Green
+    'bg-star',    // 4. Level up - Yellow
+    'bg-coin',      // 5. Compete - Gold
   ]
 
   return (
-    <section className="py-20 md:py-32 bg-background border-t-4 border-[var(--outline-black)]/20">
+    <section className="py-20 md:py-32 bg-background border-t-4 border-outline/20">
       <div className="container mx-auto px-4">
         <div className="text-center space-y-4 mb-16">
           {/* Mario header */}
@@ -62,7 +62,7 @@ export function HowItWorksSection() {
             />
           </div>
 
-          <h2 className="font-mario text-4xl md:text-5xl font-bold text-[var(--mario-red)] flex items-center justify-center gap-3" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.3)' }}>
+          <h2 className="font-mario text-4xl md:text-5xl font-bold text-mario flex items-center justify-center gap-3" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.3)' }}>
             How to Play the Game
             <Image src="/icons/mario/controller.png" alt="" width={40} height={40} className="object-contain inline-block" />
           </h2>
@@ -85,16 +85,16 @@ export function HowItWorksSection() {
                 <div className="flex flex-col items-center text-center space-y-4">
                   {/* Step icon */}
                   <div className="relative">
-                    <div className={`h-20 w-20 rounded-[12px] ${iconColors[index]} border-4 border-[var(--outline-black)] flex items-center justify-center hover:scale-110 transition-all shadow-[6px_6px_0_var(--outline-black)]`}>
+                    <div className={`h-20 w-20 rounded-lg ${iconColors[index]} border-4 border-outline flex items-center justify-center hover:scale-110 transition-all shadow-[6px_6px_0_var(--outline-black)]`}>
                       <Image src={step.iconSrc} alt="" width={40} height={40} className="object-contain" />
                     </div>
-                    <div className="absolute -top-2 -right-2 h-10 w-10 rounded-full bg-[var(--mario-red)] text-white border-4 border-[var(--outline-black)] flex items-center justify-center text-lg font-mario shadow-[4px_4px_0_var(--outline-black)]">
+                    <div className="absolute -top-2 -right-2 h-10 w-10 rounded-full bg-mario text-white border-4 border-outline flex items-center justify-center text-lg font-mario shadow-[4px_4px_0_var(--outline-black)]">
                       {index + 1}
                     </div>
                   </div>
 
                   <div className="space-y-2">
-                    <h3 className="font-mario text-xl text-[var(--mario-red)] font-bold" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.2)' }}>{step.title}</h3>
+                    <h3 className="font-mario text-xl text-mario font-bold" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.2)' }}>{step.title}</h3>
                     <p className="text-base text-foreground font-semibold leading-relaxed max-w-xs">{step.description}</p>
                   </div>
                 </div>

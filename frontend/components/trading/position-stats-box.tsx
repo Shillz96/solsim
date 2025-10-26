@@ -119,13 +119,13 @@ export function PositionStatsBox({
       <div className={cn(
         "flex items-center justify-center p-3",
         "bg-gradient-to-br from-yellow-100 to-amber-100",
-        "border-4 border-[var(--outline-black)]",
+        "border-4 border-outline",
         "shadow-[4px_4px_0_var(--outline-black)]",
-        "rounded-[12px]",
+        "rounded-lg",
         className
       )}>
-        <Loader2 className="h-4 w-4 animate-spin mr-2 text-[var(--star-yellow)]" />
-        <span className="text-xs font-bold font-mario text-[var(--outline-black)]">Loading stats...</span>
+        <Loader2 className="h-4 w-4 animate-spin mr-2 text-star" />
+        <span className="text-xs font-bold font-mario text-outline">Loading stats...</span>
       </div>
     )
   }
@@ -145,40 +145,40 @@ export function PositionStatsBox({
   return (
     <div className={cn(
       "bg-gradient-to-br from-yellow-100 via-amber-50 to-orange-100",
-      "border-4 border-[var(--outline-black)]",
+      "border-4 border-outline",
       "shadow-[4px_4px_0_var(--outline-black)]",
-      "rounded-[14px]",
+      "rounded-lg",
       "p-0 overflow-hidden",
       "transition-all hover:shadow-[5px_5px_0_var(--outline-black)] hover:-translate-y-[1px]",
       className
     )}>
       <div className="grid grid-cols-4 gap-0">
         {/* Bought */}
-        <div className="flex flex-col items-center justify-center border-r-3 border-[var(--outline-black)] px-2 py-3 bg-[var(--card)]/40">
-          <div className="text-[10px] font-bold uppercase text-[var(--outline-black)]/70 mb-1 font-mario">
+        <div className="flex flex-col items-center justify-center border-r-3 border-outline px-2 py-3 bg-card/40">
+          <div className="text-[10px] font-bold uppercase text-outline/70 mb-1 font-mario">
             Bought
           </div>
-          <div className="font-mono text-[13px] font-extrabold text-[var(--outline-black)]">
+          <div className="font-mono text-[13px] font-extrabold text-outline">
             {formatUSD(parseFloat(stats.totalBoughtUsd))}
           </div>
         </div>
 
         {/* Sold */}
-        <div className="flex flex-col items-center justify-center border-r-3 border-[var(--outline-black)] px-2 py-3 bg-[var(--card)]/40">
-          <div className="text-[10px] font-bold uppercase text-[var(--outline-black)]/70 mb-1 font-mario">
+        <div className="flex flex-col items-center justify-center border-r-3 border-outline px-2 py-3 bg-card/40">
+          <div className="text-[10px] font-bold uppercase text-outline/70 mb-1 font-mario">
             Sold
           </div>
-          <div className="font-mono text-[13px] font-extrabold text-[var(--outline-black)]">
+          <div className="font-mono text-[13px] font-extrabold text-outline">
             {formatUSD(parseFloat(stats.totalSoldUsd))}
           </div>
         </div>
 
         {/* Holding */}
-        <div className="flex flex-col items-center justify-center border-r-3 border-[var(--outline-black)] px-2 py-3 bg-[var(--card)]/40">
-          <div className="text-[10px] font-bold uppercase text-[var(--outline-black)]/70 mb-1 font-mario">
+        <div className="flex flex-col items-center justify-center border-r-3 border-outline px-2 py-3 bg-card/40">
+          <div className="text-[10px] font-bold uppercase text-outline/70 mb-1 font-mario">
             Holding
           </div>
-          <div className="font-mono text-[13px] font-extrabold text-[var(--outline-black)]">
+          <div className="font-mono text-[13px] font-extrabold text-outline">
             {formatUSD(parseFloat(stats.currentHoldingValue))}
           </div>
         </div>
@@ -190,14 +190,14 @@ export function PositionStatsBox({
             ? "bg-gradient-to-br from-[var(--luigi-green)]/20 to-emerald-100/50"
             : "bg-gradient-to-br from-[var(--mario-red)]/20 to-red-100/50"
         )}>
-          <div className="text-[10px] font-bold uppercase text-[var(--outline-black)]/70 mb-1 font-mario">
+          <div className="text-[10px] font-bold uppercase text-outline/70 mb-1 font-mario">
             PnL
           </div>
           <div className="flex items-center gap-1">
             {isProfitable ? (
-              <TrendingUp className="h-3 w-3 text-[var(--luigi-green)]" />
+              <TrendingUp className="h-3 w-3 text-luigi" />
             ) : (
-              <TrendingDown className="h-3 w-3 text-[var(--mario-red)]" />
+              <TrendingDown className="h-3 w-3 text-mario" />
             )}
             <AnimatedNumber
               value={totalPnL}
@@ -205,7 +205,7 @@ export function PositionStatsBox({
               decimals={2}
               className={cn(
                 "font-mono text-[13px] font-extrabold",
-                isProfitable ? "text-[var(--luigi-green)]" : "text-[var(--mario-red)]"
+                isProfitable ? "text-luigi" : "text-mario"
               )}
               colorize={false}
               glowOnChange={true}
@@ -213,7 +213,7 @@ export function PositionStatsBox({
           </div>
           <div className={cn(
             "text-[9px] font-bold",
-            isProfitable ? "text-[var(--luigi-green)]" : "text-[var(--mario-red)]"
+            isProfitable ? "text-luigi" : "text-mario"
           )}>
             ({pnlPercentage}%)
           </div>

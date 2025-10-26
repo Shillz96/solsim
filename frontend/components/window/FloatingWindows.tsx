@@ -44,16 +44,16 @@ class FloatingWindowsErrorBoundary extends Component<
   render() {
     if (this.state.hasError) {
       return (
-        <div className="fixed inset-0 bg-[var(--mario-red)]/10 border-4 border-[var(--mario-red)] rounded-lg m-4 p-4 z-50">
-          <h3 className="font-mario text-[var(--mario-red)] text-sm mb-2">
+        <div className="fixed inset-0 bg-mario/10 border-4 border-mario rounded-lg m-4 p-4 z-50">
+          <h3 className="font-mario text-mario text-sm mb-2">
             Window System Error
           </h3>
-          <p className="text-[var(--mario-red)] text-xs mb-4">
+          <p className="text-mario text-xs mb-4">
             The floating window system encountered an error and couldn't load.
           </p>
           <button
             onClick={() => this.setState({ hasError: false })}
-            className="px-3 py-1 bg-[var(--mario-red)] text-white rounded border-2 border-[var(--outline-black)] text-xs font-mario"
+            className="px-3 py-1 bg-mario text-white rounded border-2 border-outline text-xs font-mario"
           >
             Retry
           </button>
@@ -229,10 +229,10 @@ export default function FloatingWindows() {
             onBlur={() => setFocusedId(null)}
             className={
               draggingId === w.id
-                ? "flex flex-col h-full rounded-lg border-[3px] border-[var(--outline-black)] bg-gradient-to-br from-white via-white to-[var(--sky-blue)]/20 opacity-90 scale-[0.98] focus:outline-none focus:ring-4 focus:ring-[var(--mario-red)]"
+                ? "flex flex-col h-full rounded-lg border-[3px] border-outline bg-gradient-to-br from-white via-white to-[var(--sky-blue)]/20 opacity-90 scale-[0.98] focus:outline-none focus:ring-4 focus:ring-[var(--mario-red)]"
                 : focusedId === w.id
-                ? "flex flex-col h-full rounded-lg border-[3px] border-[var(--mario-red)] bg-gradient-to-br from-white via-white to-[var(--sky-blue)]/20 shadow-[4px_4px_0_var(--outline-black)] focus:outline-none focus:ring-4 focus:ring-[var(--mario-red)]"
-                : "flex flex-col h-full rounded-lg border-[3px] border-[var(--outline-black)] bg-gradient-to-br from-white via-white to-[var(--sky-blue)]/20 shadow-[4px_4px_0_var(--outline-black)] hover:translate-x-[1px] hover:translate-y-[1px] transition-transform focus:outline-none focus:ring-4 focus:ring-[var(--mario-red)]"
+                ? "flex flex-col h-full rounded-lg border-[3px] border-mario bg-gradient-to-br from-white via-white to-[var(--sky-blue)]/20 shadow-[4px_4px_0_var(--outline-black)] focus:outline-none focus:ring-4 focus:ring-[var(--mario-red)]"
+                : "flex flex-col h-full rounded-lg border-[3px] border-outline bg-gradient-to-br from-white via-white to-[var(--sky-blue)]/20 shadow-[4px_4px_0_var(--outline-black)] hover:translate-x-[1px] hover:translate-y-[1px] transition-transform focus:outline-none focus:ring-4 focus:ring-[var(--mario-red)]"
             }
             style={{
               willChange: 'transform',
@@ -286,7 +286,7 @@ export default function FloatingWindows() {
             </div>
 
             {/* Content */}
-            <div className="flex-1 min-h-0 overflow-hidden bg-[var(--card)]/90 rounded-b-md pointer-events-auto">
+            <div className="flex-1 min-h-0 overflow-hidden bg-card/90 rounded-b-md pointer-events-auto">
               {w.content}
             </div>
 

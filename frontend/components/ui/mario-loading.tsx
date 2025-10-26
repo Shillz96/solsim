@@ -23,8 +23,8 @@ export function MarioLoading({ message = "Loading...", size = 'md' }: MarioLoadi
 
   return (
     <div className="flex flex-col items-center justify-center p-8">
-      <div className={`${sizeClasses[size]} border-4 border-[var(--outline-black)] border-t-[var(--star-yellow)] rounded-full animate-spin motion-reduce:animate-none`} />
-      <p className="mt-4 text-[var(--outline-black)] font-mario">{message}</p>
+      <div className={`${sizeClasses[size]} border-4 border-outline border-t-[var(--star-yellow)] rounded-full animate-spin motion-reduce:animate-none`} />
+      <p className="mt-4 text-outline font-mario">{message}</p>
     </div>
   )
 }
@@ -98,7 +98,7 @@ export function MarioLoadingCard({
 }: MarioLoadingCardProps) {
   return (
     <div className={cn(
-      "bg-[var(--card)] border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] rounded-xl p-8 flex flex-col items-center justify-center gap-4",
+      "bg-card border-4 border-outline shadow-[6px_6px_0_var(--outline-black)] rounded-xl p-8 flex flex-col items-center justify-center gap-4",
       className
     )}>
       <MarioSpinner size="lg" />
@@ -181,12 +181,12 @@ export function MarioLoadingBar({ progress, className }: MarioLoadingBarProps) {
   
   return (
     <div className={cn(
-      "w-full h-3 bg-[var(--sky-200)] border-2 border-[var(--outline-black)] rounded-full overflow-hidden",
+      "w-full h-3 bg-[var(--sky-200)] border-2 border-outline rounded-full overflow-hidden",
       className
     )}>
       <div 
         className={cn(
-          "h-full bg-[var(--mario-red)] transition-all duration-300",
+          "h-full bg-mario transition-all duration-300",
           isIndeterminate && "animate-[loading-bar_1.5s_ease-in-out_infinite] w-1/3"
         )}
         style={!isIndeterminate ? { width: `${Math.min(100, Math.max(0, progress))}%` } : undefined}
@@ -208,7 +208,7 @@ interface MarioSkeletonPulseProps {
 export function MarioSkeletonPulse({ className, children }: MarioSkeletonPulseProps) {
   return (
     <div className={cn(
-      "bg-[var(--sky-200)] border-2 border-[var(--outline-black)] rounded-lg animate-pulse motion-reduce:animate-none",
+      "bg-[var(--sky-200)] border-2 border-outline rounded-lg animate-pulse motion-reduce:animate-none",
       className
     )}>
       {children}

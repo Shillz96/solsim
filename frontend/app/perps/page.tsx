@@ -526,7 +526,7 @@ function PerpsContent() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <div className="bg-[var(--sky-blue)]/20 border-4 border-[var(--outline-black)] rounded-xl shadow-[8px_8px_0_var(--outline-black)] p-6 relative overflow-hidden mb-4">
+          <div className="bg-sky/20 border-4 border-outline rounded-xl shadow-[8px_8px_0_var(--outline-black)] p-6 relative overflow-hidden mb-4">
             {/* Decorative Mario icons */}
             <div className="absolute top-2 right-2 flex gap-2">
               <img src="/icons/mario/star.png" alt="Star" width={24} height={24} className="animate-pulse" />
@@ -557,11 +557,11 @@ function PerpsContent() {
           transition={{ duration: 0.5, delay: 0.1 }}
           className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
         >
-          <div className="bg-[var(--sky-blue)]/20 p-3 border-3 border-[var(--outline-black)] rounded-lg shadow-[3px_3px_0_var(--outline-black)]">
-            <div className="text-xs text-[var(--outline-black)] font-bold">Available Balance</div>
-            <div className="text-xl sm:text-2xl font-mario text-[var(--outline-black)]">
+          <div className="bg-sky/20 p-3 border-3 border-outline rounded-lg shadow-[3px_3px_0_var(--outline-black)]">
+            <div className="text-xs text-outline font-bold">Available Balance</div>
+            <div className="text-xl sm:text-2xl font-mario text-outline">
               {balance.toFixed(4)} SOL
-              <span className="text-sm text-[var(--outline-black)] ml-2 font-normal">
+              <span className="text-sm text-outline ml-2 font-normal">
                 (${(balance * solPrice).toFixed(2)})
               </span>
             </div>
@@ -576,33 +576,33 @@ function PerpsContent() {
             transition={{ duration: 0.5, delay: 0.1 }}
             className="grid grid-cols-2 sm:grid-cols-4 gap-3"
           >
-            <div className="bg-[var(--sky-blue)]/20 p-4 border-3 border-[var(--outline-black)] rounded-lg shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all">
+            <div className="bg-sky/20 p-4 border-3 border-outline rounded-lg shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all">
               <div className="flex items-center gap-2">
-                <Activity className="h-4 w-4 text-[var(--outline-black)]" />
-                <span className="text-xs text-[var(--outline-black)] font-bold">Open Positions</span>
+                <Activity className="h-4 w-4 text-outline" />
+                <span className="text-xs text-outline font-bold">Open Positions</span>
               </div>
-              <div className="text-2xl font-mario text-[var(--outline-black)] mt-1">{portfolioStats.positionCount}</div>
+              <div className="text-2xl font-mario text-outline mt-1">{portfolioStats.positionCount}</div>
             </div>
-            <div className="bg-[var(--sky-blue)]/20 p-4 border-3 border-[var(--outline-black)] rounded-lg shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all">
+            <div className="bg-sky/20 p-4 border-3 border-outline rounded-lg shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all">
               <div className="flex items-center gap-2">
-                <DollarSign className="h-4 w-4 text-[var(--outline-black)]" />
-                <span className="text-xs text-[var(--outline-black)] font-bold">Total Margin</span>
+                <DollarSign className="h-4 w-4 text-outline" />
+                <span className="text-xs text-outline font-bold">Total Margin</span>
               </div>
-              <div className="text-2xl font-mario text-[var(--outline-black)] mt-1">{portfolioStats.totalMargin.toFixed(2)} SOL</div>
+              <div className="text-2xl font-mario text-outline mt-1">{portfolioStats.totalMargin.toFixed(2)} SOL</div>
             </div>
-            <div className="bg-[var(--sky-blue)]/20 p-4 border-3 border-[var(--outline-black)] rounded-lg shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all">
+            <div className="bg-sky/20 p-4 border-3 border-outline rounded-lg shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all">
               <div className="flex items-center gap-2">
-                <TrendingUp className="h-4 w-4 text-[var(--outline-black)]" />
-                <span className="text-xs text-[var(--outline-black)] font-bold">Position Value</span>
+                <TrendingUp className="h-4 w-4 text-outline" />
+                <span className="text-xs text-outline font-bold">Position Value</span>
               </div>
-              <div className="text-2xl font-mario text-[var(--outline-black)] mt-1">${portfolioStats.totalPositionValue.toFixed(2)}</div>
+              <div className="text-2xl font-mario text-outline mt-1">${portfolioStats.totalPositionValue.toFixed(2)}</div>
             </div>
-            <div className="bg-[var(--sky-blue)]/20 p-4 border-3 border-[var(--outline-black)] rounded-lg shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all">
+            <div className="bg-sky/20 p-4 border-3 border-outline rounded-lg shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all">
               <div className="flex items-center gap-2">
-                <DollarSign className="h-4 w-4 text-[var(--outline-black)]" />
-                <span className="text-xs text-[var(--outline-black)] font-bold">Total PnL</span>
+                <DollarSign className="h-4 w-4 text-outline" />
+                <span className="text-xs text-outline font-bold">Total PnL</span>
               </div>
-              <div className={`text-2xl font-mario mt-1 transition-colors ${portfolioStats.totalPnL >= 0 ? 'text-[var(--luigi-green)]' : 'text-[var(--mario-red)]'}`}>
+              <div className={`text-2xl font-mario mt-1 transition-colors ${portfolioStats.totalPnL >= 0 ? 'text-luigi' : 'text-mario'}`}>
                 {portfolioStats.totalPnL >= 0 ? '+' : ''}${portfolioStats.totalPnL.toFixed(2)}
               </div>
             </div>
@@ -615,7 +615,7 @@ function PerpsContent() {
           <div className="lg:col-span-8 space-y-4">
             {/* Price Ticker */}
             {selectedTokenMeta && (
-              <div className="bg-[var(--sky-blue)]/20 border-4 border-[var(--outline-black)] rounded-xl shadow-[4px_4px_0_var(--outline-black)] transition-all hover:shadow-[6px_6px_0_var(--outline-black)] animate-in fade-in slide-in-from-top-2 duration-300">
+              <div className="bg-sky/20 border-4 border-outline rounded-xl shadow-[4px_4px_0_var(--outline-black)] transition-all hover:shadow-[6px_6px_0_var(--outline-black)] animate-in fade-in slide-in-from-top-2 duration-300">
                 <div className="p-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
@@ -648,12 +648,12 @@ function PerpsContent() {
             )}
 
             {/* Chart */}
-            <div className="bg-[var(--sky-blue)]/20 border-4 border-[var(--outline-black)] rounded-xl shadow-[4px_4px_0_var(--outline-black)] overflow-hidden">
+            <div className="bg-sky/20 border-4 border-outline rounded-xl shadow-[4px_4px_0_var(--outline-black)] overflow-hidden">
               <div className="h-[400px] sm:h-[500px]">
                 {selectedToken ? (
                   <DexScreenerChart tokenAddress={selectedToken} />
                 ) : (
-                  <div className="h-full flex items-center justify-center text-[var(--outline-black)] font-bold">
+                  <div className="h-full flex items-center justify-center text-outline font-bold">
                     Select a token to view chart
                   </div>
                 )}
@@ -661,7 +661,7 @@ function PerpsContent() {
             </div>
 
             {/* Risk Warning */}
-            <div className="mario-card bg-[var(--mario-red)] border-4 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] p-4">
+            <div className="mario-card bg-mario border-4 border-outline shadow-[3px_3px_0_var(--outline-black)] p-4">
               <div className="flex items-start gap-2">
                 <AlertCircle className="h-4 w-4 text-white flex-shrink-0 mt-0.5" />
                 <div className="text-xs text-white">
@@ -672,10 +672,10 @@ function PerpsContent() {
           </div>
 
           {/* Trading Panel - Right (4 columns on desktop) */}
-          <div className="lg:col-span-4 bg-[var(--sky-blue)]/20 border-4 border-[var(--outline-black)] rounded-xl shadow-[6px_6px_0_var(--outline-black)]">
-            <div className="p-6 border-b-3 border-[var(--outline-black)]">
-              <h2 className="text-xl font-mario text-[var(--outline-black)]">Open Position</h2>
-              <p className="text-sm text-[var(--outline-black)] font-semibold">Select token and parameters</p>
+          <div className="lg:col-span-4 bg-sky/20 border-4 border-outline rounded-xl shadow-[6px_6px_0_var(--outline-black)]">
+            <div className="p-6 border-b-3 border-outline">
+              <h2 className="text-xl font-mario text-outline">Open Position</h2>
+              <p className="text-sm text-outline font-semibold">Select token and parameters</p>
             </div>
             <div className="p-6 space-y-4">
               {/* Token Selection */}
@@ -875,8 +875,8 @@ function PerpsContent() {
 
         {/* Positions & History Section */}
                 {/* Positions & History Tabs */}
-        <div className="bg-[var(--sky-blue)]/20 border-4 border-[var(--outline-black)] rounded-xl shadow-[6px_6px_0_var(--outline-black)]">
-          <div className="p-6 border-b-3 border-[var(--outline-black)]">
+        <div className="bg-sky/20 border-4 border-outline rounded-xl shadow-[6px_6px_0_var(--outline-black)]">
+          <div className="p-6 border-b-3 border-outline">
             <div className="flex items-center justify-between flex-wrap gap-4">
               <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)} className="flex-1">
                 <TabsList className="grid w-full max-w-md grid-cols-2">
@@ -892,7 +892,7 @@ function PerpsContent() {
                 variant="outline"
                 size="sm"
                 onClick={activeTab === "positions" ? exportPositionsToCSV : exportTradeHistoryToCSV}
-                className="gap-2 bg-[var(--luigi-green)] text-white border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all font-mario"
+                className="gap-2 bg-luigi text-white border-3 border-outline shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all font-mario"
               >
                 <Download className="h-4 w-4" />
                 Export CSV
@@ -928,7 +928,7 @@ function PerpsContent() {
                     return (
                       <div
                         key={pos.id}
-                        className={`border-3 rounded-lg p-4 space-y-3 transition-all duration-300 shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] ${isNearLiquidation ? 'border-red-500 bg-red-50' : 'border-[var(--outline-black)] hover:border-primary/50'} ${isCritical ? 'animate-pulse' : ''}`}
+                        className={`border-3 rounded-lg p-4 space-y-3 transition-all duration-300 shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] ${isNearLiquidation ? 'border-red-500 bg-red-50' : 'border-outline hover:border-primary/50'} ${isCritical ? 'animate-pulse' : ''}`}
                       >
                         <div className="flex items-center justify-between flex-wrap gap-2">
                           <div className="flex items-center gap-2">

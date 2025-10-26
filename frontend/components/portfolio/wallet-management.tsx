@@ -236,7 +236,7 @@ export function WalletManagement() {
                 Across {wallets.length} wallet{wallets.length !== 1 ? 's' : ''}
               </p>
             </div>
-            <div className="bg-[var(--card)]/30 p-4 rounded-lg border-3 border-pipe-700">
+            <div className="bg-card/30 p-4 rounded-lg border-3 border-pipe-700">
               <Wallet2 className="h-12 w-12 text-pipe-800" />
             </div>
           </div>
@@ -248,7 +248,7 @@ export function WalletManagement() {
         {wallets.map((wallet) => (
           <div
             key={wallet.id}
-            className={`mario-card bg-[var(--card)] border-4 shadow-mario transition-all hover:scale-[1.02] ${
+            className={`mario-card bg-card border-4 shadow-mario transition-all hover:scale-[1.02] ${
               wallet.isActive
                 ? 'border-luigi-green-500 bg-luigi-green-50'
                 : 'border-pipe-400'
@@ -357,7 +357,7 @@ export function WalletManagement() {
 
       {/* Empty State */}
       {wallets.length === 0 && (
-        <div className="mario-card bg-[var(--card)] border-4 border-pipe-400 shadow-mario">
+        <div className="mario-card bg-card border-4 border-pipe-400 shadow-mario">
           <div className="p-12 text-center">
             <Wallet2 className="h-16 w-16 text-pipe-400 mx-auto mb-4" />
             <h3 className="font-mario text-xl text-pipe-800 mb-2">

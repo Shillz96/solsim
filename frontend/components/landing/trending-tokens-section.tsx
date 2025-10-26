@@ -22,7 +22,7 @@ export function TrendingTokensSection() {
   const solPrice = livePrices.get('So11111111111111111111111111111111111111112')?.price || 0
 
   return (
-    <section className="py-20 md:py-32 bg-gradient-to-b from-[var(--background)]/10 via-[var(--background)]/10 to-white/10 border-t-4 border-b-4 border-[var(--outline-black)]/20">
+    <section className="py-20 md:py-32 bg-gradient-to-b from-[var(--background)]/10 via-[var(--background)]/10 to-white/10 border-t-4 border-b-4 border-outline/20">
       <div className="container mx-auto px-4">
         <motion.div
           className="text-center space-y-4 mb-12"
@@ -66,10 +66,10 @@ export function TrendingTokensSection() {
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1 }}
               >
-                <div className="bg-[var(--card)] rounded-[24px] border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] p-6 h-full">
+                <div className="bg-card rounded-xxl border-4 border-outline shadow-[6px_6px_0_var(--outline-black)] p-6 h-full">
                   <div className="space-y-4">
                     <div className="flex items-center gap-3">
-                      <div className="h-12 w-12 rounded-full bg-muted animate-pulse border-2 border-[var(--outline-black)]" />
+                      <div className="h-12 w-12 rounded-full bg-muted animate-pulse border-2 border-outline" />
                       <div className="flex-1 space-y-2">
                         <div className="h-5 w-16 bg-muted animate-pulse rounded" />
                         <div className="h-4 w-24 bg-muted animate-pulse rounded" />
@@ -98,10 +98,10 @@ export function TrendingTokensSection() {
                 transition={{ delay: index * 0.1 }}
               >
                 <Link href={`/room/${token.mint}`}>
-                  <div className="bg-[var(--card)] rounded-[24px] border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] p-6 hover:shadow-[8px_8px_0_var(--outline-black)] hover:-translate-y-1 transition-all duration-300 cursor-pointer h-full">
+                  <div className="bg-card rounded-xxl border-4 border-outline shadow-[6px_6px_0_var(--outline-black)] p-6 hover:shadow-[8px_8px_0_var(--outline-black)] hover:-translate-y-1 transition-all duration-300 cursor-pointer h-full">
                     <div className="space-y-4">
                       <div className="flex items-center gap-3">
-                        <div className="relative h-12 w-12 rounded-full overflow-hidden bg-muted border-2 border-[var(--outline-black)]">
+                        <div className="relative h-12 w-12 rounded-full overflow-hidden bg-muted border-2 border-outline">
                           <Image 
                             src={token.logoURI || "/placeholder-token.svg"} 
                             alt={token.name || 'Unknown Token'} 
@@ -165,8 +165,8 @@ export function TrendingTokensSection() {
                         <p
                           className={`text-lg font-bold font-mono ${(() => {
                             const change = token.priceChange24h || 0;
-                            if (change > 0.01) return "text-[var(--luigi-green)]";
-                            if (change < -0.01) return "text-[var(--mario-red)]";
+                            if (change > 0.01) return "text-luigi";
+                            if (change < -0.01) return "text-mario";
                             return "text-muted-foreground";
                           })()}`}
                         >
@@ -197,7 +197,7 @@ export function TrendingTokensSection() {
                       </div>
                     </div>
 
-                    <button className="w-full bg-[var(--luigi-green)] hover:bg-[var(--luigi-green)]/90 text-white font-mario text-base px-6 py-3 rounded-[16px] border-4 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)] hover:shadow-[6px_6px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all duration-200">
+                    <button className="w-full bg-luigi hover:bg-luigi/90 text-white font-mario text-base px-6 py-3 rounded-xl border-4 border-outline shadow-[4px_4px_0_var(--outline-black)] hover:shadow-[6px_6px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all duration-200">
                       <span className="flex items-center justify-center gap-2">
                         Trade Now!
                         <Image
@@ -231,7 +231,7 @@ export function TrendingTokensSection() {
           viewport={{ once: true }}
         >
           <Link href="/warp-pipes">
-            <button className="bg-[var(--star-yellow)] hover:bg-[var(--star-yellow)]/90 text-black font-mario text-lg px-8 py-4 rounded-[16px] border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] hover:shadow-[8px_8px_0_var(--outline-black)] hover:-translate-y-1 transition-all duration-200">
+            <button className="bg-star hover:bg-star/90 text-black font-mario text-lg px-8 py-4 rounded-xl border-4 border-outline shadow-[6px_6px_0_var(--outline-black)] hover:shadow-[8px_8px_0_var(--outline-black)] hover:-translate-y-1 transition-all duration-200">
               <span className="flex items-center justify-center gap-2">
                 View All Tokens
                 <Image

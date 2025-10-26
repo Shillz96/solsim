@@ -42,7 +42,7 @@ export function WalletDebugButton() {
   }, [wallet, connect, setVisible]);
 
   return (
-    <div className="flex flex-col gap-2 p-4 border rounded bg-[var(--card)]">
+    <div className="flex flex-col gap-2 p-4 border rounded bg-card">
       <div className="text-sm font-mono">
         <div>Wallet: {wallet?.adapter.name || 'None'}</div>
         <div>Connected: {connected ? 'Yes' : 'No'}</div>

@@ -132,7 +132,7 @@ export function ModerationAdmin() {
 
   if (!isAdmin) {
     return (
-      <div className="bg-[var(--card)] rounded-lg border-4 border-pipe-300 p-6 shadow-mario">
+      <div className="bg-card rounded-lg border-4 border-pipe-300 p-6 shadow-mario">
         <div className="text-center">
           <div className="font-mario text-xl text-pipe-800 mb-2">👑</div>
           <div className="font-mario text-lg text-pipe-600">Admin Access Required</div>
@@ -151,7 +151,7 @@ export function ModerationAdmin() {
   }
 
   return (
-    <div className="bg-[var(--card)] rounded-lg border-4 border-pipe-300 p-6 shadow-mario">
+    <div className="bg-card rounded-lg border-4 border-pipe-300 p-6 shadow-mario">
       <div className="mb-6">
         <h2 className="font-mario text-3xl text-pipe-800 mb-2">🛡️ Moderation Admin Panel</h2>
         <div className="text-pipe-600">Manage moderation settings and view statistics</div>
@@ -425,7 +425,7 @@ export function ModerationAdmin() {
           </button>
           
           {testResult && (
-            <div className="mt-4 p-4 bg-[var(--card)] rounded-lg border-2 border-pipe-300">
+            <div className="mt-4 p-4 bg-card rounded-lg border-2 border-pipe-300">
               <h4 className="font-mario text-lg text-pipe-800 mb-2">Analysis Result</h4>
               <div className="space-y-2">
                 <div className="flex justify-between">

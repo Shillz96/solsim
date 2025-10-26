@@ -472,13 +472,13 @@ export function WalletManager({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className={cn(
         marioStyles.cardLg(false),
-        'w-[95vw] max-w-2xl max-h-[85vh] sm:max-h-[80vh] overflow-hidden flex flex-col bg-[var(--card)] p-4 sm:p-6'
+        'w-[95vw] max-w-2xl max-h-[85vh] sm:max-h-[80vh] overflow-hidden flex flex-col bg-card p-4 sm:p-6'
       )}>
         <DialogHeader>
           <DialogTitle className={cn('flex items-center gap-2 text-2xl', marioStyles.heading(2))}>
             <div className={cn(
               marioStyles.iconContainer('sm', '[var(--mario-red)]'),
-              'bg-[var(--mario-red)]'
+              'bg-mario'
             )}>
               <Eye className="h-4 w-4 text-white" />
             </div>
@@ -490,10 +490,10 @@ export function WalletManager({
         </DialogHeader>
 
         <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)} className="flex-1 overflow-hidden flex flex-col">
-          <TabsList className="grid w-full grid-cols-3 bg-[var(--card)] border-3 border-[var(--outline-black)] p-1 gap-1 sm:gap-2 flex-shrink-0 h-auto">
+          <TabsList className="grid w-full grid-cols-3 bg-card border-3 border-outline p-1 gap-1 sm:gap-2 flex-shrink-0 h-auto">
             <TabsTrigger
               value="tracked"
-              className="flex items-center justify-center gap-1 font-mario text-[10px] sm:text-[11px] py-1.5 sm:py-2 px-1 sm:px-2 whitespace-nowrap data-[state=active]:bg-[var(--star-yellow)] data-[state=active]:text-[var(--outline-black)] data-[state=active]:border-2 data-[state=active]:border-[var(--outline-black)] data-[state=active]:shadow-[2px_2px_0_var(--outline-black)] rounded-md"
+              className="flex items-center justify-center gap-1 font-mario text-[10px] sm:text-[11px] py-1.5 sm:py-2 px-1 sm:px-2 whitespace-nowrap data-[state=active]:bg-star data-[state=active]:text-outline data-[state=active]:border-2 data-[state=active]:border-outline data-[state=active]:shadow-[2px_2px_0_var(--outline-black)] rounded-md"
             >
               <Eye className="h-3 w-3 sm:h-3.5 sm:w-3.5 flex-shrink-0" />
               <span className="hidden sm:inline">Tracked ({trackedWallets.length})</span>
@@ -501,7 +501,7 @@ export function WalletManager({
             </TabsTrigger>
             <TabsTrigger
               value="add"
-              className="flex items-center justify-center gap-1 font-mario text-[10px] sm:text-[11px] py-1.5 sm:py-2 px-1 sm:px-2 whitespace-nowrap data-[state=active]:bg-[var(--star-yellow)] data-[state=active]:text-[var(--outline-black)] data-[state=active]:border-2 data-[state=active]:border-[var(--outline-black)] data-[state=active]:shadow-[2px_2px_0_var(--outline-black)] rounded-md"
+              className="flex items-center justify-center gap-1 font-mario text-[10px] sm:text-[11px] py-1.5 sm:py-2 px-1 sm:px-2 whitespace-nowrap data-[state=active]:bg-star data-[state=active]:text-outline data-[state=active]:border-2 data-[state=active]:border-outline data-[state=active]:shadow-[2px_2px_0_var(--outline-black)] rounded-md"
             >
               <UserPlus className="h-3 w-3 sm:h-3.5 sm:w-3.5 flex-shrink-0" />
               <span className="hidden sm:inline">Add One</span>
@@ -509,7 +509,7 @@ export function WalletManager({
             </TabsTrigger>
             <TabsTrigger
               value="import"
-              className="flex items-center justify-center gap-1 font-mario text-[10px] sm:text-[11px] py-1.5 sm:py-2 px-1 sm:px-2 whitespace-nowrap data-[state=active]:bg-[var(--star-yellow)] data-[state=active]:text-[var(--outline-black)] data-[state=active]:border-2 data-[state=active]:border-[var(--outline-black)] data-[state=active]:shadow-[2px_2px_0_var(--outline-black)] rounded-md"
+              className="flex items-center justify-center gap-1 font-mario text-[10px] sm:text-[11px] py-1.5 sm:py-2 px-1 sm:px-2 whitespace-nowrap data-[state=active]:bg-star data-[state=active]:text-outline data-[state=active]:border-2 data-[state=active]:border-outline data-[state=active]:shadow-[2px_2px_0_var(--outline-black)] rounded-md"
             >
               <Sparkles className="h-3 w-3 sm:h-3.5 sm:w-3.5 flex-shrink-0" />
               <span className="hidden sm:inline">Import</span>
@@ -521,14 +521,14 @@ export function WalletManager({
             {/* Search */}
             {trackedWallets.length > 0 && (
               <div className="relative mb-4">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-[var(--outline-black)]" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-outline" />
                 <Input
                   placeholder="Search wallets..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className={cn(
                     marioStyles.input(),
-                    'pl-9 bg-[var(--card)]',
+                    'pl-9 bg-card',
                     marioStyles.bodyText('bold')
                   )}
                 />
@@ -539,11 +539,11 @@ export function WalletManager({
             {filteredWallets.length === 0 ? (
               <div className={cn(
                 marioStyles.card(),
-                'bg-[var(--sky-blue)]/20 p-8 text-center'
+                'bg-sky/20 p-8 text-center'
               )}>
                 <div className={cn(
                   marioStyles.iconContainer('lg', '[var(--mario-red)]'),
-                  'bg-[var(--mario-red)] mx-auto mb-4'
+                  'bg-mario mx-auto mb-4'
                 )}>
                   <Eye className="h-6 w-6 text-white" />
                 </div>
@@ -580,7 +580,7 @@ export function WalletManager({
                                 onClick={() => setShowIconPicker(!showIconPicker)}
                                 className={cn(
                                   marioStyles.iconContainer('md', '[var(--star-yellow)]'),
-                                  'hover:bg-[var(--star-yellow)]/80 p-1.5'
+                                  'hover:bg-star/80 p-1.5'
                                 )}
                               >
                                 {editIcon && getIconById(editIcon) ? (
@@ -623,7 +623,7 @@ export function WalletManager({
                                       className={cn(
                                         marioStyles.iconContainer('md'),
                                         "hover:bg-gray-100 focus:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-[var(--mario-red)] transition-colors p-1.5",
-                                        editIcon === icon.id ? "border-[var(--mario-red)] bg-[var(--mario-red)]/10" : "border-gray-300"
+                                        editIcon === icon.id ? "border-mario bg-mario/10" : "border-gray-300"
                                       )}
                                       title={icon.name}
                                       aria-label={`Select ${icon.name} icon`}
@@ -672,7 +672,7 @@ export function WalletManager({
                               value={editLabel}
                               onChange={(e) => setEditLabel(e.target.value)}
                               placeholder="Enter wallet label..."
-                              className={cn(marioStyles.input(), 'flex-1 bg-[var(--card)]')}
+                              className={cn(marioStyles.input(), 'flex-1 bg-card')}
                               autoFocus
                               onKeyDown={(e) => {
                                 if (e.key === 'Enter') {
@@ -724,7 +724,7 @@ export function WalletManager({
                                 return (
                                   <Badge variant="secondary" className={cn(
                                     marioStyles.badgeLg('gold'),
-                                    'flex items-center gap-1.5 text-xs bg-[var(--star-yellow)] text-[var(--outline-black)]'
+                                    'flex items-center gap-1.5 text-xs bg-star text-outline'
                                   )}>
                                     {icon && (
                                       <Image
@@ -743,7 +743,7 @@ export function WalletManager({
                                 variant={wallet.isActive ? "default" : "outline"}
                                 className={cn(
                                   "text-xs font-mario border-2",
-                                  wallet.isActive ? "bg-[var(--luigi-green)] text-white border-[var(--outline-black)]" : "border-[var(--outline-black)] bg-gray-100 text-[var(--outline-black)]"
+                                  wallet.isActive ? "bg-luigi text-white border-outline" : "border-outline bg-gray-100 text-outline"
                                 )}
                               >
                                 {wallet.isActive ? "Active" : "Inactive"}
@@ -800,7 +800,7 @@ export function WalletManager({
                               disabled={removingWallets.has(wallet.id)}
                               className={cn(
                                 marioStyles.iconButton('outline'),
-                                'h-8 w-8 border-[var(--mario-red)] hover:bg-[var(--mario-red)]/10 text-[var(--mario-red)]'
+                                'h-8 w-8 border-mario hover:bg-mario/10 text-mario'
                               )}
                               title="Delete wallet"
                             >
@@ -821,7 +821,7 @@ export function WalletManager({
           </TabsContent>
 
           <TabsContent value="add" className="mt-4">
-            <div className={cn(marioStyles.cardLg(false), 'bg-[var(--card)] p-6')}>
+            <div className={cn(marioStyles.cardLg(false), 'bg-card p-6')}>
               <div className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="wallet-address" className={marioStyles.bodyText('bold')}>Wallet Address *</Label>
@@ -832,17 +832,17 @@ export function WalletManager({
                     onChange={(e) => setNewWalletAddress(e.target.value)}
                     className={cn(
                       marioStyles.input(),
-                      "font-mono bg-[var(--card)]",
-                      addressValidation.isValid === true ? "border-[var(--luigi-green)]" :
-                      addressValidation.isValid === false ? "border-[var(--mario-red)]" :
+                      "font-mono bg-card",
+                      addressValidation.isValid === true ? "border-luigi" :
+                      addressValidation.isValid === false ? "border-mario" :
                       ""
                     )}
                   />
                   {addressValidation.message && (
                     <p className={cn(
                       "text-xs font-semibold",
-                      addressValidation.isValid === true ? "text-[var(--luigi-green)]" :
-                      addressValidation.isValid === false ? "text-[var(--mario-red)]" :
+                      addressValidation.isValid === true ? "text-luigi" :
+                      addressValidation.isValid === false ? "text-mario" :
                       "text-[var(--pipe-600)]"
                     )}>
                       {addressValidation.message}
@@ -860,7 +860,7 @@ export function WalletManager({
                         onClick={() => setShowNewWalletIconPicker(!showNewWalletIconPicker)}
                         className={cn(
                           marioStyles.iconContainer('md', '[var(--star-yellow)]'),
-                          'hover:bg-[var(--star-yellow)]/80 flex-shrink-0 p-1.5'
+                          'hover:bg-star/80 flex-shrink-0 p-1.5'
                         )}
                       >
                         {newWalletIcon && getIconById(newWalletIcon) ? (
@@ -903,7 +903,7 @@ export function WalletManager({
                               className={cn(
                                 marioStyles.iconContainer('md'),
                                 "hover:bg-gray-100 focus:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-[var(--mario-red)] transition-colors p-1.5",
-                                newWalletIcon === icon.id ? "border-[var(--mario-red)] bg-[var(--mario-red)]/10" : "border-gray-300"
+                                newWalletIcon === icon.id ? "border-mario bg-mario/10" : "border-gray-300"
                               )}
                               title={icon.name}
                               aria-label={`Select ${icon.name} icon`}
@@ -934,7 +934,7 @@ export function WalletManager({
                                   setShowNewWalletIconPicker(false)
                                 }
                               }}
-                              className="h-12 rounded-lg border-2 border-[var(--mario-red)] bg-[var(--mario-red)] text-white hover:bg-[var(--mario-red)]/90 focus:bg-[var(--mario-red)]/90 focus:outline-none focus:ring-2 focus:ring-[var(--mario-red)] flex items-center justify-center text-xs font-mario col-span-4 px-2 py-1"
+                              className="h-12 rounded-lg border-2 border-mario bg-mario text-white hover:bg-mario/90 focus:bg-mario/90 focus:outline-none focus:ring-2 focus:ring-[var(--mario-red)] flex items-center justify-center text-xs font-mario col-span-4 px-2 py-1"
                               aria-label="Remove selected icon"
                             >
                               Remove Icon
@@ -950,31 +950,31 @@ export function WalletManager({
                       placeholder="e.g., 'Ansem', 'Top Trader'..."
                       value={newWalletLabel}
                       onChange={(e) => setNewWalletLabel(e.target.value)}
-                      className={cn(marioStyles.input(), 'flex-1 bg-[var(--card)]')}
+                      className={cn(marioStyles.input(), 'flex-1 bg-card')}
                     />
                   </div>
                 </div>
 
                 <div className={cn(
                   marioStyles.card(),
-                  'bg-[var(--sky-blue)]/20 p-4 text-sm'
+                  'bg-sky/20 p-4 text-sm'
                 )}>
                   <p className={cn(marioStyles.bodyText('bold'), 'mb-2')}>Popular KOL Wallets:</p>
                   <div className="space-y-1">
                     <div className="flex items-center justify-between">
-                      <span className="font-bold text-[var(--outline-black)]">Example Wallet 1</span>
+                      <span className="font-bold text-outline">Example Wallet 1</span>
                       <button
                         onClick={() => setNewWalletAddress("11111111111111111111111111111111")}
-                        className="text-[var(--mario-red)] hover:underline text-xs font-mario"
+                        className="text-mario hover:underline text-xs font-mario"
                       >
                         Use
                       </button>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="font-bold text-[var(--outline-black)]">Example Wallet 2</span>
+                      <span className="font-bold text-outline">Example Wallet 2</span>
                       <button
                         onClick={() => setNewWalletAddress("22222222222222222222222222222222")}
-                        className="text-[var(--mario-red)] hover:underline text-xs font-mario"
+                        className="text-mario hover:underline text-xs font-mario"
                       >
                         Use
                       </button>
@@ -1007,7 +1007,7 @@ export function WalletManager({
           </TabsContent>
 
           <TabsContent value="import" className="mt-4 overflow-y-auto flex-1 min-h-0">
-            <div className={cn(marioStyles.cardLg(false), 'bg-[var(--card)] p-6')}>
+            <div className={cn(marioStyles.cardLg(false), 'bg-card p-6')}>
               <div className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="bulk-wallets" className={marioStyles.bodyText('bold')}>Wallet Addresses</Label>
@@ -1019,7 +1019,7 @@ export function WalletManager({
                     rows={6}
                     className={cn(
                       marioStyles.input(),
-                      'w-full px-3 py-2 bg-[var(--card)] font-mono text-sm resize-none focus:outline-none focus:ring-0'
+                      'w-full px-3 py-2 bg-card font-mono text-sm resize-none focus:outline-none focus:ring-0'
                     )}
                   />
                   <p className="text-xs text-[var(--pipe-600)] font-semibold">
@@ -1031,7 +1031,7 @@ export function WalletManager({
                 {importProgress && (
                   <div className={cn(
                     marioStyles.card(),
-                    'bg-[var(--star-yellow)]/20 p-3 text-center'
+                    'bg-star/20 p-3 text-center'
                   )}>
                     <div className={cn(marioStyles.bodyText('bold'), 'text-sm mb-2')}>
                       Importing {importProgress.current} of {importProgress.total}
@@ -1041,7 +1041,7 @@ export function WalletManager({
                       'w-full bg-gray-200 rounded-full h-2'
                     )}>
                       <div
-                        className="bg-[var(--luigi-green)] h-full rounded-full transition-all duration-300"
+                        className="bg-luigi h-full rounded-full transition-all duration-300"
                         style={{ width: `${(importProgress.current / importProgress.total) * 100}%` }}
                       />
                     </div>
@@ -1074,33 +1074,33 @@ export function WalletManager({
 
                 {/* Import Results */}
                 {importResults && (
-                  <div className="bg-[var(--sky-blue)]/20 rounded-lg border-3 border-[var(--outline-black)] p-4 text-sm space-y-2">
-                    <p className="font-mario text-[var(--outline-black)]">Import Results:</p>
+                  <div className="bg-sky/20 rounded-lg border-3 border-outline p-4 text-sm space-y-2">
+                    <p className="font-mario text-outline">Import Results:</p>
                     <div className="space-y-1">
                       <div className="flex items-center justify-between">
-                        <span className="font-bold text-[var(--luigi-green)]">✓ Successfully imported:</span>
-                        <span className="font-bold text-[var(--luigi-green)]">{importResults.success}</span>
+                        <span className="font-bold text-luigi">✓ Successfully imported:</span>
+                        <span className="font-bold text-luigi">{importResults.success}</span>
                       </div>
                       {importResults.skipped > 0 && (
                         <div className="flex items-center justify-between">
-                          <span className="font-bold text-[var(--star-yellow)]">⚠ Already tracked:</span>
-                          <span className="font-bold text-[var(--star-yellow)]">{importResults.skipped}</span>
+                          <span className="font-bold text-star">⚠ Already tracked:</span>
+                          <span className="font-bold text-star">{importResults.skipped}</span>
                         </div>
                       )}
                       {importResults.failed > 0 && (
                         <div className="flex items-center justify-between">
-                          <span className="font-bold text-[var(--mario-red)]">✗ Failed:</span>
-                          <span className="font-bold text-[var(--mario-red)]">{importResults.failed}</span>
+                          <span className="font-bold text-mario">✗ Failed:</span>
+                          <span className="font-bold text-mario">{importResults.failed}</span>
                         </div>
                       )}
                     </div>
 
                     {importResults.errors.length > 0 && (
-                      <div className="mt-2 pt-2 border-t-2 border-[var(--outline-black)]/20">
-                        <p className="font-mario text-xs text-[var(--outline-black)] mb-1">Errors:</p>
+                      <div className="mt-2 pt-2 border-t-2 border-outline/20">
+                        <p className="font-mario text-xs text-outline mb-1">Errors:</p>
                         <div className="max-h-[100px] overflow-y-auto space-y-1">
                           {importResults.errors.map((error, i) => (
-                            <p key={i} className="text-xs text-[var(--mario-red)] font-mono">{error}</p>
+                            <p key={i} className="text-xs text-mario font-mono">{error}</p>
                           ))}
                         </div>
                       </div>

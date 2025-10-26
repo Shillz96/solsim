@@ -39,12 +39,12 @@ export function OverviewTab() {
       <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-[var(--sky-blue)]/20 border-4 border-[var(--outline-black)] rounded-xl shadow-[6px_6px_0_var(--outline-black)] p-4"
+        className="bg-sky/20 border-4 border-outline rounded-xl shadow-[6px_6px_0_var(--outline-black)] p-4"
       >
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-3">
             {user?.avatarUrl ? (
-              <div className="w-12 h-12 rounded-full border-3 border-[var(--outline-black)] overflow-hidden bg-[var(--card)]">
+              <div className="w-12 h-12 rounded-full border-3 border-outline overflow-hidden bg-card">
                 <img src={user.avatarUrl} alt="Profile" className="w-full h-full object-cover" />
               </div>
             ) : (
@@ -52,19 +52,19 @@ export function OverviewTab() {
             )}
             <div>
               <div className="text-sm font-mario font-bold text-muted-foreground">LEVEL 1 TRADER</div>
-              <div className="text-lg font-mario font-bold text-[var(--outline-black)]">{user?.email?.split('@')[0] || 'Anonymous'}</div>
+              <div className="text-lg font-mario font-bold text-outline">{user?.email?.split('@')[0] || 'Anonymous'}</div>
             </div>
           </div>
-          <div className="bg-[var(--star-yellow)] border-3 border-[var(--outline-black)] rounded-lg px-4 py-2 shadow-[3px_3px_0_var(--outline-black)]">
+          <div className="bg-star border-3 border-outline rounded-lg px-4 py-2 shadow-[3px_3px_0_var(--outline-black)]">
             <div className="text-center">
-              <div className="text-xs font-mario font-bold text-[var(--outline-black)]">XP</div>
-              <div className="text-xl font-bold text-[var(--outline-black)]">350/1000</div>
+              <div className="text-xs font-mario font-bold text-outline">XP</div>
+              <div className="text-xl font-bold text-outline">350/1000</div>
             </div>
           </div>
         </div>
         
         {/* XP Progress Bar */}
-        <div className="bg-gray-200 border-3 border-[var(--outline-black)] rounded-full h-4 overflow-hidden">
+        <div className="bg-gray-200 border-3 border-outline rounded-full h-4 overflow-hidden">
           <motion.div
             className="bg-gradient-to-r from-[var(--luigi-green)] to-[var(--luigi-green)]/80 h-full"
             initial={{ width: 0 }}
@@ -81,15 +81,15 @@ export function OverviewTab() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="bg-[var(--sky-blue)]/20 border-4 border-[var(--outline-black)] rounded-xl shadow-[4px_4px_0_var(--outline-black)] p-4"
+          className="bg-sky/20 border-4 border-outline rounded-xl shadow-[4px_4px_0_var(--outline-black)] p-4"
         >
           <div className="flex items-center gap-2 mb-2">
-            <div className="bg-[var(--sky-blue)] border-2 border-[var(--outline-black)] rounded-lg p-2">
+            <div className="bg-sky border-2 border-outline rounded-lg p-2">
               <Image src="/icons/mario/money-bag.png" alt="Portfolio" width={20} height={20} />
             </div>
             <div className="text-xs font-bold text-muted-foreground">PORTFOLIO</div>
           </div>
-          <div className="text-2xl font-mario font-bold text-[var(--outline-black)]">
+          <div className="text-2xl font-mario font-bold text-outline">
             {isLoading ? '...' : formatUSD(portfolioValue)}
           </div>
         </motion.div>
@@ -100,14 +100,14 @@ export function OverviewTab() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
           className={cn(
-            "border-4 border-[var(--outline-black)] rounded-xl shadow-[4px_4px_0_var(--outline-black)] p-4",
-            totalPnL >= 0 ? "bg-[var(--luigi-green)]/10" : "bg-[var(--mario-red)]/10"
+            "border-4 border-outline rounded-xl shadow-[4px_4px_0_var(--outline-black)] p-4",
+            totalPnL >= 0 ? "bg-luigi/10" : "bg-mario/10"
           )}
         >
           <div className="flex items-center gap-2 mb-2">
             <div className={cn(
-              "border-2 border-[var(--outline-black)] rounded-lg p-2",
-              totalPnL >= 0 ? "bg-[var(--luigi-green)]" : "bg-[var(--mario-red)]"
+              "border-2 border-outline rounded-lg p-2",
+              totalPnL >= 0 ? "bg-luigi" : "bg-mario"
             )}>
               {totalPnL >= 0 ? (
                 <TrendingUp className="h-5 w-5 text-white" />
@@ -119,7 +119,7 @@ export function OverviewTab() {
           </div>
           <div className={cn(
             "text-2xl font-mario font-bold",
-            totalPnL >= 0 ? "text-[var(--luigi-green)]" : "text-[var(--mario-red)]"
+            totalPnL >= 0 ? "text-luigi" : "text-mario"
           )}>
             {isLoading ? '...' : formatUSD(totalPnL)}
           </div>
@@ -131,14 +131,14 @@ export function OverviewTab() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
           className={cn(
-            "border-4 border-[var(--outline-black)] rounded-xl shadow-[4px_4px_0_var(--outline-black)] p-4",
-            unrealizedPnL >= 0 ? "bg-[var(--luigi-green)]/10" : "bg-[var(--mario-red)]/10"
+            "border-4 border-outline rounded-xl shadow-[4px_4px_0_var(--outline-black)] p-4",
+            unrealizedPnL >= 0 ? "bg-luigi/10" : "bg-mario/10"
           )}
         >
           <div className="flex items-center gap-2 mb-2">
             <div className={cn(
-              "border-2 border-[var(--outline-black)] rounded-lg p-2",
-              unrealizedPnL >= 0 ? "bg-[var(--luigi-green)]" : "bg-[var(--mario-red)]"
+              "border-2 border-outline rounded-lg p-2",
+              unrealizedPnL >= 0 ? "bg-luigi" : "bg-mario"
             )}>
               <Image src="/icons/mario/star.png" alt="Unrealized" width={20} height={20} />
             </div>
@@ -146,7 +146,7 @@ export function OverviewTab() {
           </div>
           <div className={cn(
             "text-2xl font-mario font-bold",
-            unrealizedPnL >= 0 ? "text-[var(--luigi-green)]" : "text-[var(--mario-red)]"
+            unrealizedPnL >= 0 ? "text-luigi" : "text-mario"
           )}>
             {isLoading ? '...' : formatUSD(unrealizedPnL)}
           </div>
@@ -157,15 +157,15 @@ export function OverviewTab() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
-          className="bg-[var(--star-yellow)]/20 border-4 border-[var(--outline-black)] rounded-xl shadow-[4px_4px_0_var(--outline-black)] p-4"
+          className="bg-star/20 border-4 border-outline rounded-xl shadow-[4px_4px_0_var(--outline-black)] p-4"
         >
           <div className="flex items-center gap-2 mb-2">
-            <div className="bg-[var(--star-yellow)] border-2 border-[var(--outline-black)] rounded-lg p-2">
+            <div className="bg-star border-2 border-outline rounded-lg p-2">
               <Image src="/icons/mario/trophy.png" alt="Win Rate" width={20} height={20} />
             </div>
             <div className="text-xs font-bold text-muted-foreground">WIN RATE</div>
           </div>
-          <div className="text-2xl font-mario font-bold text-[var(--outline-black)]">
+          <div className="text-2xl font-mario font-bold text-outline">
             {isLoading ? '...' : `${Math.round(Number(winRate))}%`}
           </div>
         </motion.div>
@@ -176,25 +176,25 @@ export function OverviewTab() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.5 }}
-        className="bg-[var(--sky-blue)]/20 border-4 border-[var(--outline-black)] rounded-xl shadow-[6px_6px_0_var(--outline-black)] p-6"
+        className="bg-sky/20 border-4 border-outline rounded-xl shadow-[6px_6px_0_var(--outline-black)] p-6"
       >
         <div className="flex items-center gap-2 mb-4">
           <Image src="/icons/mario/fire.png" alt="Stats" width={24} height={24} />
-          <h3 className="text-lg font-mario font-bold text-[var(--outline-black)]">QUICK STATS</h3>
+          <h3 className="text-lg font-mario font-bold text-outline">QUICK STATS</h3>
         </div>
         
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           <div className="text-center">
-            <div className="text-sm text-[var(--outline-black)] font-bold mb-1">Total Trades</div>
-            <div className="text-2xl font-mario font-bold text-[var(--outline-black)]">{totalTrades}</div>
+            <div className="text-sm text-outline font-bold mb-1">Total Trades</div>
+            <div className="text-2xl font-mario font-bold text-outline">{totalTrades}</div>
           </div>
           <div className="text-center">
-            <div className="text-sm text-[var(--outline-black)] font-bold mb-1">Wins</div>
-            <div className="text-2xl font-mario font-bold text-[var(--luigi-green)]">{winningTrades}</div>
+            <div className="text-sm text-outline font-bold mb-1">Wins</div>
+            <div className="text-2xl font-mario font-bold text-luigi">{winningTrades}</div>
           </div>
           <div className="text-center">
-            <div className="text-sm text-[var(--outline-black)] font-bold mb-1">Losses</div>
-            <div className="text-2xl font-mario font-bold text-[var(--mario-red)]">{totalTrades - winningTrades}</div>
+            <div className="text-sm text-outline font-bold mb-1">Losses</div>
+            <div className="text-2xl font-mario font-bold text-mario">{totalTrades - winningTrades}</div>
           </div>
         </div>
       </motion.div>
@@ -205,15 +205,15 @@ export function OverviewTab() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6 }}
-          className="bg-[var(--sky-blue)]/20 border-4 border-[var(--outline-black)] rounded-xl shadow-[6px_6px_0_var(--outline-black)] p-6"
+          className="bg-sky/20 border-4 border-outline rounded-xl shadow-[6px_6px_0_var(--outline-black)] p-6"
         >
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <Image src="/icons/mario/mushroom.png" alt="Positions" width={24} height={24} />
-              <h3 className="text-lg font-mario font-bold text-[var(--outline-black)]">TOP POSITIONS</h3>
+              <h3 className="text-lg font-mario font-bold text-outline">TOP POSITIONS</h3>
             </div>
             <Link href="/portfolio?tab=coins">
-              <button className="text-xs font-bold text-[var(--mario-red)] hover:underline">
+              <button className="text-xs font-bold text-mario hover:underline">
                 VIEW ALL →
               </button>
             </Link>
@@ -226,29 +226,29 @@ export function OverviewTab() {
               
               return (
                 <Link href={`/room/${position.mint}`} key={position.mint}>
-                  <div className="bg-[var(--card)]/50 border-3 border-[var(--outline-black)] rounded-lg p-3 hover:bg-[var(--card)]/80 transition-colors cursor-pointer">
+                  <div className="bg-card/50 border-3 border-outline rounded-lg p-3 hover:bg-card/80 transition-colors cursor-pointer">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
                         {position.tokenImage ? (
-                          <img src={position.tokenImage} alt={position.tokenSymbol} className="w-12 h-12 rounded-full border-3 border-[var(--outline-black)]" />
+                          <img src={position.tokenImage} alt={position.tokenSymbol} className="w-12 h-12 rounded-full border-3 border-outline" />
                         ) : (
-                          <div className="w-12 h-12 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full border-3 border-[var(--outline-black)]" />
+                          <div className="w-12 h-12 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full border-3 border-outline" />
                         )}
                         <div>
-                          <div className="font-bold text-[15px] text-[var(--outline-black)]">{position.tokenSymbol}</div>
-                          <div className="text-sm font-semibold text-[var(--outline-black)]">{formatUSD(position.currentValue)}</div>
+                          <div className="font-bold text-[15px] text-outline">{position.tokenSymbol}</div>
+                          <div className="text-sm font-semibold text-outline">{formatUSD(position.currentValue)}</div>
                         </div>
                       </div>
                       <div className="text-right">
                         <div className={cn(
                           "font-bold",
-                          pnl >= 0 ? "text-[var(--luigi-green)]" : "text-[var(--mario-red)]"
+                          pnl >= 0 ? "text-luigi" : "text-mario"
                         )}>
                           {formatUSD(pnl)}
                         </div>
                         <div className={cn(
                           "text-xs font-bold",
-                          pnl >= 0 ? "text-[var(--luigi-green)]" : "text-[var(--mario-red)]"
+                          pnl >= 0 ? "text-luigi" : "text-mario"
                         )}>
                           {pnl >= 0 ? '+' : ''}{safePercent(pnlPercent, 2)}
                         </div>

@@ -501,15 +501,15 @@ export function LightweightChart({
   const priceChangePercent = priceChange24h
 
   return (
-    <div className={cn('space-y-2 border-4 border-[var(--outline-black)] rounded-xl shadow-[6px_6px_0_var(--outline-black)] bg-[var(--card)] overflow-hidden', className)}>
+    <div className={cn('space-y-2 border-4 border-outline rounded-xl shadow-[6px_6px_0_var(--outline-black)] bg-card overflow-hidden', className)}>
       {/* Token Info Header */}
-      <div className="flex items-center justify-between p-3 bg-gradient-to-r from-[var(--luigi-green)]/20 to-[var(--sky-blue)]/20 border-3 border-[var(--outline-black)] rounded-lg shadow-[3px_3px_0_var(--outline-black)]">
+      <div className="flex items-center justify-between p-3 bg-gradient-to-r from-[var(--luigi-green)]/20 to-[var(--sky-blue)]/20 border-3 border-outline rounded-lg shadow-[3px_3px_0_var(--outline-black)]">
         <div>
-          <h3 className="text-[var(--outline-black)] font-mario font-bold text-sm md:text-base">{tokenSymbol}/USD</h3>
-          <p className="text-xs text-[var(--outline-black)] font-bold">Real-time Price</p>
+          <h3 className="text-outline font-mario font-bold text-sm md:text-base">{tokenSymbol}/USD</h3>
+          <p className="text-xs text-outline font-bold">Real-time Price</p>
         </div>
         <div className="text-right">
-          <p className="text-xl md:text-2xl font-bold font-mono text-[var(--outline-black)]">
+          <p className="text-xl md:text-2xl font-bold font-mono text-outline">
             ${currentPrice.toFixed(currentPrice < 0.01 ? 8 : 4)}
           </p>
           {priceChangePercent !== 0 && (
@@ -524,16 +524,16 @@ export function LightweightChart({
       {/* Chart Type & Timeframe Selector */}
       <div className="flex gap-1.5 md:gap-2 flex-wrap items-center">
         {/* Chart Type Selector */}
-        <div className="flex gap-1 md:gap-1.5 border-r-2 border-[var(--outline-black)] pr-2 mr-1">
+        <div className="flex gap-1 md:gap-1.5 border-r-2 border-outline pr-2 mr-1">
           {chartTypes.map(({ type, label }) => (
             <button
               key={type}
               onClick={() => setChartType(type)}
               className={cn(
-                'px-2 md:px-2.5 py-1 md:py-1.5 text-[10px] md:text-xs font-bold rounded-lg border-2 border-[var(--outline-black)] transition-all',
+                'px-2 md:px-2.5 py-1 md:py-1.5 text-[10px] md:text-xs font-bold rounded-lg border-2 border-outline transition-all',
                 chartType === type
-                  ? 'bg-[var(--luigi-green)] text-white shadow-[2px_2px_0_var(--outline-black)]'
-                  : 'bg-[var(--card)] hover:bg-gray-100 shadow-[1px_1px_0_var(--outline-black)]'
+                  ? 'bg-luigi text-white shadow-[2px_2px_0_var(--outline-black)]'
+                  : 'bg-card hover:bg-gray-100 shadow-[1px_1px_0_var(--outline-black)]'
               )}
             >
               {label}
@@ -547,10 +547,10 @@ export function LightweightChart({
             key={tf}
             onClick={() => setTimeframe(tf)}
             className={cn(
-              'px-2.5 md:px-3 py-1 md:py-1.5 text-[10px] md:text-xs font-bold rounded-lg border-2 md:border-3 border-[var(--outline-black)] transition-all',
+              'px-2.5 md:px-3 py-1 md:py-1.5 text-[10px] md:text-xs font-bold rounded-lg border-2 md:border-3 border-outline transition-all',
               timeframe === tf
-                ? 'bg-[var(--star-yellow)] shadow-[2px_2px_0_var(--outline-black)] md:shadow-[3px_3px_0_var(--outline-black)] -translate-y-[1px]'
-                : 'bg-[var(--card)] hover:bg-[var(--pipe-100)] shadow-[1px_1px_0_var(--outline-black)] md:shadow-[2px_2px_0_var(--outline-black)]'
+                ? 'bg-star shadow-[2px_2px_0_var(--outline-black)] md:shadow-[3px_3px_0_var(--outline-black)] -translate-y-[1px]'
+                : 'bg-card hover:bg-[var(--pipe-100)] shadow-[1px_1px_0_var(--outline-black)] md:shadow-[2px_2px_0_var(--outline-black)]'
             )}
           >
             {tf.toUpperCase()}
@@ -563,8 +563,8 @@ export function LightweightChart({
           className={cn(
             'px-2.5 md:px-3 py-1 md:py-1.5 text-[10px] md:text-xs font-bold rounded-lg border-2 md:border-3 transition-all ml-auto',
             hideBubbles
-              ? 'bg-[var(--mario-red)] text-white border-[var(--mario-red)] shadow-[2px_2px_0_rgba(0,0,0,0.3)]'
-              : 'bg-[var(--luigi-green)] text-white border-[var(--luigi-green)] shadow-[2px_2px_0_rgba(0,0,0,0.3)]'
+              ? 'bg-mario text-white border-mario shadow-[2px_2px_0_rgba(0,0,0,0.3)]'
+              : 'bg-luigi text-white border-luigi shadow-[2px_2px_0_rgba(0,0,0,0.3)]'
           )}
         >
           {hideBubbles ? 'Show Bubbles' : 'Hide Bubbles'}
@@ -582,7 +582,7 @@ export function LightweightChart({
       <div className="relative">
         <div
           ref={chartContainerRef}
-          className="border-3 md:border-4 border-[#2B2B43] rounded-[12px] md:rounded-[16px] shadow-[4px_4px_0_rgba(0,0,0,0.5)] md:shadow-[6px_6px_0_rgba(0,0,0,0.5)] bg-[#0A0A0F] overflow-hidden touch-pan-x touch-pan-y"
+          className="border-3 md:border-4 border-[#2B2B43] rounded-lg md:rounded-xl shadow-[4px_4px_0_rgba(0,0,0,0.5)] md:shadow-[6px_6px_0_rgba(0,0,0,0.5)] bg-[#0A0A0F] overflow-hidden touch-pan-x touch-pan-y"
           style={{
             minHeight: isMobile ? '350px' : '500px',
             touchAction: 'pan-x pan-y', // Better touch handling
@@ -630,7 +630,7 @@ export function LightweightChart({
         <div className="flex items-center gap-1 flex-wrap">
           <span className="font-bold">{tokenSymbol}</span> • {timeframe.toUpperCase()} Chart
           {dataSource === 'mock' && (
-            <span className="px-2 py-0.5 bg-[var(--star-yellow)] text-[var(--outline-black)] rounded font-bold whitespace-nowrap">
+            <span className="px-2 py-0.5 bg-star text-outline rounded font-bold whitespace-nowrap">
               DEMO DATA
             </span>
           )}

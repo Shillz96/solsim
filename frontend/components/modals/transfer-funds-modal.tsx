@@ -150,7 +150,7 @@ export function TransferFundsModal({
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="mario-card bg-[var(--card)] max-w-md border-4 border-pipe-700">
+      <DialogContent className="mario-card bg-card max-w-md border-4 border-pipe-700">
         <DialogHeader>
           <div className="flex items-center gap-2">
             <ArrowRightLeft className="h-6 w-6 text-mario-red-500" />
@@ -177,7 +177,7 @@ export function TransferFundsModal({
                 setError('');
               }}
               disabled={isLoading}
-              className="w-full p-3 bg-[var(--card)] border-3 border-pipe-400 rounded text-pipe-900 font-medium hover:border-mario-red-500 focus:border-mario-red-500 focus:outline-none transition-colors"
+              className="w-full p-3 bg-card border-3 border-pipe-400 rounded text-pipe-900 font-medium hover:border-mario-red-500 focus:border-mario-red-500 focus:outline-none transition-colors"
             >
               <option value="">Select source wallet</option>
               {wallets.map((wallet) => (
@@ -208,7 +208,7 @@ export function TransferFundsModal({
                 setError('');
               }}
               disabled={isLoading || !fromWalletId}
-              className="w-full p-3 bg-[var(--card)] border-3 border-pipe-400 rounded text-pipe-900 font-medium hover:border-luigi-green-500 focus:border-luigi-green-500 focus:outline-none transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full p-3 bg-card border-3 border-pipe-400 rounded text-pipe-900 font-medium hover:border-luigi-green-500 focus:border-luigi-green-500 focus:outline-none transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <option value="">Select destination wallet</option>
               {destinationWallets.map((wallet) => (

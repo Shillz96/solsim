@@ -37,7 +37,7 @@ export function PositionPnLBadge({
   return (
     <div className={cn(
       "inline-flex items-center gap-1.5 px-2 py-1 rounded-lg",
-      "border-2 border-[var(--outline-black)]",
+      "border-2 border-outline",
       "shadow-[2px_2px_0_var(--outline-black)]",
       "transition-all",
       isProfitable
@@ -46,9 +46,9 @@ export function PositionPnLBadge({
       className
     )}>
       {isProfitable ? (
-        <TrendingUp className="h-3 w-3 text-[var(--luigi-green)]" />
+        <TrendingUp className="h-3 w-3 text-luigi" />
       ) : (
-        <TrendingDown className="h-3 w-3 text-[var(--mario-red)]" />
+        <TrendingDown className="h-3 w-3 text-mario" />
       )}
       <div className="text-xs font-mario font-bold">PnL:</div>
       <AnimatedNumber
@@ -57,7 +57,7 @@ export function PositionPnLBadge({
         decimals={2}
         className={cn(
           "text-xs font-mono font-bold",
-          isProfitable ? "text-[var(--luigi-green)]" : "text-[var(--mario-red)]"
+          isProfitable ? "text-luigi" : "text-mario"
         )}
         colorize={false}
         glowOnChange={true}

@@ -112,9 +112,9 @@ export function UserManagement() {
     return (
       <AdminCard>
         <div className="text-center">
-          <div className="font-mario text-xl text-[var(--outline-black)] mb-2">👑</div>
-          <div className="font-mario text-lg text-[var(--pipe-green)]">Admin Access Required</div>
-          <div className="text-sm text-[var(--pipe-green)]">You need administrator privileges to access this panel</div>
+          <div className="font-mario text-xl text-outline mb-2">👑</div>
+          <div className="font-mario text-lg text-pipe">Admin Access Required</div>
+          <div className="text-sm text-pipe">You need administrator privileges to access this panel</div>
         </div>
       </AdminCard>
     );
@@ -124,8 +124,8 @@ export function UserManagement() {
     <div className="space-y-6">
       {/* Header */}
       <div className="mb-6">
-        <h2 className="font-mario text-3xl text-[var(--outline-black)] mb-2">👥 User Management</h2>
-        <div className="text-[var(--pipe-green)]">Search, filter, and manage platform users</div>
+        <h2 className="font-mario text-3xl text-outline mb-2">👥 User Management</h2>
+        <div className="text-pipe">Search, filter, and manage platform users</div>
       </div>
 
       {/* Search and Filters */}
@@ -186,8 +186,8 @@ export function UserManagement() {
           <AdminLoadingSkeleton lines={5} />
         ) : usersError ? (
           <div className="text-center py-8">
-            <div className="text-[var(--mario-red)] font-mario text-lg mb-2">❌ Error</div>
-            <div className="text-[var(--pipe-green)]">Failed to load users</div>
+            <div className="text-mario font-mario text-lg mb-2">❌ Error</div>
+            <div className="text-pipe">Failed to load users</div>
           </div>
         ) : !usersData?.users?.length ? (
           <AdminEmptyState
@@ -205,14 +205,14 @@ export function UserManagement() {
                 >
                   <AdminTableCell>
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-[var(--sky-blue)] flex items-center justify-center font-mario font-bold text-[var(--outline-black)]">
+                      <div className="w-10 h-10 rounded-full bg-sky flex items-center justify-center font-mario font-bold text-outline">
                         {user.handle.charAt(0).toUpperCase()}
                       </div>
                       <div>
-                        <div className="font-mario font-bold text-[var(--outline-black)]">
+                        <div className="font-mario font-bold text-outline">
                           {user.handle}
                         </div>
-                        <div className="text-xs text-[var(--pipe-green)]">
+                        <div className="text-xs text-pipe">
                           {user.email}
                         </div>
                       </div>
@@ -224,7 +224,7 @@ export function UserManagement() {
                   </AdminTableCell>
                   
                   <AdminTableCell>
-                    <div className="font-mono font-bold text-[var(--outline-black)]">
+                    <div className="font-mono font-bold text-outline">
                       {user.virtualSolBalance.toFixed(2)} SOL
                     </div>
                   </AdminTableCell>
@@ -232,7 +232,7 @@ export function UserManagement() {
                   <AdminTableCell>
                     <div className="flex items-center gap-1">
                       <span className="text-lg">🏆</span>
-                      <span className="font-mario font-bold text-[var(--outline-black)]">
+                      <span className="font-mario font-bold text-outline">
                         {user.badgeCount}
                       </span>
                     </div>
@@ -290,8 +290,8 @@ export function UserManagement() {
           />
         ) : (
           <div className="text-center py-8">
-            <div className="text-[var(--mario-red)] font-mario text-lg mb-2">❌ Error</div>
-            <div className="text-[var(--pipe-green)]">Failed to load user details</div>
+            <div className="text-mario font-mario text-lg mb-2">❌ Error</div>
+            <div className="text-pipe">Failed to load user details</div>
           </div>
         )}
       </AdminModal>
@@ -343,28 +343,28 @@ function UserDetailsForm({ user, onTierUpdate, onBalanceUpdate, onClose }: UserD
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-4">
           <div>
-            <label className="block font-mario text-[var(--outline-black)] font-bold text-sm mb-2">
+            <label className="block font-mario text-outline font-bold text-sm mb-2">
               Handle
             </label>
-            <div className="p-3 bg-[var(--sky-blue)]/20 rounded-lg border-2 border-[var(--outline-black)] font-mario font-bold">
+            <div className="p-3 bg-sky/20 rounded-lg border-2 border-outline font-mario font-bold">
               {user.handle}
             </div>
           </div>
           
           <div>
-            <label className="block font-mario text-[var(--outline-black)] font-bold text-sm mb-2">
+            <label className="block font-mario text-outline font-bold text-sm mb-2">
               Email
             </label>
-            <div className="p-3 bg-[var(--sky-blue)]/20 rounded-lg border-2 border-[var(--outline-black)]">
+            <div className="p-3 bg-sky/20 rounded-lg border-2 border-outline">
               {user.email}
             </div>
           </div>
           
           <div>
-            <label className="block font-mario text-[var(--outline-black)] font-bold text-sm mb-2">
+            <label className="block font-mario text-outline font-bold text-sm mb-2">
               Current Balance
             </label>
-            <div className="p-3 bg-[var(--sky-blue)]/20 rounded-lg border-2 border-[var(--outline-black)] font-mono font-bold">
+            <div className="p-3 bg-sky/20 rounded-lg border-2 border-outline font-mono font-bold">
               {user.virtualSolBalance.toFixed(2)} SOL
             </div>
           </div>
@@ -372,28 +372,28 @@ function UserDetailsForm({ user, onTierUpdate, onBalanceUpdate, onClose }: UserD
         
         <div className="space-y-4">
           <div>
-            <label className="block font-mario text-[var(--outline-black)] font-bold text-sm mb-2">
+            <label className="block font-mario text-outline font-bold text-sm mb-2">
               Registration Date
             </label>
-            <div className="p-3 bg-[var(--sky-blue)]/20 rounded-lg border-2 border-[var(--outline-black)]">
+            <div className="p-3 bg-sky/20 rounded-lg border-2 border-outline">
               {new Date(user.createdAt).toLocaleDateString()}
             </div>
           </div>
           
           <div>
-            <label className="block font-mario text-[var(--outline-black)] font-bold text-sm mb-2">
+            <label className="block font-mario text-outline font-bold text-sm mb-2">
               Trust Score
             </label>
-            <div className="p-3 bg-[var(--sky-blue)]/20 rounded-lg border-2 border-[var(--outline-black)] font-mario font-bold">
+            <div className="p-3 bg-sky/20 rounded-lg border-2 border-outline font-mario font-bold">
               {user.moderationStatus?.trustScore || 100}
             </div>
           </div>
           
           <div>
-            <label className="block font-mario text-[var(--outline-black)] font-bold text-sm mb-2">
+            <label className="block font-mario text-outline font-bold text-sm mb-2">
               Total Trades
             </label>
-            <div className="p-3 bg-[var(--sky-blue)]/20 rounded-lg border-2 border-[var(--outline-black)] font-mario font-bold">
+            <div className="p-3 bg-sky/20 rounded-lg border-2 border-outline font-mario font-bold">
               {user.stats?.totalTrades || 0}
             </div>
           </div>
@@ -403,17 +403,17 @@ function UserDetailsForm({ user, onTierUpdate, onBalanceUpdate, onClose }: UserD
       {/* Badges */}
       {user.badges?.length > 0 && (
         <div>
-          <label className="block font-mario text-[var(--outline-black)] font-bold text-sm mb-2">
+          <label className="block font-mario text-outline font-bold text-sm mb-2">
             Badges ({user.badges.length})
           </label>
           <div className="flex flex-wrap gap-2">
             {user.badges.map((badge: any) => (
               <div
                 key={badge.id}
-                className="flex items-center gap-2 px-3 py-2 bg-[var(--star-yellow)] rounded-lg border-2 border-[var(--outline-black)]"
+                className="flex items-center gap-2 px-3 py-2 bg-star rounded-lg border-2 border-outline"
               >
                 <span className="text-lg">{badge.icon}</span>
-                <span className="font-mario font-bold text-[var(--outline-black)] text-sm">
+                <span className="font-mario font-bold text-outline text-sm">
                   {badge.name}
                 </span>
               </div>
@@ -424,7 +424,7 @@ function UserDetailsForm({ user, onTierUpdate, onBalanceUpdate, onClose }: UserD
 
       {/* Admin Actions */}
       <div className="space-y-4">
-        <h3 className="font-mario text-lg text-[var(--outline-black)]">Admin Actions</h3>
+        <h3 className="font-mario text-lg text-outline">Admin Actions</h3>
         
         {/* Update Tier */}
         <form onSubmit={handleTierSubmit} className="flex items-end gap-4">

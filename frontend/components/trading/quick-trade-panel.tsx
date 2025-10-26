@@ -91,15 +91,15 @@ export function QuickTradePanel({
               onClick={() => setIsOpen(true)}
               className={cn(
                 "h-14 w-14 rounded-full p-0",
-                "bg-[var(--star-yellow)] hover:bg-[var(--star-yellow)]/90",
-                "border-4 border-[var(--outline-black)]",
+                "bg-star hover:bg-star/90",
+                "border-4 border-outline",
                 "shadow-[6px_6px_0_var(--outline-black)]",
                 "hover:shadow-[8px_8px_0_var(--outline-black)] hover:-translate-y-[2px]",
                 "transition-all"
               )}
               title="Quick Trade"
             >
-              <Zap className="h-6 w-6 text-[var(--outline-black)]" />
+              <Zap className="h-6 w-6 text-outline" />
             </Button>
           </motion.div>
         )}
@@ -122,18 +122,18 @@ export function QuickTradePanel({
             className={cn(
               "fixed bottom-6 right-6 z-50",
               "w-80 p-4",
-              "bg-[var(--card)]",
-              "border-4 border-[var(--outline-black)]",
+              "bg-card",
+              "border-4 border-outline",
               "shadow-[8px_8px_0_var(--outline-black)]",
-              "rounded-[16px]",
+              "rounded-xl",
               "cursor-move"
             )}
           >
             {/* Header with drag handle */}
             <div className="flex items-center justify-between mb-3 cursor-grab active:cursor-grabbing">
               <div className="flex items-center gap-2">
-                <GripVertical className="h-4 w-4 text-[var(--outline-black)]/40" />
-                <h3 className="font-mario text-[14px] text-[var(--outline-black)]">
+                <GripVertical className="h-4 w-4 text-outline/40" />
+                <h3 className="font-mario text-[14px] text-outline">
                   QUICK TRADE
                 </h3>
               </div>
@@ -148,8 +148,8 @@ export function QuickTradePanel({
             </div>
 
             {/* Price display */}
-            <div className="mb-4 p-2 bg-[var(--background)]/50 border-2 border-[var(--outline-black)]/20 rounded-[8px]">
-              <div className="text-[10px] text-[var(--outline-black)]/70 uppercase font-bold mb-1">
+            <div className="mb-4 p-2 bg-background/50 border-2 border-outline/20 rounded">
+              <div className="text-[10px] text-outline/70 uppercase font-bold mb-1">
                 {tokenSymbol} Price
               </div>
               <AnimatedNumber
@@ -165,8 +165,8 @@ export function QuickTradePanel({
             {/* Buy Section */}
             <div className="mb-3">
               <div className="flex items-center gap-2 mb-2">
-                <TrendingUp className="h-3 w-3 text-[var(--luigi-green)]" />
-                <span className="text-[11px] font-bold uppercase text-[var(--outline-black)]">
+                <TrendingUp className="h-3 w-3 text-luigi" />
+                <span className="text-[11px] font-bold uppercase text-outline">
                   Quick Buy (SOL)
                 </span>
               </div>
@@ -183,8 +183,8 @@ export function QuickTradePanel({
                     disabled={isTrading || amount > balance}
                     className={cn(
                       "flex-1 h-8 text-[11px] font-bold",
-                      "bg-[var(--luigi-green)] hover:bg-[var(--luigi-green)]/90",
-                      "border-2 border-[var(--outline-black)]",
+                      "bg-luigi hover:bg-luigi/90",
+                      "border-2 border-outline",
                       amount > balance && "opacity-50 cursor-not-allowed"
                     )}
                   >
@@ -207,7 +207,7 @@ export function QuickTradePanel({
                   size="sm"
                   onClick={handleBuy}
                   disabled={isTrading || !buyAmount || parseFloat(buyAmount) > balance}
-                  className="h-8 bg-[var(--luigi-green)] hover:bg-[var(--luigi-green)]/90"
+                  className="h-8 bg-luigi hover:bg-luigi/90"
                 >
                   Buy
                 </Button>
@@ -217,8 +217,8 @@ export function QuickTradePanel({
             {/* Sell Section */}
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <TrendingDown className="h-3 w-3 text-[var(--mario-red)]" />
-                <span className="text-[11px] font-bold uppercase text-[var(--outline-black)]">
+                <TrendingDown className="h-3 w-3 text-mario" />
+                <span className="text-[11px] font-bold uppercase text-outline">
                   Quick Sell (%)
                 </span>
               </div>
@@ -235,8 +235,8 @@ export function QuickTradePanel({
                     disabled={isTrading || tokenBalance <= 0}
                     className={cn(
                       "flex-1 h-8 text-[11px] font-bold",
-                      "bg-[var(--mario-red)] hover:bg-[var(--mario-red)]/90",
-                      "border-2 border-[var(--outline-black)]",
+                      "bg-mario hover:bg-mario/90",
+                      "border-2 border-outline",
                       tokenBalance <= 0 && "opacity-50 cursor-not-allowed"
                     )}
                   >
@@ -260,7 +260,7 @@ export function QuickTradePanel({
                   size="sm"
                   onClick={handleSell}
                   disabled={isTrading || !sellPercent || tokenBalance <= 0}
-                  className="h-8 bg-[var(--mario-red)] hover:bg-[var(--mario-red)]/90"
+                  className="h-8 bg-mario hover:bg-mario/90"
                 >
                   Sell
                 </Button>
@@ -268,7 +268,7 @@ export function QuickTradePanel({
             </div>
 
             {/* Balance info */}
-            <div className="mt-3 pt-3 border-t border-[var(--outline-black)]/20 text-[9px] text-[var(--outline-black)]/60 space-y-1">
+            <div className="mt-3 pt-3 border-t border-outline/20 text-[9px] text-outline/60 space-y-1">
               <div className="flex justify-between">
                 <span>SOL Balance:</span>
                 <span className="font-mono font-bold">{balance.toFixed(2)}</span>

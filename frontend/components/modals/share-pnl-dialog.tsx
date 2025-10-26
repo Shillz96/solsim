@@ -174,9 +174,9 @@ export function SharePnLDialog({ totalPnL, totalPnLPercent, currentValue, initia
           Share PnL
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[600px] bg-[var(--card)] border-4 border-[var(--outline-black)] shadow-[8px_8px_0_var(--outline-black)]">
+      <DialogContent className="sm:max-w-[600px] bg-card border-4 border-outline shadow-[8px_8px_0_var(--outline-black)]">
         <DialogHeader>
-          <DialogTitle className="font-mario text-2xl text-[var(--outline-black)]">Share Your Performance</DialogTitle>
+          <DialogTitle className="font-mario text-2xl text-outline">Share Your Performance</DialogTitle>
           <DialogDescription>
             Share your trading performance with others. You can download an image or copy it to your clipboard.
           </DialogDescription>
@@ -273,11 +273,11 @@ export function SharePnLDialog({ totalPnL, totalPnLPercent, currentValue, initia
 
                 {/* Right: Stats */}
                 <div className="flex flex-col gap-2 justify-center min-w-[140px]">
-                  <div className="bg-[var(--card)]/5 backdrop-blur-sm rounded-lg p-2 border border-white/10">
+                  <div className="bg-card/5 backdrop-blur-sm rounded-lg p-2 border border-white/10">
                     <div className="text-[9px] text-white/50 mb-0.5 uppercase tracking-wide">Invested</div>
                     <div className="text-sm font-bold text-white font-mono">${initialBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
                   </div>
-                  <div className="bg-[var(--card)]/5 backdrop-blur-sm rounded-lg p-2 border border-white/10">
+                  <div className="bg-card/5 backdrop-blur-sm rounded-lg p-2 border border-white/10">
                     <div className="text-[9px] text-white/50 mb-0.5 uppercase tracking-wide">Position</div>
                     <div className="text-sm font-bold text-white font-mono">${currentValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
                   </div>
@@ -328,7 +328,7 @@ export function SharePnLDialog({ totalPnL, totalPnLPercent, currentValue, initia
           <div className="flex gap-2">
             <button 
               onClick={handleDownload} 
-              className="flex-1 gap-2 h-10 px-4 rounded-lg border-3 border-[var(--outline-black)] bg-[var(--luigi-green)] text-white hover:bg-[var(--luigi-green)]/90 shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all flex items-center justify-center font-mario disabled:opacity-50" 
+              className="flex-1 gap-2 h-10 px-4 rounded-lg border-3 border-outline bg-luigi text-white hover:bg-luigi/90 shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all flex items-center justify-center font-mario disabled:opacity-50" 
               disabled={isGenerating}
             >
               {isGenerating ? (
@@ -345,7 +345,7 @@ export function SharePnLDialog({ totalPnL, totalPnLPercent, currentValue, initia
             </button>
             <button
               onClick={handleCopy}
-              className="flex-1 gap-2 h-10 px-4 rounded-lg border-3 border-[var(--outline-black)] bg-[var(--card)] hover:bg-gray-50 shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all flex items-center justify-center font-mario disabled:opacity-50"
+              className="flex-1 gap-2 h-10 px-4 rounded-lg border-3 border-outline bg-card hover:bg-gray-50 shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all flex items-center justify-center font-mario disabled:opacity-50"
               disabled={isGenerating}
             >
               {isGenerating ? (

@@ -94,37 +94,37 @@ export function TradeHistory({
   if (isLoading) {
     const loadingContent = (
       <div className="flex flex-col items-center justify-center h-32">
-        <Loader2 className="h-6 w-6 animate-spin text-[var(--mario-red)]" />
-        <span className="ml-2 font-bold text-[var(--outline-black)] mt-2">Loading trade history...</span>
+        <Loader2 className="h-6 w-6 animate-spin text-mario" />
+        <span className="ml-2 font-bold text-outline mt-2">Loading trade history...</span>
       </div>
     )
-    return noCard ? loadingContent : <div className="bg-[var(--card)] border-4 border-[var(--outline-black)] rounded-xl shadow-[6px_6px_0_var(--outline-black)] p-6">{loadingContent}</div>
+    return noCard ? loadingContent : <div className="bg-card border-4 border-outline rounded-xl shadow-[6px_6px_0_var(--outline-black)] p-6">{loadingContent}</div>
   }
 
   if (error) {
     const errorContent = (
-      <Alert variant="destructive" className="border-3 border-[var(--mario-red)]">
+      <Alert variant="destructive" className="border-3 border-mario">
         <AlertCircle className="h-4 w-4" />
         <AlertDescription className="font-semibold">
           Failed to load trade history: {error}
         </AlertDescription>
       </Alert>
     )
-    return noCard ? errorContent : <div className="bg-[var(--card)] border-4 border-[var(--outline-black)] rounded-xl shadow-[6px_6px_0_var(--outline-black)] p-6">{errorContent}</div>
+    return noCard ? errorContent : <div className="bg-card border-4 border-outline rounded-xl shadow-[6px_6px_0_var(--outline-black)] p-6">{errorContent}</div>
   }
 
   const content = (
     <>
       {showHeader && (
         <div className="flex items-center justify-between mb-4">
-          <h3 className="font-mario font-bold text-lg text-[var(--outline-black)]">
+          <h3 className="font-mario font-bold text-lg text-outline">
             {tokenAddress ? "🎮 Token Trades" : "📜 Quest Log"}
           </h3>
           <Button 
             variant="outline" 
             size="sm" 
             onClick={loadTrades}
-            className="border-3 border-[var(--outline-black)] bg-[var(--card)] hover:bg-[var(--mario-red)] hover:text-white shadow-[2px_2px_0_var(--outline-black)] font-bold"
+            className="border-3 border-outline bg-card hover:bg-mario hover:text-white shadow-[2px_2px_0_var(--outline-black)] font-bold"
           >
             Refresh
           </Button>
@@ -132,11 +132,11 @@ export function TradeHistory({
       )}
 
       {trades.length === 0 ? (
-        <div className="text-center py-12 bg-[var(--sky-blue)]/10 rounded-lg border-3 border-[var(--outline-black)]">
-          <div className="inline-flex h-16 w-16 items-center justify-center rounded-full bg-[var(--mario-red)]/10 border-3 border-[var(--outline-black)] mb-4">
-            <TrendingUp className="h-8 w-8 text-[var(--mario-red)]" />
+        <div className="text-center py-12 bg-sky/10 rounded-lg border-3 border-outline">
+          <div className="inline-flex h-16 w-16 items-center justify-center rounded-full bg-mario/10 border-3 border-outline mb-4">
+            <TrendingUp className="h-8 w-8 text-mario" />
           </div>
-          <h3 className="font-mario font-bold text-lg mb-2 text-[var(--outline-black)]">
+          <h3 className="font-mario font-bold text-lg mb-2 text-outline">
             {tokenAddress ? "No Token Trades" : "No Quest History"}
           </h3>
           <p className="text-muted-foreground font-semibold mb-6 max-w-sm mx-auto">
@@ -146,7 +146,7 @@ export function TradeHistory({
             }
           </p>
           {!tokenAddress && (
-            <Button asChild size="lg" className="bg-[var(--mario-red)] hover:bg-[var(--mario-red)]/90 text-white border-3 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)] font-bold">
+            <Button asChild size="lg" className="bg-mario hover:bg-mario/90 text-white border-3 border-outline shadow-[4px_4px_0_var(--outline-black)] font-bold">
               <Link href="/warp-pipes">
                 <TrendingUp className="mr-2 h-4 w-4" />
                 Start Trading
@@ -159,13 +159,13 @@ export function TradeHistory({
           {displayTrades.map((trade) => (
             <div
               key={trade.id}
-              className="flex items-center justify-between rounded-lg border-3 border-[var(--outline-black)] bg-[var(--card)] p-3 transition-all hover:bg-[var(--sky-blue)]/10 hover:shadow-[3px_3px_0_var(--outline-black)]"
+              className="flex items-center justify-between rounded-lg border-3 border-outline bg-card p-3 transition-all hover:bg-sky/10 hover:shadow-[3px_3px_0_var(--outline-black)]"
             >
               <div className="flex items-center gap-3">
-                <div className={`flex h-8 w-8 items-center justify-center rounded-full border-2 border-[var(--outline-black)] ${
+                <div className={`flex h-8 w-8 items-center justify-center rounded-full border-2 border-outline ${
                   trade.side === "BUY"
-                    ? "bg-[var(--luigi-green)] text-white"
-                    : "bg-[var(--mario-red)] text-white"
+                    ? "bg-luigi text-white"
+                    : "bg-mario text-white"
                 }`}>
                   {trade.side === "BUY" ? (
                     <ArrowUpRight className="h-4 w-4" />
@@ -177,15 +177,15 @@ export function TradeHistory({
                   <div className="flex items-center gap-2">
                     <Badge 
                       variant={trade.side === "BUY" ? "default" : "destructive"} 
-                      className={`text-xs font-bold border-2 border-[var(--outline-black)] ${
+                      className={`text-xs font-bold border-2 border-outline ${
                         trade.side === "BUY" 
-                          ? "bg-[var(--luigi-green)] hover:bg-[var(--luigi-green)]/90"
-                          : "bg-[var(--mario-red)] hover:bg-[var(--mario-red)]/90"
+                          ? "bg-luigi hover:bg-luigi/90"
+                          : "bg-mario hover:bg-mario/90"
                       }`}
                     >
                       {trade.side}
                     </Badge>
-                    <span className="font-bold text-[var(--outline-black)]">{trade.symbol || 'Unknown'}</span>
+                    <span className="font-bold text-outline">{trade.symbol || 'Unknown'}</span>
                   </div>
                   <div className="text-sm text-muted-foreground font-semibold">
                     {trade.name || 'Unknown Token'}
@@ -223,7 +223,7 @@ export function TradeHistory({
                 </div>
 
                 {/* Timestamp */}
-                <div className="text-xs text-[var(--outline-black)] font-semibold w-16 text-right">
+                <div className="text-xs text-outline font-semibold w-16 text-right">
                   {formatTimestamp(trade.createdAt)}
                 </div>
               </div>
@@ -233,7 +233,7 @@ export function TradeHistory({
           {trades.length > 10 && (
             <Button
               variant="outline"
-              className="w-full border-3 border-[var(--outline-black)] bg-[var(--card)] hover:bg-[var(--star-yellow)] hover:text-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] font-bold"
+              className="w-full border-3 border-outline bg-card hover:bg-star hover:text-outline shadow-[3px_3px_0_var(--outline-black)] font-bold"
               onClick={() => setShowAll(!showAll)}
             >
               {showAll ? "Show Less" : `Show All (${trades.length})`}
@@ -248,6 +248,6 @@ export function TradeHistory({
   return noCard ? (
     <div className="space-y-4">{content}</div>
   ) : (
-    <div className="bg-[var(--card)] border-4 border-[var(--outline-black)] rounded-xl shadow-[6px_6px_0_var(--outline-black)] p-6 space-y-4">{content}</div>
+    <div className="bg-card border-4 border-outline rounded-xl shadow-[6px_6px_0_var(--outline-black)] p-6 space-y-4">{content}</div>
   )
 }

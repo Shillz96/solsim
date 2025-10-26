@@ -223,13 +223,13 @@ export function WalletTrackerSettingsModal({ isOpen, onClose, onSettingsSaved }:
             onClick={(e) => e.stopPropagation()}
             className="w-full max-w-md max-h-[90vh] overflow-y-auto"
           >
-            <div className={cn(marioStyles.cardLg(false), 'bg-[var(--card)] p-6')}>
+            <div className={cn(marioStyles.cardLg(false), 'bg-card p-6')}>
             {/* Header */}
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-2">
                 <div className={cn(
                   marioStyles.iconContainer('sm', '[var(--mario-red)]'),
-                  'bg-[var(--mario-red)]'
+                  'bg-mario'
                 )}>
                   <Settings className="h-4 w-4 text-white" />
                 </div>
@@ -249,24 +249,24 @@ export function WalletTrackerSettingsModal({ isOpen, onClose, onSettingsSaved }:
 
             {isLoading ? (
               <div className="flex items-center justify-center py-12">
-                <Loader2 className="h-8 w-8 animate-spin text-[var(--mario-red)]" />
+                <Loader2 className="h-8 w-8 animate-spin text-mario" />
               </div>
             ) : (
               <div className="space-y-6">
                 {/* Transaction Types */}
                 <div className="space-y-3">
-                  <Label className="text-sm font-bold text-[var(--outline-black)]">Transaction Types</Label>
+                  <Label className="text-sm font-bold text-outline">Transaction Types</Label>
                   <div className="space-y-3">
                     <div className="flex items-center space-x-3">
                       <Checkbox
                         id="showBuys"
                         checked={showBuys}
                         onCheckedChange={(checked) => setShowBuys(checked as boolean)}
-                        className="border-3 border-[var(--outline-black)]"
+                        className="border-3 border-outline"
                       />
                       <label
                         htmlFor="showBuys"
-                        className="text-sm font-bold leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-[var(--outline-black)]"
+                        className="text-sm font-bold leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-outline"
                       >
                         Buy
                       </label>
@@ -276,11 +276,11 @@ export function WalletTrackerSettingsModal({ isOpen, onClose, onSettingsSaved }:
                         id="showSells"
                         checked={showSells}
                         onCheckedChange={(checked) => setShowSells(checked as boolean)}
-                        className="border-3 border-[var(--outline-black)]"
+                        className="border-3 border-outline"
                       />
                       <label
                         htmlFor="showSells"
-                        className="text-sm font-bold leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-[var(--outline-black)]"
+                        className="text-sm font-bold leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-outline"
                       >
                         Sell
                       </label>
@@ -290,11 +290,11 @@ export function WalletTrackerSettingsModal({ isOpen, onClose, onSettingsSaved }:
                         id="showFirstBuyOnly"
                         checked={showFirstBuyOnly}
                         onCheckedChange={(checked) => setShowFirstBuyOnly(checked as boolean)}
-                        className="border-3 border-[var(--outline-black)]"
+                        className="border-3 border-outline"
                       />
                       <label
                         htmlFor="showFirstBuyOnly"
-                        className="text-sm font-bold leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-[var(--outline-black)]"
+                        className="text-sm font-bold leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-outline"
                       >
                         First Buy Only
                       </label>
@@ -304,7 +304,7 @@ export function WalletTrackerSettingsModal({ isOpen, onClose, onSettingsSaved }:
 
                 {/* Market Cap Filter */}
                 <div className="space-y-3">
-                  <Label className="text-sm font-bold text-[var(--outline-black)]">Market Cap (USD)</Label>
+                  <Label className="text-sm font-bold text-outline">Market Cap (USD)</Label>
                   <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-1">
                       <Label htmlFor="minMarketCap" className={cn(marioStyles.bodyText('bold'), 'text-xs')}>
@@ -323,7 +323,7 @@ export function WalletTrackerSettingsModal({ isOpen, onClose, onSettingsSaved }:
                           placeholder="e.g., 50000"
                           value={minMarketCap ? formatNumberInput(minMarketCap) : ''}
                           onChange={(e) => handleMinMarketCapChange(e.target.value)}
-                          className={cn(marioStyles.input(), 'pl-8 bg-[var(--card)]', marioStyles.bodyText('bold'))}
+                          className={cn(marioStyles.input(), 'pl-8 bg-card', marioStyles.bodyText('bold'))}
                         />
                       </div>
                     </div>
@@ -332,7 +332,7 @@ export function WalletTrackerSettingsModal({ isOpen, onClose, onSettingsSaved }:
                         Max
                       </Label>
                       <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-bold text-[var(--outline-black)]">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-bold text-outline">
                           $
                         </span>
                         <Input
@@ -341,26 +341,26 @@ export function WalletTrackerSettingsModal({ isOpen, onClose, onSettingsSaved }:
                           placeholder="e.g., 1000000"
                           value={maxMarketCap ? formatNumberInput(maxMarketCap) : ''}
                           onChange={(e) => handleMaxMarketCapChange(e.target.value)}
-                          className="pl-8 bg-[var(--card)] border-3 border-[var(--outline-black)] rounded-lg shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)] font-bold"
+                          className="pl-8 bg-card border-3 border-outline rounded-lg shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)] font-bold"
                         />
                       </div>
                     </div>
                   </div>
                   {marketCapError && (
-                    <p className="text-xs text-[var(--mario-red)] font-bold">{marketCapError}</p>
+                    <p className="text-xs text-mario font-bold">{marketCapError}</p>
                   )}
                 </div>
 
                 {/* Transaction Amount Filter */}
                 <div className="space-y-3">
-                  <Label className="text-sm font-bold text-[var(--outline-black)]">Transaction Amount (USD)</Label>
+                  <Label className="text-sm font-bold text-outline">Transaction Amount (USD)</Label>
                   <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-1">
-                      <Label htmlFor="minTransactionUsd" className="text-xs font-bold text-[var(--outline-black)]">
+                      <Label htmlFor="minTransactionUsd" className="text-xs font-bold text-outline">
                         Min
                       </Label>
                       <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-bold text-[var(--outline-black)]">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-bold text-outline">
                           $
                         </span>
                         <Input
@@ -369,16 +369,16 @@ export function WalletTrackerSettingsModal({ isOpen, onClose, onSettingsSaved }:
                           placeholder="e.g., 100"
                           value={minTransactionUsd ? formatNumberInput(minTransactionUsd) : ''}
                           onChange={(e) => handleMinTransactionChange(e.target.value)}
-                          className="pl-8 bg-[var(--card)] border-3 border-[var(--outline-black)] rounded-lg shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)] font-bold"
+                          className="pl-8 bg-card border-3 border-outline rounded-lg shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)] font-bold"
                         />
                       </div>
                     </div>
                     <div className="space-y-1">
-                      <Label htmlFor="maxTransactionUsd" className="text-xs font-bold text-[var(--outline-black)]">
+                      <Label htmlFor="maxTransactionUsd" className="text-xs font-bold text-outline">
                         Max
                       </Label>
                       <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-bold text-[var(--outline-black)]">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-bold text-outline">
                           $
                         </span>
                         <Input
@@ -387,29 +387,29 @@ export function WalletTrackerSettingsModal({ isOpen, onClose, onSettingsSaved }:
                           placeholder="e.g., 10000"
                           value={maxTransactionUsd ? formatNumberInput(maxTransactionUsd) : ''}
                           onChange={(e) => handleMaxTransactionChange(e.target.value)}
-                          className="pl-8 bg-[var(--card)] border-3 border-[var(--outline-black)] rounded-lg shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)] font-bold"
+                          className="pl-8 bg-card border-3 border-outline rounded-lg shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)] font-bold"
                         />
                       </div>
                     </div>
                   </div>
                   {transactionError && (
-                    <p className="text-xs text-[var(--mario-red)] font-bold">{transactionError}</p>
+                    <p className="text-xs text-mario font-bold">{transactionError}</p>
                   )}
                 </div>
 
                 {/* Require Images */}
                 <div className="space-y-3">
-                  <Label className="text-sm font-bold text-[var(--outline-black)]">Display Options</Label>
+                  <Label className="text-sm font-bold text-outline">Display Options</Label>
                   <div className="flex items-center space-x-3">
                     <Checkbox
                       id="requireImages"
                       checked={requireImages}
                       onCheckedChange={(checked) => setRequireImages(checked as boolean)}
-                      className="border-3 border-[var(--outline-black)]"
+                      className="border-3 border-outline"
                     />
                     <label
                       htmlFor="requireImages"
-                      className="text-sm font-bold leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-[var(--outline-black)]"
+                      className="text-sm font-bold leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-outline"
                     >
                       Only show tokens with images
                     </label>
@@ -418,21 +418,21 @@ export function WalletTrackerSettingsModal({ isOpen, onClose, onSettingsSaved }:
 
                 {/* Active Filters Summary */}
                 <div className="space-y-3">
-                  <Label className="text-sm font-bold text-[var(--outline-black)]">Active Filters</Label>
-                  <div className="p-3 bg-[var(--sky-50)] border-3 border-[var(--outline-black)] rounded-lg">
+                  <Label className="text-sm font-bold text-outline">Active Filters</Label>
+                  <div className="p-3 bg-[var(--sky-50)] border-3 border-outline rounded-lg">
                     <div className="flex flex-wrap gap-2">
                       {showBuys && (
-                        <Badge variant="secondary" className="bg-[var(--luigi-green)] text-white">
+                        <Badge variant="secondary" className="bg-luigi text-white">
                           Show Buys
                         </Badge>
                       )}
                       {showSells && (
-                        <Badge variant="secondary" className="bg-[var(--mario-red)] text-white">
+                        <Badge variant="secondary" className="bg-mario text-white">
                           Show Sells
                         </Badge>
                       )}
                       {showFirstBuyOnly && (
-                        <Badge variant="secondary" className="bg-[var(--star-yellow)] text-[var(--outline-black)]">
+                        <Badge variant="secondary" className="bg-star text-outline">
                           First Buy Only
                         </Badge>
                       )}
@@ -457,7 +457,7 @@ export function WalletTrackerSettingsModal({ isOpen, onClose, onSettingsSaved }:
                         </Badge>
                       )}
                       {requireImages && (
-                        <Badge variant="secondary" className="bg-[var(--coin-yellow)] text-[var(--outline-black)]">
+                        <Badge variant="secondary" className="bg-coin text-outline">
                           Images Required
                         </Badge>
                       )}

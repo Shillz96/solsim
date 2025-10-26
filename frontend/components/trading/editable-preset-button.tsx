@@ -73,10 +73,10 @@ export function EditablePresetButton({
     return (
       <div className={cn(
         "relative h-14 sm:h-12",
-        "border-4 border-[var(--star-yellow)]",
+        "border-4 border-star",
         "shadow-[4px_4px_0_var(--outline-black)]",
-        "rounded-[12px]",
-        "bg-[var(--card)] p-1",
+        "rounded-lg",
+        "bg-card p-1",
         className
       )}>
         <Input
@@ -122,7 +122,7 @@ export function EditablePresetButton({
           "hover:scale-110 transition-transform"
         )}
       >
-        <Edit2 className="h-3 w-3 text-[var(--outline-black)] hover:text-[var(--mario-red)]" />
+        <Edit2 className="h-3 w-3 text-outline hover:text-mario" />
       </button>
 
       {/* Insufficient balance indicator */}

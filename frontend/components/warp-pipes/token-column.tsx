@@ -40,20 +40,20 @@ export function TokenColumn({
   // Consolidated theme configuration
   const theme = {
     bonded: {
-      header: "text-[var(--outline-black)]",
-      headerBg: "bg-[var(--coin-gold)]",
+      header: "text-outline",
+      headerBg: "bg-coin",
       body: "bg-gradient-to-b from-amber-100/40 to-amber-50/20",
       image: "/bonded-10-23-2025.png",
     },
     graduating: {
-      header: "text-[var(--outline-black)]",
-      headerBg: "bg-[var(--star-yellow)]",
+      header: "text-outline",
+      headerBg: "bg-star",
       body: "bg-gradient-to-b from-yellow-100/40 to-yellow-50/20",
       image: "/About-to-Graduate-10-23-2025.png",
     },
     new: {
       header: "text-white",
-      headerBg: "bg-[var(--luigi-green)]",
+      headerBg: "bg-luigi",
       body: "bg-gradient-to-b from-green-100/40 to-green-50/20",
       image: "/New-Pairs-10-23-2025.png",
     },
@@ -62,11 +62,11 @@ export function TokenColumn({
   return (
     <div className={cn("flex flex-col h-full min-h-0", className)}>
       {/* Token Column */}
-      <div className={cn("flex flex-col h-full min-h-0 border-4 border-[var(--outline-black)] rounded-[16px] shadow-[6px_6px_0_var(--outline-black)] overflow-hidden")}>
+      <div className={cn("flex flex-col h-full min-h-0 border-4 border-outline rounded-xl shadow-[6px_6px_0_var(--outline-black)] overflow-hidden")}>
         {/* Column Header */}
         <div
           className={cn(
-            "p-4 flex-shrink-0 text-center border-b-4 border-[var(--outline-black)]",
+            "p-4 flex-shrink-0 text-center border-b-4 border-outline",
             "flex items-center justify-center",
             theme.header,
             theme.headerBg
@@ -116,10 +116,10 @@ export function TokenColumn({
 
         {/* Empty State */}
         {!isLoading && tokens.length === 0 && (
-          <div className="flex flex-col items-center justify-center h-full text-center p-6 bg-[var(--card)] rounded-[16px] border-3 border-[var(--outline-black)]">
+          <div className="flex flex-col items-center justify-center h-full text-center p-6 bg-card rounded-xl border-3 border-outline">
             <div className="text-6xl mb-4">🍄</div>
-            <p className="text-[var(--outline-black)] font-bold text-[16px]">No tokens in this column</p>
-            <p className="text-[14px] text-[var(--outline-black)] opacity-70 mt-2">Check back soon for new discoveries!</p>
+            <p className="text-outline font-bold text-[16px]">No tokens in this column</p>
+            <p className="text-[14px] text-outline opacity-70 mt-2">Check back soon for new discoveries!</p>
           </div>
         )}
 

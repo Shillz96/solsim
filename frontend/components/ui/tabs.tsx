@@ -27,7 +27,7 @@ function TabsList({
       data-slot="tabs-list"
       className={cn(
         'inline-flex w-fit items-center justify-center',
-        'bg-white/60 border-2 border-[var(--outline-black)] rounded-lg',
+        'bg-white/60 border-2 border-outline rounded-lg',
         'p-1',
         className,
       )}
@@ -46,11 +46,11 @@ function TabsTrigger({
       className={cn(
         'inline-flex h-9 flex-1 items-center justify-center gap-1.5',
         'rounded-md px-3 py-2 text-sm font-bold transition-all',
-        'text-[var(--outline-black)] whitespace-nowrap',
+        'text-outline whitespace-nowrap',
         // Inactive state
         'data-[state=inactive]:opacity-60',
         // Active state - Mario colors (default: luigi green)
-        'data-[state=active]:bg-[var(--luigi-green)]',
+        'data-[state=active]:bg-luigi',
         'data-[state=active]:text-white',
         'data-[state=active]:shadow-none',
         // Disabled

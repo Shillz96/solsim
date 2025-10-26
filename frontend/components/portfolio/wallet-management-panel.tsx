@@ -98,12 +98,12 @@ export function WalletManagementPanel() {
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.5, delay: 0.25 }}
     >
-      <div className="bg-[var(--sky-blue)]/20 border-4 border-[var(--outline-black)] rounded-xl shadow-[6px_6px_0_var(--outline-black)] p-6">
+      <div className="bg-sky/20 border-4 border-outline rounded-xl shadow-[6px_6px_0_var(--outline-black)] p-6">
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <Image src="/icons/mario/user.png" alt="Wallet" width={24} height={24} />
-            <h3 className="text-lg font-mario font-bold text-[var(--outline-black)]">WALLET MANAGEMENT</h3>
+            <h3 className="text-lg font-mario font-bold text-outline">WALLET MANAGEMENT</h3>
           </div>
           
           {/* Total Balance Badge */}
@@ -134,9 +134,9 @@ export function WalletManagementPanel() {
         {/* Empty State */}
         {!isLoading && !error && wallets.length === 0 && (
           <div className="text-center py-6">
-            <div className="bg-[var(--star-yellow)]/20 border-3 border-[var(--star-yellow)] rounded-lg p-4 mb-4">
+            <div className="bg-star/20 border-3 border-star rounded-lg p-4 mb-4">
               <Wallet2 className="h-8 w-8 text-mario-red mx-auto mb-2" />
-              <p className="text-sm font-bold text-[var(--outline-black)] mb-1">No Wallets Found</p>
+              <p className="text-sm font-bold text-outline mb-1">No Wallets Found</p>
               <p className="text-xs text-muted-foreground font-semibold">Create your first wallet to get started!</p>
             </div>
             <Button
@@ -157,12 +157,12 @@ export function WalletManagementPanel() {
             {wallets.slice(0, 3).map((wallet) => (
               <div
                 key={wallet.id}
-                className="bg-[var(--card)]/80 border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] rounded-lg p-3 hover:bg-[var(--card)] transition-colors"
+                className="bg-card/80 border-3 border-outline shadow-[3px_3px_0_var(--outline-black)] rounded-lg p-3 hover:bg-card transition-colors"
               >
                 <div className="flex items-center justify-between">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                      <div className="text-sm font-mario font-bold text-[var(--outline-black)] truncate">
+                      <div className="text-sm font-mario font-bold text-outline truncate">
                         {wallet.name}
                       </div>
                       {wallet.isActive && (
@@ -175,7 +175,7 @@ export function WalletManagementPanel() {
                     <div className="text-xs font-mono text-[var(--pipe-700)] truncate mb-1">
                       {wallet.address.slice(0, 4)}...{wallet.address.slice(-4)}
                     </div>
-                    <div className="text-xs font-bold text-[var(--outline-black)]">
+                    <div className="text-xs font-bold text-outline">
                       {formatNumber(parseFloat(wallet.balance || '0'))} SOL
                     </div>
                   </div>
@@ -219,7 +219,7 @@ export function WalletManagementPanel() {
               <Button
                 onClick={handleCreateWallet}
                 variant="outline"
-                className="flex-1 border-3 border-[var(--outline-black)] font-bold text-xs h-9"
+                className="flex-1 border-3 border-outline font-bold text-xs h-9"
                 size="sm"
               >
                 <Plus className="h-3 w-3 mr-1" />

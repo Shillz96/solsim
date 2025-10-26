@@ -37,11 +37,11 @@ export function CTASection() {
             >
               <img src="/icons/mario/controller.png" alt="" className="w-20 h-20 object-contain mx-auto" />
             </motion.div>
-            <h2 className="font-mario text-4xl md:text-5xl font-bold text-[var(--outline-black)] flex items-center justify-center gap-3">
+            <h2 className="font-mario text-4xl md:text-5xl font-bold text-outline flex items-center justify-center gap-3">
               Ready to Level Up?
               <img src="/icons/mario/trophy.png" alt="" className="w-10 h-10 object-contain inline-block" />
             </h2>
-            <p className="text-xl text-[var(--outline-black)] max-w-2xl mx-auto font-bold flex items-center justify-center gap-2">
+            <p className="text-xl text-outline max-w-2xl mx-auto font-bold flex items-center justify-center gap-2">
               Discover tokens, practice risk-free with paper trading, earn hourly rewards - all while gaining XP and climbing leaderboards!
               <img src="/icons/mario/star.png" alt="" className="w-6 h-6 object-contain inline-block" />
             </p>
@@ -58,7 +58,7 @@ export function CTASection() {
               </button>
             </Link>
             <Link href="/docs">
-              <button className="mario-btn mario-btn-lg mario-btn-outline border-2 border-white text-white hover:bg-[var(--card)] hover:text-mario-red w-full sm:w-auto">
+              <button className="mario-btn mario-btn-lg mario-btn-outline border-2 border-white text-white hover:bg-card hover:text-mario-red w-full sm:w-auto">
                 <span className="flex items-center justify-center gap-2">
                   Learn How to Play
                   <img src="/icons/mario/game.png" alt="" className="w-5 h-5 object-contain inline-block" />

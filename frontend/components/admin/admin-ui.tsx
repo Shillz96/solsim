@@ -73,16 +73,16 @@ export function AdminInput({ label, error, inputSize = 'md', className, ...props
   return (
     <div className="space-y-2">
       {label && (
-        <label className="block font-mario text-[var(--outline-black)] font-bold text-sm">
+        <label className="block font-mario text-outline font-bold text-sm">
           {label}
         </label>
       )}
       <input
-        className={cn(inputClass, error && 'border-[var(--mario-red)]', className)}
+        className={cn(inputClass, error && 'border-mario', className)}
         {...props}
       />
       {error && (
-        <p className="text-sm text-[var(--mario-red)] font-medium">{error}</p>
+        <p className="text-sm text-mario font-medium">{error}</p>
       )}
     </div>
   );
@@ -109,12 +109,12 @@ export function AdminSelect({
   return (
     <div className="space-y-2">
       {label && (
-        <label className="block font-mario text-[var(--outline-black)] font-bold text-sm">
+        <label className="block font-mario text-outline font-bold text-sm">
           {label}
         </label>
       )}
       <select
-        className={cn(selectClass, error && 'border-[var(--mario-red)]', className)}
+        className={cn(selectClass, error && 'border-mario', className)}
         {...props}
       >
         {placeholder && (
@@ -129,7 +129,7 @@ export function AdminSelect({
         ))}
       </select>
       {error && (
-        <p className="text-sm text-[var(--mario-red)] font-medium">{error}</p>
+        <p className="text-sm text-mario font-medium">{error}</p>
       )}
     </div>
   );
@@ -164,18 +164,18 @@ export function AdminModal({ isOpen, onClose, title, children, size = 'md' }: Ad
       
       {/* Modal */}
       <div className={cn(
-        'relative w-full bg-[var(--card)] rounded-2xl border-4 border-[var(--outline-black)]',
+        'relative w-full bg-card rounded-2xl border-4 border-outline',
         'shadow-[6px_6px_0_var(--outline-black)]',
         sizeClasses[size]
       )}>
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b-3 border-[var(--outline-black)]">
-          <h2 className="font-mario text-xl text-[var(--outline-black)]">
+        <div className="flex items-center justify-between p-6 border-b-3 border-outline">
+          <h2 className="font-mario text-xl text-outline">
             {title}
           </h2>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-[var(--sky-blue)]/20 rounded-lg transition-colors"
+            className="p-2 hover:bg-sky/20 rounded-lg transition-colors"
           >
             <span className="text-2xl">×</span>
           </button>
@@ -202,11 +202,11 @@ export function AdminTable({ headers, children, className }: AdminTableProps) {
     <div className={cn('overflow-x-auto', className)}>
       <table className="w-full">
         <thead>
-          <tr className="border-b-3 border-[var(--outline-black)]">
+          <tr className="border-b-3 border-outline">
             {headers.map((header, index) => (
               <th
                 key={index}
-                className="px-4 py-3 text-left font-mario text-sm text-[var(--outline-black)]"
+                className="px-4 py-3 text-left font-mario text-sm text-outline"
               >
                 {header}
               </th>
@@ -232,7 +232,7 @@ export function AdminTableRow({ children, className, onClick }: AdminTableRowPro
   return (
     <tr 
       className={cn(
-        'border-b border-[var(--color-border)] hover:bg-[var(--sky-blue)]/10 transition-colors',
+        'border-b border-[var(--color-border)] hover:bg-sky/10 transition-colors',
         onClick && 'cursor-pointer',
         className
       )}
@@ -265,19 +265,19 @@ interface AdminStatusBadgeProps {
 
 export function AdminStatusBadge({ status, children }: AdminStatusBadgeProps) {
   const statusClasses = {
-    active: 'bg-[var(--luigi-green)] text-white',
-    inactive: 'bg-[var(--pipe-green)] text-white',
-    muted: 'bg-[var(--star-yellow)] text-[var(--outline-black)]',
-    banned: 'bg-[var(--mario-red)] text-white',
-    warning: 'bg-[var(--star-yellow)] text-[var(--outline-black)]',
-    success: 'bg-[var(--luigi-green)] text-white',
-    error: 'bg-[var(--mario-red)] text-white'
+    active: 'bg-luigi text-white',
+    inactive: 'bg-pipe text-white',
+    muted: 'bg-star text-outline',
+    banned: 'bg-mario text-white',
+    warning: 'bg-star text-outline',
+    success: 'bg-luigi text-white',
+    error: 'bg-mario text-white'
   };
 
   return (
     <span className={cn(
       'inline-flex items-center px-2 py-1 rounded-lg text-xs font-mario font-bold',
-      'border-2 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)]',
+      'border-2 border-outline shadow-[2px_2px_0_var(--outline-black)]',
       statusClasses[status]
     )}>
       {children}
@@ -297,7 +297,7 @@ export function AdminLoadingSkeleton({ lines = 3, className }: AdminLoadingSkele
       {Array.from({ length: lines }).map((_, index) => (
         <div
           key={index}
-          className="h-4 bg-[var(--sky-blue)]/20 rounded animate-pulse"
+          className="h-4 bg-sky/20 rounded animate-pulse"
           style={{ width: `${Math.random() * 40 + 60}%` }}
         />
       ))}
@@ -320,10 +320,10 @@ export function AdminEmptyState({ icon = '📭', title, description, action }: A
   return (
     <div className="text-center py-12">
       <div className="text-6xl mb-4">{icon}</div>
-      <h3 className="font-mario text-xl text-[var(--outline-black)] mb-2">
+      <h3 className="font-mario text-xl text-outline mb-2">
         {title}
       </h3>
-      <p className="text-[var(--pipe-green)] mb-6 max-w-md mx-auto">
+      <p className="text-pipe mb-6 max-w-md mx-auto">
         {description}
       </p>
       {action && (
@@ -356,12 +356,12 @@ export function AdminSearchInput({ value, onChange, placeholder = 'Search...', c
         data-lpignore="true"
         placeholder={placeholder}
         className={cn(
-          'w-full pl-10 pr-4 py-2 border-3 border-[var(--outline-black)] rounded-lg',
-          'font-mario focus:border-[var(--luigi-green)] focus:outline-none',
+          'w-full pl-10 pr-4 py-2 border-3 border-outline rounded-lg',
+          'font-mario focus:border-luigi focus:outline-none',
           'shadow-[2px_2px_0_var(--outline-black)] transition-all'
         )}
       />
-      <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[var(--pipe-green)]">
+      <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-pipe">
         🔍
       </div>
     </div>

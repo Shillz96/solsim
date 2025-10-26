@@ -83,13 +83,13 @@ export function HourlyRewardWinnersModal({ isOpen, onClose }: HourlyRewardWinner
       onClick={onClose}
     >
       <div 
-        className="relative max-h-[90vh] w-full max-w-2xl overflow-y-auto bg-white border-4 border-[var(--outline-black)] shadow-[8px_8px_0_var(--outline-black)] rounded-[16px] p-6"
+        className="relative max-h-[90vh] w-full max-w-2xl overflow-y-auto bg-white border-4 border-outline shadow-[8px_8px_0_var(--outline-black)] rounded-xl p-6"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 p-2 hover:bg-gray-100 rounded-[8px] transition-colors z-10"
+          className="absolute top-4 right-4 p-2 hover:bg-gray-100 rounded transition-colors z-10"
           aria-label="Close modal"
         >
           <X className="w-6 h-6" />
@@ -108,7 +108,7 @@ export function HourlyRewardWinnersModal({ isOpen, onClose }: HourlyRewardWinner
             />
           </div>
           {data && (
-            <p className="text-[14px] text-[var(--outline-black)] opacity-70">
+            <p className="text-[14px] text-outline opacity-70">
               Distributed at {formatTime(data.distributedAt)}
             </p>
           )}
@@ -117,7 +117,7 @@ export function HourlyRewardWinnersModal({ isOpen, onClose }: HourlyRewardWinner
         {/* Loading state */}
         {isLoading && (
           <div className="flex items-center justify-center py-12">
-            <div className="text-[14px] text-[var(--outline-black)] opacity-70">
+            <div className="text-[14px] text-outline opacity-70">
               Loading winners...
             </div>
           </div>
@@ -126,7 +126,7 @@ export function HourlyRewardWinnersModal({ isOpen, onClose }: HourlyRewardWinner
         {/* Error state */}
         {error && (
           <div className="flex items-center justify-center py-12">
-            <div className="text-[14px] text-[var(--mario-red)]">
+            <div className="text-[14px] text-mario">
               Failed to load winners. Please try again.
             </div>
           </div>
@@ -139,14 +139,14 @@ export function HourlyRewardWinnersModal({ isOpen, onClose }: HourlyRewardWinner
               {data.winners.map((winner) => (
                 <div
                   key={winner.userId}
-                  className="border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] rounded-[12px] p-4 bg-white hover:-translate-y-[1px] hover:shadow-[4px_4px_0_var(--outline-black)] transition-all"
+                  className="border-3 border-outline shadow-[3px_3px_0_var(--outline-black)] rounded-lg p-4 bg-white hover:-translate-y-[1px] hover:shadow-[4px_4px_0_var(--outline-black)] transition-all"
                 >
                   <div className="flex items-center justify-between gap-4">
                     {/* Left side: Rank + User info + Profit */}
                     <div className="flex items-center gap-3 flex-1 min-w-0">
                       {/* Rank */}
                       <div className="flex items-center gap-1 flex-shrink-0">
-                        <span className="font-mario text-[16px] text-[var(--outline-black)]">
+                        <span className="font-mario text-[16px] text-outline">
                           #{winner.rank}
                         </span>
                         {getTrophyEmoji(winner.rank) && (
@@ -159,10 +159,10 @@ export function HourlyRewardWinnersModal({ isOpen, onClose }: HourlyRewardWinner
                         <img
                           src={winner.avatarUrl}
                           alt={winner.handle}
-                          className="w-10 h-10 rounded-full border-2 border-[var(--outline-black)] flex-shrink-0"
+                          className="w-10 h-10 rounded-full border-2 border-outline flex-shrink-0"
                         />
                       ) : (
-                        <div className="w-10 h-10 rounded-full bg-[var(--sky-blue)] border-2 border-[var(--outline-black)] flex items-center justify-center flex-shrink-0">
+                        <div className="w-10 h-10 rounded-full bg-sky border-2 border-outline flex items-center justify-center flex-shrink-0">
                           <span className="font-mario text-[12px]">
                             {winner.handle.charAt(0).toUpperCase()}
                           </span>
@@ -170,12 +170,12 @@ export function HourlyRewardWinnersModal({ isOpen, onClose }: HourlyRewardWinner
                       )}
 
                       {/* Handle */}
-                      <span className="font-bold text-[14px] text-[var(--outline-black)] truncate">
+                      <span className="font-bold text-[14px] text-outline truncate">
                         {winner.handle}
                       </span>
 
                       {/* Profit % */}
-                      <span className="font-mono font-bold text-[14px] text-[var(--luigi-green)] flex-shrink-0">
+                      <span className="font-mono font-bold text-[14px] text-luigi flex-shrink-0">
                         +{winner.profitPercent}%
                       </span>
                     </div>
@@ -183,7 +183,7 @@ export function HourlyRewardWinnersModal({ isOpen, onClose }: HourlyRewardWinner
                     {/* Right side: Reward amount + Tx link */}
                     <div className="flex items-center gap-3 flex-shrink-0">
                       {/* Reward amount */}
-                      <span className="font-mono font-bold text-[16px] text-[var(--outline-black)]">
+                      <span className="font-mono font-bold text-[16px] text-outline">
                         {winner.rewardAmount} SOL
                       </span>
 
@@ -209,12 +209,12 @@ export function HourlyRewardWinnersModal({ isOpen, onClose }: HourlyRewardWinner
             </div>
 
             {/* Footer with total */}
-            <div className="mt-6 pt-4 border-t-3 border-[var(--outline-black)] text-center">
-              <p className="text-[14px] text-[var(--outline-black)]">
+            <div className="mt-6 pt-4 border-t-3 border-outline text-center">
+              <p className="text-[14px] text-outline">
                 <span className="font-bold">Total Distributed:</span>{" "}
                 <span className="font-mono font-bold">{data.totalPoolAmount} SOL</span>
               </p>
-              <p className="text-[12px] text-[var(--outline-black)] opacity-70 mt-2">
+              <p className="text-[12px] text-outline opacity-70 mt-2">
                 Top 10 traders by profit % earn SOL rewards every hour!
               </p>
             </div>

@@ -77,7 +77,7 @@ export function BadgeCollection({ userId, className = '' }: BadgeCollectionProps
 
   if (loading) {
     return (
-      <div className={`bg-[var(--card)] rounded-lg border-4 border-pipe-300 p-6 ${className}`}>
+      <div className={`bg-card rounded-lg border-4 border-pipe-300 p-6 ${className}`}>
         <div className="animate-pulse">
           <div className="h-8 bg-pipe-200 rounded mb-4"></div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -91,7 +91,7 @@ export function BadgeCollection({ userId, className = '' }: BadgeCollectionProps
   }
 
   return (
-    <div className={`bg-[var(--card)] rounded-lg border-4 border-pipe-300 p-6 ${className}`}>
+    <div className={`bg-card rounded-lg border-4 border-pipe-300 p-6 ${className}`}>
       <div className="mb-6">
         <h2 className="font-mario text-2xl text-pipe-800 mb-4">Badge Collection</h2>
         
@@ -152,7 +152,7 @@ export function BadgeCollection({ userId, className = '' }: BadgeCollectionProps
                   <div
                     key={badge.id}
                     className={`
-                      bg-[var(--card)] rounded-lg border-3 p-4 text-center transition-all duration-200
+                      bg-card rounded-lg border-3 p-4 text-center transition-all duration-200
                       ${isEarned ? 'border-mario-red-500 shadow-mario' : 'border-pipe-300 opacity-50'}
                       ${isActive ? 'ring-2 ring-mario-red-300' : ''}
                       hover:scale-105 cursor-pointer

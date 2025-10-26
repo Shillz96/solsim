@@ -113,7 +113,7 @@ export function MobileMenu({
           size="sm"
           className={cn(
             marioStyles.card(true),
-            'lg:hidden bg-[var(--card)] hover:bg-[var(--star-yellow)]/20 h-9 w-9 p-0'
+            'lg:hidden bg-card hover:bg-star/20 h-9 w-9 p-0'
           )}
           aria-label="Open navigation menu"
         >
@@ -124,7 +124,7 @@ export function MobileMenu({
         <div className="flex flex-col space-y-4 mt-4">
           {/* XP Display - Mobile */}
           {isAuthenticated && user && (
-            <div className="px-3 py-2 bg-gradient-to-r from-[var(--star-yellow)]/20 to-[var(--coin-yellow)]/20 border-3 border-[var(--star-yellow)] shadow-[3px_3px_0_var(--outline-black)] rounded-lg">
+            <div className="px-3 py-2 bg-gradient-to-r from-[var(--star-yellow)]/20 to-[var(--coin-yellow)]/20 border-3 border-star shadow-[3px_3px_0_var(--outline-black)] rounded-lg">
               <XPBadge currentXP={parseFloat(user.rewardPoints?.toString() || '0')} />
             </div>
           )}

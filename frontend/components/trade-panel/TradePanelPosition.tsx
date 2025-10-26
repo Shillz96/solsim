@@ -34,12 +34,12 @@ export function TradePanelPosition({
       className="space-y-2"
     >
       {/* Holdings Display - Always visible */}
-      <div className="bg-[var(--star-yellow)]/20 border-2 border-[var(--star-yellow)] rounded-lg p-1.5 shadow-[2px_2px_0_var(--outline-black)]">
-        <div className="flex items-center gap-1 text-[9px] text-[var(--outline-black)]/70 font-bold">
+      <div className="bg-star/20 border-2 border-star rounded-lg p-1.5 shadow-[2px_2px_0_var(--outline-black)]">
+        <div className="flex items-center gap-1 text-[9px] text-outline/70 font-bold">
           <Coins className="h-3 w-3" />
           <span>Holdings</span>
         </div>
-        <div className="font-mono font-bold text-xs text-[var(--outline-black)] break-words">
+        <div className="font-mono font-bold text-xs text-outline break-words">
           {hasPosition
             ? `${formatTokenAmount(parseFloat(position.qty))} ${tokenSymbol}`
             : `0 ${tokenSymbol || 'tokens'}`}
@@ -51,9 +51,9 @@ export function TradePanelPosition({
         'border-2 rounded-lg p-2 shadow-[3px_3px_0_var(--outline-black)] relative overflow-hidden',
         hasSignificantPnL
           ? isProfit
-            ? 'bg-[var(--luigi-green)]/20 border-[var(--luigi-green)]'
-            : 'bg-[var(--mario-red)]/20 border-[var(--mario-red)]'
-          : 'bg-[var(--outline-black)]/5 border-[var(--outline-black)]/20'
+            ? 'bg-luigi/20 border-luigi'
+            : 'bg-mario/20 border-mario'
+          : 'bg-[var(--outline-black)]/5 border-outline/20'
       )}>
         {/* Animated Background Icon - Only when has PnL */}
         {hasSignificantPnL && (
@@ -73,19 +73,19 @@ export function TradePanelPosition({
         <div className="flex items-center gap-1 mb-1">
           {hasSignificantPnL ? (
             isProfit ? (
-              <TrendingUp className="h-3 w-3 text-[var(--luigi-green)]" />
+              <TrendingUp className="h-3 w-3 text-luigi" />
             ) : (
-              <TrendingDown className="h-3 w-3 text-[var(--mario-red)]" />
+              <TrendingDown className="h-3 w-3 text-mario" />
             )
           ) : (
-            <TrendingUp className="h-3 w-3 text-[var(--outline-black)]/40" />
+            <TrendingUp className="h-3 w-3 text-outline/40" />
           )}
           <span className={cn(
             marioStyles.bodyText('bold'),
             'text-[9px] uppercase',
             hasSignificantPnL
-              ? isProfit ? 'text-[var(--luigi-green)]' : 'text-[var(--mario-red)]'
-              : 'text-[var(--outline-black)]/40'
+              ? isProfit ? 'text-luigi' : 'text-mario'
+              : 'text-outline/40'
           )}>
             Real-Time P&L
           </span>
@@ -94,7 +94,7 @@ export function TradePanelPosition({
         {/* PnL Values */}
         <div className="space-y-0.5 relative z-10">
           <div className="flex items-baseline justify-between">
-            <span className="text-[8px] font-bold text-[var(--outline-black)]/70">
+            <span className="text-[8px] font-bold text-outline/70">
               Unrealized:
             </span>
             {hasPosition && pnl ? (
@@ -106,24 +106,24 @@ export function TradePanelPosition({
                 className="font-mono font-bold text-sm"
               />
             ) : (
-              <span className="font-mono font-bold text-sm text-[var(--outline-black)]/40">
+              <span className="font-mono font-bold text-sm text-outline/40">
                 $0.00
               </span>
             )}
           </div>
           <div className="flex items-baseline justify-between">
-            <span className="text-[8px] font-bold text-[var(--outline-black)]/70">
+            <span className="text-[8px] font-bold text-outline/70">
               Percentage:
             </span>
             {hasPosition && pnl ? (
               <span className={cn(
                 'font-mono font-bold text-sm',
-                isProfit ? 'text-[var(--luigi-green)]' : 'text-[var(--mario-red)]'
+                isProfit ? 'text-luigi' : 'text-mario'
               )}>
                 {formatPercentage(pnl.unrealizedPercent)}
               </span>
             ) : (
-              <span className="font-mono font-bold text-sm text-[var(--outline-black)]/40">
+              <span className="font-mono font-bold text-sm text-outline/40">
                 0.00%
               </span>
             )}

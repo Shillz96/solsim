@@ -52,7 +52,7 @@ export function ModernLeaderboard({
       <div className="flex items-center justify-center p-12">
         <div className="text-center">
           <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-[var(--mario-red-500)]" />
-          <p className="text-[var(--outline-black)] font-semibold">Loading leaderboard...</p>
+          <p className="text-outline font-semibold">Loading leaderboard...</p>
         </div>
       </div>
     )
@@ -64,8 +64,8 @@ export function ModernLeaderboard({
       <div className="mario-card-standard">
         <div className="text-center py-12">
           <Trophy className="h-12 w-12 mx-auto mb-4 text-[var(--star-yellow-500)]" />
-          <p className="text-[var(--outline-black)] font-semibold">No leaderboard data available</p>
-          <p className="text-sm text-[var(--outline-black)] opacity-70 mt-2 font-semibold">Start trading to appear on the leaderboard!</p>
+          <p className="text-outline font-semibold">No leaderboard data available</p>
+          <p className="text-sm text-outline opacity-70 mt-2 font-semibold">Start trading to appear on the leaderboard!</p>
         </div>
       </div>
     )
@@ -162,8 +162,8 @@ export function ModernLeaderboard({
             }}
           >
             <div className={cn(
-              "relative overflow-hidden rounded-[16px] p-6 transition-all duration-500",
-              "bg-[var(--card)] border-4 shadow-[8px_8px_0_var(--outline-black)]",
+              "relative overflow-hidden rounded-xl p-6 transition-all duration-500",
+              "bg-card border-4 shadow-[8px_8px_0_var(--outline-black)]",
               index === 0 && "border-[var(--star-yellow-500)] bg-gradient-to-br from-[var(--star-yellow-50)] to-white",
               index === 1 && "border-[var(--pipe-500)] bg-gradient-to-br from-[var(--pipe-50)] to-white",
               index === 2 && "border-[var(--coin-yellow-500)] bg-gradient-to-br from-[var(--coin-yellow-50)] to-white",
@@ -213,7 +213,7 @@ export function ModernLeaderboard({
                       />
                     ) : null}
                     <div
-                      className="w-12 h-12 rounded-full bg-gradient-to-br from-[var(--mario-red-500)] via-[var(--mario-red-600)] to-[var(--mario-red-700)] flex items-center justify-center text-white font-bold text-lg shadow-[3px_3px_0_var(--outline-black)] border-2 border-[var(--outline-black)] relative overflow-hidden"
+                      className="w-12 h-12 rounded-full bg-gradient-to-br from-[var(--mario-red-500)] via-[var(--mario-red-600)] to-[var(--mario-red-700)] flex items-center justify-center text-white font-bold text-lg shadow-[3px_3px_0_var(--outline-black)] border-2 border-outline relative overflow-hidden"
                       style={{ display: entry.avatarUrl ? 'none' : 'flex' }}
                     >
                       <div className="absolute inset-0 bg-gradient-to-t from-white/0 via-white/20 to-white/0 animate-pulse"></div>
@@ -223,10 +223,10 @@ export function ModernLeaderboard({
                     <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-[var(--luigi-green-500)] rounded-full border-2 border-white animate-pulse shadow-[1px_1px_0_var(--outline-black)]"></div>
                   </motion.div>
                   <div className="flex-1 min-w-0">
-                    <div className="font-bold text-lg text-[var(--outline-black)] truncate">
+                    <div className="font-bold text-lg text-outline truncate">
                       {entry.handle || entry.displayName || 'Anonymous Trader'}
                     </div>
-                    <div className="flex items-center gap-2 text-sm text-[var(--outline-black)] opacity-70">
+                    <div className="flex items-center gap-2 text-sm text-outline opacity-70">
                       <span className="flex items-center gap-1 font-semibold">
                         <div className="w-2 h-2 bg-[var(--luigi-green-500)] rounded-full animate-pulse shadow-[1px_1px_0_var(--outline-black)]"></div>
                         {entry.totalTrades} trades
@@ -240,7 +240,7 @@ export function ModernLeaderboard({
               <div className="space-y-3">
                 <div className="space-y-1">
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-[var(--outline-black)] font-semibold">💰 PnL</span>
+                    <span className="text-sm text-outline font-semibold">💰 PnL</span>
                     <motion.span
                       className={cn(
                         "font-bold text-lg",
@@ -257,10 +257,10 @@ export function ModernLeaderboard({
 
                 <div className="space-y-1">
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-[var(--outline-black)] font-semibold">🎯 Win Rate</span>
-                    <span className="font-bold text-[var(--outline-black)]">{entry.winRate.toFixed(1)}%</span>
+                    <span className="text-sm text-outline font-semibold">🎯 Win Rate</span>
+                    <span className="font-bold text-outline">{entry.winRate.toFixed(1)}%</span>
                   </div>
-                  <div className="relative h-3 bg-[var(--sky-200)] rounded-full overflow-hidden border border-[var(--outline-black)]">
+                  <div className="relative h-3 bg-[var(--sky-200)] rounded-full overflow-hidden border border-outline">
                     <motion.div
                       className={cn(
                         "absolute left-0 top-0 h-full rounded-full",
@@ -275,8 +275,8 @@ export function ModernLeaderboard({
 
                 <div className="space-y-1">
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-[var(--outline-black)] font-semibold">📊 Volume</span>
-                    <span className="font-bold text-[var(--outline-black)]">{formatUSD(parseFloat(entry.totalVolumeUsd))}</span>
+                    <span className="text-sm text-outline font-semibold">📊 Volume</span>
+                    <span className="font-bold text-outline">{formatUSD(parseFloat(entry.totalVolumeUsd))}</span>
                   </div>
                 </div>
               </div>
@@ -299,7 +299,7 @@ export function ModernLeaderboard({
       {/* Rest of Leaderboard */}
       {rest.length > 0 && (
         <div className="stat-card">
-          <h3 className="text-lg sm:text-xl font-mario font-bold mb-4 text-[var(--outline-black)] drop-shadow-[2px_2px_0_rgba(0,0,0,0.2)]">
+          <h3 className="text-lg sm:text-xl font-mario font-bold mb-4 text-outline drop-shadow-[2px_2px_0_rgba(0,0,0,0.2)]">
             Full Rankings
           </h3>
 

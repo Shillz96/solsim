@@ -347,7 +347,7 @@ export function WalletTrackerPopup({ isOpen, onClose }: WalletTrackerPopupProps)
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: "100%", opacity: 0 }}
             transition={{ type: "spring", damping: 30, stiffness: 300 }}
-            className="fixed bottom-0 left-0 right-0 z-[101] max-h-[calc(100vh-env(safe-area-inset-bottom)-200px)] bg-background border-t-4 border-[var(--outline-black)] rounded-t-xl shadow-[0_-8px_0_var(--outline-black)] overflow-hidden"
+            className="fixed bottom-0 left-0 right-0 z-[101] max-h-[calc(100vh-env(safe-area-inset-bottom)-200px)] bg-background border-t-4 border-outline rounded-t-xl shadow-[0_-8px_0_var(--outline-black)] overflow-hidden"
             role="dialog"
             aria-label="Wallet tracker"
             tabIndex={-1}
@@ -355,7 +355,7 @@ export function WalletTrackerPopup({ isOpen, onClose }: WalletTrackerPopupProps)
             <div className="flex flex-col h-full max-h-[calc(100vh-env(safe-area-inset-bottom)-200px)]">
               {/* Header */}
               <div
-                className="flex items-center justify-between p-4 border-b-3 border-[var(--outline-black)] bg-muted/30 touch-none"
+                className="flex items-center justify-between p-4 border-b-3 border-outline bg-muted/30 touch-none"
                 onTouchStart={onTouchStart}
                 onTouchMove={onTouchMove}
                 onTouchEnd={onTouchEnd}
@@ -405,7 +405,7 @@ export function WalletTrackerPopup({ isOpen, onClose }: WalletTrackerPopupProps)
                           <div className="mario-icon-container">
                             <Eye className="h-8 w-8 text-white" />
                           </div>
-                          <p className="text-[var(--outline-black)] font-semibold">No wallets tracked yet</p>
+                          <p className="text-outline font-semibold">No wallets tracked yet</p>
                           <Button onClick={() => setActiveTab("add")} size="sm" className="mario-btn-standard gap-2">
                             <Plus className="h-4 w-4" />
                             Track Your First Wallet
@@ -419,7 +419,7 @@ export function WalletTrackerPopup({ isOpen, onClose }: WalletTrackerPopupProps)
                             key={wallet.id}
                             className={cn(
                               "mario-card-standard p-4 hover:shadow-[8px_8px_0_var(--outline-black)] hover:-translate-y-1 transition-all cursor-pointer",
-                              selectedWallet === wallet.walletAddress && "border-[var(--mario-red)] bg-[var(--mario-red)]/10"
+                              selectedWallet === wallet.walletAddress && "border-mario bg-mario/10"
                             )}
                             onClick={() => setSelectedWallet(wallet.walletAddress)}
                           >
@@ -503,9 +503,9 @@ export function WalletTrackerPopup({ isOpen, onClose }: WalletTrackerPopupProps)
                         </div>
 
                         {/* Copy Trade Settings */}
-                        <div className="mario-card-standard p-4 bg-[var(--sky-blue)]/20">
+                        <div className="mario-card-standard p-4 bg-sky/20">
                           <div className="space-y-3">
-                            <Label className="text-xs font-semibold text-[var(--outline-black)]">Copy Trade Size</Label>
+                            <Label className="text-xs font-semibold text-outline">Copy Trade Size</Label>
                             <div className="flex items-center gap-4">
                               <Slider
                                 value={[copyTradePercentage]}
@@ -520,7 +520,7 @@ export function WalletTrackerPopup({ isOpen, onClose }: WalletTrackerPopupProps)
                                 {copyTradePercentage}%
                               </Badge>
                             </div>
-                            <p className="text-xs text-[var(--outline-black)] opacity-70">
+                            <p className="text-xs text-outline opacity-70">
                               Copy trades at {copyTradePercentage}% of original size
                             </p>
                           </div>
@@ -532,8 +532,8 @@ export function WalletTrackerPopup({ isOpen, onClose }: WalletTrackerPopupProps)
                           </div>
                         ) : walletActivity.length === 0 ? (
                           <div className="mario-card-standard p-6 text-center">
-                            <AlertCircle className="h-6 w-6 text-[var(--outline-black)] mx-auto mb-2" />
-                            <p className="text-sm text-[var(--outline-black)] font-semibold">No recent activity</p>
+                            <AlertCircle className="h-6 w-6 text-outline mx-auto mb-2" />
+                            <p className="text-sm text-outline font-semibold">No recent activity</p>
                           </div>
                         ) : (
                           <div className="space-y-2">

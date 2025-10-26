@@ -94,21 +94,21 @@ export function SlidingTrendingTicker() {
 
   if (isLoading && !trendingTokens) {
     return (
-      <div className="fixed top-[var(--navbar-height)] left-0 right-0 z-[95] overflow-hidden bg-gradient-to-r from-[var(--brick-brown)] to-[var(--brick-brown)]/80 border-4 border-[var(--outline-black)] rounded-lg p-4">
+      <div className="fixed top-[var(--navbar-height)] left-0 right-0 z-[95] overflow-hidden bg-gradient-to-r from-[var(--brick-brown)] to-[var(--brick-brown)]/80 border-4 border-outline rounded-lg p-4">
         <div className="flex items-center justify-center gap-2">
-          <Loader2 className="h-4 w-4 animate-spin text-[var(--star-yellow)]" />
+          <Loader2 className="h-4 w-4 animate-spin text-star" />
           <span className="text-sm mario-font text-white">Loading Trending...</span>
         </div>
         {/* Mario-styled dropdown arrow */}
         <button
           onClick={() => setIsCollapsed(!isCollapsed)}
-          className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 bg-[var(--coin-gold)] border-3 border-[var(--outline-black)] rounded-full shadow-[3px_3px_0_var(--outline-black)] hover:scale-110 transition-all duration-200 flex items-center justify-center"
+          className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 bg-coin border-3 border-outline rounded-full shadow-[3px_3px_0_var(--outline-black)] hover:scale-110 transition-all duration-200 flex items-center justify-center"
           aria-label={isCollapsed ? "Expand ticker" : "Collapse ticker"}
         >
           {isCollapsed ? (
-            <ChevronDown className="h-4 w-4 text-[var(--outline-black)]" />
+            <ChevronDown className="h-4 w-4 text-outline" />
           ) : (
-            <ChevronUp className="h-4 w-4 text-[var(--outline-black)]" />
+            <ChevronUp className="h-4 w-4 text-outline" />
           )}
         </button>
       </div>
@@ -117,7 +117,7 @@ export function SlidingTrendingTicker() {
 
   if (error || !trendingTokens || trendingTokens.length === 0) {
     return (
-      <div className="fixed top-[var(--navbar-height)] left-0 right-0 z-[95] overflow-hidden bg-gradient-to-r from-[var(--brick-brown)] to-[var(--brick-brown)]/80 border-4 border-[var(--outline-black)] rounded-lg p-3">
+      <div className="fixed top-[var(--navbar-height)] left-0 right-0 z-[95] overflow-hidden bg-gradient-to-r from-[var(--brick-brown)] to-[var(--brick-brown)]/80 border-4 border-outline rounded-lg p-3">
         <Alert variant="destructive" className="border-none bg-transparent">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription className="text-xs flex items-center gap-2">
@@ -130,13 +130,13 @@ export function SlidingTrendingTicker() {
         {/* Mario-styled dropdown arrow */}
         <button
           onClick={() => setIsCollapsed(!isCollapsed)}
-          className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 bg-[var(--coin-gold)] border-3 border-[var(--outline-black)] rounded-full shadow-[3px_3px_0_var(--outline-black)] hover:scale-110 transition-all duration-200 flex items-center justify-center"
+          className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 bg-coin border-3 border-outline rounded-full shadow-[3px_3px_0_var(--outline-black)] hover:scale-110 transition-all duration-200 flex items-center justify-center"
           aria-label={isCollapsed ? "Expand ticker" : "Collapse ticker"}
         >
           {isCollapsed ? (
-            <ChevronDown className="h-4 w-4 text-[var(--outline-black)]" />
+            <ChevronDown className="h-4 w-4 text-outline" />
           ) : (
-            <ChevronUp className="h-4 w-4 text-[var(--outline-black)]" />
+            <ChevronUp className="h-4 w-4 text-outline" />
           )}
         </button>
       </div>
@@ -159,7 +159,7 @@ export function SlidingTrendingTicker() {
       </div>
       
       {/* Trending Ticker */}
-      <div className="fixed top-[var(--navbar-height)] left-0 right-0 z-[95] w-full overflow-hidden bg-gradient-to-r from-[var(--brick-brown)] to-[var(--brick-brown)]/80 border-b-4 border-[var(--outline-black)] shadow-md">
+      <div className="fixed top-[var(--navbar-height)] left-0 right-0 z-[95] w-full overflow-hidden bg-gradient-to-r from-[var(--brick-brown)] to-[var(--brick-brown)]/80 border-b-4 border-outline shadow-md">
         {/* Scrolling Container - Pause on Hover */}
         <div className="group relative py-2">
           <div className="ticker-scroll-container">
@@ -173,7 +173,7 @@ export function SlidingTrendingTicker() {
                   <button
                     key={`${token.mint}-${index}`}
                     onClick={() => handleTokenClick(token.mint)}
-                    className="ticker-item mario-badge flex-shrink-0 mx-2 px-3 py-1.5 bg-[var(--coin-gold)] border-2 border-[var(--outline-black)] rounded-full shadow-[2px_2px_0_var(--outline-black)] hover:scale-110 hover:shadow-[3px_3px_0_var(--outline-black)] transition-all duration-200 active:scale-95 coin-bounce-hover"
+                    className="ticker-item mario-badge flex-shrink-0 mx-2 px-3 py-1.5 bg-coin border-2 border-outline rounded-full shadow-[2px_2px_0_var(--outline-black)] hover:scale-110 hover:shadow-[3px_3px_0_var(--outline-black)] transition-all duration-200 active:scale-95 coin-bounce-hover"
                   >
                     <div className="flex items-center gap-2 whitespace-nowrap">
                       {/* Token Logo */}
@@ -185,7 +185,7 @@ export function SlidingTrendingTicker() {
                       />
 
                       {/* Token Symbol */}
-                      <span className="mario-font text-[var(--outline-black)] text-sm tracking-wide">
+                      <span className="mario-font text-outline text-sm tracking-wide">
                         {token.symbol || 'N/A'}
                       </span>
 
@@ -195,15 +195,15 @@ export function SlidingTrendingTicker() {
                           value={token.priceUsd}
                           prefix="$"
                           decimals={token.priceUsd < 0.001 ? 6 : 4}
-                          className="font-mono text-xs font-bold text-[var(--outline-black)]"
+                          className="font-mono text-xs font-bold text-outline"
                           formatLarge={false}
                         />
 
                         {/* Price Change with Icon */}
                         <div className={cn(
                           "flex items-center gap-0.5 text-xs font-bold",
-                          isPositive && "text-[var(--luigi-green)]",
-                          isNegative && "text-[var(--mario-red)]"
+                          isPositive && "text-luigi",
+                          isNegative && "text-mario"
                         )}>
                           {isPositive && <TrendingUp className="h-3 w-3" />}
                           {isNegative && <TrendingDown className="h-3 w-3" />}

@@ -69,10 +69,10 @@ export function WatchButton({
         onClick={handleToggle}
         disabled={isLoading}
         className={cn(
-          "p-2 rounded-[10px] border-3 transition-all duration-200 shadow-[2px_2px_0_var(--outline-black)]",
+          "p-2 rounded-md border-3 transition-all duration-200 shadow-[2px_2px_0_var(--outline-black)]",
           isWatchedState
-            ? "bg-[var(--mario-red)] border-[var(--outline-black)] text-white hover:bg-[var(--mario-red)] hover:-translate-y-[1px]"
-            : "bg-[var(--card)] border-[var(--outline-black)] text-[var(--outline-black)] hover:bg-[var(--background)] hover:-translate-y-[1px]",
+            ? "bg-mario border-outline text-white hover:bg-mario hover:-translate-y-[1px]"
+            : "bg-card border-outline text-outline hover:bg-background hover:-translate-y-[1px]",
           className
         )}
         title={isWatchedState ? "Remove from watchlist" : "Add to watchlist"}
@@ -97,10 +97,10 @@ export function WatchButton({
         disabled={isLoading}
         className={cn(
           sizeConfig.container,
-          "border-3 rounded-[10px] transition-all duration-200 shadow-[2px_2px_0_var(--outline-black)]",
+          "border-3 rounded-md transition-all duration-200 shadow-[2px_2px_0_var(--outline-black)]",
           isWatchedState
-            ? "bg-[var(--mario-red)] border-[var(--outline-black)] text-white hover:bg-[var(--mario-red)] hover:-translate-y-[1px] hover:shadow-[3px_3px_0_var(--outline-black)]"
-            : "bg-[var(--card)] border-[var(--outline-black)] text-[var(--outline-black)] hover:bg-[var(--background)] hover:-translate-y-[1px]",
+            ? "bg-mario border-outline text-white hover:bg-mario hover:-translate-y-[1px] hover:shadow-[3px_3px_0_var(--outline-black)]"
+            : "bg-card border-outline text-outline hover:bg-background hover:-translate-y-[1px]",
           className
         )}
         title={isWatchedState ? "Remove from watchlist" : "Add to watchlist"}
@@ -115,7 +115,7 @@ export function WatchButton({
       </Button>
 
       {watcherCount > 0 && (
-        <span className="text-xs font-mono font-bold text-[var(--outline-black)] bg-[var(--background)] px-2 py-0.5 rounded-[6px] border-2 border-[var(--outline-black)]">
+        <span className="text-xs font-mono font-bold text-outline bg-background px-2 py-0.5 rounded-sm border-2 border-outline">
           {watcherCount}
         </span>
       )}

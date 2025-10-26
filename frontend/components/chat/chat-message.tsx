@@ -223,7 +223,7 @@ export function ChatMessage({ message, onUserClick }: ChatMessageProps) {
         {message.user.userTier === 'MODERATOR' && (
           <div className={cn(
             marioStyles.badgeLg('admin'),
-            'bg-[var(--luigi-green)] border-[var(--luigi-green)]'
+            'bg-luigi border-luigi'
           )}>
             MOD
           </div>
@@ -251,7 +251,7 @@ export function ChatMessage({ message, onUserClick }: ChatMessageProps) {
                 align="end"
                 className={cn(
                   marioStyles.border('md'),
-                  'border-2 border-[var(--outline-black)] bg-white shadow-[4px_4px_0_rgba(0,0,0,0.2)]'
+                  'border-2 border-outline bg-white shadow-[4px_4px_0_rgba(0,0,0,0.2)]'
                 )}
               >
                 <DropdownMenuItem onClick={handleDeleteMessage} className="cursor-pointer">
@@ -278,7 +278,7 @@ export function ChatMessage({ message, onUserClick }: ChatMessageProps) {
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={handleBanUser}
-                  className="cursor-pointer text-[var(--mario-red)]"
+                  className="cursor-pointer text-mario"
                 >
                   <Shield className="h-4 w-4 mr-2" />
                   Ban User

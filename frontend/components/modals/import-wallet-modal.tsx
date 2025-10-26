@@ -145,7 +145,7 @@ export function ImportWalletModal({ open, onOpenChange, userId }: ImportWalletMo
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="mario-card bg-[var(--card)] max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="mario-card bg-card max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <div className="flex items-center gap-2">
             <Wallet className="h-6 w-6 text-mario-red-500" />

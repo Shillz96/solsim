@@ -35,18 +35,18 @@ export function DexScreenerChart({
   }
 
   return (
-    <div className="h-full w-full overflow-hidden relative bg-[var(--card)]">
+    <div className="h-full w-full overflow-hidden relative bg-card">
       {/* Preconnect to DexScreener for faster loading */}
       <link rel="preconnect" href="https://dexscreener.com" />
       <link rel="dns-prefetch" href="https://dexscreener.com" />
 
       {/* Loading overlay with better UX */}
       {isLoading && (
-        <div className="absolute inset-0 z-10 flex items-center justify-center bg-[var(--card)]">
+        <div className="absolute inset-0 z-10 flex items-center justify-center bg-card">
           <div className="flex flex-col items-center gap-3">
             <div className="relative">
-              <div className="h-12 w-12 border-4 border-[var(--luigi-green)]/20 border-t-[var(--luigi-green)] rounded-full animate-spin"></div>
-              <div className="absolute inset-0 h-12 w-12 border-2 border-[var(--mario-red)]/20 border-b-[var(--mario-red)] rounded-full animate-spin" style={{ animationDirection: 'reverse', animationDuration: '1.5s' }}></div>
+              <div className="h-12 w-12 border-4 border-luigi/20 border-t-[var(--luigi-green)] rounded-full animate-spin"></div>
+              <div className="absolute inset-0 h-12 w-12 border-2 border-mario/20 border-b-[var(--mario-red)] rounded-full animate-spin" style={{ animationDirection: 'reverse', animationDuration: '1.5s' }}></div>
             </div>
             <div className="text-center">
               <span className="text-sm font-bold font-mario">Loading Chart</span>

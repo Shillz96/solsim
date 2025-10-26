@@ -100,7 +100,7 @@ export default function RootLayout({
         <meta name="description" content="1UP SOL - Mario-themed Solana paper trading game" />
         <title>1UP SOL - Mario Paper Trading</title>
       </head>
-      <body className={cn("h-full bg-[var(--background)] text-[var(--foreground)] antialiased")}>
+      <body className={cn("h-full bg-background text-foreground antialiased")}>
         <AppProviders>
           <WindowManager>
             <LayoutContent>

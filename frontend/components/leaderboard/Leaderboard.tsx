@@ -183,7 +183,7 @@ export function Leaderboard({
       <div className={cn("mario-card-standard", className)}>
         <div className="mario-header-card mb-6">
           <h2 className="mario-title-standard flex items-center gap-2">
-            <Trophy className="h-5 w-5 text-[var(--outline-black)]" />
+            <Trophy className="h-5 w-5 text-outline" />
             Leaderboard
           </h2>
           <p className="mario-subtitle-standard">Top performers by total P&L</p>
@@ -201,7 +201,7 @@ export function Leaderboard({
       <div className={cn("mario-card-standard", className)}>
         <div className="mario-header-card mb-6">
           <h2 className="mario-title-standard flex items-center gap-2">
-            <Trophy className="h-5 w-5 text-[var(--outline-black)]" />
+            <Trophy className="h-5 w-5 text-outline" />
             Leaderboard
           </h2>
         </div>
@@ -232,7 +232,7 @@ export function Leaderboard({
       <div className={cn("mario-card-standard", className)}>
         <div className="mario-header-card mb-6">
           <h2 className="mario-title-standard flex items-center gap-2">
-            <Trophy className="h-5 w-5 text-[var(--outline-black)]" />
+            <Trophy className="h-5 w-5 text-outline" />
             Leaderboard
           </h2>
         </div>
@@ -249,7 +249,7 @@ export function Leaderboard({
         <div className="flex items-center justify-between">
           <div>
             <h2 className="mario-title-standard flex items-center gap-2">
-              <Trophy className="h-5 w-5 text-[var(--outline-black)]" />
+              <Trophy className="h-5 w-5 text-outline" />
               Leaderboard
             </h2>
             <p className="mario-subtitle-standard">

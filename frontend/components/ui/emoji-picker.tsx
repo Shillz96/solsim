@@ -166,7 +166,7 @@ export function EmojiPicker({ onEmojiSelect, position = 'auto', className }: Emo
         className={cn(
           'w-[320px] p-0',
           marioStyles.border('lg'),
-          'border-4 border-[var(--pipe-green)] bg-white shadow-[8px_8px_0_rgba(0,0,0,0.2)]'
+          'border-4 border-pipe bg-white shadow-[8px_8px_0_rgba(0,0,0,0.2)]'
         )}
         align="end"
         side={position === 'auto' ? 'top' : position}
@@ -174,11 +174,11 @@ export function EmojiPicker({ onEmojiSelect, position = 'auto', className }: Emo
         <div className="flex flex-col h-[400px]">
           {/* Header with Search */}
           <div className={cn(
-            'p-3 border-b-4 border-[var(--outline-black)]',
+            'p-3 border-b-4 border-outline',
             'bg-gradient-to-r from-[var(--pipe-green)]/10 to-[var(--luigi-green)]/10'
           )}>
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--outline-black)]/50" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-outline/50" />
               <Input
                 placeholder="Search emojis..."
                 value={searchQuery}
@@ -193,7 +193,7 @@ export function EmojiPicker({ onEmojiSelect, position = 'auto', className }: Emo
 
           {/* Recent Emojis */}
           {!searchQuery && recentEmojis.length > 0 && (
-            <div className="p-2 border-b-4 border-[var(--outline-black)] bg-[var(--sky-blue)]/5">
+            <div className="p-2 border-b-4 border-outline bg-sky/5">
               <div className={cn(marioStyles.bodyText('bold'), 'text-xs mb-2 px-1')}>
                 Recently Used
               </div>
@@ -203,7 +203,7 @@ export function EmojiPicker({ onEmojiSelect, position = 'auto', className }: Emo
                     key={`recent-${idx}`}
                     onClick={() => handleEmojiClick(emoji)}
                     className={cn(
-                      'p-1 rounded hover:bg-[var(--star-yellow)]/30',
+                      'p-1 rounded hover:bg-star/30',
                       'transition-colors duration-150',
                       'active:scale-95 transform',
                       'w-10 h-10 flex items-center justify-center'
@@ -224,7 +224,7 @@ export function EmojiPicker({ onEmojiSelect, position = 'auto', className }: Emo
 
           {/* Category Tabs */}
           {!searchQuery && (
-            <div className="flex gap-1 p-2 border-b-4 border-[var(--outline-black)] bg-[var(--pipe-green)]/5">
+            <div className="flex gap-1 p-2 border-b-4 border-outline bg-pipe/5">
               {EMOJI_CATEGORIES.map((category, idx) => (
                 <button
                   key={category.name}
@@ -233,8 +233,8 @@ export function EmojiPicker({ onEmojiSelect, position = 'auto', className }: Emo
                     'flex-1 p-2 rounded transition-colors',
                     'w-10 h-10 flex items-center justify-center',
                     selectedCategory === idx
-                      ? 'bg-[var(--star-yellow)] shadow-[0_4px_0_rgba(0,0,0,0.1)]'
-                      : 'hover:bg-[var(--pipe-green)]/20'
+                      ? 'bg-star shadow-[0_4px_0_rgba(0,0,0,0.1)]'
+                      : 'hover:bg-pipe/20'
                   )}
                   title={category.name}
                 >
@@ -258,7 +258,7 @@ export function EmojiPicker({ onEmojiSelect, position = 'auto', className }: Emo
                   key={`emoji-${idx}`}
                   onClick={() => handleEmojiClick(emoji)}
                   className={cn(
-                    'p-2 rounded hover:bg-[var(--star-yellow)]/30',
+                    'p-2 rounded hover:bg-star/30',
                     'transition-colors duration-150',
                     'active:scale-95 transform',
                     'w-10 h-10 flex items-center justify-center'
@@ -275,7 +275,7 @@ export function EmojiPicker({ onEmojiSelect, position = 'auto', className }: Emo
               ))}
             </div>
             {filteredEmojis.length === 0 && (
-              <div className="text-center py-8 text-[var(--outline-black)]/50">
+              <div className="text-center py-8 text-outline/50">
                 <div className="text-3xl mb-2">🤷</div>
                 <div className={marioStyles.bodyText('medium')}>No emojis found</div>
               </div>

@@ -120,7 +120,7 @@ export function ChatRoom({ tokenMint, className, headerImage, headerImageAlt = '
   return (
     <div className={cn("flex flex-col h-full", className)}>
       {/* Chat Header */}
-      <div className="flex items-center justify-start mb-3 pb-3 border-b-3 border-[var(--outline-black)]">
+      <div className="flex items-center justify-start mb-3 pb-3 border-b-3 border-outline">
         <div className="h-8 flex items-center">
           <Image
             src={headerImage || "/chat-10-25-2025.png"}
@@ -136,8 +136,8 @@ export function ChatRoom({ tokenMint, className, headerImage, headerImageAlt = '
       {/* Error Banner */}
       {error && (
         <div className={cn(
-          'p-3 border-b-4 border-[var(--outline-black)] flex items-center gap-2 flex-shrink-0',
-          'bg-[var(--mario-red)] shadow-[0_4px_0_rgba(0,0,0,0.2)]'
+          'p-3 border-b-4 border-outline flex items-center gap-2 flex-shrink-0',
+          'bg-mario shadow-[0_4px_0_rgba(0,0,0,0.2)]'
         )}>
           <AlertCircle className="h-4 w-4 text-white" />
           <span className={cn(marioStyles.bodyText('bold'), 'text-sm text-white flex-1')}>{error}</span>
@@ -164,24 +164,24 @@ export function ChatRoom({ tokenMint, className, headerImage, headerImageAlt = '
       >
         {!user ? (
           <>
-            <div className="w-16 h-16 rounded-2xl bg-[var(--color-sky)] border-3 border-[var(--outline-black)] flex items-center justify-center mb-3 shadow-[3px_3px_0_var(--outline-black)]">
+            <div className="w-16 h-16 rounded-2xl bg-[var(--color-sky)] border-3 border-outline flex items-center justify-center mb-3 shadow-[3px_3px_0_var(--outline-black)]">
               🔒
             </div>
             <h3 className="text-base font-bold mb-1">Sign In to Chat</h3>
-            <p className="text-sm text-[var(--foreground)] opacity-70">Sign in to join the conversation</p>
+            <p className="text-sm text-foreground opacity-70">Sign in to join the conversation</p>
           </>
         ) : status === 'connecting' ? (
           <>
-            <Loader2 className="h-10 w-10 animate-spin text-[var(--color-luigi)] mb-4" />
+            <Loader2 className="h-10 w-10 animate-spin text-luigi mb-4" />
             <h3 className="text-base font-bold">Connecting to chat...</h3>
           </>
         ) : messages.length === 0 ? (
           <>
-            <div className="w-16 h-16 rounded-2xl bg-[var(--color-sky)] border-3 border-[var(--outline-black)] flex items-center justify-center mb-3 shadow-[3px_3px_0_var(--outline-black)]">
-              <Users className="w-8 h-8 text-[var(--outline-black)]" />
+            <div className="w-16 h-16 rounded-2xl bg-[var(--color-sky)] border-3 border-outline flex items-center justify-center mb-3 shadow-[3px_3px_0_var(--outline-black)]">
+              <Users className="w-8 h-8 text-outline" />
             </div>
             <h3 className="text-base font-bold mb-1">No messages yet</h3>
-            <p className="text-sm text-[var(--foreground)] opacity-70">Be the first to say something!</p>
+            <p className="text-sm text-foreground opacity-70">Be the first to say something!</p>
           </>
         ) : (
           <div className="w-full space-y-3">
@@ -195,7 +195,7 @@ export function ChatRoom({ tokenMint, className, headerImage, headerImageAlt = '
       </div>
 
       {/* Input Area */}
-      <div className="p-4 border-t-4 border-[var(--outline-black)] bg-gradient-to-r from-white to-[var(--mario-red)]/10 flex-shrink-0 shadow-[0_-4px_0_rgba(0,0,0,0.05)] relative">
+      <div className="p-4 border-t-4 border-outline bg-gradient-to-r from-white to-[var(--mario-red)]/10 flex-shrink-0 shadow-[0_-4px_0_rgba(0,0,0,0.05)] relative">
         <div className="flex gap-2 items-end">
           <input
             ref={inputRef}
@@ -205,7 +205,7 @@ export function ChatRoom({ tokenMint, className, headerImage, headerImageAlt = '
             onKeyPress={handleKeyPress}
             placeholder={user ? 'Type a message...' : 'Sign in to chat'}
             disabled={!user || status !== 'connected'}
-            className="flex-1 h-10 px-3 text-sm rounded-lg border-3 border-[var(--outline-black)] bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-star)] shadow-[2px_2px_0_var(--outline-black)]"
+            className="flex-1 h-10 px-3 text-sm rounded-lg border-3 border-outline bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-star)] shadow-[2px_2px_0_var(--outline-black)]"
             maxLength={280}
             autoComplete="off"
             data-form-type="other"
@@ -219,7 +219,7 @@ export function ChatRoom({ tokenMint, className, headerImage, headerImageAlt = '
           <button 
             onClick={handleSendMessage}
             disabled={!inputValue.trim() || !user || status !== 'connected'}
-            className="h-10 w-10 rounded-lg border-3 border-[var(--outline-black)] bg-[var(--luigi-green)] hover:bg-[var(--pipe-green)] text-white font-bold transition-all shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 active:shadow-[2px_2px_0_var(--outline-black)] active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+            className="h-10 w-10 rounded-lg border-3 border-outline bg-luigi hover:bg-pipe text-white font-bold transition-all shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 active:shadow-[2px_2px_0_var(--outline-black)] active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
           >
             <Send className="w-4 h-4" />
           </button>

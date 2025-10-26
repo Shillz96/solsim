@@ -204,8 +204,8 @@ export function ResizableSplit({
   const handleStyles = useMemo(() => cn(
     "flex-shrink-0 bg-[var(--outline-black)] transition-all duration-150 cursor-row-resize select-none",
     isVertical ? "h-1 w-full" : "w-1 h-full",
-    "hover:h-2 hover:bg-[var(--star-yellow)] hover:shadow-[2px_2px_0_var(--outline-black)]",
-    isDragging && "h-2 bg-[var(--mario-red)] shadow-[2px_2px_0_var(--outline-black)]",
+    "hover:h-2 hover:bg-star hover:shadow-[2px_2px_0_var(--outline-black)]",
+    isDragging && "h-2 bg-mario shadow-[2px_2px_0_var(--outline-black)]",
     isVertical ? "hover:h-2" : "hover:w-2",
     isDragging && (isVertical ? "h-2" : "w-2")
   ), [isVertical, isDragging])

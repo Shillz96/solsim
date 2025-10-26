@@ -14,7 +14,7 @@ export function DebugAdmin() {
 
   return (
     <div className="w-3/4 mx-auto">
-      <div className="bg-[var(--card)] rounded-lg border-4 border-pipe-300 p-6 shadow-mario">
+      <div className="bg-card rounded-lg border-4 border-pipe-300 p-6 shadow-mario">
         <h2 className="font-mario text-3xl text-pipe-800 mb-6">🔍 Admin Debug Info</h2>
         
         <div className="space-y-6">
