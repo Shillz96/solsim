@@ -47,7 +47,7 @@ interface TradePanelContainerProps {
 
 export function TradePanelContainer({ tokenAddress: propTokenAddress }: TradePanelContainerProps = {}) {
   const searchParams = useSearchParams()
-  const defaultTokenAddress = "DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263" // BONK
+  const defaultTokenAddress = "GLsuNSkEAwKPFDCEGoHkceNbHCqu981rCwhS3VXcpump" // pump.fun token
   const tokenAddress = propTokenAddress || searchParams.get("token") || defaultTokenAddress
 
   const { user, isAuthenticated, getUserId } = useAuth()

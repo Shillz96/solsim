@@ -120,7 +120,7 @@ export function ChatRoom({ tokenMint, className, headerImage, headerImageAlt = '
   return (
     <div className={cn("flex flex-col h-full", className)}>
       {/* Chat Header */}
-      <div className="flex items-center justify-center mb-3 pb-3 border-b-3 border-[var(--outline-black)]">
+      <div className="flex items-center justify-start mb-3 pb-3 border-b-3 border-[var(--outline-black)]">
         <div className="h-8 flex items-center">
           <Image
             src={headerImage || "/chat-10-25-2025.png"}

@@ -1,8 +1,26 @@
 /**
- * Optimized Price Service for Helius Developer Plan
+ * Optimized Price Service - PumpPortal-Only Architecture
  *
- * Key optimizations for Developer plan (10M credits, 50 req/s):
- * - Standard WebSockets for real-time DEX monitoring (no credit cost!)
+ * ARCHITECTURE DECISION (Oct 26, 2025):
+ * ========================================
+ * We've simplified from dual WebSocket (Helius + PumpPortal) to PumpPortal-only.
+ * 
+ * WHY?
+ * - PumpPortal supports ALL Solana tokens (not just pump.fun!)
+ * - Pool types: "pump", "raydium", "bonk", "launchlab", "pump-amm", "raydium-cpmm", "auto"
+ * - "auto" pool detection handles ANY Solana token automatically
+ * - Simpler architecture: 1 WebSocket instead of 2
+ * - No race conditions between dual sources
+ * - ~200 fewer lines of WebSocket management code
+ * 
+ * WHAT WAS DISABLED:
+ * - Helius Standard WebSocket (logsSubscribe for DEX programs)
+ * - Code preserved in comments below for easy rollback if needed
+ * 
+ * See: backend/WEBSOCKET_ARCHITECTURE_DECISION.md for full details
+ *
+ * Key features:
+ * - PumpPortal WebSocket for real-time prices (ALL tokens)
  * - Aggressive multi-layer caching to minimize API calls
  * - Stale-while-revalidate pattern for better UX
  * - Circuit breakers to prevent credit waste on failing APIs
@@ -194,17 +212,23 @@ class OptimizedPriceService extends EventEmitter {
 
   // Health check monitoring
   private lastPriceUpdate = Date.now(); // Track last time ANY price was updated (WebSocket or API)
-  private lastHeliusWsMessage = Date.now(); // Track last Helius WebSocket message
+  // private lastHeliusWsMessage = Date.now(); // DISABLED - Helius WebSocket not in use
   private lastPumpPortalWsMessage = Date.now(); // Track last PumpPortal WebSocket message
 
+  // HELIUS WEBSOCKET - DISABLED (Code preserved for rollback)
+  // ============================================================
+  // Disabled because PumpPortal supports ALL Solana tokens via pool="auto"
+  // Including: Raydium, Orca, pump.fun, bonk.fun, LaunchLab, etc.
+  // See: backend/WEBSOCKET_ARCHITECTURE_DECISION.md
+  //
   // DEX programs to monitor via WebSocket (Standard API - FREE!)
-  private readonly DEX_PROGRAMS = [
-    "675kPX9MHTjS2zt1qfr1NYHuzeLXfQM9H24wFSUt1Mp8", // Raydium V4 (most active)
-    "CAMMCzo5YL8w4VFF8KVHrK22GGUQpMpTFb6xRmpLFGNnSm", // Raydium CLMM
-    "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P",  // Pump.fun
-  ];
-
-  private readonly HELIUS_WS_URL: string;
+  // private readonly DEX_PROGRAMS = [
+  //   "675kPX9MHTjS2zt1qfr1NYHuzeLXfQM9H24wFSUt1Mp8", // Raydium V4 (most active)
+  //   "CAMMCzo5YL8w4VFF8KVHrK22GGUQpMpTFb6xRmpLFGNnSm", // Raydium CLMM
+  //   "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P",  // Pump.fun
+  // ];
+  // private readonly HELIUS_WS_URL: string;
+  // ============================================================
 
   constructor() {
     super();
@@ -212,19 +236,18 @@ class OptimizedPriceService extends EventEmitter {
     // Fix EventEmitter memory leak warning
     this.setMaxListeners(100); // Allow up to 100 listeners for price service
 
-    const apiKey = process.env.HELIUS_API;
-    if (!apiKey) {
-      throw new Error("HELIUS_API environment variable is required");
-    }
+    // HELIUS WEBSOCKET DISABLED - API key check removed
+    // const apiKey = process.env.HELIUS_API;
+    // if (!apiKey) {
+    //   throw new Error("HELIUS_API environment variable is required");
+    // }
+    // this.HELIUS_WS_URL = `wss://mainnet.helius-rpc.com/?api-key=${apiKey}`;
 
-    // Standard WebSocket endpoint (works on all plans)
-    this.HELIUS_WS_URL = `wss://mainnet.helius-rpc.com/?api-key=${apiKey}`;
-
-    logger.info("Initializing Optimized Price Service (Developer Plan)");
+    logger.info("Initializing Optimized Price Service (PumpPortal-Only)");
   }
 
   async start() {
-    logger.info("Starting Optimized Price Service with pump.fun integration");
+    logger.info("Starting Optimized Price Service (PumpPortal-Only Architecture)");
 
     // Get initial SOL price
     await this.updateSolPrice();
@@ -233,15 +256,23 @@ class OptimizedPriceService extends EventEmitter {
     const solInterval = setInterval(() => this.updateSolPrice(), 30000);
     this.updateIntervals.push(solInterval);
 
-    // Connect to Helius Standard WebSocket (no credit cost!)
-    await this.connectWebSocket();
+    // HELIUS WEBSOCKET DISABLED - PumpPortal covers ALL Solana tokens
+    // await this.connectWebSocket();
 
-    // Connect to PumpPortal WebSocket for real-time pump.fun prices
+    // Connect to PumpPortal WebSocket for real-time prices (ALL tokens: pump, bonk, raydium, etc.)
     await this.connectPumpPortalWebSocket();
 
-    logger.info("✅ Price service started with multi-source streaming (Helius + PumpPortal)");
+    logger.info("✅ Price service started with PumpPortal-only WebSocket (supports ALL Solana tokens)");
   }
 
+  // HELIUS WEBSOCKET - DISABLED (Code preserved for rollback)
+  // ============================================================
+  // These methods are disabled because PumpPortal supports ALL Solana tokens
+  // via their "pool": "auto" parameter. No need for dual WebSocket system.
+  // See: backend/WEBSOCKET_ARCHITECTURE_DECISION.md
+  // To re-enable: Uncomment this code and the call in start() method
+  //
+  /*
   private async connectWebSocket() {
     if (this.ws && this.ws.readyState === WebSocket.OPEN) {
       logger.warn("WebSocket already connected");
@@ -250,7 +281,9 @@ class OptimizedPriceService extends EventEmitter {
 
     try {
       logger.info("🔌 Connecting to Helius Standard WebSocket...");
-      this.ws = new WebSocket(this.HELIUS_WS_URL);
+      const apiKey = process.env.HELIUS_API;
+      const HELIUS_WS_URL = `wss://mainnet.helius-rpc.com/?api-key=${apiKey}`;
+      this.ws = new WebSocket(HELIUS_WS_URL);
 
       this.ws.on('open', () => {
         logger.info("✅ WebSocket connected successfully");
@@ -304,8 +337,14 @@ class OptimizedPriceService extends EventEmitter {
       return;
     }
 
+    const DEX_PROGRAMS = [
+      "675kPX9MHTjS2zt1qfr1NYHuzeLXfQM9H24wFSUt1Mp8", // Raydium V4
+      "CAMMCzo5YL8w4VFF8KVHrK22GGUQpMpTFb6xRmpLFGNnSm", // Raydium CLMM
+      "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P",  // Pump.fun
+    ];
+
     // Subscribe to each DEX program using logsSubscribe (Standard API)
-    this.DEX_PROGRAMS.forEach((programId, index) => {
+    DEX_PROGRAMS.forEach((programId, index) => {
       const subscribeRequest = {
         jsonrpc: "2.0",
         id: index + 1,
@@ -323,7 +362,7 @@ class OptimizedPriceService extends EventEmitter {
       this.ws!.send(JSON.stringify(subscribeRequest));
     });
 
-    logger.info({ programs: this.DEX_PROGRAMS.length }, "📡 Subscribed to DEX programs via logsSubscribe");
+    logger.info({ programs: DEX_PROGRAMS.length }, "📡 Subscribed to DEX programs via logsSubscribe");
   }
 
   private startHealthChecks() {
@@ -339,14 +378,18 @@ class OptimizedPriceService extends EventEmitter {
       }
     }, 30000);
   }
+  */
+  // ============================================================
+  // END HELIUS WEBSOCKET CODE
 
   private handleWebSocketMessage(data: WebSocket.Data) {
     try {
       const messageStr = data.toString('utf8');
       const message = JSON.parse(messageStr);
 
+      // HELIUS WEBSOCKET DISABLED - This method is no longer called
       // Update health check timestamp
-      this.lastHeliusWsMessage = Date.now();
+      // this.lastHeliusWsMessage = Date.now();
 
       // Handle subscription confirmation
       if (message.result !== undefined && message.id) {
@@ -593,7 +636,8 @@ class OptimizedPriceService extends EventEmitter {
 
     setTimeout(async () => {
       try {
-        await this.connectWebSocket();
+        // HELIUS WEBSOCKET DISABLED - reconnection not needed
+        // await this.connectWebSocket();
       } catch (error) {
         logger.error({ error }, "Reconnection failed");
       }
@@ -1318,7 +1362,7 @@ class OptimizedPriceService extends EventEmitter {
 
   getStats() {
     const now = Date.now();
-    const heliusWsAge = now - this.lastHeliusWsMessage;
+    // const heliusWsAge = now - this.lastHeliusWsMessage; // HELIUS WEBSOCKET DISABLED
     const pumpPortalWsAge = now - this.lastPumpPortalWsMessage;
     const lastPriceAge = now - this.lastPriceUpdate;
 
@@ -1337,15 +1381,15 @@ class OptimizedPriceService extends EventEmitter {
       // Health check metrics
       health: {
         lastPriceUpdateAgo: lastPriceAge,
-        lastHeliusWsMessageAgo: heliusWsAge,
+        // lastHeliusWsMessageAgo: heliusWsAge,  // HELIUS WEBSOCKET DISABLED
         lastPumpPortalWsMessageAgo: pumpPortalWsAge,
-        heliusWsStale: heliusWsAge > 60000, // > 1 minute
+        // heliusWsStale: heliusWsAge > 60000,    // HELIUS WEBSOCKET DISABLED
         pumpPortalWsStale: pumpPortalWsAge > 60000, // > 1 minute
         priceUpdatesStale: lastPriceAge > 30000, // > 30 seconds
         isHealthy: lastPriceAge < 60000 && this.ws?.readyState === WebSocket.OPEN
       },
       pumpPortal: this.pumpPortalWs?.getStats() || null,
-      plan: "Developer (optimized v2)",
+      plan: "PumpPortal-Only (simplified v3)",
       lastUpdate: now
     };
   }

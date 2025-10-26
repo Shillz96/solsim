@@ -116,7 +116,7 @@ export function TokenChatRoom({ tokenMint, className }: TokenChatRoomProps) {
   return (
     <div className={cn("flex flex-col h-full", className)}>
       {/* Token Chat Header */}
-      <div className="flex items-center justify-center mb-3 pb-3 border-b-3 border-[var(--outline-black)]">
+      <div className="flex items-center justify-start mb-3 pb-3 border-b-3 border-[var(--outline-black)]">
         <div className="h-8 flex items-center">
           <Image
             src="/chat-10-25-2025.png"
