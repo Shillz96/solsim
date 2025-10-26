@@ -55,6 +55,10 @@ export class HeliusTradeStreamService extends EventEmitter {
       console.error('[HeliusTradeService] Available env vars:', Object.keys(process.env).filter(k => k.includes('HELIUS')));
       // Don't throw error, just log warning - service will be disabled
       this.heliusApiKey = 'missing';
+    } else {
+      // Log masked key to confirm it was found
+      const masked = this.heliusApiKey.substring(0, 8) + '...' + this.heliusApiKey.substring(this.heliusApiKey.length - 4);
+      console.log(`[HeliusTradeService] API key found: ${masked}`);
     }
     
     this.heliusRpcUrl = `https://mainnet.helius-rpc.com/?api-key=${this.heliusApiKey}`;
@@ -66,12 +70,16 @@ export class HeliusTradeStreamService extends EventEmitter {
    * Start monitoring trades for specific token mints
    */
   public async subscribeToTokens(mints: string[]) {
+    console.log(`[HeliusTradeService] subscribeToTokens called with ${mints.length} mints`);
+    console.log(`[HeliusTradeService] API key status: ${this.heliusApiKey === 'missing' ? 'MISSING' : 'PRESENT'}`);
+    
     if (this.heliusApiKey === 'missing') {
       console.warn('[HeliusTradeService] Cannot subscribe - API key not configured');
       return;
     }
 
     for (const mint of mints) {
+      console.log(`[HeliusTradeService] Processing mint: ${mint}`);
       if (!this.subscribedTokens.has(mint)) {
         this.subscribedTokens.set(mint, { lastSignature: '' });
         
@@ -79,9 +87,12 @@ export class HeliusTradeStreamService extends EventEmitter {
         this.startPolling(mint);
         
         // Fetch initial trades
+        console.log(`[HeliusTradeService] Fetching initial trades for ${mint}...`);
         await this.fetchRecentTrades(mint, 50);
         
         console.log(`[HeliusTradeService] Subscribed to token: ${mint}`);
+      } else {
+        console.log(`[HeliusTradeService] Already subscribed to ${mint}`);
       }
     }
   }
@@ -165,21 +176,27 @@ export class HeliusTradeStreamService extends EventEmitter {
    */
   private async fetchRecentTrades(mint: string, limit: number = 50) {
     try {
+      console.log(`[HeliusTradeService] fetchRecentTrades called for ${mint}, limit ${limit}`);
+      const url = `https://api.helius.xyz/v0/addresses/${mint}/transactions?api-key=${this.heliusApiKey}&type=SWAP`;
+      console.log(`[HeliusTradeService] Calling Helius Enhanced Transactions API...`);
+      
       // Use Helius Enhanced Transactions API to get parsed transactions
-      const response = await robustFetch(
-        `https://api.helius.xyz/v0/addresses/${mint}/transactions?api-key=${this.heliusApiKey}&type=SWAP`,
-        {
-          method: 'GET',
-        }
-      );
+      const response = await robustFetch(url, {
+        method: 'GET',
+      });
 
       const transactions: any = await response.json();
+      console.log(`[HeliusTradeService] Response received, type: ${typeof transactions}, isArray: ${Array.isArray(transactions)}`);
 
       if (Array.isArray(transactions)) {
+        console.log(`[HeliusTradeService] Processing ${transactions.length} transactions`);
         for (const tx of transactions.slice(0, limit)) {
           this.parseEnhancedTransaction(mint, tx);
         }
         console.log(`[HeliusTradeService] Loaded ${Math.min(transactions.length, limit)} initial trades for ${mint}`);
+        console.log(`[HeliusTradeService] Trade cache size for ${mint}: ${this.tokenTrades.get(mint)?.length || 0}`);
+      } else {
+        console.error(`[HeliusTradeService] Unexpected response format:`, transactions);
       }
     } catch (error) {
       console.error(`[HeliusTradeService] Error fetching recent trades:`, error);

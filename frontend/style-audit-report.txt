@@ -1,0 +1,121 @@
+[36m
+========================================[0m
+[36m  Mario Theme Style Audit[0m
+[36m========================================
+[0m
+[34mScanning 387 files...
+[0m
+[33m
+📦 SHADOW CONFLICTS[0m
+[33m─────────────────────────────────────[0m
+[31m❌ Found 1 files with mixed shadows:[0m
+[31m
+  scripts\style-audit.js[0m
+[33m    Soft shadows: shadow-md[0m
+[33m    Mario shadows: mario-shadow[0m
+[33m
+🎨 COLOR REFERENCE CONFLICTS[0m
+[33m─────────────────────────────────────[0m
+[31m❌ Found 38 files with mixed color references:[0m
+[31m
+  scripts\style-audit.js[0m
+[33m    CSS vars: bg-[var(--mario-red)][0m
+[33m    Tailwind: bg-mario[0m
+[31m
+  public\style-diagnostic.js[0m
+[33m    CSS vars: bg-[var(--mario-red)], bg-[var(--luigi-green)], bg-[var(--star-yellow)][0m
+[33m    Tailwind: bg-mario, bg-luigi, bg-star[0m
+[31m
+  app\layout.tsx[0m
+[33m    CSS vars: bg-[var(--background)][0m
+[33m    Tailwind: bg-mario[0m
+[31m
+  components\warp-pipes\social-hover-card.tsx[0m
+[33m    CSS vars: bg-[var(--card)][0m
+[33m    Tailwind: text-pipe-600[0m
+[31m
+  components\wallet-tracker\wallet-tracker-content.tsx[0m
+[33m    CSS vars: bg-[var(--card)], bg-[var(--sky-blue)], bg-[var(--mario-red)], bg-[var(--luigi-green)], bg-[var(--outline-black)]...[0m
+[33m    Tailwind: bg-sky-100[0m
+[31m
+  components\trading\wallet-selector.tsx[0m
+[33m    CSS vars: bg-[var(--card)][0m
+[33m    Tailwind: bg-pipe-100, bg-mario, text-pipe-500, text-pipe-600, text-mario...[0m
+[31m
+  components\trading\transaction-status-tracker.tsx[0m
+[33m    CSS vars: bg-[var(--card)][0m
+[33m    Tailwind: bg-luigi, bg-sky-50, bg-pipe-600, bg-pipe-700, text-luigi...[0m
+[31m
+  components\trading\funding-source-selector.tsx[0m
+[33m    CSS vars: bg-[var(--card)][0m
+[33m    Tailwind: bg-star, bg-luigi, bg-coin, bg-mario, text-pipe-900...[0m
+[31m
+  components\portfolio\wallet-tracker-panel.tsx[0m
+[33m    CSS vars: bg-[var(--sky-blue)], bg-[var(--card)], bg-[var(--star-yellow)][0m
+[33m    Tailwind: bg-luigi, bg-pipe-200, bg-pipe-700, bg-sky, text-pipe-900...[0m
+[31m
+  components\portfolio\wallet-management.tsx[0m
+[33m    CSS vars: bg-[var(--card)][0m
+[33m    Tailwind: bg-star, bg-mario, bg-luigi, bg-sky-100, bg-pipe-50...[0m
+[33m
+  ... and 28 more files[0m
+[33m
+🔲 BORDER RADIUS USAGE[0m
+[33m─────────────────────────────────────[0m
+[34mFound 19 unique border radius styles:[0m
+[36m  rounded-2xl               - used in 17 files[0m
+[36m  rounded-3xl               - used in 1 files[0m
+[36m  rounded-[10px]            - used in 4 files[0m
+[36m  rounded-[12px]            - used in 12 files[0m
+[36m  rounded-[14px]            - used in 4 files[0m
+[36m  rounded-[16px]            - used in 15 files[0m
+[36m  rounded-[20px]            - used in 1 files[0m
+[36m  rounded-[24px]            - used in 1 files[0m
+[36m  rounded-[2px]             - used in 2 files[0m
+[36m  rounded-[4px]             - used in 1 files[0m
+[36m  rounded-[6px]             - used in 2 files[0m
+[36m  rounded-[8px]             - used in 9 files[0m
+[36m  rounded-[var(--radius-xl)] - used in 1 files[0m
+[36m  rounded-full              - used in 131 files[0m
+[36m  rounded-lg                - used in 126 files[0m
+[36m  rounded-md                - used in 34 files[0m
+[36m  rounded-none              - used in 6 files[0m
+[36m  rounded-sm                - used in 10 files[0m
+[36m  rounded-xl                - used in 41 files[0m
+[33m
+📏 BORDER WIDTH USAGE[0m
+[33m─────────────────────────────────────[0m
+[34mFound 8 unique border width styles:[0m
+[36m  border                    - used in 226 files[0m
+[36m  border-0                  - used in 11 files[0m
+[36m  border-2                  - used in 101 files[0m
+[36m  border-3                  - used in 85 files[0m
+[36m  border-4                  - used in 97 files[0m
+[36m  border-[3px]              - used in 3 files[0m
+[36m  border-[5px]              - used in 1 files[0m
+[36m  mario-border              - used in 1 files[0m
+[36m
+========================================[0m
+[36m  Audit Summary[0m
+[36m========================================[0m
+[34mTotal files scanned: 387[0m
+[31mShadow conflicts: 1[0m
+[31mColor conflicts: 38[0m
+[34mUnique radius styles: 19[0m
+[34mUnique border styles: 8[0m
+[33m
+💡 RECOMMENDATIONS[0m
+[33m─────────────────────────────────────[0m
+[33m1. Standardize shadows:[0m
+undefined   Replace soft shadows (shadow-md) with Mario block shadows[0m
+undefined   Use: shadow-[3px_3px_0_var(--outline-black)][0m
+[33m2. Standardize color references:[0m
+undefined   Choose ONE approach:[0m
+undefined   - CSS vars: bg-[var(--mario-red)][0m
+undefined   - Tailwind: bg-mario[0m
+[33m3. Consolidate border radius:[0m
+undefined   Use semantic tokens from theme (rounded-sm/md/lg/xl)[0m
+undefined   Avoid custom values like rounded-[14px][0m
+[36m
+========================================
+[0m

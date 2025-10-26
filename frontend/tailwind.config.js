@@ -22,49 +22,51 @@ module.exports = {
     },
     extend: {
       colors: {
-        // Mario Theme - Primary Colors
+        // Mario Theme - Primary Colors (Connected to CSS variables in theme.css)
+        // These reference the CSS custom properties defined in theme.css
+        // This ensures consistency and proper Display-P3 enhancement
         mario: {
-          DEFAULT: "#E52521", // Classic Mario red
+          DEFAULT: "var(--mario-red)", // #E52521 - Classic Mario red
           light: "#FF6B6B", // Lighter red for hover states
           dark: "#B31D1A", // Darker red for depth
         },
         luigi: {
-          DEFAULT: "#43B047", // Luigi green
+          DEFAULT: "var(--luigi-green)", // #43B047 - Luigi green
           light: "#5EC962", // Lighter green
           dark: "#2E7A31", // Darker green
         },
         star: {
-          DEFAULT: "#FFD800", // Super Star yellow
+          DEFAULT: "var(--star-yellow)", // #FFD800 - Super Star yellow
           light: "#FFEB3B", // Lighter yellow
           dark: "#FFA000", // Darker/gold yellow
         },
         coin: {
-          DEFAULT: "#FFB915", // Coin gold
+          DEFAULT: "var(--coin-gold)", // #FFB915 - Coin gold
           light: "#FFC947", // Lighter gold
           dark: "#E69500", // Darker gold
         },
         sky: {
-          DEFAULT: "#A6D8FF", // Mario sky blue
+          DEFAULT: "var(--sky-blue)", // #A6D8FF - Mario sky blue
           light: "#D0EAFF", // Lighter sky
           dark: "#5BA8E0", // Darker sky/water
         },
         brick: {
-          DEFAULT: "#9C5818", // Brick brown
+          DEFAULT: "var(--brick-brown)", // #9C5818 - Brick brown
           light: "#C17842", // Lighter brown
           dark: "#6B3D10", // Darker brown
         },
         pipe: {
-          DEFAULT: "#00994C", // Pipe green
+          DEFAULT: "var(--pipe-green)", // #00994C - Pipe green
           light: "#00C95E", // Lighter pipe
           dark: "#00662F", // Darker pipe
         },
         super: {
-          DEFAULT: "#2B4EF9", // Super mushroom blue
+          DEFAULT: "#2B4EF9", // Super mushroom blue (not in theme.css yet)
           light: "#5B7BFF", // Lighter blue
           dark: "#1A2E9C", // Darker blue
         },
         outline: {
-          DEFAULT: "#1C1C1C", // Black outline
+          DEFAULT: "var(--outline-black)", // #1C1C1C - Black outline
           light: "#3A3A3A", // Lighter black
         },
 
@@ -87,12 +89,12 @@ module.exports = {
 
         // Trading Specific Colors - Luigi Green for profit, Mario Red for loss
         profit: {
-          DEFAULT: "#43B047", // Luigi green
+          DEFAULT: "var(--luigi-green)", // Luigi green
           light: "#D5F5D7", // Light green background
           foreground: "#FFFFFF",
         },
         loss: {
-          DEFAULT: "#E52521", // Mario red
+          DEFAULT: "var(--mario-red)", // Mario red
           light: "#FFE5E5", // Light red background
           foreground: "#FFFFFF",
         },
