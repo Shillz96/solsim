@@ -62,17 +62,15 @@ export function TradePanelSellTab({
         SELECT PERCENTAGE
       </Label>
 
-      {/* Estimated SOL Display */}
-      {estimate && (
-        <TradePanelEstimate
-          type="sell"
-          tokenSymbol={tokenSymbol}
-          estimate={{ 
-            sol: estimate.solAmount,
-            tokens: estimate.tokenQuantity
-          }}
-        />
-      )}
+      {/* Estimated SOL Display - Always visible */}
+      <TradePanelEstimate
+        type="sell"
+        tokenSymbol={tokenSymbol || 'TOKEN'}
+        estimate={{ 
+          sol: estimate?.solAmount || 0,
+          tokens: estimate?.tokenQuantity || 0
+        }}
+      />
 
       {/* Percentage Preset Buttons */}
       <TradePanelPresets
@@ -83,8 +81,8 @@ export function TradePanelSellTab({
         label="percentage"
       />
 
-      {/* Fee Display */}
-      {fees && <TradePanelFees fees={fees} />}
+      {/* Fee Display - Always visible */}
+      <TradePanelFees fees={fees || { estimatedFeeSol: 0, estimatedFeeUsd: 0, totalFeePercent: 1.5 }} />
 
       {/* Sell Button */}
       <Button

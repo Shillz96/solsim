@@ -68,14 +68,12 @@ export function TradePanelBuyTab({
         SELECT AMOUNT (SOL)
       </Label>
 
-      {/* Estimated Tokens Display */}
-      {estimate && (
-        <TradePanelEstimate
-          type="buy"
-          tokenSymbol={tokenSymbol}
-          estimate={{ tokens: estimate.tokenQuantity }}
-        />
-      )}
+      {/* Estimated Tokens Display - Always visible */}
+      <TradePanelEstimate
+        type="buy"
+        tokenSymbol={tokenSymbol || 'TOKEN'}
+        estimate={{ tokens: estimate?.tokenQuantity || 0 }}
+      />
 
       {/* Preset Buttons */}
       <TradePanelPresets
@@ -99,8 +97,8 @@ export function TradePanelBuyTab({
         />
       )}
 
-      {/* Fee Display */}
-      {fees && <TradePanelFees fees={fees} />}
+      {/* Fee Display - Always visible */}
+      <TradePanelFees fees={fees || { estimatedFeeSol: 0, estimatedFeeUsd: 0, totalFeePercent: 1.5 }} />
 
       {/* Buy Button */}
       <Button

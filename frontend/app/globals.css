@@ -218,13 +218,27 @@
 
 /* Mario Button Variants */
 .mario-btn-red {
-  background: var(--color-brand);
+  background: var(--color-sell);
   color: #ffffff;
+  border: 3px solid var(--color-outline-black);
+  box-shadow: 3px 3px 0 var(--color-outline-black);
+}
+
+.mario-btn-red:hover {
+  transform: translateY(-2px);
+  box-shadow: 4px 4px 0 var(--color-outline-black);
 }
 
 .mario-btn-green {
-  background: var(--color-luigi);
+  background: var(--color-buy);
   color: #ffffff;
+  border: 3px solid var(--color-outline-black);
+  box-shadow: 3px 3px 0 var(--color-outline-black);
+}
+
+.mario-btn-green:hover {
+  transform: translateY(-2px);
+  box-shadow: 4px 4px 0 var(--color-outline-black);
 }
 
 .mario-btn-blue {

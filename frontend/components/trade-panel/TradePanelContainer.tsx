@@ -271,7 +271,7 @@ export function TradePanelContainer({ tokenAddress: propTokenAddress }: TradePan
   }
 
   return (
-    <div id="trade-panel" className="flex flex-col w-full relative">
+    <div id="trade-panel" className="flex flex-col w-full h-full relative">
       {/* Power-up Animation */}
       <AnimatePresence>
         {showPowerUpAnimation && (
@@ -286,8 +286,8 @@ export function TradePanelContainer({ tokenAddress: propTokenAddress }: TradePan
         )}
       </AnimatePresence>
 
-      {/* Main Content - No nested banner wrapper */}
-      <div className="space-y-2">
+      {/* Main Content - Fills all available space */}
+      <div className="flex flex-col h-full space-y-2">
           {/* Trade Status */}
           {(tradePanelState.tradeError || tradePanelState.lastTradeSuccess) && (
             <div className="mb-2">
