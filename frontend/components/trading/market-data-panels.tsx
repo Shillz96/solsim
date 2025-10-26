@@ -18,6 +18,7 @@ import { usePortfolio } from '@/hooks/use-portfolio'
 import { useAuth } from '@/hooks/use-auth'
 import { useRouter } from 'next/navigation'
 import * as api from '@/lib/api'
+import { usePumpPortalTradesWithHistory, useTopTradersFromStream, useActiveHoldersFromStream } from '@/hooks/use-pumpportal-trades'
 
 interface MarketDataPanelsProps {
   tokenMint: string
@@ -110,13 +111,17 @@ export function MarketDataPanels({ tokenMint }: MarketDataPanelsProps) {
   )
 }
 
-// Recent Trades Panel
+// Recent Trades Panel - Now with Real-Time PumpPortal WebSocket
 const RecentTradesPanel = memo(function RecentTradesPanel({ tokenMint }: { tokenMint: string }) {
-  const { data: trades = [], isLoading } = useQuery({
-    queryKey: ['market-trades', tokenMint],
-    queryFn: () => api.getMarketTrades(tokenMint),
-    refetchInterval: 10000, // Refresh every 10 seconds
+  // Use PumpPortal WebSocket for real-time trades + historical backfill
+  const { trades, status, isLoadingHistory } = usePumpPortalTradesWithHistory({
+    tokenMint,
+    maxTrades: 50,
+    enabled: true,
   })
+
+  const isLoading = isLoadingHistory && trades.length === 0
+  const isConnected = status === 'connected'
 
   return (
     <div className={cn(
@@ -127,7 +132,17 @@ const RecentTradesPanel = memo(function RecentTradesPanel({ tokenMint }: { token
         <div className="h-8 w-8 rounded-lg bg-[var(--luigi-green)] border-3 border-[var(--outline-black)] flex items-center justify-center shadow-[2px_2px_0_var(--outline-black)]">
           <Activity className="h-4 w-4 text-white" />
         </div>
-        <h3 className="font-mario font-bold text-sm">Recent Market Activity</h3>
+        <div className="flex-1">
+          <h3 className="font-mario font-bold text-sm">Recent Market Activity</h3>
+          {/* Real-time status indicator */}
+          <div className="flex items-center gap-1 text-[10px] text-muted-foreground mt-0.5">
+            <span className={cn(
+              "inline-block w-1.5 h-1.5 rounded-full",
+              isConnected ? "bg-[var(--luigi-green)] animate-pulse" : "bg-pipe-400"
+            )} />
+            <span>{isConnected ? 'Live' : status}</span>
+          </div>
+        </div>
       </div>
 
       {isLoading ? (
@@ -142,21 +157,22 @@ const RecentTradesPanel = memo(function RecentTradesPanel({ tokenMint }: { token
         </div>
       ) : (
         <div className="space-y-2 max-h-[400px] overflow-y-auto">
-          {trades.map((trade: any, i: number) => {
-            // Handle both market trade format and database trade format
-            const isBuy = trade.side === 'BUY' || trade.type === 'buy'
-            const userDisplay = trade.user?.handle || trade.user?.id || 'Anonymous'
-            const tokenAmount = trade.quantity || trade.tokenAmount || 0
-            const solAmount = trade.totalCost || trade.solAmount || 0
+          {trades.map((trade, i) => {
+            const isBuy = trade.side === 'buy'
+            const userDisplay = trade.signer || 'Anonymous'
+            const tokenAmount = trade.amountToken || 0
+            const solAmount = trade.amountSol || 0
             
             return (
               <div
-                key={`${trade.id || trade.user?.id || i}-${trade.timestamp || trade.createdAt}-${i}`}
+                key={`${trade.sig || i}-${trade.ts}`}
                 className={cn(
-                  "flex items-center justify-between p-3 rounded-lg border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)]",
+                  "flex items-center justify-between p-3 rounded-lg border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] transition-all",
                   isBuy
                     ? "bg-[var(--luigi-green)]/10"
-                    : "bg-[var(--mario-red)]/10"
+                    : "bg-[var(--mario-red)]/10",
+                  // Highlight new trades with animation
+                  i === 0 && "animate-in slide-in-from-top-2 duration-300"
                 )}
               >
                 <div className="flex items-center gap-2">
@@ -172,8 +188,8 @@ const RecentTradesPanel = memo(function RecentTradesPanel({ tokenMint }: { token
                   </div>
                   <div>
                     <div className="text-xs font-mario font-bold uppercase">{isBuy ? 'BUY' : 'SELL'}</div>
-                    <div className="text-[10px] text-muted-foreground">
-                      {userDisplay ? `${userDisplay.slice(0, 8)}...` : 'Anonymous'}
+                    <div className="text-[10px] text-muted-foreground font-mono">
+                      {userDisplay.slice(0, 4)}...{userDisplay.slice(-4)}
                     </div>
                   </div>
                 </div>
@@ -190,13 +206,17 @@ const RecentTradesPanel = memo(function RecentTradesPanel({ tokenMint }: { token
   )
 })
 
-// Top Traders Panel
+// Top Traders Panel - Now with Real-Time WebSocket
 function TopTradersPanel({ tokenMint }: { tokenMint: string }) {
-  const { data: traders = [], isLoading } = useQuery({
-    queryKey: ['top-traders', tokenMint],
-    queryFn: () => api.getTopTraders(tokenMint),
-    staleTime: 60000, // 1 minute
+  // Use real-time trader calculation from trade stream
+  const { topTraders, status } = useTopTradersFromStream({
+    tokenMint,
+    limit: 10,
+    enabled: true,
   })
+
+  const isLoading = status === 'connecting'
+  const isConnected = status === 'connected'
 
   return (
     <div className={cn(
@@ -207,55 +227,85 @@ function TopTradersPanel({ tokenMint }: { tokenMint: string }) {
         <div className="h-8 w-8 rounded-lg bg-[var(--star-yellow)] border-3 border-[var(--outline-black)] flex items-center justify-center shadow-[2px_2px_0_var(--outline-black)]">
           <TrendingUp className="h-4 w-4 text-[var(--outline-black)]" />
         </div>
-        <h3 className="font-mario font-bold text-sm">24h Top Performers</h3>
+        <div className="flex-1">
+          <h3 className="font-mario font-bold text-sm">Top Performers</h3>
+          {/* Real-time status indicator */}
+          <div className="flex items-center gap-1 text-[10px] text-muted-foreground mt-0.5">
+            <span className={cn(
+              "inline-block w-1.5 h-1.5 rounded-full",
+              isConnected ? "bg-[var(--star-yellow)] animate-pulse" : "bg-pipe-400"
+            )} />
+            <span>{isConnected ? 'Live' : status}</span>
+          </div>
+        </div>
       </div>
 
       {isLoading ? (
         <div className="flex items-center justify-center py-8">
           <Loader2 className="h-5 w-5 animate-spin text-[var(--outline-black)]" />
         </div>
-      ) : traders.length === 0 ? (
+      ) : topTraders.length === 0 ? (
         <div className="text-sm text-muted-foreground text-center py-8">
           <div className="mb-2">🏆</div>
           <div className="font-bold mb-1">No traders yet</div>
           <div className="text-xs">Be the first to trade!</div>
         </div>
       ) : (
-        <div className="space-y-2">
-          {traders.map((trader: any, i: number) => (
-            <div key={trader.address} className="flex items-center justify-between p-3 bg-[var(--card)]/50 rounded-lg border-2 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)]">
-              <div className="flex items-center gap-2">
-                <div className="text-sm font-mario font-bold text-[var(--star-yellow)]">#{i + 1}</div>
-                <div className="text-xs font-mono">{trader.address.slice(0, 4)}...{trader.address.slice(-4)}</div>
-              </div>
-              <div className="text-right">
-                <div className={cn(
-                  "text-xs font-bold",
-                  trader.pnl > 0 ? "text-[var(--luigi-green)]" : "text-[var(--mario-red)]"
-                )}>
-                  {trader.pnl > 0 ? '+' : ''}{formatUSD(trader.pnl || 0)}
+        <div className="space-y-2 max-h-[400px] overflow-y-auto">
+          {topTraders.map((trader, i) => {
+            // Convert SOL profit to USD (rough estimate)
+            const profitUsd = trader.profitSol * 150; // Approximate SOL price
+            
+            return (
+              <div 
+                key={trader.address} 
+                className={cn(
+                  "flex items-center justify-between p-3 bg-[var(--card)]/50 rounded-lg border-2 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] transition-all",
+                  i === 0 && "animate-in slide-in-from-top-2 duration-300"
+                )}
+              >
+                <div className="flex items-center gap-2">
+                  <div className="text-sm font-mario font-bold text-[var(--star-yellow)]">#{i + 1}</div>
+                  <div className="text-xs font-mono">{trader.address.slice(0, 4)}...{trader.address.slice(-4)}</div>
                 </div>
-                <div className="text-[10px] text-muted-foreground">{trader.trades || 0} trades</div>
+                <div className="text-right">
+                  <div className={cn(
+                    "text-xs font-bold",
+                    trader.profitSol > 0 ? "text-[var(--luigi-green)]" : "text-[var(--mario-red)]"
+                  )}>
+                    {trader.profitSol > 0 ? '+' : ''}{formatUSD(profitUsd)}
+                  </div>
+                  <div className="text-[10px] text-muted-foreground">{trader.trades} trades</div>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>
   )
 }
 
-// Enhanced Holders Panel with Liquidity Pool and Trading Data
+// Enhanced Holders Panel with Liquidity Pool and Trading Data - Now with Real-Time Activity
 function HoldersPanel({ tokenMint }: { tokenMint: string }) {
-  const { data, isLoading } = useQuery({
+  // Get base holder data from API (more accurate on-chain data)
+  const { data, isLoading: isLoadingBackend } = useQuery({
     queryKey: ['holders', tokenMint],
     queryFn: () => api.getTokenHolders(tokenMint),
     staleTime: 300000, // 5 minutes
   })
 
+  // Get real-time active holders from trade stream
+  const { activeHolders, totalActiveHolders, status } = useActiveHoldersFromStream({
+    tokenMint,
+    enabled: true,
+  })
+
   const holders = data?.holders || []
   const totalSupply = data?.totalSupply ? parseFloat(data.totalSupply) : 0
-  const holderCount = data?.holderCount || 0
+  const holderCount = data?.holderCount || totalActiveHolders || 0
+  const isConnected = status === 'connected'
+  const isLoading = isLoadingBackend && holders.length === 0
 
   // Calculate liquidity pool participation (mock data - would come from API)
   const liquidityPoolHolders = holders.filter((holder: any) => 
@@ -285,10 +335,21 @@ function HoldersPanel({ tokenMint }: { tokenMint: string }) {
         <div className="h-8 w-8 rounded-lg bg-[var(--sky-blue)] border-3 border-[var(--outline-black)] flex items-center justify-center shadow-[2px_2px_0_var(--outline-black)]">
           <Users className="h-4 w-4 text-white" />
         </div>
-        <h3 className="font-mario font-bold text-sm text-[var(--outline-black)]">Token Holders & Distribution</h3>
-        {holderCount > 0 && (
-          <span className="text-xs text-[var(--outline-black)] opacity-70">({holderCount} total)</span>
-        )}
+        <div className="flex-1">
+          <h3 className="font-mario font-bold text-sm text-[var(--outline-black)]">Token Holders & Distribution</h3>
+          {/* Real-time status indicator */}
+          <div className="flex items-center gap-1 text-[10px] text-muted-foreground mt-0.5">
+            <span className={cn(
+              "inline-block w-1.5 h-1.5 rounded-full",
+              isConnected ? "bg-[var(--sky-blue)] animate-pulse" : "bg-pipe-400"
+            )} />
+            <span>
+              {holderCount > 0 && `${holderCount} holders`}
+              {isConnected && holderCount > 0 && ' • '}
+              {isConnected ? 'Live activity' : status}
+            </span>
+          </div>
+        </div>
       </div>
 
       {/* Liquidity Pool Summary */}
@@ -303,6 +364,24 @@ function HoldersPanel({ tokenMint }: { tokenMint: string }) {
               <div className="text-sm font-bold">{liquidityPoolPercentage.toFixed(2)}%</div>
               <div className="text-xs text-muted-foreground">of total supply</div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Active Traders Section - Real-time */}
+      {activeHolders.length > 0 && (
+        <div className="mb-4 p-3 bg-[var(--luigi-green)]/10 border-3 border-[var(--luigi-green)] rounded-lg shadow-[3px_3px_0_var(--luigi-green)]/40">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="text-sm font-bold text-[var(--luigi-green)]">🔥 Active Traders</span>
+            <span className="text-xs text-muted-foreground">({activeHolders.length} recently active)</span>
+          </div>
+          <div className="space-y-1">
+            {activeHolders.slice(0, 3).map((holder, i) => (
+              <div key={holder.address} className="flex items-center justify-between text-xs bg-white/50 rounded p-2">
+                <span className="font-mono">{holder.address.slice(0, 4)}...{holder.address.slice(-4)}</span>
+                <span className="font-bold text-[var(--luigi-green)]">{formatNumber(holder.balance)} tokens</span>
+              </div>
+            ))}
           </div>
         </div>
       )}

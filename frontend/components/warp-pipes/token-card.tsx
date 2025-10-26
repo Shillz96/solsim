@@ -12,18 +12,20 @@
 
 "use client"
 
-import { useState } from "react"
+import { useState, useMemo } from "react"
 import Link from "next/link"
 import { cn, marioStyles } from "@/lib/utils"
 import { motion } from "framer-motion"
 import { Shield, TrendingUp, TrendingDown } from "lucide-react"
 import { SocialHoverCard } from "./social-hover-card"
 import type { TokenRow } from "@/lib/types/warp-pipes"
+import { usePumpPortalMetadata, usePumpPortalTrades } from "@/hooks/use-pumpportal-trades"
 
 interface TokenCardProps {
   data: TokenRow
   onToggleWatch?: (mint: string, isWatched: boolean) => Promise<void>
   className?: string
+  enableLiveUpdates?: boolean // Enable real-time WebSocket updates (default: true for priority tokens)
 }
 
 // --------- UTILITIES ---------
@@ -53,11 +55,54 @@ const shorten = (addr?: string | null, s = 4, e = 4) => {
   return addr.length <= s + e ? addr : `${addr.slice(0, s)}…${addr.slice(-e)}`;
 };
 
-export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
+export function TokenCard({ data, onToggleWatch, className, enableLiveUpdates = true }: TokenCardProps) {
   const img = data.imageUrl || data.logoURI || undefined;
   const priceChg = data.priceChange24h ?? null;
   const [imageError, setImageError] = useState(false);
   const age = timeAgo(data.firstSeenAt);
+
+  // Real-time metadata updates from PumpPortal (if enabled)
+  const { metadata: liveMetadata, status: metadataStatus } = usePumpPortalMetadata({
+    tokenMint: data.mint,
+    enabled: enableLiveUpdates,
+  });
+
+  // Real-time trade updates for calculating live volume/txns
+  const { trades: liveTrades, status: tradesStatus } = usePumpPortalTrades({
+    tokenMint: data.mint,
+    maxTrades: 20,
+    enabled: enableLiveUpdates,
+  });
+
+  // Merge live data with cached data (live data takes priority)
+  const mergedData = useMemo(() => {
+    if (!enableLiveUpdates || !liveMetadata) return data;
+
+    return {
+      ...data,
+      holderCount: liveMetadata.holderCount ?? data.holderCount,
+      marketCapUsd: liveMetadata.marketCapSol 
+        ? liveMetadata.marketCapSol * 150 // Rough SOL -> USD conversion (update with real price if needed)
+        : data.marketCapUsd,
+      vSolInBondingCurve: liveMetadata.vSolInBondingCurve ?? data.vSolInBondingCurve,
+      bondingCurveProgress: liveMetadata.bondingCurveProgress ?? data.bondingCurveProgress,
+    };
+  }, [data, liveMetadata, enableLiveUpdates]);
+
+  // Calculate live transaction count from recent trades
+  const liveTxCount = useMemo(() => {
+    if (!enableLiveUpdates || liveTrades.length === 0) return data.txCount24h;
+    
+    // Count trades from last 24h
+    const now = Date.now();
+    const oneDayAgo = now - 24 * 60 * 60 * 1000;
+    const recentTrades = liveTrades.filter(t => t.ts >= oneDayAgo);
+    
+    // Combine with cached count (assuming cached is slightly stale)
+    return (data.txCount24h || 0) + recentTrades.length;
+  }, [liveTrades, data.txCount24h, enableLiveUpdates]);
+
+  const isLive = enableLiveUpdates && (metadataStatus === 'connected' || tradesStatus === 'connected');
 
   // Security status for shield icon
   const securityStatus = marioStyles.getSecurityStatus(data.freezeRevoked, data.mintRenounced);
@@ -109,7 +154,7 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
 
             {/* MIDDLE: Enhanced Token Info */}
             <div className="flex-1 min-w-0 overflow-hidden flex flex-col justify-between h-full">
-              {/* Header Row: Symbol, Name, Age, Security */}
+              {/* Header Row: Symbol, Name, Age, Security, Live Indicator */}
               <div className="flex items-center gap-2 mb-1">
                 <h3 className={cn(marioStyles.heading(4), 'text-[20px] truncate max-w-[100px]')} title={data.symbol}>
                   {data.symbol}
@@ -120,6 +165,13 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
                 <span className={cn(marioStyles.bodyText('bold'), 'text-[11px] ml-auto flex-shrink-0')}>
                   {age}
                 </span>
+                {/* Live Indicator */}
+                {isLive && (
+                  <div className="flex items-center gap-1 text-[10px] font-bold text-[var(--luigi-green)] bg-[var(--luigi-green)]/10 px-1.5 py-0.5 rounded-full border border-[var(--luigi-green)]">
+                    <span className="inline-block w-1.5 h-1.5 rounded-full bg-[var(--luigi-green)] animate-pulse" />
+                    LIVE
+                  </div>
+                )}
                 {/* Security Shield Icon */}
                 <Shield className={cn(securityIconColor, 'flex-shrink-0 w-4 h-4')} />
               </div>
@@ -167,34 +219,40 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
                     Market Cap
                   </div>
                   <div className={cn(
-                    marioStyles.formatMetricValue(data.marketCapUsd),
+                    marioStyles.formatMetricValue(mergedData.marketCapUsd),
                     // Highlight market cap > $100k in green
-                    data.marketCapUsd && data.marketCapUsd >= 100000 && 'text-[var(--luigi-green)] font-extrabold text-[15px]'
+                    mergedData.marketCapUsd && mergedData.marketCapUsd >= 100000 && 'text-[var(--luigi-green)] font-extrabold text-[15px]'
                   )}>
-                    {fmtCurrency(data.marketCapUsd)}
+                    {fmtCurrency(mergedData.marketCapUsd)}
                   </div>
                 </div>
               </div>
 
               {/* Secondary Metrics Row */}
               <div className="grid grid-cols-3 gap-2 mb-1 flex-shrink-0">
-                {/* Holders */}
+                {/* Holders - Now with real-time updates */}
                 <div className="flex flex-col">
                   <div className={marioStyles.formatMetricLabel('Holders')}>
                     Holders
                   </div>
-                  <div className={marioStyles.formatMetricValue(data.holderCount)}>
-                    {data.holderCount ? data.holderCount.toLocaleString() : '—'}
+                  <div className={cn(
+                    marioStyles.formatMetricValue(mergedData.holderCount),
+                    isLive && 'text-[var(--luigi-green)]'
+                  )}>
+                    {mergedData.holderCount ? mergedData.holderCount.toLocaleString() : '—'}
                   </div>
                 </div>
 
-                {/* Transactions */}
+                {/* Transactions - Now with real-time updates */}
                 <div className="flex flex-col">
                   <div className={marioStyles.formatMetricLabel('Txns')}>
                     Transactions
                   </div>
-                  <div className={marioStyles.formatMetricValue(data.txCount24h)}>
-                    {data.txCount24h ? data.txCount24h.toLocaleString() : '—'}
+                  <div className={cn(
+                    marioStyles.formatMetricValue(liveTxCount),
+                    isLive && 'text-[var(--luigi-green)]'
+                  )}>
+                    {liveTxCount ? liveTxCount.toLocaleString() : '—'}
                   </div>
                 </div>
 
@@ -209,13 +267,13 @@ export function TokenCard({ data, onToggleWatch, className }: TokenCardProps) {
                 </div>
               </div>
 
-              {/* SOL to Graduate Progress Bar - Only for ABOUT_TO_BOND */}
-              {data.status === 'ABOUT_TO_BOND' && data.bondingCurveProgress != null && data.solToGraduate != null && (
+              {/* SOL to Graduate Progress Bar - Only for ABOUT_TO_BOND - Now with real-time updates */}
+              {data.status === 'ABOUT_TO_BOND' && mergedData.bondingCurveProgress != null && data.solToGraduate != null && (
                 <div className="mt-1 relative">
                   <div className="bg-[var(--card)] border-2 border-[var(--outline-black)] rounded-full h-2.5 overflow-hidden relative shadow-[1px_1px_0_var(--outline-black)]">
                     <div
                       className="bg-[var(--star-yellow)] h-full flex items-center justify-center border-r-2 border-[var(--outline-black)] transition-all duration-500 relative"
-                      style={{ width: `${Math.min(data.bondingCurveProgress, 100)}%` }}
+                      style={{ width: `${Math.min(mergedData.bondingCurveProgress, 100)}%` }}
                     >
                       {/* Glow effect */}
                       <div className="absolute inset-0 bg-[var(--star-yellow)] opacity-50 animate-pulse" />

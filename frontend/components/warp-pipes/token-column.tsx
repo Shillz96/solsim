@@ -124,13 +124,23 @@ export function TokenColumn({
         )}
 
         {/* Token Cards - Vertical Stack */}
-        {!isLoading && tokens.map((token) => (
-          <TokenCard
-            key={token.mint}
-            data={token}
-            onToggleWatch={onToggleWatch}
-          />
-        ))}
+        {!isLoading && tokens.map((token, index) => {
+          // Enable live updates for:
+          // 1. Graduating tokens (ABOUT_TO_BOND status)
+          // 2. Top 10 tokens in each column
+          const shouldEnableLive = 
+            token.status === 'ABOUT_TO_BOND' || 
+            index < 10;
+
+          return (
+            <TokenCard
+              key={token.mint}
+              data={token}
+              onToggleWatch={onToggleWatch}
+              enableLiveUpdates={shouldEnableLive}
+            />
+          );
+        })}
         </div>
       </div>
     </div>
