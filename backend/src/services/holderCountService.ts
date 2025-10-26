@@ -36,8 +36,8 @@ export class HolderCountService {
     if (!heliusApiKey) {
       throw new Error('HELIUS_API environment variable required for HolderCountService');
     }
-    // CRITICAL: Trailing slash required for Helius RPC
-    this.heliusRpcUrl = `https://mainnet.helius-rpc.com/?api-key=${heliusApiKey}/`;
+    // URL format: no trailing slash after the API key
+    this.heliusRpcUrl = `https://mainnet.helius-rpc.com/?api-key=${heliusApiKey}`;
   }
 
   /**
