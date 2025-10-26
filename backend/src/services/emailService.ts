@@ -24,7 +24,7 @@ function getResendClient(): Resend | null {
   return resend;
 }
 
-const FROM_EMAIL = process.env.FROM_EMAIL || 'VirtualSol <noreply@virtualsol.fun>';
+const FROM_EMAIL = process.env.FROM_EMAIL || 'OneUpSol <noreply@oneupsol.fun>';
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
 
 export class EmailService {

@@ -15,11 +15,18 @@ export function usePositionPnL(tokenAddress: string) {
   
   // Get live price for this token
   const livePrice = livePrices.get(tokenAddress)
-  const currentPrice = livePrice?.price || 0
+  
+  // CRITICAL FIX: Use position's currentPrice as fallback while WebSocket is connecting
+  // This prevents -100% PnL flash when page first loads
+  const fallbackPrice = tokenPosition?.currentPrice ? parseFloat(tokenPosition.currentPrice) : 0
+  const currentPrice = livePrice?.price || fallbackPrice
   
   // Calculate real-time PnL
   const realtimePnL: RealtimePnL | null = useMemo(() => {
     if (!tokenPosition) return null
+    
+    // Only calculate if we have a valid price (avoid -100% flash)
+    if (currentPrice <= 0) return null
     
     const positionData: PositionData = {
       qty: tokenPosition.qty,

@@ -68,8 +68,10 @@ export function TradePanelContainer({ tokenAddress: propTokenAddress }: TradePan
   // Get SOL price
   const solPrice = livePrices.get('So11111111111111111111111111111111111111112')?.price || 208
 
-  // Use live price if available, fallback to token details price for calculations
-  const effectivePrice = currentPrice > 0 ? currentPrice : (tokenDetails?.price || 0)
+  // CRITICAL FIX: Use currentPrice from usePositionPnL which includes fallback logic
+  // This ensures we always show a price even before WebSocket connects
+  // Priority: 1. Live WebSocket price, 2. Position's stored price, 3. Token details price
+  const displayPrice = currentPrice > 0 ? currentPrice : (tokenDetails?.price || 0)
 
   // Load user balance
   useEffect(() => {
@@ -349,7 +351,7 @@ export function TradePanelContainer({ tokenAddress: propTokenAddress }: TradePan
 
           {/* Price Display */}
           <TradePanelPrice
-            currentPrice={currentPrice}
+            currentPrice={displayPrice}
             solPrice={solPrice}
           />
 
@@ -394,7 +396,7 @@ export function TradePanelContainer({ tokenAddress: propTokenAddress }: TradePan
                 onBuy={handleBuy}
                 isTrading={tradePanelState.isTrading}
                 tokenSymbol={tokenDetails.tokenSymbol}
-                currentPrice={effectivePrice}
+                currentPrice={displayPrice}
                 solPrice={solPrice}
                 balance={userBalance}
               />
@@ -410,7 +412,7 @@ export function TradePanelContainer({ tokenAddress: propTokenAddress }: TradePan
                 isTrading={tradePanelState.isTrading}
                 tokenSymbol={tokenDetails.tokenSymbol}
                 holdingQty={position ? parseFloat(position.qty) : 0}
-                currentPrice={effectivePrice}
+                currentPrice={displayPrice}
                 solPrice={solPrice}
                 hasPosition={hasPosition}
               />

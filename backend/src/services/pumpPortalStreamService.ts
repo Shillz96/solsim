@@ -605,6 +605,12 @@ class PumpPortalStreamService extends EventEmitter {
       this.ws = null;
     }
 
+    // CRITICAL FIX: Clear subscription tracking on cleanup
+    // Without this, after reconnection we think we're subscribed but PumpPortal doesn't know about us
+    // This causes "ghost subscriptions" where we filter out resubscribe attempts but get no data
+    this.subscribedTokens.clear();
+    this.subscribedWallets.clear();
+
     this.isConnecting = false;
   }
 

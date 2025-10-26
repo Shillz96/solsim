@@ -226,17 +226,36 @@ export async function sendMessage(
  */
 async function broadcastMessage(message: any): Promise<void> {
   try {
-    await redis.publish('chat:message', JSON.stringify({
+    // Safely serialize the message, converting Date objects and BigInts
+    const serializedMessage = {
       type: 'chat:message',
       roomId: message.roomId,
       message: {
         id: message.id,
         userId: message.userId,
         content: message.content,
-        createdAt: message.createdAt,
-        user: message.user,
+        createdAt: message.createdAt instanceof Date ? message.createdAt.toISOString() : message.createdAt,
+        user: {
+          id: message.user?.id,
+          handle: message.user?.handle,
+          displayName: message.user?.displayName,
+          avatarUrl: message.user?.avatarUrl,
+          userTier: message.user?.userTier,
+          userBadges: message.user?.userBadges?.map((ub: any) => ({
+            badge: {
+              id: ub.badge?.id,
+              name: ub.badge?.name,
+              description: ub.badge?.description,
+              icon: ub.badge?.icon,
+              rarity: ub.badge?.rarity,
+            },
+            earnedAt: ub.earnedAt instanceof Date ? ub.earnedAt.toISOString() : ub.earnedAt,
+          })) || [],
+        },
       },
-    }));
+    };
+
+    await redis.publish('chat:message', JSON.stringify(serializedMessage));
   } catch (error) {
     console.error('Error broadcasting message:', error);
   }

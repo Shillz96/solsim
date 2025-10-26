@@ -45,10 +45,32 @@ export default async function (app: FastifyInstance) {
         currentTick = await priceService.fetchTokenPrice(mint);
       }
       
+      // CRITICAL FIX: Use last known price from trade result as fallback
+      // This prevents 500 errors when price service is temporarily unavailable
+      // Trade already executed successfully, so we must return success with best available data
+      if (!currentTick && result.trade.fillPriceUsd) {
+        console.warn(`[Trade] Price service unavailable for ${mint.slice(0, 8)}, using trade fill price as fallback`);
+        currentTick = {
+          mint,
+          priceUsd: parseFloat(result.trade.fillPriceUsd.toString()),
+          timestamp: Date.now(),
+          source: 'trade-fallback'
+        };
+      }
+      
+      // If still no price (shouldn't happen since fillTrade requires price), return 503 not 500
       if (!currentTick) {
-        return reply.code(500).send({ 
-          error: "Price data unavailable for this token",
-          code: "PRICE_UNAVAILABLE"
+        console.error(`[Trade] No price data available for ${mint.slice(0, 8)} after successful trade - this should not happen`);
+        return reply.code(503).send({ 
+          error: "Price data temporarily unavailable. Trade executed successfully but current price cannot be displayed.",
+          code: "PRICE_UNAVAILABLE",
+          trade: {
+            id: result.trade.id,
+            side: result.trade.side,
+            mint: result.trade.mint,
+            qty: result.trade.qty.toString(),
+            executedAt: result.trade.createdAt
+          }
         });
       }
       

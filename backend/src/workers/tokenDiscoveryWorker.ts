@@ -1038,6 +1038,16 @@ async function startWorker(): Promise<void> {
     pumpPortalStreamService.on('swap', handleSwap);
     raydiumStreamService.on('newPool', handleNewPool);
 
+    // CRITICAL FIX: Re-subscribe to active tokens on reconnection
+    // Without this, after WebSocket reconnects, we lose all token subscriptions
+    // This causes price updates to stop flowing and PNL calculations to freeze
+    pumpPortalStreamService.on('connected', () => {
+      console.log('[TokenDiscovery] PumpPortal reconnected, resubscribing to active tokens...');
+      subscribeToActiveTokens().catch(err => {
+        console.error('[TokenDiscovery] Failed to resubscribe on reconnection:', err);
+      });
+    });
+
     console.log('✅ Event handlers registered');
 
     // Schedule background jobs
