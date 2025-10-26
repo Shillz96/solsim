@@ -289,6 +289,172 @@
   }
 }
 
+/* ============================================
+   TRADE PANEL BUTTON STYLES
+   Enhanced Mario-themed buttons for trading
+   ============================================ */
+
+/* Trade Panel Tab Buttons (Buy/Sell switcher) */
+.trade-tab {
+  background: var(--card);
+  color: var(--outline-black);
+  border: 3px solid var(--outline-black);
+  border-radius: var(--radius-lg);
+  padding: 0.75rem 1rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: all var(--transition-fast);
+  box-shadow: 3px 3px 0 var(--outline-black);
+  font-size: 0.875rem;
+}
+
+.trade-tab:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 4px 4px 0 var(--outline-black);
+}
+
+.trade-tab:active:not(:disabled) {
+  transform: translateY(1px);
+  box-shadow: 2px 2px 0 var(--outline-black);
+}
+
+.trade-tab-buy {
+  background: var(--color-buy);
+  color: white;
+  border-color: var(--outline-black);
+}
+
+.trade-tab-sell {
+  background: var(--color-sell);
+  color: white;
+  border-color: var(--outline-black);
+}
+
+.trade-tab-inactive {
+  background: var(--background);
+  color: var(--outline-black);
+  opacity: 0.6;
+}
+
+/* Preset Amount Buttons */
+.preset-btn {
+  background: white;
+  color: var(--outline-black);
+  border: 3px solid var(--outline-black);
+  border-radius: var(--radius);
+  padding: 0.6rem 0.75rem;
+  font-weight: 700;
+  font-size: 0.875rem;
+  box-shadow: 3px 3px 0 var(--outline-black);
+  transition: all var(--transition-fast);
+  position: relative;
+  overflow: hidden;
+}
+
+.preset-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, var(--coin-gold) 0%, var(--color-star) 100%);
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+  z-index: 0;
+}
+
+.preset-btn:hover:not(:disabled)::before {
+  opacity: 0.15;
+}
+
+.preset-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 4px 4px 0 var(--outline-black);
+}
+
+.preset-btn:active:not(:disabled) {
+  transform: translateY(1px);
+  box-shadow: 2px 2px 0 var(--outline-black);
+}
+
+.preset-btn-selected {
+  background: var(--color-star);
+  color: var(--outline-black);
+  transform: scale(1.02);
+  box-shadow: 0 0 0 3px var(--color-star), 4px 4px 0 var(--outline-black);
+  animation: pulseGlow 2s ease-in-out infinite;
+}
+
+.preset-btn-selected:hover:not(:disabled) {
+  transform: scale(1.02) translateY(-2px);
+  box-shadow: 0 0 0 3px var(--color-star), 5px 5px 0 var(--outline-black);
+}
+
+.preset-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Trade Action Buttons (Main Buy/Sell) */
+.trade-action-btn {
+  border: 4px solid var(--outline-black);
+  border-radius: var(--radius-lg);
+  padding: 1rem 1.5rem;
+  font-weight: 700;
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  box-shadow: 4px 4px 0 var(--outline-black);
+  transition: all var(--transition-fast);
+  position: relative;
+  overflow: hidden;
+}
+
+.trade-action-btn::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.5);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.trade-action-btn:hover:not(:disabled)::after {
+  width: 300px;
+  height: 300px;
+}
+
+.trade-action-btn:hover:not(:disabled) {
+  transform: translateY(-3px);
+  box-shadow: 6px 6px 0 var(--outline-black);
+}
+
+.trade-action-btn:active:not(:disabled) {
+  transform: translateY(1px);
+  box-shadow: 2px 2px 0 var(--outline-black);
+}
+
+.trade-action-btn-buy {
+  background: var(--color-buy);
+  color: white;
+}
+
+.trade-action-btn-sell {
+  background: var(--color-sell);
+  color: white;
+}
+
+.trade-action-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 /* Trading Buttons - Clean, consistent motion */
 .btn-buy {
   background: var(--color-buy);

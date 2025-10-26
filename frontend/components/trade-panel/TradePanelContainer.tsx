@@ -333,20 +333,20 @@ export function TradePanelContainer({ tokenAddress: propTokenAddress }: TradePan
 
           {/* Trading Tabs */}
           <Tabs defaultValue="buy" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 gap-1 bg-transparent p-0.5">
+            <TabsList className="grid w-full grid-cols-2 gap-2 bg-transparent p-0">
               <TabsTrigger
                 value="buy"
-                className="mario-btn mario-btn-green data-[state=active]:scale-105 transition-transform text-xs py-1.5"
+                className="trade-tab trade-tab-buy data-[state=active]:scale-105 data-[state=inactive]:trade-tab-inactive"
               >
-                <TrendingUp className="h-3 w-3 mr-1" />
+                <TrendingUp className="h-4 w-4 mr-1.5" />
                 BUY
               </TabsTrigger>
               <TabsTrigger
                 value="sell"
-                className="mario-btn mario-btn-red data-[state=active]:scale-105 transition-transform text-xs py-1.5"
+                className="trade-tab trade-tab-sell data-[state=active]:scale-105 data-[state=inactive]:trade-tab-inactive"
                 disabled={!hasPosition}
               >
-                <TrendingDown className="h-3 w-3 mr-1" />
+                <TrendingDown className="h-4 w-4 mr-1.5" />
                 SELL
               </TabsTrigger>
             </TabsList>

@@ -55,16 +55,15 @@ export function TradePanelPresets({
             onClick={() => onSelect(value)}
             disabled={isDisabled}
             className={cn(
-              "mario-btn h-9 text-xs transition-all flex items-center justify-center whitespace-nowrap px-2 relative",
-              isSelected
-                ? "mario-btn-selected"
-                : "bg-[var(--coin-gold)]",
-              isDisabled && "opacity-50 cursor-not-allowed"
+              "preset-btn h-10 transition-all flex items-center justify-center whitespace-nowrap px-3 relative",
+              isSelected && "preset-btn-selected"
             )}
           >
-            {label === 'percentage' && value === 100 ? 'ALL' : 
-             label === 'percentage' ? `${value}%` : 
-             `${value} SOL`}
+            <span className="relative z-10 font-bold">
+              {label === 'percentage' && value === 100 ? 'ALL' :
+               label === 'percentage' ? `${value}%` :
+               `${value} SOL`}
+            </span>
           </button>
         )
       })}

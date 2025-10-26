@@ -86,19 +86,19 @@ export function TradePanelSellTab({
 
       {/* Sell Button */}
       <Button
-        className="w-full mario-btn mario-btn-red h-10 text-xs whitespace-nowrap overflow-hidden"
+        className="w-full trade-action-btn trade-action-btn-sell h-12 whitespace-nowrap overflow-hidden"
         onClick={onSell}
         disabled={isTrading || !hasSelection}
       >
         {isTrading ? (
           <>
-            <Loader2 className="h-3 w-3 animate-spin mr-1 flex-shrink-0" />
-            <span className="truncate">SELLING...</span>
+            <Loader2 className="h-4 w-4 animate-spin mr-2 flex-shrink-0 relative z-10" />
+            <span className="truncate relative z-10">SELLING...</span>
           </>
         ) : (
           <>
-            <TrendingDown className="h-3 w-3 mr-1 flex-shrink-0" />
-            <span className="truncate">SELL {tokenSymbol}</span>
+            <TrendingDown className="h-4 w-4 mr-2 flex-shrink-0 relative z-10" />
+            <span className="truncate relative z-10">SELL {tokenSymbol}</span>
           </>
         )}
       </Button>
