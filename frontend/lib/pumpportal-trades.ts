@@ -44,7 +44,7 @@ export type TokenMetadata = {
 
 export type TradeStreamStatus = "connecting" | "connected" | "closed" | "error";
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8080";
+const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
 
 export type TradeStreamCallbacks = {
   onTrade: (trade: RecentTrade) => void;
