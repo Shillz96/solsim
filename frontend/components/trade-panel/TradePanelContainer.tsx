@@ -25,7 +25,7 @@ import { usePositionPnL } from './hooks/usePositionPnL'
 // Import components
 import { TradePanelHeader } from './TradePanelHeader'
 import { TradePanelPrice } from './TradePanelPrice'
-import { TradePanelPosition } from './TradePanelPosition'
+import { TradePanelStatsBar } from './TradePanelStatsBar'
 import { TradePanelBuyTab } from './TradePanelBuyTab'
 import { TradePanelSellTab } from './TradePanelSellTab'
 

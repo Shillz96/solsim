@@ -15,12 +15,12 @@ interface TradePanelHeaderProps {
 export function TradePanelHeader({ tokenSymbol, balance }: TradePanelHeaderProps) {
   return (
     <div className="flex items-center justify-between mb-2">
-      <h3 className={cn(marioStyles.heading(4), 'text-xs truncate')}>
-        TRADE {tokenSymbol || 'TOKEN'}
+      <h3 className="font-bold text-sm text-[var(--outline-black)] truncate">
+        Trade {tokenSymbol || 'Token'}
       </h3>
       <div className="flex items-center gap-1 text-xs flex-shrink-0">
         <Wallet className="h-3 w-3 text-[var(--star-yellow)]" />
-        <span className={cn(marioStyles.bodyText('bold'), 'font-mono')}>
+        <span className="font-mono font-bold text-[var(--outline-black)]">
           {formatSolAmount(balance)} SOL
         </span>
       </div>

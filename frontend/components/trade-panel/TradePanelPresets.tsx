@@ -44,18 +44,18 @@ export function TradePanelPresets({
               maxValue={maxValue}
               onSelect={onSelect}
               onUpdate={onUpdate}
-              className="h-9"
+              className="h-8"
             />
           )
         }
-        
+
         return (
           <button
             key={index}
             onClick={() => onSelect(value)}
             disabled={isDisabled}
             className={cn(
-              "preset-btn h-10 transition-all flex items-center justify-center whitespace-nowrap px-3 relative",
+              "preset-btn h-8 transition-all flex items-center justify-center whitespace-nowrap px-3 relative",
               isSelected && "preset-btn-selected"
             )}
           >
