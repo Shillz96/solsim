@@ -47,3 +47,37 @@ When deploying to Vercel:
 1. Ensure all frontend environment variables are prefixed with `NEXT_PUBLIC_`
 2. No backend environment variables needed for token creation
 3. The API routes work without any additional configuration
+
+## Troubleshooting WebSocket Connection
+
+### "Immediate failure detected" Error
+
+If you see this error in browser console:
+🚨 Immediate failure detected (XXXms < 3000ms)
+
+This means the WebSocket URL is incorrect or unreachable.
+
+**Check:**
+1. Verify `NEXT_PUBLIC_WS_URL` is set in Vercel environment variables
+2. Verify the URL format is correct: `wss://your-backend.railway.app` (no path)
+3. Verify the backend is actually running and accessible
+4. Test the backend health: `https://your-backend.railway.app/api/health`
+
+### WebSocket Connection Debugging
+
+1. **Check Browser Console**
+   - Look for WebSocket connection logs
+   - Verify the exact URL being used
+   - Check for CORS or security errors
+
+2. **Network Tab Analysis**
+   - Look for WebSocket upgrade request
+   - Check response status (should be 101)
+   - Verify headers are correct
+
+3. **Environment Variable Verification**
+   - Confirm `NEXT_PUBLIC_WS_URL` is set correctly
+   - Check if build includes the latest env values
+   - Trigger fresh deployment if env vars were recently updated
+
+For detailed debugging steps, see `WEBSOCKET_DEBUG_GUIDE.md` in the project root.

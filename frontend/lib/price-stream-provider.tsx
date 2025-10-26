@@ -200,10 +200,8 @@ function usePriceStream(options: {
       
       const attemptNum = reconnectAttemptsRef.current + 1
       console.log(`🔌 ${attemptNum > 1 ? 'Reconnecting' : 'Connecting'} to WebSocket (attempt ${attemptNum}/${options.maxReconnectAttempts})`)
-      // URL logging disabled in production for security
-      if (process.env.NODE_ENV === 'development') {
-        console.log(`🔗 Target URL: ${env.NEXT_PUBLIC_WS_URL}`)
-      }
+      // Debug logging for WebSocket connection troubleshooting
+      console.log(`🔗 Attempting WebSocket connection to: ${wsUrl}`)
       
       connectionStartTimeRef.current = Date.now()
       

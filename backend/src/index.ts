@@ -117,7 +117,7 @@ app.register(helmet, {
       objectSrc: ["'none'"],
       baseUri: ["'self'"],
       formAction: ["'self'"],
-      frameAncestors: ["'none'"], // Prevent clickjacking
+      frameAncestors: ["'self'", "https://app.bubblemaps.io", "https://bubblemaps.io"], // Allow BubbleMaps embedding
       upgradeInsecureRequests: isProduction() ? [] : null // Only in production
     }
   },
