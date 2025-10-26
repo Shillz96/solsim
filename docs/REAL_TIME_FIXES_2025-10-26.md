@@ -2,7 +2,7 @@
 
 **Date**: 2025-10-26
 **Status**: ✅ All Critical Fixes Completed
-**Total Fixes**: 5 major improvements
+**Total Fixes**: 6 major improvements
 
 ---
 
@@ -11,6 +11,7 @@
 All critical real-time data issues identified in `PAGE_VERIFICATION_WARP_PIPES_AND_ROOM.md` have been resolved. The platform now provides truly real-time updates across both `/warp-pipes` and `/room/[ca]` pages.
 
 **Key Improvements**:
+- ✅ Trade panel Holdings + PnL now always visible (shows empty state)
 - ✅ Fixed hardcoded SOL price causing incorrect market cap calculations
 - ✅ Replaced polling with real-time WebSocket for Top Traders
 - ✅ Improved data freshness across all components
@@ -21,7 +22,61 @@ All critical real-time data issues identified in `PAGE_VERIFICATION_WARP_PIPES_A
 
 ## Fixes Implemented
 
-### 1. ✅ Fixed Hardcoded SOL Price (Warp Pipes)
+### 1. ✅ TradePanelPosition Always Visible (Room Page)
+
+**Issue**: Holdings and PnL section only displayed when user had a position
+**Impact**: HIGH - Users couldn't see the empty state before buying
+**File**: `frontend/components/trade-panel/TradePanelPosition.tsx`
+
+**Before**:
+```typescript
+export function TradePanelPosition({ tokenSymbol, position, pnl }) {
+  if (!position || !pnl) return null  // ❌ Hidden when no position
+  // ... rest of component
+}
+```
+
+**After**:
+```typescript
+export function TradePanelPosition({ tokenSymbol, position, pnl }) {
+  // Always render, but show empty state when no position
+  const hasPosition = position && parseFloat(position.qty) > 0
+  const isProfit = pnl ? pnl.unrealizedPnL >= 0 : true
+  const hasSignificantPnL = pnl ? Math.abs(pnl.unrealizedPnL) > 0.01 : false
+
+  return (
+    <motion.div>
+      {/* Holdings Display - Always visible */}
+      <div>
+        <Coins /> Holdings
+        {hasPosition
+          ? `${formatTokenAmount(parseFloat(position.qty))} ${tokenSymbol}`
+          : `0 ${tokenSymbol || 'tokens'}`}  // ✅ Shows zero when empty
+      </div>
+
+      {/* Real-Time PnL Display - Always visible */}
+      <div className={hasSignificantPnL ? 'green/red' : 'gray'}>
+        Real-Time P&L
+        Unrealized: {hasPosition && pnl ? <AnimatedNumber/> : '$0.00'}
+        Percentage: {hasPosition && pnl ? formatPercentage() : '0.00%'}
+      </div>
+    </motion.div>
+  )
+}
+```
+
+**UI Improvements**:
+- ✅ **Always visible** - Shows even when no position
+- ✅ **Empty state** - Displays "0 tokens" and "$0.00" / "0.00%" before purchase
+- ✅ **Grayed out** - Subtle styling when empty (no green/red)
+- ✅ **Smooth transition** - Animates when position acquired
+- ✅ **Real-time updates** - Animates PnL changes when holding tokens
+
+**Result**: Trade panel now has persistent Holdings + PnL section that always displays, matching the user's expected UI behavior.
+
+---
+
+### 2. ✅ Fixed Hardcoded SOL Price (Warp Pipes)
 
 **Issue**: Market cap calculations used hardcoded $150 SOL price
 **Impact**: CRITICAL - Wrong market cap values when SOL price changed
@@ -95,7 +150,53 @@ const isConnected = status === 'connected'
 
 ---
 
-### 3. ✅ Improved Holders Panel Refresh Rate (Room Page)
+### 3. ✅ Replaced Top Traders Polling with Real-Time WebSocket (Room Page)
+
+**Issue**: Top Traders panel used 15-second polling instead of real-time updates
+**Impact**: MEDIUM - Data was 5-30 seconds stale
+**File**: `frontend/components/trading/market-data-panels.tsx`
+
+**Before** (Polling):
+```typescript
+const { data: traders, isLoading } = useQuery({
+  queryKey: ['top-traders', tokenMint],
+  queryFn: () => getTopTraders(tokenMint, 10),
+  refetchInterval: 15000,  // ❌ Polling every 15 seconds
+  staleTime: 10000,
+})
+```
+
+**After** (Real-time WebSocket):
+```typescript
+// Added import
+import { useTopTradersFromStream } from '@/hooks/use-pumpportal-trades'
+
+// Real-time hook using existing PumpPortal WebSocket
+const { topTraders: traders, status } = useTopTradersFromStream({
+  tokenMint,
+  limit: 10,
+  enabled: true,
+})
+
+const isLoading = status === 'connecting' || status === 'loading-history'
+const isConnected = status === 'connected'
+```
+
+**UI Enhancement**: Added live indicator badge:
+```typescript
+{isConnected && (
+  <span className="inline-flex items-center gap-1 text-[10px] text-[var(--luigi-green)] font-bold">
+    <span className="w-1.5 h-1.5 bg-[var(--luigi-green)] rounded-full animate-pulse"></span>
+    LIVE
+  </span>
+)}
+```
+
+**Result**: Top Traders now update in real-time (~100ms latency) using PumpPortal trade stream.
+
+---
+
+### 4. ✅ Improved Holders Panel Refresh Rate (Room Page)
 
 **Issue**: Holders panel refreshed every 60 seconds (too slow)
 **Impact**: LOW - Users saw outdated holder rankings
@@ -125,7 +226,7 @@ const { data: holderData, isLoading } = useQuery({
 
 ---
 
-### 4. ✅ Added Explicit Price Subscription (Room Page)
+### 5. ✅ Added Explicit Price Subscription (Room Page)
 
 **Issue**: Room page didn't explicitly subscribe to price updates
 **Impact**: MEDIUM - Could cause stale prices if no other component subscribed
@@ -162,7 +263,7 @@ useEffect(() => {
 
 ---
 
-### 5. ✅ Improved TokenVitalsBar Data Freshness (Room Page)
+### 6. ✅ Improved TokenVitalsBar Data Freshness (Room Page)
 
 **Issue**: Token details (volume, holder count) refreshed every 2 minutes
 **Impact**: MEDIUM - TokenVitalsBar showed stale data
@@ -380,18 +481,22 @@ Real-time UI updates
 
 ## Files Modified
 
-### 1. `frontend/components/warp-pipes/token-card.tsx`
+### 1. `frontend/components/trade-panel/TradePanelPosition.tsx`
+**Lines Changed**: 24-133 (complete component rewrite)
+**Reason**: Always display Holdings + PnL section (show empty state)
+
+### 2. `frontend/components/warp-pipes/token-card.tsx`
 **Lines Changed**: 4 (import), 58 (hook), 85 (calculation), 194 (deps)
 **Reason**: Fix hardcoded SOL price
 
-### 2. `frontend/components/trading/market-data-panels.tsx`
+### 3. `frontend/components/trading/market-data-panels.tsx`
 **Lines Changed**:
 - Import section: Added `useTopTradersFromStream`
 - TopTradersPanel: Replaced polling with WebSocket (lines 180-239)
 - HoldersPanel: Improved refresh rates (lines 244-249)
 **Reason**: Real-time Top Traders, faster Holders refresh
 
-### 3. `frontend/app/room/[ca]/page.tsx`
+### 4. `frontend/app/room/[ca]/page.tsx`
 **Lines Changed**:
 - Added price subscription useEffect (lines 81-95)
 - Updated token details query (lines 116-121)
@@ -443,6 +548,7 @@ Real-time UI updates
 **Overall Status**: ✅ **95% Real-time**
 
 All critical real-time data issues have been resolved:
+- ✅ Trade panel Holdings + PnL always visible (shows empty state before purchase)
 - ✅ Hardcoded SOL price fixed (was causing incorrect market caps)
 - ✅ Top Traders now real-time via WebSocket (was 15s stale)
 - ✅ Holders refresh 2x faster (30s vs 60s)

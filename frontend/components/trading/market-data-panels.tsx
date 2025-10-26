@@ -185,7 +185,7 @@ const TopTradersPanel = memo(function TopTradersPanel({ tokenMint }: { tokenMint
     enabled: true,
   })
 
-  const isLoading = status === 'connecting' || status === 'loading-history'
+  const isLoading = status === 'connecting'
   const isConnected = status === 'connected'
 
   return (
