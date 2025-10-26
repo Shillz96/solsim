@@ -332,19 +332,16 @@ export function TradePanelContainer({ tokenAddress: propTokenAddress }: TradePan
           {(tradePanelState.tradeError || tradePanelState.lastTradeSuccess) && (
             <div className="mb-2">
               {tradePanelState.tradeError && (
-                <Alert variant="destructive" className={cn(marioStyles.border('sm'), 'border-[var(--mario-red)] py-2')}>
+                <Alert variant="destructive" className="border-2 border-[var(--mario-red)] py-2">
                   <AlertCircle className="h-3 w-3" />
                   <AlertDescription className="text-xs">{tradePanelState.tradeError}</AlertDescription>
                 </Alert>
               )}
 
               {tradePanelState.lastTradeSuccess && (
-                <Alert className={cn(
-                  marioStyles.border('sm'),
-                  'border-[var(--luigi-green)] bg-[var(--luigi-green)]/10 py-2'
-                )}>
+                <Alert className="border-2 border-[var(--luigi-green)] bg-[var(--luigi-green)]/10 py-2">
                   <CheckCircle className="h-3 w-3 text-[var(--luigi-green)]" />
-                  <AlertDescription className={cn(marioStyles.bodyText('bold'), 'text-[var(--luigi-green)] text-xs')}>
+                  <AlertDescription className="font-bold text-[var(--luigi-green)] text-xs">
                     1-UP! Trade executed!
                   </AlertDescription>
                 </Alert>
@@ -358,36 +355,38 @@ export function TradePanelContainer({ tokenAddress: propTokenAddress }: TradePan
             balance={userBalance}
           />
 
+          {/* Stats Bar - Bought | Sold | Holding | PnL */}
+          <TradePanelStatsBar
+            bought={0}  // TODO: Calculate lifetime bought
+            sold={0}    // TODO: Calculate lifetime sold
+            holdingValue={position ? parseFloat(position.qty) * displayPrice : 0}
+            pnl={pnl?.unrealizedPnL || 0}
+            pnlPercent={pnl?.unrealizedPercent || 0}
+          />
+
           {/* Price Display */}
           <TradePanelPrice
             currentPrice={displayPrice}
             solPrice={solPrice}
           />
 
-          {/* Position with Real-Time PnL */}
-          <TradePanelPosition
-            tokenSymbol={tokenDetails.tokenSymbol}
-            position={position}
-            pnl={pnl}
-          />
-
           {/* Trading Tabs */}
           <Tabs defaultValue="buy" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 gap-2 bg-transparent p-0">
+            <TabsList className="grid w-full grid-cols-2 gap-0 bg-transparent p-0">
               <TabsTrigger
                 value="buy"
-                className="trade-tab trade-tab-buy data-[state=active]:scale-105 data-[state=inactive]:trade-tab-inactive"
+                className="data-[state=active]:bg-[var(--luigi-green)]"
               >
                 <TrendingUp className="h-4 w-4 mr-1.5" />
-                BUY
+                Buy
               </TabsTrigger>
               <TabsTrigger
                 value="sell"
-                className="trade-tab trade-tab-sell data-[state=active]:scale-105 data-[state=inactive]:trade-tab-inactive"
+                className="data-[state=active]:bg-[var(--mario-red)]"
                 disabled={!hasPosition}
               >
                 <TrendingDown className="h-4 w-4 mr-1.5" />
-                SELL
+                Sell
               </TabsTrigger>
             </TabsList>
 
