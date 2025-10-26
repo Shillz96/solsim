@@ -102,23 +102,6 @@ export class ModerationBot {
    * Detect spam patterns
    */
   private static async detectSpam(userId: string, content: string): Promise<Violation | null> {
-    // Check rate limiting
-    const rateLimitKey = `chat:ratelimit:${userId}`;
-    const rateLimit = await this.checkRateLimit(
-      rateLimitKey, 
-      currentConfig.rateLimit.messagesPerWindow, 
-      currentConfig.rateLimit.windowSeconds
-    );
-    
-    if (!rateLimit.allowed) {
-      return {
-        type: 'SPAM',
-        severity: 'HIGH',
-        confidence: 95,
-        details: 'Rate limit exceeded'
-      };
-    }
-
     // Check for repeated characters (only extreme cases)
     const repeatedCharPattern = /(.)\1{7,}/g; // 8+ repeated characters
     if (repeatedCharPattern.test(content)) {
@@ -404,30 +387,6 @@ export class ModerationBot {
     });
   }
 
-  /**
-   * Check rate limit
-   */
-  private static async checkRateLimit(key: string, limit: number, window: number): Promise<{ allowed: boolean; remaining: number; resetAt: number }> {
-    const current = await redis.get(key);
-    const count = current ? parseInt(current) : 0;
-    
-    if (count >= limit) {
-      return {
-        allowed: false,
-        remaining: 0,
-        resetAt: Date.now() + window * 1000
-      };
-    }
-
-    await redis.incr(key);
-    await redis.expire(key, window);
-    
-    return {
-      allowed: true,
-      remaining: limit - count - 1,
-      resetAt: Date.now() + window * 1000
-    };
-  }
 
   /**
    * Get message hash for duplicate detection
