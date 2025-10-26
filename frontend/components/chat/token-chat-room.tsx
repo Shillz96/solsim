@@ -22,7 +22,7 @@ import { Input } from '@/components/ui/input'
 import { EmojiPicker } from '@/components/ui/emoji-picker'
 import { ChatMessage } from '@/components/chat/chat-message'
 import { UserModerationSheet } from '@/components/moderation/user-moderation-sheet'
-import { Loader2, Send, Users, AlertCircle, Wifi, WifiOff, MessageSquare, Shield } from 'lucide-react'
+import { Loader2, Send, AlertCircle, Wifi, WifiOff } from 'lucide-react'
 import { cn, marioStyles } from '@/lib/utils'
 import Image from 'next/image'
 
@@ -112,57 +112,16 @@ export function TokenChatRoom({ tokenMint, className }: TokenChatRoomProps) {
   return (
     <div className={cn("flex flex-col h-full", className)}>
       {/* Token Chat Header */}
-      <div className={cn(
-        marioStyles.headerGradient('var(--mario-red)', 'red-500')
-      )}>
-        <div className="flex items-center gap-3">
-          <div className={cn(marioStyles.iconContainer('md', 'white'), 'text-xl')}>
-            <MessageSquare className="h-5 w-5" />
-          </div>
-          <div>
-            <div className="h-6 flex items-center mb-1">
-              <Image
-                src="/chat-10-25-2025.png"
-                alt="Chat Header"
-                width={100}
-                height={24}
-                className="h-full w-auto object-contain"
-                priority
-              />
-            </div>
-            <div className={cn(marioStyles.bodyText('bold'), 'text-xs text-white/90 flex items-center gap-1.5')}>
-              <Users className="h-3.5 w-3.5" />
-              <span>{participantCount > 0 ? `${participantCount} online` : 'Loading...'}</span>
-              <span className="text-white/70">•</span>
-              <span className="text-white/70 text-[10px] font-mono">
-                {tokenMint.slice(0, 4)}...{tokenMint.slice(-4)}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* Connection Status */}
-        <div className="flex items-center gap-2">
-          {/* Moderator Badge */}
-          {canModerate && (
-            <div className={cn(
-              marioStyles.badgeLg('admin'),
-              'bg-[var(--luigi-green)] border-[var(--luigi-green)]'
-            )}>
-              <Shield className="h-3 w-3 mr-1" />
-              MOD
-            </div>
-          )}
-          
-          <div
-            className={marioStyles.statusBox(statusColor)}
-            style={{ backgroundColor: statusColor }}
-          >
-            <StatusIcon className="h-3.5 w-3.5 text-white" />
-            <span className="text-xs font-mario font-bold text-white capitalize">
-              {status}
-            </span>
-          </div>
+      <div className="flex items-center justify-center mb-3 pb-3 border-b-3 border-[var(--outline-black)]">
+        <div className="h-8 flex items-center">
+          <Image
+            src="/chat-10-25-2025.png"
+            alt="Chat Header"
+            width={120}
+            height={32}
+            className="h-full w-auto object-contain"
+            priority
+          />
         </div>
       </div>
 
