@@ -219,15 +219,21 @@
 
     /* Enhanced Coin Gold */
     --color-coin: color(display-p3 1.0 0.72 0.08);          /* Coin Gold P3 */
+    --coin-gold: color(display-p3 1.0 0.72 0.08);           /* Coin Gold P3 (Tailwind reference) */
 
     /* Enhanced Sky Blue */
     --color-sky: color(display-p3 0.65 0.85 1.0);           /* Sky Blue P3 */
+    --sky-blue: color(display-p3 0.65 0.85 1.0);            /* Sky Blue P3 (Tailwind reference) */
 
     /* Enhanced Super Blue */
     --color-super: color(display-p3 0.17 0.31 0.98);        /* Super Blue P3 */
 
     /* Enhanced Pipe Green */
     --color-pipe: color(display-p3 0.0 0.60 0.30);          /* Pipe Green P3 */
+    --pipe-green: color(display-p3 0.0 0.60 0.30);          /* Pipe Green P3 (Tailwind reference) */
+
+    /* Enhanced Brick Brown */
+    --brick-brown: color(display-p3 0.61 0.35 0.09);        /* Brick Brown P3 */
 
     /* Enhanced trading colors - More vibrant on P3 displays */
     --color-profit: color(display-p3 0.26 0.69 0.28);       /* Luigi Green P3 */
