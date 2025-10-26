@@ -1,0 +1,258 @@
+/**
+ * PumpPortal Real-Time Data API Routes
+ *
+ * Backend proxy for PumpPortal WebSocket data.
+ * Serves cached trade data and token metadata from Redis.
+ */
+
+import { FastifyPluginAsync } from 'fastify';
+import { z } from 'zod';
+import Redis from 'ioredis';
+import { pumpPortalStreamService } from '../services/pumpPortalStreamService.js';
+
+const redis = new Redis(process.env.REDIS_URL || '');
+
+// ============================================================================
+// TYPES
+// ============================================================================
+
+export interface RecentTrade {
+  ts: number;
+  side: 'buy' | 'sell';
+  priceSol?: number;
+  amountSol?: number;
+  amountToken?: number;
+  signer: string;
+  sig: string;
+  mint: string;
+}
+
+export interface TokenMetadata {
+  mint: string;
+  name?: string;
+  symbol?: string;
+  description?: string;
+  imageUrl?: string;
+  twitter?: string;
+  telegram?: string;
+  website?: string;
+  holderCount?: number;
+  marketCapSol?: number;
+  vSolInBondingCurve?: number;
+  vTokensInBondingCurve?: number;
+  bondingCurveProgress?: number;
+  timestamp: number;
+}
+
+// ============================================================================
+// VALIDATION SCHEMAS
+// ============================================================================
+
+const MintParamSchema = z.object({
+  mint: z.string().min(32).max(44), // Solana address
+});
+
+const TradeQuerySchema = z.object({
+  limit: z.coerce.number().min(1).max(100).optional().default(50),
+});
+
+// ============================================================================
+// REDIS CACHE KEYS
+// ============================================================================
+
+const REDIS_KEYS = {
+  trades: (mint: string) => `pumpportal:trades:${mint}`,
+  metadata: (mint: string) => `pumpportal:metadata:${mint}`,
+  tradeCount: (mint: string) => `pumpportal:trade_count:${mint}`,
+};
+
+// TTL for cached data (seconds)
+const TRADE_CACHE_TTL = 300; // 5 minutes
+const METADATA_CACHE_TTL = 60; // 1 minute (more frequent updates)
+
+// ============================================================================
+// ROUTE PLUGIN
+// ============================================================================
+
+const pumpPortalDataRoutes: FastifyPluginAsync = async (fastify) => {
+  // ==========================================================================
+  // GET /api/pumpportal/trades/:mint
+  // Server-Sent Events (SSE) stream for real-time trades
+  // ==========================================================================
+  fastify.get<{
+    Params: z.infer<typeof MintParamSchema>;
+    Querystring: z.infer<typeof TradeQuerySchema>;
+  }>(
+    '/trades/:mint',
+    async (request, reply) => {
+      try {
+        const { mint } = MintParamSchema.parse(request.params);
+        const { limit } = TradeQuerySchema.parse(request.query);
+
+        // Subscribe to this token if not already subscribed
+        pumpPortalStreamService.subscribeToTokens([mint]);
+
+        // Set up SSE headers
+        reply.raw.writeHead(200, {
+          'Content-Type': 'text/event-stream',
+          'Cache-Control': 'no-cache',
+          'Connection': 'keep-alive',
+          'Access-Control-Allow-Origin': '*',
+        });
+
+        // Send initial cached trades immediately
+        const cacheKey = REDIS_KEYS.trades(mint);
+        const tradeData = await redis.zrevrange(cacheKey, 0, limit - 1, 'WITHSCORES');
+
+        const trades: RecentTrade[] = [];
+        for (let i = 0; i < tradeData.length; i += 2) {
+          try {
+            trades.push(JSON.parse(tradeData[i]));
+          } catch (err) {
+            console.error('[PumpPortalData] Failed to parse trade data:', err);
+          }
+        }
+
+        // Send initial history
+        reply.raw.write(`data: ${JSON.stringify({ type: 'history', trades })}\n\n`);
+
+        // Listen for new trades and stream them in real-time
+        const tradeHandler = (event: any) => {
+          if (event.mint === mint) {
+            const trade: RecentTrade = {
+              ts: event.timestamp,
+              side: event.txType,
+              amountSol: event.solAmount,
+              amountToken: event.tokenAmount,
+              signer: event.user || 'unknown',
+              sig: 'unknown',
+              mint: event.mint,
+            };
+            
+            reply.raw.write(`data: ${JSON.stringify({ type: 'trade', trade })}\n\n`);
+          }
+        };
+
+        pumpPortalStreamService.on('swap', tradeHandler);
+
+        // Send keepalive every 15 seconds
+        const keepaliveInterval = setInterval(() => {
+          reply.raw.write(': keepalive\n\n');
+        }, 15000);
+
+        // Cleanup on connection close
+        request.raw.on('close', () => {
+          pumpPortalStreamService.off('swap', tradeHandler);
+          clearInterval(keepaliveInterval);
+          reply.raw.end();
+        });
+
+      } catch (error: any) {
+        console.error('[PumpPortalData] Error setting up trade stream:', error);
+        reply.raw.end();
+      }
+    }
+  );
+
+  // ==========================================================================
+  // GET /api/pumpportal/metadata/:mint
+  // Server-Sent Events (SSE) stream for real-time token metadata
+  // ==========================================================================
+  fastify.get<{
+    Params: z.infer<typeof MintParamSchema>;
+  }>(
+    '/metadata/:mint',
+    async (request, reply) => {
+      try {
+        const { mint } = MintParamSchema.parse(request.params);
+
+        // Subscribe to this token if not already subscribed
+        pumpPortalStreamService.subscribeToTokens([mint]);
+
+        // Set up SSE headers
+        reply.raw.writeHead(200, {
+          'Content-Type': 'text/event-stream',
+          'Cache-Control': 'no-cache',
+          'Connection': 'keep-alive',
+          'Access-Control-Allow-Origin': '*',
+        });
+
+        // Send initial cached metadata
+        const cacheKey = REDIS_KEYS.metadata(mint);
+        const metadataStr = await redis.get(cacheKey);
+
+        if (metadataStr) {
+          const metadata: TokenMetadata = JSON.parse(metadataStr);
+          reply.raw.write(`data: ${JSON.stringify({ type: 'metadata', metadata })}\n\n`);
+        }
+
+        // Listen for new token events (contains updated metadata)
+        const metadataHandler = (event: any) => {
+          if (event.token?.mint === mint) {
+            const metadata: TokenMetadata = {
+              mint: event.token.mint,
+              name: event.token.name,
+              symbol: event.token.symbol,
+              description: event.token.description,
+              imageUrl: event.token.uri,
+              twitter: event.token.twitter,
+              telegram: event.token.telegram,
+              website: event.token.website,
+              holderCount: event.token.holderCount,
+              marketCapSol: event.token.marketCapSol,
+              vSolInBondingCurve: event.token.vSolInBondingCurve,
+              vTokensInBondingCurve: event.token.vTokensInBondingCurve,
+              timestamp: event.timestamp,
+            };
+
+            reply.raw.write(`data: ${JSON.stringify({ type: 'metadata', metadata })}\n\n`);
+          }
+        };
+
+        pumpPortalStreamService.on('newToken', metadataHandler);
+
+        // Send keepalive every 15 seconds
+        const keepaliveInterval = setInterval(() => {
+          reply.raw.write(': keepalive\n\n');
+        }, 15000);
+
+        // Cleanup on connection close
+        request.raw.on('close', () => {
+          pumpPortalStreamService.off('newToken', metadataHandler);
+          clearInterval(keepaliveInterval);
+          reply.raw.end();
+        });
+
+      } catch (error: any) {
+        console.error('[PumpPortalData] Error setting up metadata stream:', error);
+        reply.raw.end();
+      }
+    }
+  );
+
+  // ==========================================================================
+  // GET /api/pumpportal/status
+  // Get WebSocket connection status and subscription info
+  // ==========================================================================
+  fastify.get('/status', async (request, reply) => {
+    try {
+      const subscribedTokenCount = pumpPortalStreamService.getSubscribedTokenCount();
+
+      return {
+        success: true,
+        status: {
+          connected: true, // If this endpoint responds, service is running
+          subscribedTokens: subscribedTokenCount,
+          timestamp: Date.now(),
+        },
+      };
+    } catch (error: any) {
+      return reply.code(500).send({
+        success: false,
+        error: error.message || 'Failed to get status',
+      });
+    }
+  });
+};
+
+export default pumpPortalDataRoutes;

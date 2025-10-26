@@ -11,6 +11,20 @@
 
 import WebSocket from 'ws';
 import { EventEmitter } from 'events';
+import Redis from 'ioredis';
+
+const redis = new Redis(process.env.REDIS_URL || '');
+
+// Redis cache keys
+const REDIS_KEYS = {
+  trades: (mint: string) => `pumpportal:trades:${mint}`,
+  metadata: (mint: string) => `pumpportal:metadata:${mint}`,
+};
+
+// TTL for cached data (seconds)
+const TRADE_CACHE_TTL = 300; // 5 minutes
+const METADATA_CACHE_TTL = 60; // 1 minute
+const MAX_CACHED_TRADES_PER_TOKEN = 100; // Keep last 100 trades per token
 
 export interface NewTokenEvent {
   type: 'newToken';
@@ -96,6 +110,68 @@ class PumpPortalStreamService extends EventEmitter {
     this.wsUrl = apiKey
       ? `wss://pumpportal.fun/api/data?api-key=${apiKey}`
       : 'wss://pumpportal.fun/api/data';
+    
+    // Setup event listeners for Redis caching
+    this.setupRedisCaching();
+  }
+
+  /**
+   * Setup event listeners to cache data in Redis for frontend consumption
+   */
+  private setupRedisCaching(): void {
+    // Cache swap events as trades
+    this.on('swap', async (event: SwapEvent) => {
+      try {
+        const trade = {
+          ts: event.timestamp,
+          side: event.txType,
+          amountSol: event.solAmount,
+          amountToken: event.tokenAmount,
+          signer: event.user || 'unknown',
+          sig: 'unknown', // Signature not always available
+          mint: event.mint,
+        };
+
+        const cacheKey = REDIS_KEYS.trades(event.mint);
+        
+        // Store in sorted set with timestamp as score (for time-based queries)
+        await redis.zadd(cacheKey, event.timestamp, JSON.stringify(trade));
+        
+        // Trim to keep only last N trades per token
+        await redis.zremrangebyrank(cacheKey, 0, -(MAX_CACHED_TRADES_PER_TOKEN + 1));
+        
+        // Set TTL on the sorted set
+        await redis.expire(cacheKey, TRADE_CACHE_TTL);
+      } catch (error) {
+        console.error('[PumpPortal] Error caching trade:', error);
+      }
+    });
+
+    // Cache token metadata from newToken events
+    this.on('newToken', async (event: NewTokenEvent) => {
+      try {
+        const metadata = {
+          mint: event.token.mint,
+          name: event.token.name,
+          symbol: event.token.symbol,
+          description: event.token.description,
+          imageUrl: event.token.uri,
+          twitter: event.token.twitter,
+          telegram: event.token.telegram,
+          website: event.token.website,
+          holderCount: event.token.holderCount,
+          marketCapSol: event.token.marketCapSol,
+          vSolInBondingCurve: event.token.vSolInBondingCurve,
+          vTokensInBondingCurve: event.token.vTokensInBondingCurve,
+          timestamp: event.timestamp,
+        };
+
+        const cacheKey = REDIS_KEYS.metadata(event.token.mint);
+        await redis.setex(cacheKey, METADATA_CACHE_TTL, JSON.stringify(metadata));
+      } catch (error) {
+        console.error('[PumpPortal] Error caching metadata:', error);
+      }
+    });
   }
 
   /**

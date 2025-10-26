@@ -40,6 +40,7 @@ import chatRoutes from "./routes/chat.js";
 import badgeRoutes from "./routes/badges.js";
 import moderationRoutes from "./routes/moderation.js";
 import moderationConfigRoutes from "./routes/moderationConfig.js";
+import pumpPortalDataRoutes from "./routes/pumpPortalData.js";
 
 // Import plugins and services
 import wsPlugin from "./plugins/ws.js";
@@ -269,6 +270,7 @@ app.register(chatRoutes); // Chat REST API routes (messages, moderation)
 app.register(badgeRoutes, { prefix: "/api/badges" }); // Badge management routes
 app.register(moderationRoutes, { prefix: "/api/moderation" }); // Moderation routes
 app.register(moderationConfigRoutes, { prefix: "/api/moderation" }); // Moderation configuration routes
+app.register(pumpPortalDataRoutes, { prefix: "/api/pumpportal" }); // Real-time PumpPortal data proxy
 app.register(debugRoutes); // Debug routes for price service monitoring
 app.register(adminRoutes, { prefix: "/api/admin" }); // Admin maintenance routes (protected)
 app.register(sentryTestRoutes); // Sentry test routes (dev only)
