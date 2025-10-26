@@ -16,7 +16,7 @@ export function useTradeExecution() {
   const { getUserId } = useAuth()
   const { toast } = useToast()
   const queryClient = useQueryClient()
-  const { tradeMode } = useTradingMode()
+  const { tradeMode, refreshBalances } = useTradingMode()
   const { addOptimisticTrade } = useRealtimePnL(tradeMode)
   
   // Track execution state
@@ -61,6 +61,7 @@ export function useTradeExecution() {
           duration: 5000,
         })
 
+        await refreshBalances()
         onSuccess?.()
       } else {
         // Revert optimistic update on failure
@@ -87,7 +88,7 @@ export function useTradeExecution() {
     } finally {
       setIsExecuting(false)
     }
-  }, [getUserId, toast, queryClient])
+  }, [getUserId, toast, queryClient, refreshBalances])
 
   const executeSell = useCallback(async (
     tokenAddress: string,
@@ -128,6 +129,7 @@ export function useTradeExecution() {
           duration: 5000,
         })
 
+        await refreshBalances()
         onSuccess?.()
       } else {
         // Revert optimistic update on failure
@@ -154,7 +156,7 @@ export function useTradeExecution() {
     } finally {
       setIsExecuting(false)
     }
-  }, [getUserId, toast, queryClient])
+  }, [getUserId, toast, queryClient, refreshBalances])
 
   return {
     executeBuy,

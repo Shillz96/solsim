@@ -52,7 +52,7 @@ export function TradePanelContainer({ tokenAddress: propTokenAddress }: TradePan
 
   const { user, isAuthenticated, getUserId } = useAuth()
   const { toast } = useToast()
-  const { prices: livePrices } = usePriceStreamContext()
+  const { prices: livePrices, subscribe, unsubscribe } = usePriceStreamContext()
 
   // Custom hooks
   const tradePanelState = useTradePanelState()
@@ -117,6 +117,15 @@ export function TradePanelContainer({ tokenAddress: propTokenAddress }: TradePan
 
     loadTokenDetails()
   }, [tokenAddress])
+
+  // Ensure live price subscription for the active token
+  useEffect(() => {
+    if (!tokenAddress) return
+    subscribe(tokenAddress)
+    return () => {
+      unsubscribe(tokenAddress)
+    }
+  }, [tokenAddress, subscribe, unsubscribe])
 
   // Handle buy trade
   const handleBuy = useCallback(async () => {
