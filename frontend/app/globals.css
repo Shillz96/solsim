@@ -377,7 +377,7 @@
   background: #e5e5e5;
 }
 
-/* Trade Action Buttons (Main Buy/Sell) - No Hover Effects */
+/* Trade Action Buttons (Main Buy/Sell) - With Hover Effects */
 .trade-action-btn {
   border: 3px solid var(--outline-black);
   border-radius: var(--radius-lg);
@@ -388,6 +388,17 @@
   letter-spacing: 0.5px;
   box-shadow: 3px 3px 0 var(--outline-black);
   position: relative;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.trade-action-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 4px 4px 0 var(--outline-black);
+}
+
+.trade-action-btn:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 2px 2px 0 var(--outline-black);
 }
 
 .trade-action-btn-buy {

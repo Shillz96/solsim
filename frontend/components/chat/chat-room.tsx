@@ -225,7 +225,7 @@ export function ChatRoom({ tokenMint, className, headerImage, headerImageAlt = '
           </button>
         </div>
         {user && inputValue && (
-          <div className={cn(marioStyles.bodyText('medium'), 'text-xs opacity-60 mt-2 text-right absolute bottom-1 right-4')}>
+          <div className={cn(marioStyles.bodyText('medium'), 'text-[10px] text-[var(--outline-black)]/60 mt-2 text-right')}>
             {inputValue.length}/280
           </div>
         )}
