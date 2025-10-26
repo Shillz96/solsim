@@ -187,6 +187,36 @@ const pumpPortalDataRoutes: FastifyPluginAsync = async (fastify) => {
   );
 
   // ==========================================================================
+  // GET /api/pumpportal/top-traders/:mint
+  // Get top traders for a token from Helius trade data
+  // ==========================================================================
+  fastify.get<{
+    Params: z.infer<typeof MintParamSchema>;
+  }>(
+    '/top-traders/:mint',
+    async (request, reply) => {
+      try {
+        const { mint } = MintParamSchema.parse(request.params);
+
+        // Get top traders from Helius service
+        const topTraders = heliusTradeStreamService.getTopTraders(mint, 20);
+
+        return {
+          success: true,
+          mint,
+          topTraders,
+          timestamp: Date.now(),
+        };
+      } catch (error: any) {
+        return reply.code(500).send({
+          success: false,
+          error: error.message || 'Failed to get top traders',
+        });
+      }
+    }
+  );
+
+  // ==========================================================================
   // GET /api/pumpportal/metadata/:mint
   // Server-Sent Events (SSE) stream for real-time token metadata
   // ==========================================================================

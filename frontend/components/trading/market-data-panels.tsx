@@ -177,16 +177,20 @@ const RecentTradesPanel = memo(function RecentTradesPanel({ tokenMint }: { token
   )
 })
 
-// Top Traders Panel - Now using real-time PumpPortal WebSocket
+// Top Traders Panel - Now using Helius-powered real-time data
 const TopTradersPanel = memo(function TopTradersPanel({ tokenMint }: { tokenMint: string }) {
-  const { topTraders: traders, status } = useTopTradersFromStream({
-    tokenMint,
-    limit: 10,
-    enabled: true,
-  })
+  const { data: topTradersData, isLoading } = useQuery({
+    queryKey: ['top-traders', tokenMint],
+    queryFn: async () => {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/pumpportal/top-traders/${tokenMint}`);
+      if (!response.ok) throw new Error('Failed to fetch top traders');
+      return response.json();
+    },
+    refetchInterval: 10000, // Refresh every 10 seconds
+    staleTime: 5000, // Consider data stale after 5 seconds
+  });
 
-  const isLoading = status === 'connecting'
-  const isConnected = status === 'connected'
+  const traders = topTradersData?.topTraders || [];
 
   return (
     <div className="mario-card bg-white p-4">
@@ -197,8 +201,8 @@ const TopTradersPanel = memo(function TopTradersPanel({ tokenMint }: { tokenMint
         <div className="flex-1">
           <h3 className="font-bold text-sm uppercase">Top Traders</h3>
           <div className="flex items-center gap-2">
-            <p className="text-xs text-[var(--foreground)] opacity-70">Real-time activity</p>
-            {isConnected && (
+            <p className="text-xs text-[var(--foreground)] opacity-70">Helius on-chain data</p>
+            {!isLoading && traders.length > 0 && (
               <span className="inline-flex items-center gap-1 text-[10px] text-[var(--luigi-green)] font-bold">
                 <span className="w-1.5 h-1.5 bg-[var(--luigi-green)] rounded-full animate-pulse"></span>
                 LIVE
@@ -211,7 +215,7 @@ const TopTradersPanel = memo(function TopTradersPanel({ tokenMint }: { tokenMint
       {isLoading ? (
         <div className="text-center py-4">
           <div className="text-2xl mb-2">⏳</div>
-          <p className="text-sm text-[var(--foreground)] opacity-70">Connecting to live data...</p>
+          <p className="text-sm text-[var(--foreground)] opacity-70">Loading traders...</p>
         </div>
       ) : !traders || traders.length === 0 ? (
         <div className="text-center py-4">
@@ -220,7 +224,7 @@ const TopTradersPanel = memo(function TopTradersPanel({ tokenMint }: { tokenMint
         </div>
       ) : (
         <div className="space-y-2 max-h-[300px] overflow-y-auto">
-          {traders.map((trader, index: number) => (
+          {traders.map((trader: any, index: number) => (
             <div
               key={trader.address}
               className="flex items-center justify-between p-2 rounded-lg border-2 border-[var(--outline-black)] bg-[var(--background)] hover:bg-[var(--color-star)] hover:bg-opacity-10 transition-colors"
