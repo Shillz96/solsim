@@ -184,7 +184,7 @@ export function ChatRoom({ tokenMint, className, headerImage, headerImageAlt = '
       </div>
 
       {/* Input Area */}
-      <div className="p-4 border-t-4 border-[var(--outline-black)] bg-gradient-to-r from-white to-[var(--mario-red)]/10 flex-shrink-0 shadow-[0_-4px_0_rgba(0,0,0,0.05)]">
+      <div className="p-4 pb-6 border-t-4 border-[var(--outline-black)] bg-gradient-to-r from-white to-[var(--mario-red)]/10 flex-shrink-0 shadow-[0_-4px_0_rgba(0,0,0,0.05)]">
         <div className="flex gap-2 items-end">
           <input
             ref={inputRef}
@@ -210,7 +210,7 @@ export function ChatRoom({ tokenMint, className, headerImage, headerImageAlt = '
           </button>
         </div>
         {user && inputValue && (
-          <div className="text-xs opacity-60 mt-2 text-right font-medium text-[var(--outline-black)]">
+          <div className={cn(marioStyles.bodyText('medium'), 'text-xs opacity-60 mt-2 text-right')}>
             {inputValue.length}/280
           </div>
         )}
