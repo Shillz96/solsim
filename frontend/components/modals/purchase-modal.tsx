@@ -244,6 +244,7 @@ export function PurchaseModal({ open, onOpenChange, userId }: PurchaseModalProps
         return (
           <>
             <DialogHeader className="space-y-4 pb-6">
+              <DialogTitle className="sr-only">Purchase Simulated SOL</DialogTitle>
               <div className="flex justify-center">
                 <MarioPageHeader
                   src="/icons/mario/Purchase-Simulated-SOL-10-22-2025-header.png"

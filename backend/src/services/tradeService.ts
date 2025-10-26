@@ -1,23 +1,23 @@
 // Enhanced Trade service with comprehensive portfolio updates
+// Refactored to use shared logic from tradeCommon.ts
 import prisma from "../plugins/prisma.js";
 import { Decimal } from "@prisma/client/runtime/library";
 import priceService from "../plugins/priceService.js";
-import { D, vwapBuy, fifoSell } from "../utils/pnl.js";
+import { D } from "../utils/pnl.js";
 import { simulateFees } from "../utils/decimal-helpers.js";
-import { addTradePoints } from "./rewardService.js";
-import { portfolioCoalescer } from "../utils/requestCoalescer.js";
 import * as notificationService from "./notificationService.js";
 import redlock from "../plugins/redlock.js";
 import { realtimePnLService } from "./realtimePnLService.js";
-
-// Helper for market cap VWAP
-function mcVwapUpdate(oldQty: Decimal, oldMcVwap: Decimal, buyQty: Decimal, mcAtFillUsd: Decimal | null) {
-  if (!mcAtFillUsd || mcAtFillUsd.lte(0)) return oldMcVwap;
-  const newQty = oldQty.add(buyQty);
-  return oldQty.eq(0)
-    ? mcAtFillUsd
-    : oldQty.mul(oldMcVwap).add(buyQty.mul(mcAtFillUsd)).div(newQty);
-}
+import {
+  getValidatedPrice,
+  checkAndClampSellQuantity,
+  createFIFOLot,
+  updatePositionBuy,
+  executeFIFOSell,
+  updatePositionSell,
+  executePostTradeOperations,
+  mcVwapUpdate
+} from "./tradeCommon.js";
 
 // Enhanced trade interface with portfolio totals
 interface TradeResult {
@@ -47,13 +47,11 @@ export async function fillTrade({
   let q = D(qty);
   if (q.lte(0)) throw new Error("Quantity must be greater than 0");
 
-  // Debug logging for trade execution
   console.log(`[Trade] ${side} order: userId=${userId}, mint=${mint.substring(0, 8)}..., qty=${qty}`);
 
-  // Acquire distributed lock to prevent race conditions on concurrent trades
-  // Lock key format: trade:{userId}:{mint}
+  // Acquire distributed lock to prevent race conditions
   const lockKey = `trade:${userId}:${mint}`;
-  const lockTTL = 5000; // 5 seconds - sufficient for trade execution
+  const lockTTL = 5000;
 
   let lock;
   try {
@@ -65,21 +63,17 @@ export async function fillTrade({
   }
 
   try {
-    // Execute trade within lock
     return await executeTradeLogic({ userId, mint, side, qty: q });
   } finally {
-    // Always release the lock
     try {
       await lock.release();
       console.log(`[Trade] Lock released for ${lockKey}`);
     } catch (error) {
       console.error(`[Trade] Failed to release lock for ${lockKey}:`, error);
-      // Non-critical error - lock will expire automatically
     }
   }
 }
 
-// Internal function containing the actual trade logic
 async function executeTradeLogic({
   userId,
   mint,
@@ -96,77 +90,17 @@ async function executeTradeLogic({
   const user = await prisma.user.findUnique({ where: { id: userId } });
   if (!user) throw new Error("User not found");
 
-  // Grab latest tick from cache with validation
-  let tick = await priceService.getLastTick(mint);
+  // Get validated price data using shared function
+  const { priceUsd, priceSol, solUsdAtFill, marketCapUsd } = await getValidatedPrice(mint, side);
+  const mcAtFill = marketCapUsd;
 
-  // For SELL orders, if no price found, force a fresh fetch (bypass negative cache)
-  // This handles cases where token was cached as "not found" but now has liquidity
-  if (!tick && side === 'SELL') {
-    console.warn(`No cached price for SELL order (${mint.slice(0, 8)}), forcing fresh fetch`);
-    // Clear negative cache to ensure we actually try to fetch
-    // If user has a position, they must have bought it, so price should be available
-    priceService.clearNegativeCache(mint);
-    tick = await priceService.fetchTokenPrice(mint);
-  }
-
-  if (!tick) {
-    throw new Error(`Price data unavailable for token ${mint}`);
-  }
-
-  // Validate price is not zero or negative
-  if (!tick.priceUsd || tick.priceUsd <= 0) {
-    throw new Error(`Invalid price for token ${mint}: $${tick.priceUsd}. Cannot execute trade with zero or negative price.`);
-  }
-
-  // Validate price is not stale (older than 5 minutes)
-  const PRICE_STALENESS_THRESHOLD = 5 * 60 * 1000; // 5 minutes in milliseconds
-  const priceAge = Date.now() - tick.timestamp;
-  if (priceAge > PRICE_STALENESS_THRESHOLD) {
-    throw new Error(
-      `Price data is stale for token ${mint} (${Math.floor(priceAge / 1000)}s old). ` +
-      `Please try again in a moment when fresh price data is available.`
-    );
-  }
-
-  const priceUsd = D(tick.priceUsd);
-  const currentSolPrice = priceService.getSolPrice();
-
-  // Validate SOL price is not zero
-  if (currentSolPrice <= 0) {
-    throw new Error(`Invalid SOL price: $${currentSolPrice}. Cannot execute trade.`);
-  }
-
-  const solUsdAtFill = D(currentSolPrice); // Freeze SOL→USD FX at fill time
-  const priceSol = priceUsd.div(solUsdAtFill); // Token price in SOL terms
-  const mcAtFill = tick.marketCapUsd ? D(tick.marketCapUsd) : null;
-
-  // For sells, check position and clamp quantity if needed (handles floating-point rounding)
+  // For sells, check and clamp quantity using shared function
   if (side === "SELL") {
-    const position = await prisma.position.findUnique({
-      where: { userId_mint_tradeMode: { userId, mint, tradeMode: 'PAPER' } }
-    });
-    if (!position) {
-      throw new Error(`No position found for token`);
-    }
-
-    const positionQty = position.qty as Decimal;
-    const difference = positionQty.minus(q);
-
-    // Allow tiny rounding errors (e.g., selling "all" with 0.0001 difference due to floating point)
-    const EPSILON = D("0.0001");
-    if (difference.lt(EPSILON.neg())) {
-      // Position is less than required by more than epsilon
-      throw new Error(`Insufficient token balance. Required: ${q.toFixed(4)}, Available: ${positionQty.toFixed(4)}`);
-    }
-
-    // If user is trying to sell slightly more than available due to rounding, clamp to available
-    if (difference.lt(0) && difference.gte(EPSILON.neg())) {
-      console.log(`[Trade] ⚠️ Clamping sell quantity from ${q.toString()} to ${positionQty.toString()} (diff: ${difference.toString()})`);
-      q = positionQty; // Clamp to exact position quantity
-    }
+    const { clampedQty } = await checkAndClampSellQuantity(userId, mint, q, 'PAPER');
+    q = clampedQty;
   }
 
-  // Calculate gross trade amounts (before fees)
+  // Calculate gross trade amounts
   const grossSol = q.mul(priceSol);
   const grossUsd = q.mul(priceUsd);
 
@@ -174,37 +108,33 @@ async function executeTradeLogic({
   const fees = simulateFees(grossSol);
   const totalFees = fees.dexFee.plus(fees.l1Fee).plus(fees.tipFee);
 
-  // Calculate net amounts (including fees in cost basis)
+  // Calculate net amounts
   let netSol: Decimal;
   let tradeCostSol: Decimal;
   let tradeCostUsd: Decimal;
 
   if (side === "BUY") {
-    // For buys: net = gross + fees (we pay more)
     netSol = grossSol.plus(totalFees);
     tradeCostSol = netSol;
-    tradeCostUsd = netSol.mul(solUsdAtFill); // Freeze USD at fill time
+    tradeCostUsd = netSol.mul(solUsdAtFill);
 
-    // Check if user has enough SOL balance
+    // Check SOL balance
     const currentBalance = user.virtualSolBalance as Decimal;
     if (currentBalance.lt(tradeCostSol)) {
       throw new Error(`Insufficient SOL balance. Required: ${tradeCostSol.toFixed(4)} SOL, Available: ${currentBalance.toFixed(4)} SOL`);
     }
   } else {
-    // For sells: net = gross - fees (we receive less)
     netSol = grossSol.minus(totalFees);
     tradeCostSol = netSol;
-    tradeCostUsd = netSol.mul(solUsdAtFill); // Freeze USD at fill time
+    tradeCostUsd = netSol.mul(solUsdAtFill);
   }
 
-  // Debug logging for price and cost calculations
   console.log(`[Trade] Price: USD=${priceUsd.toString()}, SOL=${priceSol.toString()}`);
   console.log(`[Trade] Cost: SOL=${tradeCostSol.toString()}, USD=${tradeCostUsd.toString()}`);
 
-
-  // Create trade record using a transaction to ensure consistency
+  // Execute trade in transaction
   const result = await prisma.$transaction(async (tx) => {
-    // Create trade record with enhanced tracking
+    // Create trade record
     const trade = await tx.trade.create({
       data: {
         userId,
@@ -222,12 +152,14 @@ async function executeTradeLogic({
         costUsd: tradeCostUsd,
         solUsdAtFill,
         marketCapUsd: mcAtFill,
-        route: "Simulated" // Can be enhanced to detect actual DEX route
+        route: "Simulated"
       }
     });
 
     // Fetch/initialize position
-    let pos = await tx.position.findUnique({ where: { userId_mint_tradeMode: { userId, mint, tradeMode: 'PAPER' } } });
+    let pos = await tx.position.findUnique({ 
+      where: { userId_mint_tradeMode: { userId, mint, tradeMode: 'PAPER' } } 
+    });
     if (!pos) {
       pos = await tx.position.create({
         data: { userId, mint, tradeMode: 'PAPER', qty: D(0), costBasis: D(0) }
@@ -237,129 +169,76 @@ async function executeTradeLogic({
     let realizedPnL = D(0);
 
     if (side === "BUY") {
-      // Create new lot for FIFO tracking with frozen FX rates
-      await tx.positionLot.create({
-        data: { 
-          positionId: pos.id,
-          userId, 
-          mint, 
-          qtyRemaining: q, 
-          unitCostUsd: priceUsd,
-          unitCostSol: priceSol,
-          solUsdAtBuy: solUsdAtFill // Freeze SOL→USD FX at buy time
-        }
-      });
+      // Create FIFO lot using shared function
+      await createFIFOLot(tx, pos.id, userId, mint, q, priceUsd, priceSol, solUsdAtFill, 'PAPER');
 
-      // Update position using VWAP
-      const newVWAP = vwapBuy(pos.qty as Decimal, pos.costBasis as Decimal, q, priceUsd);
-      pos = await tx.position.update({
-        where: { userId_mint_tradeMode: { userId, mint, tradeMode: 'PAPER' } },
-        data: {
-          qty: newVWAP.newQty,
-          costBasis: newVWAP.newBasis
-        }
-      });
+      // Update position using shared function
+      pos = await updatePositionBuy(
+        tx, userId, mint, 
+        pos.qty as Decimal, 
+        pos.costBasis as Decimal, 
+        q, priceUsd, 
+        'PAPER'
+      );
 
-      // Deduct SOL from user balance
+      // Deduct SOL from balance
       await tx.user.update({
         where: { id: userId },
-        data: {
-          virtualSolBalance: {
-            decrement: tradeCostSol
-          }
-        }
+        data: { virtualSolBalance: { decrement: tradeCostSol } }
       });
 
     } else {
-      // SELL: Consume lots using FIFO
+      // Execute FIFO sell using shared function
       const lots = await tx.positionLot.findMany({
         where: { userId, mint, qtyRemaining: { gt: 0 } },
         orderBy: { createdAt: "asc" }
       });
 
-      const { realized, consumed } = fifoSell(
-        lots.map((l: any) => ({
-          id: l.id,
-          qtyRemaining: l.qtyRemaining as Decimal,
-          unitCostUsd: l.unitCostUsd as Decimal
-        })),
+      const fifoResult = await executeFIFOSell(tx, userId, mint, q, priceUsd, 'PAPER');
+      realizedPnL = fifoResult.realizedPnL;
+
+      // Update position using shared function
+      pos = await updatePositionSell(
+        tx, userId, mint,
+        pos.qty as Decimal,
+        pos.costBasis as Decimal,
         q,
-        priceUsd
+        fifoResult.consumed,
+        lots,
+        'PAPER'
       );
 
-      realizedPnL = realized;
-
-      // Update consumed lots
-      for (const c of consumed) {
-        const lot = lots.find((l: any) => l.id === c.lotId)!;
-        const newQty = (lot.qtyRemaining as Decimal).sub(c.qty);
-        await tx.positionLot.update({ 
-          where: { id: lot.id }, 
-          data: { qtyRemaining: newQty } 
-        });
-      }
-
-      // Update position - calculate new cost basis by removing consumed lots' cost
-      const newQty = (pos.qty as Decimal).sub(q);
-
-      // Calculate total consumed cost from the FIFO calculation (more precise)
-      const totalConsumedCost = consumed.reduce((sum, c) => {
-        const lot = lots.find((l: any) => l.id === c.lotId)!;
-        return sum.add(c.qty.mul(lot.unitCostUsd as Decimal));
-      }, D(0));
-
-      let newBasis = (pos.costBasis as Decimal).sub(totalConsumedCost);
-
-      // Validation: newBasis should never be negative
-      if (newBasis.lt(0)) {
-        console.error(`⚠️ FIFO calculation error: negative cost basis ${newBasis.toString()} for position ${pos.id}`);
-        console.error(`Position details: qty=${(pos.qty as Decimal).toString()}, costBasis=${(pos.costBasis as Decimal).toString()}`);
-        console.error(`Consumed: ${consumed.length} lots, total cost: ${totalConsumedCost.toString()}`);
-        newBasis = D(0); // Clamp to zero to prevent negative values
-      }
-
-      if (newQty.eq(0)) newBasis = D(0);
-
-      pos = await tx.position.update({
-        where: { userId_mint_tradeMode: { userId, mint, tradeMode: 'PAPER' } },
-        data: { qty: newQty, costBasis: newBasis }
-      });
-
-      // Calculate realized PnL in both SOL and USD (frozen at sell time)
-      const realizedPnLSol = consumed.reduce((sum, c) => {
+      // Calculate realized PnL in SOL
+      const realizedPnLSol = fifoResult.consumed.reduce((sum, c) => {
         const lot = lots.find((l: any) => l.id === c.lotId)!;
         const costSOL = c.qty.mul(lot.unitCostSol || priceSol);
-        const proceedsSOL = c.qty.mul(netSol.div(q)); // Proportional proceeds
+        const proceedsSOL = c.qty.mul(netSol.div(q));
         return sum.plus(proceedsSOL.minus(costSOL));
       }, D(0));
 
-      // Record realized PnL with both currencies
+      // Record realized PnL
       await tx.realizedPnL.create({
         data: { 
           userId, 
           mint, 
-          pnl: realized, // Legacy USD field
-          pnlUsd: realized, // Explicit USD (frozen at sell)
-          pnlSol: realizedPnLSol, // SOL PnL (frozen at sell)
+          pnl: realizedPnL,
+          pnlUsd: realizedPnL,
+          pnlSol: realizedPnLSol,
           tradeId: trade.id
         }
       });
 
-      // Add SOL back to user balance
+      // Add SOL back to balance
       await tx.user.update({
         where: { id: userId },
-        data: {
-          virtualSolBalance: {
-            increment: tradeCostSol
-          }
-        }
+        data: { virtualSolBalance: { increment: tradeCostSol } }
       });
     }
 
     return { trade, position: pos, realizedPnL };
   });
 
-  // ============ REAL-TIME PNL: Emit fill event ============
+  // Emit real-time PnL event
   try {
     const fillEvent = {
       userId,
@@ -367,8 +246,8 @@ async function executeTradeLogic({
       tradeMode: 'PAPER' as const,
       side,
       qty: q.toNumber(),
-      price: priceUsd.toNumber(), // USD price per token
-      fees: totalFees.mul(solUsdAtFill).toNumber(), // Fees in USD
+      price: priceUsd.toNumber(),
+      fees: totalFees.mul(solUsdAtFill).toNumber(),
       timestamp: Date.now()
     };
 
@@ -381,24 +260,12 @@ async function executeTradeLogic({
     console.log(`[Trade] Real-time PnL event emitted for ${side} of ${mint.slice(0, 8)}`);
   } catch (pnlError) {
     console.error('[Trade] Failed to update real-time PnL:', pnlError);
-    // Don't fail the trade if PnL service fails
   }
 
-  // Add reward points for this trade (outside transaction for performance)
-  const tradeValueUsd = tradeCostUsd;
-  await addTradePoints(userId, tradeValueUsd);
+  // Execute post-trade operations using shared function
+  await executePostTradeOperations(userId, mint, tradeCostUsd);
 
-  // CRITICAL: Invalidate portfolio cache to prevent stale data
-  portfolioCoalescer.invalidate(`portfolio:${userId}`);
-  console.log(`[Trade] Invalidated portfolio cache for user ${userId}`);
-
-  // Eagerly fetch price to ensure it's cached for the next portfolio request
-  // This prevents the portfolio endpoint from having to refetch from DexScreener
-  await priceService.getPrice(mint);
-  console.log(`[Trade] Prefetched and cached price for ${mint.substring(0, 8)}...`);
-
-  // For BUY orders on pump.fun tokens, subscribe to WebSocket for real-time price updates
-  // This ensures we have fresh prices when user tries to sell
+  // For BUY orders, subscribe to WebSocket for real-time updates
   if (side === "BUY") {
     priceService.subscribeToPumpFunToken(mint);
     console.log(`[Trade] Subscribed to pump.fun WebSocket updates for ${mint.substring(0, 8)}...`);
@@ -428,10 +295,7 @@ async function executeTradeLogic({
   const tradeCount = await prisma.trade.count({ where: { userId } });
   await notificationService.notifyTradeMilestone(userId, tradeCount);
 
-  // OPTIMIZATION: Warm up portfolio cache immediately after trade
-  // This ensures the next frontend poll hits cache instead of recalculating
-  // IMPORTANT: We await this to ensure price is fully cached before responding
-  // This fixes the issue where PnL doesn't show immediately after first buy
+  // Warm up portfolio cache
   const { getPortfolio } = await import("./portfolioService.js");
   try {
     await getPortfolio(userId);
@@ -444,7 +308,7 @@ async function executeTradeLogic({
     trade: result.trade,
     position: result.position,
     portfolioTotals,
-    rewardPointsEarned: tradeValueUsd
+    rewardPointsEarned: tradeCostUsd
   };
 }
 
@@ -455,30 +319,26 @@ async function calculatePortfolioTotals(userId: string) {
     where: { userId, qty: { gt: 0 } }
   });
 
-  // Batch fetch all prices at once
+  // Batch fetch all prices
   const mints = positions.map(p => p.mint);
   const prices = await priceService.getPrices(mints);
 
   let totalValueUsd = D(0);
   let totalCostBasis = D(0);
 
-  // Calculate current value of all positions
   for (const pos of positions) {
     let currentPrice = D(prices[pos.mint] || 0);
 
-    // If price is missing from batch fetch, try individual fetch with retries
+    // Retry individual fetch if missing
     if (currentPrice.eq(0)) {
-      // Silent retry - don't log to reduce noise
       try {
         const individualPrice = await priceService.getPrice(pos.mint);
         if (individualPrice && individualPrice > 0) {
           currentPrice = D(individualPrice);
         } else {
-          // Skip positions with no price data
           continue;
         }
       } catch (err) {
-        // Only log unexpected errors
         const error = err as Error;
         if (!error.message?.includes('aborted') && !error.message?.includes('404')) {
           console.error(`[Portfolio] Unexpected error for ${pos.mint.slice(0, 8)}:`, error);
@@ -488,8 +348,7 @@ async function calculatePortfolioTotals(userId: string) {
     }
 
     const positionQty = pos.qty as Decimal;
-    const positionCostBasis = pos.costBasis as Decimal; // This is now total cost basis, not per-unit
-
+    const positionCostBasis = pos.costBasis as Decimal;
     const positionValue = positionQty.mul(currentPrice);
 
     totalValueUsd = totalValueUsd.add(positionValue);

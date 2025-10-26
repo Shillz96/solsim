@@ -11,7 +11,7 @@
  */
 
 import { useState } from 'react'
-import { cn, marioStyles } from '@/lib/utils'
+import { cn, marioStyles, createSafeImageProps } from '@/lib/utils'
 import Image from 'next/image'
 import {
   DropdownMenu,
@@ -169,8 +169,11 @@ export function ChatMessage({ message, onUserClick }: ChatMessageProps) {
           )}
         >
           <img
-            src={message.user.avatarUrl || (isOwnMessage ? '/icons/mario/money-bag.png' : '/icons/mario/user.png')}
-            alt={message.user.displayName || message.user.handle}
+            {...createSafeImageProps(
+              message.user.avatarUrl,
+              isOwnMessage ? '/icons/mario/money-bag.png' : '/icons/mario/user.png',
+              message.user.displayName || message.user.handle
+            )}
             className="h-full w-full object-cover"
           />
         </button>
@@ -192,13 +195,27 @@ export function ChatMessage({ message, onUserClick }: ChatMessageProps) {
                 title={userBadge.badge.displayName}
                 className={marioStyles.badge}
               >
-                {userBadge.badge.iconUrl ? (
-                  <img
-                    src={userBadge.badge.iconUrl}
-                    alt={userBadge.badge.displayName}
-                    className="h-full w-full object-cover"
-                  />
-                ) : (
+                {userBadge.badge.iconUrl ? (() => {
+                  const safeProps = createSafeImageProps(
+                    userBadge.badge.iconUrl,
+                    '/icons/mario/coin.png', // Use a fallback image
+                    userBadge.badge.displayName
+                  );
+                  return (
+                    <img
+                      {...safeProps}
+                      className="h-full w-full object-cover"
+                      onError={(e) => {
+                        // Replace with emoji span if both image and fallback fail
+                        const target = e.currentTarget;
+                        const emojiSpan = document.createElement('span');
+                        emojiSpan.className = 'text-[8px]';
+                        emojiSpan.textContent = '🏆';
+                        target.parentNode?.replaceChild(emojiSpan, target);
+                      }}
+                    />
+                  );
+                })() : (
                   <span className="text-[8px]">🏆</span>
                 )}
               </div>

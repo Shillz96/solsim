@@ -74,8 +74,13 @@ export async function openPerpPosition(params: OpenPerpPositionParams) {
       throw new Error(`Insufficient balance. Required: ${margin.toFixed(4)} SOL, Available: ${userBalance.toFixed(4)} SOL`);
     }
 
-    // Get current token price
-    const tick = await priceService.getLastTick(mint);
+    // Get current token price (cache first, then fetch for new tokens)
+    let tick = await priceService.getLastTick(mint);
+    if (!tick) {
+      priceService.clearNegativeCache(mint);
+      tick = await priceService.fetchTokenPrice(mint);
+    }
+    
     if (!tick || !tick.priceUsd || tick.priceUsd <= 0) {
       throw new Error("Unable to fetch valid token price");
     }
@@ -200,8 +205,13 @@ export async function closePerpPosition(params: ClosePerpPositionParams) {
       throw new Error("Position is already closed");
     }
 
-    // Get current price
-    const tick = await priceService.getLastTick(position.mint);
+    // Get current price (cache first, then fetch for new tokens)
+    let tick = await priceService.getLastTick(position.mint);
+    if (!tick) {
+      priceService.clearNegativeCache(position.mint);
+      tick = await priceService.fetchTokenPrice(position.mint);
+    }
+    
     if (!tick || !tick.priceUsd || tick.priceUsd <= 0) {
       throw new Error("Unable to fetch valid token price");
     }

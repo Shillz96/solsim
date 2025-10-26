@@ -15,6 +15,62 @@ NEXT_PUBLIC_WS_URL=wss://your-backend-domain.com/prices
 NEXT_PUBLIC_API_URL=https://your-backend-domain.com
 ```
 
+## ⚠️ Important Environment Variable Rules
+
+### NEXT_PUBLIC_ Prefix
+- **Client-side variables** MUST use `NEXT_PUBLIC_` prefix
+- These are **embedded in the browser bundle** at build time
+- Never put secrets in `NEXT_PUBLIC_` variables!
+
+```bash
+# ✅ Good - Server-only (never exposed to browser)
+DATABASE_URL=postgresql://...
+API_SECRET_KEY=sk_live_...
+
+# ✅ Good - Client-accessible (safe for browser)
+NEXT_PUBLIC_WS_URL=wss://your-backend.railway.app
+NEXT_PUBLIC_API_URL=https://your-backend.com
+
+# ❌ BAD - Secret in public variable!
+NEXT_PUBLIC_API_SECRET=sk_live_... # DON'T DO THIS!
+```
+
+### Important Limitations
+
+Next.js has specific rules about how environment variables work:
+
+```javascript
+// ❌ These DON'T work:
+const varName = 'NEXT_PUBLIC_ANALYTICS_ID'
+setupAnalyticsService(process.env[varName]) // Not inlined - dynamic lookup fails!
+
+const env = process.env
+setupAnalyticsService(env.NEXT_PUBLIC_ANALYTICS_ID) // Not inlined - indirect access fails!
+
+const { NEXT_PUBLIC_API_URL } = process.env // Destructuring doesn't work!
+
+// ✅ Only this works:
+setupAnalyticsService(process.env.NEXT_PUBLIC_ANALYTICS_ID) // Direct access required!
+```
+
+**Why?** Next.js performs static analysis at build time to find and replace `process.env.VARIABLE_NAME` references. Dynamic access patterns prevent this optimization.
+
+### Runtime vs Build-Time Variables
+
+- Variables **without** `NEXT_PUBLIC_` are **only available server-side**
+- `NEXT_PUBLIC_` variables are **baked into the client bundle** at build time
+- For truly dynamic runtime values on server components, use the `connection()` API:
+
+```typescript
+import { connection } from 'next/server'
+
+export default async function Component() {
+  await connection() // Opts into dynamic rendering
+  const runtimeValue = process.env.DYNAMIC_CONFIG
+  // This is evaluated at runtime, not build time
+}
+```
+
 ## No API Key Required! 🎉
 
 The launch token feature uses **PumpPortal's Local Transaction API** which doesn't require an API key. Users sign transactions with their own Solana wallets, making it completely non-custodial.

@@ -221,6 +221,9 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
         <DialogHeader className="space-y-3">
           <div className="flex items-center justify-center mb-4">
             <DialogTitle className="sr-only">1UP SOL</DialogTitle>
+            <DialogDescription className="sr-only">
+              Sign in to your 1UP SOL account or create a new one to start paper trading Solana tokens.
+            </DialogDescription>
             <Image
               src="/navbarlogo.svg"
               alt="1UP SOL"

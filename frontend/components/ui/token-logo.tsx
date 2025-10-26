@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import Image from "next/image"
 import { getTokenLogoFallback, getTokenLogoAlternatives } from "@/lib/token-logos"
+import { createSafeImageProps } from "@/lib/utils"
 
 interface TokenLogoProps {
   /** Primary logo URL from API */
@@ -103,13 +104,21 @@ export function TokenLogo({
 
   return (
     <Image
-      src={currentSrc}
-      alt={alt}
-      title={alt}
+      {...createSafeImageProps(
+        currentSrc,
+        '', // No fallback image, will show letter avatar instead
+        alt
+      )}
       width={size}
       height={size}
       className={`rounded-full object-cover ${className}`}
-      onError={handleError}
+      onError={(e) => {
+        // First try the safe image fallback, then use custom error handling
+        if (e.currentTarget.src !== '') {
+          // If safe image props didn't work, trigger custom error handling
+          handleError();
+        }
+      }}
       quality={85}
       sizes={`${size}px`}
       referrerPolicy="no-referrer"

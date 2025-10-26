@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Image from 'next/image'
-import { cn } from '@/lib/utils'
+import { cn, createSafeImageProps } from '@/lib/utils'
 
 interface TokenImageProps {
   src?: string | null
@@ -70,8 +70,11 @@ export function TokenImage({
         <div className="absolute inset-0 bg-muted animate-pulse rounded-full" />
       )}
       <Image
-        src={imageSrc}
-        alt={alt}
+        {...createSafeImageProps(
+          imageSrc,
+          fallback,
+          alt
+        )}
         width={finalWidth}
         height={finalHeight}
         className="object-cover rounded-full"

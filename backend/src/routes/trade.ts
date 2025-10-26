@@ -38,8 +38,13 @@ export default async function (app: FastifyInstance) {
       // Execute the trade
       const result = await fillTrade({ userId, mint, side, qty });
       
-      // Get current price for real-time updates
-      const currentTick = await priceService.getLastTick(mint);
+      // Get current price for real-time updates (try cache first, then fetch)
+      let currentTick = await priceService.getLastTick(mint);
+      if (!currentTick) {
+        // Aggressively fetch fresh price data for new tokens
+        currentTick = await priceService.fetchTokenPrice(mint);
+      }
+      
       if (!currentTick) {
         return reply.code(500).send({ 
           error: "Price data unavailable for this token",

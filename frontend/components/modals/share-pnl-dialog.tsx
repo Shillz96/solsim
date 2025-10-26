@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useRef } from "react"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Share2, Download, Copy, Check, Loader2 } from "lucide-react"
 import { toPng, toBlob } from "html-to-image"
@@ -177,6 +177,9 @@ export function SharePnLDialog({ totalPnL, totalPnLPercent, currentValue, initia
       <DialogContent className="sm:max-w-[600px] bg-[var(--card)] border-4 border-[var(--outline-black)] shadow-[8px_8px_0_var(--outline-black)]">
         <DialogHeader>
           <DialogTitle className="font-mario text-2xl text-[var(--outline-black)]">Share Your Performance</DialogTitle>
+          <DialogDescription>
+            Share your trading performance with others. You can download an image or copy it to your clipboard.
+          </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">

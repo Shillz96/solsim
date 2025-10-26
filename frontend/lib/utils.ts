@@ -648,3 +648,85 @@ export const marioStyles = {
     return defaultDescriptions[pageName] || `Explore ${pageName} on 1UP SOL - the Solana paper trading game.`;
   },
 }
+
+/**
+ * Validates if a URL is HTTPS and safe to load in production
+ *
+ * @param url The URL to validate
+ * @returns true if URL is HTTPS or relative, false if HTTP (blocked in production)
+ */
+export function isValidImageUrl(url: string | null | undefined): boolean {
+  if (!url) return false;
+
+  // Allow relative URLs (internal images)
+  if (url.startsWith('/')) return true;
+
+  // Allow data URLs
+  if (url.startsWith('data:')) return true;
+
+  // In production, only allow HTTPS
+  if (process.env.NODE_ENV === 'production') {
+    return url.startsWith('https://');
+  }
+
+  // In development, allow both HTTP and HTTPS
+  return url.startsWith('http://') || url.startsWith('https://');
+}
+
+/**
+ * Gets a safe fallback URL for images that fail HTTPS validation
+ *
+ * @param originalUrl The original URL that failed
+ * @param fallbackUrl The fallback URL to use
+ * @returns The safe URL to use
+ */
+export function getSafeImageUrl(originalUrl: string | null | undefined, fallbackUrl: string): string {
+  if (isValidImageUrl(originalUrl)) {
+    return originalUrl || fallbackUrl;
+  }
+
+  console.warn('Blocked unsafe image URL in production:', originalUrl);
+  return fallbackUrl;
+}
+
+/**
+ * Creates a safe image props object with HTTPS validation
+ *
+ * @param src The image source URL
+ * @param fallbackSrc The fallback source URL
+ * @param alt The alt text
+ * @returns Object with safe src and event handlers
+ */
+export function createSafeImageProps(
+  src: string | null | undefined,
+  fallbackSrc: string,
+  alt: string
+): {
+  src: string;
+  alt: string;
+  onError: (e: React.SyntheticEvent<HTMLImageElement>) => void;
+  onLoad: (e: React.SyntheticEvent<HTMLImageElement>) => void;
+} {
+  const safeSrc = getSafeImageUrl(src, fallbackSrc);
+
+  return {
+    src: safeSrc,
+    alt,
+    onError: (e) => {
+      const target = e.currentTarget;
+      // Only replace if it's not already the fallback
+      if (target.src !== fallbackSrc) {
+        console.warn('Image failed to load, using fallback:', src);
+        target.src = fallbackSrc;
+      }
+    },
+    onLoad: (e) => {
+      const target = e.currentTarget;
+      // Double-check that loaded image is HTTPS in production
+      if (process.env.NODE_ENV === 'production' && target.src && target.src.startsWith('http://')) {
+        console.warn('Blocked HTTP image loaded in HTTPS context:', target.src);
+        target.src = fallbackSrc;
+      }
+    }
+  };
+}

@@ -14,9 +14,9 @@ if (process.env.ANALYZE === 'true') {
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Disable strict mode for now to prevent WebSocket double-mounting issues in production
-  // TODO: Re-enable once WebSocket provider is more resilient to rapid mount/unmount cycles
-  reactStrictMode: false,
+  // Enable strict mode for better development checks and React 19 compatibility
+  // Fix WebSocket double-mounting with proper useEffect cleanup instead of disabling
+  reactStrictMode: true,
 
   // Experimental features - 2025 Modernization
   experimental: {
@@ -27,6 +27,17 @@ const nextConfig = {
       'recharts',
       'framer-motion',
       '@radix-ui/react-icons',
+      '@solana/web3.js',
+      '@solana/wallet-adapter-react',
+    ],
+    
+    // Type-safe environment variables with IntelliSense
+    typedEnv: true,
+    
+    // External packages that should not be bundled for server
+    serverExternalPackages: [
+      '@solana/web3.js',
+      'ws',
     ],
   },
 
@@ -43,20 +54,46 @@ const nextConfig = {
 
   // Image optimization
   images: {
-    // Allow all external images - no domain restrictions
-    unoptimized: false, // Keep optimization enabled
     formats: ['image/avif', 'image/webp'],
+    // Image quality levels - REQUIRED in Next.js 16+ for security
+    qualities: [50, 75, 90],
+    // Limit redirects for security - default changed from unlimited to 3 in Next.js 16
+    maximumRedirects: 3,
     remotePatterns: [
+      // Pump.fun main domain
       {
         protocol: 'https',
-        hostname: '**', // Allow all HTTPS domains
+        hostname: 'pump.fun',
+      },
+      // Pump.fun subdomains (e.g., ipfs.pump.fun)
+      {
+        protocol: 'https',
+        hostname: '**.pump.fun',
+      },
+      // Solana CDN for token logos
+      {
+        protocol: 'https',
+        hostname: 'raw.githubusercontent.com',
+        pathname: '/solana-labs/**',
+      },
+      // IPFS gateways for token metadata
+      {
+        protocol: 'https',
+        hostname: 'ipfs.io',
+        pathname: '/ipfs/**',
       },
       {
+        protocol: 'https',
+        hostname: 'cloudflare-ipfs.com',
+        pathname: '/ipfs/**',
+      },
+      // Only allow HTTP in development
+      ...(process.env.NODE_ENV === 'development' ? [{
         protocol: 'http',
-        hostname: '**', // Allow all HTTP domains (for development)
-      }
+        hostname: 'localhost',
+      }] : [])
     ],
-    // Add dangerouslyAllowSVG for token logos that might be SVG
+    // Allow SVG for token logos but with strict CSP
     dangerouslyAllowSVG: true,
     contentDispositionType: 'attachment',
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
@@ -67,7 +104,8 @@ const nextConfig = {
     ignoreBuildErrors: false, // Enable type checking for better code quality
   },
   eslint: {
-    ignoreDuringBuilds: true, // Temporarily ignore ESLint during builds
+    ignoreDuringBuilds: false, // Enable linting during builds for production quality
+    dirs: ['app', 'components', 'lib'], // Specify directories to lint
   },
 
   // Headers for security and performance
