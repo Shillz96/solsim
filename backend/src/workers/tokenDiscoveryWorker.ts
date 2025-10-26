@@ -21,6 +21,7 @@ import { pumpPortalStreamService, NewTokenEvent, MigrationEvent, SwapEvent } fro
 import { raydiumStreamService, NewPoolEvent } from '../services/raydiumStreamService.js';
 import { healthCapsuleService } from '../services/healthCapsuleService.js';
 import { tokenMetadataService } from '../services/tokenMetadataService.js';
+import { holderCountService } from '../services/holderCountService.js';
 import priceServiceClient from '../plugins/priceServiceClient.js';
 
 // ============================================================================
@@ -34,6 +35,7 @@ const redis = new Redis(process.env.REDIS_URL || '');
 const HOT_SCORE_UPDATE_INTERVAL = 300_000; // 5 minutes
 const WATCHER_SYNC_INTERVAL = 60_000; // 1 minute
 const CLEANUP_INTERVAL = 300_000; // 5 minutes (more frequent for stale token cleanup)
+const HOLDER_COUNT_UPDATE_INTERVAL = 600_000; // 10 minutes (holder count refresh)
 const TOKEN_TTL = 7200; // 2 hours cache
 const NEW_TOKEN_RETENTION_HOURS = 24; // Remove NEW tokens after 24h
 const BONDED_TOKEN_RETENTION_HOURS = 12; // Remove BONDED tokens older than 12 hours
@@ -898,6 +900,76 @@ async function recalculateHotScores(): Promise<void> {
 }
 
 /**
+ * Update holder counts for active tokens using Helius RPC
+ * Runs every 10 minutes to keep holder data fresh
+ */
+async function updateHolderCounts(): Promise<void> {
+  try {
+    console.log('[TokenDiscovery] Updating holder counts...');
+
+    // Fetch active tokens (exclude DEAD tokens)
+    const activeTokens = await prisma.tokenDiscovery.findMany({
+      where: {
+        status: { not: 'DEAD' },
+        state: { in: ['bonded', 'graduating', 'new'] },
+      },
+      select: {
+        mint: true,
+        symbol: true,
+      },
+      take: 50, // Limit to 50 tokens per batch to avoid overwhelming Helius
+      orderBy: { lastUpdatedAt: 'asc' } // Update oldest first
+    });
+
+    if (activeTokens.length === 0) {
+      console.log('[TokenDiscovery] No active tokens to update holder counts for');
+      return;
+    }
+
+    console.log(`[TokenDiscovery] Fetching holder counts for ${activeTokens.length} tokens...`);
+
+    // Batch fetch holder counts (holderCountService handles rate limiting internally)
+    const mints = activeTokens.map(t => t.mint);
+    const holderCounts = await holderCountService.getHolderCounts(mints);
+
+    // Update database
+    let updated = 0;
+    let failed = 0;
+    
+    for (const token of activeTokens) {
+      try {
+        const holderCount = holderCounts.get(token.mint);
+        
+        if (holderCount !== null && holderCount !== undefined) {
+          await prisma.tokenDiscovery.update({
+            where: { mint: token.mint },
+            data: { 
+              holderCount,
+              lastUpdatedAt: new Date()
+            }
+          });
+          updated++;
+          console.log(`[TokenDiscovery] Updated ${token.symbol || token.mint.slice(0, 8)}: ${holderCount} holders`);
+        } else {
+          failed++;
+        }
+      } catch (error: any) {
+        // Gracefully handle tokens that were deleted during this loop
+        if (error.code === 'P2025' || error.message?.includes('Record to update not found')) {
+          continue;
+        }
+        console.error(`[TokenDiscovery] Error updating holder count for ${token.mint}:`, error.message);
+        failed++;
+      }
+    }
+
+    console.log(`[TokenDiscovery] Holder counts updated: ${updated} succeeded, ${failed} failed`);
+  } catch (error) {
+    console.error('[TokenDiscovery] Error updating holder counts:', error);
+  }
+}
+
+/**
  * Sync watcher counts from TokenWatch table
  */
 async function syncWatcherCounts(): Promise<void> {
@@ -1059,11 +1131,14 @@ async function startWorker(): Promise<void> {
     setInterval(recalculateHotScores, HOT_SCORE_UPDATE_INTERVAL);
     setInterval(syncWatcherCounts, WATCHER_SYNC_INTERVAL);
     setInterval(cleanupOldTokens, CLEANUP_INTERVAL);
+    setInterval(updateHolderCounts, HOLDER_COUNT_UPDATE_INTERVAL);
 
     // Subscribe to active tokens for trade data (every 5 minutes)
     setInterval(subscribeToActiveTokens, 5 * 60 * 1000);
     // Run immediately on startup
     setTimeout(subscribeToActiveTokens, 5000);
+    // Also run holder count update shortly after startup
+    setTimeout(updateHolderCounts, 10000);
 
     console.log('✅ Background jobs scheduled');
     console.log('');
@@ -1073,6 +1148,7 @@ async function startWorker(): Promise<void> {
     console.log('   - Market data updates: every 30 seconds');
     console.log('   - Hot score updates: every 5 minutes');
     console.log('   - Watcher sync: every 1 minute');
+    console.log('   - Holder count updates: every 10 minutes');
     console.log('   - Token trade subscriptions: every 5 minutes');
     console.log('   - Cleanup: every 5 minutes');
   } catch (error) {
