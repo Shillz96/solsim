@@ -43,9 +43,17 @@ import type { TokenDetails } from './types'
 
 interface TradePanelContainerProps {
   tokenAddress?: string
+  volume24h?: number
+  holders?: number
+  userRank?: number | null
 }
 
-export function TradePanelContainer({ tokenAddress: propTokenAddress }: TradePanelContainerProps = {}) {
+export function TradePanelContainer({
+  tokenAddress: propTokenAddress,
+  volume24h,
+  holders,
+  userRank
+}: TradePanelContainerProps = {}) {
   const searchParams = useSearchParams()
   const defaultTokenAddress = "GLsuNSkEAwKPFDCEGoHkceNbHCqu981rCwhS3VXcpump" // pump.fun token
   const tokenAddress = propTokenAddress || searchParams.get("token") || defaultTokenAddress
@@ -407,6 +415,10 @@ export function TradePanelContainer({ tokenAddress: propTokenAddress }: TradePan
                 currentPrice={displayPrice}
                 solPrice={solPrice}
                 balance={userBalance}
+                tokenAddress={tokenAddress}
+                volume24h={volume24h}
+                holders={holders}
+                userRank={userRank}
               />
             </TabsContent>
 
@@ -423,6 +435,10 @@ export function TradePanelContainer({ tokenAddress: propTokenAddress }: TradePan
                 currentPrice={displayPrice}
                 solPrice={solPrice}
                 hasPosition={hasPosition}
+                tokenAddress={tokenAddress}
+                volume24h={volume24h}
+                holders={holders}
+                userRank={userRank}
               />
             </TabsContent>
           </Tabs>

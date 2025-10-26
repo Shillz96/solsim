@@ -21,7 +21,6 @@
 import { useEffect, useState, Suspense, useRef } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { TradePanel } from '@/components/trade-panel'
-import { TokenVitalsBar } from '@/components/trading/token-vitals-bar'
 import { useAuth } from '@/hooks/use-auth'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import * as api from '@/lib/api'
@@ -116,8 +115,8 @@ function TradeRoomContent() {
   const { data: tokenDetails, isLoading: loadingToken } = useQuery({
     queryKey: ['token-details', ca],
     queryFn: () => api.getTokenDetails(ca),
-    staleTime: 30000, // 30 seconds (improved from 2 minutes)
-    refetchInterval: 60000, // Background refetch every 60 seconds
+    staleTime: 10000, // 10 seconds - faster updates for holder counts
+    refetchInterval: 30000, // Background refetch every 30 seconds
   })
 
   // Calculate current price
@@ -322,7 +321,12 @@ function TradeRoomContent() {
                 </DialogTitle>
               </DialogHeader>
               <div className="mt-4">
-                <TradePanel tokenAddress={ca} />
+                <TradePanel
+                  tokenAddress={ca}
+                  volume24h={volume24h}
+                  holders={holderCount}
+                  userRank={null}
+                />
               </div>
             </DialogContent>
           </Dialog>
@@ -351,12 +355,9 @@ function TradeRoomContent() {
           </section>
 
           {/* Right: Trade Panel */}
-          <aside className="w-80 flex-shrink-0 flex flex-col gap-4">
+          <aside className="w-80 flex-shrink-0 flex flex-col">
             <div className="mario-card-lg flex-1 overflow-y-auto">
-              <TradePanel tokenAddress={ca} />
-            </div>
-            <div className="mario-card">
-              <TokenVitalsBar
+              <TradePanel
                 tokenAddress={ca}
                 volume24h={volume24h}
                 holders={holderCount}

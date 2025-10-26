@@ -53,8 +53,6 @@ function TabsTrigger({
         'data-[state=active]:bg-[var(--luigi-green)]',
         'data-[state=active]:text-white',
         'data-[state=active]:shadow-none',
-        // Hover
-        'hover:opacity-100',
         // Disabled
         'disabled:pointer-events-none disabled:opacity-40',
         // Icons

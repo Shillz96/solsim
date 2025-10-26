@@ -1,13 +1,14 @@
 /**
- * PumpPortal Real-Time Data API Routes
+ * Real-Time Trade Data API Routes
  *
- * Backend proxy for PumpPortal WebSocket data.
- * Serves cached trade data and token metadata from Redis.
+ * Uses Helius Enhanced WebSocket for real-time on-chain trade monitoring.
+ * Provides accurate, low-latency trade data and top trader analytics.
  */
 
 import { FastifyPluginAsync } from 'fastify';
 import { z } from 'zod';
 import Redis from 'ioredis';
+import { heliusTradeStreamService } from '../services/heliusTradeStreamService.js';
 import { pumpPortalStreamService } from '../services/pumpPortalStreamService.js';
 
 const redis = new Redis(process.env.REDIS_URL || '');
@@ -77,7 +78,7 @@ const METADATA_CACHE_TTL = 60; // 1 minute (more frequent updates)
 const pumpPortalDataRoutes: FastifyPluginAsync = async (fastify) => {
   // ==========================================================================
   // GET /api/pumpportal/trades/:mint
-  // Server-Sent Events (SSE) stream for real-time trades
+  // Server-Sent Events (SSE) stream for real-time trades from Helius
   // ==========================================================================
   fastify.get<{
     Params: z.infer<typeof MintParamSchema>;
@@ -89,8 +90,8 @@ const pumpPortalDataRoutes: FastifyPluginAsync = async (fastify) => {
         const { mint } = MintParamSchema.parse(request.params);
         const { limit } = TradeQuerySchema.parse(request.query);
 
-        // Subscribe to this token if not already subscribed
-        pumpPortalStreamService.subscribeToTokens([mint]);
+        // Subscribe to this token in Helius stream
+        await heliusTradeStreamService.subscribeToTokens([mint]);
 
         // Set up SSE headers
         reply.raw.writeHead(200, {
@@ -100,23 +101,23 @@ const pumpPortalDataRoutes: FastifyPluginAsync = async (fastify) => {
           'Access-Control-Allow-Origin': '*',
         });
 
-        // Send initial cached trades immediately
-        const cacheKey = REDIS_KEYS.trades(mint);
-        const tradeData = await redis.zrevrange(cacheKey, 0, limit - 1, 'WITHSCORES');
+        // Send initial trade history from Helius service
+        const recentTrades = heliusTradeStreamService.getRecentTrades(mint, limit);
+        const trades: RecentTrade[] = recentTrades.map(t => ({
+          ts: t.timestamp,
+          side: t.side,
+          priceSol: t.priceSol,
+          amountSol: t.amountSol,
+          amountToken: t.amountToken,
+          signer: t.signer,
+          sig: t.signature,
+          mint: t.mint,
+        }));
 
-        const trades: RecentTrade[] = [];
-        for (let i = 0; i < tradeData.length; i += 2) {
-          try {
-            trades.push(JSON.parse(tradeData[i]));
-          } catch (err) {
-            console.error('[PumpPortalData] Failed to parse trade data:', err);
-          }
-        }
-
-        // If no cached trades, try fetching from pump.fun API as fallback
+        // If no trades yet from Helius, try pump.fun API as fallback
         if (trades.length === 0) {
           try {
-            console.log(`[PumpPortalData] No cached trades for ${mint}, fetching from pump.fun API...`);
+            console.log(`[TradeData] No Helius trades yet for ${mint}, fetching from pump.fun API...`);
             const pumpFunResponse = await fetch(`https://frontend-api.pump.fun/coins/${mint}/trades?limit=${limit}&minimumSize=0`, {
               signal: AbortSignal.timeout(5000),
             });
@@ -124,7 +125,6 @@ const pumpPortalDataRoutes: FastifyPluginAsync = async (fastify) => {
             if (pumpFunResponse.ok) {
               const pumpFunTrades = await pumpFunResponse.json();
               
-              // Transform pump.fun trade format to our format
               if (Array.isArray(pumpFunTrades)) {
                 trades.push(...pumpFunTrades.slice(0, limit).map((t: any) => ({
                   ts: t.timestamp * 1000 || Date.now(),
@@ -140,23 +140,24 @@ const pumpPortalDataRoutes: FastifyPluginAsync = async (fastify) => {
               }
             }
           } catch (err) {
-            console.warn('[PumpPortalData] Failed to fetch trades from pump.fun API:', err);
+            console.warn('[TradeData] Failed to fetch trades from pump.fun API:', err);
           }
         }
 
         // Send initial history
         reply.raw.write(`data: ${JSON.stringify({ type: 'history', trades })}\n\n`);
 
-        // Listen for new trades and stream them in real-time
+        // Listen for new trades from Helius stream
         const tradeHandler = (event: any) => {
           if (event.mint === mint) {
             const trade: RecentTrade = {
               ts: event.timestamp,
-              side: event.txType,
-              amountSol: event.solAmount,
-              amountToken: event.tokenAmount,
-              signer: event.user || 'unknown',
-              sig: 'unknown',
+              side: event.side,
+              priceSol: event.priceSol,
+              amountSol: event.amountSol,
+              amountToken: event.amountToken,
+              signer: event.signer,
+              sig: event.signature,
               mint: event.mint,
             };
             
@@ -164,7 +165,7 @@ const pumpPortalDataRoutes: FastifyPluginAsync = async (fastify) => {
           }
         };
 
-        pumpPortalStreamService.on('swap', tradeHandler);
+        heliusTradeStreamService.on('trade', tradeHandler);
 
         // Send keepalive every 15 seconds
         const keepaliveInterval = setInterval(() => {
@@ -173,13 +174,13 @@ const pumpPortalDataRoutes: FastifyPluginAsync = async (fastify) => {
 
         // Cleanup on connection close
         request.raw.on('close', () => {
-          pumpPortalStreamService.off('swap', tradeHandler);
+          heliusTradeStreamService.off('trade', tradeHandler);
           clearInterval(keepaliveInterval);
           reply.raw.end();
         });
 
       } catch (error: any) {
-        console.error('[PumpPortalData] Error setting up trade stream:', error);
+        console.error('[TradeData] Error setting up trade stream:', error);
         reply.raw.end();
       }
     }

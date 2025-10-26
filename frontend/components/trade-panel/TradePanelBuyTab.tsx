@@ -1,6 +1,6 @@
 /**
  * Trade Panel Buy Tab Component
- * Buy interface with presets, custom input, estimates, and fees
+ * Buy interface with presets, custom input, estimates, fees, and token vitals
  */
 
 import { TrendingUp, Loader2 } from 'lucide-react'
@@ -10,13 +10,14 @@ import { Button } from '@/components/ui/button'
 import { TradePanelPresets } from './TradePanelPresets'
 import { TradePanelEstimate } from './TradePanelEstimate'
 import { TradePanelFees } from './TradePanelFees'
+import { TokenVitalsBar } from '@/components/trading/token-vitals-bar'
 import { calculateBuyEstimate, calculateTradeFees } from './utils/calculations'
 
 interface TradePanelBuyTabProps {
   // Presets
   buyPresets: number[]
   onUpdatePreset: (index: number, value: number) => void
-  
+
   // State
   selectedSolAmount: number | null
   customSolAmount: string
@@ -24,16 +25,22 @@ interface TradePanelBuyTabProps {
   onSelectAmount: (amount: number) => void
   onCustomAmountChange: (amount: string) => void
   onToggleCustomInput: (show: boolean) => void
-  
+
   // Trade execution
   onBuy: () => void
   isTrading: boolean
-  
+
   // Token data
   tokenSymbol: string | null
   currentPrice: number
   solPrice: number
   balance: number
+
+  // Token vitals data
+  tokenAddress?: string
+  volume24h?: number
+  holders?: number
+  userRank?: number | null
 }
 
 export function TradePanelBuyTab({
@@ -50,7 +57,11 @@ export function TradePanelBuyTab({
   tokenSymbol,
   currentPrice,
   solPrice,
-  balance
+  balance,
+  tokenAddress,
+  volume24h,
+  holders,
+  userRank
 }: TradePanelBuyTabProps) {
   const solAmount = selectedSolAmount || parseFloat(customSolAmount) || 0
   const hasAmount = solAmount > 0
@@ -120,6 +131,15 @@ export function TradePanelBuyTab({
           </>
         )}
       </Button>
+
+      {/* Token Vitals - 2x2 Grid */}
+      <TokenVitalsBar
+        tokenAddress={tokenAddress}
+        volume24h={volume24h}
+        holders={holders}
+        userRank={userRank}
+        className="mt-2"
+      />
     </div>
   )
 }

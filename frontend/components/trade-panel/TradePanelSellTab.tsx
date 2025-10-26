@@ -1,6 +1,6 @@
 /**
  * Trade Panel Sell Tab Component
- * Sell interface with percentage presets, estimates, and fees
+ * Sell interface with percentage presets, estimates, fees, and token vitals
  */
 
 import { TrendingDown, Loader2 } from 'lucide-react'
@@ -9,26 +9,33 @@ import { Button } from '@/components/ui/button'
 import { TradePanelPresets } from './TradePanelPresets'
 import { TradePanelEstimate } from './TradePanelEstimate'
 import { TradePanelFees } from './TradePanelFees'
+import { TokenVitalsBar } from '@/components/trading/token-vitals-bar'
 import { calculateSellEstimate, calculateSellQuantity, calculateTradeFees } from './utils/calculations'
 
 interface TradePanelSellTabProps {
   // Presets
   sellPresets: number[]
-  
+
   // State
   selectedPercentage: number | null
   onSelectPercentage: (percentage: number) => void
-  
+
   // Trade execution
   onSell: () => void
   isTrading: boolean
-  
+
   // Position & token data
   tokenSymbol: string | null
   holdingQty: number
   currentPrice: number
   solPrice: number
   hasPosition: boolean
+
+  // Token vitals data
+  tokenAddress?: string
+  volume24h?: number
+  holders?: number
+  userRank?: number | null
 }
 
 export function TradePanelSellTab({
@@ -41,7 +48,11 @@ export function TradePanelSellTab({
   holdingQty,
   currentPrice,
   solPrice,
-  hasPosition
+  hasPosition,
+  tokenAddress,
+  volume24h,
+  holders,
+  userRank
 }: TradePanelSellTabProps) {
   const hasSelection = selectedPercentage !== null && hasPosition
   
@@ -102,6 +113,15 @@ export function TradePanelSellTab({
           </>
         )}
       </Button>
+
+      {/* Token Vitals - 2x2 Grid */}
+      <TokenVitalsBar
+        tokenAddress={tokenAddress}
+        volume24h={volume24h}
+        holders={holders}
+        userRank={userRank}
+        className="mt-2"
+      />
     </div>
   )
 }

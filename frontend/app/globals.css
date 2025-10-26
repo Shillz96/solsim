@@ -343,49 +343,41 @@
   opacity: 0.6;
 }
 
-/* Preset Amount Buttons - Simplified */
+/* Preset Amount Buttons - Enhanced Mario Theme */
 .preset-btn {
-  background: white;
+  background: linear-gradient(135deg, #ffffff 0%, #f5f5f5 100%);
   color: var(--outline-black);
-  border: 2px solid var(--outline-black);
-  border-radius: var(--radius);
-  padding: 0.5rem 0.75rem;
+  border: 3px solid var(--outline-black);
+  border-radius: 12px;
+  padding: 0.625rem 0.875rem;
   font-weight: 700;
   font-size: 0.875rem;
-  box-shadow: 2px 2px 0 var(--outline-black);
-  transition: all var(--transition-fast);
-  position: relative;
-}
-
-.preset-btn:hover:not(:disabled) {
-  transform: translateY(-1px);
   box-shadow: 3px 3px 0 var(--outline-black);
+  position: relative;
+  transition: transform 0.1s ease;
 }
 
 .preset-btn:active:not(:disabled) {
   transform: translateY(1px);
-  box-shadow: 1px 1px 0 var(--outline-black);
+  box-shadow: 2px 2px 0 var(--outline-black);
 }
 
 .preset-btn-selected {
-  background: var(--color-star);
+  background: linear-gradient(135deg, var(--color-star) 0%, var(--coin-gold) 100%);
   color: var(--outline-black);
-  transform: scale(1.02);
-  box-shadow: 0 0 0 2px var(--color-star), 3px 3px 0 var(--outline-black);
+  box-shadow: 0 0 0 3px var(--color-star), 3px 3px 0 var(--outline-black);
   animation: pulseGlow 2s ease-in-out infinite;
-}
-
-.preset-btn-selected:hover:not(:disabled) {
-  transform: scale(1.02) translateY(-1px);
-  box-shadow: 0 0 0 2px var(--color-star), 4px 4px 0 var(--outline-black);
+  transform: scale(1.02);
 }
 
 .preset-btn:disabled {
   opacity: 0.4;
   cursor: not-allowed;
+  pointer-events: none;
+  background: #e5e5e5;
 }
 
-/* Trade Action Buttons (Main Buy/Sell) - Simplified */
+/* Trade Action Buttons (Main Buy/Sell) - No Hover Effects */
 .trade-action-btn {
   border: 3px solid var(--outline-black);
   border-radius: var(--radius-lg);
@@ -395,18 +387,7 @@
   text-transform: uppercase;
   letter-spacing: 0.5px;
   box-shadow: 3px 3px 0 var(--outline-black);
-  transition: all var(--transition-fast);
   position: relative;
-}
-
-.trade-action-btn:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 4px 4px 0 var(--outline-black);
-}
-
-.trade-action-btn:active:not(:disabled) {
-  transform: translateY(1px);
-  box-shadow: 2px 2px 0 var(--outline-black);
 }
 
 .trade-action-btn-buy {
@@ -422,6 +403,7 @@
 .trade-action-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+  pointer-events: none;
 }
 
 /* Trading Buttons - Clean, consistent motion */
