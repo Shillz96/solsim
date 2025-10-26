@@ -241,31 +241,59 @@ export class HeliusTradeStreamService extends EventEmitter {
    */
   private parseEnhancedTransaction(mint: string, tx: any) {
     try {
-      if (tx.type !== 'SWAP') return;
+      if (!tx || tx.type !== 'SWAP') {
+        return;
+      }
 
-      const swap = tx.swap;
-      if (!swap) return;
+      // Helius Enhanced Transactions API returns tokenTransfers and nativeTransfers arrays
+      const tokenTransfers = tx.tokenTransfers || [];
+      const nativeTransfers = tx.nativeTransfers || [];
 
       // Find token transfers involving our mint
-      const tokenInputs = swap.tokenInputs?.filter((t: any) => t.mint === mint) || [];
-      const tokenOutputs = swap.tokenOutputs?.filter((t: any) => t.mint === mint) || [];
+      const mintTransfers = tokenTransfers.filter((t: any) => t.mint === mint);
+      
+      if (mintTransfers.length === 0) {
+        return; // No transfers for this token
+      }
 
-      if (tokenInputs.length === 0 && tokenOutputs.length === 0) return;
-
-      // Determine side: if token output > 0, it's a buy; if token input > 0, it's a sell
-      const isBuy = tokenOutputs.length > 0 && tokenOutputs[0].tokenAmount > 0;
+      // Determine buy/sell: 
+      // If fromUserAccount is null/system, it's a buy (tokens coming from pool)
+      // If toUserAccount is null/system, it's a sell (tokens going to pool)
+      const transfer = mintTransfers[0];
+      const isBuy = !transfer.fromUserAccount || transfer.fromUserAccount === '11111111111111111111111111111111';
       const side: 'buy' | 'sell' = isBuy ? 'buy' : 'sell';
 
-      const tokenAmount = isBuy 
-        ? tokenOutputs[0].tokenAmount 
-        : tokenInputs[0].tokenAmount;
+      // Token amount is in raw units, convert using decimals
+      const tokenAmount = transfer.tokenAmount / Math.pow(10, transfer.decimals || 6);
 
-      // Get SOL amount from native input/output
-      const solAmount = isBuy
-        ? (swap.nativeInput?.amount ? parseInt(swap.nativeInput.amount) / 1e9 : 0)
-        : (swap.nativeOutput?.amount ? parseInt(swap.nativeOutput.amount) / 1e9 : 0);
-
+      // Find corresponding SOL transfer (native transfer)
+      // For a buy: SOL goes from user to pool (fromUserAccount = user)
+      // For a sell: SOL comes from pool to user (toUserAccount = user)
+      let solAmount = 0;
       const signer = tx.feePayer || 'unknown';
+
+      for (const nativeTransfer of nativeTransfers) {
+        // Skip fee transfers (very small amounts)
+        if (nativeTransfer.amount < 1000000) continue; // Less than 0.001 SOL
+        
+        // For buy: user is sender of SOL
+        // For sell: user is receiver of SOL
+        if (isBuy && nativeTransfer.fromUserAccount === signer) {
+          solAmount = nativeTransfer.amount / 1e9;
+          break;
+        } else if (!isBuy && nativeTransfer.toUserAccount === signer) {
+          solAmount = nativeTransfer.amount / 1e9;
+          break;
+        }
+      }
+
+      // Fallback: use first significant native transfer
+      if (solAmount === 0 && nativeTransfers.length > 0) {
+        const mainTransfer = nativeTransfers.find((t: any) => t.amount >= 1000000);
+        if (mainTransfer) {
+          solAmount = mainTransfer.amount / 1e9;
+        }
+      }
 
       const tradeEvent: HeliusTradeEvent = {
         mint,

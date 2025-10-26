@@ -207,12 +207,15 @@
     /* Enhanced Mario Red - More vivid on P3 displays */
     --color-brand: color(display-p3 0.90 0.15 0.13);        /* Mario Red P3 */
     --color-brand-hover: color(display-p3 0.70 0.11 0.10);  /* Darker Mario Red P3 */
+    --mario-red: color(display-p3 0.90 0.15 0.13);          /* Mario Red P3 (Tailwind reference) */
 
     /* Enhanced Luigi Green */
     --color-luigi: color(display-p3 0.26 0.69 0.28);        /* Luigi Green P3 */
+    --luigi-green: color(display-p3 0.26 0.69 0.28);        /* Luigi Green P3 (Tailwind reference) */
 
     /* Enhanced Star Yellow */
     --color-star: color(display-p3 1.0 0.85 0.0);           /* Star Yellow P3 */
+    --star-yellow: color(display-p3 1.0 0.85 0.0);          /* Star Yellow P3 (Tailwind reference) */
 
     /* Enhanced Coin Gold */
     --color-coin: color(display-p3 1.0 0.72 0.08);          /* Coin Gold P3 */
