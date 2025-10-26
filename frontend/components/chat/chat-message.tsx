@@ -142,6 +142,14 @@ export function ChatMessage({ message, onUserClick }: ChatMessageProps) {
   const { canModerate, deleteMessage, muteUser, banUser, addStrike } = useModeration()
   const [showActions, setShowActions] = useState(false)
 
+  // DEBUG: Log that component is rendering
+  console.log('💬 ChatMessage rendering:', {
+    id: message.id,
+    content: message.content,
+    contentType: typeof message.content,
+    contentLength: message.content?.length
+  })
+
   const isOwnMessage = message.userId === currentUser?.id
   const timestamp = new Date(message.createdAt).toLocaleTimeString([], {
     hour: '2-digit',
