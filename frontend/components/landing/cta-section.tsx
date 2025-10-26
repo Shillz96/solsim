@@ -37,11 +37,11 @@ export function CTASection() {
             >
               <img src="/icons/mario/controller.png" alt="" className="w-20 h-20 object-contain mx-auto" />
             </motion.div>
-            <h2 className="font-mario text-4xl md:text-5xl font-bold text-white flex items-center justify-center gap-3" style={{ textShadow: '3px 3px 6px rgba(0,0,0,0.9), 0px 0px 10px rgba(0,0,0,0.5)' }}>
+            <h2 className="font-mario text-4xl md:text-5xl font-bold text-[var(--outline-black)] flex items-center justify-center gap-3">
               Ready to Level Up?
               <img src="/icons/mario/trophy.png" alt="" className="w-10 h-10 object-contain inline-block" />
             </h2>
-            <p className="text-xl text-white max-w-2xl mx-auto font-bold flex items-center justify-center gap-2" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.9), 0px 0px 8px rgba(0,0,0,0.6)' }}>
+            <p className="text-xl text-[var(--outline-black)] max-w-2xl mx-auto font-bold flex items-center justify-center gap-2">
               Discover tokens, practice risk-free with paper trading, earn hourly rewards - all while gaining XP and climbing leaderboards!
               <img src="/icons/mario/star.png" alt="" className="w-6 h-6 object-contain inline-block" />
             </p>

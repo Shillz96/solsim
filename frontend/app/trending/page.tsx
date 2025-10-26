@@ -169,8 +169,8 @@ export default function TrendingPage() {
               src="/Trending-tokens-header.png"
               alt="Trending Tokens"
               width={600}
-              height={100}
-              className="object-contain"
+              height={60}
+              className="object-contain max-h-[60px]"
               priority
             />
           </div>
@@ -383,7 +383,7 @@ export default function TrendingPage() {
                           <div className="flex items-center gap-2">
                             <motion.div
                               className={`text-sm font-bold font-mono ${
-                                token.priceChange24h >= 0 ? "text-[#00ff85]" : "text-[#ff4d4d]"
+                                token.priceChange24h >= 0 ? "text-[var(--luigi-green)]" : "text-[#ff4d4d]"
                               }`}
                               animate={bigMover ? {
                                 opacity: [1, 0.6, 1],

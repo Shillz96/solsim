@@ -319,7 +319,7 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
                 // Define glow colors for each crypto
                 const getGlowColor = (symbol: string) => {
                   switch (symbol) {
-                    case 'SOL': return 'text-[#14F195]'; // Solana green
+                    case 'SOL': return 'text-[var(--luigi-green)]'; // Luigi green
                     case 'BTC': return 'text-[#F7931A]'; // Bitcoin orange  
                     case 'ETH': return 'text-[#627EEA]'; // Ethereum blue
                     default: return 'text-[var(--star-yellow)]';
@@ -328,7 +328,7 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
 
                 const getGlowShadow = (symbol: string) => {
                   switch (symbol) {
-                    case 'SOL': return 'drop-shadow-[0_0_8px_rgba(20,241,149,0.6)]'; // Solana green glow
+                    case 'SOL': return 'drop-shadow-[0_0_8px_rgba(26,188,156,0.6)]'; // Luigi green glow
                     case 'BTC': return 'drop-shadow-[0_0_8px_rgba(247,147,26,0.6)]'; // Bitcoin orange glow
                     case 'ETH': return 'drop-shadow-[0_0_8px_rgba(98,126,234,0.6)]'; // Ethereum blue glow
                     default: return 'drop-shadow-[0_0_8px_rgba(255,216,0,0.6)]';
@@ -496,7 +496,7 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
                 // Define glow colors for each crypto
                 const getGlowColor = (symbol: string) => {
                   switch (symbol) {
-                    case 'SOL': return 'text-[#14F195]'; // Solana green
+                    case 'SOL': return 'text-[var(--luigi-green)]'; // Luigi green
                     case 'BTC': return 'text-[#F7931A]'; // Bitcoin orange  
                     case 'ETH': return 'text-[#627EEA]'; // Ethereum blue
                     default: return 'text-[var(--star-yellow)]';
@@ -505,7 +505,7 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
 
                 const getGlowShadow = (symbol: string) => {
                   switch (symbol) {
-                    case 'SOL': return 'drop-shadow-[0_0_8px_rgba(20,241,149,0.6)]'; // Solana green glow
+                    case 'SOL': return 'drop-shadow-[0_0_8px_rgba(26,188,156,0.6)]'; // Luigi green glow
                     case 'BTC': return 'drop-shadow-[0_0_8px_rgba(247,147,26,0.6)]'; // Bitcoin orange glow
                     case 'ETH': return 'drop-shadow-[0_0_8px_rgba(98,126,234,0.6)]'; // Ethereum blue glow
                     default: return 'drop-shadow-[0_0_8px_rgba(255,216,0,0.6)]';
