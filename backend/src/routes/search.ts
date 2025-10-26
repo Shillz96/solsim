@@ -19,20 +19,39 @@ export default async function searchRoutes(app: FastifyInstance) {
     }
     
     try {
+      // Check if HELIUS_API is configured
+      const heliusApiKey = process.env.HELIUS_API;
+      if (!heliusApiKey) {
+        return reply.code(500).send({ 
+          error: "HELIUS_API environment variable not configured",
+          mint,
+          timestamp: new Date().toISOString()
+        });
+      }
+
       const { holderCountService } = await import("../services/holderCountService.js");
+      
+      const startTime = Date.now();
       const holderCount = await holderCountService.getHolderCount(mint);
+      const duration = Date.now() - startTime;
       
       return reply.send({
         mint,
         holderCount,
+        duration: `${duration}ms`,
         timestamp: new Date().toISOString(),
-        source: "Helius RPC getProgramAccounts"
+        source: "Helius RPC getProgramAccounts",
+        heliusConfigured: !!heliusApiKey,
+        heliusKeyPrefix: heliusApiKey.substring(0, 8) + '...'
       });
     } catch (error: any) {
       console.error("[Test] Holder count error:", error);
       return reply.code(500).send({ 
         error: error.message,
-        details: "Check HELIUS_API environment variable is set"
+        stack: error.stack?.split('\n').slice(0, 3).join('\n'),
+        details: "Check HELIUS_API environment variable is set",
+        mint,
+        timestamp: new Date().toISOString()
       });
     }
   });
