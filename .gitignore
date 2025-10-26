@@ -2,6 +2,12 @@
 backend.backup/
 *.backup
 
+# Archive folders (old/backup files)
+_archive/
+backend/_archive/
+frontend/_archive/
+**/_archive/
+
 # Dependencies
 node_modules/
 .pnp
