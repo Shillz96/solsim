@@ -78,18 +78,18 @@ export function SocialHoverCard({
           />
         </a>
       </HoverCardTrigger>
-      <HoverCardContent 
-        className="w-80 p-4 bg-[var(--card)] border-4 border-[var(--outline-black)] rounded-xl shadow-[6px_6px_0_var(--outline-black)] z-50" 
+      <HoverCardContent
+        className="w-80 p-4 bg-card border-4 border-outline rounded-xl shadow-[6px_6px_0_var(--outline-black)] z-50"
         side="top"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="space-y-2">
           <div className="flex items-start gap-3">
-            <div className={`w-12 h-12 rounded-full bg-gradient-to-br ${config.gradient} flex items-center justify-center text-white text-2xl border-3 border-[var(--outline-black)] ${platform === 'twitter' ? 'font-bold' : ''}`}>
+            <div className={`w-12 h-12 rounded-full bg-gradient-to-br ${config.gradient} flex items-center justify-center text-white text-2xl border-3 border-outline ${platform === 'twitter' ? 'font-bold' : ''}`}>
               {platform === 'twitter' ? (tokenSymbol?.[0] || '?') : config.emoji}
             </div>
             <div className="flex-1 min-w-0">
-              <div className="font-bold text-base truncate text-[var(--outline-black)]">
+              <div className="font-bold text-base truncate text-outline">
                 {tokenName || tokenSymbol}
               </div>
               <div className="text-sm text-pipe-600 truncate break-all">
@@ -97,7 +97,7 @@ export function SocialHoverCard({
               </div>
             </div>
           </div>
-          <p className="text-sm line-clamp-3 text-[var(--outline-black)]">
+          <p className="text-sm line-clamp-3 text-outline">
             {description || `Click to ${config.label} →`}
           </p>
           <div className="flex gap-4 text-xs text-pipe-600 font-bold">
