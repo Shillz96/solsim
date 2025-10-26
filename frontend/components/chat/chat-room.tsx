@@ -184,29 +184,36 @@ export function ChatRoom({ tokenMint, className, headerImage, headerImageAlt = '
       </div>
 
       {/* Input Area */}
-      <div className="flex gap-2 mt-auto">
-        <input
-          ref={inputRef}
-          type="text"
-          value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
-          onKeyPress={handleKeyPress}
-          placeholder={user ? 'Type a message...' : 'Sign in to chat'}
-          disabled={!user || status !== 'connected'}
-          className="flex-1 px-3 py-2.5 text-sm rounded-lg border-3 border-[var(--outline-black)] bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-star)] shadow-[2px_2px_0_var(--outline-black)]"
-          maxLength={280}
-        />
-        <EmojiPicker 
-          onEmojiSelect={handleEmojiSelect}
-          position="top"
-        />
-        <button 
-          onClick={handleSendMessage}
-          disabled={!inputValue.trim() || !user || status !== 'connected'}
-          className="mario-btn bg-[var(--color-luigi)] text-white px-3 py-2.5 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          <Send className="w-4 h-4" />
-        </button>
+      <div className="p-4 border-t-4 border-[var(--outline-black)] bg-gradient-to-r from-white to-[var(--mario-red)]/10 flex-shrink-0 shadow-[0_-4px_0_rgba(0,0,0,0.05)]">
+        <div className="flex gap-2 items-end">
+          <input
+            ref={inputRef}
+            type="text"
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            onKeyPress={handleKeyPress}
+            placeholder={user ? 'Type a message...' : 'Sign in to chat'}
+            disabled={!user || status !== 'connected'}
+            className="flex-1 h-10 px-3 text-sm rounded-lg border-3 border-[var(--outline-black)] bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-star)] shadow-[2px_2px_0_var(--outline-black)]"
+            maxLength={280}
+          />
+          <EmojiPicker 
+            onEmojiSelect={handleEmojiSelect}
+            position="top"
+          />
+          <button 
+            onClick={handleSendMessage}
+            disabled={!inputValue.trim() || !user || status !== 'connected'}
+            className="h-10 w-10 rounded-lg border-3 border-[var(--outline-black)] bg-[var(--luigi-green)] hover:bg-[var(--pipe-green)] text-white font-bold transition-all shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 active:shadow-[2px_2px_0_var(--outline-black)] active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+          >
+            <Send className="w-4 h-4" />
+          </button>
+        </div>
+        {user && inputValue && (
+          <div className="text-xs opacity-60 mt-2 text-right font-medium text-[var(--outline-black)]">
+            {inputValue.length}/280
+          </div>
+        )}
       </div>
 
       {/* User Moderation Sheet */}

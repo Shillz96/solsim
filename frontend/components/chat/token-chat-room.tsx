@@ -203,17 +203,17 @@ export function TokenChatRoom({ tokenMint, className }: TokenChatRoomProps) {
             onKeyPress={handleKeyPress}
             placeholder={user ? 'Discuss this token...' : 'Sign in to chat'}
             disabled={!user || status !== 'connected'}
-            className={cn(marioStyles.input(), 'flex-1')}
+            className={cn(marioStyles.input(), 'flex-1 h-10')}
             maxLength={280}
           />
           <EmojiPicker onEmojiSelect={handleEmojiSelect} />
-          <Button
+          <button
             onClick={handleSendMessage}
             disabled={!user || !inputValue.trim() || status !== 'connected'}
-            className={marioStyles.button('primary')}
+            className="h-10 w-10 rounded-lg border-3 border-[var(--outline-black)] bg-[var(--luigi-green)] hover:bg-[var(--pipe-green)] text-white font-bold transition-all shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 active:shadow-[2px_2px_0_var(--outline-black)] active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
           >
             <Send className="h-4 w-4" />
-          </Button>
+          </button>
         </div>
         {user && inputValue && (
           <div className={cn(marioStyles.bodyText('medium'), 'text-xs opacity-60 mt-2 text-right')}>
