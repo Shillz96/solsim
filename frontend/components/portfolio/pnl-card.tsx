@@ -103,7 +103,7 @@ function EmptyPnLState() {
       </p>
       
       <button 
-        onClick={() => window.location.href = '/trade'}
+        onClick={() => window.location.href = '/warp-pipes'}
         className="gap-2 h-10 px-6 rounded-lg border-3 border-[var(--outline-black)] bg-[var(--luigi-green)] text-white hover:bg-[var(--luigi-green)]/90 shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all flex items-center font-mario"
       >
         <TrendingUp className="w-4 h-4" />

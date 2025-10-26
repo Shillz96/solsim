@@ -176,7 +176,7 @@ export function LevelUpSection() {
 
               {/* CTA button */}
               <div className="pt-4">
-                <a href="/trade">
+                <a href="/warp-pipes">
                   <button className="mario-btn mario-btn-lg bg-[var(--luigi-green)] hover:bg-[var(--luigi-green)]/90 text-white">
                     <span className="flex items-center justify-center gap-2">
                       Start Earning XP Now!

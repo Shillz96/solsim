@@ -1,12 +1,25 @@
 /**
  * PumpPortal WebSocket Client
  *
- * Real-time price streaming for pump.fun tokens via PumpPortal's free WebSocket API
+ * Real-time price streaming for ALL Solana tokens via PumpPortal's free WebSocket API
+ *
+ * ARCHITECTURE NOTE:
+ * - PumpPortal WebSocket provides real-time price updates when trades occur
+ * - This is NOT a complete price solution - prices only update when trades happen!
+ * - For inactive tokens, prices will go stale without trades
+ * - This should be used WITH other price sources (Jupiter, pump.fun API) for complete coverage
+ * 
+ * Token Support:
+ * - pump.fun tokens (native support)
+ * - bonk.fun tokens
+ * - Raydium tokens
+ * - Any Solana token that trades on supported DEXs
  *
  * Features:
  * - Subscribe to new token creation events
  * - Subscribe to trades for specific tokens
- * - Calculate prices from bonding curve reserves
+ * - Calculate prices from bonding curve reserves (pump.fun)
+ * - Calculate prices from trade amounts (DEX swaps)
  * - Automatic reconnection with exponential backoff
  *
  * API Documentation: https://pumpportal.fun/

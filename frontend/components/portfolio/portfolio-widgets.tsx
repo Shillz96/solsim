@@ -133,7 +133,7 @@ export function PortfolioStatsWidget() {
         </div>
         
         <div className="mt-4 pt-3 border-t border-border/50">
-          <Link href="/trade">
+          <Link href="/warp-pipes">
             <Button variant="ghost" size="sm" className="w-full text-xs">
               Start Trading
               <ArrowRight className="h-3 w-3 ml-1" />
@@ -221,7 +221,7 @@ export function QuickPortfolioActionsWidget() {
       icon: Activity, 
       color: "text-blue-500",
       bg: "bg-blue-500/10",
-      href: "/trade"
+      href: "/warp-pipes"
     },
     { 
       label: "Market Analysis", 

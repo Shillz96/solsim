@@ -52,7 +52,7 @@
     {
       "name": "Trade",
       "description": "Start trading tokens",
-      "url": "/trade",
+      "url": "/warp-pipes",
       "icons": [
         {
           "src": "/favicon-32x32.svg",

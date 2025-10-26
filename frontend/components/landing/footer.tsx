@@ -28,7 +28,7 @@ export function Footer() {
             <h3 className="font-bold text-white text-lg" style={{ textShadow: '1px 1px 3px rgba(0,0,0,0.9)' }}>Product 🎮</h3>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link href="/trade" className="text-white font-semibold hover:text-[var(--star-yellow)] transition-colors hover:translate-x-1 inline-block" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.9)' }}>
+                <Link href="/warp-pipes" className="text-white font-semibold hover:text-[var(--star-yellow)] transition-colors hover:translate-x-1 inline-block" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.9)' }}>
                   → Trade
                 </Link>
               </li>

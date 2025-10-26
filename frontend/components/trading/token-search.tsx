@@ -62,7 +62,7 @@ export function TokenSearch() {
   const handleTokenSelect = useCallback((tokenAddress: string) => {
     const currentParams = new URLSearchParams(searchParams.toString())
     currentParams.set('token', tokenAddress)
-    router.push(`/trade?${currentParams.toString()}`)
+    router.push(`/warp-pipes?${currentParams.toString()}`)
     setShowResults(false)
     setQuery("")
   }, [router, searchParams])

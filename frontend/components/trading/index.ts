@@ -1,4 +1,3 @@
-export { TradingPanel } from "./trading-panel"
 export { TradeHistory } from "./trade-history"
 export { VirtualizedTradeHistory } from "./virtualized-trade-history"
 export { TokenSearch } from "./token-search"

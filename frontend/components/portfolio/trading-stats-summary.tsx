@@ -125,7 +125,7 @@ export function TradingStatsSummary() {
               Start trading to see your statistics here
             </p>
           </div>
-          <Button onClick={() => window.location.href = '/trade'} className="gap-2">
+          <Button onClick={() => window.location.href = '/warp-pipes'} className="gap-2">
             <TrendingUp className="h-4 w-4" />
             Start Trading
           </Button>

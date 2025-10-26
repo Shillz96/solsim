@@ -68,6 +68,9 @@ export function TradePanelContainer({ tokenAddress: propTokenAddress }: TradePan
   // Get SOL price
   const solPrice = livePrices.get('So11111111111111111111111111111111111111112')?.price || 208
 
+  // Use live price if available, fallback to token details price for calculations
+  const effectivePrice = currentPrice > 0 ? currentPrice : (tokenDetails?.price || 0)
+
   // Load user balance
   useEffect(() => {
     if (isAuthenticated && user) {
@@ -126,8 +129,21 @@ export function TradePanelContainer({ tokenAddress: propTokenAddress }: TradePan
       return
     }
 
+    // Use live price if available, fallback to token details price
+    const effectivePrice = currentPrice > 0 ? currentPrice : tokenDetails.price
+    
+    // Validate price is available
+    if (effectivePrice <= 0) {
+      toast({ 
+        title: "Price unavailable", 
+        description: "Unable to determine token price. Please try again.",
+        variant: "destructive" 
+      })
+      return
+    }
+
     // Calculate token quantity
-    const estimate = calculateBuyEstimate(solAmount, solPrice, currentPrice)
+    const estimate = calculateBuyEstimate(solAmount, solPrice, effectivePrice)
     const tokenQuantity = roundTokenQuantity(estimate.tokenQuantity)
 
     // Set trading state
@@ -135,7 +151,7 @@ export function TradePanelContainer({ tokenAddress: propTokenAddress }: TradePan
     tradePanelState.setTradeErrorState(null)
 
     // Add optimistic update
-    addOptimisticTrade(tokenAddress, 'BUY', tokenQuantity, currentPrice)
+    addOptimisticTrade(tokenAddress, 'BUY', tokenQuantity, effectivePrice)
 
     try {
       await executeBuy(
@@ -192,12 +208,25 @@ export function TradePanelContainer({ tokenAddress: propTokenAddress }: TradePan
       return
     }
 
+    // Use live price if available, fallback to token details price
+    const effectivePrice = currentPrice > 0 ? currentPrice : tokenDetails.price
+    
+    // Validate price is available
+    if (effectivePrice <= 0) {
+      toast({ 
+        title: "Price unavailable", 
+        description: "Unable to determine token price. Please try again.",
+        variant: "destructive" 
+      })
+      return
+    }
+
     // Calculate token quantity
     const holdingQty = parseFloat(position.qty)
     const tokenQuantity = roundTokenQuantity(calculateSellQuantity(holdingQty, percentage))
 
     // Calculate expected SOL amount for optimistic update
-    const sellEstimate = calculateSellEstimate(tokenQuantity, currentPrice, solPrice)
+    const sellEstimate = calculateSellEstimate(tokenQuantity, effectivePrice, solPrice)
     const expectedSolAmount = sellEstimate.solAmount
 
     // Set trading state
@@ -205,7 +234,7 @@ export function TradePanelContainer({ tokenAddress: propTokenAddress }: TradePan
     tradePanelState.setTradeErrorState(null)
 
     // Add optimistic update
-    addOptimisticTrade(tokenAddress, 'SELL', tokenQuantity, currentPrice)
+    addOptimisticTrade(tokenAddress, 'SELL', tokenQuantity, effectivePrice)
 
     try {
       await executeSell(
@@ -365,7 +394,7 @@ export function TradePanelContainer({ tokenAddress: propTokenAddress }: TradePan
                 onBuy={handleBuy}
                 isTrading={tradePanelState.isTrading}
                 tokenSymbol={tokenDetails.tokenSymbol}
-                currentPrice={currentPrice}
+                currentPrice={effectivePrice}
                 solPrice={solPrice}
                 balance={userBalance}
               />
@@ -381,7 +410,7 @@ export function TradePanelContainer({ tokenAddress: propTokenAddress }: TradePan
                 isTrading={tradePanelState.isTrading}
                 tokenSymbol={tokenDetails.tokenSymbol}
                 holdingQty={position ? parseFloat(position.qty) : 0}
-                currentPrice={currentPrice}
+                currentPrice={effectivePrice}
                 solPrice={solPrice}
                 hasPosition={hasPosition}
               />

@@ -294,7 +294,7 @@ export function PortfolioMetrics({ isLoading: externalLoading = false }: Portfol
   // If they have trading history but no current positions, still show metrics
   const hasTradingHistory = portfolio?.totals?.totalTrades && portfolio.totals.totalTrades > 0;
   if (!portfolio || !hasTradingHistory) {
-    return <EmptyMetricsState onAction={() => window.location.href = '/trade'} />;
+    return <EmptyMetricsState onAction={() => window.location.href = '/warp-pipes'} />;
   }
 
   // Calculate metrics from portfolio data with guards

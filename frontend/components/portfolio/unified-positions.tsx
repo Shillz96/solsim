@@ -351,7 +351,7 @@ export const UnifiedPositions = memo(function UnifiedPositions({
       ...(action && { action }),
       ...(percent && { percent: percent.toString() })
     })
-    router.push(`/trade?${params.toString()}`)
+    router.push(`/warp-pipes?${params.toString()}`)
   }, [router])
 
   // Auth guard
@@ -448,7 +448,7 @@ export const UnifiedPositions = memo(function UnifiedPositions({
             <p className="text-xs text-muted-foreground mb-4">
               Start trading to build your portfolio
             </p>
-            <Link href="/trade">
+            <Link href="/warp-pipes">
               <Button size="sm">Start Trading</Button>
             </Link>
           </div>

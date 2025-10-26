@@ -147,7 +147,7 @@ export function TradeHistory({
           </p>
           {!tokenAddress && (
             <Button asChild size="lg" className="bg-[var(--mario-red)] hover:bg-[var(--mario-red)]/90 text-white border-3 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)] font-bold">
-              <Link href="/trade">
+              <Link href="/warp-pipes">
                 <TrendingUp className="mr-2 h-4 w-4" />
                 Start Trading
               </Link>

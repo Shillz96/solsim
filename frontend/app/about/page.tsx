@@ -219,7 +219,7 @@ export default function AboutPage() {
         >
           <h2 className="font-heading text-2xl font-bold">Ready to Start Your Trading Journey?</h2>
           <p className="text-muted-foreground">Join thousands of traders leveling up on 1UP SOL.</p>
-          <Link href="/trade">
+          <Link href="/warp-pipes">
             <Button size="lg" className="gap-2">
               <TrendingUp className="h-5 w-5" />
               Start Trading Now

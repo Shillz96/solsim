@@ -328,7 +328,7 @@ export default function RewardsPage() {
                 Every trade is a power-up. Every win brings you closer to the 1UP Drop. 🍄💰
               </p>
               <div className="flex flex-wrap items-center justify-center gap-3">
-                <Link href="/trade">
+                <Link href="/warp-pipes">
                   <Button className="mario-btn bg-[var(--mario-red)] text-white border-4 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)] hover:shadow-[2px_2px_0_var(--outline-black)] font-bold px-6 py-3">
                     Start Trading 🚀
                   </Button>

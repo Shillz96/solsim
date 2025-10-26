@@ -83,7 +83,7 @@ export function HeroSection() {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/trade">
+              <Link href="/warp-pipes">
                 <button className="mario-btn mario-btn-lg bg-mario-green hover:bg-mario-green/90 w-full sm:w-auto group">
                   <span className="flex items-center justify-center gap-2">
                     Start Trading

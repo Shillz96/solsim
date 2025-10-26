@@ -21,7 +21,7 @@ export const onboardingTours: Tour[] = [{
     showControls: true,
     pointerPadding: 10,
     pointerRadius: 8,
-    nextRoute: "/trade",
+    nextRoute: "/warp-pipes",
   },
 
   // Step 2: Trade Page

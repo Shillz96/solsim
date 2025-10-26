@@ -795,7 +795,7 @@ export default function DocumentationPage() {
         >
           <h2 className="font-mario text-2xl text-[var(--outline-black)]">Ready to Start Trading?</h2>
           <p className="text-[var(--outline-black)] font-semibold">Purchase simulated SOL and start practicing today. Level up and climb the leaderboard!</p>
-          <Link href="/trade">
+          <Link href="/warp-pipes">
             <Button size="lg" className="gap-2 mario-btn bg-[var(--luigi-green)] text-white border-3 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)] hover:shadow-[6px_6px_0_var(--outline-black)] font-mario">
               <TrendingUp className="h-5 w-5" />
               Start Trading Now

@@ -237,7 +237,7 @@ export default function RoadmapPage() {
                 Every trade is a power‑up. Your XP and 1UP Points flow straight into the airdrop.
               </p>
               <div className="mt-2 flex flex-wrap items-center justify-center gap-3">
-                <Link href="/trade">
+                <Link href="/warp-pipes">
                   <Button
                     className="inline-flex items-center justify-center rounded-xl border-[3px] border-[var(--outline-black)] bg-[var(--star-yellow)] px-4 py-2 text-sm font-black shadow-[4px_4px_0_var(--outline-black)] transition-transform active:translate-y-0.5 hover:bg-[var(--coin-yellow)] text-[var(--outline-black)]"
                   >

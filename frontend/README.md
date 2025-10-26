@@ -96,7 +96,7 @@ frontend/
 ## 🔧 Key Components
 
 ### Trading System
-- **TradingPanel** - Main trading interface with buy/sell functionality
+- **TradePanel** - Main trading interface with buy/sell functionality (modular design)
 - **TradeHistory** - Transaction history with filtering and pagination
 - **TokenSearch** - Search and select tokens for trading
 

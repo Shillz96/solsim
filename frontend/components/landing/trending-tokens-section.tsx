@@ -230,7 +230,7 @@ export function TrendingTokensSection() {
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
         >
-          <Link href="/trade">
+          <Link href="/warp-pipes">
             <button className="bg-[var(--star-yellow)] hover:bg-[var(--star-yellow)]/90 text-black font-mario text-lg px-8 py-4 rounded-[16px] border-4 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)] hover:shadow-[8px_8px_0_var(--outline-black)] hover:-translate-y-1 transition-all duration-200">
               <span className="flex items-center justify-center gap-2">
                 View All Tokens
