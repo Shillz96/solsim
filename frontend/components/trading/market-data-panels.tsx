@@ -1,24 +1,24 @@
 'use client'
 
 /**
- * Market Data Panels Component
+ * Market Data Panels Component - Simplified Clean Version
  *
  * Tabbed interface showing:
- * - Recent Trades (with whale alerts)
- * - Top Traders (24h leaderboard)
- * - Holders (distribution)
+ * - Recent Trades
+ * - Top Traders
+ * - Holders
+ * - Bubble Map
+ * - Portfolio
  */
 
 import { useState, memo } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { cn, marioStyles } from '@/lib/utils'
-import { Loader2, TrendingUp, TrendingDown, Users, Activity, Network, Wallet } from 'lucide-react'
-import { formatUSD, formatNumber, formatTokenQuantity } from '@/lib/format'
+import { cn } from '@/lib/utils'
+import { Loader2, TrendingUp, TrendingDown, Users, Network, Wallet } from 'lucide-react'
+import { formatUSD, formatNumber } from '@/lib/format'
 import { usePortfolio } from '@/hooks/use-portfolio'
-import { useAuth } from '@/hooks/use-auth'
 import { useRouter } from 'next/navigation'
-import * as api from '@/lib/api'
-import { usePumpPortalTradesWithHistory, useTopTradersFromStream, useActiveHoldersFromStream } from '@/hooks/use-pumpportal-trades'
+import { usePumpPortalTradesWithHistory } from '@/hooks/use-pumpportal-trades'
 
 interface MarketDataPanelsProps {
   tokenMint: string
@@ -30,77 +30,73 @@ export function MarketDataPanels({ tokenMint }: MarketDataPanelsProps) {
   const [activeTab, setActiveTab] = useState<TabType>('trades')
 
   return (
-    <div className={cn(
-      marioStyles.cardLg(false),
-      "flex flex-col h-full overflow-hidden"
-    )}>
+    <div className="mario-card-lg h-full flex flex-col">
       {/* Tabs */}
-      <div className="border-b-4 border-[var(--outline-black)] bg-gradient-to-r from-[var(--star-yellow)]/20 via-[var(--pipe-green)]/20 to-[var(--sky-blue)]/20 px-4 py-3 overflow-x-auto flex-shrink-0">
-        <div className="flex gap-2 text-xs font-mario font-bold justify-start sm:justify-center min-w-max snap-x snap-mandatory">
-          <button
-            onClick={() => setActiveTab('trades')}
-            className={cn(
-              "px-4 py-2.5 rounded-lg border-3 border-[var(--outline-black)] transition-all whitespace-nowrap snap-start",
-              activeTab === 'trades'
-                ? "bg-gradient-to-br from-[var(--luigi-green)] to-emerald-500 text-white shadow-[4px_4px_0_var(--outline-black)] -translate-y-[2px]"
-                : "bg-[var(--card)] hover:bg-[var(--pipe-green)]/10 shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-[1px]"
-            )}
-          >
-            📊 Trades
-          </button>
-
-          <button
-            onClick={() => setActiveTab('traders')}
-            className={cn(
-              "px-4 py-2.5 rounded-lg border-3 border-[var(--outline-black)] transition-all whitespace-nowrap snap-start",
-              activeTab === 'traders'
-                ? "bg-gradient-to-br from-[var(--star-yellow)] to-amber-400 text-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)] -translate-y-[2px]"
-                : "bg-[var(--card)] hover:bg-[var(--pipe-green)]/10 shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-[1px]"
-            )}
-          >
-            🏆 Top Traders
-          </button>
-
-          <button
-            onClick={() => setActiveTab('holders')}
-            className={cn(
-              "px-4 py-2.5 rounded-lg border-3 border-[var(--outline-black)] transition-all whitespace-nowrap snap-start",
-              activeTab === 'holders'
-                ? "bg-gradient-to-br from-[var(--coin-gold)] to-[var(--coin-yellow)] text-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)] -translate-y-[2px]"
-                : "bg-[var(--card)] hover:bg-[var(--pipe-green)]/10 shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-[1px]"
-            )}
-          >
-            👥 Holders
-          </button>
-
-          <button
-            onClick={() => setActiveTab('bubblemap')}
-            className={cn(
-              "px-4 py-2.5 rounded-lg border-3 border-[var(--outline-black)] transition-all whitespace-nowrap snap-start",
-              activeTab === 'bubblemap'
-                ? "bg-gradient-to-br from-[var(--sky-blue)] to-blue-400 text-white shadow-[4px_4px_0_var(--outline-black)] -translate-y-[2px]"
-                : "bg-[var(--card)] hover:bg-[var(--pipe-green)]/10 shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-[1px]"
-            )}
-          >
-            🫧 Bubble Map
-          </button>
-
-          <button
-            onClick={() => setActiveTab('positions')}
-            className={cn(
-              "px-4 py-2.5 rounded-lg border-3 border-[var(--outline-black)] transition-all whitespace-nowrap snap-start",
-              activeTab === 'positions'
-                ? "bg-gradient-to-br from-[var(--mario-red)] to-red-500 text-white shadow-[4px_4px_0_var(--outline-black)] -translate-y-[2px]"
-                : "bg-[var(--card)] hover:bg-[var(--pipe-green)]/10 shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-[1px]"
-            )}
-          >
-            💼 Portfolio
-          </button>
-        </div>
+      <div className="flex gap-2 mb-4">
+        <button
+          onClick={() => setActiveTab('trades')}
+          className={cn(
+            "mario-btn px-4 py-2 text-sm flex items-center gap-2",
+            activeTab === 'trades'
+              ? "bg-[var(--color-luigi)] text-white"
+              : "bg-white text-[var(--outline-black)] opacity-50"
+          )}
+        >
+          <TrendingUp className="w-4 h-4" />
+          Trades
+        </button>
+        <button
+          onClick={() => setActiveTab('traders')}
+          className={cn(
+            "mario-btn px-4 py-2 text-sm flex items-center gap-2",
+            activeTab === 'traders'
+              ? "bg-[var(--color-luigi)] text-white"
+              : "bg-white text-[var(--outline-black)] opacity-50"
+          )}
+        >
+          <Users className="w-4 h-4" />
+          Top Traders
+        </button>
+        <button
+          onClick={() => setActiveTab('holders')}
+          className={cn(
+            "mario-btn px-4 py-2 text-sm flex items-center gap-2",
+            activeTab === 'holders'
+              ? "bg-[var(--color-luigi)] text-white"
+              : "bg-white text-[var(--outline-black)] opacity-50"
+          )}
+        >
+          <Users className="w-4 h-4" />
+          Holders
+        </button>
+        <button
+          onClick={() => setActiveTab('bubblemap')}
+          className={cn(
+            "mario-btn px-4 py-2 text-sm flex items-center gap-2",
+            activeTab === 'bubblemap'
+              ? "bg-[var(--color-luigi)] text-white"
+              : "bg-white text-[var(--outline-black)] opacity-50"
+          )}
+        >
+          <Network className="w-4 h-4" />
+          Bubble Map
+        </button>
+        <button
+          onClick={() => setActiveTab('positions')}
+          className={cn(
+            "mario-btn px-4 py-2 text-sm flex items-center gap-2",
+            activeTab === 'positions'
+              ? "bg-[var(--color-luigi)] text-white"
+              : "bg-white text-[var(--outline-black)] opacity-50"
+          )}
+        >
+          <Wallet className="w-4 h-4" />
+          Portfolio
+        </button>
       </div>
 
-      {/* Data Panel Content */}
-      <div className="flex-1 overflow-y-auto p-4 bg-gradient-to-br from-[var(--pipe-green)]/30 via-[var(--card)] to-[var(--sky-blue)]/10">
+      {/* Tab Content */}
+      <div className="flex-1 overflow-hidden">
         {activeTab === 'trades' && <RecentTradesPanel tokenMint={tokenMint} />}
         {activeTab === 'traders' && <TopTradersPanel tokenMint={tokenMint} />}
         {activeTab === 'holders' && <HoldersPanel tokenMint={tokenMint} />}
@@ -111,9 +107,8 @@ export function MarketDataPanels({ tokenMint }: MarketDataPanelsProps) {
   )
 }
 
-// Recent Trades Panel - Now with Real-Time PumpPortal WebSocket
+// Recent Trades Panel
 const RecentTradesPanel = memo(function RecentTradesPanel({ tokenMint }: { tokenMint: string }) {
-  // Use PumpPortal WebSocket for real-time trades + historical backfill
   const { trades, status, isLoadingHistory } = usePumpPortalTradesWithHistory({
     tokenMint,
     maxTrades: 50,
@@ -124,78 +119,53 @@ const RecentTradesPanel = memo(function RecentTradesPanel({ tokenMint }: { token
   const isConnected = status === 'connected'
 
   return (
-    <div className={cn(
-      marioStyles.cardLg(false),
-      "bg-gradient-to-br from-green-50 to-emerald-50 p-4 min-h-[200px]"
-    )}>
-      <div className="flex items-center gap-2 mb-4 bg-[var(--card)] rounded-lg p-3 border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)]">
-        <div className="h-8 w-8 rounded-lg bg-[var(--luigi-green)] border-3 border-[var(--outline-black)] flex items-center justify-center shadow-[2px_2px_0_var(--outline-black)]">
-          <Activity className="h-4 w-4 text-white" />
+    <div className="mario-card bg-white p-4 h-full overflow-hidden flex flex-col">
+      <div className="flex items-center gap-3 mb-4">
+        <div className="w-10 h-10 rounded-lg bg-[var(--color-luigi)] border-3 border-[var(--outline-black)] flex items-center justify-center shadow-[2px_2px_0_var(--outline-black)]">
+          <TrendingUp className="w-5 h-5 text-white" />
         </div>
-        <div className="flex-1">
-          <h3 className="font-mario font-bold text-sm">Recent Market Activity</h3>
-          {/* Real-time status indicator */}
-          <div className="flex items-center gap-1 text-[10px] text-muted-foreground mt-0.5">
-            <span className={cn(
-              "inline-block w-1.5 h-1.5 rounded-full",
-              isConnected ? "bg-[var(--luigi-green)] animate-pulse" : "bg-pipe-400"
-            )} />
-            <span>{isConnected ? 'Live' : status}</span>
-          </div>
+        <div>
+          <h3 className="font-bold text-sm uppercase">Recent Market Activity</h3>
+          <p className="text-xs text-[var(--foreground)] opacity-70">
+            {isConnected ? 'Live' : status}
+          </p>
         </div>
       </div>
 
       {isLoading ? (
         <div className="flex items-center justify-center py-8">
-          <Loader2 className="h-5 w-5 animate-spin text-[var(--outline-black)]" />
+          <Loader2 className="h-5 w-5 animate-spin text-[var(--color-luigi)]" />
         </div>
       ) : trades.length === 0 ? (
-        <div className="text-sm text-muted-foreground text-center py-8">
-          <div className="mb-2">📊</div>
-          <div className="font-bold mb-1">No recent trades</div>
-          <div className="text-xs">Waiting for market activity...</div>
+        <div className="text-center py-8">
+          <div className="text-4xl mb-2">📊</div>
+          <h4 className="font-bold mb-1">No recent trades</h4>
+          <p className="text-sm text-[var(--foreground)] opacity-70">Waiting for market activity...</p>
         </div>
       ) : (
-        <div className="space-y-2 max-h-[400px] overflow-y-auto">
-          {trades.map((trade, i) => {
+        <div className="space-y-2 overflow-y-auto flex-1">
+          {trades.map((trade, index) => {
             const isBuy = trade.side === 'buy'
-            const userDisplay = trade.signer || 'Anonymous'
-            const tokenAmount = trade.amountToken || 0
-            const solAmount = trade.amountSol || 0
-            
             return (
-              <div
-                key={`${trade.sig || i}-${trade.ts}`}
-                className={cn(
-                  "flex items-center justify-between p-3 rounded-lg border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] transition-all",
-                  isBuy
-                    ? "bg-[var(--luigi-green)]/10"
-                    : "bg-[var(--mario-red)]/10",
-                  // Highlight new trades with animation
-                  i === 0 && "animate-in slide-in-from-top-2 duration-300"
-                )}
-              >
-                <div className="flex items-center gap-2">
-                  <div className={cn(
-                    "w-7 h-7 rounded-full flex items-center justify-center border-2 border-[var(--outline-black)]",
-                    isBuy ? "bg-[var(--luigi-green)]" : "bg-[var(--mario-red)]"
-                  )}>
-                    {isBuy ? (
-                      <TrendingUp className="h-4 w-4 text-white" />
-                    ) : (
-                      <TrendingDown className="h-4 w-4 text-white" />
-                    )}
-                  </div>
-                  <div>
-                    <div className="text-xs font-mario font-bold uppercase">{isBuy ? 'BUY' : 'SELL'}</div>
-                    <div className="text-[10px] text-muted-foreground font-mono">
-                      {userDisplay.slice(0, 4)}...{userDisplay.slice(-4)}
-                    </div>
-                  </div>
+              <div key={index} className="mario-card-sm bg-white p-3 flex items-center gap-3">
+                <div className={cn(
+                  "w-8 h-8 rounded-lg border-3 border-[var(--outline-black)] flex items-center justify-center shadow-[2px_2px_0_var(--outline-black)]",
+                  isBuy ? "bg-[var(--color-luigi)]" : "bg-[var(--color-sell)]"
+                )}>
+                  {isBuy ? (
+                    <TrendingUp className="w-4 h-4 text-white" />
+                  ) : (
+                    <TrendingDown className="w-4 h-4 text-white" />
+                  )}
                 </div>
-                <div className="text-right">
-                  <div className="text-xs font-bold">{formatNumber(tokenAmount)} tokens</div>
-                  <div className="text-[10px] text-muted-foreground">{formatNumber(solAmount)} SOL</div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-sm">{isBuy ? 'BUY' : 'SELL'}</span>
+                    <span className="text-xs font-mono">{formatNumber(trade.amountSol || 0)} SOL</span>
+                  </div>
+                  <div className="text-xs text-[var(--foreground)] opacity-70 truncate">
+                    {formatNumber(trade.amountToken || 0)} tokens
+                  </div>
                 </div>
               </div>
             )
@@ -206,482 +176,94 @@ const RecentTradesPanel = memo(function RecentTradesPanel({ tokenMint }: { token
   )
 })
 
-// Top Traders Panel - Now with Real-Time WebSocket
-function TopTradersPanel({ tokenMint }: { tokenMint: string }) {
-  // Use real-time trader calculation from trade stream
-  const { topTraders, status } = useTopTradersFromStream({
-    tokenMint,
-    limit: 10,
-    enabled: true,
-  })
-
-  const isLoading = status === 'connecting'
-  const isConnected = status === 'connected'
-
+// Top Traders Panel
+const TopTradersPanel = memo(function TopTradersPanel({ tokenMint }: { tokenMint: string }) {
   return (
-    <div className={cn(
-      marioStyles.cardLg(false),
-      "bg-gradient-to-br from-yellow-50 to-amber-50 p-4 min-h-[200px]"
-    )}>
-      <div className="flex items-center gap-2 mb-4 bg-[var(--card)] rounded-lg p-3 border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)]">
-        <div className="h-8 w-8 rounded-lg bg-[var(--star-yellow)] border-3 border-[var(--outline-black)] flex items-center justify-center shadow-[2px_2px_0_var(--outline-black)]">
-          <TrendingUp className="h-4 w-4 text-[var(--outline-black)]" />
+    <div className="mario-card bg-white p-4">
+      <div className="flex items-center gap-3 mb-4">
+        <div className="w-10 h-10 rounded-lg bg-[var(--color-star)] border-3 border-[var(--outline-black)] flex items-center justify-center shadow-[2px_2px_0_var(--outline-black)]">
+          <Users className="w-5 h-5 text-[var(--outline-black)]" />
         </div>
-        <div className="flex-1">
-          <h3 className="font-mario font-bold text-sm">Top Performers</h3>
-          {/* Real-time status indicator */}
-          <div className="flex items-center gap-1 text-[10px] text-muted-foreground mt-0.5">
-            <span className={cn(
-              "inline-block w-1.5 h-1.5 rounded-full",
-              isConnected ? "bg-[var(--star-yellow)] animate-pulse" : "bg-pipe-400"
-            )} />
-            <span>{isConnected ? 'Live' : status}</span>
-          </div>
+        <div>
+          <h3 className="font-bold text-sm uppercase">Top Traders</h3>
+          <p className="text-xs text-[var(--foreground)] opacity-70">Loading...</p>
         </div>
       </div>
-
-      {isLoading ? (
-        <div className="flex items-center justify-center py-8">
-          <Loader2 className="h-5 w-5 animate-spin text-[var(--outline-black)]" />
-        </div>
-      ) : topTraders.length === 0 ? (
-        <div className="text-sm text-muted-foreground text-center py-8">
-          <div className="mb-2">🏆</div>
-          <div className="font-bold mb-1">No traders yet</div>
-          <div className="text-xs">Be the first to trade!</div>
-        </div>
-      ) : (
-        <div className="space-y-2 max-h-[400px] overflow-y-auto">
-          {topTraders.map((trader, i) => {
-            // Convert SOL profit to USD (rough estimate)
-            const profitUsd = trader.profitSol * 150; // Approximate SOL price
-            
-            return (
-              <div 
-                key={trader.address} 
-                className={cn(
-                  "flex items-center justify-between p-3 bg-[var(--card)]/50 rounded-lg border-2 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] transition-all",
-                  i === 0 && "animate-in slide-in-from-top-2 duration-300"
-                )}
-              >
-                <div className="flex items-center gap-2">
-                  <div className="text-sm font-mario font-bold text-[var(--star-yellow)]">#{i + 1}</div>
-                  <div className="text-xs font-mono">{trader.address.slice(0, 4)}...{trader.address.slice(-4)}</div>
-                </div>
-                <div className="text-right">
-                  <div className={cn(
-                    "text-xs font-bold",
-                    trader.profitSol > 0 ? "text-[var(--luigi-green)]" : "text-[var(--mario-red)]"
-                  )}>
-                    {trader.profitSol > 0 ? '+' : ''}{formatUSD(profitUsd)}
-                  </div>
-                  <div className="text-[10px] text-muted-foreground">{trader.trades} trades</div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
+      <div className="text-center py-8">
+        <div className="text-4xl mb-2">🏆</div>
+        <h4 className="font-bold mb-1">Coming Soon</h4>
+        <p className="text-sm text-[var(--foreground)] opacity-70">Top trader data loading...</p>
+      </div>
     </div>
   )
-}
+})
 
-// Enhanced Holders Panel with Liquidity Pool and Trading Data - Now with Real-Time Activity
-function HoldersPanel({ tokenMint }: { tokenMint: string }) {
-  // Get base holder data from API (more accurate on-chain data)
-  const { data, isLoading: isLoadingBackend } = useQuery({
-    queryKey: ['holders', tokenMint],
-    queryFn: () => api.getTokenHolders(tokenMint),
-    staleTime: 300000, // 5 minutes
-  })
-
-  // Get real-time active holders from trade stream
-  const { activeHolders, totalActiveHolders, status } = useActiveHoldersFromStream({
-    tokenMint,
-    enabled: true,
-  })
-
-  const holders = data?.holders || []
-  const totalSupply = data?.totalSupply ? parseFloat(data.totalSupply) : 0
-  const holderCount = data?.holderCount || totalActiveHolders || 0
-  const isConnected = status === 'connected'
-  const isLoading = isLoadingBackend && holders.length === 0
-
-  // Calculate liquidity pool participation (mock data - would come from API)
-  const liquidityPoolHolders = holders.filter((holder: any) => 
-    holder.address.includes('LIQUIDITY') || holder.address.includes('POOL')
-  )
-  const liquidityPoolPercentage = liquidityPoolHolders.reduce((sum: number, holder: any) => 
-    sum + holder.percentage, 0
-  )
-
-  // Mock trading activity data (would come from API)
-  const getHolderType = (holder: any) => {
-    if (holder.address.includes('LIQUIDITY') || holder.address.includes('POOL')) {
-      return { type: 'Liquidity Pool', icon: '🏊', color: 'text-[var(--sky-blue)]' }
-    }
-    if (holder.percentage > 10) {
-      return { type: 'Whale', icon: '🐋', color: 'text-[var(--mario-red)]' }
-    }
-    if (holder.percentage > 1) {
-      return { type: 'Dolphin', icon: '🐬', color: 'text-[var(--luigi-green)]' }
-    }
-    return { type: 'Holder', icon: '👤', color: 'text-muted-foreground' }
-  }
-
+// Holders Panel
+const HoldersPanel = memo(function HoldersPanel({ tokenMint }: { tokenMint: string }) {
   return (
-    <div className="border-4 border-[var(--outline-black)] rounded-[16px] shadow-[6px_6px_0_var(--outline-black)] bg-gradient-to-br from-blue-50 to-cyan-50 p-4 min-h-[200px]">
-      <div className="flex items-center gap-2 mb-4 bg-[var(--card)] rounded-lg p-3 border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)]">
-        <div className="h-8 w-8 rounded-lg bg-[var(--sky-blue)] border-3 border-[var(--outline-black)] flex items-center justify-center shadow-[2px_2px_0_var(--outline-black)]">
-          <Users className="h-4 w-4 text-white" />
+    <div className="mario-card bg-white p-4">
+      <div className="flex items-center gap-3 mb-4">
+        <div className="w-10 h-10 rounded-lg bg-[var(--color-coin)] border-3 border-[var(--outline-black)] flex items-center justify-center shadow-[2px_2px_0_var(--outline-black)]">
+          <Wallet className="w-5 h-5 text-[var(--outline-black)]" />
         </div>
-        <div className="flex-1">
-          <h3 className="font-mario font-bold text-sm text-[var(--outline-black)]">Token Holders & Distribution</h3>
-          {/* Real-time status indicator */}
-          <div className="flex items-center gap-1 text-[10px] text-muted-foreground mt-0.5">
-            <span className={cn(
-              "inline-block w-1.5 h-1.5 rounded-full",
-              isConnected ? "bg-[var(--sky-blue)] animate-pulse" : "bg-pipe-400"
-            )} />
-            <span>
-              {holderCount > 0 && `${holderCount} holders`}
-              {isConnected && holderCount > 0 && ' • '}
-              {isConnected ? 'Live activity' : status}
-            </span>
-          </div>
+        <div>
+          <h3 className="font-bold text-sm uppercase">Holders</h3>
+          <p className="text-xs text-[var(--foreground)] opacity-70">Loading...</p>
         </div>
       </div>
-
-      {/* Liquidity Pool Summary */}
-      {liquidityPoolPercentage > 0 && (
-        <div className="mb-4 p-3 bg-[var(--card)] border-3 border-[var(--sky-blue)] rounded-lg shadow-[3px_3px_0_var(--sky-blue)]/40">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className="text-lg">🏊</span>
-              <span className="text-sm font-bold">Liquidity Pool</span>
-            </div>
-            <div className="text-right">
-              <div className="text-sm font-bold">{liquidityPoolPercentage.toFixed(2)}%</div>
-              <div className="text-xs text-muted-foreground">of total supply</div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Active Traders Section - Real-time */}
-      {activeHolders.length > 0 && (
-        <div className="mb-4 p-3 bg-[var(--luigi-green)]/10 border-3 border-[var(--luigi-green)] rounded-lg shadow-[3px_3px_0_var(--luigi-green)]/40">
-          <div className="flex items-center gap-2 mb-2">
-            <span className="text-sm font-bold text-[var(--luigi-green)]">🔥 Active Traders</span>
-            <span className="text-xs text-muted-foreground">({activeHolders.length} recently active)</span>
-          </div>
-          <div className="space-y-1">
-            {activeHolders.slice(0, 3).map((holder, i) => (
-              <div key={holder.address} className="flex items-center justify-between text-xs bg-white/50 rounded p-2">
-                <span className="font-mono">{holder.address.slice(0, 4)}...{holder.address.slice(-4)}</span>
-                <span className="font-bold text-[var(--luigi-green)]">{formatNumber(holder.balance)} tokens</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {isLoading ? (
-        <div className="flex items-center justify-center py-8">
-          <Loader2 className="h-5 w-5 animate-spin text-[var(--outline-black)]" />
-        </div>
-      ) : holders.length === 0 ? (
-        <div className="text-sm text-muted-foreground text-center py-8">
-          <div className="mb-2">💎</div>
-          <div className="font-bold mb-1">No holder data available</div>
-          <div className="text-xs">Data will appear once available</div>
-        </div>
-      ) : (
-        <div className="space-y-2 max-h-[400px] overflow-y-auto">
-          {holders.map((holder: any) => {
-            const holderInfo = getHolderType(holder)
-            const isLiquidityPool = holderInfo.type === 'Liquidity Pool'
-            
-            return (
-              <div key={holder.address} className={cn(
-                "flex items-center justify-between p-3 rounded-lg border-2 transition-all",
-                isLiquidityPool 
-                  ? "bg-[var(--sky-blue)]/20 border-[var(--sky-blue)]/50 shadow-[2px_2px_0_var(--sky-blue)]/30" 
-                  : "bg-gradient-to-r from-[var(--sky-blue)]/5 to-white border-[var(--sky-blue)]/20 hover:border-[var(--sky-blue)]/40 hover:shadow-[2px_2px_0_var(--sky-blue)]/20"
-              )}>
-                <div className="flex items-center gap-3 min-w-0 flex-1">
-                  <div className="flex items-center gap-2">
-                    <div className={cn(
-                      "text-xs font-bold shrink-0",
-                      holder.rank === 1 ? "text-[var(--star-yellow)]" : "text-[var(--outline-black)]"
-                    )}>
-                      #{holder.rank}
-                    </div>
-                    <span className="text-sm">{holderInfo.icon}</span>
-                  </div>
-                  
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2">
-                      <div className="text-xs font-mono truncate text-[var(--outline-black)] font-bold">
-                        {isLiquidityPool ? 'LIQUIDITY POOL' : `${holder.address.slice(0, 8)}...${holder.address.slice(-6)}`}
-                      </div>
-                      <span className={cn("text-xs font-bold", holderInfo.color)}>
-                        {holderInfo.type}
-                      </span>
-                    </div>
-                    
-                    {/* Additional holder info */}
-                    <div className="text-[10px] text-[var(--outline-black)] opacity-80 mt-1">
-                      {isLiquidityPool ? (
-                        <span>Provides trading liquidity</span>
-                      ) : holder.percentage > 5 ? (
-                        <span>Major holder • High influence</span>
-                      ) : holder.percentage > 1 ? (
-                        <span>Significant holder</span>
-                      ) : (
-                        <span>Individual holder</span>
-                      )}
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="text-right shrink-0">
-                  <div className="text-xs font-bold text-[var(--outline-black)]">{holder.percentage.toFixed(2)}%</div>
-                  <div className="text-[10px] text-[var(--outline-black)] opacity-70">{formatTokenQuantity(holder.balance)}</div>
-                  
-                  {/* Progress bar for large holders */}
-                  {holder.percentage > 1 && (
-                    <div className="w-16 h-1 bg-[var(--outline-black)]/20 rounded-full mt-1">
-                      <div 
-                        className={cn(
-                          "h-full rounded-full transition-all",
-                          holder.percentage > 10 ? "bg-[var(--mario-red)]" :
-                          holder.percentage > 5 ? "bg-[var(--star-yellow)]" :
-                          "bg-[var(--luigi-green)]"
-                        )}
-                        style={{ width: `${Math.min(holder.percentage * 2, 100)}%` }}
-                      />
-                    </div>
-                  )}
-                </div>
-              </div>
-            )
-          })}
-        </div>
-      )}
-
-      {/* Distribution Summary */}
-      {holders.length > 0 && (
-        <div className="mt-4 p-3 bg-[var(--card)] rounded-lg border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)]">
-          <div className="text-xs font-bold mb-2">Distribution Analysis</div>
-          <div className="grid grid-cols-2 gap-2 text-[10px]">
-            <div>
-              <span className="text-muted-foreground">Top 5 holders:</span>
-              <div className="font-bold">
-                {holders.slice(0, 5).reduce((sum: number, holder: any) => sum + holder.percentage, 0).toFixed(1)}%
-              </div>
-            </div>
-            <div>
-              <span className="text-muted-foreground">Whales (&gt;10%):</span>
-              <div className="font-bold">
-                {holders.filter((h: any) => h.percentage > 10).length} holders
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      <div className="text-center py-8">
+        <div className="text-4xl mb-2">👥</div>
+        <h4 className="font-bold mb-1">Coming Soon</h4>
+        <p className="text-sm text-[var(--foreground)] opacity-70">Holder data loading...</p>
+      </div>
     </div>
   )
-}
+})
 
 // Bubble Maps Panel
-function BubbleMapsPanel({ tokenMint }: { tokenMint: string }) {
-  const { data: isAvailable, isLoading } = useQuery({
-    queryKey: ['bubblemap-availability', tokenMint],
-    queryFn: () => api.checkBubbleMapAvailability(tokenMint),
-    staleTime: 300000, // 5 minutes
-  })
-
-  const [iframeLoaded, setIframeLoaded] = useState(false)
-
+const BubbleMapsPanel = memo(function BubbleMapsPanel({ tokenMint }: { tokenMint: string }) {
   return (
-    <div className="border-4 border-[var(--outline-black)] rounded-[16px] shadow-[6px_6px_0_var(--outline-black)] bg-gradient-to-br from-purple-50 to-pink-50 overflow-hidden min-h-[400px] relative">
-      {isLoading ? (
-        <div className="flex items-center justify-center h-[400px]">
-          <div className="text-center">
-            <Loader2 className="h-8 w-8 animate-spin mx-auto mb-3 text-[var(--luigi-green)]" />
-            <p className="text-sm font-bold">Checking Bubble Map availability...</p>
-          </div>
+    <div className="mario-card bg-white p-4">
+      <div className="flex items-center gap-3 mb-4">
+        <div className="w-10 h-10 rounded-lg bg-[var(--color-super)] border-3 border-[var(--outline-black)] flex items-center justify-center shadow-[2px_2px_0_var(--outline-black)]">
+          <Network className="w-5 h-5 text-white" />
         </div>
-      ) : !isAvailable ? (
-        <div className="flex items-center justify-center h-[400px] p-6">
-          <div className="text-center max-w-md">
-            <Network className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-            <h3 className="font-bold text-lg mb-2">Bubble Map Not Available</h3>
-            <p className="text-sm text-muted-foreground mb-4">
-              This token doesn't have a Bubble Map visualization yet. Maps are created as tokens gain traction and holder activity.
-            </p>
-            <p className="text-xs text-muted-foreground">
-              Check back later or view the Holders tab for distribution data.
-            </p>
-          </div>
+        <div>
+          <h3 className="font-bold text-sm uppercase">Bubble Map</h3>
+          <p className="text-xs text-[var(--foreground)] opacity-70">Loading...</p>
         </div>
-      ) : (
-        <>
-          {!iframeLoaded && (
-            <div className="absolute inset-0 flex items-center justify-center bg-[var(--card)] z-10">
-              <div className="text-center">
-                <Loader2 className="h-8 w-8 animate-spin mx-auto mb-3 text-[var(--luigi-green)]" />
-                <p className="text-sm font-bold">Loading Bubble Map...</p>
-              </div>
-            </div>
-          )}
-          <iframe
-            src={`https://app.bubblemaps.io/sol/token/${tokenMint}?small_text&hide_context&prevent_scroll_zoom`}
-            className="w-full h-[400px] sm:h-[500px] md:h-[600px] border-0"
-            title={`Bubble Map for ${tokenMint}`}
-            onLoad={() => setIframeLoaded(true)}
-            sandbox="allow-scripts allow-same-origin"
-          />
-        </>
-      )}
+      </div>
+      <div className="text-center py-8">
+        <div className="text-4xl mb-2">🫧</div>
+        <h4 className="font-bold mb-1">Coming Soon</h4>
+        <p className="text-sm text-[var(--foreground)] opacity-70">Bubble map visualization loading...</p>
+      </div>
     </div>
   )
-}
+})
 
 // User Positions Panel
-function UserPositionsPanel() {
-  const { isAuthenticated, user } = useAuth()
-  const { data: portfolio, isLoading } = usePortfolio()
-  const router = useRouter()
-
-  if (!isAuthenticated) {
-    return (
-      <div className="border-4 border-[var(--outline-black)] rounded-[16px] shadow-[6px_6px_0_var(--outline-black)] bg-gradient-to-br from-red-50 to-pink-50 p-6 min-h-[300px] flex items-center justify-center">
-        <div className="text-center max-w-md">
-          <Wallet className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-          <h3 className="font-bold text-lg mb-2">Login Required</h3>
-          <p className="text-sm text-muted-foreground mb-4">
-            Sign in to view your portfolio positions across all tokens
-          </p>
-          <button
-            onClick={() => router.push('/login')}
-            className="px-4 py-2 bg-[var(--mario-red)] text-white font-bold rounded-lg border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-[1px] transition-all"
-          >
-            Sign In
-          </button>
-        </div>
-      </div>
-    )
-  }
-
-  if (isLoading) {
-    return (
-      <div className="border-4 border-[var(--outline-black)] rounded-[16px] shadow-[6px_6px_0_var(--outline-black)] bg-gradient-to-br from-red-50 to-pink-50 p-6 min-h-[300px] flex items-center justify-center">
-        <div className="text-center">
-          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-3 text-[var(--luigi-green)]" />
-          <p className="text-sm font-bold">Loading your positions...</p>
-        </div>
-      </div>
-    )
-  }
-
-  const positions = portfolio?.positions || []
-
-  if (positions.length === 0) {
-    return (
-      <div className="border-4 border-[var(--outline-black)] rounded-[16px] shadow-[6px_6px_0_var(--outline-black)] bg-gradient-to-br from-red-50 to-pink-50 p-6 min-h-[300px] flex items-center justify-center">
-        <div className="text-center max-w-md">
-          <Wallet className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-          <h3 className="font-bold text-lg mb-2">No Positions Yet</h3>
-          <p className="text-sm text-muted-foreground">
-            You don't have any open positions. Start trading to build your portfolio!
-          </p>
-        </div>
-      </div>
-    )
-  }
-
+const UserPositionsPanel = memo(function UserPositionsPanel() {
+  const { data: portfolio } = usePortfolio()
+  
   return (
-    <div className="border-4 border-[var(--outline-black)] rounded-[16px] shadow-[6px_6px_0_var(--outline-black)] bg-gradient-to-br from-red-50 to-pink-50 p-4 min-h-[200px]">
-      <div className="flex items-center gap-2 mb-4 bg-[var(--card)] rounded-lg p-3 border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)]">
-        <div className="h-8 w-8 rounded-lg bg-[var(--mario-red)] border-3 border-[var(--outline-black)] flex items-center justify-center shadow-[2px_2px_0_var(--outline-black)]">
-          <Wallet className="h-4 w-4 text-white" />
+    <div className="mario-card bg-white p-4">
+      <div className="flex items-center gap-3 mb-4">
+        <div className="w-10 h-10 rounded-lg bg-[var(--color-brand)] border-3 border-[var(--outline-black)] flex items-center justify-center shadow-[2px_2px_0_var(--outline-black)]">
+          <Wallet className="w-5 h-5 text-white" />
         </div>
-        <h3 className="font-mario font-bold text-sm">Your Portfolio</h3>
-        <span className="text-xs text-muted-foreground">({positions.length} positions)</span>
+        <div>
+          <h3 className="font-bold text-sm uppercase">Your Portfolio</h3>
+          <p className="text-xs text-[var(--foreground)] opacity-70">
+            {portfolio?.positions?.length || 0} positions
+          </p>
+        </div>
       </div>
-
-      <div className="space-y-2 max-h-[400px] overflow-y-auto">
-        {positions.map((position) => (
-          <button
-            key={position.mint}
-            onClick={() => router.push(`/room/${position.mint}`)}
-            className="w-full p-3 bg-[var(--card)] border-2 border-[var(--outline-black)] rounded-lg shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-[1px] transition-all text-left"
-          >
-            <div className="flex items-center gap-3">
-              {/* Token Image */}
-              {position.tokenImage ? (
-                <img
-                  src={position.tokenImage}
-                  alt={position.tokenSymbol || 'Token'}
-                  className="w-10 h-10 rounded-full border-2 border-[var(--outline-black)] shrink-0"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).style.display = 'none'
-                  }}
-                />
-              ) : (
-                <div className="w-10 h-10 rounded-full border-2 border-[var(--outline-black)] bg-[var(--pipe-100)] flex items-center justify-center shrink-0">
-                  <span className="text-xs font-bold">
-                    {position.tokenSymbol?.slice(0, 2) || '??'}
-                  </span>
-                </div>
-              )}
-
-              {/* Token Info & Stats */}
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="font-bold text-sm truncate">
-                    {position.tokenSymbol || position.mint.slice(0, 8)}
-                  </span>
-                  {position.priceChange24h && (
-                    <span className={cn(
-                      "text-xs font-bold flex items-center gap-0.5",
-                      parseFloat(position.priceChange24h) >= 0 ? "text-[var(--luigi-green)]" : "text-[var(--mario-red)]"
-                    )}>
-                      {parseFloat(position.priceChange24h) >= 0 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
-                      {parseFloat(position.priceChange24h).toFixed(2)}%
-                    </span>
-                  )}
-                </div>
-
-                <div className="grid grid-cols-2 gap-2 text-xs">
-                  <div>
-                    <span className="text-muted-foreground">Holdings:</span>
-                    <div className="font-bold">{formatTokenQuantity(position.qty)}</div>
-                    <div className="text-muted-foreground">{formatUSD(parseFloat(position.valueUsd))}</div>
-                  </div>
-                  <div className="text-right">
-                    <span className="text-muted-foreground">P&L:</span>
-                    <div className={cn(
-                      "font-bold",
-                      parseFloat(position.unrealizedUsd) >= 0 ? "text-[var(--luigi-green)]" : "text-[var(--mario-red)]"
-                    )}>
-                      {parseFloat(position.unrealizedUsd) >= 0 ? '+' : ''}{formatUSD(parseFloat(position.unrealizedUsd))}
-                    </div>
-                    <div className={cn(
-                      "text-muted-foreground",
-                      parseFloat(position.unrealizedPercent) >= 0 ? "text-[var(--luigi-green)]" : "text-[var(--mario-red)]"
-                    )}>
-                      ({parseFloat(position.unrealizedPercent) >= 0 ? '+' : ''}{parseFloat(position.unrealizedPercent).toFixed(2)}%)
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </button>
-        ))}
+      <div className="text-center py-8">
+        <div className="text-4xl mb-2">💼</div>
+        <h4 className="font-bold mb-1">Portfolio View</h4>
+        <p className="text-sm text-[var(--foreground)] opacity-70">Your active positions...</p>
       </div>
     </div>
   )
-}
+})

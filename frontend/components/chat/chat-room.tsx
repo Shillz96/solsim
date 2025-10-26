@@ -203,20 +203,13 @@ export function ChatRoom({ tokenMint, className, headerImage, headerImageAlt = '
           className="flex-1 px-3 py-2.5 text-sm rounded-lg border-3 border-[var(--outline-black)] bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-star)] shadow-[2px_2px_0_var(--outline-black)]"
           maxLength={280}
         />
-          <EmojiPicker onEmojiSelect={handleEmojiSelect} />
-          <Button
-            onClick={handleSendMessage}
-            disabled={!user || !inputValue.trim() || status !== 'connected'}
-            className={cn(marioStyles.button('success'), 'flex-shrink-0')}
-          >
-            <Send className="h-4 w-4" />
-          </Button>
-        </div>
-        {user && inputValue && (
-          <div className={cn(marioStyles.bodyText('medium'), 'text-xs opacity-60 mt-2 text-right')}>
-            {inputValue.length}/280
-          </div>
-        )}
+        <button 
+          onClick={handleSendMessage}
+          disabled={!inputValue.trim() || !user || status !== 'connected'}
+          className="mario-btn bg-[var(--color-luigi)] text-white px-3 py-2.5 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <Send className="w-4 h-4" />
+        </button>
       </div>
 
       {/* User Moderation Sheet */}
