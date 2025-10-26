@@ -27,45 +27,21 @@ import { useAuth } from '@/hooks/use-auth'
 
 // Helper function to parse message content and render emojis as images
 function renderMessageContent(content: string) {
-  // DEBUG: ALWAYS log - this proves the function is being called
-  console.log('🚀 EMOJI PARSER CALLED:', content)
-  
-  // DEBUG: Log original content
-  if (typeof window !== 'undefined') {
-    console.log('📝 Original content:', JSON.stringify(content))
-  }
-  
   // Decode any HTML entities that might have been encoded
   let decodedContent = content
   if (typeof window !== 'undefined') {
     const textarea = document.createElement('textarea')
     textarea.innerHTML = content
     decodedContent = textarea.value
-    
-    // DEBUG: Log decoded content if different
-    if (decodedContent !== content) {
-      console.log('🔓 Decoded content:', JSON.stringify(decodedContent))
-    }
   }
   
   // Regex to match /emojis/filename.png or /emojis/filename.gif
-  // Updated to be more flexible with special characters in filenames
   const emojiRegex = /\/emojis\/[a-zA-Z0-9_-]+\.(png|gif)/g
   const parts: React.ReactNode[] = []
   let lastIndex = 0
   
   // Use matchAll for cleaner iteration
   const matches = Array.from(decodedContent.matchAll(emojiRegex))
-  
-  // DEBUG: Always log match attempts
-  if (typeof window !== 'undefined') {
-    console.log('🔍 Emoji regex test:', {
-      content: decodedContent,
-      regex: emojiRegex.toString(),
-      matches: matches.length,
-      matchedPaths: matches.map(m => m[0])
-    })
-  }
   
   matches.forEach((match, idx) => {
     const matchIndex = match.index!
@@ -144,14 +120,6 @@ export function ChatMessage({ message, onUserClick }: ChatMessageProps) {
   const { user: currentUser } = useAuth()
   const { canModerate, deleteMessage, muteUser, banUser, addStrike } = useModeration()
   const [showActions, setShowActions] = useState(false)
-
-  // DEBUG: Log that component is rendering
-  console.log('💬 ChatMessage rendering:', {
-    id: message.id,
-    content: message.content,
-    contentType: typeof message.content,
-    contentLength: message.content?.length
-  })
 
   const isOwnMessage = message.userId === currentUser?.id
   const timestamp = new Date(message.createdAt).toLocaleTimeString([], {
@@ -318,10 +286,6 @@ export function ChatMessage({ message, onUserClick }: ChatMessageProps) {
           'text-sm whitespace-pre-wrap break-words leading-relaxed'
         )}
       >
-        {/* DEBUG: Show raw content for inspection */}
-        <div className="text-xs opacity-50 mb-1 font-mono">
-          RAW: {JSON.stringify(message.content)}
-        </div>
         {renderMessageContent(message.content)}
       </div>
     </div>

@@ -98,6 +98,9 @@ export function ChatRoom({ tokenMint, className, headerImage, headerImageAlt = '
     setTimeout(() => inputRef.current?.focus(), 100)
   }
 
+  // Extract emoji paths from input for preview
+  const selectedEmojis = inputValue.match(/\/emojis\/[a-zA-Z0-9_-]+\.(png|gif)/g) || []
+
   const handleUserClick = (userId: string) => {
     if (canModerate && userId !== user?.id) {
       setSelectedUserId(userId)
@@ -153,7 +156,11 @@ export function ChatRoom({ tokenMint, className, headerImage, headerImageAlt = '
       {/* Messages Area */}
       <div
         ref={messagesContainerRef}
-        className="flex-1 flex flex-col items-center justify-center chat-scrollbar overflow-y-auto mb-3 px-2 py-6"
+        className={cn(
+          "flex-1 flex flex-col chat-scrollbar overflow-y-auto mb-3 px-2 py-6",
+          // Center empty states, but align messages to top
+          messages.length === 0 ? "items-center justify-center" : "items-start justify-start"
+        )}
       >
         {!user ? (
           <>
