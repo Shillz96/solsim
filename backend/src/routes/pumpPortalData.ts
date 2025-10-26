@@ -172,6 +172,9 @@ const pumpPortalDataRoutes: FastifyPluginAsync = async (fastify) => {
       try {
         const { mint } = MintParamSchema.parse(request.params);
 
+        // Subscribe to token if not already subscribed
+        await heliusTradeStreamService.subscribeToTokens([mint]);
+
         // Get top traders from Helius service
         const topTraders = heliusTradeStreamService.getTopTraders(mint, 20);
 

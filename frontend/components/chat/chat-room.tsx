@@ -157,7 +157,7 @@ export function ChatRoom({ tokenMint, className, headerImage, headerImageAlt = '
       <div
         ref={messagesContainerRef}
         className={cn(
-          "flex-1 flex flex-col chat-scrollbar overflow-y-auto mb-3 px-2 py-6",
+          "flex-1 flex flex-col chat-scrollbar overflow-y-auto mb-3 px-4 py-4",
           // Center empty states, but align messages to top
           messages.length === 0 ? "items-center justify-center" : "items-start justify-start"
         )}
@@ -184,7 +184,7 @@ export function ChatRoom({ tokenMint, className, headerImage, headerImageAlt = '
             <p className="text-sm text-foreground opacity-70">Be the first to say something!</p>
           </>
         ) : (
-          <div className="w-full space-y-3">
+          <div className="w-full space-y-4">
             {messages.map((msg) => (
               <ChatMessage key={msg.id} message={msg} onUserClick={handleUserClick} />
             ))}
@@ -195,7 +195,7 @@ export function ChatRoom({ tokenMint, className, headerImage, headerImageAlt = '
       </div>
 
       {/* Input Area */}
-      <div className="p-4 border-t-4 border-outline bg-gradient-to-r from-white to-[var(--mario-red)]/10 flex-shrink-0 shadow-[0_-4px_0_rgba(0,0,0,0.05)] relative">
+      <div className="p-4 border-t-4 border-[var(--outline-black)] bg-white flex-shrink-0 shadow-[0_-4px_0_var(--outline-black)] relative">
         <div className="flex gap-2 items-end">
           <input
             ref={inputRef}
