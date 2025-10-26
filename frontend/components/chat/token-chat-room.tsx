@@ -24,6 +24,7 @@ import { ChatMessage } from '@/components/chat/chat-message'
 import { UserModerationSheet } from '@/components/moderation/user-moderation-sheet'
 import { Loader2, Send, Users, AlertCircle, Wifi, WifiOff, MessageSquare, Shield } from 'lucide-react'
 import { cn, marioStyles } from '@/lib/utils'
+import Image from 'next/image'
 
 interface TokenChatRoomProps {
   tokenMint: string
@@ -119,7 +120,16 @@ export function TokenChatRoom({ tokenMint, className }: TokenChatRoomProps) {
             <MessageSquare className="h-5 w-5" />
           </div>
           <div>
-            <div className={marioStyles.heading(4)}>Token Chat</div>
+            <div className="h-6 flex items-center mb-1">
+              <Image
+                src="/chat-10-25-2025.png"
+                alt="Chat Header"
+                width={100}
+                height={24}
+                className="h-full w-auto object-contain"
+                priority
+              />
+            </div>
             <div className={cn(marioStyles.bodyText('bold'), 'text-xs text-white/90 flex items-center gap-1.5')}>
               <Users className="h-3.5 w-3.5" />
               <span>{participantCount > 0 ? `${participantCount} online` : 'Loading...'}</span>

@@ -55,9 +55,9 @@ export function TradePanelPresets({
             onClick={() => onSelect(value)}
             disabled={isDisabled}
             className={cn(
-              "mario-btn h-9 text-xs transition-all flex items-center justify-center whitespace-nowrap px-2",
+              "mario-btn h-9 text-xs transition-all flex items-center justify-center whitespace-nowrap px-2 relative",
               isSelected
-                ? "scale-105"
+                ? "mario-btn-selected"
                 : "bg-[var(--coin-gold)]",
               isDisabled && "opacity-50 cursor-not-allowed"
             )}

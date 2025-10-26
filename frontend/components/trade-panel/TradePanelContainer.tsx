@@ -271,10 +271,7 @@ export function TradePanelContainer({ tokenAddress: propTokenAddress }: TradePan
   }
 
   return (
-    <div id="trade-panel" className={cn(
-      marioStyles.cardLg(false),
-      'flex flex-col w-full relative'
-    )}>
+    <div id="trade-panel" className="flex flex-col w-full relative">
       {/* Power-up Animation */}
       <AnimatePresence>
         {showPowerUpAnimation && (
@@ -289,9 +286,8 @@ export function TradePanelContainer({ tokenAddress: propTokenAddress }: TradePan
         )}
       </AnimatePresence>
 
-      {/* Main Content */}
-      <div className="p-2 sm:p-3">
-        <div className="space-y-2">
+      {/* Main Content - No nested banner wrapper */}
+      <div className="space-y-2">
           {/* Trade Status */}
           {(tradePanelState.tradeError || tradePanelState.lastTradeSuccess) && (
             <div className="mb-2">
@@ -392,7 +388,6 @@ export function TradePanelContainer({ tokenAddress: propTokenAddress }: TradePan
             </TabsContent>
           </Tabs>
         </div>
-      </div>
     </div>
   )
 }

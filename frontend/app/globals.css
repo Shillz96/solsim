@@ -232,6 +232,49 @@
   color: #ffffff;
 }
 
+/* Mario Button Selected State - Enhanced visual feedback */
+.mario-btn-selected {
+  background: var(--color-star);
+  color: var(--outline-black);
+  transform: scale(1.05);
+  box-shadow: 0 0 0 3px var(--color-star), 4px 4px 0 var(--outline-black);
+  animation: pulseGlow 2s ease-in-out infinite;
+  position: relative;
+}
+
+.mario-btn-selected::after {
+  content: '✓';
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 20px;
+  height: 20px;
+  background: var(--luigi-green);
+  border: 2px solid var(--outline-black);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: white;
+  font-weight: bold;
+  box-shadow: 2px 2px 0 var(--outline-black);
+}
+
+.mario-btn-selected:hover {
+  transform: scale(1.05) translateY(-2px);
+  box-shadow: 0 0 0 3px var(--color-star), 5px 5px 0 var(--outline-black);
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow: 0 0 0 3px var(--color-star), 4px 4px 0 var(--outline-black);
+  }
+  50% {
+    box-shadow: 0 0 0 5px var(--color-star), 4px 4px 0 var(--outline-black), 0 0 20px var(--color-star);
+  }
+}
+
 /* Trading Buttons - Clean, consistent motion */
 .btn-buy {
   background: var(--color-buy);

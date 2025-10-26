@@ -118,7 +118,16 @@ export function ChatRoom({ tokenMint, className, headerImage, headerImageAlt = '
           <div className="w-10 h-10 rounded-lg bg-[var(--color-luigi)] border-3 border-[var(--outline-black)] flex items-center justify-center shadow-[2px_2px_0_var(--outline-black)]">
             <Users className="w-5 h-5 text-white" />
           </div>
-          <span className="text-lg font-bold uppercase">Chat</span>
+          <div className="h-8 flex items-center">
+            <Image
+              src={headerImage || "/chat-10-25-2025.png"}
+              alt={headerImageAlt}
+              width={120}
+              height={32}
+              className="h-full w-auto object-contain"
+              priority
+            />
+          </div>
         </div>
         <div className="flex items-center gap-2">
           {canModerate && (
