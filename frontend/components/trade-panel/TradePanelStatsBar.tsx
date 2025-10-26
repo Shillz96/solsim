@@ -1,9 +1,10 @@
 /**
  * Trade Panel Stats Bar Component
  * Displays 1x4 grid: Bought | Sold | Holding | PnL
- * Mario-themed with white backgrounds and colored borders
+ * Matches TokenVitalsBar styling with circular icons
  */
 
+import { TrendingUp, TrendingDown, Wallet, DollarSign } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { formatUsdAmount, formatPercentage } from './utils/formatters'
 
@@ -25,30 +26,39 @@ export function TradePanelStatsBar({
   const isProfit = pnl >= 0
 
   return (
-    <div className="grid grid-cols-4 gap-1.5">
+    <div className="grid grid-cols-4 gap-2">
       {/* Bought */}
-      <div className="bg-white border-2 border-[var(--luigi-green)] rounded-lg p-1.5 text-center shadow-[2px_2px_0_var(--outline-black)]">
-        <div className="text-[9px] font-bold text-[var(--outline-black)]/60 uppercase tracking-tight">
+      <div className="bg-white border-2 border-[var(--outline-black)] rounded-lg p-2 flex flex-col items-center justify-center shadow-[2px_2px_0_var(--outline-black)]">
+        <div className="w-10 h-10 rounded-full bg-[var(--luigi-green)] border-2 border-[var(--outline-black)] flex items-center justify-center shadow-[2px_2px_0_var(--outline-black)] mb-1">
+          <TrendingUp className="w-5 h-5 text-white" />
+        </div>
+        <div className="text-[10px] font-bold text-[var(--outline-black)]/60 uppercase tracking-tight">
           Bought
         </div>
-        <div className="font-mono font-bold text-xs text-[var(--luigi-green)] mt-0.5">
+        <div className="font-mono font-bold text-xs text-[var(--outline-black)] mt-0.5">
           {formatUsdAmount(bought)}
         </div>
       </div>
 
       {/* Sold */}
-      <div className="bg-white border-2 border-[var(--mario-red)] rounded-lg p-1.5 text-center shadow-[2px_2px_0_var(--outline-black)]">
-        <div className="text-[9px] font-bold text-[var(--outline-black)]/60 uppercase tracking-tight">
+      <div className="bg-white border-2 border-[var(--outline-black)] rounded-lg p-2 flex flex-col items-center justify-center shadow-[2px_2px_0_var(--outline-black)]">
+        <div className="w-10 h-10 rounded-full bg-[var(--mario-red)] border-2 border-[var(--outline-black)] flex items-center justify-center shadow-[2px_2px_0_var(--outline-black)] mb-1">
+          <TrendingDown className="w-5 h-5 text-white" />
+        </div>
+        <div className="text-[10px] font-bold text-[var(--outline-black)]/60 uppercase tracking-tight">
           Sold
         </div>
-        <div className="font-mono font-bold text-xs text-[var(--mario-red)] mt-0.5">
+        <div className="font-mono font-bold text-xs text-[var(--outline-black)] mt-0.5">
           {formatUsdAmount(sold)}
         </div>
       </div>
 
       {/* Holding */}
-      <div className="bg-white border-2 border-[var(--outline-black)]/30 rounded-lg p-1.5 text-center shadow-[2px_2px_0_var(--outline-black)]">
-        <div className="text-[9px] font-bold text-[var(--outline-black)]/60 uppercase tracking-tight">
+      <div className="bg-white border-2 border-[var(--outline-black)] rounded-lg p-2 flex flex-col items-center justify-center shadow-[2px_2px_0_var(--outline-black)]">
+        <div className="w-10 h-10 rounded-full bg-[var(--outline-black)] border-2 border-[var(--outline-black)] flex items-center justify-center shadow-[2px_2px_0_var(--outline-black)] mb-1">
+          <Wallet className="w-5 h-5 text-white" />
+        </div>
+        <div className="text-[10px] font-bold text-[var(--outline-black)]/60 uppercase tracking-tight">
           Holding
         </div>
         <div className="font-mono font-bold text-xs text-[var(--outline-black)] mt-0.5">
@@ -57,13 +67,14 @@ export function TradePanelStatsBar({
       </div>
 
       {/* PnL */}
-      <div className={cn(
-        "border-2 rounded-lg p-1.5 text-center shadow-[2px_2px_0_var(--outline-black)]",
-        isProfit
-          ? "bg-[var(--luigi-green)]/10 border-[var(--luigi-green)]"
-          : "bg-[var(--mario-red)]/10 border-[var(--mario-red)]"
-      )}>
-        <div className="text-[9px] font-bold text-[var(--outline-black)]/60 uppercase tracking-tight">
+      <div className="bg-white border-2 border-[var(--outline-black)] rounded-lg p-2 flex flex-col items-center justify-center shadow-[2px_2px_0_var(--outline-black)]">
+        <div className={cn(
+          "w-10 h-10 rounded-full border-2 border-[var(--outline-black)] flex items-center justify-center shadow-[2px_2px_0_var(--outline-black)] mb-1",
+          isProfit ? "bg-[var(--luigi-green)]" : "bg-[var(--mario-red)]"
+        )}>
+          <DollarSign className="w-5 h-5 text-white" />
+        </div>
+        <div className="text-[10px] font-bold text-[var(--outline-black)]/60 uppercase tracking-tight">
           PnL
         </div>
         <div className={cn(

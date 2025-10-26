@@ -120,7 +120,7 @@ export function TradePanelSellTab({
         volume24h={volume24h}
         holders={holders}
         userRank={userRank}
-        className="mt-2"
+        className="mt-3"
       />
     </div>
   )
