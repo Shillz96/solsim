@@ -1306,9 +1306,10 @@ process.on('unhandledRejection', (reason, promise) => {
   console.error('🚨 Token Discovery Worker Unhandled Rejection at:', promise, 'reason:', reason);
   
   // Don't crash on PumpPortal WebSocket rejections
-  if (reason?.message?.includes('Unexpected server response: 502') || 
-      reason?.message?.includes('Unexpected server response: 503') ||
-      reason?.message?.includes('Unexpected server response: 504')) {
+  const reasonMessage = reason instanceof Error ? reason.message : String(reason);
+  if (reasonMessage.includes('Unexpected server response: 502') || 
+      reasonMessage.includes('Unexpected server response: 503') ||
+      reasonMessage.includes('Unexpected server response: 504')) {
     console.log('🚨 PumpPortal server error rejection - continuing operation');
     return;
   }
