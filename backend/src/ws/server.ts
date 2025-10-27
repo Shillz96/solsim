@@ -42,7 +42,7 @@ export function startWsServer(server: any) {
     // Handle pong responses from client heartbeat checks
     ws.on("pong", function heartbeat() {
       (this as any).isAlive = true;
-      console.log(`💓 Received pong from client ${clientIP}`);
+      logger.debug({ clientIP }, 'Received pong from client');
     });
 
     // Handle client messages (subscriptions, etc.)
@@ -63,7 +63,7 @@ export function startWsServer(server: any) {
         if (message.t === "subscribe" || message.type === "subscribe") {
           const { mint } = message;
           if (mint) {
-            console.log(`📡 Client ${clientIP} subscribed to ${mint}`);
+            logger.debug({ clientIP, mint }, 'Client subscribed to token');
             // TODO: Add to subscription tracking
           }
         }
@@ -71,7 +71,7 @@ export function startWsServer(server: any) {
         if (message.t === "unsubscribe" || message.type === "unsubscribe") {
           const { mint } = message;
           if (mint) {
-            console.log(`📡 Client ${clientIP} unsubscribed from ${mint}`);
+            logger.debug({ clientIP, mint }, 'Client unsubscribed from token');
             // TODO: Remove from subscription tracking
           }
         }
@@ -84,7 +84,7 @@ export function startWsServer(server: any) {
     // Handle connection close
     ws.on("close", (code, reason) => {
       const duration = Date.now() - (ws as any).connectedAt;
-      console.log(`🔌 Client ${clientIP} disconnected after ${Math.round(duration/1000)}s (code: ${code}, reason: ${reason})`);
+      logger.debug({ clientIP, duration: Math.round(duration/1000), code, reason }, 'Client disconnected');
       // TODO: Clean up subscriptions
     });
 
@@ -113,7 +113,7 @@ export function startWsServer(server: any) {
 
     wss.clients.forEach((ws: any) => {
       if (ws.isAlive === false) {
-        console.log(`💀 Terminating dead connection`);
+        logger.warn('Terminating dead connection');
         ws.terminate();
         terminatedConnections++;
         return;
@@ -133,13 +133,13 @@ export function startWsServer(server: any) {
     });
 
     if (activeConnections > 0 || terminatedConnections > 0) {
-      console.log(`💓 Heartbeat: ${activeConnections} active, ${terminatedConnections} terminated`);
+      logger.debug({ activeConnections, terminatedConnections }, 'WebSocket heartbeat');
     }
   }, 25000); // 25 seconds - safe for Railway and most proxies
 
   // Graceful shutdown handling
   const cleanup = () => {
-    console.log("🧹 Shutting down WebSocket server...");
+    logger.info("Shutting down WebSocket server");
     clearInterval(heartbeatInterval);
     
     wss.clients.forEach((ws) => {
@@ -147,7 +147,7 @@ export function startWsServer(server: any) {
     });
     
     wss.close(() => {
-      console.log("✅ WebSocket server shut down gracefully");
+      logger.info("WebSocket server shut down gracefully");
     });
   };
 
@@ -192,7 +192,7 @@ export function startWsServer(server: any) {
       });
 
       if (sent > 0) {
-        console.log(`📊 Broadcasted price update for ${priceData.mint} to ${sent} clients${failed > 0 ? ` (${failed} failed)` : ''}`);
+        logger.debug({ mint: priceData.mint, sent, failed }, 'Broadcasted price update');
       }
     }
   };
