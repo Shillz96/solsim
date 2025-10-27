@@ -164,7 +164,7 @@ export function EmojiPicker({ onEmojiSelect, position = 'auto', className }: Emo
       </PopoverTrigger>
       <PopoverContent
         className={cn(
-          'w-[320px] p-0',
+          'w-[320px] p-0 z-[9999]',
           marioStyles.border('lg'),
           'border-4 border-pipe bg-white shadow-[8px_8px_0_rgba(0,0,0,0.2)]'
         )}

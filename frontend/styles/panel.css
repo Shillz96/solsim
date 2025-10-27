@@ -29,11 +29,27 @@
   /* Consistent border radius */
   border-radius: 0.5rem;
   
-  /* Standard padding */
-  padding: 1rem;
+  /* Flexible padding using CSS variable */
+  padding: var(--panel-padding, 1rem);
+  
+  /* Enhanced shadow for depth */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
   
   /* Smooth transitions for hover/focus states */
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  
+  /* Position relative for pseudo-element highlight */
+  position: relative;
+}
+
+/* Floating panel edge highlight for light themes */
+.panel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: inherit;
+  pointer-events: none;
 }
 
 .panel:hover {
@@ -59,13 +75,17 @@
 /* Trading interface panels */
 .panel-trading {
   background: color-mix(in oklab, var(--background) 92%, var(--primary) 8%);
-  border: 1px solid color-mix(in oklab, var(--primary) 15%, transparent 85%);
+  border: 2px solid transparent;
+  border-image: linear-gradient(to right, var(--color-buy), var(--color-sell)) 1;
+  border-radius: 0.5rem;
 }
 
 /* Portfolio and position display panels */
 .panel-portfolio {
   background: color-mix(in oklab, var(--background) 92%, var(--secondary) 8%);
-  border: 1px solid color-mix(in oklab, var(--secondary) 15%, transparent 85%);
+  border: 2px solid transparent;
+  border-image: linear-gradient(to right, var(--color-buy), var(--color-sell)) 1;
+  border-radius: 0.5rem;
 }
 
 /* Data/chart panels */

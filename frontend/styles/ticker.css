@@ -32,6 +32,9 @@
 
 .ticker-item {
   animation: none;
+  /* Enhanced legibility with subtle shadow and spacing */
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.15);
+  padding-right: 2rem;
 }
 
 .coin-bounce-hover:hover {

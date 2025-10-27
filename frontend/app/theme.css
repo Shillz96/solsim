@@ -118,6 +118,11 @@
   --ease-in: cubic-bezier(0.4, 0, 1, 1);
   --ease-out: cubic-bezier(0, 0, 0.2, 1);
 
+  /* Font System - 3-Font Hierarchy */
+  --font-display: "Luckiest Guy", "Impact", "Arial Black", sans-serif;
+  --font-body: "Manrope", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Helvetica Neue", "Arial", sans-serif;
+  --font-numeric: "JetBrains Mono", "Monaco", "Consolas", "Courier New", monospace;
+
   /* Base UI Colors - Warm Paper Cream Background */
   --background: #FFFAE9;
   --foreground: #000000;

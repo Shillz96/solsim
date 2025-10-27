@@ -1,11 +1,10 @@
 @import "tailwindcss";
 @import "./theme.css";
 @import "../styles/badges.css";
+/* Font System - Simplified to 3 fonts for performance and consistency */
 @import url('https://fonts.googleapis.com/css2?family=Luckiest+Guy&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap&v=2');
-@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap&v=2');
-@import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;500;600;700&display=swap&v=2');
-@import url('https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&display=swap&v=2');
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 
 /* ============================================================
    1UP SOL - MARIO THEME DESIGN SYSTEM
@@ -30,7 +29,7 @@
     color: var(--foreground);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    font-family: var(--font-radnika-next), "Radnika Next", "Inter", "Manrope", "Nunito Sans", "Rubik", "Segoe UI", "Roboto", "Helvetica Neue", "Arial", sans-serif;
+    font-family: "Manrope", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Helvetica Neue", "Arial", sans-serif;
     position: relative;
     line-height: 1.65;
     text-rendering: optimizeLegibility;
@@ -854,16 +853,39 @@
    UTILITY CLASSES
 --------------------------- */
 
-/* Mario Font Base */
-.mario-font {
-  font-family: var(--font-radnika-next), "Radnika Next", "Inter", "Manrope", "Nunito Sans", "Rubik", "Segoe UI", "Roboto", "Helvetica Neue", "Arial", sans-serif;
+/* ============================================
+   FONT SYSTEM - 3-Font Hierarchy
+   ============================================ */
+
+/* Display Font - Luckiest Guy for hero moments only */
+.font-display {
+  font-family: "Luckiest Guy", "Impact", "Arial Black", sans-serif;
   letter-spacing: 0.5px;
   text-transform: uppercase;
 }
 
-/* Mario Title - Lighter stroke for better legibility */
+/* Body/UI Font - Manrope for all interface text */
+.font-body {
+  font-family: "Manrope", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Helvetica Neue", "Arial", sans-serif;
+}
+
+/* Numeric Font - JetBrains Mono for prices, addresses, code */
+.font-numeric {
+  font-family: "JetBrains Mono", "Monaco", "Consolas", "Courier New", monospace;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+/* Mario Font Base - Legacy support, uses display font */
+.mario-font {
+  font-family: "Luckiest Guy", "Impact", "Arial Black", sans-serif;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+/* Mario Title - Display font for big moments */
 .mario-title {
-  font-family: var(--font-radnika-next), "Radnika Next", "Inter", "Manrope", "Nunito Sans", "Rubik", "Segoe UI", "Roboto", "Helvetica Neue", "Arial", sans-serif;
+  font-family: "Luckiest Guy", "Impact", "Arial Black", sans-serif;
   color: var(--color-brand);
   -webkit-text-stroke: 1px var(--color-outline-black);
   text-shadow: 2px 2px 0 var(--color-outline-black), 4px 4px 0 rgba(0,0,0,0.15);
@@ -871,9 +893,9 @@
   text-transform: uppercase;
 }
 
-/* Mario Header Text - Lighter stroke for better legibility */
+/* Mario Header Text - Display font with gradient */
 .mario-header-text {
-  font-family: var(--font-radnika-next), "Radnika Next", "Inter", "Manrope", "Nunito Sans", "Rubik", "Segoe UI", "Roboto", "Helvetica Neue", "Arial", sans-serif;
+  font-family: "Luckiest Guy", "Impact", "Arial Black", sans-serif;
   background: linear-gradient(90deg, var(--color-super), var(--color-brand), var(--color-star), var(--color-luigi));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -996,6 +1018,46 @@
 
 .chat-message-enter {
   animation: messageSlideIn 0.3s ease-out;
+}
+
+/* ============================================
+   HOVER & INTERACTION UTILITIES
+   ============================================ */
+
+/* Mario-style outline glow hover effect */
+.hover-outline {
+  outline: 2px solid var(--outline-black);
+  outline-offset: 3px;
+  transition: outline-offset 0.1s ease;
+}
+
+.hover-outline:hover {
+  outline-offset: 6px;
+}
+
+/* Cursor feedback - Mario hand pointer */
+button, 
+a,
+[role="button"] {
+  cursor: pointer;
+}
+
+/* ============================================
+   EASTER EGG ANIMATIONS
+   ============================================ */
+
+/* Coin bounce background loop for loading/404 pages */
+@keyframes coin-bounce-loop {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-20px) scale(1.1);
+  }
+}
+
+.coin-bounce-loop {
+  animation: coin-bounce-loop 2s ease-in-out infinite;
 }
 
 /* Viewport Utilities */
