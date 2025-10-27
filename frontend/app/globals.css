@@ -293,55 +293,15 @@
     0 8px 20px rgba(0, 0, 0, 0.1);
 }
 
-/* ============================================
-   PROFESSIONAL SURFACE SYSTEM - Micro-contrast cards
-   Modern, refined alternative to heavy Mario borders
-   ============================================ */
-
-/* Professional Surface - Use on cards/panels for refined look */
-.surface {
-  background: var(--card);
-  border: 1px solid color-mix(in oklab, #000 6%, transparent);
-  box-shadow:
-    0 1px 0 color-mix(in oklab, #fff 55%, transparent) inset,
-    0 10px 30px rgba(0, 0, 0, 0.06);
-  border-radius: 14px;
-  isolation: isolate; /* Keeps charts/images crisp with blends */
-  position: relative;
-}
-
-/* Optional very light per-card grain */
-.surface::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  border-radius: inherit;
-  background-image: url("/Paper-Texture-7.jpg");
-  background-size: 512px 512px;
-  background-repeat: repeat;
-  mix-blend-mode: multiply;
-  opacity: 0.10; /* 10% subtle texture on surfaces */
-}
-
-/* Surface hover state */
-.surface:hover {
-  box-shadow:
-    0 1px 0 color-mix(in oklab, #fff 55%, transparent) inset,
-    0 15px 40px rgba(0, 0, 0, 0.08);
-  transform: translateY(-1px);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-/* Mario Button System */
+/* Mario Button System - Base */
 .mario-btn {
   background: var(--color-star);
-  color: var(--color-outline-black);
-  border: 3px solid var(--color-outline-black);
+  color: var(--outline-black);
+  border: 3px solid var(--outline-black);
   border-radius: var(--radius);
-  font-family: var(--font-radnika-next), "Radnika Next", "Inter", "Manrope", "Nunito Sans", "Rubik", "Segoe UI", "Roboto", "Helvetica Neue", "Arial", sans-serif;
+  font-family: var(--font-body);
   padding: 0.6rem 1rem;
-  box-shadow: 3px 3px 0 var(--color-outline-black);
+  box-shadow: 3px 3px 0 var(--outline-black);
   transition: transform var(--transition-fast), box-shadow var(--transition-fast);
   text-transform: uppercase;
   letter-spacing: 1px;
@@ -1023,54 +983,50 @@ body {
 --------------------------- */
 
 /* ============================================
-   FONT SYSTEM - 3-Font Hierarchy
+   FONT SYSTEM - Reference theme.css tokens
    ============================================ */
 
-/* Display Font - Luckiest Guy for hero moments only */
+/* Font utility classes - Use theme tokens */
 .font-display {
-  font-family: "Luckiest Guy", "Impact", "Arial Black", sans-serif;
+  font-family: var(--font-display);
   letter-spacing: 0.5px;
   text-transform: uppercase;
 }
 
-/* Body/UI Font - Manrope for all interface text */
 .font-body {
-  font-family: "Manrope", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Helvetica Neue", "Arial", sans-serif;
+  font-family: var(--font-body);
 }
 
-/* Numeric Font - JetBrains Mono for prices, addresses, code */
 .font-numeric {
-  font-family: "JetBrains Mono", "Monaco", "Consolas", "Courier New", monospace;
+  font-family: var(--font-numeric);
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.02em;
 }
 
-/* Mario Font Base - Legacy support, uses display font */
+/* Mario-specific font styles */
 .mario-font {
-  font-family: "Luckiest Guy", "Impact", "Arial Black", sans-serif;
+  font-family: var(--font-display);
   letter-spacing: 0.5px;
   text-transform: uppercase;
 }
 
-/* Mario Title - Display font for big moments */
 .mario-title {
-  font-family: "Luckiest Guy", "Impact", "Arial Black", sans-serif;
+  font-family: var(--font-display);
   color: var(--color-brand);
-  -webkit-text-stroke: 1px var(--color-outline-black);
-  text-shadow: 2px 2px 0 var(--color-outline-black), 4px 4px 0 rgba(0,0,0,0.15);
+  -webkit-text-stroke: 1px var(--outline-black);
+  text-shadow: 2px 2px 0 var(--outline-black), 4px 4px 0 rgba(0,0,0,0.15);
   letter-spacing: 0.5px;
   text-transform: uppercase;
 }
 
-/* Mario Header Text - Display font with gradient */
 .mario-header-text {
-  font-family: "Luckiest Guy", "Impact", "Arial Black", sans-serif;
+  font-family: var(--font-display);
   background: linear-gradient(90deg, var(--color-super), var(--color-brand), var(--color-star), var(--color-luigi));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  -webkit-text-stroke: 1px var(--color-outline-black);
-  filter: drop-shadow(2px 2px 0 var(--color-outline-black));
+  -webkit-text-stroke: 1px var(--outline-black);
+  filter: drop-shadow(2px 2px 0 var(--outline-black));
   letter-spacing: 0.5px;
   text-transform: uppercase;
 }
@@ -1549,7 +1505,7 @@ a,
 input, 
 select, 
 textarea {
-  accent-color: var(--accent);
+  accent-color: var(--color-brand);
 }
 
 input::placeholder {

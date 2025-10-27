@@ -22,53 +22,16 @@ module.exports = {
     },
     extend: {
       colors: {
-        // Mario Theme - Primary Colors (Connected to CSS variables in theme.css)
-        // These reference the CSS custom properties defined in theme.css
-        // This ensures consistency and proper Display-P3 enhancement
-        mario: {
-          DEFAULT: "var(--mario-red)", // #E52521 - Classic Mario red
-          light: "#FF6B6B", // Lighter red for hover states
-          dark: "#B31D1A", // Darker red for depth
-        },
-        luigi: {
-          DEFAULT: "var(--luigi-green)", // #43B047 - Luigi green
-          light: "#5EC962", // Lighter green
-          dark: "#2E7A31", // Darker green
-        },
-        star: {
-          DEFAULT: "var(--star-yellow)", // #FFD800 - Super Star yellow
-          light: "#FFEB3B", // Lighter yellow
-          dark: "#FFA000", // Darker/gold yellow
-        },
-        coin: {
-          DEFAULT: "var(--coin-gold)", // #FFB915 - Coin gold
-          light: "#FFC947", // Lighter gold
-          dark: "#E69500", // Darker gold
-        },
-        sky: {
-          DEFAULT: "var(--sky-blue)", // #A6D8FF - Mario sky blue
-          light: "#D0EAFF", // Lighter sky
-          dark: "#5BA8E0", // Darker sky/water
-        },
-        brick: {
-          DEFAULT: "var(--brick-brown)", // #9C5818 - Brick brown
-          light: "#C17842", // Lighter brown
-          dark: "#6B3D10", // Darker brown
-        },
-        pipe: {
-          DEFAULT: "var(--pipe-green)", // #00994C - Pipe green
-          light: "#00C95E", // Lighter pipe
-          dark: "#00662F", // Darker pipe
-        },
-        super: {
-          DEFAULT: "#2B4EF9", // Super mushroom blue (not in theme.css yet)
-          light: "#5B7BFF", // Lighter blue
-          dark: "#1A2E9C", // Darker blue
-        },
-        outline: {
-          DEFAULT: "var(--outline-black)", // #1C1C1C - Black outline
-          light: "#3A3A3A", // Lighter black
-        },
+        // Mario Theme - Reference theme.css tokens only
+        mario: "var(--mario-red)",
+        luigi: "var(--luigi-green)", 
+        star: "var(--star-yellow)",
+        coin: "var(--coin-gold)",
+        sky: "var(--sky-blue)",
+        brick: "var(--brick-brown)",
+        pipe: "var(--pipe-green)",
+        super: "var(--color-super)",
+        outline: "var(--outline-black)",
 
         // Brand Core (Mario Red as primary)
         primary: {
@@ -164,31 +127,15 @@ module.exports = {
         },
       },
       
-      // Font Families - Mario Theme
+      // Font Families - Reference theme.css tokens
       fontFamily: {
-        mario: ['"Luckiest Guy"', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'cursive'],
-        sans: [
-          '-apple-system',
-          'BlinkMacSystemFont',
-          'system-ui',
-          'Segoe UI',
-          'Roboto',
-          'Helvetica Neue',
-          'Arial',
-          'sans-serif',
-          'Apple Color Emoji',
-          'Segoe UI Emoji',
-        ],
-        mono: [
-          'JetBrains Mono',
-          'SF Mono',
-          'Monaco',
-          'Cascadia Code',
-          'Roboto Mono',
-          'Consolas',
-          'Courier New',
-          'monospace',
-        ],
+        display: "var(--font-display)",
+        body: "var(--font-body)", 
+        numeric: "var(--font-numeric)",
+        // Legacy aliases
+        mario: "var(--font-display)",
+        sans: "var(--font-body)",
+        mono: "var(--font-numeric)",
       },
 
       // Typography Scale
@@ -214,13 +161,16 @@ module.exports = {
         extrabold: '800',
       },
       
-      // Border Radius Scale - Updated for 2025
+      // Border Radius Scale - Reference theme.css tokens
       borderRadius: {
-        lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
-        xl: "calc(var(--radius) + 2px)",
-        "2xl": "calc(var(--radius) + 4px)",
+        xs: "var(--radius-xs)",
+        sm: "var(--radius-sm)", 
+        DEFAULT: "var(--radius)",
+        md: "var(--radius-md)",
+        lg: "var(--radius-lg)",
+        xl: "var(--radius-xl)",
+        "2xl": "var(--radius-2xl)",
+        full: "9999px",
       },
       
       // Animation Timing
@@ -286,19 +236,6 @@ module.exports = {
         'dialog-md': '600px',     // Medium dialogs
         'dialog-lg': '768px',     // Large dialogs
         'notification': '420px',  // Notification containers
-      },
-      
-      // Standardized Border Radius Scale - Modern 2025
-      borderRadius: {
-        'none': '0',
-        'xs': '0.25rem',       // 4px - Very small radius
-        'sm': '0.375rem',      // 6px - Small radius
-        'DEFAULT': '0.5rem',   // 8px - Default radius
-        'md': '0.625rem',      // 10px - Medium radius (cards, panels)
-        'lg': '0.75rem',       // 12px - Large radius (dialogs, modals)
-        'xl': '1rem',          // 16px - Extra large radius
-        'xxl': '1.5rem',       // 24px - Very large radius
-        'full': '9999px',      // Full circle/pill shape
       },
       
       // Box Shadows for UI Depth - Refined 2025

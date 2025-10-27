@@ -35,6 +35,27 @@
 
   /* Super Blue */
   --color-super: oklch(52% 0.20 265);       /* Super Blue #2B4EF9 */
+  
+  /* Additional UI tokens */
+  --input: #ffffff;
+  --ring: var(--color-brand);
+  --accent: var(--color-star);
+  --secondary: var(--muted);
+  --secondary-foreground: var(--foreground);
+  --muted: #f5f5f5;
+  --muted-foreground: #666666;
+  --accent-foreground: var(--outline-black);
+  --destructive: var(--mario-red);
+  --destructive-foreground: #ffffff;
+  --card-foreground: var(--foreground);
+  --popover: var(--card);
+  --popover-foreground: var(--foreground);
+  --dropdown: var(--card);
+  --dropdown-foreground: var(--foreground);
+  --dropdown-border: var(--border);
+  --modal: var(--card);
+  --modal-foreground: var(--foreground);
+  --modal-border: var(--border);
 
   /* Pipe Green */
   --color-pipe: oklch(52% 0.16 160);        /* Pipe Green #00994C */
