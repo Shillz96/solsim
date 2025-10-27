@@ -29,6 +29,16 @@ const nextConfig = {
       '@radix-ui/react-icons',
       '@solana/web3.js',
       '@solana/wallet-adapter-react',
+      '@radix-ui/react-dialog',
+      '@radix-ui/react-dropdown-menu',
+      '@radix-ui/react-popover',
+      '@radix-ui/react-select',
+      '@radix-ui/react-tabs',
+      '@radix-ui/react-toast',
+      '@radix-ui/react-tooltip',
+      '@radix-ui/react-hover-card',
+      '@radix-ui/react-scroll-area',
+      '@tabler/icons-react',
     ],
     
     // Type-safe environment variables with IntelliSense (Next.js 15.1+)

@@ -8,11 +8,17 @@
 "use client"
 
 import { useState } from "react"
+import dynamic from "next/dynamic"
 import { cn } from "@/lib/utils"
 import { TokenCard, TokenCardSkeleton } from "./token-card"
-import { FilterPanel } from "./filter-panel"
 import type { TokenRow, AdvancedFilters } from "@/lib/types/warp-pipes"
 import Image from "next/image"
+
+// Lazy load FilterPanel since it's only shown when user clicks filter button
+const FilterPanel = dynamic(() => import("./filter-panel").then(mod => ({ default: mod.FilterPanel })), {
+  loading: () => <div className="text-sm text-muted-foreground p-2">Loading filters...</div>,
+  ssr: false,
+})
 
 interface TokenColumnProps {
   title: string

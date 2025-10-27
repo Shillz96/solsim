@@ -8,10 +8,15 @@
 "use client"
 
 import { useState } from "react"
+import dynamic from "next/dynamic"
 import { Heart } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
-import { motion } from "framer-motion"
+
+// Lazy load framer-motion for watch button animations (not critical for initial render)
+const motion = dynamic(() => import("framer-motion").then(mod => mod.motion as any), {
+  ssr: false,
+}) as any
 
 interface WatchButtonProps {
   mint: string
