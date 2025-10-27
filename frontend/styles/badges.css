@@ -90,10 +90,10 @@
 /* Badge Animations */
 @keyframes badge-glow {
   0%, 100% {
-    box-shadow: 0 0 5px color-mix(in srgb, var(--star-yellow) 30%, transparent);
+    box-shadow: 0 0 5px color-mix(in oklab, var(--star-yellow) 30%, transparent);
   }
   50% {
-    box-shadow: 0 0 20px color-mix(in srgb, var(--star-yellow) 80%, transparent);
+    box-shadow: 0 0 20px color-mix(in oklab, var(--star-yellow) 80%, transparent);
   }
 }
 
@@ -142,23 +142,23 @@
 @keyframes developer-sparkle {
   0%, 100% {
     box-shadow: 
-      0 0 20px color-mix(in srgb, #8b5cf6 80%, transparent), 
-      0 0 40px color-mix(in srgb, #ec4899 60%, transparent);
+      0 0 20px color-mix(in oklab, #8b5cf6 80%, transparent), 
+      0 0 40px color-mix(in oklab, #ec4899 60%, transparent);
   }
   25% {
     box-shadow: 
-      0 0 25px color-mix(in srgb, #ec4899 90%, transparent), 
-      0 0 50px color-mix(in srgb, #8b5cf6 70%, transparent);
+      0 0 25px color-mix(in oklab, #ec4899 90%, transparent), 
+      0 0 50px color-mix(in oklab, #8b5cf6 70%, transparent);
   }
   50% {
     box-shadow: 
       0 0 30px #8b5cf6, 
-      0 0 60px color-mix(in srgb, #ec4899 80%, transparent);
+      0 0 60px color-mix(in oklab, #ec4899 80%, transparent);
   }
   75% {
     box-shadow: 
-      0 0 25px color-mix(in srgb, #ec4899 90%, transparent), 
-      0 0 50px color-mix(in srgb, #8b5cf6 70%, transparent);
+      0 0 25px color-mix(in oklab, #ec4899 90%, transparent), 
+      0 0 50px color-mix(in oklab, #8b5cf6 70%, transparent);
   }
 }
 
@@ -302,7 +302,7 @@
 
 .badge-progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, var(--luigi-green), color-mix(in srgb, var(--luigi-green) 80%, black 20%));
+  background: linear-gradient(90deg, var(--luigi-green), color-mix(in oklab, var(--luigi-green) 80%, black 20%));
   border-radius: 2px;
   transition: width 0.3s ease-in-out;
 }
