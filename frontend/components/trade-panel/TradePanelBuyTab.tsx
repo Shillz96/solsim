@@ -101,10 +101,11 @@ export function TradePanelBuyTab({
       {showCustomInput && (
         <Input
           type="number"
+          inputMode="decimal"
           placeholder="Custom amount"
           value={customSolAmount}
           onChange={(e) => onCustomAmountChange(e.target.value)}
-          className="border-2 border-outline font-mono text-sm h-8"
+          className="border-2 border-outline font-mono text-sm h-11"
           autoComplete="off"
           data-form-type="other"
         />

@@ -187,22 +187,22 @@ function TradeRoomContent() {
   return (
     <div className="w-full h-full flex flex-col bg-background overflow-hidden">
       {/* Header - Token Info */}
-      <header className="bg-sky/20 border-4 border-outline rounded-xl mx-4 mt-4 mb-0 flex-shrink-0 shadow-[8px_8px_0_var(--outline-black)]">
-        <div className="flex items-center justify-between flex-wrap gap-4 p-6">
+      <header className="bg-sky/20 border-4 border-outline rounded-xl mx-3 mt-3 mb-0 flex-shrink-0 shadow-[6px_6px_0_var(--outline-black)]">
+        <div className="flex items-center justify-between flex-wrap gap-3 p-4">
           {/* Left: Token Info */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             <Button
               variant="outline"
               size="sm"
               onClick={() => router.back()}
-              className="h-10 w-10 p-0 rounded-full border-3 border-outline shadow-[2px_2px_0_var(--outline-black)]"
+              className="h-9 w-9 p-0 rounded-full border-3 border-outline shadow-[2px_2px_0_var(--outline-black)]"
               aria-label="Go back"
             >
               <ArrowLeft className="h-4 w-4" />
             </Button>
 
             {tokenDetails.imageUrl && (
-              <div className="w-12 h-12 rounded-full border-3 border-outline shadow-[2px_2px_0_var(--outline-black)] overflow-hidden">
+              <div className="w-10 h-10 rounded-full border-3 border-outline shadow-[2px_2px_0_var(--outline-black)] overflow-hidden">
                 <img
                   src={tokenDetails.imageUrl}
                   alt={tokenDetails.symbol || 'Token'}
@@ -212,14 +212,14 @@ function TradeRoomContent() {
             )}
 
             <div>
-              <h1 className="text-2xl font-mario font-bold text-outline">
+              <h1 className="text-xl font-mario font-bold text-outline">
                 {tokenDetails.name || 'Unknown Token'}
               </h1>
-              <div className="flex items-center gap-2 text-sm flex-wrap">
-                <span className="font-mono font-bold">${formatPrice(currentPrice)}</span>
+              <div className="flex items-center gap-2 text-xs flex-wrap">
+                <span className="font-mono font-bold text-sm">${formatPrice(currentPrice)}</span>
                 <span
                   className={cn(
-                    "mario-badge text-white border-outline",
+                    "mario-badge text-white border-outline text-xs",
                     priceChange24h >= 0 ? "bg-luigi" : "bg-mario"
                   )}
                 >
@@ -231,7 +231,7 @@ function TradeRoomContent() {
                   {priceChange24h >= 0 ? "+" : ""}{priceChange24h.toFixed(2)}%
                 </span>
                 {tokenHolding && parseFloat(tokenHolding.qty) > 0 && (
-                  <span className="mario-badge bg-star text-outline">
+                  <span className="mario-badge bg-star text-outline text-xs">
                     Holding: {formatTokenQuantity(tokenHolding.qty)}
                   </span>
                 )}
@@ -240,14 +240,14 @@ function TradeRoomContent() {
           </div>
 
           {/* Right: Stats */}
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-4">
             <div className="text-right">
-              <div className="text-xs text-foreground/70 uppercase tracking-wide font-bold">MCAP</div>
-              <div className="text-lg font-bold text-outline">{formatUSD(marketCap)}</div>
+              <div className="text-[10px] text-foreground/70 uppercase tracking-wide font-bold">MCAP</div>
+              <div className="text-base font-bold text-outline">{formatUSD(marketCap)}</div>
             </div>
             <div className="text-right hidden md:block">
-              <div className="text-xs text-foreground/70 uppercase tracking-wide font-bold">VOL 24H</div>
-              <div className="text-lg font-bold text-outline">{formatUSD(volume24h)}</div>
+              <div className="text-[10px] text-foreground/70 uppercase tracking-wide font-bold">VOL 24H</div>
+              <div className="text-base font-bold text-outline">{formatUSD(volume24h)}</div>
             </div>
             <div className="flex gap-2">
               <Button
@@ -263,13 +263,13 @@ function TradeRoomContent() {
                     toast({ title: "Failed to copy", description: "Please copy the URL manually", variant: "destructive" })
                   }
                 }}
-                className="h-10 w-10 p-0 rounded-lg border-3 border-outline shadow-[2px_2px_0_var(--outline-black)]"
+                className="h-9 w-9 p-0 rounded-lg border-3 border-outline shadow-[2px_2px_0_var(--outline-black)]"
                 aria-label="Share"
               >
                 {shareCopied ? (
-                  <Check className="h-4 w-4 text-green-600" />
+                  <Check className="h-3.5 w-3.5 text-green-600" />
                 ) : (
-                  <Share2 className="h-4 w-4" />
+                  <Share2 className="h-3.5 w-3.5" />
                 )}
               </Button>
 
@@ -277,7 +277,7 @@ function TradeRoomContent() {
                 variant="outline"
                 size="sm"
                 asChild
-                className="h-10 w-10 p-0 rounded-lg border-3 border-outline shadow-[2px_2px_0_var(--outline-black)]"
+                className="h-9 w-9 p-0 rounded-lg border-3 border-outline shadow-[2px_2px_0_var(--outline-black)]"
               >
                 <a
                   href={`https://dexscreener.com/solana/${ca}`}
@@ -285,7 +285,7 @@ function TradeRoomContent() {
                   rel="noopener noreferrer"
                   aria-label="View on DexScreener"
                 >
-                  <ExternalLink className="h-4 w-4" />
+                  <ExternalLink className="h-3.5 w-3.5" />
                 </a>
               </Button>
             </div>
@@ -294,9 +294,9 @@ function TradeRoomContent() {
       </header>
 
       {/* Main Content - 3 Column Layout */}
-      <main className="flex-1 flex gap-4 p-4 overflow-hidden">
+      <main className="flex-1 flex gap-3 p-3 overflow-hidden">
         {/* MOBILE LAYOUT */}
-        <div className="md:hidden flex flex-col w-full h-full gap-3 sm:gap-4">
+        <div className="md:hidden flex flex-col w-full h-full gap-3">
           {/* Chart - Responsive heights for different screen sizes */}
           <div className="h-[300px] sm:h-[400px] overflow-hidden rounded-xl border-[3px] md:border-4 border-outline shadow-[4px_4px_0_var(--outline-black)] sm:shadow-[6px_6px_0_var(--outline-black)]">
             <DexScreenerChart tokenAddress={ca} />
@@ -335,18 +335,18 @@ function TradeRoomContent() {
         </div>
 
         {/* DESKTOP/TABLET LAYOUT - 3 Columns */}
-        <div className="hidden md:flex w-full h-full gap-4">
+        <div className="hidden md:flex w-full h-full gap-3">
           {/* Left: Chat Panel */}
-          <aside className="w-80 flex-shrink-0 flex flex-col">
+          <aside className="w-72 flex-shrink-0 flex flex-col">
             <div className="bg-sky/20 border-4 border-outline rounded-xl shadow-[6px_6px_0_var(--outline-black)] h-full overflow-hidden flex flex-col">
               <ChatRoom tokenMint={ca} />
             </div>
           </aside>
 
           {/* Center: Market Data Panel with Chart */}
-          <section className="flex-1 min-w-0 flex flex-col gap-4">
+          <section className="flex-1 min-w-0 flex flex-col gap-3">
             {/* Chart - Larger on desktop for better visibility */}
-            <div className="flex-1 min-h-[450px] lg:min-h-[500px] overflow-hidden rounded-xl border-4 border-outline shadow-[6px_6px_0_var(--outline-black)]">
+            <div className="flex-1 min-h-[400px] lg:min-h-[450px] overflow-hidden rounded-xl border-4 border-outline shadow-[6px_6px_0_var(--outline-black)]">
               <DexScreenerChart tokenAddress={ca} />
             </div>
 
@@ -357,8 +357,8 @@ function TradeRoomContent() {
           </section>
 
           {/* Right: Trade Panel */}
-          <aside className="w-80 flex-shrink-0 flex flex-col">
-            <div className="bg-sky/20 border-4 border-outline rounded-xl shadow-[6px_6px_0_var(--outline-black)] flex-1 overflow-y-auto p-4">
+          <aside className="w-72 flex-shrink-0 flex flex-col">
+            <div className="bg-sky/20 border-4 border-outline rounded-xl shadow-[6px_6px_0_var(--outline-black)] flex-1 overflow-y-auto p-3">
               <TradePanel
                 tokenAddress={ca}
                 volume24h={volume24h}
