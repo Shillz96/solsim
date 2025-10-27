@@ -169,12 +169,6 @@ export function TokenCard({ data, onToggleWatch, className, enableLiveUpdates = 
               {data.symbol}
             </h3>
             <SecurityIcon />
-            {isLive && (
-              <span className="flex items-center gap-1 text-[10px] font-bold text-luigi animate-pulse ml-auto">
-                <span className="w-1.5 h-1.5 bg-luigi rounded-full" />
-                LIVE
-              </span>
-            )}
           </div>
 
           {/* Age */}

@@ -25,7 +25,7 @@ const PLATFORM_CONFIG = {
     icon: "/x-logo/logo.svg",
     alt: "X/Twitter",
     emoji: "🐦",
-    gradient: "from-blue-400 to-blue-600",
+    bgColor: "var(--sky-blue)",
     urlPrefix: "https://twitter.com/",
     label: "view on X"
   },
@@ -33,7 +33,7 @@ const PLATFORM_CONFIG = {
     icon: "/icons/social/telegram-icon.svg",
     alt: "Telegram",
     emoji: "✈️",
-    gradient: "from-blue-500 to-cyan-500",
+    bgColor: "var(--luigi-green)",
     urlPrefix: "https://t.me/",
     label: "join Telegram"
   },
@@ -41,7 +41,7 @@ const PLATFORM_CONFIG = {
     icon: "/icons/social/globe-icon.svg",
     alt: "Website",
     emoji: "🌐",
-    gradient: "from-purple-500 to-pink-500",
+    bgColor: "var(--star-yellow)",
     urlPrefix: "https://",
     label: "visit website"
   }
@@ -79,29 +79,36 @@ export function SocialHoverCard({
         </a>
       </HoverCardTrigger>
       <HoverCardContent
-        className="w-80 p-4 bg-card border-4 border-outline rounded-xl shadow-[6px_6px_0_var(--outline-black)] z-popover"
+        className="w-80 p-4 bg-white border-4 border-[var(--outline-black)] rounded-xl shadow-[6px_6px_0_var(--outline-black)] z-popover"
         side="top"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="space-y-2">
+        <div className="space-y-3">
           <div className="flex items-start gap-3">
-            <div className={`w-12 h-12 rounded-full bg-gradient-to-br ${config.gradient} flex items-center justify-center text-white text-2xl border-3 border-outline ${platform === 'twitter' ? 'font-bold' : ''}`}>
+            <div
+              className={`w-12 h-12 rounded-lg flex items-center justify-center text-2xl border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] ${platform === 'twitter' ? 'font-bold' : ''}`}
+              style={{ backgroundColor: config.bgColor }}
+            >
               {platform === 'twitter' ? (tokenSymbol?.[0] || '?') : config.emoji}
             </div>
             <div className="flex-1 min-w-0">
-              <div className="font-bold text-base truncate text-outline">
+              <div className="font-black text-base truncate text-[var(--outline-black)]">
                 {tokenName || tokenSymbol}
               </div>
-              <div className="text-sm text-pipe-600 truncate break-all">
+              <div className="text-sm text-[var(--outline-black)] opacity-60 truncate break-all font-bold">
                 {displayValue}
               </div>
             </div>
           </div>
-          <p className="text-sm line-clamp-3 text-outline">
-            {description || `Click to ${config.label} →`}
-          </p>
-          <div className="flex gap-4 text-xs text-pipe-600 font-bold">
-            <span>Click to {config.label} →</span>
+          {description && (
+            <p className="text-sm line-clamp-3 text-[var(--outline-black)] opacity-80 font-medium leading-relaxed">
+              {description}
+            </p>
+          )}
+          <div className="pt-1 border-t-2 border-[var(--outline-black)] border-opacity-20">
+            <span className="text-xs text-[var(--outline-black)] opacity-60 font-bold">
+              Click to {config.label} →
+            </span>
           </div>
         </div>
       </HoverCardContent>
