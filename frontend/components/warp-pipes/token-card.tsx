@@ -120,18 +120,18 @@ export function TokenCard({ data, onToggleWatch, className, enableLiveUpdates = 
 
   return (
     <Link href={`/room/${data.mint}`} className={cn('block w-full', className)}>
-      {/* Compact horizontal card with Mario theme */}
+      {/* Three-column card: Image (left) | Info (middle) | Stats (right) */}
       <div
         className={cn(
           'surface cursor-pointer',
-          'rounded-xl border-3 border-outline bg-card',
+          'rounded-xl border-3 border-outline',
           'shadow-[4px_4px_0_var(--outline-black)] hover:shadow-[6px_6px_0_var(--outline-black)]',
           'hover:-translate-y-0.5 hover:border-star',
-          'bg-sky/20 p-3 flex gap-3 items-start',
+          'bg-sky/20 p-4 flex gap-4 items-stretch',
           'transition-all duration-200'
         )}
       >
-        {/* Token Image - Enlarged to 96x96 for better visibility */}
+        {/* Left: Token Image - Enlarged to 96x96 for better visibility */}
         <div className="relative w-24 h-24 flex-shrink-0">
           {img && !imageError ? (
             <Image
@@ -161,19 +161,16 @@ export function TokenCard({ data, onToggleWatch, className, enableLiveUpdates = 
           )}
         </div>
 
-        {/* Content */}
+        {/* Middle: Token Info */}
         <div className="flex-1 min-w-0 space-y-1.5">
           {/* Header Row */}
-          <div className="flex items-center justify-between gap-2">
-            <div className="flex items-center gap-1.5 min-w-0">
-              <h3 className={cn(marioStyles.heading(4), 'text-sm font-black truncate max-w-[140px]')}>
-                {data.symbol}
-              </h3>
-              <SecurityIcon />
-            </div>
-
+          <div className="flex items-center gap-2">
+            <h3 className={cn(marioStyles.heading(4), 'text-base font-black truncate max-w-[160px]')}>
+              {data.symbol}
+            </h3>
+            <SecurityIcon />
             {isLive && (
-              <span className="flex items-center gap-1 text-[10px] font-bold text-luigi animate-pulse">
+              <span className="flex items-center gap-1 text-[10px] font-bold text-luigi animate-pulse ml-auto">
                 <span className="w-1.5 h-1.5 bg-luigi rounded-full" />
                 LIVE
               </span>
@@ -183,27 +180,8 @@ export function TokenCard({ data, onToggleWatch, className, enableLiveUpdates = 
           {/* Age */}
           <p className="text-[10px] text-outline/60 font-bold">{age} ago</p>
 
-          {/* PROMINENT: Market Cap & Volume Stat Badges */}
-          <div className="flex items-center gap-2">
-            {/* Market Cap Badge */}
-            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-[var(--star-yellow)] border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] rounded-lg">
-              <span className="text-sm">💰</span>
-              <span className="text-base font-black text-[var(--outline-black)] whitespace-nowrap">
-                ${fmtCompact(mergedData.marketCapUsd)}
-              </span>
-            </div>
-
-            {/* Volume Badge */}
-            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-[var(--sky-blue)] border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] rounded-lg">
-              <span className="text-sm">📊</span>
-              <span className="text-base font-black text-[var(--outline-black)] whitespace-nowrap">
-                ${fmtCompact(data.volume24h)}
-              </span>
-            </div>
-          </div>
-
           {/* Price Change */}
-          <div className="flex items-center gap-2 text-xs font-bold">
+          <div className="flex items-center gap-2 text-sm font-bold">
             <span
               className={cn(
                 priceChg != null && priceChg >= 0 ? 'text-luigi' : 'text-mario'
@@ -280,6 +258,31 @@ export function TokenCard({ data, onToggleWatch, className, enableLiveUpdates = 
             )}
           </div>
         </div>
+
+        {/* Right: Stacked Stat Badges */}
+        <div className="flex flex-col gap-2 justify-center min-w-[140px]">
+          {/* Market Cap Badge */}
+          <div className="flex flex-col items-center px-4 py-2.5 bg-[var(--star-yellow)] border-3 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)] rounded-xl">
+            <span className="text-[9px] font-black text-[var(--outline-black)] opacity-70 mb-0.5">MARKET CAP</span>
+            <div className="flex items-center gap-1.5">
+              <span className="text-base">💰</span>
+              <span className="text-xl font-black text-[var(--outline-black)] whitespace-nowrap">
+                ${fmtCompact(mergedData.marketCapUsd)}
+              </span>
+            </div>
+          </div>
+
+          {/* Volume Badge */}
+          <div className="flex flex-col items-center px-4 py-2.5 bg-[var(--sky-blue)] border-3 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)] rounded-xl">
+            <span className="text-[9px] font-black text-[var(--outline-black)] opacity-70 mb-0.5">24H VOLUME</span>
+            <div className="flex items-center gap-1.5">
+              <span className="text-base">📊</span>
+              <span className="text-xl font-black text-[var(--outline-black)] whitespace-nowrap">
+                ${fmtCompact(data.volume24h)}
+              </span>
+            </div>
+          </div>
+        </div>
       </div>
     </Link>
   );
@@ -287,37 +290,31 @@ export function TokenCard({ data, onToggleWatch, className, enableLiveUpdates = 
 
 
 /**
- * Token Card Skeleton - Matches new 96px layout with stat badges
+ * Token Card Skeleton - Matches new three-column layout
  */
 export function TokenCardSkeleton() {
   return (
     <div className="w-full">
       <div
         className={cn(
-          'rounded-xl border-3 border-outline bg-card p-3',
+          'rounded-xl border-3 border-outline bg-sky/20 p-4',
           'shadow-[4px_4px_0_var(--outline-black)]',
-          'flex gap-3 animate-pulse'
+          'flex gap-4 animate-pulse'
         )}
       >
-        {/* Image skeleton - 96x96 */}
+        {/* Left: Image skeleton - 96x96 */}
         <div className="w-24 h-24 bg-background/50 rounded-lg border-2 border-outline shrink-0" />
 
-        {/* Content skeleton */}
+        {/* Middle: Info skeleton */}
         <div className="flex-1 space-y-1.5">
           {/* Header */}
           <div className="flex items-center gap-2">
-            <div className="h-4 bg-background/50 rounded w-24" />
+            <div className="h-4 bg-background/50 rounded w-28" />
             <div className="h-3 bg-background/30 rounded w-3" />
           </div>
 
           {/* Age */}
           <div className="h-3 bg-background/30 rounded w-16" />
-
-          {/* Stat badges skeleton */}
-          <div className="flex gap-2">
-            <div className="h-8 bg-background/50 rounded-lg border-3 border-outline w-28" />
-            <div className="h-8 bg-background/50 rounded-lg border-3 border-outline w-24" />
-          </div>
 
           {/* Price change */}
           <div className="h-3 bg-background/40 rounded w-16" />
@@ -336,6 +333,12 @@ export function TokenCardSkeleton() {
             </div>
             <div className="h-3 bg-background/30 rounded w-16" />
           </div>
+        </div>
+
+        {/* Right: Stacked badges skeleton */}
+        <div className="flex flex-col gap-2 justify-center min-w-[140px]">
+          <div className="h-16 bg-background/50 rounded-xl border-3 border-outline" />
+          <div className="h-16 bg-background/50 rounded-xl border-3 border-outline" />
         </div>
       </div>
     </div>
