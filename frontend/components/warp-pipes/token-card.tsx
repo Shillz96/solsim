@@ -127,7 +127,7 @@ export function TokenCard({ data, onToggleWatch, className, enableLiveUpdates = 
           'rounded-xl border-3 border-outline',
           'shadow-[4px_4px_0_var(--outline-black)] hover:shadow-[6px_6px_0_var(--outline-black)]',
           'hover:-translate-y-0.5 hover:border-star',
-          'bg-sky/20 p-4 flex gap-4 items-stretch',
+          'bg-gradient-to-br from-sky/30 via-sky/20 to-sky/10 p-4 flex gap-4 items-stretch',
           'transition-all duration-200'
         )}
       >
@@ -285,7 +285,7 @@ export function TokenCardSkeleton() {
     <div className="w-full">
       <div
         className={cn(
-          'rounded-xl border-3 border-outline bg-sky/20 p-4',
+          'rounded-xl border-3 border-outline bg-gradient-to-br from-sky/30 via-sky/20 to-sky/10 p-4',
           'shadow-[4px_4px_0_var(--outline-black)]',
           'flex gap-4 animate-pulse'
         )}

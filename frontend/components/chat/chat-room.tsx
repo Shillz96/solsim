@@ -118,7 +118,7 @@ export function ChatRoom({ tokenMint, className, headerImage, headerImageAlt = '
   const StatusIcon = status === 'connected' || status === 'connecting' ? Wifi : WifiOff
 
   return (
-    <div className={cn("flex flex-col h-full bg-sky/20 backdrop-blur-sm p-4", className)}>
+    <div className={cn("flex flex-col h-full bg-card-info backdrop-blur-sm p-4", className)}>
       {/* Chat Header */}
       <div className="flex items-center justify-start mb-3 pb-3 border-b-3 border-outline">
         <div className="h-8 flex items-center">
@@ -192,7 +192,7 @@ export function ChatRoom({ tokenMint, className, headerImage, headerImageAlt = '
       </div>
 
       {/* Input Area */}
-      <div className="p-4 border-t-4 border-[var(--outline-black)] bg-white flex-shrink-0 shadow-[0_-4px_0_var(--outline-black)] relative">
+      <div className="p-4 border-t-4 border-[var(--outline-black)] bg-card-neutral flex-shrink-0 shadow-[0_-4px_0_var(--outline-black)] relative">
         <div className="flex gap-2 items-end">
           <input
             ref={inputRef}

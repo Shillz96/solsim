@@ -433,7 +433,7 @@ function UserSettingsPage() {
                   id="email"
                   value={displayEmail}
                   disabled
-                  className="bg-gray-200 opacity-60 border-3 border-outline shadow-[2px_2px_0_var(--outline-black)]"
+                  className="bg-card-neutral opacity-60 border-3 border-outline shadow-[2px_2px_0_var(--outline-black)]"
                 />
                 <p className="text-xs text-muted-foreground font-semibold">Email cannot be changed</p>
               </div>

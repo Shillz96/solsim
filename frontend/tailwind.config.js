@@ -110,6 +110,14 @@ module.exports = {
         card: {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
+          portfolio: "var(--card-portfolio)",   // Light Luigi green
+          stats: "var(--card-stats)",           // Light star yellow
+          info: "var(--card-info)",             // Light sky blue
+          success: "var(--card-success)",       // Light green
+          warning: "var(--card-warning)",       // Light red
+          trading: "var(--card-trading)",       // Light pipe green
+          token: "var(--card-token)",           // Sky blue for tokens
+          neutral: "var(--card-neutral)",       // Very light pipe green
         },
         popover: {
           DEFAULT: "hsl(var(--popover))",

@@ -501,7 +501,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
 
                   {/* Password Strength Indicator */}
                   {password && (
-                    <div className="bg-gray-50 rounded-lg p-3 sm:p-4 border-2 border-outline">
+                    <div className="bg-card-info rounded-lg p-3 sm:p-4 border-2 border-outline">
                       <PasswordStrengthIndicator password={password} confirmPassword={confirmPassword} />
                     </div>
                   )}
@@ -512,7 +512,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
                       <Wallet className="h-4 w-4 text-muted-foreground" />
                       <Label className="text-sm sm:text-base text-foreground font-bold">Wallet Connection (Optional)</Label>
                     </div>
-                    <div className="bg-gray-50 rounded-lg p-3 sm:p-4 border-2 border-outline">
+                    <div className="bg-card-info rounded-lg p-3 sm:p-4 border-2 border-outline">
                       <p className="text-xs sm:text-sm text-muted-foreground mb-3 font-bold">
                         Connect your Solana wallet to unlock premium features and higher starting balance.
                       </p>

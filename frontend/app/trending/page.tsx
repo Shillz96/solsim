@@ -398,7 +398,7 @@ export default function TrendingPage() {
                 </Alert>
               </div>
             ) : filteredAndSortedTokens.length === 0 ? (
-              <div className="p-12 text-center bg-card">
+              <div className="p-12 text-center bg-card-info rounded-lg border-3 border-outline shadow-[4px_4px_0_var(--outline-black)]">
                 <div className="text-6xl mb-4">🔍</div>
                 <p className="font-display text-2xl text-foreground mb-2">No tokens found</p>
                 <p className="font-body text-sm text-muted-foreground">
@@ -432,9 +432,9 @@ export default function TrendingPage() {
                         className={cn(
                           // Desktop: Grid layout
                           "hidden lg:grid grid-cols-[auto_1fr_auto_auto_auto_auto_auto_auto_auto] gap-3 items-center p-4 rounded-lg border-3 border-outline-black transition-all duration-200",
-                          "bg-sky/20 hover:border-outline-hover",
+                          "bg-gradient-to-br from-sky/30 via-sky/20 to-sky/10 hover:border-outline-hover",
                           "shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:translate-y-[-2px]",
-                          rank <= 3 && "bg-gradient-to-r from-[var(--coin-gold)]/10 to-[var(--star-yellow)]/10"
+                          rank <= 3 && "bg-gradient-to-r from-[var(--coin-gold)]/20 via-[var(--star-yellow)]/15 to-[var(--coin-gold)]/10"
                         )}
                       >
                       {/* Rank */}
@@ -538,9 +538,9 @@ export default function TrendingPage() {
                       key={`${token.mint}-mobile`}
                       className={cn(
                         "lg:hidden flex flex-col p-4 rounded-lg border-3 border-outline-black transition-all duration-200",
-                        "bg-sky/20 active:border-outline-hover",
+                        "bg-gradient-to-br from-sky/30 via-sky/20 to-sky/10 active:border-outline-hover",
                         "shadow-[3px_3px_0_var(--outline-black)] active:shadow-[4px_4px_0_var(--outline-black)]",
-                        rank <= 3 && "bg-gradient-to-r from-[var(--coin-gold)]/10 to-[var(--star-yellow)]/10"
+                        rank <= 3 && "bg-gradient-to-r from-[var(--coin-gold)]/20 via-[var(--star-yellow)]/15 to-[var(--coin-gold)]/10"
                       )}
                     >
                       {/* Top Row: Rank, Token Info, Change */}
