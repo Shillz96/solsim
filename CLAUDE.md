@@ -143,6 +143,97 @@ The price service streams real-time swap events from Solana DEXes (Raydium, Pump
 - Jupiter Price API
 - CoinGecko (for SOL price)
 
+### Warp Pipes - PumpPortal Memecoin Scanner
+
+**IMPORTANT**: The Warp Pipes page (`/trending`) is a **memecoin launch scanner** powered by **PumpPortal data**, NOT a generic trending tokens page.
+
+**Location**: `frontend/app/trending/page.tsx`
+
+**Data Flow**:
+```
+Frontend (/trending page)
+  ↓ calls useWarpPipesFeed() hook
+  ↓ fetches from /api/warp-pipes/feed
+  ↓ backend queries TokenDiscovery table
+  ↓ returns 3 categories: bonded, graduating, new
+  ↓ data populated by PumpPortal WebSocket streams
+```
+
+**Backend Endpoint**: `backend/src/routes/warpPipes.ts`
+- **Endpoint**: `GET /api/warp-pipes/feed`
+- **Data Source**: `TokenDiscovery` table (Prisma model)
+- **Populated By**: PumpPortal WebSocket streams (real-time memecoin launches)
+- **Response Structure**:
+  ```typescript
+  {
+    bonded: TokenRow[],      // Recently bonded tokens (last 12 hours)
+    graduating: TokenRow[],  // Tokens approaching graduation
+    new: TokenRow[]          // Newly launched tokens
+  }
+  ```
+
+**TokenRow Fields** (from TokenDiscovery table):
+- `priceUsd` - Current token price in USD
+- `priceChange24h` - 24-hour price change percentage
+- `marketCapUsd` - Market capitalization
+- `volume24h` - 24-hour trading volume
+- `holderCount` - Number of token holders (BigInt → string)
+- `liquidityUsd` - Liquidity in USD
+- `freezeRevoked` / `mintRenounced` - Security flags
+- `bondingCurveProgress` - Graduation progress (0-100%)
+- `state` - Token lifecycle state (new, graduating, bonded)
+
+**Frontend Hook**: `frontend/hooks/use-react-query-hooks.ts`
+- **Hook**: `useWarpPipesFeed()`
+- **Cache**: 30 seconds (fresher data for live memecoin scanning)
+- **Auto-refetch**: Every 60 seconds
+- **Filters**: Search, sort, minLiquidity, requireSecurity
+
+**DO NOT CONFUSE WITH**:
+
+❌ **`/api/trending`** endpoint:
+- Uses Birdeye/DexScreener APIs (external)
+- Returns generic trending Solana tokens
+- Used by `useTrendingTokens()` hook
+- NOT used by Warp Pipes page
+
+✅ **`/api/warp-pipes/feed`** endpoint:
+- Uses TokenDiscovery table (internal database)
+- Returns PumpPortal memecoin launches
+- Used by `useWarpPipesFeed()` hook
+- Used by Warp Pipes page (`/trending`)
+
+**Key Implementation Details**:
+
+1. **Frontend flattens categories** (line 51-74 in `trending/page.tsx`):
+   - Combines bonded, graduating, and new arrays into single list
+   - Maps TokenDiscovery fields to display format
+   - Adds `state` field to indicate category
+
+2. **All data from TokenDiscovery**:
+   - Price data comes from PumpPortal streams (NOT Birdeye)
+   - Volume data comes from TokenDiscovery.volume24h (NOT DexScreener)
+   - Holder count comes from TokenDiscovery.holderCount (BigInt field)
+
+3. **Quality filters applied by default**:
+   - `requireSecurity: true` (freeze revoked + mint renounced)
+   - `minLiquidity: 1000` (minimum $1000 liquidity)
+   - Excludes DEAD tokens and test/rug tokens
+
+**Quick Reference Table**:
+
+| Frontend Page | Route | Hook | API Endpoint | Data Source |
+|---------------|-------|------|--------------|-------------|
+| **Warp Pipes** | `/trending` | `useWarpPipesFeed()` | `/api/warp-pipes/feed` | TokenDiscovery (PumpPortal) |
+| Leaderboard | `/leaderboard` | `useLeaderboard()` | `/api/leaderboard` | User trades (internal) |
+| Portfolio | `/portfolio` | `usePortfolio()` | `/api/portfolio` | User positions (internal) |
+| Token Room | `/room/[ca]` | `useTokenDetails()` | `/api/search/token/:mint` | Token table (multi-source) |
+
+**If you need generic trending Solana tokens** (NOT memecoin launches):
+- Use `/api/trending` endpoint (Birdeye/DexScreener)
+- Use `useTrendingTokens()` hook
+- This is for general market overview, NOT for the Warp Pipes page
+
 ### Frontend Data Flow
 
 **Location**: `frontend/`
@@ -274,6 +365,32 @@ app.listen({ port, host: "0.0.0.0" });
 ```
 
 This ensures prices are available when the first API requests arrive.
+
+### Warp Pipes Data Source
+
+**CRITICAL**: The Warp Pipes page (`/trending`) MUST use `/api/warp-pipes/feed` endpoint (PumpPortal/TokenDiscovery data):
+
+```typescript
+// ✅ CORRECT - Warp Pipes page uses PumpPortal data
+import { useWarpPipesFeed } from "@/hooks/use-react-query-hooks"
+
+const { data } = useWarpPipesFeed({
+  sortBy: 'volume',
+  limit: 50,
+  requireSecurity: true,
+  minLiquidity: 1000,
+})
+// Returns: { bonded: [], graduating: [], new: [] }
+// Source: TokenDiscovery table (PumpPortal streams)
+
+// ❌ WRONG - Don't use generic trending for Warp Pipes
+import { useTrendingTokens } from "@/hooks/use-react-query-hooks"
+const { data } = useTrendingTokens(50, 'rank')
+// Returns: TrendingToken[]
+// Source: Birdeye/DexScreener APIs (NOT memecoin launches)
+```
+
+The Warp Pipes page is a **memecoin launch scanner**, not a generic trending page. All data (price, volume, holders) comes from the TokenDiscovery table populated by PumpPortal WebSocket streams.
 
 ### Decimal Precision
 

@@ -288,18 +288,29 @@ const warpPipesRoutes: FastifyPluginAsync = async (fastify) => {
         }
 
         // Transform to TokenRow format
-        const transformToken = (token: any) => ({
-          mint: token.mint,
-          symbol: token.symbol,
-          name: token.name,
-          logoURI: token.logoURI,
-          description: token.description,
-          imageUrl: token.imageUrl,
-          twitter: token.twitter,
-          telegram: token.telegram,
-          website: token.website,
-          creatorWallet: token.creatorWallet,
-          holderCount: token.holderCount,
+        const transformToken = (token: any) => {
+          // Convert HTTP image URLs to HTTPS (or use placeholder for security)
+          const sanitizeImageUrl = (url: string | null): string | null => {
+            if (!url) return null;
+            // If it's an HTTP URL, try converting to HTTPS
+            if (url.startsWith('http://')) {
+              return url.replace('http://', 'https://');
+            }
+            return url;
+          };
+
+          return {
+            mint: token.mint,
+            symbol: token.symbol,
+            name: token.name,
+            logoURI: sanitizeImageUrl(token.logoURI),
+            description: token.description,
+            imageUrl: sanitizeImageUrl(token.imageUrl),
+            twitter: token.twitter,
+            telegram: token.telegram,
+            website: token.website,
+            creatorWallet: token.creatorWallet,
+            holderCount: token.holderCount ? token.holderCount.toString() : null,
           state: token.state,
           status: token.status, // Lifecycle status
           liqUsd: token.liquidityUsd ? parseFloat(token.liquidityUsd.toString()) : undefined,
@@ -333,7 +344,8 @@ const warpPipesRoutes: FastifyPluginAsync = async (fastify) => {
           firstSeenAt: token.firstSeenAt.toISOString(),
           lastUpdatedAt: token.lastUpdatedAt.toISOString(),
           stateChangedAt: token.stateChangedAt.toISOString(),
-        });
+          };
+        };
 
         return reply.send({
           bonded: bonded.map(transformToken),
