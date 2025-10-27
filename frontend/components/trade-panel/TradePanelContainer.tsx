@@ -297,7 +297,7 @@ export function TradePanelContainer({
   // Loading state
   if (loadingToken) {
     return (
-      <div className="bg-white/80 backdrop-blur-sm border-3 border-outline rounded-lg p-6 shadow-[3px_3px_0_var(--outline-black)] animate-pulse">
+      <div className="bg-white/80 backdrop-blur-sm border-3 border-outline rounded-[14px] p-6 shadow-[3px_3px_0_var(--outline-black)] animate-pulse">
         <div className="space-y-4">
           <div className="h-6 bg-coin/20 rounded w-3/4"></div>
           <div className="h-32 bg-coin/20 rounded"></div>
@@ -309,7 +309,7 @@ export function TradePanelContainer({
   // Error state
   if (!tokenDetails) {
     return (
-      <div className="bg-white/80 backdrop-blur-sm border-3 border-outline rounded-lg p-6 shadow-[3px_3px_0_var(--outline-black)]">
+      <div className="bg-white/80 backdrop-blur-sm border-3 border-outline rounded-[14px] p-6 shadow-[3px_3px_0_var(--outline-black)]">
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>Failed to load token</AlertDescription>

@@ -20,15 +20,15 @@ export function LevelProgressModal({ open, onOpenChange, currentXP }: LevelProgr
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-[#FFFAE9] border-3 border-pipe-800 shadow-xl">
-        <DialogHeader className="border-b-2 border-pipe-300 pb-4">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-[var(--background)] border-3 border-[var(--outline-black)] shadow-[6px_6px_0_var(--outline-black)]">
+        <DialogHeader className="border-b-2 border-[var(--outline-black)] pb-4">
           <DialogTitle className="font-mario text-xl text-mario-red-500 text-center">
             🏆 Level Progression 🏆
           </DialogTitle>
         </DialogHeader>
 
         {/* Current Level Display */}
-        <div className="mb-4 p-5 bg-gradient-to-br from-star-yellow-400 to-coin-yellow-500 rounded-xl border-3 border-star-yellow-600 shadow-lg">
+        <div className="mb-4 p-5 bg-gradient-to-br from-star-yellow-400 to-coin-yellow-500 rounded-xl border-3 border-star-yellow-600 shadow-[4px_4px_0_var(--outline-black)]">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-3">
               <div className="text-5xl">{levelInfo.icon}</div>

@@ -59,7 +59,7 @@ function StatCard({ label, value, subtitle, icon: Icon, variant = 'default' }: S
               <p className="text-xs text-muted-foreground mt-1">{subtitle}</p>
             )}
           </div>
-          <div className={cn("p-2 rounded-lg bg-background/50", iconStyles[variant])}>
+          <div className={cn("p-2 rounded-[14px] bg-background/50", iconStyles[variant])}>
             <Icon className="h-5 w-5" />
           </div>
         </div>

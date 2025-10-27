@@ -1038,7 +1038,7 @@ export function WalletManager({
                     </div>
                     <div className={cn(
                       marioStyles.border(),
-                      'w-full bg-gray-200 rounded-full h-2'
+                      'w-full bg-[var(--pipe-green)]/10 rounded-full h-2'
                     )}>
                       <div
                         className="bg-luigi h-full rounded-full transition-all duration-300"

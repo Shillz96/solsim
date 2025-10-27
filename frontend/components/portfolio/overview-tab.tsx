@@ -55,7 +55,7 @@ export function OverviewTab() {
               <div className="text-lg font-mario font-bold text-outline">{user?.email?.split('@')[0] || 'Anonymous'}</div>
             </div>
           </div>
-          <div className="bg-star border-3 border-outline rounded-lg px-4 py-2 shadow-[3px_3px_0_var(--outline-black)]">
+          <div className="bg-star border-3 border-outline rounded-[14px] px-4 py-2 shadow-[3px_3px_0_var(--outline-black)]">
             <div className="text-center">
               <div className="text-xs font-mario font-bold text-outline">XP</div>
               <div className="text-xl font-bold text-outline">350/1000</div>
@@ -64,7 +64,7 @@ export function OverviewTab() {
         </div>
         
         {/* XP Progress Bar */}
-        <div className="bg-gray-200 border-3 border-outline rounded-full h-4 overflow-hidden">
+        <div className="bg-[var(--pipe-green)]/10 border-3 border-outline rounded-full h-4 overflow-hidden">
           <motion.div
             className="bg-gradient-to-r from-[var(--luigi-green)] to-[var(--luigi-green)]/80 h-full"
             initial={{ width: 0 }}
@@ -84,7 +84,7 @@ export function OverviewTab() {
           className="bg-sky/20 border-4 border-outline rounded-xl shadow-[4px_4px_0_var(--outline-black)] p-4"
         >
           <div className="flex items-center gap-2 mb-2">
-            <div className="bg-sky border-2 border-outline rounded-lg p-2">
+            <div className="bg-sky border-2 border-outline rounded-[14px] p-2">
               <Image src="/icons/mario/money-bag.png" alt="Portfolio" width={20} height={20} />
             </div>
             <div className="text-xs font-bold text-muted-foreground">PORTFOLIO</div>
@@ -106,7 +106,7 @@ export function OverviewTab() {
         >
           <div className="flex items-center gap-2 mb-2">
             <div className={cn(
-              "border-2 border-outline rounded-lg p-2",
+              "border-2 border-outline rounded-[14px] p-2",
               totalPnL >= 0 ? "bg-luigi" : "bg-mario"
             )}>
               {totalPnL >= 0 ? (
@@ -137,7 +137,7 @@ export function OverviewTab() {
         >
           <div className="flex items-center gap-2 mb-2">
             <div className={cn(
-              "border-2 border-outline rounded-lg p-2",
+              "border-2 border-outline rounded-[14px] p-2",
               unrealizedPnL >= 0 ? "bg-luigi" : "bg-mario"
             )}>
               <Image src="/icons/mario/star.png" alt="Unrealized" width={20} height={20} />
@@ -160,7 +160,7 @@ export function OverviewTab() {
           className="bg-star/20 border-4 border-outline rounded-xl shadow-[4px_4px_0_var(--outline-black)] p-4"
         >
           <div className="flex items-center gap-2 mb-2">
-            <div className="bg-star border-2 border-outline rounded-lg p-2">
+            <div className="bg-star border-2 border-outline rounded-[14px] p-2">
               <Image src="/icons/mario/trophy.png" alt="Win Rate" width={20} height={20} />
             </div>
             <div className="text-xs font-bold text-muted-foreground">WIN RATE</div>
@@ -226,7 +226,7 @@ export function OverviewTab() {
               
               return (
                 <Link href={`/room/${position.mint}`} key={position.mint}>
-                  <div className="bg-card/50 border-3 border-outline rounded-lg p-3 hover:bg-card/80 transition-colors cursor-pointer">
+                  <div className="bg-card/50 border-3 border-outline rounded-[14px] p-3 hover:bg-card/80 transition-colors cursor-pointer">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
                         {position.tokenImage ? (

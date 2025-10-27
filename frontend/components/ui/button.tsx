@@ -5,7 +5,7 @@ import { cva, type VariantProps } from 'class-variance-authority'
 import { cn } from '@/lib/utils'
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium will-change-transform transform translate-z-0 transition-[transform,opacity,background-color,color,box-shadow] duration-200 hover:scale-[1.02] active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 aria-invalid:border-destructive",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-[12px] text-sm font-medium will-change-transform transform translate-z-0 transition-[transform,opacity,background-color,color,box-shadow] duration-200 hover:scale-[1.02] active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 aria-invalid:border-destructive",
   {
     variants: {
       variant: {
@@ -22,8 +22,8 @@ const buttonVariants = cva(
       },
       size: {
         default: 'h-11 px-4 py-2 has-[>svg]:px-3',  // 44px - WCAG AA compliant
-        sm: 'h-10 rounded-md gap-1.5 px-3 has-[>svg]:px-2.5',  // 40px - acceptable with padding
-        lg: 'h-12 rounded-md px-6 has-[>svg]:px-4',  // 48px - extra comfortable
+        sm: 'h-10 rounded-[12px] gap-1.5 px-3 has-[>svg]:px-2.5',  // 40px - acceptable with padding
+        lg: 'h-12 rounded-[12px] px-6 has-[>svg]:px-4',  // 48px - extra comfortable
         icon: 'size-11',  // 44x44px - WCAG AA compliant
         'icon-sm': 'size-10',  // 40x40px - acceptable for secondary actions
         'icon-lg': 'size-12',  // 48x48px - extra comfortable

@@ -38,7 +38,7 @@ export default function ProfileError({
               {error.message || 'An unexpected error occurred'}
             </p>
             {error.digest && (
-              <p className="text-gray-400 text-xs mt-2">
+              <p className="text-[var(--outline-black)]/50 text-xs mt-2">
                 Error ID: {error.digest}
               </p>
             )}

@@ -246,7 +246,7 @@ export default function RoadmapPage() {
                 </Link>
                 <Link href="/rewards">
                   <Button
-                    className="inline-flex items-center justify-center rounded-xl border-[3px] border-outline bg-card px-4 py-2 text-sm font-black shadow-[4px_4px_0_var(--outline-black)] transition-transform active:translate-y-0.5 hover:bg-gray-100 text-outline"
+                    className="inline-flex items-center justify-center rounded-xl border-[3px] border-outline bg-card px-4 py-2 text-sm font-black shadow-[4px_4px_0_var(--outline-black)] transition-transform active:translate-y-0.5 hover:bg-muted text-outline"
                   >
                     View Rewards Dashboard 💰
                   </Button>

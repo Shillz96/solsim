@@ -115,9 +115,9 @@ export function LeaderboardPreview() {
                       >
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-2">
-                            {trader.rank === 1 && <img src="/icons/mario/1st.png" alt="1st place" className="h-6 w-6 drop-shadow-md" />}
-                            {trader.rank === 2 && <img src="/icons/mario/2nd-place.png" alt="2nd place" className="h-6 w-6 drop-shadow-md" />}
-                            {trader.rank === 3 && <img src="/icons/mario/3rd.png" alt="3rd place" className="h-6 w-6 drop-shadow-md" />}
+                            {trader.rank === 1 && <img src="/icons/mario/1st.png" alt="1st place" className="h-6 w-6 drop-shadow-[3px_3px_0_var(--outline-black)]" />}
+                            {trader.rank === 2 && <img src="/icons/mario/2nd-place.png" alt="2nd place" className="h-6 w-6 drop-shadow-[3px_3px_0_var(--outline-black)]" />}
+                            {trader.rank === 3 && <img src="/icons/mario/3rd.png" alt="3rd place" className="h-6 w-6 drop-shadow-[3px_3px_0_var(--outline-black)]" />}
                             <span className={`text-lg font-bold ${trader.rank <= 3 ? 'text-mario-red' : 'font-medium'}`}>#{trader.rank}</span>
                           </div>
                         </td>
@@ -128,7 +128,7 @@ export function LeaderboardPreview() {
                           </div>
                         </td>
                         <td className="px-6 py-4 text-right">
-                          <span className={`font-mono ${trader.rank <= 3 ? 'font-bold' : 'font-medium'} ${trader.roi >= 0 ? 'text-[#00ff85]' : 'text-red-500'}`}>
+                          <span className={`font-mono ${trader.rank <= 3 ? 'font-bold' : 'font-medium'} ${trader.roi >= 0 ? 'text-[var(--luigi-green)]' : 'text-[var(--mario-red)]'}`}>
                             {trader.roi >= 0 ? '+' : ''}{trader.roi.toFixed(2)}
                           </span>
                         </td>

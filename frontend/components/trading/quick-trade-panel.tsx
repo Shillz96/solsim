@@ -84,18 +84,20 @@ export function QuickTradePanel({
             initial={{ scale: 0, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0, opacity: 0 }}
-            className="fixed bottom-6 right-6 z-sticky"
+            className="fixed bottom-20 md:bottom-6 right-4 md:right-6 z-sticky"
           >
             <Button
               size="lg"
               onClick={() => setIsOpen(true)}
               className={cn(
-                "h-14 w-14 rounded-full p-0",
+                "h-14 w-14 md:h-14 md:w-14 rounded-full p-0",
                 "bg-star hover:bg-star/90",
-                "border-4 border-outline",
-                "shadow-[6px_6px_0_var(--outline-black)]",
-                "hover:shadow-[8px_8px_0_var(--outline-black)] hover:-translate-y-[2px]",
-                "transition-all"
+                "border-[3px] md:border-4 border-outline",
+                "shadow-[4px_4px_0_var(--outline-black)] md:shadow-[6px_6px_0_var(--outline-black)]",
+                "hover:shadow-[6px_6px_0_var(--outline-black)] md:hover:shadow-[8px_8px_0_var(--outline-black)]",
+                "hover:-translate-y-[2px]",
+                "transition-all",
+                "touch-manipulation"
               )}
               title="Quick Trade"
             >
@@ -108,42 +110,60 @@ export function QuickTradePanel({
       {/* Quick Trade Panel */}
       <AnimatePresence>
         {isOpen && (
-          <motion.div
-            ref={panelRef}
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.8, opacity: 0 }}
-            drag
-            dragMomentum={false}
-            onDragEnd={(e, info) => {
-              savePosition({ x: info.offset.x, y: info.offset.y })
-            }}
-            style={{ x: position.x, y: position.y }}
-            className={cn(
-              "fixed bottom-6 right-6 z-popover",
-              "w-80 p-4",
-              "bg-card",
-              "border-4 border-outline",
-              "shadow-[8px_8px_0_var(--outline-black)]",
-              "rounded-xl",
-              "cursor-move"
-            )}
-          >
+          <>
+            {/* Mobile backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-popover md:hidden"
+              onClick={() => setIsOpen(false)}
+            />
+
+            <motion.div
+              ref={panelRef}
+              initial={{ scale: 0.8, opacity: 0, y: window.innerWidth < 768 ? 100 : 0 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.8, opacity: 0, y: window.innerWidth < 768 ? 100 : 0 }}
+              drag={window.innerWidth >= 768 ? true : false}
+              dragMomentum={false}
+              onDragEnd={(e, info) => {
+                if (window.innerWidth >= 768) {
+                  savePosition({ x: info.offset.x, y: info.offset.y })
+                }
+              }}
+              style={window.innerWidth >= 768 ? { x: position.x, y: position.y } : {}}
+              className={cn(
+                "fixed z-popover",
+                // Mobile: full screen bottom sheet
+                "inset-x-0 bottom-0 rounded-t-2xl max-h-[85vh]",
+                // Desktop: floating panel
+                "md:inset-auto md:bottom-6 md:right-6 md:rounded-xl md:max-h-none",
+                "w-full md:w-80",
+                "p-5 md:p-4",
+                "bg-card",
+                "border-[3px] md:border-4 border-outline border-b-0 md:border-b-[3px]",
+                "shadow-[0_-4px_0_var(--outline-black)] md:shadow-[8px_8px_0_var(--outline-black)]",
+                "md:cursor-move",
+                "overflow-y-auto"
+              )}
+            >
             {/* Header with drag handle */}
-            <div className="flex items-center justify-between mb-3 cursor-grab active:cursor-grabbing">
+            <div className="flex items-center justify-between mb-4 md:cursor-grab md:active:cursor-grabbing">
               <div className="flex items-center gap-2">
-                <GripVertical className="h-4 w-4 text-outline/40" />
-                <h3 className="font-mario text-[14px] text-outline">
-                  QUICK TRADE
+                <GripVertical className="hidden md:block h-4 w-4 text-outline/40" />
+                <h3 className="font-mario text-[16px] md:text-[14px] text-outline">
+                  ⚡ QUICK TRADE
                 </h3>
               </div>
               <Button
                 size="sm"
                 variant="ghost"
                 onClick={() => setIsOpen(false)}
-                className="h-6 w-6 p-0"
+                className="h-8 w-8 md:h-6 md:w-6 p-0 touch-manipulation"
+                aria-label="Close"
               >
-                <X className="h-4 w-4" />
+                <X className="h-5 w-5 md:h-4 md:w-4" />
               </Button>
             </div>
 
@@ -182,9 +202,10 @@ export function QuickTradePanel({
                     }}
                     disabled={isTrading || amount > balance}
                     className={cn(
-                      "flex-1 h-8 text-[11px] font-bold",
+                      "flex-1 h-10 md:h-8 text-[13px] md:text-[11px] font-bold",
                       "bg-luigi hover:bg-luigi/90",
                       "border-2 border-outline",
+                      "touch-manipulation",
                       amount > balance && "opacity-50 cursor-not-allowed"
                     )}
                   >
@@ -196,10 +217,11 @@ export function QuickTradePanel({
               <div className="flex gap-2">
                 <Input
                   type="number"
+                  inputMode="decimal"
                   placeholder="Custom"
                   value={buyAmount}
                   onChange={(e) => setBuyAmount(e.target.value)}
-                  className="flex-1 h-8 text-xs"
+                  className="flex-1 h-10 md:h-8 text-[16px] md:text-xs touch-manipulation"
                   step="0.1"
                   max={balance}
                 />
@@ -207,7 +229,7 @@ export function QuickTradePanel({
                   size="sm"
                   onClick={handleBuy}
                   disabled={isTrading || !buyAmount || parseFloat(buyAmount) > balance}
-                  className="h-8 bg-luigi hover:bg-luigi/90"
+                  className="h-10 md:h-8 px-4 bg-luigi hover:bg-luigi/90 touch-manipulation"
                 >
                   Buy
                 </Button>
@@ -234,9 +256,10 @@ export function QuickTradePanel({
                     }}
                     disabled={isTrading || tokenBalance <= 0}
                     className={cn(
-                      "flex-1 h-8 text-[11px] font-bold",
+                      "flex-1 h-10 md:h-8 text-[13px] md:text-[11px] font-bold",
                       "bg-mario hover:bg-mario/90",
                       "border-2 border-outline",
+                      "touch-manipulation",
                       tokenBalance <= 0 && "opacity-50 cursor-not-allowed"
                     )}
                   >
@@ -248,10 +271,11 @@ export function QuickTradePanel({
               <div className="flex gap-2">
                 <Input
                   type="number"
+                  inputMode="decimal"
                   placeholder="Custom %"
                   value={sellPercent}
                   onChange={(e) => setSellPercent(e.target.value)}
-                  className="flex-1 h-8 text-xs"
+                  className="flex-1 h-10 md:h-8 text-[16px] md:text-xs touch-manipulation"
                   step="1"
                   min="1"
                   max="100"
@@ -260,7 +284,7 @@ export function QuickTradePanel({
                   size="sm"
                   onClick={handleSell}
                   disabled={isTrading || !sellPercent || tokenBalance <= 0}
-                  className="h-8 bg-mario hover:bg-mario/90"
+                  className="h-10 md:h-8 px-4 bg-mario hover:bg-mario/90 touch-manipulation"
                 >
                   Sell
                 </Button>
@@ -268,7 +292,7 @@ export function QuickTradePanel({
             </div>
 
             {/* Balance info */}
-            <div className="mt-3 pt-3 border-t border-outline/20 text-[9px] text-outline/60 space-y-1">
+            <div className="mt-3 pt-3 border-t border-outline/20 text-[9px] md:text-[9px] text-outline/60 space-y-1">
               <div className="flex justify-between">
                 <span>SOL Balance:</span>
                 <span className="font-mono font-bold">{balance.toFixed(2)}</span>
@@ -279,6 +303,7 @@ export function QuickTradePanel({
               </div>
             </div>
           </motion.div>
+          </>
         )}
       </AnimatePresence>
     </>

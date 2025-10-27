@@ -205,7 +205,7 @@ export function RewardsCard({ userId, walletAddress }: RewardsCardProps) {
 
         {/* Global Stats */}
         {rewardStats && (
-          <div className="p-4 rounded-lg bg-muted/50">
+          <div className="p-4 rounded-[14px] bg-muted/50">
             <h4 className="font-medium mb-3">Global Reward Stats</h4>
             <div className="grid grid-cols-3 gap-4 text-sm">
               <div>
@@ -280,7 +280,7 @@ export function RewardsCard({ userId, walletAddress }: RewardsCardProps) {
             </h4>
             <div className="space-y-2">
               {unclaimedRewards.map((claim) => (
-                <div key={claim.id} className="flex items-center justify-between p-3 rounded-lg border">
+                <div key={claim.id} className="flex items-center justify-between p-3 rounded-[14px] border">
                   <div className="flex items-center gap-3">
                     <Badge variant="secondary">Week {claim.epoch}</Badge>
                     <div>
@@ -312,7 +312,7 @@ export function RewardsCard({ userId, walletAddress }: RewardsCardProps) {
             </h4>
             <div className="space-y-2 max-h-48 overflow-y-auto">
               {claimedRewards.map((claim) => (
-                <div key={claim.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
+                <div key={claim.id} className="flex items-center justify-between p-3 rounded-[14px] bg-muted/30">
                   <div className="flex items-center gap-3">
                     <Badge variant="outline">Week {claim.epoch}</Badge>
                     <div>

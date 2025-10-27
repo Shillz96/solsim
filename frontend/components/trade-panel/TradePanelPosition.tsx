@@ -34,7 +34,7 @@ export function TradePanelPosition({
       className="space-y-2"
     >
       {/* Holdings Display - Always visible */}
-      <div className="bg-star/20 border-2 border-star rounded-lg p-1.5 shadow-[2px_2px_0_var(--outline-black)]">
+      <div className="bg-star/20 border-2 border-star rounded-[14px] p-1.5 shadow-[2px_2px_0_var(--outline-black)]">
         <div className="flex items-center gap-1 text-[9px] text-outline/70 font-bold">
           <Coins className="h-3 w-3" />
           <span>Holdings</span>
@@ -48,7 +48,7 @@ export function TradePanelPosition({
 
       {/* Real-Time PnL Display - Always visible */}
       <div className={cn(
-        'border-2 rounded-lg p-2 shadow-[3px_3px_0_var(--outline-black)] relative overflow-hidden',
+        'border-2 rounded-[14px] p-2 shadow-[3px_3px_0_var(--outline-black)] relative overflow-hidden',
         hasSignificantPnL
           ? isProfit
             ? 'bg-luigi/20 border-luigi'

@@ -533,7 +533,7 @@ export function LightweightChart({
                 'px-2 md:px-2.5 py-1 md:py-1.5 text-[10px] md:text-xs font-bold rounded-lg border-2 border-outline transition-all',
                 chartType === type
                   ? 'bg-luigi text-white shadow-[2px_2px_0_var(--outline-black)]'
-                  : 'bg-card hover:bg-gray-100 shadow-[1px_1px_0_var(--outline-black)]'
+                  : 'bg-card hover:bg-muted shadow-[1px_1px_0_var(--outline-black)]'
               )}
             >
               {label}
@@ -593,23 +593,23 @@ export function LightweightChart({
         {tooltipData && (
           <div className="absolute top-2 left-2 md:top-3 md:left-3 bg-[#0A0A0F]/90 backdrop-blur-sm border-2 border-[#2B2B43] rounded-lg p-2 md:p-3 pointer-events-none z-10 shadow-[2px_2px_0_rgba(0,0,0,0.5)]">
             <div className="grid grid-cols-2 gap-x-3 md:gap-x-4 gap-y-1 text-xs md:text-sm font-mono">
-              <div className="text-gray-400">O</div>
+              <div className="text-[var(--outline-black)]/50">O</div>
               <div className="text-white font-bold">${tooltipData.open.toFixed(tooltipData.open < 0.01 ? 8 : 4)}</div>
 
-              <div className="text-gray-400">H</div>
+              <div className="text-[var(--outline-black)]/50">H</div>
               <div className="text-[#26a69a] font-bold">${tooltipData.high.toFixed(tooltipData.high < 0.01 ? 8 : 4)}</div>
 
-              <div className="text-gray-400">L</div>
+              <div className="text-[var(--outline-black)]/50">L</div>
               <div className="text-[#ef5350] font-bold">${tooltipData.low.toFixed(tooltipData.low < 0.01 ? 8 : 4)}</div>
 
-              <div className="text-gray-400">C</div>
+              <div className="text-[var(--outline-black)]/50">C</div>
               <div className={cn('font-bold', tooltipData.close >= tooltipData.open ? 'text-[#26a69a]' : 'text-[#ef5350]')}>
                 ${tooltipData.close.toFixed(tooltipData.close < 0.01 ? 8 : 4)}
               </div>
 
               {tooltipData.volume && (
                 <>
-                  <div className="text-gray-400">Vol</div>
+                  <div className="text-[var(--outline-black)]/50">Vol</div>
                   <div className="text-[#A6D8FF] font-bold">
                     {tooltipData.volume >= 1000000
                       ? `${(tooltipData.volume / 1000000).toFixed(2)}M`

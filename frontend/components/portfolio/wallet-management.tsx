@@ -236,7 +236,7 @@ export function WalletManagement() {
                 Across {wallets.length} wallet{wallets.length !== 1 ? 's' : ''}
               </p>
             </div>
-            <div className="bg-card/30 p-4 rounded-lg border-3 border-pipe-700">
+            <div className="bg-card/30 p-4 rounded-[14px] border-3 border-pipe-700">
               <Wallet2 className="h-12 w-12 text-pipe-800" />
             </div>
           </div>

@@ -110,7 +110,7 @@ export function PortfolioStatsWidget() {
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: index * 0.1 }}
-              className="flex items-center justify-between p-3 bg-muted/20 rounded-lg hover:bg-muted/30 transition-colors"
+              className="flex items-center justify-between p-3 bg-muted/20 rounded-[14px] hover:bg-muted/30 transition-colors"
             >
               <div className="flex items-center gap-2">
                 <div className={`p-1.5 rounded ${stat.bg}`}>

@@ -123,7 +123,7 @@ export function WalletManagementPanel() {
         {/* Error State */}
         {error && (
           <div className="text-center py-6">
-            <div className="bg-mario-red-50 border-3 border-mario-red-500 rounded-lg p-4 mb-4">
+            <div className="bg-mario-red-50 border-3 border-mario-red-500 rounded-[14px] p-4 mb-4">
               <AlertTriangle className="h-8 w-8 text-mario-red-600 mx-auto mb-2" />
               <p className="text-sm font-bold text-mario-red-800 mb-1">Error Loading Wallets</p>
               <p className="text-xs text-mario-red-600">Please try refreshing the page</p>
@@ -134,7 +134,7 @@ export function WalletManagementPanel() {
         {/* Empty State */}
         {!isLoading && !error && wallets.length === 0 && (
           <div className="text-center py-6">
-            <div className="bg-star/20 border-3 border-star rounded-lg p-4 mb-4">
+            <div className="bg-star/20 border-3 border-star rounded-[14px] p-4 mb-4">
               <Wallet2 className="h-8 w-8 text-mario-red mx-auto mb-2" />
               <p className="text-sm font-bold text-outline mb-1">No Wallets Found</p>
               <p className="text-xs text-muted-foreground font-semibold">Create your first wallet to get started!</p>
@@ -157,7 +157,7 @@ export function WalletManagementPanel() {
             {wallets.slice(0, 3).map((wallet) => (
               <div
                 key={wallet.id}
-                className="bg-card/80 border-3 border-outline shadow-[3px_3px_0_var(--outline-black)] rounded-lg p-3 hover:bg-card transition-colors"
+                className="bg-card/80 border-3 border-outline shadow-[3px_3px_0_var(--outline-black)] rounded-[14px] p-3 hover:bg-card transition-colors"
               >
                 <div className="flex items-center justify-between">
                   <div className="flex-1 min-w-0">

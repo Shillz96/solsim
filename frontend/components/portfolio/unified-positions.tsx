@@ -504,7 +504,7 @@ export const UnifiedPositions = memo(function UnifiedPositions({
                     href={`/room/${position.mint}`}
                     className="block"
                   >
-                    <div className="p-3 rounded-lg border border-border hover:border-primary/50 transition-colors group">
+                    <div className="p-3 rounded-[14px] border border-border hover:border-primary/50 transition-colors group">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2 min-w-0 flex-1">
                           {position.tokenImage ? (
@@ -583,7 +583,7 @@ export const UnifiedPositions = memo(function UnifiedPositions({
         <div className="bg-card border-4 border-pipe-700 rounded-xl shadow-[6px_6px_0_0_rgba(0,0,0,0.3)] p-6">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
-              <div className="bg-star-yellow-500 p-2 rounded-lg border-3 border-star-yellow-700 shadow-[3px_3px_0_0_rgba(0,0,0,0.3)]">
+              <div className="bg-star-yellow-500 p-2 rounded-[14px] border-3 border-star-yellow-700 shadow-[3px_3px_0_0_rgba(0,0,0,0.3)]">
                 <BarChart3 className="h-6 w-6 text-white" />
               </div>
               <h2 className="text-xl font-bold text-pipe-900">Portfolio Overview</h2>
@@ -605,7 +605,7 @@ export const UnifiedPositions = memo(function UnifiedPositions({
 
           {/* Main Stats - Mario Block Style */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <div className="text-center p-4 bg-sky-100 border-3 border-pipe-600 rounded-lg shadow-[3px_3px_0_0_rgba(0,0,0,0.2)]">
+            <div className="text-center p-4 bg-sky-100 border-3 border-pipe-600 rounded-[14px] shadow-[3px_3px_0_0_rgba(0,0,0,0.2)]">
               <p className="text-sm font-bold text-pipe-700 uppercase mb-2">Total Value</p>
               <div className="text-2xl font-bold text-pipe-900">
                 <UsdWithSol
@@ -617,7 +617,7 @@ export const UnifiedPositions = memo(function UnifiedPositions({
             </div>
 
             <div className={cn(
-              "text-center p-4 border-3 rounded-lg shadow-[3px_3px_0_0_rgba(0,0,0,0.2)]",
+              "text-center p-4 border-3 rounded-[14px] shadow-[3px_3px_0_0_rgba(0,0,0,0.2)]",
               liveTotals.totalPnlUsd >= 0
                 ? "bg-luigi-green-100 border-luigi-green-600"
                 : "bg-mario-red-100 border-mario-red-600"
@@ -646,7 +646,7 @@ export const UnifiedPositions = memo(function UnifiedPositions({
               </p>
             </div>
 
-            <div className="text-center p-4 bg-star-yellow-100 border-3 border-star-yellow-600 rounded-lg shadow-[3px_3px_0_0_rgba(0,0,0,0.2)]">
+            <div className="text-center p-4 bg-star-yellow-100 border-3 border-star-yellow-600 rounded-[14px] shadow-[3px_3px_0_0_rgba(0,0,0,0.2)]">
               <p className="text-sm font-bold text-pipe-700 uppercase mb-2">Active Positions</p>
               <p className="text-2xl font-bold text-pipe-900">{liveTotals.positionCount}</p>
             </div>
@@ -695,7 +695,7 @@ export const UnifiedPositions = memo(function UnifiedPositions({
       <div className="bg-card border-4 border-pipe-700 rounded-xl shadow-[6px_6px_0_0_rgba(0,0,0,0.3)] p-6">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
-            <div className="bg-mario-red-500 p-2 rounded-lg border-3 border-mario-red-700 shadow-[3px_3px_0_0_rgba(0,0,0,0.3)]">
+            <div className="bg-mario-red-500 p-2 rounded-[14px] border-3 border-mario-red-700 shadow-[3px_3px_0_0_rgba(0,0,0,0.3)]">
               <Wallet className="h-5 w-5 text-white" />
             </div>
             <h3 className="text-xl font-bold text-pipe-900">Active Positions</h3>

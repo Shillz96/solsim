@@ -201,39 +201,39 @@ export function TokenDetailsHeader({ tokenAddress }: TokenDetailsHeaderProps) {
       <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-blue-500"></div>
 
       {/* Mobile Compact Layout */}
-      <div className="relative z-10 p-3 md:p-6 lg:hidden">
-        <div className="flex items-start gap-2">
-          {/* Token Image - Smaller on Mobile */}
+      <div className="relative z-10 p-4 md:p-6 lg:hidden">
+        <div className="flex items-start gap-3">
+          {/* Token Image - Optimized for mobile */}
           <div className="relative flex-shrink-0">
             <TokenLogo
               src={tokenDetails.imageUrl || tokenDetails.logoURI || undefined}
               alt={tokenDetails.name || 'Token'}
               mint={tokenAddress}
-              className="w-10 h-10 ring-1 ring-primary/20"
+              className="w-12 h-12 sm:w-14 sm:h-14 ring-2 ring-primary/20"
             />
             {(tokenDetails.isNew || tokenDetails.isTrending) && (
-              <div className="absolute -top-1 -right-1 w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+              <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse"></div>
             )}
           </div>
 
-          {/* Token Info - Compact */}
+          {/* Token Info - Optimized spacing */}
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <h1 className="text-lg font-bold">
+              <h1 className="text-[18px] sm:text-xl font-bold leading-tight">
                 {tokenDetails.symbol}
               </h1>
-              <span className="text-xs text-muted-foreground truncate max-w-[120px]">
+              <span className="text-sm sm:text-base text-muted-foreground truncate max-w-[140px] sm:max-w-[180px]">
                 {tokenDetails.name}
               </span>
             </div>
 
-            {/* Contract Address - Super Compact */}
-            <div className="text-xs text-muted-foreground font-mono mt-1">
+            {/* Contract Address - Readable on mobile */}
+            <div className="text-xs sm:text-sm text-muted-foreground font-mono mt-1.5">
               {tokenAddress.slice(0, 6)}...{tokenAddress.slice(-4)}
             </div>
 
-            {/* Social Links - Compact Icons Only */}
-            <div className="flex gap-1 mt-1.5">
+            {/* Social Links - Touch-friendly */}
+            <div className="flex gap-1.5 mt-2">
               <TooltipProvider>
                 {socials.slice(0, 1).map((social: string, index: number) => (
                   <Link
@@ -242,7 +242,7 @@ export function TokenDetailsHeader({ tokenAddress }: TokenDetailsHeaderProps) {
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0 touch-manipulation">
                       {getSocialIcon(social)}
                     </Button>
                   </Link>
@@ -252,8 +252,8 @@ export function TokenDetailsHeader({ tokenAddress }: TokenDetailsHeaderProps) {
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
-                    <ExternalLink className="h-3 w-3" />
+                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0 touch-manipulation">
+                    <ExternalLink className="h-4 w-4" />
                   </Button>
                 </Link>
               </TooltipProvider>
@@ -261,19 +261,19 @@ export function TokenDetailsHeader({ tokenAddress }: TokenDetailsHeaderProps) {
           </div>
         </div>
 
-        {/* Metrics - Compact Grid */}
-        <div className="grid grid-cols-2 gap-2 mt-3">
-          <div className="text-left p-2 bg-muted/30 rounded">
-            <div className="text-xs text-muted-foreground mb-0.5">Price</div>
-            <div className="flex items-center gap-1">
+        {/* Metrics - Responsive Grid */}
+        <div className="grid grid-cols-2 gap-2 sm:gap-3 mt-4">
+          <div className="text-left p-2.5 sm:p-3 bg-muted/30 rounded-lg">
+            <div className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wide mb-1">Price</div>
+            <div className="flex flex-col sm:flex-row sm:items-center gap-0.5 sm:gap-1">
               <PriceCell
                 priceUSD={currentPrice}
                 priceChangePercent={priceChange ?? undefined}
-                className="text-sm font-mono font-bold"
+                className="text-sm sm:text-base font-mono font-bold leading-tight"
                 showSolEquiv={false}
               />
               {priceChange !== undefined && priceChange !== null && (
-                <span className={`text-xs ${isPositiveChange ? 'text-green-400' : isNegativeChange ? 'text-red-400' : 'text-muted-foreground'}`}>
+                <span className={`text-[10px] sm:text-xs font-bold ${isPositiveChange ? 'text-green-400' : isNegativeChange ? 'text-red-400' : 'text-muted-foreground'}`}>
                   {priceChange >= 0 ? '+' : ''}{priceChange.toFixed(1)}%
                 </span>
               )}
@@ -281,33 +281,33 @@ export function TokenDetailsHeader({ tokenAddress }: TokenDetailsHeaderProps) {
           </div>
 
           {tokenDetails.marketCapUsd && (
-            <div className="text-left p-2 bg-muted/30 rounded">
-              <div className="text-xs text-muted-foreground mb-0.5">MCap</div>
+            <div className="text-left p-2.5 sm:p-3 bg-muted/30 rounded-lg">
+              <div className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wide mb-1">MCap</div>
               <MoneyCell
                 usd={Number(tokenDetails.marketCapUsd)}
-                className="text-sm font-mono font-bold"
+                className="text-sm sm:text-base font-mono font-bold leading-tight"
                 hideSolEquiv={true}
               />
             </div>
           )}
 
           {tokenDetails.volume24h && (
-            <div className="text-left p-2 bg-muted/30 rounded">
-              <div className="text-xs text-muted-foreground mb-0.5">24h Vol</div>
+            <div className="text-left p-2.5 sm:p-3 bg-muted/30 rounded-lg">
+              <div className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wide mb-1">24h Vol</div>
               <MoneyCell
                 usd={Number(tokenDetails.volume24h)}
-                className="text-sm font-mono font-bold"
+                className="text-sm sm:text-base font-mono font-bold leading-tight"
                 hideSolEquiv={true}
               />
             </div>
           )}
 
           {tokenDetails.liquidityUsd && (
-            <div className="text-left p-2 bg-muted/30 rounded">
-              <div className="text-xs text-muted-foreground mb-0.5">Liquidity</div>
+            <div className="text-left p-2.5 sm:p-3 bg-muted/30 rounded-lg">
+              <div className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wide mb-1">Liquidity</div>
               <MoneyCell
                 usd={Number(tokenDetails.liquidityUsd)}
-                className="text-sm font-mono font-bold"
+                className="text-sm sm:text-base font-mono font-bold leading-tight"
                 hideSolEquiv={true}
               />
             </div>

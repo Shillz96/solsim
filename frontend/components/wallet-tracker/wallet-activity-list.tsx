@@ -60,7 +60,7 @@ const WALLET_COLORS = [
   'text-purple-500',
   'text-red-500',
   'text-amber-700',
-  'text-gray-600'
+  'text-[var(--outline-black)]/80'
 ] as const;
 
 function getWalletColor(address: string): string {

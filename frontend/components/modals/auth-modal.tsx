@@ -262,7 +262,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
               <div className="flex items-center gap-3">
                 <button
                   onClick={() => setCurrentView('login')}
-                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                  className="p-2 hover:bg-muted rounded-lg transition-colors"
                 >
                   <ArrowLeft className="h-4 w-4" />
                 </button>
@@ -312,7 +312,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
               </p>
               <button 
                 onClick={() => setCurrentView('login')} 
-                className="w-full h-11 px-4 rounded-lg border-3 border-outline bg-card hover:bg-gray-50 shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all font-mario"
+                className="w-full h-11 px-4 rounded-lg border-3 border-outline bg-card hover:bg-muted shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all font-mario"
               >
                 Back to Login
               </button>

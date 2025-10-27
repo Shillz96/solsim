@@ -96,7 +96,7 @@ export function WalletTrackerPanel() {
           {/* Empty State */}
           {!isLoading && (!trackedWallets || trackedWallets.length === 0) && (
             <div className="text-center py-6">
-              <div className="bg-star/20 border-3 border-star rounded-lg p-4 mb-4">
+              <div className="bg-star/20 border-3 border-star rounded-[14px] p-4 mb-4">
                 <Eye className="h-8 w-8 text-mario-red mx-auto mb-2" />
                 <p className="text-sm font-bold text-outline mb-1">No Wallets Tracked</p>
                 <p className="text-xs text-muted-foreground font-semibold">Start tracking KOL wallets to copy their trades!</p>
@@ -119,7 +119,7 @@ export function WalletTrackerPanel() {
               {trackedWallets.slice(0, 3).map((wallet) => (
                 <div
                   key={wallet.id}
-                  className="bg-card/80 border-3 border-outline shadow-[3px_3px_0_var(--outline-black)] rounded-lg p-3 hover:bg-card transition-colors"
+                  className="bg-card/80 border-3 border-outline shadow-[3px_3px_0_var(--outline-black)] rounded-[14px] p-3 hover:bg-card transition-colors"
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex-1 min-w-0">
@@ -136,7 +136,7 @@ export function WalletTrackerPanel() {
                       variant={wallet.isActive ? "default" : "secondary"}
                       className={cn(
                         "text-xs font-bold ml-2",
-                        wallet.isActive ? "bg-luigi-green text-white" : "bg-gray-300 text-gray-600"
+                        wallet.isActive ? "bg-luigi-green text-white" : "bg-[var(--pipe-green)]/20 text-[var(--outline-black)]/80"
                       )}
                     >
                       {wallet.isActive ? "Active" : "Paused"}

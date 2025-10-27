@@ -216,7 +216,7 @@ export default function RewardsPage() {
                 </thead>
                 <tbody>
                   {levelData.map((level) => (
-                    <tr key={level.level} className="hover:bg-gray-50">
+                    <tr key={level.level} className="hover:bg-muted">
                       <td className="border-2 border-outline p-2 font-bold text-outline">{level.level}</td>
                       <td className="border-2 border-outline p-2 text-outline">{level.title}</td>
                       <td className="border-2 border-outline p-2 text-outline">{level.xp.toLocaleString()}</td>
@@ -242,7 +242,7 @@ export default function RewardsPage() {
             <p className="text-outline mb-4 font-semibold">1UP Points = real utility. You can:</p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {redemptionOptions.map((option, i) => (
-                <div key={i} className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg border-2 border-outline">
+                <div key={i} className="flex items-start gap-3 p-3 bg-muted rounded-lg border-2 border-outline">
                   <span className="text-2xl">{option.icon}</span>
                   <div>
                     <h3 className="font-bold text-outline mb-1">{option.option}</h3>
@@ -302,7 +302,7 @@ export default function RewardsPage() {
                 </thead>
                 <tbody>
                   {achievements.map((ach, i) => (
-                    <tr key={i} className="hover:bg-gray-50">
+                    <tr key={i} className="hover:bg-muted">
                       <td className="border-2 border-outline p-2 text-outline">{ach.achievement}</td>
                       <td className="border-2 border-outline p-2 text-outline">{ach.requirement}</td>
                       <td className="border-2 border-outline p-2 font-semibold text-outline">{ach.reward}</td>

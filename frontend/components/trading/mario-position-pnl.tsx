@@ -212,7 +212,7 @@ export function MarioPositionPnL({ tokenAddress, tokenSymbol, tokenName }: Mario
         initial={{ scale: 0.95, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         className={cn(
-          "p-3 rounded-lg border-3 border-outline mb-3 shadow-md relative overflow-hidden",
+          "p-3 rounded-lg border-3 border-outline mb-3 shadow-[3px_3px_0_var(--outline-black)] relative overflow-hidden",
           isPositive
             ? "bg-gradient-to-br from-[var(--luigi-green)]/20 to-[var(--luigi-green)]/10"
             : "bg-gradient-to-br from-[var(--mario-red)]/20 to-[var(--mario-red)]/10"

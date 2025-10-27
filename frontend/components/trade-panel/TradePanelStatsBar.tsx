@@ -28,7 +28,7 @@ export function TradePanelStatsBar({
   return (
     <div className="grid grid-cols-4 gap-2">
       {/* Bought */}
-      <div className="bg-white border-2 border-outline rounded-lg p-3 flex flex-col items-center justify-center shadow-[2px_2px_0_var(--outline-black)]">
+      <div className="bg-white border-2 border-outline rounded-[14px] p-3 flex flex-col items-center justify-center shadow-[2px_2px_0_var(--outline-black)]">
         <div className="text-[10px] font-bold text-outline/60 uppercase tracking-tight mb-1">
           Bought
         </div>
@@ -38,7 +38,7 @@ export function TradePanelStatsBar({
       </div>
 
       {/* Sold */}
-      <div className="bg-white border-2 border-outline rounded-lg p-3 flex flex-col items-center justify-center shadow-[2px_2px_0_var(--outline-black)]">
+      <div className="bg-white border-2 border-outline rounded-[14px] p-3 flex flex-col items-center justify-center shadow-[2px_2px_0_var(--outline-black)]">
         <div className="text-[10px] font-bold text-outline/60 uppercase tracking-tight mb-1">
           Sold
         </div>
@@ -48,7 +48,7 @@ export function TradePanelStatsBar({
       </div>
 
       {/* Holding */}
-      <div className="bg-white border-2 border-outline rounded-lg p-3 flex flex-col items-center justify-center shadow-[2px_2px_0_var(--outline-black)]">
+      <div className="bg-white border-2 border-outline rounded-[14px] p-3 flex flex-col items-center justify-center shadow-[2px_2px_0_var(--outline-black)]">
         <div className="text-[10px] font-bold text-outline/60 uppercase tracking-tight mb-1">
           Holding
         </div>
@@ -59,7 +59,7 @@ export function TradePanelStatsBar({
 
       {/* PnL */}
       <div className={cn(
-        "border-2 border-outline rounded-lg p-3 flex flex-col items-center justify-center shadow-[2px_2px_0_var(--outline-black)]",
+        "border-2 border-outline rounded-[14px] p-3 flex flex-col items-center justify-center shadow-[2px_2px_0_var(--outline-black)]",
         isProfit ? "bg-luigi/10" : "bg-mario/10"
       )}>
         <div className="text-[10px] font-bold text-outline/60 uppercase tracking-tight mb-1">

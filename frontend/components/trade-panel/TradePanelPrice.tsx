@@ -14,7 +14,7 @@ interface TradePanelPriceProps {
 
 export function TradePanelPrice({ currentPrice, solPrice }: TradePanelPriceProps) {
   return (
-    <div className="p-2 border border-outline/20 rounded-lg bg-white">
+    <div className="p-2 border border-outline/20 rounded-[14px] bg-white">
       <div className="text-[10px] font-bold text-outline/60 uppercase tracking-tight">
         Current Price
       </div>

@@ -296,9 +296,9 @@ function TradeRoomContent() {
       {/* Main Content - 3 Column Layout */}
       <main className="flex-1 flex gap-4 p-4 overflow-hidden">
         {/* MOBILE LAYOUT */}
-        <div className="md:hidden flex flex-col w-full h-full gap-4">
-          {/* Chart */}
-          <div className="min-h-[400px] h-[400px] overflow-hidden rounded-xl border-4 border-outline shadow-[6px_6px_0_var(--outline-black)]">
+        <div className="md:hidden flex flex-col w-full h-full gap-3 sm:gap-4">
+          {/* Chart - Responsive heights for different screen sizes */}
+          <div className="h-[300px] sm:h-[400px] overflow-hidden rounded-xl border-[3px] md:border-4 border-outline shadow-[4px_4px_0_var(--outline-black)] sm:shadow-[6px_6px_0_var(--outline-black)]">
             <DexScreenerChart tokenAddress={ca} />
           </div>
 
@@ -345,8 +345,8 @@ function TradeRoomContent() {
 
           {/* Center: Market Data Panel with Chart */}
           <section className="flex-1 min-w-0 flex flex-col gap-4">
-            {/* Chart */}
-            <div className="flex-1 min-h-[400px] overflow-hidden rounded-xl border-4 border-outline shadow-[6px_6px_0_var(--outline-black)]">
+            {/* Chart - Larger on desktop for better visibility */}
+            <div className="flex-1 min-h-[450px] lg:min-h-[500px] overflow-hidden rounded-xl border-4 border-outline shadow-[6px_6px_0_var(--outline-black)]">
               <DexScreenerChart tokenAddress={ca} />
             </div>
 

@@ -206,7 +206,7 @@ export function SharePnLDialog({ totalPnL, totalPnLPercent, currentValue, initia
               {/* Header with Logo */}
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 bg-gradient-to-br from-primary via-primary/80 to-primary/60 rounded-lg flex items-center justify-center shadow-lg shadow-primary/20">
+                  <div className="w-7 h-7 bg-gradient-to-br from-primary via-primary/80 to-primary/60 rounded-lg flex items-center justify-center shadow-[4px_4px_0_var(--outline-black)] shadow-primary/20">
                     <svg viewBox="0 0 24 24" fill="none" className="w-4 h-4">
                       <path d="M13 2L3 14h8l-1 8 10-12h-8l1-8z" fill="white" />
                     </svg>
@@ -345,7 +345,7 @@ export function SharePnLDialog({ totalPnL, totalPnLPercent, currentValue, initia
             </button>
             <button
               onClick={handleCopy}
-              className="flex-1 gap-2 h-10 px-4 rounded-lg border-3 border-outline bg-card hover:bg-gray-50 shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all flex items-center justify-center font-mario disabled:opacity-50"
+              className="flex-1 gap-2 h-10 px-4 rounded-lg border-3 border-outline bg-card hover:bg-muted shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all flex items-center justify-center font-mario disabled:opacity-50"
               disabled={isGenerating}
             >
               {isGenerating ? (

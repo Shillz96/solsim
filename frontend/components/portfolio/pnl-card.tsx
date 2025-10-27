@@ -104,7 +104,7 @@ function EmptyPnLState() {
       
       <button 
         onClick={() => window.location.href = '/warp-pipes'}
-        className="gap-2 h-10 px-6 rounded-lg border-3 border-outline bg-luigi text-white hover:bg-luigi/90 shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all flex items-center font-mario"
+        className="gap-2 h-10 px-6 rounded-[14px] border-3 border-outline bg-luigi text-white hover:bg-luigi/90 shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all flex items-center font-mario"
       >
         <TrendingUp className="w-4 h-4" />
         Start Trading
@@ -247,7 +247,7 @@ export function PnLCard() {
               </span>
               <button 
                 onClick={handleRefresh}
-                className="h-8 px-3 rounded-lg border-3 border-outline bg-card hover:bg-gray-50 shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all font-mario text-sm"
+                className="h-8 px-3 rounded-[14px] border-3 border-outline bg-card hover:bg-muted shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all font-mario text-sm"
               >
                 Retry
               </button>
@@ -295,7 +295,7 @@ export function PnLCard() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className={cn(
-                "p-2 rounded-lg border-3 border-outline shadow-[2px_2px_0_var(--outline-black)]",
+                "p-2 rounded-[14px] border-3 border-outline shadow-[2px_2px_0_var(--outline-black)]",
                 isPositive ? "bg-luigi" : "bg-mario"
               )}>
                 <PnLIcon className="h-5 w-5 text-white" />
@@ -321,7 +321,7 @@ export function PnLCard() {
               <button
                 onClick={handleRefresh}
                 disabled={isRefetching}
-                className="shrink-0 h-9 w-9 rounded-lg border-3 border-outline bg-card hover:bg-gray-50 shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all flex items-center justify-center"
+                className="shrink-0 h-9 w-9 rounded-[14px] border-3 border-outline bg-card hover:bg-muted shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all flex items-center justify-center"
               >
                 <RefreshCw className={cn(
                   "h-4 w-4",
@@ -331,7 +331,7 @@ export function PnLCard() {
               
               <button
                 onClick={handleShare}
-                className="gap-2 h-9 px-4 rounded-lg border-3 border-outline bg-card hover:bg-gray-50 shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all flex items-center font-mario text-sm"
+                className="gap-2 h-9 px-4 rounded-[14px] border-3 border-outline bg-card hover:bg-muted shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all flex items-center font-mario text-sm"
               >
                 <Share2 className="h-4 w-4" />
                 <span className="hidden sm:inline">Share</span>

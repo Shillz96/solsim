@@ -33,17 +33,17 @@ function LeaderboardRow({
   const getRankBadge = () => {
     if (rank === 1) return (
       <div className="rank-badge rank-1 relative w-10 h-10 flex items-center justify-center">
-        <img src="/icons/mario/1st.png" alt="1st place" className="w-10 h-10 drop-shadow-md" />
+        <img src="/icons/mario/1st.png" alt="1st place" className="w-10 h-10 drop-shadow-[3px_3px_0_var(--outline-black)]" />
       </div>
     )
     if (rank === 2) return (
       <div className="rank-badge rank-2 relative w-10 h-10 flex items-center justify-center">
-        <img src="/icons/mario/2nd-place.png" alt="2nd place" className="w-10 h-10 drop-shadow-md" />
+        <img src="/icons/mario/2nd-place.png" alt="2nd place" className="w-10 h-10 drop-shadow-[3px_3px_0_var(--outline-black)]" />
       </div>
     )
     if (rank === 3) return (
       <div className="rank-badge rank-3 relative w-10 h-10 flex items-center justify-center">
-        <img src="/icons/mario/3rd.png" alt="3rd place" className="w-10 h-10 drop-shadow-md" />
+        <img src="/icons/mario/3rd.png" alt="3rd place" className="w-10 h-10 drop-shadow-[3px_3px_0_var(--outline-black)]" />
       </div>
     )
     return <div className="rank-badge">{rank}</div>
