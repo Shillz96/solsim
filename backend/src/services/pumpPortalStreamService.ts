@@ -109,7 +109,7 @@ class PumpPortalStreamService extends EventEmitter {
     // Multiple services subscribe to events from this single shared instance:
     // - tokenDiscoveryWorker, marketLighthouseWorker, walletTrackerService, etc.
     // This is intentional event-driven architecture, not a memory leak.
-    this.setMaxListeners(100); // Support 100+ concurrent listeners
+    this.setMaxListeners(200); // Increased from 100 to prevent memory leak warnings
     
     // Add API key to URL if available for PumpSwap stream access
     const apiKey = process.env.PUMPPORTAL_API_KEY;

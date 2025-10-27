@@ -234,7 +234,7 @@ class OptimizedPriceService extends EventEmitter {
     super();
 
     // Fix EventEmitter memory leak warning
-    this.setMaxListeners(100); // Allow up to 100 listeners for price service
+    this.setMaxListeners(200); // Increased from 100 to prevent memory leak warnings
 
     // HELIUS WEBSOCKET DISABLED - API key check removed
     // const apiKey = process.env.HELIUS_API;
