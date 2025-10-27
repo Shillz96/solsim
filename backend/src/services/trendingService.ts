@@ -18,6 +18,7 @@ export interface TrendingToken {
   priceChange6h?: number;
   volume24h: number;
   marketCapUsd: number | null;
+  holderCount: string | null; // Holder count from Token table or Helius
   tradeCount: number;
   uniqueTraders: number;
 }
@@ -41,34 +42,36 @@ export async function getTrendingTokens(limit: number = 20, sortBy: BirdeyeSortB
     const birdeyeTrending = await getBirdeyeTrending(limit, sortBy);
 
     if (birdeyeTrending.length > 0) {
-      // Birdeye already provides all necessary data - return directly for speed
-      // Internal stats (tradeCount, uniqueTraders) are mostly 0 for trending tokens anyway
-      console.log(`Returning ${birdeyeTrending.length} Birdeye trending tokens (fast mode)`);
+      // Enrich with holder count data from Token table
+      const enrichedWithHolders = await enrichWithHolderCounts(birdeyeTrending);
+      console.log(`Returning ${enrichedWithHolders.length} Birdeye trending tokens with holder data`);
 
       // Cache result in Redis for 60 seconds
       try {
-        await redis.setex(cacheKey, 60, safeStringify(birdeyeTrending));
+        await redis.setex(cacheKey, 60, safeStringify(enrichedWithHolders));
       } catch (error) {
         console.warn('Failed to cache trending tokens:', error);
       }
 
-      return birdeyeTrending;
+      return enrichedWithHolders;
     }
 
     // Fallback to DexScreener if Birdeye fails
     console.log('Birdeye failed, trying DexScreener fallback');
     const dexTrending = await getDexScreenerTrending(limit);
-    console.log(`DexScreener returned ${dexTrending.length} tokens (fast mode - no enrichment)`);
-    // Skip internal enrichment for performance - DexScreener data is sufficient
+    console.log(`DexScreener returned ${dexTrending.length} tokens`);
+
+    // Enrich with holder count data from Token table
+    const enrichedDex = await enrichWithHolderCounts(dexTrending);
 
     // Cache DexScreener result
     try {
-      await redis.setex(cacheKey, 60, safeStringify(dexTrending));
+      await redis.setex(cacheKey, 60, safeStringify(enrichedDex));
     } catch (error) {
       console.warn('Failed to cache trending tokens:', error);
     }
 
-    return dexTrending;
+    return enrichedDex;
 
   } catch (error) {
     console.error('Error fetching trending tokens:', error);
@@ -77,6 +80,36 @@ export async function getTrendingTokens(limit: number = 20, sortBy: BirdeyeSortB
     console.log('All external APIs failed, using internal data fallback');
     return getInternalTrendingTokens(limit);
   }
+}
+
+/**
+ * Batch fetch holder counts from Token table for trending tokens
+ * This is much faster than individual queries per token
+ */
+async function enrichWithHolderCounts(tokens: TrendingToken[]): Promise<TrendingToken[]> {
+  const mints = tokens.map(t => t.mint);
+
+  // Batch query Token table for holder counts
+  const tokenData = await prisma.token.findMany({
+    where: {
+      address: { in: mints }
+    },
+    select: {
+      address: true,
+      holderCount: true
+    }
+  });
+
+  // Build lookup map for O(1) access (convert BigInt to string)
+  const holderCountMap = new Map<string, string | null>(
+    tokenData.map(token => [token.address, token.holderCount ? token.holderCount.toString() : null])
+  );
+
+  // Enrich tokens with holder count data
+  return tokens.map(token => ({
+    ...token,
+    holderCount: holderCountMap.get(token.mint) || null
+  }));
 }
 
 async function getBirdeyeTrending(limit: number, sortBy: BirdeyeSortBy = 'rank'): Promise<TrendingToken[]> {
@@ -153,6 +186,7 @@ async function getBirdeyeTrending(limit: number, sortBy: BirdeyeSortBy = 'rank')
           priceChange6h,
           volume24h,
           marketCapUsd: marketCap,
+          holderCount: null, // Will be enriched from Token table
           tradeCount: 0,
           uniqueTraders: 0
         };
@@ -274,8 +308,8 @@ async function getDexScreenerTrending(limit: number): Promise<TrendingToken[]> {
 
 function processDexScreenerPairs(pairs: any[], limit: number): TrendingToken[] {
   // Filter for Solana tokens and convert to our format
-  const solanaPairs = pairs.filter((pair: any) => 
-    pair.chainId === 'solana' && 
+  const solanaPairs = pairs.filter((pair: any) =>
+    pair.chainId === 'solana' &&
     pair.baseToken?.address &&
     pair.priceUsd &&
     parseFloat(pair.volume?.h24 || '0') > 1000 // Minimum volume filter
@@ -290,6 +324,7 @@ function processDexScreenerPairs(pairs: any[], limit: number): TrendingToken[] {
     priceChange24h: parseFloat(pair.priceChange?.h24 || '0'),
     volume24h: parseFloat(pair.volume?.h24 || '0'),
     marketCapUsd: parseFloat(pair.marketCap || '0') || null,
+    holderCount: null, // Will be enriched from Token table
     tradeCount: 0,
     uniqueTraders: 0
   }));
@@ -381,7 +416,7 @@ async function getPopularSolanaTokens(): Promise<TrendingToken[]> {
   ];
 
   const tokens: TrendingToken[] = [];
-  
+
   for (const tokenData of popularTokens) {
     try {
       // Use static fallback data - this only runs if all APIs fail
@@ -394,6 +429,7 @@ async function getPopularSolanaTokens(): Promise<TrendingToken[]> {
         priceChange24h: tokenData.priceChange24h,
         volume24h: tokenData.volume24h,
         marketCapUsd: tokenData.marketCapUsd,
+        holderCount: null, // No holder data available in fallback mode
         tradeCount: 0, // No internal data available in fallback mode
         uniqueTraders: 0  // No internal data available in fallback mode
       });
@@ -401,7 +437,7 @@ async function getPopularSolanaTokens(): Promise<TrendingToken[]> {
       console.error(`Error loading popular token ${tokenData.mint}:`, error);
     }
   }
-  
+
   return tokens;
 }
 
@@ -464,6 +500,21 @@ async function getInternalTrendingTokens(limit: number): Promise<TrendingToken[]
     }
   });
 
+  // Batch fetch holder counts from Token table
+  const tokenData = await prisma.token.findMany({
+    where: {
+      address: { in: mints }
+    },
+    select: {
+      address: true,
+      holderCount: true
+    }
+  });
+
+  const holderCountMap = new Map<string, string | null>(
+    tokenData.map(token => [token.address, token.holderCount ? token.holderCount.toString() : null])
+  );
+
   // Build trending tokens (in-memory, fast)
   const trendingTokens: TrendingToken[] = trendingData.map(data => {
     const meta = metadataMap.get(data.mint);
@@ -478,6 +529,7 @@ async function getInternalTrendingTokens(limit: number): Promise<TrendingToken[]
       priceChange24h: 0, // Historical data not available in fallback mode
       volume24h: parseFloat(data._sum.costUsd?.toString() || "0"),
       marketCapUsd: null,
+      holderCount: holderCountMap.get(data.mint) || null,
       tradeCount: data._count.id,
       uniqueTraders: traderCountMap.get(data.mint) || 0
     };

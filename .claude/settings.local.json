@@ -94,7 +94,8 @@
       "Bash(PGPASSWORD=cmvCRszpAAfgyvOZaWrHrWJxeEvvYbZb psql:*)",
       "Bash(npm outdated:*)",
       "mcp__context7__resolve-library-id",
-      "mcp__context7__get-library-docs"
+      "mcp__context7__get-library-docs",
+      "mcp__playwright__browser_network_requests"
     ],
     "deny": [],
     "ask": []

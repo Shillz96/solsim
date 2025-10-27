@@ -263,6 +263,7 @@ export interface TrendingToken {
   priceChange6h?: number;
   volume24h: number;
   marketCapUsd: number | null;
+  holderCount: string | null; // Holder count from Token table
   tradeCount: number;
   uniqueTraders: number;
 }

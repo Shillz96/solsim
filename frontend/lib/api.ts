@@ -1324,11 +1324,58 @@ export default {
   exportWalletKey,
   transferBetweenWallets,
   deleteWallet,
+  // Warp Pipes (PumpPortal Token Discovery)
+  getWarpPipesFeed,
   // Market Data
   getMarketTrades,
   getTopTraders,
   getTokenHolders,
 };
+
+// ============================================================================
+// WARP PIPES API (PumpPortal Token Discovery)
+// ============================================================================
+
+/**
+ * Get Warp Pipes token discovery feed (bonded, graduating, new tokens from PumpPortal)
+ * GET /api/warp-pipes/feed
+ */
+export async function getWarpPipesFeed(params?: {
+  searchQuery?: string;
+  sortBy?: 'hot' | 'new' | 'watched' | 'alphabetical' | 'volume';
+  minLiquidity?: number;
+  onlyWatched?: boolean;
+  requireSecurity?: boolean;
+  limit?: number;
+}): Promise<{
+  bonded: any[];
+  graduating: any[];
+  new: any[];
+}> {
+  const queryParams = new URLSearchParams();
+  if (params) {
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined) {
+        queryParams.append(key, String(value));
+      }
+    });
+  }
+
+  const queryString = queryParams.toString();
+  const url = `${API}/api/warp-pipes/feed${queryString ? `?${queryString}` : ''}`;
+
+  const response = await fetch(url, {
+    method: 'GET',
+    headers: getAuthHeaders(),
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ message: 'Failed to fetch warp pipes feed' }));
+    throw new Error(error.message || `HTTP ${response.status}`);
+  }
+
+  return response.json();
+}
 
 // ============================================================================
 // MARKET DATA API

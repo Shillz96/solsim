@@ -16,6 +16,28 @@ export function useTrendingTokens(limit = 10, sortBy: 'rank' | 'volume24hUSD' | 
   });
 }
 
+/**
+ * Hook for fetching Warp Pipes feed (PumpPortal token discovery)
+ * Returns bonded, graduating, and new tokens from TokenDiscovery table
+ */
+export function useWarpPipesFeed(params?: {
+  searchQuery?: string;
+  sortBy?: 'hot' | 'new' | 'watched' | 'alphabetical' | 'volume';
+  minLiquidity?: number;
+  onlyWatched?: boolean;
+  requireSecurity?: boolean;
+  limit?: number;
+}) {
+  return useQuery({
+    queryKey: ['warp-pipes-feed', params],
+    queryFn: async () => {
+      return await api.getWarpPipesFeed(params);
+    },
+    staleTime: 1000 * 30, // 30 seconds (fresher data for live memecoin scanning)
+    refetchInterval: 1000 * 60, // Auto-refetch every minute
+  });
+}
+
 // NOTE: usePortfolio hook has been moved to ./use-portfolio.ts
 // Import from there instead: import { usePortfolio } from './use-portfolio'
 // This prevents duplicate hooks and ensures consistent behavior
