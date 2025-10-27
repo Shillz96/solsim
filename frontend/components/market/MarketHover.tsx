@@ -95,7 +95,7 @@ export default function MarketHover({ trigger }: { trigger: React.ReactNode }) {
           pointer-events-none group-hover:pointer-events-auto
         "
       >
-        <div className="rounded-xl border-4 border-outline bg-card p-4 shadow-[8px_8px_0_var(--outline-black)]">
+        <div className="dropdown-base dropdown-market-lighthouse dropdown-animate-in">
           {/* Header */}
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">

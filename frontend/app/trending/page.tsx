@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Search, TrendingUp, Filter, Loader2, AlertCircle, ArrowUpDown, ArrowUp, ArrowDown, Flame, TrendingDown, Sparkles } from "lucide-react"
+import { Search, TrendingUp, Filter, Loader2, AlertCircle, ArrowUpDown, ArrowUp, ArrowDown, TrendingDown, Sparkles } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
@@ -369,7 +369,7 @@ export default function TrendingPage() {
                                         }}
                                         transition={{ duration: 2, repeat: Infinity }}
                                       >
-                                        <Flame className="h-5 w-5 text-orange-500" />
+                                        <Sparkles className="h-5 w-5 text-star" />
                                       </motion.div>
                                     )}
                                   </div>

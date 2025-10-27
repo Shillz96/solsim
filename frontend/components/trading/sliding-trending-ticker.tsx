@@ -185,7 +185,7 @@ export function SlidingTrendingTicker() {
                       />
 
                       {/* Token Symbol */}
-                      <span className="mario-font text-outline text-sm tracking-wide">
+                      <span className="font-body text-outline text-sm tracking-wide">
                         {token.symbol || 'N/A'}
                       </span>
 
