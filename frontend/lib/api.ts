@@ -159,6 +159,31 @@ export async function getPortfolioPerformance(userId: string, days: number = 30,
 }
 
 /**
+ * Get token-specific trading statistics (bought/sold/PnL for a single token)
+ * GET /api/portfolio/token-stats?userId={userId}&mint={mint}&tradeMode={tradeMode}
+ */
+export async function getTokenTradingStats(
+  userId: string,
+  mint: string,
+  tradeMode: 'PAPER' | 'REAL' = 'PAPER'
+): Promise<Backend.TokenTradingStats> {
+  const response = await fetch(
+    `${API}/api/portfolio/token-stats?userId=${encodeURIComponent(userId)}&mint=${encodeURIComponent(mint)}&tradeMode=${tradeMode}`,
+    {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+    }
+  );
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ message: 'Failed to fetch token statistics' }));
+    throw new Error(error.message || `HTTP ${response.status}`);
+  }
+
+  return response.json();
+}
+
+/**
  * Get trending tokens
  * GET /api/trending
  */

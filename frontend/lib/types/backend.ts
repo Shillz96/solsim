@@ -200,6 +200,21 @@ export interface PortfolioTotals {
   losingTrades: number;
 }
 
+export interface TokenTradingStats {
+  mint: string;
+  totalBoughtUsd: string;
+  totalSoldUsd: string;
+  currentHoldingValue: string;
+  currentHoldingQty: string;
+  costBasis: string;
+  realizedPnL: string;
+  unrealizedPnL: string;
+  totalPnL: string;
+  totalFeesSol: string;
+  totalFeesUsd: string;
+  tradeCount: number;
+}
+
 export interface PortfolioResponse {
   positions: PortfolioPosition[];
   totals: PortfolioTotals;

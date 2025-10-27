@@ -7,6 +7,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useSearchParams } from 'next/navigation'
+import { useQuery } from '@tanstack/react-query'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { AlertCircle, CheckCircle, TrendingUp, TrendingDown } from 'lucide-react'
@@ -66,6 +67,18 @@ export function TradePanelContainer({
   const tradePanelState = useTradePanelState()
   const { executeBuy, executeSell, addOptimisticTrade, isExecuting } = useTradeExecution()
   const { position, pnl, currentPrice, hasPosition } = usePositionPnL(tokenAddress)
+
+  // Fetch token trading stats (bought/sold totals)
+  const { data: tokenStats } = useQuery({
+    queryKey: ['token-stats', user?.id, tokenAddress],
+    queryFn: () => {
+      if (!user?.id || !tokenAddress) return null
+      return api.getTokenTradingStats(user.id, tokenAddress, 'PAPER')
+    },
+    enabled: !!user?.id && !!tokenAddress,
+    staleTime: 10000, // 10 seconds
+    refetchInterval: 30000, // Refresh every 30s
+  })
 
   // Local state
   const [tokenDetails, setTokenDetails] = useState<TokenDetails | null>(null)
@@ -365,10 +378,10 @@ export function TradePanelContainer({
 
           {/* Stats Bar - Bought | Sold | Holding | PnL */}
           <TradePanelStatsBar
-            bought={position ? (parseFloat(position.avgCostUsd) * parseFloat(position.qty)) : 0}  // Cost basis of current position
-            sold={0}    // TODO: Requires per-token trade history API
-            holdingValue={position ? parseFloat(position.qty) * displayPrice : 0}
-            pnl={pnl?.unrealizedPnL || 0}
+            bought={tokenStats ? parseFloat(tokenStats.totalBoughtUsd) : 0}
+            sold={tokenStats ? parseFloat(tokenStats.totalSoldUsd) : 0}
+            holdingValue={tokenStats ? parseFloat(tokenStats.currentHoldingValue) : 0}
+            pnl={tokenStats ? parseFloat(tokenStats.unrealizedPnL) : 0}
             pnlPercent={pnl?.unrealizedPercent || 0}
           />
 
