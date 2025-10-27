@@ -11,8 +11,6 @@
  * - Better IDE autocomplete
  */
 
-@import "tailwindcss";
-
 @theme {
   /**
    * MARIO THEME - CORE BRAND COLORS
@@ -179,6 +177,65 @@
   
   /* Dropdown Animation */
   --dropdown-transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+
+  /**
+   * PANEL SYSTEM - Consolidated from panel.css
+   * All panel-related tokens in one place for consistency
+   */
+  
+  /* Background mixes */
+  --panel-bg-dark: color-mix(in oklab, var(--background) 90%, black 10%);
+  --panel-bg-light: color-mix(in oklab, var(--background) 92%, transparent 8%);
+  --panel-bg-opaque: color-mix(in oklab, var(--background) 95%, transparent 5%);
+  --panel-bg-glass: color-mix(in oklab, var(--background) 70%, transparent 30%);
+  
+  /* Border mixes */
+  --panel-border-subtle: color-mix(in oklab, var(--foreground) 20%, transparent 80%);
+  --panel-border-medium: color-mix(in oklab, var(--foreground) 30%, transparent 70%);
+  
+  /* Card backgrounds */
+  --card-bg-elevated: color-mix(in oklab, var(--card) 95%, var(--background) 5%);
+  --card-bg-muted: color-mix(in oklab, var(--muted) 95%, var(--background) 5%);
+  
+  /* Shadow mixes */
+  --shadow-light: color-mix(in oklab, black 10%, transparent 90%);
+  --shadow-medium: color-mix(in oklab, black 25%, transparent 75%);
+  
+  /* Hover states */
+  --hover-overlay: color-mix(in oklab, var(--ring) 20%, transparent 80%);
+
+  /**
+   * BADGE SYSTEM - Consolidated from badges.css
+   * All badge rarity colors using theme color references
+   */
+  
+  /* Common rarity */
+  --badge-common-bg: var(--luigi-green);
+  --badge-common-border: color-mix(in oklab, var(--luigi-green) 80%, black 20%);
+  
+  /* Uncommon rarity */
+  --badge-uncommon-bg: var(--sky-blue);
+  --badge-uncommon-border: color-mix(in oklab, var(--sky-blue) 70%, blue 30%);
+  
+  /* Rare rarity */
+  --badge-rare-bg: var(--star-yellow);
+  --badge-rare-border: color-mix(in oklab, var(--star-yellow) 80%, #9a6200 20%);
+  
+  /* Epic rarity */
+  --badge-epic-bg: var(--mario-red);
+  --badge-epic-border: color-mix(in oklab, var(--mario-red) 85%, black 15%);
+  
+  /* Legendary rarity */
+  --badge-legendary-bg: var(--coin-gold);
+  --badge-legendary-border: color-mix(in oklab, var(--coin-gold) 80%, #9a6200 20%);
+  
+  /* Mythic rarity */
+  --badge-mythic-bg: var(--star-yellow);
+  --badge-mythic-border: color-mix(in oklab, var(--star-yellow) 90%, gold 10%);
+  
+  /* Admin rarity - Special Mario Red styling for platform administrators */
+  --badge-admin-bg: var(--mario-red);
+  --badge-admin-border: color-mix(in oklab, var(--mario-red) 85%, black 15%);
 
   /**
    * Z-INDEX SCALE - Single source of truth for all layering

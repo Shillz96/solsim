@@ -2,38 +2,10 @@
  * Badge System CSS
  * 
  * Mario-themed badge styling with animations and effects
+ * 
+ * NOTE: All badge color tokens are now defined in theme.css
+ * This file contains only badge-specific class definitions
  */
-
-/* Badge Rarity Colors - Using CSS Custom Properties for DRY approach */
-:root {
-  /* Common rarity */
-  --badge-common-bg: var(--luigi-green);
-  --badge-common-border: color-mix(in srgb, var(--luigi-green) 80%, black 20%);
-  
-  /* Uncommon rarity */
-  --badge-uncommon-bg: var(--sky-blue);
-  --badge-uncommon-border: color-mix(in srgb, var(--sky-blue) 70%, blue 30%);
-  
-  /* Rare rarity */
-  --badge-rare-bg: var(--star-yellow);
-  --badge-rare-border: color-mix(in srgb, var(--star-yellow) 80%, #9a6200 20%);
-  
-  /* Epic rarity */
-  --badge-epic-bg: var(--mario-red);
-  --badge-epic-border: color-mix(in srgb, var(--mario-red) 85%, black 15%);
-  
-  /* Legendary rarity */
-  --badge-legendary-bg: var(--coin-gold);
-  --badge-legendary-border: color-mix(in srgb, var(--coin-gold) 80%, #9a6200 20%);
-  
-  /* Mythic rarity */
-  --badge-mythic-bg: var(--star-yellow);
-  --badge-mythic-border: color-mix(in srgb, var(--star-yellow) 90%, gold 10%);
-  
-  /* Admin rarity - Special Mario Red styling for platform administrators */
-  --badge-admin-bg: var(--mario-red);
-  --badge-admin-border: color-mix(in srgb, var(--mario-red) 85%, black 15%);
-}
 
 /* Badge Rarity Base Class - Consolidated pattern */
 .badge-common {
@@ -78,41 +50,41 @@
   animation: developer-gradient 3s ease infinite;
 }
 
-/* Badge Glow Effects - Using theme variables */
+/* Badge Glow Effects - Using theme variables with oklch color-mix */
 .shadow-luigi-glow {
-  box-shadow: 0 0 10px color-mix(in srgb, var(--luigi-green) 50%, transparent);
+  box-shadow: 0 0 10px color-mix(in oklab, var(--luigi-green) 50%, transparent);
 }
 
 .shadow-sky-glow {
-  box-shadow: 0 0 10px color-mix(in srgb, var(--sky-blue) 50%, transparent);
+  box-shadow: 0 0 10px color-mix(in oklab, var(--sky-blue) 50%, transparent);
 }
 
 .shadow-star-glow {
-  box-shadow: 0 0 10px color-mix(in srgb, var(--star-yellow) 50%, transparent);
+  box-shadow: 0 0 10px color-mix(in oklab, var(--star-yellow) 50%, transparent);
 }
 
 .shadow-mario-glow {
-  box-shadow: 0 0 10px color-mix(in srgb, var(--mario-red) 50%, transparent);
+  box-shadow: 0 0 10px color-mix(in oklab, var(--mario-red) 50%, transparent);
 }
 
 .shadow-coin-glow {
-  box-shadow: 0 0 15px color-mix(in srgb, var(--coin-gold) 70%, transparent);
+  box-shadow: 0 0 15px color-mix(in oklab, var(--coin-gold) 70%, transparent);
 }
 
 .shadow-mythic-glow {
   box-shadow: 
-    0 0 20px color-mix(in srgb, var(--star-yellow) 80%, transparent), 
-    0 0 40px color-mix(in srgb, var(--star-yellow) 40%, transparent);
+    0 0 20px color-mix(in oklab, var(--star-yellow) 80%, transparent), 
+    0 0 40px color-mix(in oklab, var(--star-yellow) 40%, transparent);
 }
 
 .shadow-developer-glow {
   box-shadow: 
-    0 0 20px color-mix(in srgb, #8b5cf6 80%, transparent), 
-    0 0 40px color-mix(in srgb, #ec4899 60%, transparent);
+    0 0 20px color-mix(in oklab, #8b5cf6 80%, transparent), 
+    0 0 40px color-mix(in oklab, #ec4899 60%, transparent);
 }
 
 .shadow-admin-glow {
-  box-shadow: 0 0 15px color-mix(in srgb, var(--mario-red) 70%, transparent);
+  box-shadow: 0 0 15px color-mix(in oklab, var(--mario-red) 70%, transparent);
 }
 
 /* Badge Animations */

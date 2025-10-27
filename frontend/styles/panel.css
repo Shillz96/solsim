@@ -7,36 +7,9 @@
  * - Heavy backdrop filters that impact mobile performance
  * - Inconsistent panel appearance across components
  * 
- * NOTE: Z-index values are now defined in theme.css as CSS custom properties.
- * This file uses those tokens for consistency across the application.
+ * NOTE: All panel tokens are now defined in theme.css as CSS custom properties.
+ * This file contains only panel-specific class definitions.
  */
-
-/* =============================================================================
-   COLOR-MIX REUSABLE TOKENS - DRY principle for common color mixes
-   ============================================================================= */
-
-:root {
-  /* Background mixes */
-  --panel-bg-dark: color-mix(in oklab, var(--background) 90%, black 10%);
-  --panel-bg-light: color-mix(in oklab, var(--background) 92%, transparent 8%);
-  --panel-bg-opaque: color-mix(in oklab, var(--background) 95%, transparent 5%);
-  --panel-bg-glass: color-mix(in oklab, var(--background) 70%, transparent 30%);
-  
-  /* Border mixes */
-  --panel-border-subtle: color-mix(in oklab, var(--foreground) 20%, transparent 80%);
-  --panel-border-medium: color-mix(in oklab, var(--foreground) 30%, transparent 70%);
-  
-  /* Card backgrounds */
-  --card-bg-elevated: color-mix(in oklab, var(--card) 95%, var(--background) 5%);
-  --card-bg-muted: color-mix(in oklab, var(--muted) 95%, var(--background) 5%);
-  
-  /* Shadow mixes */
-  --shadow-light: color-mix(in oklab, black 10%, transparent 90%);
-  --shadow-medium: color-mix(in oklab, black 25%, transparent 75%);
-  
-  /* Hover states */
-  --hover-overlay: color-mix(in oklab, var(--ring) 20%, transparent 80%);
-}
 
 /* =============================================================================
    PANEL FOUNDATION - Solid, readable backgrounds
