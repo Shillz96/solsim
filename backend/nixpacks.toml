@@ -7,7 +7,7 @@
 # - Other native Node.js modules
 
 [phases.setup]
-nixPkgs = ["python3", "gcc", "make", "pkg-config"]
+nixPkgs = ["python3", "gcc", "gnumake", "pkg-config"]
 
 [phases.install]
 # Use npm ci for faster, deterministic installs in production
