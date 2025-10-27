@@ -376,7 +376,7 @@ function TradeRoomContent() {
 
             {/* Right: Trade Panel */}
             <aside className="w-80 flex-shrink-0 flex flex-col">
-              <div className="bg-sky/20 border-4 border-outline rounded-xl shadow-[6px_6px_0_var(--outline-black)] flex-1 overflow-y-auto">
+              <div className="bg-sky/20 border-4 border-outline rounded-xl shadow-[6px_6px_0_var(--outline-black)] flex-1 overflow-y-auto p-4">
                 <TradePanel
                   tokenAddress={ca}
                   volume24h={volume24h}

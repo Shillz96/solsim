@@ -31,7 +31,7 @@ export function MarketDataPanels({ tokenMint }: MarketDataPanelsProps) {
   const [activeTab, setActiveTab] = useState<TabType>('trades')
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="bg-sky/20 border-4 border-outline rounded-xl shadow-[6px_6px_0_var(--outline-black)] h-full flex flex-col p-4">
       {/* Tabs */}
       <div className="flex gap-2 mb-4 flex-wrap">
         <button
