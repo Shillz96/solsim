@@ -51,7 +51,14 @@ const nextConfig = {
   // Image optimization
   images: {
     formats: ['image/avif', 'image/webp'],
-    remotePatterns: [
+    // In development, allow all HTTPS images to avoid constant config updates
+    // In production (Vercel), this will use the specific patterns below
+    remotePatterns: process.env.NODE_ENV === 'development' ? [
+      {
+        protocol: 'https',
+        hostname: '**',
+      },
+    ] : [
       // Pump.fun main domain
       {
         protocol: 'https',
@@ -59,6 +66,9 @@ const nextConfig = {
       },
       // Pump.fun subdomains (e.g., ipfs.pump.fun)
       {
+        protocol: 'https',
+        hostname: '**.pump.fun',
+      },      {
         protocol: 'https',
         hostname: '**.pump.fun',
       },
@@ -78,6 +88,18 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'cloudflare-ipfs.com',
         pathname: '/ipfs/**',
+      },
+      {
+        protocol: 'https',
+        hostname: '**.ipfs.nftstorage.link',
+      },
+      {
+        protocol: 'https',
+        hostname: '**.ipfs.dweb.link',
+      },
+      {
+        protocol: 'https',
+        hostname: '**.ipfs.w3s.link',
       },
       // Additional token metadata sources
       {
@@ -150,7 +172,23 @@ const nextConfig = {
       },
       {
         protocol: 'https',
+        hostname: 'cdn.dubdub.tv',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'd1jed1sess45wk.cloudfront.net',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
         hostname: 'xstocks.fi',
+        pathname: '/**',
+      },
+      // DexScreener CDN
+      {
+        protocol: 'https',
+        hostname: 'dd.dexscreener.com',
         pathname: '/**',
       },
       // Only allow HTTP in development

@@ -45,14 +45,15 @@ export function HourlyRewardTimer() {
   if (justDistributed) {
     return (
       <>
-        <button onClick={() => setShowWinnersModal(true)} className="cursor-pointer">
+        <div className="cursor-pointer">
           <CartridgePill
             value="Rewards Sent! 🎉"
             bgColor="var(--luigi-green)"
             size="sm"
             className="animate-pulse"
+            onClick={() => setShowWinnersModal(true)}
           />
-        </button>
+        </div>
         <HourlyRewardWinnersModal
           isOpen={showWinnersModal}
           onClose={() => setShowWinnersModal(false)}
@@ -64,14 +65,15 @@ export function HourlyRewardTimer() {
   // Countdown mode (default)
   return (
     <>
-      <button onClick={() => setShowWinnersModal(true)} className="cursor-pointer">
+      <div className="cursor-pointer">
         <CartridgePill
           label="Rewards in"
           value={formatTime(secondsUntilNext)}
           bgColor="var(--luigi-green)"
           size="sm"
+          onClick={() => setShowWinnersModal(true)}
         />
-      </button>
+      </div>
       <HourlyRewardWinnersModal
         isOpen={showWinnersModal}
         onClose={() => setShowWinnersModal(false)}

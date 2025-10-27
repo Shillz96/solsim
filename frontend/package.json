@@ -6,6 +6,8 @@
     "postinstall": "npm ls styled-jsx || npm install styled-jsx@5.1.6",
     "build": "next build",
     "dev": "next dev",
+    "dev:local": "copy .env.local.dev .env.local && next dev",
+    "dev:production": "copy .env.local.production .env.local && next dev",
     "lint": "next lint",
     "lint:fix": "next lint --fix",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,css,md}\"",

@@ -41,11 +41,7 @@ npm test                  # Run tests with jest
 ### Frontend
 
 ```bash
-# Development
-cd frontend
-npm run dev              # Start Next.js dev server
-npm run build           # Build for production
-npm start               # Start production server
+Production oneupsol.fun
 
 # Code Quality
 npm run lint            # Run ESLint

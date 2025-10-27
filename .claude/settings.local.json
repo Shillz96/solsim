@@ -77,7 +77,22 @@
       "Bash(cat:*)",
       "WebFetch(domain:docs.bubblemaps.io)",
       "mcp__Railway__check-railway-status",
-      "mcp__Railway__get-logs"
+      "mcp__Railway__get-logs",
+      "mcp__playwright__browser_snapshot",
+      "mcp__playwright__browser_take_screenshot",
+      "mcp__playwright__browser_click",
+      "mcp__playwright__browser_type",
+      "mcp__browser-tools__getConsoleErrors",
+      "mcp__playwright__browser_navigate",
+      "mcp__playwright__browser_wait_for",
+      "mcp__sequential-thinking__sequentialthinking",
+      "mcp__playwright__browser_evaluate",
+      "mcp__playwright__browser_close",
+      "mcp__Railway__list-deployments",
+      "mcp__playwright__browser_press_key",
+      "mcp__Railway__list-variables",
+      "Bash(PGPASSWORD=cmvCRszpAAfgyvOZaWrHrWJxeEvvYbZb psql:*)",
+      "Bash(npm outdated:*)"
     ],
     "deny": [],
     "ask": []
