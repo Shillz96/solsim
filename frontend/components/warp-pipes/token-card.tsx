@@ -189,7 +189,9 @@ export function TokenCard({ data, onToggleWatch, className, enableLiveUpdates = 
                   </div>
                 )}
                 {/* Security Shield Icon - Standardized size w-4 h-4 */}
-                <Shield className={cn(securityIconColor, 'flex-shrink-0 w-4 h-4')} title={`Security: ${securityStatus}`} />
+                <span title={`Security: ${securityStatus}`}>
+                  <Shield className={cn(securityIconColor, 'flex-shrink-0 w-4 h-4')} />
+                </span>
               </div>
 
               {/* Description (if available, with better truncation) */}

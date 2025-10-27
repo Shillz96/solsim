@@ -365,8 +365,8 @@ export function TradePanelContainer({
 
           {/* Stats Bar - Bought | Sold | Holding | PnL */}
           <TradePanelStatsBar
-            bought={0}  // TODO: Calculate lifetime bought
-            sold={0}    // TODO: Calculate lifetime sold
+            bought={position ? (parseFloat(position.avgCostUsd) * parseFloat(position.qty)) : 0}  // Cost basis of current position
+            sold={0}    // TODO: Requires per-token trade history API
             holdingValue={position ? parseFloat(position.qty) * displayPrice : 0}
             pnl={pnl?.unrealizedPnL || 0}
             pnlPercent={pnl?.unrealizedPercent || 0}
