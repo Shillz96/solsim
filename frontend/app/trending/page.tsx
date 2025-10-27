@@ -226,7 +226,7 @@ export default function TrendingPage() {
             {/* Total Tokens Card */}
             <div className="mario-card surface">
               <div className="flex items-start gap-4">
-                <div className="h-10 w-10 rounded-lg bg-luigi border-3 border-outline flex items-center justify-center flex-shrink-0 shadow-[2px_2px_0_var(--outline-black)]">
+                <div className="h-10 w-10 rounded-lg bg-luigi border-3 border-outline-black flex items-center justify-center flex-shrink-0 shadow-[2px_2px_0_var(--outline-black)]">
                   <Image 
                     src="/icons/mario/coin.png" 
                     alt="Tokens" 
@@ -236,8 +236,8 @@ export default function TrendingPage() {
                   />
                 </div>
                 <div className="space-y-1">
-                  <h3 className="font-bold text-lg text-outline">Total Tokens</h3>
-                  <p className="text-2xl font-bold text-outline">
+                  <h3 className="font-bold text-lg text-foreground">Total Tokens</h3>
+                  <p className="text-2xl font-bold text-foreground">
                     {filteredAndSortedTokens.length.toLocaleString()}
                   </p>
                 </div>
@@ -247,7 +247,7 @@ export default function TrendingPage() {
             {/* Big Movers Card */}
             <div className="mario-card surface">
               <div className="flex items-start gap-4">
-                <div className="h-10 w-10 rounded-lg bg-star border-3 border-outline flex items-center justify-center flex-shrink-0 shadow-[2px_2px_0_var(--outline-black)]">
+                <div className="h-10 w-10 rounded-lg bg-star border-3 border-outline-black flex items-center justify-center flex-shrink-0 shadow-[2px_2px_0_var(--outline-black)]">
                   <Image 
                     src="/icons/mario/fire.png" 
                     alt="Big Movers" 
@@ -257,8 +257,8 @@ export default function TrendingPage() {
                   />
                 </div>
                 <div className="space-y-1">
-                  <h3 className="font-bold text-lg text-outline">Big Movers</h3>
-                  <p className="text-2xl font-bold text-outline">
+                  <h3 className="font-bold text-lg text-foreground">Big Movers</h3>
+                  <p className="text-2xl font-bold text-foreground">
                     {filteredAndSortedTokens.filter(token => Math.abs(token.priceChange24h || 0) > 50).length}
                   </p>
                 </div>
@@ -268,7 +268,7 @@ export default function TrendingPage() {
             {/* Top Gainer Card */}
             <div className="mario-card surface">
               <div className="flex items-start gap-4">
-                <div className="h-10 w-10 rounded-lg bg-sky border-3 border-outline flex items-center justify-center flex-shrink-0 shadow-[2px_2px_0_var(--outline-black)]">
+                <div className="h-10 w-10 rounded-lg bg-sky border-3 border-outline-black flex items-center justify-center flex-shrink-0 shadow-[2px_2px_0_var(--outline-black)]">
                   <Image 
                     src="/icons/mario/trending.png" 
                     alt="Top Gainer" 
@@ -278,7 +278,7 @@ export default function TrendingPage() {
                   />
                 </div>
                 <div className="space-y-1">
-                  <h3 className="font-bold text-lg text-outline">Top Gainer</h3>
+                  <h3 className="font-bold text-lg text-foreground">Top Gainer</h3>
                   <div className="text-2xl font-bold text-luigi">
                     {filteredAndSortedTokens.length > 0 ? (
                       <span>+{Math.max(...filteredAndSortedTokens.map(t => t.priceChange24h || 0)).toFixed(1)}%</span>
@@ -293,7 +293,7 @@ export default function TrendingPage() {
             {/* Total Volume Card */}
             <div className="mario-card surface">
               <div className="flex items-start gap-4">
-                <div className="h-10 w-10 rounded-lg bg-coin border-3 border-outline flex items-center justify-center flex-shrink-0 shadow-[2px_2px_0_var(--outline-black)]">
+                <div className="h-10 w-10 rounded-lg bg-coin border-3 border-outline-black flex items-center justify-center flex-shrink-0 shadow-[2px_2px_0_var(--outline-black)]">
                   <Image 
                     src="/icons/mario/trophy.png" 
                     alt="Volume" 
@@ -303,8 +303,8 @@ export default function TrendingPage() {
                   />
                 </div>
                 <div className="space-y-1">
-                  <h3 className="font-bold text-lg text-outline">Total Volume</h3>
-                  <div className="text-2xl font-bold text-outline">
+                  <h3 className="font-bold text-lg text-foreground">Total Volume</h3>
+                  <div className="text-2xl font-bold text-foreground">
                     {filteredAndSortedTokens.length > 0 ? (
                       <UsdWithSol
                         usd={filteredAndSortedTokens.reduce((sum, token) => sum + (token.volume24h || 0), 0)}
@@ -360,81 +360,94 @@ export default function TrendingPage() {
                 </p>
               </div>
             ) : (
-              <div className="space-y-2">
+              <div className="space-y-3">
+                {/* Table Header - Desktop Only */}
+                <div className="hidden lg:grid grid-cols-[auto_1fr_auto_auto_auto_auto_auto_auto] gap-3 items-center px-4 py-2 bg-panel-bg-light rounded-lg border-2 border-outline-black">
+                  <div className="w-8 text-center font-bold text-xs text-foreground">#</div>
+                  <div className="font-bold text-xs text-foreground">Token</div>
+                  <div className="text-right font-bold text-xs text-foreground whitespace-nowrap">Price</div>
+                  <div className="text-right font-bold text-xs text-foreground whitespace-nowrap">24h Change</div>
+                  <div className="text-right font-bold text-xs text-foreground whitespace-nowrap">Market Cap</div>
+                  <div className="text-right font-bold text-xs text-foreground whitespace-nowrap">Volume 24h</div>
+                  <div className="text-right font-bold text-xs text-foreground whitespace-nowrap">Trend</div>
+                  <div className="text-right font-bold text-xs text-foreground whitespace-nowrap">Action</div>
+                </div>
+
+                {/* Token List */}
                 {filteredAndSortedTokens.map((token, index) => {
                   const bigMover = Math.abs(token.priceChange24h || 0) > 50
                   const rank = index + 1
 
                   return (
-                    <motion.div
+                    <div
                       key={token.mint}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.3, delay: index * 0.02 }}
                       className={cn(
-                        "flex items-center gap-4 p-3 rounded-lg border-2 border-outline shadow-[2px_2px_0_var(--outline-black)] transition-all duration-200 hover:scale-[1.02] hover:shadow-[3px_3px_0_var(--outline-black)]",
+                        "grid grid-cols-[auto_1fr_auto_auto_auto_auto_auto_auto] gap-3 items-center p-4 rounded-lg border-3 border-outline-black transition-all duration-200",
+                        "bg-card hover:border-outline-hover",
+                        "shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:translate-y-[-2px]",
                         rank <= 3 && "bg-gradient-to-r from-[var(--coin-gold)]/10 to-[var(--star-yellow)]/10"
                       )}
                     >
                       {/* Rank */}
-                      <div className="flex-shrink-0 w-8 text-center">
+                      <div className="flex-shrink-0 w-8 flex items-center justify-center">
                         {rank <= 3 ? (
                           <Image src={getRankImage(rank)!} alt={`${rank}`} width={24} height={24} className="h-6 w-6" />
                         ) : (
-                          <span className="font-bold text-lg text-[var(--pipe-600)]">#{rank}</span>
+                          <span className="font-bold text-base text-foreground">#{rank}</span>
                         )}
                       </div>
 
                       {/* Token Info */}
-                      <Link href={`/room/${token.mint}`} className="flex-1 min-w-0 flex items-center gap-3">
+                      <Link href={`/room/${token.mint}`} className="flex items-center gap-3 min-w-0">
                         <Image
                           src={token.logoURI || "/placeholder-token.svg"}
                           alt={token.name || "Unknown Token"}
                           width={40}
                           height={40}
-                          className="rounded-full border-[3px] border-[var(--outline-black)]"
+                          className="rounded-full border-3 border-outline-black flex-shrink-0"
                           onError={(e) => { e.currentTarget.src = "/placeholder-token.svg" }}
                         />
-                        <div className="min-w-0">
+                        <div className="min-w-0 flex-1">
                           <div className="font-body font-bold flex items-center gap-2">
-                            <span className="truncate">{token.name || "Unknown"}</span>
-                            {bigMover && <Sparkles className="h-4 w-4 text-[var(--star-yellow)]" />}
+                            <span className="truncate text-foreground">{token.name || "Unknown"}</span>
+                            {bigMover && <Sparkles className="h-4 w-4 text-star flex-shrink-0" />}
                           </div>
-                          <div className="font-body text-[10px] opacity-70 tracking-wide uppercase">
+                          <div className="font-body text-xs text-muted-foreground tracking-wide uppercase">
                             ${token.symbol || "N/A"}
                           </div>
                         </div>
                       </Link>
 
                       {/* Price */}
-                      <div className="text-right">
+                      <div className="text-right whitespace-nowrap">
                         <UsdWithSol usd={token.priceUsd} className="font-numeric font-bold text-sm" solClassName="font-numeric text-[11px]" />
                       </div>
 
                       {/* 24h Change */}
-                      <div className="flex items-center gap-2 justify-end">
+                      <div className="flex items-center gap-2 justify-end whitespace-nowrap">
                         <span
-                          className={`font-numeric text-sm font-bold ${
+                          className={cn(
+                            "font-numeric text-sm font-bold",
                             (token.priceChange24h || 0) >= 0 ? "text-luigi" : "text-mario"
-                          }`}
+                          )}
                         >
                           {(token.priceChange24h || 0) >= 0 ? "+" : ""}
                           {(token.priceChange24h || 0).toFixed(2)}%
                         </span>
-                        {(token.priceChange24h || 0) >= 0 ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
+                        {(token.priceChange24h || 0) >= 0 ? <TrendingUp className="h-4 w-4 text-luigi" /> : <TrendingDown className="h-4 w-4 text-mario" />}
                       </div>
 
                       {/* Market Cap */}
-                      <div className="text-right">
+                      <div className="text-right whitespace-nowrap">
                         {token.marketCapUsd ? (
                           <UsdWithSol usd={token.marketCapUsd} className="font-numeric font-bold text-sm" solClassName="font-numeric text-[11px]" compact />
                         ) : (
-                          <span className="opacity-60 text-sm">N/A</span>
+                          <span className="text-muted-foreground text-sm">N/A</span>
                         )}
                       </div>
 
                       {/* Volume */}
-                      <div className="text-right">
+                      <div className="text-right whitespace-nowrap">
                         <UsdWithSol usd={token.volume24h} className="font-numeric font-bold text-sm" solClassName="font-numeric text-[11px]" compact />
                       </div>
 
@@ -442,8 +455,8 @@ export default function TrendingPage() {
                       <div className="flex justify-end">
                         <span
                           className={cn(
-                            "px-2 py-1 font-numeric text-xs font-bold inline-flex items-center gap-1 rounded-lg border-2 border-outline shadow-[2px_2px_0_var(--outline-black)]",
-                            bigMover && "animate-pulse"
+                            "px-2 py-1 font-numeric text-xs font-bold inline-flex items-center gap-1 rounded-lg border-2 border-outline-black shadow-[2px_2px_0_var(--outline-black)]",
+                            bigMover && "bg-star animate-pulse"
                           )}
                           style={{ background: bigMover ? "var(--star-yellow)" : "var(--card)" }}
                         >
@@ -457,7 +470,7 @@ export default function TrendingPage() {
                           <Button className={cn(marioStyles.button('success', 'sm'))}>🚀 Trade</Button>
                         </Link>
                       </div>
-                    </motion.div>
+                    </div>
                   )
                 })}
               </div>

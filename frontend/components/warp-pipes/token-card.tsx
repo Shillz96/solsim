@@ -131,8 +131,8 @@ export function TokenCard({ data, onToggleWatch, className, enableLiveUpdates = 
           'transition-all duration-200'
         )}
       >
-        {/* Token Image - Using theme variable size */}
-        <div className="relative w-16 h-16 flex-shrink-0">
+        {/* Token Image - Enlarged to 96x96 for better visibility */}
+        <div className="relative w-24 h-24 flex-shrink-0">
           {img && !imageError ? (
             <Image
               src={img}
@@ -162,7 +162,7 @@ export function TokenCard({ data, onToggleWatch, className, enableLiveUpdates = 
         </div>
 
         {/* Content */}
-        <div className="flex-1 min-w-0 space-y-1">
+        <div className="flex-1 min-w-0 space-y-1.5">
           {/* Header Row */}
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-1.5 min-w-0">
@@ -181,9 +181,28 @@ export function TokenCard({ data, onToggleWatch, className, enableLiveUpdates = 
           </div>
 
           {/* Age */}
-          <p className="text-[10px] text-outline/70 font-bold">{age} ago</p>
+          <p className="text-[10px] text-outline/60 font-bold">{age} ago</p>
 
-          {/* Primary Metrics */}
+          {/* PROMINENT: Market Cap & Volume Stat Badges */}
+          <div className="flex items-center gap-2">
+            {/* Market Cap Badge */}
+            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-[var(--star-yellow)] border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] rounded-lg">
+              <span className="text-sm">💰</span>
+              <span className="text-base font-black text-[var(--outline-black)] whitespace-nowrap">
+                ${fmtCompact(mergedData.marketCapUsd)}
+              </span>
+            </div>
+
+            {/* Volume Badge */}
+            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-[var(--sky-blue)] border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] rounded-lg">
+              <span className="text-sm">📊</span>
+              <span className="text-base font-black text-[var(--outline-black)] whitespace-nowrap">
+                ${fmtCompact(data.volume24h)}
+              </span>
+            </div>
+          </div>
+
+          {/* Price Change */}
           <div className="flex items-center gap-2 text-xs font-bold">
             <span
               className={cn(
@@ -192,14 +211,10 @@ export function TokenCard({ data, onToggleWatch, className, enableLiveUpdates = 
             >
               {priceChg != null && priceChg >= 0 ? '↑' : '↓'} {fmtPct(Math.abs(priceChg ?? 0))}
             </span>
-            <span className="text-outline/50">•</span>
-            <span className="text-outline">${fmtCompact(data.volume24h)} vol</span>
           </div>
 
-          {/* Secondary Metrics */}
-          <div className="flex items-center gap-2 text-[10px] text-outline/70 font-bold">
-            <span>${fmtCompact(mergedData.marketCapUsd)} MC</span>
-            <span>•</span>
+          {/* Secondary Metrics - De-emphasized */}
+          <div className="flex items-center gap-2 text-[9px] text-outline/50 font-bold">
             <span>{mergedData.holderCount?.toLocaleString() ?? 0} holders</span>
             {liveTxCount && (
               <>
@@ -226,8 +241,8 @@ export function TokenCard({ data, onToggleWatch, className, enableLiveUpdates = 
               </div>
             )}
 
-          {/* Bottom Row - Socials + Creator */}
-          <div className="flex items-center justify-between pt-0.5">
+          {/* Bottom Row - Socials + Creator (De-emphasized) */}
+          <div className="flex items-center justify-between pt-0.5 opacity-60">
             <div className="flex gap-1">
               {data.twitter && (
                 <SocialHoverCard
@@ -259,7 +274,7 @@ export function TokenCard({ data, onToggleWatch, className, enableLiveUpdates = 
             </div>
 
             {data.creatorWallet && (
-              <span className="font-mono text-[9px] text-outline/50">
+              <span className="font-mono text-[8px] text-outline/40">
                 👨‍💻 {shorten(data.creatorWallet, 3, 3)}
               </span>
             )}
@@ -272,7 +287,7 @@ export function TokenCard({ data, onToggleWatch, className, enableLiveUpdates = 
 
 
 /**
- * Token Card Skeleton - Compact horizontal layout
+ * Token Card Skeleton - Matches new 96px layout with stat badges
  */
 export function TokenCardSkeleton() {
   return (
@@ -284,8 +299,8 @@ export function TokenCardSkeleton() {
           'flex gap-3 animate-pulse'
         )}
       >
-        {/* Image skeleton */}
-        <div className="w-16 h-16 bg-background/50 rounded-lg border-2 border-outline shrink-0" />
+        {/* Image skeleton - 96x96 */}
+        <div className="w-24 h-24 bg-background/50 rounded-lg border-2 border-outline shrink-0" />
 
         {/* Content skeleton */}
         <div className="flex-1 space-y-1.5">
@@ -298,11 +313,14 @@ export function TokenCardSkeleton() {
           {/* Age */}
           <div className="h-3 bg-background/30 rounded w-16" />
 
-          {/* Metrics */}
+          {/* Stat badges skeleton */}
           <div className="flex gap-2">
-            <div className="h-3 bg-background/40 rounded w-16" />
-            <div className="h-3 bg-background/30 rounded w-20" />
+            <div className="h-8 bg-background/50 rounded-lg border-3 border-outline w-28" />
+            <div className="h-8 bg-background/50 rounded-lg border-3 border-outline w-24" />
           </div>
+
+          {/* Price change */}
+          <div className="h-3 bg-background/40 rounded w-16" />
 
           {/* Secondary metrics */}
           <div className="flex gap-2">
@@ -311,7 +329,7 @@ export function TokenCardSkeleton() {
           </div>
 
           {/* Bottom row */}
-          <div className="flex justify-between pt-0.5">
+          <div className="flex justify-between pt-0.5 opacity-60">
             <div className="flex gap-1">
               <div className="h-4 w-4 bg-background/30 rounded" />
               <div className="h-4 w-4 bg-background/30 rounded" />
