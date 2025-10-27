@@ -7,7 +7,8 @@ import { useCallback, useState, Component, ReactNode, useEffect } from 'react';
 
 // Z-index base for floating windows container
 // Windows themselves have dynamic z-index managed by WindowManager
-const FLOATING_WINDOWS_CONTAINER_Z = 'var(--z-header)';
+// Using CSS custom property from theme.css for consistency
+const FLOATING_WINDOWS_CONTAINER_Z = 'var(--z-modal)'; // Changed from --z-header to prevent conflicts with fixed headers
 
 // react-rnd exports a named Rnd; dynamic import to avoid SSR issues
 const Rnd = dynamic(async () => {
@@ -44,7 +45,7 @@ class FloatingWindowsErrorBoundary extends Component<
   render() {
     if (this.state.hasError) {
       return (
-        <div className="fixed inset-0 bg-mario/10 border-4 border-mario rounded-lg m-4 p-4 z-50">
+        <div className="fixed inset-0 bg-mario/10 border-4 border-mario rounded-lg m-4 p-4 z-modal">
           <h3 className="font-mario text-mario text-sm mb-2">
             Window System Error
           </h3>

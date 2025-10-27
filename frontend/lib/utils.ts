@@ -261,13 +261,13 @@ export const marioStyles = {
   badgeLg: (variant: MarioBadgeVariant = 'gold') => cn(
     'px-2 py-1 rounded-lg border-3 border-outline',
     'shadow-[2px_2px_0_var(--outline-black)]',
-    'text-xs font-mario font-bold text-white uppercase',
+    'text-xs font-mario font-bold uppercase',
     {
-      'bg-coin': variant === 'gold',
-      'bg-[var(--pipe-300)]': variant === 'silver',
-      'bg-brick': variant === 'bronze',
-      'bg-mario': variant === 'admin',
-      'bg-luigi': variant === 'verified',
+      'bg-coin text-black': variant === 'gold',
+      'bg-[var(--pipe-300)] text-black': variant === 'silver',
+      'bg-brick text-white': variant === 'bronze',
+      'bg-mario text-white': variant === 'admin',
+      'bg-luigi text-white': variant === 'verified',
     }
   ),
 

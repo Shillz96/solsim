@@ -177,13 +177,15 @@ export function BadgeCollection({ userId, className = '' }: BadgeCollectionProps
                     
                     <div className="text-xs font-mario capitalize">
                       <span className={`
-                        px-2 py-1 rounded-full text-white
-                        ${badge.rarity === 'COMMON' ? 'bg-luigi-green-500' : ''}
-                        ${badge.rarity === 'UNCOMMON' ? 'bg-sky-blue-500' : ''}
-                        ${badge.rarity === 'RARE' ? 'bg-star-yellow-500' : ''}
-                        ${badge.rarity === 'EPIC' ? 'bg-mario-red-500' : ''}
-                        ${badge.rarity === 'LEGENDARY' ? 'bg-coin-yellow-500' : ''}
-                        ${badge.rarity === 'MYTHIC' ? 'bg-star-yellow-400' : ''}
+                        px-2 py-1 rounded-full border-2 border-outline shadow-[2px_2px_0_var(--outline-black)]
+                        ${badge.rarity === 'COMMON' ? 'bg-luigi-green-500 text-white' : ''}
+                        ${badge.rarity === 'UNCOMMON' ? 'bg-sky-blue-500 text-white' : ''}
+                        ${badge.rarity === 'RARE' ? 'bg-star-yellow-500 text-black' : ''}
+                        ${badge.rarity === 'EPIC' ? 'bg-mario-red-500 text-white' : ''}
+                        ${badge.rarity === 'LEGENDARY' ? 'bg-coin-yellow-500 text-black' : ''}
+                        ${badge.rarity === 'MYTHIC' ? 'bg-star-yellow-400 text-black' : ''}
+                        ${badge.rarity === 'ADMIN' ? 'bg-mario-red-500 text-white' : ''}
+                        ${badge.rarity === 'DEVELOPER' ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white' : ''}
                       `}>
                         {badge.rarity.toLowerCase()}
                       </span>

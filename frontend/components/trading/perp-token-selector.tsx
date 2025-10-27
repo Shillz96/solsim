@@ -163,12 +163,12 @@ export function PerpTokenSelector({ value, onChange }: PerpTokenSelectorProps) {
         <>
           {/* Backdrop */}
           <div
-            className="fixed inset-0 z-40"
+            className="fixed inset-0 z-dropdown"
             onClick={() => setIsOpen(false)}
           />
 
           {/* Dropdown */}
-          <Card className="absolute top-full mt-2 w-full z-50 max-h-96 overflow-hidden glass-overlay">
+          <Card className="absolute top-full mt-2 w-full z-search-dropdown max-h-96 overflow-hidden glass-overlay">
             {/* Search Input */}
             <div className="p-3 border-b sticky top-0 bg-card">
               <div className="relative">
