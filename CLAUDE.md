@@ -4,7 +4,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-1UP SOL is a full-stack Solana paper trading game with real-time price tracking, PnL calculations, leaderboards, and XP-based progression. It features a **Mario-themed retro game aesthetic** with vibrant colors, bold borders, and nostalgic design patterns inspired by classic Nintendo games. The platform uses a monorepo structure with a Next.js frontend and Fastify backend.
+1UP SOL is a **Solana paper trading game** with three core features:
+
+1. **Paper Trading** - Trade memecoins with virtual SOL (no real money)
+2. **Real-time PnL** - Live profit/loss tracking with FIFO accounting
+3. **Rewards System** - Earn XP and points for trading activity
+
+The platform features a **Mario-themed retro game aesthetic** with vibrant colors, bold borders, and nostalgic design patterns inspired by classic Nintendo games. Built with Next.js frontend and Fastify backend in a monorepo structure.
+
+**This is NOT a real trading platform** - all trades use virtual currency for risk-free practice and competition.
 
 ## Project Structure
 
@@ -103,6 +111,7 @@ Key services:
 - `tradeService.ts` - Trade execution and validation
 - `portfolioService.ts` - Position management and PnL calculations
 - `priceService.ts` / `priceService-v2.ts` - Real-time price streaming via Helius WebSocket
+- **`pumpPortalStreamService.ts`** - **PumpPortal WebSocket integration, populates TokenDiscovery table for Warp Pipes**
 - `rewardService.ts` - XP and points-based reward distribution
 - `walletTrackerService.ts` - KOL wallet tracking for copy trading
 
@@ -253,7 +262,7 @@ Frontend (/trending page)
 }
 ```
 
-**Key Queries**: `usePortfolioQuery`, `useRewardsQuery`, `useLeaderboardQuery`
+**Key Queries**: `usePortfolioQuery`, `useRewardsQuery`, `useLeaderboardQuery`, `useWarpPipesFeed`
 
 ### Database Schema Highlights
 
@@ -263,13 +272,20 @@ Frontend (/trending page)
 - `Position` - Current holdings with FIFO lot tracking
 - `PositionLot` - Individual purchase lots for FIFO accounting
 - `TransactionHistory` - FIFO transaction ledger
-- `Token` - Token metadata with trending metrics (volume, price changes, momentum)
+- `Token` - General token metadata with trending metrics (volume, price changes, momentum)
+- **`TokenDiscovery`** - **PumpPortal memecoin launch data** (bonded, graduating, new tokens) - **USED BY WARP PIPES PAGE**
 - `RewardSnapshot` / `RewardClaim` - Epoch-based reward distribution
+
+**IMPORTANT**: `Token` vs `TokenDiscovery` tables:
+- **`Token`** - General purpose token metadata for all Solana tokens (used by Room pages, search, etc.)
+- **`TokenDiscovery`** - Specifically for PumpPortal memecoin launches (used ONLY by Warp Pipes page)
+- These are separate tables with different purposes - do not confuse them!
 
 **Important Indexes**:
 - `trades`: `userId + timestamp DESC` for recent trade queries
 - `positions`: `userId + mint` for position lookups
 - `positionLots`: `userId + mint + createdAt ASC` for FIFO lot consumption
+- `tokenDiscovery`: `state`, `stateChangedAt`, `hotScore DESC` for Warp Pipes feed queries
 
 ### WebSocket Architecture
 
@@ -321,10 +337,12 @@ Frontend (/trending page)
 - `JWT_SECRET` - JWT signing secret
 
 **External APIs**:
+- **PumpPortal** - Real-time memecoin launch data via WebSocket (populates TokenDiscovery table for Warp Pipes)
 - Helius - Solana RPC + WebSocket for real-time swaps
-- DexScreener - Token metadata and price data
-- Jupiter - Price quotes and aggregation
-- CoinGecko - SOL/USD price reference
+- DexScreener - Token metadata and price data (fallback for Token table)
+- Jupiter - Price quotes and aggregation (fallback)
+- CoinGecko - SOL/USD price reference (fallback)
+- Birdeye - Generic trending Solana tokens (for `/api/trending` endpoint, NOT used by Warp Pipes)
 
 ## Critical Implementation Notes
 
@@ -391,6 +409,36 @@ const { data } = useTrendingTokens(50, 'rank')
 ```
 
 The Warp Pipes page is a **memecoin launch scanner**, not a generic trending page. All data (price, volume, holders) comes from the TokenDiscovery table populated by PumpPortal WebSocket streams.
+
+### Paper Trading Only
+
+**CRITICAL**: 1UP SOL is a **paper trading platform** - all trades use virtual SOL, not real money.
+
+```typescript
+// ✅ CORRECT - Paper trading with virtual SOL
+const virtualSolBalance = user.virtualSolBalance; // Virtual currency
+await tradeService.executeTrade({
+  userId,
+  mint,
+  side: 'BUY',
+  qty
+}); // Uses virtual SOL
+
+// ❌ WRONG - Don't implement real trading features
+// Real trading features (realTradeService.ts) are experimental/legacy
+// The core platform is paper trading only
+```
+
+**Core Features**:
+1. **Paper Trading** - All trades use virtual SOL (starting balance configured per user)
+2. **Real-time PnL** - Live profit/loss calculations with FIFO accounting
+3. **Rewards System** - XP and points earned from paper trading activity
+
+**What this means**:
+- No real Solana wallets are debited for trades
+- Users cannot lose real money
+- Platform is for practice, competition, and learning
+- Leaderboards rank paper trading performance
 
 ### Decimal Precision
 
@@ -552,8 +600,8 @@ All environment variables are documented in **ENVIRONMENT_SETUP.md**.
 - **Prisma Schema** (`backend/prisma/schema.prisma`) - Complete database schema with comments
 
 ### Testing & Guides
-- **[docs/guides/REAL_TRADING_TESTING_GUIDE.md](docs/guides/REAL_TRADING_TESTING_GUIDE.md)** - Testing real trading features
 - **[docs/guides/DATABASE_CLEANUP_GUIDE.md](docs/guides/DATABASE_CLEANUP_GUIDE.md)** - Database maintenance guide
+- **[docs/guides/REAL_TRADING_TESTING_GUIDE.md](docs/guides/REAL_TRADING_TESTING_GUIDE.md)** - ⚠️ Legacy: Experimental real trading feature (NOT core platform)
 
 ### AI Assistant Guidelines
 - **Cursor Rules** (`.cursor/rules/`) - AI assistant guidelines for architecture, services, code quality

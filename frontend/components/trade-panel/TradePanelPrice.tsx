@@ -14,8 +14,8 @@ interface TradePanelPriceProps {
 
 export function TradePanelPrice({ currentPrice, solPrice }: TradePanelPriceProps) {
   return (
-    <div className="p-2 border border-outline/20 rounded-[14px] bg-white">
-      <div className="text-[10px] font-bold text-outline/60 uppercase tracking-tight">
+    <div className="p-2 border-2 border-outline/30 rounded-[14px] bg-white shadow-[2px_2px_0_rgba(0,0,0,0.1)]">
+      <div className="text-[11px] font-bold text-outline/60 uppercase tracking-tight">
         Current Price
       </div>
       <AnimatedNumber
@@ -27,7 +27,7 @@ export function TradePanelPrice({ currentPrice, solPrice }: TradePanelPriceProps
         glowOnChange={true}
       />
       {solPrice > 0 && (
-        <div className="text-[9px] text-outline/40 mt-0.5">
+        <div className="text-[10px] text-outline/40 mt-0.5">
           {formatSolEquivalent(currentPrice, solPrice)}
         </div>
       )}

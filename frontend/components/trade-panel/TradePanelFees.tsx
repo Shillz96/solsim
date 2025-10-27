@@ -14,7 +14,7 @@ export function TradePanelFees({ fees }: TradePanelFeesProps) {
   const hasFees = fees && fees.estimatedFeeSol > 0
 
   return (
-    <div className="text-[10px] text-outline/60 font-medium">
+    <div className="text-[11px] text-outline/60 font-medium">
       <span className="font-bold">Fees:</span>{' '}
       <span className="font-mono">
         {hasFees ? (
