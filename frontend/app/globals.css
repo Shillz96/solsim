@@ -160,6 +160,64 @@
   }
 }
 
+/* ============================================================
+   MOBILE THEME SYSTEM - Responsive Mario Tokens
+   ============================================================ */
+
+/* Mobile-specific CSS variables for streamlined Mario theme */
+:root {
+  /* Mobile border widths (3px on mobile, 4px on desktop) */
+  --mobile-border-sm: 2px;
+  --mobile-border: 3px;
+  --mobile-border-lg: 3px;
+
+  /* Mobile shadows (lighter on mobile, heavier on desktop) */
+  --mobile-shadow-sm: 2px 2px 0 var(--outline-black);
+  --mobile-shadow: 3px 3px 0 var(--outline-black);
+  --mobile-shadow-md: 3px 3px 0 var(--outline-black);
+  --mobile-shadow-lg: 4px 4px 0 var(--outline-black);
+  --mobile-shadow-hover: 4px 4px 0 var(--outline-black);
+
+  /* Mobile border radius */
+  --mobile-radius-sm: 10px;
+  --mobile-radius: 12px;
+  --mobile-radius-md: 12px;
+  --mobile-radius-lg: 14px;
+  --mobile-radius-xl: 14px;
+  --mobile-radius-2xl: 16px;
+
+  /* Mobile padding (more compact) */
+  --mobile-spacing-xs: 0.5rem;  /* 8px */
+  --mobile-spacing-sm: 0.75rem; /* 12px */
+  --mobile-spacing: 1rem;       /* 16px */
+  --mobile-spacing-md: 1.25rem; /* 20px */
+  --mobile-spacing-lg: 1.5rem;  /* 24px */
+}
+
+/* Desktop overrides (md: 768px and up) */
+@media (min-width: 768px) {
+  :root {
+    /* Desktop border widths (heavier) */
+    --mobile-border-sm: 2px;
+    --mobile-border: 3px;
+    --mobile-border-lg: 4px;
+
+    /* Desktop shadows (more prominent) */
+    --mobile-shadow-sm: 2px 2px 0 var(--outline-black);
+    --mobile-shadow: 3px 3px 0 var(--outline-black);
+    --mobile-shadow-md: 4px 4px 0 var(--outline-black);
+    --mobile-shadow-lg: 6px 6px 0 var(--outline-black);
+    --mobile-shadow-hover: 6px 6px 0 var(--outline-black);
+
+    /* Desktop spacing (more generous) */
+    --mobile-spacing-xs: 0.5rem;
+    --mobile-spacing-sm: 0.75rem;
+    --mobile-spacing: 1.25rem;
+    --mobile-spacing-md: 1.5rem;
+    --mobile-spacing-lg: 2rem;
+  }
+}
+
   /* ---------------------------
    MARIO THEME COMPONENTS
    Uses theme.css variables for consistency
@@ -722,6 +780,43 @@
   height: 100%;
   background: var(--outline-black);
   margin: 0 1rem;
+}
+
+/* ============================================
+   MOBILE-RESPONSIVE CARD & COMPONENT CLASSES
+   Auto-adjust based on viewport size
+   ============================================ */
+
+/* Mobile Mario Card - Automatically responsive */
+.mario-card-mobile {
+  background: var(--card);
+  border-width: var(--mobile-border);
+  border-style: solid;
+  border-color: var(--outline-black);
+  border-radius: var(--mobile-radius-xl);
+  box-shadow: var(--mobile-shadow-md);
+  padding: var(--mobile-spacing-sm);
+  transition: transform var(--transition), box-shadow var(--transition);
+}
+
+.mario-card-mobile:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--mobile-shadow-hover);
+}
+
+/* Desktop Mario Card - Full styling on md+ */
+.mario-card-desktop {
+  background: var(--card);
+  border: 4px solid var(--outline-black);
+  border-radius: var(--radius-xl);
+  box-shadow: 6px 6px 0 var(--outline-black);
+  padding: 1.25rem;
+  transition: transform var(--transition), box-shadow var(--transition);
+}
+
+.mario-card-desktop:hover {
+  transform: translateY(-2px);
+  box-shadow: 8px 8px 0 var(--outline-black);
 }
 
 /* Mario Tab System - Now using component-level styles (components/ui/tabs.tsx) */

@@ -160,14 +160,14 @@ export function FilterPanel({
         </DialogTrigger>
 
         {/* Filter Modal Content */}
-        <DialogContent className="max-w-4xl max-h-[90vh] p-0 overflow-hidden">
-          <DialogHeader className="p-6 pb-4 border-b-4 border-outline">
-            <DialogTitle className="font-mario text-[24px] text-outline">
+        <DialogContent className="max-w-[95vw] sm:max-w-2xl md:max-w-4xl max-h-[90vh] p-0 overflow-hidden">
+          <DialogHeader className="p-4 sm:p-6 pb-3 sm:pb-4 border-b-[3px] md:border-b-4 border-outline">
+            <DialogTitle className="font-mario text-[18px] sm:text-[20px] md:text-[24px] text-outline">
               🎛️ Advanced Filters
             </DialogTitle>
           </DialogHeader>
 
-          <div className="overflow-y-auto max-h-[calc(90vh-200px)]">
+          <div className="overflow-y-auto max-h-[calc(90vh-180px)] sm:max-h-[calc(90vh-200px)]">
             <div className={colorTheme.panelBg}>
               {/* Tabbed Interface */}
               <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as any)} className="w-full">
@@ -212,8 +212,8 @@ export function FilterPanel({
                 </TabsList>
 
                 {/* Audit Tab */}
-                <TabsContent value="audit" className="p-6 space-y-4 bg-card">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <TabsContent value="audit" className="p-4 sm:p-6 space-y-3 sm:space-y-4 bg-card">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
                     {/* DEX Paid */}
                     <div className="flex items-center space-x-2">
                       <Checkbox
@@ -305,8 +305,8 @@ export function FilterPanel({
                 </TabsContent>
 
                 {/* $ Metrics Tab */}
-                <TabsContent value="metrics" className="p-6 space-y-4 bg-card">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <TabsContent value="metrics" className="p-4 sm:p-6 space-y-3 sm:space-y-4 bg-card">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
                     {/* Liquidity */}
                     <div className="space-y-2">
                       <Label className="text-sm font-bold text-outline flex items-center gap-2">
@@ -388,8 +388,8 @@ export function FilterPanel({
                 </TabsContent>
 
                 {/* Socials Tab */}
-                <TabsContent value="socials" className="p-6 space-y-4 bg-card">
-                  <div className="space-y-4">
+                <TabsContent value="socials" className="p-4 sm:p-6 space-y-3 sm:space-y-4 bg-card">
+                  <div className="space-y-3 sm:space-y-4">
                     {/* Social Requirements */}
                     <div className="space-y-3">
                       <div className="flex items-center space-x-2">
@@ -435,8 +435,8 @@ export function FilterPanel({
           </div>
 
           {/* Action Buttons */}
-          <div className="flex items-center justify-between p-6 pt-4 border-t-4 border-outline bg-card">
-            <div className="flex gap-2">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 p-4 sm:p-6 sm:pt-4 border-t-[3px] md:border-t-4 border-outline bg-card">
+            <div className="flex gap-2 justify-center sm:justify-start">
               <Button
                 onClick={handleImport}
                 variant="outline"
@@ -480,7 +480,7 @@ export function FilterPanel({
                 onToggle() // Close modal after applying
               }}
               className={cn(
-                "border-3 border-outline shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-[1px] transition-all duration-200 font-bold",
+                "w-full sm:w-auto border-[3px] md:border-[4px] border-outline shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-[1px] transition-all duration-200 font-bold min-h-[44px] touch-manipulation",
                 colorTheme.button,
                 colorTheme.text
               )}

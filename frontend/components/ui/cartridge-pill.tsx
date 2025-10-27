@@ -32,15 +32,19 @@ export function CartridgePill({
 }: Props) {
   const base = cn(
     "relative grid items-center",
-    "border-3 md:border-4 border-outline",
+    "border-[3px] md:border-[4px] border-outline",
     "shadow-[3px_3px_0_var(--outline-black)] md:shadow-[4px_4px_0_var(--outline-black)]",
-    "rounded-md md:rounded-lg",
-    "transition-transform hover:-translate-y-[1px]"
+    "hover:shadow-[4px_4px_0_var(--outline-black)] md:hover:shadow-[6px_6px_0_var(--outline-black)]",
+    "rounded-[12px] md:rounded-[14px]",
+    "transition-all duration-200 ease-out",
+    "hover:-translate-y-[1px] md:hover:-translate-y-[2px]",
+    // Mobile touch optimization
+    "active:scale-[0.98] touch-manipulation"
   )
 
   const dims = size === "sm"
-    ? "h-10 md:h-10 px-2.5 md:px-2.5 gap-2 md:gap-2"  // 40px - acceptable with padding
-    : "h-11 md:h-12 px-3 md:px-3 gap-3 md:gap-3"      // 44px mobile, 48px desktop - WCAG AA compliant
+    ? "h-10 md:h-10 px-2.5 md:px-3 gap-2"  // 40px - acceptable with padding
+    : "h-11 md:h-12 px-3 md:px-4 gap-2 md:gap-3"  // 44px mobile (WCAG), 48px desktop
 
   const inner = layout === "col"
     ? "grid grid-rows-[auto_auto] items-center leading-none -space-y-0.5"
@@ -68,13 +72,13 @@ export function CartridgePill({
     <div
       className={cn(
         "ml-auto grid place-items-center flex-shrink-0",
-        size === "sm" ? "h-6 w-6 md:h-6 md:w-6 rounded md:rounded" : "h-7 w-7 md:h-7 md:w-7 rounded-md md:rounded-md",
+        size === "sm" ? "h-6 w-6 rounded-[8px]" : "h-7 w-7 md:h-7 md:w-7 rounded-[10px]",
         "text-white",
-        "border-3 md:border-4 border-outline"
+        "border-[3px] md:border-[4px] border-outline"
       )}
       style={{ backgroundColor: badgeColor }}
     >
-      <span className={cn("font-extrabold", size === "sm" ? "text-[10px] md:text-[10px]" : "text-[11px] md:text-[11px]")}>
+      <span className={cn("font-extrabold", size === "sm" ? "text-[10px]" : "text-[11px]")}>
         {badgeText}
       </span>
     </div>

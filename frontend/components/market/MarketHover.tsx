@@ -67,18 +67,18 @@ export default function MarketHover({ trigger }: { trigger: React.ReactNode }) {
 
   const getFearGreedColor = (value: number | null | undefined) => {
     if (value === null || value === undefined) return "var(--text-secondary)";
-    if (value >= 75) return "#16a34a"; // Extreme Greed - green
-    if (value >= 55) return "#84cc16"; // Greed - lime
-    if (value >= 45) return "#fbbf24"; // Neutral - amber
-    if (value >= 25) return "#f97316"; // Fear - orange
-    return "#ef4444"; // Extreme Fear - red
+    if (value >= 75) return "var(--luigi-green)"; // Extreme Greed - green
+    if (value >= 55) return "var(--pipe-green)"; // Greed - lime
+    if (value >= 45) return "var(--star-yellow)"; // Neutral - amber
+    if (value >= 25) return "var(--coin-gold)"; // Fear - orange
+    return "var(--mario-red)"; // Extreme Fear - red
   };
 
   const getAltSeasonColor = (value: number | null | undefined) => {
     if (value === null || value === undefined) return "var(--text-secondary)";
-    if (value >= 75) return "#16a34a"; // Altseason - green
-    if (value >= 50) return "#fbbf24"; // Mixed - amber
-    return "#3b82f6"; // Bitcoin Season - blue
+    if (value >= 75) return "var(--luigi-green)"; // Altseason - green
+    if (value >= 50) return "var(--star-yellow)"; // Mixed - amber
+    return "var(--sky-blue)"; // Bitcoin Season - blue
   };
 
   return (
