@@ -81,14 +81,14 @@
     background-repeat: repeat;
     background-size: 200vw 200vh; /* Scale to 2x viewport size for seamless feel */
     background-position: center;
-    opacity: 0.2;
+    opacity: 0.2; /* Subtle background texture */
     mix-blend-mode: multiply;
     pointer-events: none;
-    z-index: var(--z-background-texture);
+    z-index: var(--z-background-texture); /* z-index: 1 - behind content */
     filter: blur(0.5px); /* Slight blur to hide any remaining seams */
   }
 
-  /* Layer 2 - Top Texture (Behind Content, Above Background) */
+  /* Layer 2 - Top Texture (In Front of Content) */
   body::after {
     content: "";
     position: fixed;
@@ -100,10 +100,10 @@
     background-repeat: repeat;
     background-size: 150vw 150vh; /* Scale to 1.5x viewport size */
     background-position: center;
-    opacity: 0.08;
+    opacity: 0.9; /* Strong paper grain effect on top */
     mix-blend-mode: multiply;
     pointer-events: none;
-    z-index: var(--z-background-texture);
+    z-index: var(--z-foreground-texture); /* z-index: 9999 - on top of everything */
     filter: blur(0.3px); /* Slight blur for smooth grain */
   }
 

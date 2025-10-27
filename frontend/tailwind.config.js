@@ -321,6 +321,7 @@ module.exports = {
         '0': '0',
         'base': 'var(--z-base)',
         'background-texture': 'var(--z-background-texture)',
+        'foreground-texture': 'var(--z-foreground-texture)',
         'content': 'var(--z-content)',
         'header': 'var(--z-header)',
         'nav': 'var(--z-nav)',

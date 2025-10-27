@@ -603,52 +603,52 @@ export const UnifiedPositions = memo(function UnifiedPositions({
             </Button>
           </div>
 
-          {/* Main Stats - Mario Block Style */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <div className="text-center p-4 bg-sky-100 border-3 border-pipe-600 rounded-[14px] shadow-[3px_3px_0_0_rgba(0,0,0,0.2)]">
-              <p className="text-sm font-bold text-pipe-700 uppercase mb-2">Total Value</p>
-              <div className="text-2xl font-bold text-pipe-900">
+          {/* Main Stats - Mario Block Style - Responsive Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 mb-6">
+            <div className="text-center p-4 sm:p-5 bg-sky-100 border-[3px] md:border-4 border-pipe-600 rounded-[14px] shadow-[3px_3px_0_0_rgba(0,0,0,0.2)] md:shadow-[4px_4px_0_0_rgba(0,0,0,0.2)]">
+              <p className="text-xs sm:text-sm font-bold text-pipe-700 uppercase mb-2">Total Value</p>
+              <div className="text-xl sm:text-2xl font-bold text-pipe-900">
                 <UsdWithSol
                   usd={liveTotals.totalValueUsd}
-                  className="text-2xl font-bold"
-                  solClassName="text-sm"
+                  className="text-xl sm:text-2xl font-bold"
+                  solClassName="text-xs sm:text-sm"
                 />
               </div>
             </div>
 
             <div className={cn(
-              "text-center p-4 border-3 rounded-[14px] shadow-[3px_3px_0_0_rgba(0,0,0,0.2)]",
+              "text-center p-4 sm:p-5 border-[3px] md:border-4 rounded-[14px] shadow-[3px_3px_0_0_rgba(0,0,0,0.2)] md:shadow-[4px_4px_0_0_rgba(0,0,0,0.2)]",
               liveTotals.totalPnlUsd >= 0
                 ? "bg-luigi-green-100 border-luigi-green-600"
                 : "bg-mario-red-100 border-mario-red-600"
             )}>
-              <p className="text-sm font-bold text-pipe-700 uppercase mb-2">Total PnL</p>
+              <p className="text-xs sm:text-sm font-bold text-pipe-700 uppercase mb-2">Total PnL</p>
               <div className="flex items-center justify-center gap-2">
                 {liveTotals.totalPnlUsd >= 0 ? (
-                  <TrendingUp className="h-5 w-5 text-profit" />
+                  <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 text-profit" />
                 ) : (
-                  <TrendingDown className="h-5 w-5 text-loss" />
+                  <TrendingDown className="h-4 w-4 sm:h-5 sm:w-5 text-loss" />
                 )}
                 <div className={liveTotals.totalPnlUsd >= 0 ? 'text-profit' : 'text-loss'}>
                   <UsdWithSol
                     usd={liveTotals.totalPnlUsd}
                     prefix={liveTotals.totalPnlUsd >= 0 ? '+' : ''}
-                    className="text-2xl font-bold"
-                    solClassName="text-sm"
+                    className="text-xl sm:text-2xl font-bold"
+                    solClassName="text-xs sm:text-sm"
                   />
                 </div>
               </div>
               <p className={cn(
-                "text-sm font-bold mt-1",
+                "text-xs sm:text-sm font-bold mt-1",
                 liveTotals.totalPnlPercent >= 0 ? 'text-profit' : 'text-loss'
               )}>
                 {liveTotals.totalPnlPercent >= 0 ? '+' : ''}{liveTotals.totalPnlPercent.toFixed(2)}%
               </p>
             </div>
 
-            <div className="text-center p-4 bg-star-yellow-100 border-3 border-star-yellow-600 rounded-[14px] shadow-[3px_3px_0_0_rgba(0,0,0,0.2)]">
-              <p className="text-sm font-bold text-pipe-700 uppercase mb-2">Active Positions</p>
-              <p className="text-2xl font-bold text-pipe-900">{liveTotals.positionCount}</p>
+            <div className="text-center p-4 sm:p-5 bg-star-yellow-100 border-[3px] md:border-4 border-star-yellow-600 rounded-[14px] shadow-[3px_3px_0_0_rgba(0,0,0,0.2)] md:shadow-[4px_4px_0_0_rgba(0,0,0,0.2)] sm:col-span-2 lg:col-span-1">
+              <p className="text-xs sm:text-sm font-bold text-pipe-700 uppercase mb-2">Active Positions</p>
+              <p className="text-xl sm:text-2xl font-bold text-pipe-900">{liveTotals.positionCount}</p>
             </div>
           </div>
 
@@ -706,8 +706,137 @@ export const UnifiedPositions = memo(function UnifiedPositions({
             </Badge>
           )}
         </div>
-        
-        <div className="overflow-x-auto">
+
+        {/* Mobile Card Layout - Shown on < md screens */}
+        <div className="md:hidden space-y-3">
+          {enhancedPositions.map((position, index) => {
+            const pnl = position.liveUnrealizedUsd || 0
+            const pnlPercent = position.liveUnrealizedPercent || 0
+            const isPositive = pnl >= 0
+
+            return (
+              <motion.div
+                key={position.mint}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.05 }}
+                className="bg-background border-[3px] border-outline rounded-xl shadow-[4px_4px_0_var(--outline-black)] overflow-hidden"
+              >
+                {/* Card Header - Token Info */}
+                <Link href={`/room/${position.mint}`}>
+                  <div className="p-4 bg-muted/30 border-b-[3px] border-outline flex items-center gap-3 active:bg-muted/50 transition-colors">
+                    {position.tokenImage ? (
+                      <img
+                        src={position.tokenImage}
+                        alt={position.tokenSymbol || 'Token'}
+                        className="w-12 h-12 rounded-full ring-2 ring-outline/20"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).style.display = 'none'
+                        }}
+                      />
+                    ) : (
+                      <div className="w-12 h-12 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full flex items-center justify-center text-sm font-bold text-white ring-2 ring-outline/20">
+                        {position.tokenSymbol?.slice(0, 2) || '??'}
+                      </div>
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-bold text-[16px] truncate">{position.tokenSymbol}</h3>
+                      <p className="text-xs text-muted-foreground font-mono">
+                        {position.mint.slice(0, 6)}...{position.mint.slice(-4)}
+                      </p>
+                    </div>
+                    <ChevronRight className="h-5 w-5 text-muted-foreground flex-shrink-0" />
+                  </div>
+                </Link>
+
+                {/* Card Body - Position Details */}
+                <div className="p-4 space-y-3">
+                  {/* Current Value & PnL - Prominent */}
+                  <div className="flex items-center justify-between pb-3 border-b border-outline/20">
+                    <div>
+                      <p className="text-[10px] text-muted-foreground uppercase tracking-wide mb-1">Current Value</p>
+                      <UsdWithSol
+                        usd={position.currentValueUsd || 0}
+                        className="text-lg font-bold"
+                        solClassName="text-xs"
+                      />
+                    </div>
+                    <div className="text-right">
+                      <p className="text-[10px] text-muted-foreground uppercase tracking-wide mb-1">PnL</p>
+                      <div className={cn("text-lg font-bold", isPositive ? "text-profit" : "text-loss")}>
+                        <UsdWithSol
+                          usd={pnl}
+                          prefix={isPositive ? "+" : ""}
+                          className="text-lg font-bold"
+                          solClassName="text-xs"
+                        />
+                      </div>
+                      <Badge
+                        variant={isPositive ? "default" : "destructive"}
+                        className={cn(
+                          "text-[10px] mt-1",
+                          isPositive ? "bg-profit/10 text-profit border-profit/20" : ""
+                        )}
+                      >
+                        {pnlPercent >= 0 ? '+' : ''}{pnlPercent.toFixed(2)}%
+                      </Badge>
+                    </div>
+                  </div>
+
+                  {/* Position Metrics Grid */}
+                  <div className="grid grid-cols-2 gap-3 text-sm">
+                    <div>
+                      <p className="text-[10px] text-muted-foreground uppercase tracking-wide mb-1">Quantity</p>
+                      <p className="font-mono font-bold text-sm">{formatAmount(position.qty)}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-[10px] text-muted-foreground uppercase tracking-wide mb-1">Avg Cost</p>
+                      <UsdWithSol
+                        usd={parseFloat(position.avgCostUsd)}
+                        className="text-sm font-mono font-bold"
+                        solClassName="text-xs"
+                      />
+                    </div>
+                    <div className="col-span-2">
+                      <p className="text-[10px] text-muted-foreground uppercase tracking-wide mb-1">Current Price</p>
+                      {position.livePriceNumber ? (
+                        <UsdWithSol
+                          usd={position.livePriceNumber}
+                          className="text-sm font-mono font-bold"
+                          solClassName="text-xs"
+                        />
+                      ) : (
+                        <span className="text-sm text-muted-foreground">N/A</span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Actions - Quick Sell Buttons */}
+                  <div className="grid grid-cols-4 gap-2 pt-3 border-t border-outline/20">
+                    {[25, 50, 75, 100].map((percent) => (
+                      <Button
+                        key={percent}
+                        size="sm"
+                        onClick={() => onNavigate(position.mint, position.tokenSymbol, position.tokenName, 'sell', percent)}
+                        className={cn(
+                          "h-9 text-xs font-bold",
+                          "bg-mario-red hover:bg-mario-red/90 text-white",
+                          "border-2 border-outline",
+                          "touch-manipulation"
+                        )}
+                      >
+                        {percent}%
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+              </motion.div>
+            )
+          })}
+        </div>
+
+        {/* Desktop Table Layout - Shown on md+ screens */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full">
             <thead>
               <tr className="border-b">

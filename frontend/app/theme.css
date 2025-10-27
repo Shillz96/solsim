@@ -253,7 +253,18 @@
    * 1000-1900: Overlays (modals, popovers, tooltips)
    * 2000+: System overlays (toasts, loading, alerts)
    * 9000+: Critical UI elements (highest priority for user interaction)
-   * 9999: Debug & texture overlays
+   * 9999: Foreground texture overlay (paper grain on top of everything)
+   * 
+   * PAPER TEXTURE SYSTEM - Dual Layer Design:
+   * --z-background-texture: 1 (behind content)
+   *   - File: papertexturre-2.avif
+   *   - Opacity: 20% (0.2)
+   *   - Purpose: Subtle background texture
+   * 
+   * --z-foreground-texture: 9999 (on top of everything)
+   *   - File: Paper-Texture-7.jpg
+   *   - Opacity: 90% (0.9)
+   *   - Purpose: Strong paper grain overlay effect
    * 
    * USAGE GUIDELINES:
    * 
@@ -285,7 +296,8 @@
   
   /* Base Content Layers (0-10) */
   --z-base: 0;
-  --z-background-texture: 1;      /* Background texture layer */
+  --z-background-texture: 1;      /* Background texture layer (behind content) */
+  --z-foreground-texture: 9999;   /* Foreground texture overlay (on top of everything) */
   --z-content: 2;                 /* Main content layer */
   
   /* Interface Elements (100-900) */
