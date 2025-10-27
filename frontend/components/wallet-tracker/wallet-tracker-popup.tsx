@@ -1,34 +1,31 @@
 "use client"
 
-import { useState, useEffect, useCallback, useRef } from "react"
+import { useState, useEffect, useCallback, useRef, useId } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { 
-  X, 
-  Eye, 
-  Trash2, 
-  Copy, 
-  ExternalLink, 
-  TrendingUp, 
+import {
+  X,
+  Eye,
+  Trash2,
+  Copy,
+  ExternalLink,
+  TrendingUp,
   TrendingDown,
   Plus,
-  Search,
   Loader2,
   UserPlus,
   Activity,
-  AlertCircle
+  AlertCircle,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
-import { Card } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Label } from "@/components/ui/label"
 import { Slider } from "@/components/ui/slider"
 import { useToast } from "@/hooks/use-toast"
 import { useAuth } from "@/hooks/use-auth"
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { useMutation, useQuery } from "@tanstack/react-query"
 import { cn } from "@/lib/utils"
-import { formatUSD, formatNumber } from "@/lib/format"
 import * as api from "@/lib/wallet-tracker-api"
 import type * as Backend from "@/lib/types/backend"
 
@@ -40,58 +37,53 @@ interface WalletTrackerPopupProps {
 export function WalletTrackerPopup({ isOpen, onClose }: WalletTrackerPopupProps) {
   const { user, getUserId } = useAuth()
   const { toast } = useToast()
-  const queryClient = useQueryClient()
   const [activeTab, setActiveTab] = useState<"tracked" | "add">("tracked")
 
-  // Swipe to close state
+  // Swipe to close
   const [touchStart, setTouchStart] = useState<number | null>(null)
   const [touchEnd, setTouchEnd] = useState<number | null>(null)
+  const minSwipeDistance = 50
 
-  // Focus trap refs
+  // Focus management
   const popupRef = useRef<HTMLDivElement>(null)
   const previousFocusRef = useRef<HTMLElement | null>(null)
 
-  // Add wallet state
+  // Form state
+  const addressId = useId()
+  const labelId = useId()
   const [newWalletAddress, setNewWalletAddress] = useState("")
   const [newWalletLabel, setNewWalletLabel] = useState("")
-  const [isAddingWallet, setIsAddingWallet] = useState(false)
 
-  // Activity state
+  // UI state
   const [selectedWallet, setSelectedWallet] = useState<string | null>(null)
 
-  // Copy trade state - persist in localStorage
+  // Copy-trade state (persist)
   const [copyTradePercentage, setCopyTradePercentage] = useState(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('wallet-tracker-copy-percentage')
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("wallet-tracker-copy-percentage")
       return saved ? parseInt(saved, 10) : 100
     }
     return 100
   })
-  const [copyingTrade, setCopyingTrade] = useState<string | null>(null)
 
-  // Persist copy trade percentage to localStorage
   useEffect(() => {
-    localStorage.setItem('wallet-tracker-copy-percentage', copyTradePercentage.toString())
+    localStorage.setItem("wallet-tracker-copy-percentage", copyTradePercentage.toString())
   }, [copyTradePercentage])
 
-  // Debounced slider update
+  // Debounce slider changes for smoother UI
   const debounceRef = useRef<NodeJS.Timeout | null>(null)
   const debouncedSetCopyTradePercentage = useCallback((value: number) => {
-    if (debounceRef.current) {
-      clearTimeout(debounceRef.current)
-    }
-    debounceRef.current = setTimeout(() => {
-      setCopyTradePercentage(value)
-    }, 100) // 100ms debounce
+    if (debounceRef.current) clearTimeout(debounceRef.current)
+    debounceRef.current = setTimeout(() => setCopyTradePercentage(value), 100)
   }, [])
 
-  // Query for tracked wallets
+  // Data: tracked wallets
   const {
     data: trackedWallets = [],
     isLoading: loadingWallets,
-    refetch: refetchTrackedWallets
+    refetch: refetchTrackedWallets,
   } = useQuery({
-    queryKey: ['tracked-wallets', user?.id],
+    queryKey: ["tracked-wallets", user?.id],
     queryFn: async () => {
       if (!user?.id) return []
       const userId = getUserId()
@@ -100,30 +92,30 @@ export function WalletTrackerPopup({ isOpen, onClose }: WalletTrackerPopupProps)
       return response.trackedWallets
     },
     enabled: !!user?.id && isOpen,
-    staleTime: 30000, // 30 seconds
+    staleTime: 30_000,
   })
 
-  // Query for wallet activity
+  // Data: wallet activity
   const {
     data: walletActivity = [],
     isLoading: loadingActivity,
-    refetch: refetchWalletActivity
+    refetch: refetchWalletActivity,
   } = useQuery({
-    queryKey: ['wallet-activity', selectedWallet],
+    queryKey: ["wallet-activity", selectedWallet],
     queryFn: async () => {
       if (!selectedWallet) return []
       const response = await api.getWalletActivity(selectedWallet, 20)
       return response.activity
     },
     enabled: !!selectedWallet,
-    staleTime: 15000, // 15 seconds for activity
+    staleTime: 15_000,
   })
 
-  // Mutation for adding wallet
+  // Mutations
   const addWalletMutation = useMutation({
-    mutationFn: async ({ walletAddress, label }: { walletAddress: string, label?: string }) => {
+    mutationFn: async ({ walletAddress, label }: { walletAddress: string; label?: string }) => {
       const userId = getUserId()
-      if (!userId) throw new Error('User not authenticated')
+      if (!userId) throw new Error("User not authenticated")
       return await api.trackWallet(userId, walletAddress, label)
     },
     onSuccess: () => {
@@ -140,102 +132,93 @@ export function WalletTrackerPopup({ isOpen, onClose }: WalletTrackerPopupProps)
       toast({
         title: "Error",
         description: error.message || "Failed to add wallet",
-        variant: "destructive"
+        variant: "destructive",
       })
-    }
+    },
   })
 
-  // Mutation for removing wallet
   const removeWalletMutation = useMutation({
     mutationFn: async (trackingId: string) => {
       return await api.untrackWallet(trackingId)
     },
     onSuccess: () => {
       refetchTrackedWallets()
-      toast({
-        title: "Success",
-        description: "Wallet removed from tracking"
-      })
-      if (selectedWallet) {
-        setSelectedWallet(null)
-      }
+      toast({ title: "Removed", description: "Wallet removed from tracking" })
+      if (selectedWallet) setSelectedWallet(null)
     },
     onError: () => {
       toast({
         title: "Error",
         description: "Failed to remove wallet",
-        variant: "destructive"
+        variant: "destructive",
       })
-    }
+    },
   })
 
-  // Mutation for copying trade
   const copyTradeMutation = useMutation({
-    mutationFn: async ({ walletAddress, signature, percentage }: { walletAddress: string, signature: string, percentage: number }) => {
+    mutationFn: async ({
+      walletAddress,
+      signature,
+      percentage,
+    }: {
+      walletAddress: string
+      signature: string
+      percentage: number
+    }) => {
       const userId = getUserId()
-      if (!userId) throw new Error('User not authenticated')
+      if (!userId) throw new Error("User not authenticated")
       return await api.copyTrade(userId, walletAddress, signature, percentage)
     },
     onSuccess: (_, { percentage }) => {
-      setCopyingTrade(null)
       toast({
-        title: "Trade Copied!",
-        description: `Successfully copied trade at ${percentage}% size`,
+        title: "Trade copied",
+        description: `Executed at ${percentage}% size`,
       })
     },
     onError: (error: any) => {
-      setCopyingTrade(null)
       toast({
-        title: "Error",
-        description: error.message || "Failed to copy trade",
-        variant: "destructive"
+        title: "Copy failed",
+        description: error.message || "Unable to copy this trade",
+        variant: "destructive",
       })
-    }
+    },
   })
 
-  // Add wallet to tracking
+  // Handlers
   const handleAddWallet = () => {
     if (!user || !newWalletAddress.trim()) {
       toast({
-        title: "Error",
+        title: "Missing address",
         description: "Please enter a wallet address",
-        variant: "destructive"
+        variant: "destructive",
       })
       return
     }
-
     addWalletMutation.mutate({
       walletAddress: newWalletAddress.trim(),
-      label: newWalletLabel.trim() || undefined
+      label: newWalletLabel.trim() || undefined,
     })
   }
 
-  // Remove wallet from tracking
   const handleRemoveWallet = (trackingId: string) => {
     removeWalletMutation.mutate(trackingId)
   }
 
-  // Copy trade
   const handleCopyTrade = (walletAddress: string, signature: string) => {
     if (!user) {
       toast({
-        title: "Error",
-        description: "Please log in to copy trades",
-        variant: "destructive"
+        title: "Please log in",
+        description: "You must be logged in to copy trades",
+        variant: "destructive",
       })
       return
     }
-
-    setCopyingTrade(signature)
     copyTradeMutation.mutate({
       walletAddress,
       signature,
-      percentage: copyTradePercentage
+      percentage: copyTradePercentage,
     })
   }
-
-  // Swipe to close functionality
-  const minSwipeDistance = 50
 
   const onTouchStart = (e: React.TouchEvent) => {
     setTouchEnd(null)
@@ -248,71 +231,45 @@ export function WalletTrackerPopup({ isOpen, onClose }: WalletTrackerPopupProps)
 
   const onTouchEnd = () => {
     if (!touchStart || !touchEnd) return
-
     const distance = touchStart - touchEnd
     const isDownSwipe = distance < -minSwipeDistance
-
-    if (isDownSwipe) {
-      onClose()
-    }
+    if (isDownSwipe) onClose()
   }
 
-  // Prevent body scroll and manage focus when popup is opened
+  // Popup lifecycle: scroll lock + focus restore
   useEffect(() => {
     if (isOpen) {
-      // Prevent body scroll
-      document.body.style.overflow = 'hidden'
-
-      // Store previous focus
+      document.body.style.overflow = "hidden"
       previousFocusRef.current = document.activeElement as HTMLElement
 
-      // Focus the popup
+      // Focus the first focusable element for accessibility
       setTimeout(() => {
-        if (popupRef.current) {
-          const focusableElements = popupRef.current.querySelectorAll(
-            'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-          )
-          const firstFocusable = focusableElements[0] as HTMLElement
-          if (firstFocusable) {
-            firstFocusable.focus()
-          } else {
-            popupRef.current.focus()
-          }
-        }
-      }, 100)
+        if (!popupRef.current) return
+        const focusable = popupRef.current.querySelectorAll<HTMLElement>(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        )
+        ;(focusable[0] ?? popupRef.current).focus()
+      }, 50)
 
-      // Add escape key handler
-      const handleKeyDown = (e: KeyboardEvent) => {
-        if (e.key === 'Escape') {
-          onClose()
-        }
+      const onKey = (e: KeyboardEvent) => {
+        if (e.key === "Escape") onClose()
       }
-      document.addEventListener('keydown', handleKeyDown)
-
-      return () => {
-        document.removeEventListener('keydown', handleKeyDown)
-      }
+      document.addEventListener("keydown", onKey)
+      return () => document.removeEventListener("keydown", onKey)
     } else {
-      // Restore body scroll when closed
-      document.body.style.overflow = ''
-
-      // Restore previous focus
-      if (previousFocusRef.current) {
-        previousFocusRef.current.focus()
-      }
+      document.body.style.overflow = ""
+      if (previousFocusRef.current) previousFocusRef.current.focus()
     }
 
-    // Cleanup on unmount
     return () => {
-      document.body.style.overflow = ''
+      document.body.style.overflow = ""
     }
   }, [isOpen, onClose])
 
-  // Handle backdrop click with confirmation if trade is in progress
   const handleBackdropClick = () => {
     if (copyTradeMutation.isPending) {
       const confirmed = window.confirm(
-        "A trade copy is in progress. Are you sure you want to close the wallet tracker?"
+        "A trade copy is in progress. Close the wallet tracker anyway?"
       )
       if (!confirmed) return
     }
@@ -321,10 +278,7 @@ export function WalletTrackerPopup({ isOpen, onClose }: WalletTrackerPopupProps)
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text)
-    toast({
-      title: "Copied!",
-      description: "Address copied to clipboard"
-    })
+    toast({ title: "Copied", description: "Address copied to clipboard" })
   }
 
   return (
@@ -336,178 +290,229 @@ export function WalletTrackerPopup({ isOpen, onClose }: WalletTrackerPopupProps)
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-modal-backdrop"
+            className="fixed inset-0 z-[var(--z-modal-backdrop,60)] bg-black/60 backdrop-blur-sm"
             onClick={handleBackdropClick}
           />
 
-          {/* Popup */}
+          {/* Bottom Sheet */}
           <motion.div
             ref={popupRef}
             initial={{ y: "100%", opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: "100%", opacity: 0 }}
-            transition={{ type: "spring", damping: 30, stiffness: 300 }}
-            className="fixed bottom-0 left-0 right-0 z-modal max-h-[calc(100vh-env(safe-area-inset-bottom)-200px)] bg-background border-t-4 border-outline rounded-t-xl shadow-[0_-8px_0_var(--outline-black)] overflow-hidden"
+            transition={{ type: "spring", damping: 30, stiffness: 320 }}
+            className={cn(
+              "fixed left-1/2 bottom-0 z-[var(--z-modal,70)] w-full max-w-3xl -translate-x-1/2",
+              "rounded-t-2xl border-t-4 border-[var(--outline-black)]",
+              "bg-[var(--panel-bg,theme(colors.background))] shadow-[0_-10px_0_var(--outline-black)]",
+              "ring-1 ring-black/5"
+            )}
             role="dialog"
+            aria-modal="true"
             aria-label="Wallet tracker"
             tabIndex={-1}
           >
-            <div className="flex flex-col h-full max-h-[calc(100vh-env(safe-area-inset-bottom)-200px)]">
-              {/* Header */}
-              <div
-                className="flex items-center justify-between p-4 border-b-3 border-outline bg-muted/30 touch-none"
-                onTouchStart={onTouchStart}
-                onTouchMove={onTouchMove}
-                onTouchEnd={onTouchEnd}
-              >
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-primary/10 rounded-lg">
-                    <Eye className="h-5 w-5 text-primary" />
-                  </div>
-                  <div>
-                    <h2 className="text-lg font-bold">Wallet Tracker</h2>
-                    <p className="text-xs text-muted-foreground">Follow KOL wallets & copy trades</p>
-                  </div>
+            {/* Grab handle / swipe area */}
+            <div
+              className="relative w-full touch-none"
+              onTouchStart={onTouchStart}
+              onTouchMove={onTouchMove}
+              onTouchEnd={onTouchEnd}
+            >
+              <div className="mx-auto mt-2 h-1.5 w-12 rounded-full bg-foreground/20" />
+            </div>
+
+            {/* Header */}
+            <div className="flex items-center justify-between gap-3 px-4 py-3 sm:px-5 sm:py-4 border-b-3 border-[var(--outline-black)] bg-[linear-gradient(180deg,rgba(255,255,255,0.6),transparent)]">
+              <div className="flex min-w-0 items-center gap-3">
+                <div className="grid h-9 w-9 place-items-center rounded-xl border-2 border-[var(--outline-black)] bg-[var(--mario-yellow,#FFD93D)] shadow-[3px_3px_0_var(--outline-black)]">
+                  <Eye className="h-5 w-5 text-[var(--outline-black)]" />
                 </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={onClose}
-                  className="hover:bg-destructive/10 hover:text-destructive"
-                >
-                  <X className="h-5 w-5" />
-                </Button>
+                <div className="min-w-0">
+                  <h2 className="truncate text-base font-extrabold tracking-tight sm:text-lg">
+                    Wallet Tracker
+                  </h2>
+                  <p className="text-xs text-muted-foreground">
+                    Follow KOL wallets & copy trades
+                  </p>
+                </div>
               </div>
 
-              {/* Content */}
-              <div className="flex-1 overflow-y-auto p-4">
-                <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)}>
-                  <TabsList className="grid w-full grid-cols-2 mb-4">
-                    <TabsTrigger value="tracked" className="gap-2">
-                      <Activity className="h-4 w-4" />
-                      Tracked ({trackedWallets.length})
-                    </TabsTrigger>
-                    <TabsTrigger value="add" className="gap-2">
-                      <UserPlus className="h-4 w-4" />
-                      Add Wallet
-                    </TabsTrigger>
-                  </TabsList>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={onClose}
+                className="rounded-xl border-2 border-transparent hover:border-[var(--outline-black)] hover:bg-destructive/10 hover:text-destructive"
+                aria-label="Close wallet tracker"
+              >
+                <X className="h-5 w-5" />
+              </Button>
+            </div>
 
-                  {/* Tracked Wallets Tab */}
+            {/* Tabs */}
+            <div className="px-4 pb-3 pt-2 sm:px-5">
+              <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)}>
+                <TabsList
+                  className={cn(
+                    "grid w-full grid-cols-2 rounded-2xl border-2 border-[var(--outline-black)] bg-white/60 backdrop-blur",
+                    "shadow-[3px_3px_0_var(--outline-black)]"
+                  )}
+                >
+                  <TabsTrigger
+                    value="tracked"
+                    className={cn(
+                      "gap-2 rounded-xl data-[state=active]:bg-[var(--mario-red,#FF3B30)] data-[state=active]:text-white",
+                      "data-[state=active]:shadow-[inset_0_-3px_0_rgba(0,0,0,0.25)]"
+                    )}
+                  >
+                    <Activity className="h-4 w-4" />
+                    Tracked ({trackedWallets.length})
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="add"
+                    className={cn(
+                      "gap-2 rounded-xl data-[state=active]:bg-[var(--mario-blue,#007AFF)] data-[state=active]:text-white",
+                      "data-[state=active]:shadow-[inset_0_-3px_0_rgba(0,0,0,0.25)]"
+                    )}
+                  >
+                    <UserPlus className="h-4 w-4" />
+                    Add Wallet
+                  </TabsTrigger>
+                </TabsList>
+
+                {/* Content scroll area */}
+                <div className="max-h-[min(70vh,680px)] overflow-y-auto overscroll-contain py-3">
+                  {/* TRACKED */}
                   <TabsContent value="tracked" className="space-y-4">
                     {loadingWallets ? (
                       <div className="flex items-center justify-center py-12">
                         <Loader2 className="h-8 w-8 animate-spin text-primary" />
                       </div>
                     ) : trackedWallets.length === 0 ? (
-                      <div className="mario-card-standard p-8 text-center">
-                        <div className="flex flex-col items-center gap-3">
-                          <div className="mario-icon-container">
-                            <Eye className="h-8 w-8 text-white" />
-                          </div>
-                          <p className="text-outline font-semibold">No wallets tracked yet</p>
-                          <Button onClick={() => setActiveTab("add")} size="sm" className="mario-btn-standard gap-2">
-                            <Plus className="h-4 w-4" />
-                            Track Your First Wallet
-                          </Button>
-                        </div>
-                      </div>
+                      <EmptyState onPrimary={() => setActiveTab("add")} />
                     ) : (
-                      <div className="space-y-3">
-                        {trackedWallets.map((wallet) => (
-                          <div
+                      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                        {trackedWallets.map((wallet: Backend.TrackedWallet) => (
+                          <button
                             key={wallet.id}
+                            type="button"
                             className={cn(
-                              "mario-card-standard p-4 hover:shadow-[8px_8px_0_var(--outline-black)] hover:-translate-y-1 transition-all cursor-pointer",
-                              selectedWallet === wallet.walletAddress && "border-mario bg-mario/10"
+                              "group text-left rounded-2xl border-2 border-[var(--outline-black)] bg-white/80 p-4 transition-all",
+                              "shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 hover:shadow-[6px_6px_0_var(--outline-black)]",
+                              selectedWallet === wallet.walletAddress &&
+                                "bg-[var(--mario-yellow,#FFD93D)]/20"
                             )}
                             onClick={() => setSelectedWallet(wallet.walletAddress)}
                           >
-                            <div className="flex items-start justify-between">
-                              <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-2 mb-1">
+                            <div className="flex items-start justify-between gap-3">
+                              <div className="min-w-0">
+                                <div className="mb-2 flex flex-wrap items-center gap-2">
                                   {wallet.label && (
-                                    <Badge variant="secondary" className="text-xs">
+                                    <Badge
+                                      variant="secondary"
+                                      className="rounded-lg border-2 border-[var(--outline-black)] bg-white text-xs shadow-[2px_2px_0_var(--outline-black)]"
+                                    >
                                       {wallet.label}
                                     </Badge>
                                   )}
-                                  <Badge 
-                                    variant={wallet.isActive ? "default" : "outline"} 
-                                    className="text-xs"
+                                  <Badge
+                                    variant={wallet.isActive ? "default" : "outline"}
+                                    className={cn(
+                                      "rounded-lg border-2 border-[var(--outline-black)] text-xs",
+                                      wallet.isActive
+                                        ? "bg-[var(--mario-green,#34C759)] text-white"
+                                        : "bg-white"
+                                    )}
                                   >
                                     {wallet.isActive ? "Active" : "Inactive"}
                                   </Badge>
                                 </div>
-                                <div className="flex items-center gap-2 mt-2">
-                                  <code className="text-sm font-mono text-muted-foreground truncate">
+
+                                <div className="flex items-center gap-2">
+                                  <code className="truncate font-mono text-sm text-muted-foreground">
                                     {wallet.walletAddress}
                                   </code>
                                   <Button
                                     variant="ghost"
                                     size="icon"
-                                    className="h-6 w-6"
+                                    className="h-7 w-7 rounded-lg border-2 border-transparent hover:border-[var(--outline-black)]"
                                     onClick={(e) => {
                                       e.stopPropagation()
                                       copyToClipboard(wallet.walletAddress)
                                     }}
+                                    aria-label="Copy address"
                                   >
-                                    <Copy className="h-3 w-3" />
+                                    <Copy className="h-3.5 w-3.5" />
                                   </Button>
                                   <Button
                                     variant="ghost"
                                     size="icon"
-                                    className="h-6 w-6"
+                                    className="h-7 w-7 rounded-lg border-2 border-transparent hover:border-[var(--outline-black)]"
                                     onClick={(e) => {
                                       e.stopPropagation()
-                                      window.open(`https://solscan.io/account/${wallet.walletAddress}`, '_blank')
+                                      window.open(
+                                        `https://solscan.io/account/${wallet.walletAddress}`,
+                                        "_blank"
+                                      )
                                     }}
+                                    aria-label="Open on Solscan"
                                   >
-                                    <ExternalLink className="h-3 w-3" />
+                                    <ExternalLink className="h-3.5 w-3.5" />
                                   </Button>
                                 </div>
                               </div>
+
                               <Button
                                 variant="ghost"
                                 size="icon"
-                                className="h-8 w-8 text-destructive hover:bg-destructive/10"
+                                className="h-8 w-8 rounded-lg border-2 border-transparent text-destructive hover:border-[var(--outline-black)] hover:bg-destructive/10"
                                 onClick={(e) => {
                                   e.stopPropagation()
                                   handleRemoveWallet(wallet.id)
                                 }}
+                                aria-label="Remove wallet"
                               >
                                 <Trash2 className="h-4 w-4" />
                               </Button>
                             </div>
-                          </div>
+                          </button>
                         ))}
                       </div>
                     )}
 
-                    {/* Wallet Activity */}
+                    {/* Activity */}
                     {selectedWallet && (
-                      <div className="mt-6 space-y-3">
+                      <section className="mt-4 space-y-3">
                         <div className="flex items-center justify-between">
-                          <h3 className="text-sm font-bold">Recent Activity</h3>
+                          <h3 className="text-sm font-extrabold tracking-tight">Recent Activity</h3>
                           <Button
                             variant="outline"
                             size="sm"
+                            className="rounded-xl border-2 border-[var(--outline-black)] bg-white shadow-[2px_2px_0_var(--outline-black)]"
                             onClick={() => refetchWalletActivity()}
                             disabled={loadingActivity}
+                            aria-label="Refresh activity"
                           >
                             {loadingActivity ? (
-                              <Loader2 className="h-3 w-3 animate-spin" />
+                              <Loader2 className="h-3.5 w-3.5 animate-spin" />
                             ) : (
-                              <Activity className="h-3 w-3" />
+                              <Activity className="h-3.5 w-3.5" />
                             )}
                           </Button>
                         </div>
 
-                        {/* Copy Trade Settings */}
-                        <div className="mario-card-standard p-4 bg-sky/20">
+                        {/* Copy-trade control */}
+                        <div className="rounded-2xl border-2 border-[var(--outline-black)] bg-[var(--mario-blue,#007AFF)]/10 p-4 shadow-[4px_4px_0_var(--outline-black)]">
                           <div className="space-y-3">
-                            <Label className="text-xs font-semibold text-outline">Copy Trade Size</Label>
+                            <Label
+                              htmlFor="copy-trade-slider"
+                              className="text-xs font-semibold text-foreground/90"
+                            >
+                              Copy trade size
+                            </Label>
                             <div className="flex items-center gap-4">
                               <Slider
+                                id="copy-trade-slider"
                                 value={[copyTradePercentage]}
                                 onValueChange={(v) => debouncedSetCopyTradePercentage(v[0])}
                                 onValueCommit={(v) => setCopyTradePercentage(v[0])}
@@ -515,63 +520,89 @@ export function WalletTrackerPopup({ isOpen, onClose }: WalletTrackerPopupProps)
                                 max={100}
                                 step={1}
                                 className="flex-1"
+                                aria-label="Copy trade percentage"
                               />
-                              <Badge variant="outline" className="min-w-[60px] justify-center">
+                              <Badge
+                                variant="outline"
+                                className="min-w-[60px] justify-center rounded-xl border-2 border-[var(--outline-black)] bg-white shadow-[2px_2px_0_var(--outline-black)]"
+                              >
                                 {copyTradePercentage}%
                               </Badge>
                             </div>
-                            <p className="text-xs text-outline opacity-70">
-                              Copy trades at {copyTradePercentage}% of original size
+                            <p className="text-xs text-muted-foreground">
+                              Executes at {copyTradePercentage}% of the original size.
                             </p>
                           </div>
                         </div>
 
+                        {/* Activity list */}
                         {loadingActivity ? (
                           <div className="flex items-center justify-center py-8">
                             <Loader2 className="h-6 w-6 animate-spin text-primary" />
                           </div>
                         ) : walletActivity.length === 0 ? (
-                          <div className="mario-card-standard p-6 text-center">
-                            <AlertCircle className="h-6 w-6 text-outline mx-auto mb-2" />
-                            <p className="text-sm text-outline font-semibold">No recent activity</p>
+                          <div className="grid place-items-center rounded-2xl border-2 border-[var(--outline-black)] bg-white/80 p-6 text-center shadow-[4px_4px_0_var(--outline-black)]">
+                            <div>
+                              <AlertCircle className="mx-auto mb-2 h-6 w-6 text-foreground/70" />
+                              <p className="text-sm font-semibold">No recent activity</p>
+                            </div>
                           </div>
                         ) : (
                           <div className="space-y-2">
-                            {walletActivity.map((activity) => (
-                              <div key={activity.signature} className="mario-card-standard p-4 sm:p-6">
+                            {walletActivity.map((activity: Backend.WalletActivity) => (
+                              <div
+                                key={activity.signature}
+                                className="rounded-2xl border-2 border-[var(--outline-black)] bg-white/90 p-4 shadow-[4px_4px_0_var(--outline-black)] sm:p-5"
+                              >
                                 <div className="flex items-start justify-between gap-3">
-                                  <div className="flex-1 min-w-0">
-                                    <div className="flex items-center gap-2 mb-2">
-                                      <Badge variant="outline" className="text-xs">
+                                  <div className="min-w-0 flex-1">
+                                    <div className="mb-1.5 flex flex-wrap items-center gap-2">
+                                      <Badge
+                                        variant="outline"
+                                        className="rounded-lg border-2 border-[var(--outline-black)] bg-white text-xs"
+                                      >
                                         {activity.type}
                                       </Badge>
                                       <span className="text-xs text-muted-foreground">
                                         {new Date(activity.timestamp).toLocaleTimeString()}
                                       </span>
                                     </div>
-                                    <div className="text-xs space-y-1">
+
+                                    <div className="grid grid-cols-2 gap-x-6 gap-y-1 text-xs sm:gap-x-8">
                                       <div className="flex items-center gap-2">
-                                        <TrendingDown className="h-3 w-3 text-red-500" />
+                                        <TrendingDown className="h-3.5 w-3.5 text-red-500" />
                                         <span className="text-muted-foreground">In:</span>
-                                        <code className="font-mono truncate">{activity.tokenIn?.slice(0, 8) || 'N/A'}</code>
+                                        <code className="truncate font-mono">
+                                          {activity.tokenIn?.slice(0, 8) || "N/A"}
+                                        </code>
                                       </div>
                                       <div className="flex items-center gap-2">
-                                        <TrendingUp className="h-3 w-3 text-green-500" />
+                                        <TrendingUp className="h-3.5 w-3.5 text-green-500" />
                                         <span className="text-muted-foreground">Out:</span>
-                                        <code className="font-mono truncate">{activity.tokenOut?.slice(0, 8) || 'N/A'}</code>
+                                        <code className="truncate font-mono">
+                                          {activity.tokenOut?.slice(0, 8) || "N/A"}
+                                        </code>
                                       </div>
                                     </div>
                                   </div>
+
                                   <Button
                                     size="sm"
-                                    onClick={() => handleCopyTrade(selectedWallet, activity.signature)}
+                                    onClick={() =>
+                                      selectedWallet &&
+                                      handleCopyTrade(selectedWallet, activity.signature)
+                                    }
                                     disabled={copyTradeMutation.isPending}
-                                    className="gap-2"
+                                    className={cn(
+                                      "gap-2 rounded-xl border-2 border-[var(--outline-black)]",
+                                      "bg-[var(--mario-green,#34C759)] text-white shadow-[3px_3px_0_var(--outline-black)]",
+                                      "hover:translate-y-[-1px] hover:shadow-[4px_4px_0_var(--outline-black)]"
+                                    )}
                                   >
                                     {copyTradeMutation.isPending ? (
-                                      <Loader2 className="h-3 w-3 animate-spin" />
+                                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
                                     ) : (
-                                      <Copy className="h-3 w-3" />
+                                      <Copy className="h-3.5 w-3.5" />
                                     )}
                                     Copy
                                   </Button>
@@ -580,42 +611,51 @@ export function WalletTrackerPopup({ isOpen, onClose }: WalletTrackerPopupProps)
                             ))}
                           </div>
                         )}
-                      </div>
+                      </section>
                     )}
                   </TabsContent>
 
-                  {/* Add Wallet Tab */}
+                  {/* ADD */}
                   <TabsContent value="add">
-                    <div className="mario-card-standard p-6">
-                      <div className="space-y-4">
+                    <div className="rounded-2xl border-2 border-[var(--outline-black)] bg-white/90 p-5 shadow-[4px_4px_0_var(--outline-black)] sm:p-6">
+                      <div className="space-y-5">
                         <div className="space-y-2">
-                          <Label htmlFor="wallet-address">Wallet Address *</Label>
+                          <Label htmlFor={addressId}>Wallet Address *</Label>
                           <Input
-                            id="wallet-address"
-                            placeholder="Enter Solana wallet address..."
+                            id={addressId}
+                            placeholder="Enter Solana wallet address…"
                             value={newWalletAddress}
                             onChange={(e) => setNewWalletAddress(e.target.value)}
-                            className="font-mono"
+                            className="rounded-xl border-2 border-[var(--outline-black)] font-mono"
+                            autoComplete="off"
                           />
                         </div>
+
                         <div className="space-y-2">
-                          <Label htmlFor="wallet-label">Label (Optional)</Label>
+                          <Label htmlFor={labelId}>Label (optional)</Label>
                           <Input
-                            id="wallet-label"
-                            placeholder="e.g., 'Ansem', 'Top Trader'..."
+                            id={labelId}
+                            placeholder="e.g., “Ansem”, “Top Trader”…"
                             value={newWalletLabel}
                             onChange={(e) => setNewWalletLabel(e.target.value)}
+                            className="rounded-xl border-2 border-[var(--outline-black)]"
+                            autoComplete="off"
                           />
                         </div>
+
                         <Button
                           onClick={handleAddWallet}
                           disabled={addWalletMutation.isPending || !newWalletAddress.trim()}
-                          className="w-full gap-2"
+                          className={cn(
+                            "w-full gap-2 rounded-2xl border-2 border-[var(--outline-black)]",
+                            "bg-[var(--mario-blue,#007AFF)] text-white shadow-[4px_4px_0_var(--outline-black)]",
+                            "hover:translate-y-[-1px] hover:shadow-[6px_6px_0_var(--outline-black)]"
+                          )}
                         >
                           {addWalletMutation.isPending ? (
                             <>
                               <Loader2 className="h-4 w-4 animate-spin" />
-                              Adding...
+                              Adding…
                             </>
                           ) : (
                             <>
@@ -627,12 +667,37 @@ export function WalletTrackerPopup({ isOpen, onClose }: WalletTrackerPopupProps)
                       </div>
                     </div>
                   </TabsContent>
-                </Tabs>
-              </div>
+                </div>
+              </Tabs>
             </div>
           </motion.div>
         </>
       )}
     </AnimatePresence>
+  )
+}
+
+/* ---------- Subcomponents ---------- */
+
+function EmptyState({ onPrimary }: { onPrimary: () => void }) {
+  return (
+    <div className="grid place-items-center rounded-2xl border-2 border-[var(--outline-black)] bg-white/80 p-10 text-center shadow-[6px_6px_0_var(--outline-black)]">
+      <div className="mx-auto mb-4 grid h-12 w-12 place-items-center rounded-2xl border-2 border-[var(--outline-black)] bg-[var(--mario-red,#FF3B30)] text-white shadow-[3px_3px_0_var(--outline-black)]">
+        <Eye className="h-6 w-6" />
+      </div>
+      <p className="mb-4 font-semibold text-[var(--outline-black)]">No wallets tracked yet</p>
+      <Button
+        onClick={onPrimary}
+        size="sm"
+        className={cn(
+          "gap-2 rounded-xl border-2 border-[var(--outline-black)]",
+          "bg-[var(--mario-yellow,#FFD93D)] shadow-[3px_3px_0_var(--outline-black)]",
+          "hover:translate-y-[-1px] hover:shadow-[4px_4px_0_var(--outline-black)]"
+        )}
+      >
+        <Plus className="h-4 w-4" />
+        Track your first wallet
+      </Button>
+    </div>
   )
 }
