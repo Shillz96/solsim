@@ -337,7 +337,7 @@ function UserSettingsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[var(--sky-blue)]/20 via-[var(--super-blue)]/10 to-[var(--sky-blue)]/20">
+    <div className="min-h-screen bg-gradient-to-br from-[var(--sky-blue)]/20 via-[var(--super-blue)]/10 to-[var(--sky-blue)]/20 overflow-y-auto">
       <div className="container max-w-4xl mx-auto py-8 pb-24 space-y-6">
         {/* Header */}
         <div className="bg-gradient-to-r from-[var(--mario-red)] to-red-600 p-6 rounded-xl border-4 border-outline shadow-[6px_6px_0_var(--outline-black)]">

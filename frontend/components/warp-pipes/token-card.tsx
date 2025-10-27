@@ -129,15 +129,16 @@ export function TokenCard({ data, onToggleWatch, className, enableLiveUpdates = 
         transition={{ duration: 0.2 }}
         className={cn("w-full mb-3", className)}
       >
-        {/* Redesigned Token Card - Enhanced Layout */}
+        {/* Redesigned Token Card - Enhanced Layout with Better Spacing */}
         <div className={cn(
           'surface cursor-pointer',
           'rounded-2xl border-4 border-outline bg-card',
           'shadow-[6px_0_0_var(--outline-black)] hover:shadow-[8px_0_0_var(--outline-black)] hover:-translate-y-1',
           'relative overflow-hidden bg-sky/20',
-          'h-[var(--token-card-height)] min-h-[var(--token-card-height)]'
+          'h-[var(--token-card-height)] min-h-[var(--token-card-height)]',
+          'transition-all duration-200'
         )}>
-          <div className="flex items-center gap-6 p-4 h-full">
+          <div className="flex items-center gap-8 p-5 h-full">
 
             {/* LEFT: Larger Token Logo */}
             <div className={cn(
@@ -162,11 +163,19 @@ export function TokenCard({ data, onToggleWatch, className, enableLiveUpdates = 
             {/* MIDDLE: Enhanced Token Info */}
             <div className="flex-1 min-w-0 overflow-hidden flex flex-col justify-between h-full">
               {/* Header Row: Symbol, Name, Age, Security, Live Indicator */}
-              <div className="flex items-center gap-2 mb-1">
-                <h3 className={cn(marioStyles.heading(4), 'text-[20px] truncate max-w-[100px]')} title={data.symbol}>
+              <div className="flex items-center gap-3 mb-2">
+                {/* Symbol - Increased max-width and better tooltip */}
+                <h3
+                  className={cn(marioStyles.heading(4), 'text-[22px] font-black truncate max-w-[150px]')}
+                  title={`${data.symbol} - ${data.name || 'No name'}`}
+                >
                   {data.symbol}
                 </h3>
-                <span className={cn(marioStyles.bodyText('semibold'), 'text-[14px] truncate max-w-[140px]')} title={data.name || undefined}>
+                {/* Name - Increased max-width for better readability */}
+                <span
+                  className={cn(marioStyles.bodyText('semibold'), 'text-[15px] truncate max-w-[220px]')}
+                  title={data.name || 'No name available'}
+                >
                   {data.name}
                 </span>
                 <span className={cn(marioStyles.bodyText('bold'), 'text-[11px] ml-auto flex-shrink-0')}>
@@ -174,13 +183,13 @@ export function TokenCard({ data, onToggleWatch, className, enableLiveUpdates = 
                 </span>
                 {/* Live Indicator */}
                 {isLive && (
-                  <div className="flex items-center gap-1 text-[10px] font-bold text-luigi bg-luigi/10 px-1.5 py-0.5 rounded-full border border-luigi">
+                  <div className="flex items-center gap-1 text-[10px] font-bold text-luigi bg-luigi/10 px-2 py-0.5 rounded-full border-2 border-luigi">
                     <span className="inline-block w-1.5 h-1.5 rounded-full bg-luigi animate-pulse" />
                     LIVE
                   </div>
                 )}
-                {/* Security Shield Icon */}
-                <Shield className={cn(securityIconColor, 'flex-shrink-0 w-4 h-4')} />
+                {/* Security Shield Icon - Standardized size w-4 h-4 */}
+                <Shield className={cn(securityIconColor, 'flex-shrink-0 w-4 h-4')} title={`Security: ${securityStatus}`} />
               </div>
 
               {/* Description (if available, with better truncation) */}
@@ -190,86 +199,97 @@ export function TokenCard({ data, onToggleWatch, className, enableLiveUpdates = 
                 </div>
               )}
 
-              {/* Metrics Grid - 3 columns */}
-              <div className="grid grid-cols-3 gap-2 mb-1 flex-shrink-0">
-                {/* 24h Change */}
-                <div className="flex flex-col">
-                  <div className={marioStyles.formatMetricLabel('24h')}>
-                    24h Change
+              {/* Metrics Grid - 3 columns with improved hierarchy */}
+              <div className="grid grid-cols-3 gap-3 mb-2 flex-shrink-0">
+                {/* 24h Change - Color-coded with icons */}
+                <div className="flex flex-col gap-0.5">
+                  <div className="text-[10px] font-bold uppercase text-outline/60 tracking-wide">
+                    24H CHANGE
                   </div>
                   {priceChg != null ? (
                     <div className={cn(
-                      marioStyles.formatMetricValue(priceChg, priceChg >= 0 ? 'positive' : 'negative'),
-                      'flex items-center gap-0.5'
+                      'text-[16px] font-mono font-extrabold flex items-center gap-1',
+                      priceChg >= 0 ? 'text-[var(--luigi-green)]' : 'text-[var(--mario-red)]'
                     )}>
-                      {priceChg >= 0 ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
+                      {/* Standardized icon size: w-4 h-4 */}
+                      {priceChg >= 0 ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
                       {priceChg >= 0 ? "+" : ""}{priceChg.toFixed(1)}%
                     </div>
                   ) : (
-                    <div className={marioStyles.formatMetricValue(null)}>—</div>
+                    <div className="text-[16px] font-mono font-extrabold text-outline/40" title="No 24h price change data">
+                      0.00%
+                    </div>
                   )}
                 </div>
 
-                {/* Volume */}
-                <div className="flex flex-col">
-                  <div className={marioStyles.formatMetricLabel('Vol')}>
-                    Volume 24h
+                {/* Volume - Better fallback */}
+                <div className="flex flex-col gap-0.5">
+                  <div className="text-[10px] font-bold uppercase text-outline/60 tracking-wide">
+                    VOLUME 24H
                   </div>
-                  <div className={marioStyles.formatMetricValue(data.volume24h)}>
-                    {fmtCurrency(data.volume24h)}
+                  <div className="text-[16px] font-mono font-extrabold text-outline" title={data.volume24h ? `$${data.volume24h.toLocaleString()}` : 'No volume data'}>
+                    {data.volume24h != null ? fmtCurrency(data.volume24h) : '$0'}
                   </div>
                 </div>
 
-                {/* Market Cap */}
-                <div className="flex flex-col">
-                  <div className={marioStyles.formatMetricLabel('MC')}>
-                    Market Cap
+                {/* Market Cap - Highlight high MC */}
+                <div className="flex flex-col gap-0.5">
+                  <div className="text-[10px] font-bold uppercase text-outline/60 tracking-wide">
+                    MARKET CAP
                   </div>
                   <div className={cn(
-                    marioStyles.formatMetricValue(mergedData.marketCapUsd),
-                    // Highlight market cap > $100k in green
-                    mergedData.marketCapUsd && mergedData.marketCapUsd >= 100000 && 'text-luigi font-extrabold text-[15px]'
-                  )}>
-                    {fmtCurrency(mergedData.marketCapUsd)}
+                    'font-mono font-extrabold',
+                    // Highlight market cap > $100k in green and larger
+                    mergedData.marketCapUsd && mergedData.marketCapUsd >= 100000
+                      ? 'text-[18px] text-[var(--luigi-green)]'
+                      : 'text-[16px] text-outline'
+                  )}
+                  title={mergedData.marketCapUsd ? `$${mergedData.marketCapUsd.toLocaleString()}` : 'No market cap data'}
+                  >
+                    {mergedData.marketCapUsd != null ? fmtCurrency(mergedData.marketCapUsd) : 'N/A'}
                   </div>
                 </div>
               </div>
 
-              {/* Secondary Metrics Row */}
-              <div className="grid grid-cols-3 gap-2 mb-1 flex-shrink-0">
-                {/* Holders - Now with real-time updates */}
-                <div className="flex flex-col">
-                  <div className={marioStyles.formatMetricLabel('Holders')}>
-                    Holders
+              {/* Secondary Metrics Row - Improved hierarchy and fallbacks */}
+              <div className="grid grid-cols-3 gap-3 mb-2 flex-shrink-0">
+                {/* Holders - Real-time updates with better fallback */}
+                <div className="flex flex-col gap-0.5">
+                  <div className="text-[10px] font-bold uppercase text-outline/60 tracking-wide">
+                    HOLDERS
                   </div>
                   <div className={cn(
-                    marioStyles.formatMetricValue(mergedData.holderCount),
-                    isLive && 'text-luigi'
-                  )}>
-                    {mergedData.holderCount ? mergedData.holderCount.toLocaleString() : '—'}
+                    'text-[16px] font-mono font-extrabold',
+                    isLive ? 'text-[var(--luigi-green)]' : 'text-outline'
+                  )}
+                  title={mergedData.holderCount ? `${mergedData.holderCount.toLocaleString()} holders` : 'Holder count not available'}
+                  >
+                    {mergedData.holderCount ? mergedData.holderCount.toLocaleString() : '0'}
                   </div>
                 </div>
 
-                {/* Transactions - Now with real-time updates */}
-                <div className="flex flex-col">
-                  <div className={marioStyles.formatMetricLabel('Txns')}>
-                    Transactions
+                {/* Transactions - Real-time updates with better fallback */}
+                <div className="flex flex-col gap-0.5">
+                  <div className="text-[10px] font-bold uppercase text-outline/60 tracking-wide">
+                    TRANSACTIONS
                   </div>
                   <div className={cn(
-                    marioStyles.formatMetricValue(liveTxCount),
-                    isLive && 'text-luigi'
-                  )}>
-                    {liveTxCount ? liveTxCount.toLocaleString() : '—'}
+                    'text-[16px] font-mono font-extrabold',
+                    isLive ? 'text-[var(--luigi-green)]' : 'text-outline'
+                  )}
+                  title={liveTxCount ? `${liveTxCount.toLocaleString()} transactions (24h)` : 'Transaction count not available'}
+                  >
+                    {liveTxCount ? liveTxCount.toLocaleString() : '0'}
                   </div>
                 </div>
 
-                {/* Liquidity */}
-                <div className="flex flex-col">
-                  <div className={marioStyles.formatMetricLabel('Liq')}>
-                    Liquidity
+                {/* Liquidity - Better fallback message */}
+                <div className="flex flex-col gap-0.5">
+                  <div className="text-[10px] font-bold uppercase text-outline/60 tracking-wide">
+                    LIQUIDITY
                   </div>
-                  <div className={marioStyles.formatMetricValue(data.liqUsd)}>
-                    {fmtCurrency(data.liqUsd)}
+                  <div className="text-[16px] font-mono font-extrabold text-outline" title={data.liqUsd ? `$${data.liqUsd.toLocaleString()} liquidity` : 'Liquidity data not available'}>
+                    {data.liqUsd != null ? fmtCurrency(data.liqUsd) : 'N/A'}
                   </div>
                 </div>
               </div>
@@ -345,33 +365,70 @@ export function TokenCard({ data, onToggleWatch, className, enableLiveUpdates = 
 }
 
 /**
- * Token Card Skeleton - Loading state
+ * Token Card Skeleton - Improved Loading State
+ * Matches the new card layout with proper spacing
  */
 export function TokenCardSkeleton() {
   return (
-    <div className="w-full">
-      <div className="rounded-xl overflow-hidden bg-card border-4 border-outline shadow-[6px_6px_0_var(--outline-black)] animate-pulse">
-        <div className="flex items-center gap-4 p-4">
-          {/* Logo skeleton */}
-          <div className="w-20 h-20 bg-background rounded-lg border-4 border-outline" />
+    <div className="w-full mb-3">
+      <div className={cn(
+        "rounded-2xl overflow-hidden bg-card border-4 border-outline",
+        "shadow-[6px_6px_0_var(--outline-black)]",
+        "h-[var(--token-card-height)] min-h-[var(--token-card-height)]",
+        "animate-pulse"
+      )}>
+        <div className="flex items-center gap-8 p-5 h-full">
+          {/* Logo skeleton - Matches new image size */}
+          <div className="w-[var(--token-card-image-size)] h-[var(--token-card-image-size)] bg-background/50 rounded-lg shrink-0" />
 
-          {/* Middle content skeleton */}
-          <div className="flex-1">
-            <div className="flex items-center gap-2 mb-2">
-              <div className="h-5 bg-background rounded w-20" />
-              <div className="h-4 bg-background opacity-60 rounded w-32" />
+          {/* Middle content skeleton - Matches new layout */}
+          <div className="flex-1 flex flex-col justify-between h-full">
+            {/* Header row */}
+            <div className="flex items-center gap-3 mb-2">
+              <div className="h-6 bg-background/50 rounded w-32" />
+              <div className="h-5 bg-background/30 rounded w-40" />
+              <div className="h-4 bg-background/30 rounded w-12 ml-auto" />
             </div>
-            <div className="flex items-center gap-3">
-              <div className="h-5 w-12 bg-background rounded-sm" />
-              <div className="h-4 w-16 bg-background opacity-60 rounded" />
-            </div>
-          </div>
 
-          {/* Right content skeleton */}
-          <div className="text-right shrink-0">
-            <div className="h-4 bg-background opacity-60 rounded w-16 mb-1 ml-auto" />
-            <div className="h-5 bg-background rounded w-20 mb-2 ml-auto" />
-            <div className="h-7 w-16 bg-background rounded border-2 border-outline ml-auto" />
+            {/* Description skeleton */}
+            <div className="h-4 bg-background/20 rounded w-full mb-2" />
+
+            {/* Metrics grid skeleton - 3 columns */}
+            <div className="grid grid-cols-3 gap-3 mb-2">
+              <div className="flex flex-col gap-1">
+                <div className="h-3 bg-background/30 rounded w-20" />
+                <div className="h-5 bg-background/50 rounded w-16" />
+              </div>
+              <div className="flex flex-col gap-1">
+                <div className="h-3 bg-background/30 rounded w-20" />
+                <div className="h-5 bg-background/50 rounded w-16" />
+              </div>
+              <div className="flex flex-col gap-1">
+                <div className="h-3 bg-background/30 rounded w-20" />
+                <div className="h-5 bg-background/50 rounded w-16" />
+              </div>
+            </div>
+
+            {/* Secondary metrics skeleton */}
+            <div className="grid grid-cols-3 gap-3 mb-2">
+              <div className="flex flex-col gap-1">
+                <div className="h-3 bg-background/30 rounded w-16" />
+                <div className="h-5 bg-background/50 rounded w-12" />
+              </div>
+              <div className="flex flex-col gap-1">
+                <div className="h-3 bg-background/30 rounded w-20" />
+                <div className="h-5 bg-background/50 rounded w-12" />
+              </div>
+              <div className="flex flex-col gap-1">
+                <div className="h-3 bg-background/30 rounded w-16" />
+                <div className="h-5 bg-background/50 rounded w-12" />
+              </div>
+            </div>
+
+            {/* Bottom row skeleton */}
+            <div className="flex items-center gap-2">
+              <div className="h-6 bg-background/30 rounded w-24" />
+            </div>
           </div>
         </div>
       </div>

@@ -18,7 +18,16 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
   const [isScrollable, setIsScrollable] = useState(false)
   
   // Pages that should be scrollable
-  const scrollablePages = ['/', '/portfolio', '/leaderboard', '/trending']
+  const scrollablePages = [
+    '/',
+    '/portfolio',
+    '/leaderboard',
+    '/trending',
+    '/docs',
+    '/roadmap',
+    '/rewards',
+    '/profile/settings'
+  ]
   
   // Only apply scrollable logic after mount to prevent hydration mismatch
   useEffect(() => {
