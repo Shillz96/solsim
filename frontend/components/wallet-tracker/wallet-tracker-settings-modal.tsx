@@ -225,25 +225,18 @@ export function WalletTrackerSettingsModal({ isOpen, onClose, onSettingsSaved }:
             className="w-full max-w-md max-h-[90vh] overflow-y-auto"
             style={{ zIndex: 10000 }}
           >
-            <div className={cn(marioStyles.cardLg(false), 'bg-card p-6')}>
+            <div className="bg-white border-4 border-outline rounded-xl shadow-[8px_8px_0_var(--outline-black)] p-6">
             {/* Header */}
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-2">
-                <div className={cn(
-                  marioStyles.iconContainer('sm', '[var(--mario-red)]'),
-                  'bg-mario'
-                )}>
+                <div className="bg-mario border-3 border-outline rounded-lg p-2 shadow-[2px_2px_0_var(--outline-black)]">
                   <Settings className="h-4 w-4 text-white" />
                 </div>
-                <h2 className={cn(marioStyles.heading(2), 'text-2xl')}>Live Trades Filters</h2>
+                <h2 className="text-2xl font-mario font-bold text-outline">Live Trades Filters</h2>
               </div>
               <button
                 onClick={onClose}
-                className={cn(
-                  marioStyles.iconContainer('sm'),
-                  'hover:bg-gray-50',
-                  marioStyles.hoverLift('subtle')
-                )}
+                className="h-8 w-8 rounded-lg border-2 border-outline hover:bg-red-50 flex items-center justify-center transition-colors"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -254,10 +247,10 @@ export function WalletTrackerSettingsModal({ isOpen, onClose, onSettingsSaved }:
                 <Loader2 className="h-8 w-8 animate-spin text-mario" />
               </div>
             ) : (
-              <div className="space-y-6">
+              <div className="space-y-6 bg-white">
                 {/* Transaction Types */}
-                <div className="space-y-3">
-                  <Label className="text-sm font-bold text-outline">Transaction Types</Label>
+                <div className="space-y-3 p-4 bg-sky/10 border-2 border-outline rounded-lg">
+                  <Label className="text-sm font-mario font-bold text-outline">Transaction Types</Label>
                   <div className="space-y-3">
                     <div className="flex items-center space-x-3">
                       <Checkbox
@@ -305,8 +298,8 @@ export function WalletTrackerSettingsModal({ isOpen, onClose, onSettingsSaved }:
                 </div>
 
                 {/* Market Cap Filter */}
-                <div className="space-y-3">
-                  <Label className="text-sm font-bold text-outline">Market Cap (USD)</Label>
+                <div className="space-y-3 p-4 bg-sky/10 border-2 border-outline rounded-lg">
+                  <Label className="text-sm font-mario font-bold text-outline">Market Cap (USD)</Label>
                   <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-1">
                       <Label htmlFor="minMarketCap" className={cn(marioStyles.bodyText('bold'), 'text-xs')}>
@@ -354,7 +347,7 @@ export function WalletTrackerSettingsModal({ isOpen, onClose, onSettingsSaved }:
                 </div>
 
                 {/* Transaction Amount Filter */}
-                <div className="space-y-3">
+                <div className="space-y-3 p-4 bg-sky/10 border-2 border-outline rounded-lg">
                   <Label className="text-sm font-bold text-outline">Transaction Amount (USD)</Label>
                   <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-1">
@@ -400,8 +393,8 @@ export function WalletTrackerSettingsModal({ isOpen, onClose, onSettingsSaved }:
                 </div>
 
                 {/* Require Images */}
-                <div className="space-y-3">
-                  <Label className="text-sm font-bold text-outline">Display Options</Label>
+                <div className="space-y-3 p-4 bg-sky/10 border-2 border-outline rounded-lg">
+                  <Label className="text-sm font-mario font-bold text-outline">Display Options</Label>
                   <div className="flex items-center space-x-3">
                     <Checkbox
                       id="requireImages"
@@ -419,9 +412,9 @@ export function WalletTrackerSettingsModal({ isOpen, onClose, onSettingsSaved }:
                 </div>
 
                 {/* Active Filters Summary */}
-                <div className="space-y-3">
-                  <Label className="text-sm font-bold text-outline">Active Filters</Label>
-                  <div className="p-3 bg-[var(--sky-50)] border-3 border-outline rounded-lg">
+                <div className="space-y-3 p-4 bg-sky/10 border-2 border-outline rounded-lg">
+                  <Label className="text-sm font-mario font-bold text-outline">Active Filters</Label>
+                  <div className="p-3 bg-white border-2 border-outline rounded-lg">
                     <div className="flex flex-wrap gap-2">
                       {showBuys && (
                         <Badge variant="secondary" className="bg-luigi text-white">

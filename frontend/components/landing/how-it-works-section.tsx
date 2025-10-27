@@ -88,7 +88,7 @@ export function HowItWorksSection() {
                     <div className={`h-20 w-20 rounded-lg ${iconColors[index]} border-4 border-outline flex items-center justify-center hover:scale-110 transition-all shadow-[6px_6px_0_var(--outline-black)]`}>
                       <Image src={step.iconSrc} alt="" width={40} height={40} className="object-contain" />
                     </div>
-                    <div className="absolute -top-2 -right-2 h-10 w-10 rounded-full bg-mario text-white border-4 border-outline flex items-center justify-center text-lg font-mario shadow-[4px_4px_0_var(--outline-black)]">
+                    <div className="absolute -top-2 -right-2 h-10 w-10 rounded-full bg-outline text-white border-4 border-mario flex items-center justify-center text-lg font-mario font-bold shadow-[4px_4px_0_rgba(0,0,0,0.4)]">
                       {index + 1}
                     </div>
                   </div>
