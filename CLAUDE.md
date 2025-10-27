@@ -96,6 +96,95 @@ npm run clean              # Remove all node_modules and build artifacts
 
 ## Architecture Patterns
 
+### API Architecture & Data Sources
+
+**CRITICAL**: 1UP SOL uses a **PumpPortal-first architecture** for all real-time market data (implemented Oct 26, 2025).
+
+#### Tier 1: PumpPortal (PRIMARY - Real-time Market Data)
+
+**Use PumpPortal for ALL real-time updates:**
+
+```
+✅ Price updates (ALL Solana tokens via WebSocket - not just Pump.fun!)
+✅ Token swaps/trades (buy/sell event monitoring)
+✅ New token launches (Pump.fun bonding curve tokens)
+✅ Token migrations (bonding curve → AMM pool)
+✅ KOL wallet tracking (subscribeAccountTrade for copy trading)
+✅ Live market data (volume, marketCap, liquidity)
+✅ Token metadata (name, symbol, socials, description)
+```
+
+**Why PumpPortal Primary?**
+- **Supports ALL Solana tokens** (Raydium, Bonk, LaunchLab, Pump.fun, "auto" detection)
+- **Lower cost** - WebSocket is free (persistent connection), not metered
+- **Lower latency** - Direct DEX monitoring vs polling APIs
+- **Simpler** - Single WebSocket connection (~200 fewer lines of code)
+- **Complete data** - Prices, trades, metadata in one stream
+
+**PumpPortal Services:**
+- `backend/src/plugins/priceService-optimized.ts` - Main price service (PumpPortal WebSocket only)
+- `backend/src/services/pumpPortalStreamService.ts` - WebSocket stream management
+- `backend/src/services/pumpPortalApi.ts` - PumpPortal SDK client
+- `backend/src/routes/walletTrackerExample.ts` - KOL wallet tracking routes (active)
+
+#### Tier 2: Helius (SUPPLEMENTARY - Blockchain Infrastructure)
+
+**Use Helius ONLY for blockchain data that PumpPortal doesn't provide:**
+
+```
+✅ Holder counts (getProgramAccounts RPC)
+✅ Token account queries (getTokenAccountsByOwner)
+✅ Transaction confirmations (getTransaction, getSignatureStatuses)
+✅ Account balances (getBalance)
+✅ Block/slot data (getBlock, getSlot)
+✅ NFT/DAS queries (Digital Asset Standard API)
+❌ NOT for real-time prices (PumpPortal handles this)
+❌ NOT for trade monitoring (PumpPortal handles this)
+```
+
+**Why NOT Helius for Real-time?**
+- **Higher cost** - Helius RPC is metered (pay per call)
+- **Helius WebSocket DISABLED** - Simplified to PumpPortal-only on Oct 26, 2025
+- **Redundant** - PumpPortal already provides real-time data for all tokens
+
+**Helius Services:**
+- `backend/src/services/heliusapi.ts` - Helius SDK for RPC calls
+- `backend/src/services/holderCountService.ts` - Holder counts (getProgramAccounts)
+
+#### Tier 3: Fallback APIs (Emergency Only)
+
+**Use ONLY when PumpPortal is unavailable:**
+
+```
+DexScreener API - Token metadata, price data
+Jupiter Price API - Price quotes
+CoinGecko - SOL/USD price reference
+Birdeye - Generic trending (NOT for Warp Pipes)
+```
+
+**Fallback Strategy:**
+- Multi-layer caching (memory → Redis → fallback APIs)
+- Circuit breakers prevent cascading failures
+- Stale-while-revalidate pattern for better UX
+
+**Cost Optimization:**
+- **PumpPortal WebSocket**: Free (preferred)
+- **Helius RPC**: Metered (use sparingly, cache aggressively)
+- **Fallback APIs**: Rate-limited (emergency only)
+
+#### Architecture Decision (Oct 26, 2025)
+
+Previous dual-WebSocket architecture (Helius + PumpPortal) was simplified to **PumpPortal-only** because:
+
+1. PumpPortal supports ALL Solana tokens (not just Pump.fun!)
+2. Pool types: "pump", "raydium", "bonk", "launchlab", "pump-amm", "raydium-cpmm", "auto"
+3. "auto" pool detection handles ANY Solana token automatically
+4. Simpler architecture: 1 WebSocket instead of 2
+5. No race conditions between dual sources
+6. ~200 fewer lines of WebSocket management code
+
+**See**: `backend/src/plugins/priceService-optimized.ts` (header comments) for full architecture decision notes.
+
 ### Backend Service Pattern
 
 **Location**: `backend/src/`
@@ -110,10 +199,10 @@ The backend follows a clear routing → service → database pattern:
 Key services:
 - `tradeService.ts` - Trade execution and validation
 - `portfolioService.ts` - Position management and PnL calculations
-- `priceService.ts` / `priceService-v2.ts` - Real-time price streaming via Helius WebSocket
-- **`pumpPortalStreamService.ts`** - **PumpPortal WebSocket integration, populates TokenDiscovery table for Warp Pipes**
+- **`priceService-optimized.ts`** - **Real-time price streaming via PumpPortal WebSocket (ALL Solana tokens)**
+- **`pumpPortalStreamService.ts`** - **PumpPortal WebSocket stream management (token launches, trades, migrations)**
 - `rewardService.ts` - XP and points-based reward distribution
-- `walletTrackerService.ts` - KOL wallet tracking for copy trading
+- `holderCountService.ts` - On-chain holder counts via Helius RPC
 
 ### FIFO Position Tracking
 
@@ -136,21 +225,32 @@ The platform uses strict FIFO (First-In-First-Out) accounting for trade lots:
 
 ### Real-time Price Service
 
-**Location**: `backend/src/plugins/priceService-v2.ts`
+**Location**: `backend/src/plugins/priceService-optimized.ts`
 
-The price service streams real-time swap events from Solana DEXes (Raydium, Pump.fun) via Helius WebSocket:
+**ARCHITECTURE**: PumpPortal-only WebSocket (Helius WebSocket disabled Oct 26, 2025)
 
-1. **WebSocket connection** to Helius using `logsSubscribe` method
-2. **Program monitoring** - Subscribes to DEX program logs (Raydium V4, CLMM, Pump.fun)
-3. **Log parsing** - Extracts swap events from transaction logs
-4. **Price calculation** - Converts swap ratios to USD prices using SOL/USDC/USDT pairs
-5. **Caching** - Multi-layer cache (memory → Redis → fallback APIs)
+The price service streams real-time data for **ALL Solana tokens** via PumpPortal WebSocket:
+
+1. **WebSocket connection** to PumpPortal (wss://pumpportal.fun/api/data)
+2. **Token trade subscription** - Monitors swap events across ALL DEX pools
+3. **Pool support** - Raydium, Pump.fun, Bonk, LaunchLab, Raydium CPMM, "auto" detection
+4. **Price calculation** - Real-time USD prices from swap events
+5. **Multi-layer caching** - Memory (LRU) → Redis → Fallback APIs
 6. **Broadcasting** - Publishes to Redis pub/sub and local subscribers
 
-**Fallback price sources** (when WebSocket data unavailable):
+**Why PumpPortal-only?**
+- Supports ALL Solana tokens (not just Pump.fun!)
+- Lower cost (free WebSocket vs metered Helius RPC)
+- Lower latency (direct DEX monitoring)
+- Simpler (1 WebSocket vs 2)
+- No race conditions between dual sources
+
+**Fallback price sources** (emergency only, when PumpPortal unavailable):
 - DexScreener API
 - Jupiter Price API
-- CoinGecko (for SOL price)
+- CoinGecko (for SOL/USD price)
+
+**Circuit breakers** prevent excessive API calls when services are down.
 
 ### Warp Pipes - PumpPortal Memecoin Scanner
 
@@ -329,20 +429,33 @@ Frontend (/trending page)
 **Required Environment Variables**:
 - `DATABASE_URL` - PostgreSQL connection
 - `REDIS_URL` - Redis cache and pub/sub
-- `HELIUS_API` - Helius API key for RPC and WebSocket
-- `HELIUS_RPC_URL` / `HELIUS_WS` - Helius endpoints
+- `HELIUS_API` - Helius API key for RPC only (WebSocket disabled)
 - `SOLANA_RPC_URL` - Fallback Solana RPC
 - `VSOL_TOKEN_MINT` - Reward token mint address (legacy variable name)
 - `REWARDS_WALLET_SECRET` - Secret key for reward distribution
 - `JWT_SECRET` - JWT signing secret
 
-**External APIs**:
-- **PumpPortal** - Real-time memecoin launch data via WebSocket (populates TokenDiscovery table for Warp Pipes)
-- Helius - Solana RPC + WebSocket for real-time swaps
-- DexScreener - Token metadata and price data (fallback for Token table)
+**External APIs** (in order of priority):
+
+**Tier 1 - PumpPortal (PRIMARY for real-time):**
+- Real-time price streaming (ALL Solana tokens via WebSocket)
+- Token launch monitoring (subscribeNewToken)
+- Trade event monitoring (subscribeTokenTrade)
+- KOL wallet tracking (subscribeAccountTrade)
+- Token migrations (subscribeMigration)
+
+**Tier 2 - Helius (SUPPLEMENTARY for blockchain RPC):**
+- Holder counts (getProgramAccounts RPC)
+- Token account queries (getTokenAccountsByOwner)
+- Transaction confirmations (getTransaction)
+- Account balances (getBalance)
+- **NOTE**: Helius WebSocket is DISABLED (PumpPortal handles real-time)
+
+**Tier 3 - Fallback APIs (emergency only):**
+- DexScreener - Token metadata and price data (fallback)
 - Jupiter - Price quotes and aggregation (fallback)
 - CoinGecko - SOL/USD price reference (fallback)
-- Birdeye - Generic trending Solana tokens (for `/api/trending` endpoint, NOT used by Warp Pipes)
+- Birdeye - Generic trending Solana tokens (for `/api/trending` endpoint only, NOT for Warp Pipes)
 
 ## Critical Implementation Notes
 
