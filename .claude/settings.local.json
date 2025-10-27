@@ -92,7 +92,8 @@
       "mcp__playwright__browser_press_key",
       "mcp__Railway__list-variables",
       "Bash(PGPASSWORD=cmvCRszpAAfgyvOZaWrHrWJxeEvvYbZb psql:*)",
-      "Bash(npm outdated:*)"
+      "Bash(npm outdated:*)",
+      "mcp__context7__resolve-library-id"
     ],
     "deny": [],
     "ask": []

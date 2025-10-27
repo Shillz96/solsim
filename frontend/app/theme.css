@@ -63,8 +63,9 @@
   /* Brick Brown */
   --color-brick: oklch(48% 0.10 45);        /* Brick Brown #9C5818 */
   
-  /* Unified Outline Token - Single source of truth - Warmer black for softer appearance */
-  --outline-black: oklch(15% 0 20);          /* Warm Outline Black - softer than pure black */
+  /* Softer warm ink for borders/outlines */
+  --outline-black: oklch(22% 0.02 30);       /* Warm ink (less harsh than near-black) */
+  --outline-hover: oklch(30% 0.03 30);       /* Hover/active ink */
   --color-outline-black: var(--outline-black); /* Alias for backward compatibility */
 
   /* Coin Yellow - Additional variant */
@@ -144,10 +145,11 @@
   --font-numeric: "JetBrains Mono", "Monaco", "Consolas", "Courier New", monospace;
 
   /* Base UI Colors - Warm Paper Cream Background */
-  --background: #FFFAE9;
+  /* Subtle separation between page vs. cards to cut brightness */
+  --background: oklch(96% 0.02 90);  /* warm cream, slightly dimmer than before */
   --foreground: #000000;
-  --card: #FFF8E7;      /* Light Parchment - warm, subtle off-white */
-  --border: #E5E5E5;
+  --card:       oklch(94% 0.015 90); /* a hair darker than background for contrast */
+  --border:     oklch(82% 0.02 90);
   --color-border: #E5E5E5;
 
   /* Navigation Heights */
@@ -204,11 +206,11 @@
    * All panel-related tokens in one place for consistency
    */
   
-  /* Background mixes */
-  --panel-bg-dark: color-mix(in oklab, var(--background) 90%, black 10%);
-  --panel-bg-light: color-mix(in oklab, var(--background) 92%, transparent 8%);
-  --panel-bg-opaque: color-mix(in oklab, var(--background) 95%, transparent 5%);
-  --panel-bg-glass: color-mix(in oklab, var(--background) 70%, transparent 30%);
+  /* Background mixes (slightly deeper for readability) */
+  --panel-bg-dark:   color-mix(in oklab, var(--background) 88%, black 12%);
+  --panel-bg-light:  color-mix(in oklab, var(--card) 92%,  black 8%);
+  --panel-bg-opaque: color-mix(in oklab, var(--card) 96%,  black 4%);
+  --panel-bg-glass:  color-mix(in oklab, var(--background) 72%, transparent 28%);
   
   /* Border mixes */
   --panel-border-subtle: color-mix(in oklab, var(--foreground) 20%, transparent 80%);

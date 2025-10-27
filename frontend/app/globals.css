@@ -96,7 +96,7 @@
     background-size: 768px 768px; /* Larger tiles for subtlety */
     background-repeat: repeat;
     mix-blend-mode: multiply;
-    opacity: 0.08; /* 8% - very subtle paper texture behind content */
+    opacity: 0.04; /* lower for less glare */
   }
 
   /* Layer 2 - Global Film Grain (Top Layer) - Subtle professional grain */
@@ -108,15 +108,15 @@
     background-image: url('/Paper-Texture-7.jpg'); /* Seamless grain texture */
     background-size: 256px 256px;
     background-repeat: repeat;
-    mix-blend-mode: overlay; /* Light blend for subtle effect */
-    opacity: 0.025; /* 2.5% - very subtle film grain */
+    mix-blend-mode: soft-light; /* gentler blend */
+    opacity: 0.015; /* lighter grain */
     z-index: var(--z-foreground-texture); /* z-index: 9999 - on top of everything */
   }
 
   /* Dark mode adjustment for grain (if dark mode is implemented) */
   html.dark body::after {
-    mix-blend-mode: soft-light; /* Gentler on dark UIs */
-    opacity: 0.015; /* Even subtler for dark mode */
+    mix-blend-mode: soft-light;
+    opacity: 0.012;
   }
 
   body > * {
@@ -247,23 +247,31 @@
 
 /* Standard Mario Card - Default/medium size */
 .mario-card {
-  background: var(--card);
+  /* gentle top-to-bottom shading for tactility */
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in oklab, var(--card) 95%, white 5%) 0%,
+      color-mix(in oklab, var(--card) 90%, black 10%) 100%
+    );
   border: 3px solid var(--outline-black);
   border-radius: var(--radius-xl);
-  box-shadow: 
+  /* light outer shadow + soft inner emboss */
+  box-shadow:
     3px 3px 0 var(--outline-black),
-    0 4px 10px rgba(0, 0, 0, 0.05);
+    0 3px 8px rgba(0,0,0,0.08) inset;
   padding: 0.75rem;
-  transition: transform var(--transition), box-shadow var(--transition);
+  transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);
 }
 
 /* Mario cards are hoverable by default - universal hover micro-bounce applies via [data-hoverable]:hover */
 
 .mario-card:hover {
   transform: translateY(-2px);
-  box-shadow: 
+  border-color: var(--outline-hover);
+  box-shadow:
     4px 4px 0 var(--outline-black),
-    0 6px 15px rgba(0, 0, 0, 0.08);
+    0 6px 15px rgba(0, 0, 0, 0.10);
 }
 
 /* Small Card - Compact layouts, list items */
@@ -620,6 +628,22 @@
 }
 
 /* ============================================
+   ELEVATION UTILITIES - Card depth system
+   ============================================ */
+
+.card-flat { 
+  box-shadow: none !important; 
+}
+
+.card-elevated { 
+  box-shadow: 0 3px 8px rgba(0,0,0,0.08) !important; 
+}
+
+.card-floating { 
+  box-shadow: 0 6px 20px rgba(0,0,0,0.15) !important; 
+}
+
+/* ============================================
    MARIO INTERACTIVE ELEMENTS - Hover effects
    ============================================ */
 
@@ -679,6 +703,21 @@
   width: 6rem;
   border: 4px solid var(--outline-black);
   box-shadow: 4px 4px 0 var(--outline-black);
+}
+
+/* ============================================
+   WARP PIPES PAGE TINT - Optional thematic styling
+   Add className="warppipes-page" to page container
+   ============================================ */
+
+.warppipes-page main {
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in oklab, var(--pipe-green) 4%,  var(--background) 96%) 0%,
+      color-mix(in oklab, var(--pipe-green) 6%,  var(--background) 94%) 100%
+    );
+  box-shadow: inset 0 0 80px rgba(0,0,0,0.05); /* subtle vignette */
 }
 
 /* ============================================
