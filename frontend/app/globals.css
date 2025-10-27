@@ -113,9 +113,9 @@
     z-index: auto; /* Don't create stacking contexts that trap portals */
   }
 
-  /* Typography */
+  /* Typography - Use theme.css font tokens */
   h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-ibm-plex-sans), "IBM Plex Sans", "Inter", "Manrope", "Nunito Sans", "Rubik", "Segoe UI", "Roboto", "Helvetica Neue", "Arial", sans-serif;
+    font-family: var(--font-body);
     font-weight: 700;
     color: var(--foreground);
     letter-spacing: -0.015em;
@@ -123,12 +123,12 @@
   }
 
   p, span, a, li {
-    font-family: var(--font-radnika-next), "Radnika Next", "Inter", "Manrope", "Nunito Sans", "Rubik", "Segoe UI", "Roboto", "Helvetica Neue", "Arial", sans-serif;
+    font-family: var(--font-body);
     color: var(--foreground);
   }
 
   code, pre {
-    font-family: var(--font-jetbrains-mono), 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+    font-family: var(--font-numeric);
     background-color: var(--input);
     color: var(--foreground);
     padding: 0.2rem 0.4rem;
@@ -1497,5 +1497,62 @@ a,
   transform: translateX(-50%);
   z-index: var(--z-rewards-timer);
   pointer-events: none;           /* remove if it's clickable */
+}
+
+/* ============================================================
+   PREMIUM UI ENHANCEMENTS
+   ============================================================ */
+
+/* 3) Card "micro-contrast" - Premium card feel with subtle depth */
+.surface {
+  background: #fff;
+  border-radius: 14px;
+  border: 1px solid color-mix(in oklab, #000 6%, transparent);
+  box-shadow: 
+    0 1px 0 rgba(255, 255, 255, 0.55) inset, 
+    0 10px 30px rgba(0, 0, 0, 0.06);
+  transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s;
+  isolation: isolate;
+}
+
+.surface:hover {
+  transform: translateY(-1px);
+  box-shadow: 
+    0 1px 0 rgba(255, 255, 255, 0.55) inset, 
+    0 16px 40px rgba(0, 0, 0, 0.08);
+  border-color: color-mix(in oklab, #000 10%, transparent);
+}
+
+/* 6) Scroll areas with fade edges - Premium horizontal scrolling */
+.scroller {
+  overflow: auto;
+  padding-inline: 8px;
+  mask-image: linear-gradient(
+    90deg,
+    transparent 0,
+    #000 24px,
+    #000 calc(100% - 24px),
+    transparent 100%
+  );
+  -webkit-mask-image: linear-gradient(
+    90deg,
+    transparent 0,
+    #000 24px,
+    #000 calc(100% - 24px),
+    transparent 100%
+  );
+  scrollbar-width: thin;
+  scrollbar-gutter: stable;
+}
+
+/* 9) Input polish + accent-color - Branded native controls */
+input, 
+select, 
+textarea {
+  accent-color: var(--accent);
+}
+
+input::placeholder {
+  color: color-mix(in oklab, #000 35%, transparent);
 }
 

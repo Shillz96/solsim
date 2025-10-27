@@ -108,7 +108,7 @@ const ActivityRow = React.memo(function ActivityRow({
   return (
     <Link
       href={`/room/${tokenMint}`}
-      className="grid grid-cols-[50px_80px_1fr_80px_60px] sm:grid-cols-[60px_100px_1fr_100px_80px] gap-2 sm:gap-3 px-3 sm:px-4 py-2.5 bg-card border-2 border-outline rounded-lg shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all duration-150 cursor-pointer"
+      className="surface grid grid-cols-[50px_80px_1fr_80px_60px] sm:grid-cols-[60px_100px_1fr_100px_80px] gap-2 sm:gap-3 px-3 sm:px-4 py-2.5 bg-card border-2 border-outline rounded-lg shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-0.5 cursor-pointer"
       aria-label={`${isBuy ? 'Buy' : 'Sell'} ${amount.toFixed(2)} SOL of ${tokenSymbol} by ${walletLabel}`}
     >
       {/* Time */}
@@ -251,7 +251,7 @@ export function WalletActivityList({
         </div>
 
         {/* Loading Skeletons */}
-        <div className="flex-1 overflow-y-auto min-h-0 relative">
+        <div className="flex-1 overflow-y-auto min-h-0 relative scroller">
           {[...Array(10)].map((_, i) => (
             <div key={i} className="grid grid-cols-[50px_80px_1fr_80px_60px] sm:grid-cols-[60px_100px_1fr_100px_80px] gap-2 sm:gap-3 px-3 sm:px-4 py-2.5 border-b border-[var(--pipe-300)]">
               <Skeleton className="h-4 w-10" />
@@ -313,7 +313,7 @@ export function WalletActivityList({
       </div>
 
       {/* Activity List - Fixed height container */}
-      <div className="flex-1 min-h-0 relative">
+      <div className="flex-1 min-h-0 relative scroller">
         <Virtuoso
           data={filteredActivities}
           overscan={20}

@@ -165,7 +165,7 @@ export function SlidingTrendingTicker() {
       <div className="fixed top-[var(--navbar-height)] left-0 right-0 z-sticky w-full overflow-hidden bg-gradient-to-r from-[var(--brick-brown)] to-[var(--brick-brown)]/80 border-b-4 border-outline shadow-md">
         {/* Scrolling Container - Pause on Hover */}
         <div className="group relative py-2">
-          <div className="ticker-scroll-container">
+          <div className="ticker-scroll-container scroller">
             <div className="ticker-scroll group-hover:paused">
               {duplicatedTokens.map((token, index) => {
                 const change = parseFloat(token.priceChange24h?.toString() || '0') || 0

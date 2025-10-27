@@ -131,7 +131,7 @@ export function TokenCard({ data, onToggleWatch, className, enableLiveUpdates = 
       >
         {/* Redesigned Token Card - Enhanced Layout */}
         <div className={cn(
-          'cursor-pointer transition-all duration-200',
+          'surface cursor-pointer',
           'rounded-2xl border-4 border-outline bg-card',
           'shadow-[6px_0_0_var(--outline-black)] hover:shadow-[8px_0_0_var(--outline-black)] hover:-translate-y-1',
           'relative overflow-hidden bg-sky/20',

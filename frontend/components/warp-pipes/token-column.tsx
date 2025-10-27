@@ -101,7 +101,7 @@ export function TokenColumn({
         <div
           className={cn(
             "flex-1 overflow-y-auto p-3 pt-0 space-y-3 min-h-0",
-            "scrollbar-none",
+            "scrollbar-none scroller",
             theme.body
           )}
         >

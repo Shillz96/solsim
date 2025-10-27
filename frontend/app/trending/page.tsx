@@ -224,7 +224,7 @@ export default function TrendingPage() {
         >
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {/* Total Tokens Card */}
-            <div className="mario-card">
+            <div className="mario-card surface">
               <div className="flex items-start gap-4">
                 <div className="h-10 w-10 rounded-lg bg-luigi border-3 border-outline flex items-center justify-center flex-shrink-0 shadow-[2px_2px_0_var(--outline-black)]">
                   <Image 
@@ -245,7 +245,7 @@ export default function TrendingPage() {
             </div>
 
             {/* Big Movers Card */}
-            <div className="mario-card">
+            <div className="mario-card surface">
               <div className="flex items-start gap-4">
                 <div className="h-10 w-10 rounded-lg bg-star border-3 border-outline flex items-center justify-center flex-shrink-0 shadow-[2px_2px_0_var(--outline-black)]">
                   <Image 
@@ -266,7 +266,7 @@ export default function TrendingPage() {
             </div>
 
             {/* Top Gainer Card */}
-            <div className="mario-card">
+            <div className="mario-card surface">
               <div className="flex items-start gap-4">
                 <div className="h-10 w-10 rounded-lg bg-sky border-3 border-outline flex items-center justify-center flex-shrink-0 shadow-[2px_2px_0_var(--outline-black)]">
                   <Image 
@@ -291,7 +291,7 @@ export default function TrendingPage() {
             </div>
 
             {/* Total Volume Card */}
-            <div className="mario-card">
+            <div className="mario-card surface">
               <div className="flex items-start gap-4">
                 <div className="h-10 w-10 rounded-lg bg-coin border-3 border-outline flex items-center justify-center flex-shrink-0 shadow-[2px_2px_0_var(--outline-black)]">
                   <Image 
