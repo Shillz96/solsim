@@ -80,7 +80,7 @@ export function TokenVitalsBar({
 
   return (
     <div className={cn(
-      marioStyles.cardLg(false),
+      "rounded-2xl border-4 border-outline bg-white shadow-[6px_6px_0_var(--outline-black)] transition-all",
       "w-full p-3 grid grid-cols-2 gap-3 min-h-[200px]",
       className
     )}>
