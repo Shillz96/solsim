@@ -170,7 +170,6 @@
   --z-base: 0;
   --z-background-texture: 1;      /* Background texture layer */
   --z-content: 2;                 /* Main content layer */
-  --z-foreground-texture: 9999;   /* Top texture overlay */
   
   /* Interface Elements (100-900) */
   --z-header: 100;
@@ -192,6 +191,13 @@
   --z-toast: 2000;
   --z-loading: 2100;
   --z-onboarding: 2200;
+  
+  /* Critical UI Elements (9000+) - Highest priority for user interaction */
+  --z-rewards-timer: 9000;        /* Rewards countdown timer */
+  --z-search-dropdown: 9001;     /* Search bar dropdown */
+  --z-profile-dropdown: 9002;    /* Profile dropdown menu */
+  --z-bottom-nav: 9003;          /* Bottom navigation bar */
+  --z-emoji-picker: 9004;        /* Emoji picker overlay */
   
   /* Debug & Special (9999) */
   --z-debug: 9998;

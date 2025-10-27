@@ -99,7 +99,7 @@
     filter: blur(0.5px); /* Slight blur to hide any remaining seams */
   }
 
-  /* Layer 2 - Top Texture (In Front of Content) */
+  /* Layer 2 - Top Texture (Behind Content, Above Background) */
   body::after {
     content: "";
     position: fixed;
@@ -114,7 +114,7 @@
     opacity: 0.08;
     mix-blend-mode: multiply;
     pointer-events: none;
-    z-index: var(--z-foreground-texture);
+    z-index: var(--z-background-texture);
     filter: blur(0.3px); /* Slight blur for smooth grain */
   }
 
@@ -192,6 +192,8 @@
   transition: transform var(--transition), box-shadow var(--transition);
 }
 
+/* Mario cards are hoverable by default - universal hover micro-bounce applies via [data-hoverable]:hover */
+
 .mario-card:hover {
   transform: translateY(-2px);
   box-shadow: 
@@ -251,6 +253,8 @@
   letter-spacing: 1px;
   font-weight: 700;
 }
+
+/* Mario buttons are both hoverable and pressable - motion classes apply via data attributes */
 
 .mario-btn:hover {
     transform: translateY(-2px);
@@ -455,6 +459,8 @@
   font-weight: 700;
 }
 
+/* Trading buttons are both hoverable and pressable - motion classes apply via data attributes */
+
 .btn-buy:hover:not(:disabled) {
   transform: translateY(-2px);
   box-shadow: 4px 4px 0 var(--outline-black);
@@ -482,6 +488,8 @@
   letter-spacing: 0.5px;
   font-weight: 700;
 }
+
+/* Trading buttons are both hoverable and pressable - motion classes apply via data attributes */
 
 .btn-sell:hover:not(:disabled) {
   transform: translateY(-2px);
@@ -629,7 +637,10 @@
   line-height: 1;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  transition: transform var(--transition), box-shadow var(--transition);
 }
+
+/* Mario badges are hoverable by default - universal hover micro-bounce applies via [data-hoverable]:hover */
 
 /* Status indicators */
 .mario-status-box {
@@ -787,6 +798,33 @@
 /* ---------------------------
    ANIMATIONS & EFFECTS
 --------------------------- */
+
+/* ============================================
+   MOTION & MICRO-INTERACTIONS SYSTEM
+   Smooth, cohesive animations for Mario theme
+   ============================================ */
+
+/* Universal Hover Micro-Bounce - Applied to all hoverable elements */
+[data-hoverable]:hover {
+  transform: translateY(-2px) scale(1.01);
+  transition: transform 0.15s ease-out;
+}
+
+/* Paper Press Animation - For clickable elements */
+.pressable:active {
+  transform: scale(0.97);
+  filter: brightness(0.96);
+}
+
+/* Page Load Fade Animation - Smooth visual entry */
+body {
+  opacity: 0;
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+@keyframes fadeIn { 
+  to { opacity: 1; } 
+}
 
 /* Shimmer Animation */
 @keyframes shimmer {
@@ -970,12 +1008,32 @@
     scroll-behavior: auto !important;
   }
   
+  /* Disable all motion animations */
   .animate-shimmer,
   .live-indicator,
   .number-update,
   .level-up-animation,
   .coin-bounce,
-.animate-pulse-ring {
+  .animate-pulse-ring,
+  .animate-micro-bounce,
+  .animate-paper-press {
+    animation: none !important;
+  }
+
+  /* Disable motion utilities */
+  .motion-hoverable:hover,
+  .motion-pressable:active,
+  .motion-interactive:hover,
+  .motion-interactive:active,
+  [data-hoverable]:hover,
+  .pressable:active {
+    transform: none !important;
+    filter: none !important;
+  }
+
+  /* Disable page fade animation */
+  body {
+    opacity: 1 !important;
     animation: none !important;
   }
 }
@@ -1081,6 +1139,38 @@ a,
   .touch-target {
     min-height: 44px;
     min-width: 44px;
+  }
+
+  /* Motion Utilities - Easy application of motion classes */
+  .motion-hoverable {
+    transition: transform 0.15s ease-out;
+  }
+
+  .motion-hoverable:hover {
+    transform: translateY(-2px) scale(1.01);
+  }
+
+  .motion-pressable {
+    transition: transform 0.1s ease-out, filter 0.1s ease-out;
+  }
+
+  .motion-pressable:active {
+    transform: scale(0.97);
+    filter: brightness(0.96);
+  }
+
+  /* Combined motion classes for common use cases */
+  .motion-interactive {
+    transition: transform 0.15s ease-out, filter 0.1s ease-out;
+  }
+
+  .motion-interactive:hover {
+    transform: translateY(-2px) scale(1.01);
+  }
+
+  .motion-interactive:active {
+    transform: scale(0.97);
+    filter: brightness(0.96);
   }
 }
 

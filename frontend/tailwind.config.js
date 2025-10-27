@@ -322,7 +322,6 @@ module.exports = {
         'base': 'var(--z-base)',
         'background-texture': 'var(--z-background-texture)',
         'content': 'var(--z-content)',
-        'foreground-texture': 'var(--z-foreground-texture)',
         'header': 'var(--z-header)',
         'nav': 'var(--z-nav)',
         'dropdown': 'var(--z-dropdown)',
@@ -366,6 +365,14 @@ module.exports = {
           '0%': { backgroundPosition: '200% 0' },
           '100%': { backgroundPosition: '-200% 0' },
         },
+        "micro-bounce": {
+          '0%': { transform: 'translateY(0) scale(1)' },
+          '100%': { transform: 'translateY(-2px) scale(1.01)' },
+        },
+        "paper-press": {
+          '0%': { transform: 'scale(1)', filter: 'brightness(1)' },
+          '100%': { transform: 'scale(0.97)', filter: 'brightness(0.96)' },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -374,6 +381,8 @@ module.exports = {
         "number-change": "number-change 0.3s ease-out",
         "fade-in": "fade-in 0.3s ease-out",
         "shimmer": "shimmer 2s linear infinite",
+        "micro-bounce": "micro-bounce 0.15s ease-out",
+        "paper-press": "paper-press 0.1s ease-out",
       },
     },
   },
