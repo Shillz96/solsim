@@ -59,7 +59,7 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
       <div>
         <a
           href="#main-content"
-          className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:px-4 focus:py-2 focus:bg-mario-red-500 focus:text-white focus:rounded focus:shadow-mario focus:font-mario focus:text-sm focus:border-2 focus:border-white"
+          className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-rewards-timer focus:px-4 focus:py-2 focus:bg-mario-red-500 focus:text-white focus:rounded focus:shadow-mario focus:font-mario focus:text-sm focus:border-2 focus:border-white"
         >
           Skip to main content
         </a>
@@ -68,7 +68,7 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
       </div>
       <main
         id="main-content"
-        className="relative scrollbar-none"
+        className="relative scrollbar-none z-content"
         style={{
           height: 'calc(100dvh - var(--navbar-height, 56px) - var(--trending-ticker-height, 60px) - var(--bottom-nav-height, 64px))',
           marginTop: 'calc(var(--navbar-height, 56px) + var(--trending-ticker-height, 60px))',
@@ -79,7 +79,7 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
       >
         {children}
       </main>
-      <BottomNavBar aria-label="Mobile navigation" className="sticky bottom-0 z-50" />
+      <BottomNavBar aria-label="Mobile navigation" className="sticky bottom-0 z-bottom-nav" />
       {/* Floating windows render here, positioned absolutely over the page */}
       <FloatingWindows />
     </>
