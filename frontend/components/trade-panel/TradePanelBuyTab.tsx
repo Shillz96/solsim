@@ -74,7 +74,7 @@ export function TradePanelBuyTab({
   const fees = hasAmount ? calculateTradeFees(solAmount, solPrice) : null
   
   return (
-    <div className="space-y-1.5 mt-1">
+    <div className="flex flex-col h-full space-y-1.5 mt-1">
       <Label className="mario-font text-[10px] whitespace-nowrap">
         SELECT AMOUNT (SOL)
       </Label>
@@ -133,14 +133,16 @@ export function TradePanelBuyTab({
         )}
       </Button>
 
-      {/* Token Vitals - 2x2 Grid */}
-      <TokenVitalsBar
-        tokenAddress={tokenAddress}
-        volume24h={volume24h}
-        holders={holders}
-        userRank={userRank}
-        className="mt-2"
-      />
+      {/* Token Vitals - 2x2 Grid - Fills remaining space */}
+      <div className="flex-1 flex flex-col mt-2">
+        <TokenVitalsBar
+          tokenAddress={tokenAddress}
+          volume24h={volume24h}
+          holders={holders}
+          userRank={userRank}
+          className="flex-1"
+        />
+      </div>
     </div>
   )
 }

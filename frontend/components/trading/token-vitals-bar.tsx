@@ -81,13 +81,13 @@ export function TokenVitalsBar({
   return (
     <div className={cn(
       marioStyles.cardLg(false),
-      "w-full p-2 grid grid-cols-2 gap-2",
+      "w-full p-3 grid grid-cols-2 gap-3 min-h-[200px]",
       className
     )}>
       {/* 24h Volume */}
-      <div className="flex items-center gap-2 p-2 rounded-lg border-3 border-outline shadow-[4px_4px_0_var(--outline-black)] bg-gradient-to-br from-[var(--coin-gold)]/20 to-[var(--star-yellow)]/10 hover:shadow-[5px_5px_0_var(--outline-black)] hover:-translate-y-[1px] transition-all">
-        <div className="h-10 w-10 rounded-full border-3 border-outline flex items-center justify-center shadow-[3px_3px_0_var(--outline-black)] bg-coin flex-shrink-0">
-          <DollarSign className="h-5 w-5 text-outline" />
+      <div className="flex items-center gap-3 p-3 rounded-lg border-3 border-outline shadow-[4px_4px_0_var(--outline-black)] bg-gradient-to-br from-[var(--coin-gold)]/20 to-[var(--star-yellow)]/10 hover:shadow-[5px_5px_0_var(--outline-black)] hover:-translate-y-[1px] transition-all">
+        <div className="h-12 w-12 rounded-full border-3 border-outline flex items-center justify-center shadow-[3px_3px_0_var(--outline-black)] bg-coin flex-shrink-0">
+          <DollarSign className="h-6 w-6 text-outline" />
         </div>
         <div className="min-w-0 flex-1">
           <div className="text-[11px] font-mario font-bold uppercase text-outline/60">24h Vol</div>
@@ -98,9 +98,9 @@ export function TokenVitalsBar({
       </div>
 
       {/* Holders */}
-      <div className="flex items-center gap-2 p-2 rounded-lg border-3 border-outline shadow-[4px_4px_0_var(--outline-black)] bg-gradient-to-br from-[var(--sky-blue)]/20 to-[var(--sky-blue)]/10 hover:shadow-[5px_5px_0_var(--outline-black)] hover:-translate-y-[1px] transition-all">
-        <div className="h-10 w-10 rounded-full border-3 border-outline flex items-center justify-center shadow-[3px_3px_0_var(--outline-black)] bg-sky flex-shrink-0">
-          <Users className="h-5 w-5 text-white" />
+      <div className="flex items-center gap-3 p-3 rounded-lg border-3 border-outline shadow-[4px_4px_0_var(--outline-black)] bg-gradient-to-br from-[var(--sky-blue)]/20 to-[var(--sky-blue)]/10 hover:shadow-[5px_5px_0_var(--outline-black)] hover:-translate-y-[1px] transition-all">
+        <div className="h-12 w-12 rounded-full border-3 border-outline flex items-center justify-center shadow-[3px_3px_0_var(--outline-black)] bg-sky flex-shrink-0">
+          <Users className="h-6 w-6 text-white" />
         </div>
         <div className="min-w-0 flex-1">
           <div className="text-[11px] font-mario font-bold uppercase text-outline/60">Holders</div>
@@ -112,18 +112,18 @@ export function TokenVitalsBar({
 
       {/* 5m Price Change - REAL-TIME */}
       <div className={cn(
-        "flex items-center gap-2 p-2 rounded-lg border-3 border-outline shadow-[4px_4px_0_var(--outline-black)] hover:shadow-[5px_5px_0_var(--outline-black)] hover:-translate-y-[1px] transition-all",
+        "flex items-center gap-3 p-3 rounded-lg border-3 border-outline shadow-[4px_4px_0_var(--outline-black)] hover:shadow-[5px_5px_0_var(--outline-black)] hover:-translate-y-[1px] transition-all",
         priceChange5m !== undefined && priceChange5m >= 0
           ? "bg-gradient-to-br from-[var(--luigi-green)]/20 to-green-100/10"
           : "bg-gradient-to-br from-[var(--mario-red)]/20 to-red-100/10"
       )}>
         <div className={cn(
-          "h-10 w-10 rounded-full border-3 border-outline flex items-center justify-center shadow-[3px_3px_0_var(--outline-black)] flex-shrink-0 transition-colors",
+          "h-12 w-12 rounded-full border-3 border-outline flex items-center justify-center shadow-[3px_3px_0_var(--outline-black)] flex-shrink-0 transition-colors",
           priceChange5m !== undefined && priceChange5m >= 0
             ? 'bg-luigi'
             : 'bg-mario'
         )}>
-          <PriceIcon className="h-5 w-5 text-white" />
+          <PriceIcon className="h-6 w-6 text-white" />
         </div>
         <div className="min-w-0 flex-1">
           <div className="text-[11px] font-mario font-bold uppercase text-outline/60">5m Change</div>
@@ -144,9 +144,9 @@ export function TokenVitalsBar({
       </div>
 
       {/* User Rank */}
-      <div className="flex items-center gap-2 p-2 rounded-lg border-3 border-outline shadow-[4px_4px_0_var(--outline-black)] bg-gradient-to-br from-[var(--star-yellow)]/20 to-[var(--star-yellow)]/10 hover:shadow-[5px_5px_0_var(--outline-black)] hover:-translate-y-[1px] transition-all">
-        <div className="h-10 w-10 rounded-full border-3 border-outline flex items-center justify-center shadow-[3px_3px_0_var(--outline-black)] bg-star flex-shrink-0">
-          <Trophy className="h-5 w-5 text-outline" />
+      <div className="flex items-center gap-3 p-3 rounded-lg border-3 border-outline shadow-[4px_4px_0_var(--outline-black)] bg-gradient-to-br from-[var(--star-yellow)]/20 to-[var(--star-yellow)]/10 hover:shadow-[5px_5px_0_var(--outline-black)] hover:-translate-y-[1px] transition-all">
+        <div className="h-12 w-12 rounded-full border-3 border-outline flex items-center justify-center shadow-[3px_3px_0_var(--outline-black)] bg-star flex-shrink-0">
+          <Trophy className="h-6 w-6 text-outline" />
         </div>
         <div className="min-w-0 flex-1">
           <div className="text-[11px] font-mario font-bold uppercase text-outline/60">Your Rank</div>

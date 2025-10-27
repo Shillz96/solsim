@@ -68,7 +68,7 @@ export function TradePanelSellTab({
   const fees = estimate ? calculateTradeFees(estimate.solAmount, solPrice) : null
   
   return (
-    <div className="space-y-1.5 mt-1">
+    <div className="flex flex-col h-full space-y-1.5 mt-1">
       <Label className="mario-font text-[10px] whitespace-nowrap">
         SELECT PERCENTAGE
       </Label>
@@ -77,7 +77,7 @@ export function TradePanelSellTab({
       <TradePanelEstimate
         type="sell"
         tokenSymbol={tokenSymbol || 'TOKEN'}
-        estimate={{ 
+        estimate={{
           sol: estimate?.solAmount || 0,
           tokens: estimate?.tokenQuantity || 0
         }}
@@ -114,14 +114,16 @@ export function TradePanelSellTab({
         )}
       </Button>
 
-      {/* Token Vitals - 2x2 Grid */}
-      <TokenVitalsBar
-        tokenAddress={tokenAddress}
-        volume24h={volume24h}
-        holders={holders}
-        userRank={userRank}
-        className="mt-2"
-      />
+      {/* Token Vitals - 2x2 Grid - Fills remaining space */}
+      <div className="flex-1 flex flex-col mt-2">
+        <TokenVitalsBar
+          tokenAddress={tokenAddress}
+          volume24h={volume24h}
+          holders={holders}
+          userRank={userRank}
+          className="flex-1"
+        />
+      </div>
     </div>
   )
 }

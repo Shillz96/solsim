@@ -24,7 +24,6 @@ import { useTradeExecution } from './hooks/useTradeExecution'
 
 // Import components
 import { TradePanelHeader } from './TradePanelHeader'
-import { TradePanelPrice } from './TradePanelPrice'
 import { TradePanelStatsBar } from './TradePanelStatsBar'
 import { TradePanelBuyTab } from './TradePanelBuyTab'
 import { TradePanelSellTab } from './TradePanelSellTab'
@@ -394,12 +393,6 @@ export function TradePanelContainer({
             holdingValue={currentValue}
             pnl={realtimeUnrealizedPnL}
             pnlPercent={realtimePnLPercent}
-          />
-
-          {/* Price Display */}
-          <TradePanelPrice
-            currentPrice={livePrice}
-            solPrice={solPrice}
           />
 
           {/* Trading Tabs */}
