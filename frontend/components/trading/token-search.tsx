@@ -136,7 +136,7 @@ export function TokenSearch() {
                     {token.priceChange24h !== undefined && token.priceChange24h !== null && (
                       <div 
                         className={`text-xs ${
-                          token.priceChange24h >= 0 ? 'text-green-600' : 'text-red-600'
+                          token.priceChange24h >= 0 ? 'text-luigi' : 'text-mario'
                         }`}
                         aria-label={`Price ${token.priceChange24h >= 0 ? 'increase' : 'decrease'} ${Math.abs(token.priceChange24h).toFixed(2)} percent in 24 hours`}
                       >

@@ -222,7 +222,7 @@ function VirtualizedTradeHistoryComponent({
                           variant={trade.side === 'BUY' ? 'default' : 'secondary'}
                           className={cn(
                             "font-bold",
-                            trade.side === 'BUY' ? 'bg-green-500/10 text-green-600' : 'bg-red-500/10 text-red-600'
+                            trade.side === 'BUY' ? 'bg-luigi/10 text-luigi' : 'bg-mario/10 text-mario'
                           )}
                         >
                           {trade.side}
@@ -232,7 +232,7 @@ function VirtualizedTradeHistoryComponent({
                           <div className="flex items-center gap-2">
                             <span className="font-medium">{trade.symbol || 'Unknown'}</span>
                             {trade.realizedPnL && realizedPnl !== 0 && (
-                              <div className={cn("flex items-center gap-1", isProfit ? "text-green-500" : "text-red-500")}>
+                              <div className={cn("flex items-center gap-1", isProfit ? "text-luigi" : "text-mario")}>
                                 {isProfit ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
                                 <span className="text-sm font-medium">
                                   {isProfit ? '+' : ''}{formatUSD(Math.abs(realizedPnl))}

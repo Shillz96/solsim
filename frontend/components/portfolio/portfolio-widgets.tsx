@@ -55,8 +55,8 @@ export function PortfolioStatsWidget() {
       icon: DollarSign, 
       prefix: "$",
       decimals: 2,
-      color: "text-blue-500",
-      bg: "bg-blue-500/10"
+      color: "text-sky",
+      bg: "bg-sky/10"
     },
     { 
       label: "Total P&L", 
@@ -151,8 +151,8 @@ export function LeaderboardPreviewWidget() {
       label: "Top Performer", 
       rank: "12th", 
       icon: Trophy, 
-      color: "text-yellow-500",
-      bg: "bg-yellow-500/10"
+      color: "text-star",
+      bg: "bg-star/10"
     },
     { 
       label: "Best Streak", 
@@ -219,8 +219,8 @@ export function QuickPortfolioActionsWidget() {
     { 
       label: "Trade Hub", 
       icon: Activity, 
-      color: "text-blue-500",
-      bg: "bg-blue-500/10",
+      color: "text-sky",
+      bg: "bg-sky/10",
       href: "/warp-pipes"
     },
     { 
@@ -233,8 +233,8 @@ export function QuickPortfolioActionsWidget() {
     { 
       label: "Watchlist", 
       icon: Star, 
-      color: "text-yellow-500",
-      bg: "bg-yellow-500/10",
+      color: "text-star",
+      bg: "bg-star/10",
       href: "/portfolio?tab=watchlist"
     },
   ]

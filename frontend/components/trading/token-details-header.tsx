@@ -212,7 +212,7 @@ export function TokenDetailsHeader({ tokenAddress }: TokenDetailsHeaderProps) {
               className="w-12 h-12 sm:w-14 sm:h-14 ring-2 ring-primary/20"
             />
             {(tokenDetails.isNew || tokenDetails.isTrending) && (
-              <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse"></div>
+              <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-luigi rounded-full animate-pulse"></div>
             )}
           </div>
 
@@ -328,7 +328,7 @@ export function TokenDetailsHeader({ tokenAddress }: TokenDetailsHeaderProps) {
                 className="w-12 h-12 ring-2 ring-primary/20"
               />
               {(tokenDetails.isNew || tokenDetails.isTrending) && (
-                <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse"></div>
+                <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-luigi rounded-full animate-pulse"></div>
               )}
             </div>
 
@@ -341,12 +341,12 @@ export function TokenDetailsHeader({ tokenAddress }: TokenDetailsHeaderProps) {
                   {tokenDetails.name}
                 </span>
                 {tokenDetails.isNew && (
-                  <Badge variant="default" className="text-xs bg-blue-600 h-5 px-2">
+                  <Badge variant="default" className="text-xs bg-sky h-5 px-2">
                     New
                   </Badge>
                 )}
                 {tokenDetails.isTrending && (
-                  <Badge variant="default" className="text-xs bg-green-600 h-5 px-2">
+                  <Badge variant="default" className="text-xs bg-luigi h-5 px-2">
                     Trending
                   </Badge>
                 )}
@@ -363,7 +363,7 @@ export function TokenDetailsHeader({ tokenAddress }: TokenDetailsHeaderProps) {
                       >
                         <span>{tokenAddress.slice(0, 4)}...{tokenAddress.slice(-4)}</span>
                         {copied ? (
-                          <Check className="h-3.5 w-3.5 text-green-500" />
+                          <Check className="h-3.5 w-3.5 text-luigi" />
                         ) : (
                           <Copy className="h-3.5 w-3.5 opacity-0 group-hover:opacity-100 transition-opacity" />
                         )}
@@ -454,9 +454,9 @@ export function TokenDetailsHeader({ tokenAddress }: TokenDetailsHeaderProps) {
                 {priceChange !== undefined && priceChange !== null && (
                   <div className={`flex items-center text-xs px-1.5 py-0.5 rounded ${
                     isPositiveChange
-                      ? 'text-green-400 bg-green-500/10'
+                      ? 'text-green-400 bg-luigi/10'
                       : isNegativeChange
-                        ? 'text-red-400 bg-red-500/10'
+                        ? 'text-red-400 bg-mario/10'
                         : 'text-muted-foreground bg-muted/20'
                   }`}>
                     {isPositiveChange && <TrendingUp className="h-2.5 w-2.5 mr-0.5" />}

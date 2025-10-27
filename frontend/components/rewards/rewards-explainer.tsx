@@ -26,8 +26,8 @@ const tiers = [
     name: "Bronze",
     minVolume: 10000,
     multiplier: 1.1,
-    color: "text-amber-600",
-    bgColor: "bg-amber-600/10",
+    color: "text-coin",
+    bgColor: "bg-coin/10",
     icon: "🥉",
     benefits: ["10% bonus rewards", "Priority support"]
   },
@@ -44,8 +44,8 @@ const tiers = [
     name: "Gold",
     minVolume: 100000,
     multiplier: 1.5,
-    color: "text-yellow-500",
-    bgColor: "bg-yellow-500/10",
+    color: "text-star",
+    bgColor: "bg-star/10",
     icon: "🏆",
     benefits: ["50% bonus rewards", "Exclusive insights"]
   },
@@ -301,7 +301,7 @@ export function RewardsExplainer() {
                   <span>Total Points:</span>
                   <span className="text-primary">170 points</span>
                 </div>
-                <div className="flex justify-between text-lg font-semibold text-green-500">
+                <div className="flex justify-between text-lg font-semibold text-luigi">
                   <span>vSOL Reward:</span>
                   <span>170,000 vSOL</span>
                 </div>
@@ -377,8 +377,8 @@ export function RewardsExplainer() {
               </div>
             </div>
 
-            <Alert className="border-green-500/20 bg-green-500/5">
-              <CheckCircle className="h-4 w-4 text-green-500" />
+            <Alert className="border-luigi/20 bg-luigi/5">
+              <CheckCircle className="h-4 w-4 text-luigi" />
               <AlertDescription>
                 <strong>No Rush:</strong> Your rewards are safely stored and can be claimed at any time.
                 There's no penalty for claiming late, and unclaimed rewards accumulate.

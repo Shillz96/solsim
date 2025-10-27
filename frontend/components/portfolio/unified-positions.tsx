@@ -171,7 +171,7 @@ const PositionRow = memo(function PositionRow({
                 onClick={() => onNavigate(position.mint, position.tokenSymbol, position.tokenName, 'sell', percent)}
                 className="cursor-pointer"
               >
-                <ArrowDownToLine className="h-4 w-4 mr-2 text-red-500" />
+                <ArrowDownToLine className="h-4 w-4 mr-2 text-mario" />
                 Sell {percent}%
                 <span className="ml-auto text-xs text-muted-foreground">
                   {formatTokenQuantity((parseFloat(position.qty) * percent) / 100)}

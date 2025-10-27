@@ -58,7 +58,7 @@ export function TradingStatsWidget() {
               </div>
               <div className="text-right">
                 <div className="text-sm font-semibold">{stat.value}</div>
-                <div className="text-xs text-green-500 flex items-center gap-1">
+                <div className="text-xs text-luigi flex items-center gap-1">
                   <TrendingUp className="h-2.5 w-2.5" />
                   {stat.trend}
                 </div>
@@ -85,22 +85,22 @@ export function QuickActionsWidget() {
     { 
       label: "Top Gainers", 
       icon: TrendingUp, 
-      color: "text-green-500",
-      bg: "bg-green-500/10",
+      color: "text-luigi",
+      bg: "bg-luigi/10",
       href: "/trending?filter=gainers"
     },
     { 
       label: "Most Active", 
       icon: Activity, 
-      color: "text-blue-500",
-      bg: "bg-blue-500/10",
+      color: "text-sky",
+      bg: "bg-sky/10",
       href: "/trending?filter=volume"
     },
     { 
       label: "Watchlist", 
       icon: Star, 
-      color: "text-yellow-500",
-      bg: "bg-yellow-500/10",
+      color: "text-star",
+      bg: "bg-star/10",
       href: "/portfolio?tab=watchlist"
     },
   ]

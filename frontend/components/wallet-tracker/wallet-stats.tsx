@@ -65,16 +65,16 @@ export function WalletStats({
         label: `${timeWindowHours}h Activities`,
         value: totalActivities,
         icon: Activity,
-        color: "text-blue-500",
-        bgColor: "bg-blue-500/10",
+        color: "text-sky",
+        bgColor: "bg-sky/10",
         srText: `Activities in the last ${timeWindowHours} hours`
       },
       {
         label: `${timeWindowHours}h Volume`,
         value: formatNumber(totalVolume), // Remove $ symbol - redundant with label
         icon: DollarSign,
-        color: "text-green-500",
-        bgColor: "bg-green-500/10",
+        color: "text-luigi",
+        bgColor: "bg-luigi/10",
         srText: `Trading volume in the last ${timeWindowHours} hours`
       },
       {

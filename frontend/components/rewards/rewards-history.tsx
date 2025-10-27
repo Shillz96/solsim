@@ -91,7 +91,7 @@ export function RewardsHistory() {
   const getStatusBadge = (claim: Backend.RewardClaim) => {
     if (claim.status === "COMPLETED") {
       return (
-        <Badge variant="default" className="bg-green-500/10 text-green-500 border-green-500/20">
+        <Badge variant="default" className="bg-luigi/10 text-luigi border-luigi/20">
           <CheckCircle className="h-3 w-3 mr-1" />
           Claimed
         </Badge>
@@ -159,7 +159,7 @@ export function RewardsHistory() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
           { label: "Total Claimed", value: formatNumber(stats.totalClaimed), subtitle: "$vSOL tokens", color: "text-foreground" },
-          { label: "Pending Rewards", value: formatNumber(stats.totalPending), subtitle: "$vSOL tokens", color: "text-yellow-500" },
+          { label: "Pending Rewards", value: formatNumber(stats.totalPending), subtitle: "$vSOL tokens", color: "text-star" },
           { label: "Total Claims", value: stats.totalClaims, subtitle: "successful", color: "text-foreground" },
           { label: "Average Claim", value: formatNumber(stats.avgClaimSize), subtitle: "$vSOL per claim", color: "text-foreground" }
         ].map((stat, index) => (

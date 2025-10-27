@@ -55,8 +55,8 @@ export function EmailVerificationBanner({ email }: EmailVerificationBannerProps)
 
   return (
     <div className="space-y-2">
-      <Alert className="border-yellow-500 bg-yellow-500/10">
-        <AlertCircle className="h-4 w-4 text-yellow-600" />
+      <Alert className="border-yellow-500 bg-star/10">
+        <AlertCircle className="h-4 w-4 text-star" />
         <AlertDescription className="flex items-center justify-between gap-4">
           <div className="flex-1">
             <p className="font-medium text-yellow-800">
@@ -89,13 +89,13 @@ export function EmailVerificationBanner({ email }: EmailVerificationBannerProps)
       </Alert>
 
       {message && (
-        <Alert className={message.type === 'success' ? 'border-green-500 bg-green-500/10' : 'border-red-500 bg-red-500/10'}>
+        <Alert className={message.type === 'success' ? 'border-luigi bg-luigi/10' : 'border-mario bg-mario/10'}>
           {message.type === 'success' ? (
-            <CheckCircle className="h-4 w-4 text-green-600" />
+            <CheckCircle className="h-4 w-4 text-luigi" />
           ) : (
-            <AlertCircle className="h-4 w-4 text-red-600" />
+            <AlertCircle className="h-4 w-4 text-mario" />
           )}
-          <AlertDescription className={message.type === 'success' ? 'text-green-700' : 'text-red-700'}>
+          <AlertDescription className={message.type === 'success' ? 'text-luigi' : 'text-mario'}>
             {message.text}
           </AlertDescription>
         </Alert>

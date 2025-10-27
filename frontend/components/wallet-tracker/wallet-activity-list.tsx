@@ -53,12 +53,12 @@ const prefersReducedMotion = typeof window !== 'undefined'
 
 // Wallet color mapping for visual identification
 const WALLET_COLORS = [
-  'text-orange-500',
-  'text-green-500',
-  'text-blue-500',
-  'text-yellow-500',
+  'text-mario',
+  'text-luigi',
+  'text-sky',
+  'text-star',
   'text-purple-500',
-  'text-red-500',
+  'text-mario',
   'text-amber-700',
   'text-[var(--outline-black)]/80'
 ] as const;

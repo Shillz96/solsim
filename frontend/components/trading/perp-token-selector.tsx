@@ -141,7 +141,7 @@ export function PerpTokenSelector({ value, onChange }: PerpTokenSelectorProps) {
                 {selectedToken.priceChange24h !== undefined && (
                   <div
                     className={`text-xs ${
-                      selectedToken.priceChange24h >= 0 ? 'text-green-600' : 'text-red-600'
+                      selectedToken.priceChange24h >= 0 ? 'text-luigi' : 'text-mario'
                     }`}
                   >
                     {selectedToken.priceChange24h >= 0 ? '▲' : '▼'}{' '}
@@ -221,7 +221,7 @@ export function PerpTokenSelector({ value, onChange }: PerpTokenSelectorProps) {
                         {token.priceChange24h !== undefined && (
                           <div
                             className={`text-xs ${
-                              token.priceChange24h >= 0 ? 'text-green-600' : 'text-red-600'
+                              token.priceChange24h >= 0 ? 'text-luigi' : 'text-mario'
                             }`}
                           >
                             {token.priceChange24h >= 0 ? '▲' : '▼'}{' '}

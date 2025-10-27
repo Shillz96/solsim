@@ -31,7 +31,7 @@ export function ResponsiveLeaderboard({
     if (rank === 1)
       return (
         <div className="flex items-center gap-2">
-          <Trophy className="h-5 w-5 text-yellow-500" />
+          <Trophy className="h-5 w-5 text-star" />
           <span className="font-bold text-xl gradient-text">#{rank}</span>
         </div>
       )
@@ -45,7 +45,7 @@ export function ResponsiveLeaderboard({
     if (rank === 3)
       return (
         <div className="flex items-center gap-2">
-          <Trophy className="h-5 w-5 text-orange-600" />
+          <Trophy className="h-5 w-5 text-mario" />
           <span className="font-bold text-xl">#{rank}</span>
         </div>
       )
@@ -178,7 +178,7 @@ export function ResponsiveLeaderboard({
                             You
                           </Badge>
                         )}
-                        {entry.rank! <= 3 && <Sparkles className="h-4 w-4 text-yellow-500" />}
+                        {entry.rank! <= 3 && <Sparkles className="h-4 w-4 text-star" />}
                       </div>
                     </div>
                   </td>

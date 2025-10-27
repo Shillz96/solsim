@@ -62,8 +62,8 @@ interface LeaderboardProps {
 function RankBadge({ rank }: { rank: number }) {
   if (rank === 1) {
     return (
-      <div className="flex items-center justify-center w-10 h-10 rounded-full bg-yellow-500/20">
-        <Trophy className="h-6 w-6 text-yellow-500" />
+      <div className="flex items-center justify-center w-10 h-10 rounded-full bg-star/20">
+        <Trophy className="h-6 w-6 text-star" />
       </div>
     );
   }

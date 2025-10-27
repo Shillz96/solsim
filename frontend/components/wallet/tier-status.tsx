@@ -37,7 +37,7 @@ const TIER_CONFIG = {
   WALLET_USER: {
     label: 'Wallet User',
     icon: Shield,
-    color: 'bg-blue-500',
+    color: 'bg-sky',
     textColor: 'text-blue-700',
     description: 'Enhanced access with wallet verification',
     defaultBenefits: [
@@ -134,10 +134,10 @@ export function TierStatus({
           {vsolTokenBalance !== undefined && vsolTokenBalance > 0 && (
             <div className="bg-muted/50 rounded-lg p-3">
               <div className="flex items-center gap-2 mb-1">
-                <TrendingUp className="h-4 w-4 text-yellow-500" />
+                <TrendingUp className="h-4 w-4 text-star" />
                 <span className="text-sm font-medium">$vSOL Tokens</span>
               </div>
-              <p className="text-lg font-semibold text-yellow-600">
+              <p className="text-lg font-semibold text-star">
                 {vsolTokenBalance.toLocaleString()} $vSOL
               </p>
             </div>
@@ -157,7 +157,7 @@ export function TierStatus({
               >
                 <div className={cn(
                   'mt-0.5 h-2 w-2 rounded-full',
-                  benefit.available ? 'bg-green-500' : 'bg-pipe-400'
+                  benefit.available ? 'bg-luigi' : 'bg-pipe-400'
                 )} />
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-foreground">

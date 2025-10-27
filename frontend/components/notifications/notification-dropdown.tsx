@@ -19,21 +19,21 @@ import { formatDistanceToNow } from "date-fns"
 const getNotificationIcon = (type: Notification['type']) => {
   switch (type) {
     case 'trade':
-      return <TrendingUp className="h-4 w-4 text-green-500" />
+      return <TrendingUp className="h-4 w-4 text-luigi" />
     case 'portfolio':
-      return <Wallet className="h-4 w-4 text-blue-500" />
+      return <Wallet className="h-4 w-4 text-sky" />
     case 'price':
-      return <DollarSign className="h-4 w-4 text-yellow-500" />
+      return <DollarSign className="h-4 w-4 text-star" />
     case 'leaderboard':
       return <Trophy className="h-4 w-4 text-purple-500" />
     case 'rewards':
-      return <Star className="h-4 w-4 text-amber-500" />
+      return <Star className="h-4 w-4 text-coin" />
     case 'wallet_tracker':
       return <Eye className="h-4 w-4 text-cyan-500" />
     case 'achievement':
-      return <Trophy className="h-4 w-4 text-orange-500" />
+      return <Trophy className="h-4 w-4 text-mario" />
     case 'system':
-      return <AlertCircle className="h-4 w-4 text-red-500" />
+      return <AlertCircle className="h-4 w-4 text-mario" />
     default:
       return <Bell className="h-4 w-4" />
   }

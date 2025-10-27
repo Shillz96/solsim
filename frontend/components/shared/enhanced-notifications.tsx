@@ -75,9 +75,9 @@ export const TradeNotifications = {
         <div className="space-y-2">
           <div className="flex items-center gap-2">
             {action === 'buy' ? (
-              <TrendingUp className="h-4 w-4 text-green-500" />
+              <TrendingUp className="h-4 w-4 text-luigi" />
             ) : (
-              <TrendingDown className="h-4 w-4 text-red-500" />
+              <TrendingDown className="h-4 w-4 text-mario" />
             )}
             <span className="font-semibold">
               {action === 'buy' ? 'Bought' : 'Sold'} {amount.toFixed(6)} {symbol}
@@ -298,7 +298,7 @@ export const NotificationBanner: React.FC<{
               {notification.metadata.pnl !== undefined && (
                 <span className={cn(
                   "font-semibold",
-                  notification.metadata.pnl >= 0 ? "text-green-600" : "text-red-600"
+                  notification.metadata.pnl >= 0 ? "text-luigi" : "text-mario"
                 )}>
                   {notification.metadata.pnl >= 0 ? '+' : ''}
                   {notification.metadata.pnl.toFixed(2)}%
@@ -391,7 +391,7 @@ export const ErrorBoundaryNotification: React.FC<{
     <Card className="max-w-notification mx-auto">
       <CardContent className="p-6">
         <div className="flex items-start gap-3">
-          <AlertCircle className="h-5 w-5 text-red-500 mt-0.5" />
+          <AlertCircle className="h-5 w-5 text-mario mt-0.5" />
           <div className="space-y-3">
             <div>
               <h3 className="font-semibold">Something went wrong</h3>

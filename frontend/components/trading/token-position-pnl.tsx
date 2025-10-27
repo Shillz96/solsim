@@ -368,8 +368,8 @@ export function TokenPositionPnL({ tokenAddress, tokenSymbol, tokenName }: Token
           className={cn(
             "p-4 rounded-lg border-2",
             isPositive 
-              ? "bg-green-500/5 border-green-500/20" 
-              : "bg-red-500/5 border-red-500/20"
+              ? "bg-luigi/5 border-luigi/20" 
+              : "bg-mario/5 border-mario/20"
           )}
         >
           <div className="flex items-baseline gap-3">
@@ -425,7 +425,7 @@ export function TokenPositionPnL({ tokenAddress, tokenSymbol, tokenName }: Token
                 <span className="text-muted-foreground">24h Change</span>
                 <span className={cn(
                   "font-medium",
-                  parseFloat(tokenPosition.priceChange24h) >= 0 ? "text-green-500" : "text-red-500"
+                  parseFloat(tokenPosition.priceChange24h) >= 0 ? "text-luigi" : "text-mario"
                 )}>
                   {parseFloat(tokenPosition.priceChange24h) >= 0 ? '+' : ''}
                   {parseFloat(tokenPosition.priceChange24h).toFixed(2)}%
@@ -454,7 +454,7 @@ export function TokenPositionPnL({ tokenAddress, tokenSymbol, tokenName }: Token
                   <div className="flex items-center gap-1">
                     <div className={cn(
                       "text-lg font-bold",
-                      tradeMetrics.winRate >= 50 ? "text-green-500" : "text-yellow-500"
+                      tradeMetrics.winRate >= 50 ? "text-luigi" : "text-star"
                     )}>
                       {tradeMetrics.winRate.toFixed(1)}%
                     </div>
@@ -468,7 +468,7 @@ export function TokenPositionPnL({ tokenAddress, tokenSymbol, tokenName }: Token
                   <div className="text-xs text-muted-foreground mb-1">Realized P&L</div>
                   <div className={cn(
                     "text-lg font-bold",
-                    tradeMetrics.totalRealizedPnL >= 0 ? "text-green-500" : "text-red-500"
+                    tradeMetrics.totalRealizedPnL >= 0 ? "text-luigi" : "text-mario"
                   )}>
                     {tradeMetrics.totalRealizedPnL >= 0 ? '+' : ''}
                     {tradeMetrics.totalRealizedPnL.toFixed(4)} SOL
@@ -504,8 +504,8 @@ export function TokenPositionPnL({ tokenAddress, tokenSymbol, tokenName }: Token
               <div className="space-y-2">
                 {[
                   { label: '10%', multiplier: 1.1, color: 'text-green-400' },
-                  { label: '25%', multiplier: 1.25, color: 'text-green-500' },
-                  { label: '50%', multiplier: 1.5, color: 'text-green-600' },
+                  { label: '25%', multiplier: 1.25, color: 'text-luigi' },
+                  { label: '50%', multiplier: 1.5, color: 'text-luigi' },
                 ].map((target) => {
                   const targetPrice = parseFloat(tokenPosition.avgCostUsd) * target.multiplier
                   const targetValue = parseFloat(tokenPosition.qty) * targetPrice

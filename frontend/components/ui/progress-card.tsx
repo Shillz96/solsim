@@ -36,7 +36,7 @@ function ProgressCard({
   const colorClasses = {
     primary: 'bg-primary',
     success: 'bg-profit',
-    warning: 'bg-yellow-500',
+    warning: 'bg-star',
     danger: 'bg-loss'
   }
 
@@ -145,9 +145,9 @@ function AchievementBadge({
 
   const rarityBg = {
     common: 'bg-pipe-400/10',
-    rare: 'bg-blue-500/10',
+    rare: 'bg-sky/10',
     epic: 'bg-purple-500/10',
-    legendary: 'bg-yellow-500/10'
+    legendary: 'bg-star/10'
   }
 
   return (

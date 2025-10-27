@@ -300,7 +300,7 @@ export function RewardsOverviewEnhanced() {
                 }}
                 transition={{ duration: 3, repeat: Infinity }}
               >
-                <Trophy className="h-5 w-5 text-yellow-500" />
+                <Trophy className="h-5 w-5 text-star" />
               </motion.div>
             }
             trend={totalClaimed > 0 ? "up" : "neutral"}
@@ -373,7 +373,7 @@ export function RewardsOverviewEnhanced() {
                 className="relative"
               >
                 <Clock className="h-3 w-3" />
-                <div className="absolute inset-0 bg-green-500 rounded-full blur-md opacity-50"></div>
+                <div className="absolute inset-0 bg-luigi rounded-full blur-md opacity-50"></div>
               </motion.div>
               <span>Resets in: <span className="font-mono font-bold text-sm text-primary">{timeUntilNextClaim}</span></span>
             </div>
@@ -512,7 +512,7 @@ export function RewardsOverviewEnhanced() {
                 <Zap className="h-5 w-5" />
                 Platform Statistics
               </h3>
-              <div className="live-indicator w-2 h-2 bg-green-500 rounded-full"></div>
+              <div className="live-indicator w-2 h-2 bg-luigi rounded-full"></div>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="data-card">

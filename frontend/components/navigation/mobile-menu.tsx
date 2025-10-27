@@ -279,7 +279,7 @@ export function MobileMenu({
                   onLogout()
                   setMobileMenuOpen(false)
                 }}
-                className="w-full flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-muted transition-colors text-red-600"
+                className="w-full flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-muted transition-colors text-mario"
               >
                 <LogOut className="h-5 w-5" />
                 <div>

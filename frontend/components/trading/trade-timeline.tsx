@@ -77,8 +77,8 @@ export function TradeTimeline({ tokenAddress, maxTrades = 10, variant = 'default
                   className={cn(
                     "absolute top-0.5 rounded-full border-2 border-background flex items-center justify-center",
                     isBuy
-                      ? "bg-green-500 shadow-lg shadow-green-500/50"
-                      : "bg-red-500 shadow-lg shadow-red-500/50",
+                      ? "bg-luigi shadow-lg shadow-green-500/50"
+                      : "bg-mario shadow-lg shadow-red-500/50",
                     isCompact ? "left-1 w-3 h-3" : "left-2 w-4 h-4"
                   )}
                 >
@@ -102,7 +102,7 @@ export function TradeTimeline({ tokenAddress, maxTrades = 10, variant = 'default
                           className={cn(
                             "font-semibold",
                             isCompact ? "text-[10px] px-1.5 py-0" : "text-xs",
-                            isBuy ? "bg-green-500/20 text-green-600 border-green-500/30" : ""
+                            isBuy ? "bg-luigi/20 text-luigi border-luigi/30" : ""
                           )}
                         >
                           {isBuy ? "BUY" : "SELL"}
@@ -128,7 +128,7 @@ export function TradeTimeline({ tokenAddress, maxTrades = 10, variant = 'default
                       <div
                         className={cn(
                           "text-right",
-                          hasProfit ? "text-green-600" : "text-red-600"
+                          hasProfit ? "text-luigi" : "text-mario"
                         )}
                       >
                         <div className={cn("font-semibold", isCompact ? "text-xs" : "text-sm")}>

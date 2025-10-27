@@ -114,7 +114,7 @@ export function WalletConnectButton({
             variant={variant}
             className={cn('min-w-[140px]', className)}
           >
-            <CheckCircle className="mr-2 h-4 w-4 text-green-500" />
+            <CheckCircle className="mr-2 h-4 w-4 text-luigi" />
             {walletAddress}
           </Button>
           

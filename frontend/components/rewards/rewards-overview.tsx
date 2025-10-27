@@ -173,9 +173,9 @@ export function RewardsOverview() {
     const totalVolume = 0 // portfolio?.totals?.totalTrades * 1000 || 0 // Placeholder calculation
     if (totalVolume >= 1000000) return { name: "Diamond", color: "text-cyan-500", icon: "💎", multiplier: 2.0 }
     if (totalVolume >= 500000) return { name: "Platinum", color: "text-purple-500", icon: "🔮", multiplier: 1.75 }
-    if (totalVolume >= 100000) return { name: "Gold", color: "text-yellow-500", icon: "🏆", multiplier: 1.5 }
+    if (totalVolume >= 100000) return { name: "Gold", color: "text-star", icon: "🏆", multiplier: 1.5 }
     if (totalVolume >= 50000) return { name: "Silver", color: "text-pipe-400", icon: "🥈", multiplier: 1.25 }
-    if (totalVolume >= 10000) return { name: "Bronze", color: "text-amber-600", icon: "🥉", multiplier: 1.1 }
+    if (totalVolume >= 10000) return { name: "Bronze", color: "text-coin", icon: "🥉", multiplier: 1.1 }
     return { name: "Novice", color: "text-pipe-500", icon: "🌟", multiplier: 1.0 }
   }
 
@@ -255,7 +255,7 @@ export function RewardsOverview() {
         <Card>
           <CardHeader className="pb-4">
             <div className="flex items-center justify-between">
-              <Trophy className="h-5 w-5 text-yellow-500" />
+              <Trophy className="h-5 w-5 text-star" />
               <Badge variant="outline">Lifetime</Badge>
             </div>
           </CardHeader>

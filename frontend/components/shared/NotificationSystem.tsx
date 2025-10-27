@@ -60,7 +60,7 @@ const variantIcons = {
  * Map of variant to CSS classes
  */
 const variantClasses = {
-  success: 'border-green-600',
+  success: 'border-luigi',
   warning: 'border-amber-600',
   destructive: '',  // Uses default destructive styling
   info: 'border-blue-600',
@@ -71,10 +71,10 @@ const variantClasses = {
  * Map of variant to icon CSS classes
  */
 const variantIconClasses = {
-  success: 'text-green-600',
-  warning: 'text-amber-600',
+  success: 'text-luigi',
+  warning: 'text-coin',
   destructive: '',  // Uses default destructive styling
-  info: 'text-blue-600',
+  info: 'text-sky',
   default: '',      // Uses default styling
 };
 

@@ -40,11 +40,11 @@ export function PortfolioBar({
   const getVariantColor = (variant: string) => {
     switch (variant) {
       case "success":
-        return "bg-green-500"
+        return "bg-luigi"
       case "warning":
-        return "bg-yellow-500"
+        return "bg-star"
       case "destructive":
-        return "bg-red-500"
+        return "bg-mario"
       default:
         return "bg-primary"
     }

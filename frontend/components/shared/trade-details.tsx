@@ -232,9 +232,9 @@ export function TradeDetails({
                   >
                     <p className="text-sm text-muted-foreground mb-1">Buy/Sell</p>
                     <div className="flex items-center justify-center space-x-1 text-sm font-bold">
-                      <span className="text-green-500">{stats.buyTrades}</span>
+                      <span className="text-luigi">{stats.buyTrades}</span>
                       <span className="text-muted-foreground">/</span>
-                      <span className="text-red-500">{stats.sellTrades}</span>
+                      <span className="text-mario">{stats.sellTrades}</span>
                     </div>
                   </motion.div>
                   
@@ -265,14 +265,14 @@ export function TradeDetails({
                           <PriceDisplay
                             priceUSD={stats.priceRange.high}
                             showSol={true}
-                            className="text-green-500 font-medium"
+                            className="text-luigi font-medium"
                           />
                         </div>
                         <div>
                           <PriceDisplay
                             priceUSD={stats.priceRange.low}
                             showSol={true}
-                            className="text-red-500 font-medium"
+                            className="text-mario font-medium"
                           />
                         </div>
                       </div>
@@ -375,7 +375,7 @@ export function TradeDetails({
                             <span className="text-muted-foreground">P&L:</span>
                             <span className={cn(
                               "font-mono font-medium",
-                              parseFloat(trade.realizedPnL) > 0 ? 'text-green-500' : 'text-red-500'
+                              parseFloat(trade.realizedPnL) > 0 ? 'text-luigi' : 'text-mario'
                             )}>
                               {parseFloat(trade.realizedPnL) > 0 ? '+' : ''}
                               {parseFloat(trade.realizedPnL).toFixed(3)} SOL
@@ -420,7 +420,7 @@ export function TradeDetails({
                               <span className="text-muted-foreground">P&L:</span>
                               <span className={cn(
                                 "font-mono font-medium",
-                                parseFloat(trade.realizedPnL) > 0 ? 'text-green-500' : 'text-red-500'
+                                parseFloat(trade.realizedPnL) > 0 ? 'text-luigi' : 'text-mario'
                               )}>
                                 {parseFloat(trade.realizedPnL) > 0 ? '+' : ''}
                                 {parseFloat(trade.realizedPnL).toFixed(4)} SOL

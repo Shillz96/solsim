@@ -227,8 +227,8 @@ export function SharePnLDialog({ totalPnL, totalPnLPercent, currentValue, initia
                 <div className="flex-1 flex flex-col justify-center">
                   <div className={`relative p-3 rounded-xl border-2 ${
                     totalPnL >= 0
-                      ? "bg-gradient-to-br from-green-500/10 via-green-500/5 to-transparent border-green-500/30"
-                      : "bg-gradient-to-br from-red-500/10 via-red-500/5 to-transparent border-red-500/30"
+                      ? "bg-gradient-to-br from-green-500/10 via-green-500/5 to-transparent border-luigi/30"
+                      : "bg-gradient-to-br from-red-500/10 via-red-500/5 to-transparent border-mario/30"
                   } backdrop-blur-sm`}>
                     <div className="relative">
                       <div className="flex items-center gap-2 mb-1">

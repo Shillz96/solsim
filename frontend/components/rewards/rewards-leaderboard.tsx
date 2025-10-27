@@ -50,11 +50,11 @@ export function RewardsLeaderboard() {
   const getRankIcon = (rank: number) => {
     switch (rank) {
       case 1:
-        return <Crown className="h-5 w-5 text-yellow-500" />
+        return <Crown className="h-5 w-5 text-star" />
       case 2:
         return <Medal className="h-5 w-5 text-pipe-400" />
       case 3:
-        return <Medal className="h-5 w-5 text-amber-600" />
+        return <Medal className="h-5 w-5 text-coin" />
       default:
         return <span className="text-sm font-semibold text-muted-foreground">#{rank}</span>
     }
@@ -89,14 +89,14 @@ export function RewardsLeaderboard() {
     if (change === 0) return null
     if (change > 0) {
       return (
-        <div className="flex items-center gap-1 text-green-500 text-sm">
+        <div className="flex items-center gap-1 text-luigi text-sm">
           <ArrowUp className="h-3 w-3" />
           <span>{change}</span>
         </div>
       )
     }
     return (
-      <div className="flex items-center gap-1 text-red-500 text-sm">
+      <div className="flex items-center gap-1 text-mario text-sm">
         <ArrowDown className="h-3 w-3" />
         <span>{Math.abs(change)}</span>
       </div>
@@ -158,7 +158,7 @@ export function RewardsLeaderboard() {
           )}>
             {leader.rank === 1 && (
               <div className="absolute top-2 right-2">
-                <Crown className="h-6 w-6 text-yellow-500" />
+                <Crown className="h-6 w-6 text-star" />
               </div>
             )}
             <CardHeader className="mario-header-card mb-4">
@@ -194,7 +194,7 @@ export function RewardsLeaderboard() {
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Win Rate</span>
-                  <span className="font-semibold text-green-500">{leader.winRate}%</span>
+                  <span className="font-semibold text-luigi">{leader.winRate}%</span>
                 </div>
               </div>
               {getRankBadge(leader.rank)}

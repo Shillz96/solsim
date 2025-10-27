@@ -14,12 +14,12 @@ export function WebSocketStatus({ className, showDetails = false }: WebSocketSta
   const getStatusColor = (state: ConnectionState) => {
     switch (state) {
       case ConnectionState.Connected:
-        return 'text-green-500'
+        return 'text-luigi'
       case ConnectionState.Connecting:
       case ConnectionState.Reconnecting:
-        return 'text-yellow-500'
+        return 'text-star'
       case ConnectionState.Failed:
-        return 'text-red-500'
+        return 'text-mario'
       case ConnectionState.Disconnected:
       default:
         return 'text-pipe-500'
@@ -65,7 +65,7 @@ export function WebSocketStatus({ className, showDetails = false }: WebSocketSta
           {connectionState === ConnectionState.Failed && (
             <button
               onClick={reconnect}
-              className="px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+              className="px-2 py-1 bg-sky text-white rounded hover:bg-sky"
             >
               Retry
             </button>
@@ -74,7 +74,7 @@ export function WebSocketStatus({ className, showDetails = false }: WebSocketSta
             connectionState === ConnectionState.Connecting) && (
             <button
               onClick={disconnect}
-              className="px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600"
+              className="px-2 py-1 bg-mario text-white rounded hover:bg-mario"
             >
               Disconnect
             </button>
@@ -83,7 +83,7 @@ export function WebSocketStatus({ className, showDetails = false }: WebSocketSta
       </div>
       
       {error && (
-        <div className="text-red-500 mb-2">
+        <div className="text-mario mb-2">
           Error: {error}
         </div>
       )}

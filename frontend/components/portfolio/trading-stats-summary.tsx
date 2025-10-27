@@ -31,8 +31,8 @@ interface StatCardProps {
 function StatCard({ label, value, subtitle, icon: Icon, variant = 'default' }: StatCardProps) {
   const variantStyles = {
     default: 'border-primary/20 bg-primary/5',
-    success: 'border-green-500/20 bg-luigi/5',
-    danger: 'border-red-500/20 bg-mario/5',
+    success: 'border-luigi/20 bg-luigi/5',
+    danger: 'border-mario/20 bg-mario/5',
     neutral: 'border-border bg-muted/30'
   }
 
@@ -167,14 +167,14 @@ export function TradingStatsSummary() {
               <div className="flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">Winning Trades</span>
                 <div className="flex items-center gap-2">
-                  <Badge variant="default" className="bg-luigi/20 text-luigi border-green-500/30">
+                  <Badge variant="default" className="bg-luigi/20 text-luigi border-luigi/30">
                     {winningTrades}
                   </Badge>
                 </div>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">Losing Trades</span>
-                <Badge variant="outline" className="border-red-500/30 text-mario">
+                <Badge variant="outline" className="border-mario/30 text-mario">
                   {losingTrades}
                 </Badge>
               </div>

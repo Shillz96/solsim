@@ -570,14 +570,14 @@ export function WalletTrackerPopup({ isOpen, onClose }: WalletTrackerPopupProps)
 
                                     <div className="grid grid-cols-2 gap-x-6 gap-y-1 text-xs sm:gap-x-8">
                                       <div className="flex items-center gap-2">
-                                        <TrendingDown className="h-3.5 w-3.5 text-red-500" />
+                                        <TrendingDown className="h-3.5 w-3.5 text-mario" />
                                         <span className="text-muted-foreground font-bold">In:</span>
                                         <code className="truncate font-mono font-bold">
                                           {activity.tokenIn?.slice(0, 8) || "N/A"}
                                         </code>
                                       </div>
                                       <div className="flex items-center gap-2">
-                                        <TrendingUp className="h-3.5 w-3.5 text-green-500" />
+                                        <TrendingUp className="h-3.5 w-3.5 text-luigi" />
                                         <span className="text-muted-foreground font-bold">Out:</span>
                                         <code className="truncate font-mono font-bold">
                                           {activity.tokenOut?.slice(0, 8) || "N/A"}
