@@ -23,6 +23,9 @@ import { healthCapsuleService } from '../services/healthCapsuleService.js';
 import { tokenMetadataService } from '../services/tokenMetadataService.js';
 import { holderCountService } from '../services/holderCountService.js';
 import priceServiceClient from '../plugins/priceServiceClient.js';
+import { loggers, truncateWallet, logTokenEvent, logBatchOperation } from '../utils/logger.js';
+
+const logger = loggers.server;
 
 // ============================================================================
 // CONFIGURATION
@@ -176,7 +179,11 @@ class TokenStateManager {
     // Invalidate Redis cache
     await this.redis.del(`token:${mint}`);
 
-    console.log(`[TokenDiscovery] State transition: ${mint} ${oldState} → ${newState}`);
+    logger.debug({ 
+      mint: truncateWallet(mint), 
+      oldState, 
+      newState 
+    }, 'Token state transition');
   }
 
   /**
@@ -255,16 +262,21 @@ class TokenStateManager {
         return;
       }
 
-      console.log(
-        `[TokenDiscovery] Notifying ${watchers.length} watchers for ${mint}: ${oldState} → ${newState}`
-      );
+      logger.debug({
+        watcherCount: watchers.length,
+        mint: truncateWallet(mint),
+        oldState,
+        newState
+      }, 'Notifying watchers of token state change');
 
       // TODO: Integrate with NotificationService
       // For now, just log
       for (const watch of watchers) {
-        console.log(
-          `[Watch] User ${watch.userId} notified: ${mint} transitioned ${oldState} → ${newState}`
-        );
+        logger.debug({
+          userId: watch.userId,
+          mint: truncateWallet(mint),
+          transition: `${oldState} → ${newState}`
+        }, 'User notified of token transition');
 
         // Example notification payload:
         // await notificationService.create({
@@ -411,7 +423,7 @@ class TokenHealthEnricher {
       // Update cache
       await this.cacheManager.cacheTokenRow(mint);
 
-      console.log(`[TokenDiscovery] Health data enriched for ${mint}`);
+      logger.debug({ mint: truncateWallet(mint) }, 'Health data enriched for token');
     } catch (error) {
       console.error(`[TokenDiscovery] Error enriching health data for ${mint}:`, error);
     }
@@ -577,7 +589,7 @@ async function handleNewToken(event: NewTokenEvent): Promise<void> {
       description 
     } = event.token;
 
-    console.log(`[TokenDiscovery] New bonded token: ${symbol || mint}`);
+    logTokenEvent(logger, 'bonded', truncateWallet(mint), symbol || truncateWallet(mint));
 
     // Calculate bonding curve progress if we have the data
     let bondingCurveProgress = null;
@@ -589,7 +601,7 @@ async function handleNewToken(event: NewTokenEvent): Promise<void> {
     if (marketCapSol) {
       const solPrice = priceServiceClient.getSolPrice();
       marketCapUsd = new Decimal(marketCapSol).mul(solPrice);
-      console.log(`[TokenDiscovery] Market cap: ${marketCapSol} SOL = $${marketCapUsd.toFixed(2)}`);
+      logger.debug({ marketCapSol, marketCapUsd: marketCapUsd.toFixed(2) }, 'Market cap calculated');
     }
 
     if (vTokensInBondingCurve && vSolInBondingCurve) {
@@ -703,7 +715,11 @@ async function handleMigration(event: MigrationEvent): Promise<void> {
     const { mint, data } = event;
     const { status, poolAddress, poolType } = data;
 
-    console.log(`[TokenDiscovery] Migration event for ${mint}: ${status}`);
+    logger.info({ 
+      mint: truncateWallet(mint), 
+      status,
+      poolType 
+    }, 'Token migration event');
 
     // Fetch current token state
     const currentToken = await prisma.tokenDiscovery.findUnique({
@@ -759,7 +775,7 @@ async function handleNewPool(event: NewPoolEvent): Promise<void> {
     const knownMints = Object.values(TokenDiscoveryConfig.KNOWN_MINTS);
     const tokenMint = knownMints.includes(mint1) ? mint2 : mint1;
 
-    console.log(`[TokenDiscovery] New Raydium pool for token: ${tokenMint}`);
+    logger.info({ tokenMint: truncateWallet(tokenMint), poolType: 'raydium' }, 'New Raydium pool discovered');
 
     // Check if token already exists (migration path)
     const existing = await prisma.tokenDiscovery.findUnique({
@@ -768,7 +784,11 @@ async function handleNewPool(event: NewPoolEvent): Promise<void> {
 
     if (existing) {
       // Update existing token to BONDED state (has LP now)
-      console.log(`[TokenDiscovery] Updating existing token ${tokenMint} to BONDED state`);
+      logger.info({ 
+        tokenMint: truncateWallet(tokenMint), 
+        previousStatus: 'GRADUATING',
+        newStatus: 'BONDED' 
+      }, 'Token graduated to bonded state');
 
       await stateManager.updateState(tokenMint, 'bonded', existing.state);
       await prisma.tokenDiscovery.update({
@@ -784,7 +804,7 @@ async function handleNewPool(event: NewPoolEvent): Promise<void> {
       await stateManager.notifyWatchers(tokenMint, existing.state, 'bonded');
     } else {
       // Direct Raydium listing (not from Pump.fun) - has LP, so BONDED
-      console.log(`[TokenDiscovery] Creating direct Raydium listing: ${tokenMint}`);
+      logger.info({ tokenMint: truncateWallet(tokenMint), listingType: 'direct_raydium' }, 'Creating direct Raydium listing');
 
       await prisma.tokenDiscovery.create({
         data: {
@@ -848,7 +868,7 @@ async function updateMarketDataAndStates() {
       orderBy: { lastUpdatedAt: 'asc' } // Update oldest first
     });
 
-    console.log(`[TokenDiscovery] Updating market data for ${activeTokens.length} tokens...`);
+    logBatchOperation(logger, 'market_data_update', activeTokens.length);
 
     // Batch update with rate limiting
     let updated = 0;
@@ -901,7 +921,7 @@ async function updateMarketDataAndStates() {
       await new Promise(resolve => setTimeout(resolve, TokenDiscoveryConfig.RATE_LIMIT_DELAY_MS));
     }
     
-    console.log(`[TokenDiscovery] Updated market data for ${updated}/${activeTokens.length} tokens`);
+    logger.debug({ updated, total: activeTokens.length, operation: 'market_data_update' }, 'Market data batch update completed');
   } catch (error) {
     console.error('[TokenDiscovery] Error in updateMarketDataAndStates:', error);
   }
@@ -912,7 +932,7 @@ async function updateMarketDataAndStates() {
  */
 async function recalculateHotScores(): Promise<void> {
   try {
-    console.log('[TokenDiscovery] Recalculating hot scores...');
+    logger.debug({ operation: 'hot_scores_calculation' }, 'Starting hot scores recalculation');
 
     const tokens = await prisma.tokenDiscovery.findMany({
       where: {
@@ -930,15 +950,30 @@ async function recalculateHotScores(): Promise<void> {
         if (token.state === 'new' && progress >= 50 && progress < 100) {
           // Actively progressing → GRADUATING
           await stateManager.updateState(token.mint, 'graduating', token.state);
-          console.log(`[TokenDiscovery] Progress transition: ${token.mint} NEW → GRADUATING (progress: ${progress}%)`);
+          logger.debug({ 
+            mint: truncateWallet(token.mint), 
+            from: 'NEW', 
+            to: 'GRADUATING', 
+            progress 
+          }, 'Token progress transition');
         } else if (token.state === 'graduating' && (progress >= 100 || token.poolAddress)) {
           // Completed bonding or has LP → BONDED
           await stateManager.updateState(token.mint, 'bonded', token.state);
-          console.log(`[TokenDiscovery] Completion transition: ${token.mint} GRADUATING → BONDED (progress: ${progress}%)`);
+          logger.debug({ 
+            mint: truncateWallet(token.mint), 
+            from: 'GRADUATING', 
+            to: 'BONDED', 
+            progress 
+          }, 'Token completion transition');
         } else if (token.state === 'new' && (progress >= 100 || token.poolAddress)) {
           // Skip graduating if already at 100% → BONDED
           await stateManager.updateState(token.mint, 'bonded', token.state);
-          console.log(`[TokenDiscovery] Fast completion: ${token.mint} NEW → BONDED (progress: ${progress}%)`);
+          logger.debug({ 
+            mint: truncateWallet(token.mint), 
+            from: 'NEW', 
+            to: 'BONDED', 
+            progress 
+          }, 'Token fast completion');
         }
 
         // Calculate and update hot score
@@ -959,7 +994,7 @@ async function recalculateHotScores(): Promise<void> {
       }
     }
 
-    console.log(`[TokenDiscovery] Hot scores updated for ${updated} tokens`);
+    logger.debug({ updated, operation: 'hot_scores_update' }, 'Hot scores update completed');
   } catch (error) {
     console.error('[TokenDiscovery] Error recalculating hot scores:', error);
   }
@@ -971,7 +1006,7 @@ async function recalculateHotScores(): Promise<void> {
  */
 async function updateHolderCounts(): Promise<void> {
   try {
-    console.log('[TokenDiscovery] Updating holder counts...');
+    logger.debug({ operation: 'holder_counts_update' }, 'Starting holder counts update');
 
     // Fetch active tokens (exclude DEAD tokens)
     const activeTokens = await prisma.tokenDiscovery.findMany({
@@ -988,11 +1023,11 @@ async function updateHolderCounts(): Promise<void> {
     });
 
     if (activeTokens.length === 0) {
-      console.log('[TokenDiscovery] No active tokens to update holder counts for');
+      logger.debug({ operation: 'holder_counts_update' }, 'No active tokens to update holder counts for');
       return;
     }
 
-    console.log(`[TokenDiscovery] Fetching holder counts for ${activeTokens.length} tokens...`);
+    logger.debug({ count: activeTokens.length, operation: 'holder_counts_fetch' }, 'Fetching holder counts for active tokens');
 
     // Batch fetch holder counts (holderCountService handles rate limiting internally)
     const mints = activeTokens.map(t => t.mint);
@@ -1015,7 +1050,13 @@ async function updateHolderCounts(): Promise<void> {
             }
           });
           updated++;
-          console.log(`[TokenDiscovery] Updated ${token.symbol || token.mint.slice(0, 8)}: ${holderCount} holders`);
+          // Only log holder count updates for tokens with significant holder counts
+          if (holderCount > 10) {
+            logger.debug({ 
+              token: token.symbol || truncateWallet(token.mint), 
+              holderCount 
+            }, 'Updated holder count');
+          }
         } else {
           failed++;
         }
@@ -1029,7 +1070,7 @@ async function updateHolderCounts(): Promise<void> {
       }
     }
 
-    console.log(`[TokenDiscovery] Holder counts updated: ${updated} succeeded, ${failed} failed`);
+    logger.debug({ updated, failed, operation: 'holder_counts_update' }, 'Holder counts update completed');
   } catch (error) {
     console.error('[TokenDiscovery] Error updating holder counts:', error);
   }
@@ -1040,7 +1081,7 @@ async function updateHolderCounts(): Promise<void> {
  */
 async function syncWatcherCounts(): Promise<void> {
   try {
-    console.log('[TokenDiscovery] Syncing watcher counts...');
+    logger.debug({ operation: 'watcher_counts_sync' }, 'Starting watcher counts sync');
 
     const counts = await prisma.tokenWatch.groupBy({
       by: ['mint'],
@@ -1058,7 +1099,7 @@ async function syncWatcherCounts(): Promise<void> {
       updated++;
     }
 
-    console.log(`[TokenDiscovery] Watcher counts synced for ${updated} tokens`);
+    logger.debug({ updated, operation: 'watcher_counts_sync' }, 'Watcher counts sync completed');
   } catch (error) {
     console.error('[TokenDiscovery] Error syncing watcher counts:', error);
   }
@@ -1093,13 +1134,16 @@ async function subscribeToActiveTokens(): Promise<void> {
     const tokenMints = activeTokens.map(t => t.mint);
 
     if (tokenMints.length === 0) {
-      console.log('[TokenDiscovery] No active tokens found to subscribe to');
+      logger.debug({ operation: 'trade_subscription' }, 'No active tokens found to subscribe to');
       return;
     }
 
-    console.log(`[TokenDiscovery] Subscribing to trades for ${tokenMints.length} active tokens`);
+    logger.debug({ count: tokenMints.length, operation: 'trade_subscription' }, 'Subscribing to trades for active tokens');
     pumpPortalStreamService.subscribeToTokens(tokenMints);
-    console.log(`[TokenDiscovery] Total subscribed tokens: ${pumpPortalStreamService.getSubscribedTokenCount()}`);
+    logger.debug({ 
+      totalSubscribed: pumpPortalStreamService.getSubscribedTokenCount(),
+      operation: 'trade_subscription' 
+    }, 'Trade subscription status');
   } catch (error) {
     console.error('[TokenDiscovery] Error subscribing to active tokens:', error);
   }
@@ -1110,7 +1154,7 @@ async function subscribeToActiveTokens(): Promise<void> {
  */
 async function cleanupOldTokens(): Promise<void> {
   try {
-    console.log('[TokenDiscovery] Cleaning up old tokens...');
+    logger.debug({ operation: 'cleanup_old_tokens' }, 'Starting old tokens cleanup');
 
     // Cleanup old NEW tokens (>24h old)
     const newCutoffDate = new Date(Date.now() - TokenDiscoveryConfig.NEW_TOKEN_RETENTION_HOURS * 60 * 60 * 1000);
@@ -1130,7 +1174,11 @@ async function cleanupOldTokens(): Promise<void> {
       },
     });
 
-    console.log(`[TokenDiscovery] Cleaned up ${newResult.count} old NEW tokens, ${bondedResult.count} old BONDED tokens (>12h)`);
+    logger.debug({ 
+      newTokensDeleted: newResult.count, 
+      bondedTokensDeleted: bondedResult.count,
+      operation: 'cleanup_old_tokens' 
+    }, 'Old tokens cleanup completed');
   } catch (error) {
     console.error('[TokenDiscovery] Error cleaning up old tokens:', error);
   }
@@ -1144,32 +1192,32 @@ async function cleanupOldTokens(): Promise<void> {
  * Start Token Discovery Worker
  */
 async function startWorker(): Promise<void> {
-  console.log('🚀 Token Discovery Worker Starting...');
+  logger.info({ service: 'token-discovery-worker' }, '🚀 Token Discovery Worker Starting...');
 
   try {
     // Test database connection
     await prisma.$connect();
-    console.log('✅ Database connected');
+    logger.info({ component: 'database' }, '✅ Database connected');
 
     // Test Redis connection
     await redis.ping();
-    console.log('✅ Redis connected');
+    logger.info({ component: 'redis' }, '✅ Redis connected');
 
     // Start price service client (reads SOL price from Redis)
     await priceServiceClient.start();
-    console.log('✅ Price service client started');
+    logger.info({ component: 'price-service' }, '✅ Price service client started');
 
     // Start streaming services
-    console.log('📡 Starting streaming services...');
+    logger.info({ phase: 'startup' }, '📡 Starting streaming services...');
 
     await pumpPortalStreamService.start();
-    console.log('✅ PumpPortal stream service started');
+    logger.info({ component: 'pumpportal-stream' }, '✅ PumpPortal stream service started');
 
     await raydiumStreamService.start();
-    console.log('✅ Raydium stream service started');
+    logger.info({ component: 'raydium-stream' }, '✅ Raydium stream service started');
 
     // Register event handlers
-    console.log('🔌 Registering event handlers...');
+    logger.info({ phase: 'startup' }, '🔌 Registering event handlers...');
 
     pumpPortalStreamService.on('newToken', handleNewToken);
     pumpPortalStreamService.on('migration', handleMigration);
@@ -1180,16 +1228,16 @@ async function startWorker(): Promise<void> {
     // Without this, after WebSocket reconnects, we lose all token subscriptions
     // This causes price updates to stop flowing and PNL calculations to freeze
     pumpPortalStreamService.on('connected', () => {
-      console.log('[TokenDiscovery] PumpPortal reconnected, resubscribing to active tokens...');
+      logger.info({ event: 'pumpportal_reconnection' }, 'PumpPortal reconnected, resubscribing to active tokens');
       subscribeToActiveTokens().catch(err => {
         console.error('[TokenDiscovery] Failed to resubscribe on reconnection:', err);
       });
     });
 
-    console.log('✅ Event handlers registered');
+    logger.info({ component: 'event-handlers' }, '✅ Event handlers registered');
 
     // Schedule background jobs
-    console.log('⏰ Scheduling background jobs...');
+    logger.info({ phase: 'startup' }, '⏰ Scheduling background jobs...');
 
     intervals.push(setInterval(updateMarketDataAndStates, TokenDiscoveryConfig.MARKET_DATA_UPDATE_INTERVAL));
     intervals.push(setInterval(recalculateHotScores, TokenDiscoveryConfig.HOT_SCORE_UPDATE_INTERVAL));
@@ -1204,29 +1252,35 @@ async function startWorker(): Promise<void> {
     // Also run holder count update shortly after startup
     setTimeout(updateHolderCounts, 10000);
 
-    console.log('✅ Background jobs scheduled');
+    logger.info({ component: 'background-jobs' }, '✅ Background jobs scheduled');
     
     // Health check reporting (for Railway monitoring)
     intervals.push(setInterval(() => {
-      console.log('[Health] Token Discovery Worker alive', {
+      logger.debug({
         subscribedTokens: pumpPortalStreamService.getSubscribedTokenCount(),
         subscribedWallets: pumpPortalStreamService.getSubscribedWalletCount(),
         pumpPortalConnected: pumpPortalStreamService.isConnected,
         uptime: Math.floor(process.uptime()),
-        memoryUsage: Math.floor(process.memoryUsage().heapUsed / 1024 / 1024) + 'MB'
-      });
+        memoryUsageMB: Math.floor(process.memoryUsage().heapUsed / 1024 / 1024),
+        health: 'alive'
+      }, 'Token Discovery Worker health check');
     }, 60000)); // Every 60 seconds
     
-    console.log('');
-    console.log('🎮 Token Discovery Worker is running!');
-    console.log('   - Listening to PumpPortal (bonded, migration)');
-    console.log('   - Listening to Raydium (new pools)');
-    console.log('   - Market data updates: every 30 seconds');
-    console.log('   - Hot score updates: every 5 minutes');
-    console.log('   - Watcher sync: every 1 minute');
-    console.log('   - Holder count updates: every 10 minutes');
-    console.log('   - Token trade subscriptions: every 5 minutes');
-    console.log('   - Cleanup: every 5 minutes');
+    
+    logger.info({
+      service: 'token-discovery-worker',
+      status: 'ready',
+      features: [
+        'PumpPortal event listening (bonded, migration)',
+        'Raydium pool monitoring (new pools)',
+        'Market data updates: every 30 seconds',
+        'Hot score updates: every 5 minutes', 
+        'Watcher sync: every 1 minute',
+        'Holder count updates: every 10 minutes',
+        'Token trade subscriptions: every 5 minutes',
+        'Cleanup: every 5 minutes'
+      ]
+    }, '🎮 Token Discovery Worker is running!');
   } catch (error) {
     console.error('❌ Token Discovery Worker failed to start:', error);
     throw error;
@@ -1239,34 +1293,34 @@ async function startWorker(): Promise<void> {
 
 async function shutdown(signal: string): Promise<void> {
   if (isShuttingDown) {
-    console.log('[TokenDiscovery] Shutdown already in progress...');
+    logger.warn({ operation: 'shutdown' }, 'Shutdown already in progress');
     return;
   }
   
   isShuttingDown = true;
-  console.log(`🛑 Token Discovery Worker shutting down (${signal})...`);
+  logger.info({ signal, operation: 'shutdown' }, `🛑 Token Discovery Worker shutting down`);
   
   try {
     // 1. Stop accepting new work - clear all intervals
-    console.log('[TokenDiscovery] Clearing background job intervals...');
+    logger.debug({ operation: 'shutdown', phase: 'cleanup_intervals' }, 'Clearing background job intervals');
     intervals.forEach(interval => clearInterval(interval));
     
     // 2. Stop accepting new events
-    console.log('[TokenDiscovery] Removing event listeners...');
+    logger.debug({ operation: 'shutdown', phase: 'remove_listeners' }, 'Removing event listeners');
     pumpPortalStreamService.removeAllListeners();
     raydiumStreamService.removeAllListeners();
     
     // 3. Give in-flight operations time to complete (5 second grace period)
-    console.log('[TokenDiscovery] Waiting for in-flight operations...');
+    logger.debug({ operation: 'shutdown', phase: 'await_operations' }, 'Waiting for in-flight operations');
     await new Promise(resolve => setTimeout(resolve, 5000));
     
     // 4. Stop streaming services
-    console.log('[TokenDiscovery] Stopping streaming services...');
+    logger.debug({ operation: 'shutdown', phase: 'stop_streams' }, 'Stopping streaming services');
     pumpPortalStreamService.stop();
     await raydiumStreamService.stop();
     
     // 5. Disconnect from databases with timeout
-    console.log('[TokenDiscovery] Disconnecting from databases...');
+    logger.debug({ operation: 'shutdown', phase: 'disconnect_db' }, 'Disconnecting from databases');
     await Promise.race([
       Promise.all([
         prisma.$disconnect(),
@@ -1275,7 +1329,7 @@ async function shutdown(signal: string): Promise<void> {
       new Promise((resolve) => setTimeout(resolve, 10000)) // 10s timeout
     ]);
     
-    console.log('✅ Token Discovery Worker stopped gracefully');
+    logger.info({ operation: 'shutdown', status: 'completed' }, '✅ Token Discovery Worker stopped gracefully');
     process.exit(0);
   } catch (error) {
     console.error('❌ Error during shutdown:', error);
@@ -1294,7 +1348,7 @@ process.on('uncaughtException', (error) => {
   if (error.message?.includes('Unexpected server response: 502') || 
       error.message?.includes('Unexpected server response: 503') ||
       error.message?.includes('Unexpected server response: 504')) {
-    console.log('🚨 PumpPortal server error - continuing operation');
+    logger.error({ error: error.message, event: 'pumpportal_server_error' }, '🚨 PumpPortal server error - continuing operation');
     return;
   }
   
@@ -1310,7 +1364,7 @@ process.on('unhandledRejection', (reason, promise) => {
   if (reasonMessage.includes('Unexpected server response: 502') || 
       reasonMessage.includes('Unexpected server response: 503') ||
       reasonMessage.includes('Unexpected server response: 504')) {
-    console.log('🚨 PumpPortal server error rejection - continuing operation');
+    logger.error({ error: reasonMessage, event: 'pumpportal_rejection' }, '🚨 PumpPortal server error rejection - continuing operation');
     return;
   }
   
