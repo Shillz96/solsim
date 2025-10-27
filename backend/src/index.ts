@@ -302,14 +302,11 @@ await marketLighthouseWorker.start();
 console.log("🔦 Market Lighthouse worker started");
 
 // Initialize PumpPortal wallet tracker (waits for PumpPortal connection)
-console.log("🔌 Initializing PumpPortal wallet tracker...");
-try {
-  await initializeWalletTracker();
-  console.log("✅ PumpPortal wallet tracker initialized");
-} catch (error) {
-  console.error("❌ Failed to initialize wallet tracker:", error);
-  // Non-fatal - continue startup
-}
+// Don't await - let it initialize in background so server can start immediately
+console.log("🔌 Initializing PumpPortal wallet tracker (background)...");
+initializeWalletTracker()
+  .then(() => console.log("✅ PumpPortal wallet tracker initialized"))
+  .catch(error => console.error("❌ Failed to initialize wallet tracker:", error));
 
 // Start liquidation engine for perpetual trading
 await liquidationEngine.startLiquidationEngine();

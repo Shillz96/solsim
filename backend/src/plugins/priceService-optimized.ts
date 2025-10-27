@@ -260,9 +260,12 @@ class OptimizedPriceService extends EventEmitter {
     // await this.connectWebSocket();
 
     // Connect to PumpPortal WebSocket for real-time prices (ALL tokens: pump, bonk, raydium, etc.)
-    await this.connectPumpPortalWebSocket();
+    // Don't await - let it connect in background so server can start immediately
+    this.connectPumpPortalWebSocket().catch(err => {
+      logger.error({ error: err }, "❌ PumpPortal WebSocket connection failed during startup");
+    });
 
-    logger.info("✅ Price service started with PumpPortal-only WebSocket (supports ALL Solana tokens)");
+    logger.info("✅ Price service started (PumpPortal WebSocket connecting in background)");
   }
 
   // HELIUS WEBSOCKET - DISABLED (Code preserved for rollback)
