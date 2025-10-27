@@ -155,11 +155,11 @@
   --bottom-nav-height: 64px;
   --trending-ticker-height: 60px;
 
-  /* Warp Pipes Token Card Metrics */
-  --token-card-height: 200px;
-  --token-card-image-size: 120px;
-  --token-card-padding: 1rem;
-  --token-card-gap: 0.75rem;
+  /* Warp Pipes Token Card Metrics - Reduced for more compact view */
+  --token-card-height: 160px;
+  --token-card-image-size: 100px;
+  --token-card-padding: 0.75rem;
+  --token-card-gap: 0.5rem;
 
   /* Metric Display Colors */
   --metric-label-color: var(--outline-black);

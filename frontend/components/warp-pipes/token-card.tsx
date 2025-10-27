@@ -127,7 +127,7 @@ export function TokenCard({ data, onToggleWatch, className, enableLiveUpdates = 
         initial={{ opacity: 0, scale: 0.98 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.2 }}
-        className={cn("w-full mb-3", className)}
+        className={cn("w-full", className)}
       >
         {/* Redesigned Token Card - Enhanced Layout with Better Spacing */}
         <div className={cn(
@@ -138,7 +138,7 @@ export function TokenCard({ data, onToggleWatch, className, enableLiveUpdates = 
           'h-[var(--token-card-height)] min-h-[var(--token-card-height)]',
           'transition-all duration-200'
         )}>
-          <div className="flex items-center gap-8 p-5 h-full">
+          <div className="flex items-center gap-4 p-3 h-full">
 
             {/* LEFT: Larger Token Logo */}
             <div className={cn(
@@ -163,22 +163,22 @@ export function TokenCard({ data, onToggleWatch, className, enableLiveUpdates = 
             {/* MIDDLE: Enhanced Token Info */}
             <div className="flex-1 min-w-0 overflow-hidden flex flex-col justify-between h-full">
               {/* Header Row: Symbol, Name, Age, Security, Live Indicator */}
-              <div className="flex items-center gap-3 mb-2">
-                {/* Symbol - Increased max-width and better tooltip */}
+              <div className="flex items-center gap-2 mb-1">
+                {/* Symbol - Compact size */}
                 <h3
-                  className={cn(marioStyles.heading(4), 'text-[22px] font-black truncate max-w-[150px]')}
+                  className={cn(marioStyles.heading(4), 'text-[18px] font-black truncate max-w-[120px]')}
                   title={`${data.symbol} - ${data.name || 'No name'}`}
                 >
                   {data.symbol}
                 </h3>
-                {/* Name - Increased max-width for better readability */}
+                {/* Name - Compact size */}
                 <span
-                  className={cn(marioStyles.bodyText('semibold'), 'text-[15px] truncate max-w-[220px]')}
+                  className={cn(marioStyles.bodyText('semibold'), 'text-[13px] truncate max-w-[180px]')}
                   title={data.name || 'No name available'}
                 >
                   {data.name}
                 </span>
-                <span className={cn(marioStyles.bodyText('bold'), 'text-[11px] ml-auto flex-shrink-0')}>
+                <span className={cn(marioStyles.bodyText('bold'), 'text-[10px] ml-auto flex-shrink-0')}>
                   {age}
                 </span>
                 {/* Live Indicator */}
@@ -196,29 +196,29 @@ export function TokenCard({ data, onToggleWatch, className, enableLiveUpdates = 
 
               {/* Description (if available, with better truncation) */}
               {data.description && (
-                <div className="text-[11px] text-outline font-medium mb-1 line-clamp-1 max-w-full overflow-hidden" title={data.description}>
-                  {data.description.length > 100 ? `${data.description.substring(0, 100)}...` : data.description}
+                <div className="text-[10px] text-outline font-medium mb-1 line-clamp-1 max-w-full overflow-hidden" title={data.description}>
+                  {data.description.length > 80 ? `${data.description.substring(0, 80)}...` : data.description}
                 </div>
               )}
 
               {/* Metrics Grid - 3 columns with improved hierarchy */}
-              <div className="grid grid-cols-3 gap-3 mb-2 flex-shrink-0">
+              <div className="grid grid-cols-3 gap-2 mb-1 flex-shrink-0">
                 {/* 24h Change - Color-coded with icons */}
                 <div className="flex flex-col gap-0.5">
-                  <div className="text-[10px] font-bold uppercase text-outline/60 tracking-wide">
+                  <div className="text-[9px] font-bold uppercase text-outline/60 tracking-wide">
                     24H CHANGE
                   </div>
                   {priceChg != null ? (
                     <div className={cn(
-                      'text-[16px] font-mono font-extrabold flex items-center gap-1',
+                      'text-[14px] font-mono font-extrabold flex items-center gap-1',
                       priceChg >= 0 ? 'text-[var(--luigi-green)]' : 'text-[var(--mario-red)]'
                     )}>
-                      {/* Standardized icon size: w-4 h-4 */}
-                      {priceChg >= 0 ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
+                      {/* Standardized icon size: w-3 h-3 */}
+                      {priceChg >= 0 ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
                       {priceChg >= 0 ? "+" : ""}{priceChg.toFixed(1)}%
                     </div>
                   ) : (
-                    <div className="text-[16px] font-mono font-extrabold text-outline/40" title="No 24h price change data">
+                    <div className="text-[14px] font-mono font-extrabold text-outline/40" title="No 24h price change data">
                       0.00%
                     </div>
                   )}
@@ -226,25 +226,25 @@ export function TokenCard({ data, onToggleWatch, className, enableLiveUpdates = 
 
                 {/* Volume - Better fallback */}
                 <div className="flex flex-col gap-0.5">
-                  <div className="text-[10px] font-bold uppercase text-outline/60 tracking-wide">
+                  <div className="text-[9px] font-bold uppercase text-outline/60 tracking-wide">
                     VOLUME 24H
                   </div>
-                  <div className="text-[16px] font-mono font-extrabold text-outline" title={data.volume24h ? `$${data.volume24h.toLocaleString()}` : 'No volume data'}>
+                  <div className="text-[14px] font-mono font-extrabold text-outline" title={data.volume24h ? `$${data.volume24h.toLocaleString()}` : 'No volume data'}>
                     {data.volume24h != null ? fmtCurrency(data.volume24h) : '$0'}
                   </div>
                 </div>
 
                 {/* Market Cap - Highlight high MC */}
                 <div className="flex flex-col gap-0.5">
-                  <div className="text-[10px] font-bold uppercase text-outline/60 tracking-wide">
+                  <div className="text-[9px] font-bold uppercase text-outline/60 tracking-wide">
                     MARKET CAP
                   </div>
                   <div className={cn(
                     'font-mono font-extrabold',
                     // Highlight market cap > $100k in green and larger
                     mergedData.marketCapUsd && mergedData.marketCapUsd >= 100000
-                      ? 'text-[18px] text-[var(--luigi-green)]'
-                      : 'text-[16px] text-outline'
+                      ? 'text-[16px] text-[var(--luigi-green)]'
+                      : 'text-[14px] text-outline'
                   )}
                   title={mergedData.marketCapUsd ? `$${mergedData.marketCapUsd.toLocaleString()}` : 'No market cap data'}
                   >
@@ -254,14 +254,14 @@ export function TokenCard({ data, onToggleWatch, className, enableLiveUpdates = 
               </div>
 
               {/* Secondary Metrics Row - Improved hierarchy and fallbacks */}
-              <div className="grid grid-cols-3 gap-3 mb-2 flex-shrink-0">
+              <div className="grid grid-cols-3 gap-2 mb-1 flex-shrink-0">
                 {/* Holders - Real-time updates with better fallback */}
                 <div className="flex flex-col gap-0.5">
-                  <div className="text-[10px] font-bold uppercase text-outline/60 tracking-wide">
+                  <div className="text-[9px] font-bold uppercase text-outline/60 tracking-wide">
                     HOLDERS
                   </div>
                   <div className={cn(
-                    'text-[16px] font-mono font-extrabold',
+                    'text-[14px] font-mono font-extrabold',
                     isLive ? 'text-[var(--luigi-green)]' : 'text-outline'
                   )}
                   title={mergedData.holderCount ? `${mergedData.holderCount.toLocaleString()} holders` : 'Holder count not available'}
@@ -272,11 +272,11 @@ export function TokenCard({ data, onToggleWatch, className, enableLiveUpdates = 
 
                 {/* Transactions - Real-time updates with better fallback */}
                 <div className="flex flex-col gap-0.5">
-                  <div className="text-[10px] font-bold uppercase text-outline/60 tracking-wide">
+                  <div className="text-[9px] font-bold uppercase text-outline/60 tracking-wide">
                     TRANSACTIONS
                   </div>
                   <div className={cn(
-                    'text-[16px] font-mono font-extrabold',
+                    'text-[14px] font-mono font-extrabold',
                     isLive ? 'text-[var(--luigi-green)]' : 'text-outline'
                   )}
                   title={liveTxCount ? `${liveTxCount.toLocaleString()} transactions (24h)` : 'Transaction count not available'}
@@ -287,10 +287,10 @@ export function TokenCard({ data, onToggleWatch, className, enableLiveUpdates = 
 
                 {/* Liquidity - Better fallback message */}
                 <div className="flex flex-col gap-0.5">
-                  <div className="text-[10px] font-bold uppercase text-outline/60 tracking-wide">
+                  <div className="text-[9px] font-bold uppercase text-outline/60 tracking-wide">
                     LIQUIDITY
                   </div>
-                  <div className="text-[16px] font-mono font-extrabold text-outline" title={data.liqUsd ? `$${data.liqUsd.toLocaleString()} liquidity` : 'Liquidity data not available'}>
+                  <div className="text-[14px] font-mono font-extrabold text-outline" title={data.liqUsd ? `$${data.liqUsd.toLocaleString()} liquidity` : 'Liquidity data not available'}>
                     {data.liqUsd != null ? fmtCurrency(data.liqUsd) : 'N/A'}
                   </div>
                 </div>
@@ -298,8 +298,8 @@ export function TokenCard({ data, onToggleWatch, className, enableLiveUpdates = 
 
               {/* SOL to Graduate Progress Bar - Only for ABOUT_TO_BOND - Now with real-time updates */}
               {data.status === 'ABOUT_TO_BOND' && mergedData.bondingCurveProgress != null && data.solToGraduate != null && (
-                <div className="mt-1 relative">
-                  <div className="bg-card border-2 border-outline rounded-full h-2.5 overflow-hidden relative shadow-[1px_1px_0_var(--outline-black)]">
+                <div className="mt-0.5 relative">
+                  <div className="bg-card border-2 border-outline rounded-full h-2 overflow-hidden relative shadow-[1px_1px_0_var(--outline-black)]">
                     <div
                       className="bg-star h-full flex items-center justify-center border-r-2 border-outline transition-all duration-500 relative"
                       style={{ width: `${Math.min(mergedData.bondingCurveProgress, 100)}%` }}
