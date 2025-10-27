@@ -1,5 +1,8 @@
 import { WebSocketServer } from "ws";
 import type { IncomingMessage } from "http";
+import { loggers } from '../utils/logger.js';
+
+const logger = loggers.websocket;
 
 /**
  * Railway-safe WebSocket server with proper heartbeat implementation
@@ -20,13 +23,13 @@ export function startWsServer(server: any) {
     maxPayload: 64 * 1024,    // 64KB max message size
   });
 
-  console.log("🚀 WebSocket server starting on /prices with Railway-safe heartbeat");
+  logger.info("WebSocket server starting on /prices with Railway-safe heartbeat");
 
   wss.on("connection", (ws, req: IncomingMessage) => {
     const clientIP = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
     const userAgent = req.headers['user-agent'];
     
-    console.log(`🔌 Client connected from ${clientIP} (${userAgent})`);
+    logger.debug(`Client connected from ${clientIP}`, { userAgent });
     
     // TODO: Validate token or origin if needed
     // const token = req.headers.authorization;

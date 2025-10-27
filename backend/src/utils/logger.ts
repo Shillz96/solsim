@@ -29,11 +29,20 @@ const logger = pino({
       'token',
       'authorization',
       'secret',
+      'wallet',
+      'address',
+      'signature',
+      'privateKey',
       '*.password',
       '*.token',
       '*.secret',
+      '*.wallet',
+      '*.address',
+      '*.signature',
+      '*.privateKey',
       'headers.authorization',
-      'headers.cookie'
+      'headers.cookie',
+      'headers.x-api-key'
     ],
     remove: false
   },
@@ -90,6 +99,33 @@ export function logError(logger: pino.Logger, error: Error | unknown, context?: 
 
 export function auditLog(userId: string, action: string, details: Record<string, any>) {
   loggers.auth.info({ audit: true, userId, action, ...details }, `Audit: ${action} by user ${userId}`);
+}
+
+// Production-safe utility functions
+export function truncateWallet(address: string, length = 8): string {
+  if (!address || address.length <= length) return address;
+  return `${address.slice(0, length)}...`;
+}
+
+export function logBatchOperation(logger: pino.Logger, operation: string, count: number, duration?: number) {
+  // Only log batch operations every 50 operations or if there's an error
+  if (count % 50 === 0 || duration && duration > 5000) {
+    logger.info({ operation, count, duration }, `Batch operation: ${operation} (${count} items)`);
+  }
+}
+
+export function logTokenEvent(logger: pino.Logger, event: string, token: string, wallet?: string) {
+  // In production, only log significant events, not every token discovery
+  if (isProduction && event === 'discovery') {
+    // Skip routine token discovery logs in production
+    return;
+  }
+  
+  logger.info({ 
+    event, 
+    token: token.length > 20 ? truncateWallet(token) : token,
+    wallet: wallet ? truncateWallet(wallet) : undefined 
+  }, `Token ${event}: ${truncateWallet(token)}`);
 }
 
 // Replace console methods in production
