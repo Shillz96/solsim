@@ -25,20 +25,38 @@ import { holderCountService } from '../services/holderCountService.js';
 import priceServiceClient from '../plugins/priceServiceClient.js';
 
 // ============================================================================
+// CONFIGURATION
+// ============================================================================
+
+class TokenDiscoveryConfig {
+  static readonly HOT_SCORE_UPDATE_INTERVAL = 300_000; // 5 minutes
+  static readonly WATCHER_SYNC_INTERVAL = 60_000; // 1 minute
+  static readonly CLEANUP_INTERVAL = 300_000; // 5 minutes
+  static readonly HOLDER_COUNT_UPDATE_INTERVAL = 600_000; // 10 minutes
+  static readonly TOKEN_TTL = 7200; // 2 hours cache
+  static readonly NEW_TOKEN_RETENTION_HOURS = 24; // Remove NEW tokens after 24h
+  static readonly BONDED_TOKEN_RETENTION_HOURS = 12; // Remove BONDED tokens older than 12 hours
+  
+  static readonly KNOWN_MINTS = {
+    SOL: 'So11111111111111111111111111111111111111112',
+    USDC: 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',
+    USDT: 'Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB'
+  };
+  
+  static readonly MARKET_DATA_UPDATE_INTERVAL = 30_000; // 30 seconds
+  static readonly RATE_LIMIT_DELAY_MS = 50;
+  static readonly MIN_ACTIVE_VOLUME_SOL = 2;
+  static readonly MIN_HOLDERS_COUNT = 25;
+  static readonly MAX_TRADES_PER_TOKEN = 50;
+  static readonly MAX_ACTIVE_TOKENS_SUBSCRIPTION = 200;
+}
+
+// ============================================================================
 // INITIALIZATION
 // ============================================================================
 
 const prisma = new PrismaClient();
 const redis = new Redis(process.env.REDIS_URL || '');
-
-// Configuration
-const HOT_SCORE_UPDATE_INTERVAL = 300_000; // 5 minutes
-const WATCHER_SYNC_INTERVAL = 60_000; // 1 minute
-const CLEANUP_INTERVAL = 300_000; // 5 minutes (more frequent for stale token cleanup)
-const HOLDER_COUNT_UPDATE_INTERVAL = 600_000; // 10 minutes (holder count refresh)
-const TOKEN_TTL = 7200; // 2 hours cache
-const NEW_TOKEN_RETENTION_HOURS = 24; // Remove NEW tokens after 24h
-const BONDED_TOKEN_RETENTION_HOURS = 12; // Remove BONDED tokens older than 12 hours
 
 // Track intervals for cleanup during shutdown
 const intervals: NodeJS.Timeout[] = [];
@@ -47,65 +65,401 @@ let isShuttingDown = false;
 // Transaction counting - track swap events per token
 const txCountMap = new Map<string, Set<string>>(); // mint -> Set of transaction signatures
 
-// Known mints to filter
-const SOL_MINT = 'So11111111111111111111111111111111111111112';
-const USDC_MINT = 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v';
-const USDT_MINT = 'Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB';
+// ============================================================================
+// SERVICE CLASSES
+// ============================================================================
+
+/**
+ * Handles token metadata operations
+ */
+class TokenMetadataService {
+  /**
+   * Fetch and parse token metadata from IPFS URI
+   */
+  async fetchTokenMetadata(uri: string): Promise<{
+    description?: string;
+    twitter?: string;
+    telegram?: string;
+    website?: string;
+    image?: string;
+  }> {
+    try {
+      if (!uri) return {};
+
+      // Convert IPFS URI to HTTP gateway URL
+      const httpUri = uri.startsWith('ipfs://')
+        ? uri.replace('ipfs://', 'https://ipfs.io/ipfs/')
+        : uri;
+
+      const response = await fetch(httpUri, { 
+        signal: AbortSignal.timeout(5000) // 5 second timeout
+      });
+      
+      if (!response.ok) {
+        console.warn(`[TokenDiscovery] Failed to fetch metadata: ${response.status}`);
+        return {};
+      }
+
+      const metadata = await response.json();
+      
+      return {
+        description: metadata.description || undefined,
+        twitter: metadata.twitter || metadata.social?.twitter || undefined,
+        telegram: metadata.telegram || metadata.social?.telegram || undefined,
+        website: metadata.website || metadata.external_url || undefined,
+        image: metadata.image ? (this.convertIPFStoHTTP(metadata.image) || undefined) : undefined,
+      };
+    } catch (error: any) {
+      // Silently skip common errors (timeouts, network issues, 404s)
+      const isExpectedError =
+        error.name === 'AbortError' ||
+        error.name === 'TimeoutError' ||
+        error.code === 'ENOTFOUND' ||
+        error.message?.includes('fetch failed');
+
+      if (!isExpectedError) {
+        console.error('[TokenDiscovery] Unexpected metadata error:', error.message);
+      }
+      return {};
+    }
+  }
+
+  /**
+   * Convert IPFS URI to HTTP gateway URL
+   */
+  convertIPFStoHTTP(uri: string | undefined | null): string | null {
+    if (!uri) return null;
+
+    // Already an HTTP URL
+    if (uri.startsWith('http://') || uri.startsWith('https://')) {
+      return uri;
+    }
+
+    // Convert ipfs:// protocol to HTTP gateway
+    if (uri.startsWith('ipfs://')) {
+      const ipfsHash = uri.replace('ipfs://', '');
+      return `https://ipfs.io/ipfs/${ipfsHash}`;
+    }
+
+    // If it's just a hash, prepend the gateway
+    if (uri.match(/^[a-zA-Z0-9]{46,59}$/)) {
+      return `https://ipfs.io/ipfs/${uri}`;
+    }
+
+    return uri;
+  }
+}
+
+/**
+ * Manages token state transitions and notifications
+ */
+class TokenStateManager {
+  constructor(
+    private prisma: PrismaClient,
+    private redis: Redis
+  ) {}
+
+  /**
+   * Update token state with transition tracking
+   */
+  async updateState(mint: string, newState: string, oldState?: string): Promise<void> {
+    await this.prisma.tokenDiscovery.update({
+      where: { mint },
+      data: {
+        state: newState,
+        previousState: oldState || null,
+        stateChangedAt: new Date(),
+        lastUpdatedAt: new Date(),
+      },
+    });
+
+    // Invalidate Redis cache
+    await this.redis.del(`token:${mint}`);
+
+    console.log(`[TokenDiscovery] State transition: ${mint} ${oldState} → ${newState}`);
+  }
+
+  /**
+   * Classify token into lifecycle state based on trading activity and bonding progress
+   */
+  classifyTokenState(token: {
+    bondingCurveProgress?: Decimal | null;
+    isGraduated?: boolean;
+    lastTradeTs?: Date | null;
+    volume24hSol?: Decimal | null;
+    holderCount?: number | null;
+    hasFirstTrade?: boolean;
+  }): string {
+    const now = Date.now();
+    
+    // Graduated tokens
+    const progress = token.bondingCurveProgress ? parseFloat(token.bondingCurveProgress.toString()) : 0;
+    if (progress >= 100 || token.isGraduated) {
+      return 'BONDED';
+    }
+    
+    // Check if token has any trades
+    if (!token.hasFirstTrade || !token.lastTradeTs) {
+      return 'LAUNCHING';
+    }
+    
+    const timeSinceLastTrade = now - token.lastTradeTs.getTime();
+    const volume24h = token.volume24hSol ? parseFloat(token.volume24hSol.toString()) : 0;
+    const holders = token.holderCount || 0;
+    
+    // About to bond
+    if (progress >= 90 && timeSinceLastTrade < 20 * 60 * 1000) {
+      return 'ABOUT_TO_BOND';
+    }
+    
+    // Dead tokens
+    const isDead = timeSinceLastTrade > 2 * 60 * 60 * 1000 || volume24h < 0.5;
+    if (isDead) {
+      return 'DEAD';
+    }
+    
+    // Active tokens (alive and trading)
+    const isFresh = timeSinceLastTrade < 60 * 60 * 1000;
+    const isAlive = isFresh && volume24h >= TokenDiscoveryConfig.MIN_ACTIVE_VOLUME_SOL && holders >= TokenDiscoveryConfig.MIN_HOLDERS_COUNT;
+    
+    return isAlive ? 'ACTIVE' : 'LAUNCHING';
+  }
+
+  /**
+   * Notify watchers on state change
+   */
+  async notifyWatchers(mint: string, oldState: string, newState: string): Promise<void> {
+    try {
+      // Query watchers based on preferences
+      const watchers = await this.prisma.tokenWatch.findMany({
+        where: {
+          mint,
+          OR: [
+            // Notify on graduation (bonded → graduating)
+            {
+              notifyOnGraduation: true,
+              currentState: 'bonded',
+            },
+            // Notify on migration (graduating → new OR bonded → new)
+            {
+              notifyOnMigration: true,
+            },
+          ],
+        },
+        include: {
+          user: true,
+        },
+      });
+
+      if (watchers.length === 0) {
+        return;
+      }
+
+      console.log(
+        `[TokenDiscovery] Notifying ${watchers.length} watchers for ${mint}: ${oldState} → ${newState}`
+      );
+
+      // TODO: Integrate with NotificationService
+      // For now, just log
+      for (const watch of watchers) {
+        console.log(
+          `[Watch] User ${watch.userId} notified: ${mint} transitioned ${oldState} → ${newState}`
+        );
+
+        // Example notification payload:
+        // await notificationService.create({
+        //   userId: watch.userId,
+        //   type: 'WALLET_TRACKER_TRADE', // or create new type
+        //   category: 'GENERAL',
+        //   title: `${oldState} → ${newState}`,
+        //   message: `Your watched token ${mint} has transitioned to ${newState}`,
+        //   actionUrl: `/room/${mint}`,
+        // });
+      }
+    } catch (error) {
+      console.error(`[TokenDiscovery] Error notifying watchers for ${mint}:`, error);
+    }
+  }
+}
+
+/**
+ * Manages token caching operations
+ */
+class TokenCacheManager {
+  constructor(
+    private prisma: PrismaClient,
+    private redis: Redis
+  ) {}
+
+  /**
+   * Cache token row in Redis with TTL
+   */
+  async cacheTokenRow(mint: string): Promise<void> {
+    try {
+      const token = await this.prisma.tokenDiscovery.findUnique({ where: { mint } });
+      if (!token) return;
+
+      const tokenRow = {
+        mint: token.mint,
+        symbol: token.symbol,
+        name: token.name,
+        logoURI: token.logoURI,
+        state: token.state,
+        liqUsd: token.liquidityUsd ? parseFloat(token.liquidityUsd.toString()) : undefined,
+        priceImpactPctAt1pct: token.priceImpact1Pct
+          ? parseFloat(token.priceImpact1Pct.toString())
+          : undefined,
+        freezeRevoked: token.freezeRevoked,
+        mintRenounced: token.mintRenounced,
+        hotScore: parseFloat(token.hotScore.toString()),
+        watcherCount: token.watcherCount,
+        firstSeenAt: token.firstSeenAt.toISOString(),
+        poolAgeMin: token.poolCreatedAt
+          ? Math.floor((Date.now() - token.poolCreatedAt.getTime()) / 60000)
+          : undefined,
+      };
+
+      // Cache individual token with TTL
+      await this.redis.setex(`token:${mint}`, TokenDiscoveryConfig.TOKEN_TTL, JSON.stringify(tokenRow));
+
+      // Add to sorted set by hotScore for fast feed queries
+      await this.redis.zadd(
+        `tokens:${token.state}`,
+        parseFloat(token.hotScore.toString()),
+        mint
+      );
+    } catch (error) {
+      console.error(`[TokenDiscovery] Error caching token ${mint}:`, error);
+    }
+  }
+
+  /**
+   * Invalidate token cache
+   */
+  async invalidateCache(mint: string): Promise<void> {
+    await this.redis.del(`token:${mint}`);
+  }
+}
+
+/**
+ * Handles token health enrichment and scoring
+ */
+class TokenHealthEnricher {
+  constructor(
+    private prisma: PrismaClient,
+    private cacheManager: TokenCacheManager
+  ) {}
+
+  /**
+   * Enrich token with health capsule data + metadata + market data (async, batched)
+   */
+  async enrichHealthData(mint: string): Promise<void> {
+    try {
+      // Get current token to fetch metadata URI
+      const currentToken = await this.prisma.tokenDiscovery.findUnique({
+        where: { mint },
+        select: { logoURI: true },
+      });
+
+      // Fetch all data in parallel
+      const [healthData, enrichedData] = await Promise.allSettled([
+        healthCapsuleService.getHealthData(mint),
+        tokenMetadataService.getEnrichedMetadata(mint, currentToken?.logoURI || undefined),
+      ]);
+
+      const updateData: any = {
+        lastUpdatedAt: new Date(),
+      };
+
+      // Add health data if successful
+      if (healthData.status === 'fulfilled') {
+        updateData.freezeRevoked = healthData.value.freezeRevoked;
+        updateData.mintRenounced = healthData.value.mintRenounced;
+        if (healthData.value.priceImpact1Pct) {
+          updateData.priceImpact1Pct = new Decimal(healthData.value.priceImpact1Pct);
+        }
+        if (healthData.value.liquidityUsd) {
+          updateData.liquidityUsd = new Decimal(healthData.value.liquidityUsd);
+        }
+      }
+
+      // Add metadata and market data if successful
+      if (enrichedData.status === 'fulfilled') {
+        const data = enrichedData.value;
+
+        // Metadata fields
+        if (data.description) updateData.description = data.description;
+        if (data.imageUrl) updateData.imageUrl = data.imageUrl;
+        if (data.twitter) updateData.twitter = data.twitter;
+        if (data.telegram) updateData.telegram = data.telegram;
+        if (data.website) updateData.website = data.website;
+
+        // Market data fields
+        if (data.marketCapUsd) updateData.marketCapUsd = new Decimal(data.marketCapUsd);
+        if (data.volume24h) updateData.volume24h = new Decimal(data.volume24h);
+        if (data.volumeChange24h) updateData.volumeChange24h = new Decimal(data.volumeChange24h);
+        if (data.priceUsd) updateData.priceUsd = new Decimal(data.priceUsd);
+        if (data.priceChange24h) updateData.priceChange24h = new Decimal(data.priceChange24h);
+        if (data.txCount24h) updateData.txCount24h = data.txCount24h;
+      }
+
+      await this.prisma.tokenDiscovery.update({
+        where: { mint },
+        data: updateData,
+      });
+
+      // Update cache
+      await this.cacheManager.cacheTokenRow(mint);
+
+      console.log(`[TokenDiscovery] Health data enriched for ${mint}`);
+    } catch (error) {
+      console.error(`[TokenDiscovery] Error enriching health data for ${mint}:`, error);
+    }
+  }
+
+  /**
+   * Calculate hot score based on recency, liquidity, and watchers
+   */
+  async calculateHotScore(mint: string): Promise<number> {
+    try {
+      const token = await this.prisma.tokenDiscovery.findUnique({ where: { mint } });
+      if (!token) return 0;
+
+      const ageMinutes = (Date.now() - token.firstSeenAt.getTime()) / 60000;
+
+      // Recency score: 100 at creation, decay to 0 over 24 hours
+      const recencyScore = Math.max(0, 100 - (ageMinutes / 1440) * 100);
+
+      // Liquidity score: $50k = 100 points
+      const liqUsd = token.liquidityUsd ? parseFloat(token.liquidityUsd.toString()) : 0;
+      const liquidityScore = Math.min((liqUsd / 50000) * 100, 100);
+
+      // Watcher score: each watcher = 10 points, cap at 100
+      const watcherScore = Math.min(token.watcherCount * 10, 100);
+
+      // Combined formula: 50% recency, 30% liquidity, 20% watchers
+      const hotScore = recencyScore * 0.5 + liquidityScore * 0.3 + watcherScore * 0.2;
+
+      return Math.round(hotScore);
+    } catch (error) {
+      console.error(`[TokenDiscovery] Error calculating hot score for ${mint}:`, error);
+      return 0;
+    }
+  }
+}
+
+// ============================================================================
+// SERVICE INSTANCES
+// ============================================================================
+
+const metadataService = new TokenMetadataService();
+const stateManager = new TokenStateManager(prisma, redis);
+const cacheManager = new TokenCacheManager(prisma, redis);
+const healthEnricher = new TokenHealthEnricher(prisma, cacheManager);
 
 // ============================================================================
 // HELPER FUNCTIONS
 // ============================================================================
-
-/**
- * Fetch and parse token metadata from IPFS URI
- */
-async function fetchTokenMetadata(uri: string): Promise<{
-  description?: string;
-  twitter?: string;
-  telegram?: string;
-  website?: string;
-  image?: string;
-}> {
-  try {
-    if (!uri) return {};
-
-    // Convert IPFS URI to HTTP gateway URL
-    const httpUri = uri.startsWith('ipfs://')
-      ? uri.replace('ipfs://', 'https://ipfs.io/ipfs/')
-      : uri;
-
-    const response = await fetch(httpUri, { 
-      signal: AbortSignal.timeout(5000) // 5 second timeout
-    });
-    
-    if (!response.ok) {
-      console.warn(`[TokenDiscovery] Failed to fetch metadata: ${response.status}`);
-      return {};
-    }
-
-    const metadata = await response.json();
-    
-    return {
-      description: metadata.description || undefined,
-      twitter: metadata.twitter || metadata.social?.twitter || undefined,
-      telegram: metadata.telegram || metadata.social?.telegram || undefined,
-      website: metadata.website || metadata.external_url || undefined,
-      image: metadata.image ? (convertIPFStoHTTP(metadata.image) || undefined) : undefined,
-    };
-  } catch (error: any) {
-    // Silently skip common errors (timeouts, network issues, 404s)
-    const isExpectedError =
-      error.name === 'AbortError' ||
-      error.name === 'TimeoutError' ||
-      error.code === 'ENOTFOUND' ||
-      error.message?.includes('fetch failed');
-
-    if (!isExpectedError) {
-      console.error('[TokenDiscovery] Unexpected metadata error:', error.message);
-    }
-    return {};
-  }
-}
 
 /**
  * Handle swap event → Update transaction count and last trade timestamp
@@ -266,12 +620,12 @@ async function handleNewToken(event: NewTokenEvent): Promise<void> {
     }
 
     // Convert IPFS URI to HTTP gateway URL
-    const httpLogoURI = convertIPFStoHTTP(uri) || undefined;
+    const httpLogoURI = metadataService.convertIPFStoHTTP(uri) || undefined;
 
     // Fetch additional metadata from URI if not provided directly
-    let metadata: Awaited<ReturnType<typeof fetchTokenMetadata>> = {};
+    let metadata: Awaited<ReturnType<typeof metadataService.fetchTokenMetadata>> = {};
     if (uri && (!description || !twitter || !telegram || !website)) {
-      metadata = await fetchTokenMetadata(uri);
+      metadata = await metadataService.fetchTokenMetadata(uri);
     }
 
     // Get current transaction count for this token
@@ -330,10 +684,10 @@ async function handleNewToken(event: NewTokenEvent): Promise<void> {
     });
 
     // Cache in Redis
-    await cacheTokenRow(mint);
+    await cacheManager.cacheTokenRow(mint);
 
     // Async health enrichment (non-blocking)
-    enrichHealthData(mint).catch((err) =>
+    healthEnricher.enrichHealthData(mint).catch((err) =>
       console.error(`[TokenDiscovery] Health enrichment error for ${mint}:`, err)
     );
   } catch (error) {
@@ -385,10 +739,10 @@ async function handleMigration(event: MigrationEvent): Promise<void> {
     }
 
     // Update state
-    await updateState(mint, newState, currentToken.state);
+    await stateManager.updateState(mint, newState, currentToken.state);
 
     // Notify watchers
-    await notifyWatchers(mint, currentToken.state, newState);
+    await stateManager.notifyWatchers(mint, currentToken.state, newState);
   } catch (error) {
     console.error('[TokenDiscovery] Error handling migration event:', error);
   }
@@ -402,7 +756,7 @@ async function handleNewPool(event: NewPoolEvent): Promise<void> {
     const { poolAddress, mint1, mint2, signature, blockTime } = event.pool;
 
     // Determine which mint is the token (not SOL/USDC/USDT)
-    const knownMints = [SOL_MINT, USDC_MINT, USDT_MINT];
+    const knownMints = Object.values(TokenDiscoveryConfig.KNOWN_MINTS);
     const tokenMint = knownMints.includes(mint1) ? mint2 : mint1;
 
     console.log(`[TokenDiscovery] New Raydium pool for token: ${tokenMint}`);
@@ -416,7 +770,7 @@ async function handleNewPool(event: NewPoolEvent): Promise<void> {
       // Update existing token to BONDED state (has LP now)
       console.log(`[TokenDiscovery] Updating existing token ${tokenMint} to BONDED state`);
 
-      await updateState(tokenMint, 'bonded', existing.state);
+      await stateManager.updateState(tokenMint, 'bonded', existing.state);
       await prisma.tokenDiscovery.update({
         where: { mint: tokenMint },
         data: {
@@ -427,7 +781,7 @@ async function handleNewPool(event: NewPoolEvent): Promise<void> {
       });
 
       // Notify watchers
-      await notifyWatchers(tokenMint, existing.state, 'bonded');
+      await stateManager.notifyWatchers(tokenMint, existing.state, 'bonded');
     } else {
       // Direct Raydium listing (not from Pump.fun) - has LP, so BONDED
       console.log(`[TokenDiscovery] Creating direct Raydium listing: ${tokenMint}`);
@@ -451,306 +805,14 @@ async function handleNewPool(event: NewPoolEvent): Promise<void> {
     }
 
     // Cache in Redis
-    await cacheTokenRow(tokenMint);
+    await cacheManager.cacheTokenRow(tokenMint);
 
     // Async health enrichment
-    enrichHealthData(tokenMint).catch((err) =>
+    healthEnricher.enrichHealthData(tokenMint).catch((err) =>
       console.error(`[TokenDiscovery] Health enrichment error for ${tokenMint}:`, err)
     );
   } catch (error) {
     console.error('[TokenDiscovery] Error handling newPool event:', error);
-  }
-}
-
-// ============================================================================
-// HELPER FUNCTIONS
-// ============================================================================
-
-/**
- * Convert IPFS URI to HTTP gateway URL
- */
-function convertIPFStoHTTP(uri: string | undefined | null): string | null {
-  if (!uri) return null;
-
-  // Already an HTTP URL
-  if (uri.startsWith('http://') || uri.startsWith('https://')) {
-    return uri;
-  }
-
-  // Convert ipfs:// protocol to HTTP gateway
-  if (uri.startsWith('ipfs://')) {
-    const ipfsHash = uri.replace('ipfs://', '');
-    return `https://ipfs.io/ipfs/${ipfsHash}`;
-  }
-
-  // If it's just a hash, prepend the gateway
-  if (uri.match(/^[a-zA-Z0-9]{46,59}$/)) {
-    return `https://ipfs.io/ipfs/${uri}`;
-  }
-
-  return uri;
-}
-
-/**
- * Update token state with transition tracking
- */
-async function updateState(mint: string, newState: string, oldState?: string): Promise<void> {
-  await prisma.tokenDiscovery.update({
-    where: { mint },
-    data: {
-      state: newState,
-      previousState: oldState || null,
-      stateChangedAt: new Date(),
-      lastUpdatedAt: new Date(),
-    },
-  });
-
-  // Invalidate Redis cache
-  await redis.del(`token:${mint}`);
-
-  console.log(`[TokenDiscovery] State transition: ${mint} ${oldState} → ${newState}`);
-}
-
-/**
- * Classify token into lifecycle state based on trading activity and bonding progress
- */
-function classifyTokenState(token: {
-  bondingCurveProgress?: Decimal | null;
-  isGraduated?: boolean;
-  lastTradeTs?: Date | null;
-  volume24hSol?: Decimal | null;
-  holderCount?: number | null;
-  hasFirstTrade?: boolean;
-}): string {
-  const now = Date.now();
-  
-  // Graduated tokens
-  const progress = token.bondingCurveProgress ? parseFloat(token.bondingCurveProgress.toString()) : 0;
-  if (progress >= 100 || token.isGraduated) {
-    return 'BONDED';
-  }
-  
-  // Check if token has any trades
-  if (!token.hasFirstTrade || !token.lastTradeTs) {
-    return 'LAUNCHING';
-  }
-  
-  const timeSinceLastTrade = now - token.lastTradeTs.getTime();
-  const volume24h = token.volume24hSol ? parseFloat(token.volume24hSol.toString()) : 0;
-  const holders = token.holderCount || 0;
-  
-  // About to bond
-  if (progress >= 90 && timeSinceLastTrade < 20 * 60 * 1000) {
-    return 'ABOUT_TO_BOND';
-  }
-  
-  // Dead tokens
-  const isDead = timeSinceLastTrade > 2 * 60 * 60 * 1000 || volume24h < 0.5;
-  if (isDead) {
-    return 'DEAD';
-  }
-  
-  // Active tokens (alive and trading)
-  const MIN_ACTIVE_VOLUME = 2; // SOL
-  const MIN_HOLDERS = 25;
-  const isFresh = timeSinceLastTrade < 60 * 60 * 1000;
-  const isAlive = isFresh && volume24h >= MIN_ACTIVE_VOLUME && holders >= MIN_HOLDERS;
-  
-  return isAlive ? 'ACTIVE' : 'LAUNCHING';
-}
-
-/**
- * Enrich token with health capsule data + metadata + market data (async, batched)
- */
-async function enrichHealthData(mint: string): Promise<void> {
-  try {
-    // Get current token to fetch metadata URI
-    const currentToken = await prisma.tokenDiscovery.findUnique({
-      where: { mint },
-      select: { logoURI: true },
-    });
-
-    // Fetch all data in parallel
-    const [healthData, enrichedData] = await Promise.allSettled([
-      healthCapsuleService.getHealthData(mint),
-      tokenMetadataService.getEnrichedMetadata(mint, currentToken?.logoURI || undefined),
-    ]);
-
-    const updateData: any = {
-      lastUpdatedAt: new Date(),
-    };
-
-    // Add health data if successful
-    if (healthData.status === 'fulfilled') {
-      updateData.freezeRevoked = healthData.value.freezeRevoked;
-      updateData.mintRenounced = healthData.value.mintRenounced;
-      if (healthData.value.priceImpact1Pct) {
-        updateData.priceImpact1Pct = new Decimal(healthData.value.priceImpact1Pct);
-      }
-      if (healthData.value.liquidityUsd) {
-        updateData.liquidityUsd = new Decimal(healthData.value.liquidityUsd);
-      }
-    }
-
-    // Add metadata and market data if successful
-    if (enrichedData.status === 'fulfilled') {
-      const data = enrichedData.value;
-
-      // Metadata fields
-      if (data.description) updateData.description = data.description;
-      if (data.imageUrl) updateData.imageUrl = data.imageUrl;
-      if (data.twitter) updateData.twitter = data.twitter;
-      if (data.telegram) updateData.telegram = data.telegram;
-      if (data.website) updateData.website = data.website;
-
-      // Market data fields
-      if (data.marketCapUsd) updateData.marketCapUsd = new Decimal(data.marketCapUsd);
-      if (data.volume24h) updateData.volume24h = new Decimal(data.volume24h);
-      if (data.volumeChange24h) updateData.volumeChange24h = new Decimal(data.volumeChange24h);
-      if (data.priceUsd) updateData.priceUsd = new Decimal(data.priceUsd);
-      if (data.priceChange24h) updateData.priceChange24h = new Decimal(data.priceChange24h);
-      if (data.txCount24h) updateData.txCount24h = data.txCount24h;
-    }
-
-    await prisma.tokenDiscovery.update({
-      where: { mint },
-      data: updateData,
-    });
-
-    // Update cache
-    await cacheTokenRow(mint);
-
-    console.log(`[TokenDiscovery] Health data enriched for ${mint}`);
-  } catch (error) {
-    console.error(`[TokenDiscovery] Error enriching health data for ${mint}:`, error);
-  }
-}
-
-/**
- * Calculate hot score based on recency, liquidity, and watchers
- */
-async function calculateHotScore(mint: string): Promise<number> {
-  try {
-    const token = await prisma.tokenDiscovery.findUnique({ where: { mint } });
-    if (!token) return 0;
-
-    const ageMinutes = (Date.now() - token.firstSeenAt.getTime()) / 60000;
-
-    // Recency score: 100 at creation, decay to 0 over 24 hours
-    const recencyScore = Math.max(0, 100 - (ageMinutes / 1440) * 100);
-
-    // Liquidity score: $50k = 100 points
-    const liqUsd = token.liquidityUsd ? parseFloat(token.liquidityUsd.toString()) : 0;
-    const liquidityScore = Math.min((liqUsd / 50000) * 100, 100);
-
-    // Watcher score: each watcher = 10 points, cap at 100
-    const watcherScore = Math.min(token.watcherCount * 10, 100);
-
-    // Combined formula: 50% recency, 30% liquidity, 20% watchers
-    const hotScore = recencyScore * 0.5 + liquidityScore * 0.3 + watcherScore * 0.2;
-
-    return Math.round(hotScore);
-  } catch (error) {
-    console.error(`[TokenDiscovery] Error calculating hot score for ${mint}:`, error);
-    return 0;
-  }
-}
-
-/**
- * Notify watchers on state change
- */
-async function notifyWatchers(mint: string, oldState: string, newState: string): Promise<void> {
-  try {
-    // Query watchers based on preferences
-    const watchers = await prisma.tokenWatch.findMany({
-      where: {
-        mint,
-        OR: [
-          // Notify on graduation (bonded → graduating)
-          {
-            notifyOnGraduation: true,
-            currentState: 'bonded',
-          },
-          // Notify on migration (graduating → new OR bonded → new)
-          {
-            notifyOnMigration: true,
-          },
-        ],
-      },
-      include: {
-        user: true,
-      },
-    });
-
-    if (watchers.length === 0) {
-      return;
-    }
-
-    console.log(
-      `[TokenDiscovery] Notifying ${watchers.length} watchers for ${mint}: ${oldState} → ${newState}`
-    );
-
-    // TODO: Integrate with NotificationService
-    // For now, just log
-    for (const watch of watchers) {
-      console.log(
-        `[Watch] User ${watch.userId} notified: ${mint} transitioned ${oldState} → ${newState}`
-      );
-
-      // Example notification payload:
-      // await notificationService.create({
-      //   userId: watch.userId,
-      //   type: 'WALLET_TRACKER_TRADE', // or create new type
-      //   category: 'GENERAL',
-      //   title: `${oldState} → ${newState}`,
-      //   message: `Your watched token ${mint} has transitioned to ${newState}`,
-      //   actionUrl: `/room/${mint}`,
-      // });
-    }
-  } catch (error) {
-    console.error(`[TokenDiscovery] Error notifying watchers for ${mint}:`, error);
-  }
-}
-
-/**
- * Cache token row in Redis with TTL
- */
-async function cacheTokenRow(mint: string): Promise<void> {
-  try {
-    const token = await prisma.tokenDiscovery.findUnique({ where: { mint } });
-    if (!token) return;
-
-    const tokenRow = {
-      mint: token.mint,
-      symbol: token.symbol,
-      name: token.name,
-      logoURI: token.logoURI,
-      state: token.state,
-      liqUsd: token.liquidityUsd ? parseFloat(token.liquidityUsd.toString()) : undefined,
-      priceImpactPctAt1pct: token.priceImpact1Pct
-        ? parseFloat(token.priceImpact1Pct.toString())
-        : undefined,
-      freezeRevoked: token.freezeRevoked,
-      mintRenounced: token.mintRenounced,
-      hotScore: parseFloat(token.hotScore.toString()),
-      watcherCount: token.watcherCount,
-      firstSeenAt: token.firstSeenAt.toISOString(),
-      poolAgeMin: token.poolCreatedAt
-        ? Math.floor((Date.now() - token.poolCreatedAt.getTime()) / 60000)
-        : undefined,
-    };
-
-    // Cache individual token with TTL
-    await redis.setex(`token:${mint}`, TOKEN_TTL, JSON.stringify(tokenRow));
-
-    // Add to sorted set by hotScore for fast feed queries
-    await redis.zadd(
-      `tokens:${token.state}`,
-      parseFloat(token.hotScore.toString()),
-      mint
-    );
-  } catch (error) {
-    console.error(`[TokenDiscovery] Error caching token ${mint}:`, error);
   }
 }
 
@@ -796,7 +858,7 @@ async function updateMarketDataAndStates() {
         const marketData = await tokenMetadataService.fetchMarketData(token.mint);
         
         // Calculate new state
-        const newStatus = classifyTokenState({
+        const newStatus = stateManager.classifyTokenState({
           bondingCurveProgress: token.bondingCurveProgress,
           lastTradeTs: token.lastTradeTs,
           volume24hSol: token.volume24hSol,
@@ -836,7 +898,7 @@ async function updateMarketDataAndStates() {
       }
       
       // Rate limit: 50ms delay between requests
-      await new Promise(resolve => setTimeout(resolve, 50));
+      await new Promise(resolve => setTimeout(resolve, TokenDiscoveryConfig.RATE_LIMIT_DELAY_MS));
     }
     
     console.log(`[TokenDiscovery] Updated market data for ${updated}/${activeTokens.length} tokens`);
@@ -867,20 +929,20 @@ async function recalculateHotScores(): Promise<void> {
         // Progress-based state transitions (regardless of age)
         if (token.state === 'new' && progress >= 50 && progress < 100) {
           // Actively progressing → GRADUATING
-          await updateState(token.mint, 'graduating', token.state);
+          await stateManager.updateState(token.mint, 'graduating', token.state);
           console.log(`[TokenDiscovery] Progress transition: ${token.mint} NEW → GRADUATING (progress: ${progress}%)`);
         } else if (token.state === 'graduating' && (progress >= 100 || token.poolAddress)) {
           // Completed bonding or has LP → BONDED
-          await updateState(token.mint, 'bonded', token.state);
+          await stateManager.updateState(token.mint, 'bonded', token.state);
           console.log(`[TokenDiscovery] Completion transition: ${token.mint} GRADUATING → BONDED (progress: ${progress}%)`);
         } else if (token.state === 'new' && (progress >= 100 || token.poolAddress)) {
           // Skip graduating if already at 100% → BONDED
-          await updateState(token.mint, 'bonded', token.state);
+          await stateManager.updateState(token.mint, 'bonded', token.state);
           console.log(`[TokenDiscovery] Fast completion: ${token.mint} NEW → BONDED (progress: ${progress}%)`);
         }
 
         // Calculate and update hot score
-        const newScore = await calculateHotScore(token.mint);
+        const newScore = await healthEnricher.calculateHotScore(token.mint);
         await prisma.tokenDiscovery.update({
           where: { mint: token.mint },
           data: { hotScore: new Decimal(newScore) },
@@ -1025,7 +1087,7 @@ async function subscribeToActiveTokens(): Promise<void> {
         { volume24h: 'desc' },
         { marketCapUsd: 'desc' },
       ],
-      take: 200, // Limit to 200 tokens to avoid overwhelming the subscription
+      take: TokenDiscoveryConfig.MAX_ACTIVE_TOKENS_SUBSCRIPTION, // Limit to 200 tokens to avoid overwhelming the subscription
     });
 
     const tokenMints = activeTokens.map(t => t.mint);
@@ -1051,7 +1113,7 @@ async function cleanupOldTokens(): Promise<void> {
     console.log('[TokenDiscovery] Cleaning up old tokens...');
 
     // Cleanup old NEW tokens (>24h old)
-    const newCutoffDate = new Date(Date.now() - NEW_TOKEN_RETENTION_HOURS * 60 * 60 * 1000);
+    const newCutoffDate = new Date(Date.now() - TokenDiscoveryConfig.NEW_TOKEN_RETENTION_HOURS * 60 * 60 * 1000);
     const newResult = await prisma.tokenDiscovery.deleteMany({
       where: {
         state: 'new',
@@ -1060,7 +1122,7 @@ async function cleanupOldTokens(): Promise<void> {
     });
 
     // Cleanup BONDED tokens older than 12 hours (based on stateChangedAt)
-    const bondedCutoffDate = new Date(Date.now() - BONDED_TOKEN_RETENTION_HOURS * 60 * 60 * 1000);
+    const bondedCutoffDate = new Date(Date.now() - TokenDiscoveryConfig.BONDED_TOKEN_RETENTION_HOURS * 60 * 60 * 1000);
     const bondedResult = await prisma.tokenDiscovery.deleteMany({
       where: {
         state: 'bonded',
@@ -1129,11 +1191,11 @@ async function startWorker(): Promise<void> {
     // Schedule background jobs
     console.log('⏰ Scheduling background jobs...');
 
-    intervals.push(setInterval(updateMarketDataAndStates, 30_000));
-    intervals.push(setInterval(recalculateHotScores, HOT_SCORE_UPDATE_INTERVAL));
-    intervals.push(setInterval(syncWatcherCounts, WATCHER_SYNC_INTERVAL));
-    intervals.push(setInterval(cleanupOldTokens, CLEANUP_INTERVAL));
-    intervals.push(setInterval(updateHolderCounts, HOLDER_COUNT_UPDATE_INTERVAL));
+    intervals.push(setInterval(updateMarketDataAndStates, TokenDiscoveryConfig.MARKET_DATA_UPDATE_INTERVAL));
+    intervals.push(setInterval(recalculateHotScores, TokenDiscoveryConfig.HOT_SCORE_UPDATE_INTERVAL));
+    intervals.push(setInterval(syncWatcherCounts, TokenDiscoveryConfig.WATCHER_SYNC_INTERVAL));
+    intervals.push(setInterval(cleanupOldTokens, TokenDiscoveryConfig.CLEANUP_INTERVAL));
+    intervals.push(setInterval(updateHolderCounts, TokenDiscoveryConfig.HOLDER_COUNT_UPDATE_INTERVAL));
 
     // Subscribe to active tokens for trade data (every 5 minutes)
     intervals.push(setInterval(subscribeToActiveTokens, 5 * 60 * 1000));
@@ -1244,10 +1306,9 @@ process.on('unhandledRejection', (reason, promise) => {
   console.error('🚨 Token Discovery Worker Unhandled Rejection at:', promise, 'reason:', reason);
   
   // Don't crash on PumpPortal WebSocket rejections
-  const reasonMessage = reason instanceof Error ? reason.message : String(reason);
-  if (reasonMessage.includes('Unexpected server response: 502') || 
-      reasonMessage.includes('Unexpected server response: 503') ||
-      reasonMessage.includes('Unexpected server response: 504')) {
+  if (reason?.message?.includes('Unexpected server response: 502') || 
+      reason?.message?.includes('Unexpected server response: 503') ||
+      reason?.message?.includes('Unexpected server response: 504')) {
     console.log('🚨 PumpPortal server error rejection - continuing operation');
     return;
   }
