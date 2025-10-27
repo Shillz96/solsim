@@ -46,10 +46,14 @@ export class HeliusTradeStreamService extends EventEmitter {
 
   constructor() {
     super();
-    
+
+    // Increase max listeners to prevent memory leak warnings (default is 10)
+    // Multiple components may subscribe to trade events for different tokens
+    this.setMaxListeners(20);
+
     // Check multiple possible env var names
     this.heliusApiKey = process.env.HELIUS_API_KEY || process.env.HELIUS_API || '';
-    
+
     if (!this.heliusApiKey) {
       console.error('[HeliusTradeService] HELIUS_API_KEY environment variable is not set');
       console.error('[HeliusTradeService] Available env vars:', Object.keys(process.env).filter(k => k.includes('HELIUS')));
@@ -60,9 +64,9 @@ export class HeliusTradeStreamService extends EventEmitter {
       const masked = this.heliusApiKey.substring(0, 8) + '...' + this.heliusApiKey.substring(this.heliusApiKey.length - 4);
       console.log(`[HeliusTradeService] API key found: ${masked}`);
     }
-    
+
     this.heliusRpcUrl = `https://mainnet.helius-rpc.com/?api-key=${this.heliusApiKey}`;
-    
+
     console.log('[HeliusTradeService] Service initialized with REST API polling');
   }
 

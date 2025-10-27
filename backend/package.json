@@ -7,13 +7,13 @@
     "dev": "tsx src/index.ts",
     "dev:worker": "tsx src/worker.ts",
     "dev:discovery": "tsx src/workers/tokenDiscoveryWorker.ts",
-    "build": "npx prisma generate && tsc",
-    "start": "node --max-old-space-size=6144 dist/index.js",
-    "start:worker": "node --max-old-space-size=2048 dist/worker.js",
+    "build": "prisma generate && tsc",
+    "start": "node --max-old-space-size=4096 dist/index.js",
+    "start:worker": "node --max-old-space-size=1536 dist/worker.js",
     "start:discovery": "node --max-old-space-size=512 dist/workers/tokenDiscoveryWorker.js",
-    "railway:start": "npx prisma migrate deploy && node --max-old-space-size=6144 dist/index.js",
-    "railway:worker": "npx prisma generate && node --max-old-space-size=2048 dist/worker.js",
-    "railway:discovery": "npx prisma generate && node --max-old-space-size=512 dist/workers/tokenDiscoveryWorker.js",
+    "railway:start": "prisma migrate deploy && node --max-old-space-size=4096 dist/index.js",
+    "railway:worker": "prisma generate && node --max-old-space-size=1536 dist/worker.js",
+    "railway:discovery": "prisma generate && node --max-old-space-size=512 dist/workers/tokenDiscoveryWorker.js",
     "prisma:setup": "prisma generate && prisma migrate deploy",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate deploy",
@@ -79,5 +79,9 @@
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
+  },
+  "overrides": {
+    "whatwg-url": "^14.0.0",
+    "ajv": "^8.17.1"
   }
 }

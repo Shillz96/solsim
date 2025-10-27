@@ -1,0 +1,20 @@
+# Nixpacks configuration for Railway deployment
+# Fixes: "bigint: Failed to load bindings, pure JS will be used"
+#
+# Native dependencies required for:
+# - bigint-buffer (Solana web3.js dependency)
+# - Prisma binary compilation
+# - Other native Node.js modules
+
+[phases.setup]
+nixPkgs = ["python3", "gcc", "make", "pkg-config"]
+
+[phases.install]
+# Use npm ci for faster, deterministic installs in production
+cmds = ["npm ci --omit=dev"]
+
+[phases.build]
+cmds = ["npm run build"]
+
+[start]
+cmd = "npm run railway:start"

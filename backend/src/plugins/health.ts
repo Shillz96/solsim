@@ -226,7 +226,7 @@ export default async function healthPlugin(app: FastifyInstance) {
   });
 
   app.addHook('onResponse', async (request, reply) => {
-    const responseTime = reply.getResponseTime();
+    const responseTime = reply.elapsedTime;
     totalResponseTime += responseTime;
   });
 
