@@ -198,7 +198,7 @@ export const marioStyles = {
     // Color variants
     {
       'bg-star hover:bg-coin text-outline': variant === 'primary',
-      'bg-mario hover:bg-mario/90 text-white': variant === 'danger',
+      'bg-mario hover:bg-mario/90 text-white shadow-[3px_3px_0_rgba(0,0,0,0.3)]': variant === 'danger',
       'bg-luigi hover:bg-pipe text-white': variant === 'success',
       'bg-sky hover:bg-super text-white': variant === 'secondary',
       'bg-white hover:bg-background text-outline': variant === 'outline',
@@ -219,7 +219,7 @@ export const marioStyles = {
     'flex items-center justify-center',
     {
       'bg-star hover:bg-coin text-outline': variant === 'primary',
-      'bg-mario hover:bg-mario/90 text-white': variant === 'danger',
+      'bg-mario hover:bg-mario/90 text-white shadow-[2px_2px_0_rgba(0,0,0,0.3)]': variant === 'danger',
       'bg-luigi hover:bg-pipe text-white': variant === 'success',
       'bg-sky hover:bg-super text-white': variant === 'secondary',
     }

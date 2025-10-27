@@ -213,7 +213,8 @@ export function WalletTrackerSettingsModal({ isOpen, onClose, onSettingsSaved }:
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-black/80 z-modal-backdrop flex items-center justify-center p-4"
+          className="fixed inset-0 bg-black/80 flex items-center justify-center p-4"
+          style={{ zIndex: 9999 }}
           onClick={onClose}
         >
           <motion.div
@@ -222,6 +223,7 @@ export function WalletTrackerSettingsModal({ isOpen, onClose, onSettingsSaved }:
             exit={{ scale: 0.9, opacity: 0, y: 20 }}
             onClick={(e) => e.stopPropagation()}
             className="w-full max-w-md max-h-[90vh] overflow-y-auto"
+            style={{ zIndex: 10000 }}
           >
             <div className={cn(marioStyles.cardLg(false), 'bg-card p-6')}>
             {/* Header */}
