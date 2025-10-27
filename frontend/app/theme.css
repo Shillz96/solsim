@@ -44,8 +44,8 @@
   /* Brick Brown */
   --color-brick: oklch(48% 0.10 45);        /* Brick Brown #9C5818 */
   
-  /* Unified Outline Token - Single source of truth */
-  --outline-black: oklch(12% 0 0);          /* Outline Black #1C1C1C */
+  /* Unified Outline Token - Single source of truth - Warmer black for softer appearance */
+  --outline-black: oklch(15% 0 20);          /* Warm Outline Black - softer than pure black */
   --color-outline-black: var(--outline-black); /* Alias for backward compatibility */
 
   /* COMPREHENSIVE MARIO THEME COLORS - All components */
