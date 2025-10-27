@@ -93,9 +93,9 @@ export function EnhancedTrendingList() {
                   const change = parseFloat(token.priceChange24h?.toString() || '0') || 0;
                   // Add threshold to prevent flickering on near-zero values
                   if (change > 0.01) {
-                    return <TrendingUp className="h-3 w-3 text-green-600" />;
+                    return <TrendingUp className="h-3 w-3 text-luigi" />;
                   } else if (change < -0.01) {
-                    return <TrendingDown className="h-3 w-3 text-red-600" />;
+                    return <TrendingDown className="h-3 w-3 text-mario" />;
                   }
                   // For values between -0.01 and 0.01, show neutral
                   return null;

@@ -31,7 +31,7 @@ import { EventEmitter } from "events";
 import WebSocket from "ws";
 import redis from "./redis.js";
 import { loggers } from "../utils/logger.js";
-import { PumpPortalWebSocketClient, PumpFunPrice } from "./pumpPortalWs.js";
+import { pumpPortalStreamService, SwapEvent } from "../services/pumpPortalStreamService.js";
 
 const logger = loggers.priceService;
 
@@ -193,9 +193,6 @@ class OptimizedPriceService extends EventEmitter {
   // Request coalescing to prevent duplicate concurrent requests
   private pendingRequests = new Map<string, Promise<PriceTick | null>>();
 
-  // PumpPortal WebSocket for real-time pump.fun prices
-  private pumpPortalWs: PumpPortalWebSocketClient | null = null;
-
   // WebSocket reconnection
   private reconnectAttempts = 0;
   private readonly MAX_RECONNECT_ATTEMPTS = 10;
@@ -259,13 +256,38 @@ class OptimizedPriceService extends EventEmitter {
     // HELIUS WEBSOCKET DISABLED - PumpPortal covers ALL Solana tokens
     // await this.connectWebSocket();
 
-    // Connect to PumpPortal WebSocket for real-time prices (ALL tokens: pump, bonk, raydium, etc.)
-    // Don't await - let it connect in background so server can start immediately
-    this.connectPumpPortalWebSocket().catch(err => {
-      logger.error({ error: err }, "❌ PumpPortal WebSocket connection failed during startup");
+    // Start PumpPortal stream service (shared singleton)
+    if (!pumpPortalStreamService.isConnected) {
+      await pumpPortalStreamService.start();
+      logger.info("✅ PumpPortal stream service started");
+    }
+
+    // Listen to swap events from PumpPortal for price calculations
+    pumpPortalStreamService.on('swap', async (event: SwapEvent) => {
+      try {
+        // Calculate USD price from swap event
+        const priceUsd = event.solAmount && event.tokenAmount
+          ? (event.solAmount / event.tokenAmount) * this.solPriceUsd
+          : 0;
+
+        if (priceUsd > 0) {
+          const tick: PriceTick = {
+            mint: event.mint,
+            priceUsd,
+            priceSol: event.solAmount / event.tokenAmount,
+            solUsd: this.solPriceUsd,
+            timestamp: event.timestamp,
+            source: 'pumpportal-ws'
+          };
+
+          await this.updatePrice(tick);
+        }
+      } catch (error) {
+        logger.error({ error, mint: event.mint }, "Failed to process swap event");
+      }
     });
 
-    logger.info("✅ Price service started (PumpPortal WebSocket connecting in background)");
+    logger.info("✅ Price service started - listening to PumpPortal swap events");
   }
 
   // HELIUS WEBSOCKET - DISABLED (Code preserved for rollback)
@@ -749,78 +771,32 @@ class OptimizedPriceService extends EventEmitter {
     }
   }
 
-  /**
-   * Connect to PumpPortal WebSocket for real-time pump.fun price streaming
-   */
-  private async connectPumpPortalWebSocket() {
-    try {
-      logger.info("🔌 Initializing PumpPortal WebSocket client...");
-      this.pumpPortalWs = new PumpPortalWebSocketClient(this.solPriceUsd);
-
-      // Listen for price updates from PumpPortal
-      this.pumpPortalWs.on('price', async (pumpPrice: PumpFunPrice) => {
-        // Update health check timestamp
-        this.lastPumpPortalWsMessage = Date.now();
-
-        const tick: PriceTick = {
-          mint: pumpPrice.mint,
-          priceUsd: pumpPrice.priceUsd,
-          priceSol: pumpPrice.priceSol,
-          solUsd: this.solPriceUsd,
-          timestamp: pumpPrice.timestamp,
-          source: pumpPrice.source,
-          marketCapUsd: pumpPrice.marketCapUsd
-        };
-
-        await this.updatePrice(tick);
-      });
-
-      logger.info("🔌 Connecting to PumpPortal WebSocket (wss://pumpportal.fun/api/data)...");
-      await this.pumpPortalWs.connect();
-
-      // Subscribe to new token creation events (to catch brand new memecoins)
-      logger.info("📡 Subscribing to PumpPortal new token events...");
-      this.pumpPortalWs.subscribeToNewTokens();
-
-      logger.info("✅ PumpPortal WebSocket connected and subscribed for real-time pump.fun prices");
-    } catch (error) {
-      logger.error({ 
-        error, 
-        message: error instanceof Error ? error.message : String(error),
-        stack: error instanceof Error ? error.stack : undefined
-      }, "❌ Failed to connect to PumpPortal WebSocket - pump.fun real-time prices will not be available");
-      // Don't throw - allow the service to continue without PumpPortal
-    }
-  }
 
   /**
-   * Subscribe to real-time price updates for a specific token
-   * Used by portfolio service to get real-time updates
+   * Subscribe to real-time price updates for a specific token via PumpPortal
+   * Called when frontend WebSocket client subscribes to a token
    */
-  public subscribeToPumpFunToken(mint: string) {
-    if (!this.pumpPortalWs || !this.pumpPortalWs.isConnected()) {
+  public subscribeToPumpPortalToken(mint: string) {
+    if (!pumpPortalStreamService.isConnected) {
       logger.warn({ mint }, "Cannot subscribe - PumpPortal WebSocket not connected");
       return;
     }
 
-    if (this.isPumpFunToken(mint)) {
-      this.pumpPortalWs.subscribeToToken(mint);
-      logger.debug({ mint: mint.slice(0, 8) }, "Subscribed to pump.fun token real-time updates");
-    }
+    pumpPortalStreamService.subscribeToToken(mint);
+    logger.debug({ mint: mint.slice(0, 8) }, "Subscribed to PumpPortal token trades");
   }
 
   /**
    * Unsubscribe from real-time price updates for a specific token
+   * Called when frontend WebSocket client unsubscribes from a token
    */
-  public unsubscribeFromPumpFunToken(mint: string) {
-    if (!this.pumpPortalWs || !this.pumpPortalWs.isConnected()) {
+  public unsubscribeFromPumpPortalToken(mint: string) {
+    if (!pumpPortalStreamService.isConnected) {
       return;
     }
 
-    if (this.isPumpFunToken(mint)) {
-      this.pumpPortalWs.unsubscribeFromToken(mint);
-      logger.debug({ mint: mint.slice(0, 8) }, "Unsubscribed from pump.fun token updates");
-    }
+    pumpPortalStreamService.unsubscribeFromToken(mint);
+    logger.debug({ mint: mint.slice(0, 8) }, "Unsubscribed from PumpPortal token trades");
   }
 
   /**
@@ -835,23 +811,13 @@ class OptimizedPriceService extends EventEmitter {
     }
   }
 
-  /**
-   * Detect if a token is likely a pump.fun token
-   * Heuristic: pump.fun tokens typically end with "pump"
-   */
-  private isPumpFunToken(mint: string): boolean {
-    return mint.endsWith('pump');
-  }
 
   /**
-   * Get dynamic negative cache TTL based on token type
-   * - Pump.fun tokens: 2 minutes (can gain liquidity quickly)
-   * - Other tokens: 10 minutes (established tokens won't appear suddenly)
+   * Get negative cache TTL
+   * Use shorter TTL since tokens can gain liquidity quickly
    */
   private getNegativeCacheTTL(mint: string): number {
-    return this.isPumpFunToken(mint)
-      ? 2 * 60 * 1000  // 2 minutes for pump.fun tokens
-      : 10 * 60 * 1000; // 10 minutes for other tokens
+    return 2 * 60 * 1000;  // 2 minutes for all tokens
   }
 
   /**
@@ -1012,17 +978,13 @@ class OptimizedPriceService extends EventEmitter {
   }
 
   private async _fetchTokenPriceInternal(mint: string): Promise<PriceTick | null> {
-    // SMART ROUTING: Check if it's a pump.fun token and route accordingly
-    if (this.isPumpFunToken(mint)) {
-      // For pump.fun tokens, try pump.fun API FIRST (fastest & most accurate)
-      const pumpPrice = await this.fetchPumpFunPrice(mint);
-      if (pumpPrice) {
-        await this.updatePrice(pumpPrice);
-        return pumpPrice;
-      }
-      // If not found on pump.fun, it might have graduated to Raydium
-      // Fall through to try DexScreener/Jupiter
+    // Try pump.fun API first (fast for bonding curve tokens)
+    const pumpPrice = await this.fetchPumpFunPrice(mint);
+    if (pumpPrice) {
+      await this.updatePrice(pumpPrice);
+      return pumpPrice;
     }
+    // If not found, try other sources (token might have graduated to AMM)
 
     // DexScreener disabled to prevent rate limit issues
     // Using only PumpPortal and Jupiter as fallback
@@ -1095,15 +1057,7 @@ class OptimizedPriceService extends EventEmitter {
 
     // For non-pump.fun tokens, try pump.fun as last resort
     // (some tokens might be on pump.fun but don't have "pump" suffix)
-    if (!this.isPumpFunToken(mint)) {
-      const pumpPrice = await this.fetchPumpFunPrice(mint);
-      if (pumpPrice) {
-        await this.updatePrice(pumpPrice);
-        return pumpPrice;
-      }
-    }
-
-    // No price found from any source - add to negative cache with dynamic TTL
+    // No price found from any source - add to negative cache
     this.negativeCache.set(mint, {
       timestamp: Date.now(),
       reason: 'not-found-all-sources'

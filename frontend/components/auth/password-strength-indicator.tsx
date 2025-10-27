@@ -35,10 +35,10 @@ export function PasswordStrengthIndicator({ password, confirmPassword }: Passwor
     const percentage = (metCount / total) * 100
 
     if (percentage === 0) return { label: "", color: "bg-muted" }
-    if (percentage < 50) return { label: "Weak", color: "bg-red-500" }
-    if (percentage < 75) return { label: "Fair", color: "bg-orange-500" }
-    if (percentage < 100) return { label: "Good", color: "bg-yellow-500" }
-    return { label: "Strong", color: "bg-green-500" }
+    if (percentage < 50) return { label: "Weak", color: "bg-mario" }
+    if (percentage < 75) return { label: "Fair", color: "bg-star" }
+    if (percentage < 100) return { label: "Good", color: "bg-star" }
+    return { label: "Strong", color: "bg-luigi" }
   }, [requirements])
 
   const strengthPercentage = useMemo(() => {
@@ -57,9 +57,9 @@ export function PasswordStrengthIndicator({ password, confirmPassword }: Passwor
   // Collapse the indicator when all requirements are met
   if (allRequirementsMet) {
     return (
-      <div className="flex items-center gap-2 p-2 bg-green-50 rounded-lg border-2 border-green-500">
-        <Check className="h-4 w-4 text-green-500 flex-shrink-0" />
-        <span className="text-sm font-medium text-green-700">Password meets all requirements ✓</span>
+      <div className="flex items-center gap-2 p-2 bg-luigi/10 rounded-lg border-2 border-luigi">
+        <Check className="h-4 w-4 text-luigi flex-shrink-0" />
+        <span className="text-sm font-medium text-luigi">Password meets all requirements ✓</span>
       </div>
     )
   }
@@ -86,11 +86,11 @@ export function PasswordStrengthIndicator({ password, confirmPassword }: Passwor
         {requirements.map((req, index) => (
           <div key={index} className="flex items-center gap-2 text-sm">
             {req.met ? (
-              <Check className="h-4 w-4 text-green-500 flex-shrink-0" />
+              <Check className="h-4 w-4 text-luigi flex-shrink-0" />
             ) : (
               <X className="h-4 w-4 text-muted-foreground/50 flex-shrink-0" />
             )}
-            <span className={req.met ? "text-green-700" : "text-muted-foreground"}>
+            <span className={req.met ? "text-luigi" : "text-muted-foreground"}>
               {req.label}
             </span>
           </div>
@@ -101,13 +101,13 @@ export function PasswordStrengthIndicator({ password, confirmPassword }: Passwor
           <div className="flex items-center gap-2 text-sm pt-1 border-t border-border/50">
             {passwordsMatch ? (
               <>
-                <Check className="h-4 w-4 text-green-500 flex-shrink-0" />
-                <span className="text-green-700">Passwords match</span>
+                <Check className="h-4 w-4 text-luigi flex-shrink-0" />
+                <span className="text-luigi">Passwords match</span>
               </>
             ) : (
               <>
-                <X className="h-4 w-4 text-red-500 flex-shrink-0" />
-                <span className="text-red-700">Passwords do not match</span>
+                <X className="h-4 w-4 text-mario flex-shrink-0" />
+                <span className="text-mario">Passwords do not match</span>
               </>
             )}
           </div>

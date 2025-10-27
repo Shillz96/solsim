@@ -31,8 +31,8 @@ interface StatCardProps {
 function StatCard({ label, value, subtitle, icon: Icon, variant = 'default' }: StatCardProps) {
   const variantStyles = {
     default: 'border-primary/20 bg-primary/5',
-    success: 'border-green-500/20 bg-green-500/5',
-    danger: 'border-red-500/20 bg-red-500/5',
+    success: 'border-green-500/20 bg-luigi/5',
+    danger: 'border-red-500/20 bg-mario/5',
     neutral: 'border-border bg-muted/30'
   }
 
@@ -167,14 +167,14 @@ export function TradingStatsSummary() {
               <div className="flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">Winning Trades</span>
                 <div className="flex items-center gap-2">
-                  <Badge variant="default" className="bg-green-500/20 text-green-500 border-green-500/30">
+                  <Badge variant="default" className="bg-luigi/20 text-luigi border-green-500/30">
                     {winningTrades}
                   </Badge>
                 </div>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">Losing Trades</span>
-                <Badge variant="outline" className="border-red-500/30 text-red-500">
+                <Badge variant="outline" className="border-red-500/30 text-mario">
                   {losingTrades}
                 </Badge>
               </div>
@@ -185,7 +185,7 @@ export function TradingStatsSummary() {
                 <span className="text-sm text-muted-foreground">Avg per Trade</span>
                 <span className={cn(
                   "font-mono font-semibold text-sm",
-                  avgTradeSize >= 0 ? "text-green-500" : "text-red-500"
+                  avgTradeSize >= 0 ? "text-luigi" : "text-mario"
                 )}>
                   {formatUSD(avgTradeSize)}
                 </span>
@@ -194,7 +194,7 @@ export function TradingStatsSummary() {
                 <span className="text-sm text-muted-foreground">Win Rate</span>
                 <span className={cn(
                   "font-mono font-semibold text-sm",
-                  winRate >= 50 ? "text-green-500" : "text-muted-foreground"
+                  winRate >= 50 ? "text-luigi" : "text-muted-foreground"
                 )}>
                   {winRate.toFixed(1)}%
                 </span>

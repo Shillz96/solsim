@@ -95,8 +95,8 @@ function RankBadge({ rank }: { rank: number }) {
  * Trend icon based on value
  */
 function TrendIcon({ value }: { value: number }) {
-  if (value > 0.01) return <TrendingUp className="h-4 w-4 text-green-500" />;
-  if (value < -0.01) return <TrendingDown className="h-4 w-4 text-red-500" />;
+  if (value > 0.01) return <TrendingUp className="h-4 w-4 text-luigi" />;
+  if (value < -0.01) return <TrendingDown className="h-4 w-4 text-mario" />;
   return null;
 }
 
@@ -356,7 +356,7 @@ export function Leaderboard({
                       <div className="flex flex-col items-end">
                         <span className={cn(
                           "font-medium",
-                          winRate >= 50 ? "text-green-500" : "text-red-500"
+                          winRate >= 50 ? "text-luigi" : "text-mario"
                         )}>
                           {winRate.toFixed(1)}%
                         </span>

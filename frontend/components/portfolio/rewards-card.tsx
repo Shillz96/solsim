@@ -196,7 +196,7 @@ export function RewardsCard({ userId, walletAddress }: RewardsCardProps) {
               Claim Status
             </div>
             <div className="text-lg font-bold flex items-center gap-2">
-              <Badge variant="default" className="bg-green-500/20 text-green-600 border-green-500/30">
+              <Badge variant="default" className="bg-luigi/20 text-luigi border-green-500/30">
                 Ready
               </Badge>
             </div>

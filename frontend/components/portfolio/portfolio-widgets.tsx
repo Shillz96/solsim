@@ -64,8 +64,8 @@ export function PortfolioStatsWidget() {
       icon: totalPnL >= 0 ? TrendingUp : TrendingDown, 
       prefix: totalPnL >= 0 ? "+$" : "-$",
       decimals: 2,
-      color: totalPnL >= 0 ? "text-green-500" : "text-red-500",
-      bg: totalPnL >= 0 ? "bg-green-500/10" : "bg-red-500/10"
+      color: totalPnL >= 0 ? "text-luigi" : "text-mario",
+      bg: totalPnL >= 0 ? "bg-luigi/10" : "bg-mario/10"
     },
     { 
       label: "Win Rate", 
@@ -73,8 +73,8 @@ export function PortfolioStatsWidget() {
       icon: Percent, 
       suffix: "%",
       decimals: 1,
-      color: winRate >= 50 ? "text-green-500" : "text-red-500",
-      bg: winRate >= 50 ? "bg-green-500/10" : "bg-red-500/10"
+      color: winRate >= 50 ? "text-luigi" : "text-mario",
+      bg: winRate >= 50 ? "bg-luigi/10" : "bg-mario/10"
     },
     { 
       label: "Active Positions", 
@@ -158,8 +158,8 @@ export function LeaderboardPreviewWidget() {
       label: "Best Streak", 
       value: "7 wins", 
       icon: Award, 
-      color: "text-green-500",
-      bg: "bg-green-500/10"
+      color: "text-luigi",
+      bg: "bg-luigi/10"
     },
     { 
       label: "Volume Trader", 
@@ -226,8 +226,8 @@ export function QuickPortfolioActionsWidget() {
     { 
       label: "Market Analysis", 
       icon: TrendingUp, 
-      color: "text-green-500",
-      bg: "bg-green-500/10",
+      color: "text-luigi",
+      bg: "bg-luigi/10",
       href: "/trending"
     },
     { 

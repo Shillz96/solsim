@@ -267,7 +267,7 @@ function TradeRoomContent() {
                 aria-label="Share"
               >
                 {shareCopied ? (
-                  <Check className="h-3.5 w-3.5 text-green-600" />
+                  <Check className="h-3.5 w-3.5 text-luigi" />
                 ) : (
                   <Share2 className="h-3.5 w-3.5" />
                 )}

@@ -162,8 +162,8 @@ function StatItem({
 }: StatItemProps) {
   const colorStyles = {
     default: 'text-foreground',
-    positive: 'text-green-400',
-    negative: 'text-red-400'
+    positive: 'text-luigi',
+    negative: 'text-mario'
   };
 
   return (
@@ -360,7 +360,7 @@ export function PnLCard() {
               percentage={totalPnLPercent}
               icon={<Award className={cn(
                 "h-4 w-4",
-                isPositive ? "text-green-400" : "text-red-400"
+                isPositive ? "text-luigi" : "text-mario"
               )} />}
             />
           </motion.div>

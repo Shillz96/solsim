@@ -89,7 +89,7 @@ export interface MigrationEvent {
 
 export type PumpPortalEvent = NewTokenEvent | MigrationEvent | SwapEvent | AccountTradeEvent;
 
-class PumpPortalStreamService extends EventEmitter {
+export class PumpPortalStreamService extends EventEmitter {
   private ws: WebSocket | null = null;
   private reconnectAttempts = 0;
   private maxReconnectAttempts = 10;

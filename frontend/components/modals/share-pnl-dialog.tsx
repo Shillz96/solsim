@@ -261,8 +261,8 @@ export function SharePnLDialog({ totalPnL, totalPnLPercent, currentValue, initia
                       <div className="flex items-center gap-2">
                         <div className={`px-2 py-0.5 rounded-full text-xs font-bold ${
                           totalPnL >= 0
-                            ? "bg-green-500/20 text-green-300"
-                            : "bg-red-500/20 text-red-300"
+                            ? "bg-luigi/20 text-green-300"
+                            : "bg-mario/20 text-red-300"
                         }`}>
                           {totalPnL >= 0 ? "↗" : "↘"} {totalPnLPercent >= 0 ? "+" : ""}{totalPnLPercent.toFixed(2)}%
                         </div>

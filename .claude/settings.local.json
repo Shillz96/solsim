@@ -95,7 +95,9 @@
       "Bash(npm outdated:*)",
       "mcp__context7__resolve-library-id",
       "mcp__context7__get-library-docs",
-      "mcp__playwright__browser_network_requests"
+      "mcp__playwright__browser_network_requests",
+      "Bash(for file in components/leaderboard/Leaderboard.tsx components/leaderboard/responsive-leaderboard.tsx components/portfolio/rewards-card.tsx components/portfolio/trading-stats-summary.tsx components/modals/share-pnl-dialog.tsx)",
+      "Bash(do echo \"Checking $file...\")"
     ],
     "deny": [],
     "ask": []
