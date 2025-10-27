@@ -90,8 +90,12 @@
   --color-pipe-green: var(--color-pipe);
 
   /* Trading-specific colors - Luigi Green for profit, Mario Red for loss */
-  --color-profit: oklch(62% 0.18 145);      /* Luigi Green - WCAG AA compliant */
-  --color-loss: oklch(55% 0.22 27);         /* Mario Red - WCAG AA compliant */
+  --color-profit: oklch(62% 0.18 145);      /* Luigi Green - for large text/backgrounds */
+  --color-loss: oklch(55% 0.22 27);         /* Mario Red - for large text/backgrounds */
+
+  /* Darker variants for normal text - WCAG AA 4.5:1 compliant */
+  --luigi-dark: oklch(48% 0.20 145);        /* Dark Luigi Green for profit text */
+  --mario-dark: oklch(48% 0.24 27);         /* Dark Mario Red for loss text */
 
   /* Trading action colors - Vivid for attention-grabbing CTAs */
   --color-buy: oklch(62% 0.18 145);         /* Luigi Green for buy */

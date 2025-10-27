@@ -622,8 +622,8 @@ export function WalletManager({
                                       }}
                                       className={cn(
                                         marioStyles.iconContainer('md'),
-                                        "hover:bg-gray-100 focus:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-[var(--mario-red)] transition-colors p-1.5",
-                                        editIcon === icon.id ? "border-mario bg-mario/10" : "border-gray-300"
+                                        "hover:bg-card-neutral focus:bg-card-neutral focus:outline-none focus:ring-2 focus:ring-[var(--mario-red)] transition-colors p-1.5",
+                                        editIcon === icon.id ? "border-mario bg-mario/10" : "border-outline"
                                       )}
                                       title={icon.name}
                                       aria-label={`Select ${icon.name} icon`}
@@ -743,7 +743,7 @@ export function WalletManager({
                                 variant={wallet.isActive ? "default" : "outline"}
                                 className={cn(
                                   "text-xs font-mario border-2",
-                                  wallet.isActive ? "bg-luigi text-white border-outline" : "border-outline bg-gray-100 text-outline"
+                                  wallet.isActive ? "bg-luigi text-white border-outline" : "border-outline bg-card-neutral text-outline"
                                 )}
                               >
                                 {wallet.isActive ? "Active" : "Inactive"}
@@ -902,8 +902,8 @@ export function WalletManager({
                               }}
                               className={cn(
                                 marioStyles.iconContainer('md'),
-                                "hover:bg-gray-100 focus:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-[var(--mario-red)] transition-colors p-1.5",
-                                newWalletIcon === icon.id ? "border-mario bg-mario/10" : "border-gray-300"
+                                "hover:bg-card-neutral focus:bg-card-neutral focus:outline-none focus:ring-2 focus:ring-[var(--mario-red)] transition-colors p-1.5",
+                                newWalletIcon === icon.id ? "border-mario bg-mario/10" : "border-outline"
                               )}
                               title={icon.name}
                               aria-label={`Select ${icon.name} icon`}

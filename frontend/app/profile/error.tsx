@@ -19,7 +19,7 @@ export default function ProfileError({
         <div className="bg-gradient-to-br from-red-600 to-red-800 rounded-2xl shadow-2xl border-4 border-yellow-400 p-6">
           {/* Error icon */}
           <div className="mb-4 flex justify-center">
-            <div className="w-20 h-20 bg-black rounded-full flex items-center justify-center border-4 border-red-500 shadow-lg">
+            <div className="w-20 h-20 bg-black rounded-full flex items-center justify-center border-4 border-mario shadow-lg">
               <span className="text-5xl">👤</span>
             </div>
           </div>
@@ -48,13 +48,13 @@ export default function ProfileError({
           <div className="flex flex-col gap-3">
             <button
               onClick={reset}
-              className="w-full px-6 py-3 bg-green-600 hover:bg-green-500 text-white font-bold rounded-lg border-4 border-green-800 shadow-lg transform hover:scale-105 transition-all duration-200 active:scale-95"
+              className="w-full px-6 py-3 bg-luigi hover:bg-luigi text-white font-bold rounded-lg border-4 border-green-800 shadow-lg transform hover:scale-105 transition-all duration-200 active:scale-95"
             >
               🔄 RETRY
             </button>
             <button
               onClick={() => window.location.href = '/'}
-              className="w-full px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg border-4 border-blue-800 shadow-lg transform hover:scale-105 transition-all duration-200 active:scale-95"
+              className="w-full px-6 py-3 bg-sky hover:bg-sky text-white font-bold rounded-lg border-4 border-blue-800 shadow-lg transform hover:scale-105 transition-all duration-200 active:scale-95"
             >
               🏠 GO HOME
             </button>

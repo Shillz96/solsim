@@ -411,10 +411,10 @@ function PerpsContent() {
 
   // Get leverage risk color
   const getLeverageRiskColor = (lev: number) => {
-    if (lev <= 2) return "bg-green-600 hover:bg-green-700"
-    if (lev <= 5) return "bg-yellow-600 hover:bg-yellow-700"
-    if (lev <= 10) return "bg-orange-600 hover:bg-orange-700"
-    return "bg-red-600 hover:bg-red-700"
+    if (lev <= 2) return "bg-luigi hover:bg-luigi"
+    if (lev <= 5) return "bg-star hover:bg-yellow-700"
+    if (lev <= 10) return "bg-mario hover:bg-orange-700"
+    return "bg-mario hover:bg-mario"
   }
 
   // Export positions to CSV
@@ -635,7 +635,7 @@ function PerpsContent() {
                         ${selectedTokenMeta.priceUsd?.toFixed(selectedTokenMeta.priceUsd < 1 ? 6 : 2) || 'N/A'}
                       </div>
                       {selectedTokenMeta.priceChange24h !== undefined && (
-                        <div className={`flex items-center justify-end gap-1 text-sm font-semibold transition-colors ${selectedTokenMeta.priceChange24h >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                        <div className={`flex items-center justify-end gap-1 text-sm font-semibold transition-colors ${selectedTokenMeta.priceChange24h >= 0 ? 'text-luigi' : 'text-mario'}`}>
                           {selectedTokenMeta.priceChange24h >= 0 ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
                           {selectedTokenMeta.priceChange24h >= 0 ? '+' : ''}
                           {selectedTokenMeta.priceChange24h.toFixed(2)}% (24h)
@@ -709,10 +709,10 @@ function PerpsContent() {
                 <Label className="flex items-center justify-between">
                   <span>Leverage: {leverage}x</span>
                   <span className={`text-xs px-2 py-0.5 rounded ${
-                    leverage <= 2 ? 'bg-green-100 text-green-700' :
+                    leverage <= 2 ? 'bg-green-100 text-luigi' :
                     leverage <= 5 ? 'bg-yellow-100 text-yellow-700' :
                     leverage <= 10 ? 'bg-orange-100 text-orange-700' :
-                    'bg-red-100 text-red-700'
+                    'bg-red-100 text-mario'
                   }`}>
                     {leverage <= 2 ? 'Low Risk' : leverage <= 5 ? 'Medium Risk' : leverage <= 10 ? 'High Risk' : 'Very High Risk'}
                   </span>
@@ -750,7 +750,7 @@ function PerpsContent() {
                   }}
                   step="0.01"
                   min="0"
-                  className={errorMessage ? "border-red-500" : ""}
+                  className={errorMessage ? "border-mario" : ""}
                 />
 
                 {/* Quick presets */}
@@ -801,7 +801,7 @@ function PerpsContent() {
               {/* Estimated Liquidation Price */}
               {estimatedLiqPrice && (
                 <Alert className="bg-orange-50 border-orange-200">
-                  <Timer className="h-4 w-4 text-orange-600" />
+                  <Timer className="h-4 w-4 text-mario" />
                   <AlertDescription className="text-xs">
                     <strong>Est. Liquidation Price:</strong> ${estimatedLiqPrice.toFixed(6)}
                   </AlertDescription>
@@ -825,7 +825,7 @@ function PerpsContent() {
                         <div className="text-muted-foreground">{scenario.label}</div>
                         <div
                           className={`font-mono font-semibold ${
-                            scenario.pnl >= 0 ? "text-green-600" : "text-red-600"
+                            scenario.pnl >= 0 ? "text-luigi" : "text-mario"
                           }`}
                         >
                           {scenario.pnl >= 0 ? "+" : ""}${scenario.pnl.toFixed(2)}
@@ -840,8 +840,8 @@ function PerpsContent() {
               <Button
                 className={`w-full transition-all duration-200 ${
                   side === "LONG"
-                    ? "bg-green-600 hover:bg-green-700 text-white"
-                    : "bg-red-600 hover:bg-red-700 text-white"
+                    ? "bg-luigi hover:bg-luigi text-white"
+                    : "bg-mario hover:bg-mario text-white"
                 }`}
                 size="lg"
                 onClick={handleOpenPosition}
@@ -863,7 +863,7 @@ function PerpsContent() {
               {/* High leverage warning */}
               {leverage >= 10 && (
                 <Alert className="bg-yellow-50 border-yellow-200">
-                  <AlertCircle className="h-4 w-4 text-yellow-600" />
+                  <AlertCircle className="h-4 w-4 text-star" />
                   <AlertDescription className="text-xs text-yellow-800">
                     <strong>High Leverage Warning:</strong> {leverage}x leverage carries extreme risk of liquidation.
                   </AlertDescription>
@@ -923,12 +923,12 @@ function PerpsContent() {
                     // Calculate health percentage (0-100%) where 100% = safe, 0% = liquidated
                     // marginRatio of 2.5% = 100% health, 0% = 0% health
                     const healthPercent = Math.min(Math.max((marginRatioValue / 5) * 100, 0), 100)
-                    const healthColor = healthPercent > 60 ? 'bg-green-500' : healthPercent > 30 ? 'bg-yellow-500' : 'bg-red-500'
+                    const healthColor = healthPercent > 60 ? 'bg-luigi' : healthPercent > 30 ? 'bg-star' : 'bg-mario'
 
                     return (
                       <div
                         key={pos.id}
-                        className={`border-3 rounded-lg p-4 space-y-3 transition-all duration-300 shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] ${isNearLiquidation ? 'border-red-500 bg-red-50' : 'border-outline hover:border-primary/50'} ${isCritical ? 'animate-pulse' : ''}`}
+                        className={`border-3 rounded-lg p-4 space-y-3 transition-all duration-300 shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] ${isNearLiquidation ? 'border-mario bg-red-50' : 'border-outline hover:border-primary/50'} ${isCritical ? 'animate-pulse' : ''}`}
                       >
                         <div className="flex items-center justify-between flex-wrap gap-2">
                           <div className="flex items-center gap-2">
@@ -948,7 +948,7 @@ function PerpsContent() {
                             </div>
                             <Badge
                               variant={pos.side === "LONG" ? "default" : "destructive"}
-                              className={pos.side === "LONG" ? "bg-green-600" : "bg-red-600"}
+                              className={pos.side === "LONG" ? "bg-luigi" : "bg-mario"}
                             >
                               {pos.side}
                             </Badge>
@@ -969,7 +969,7 @@ function PerpsContent() {
                         <div className="space-y-1">
                           <div className="flex items-center justify-between text-xs">
                             <span className="text-muted-foreground">Position Health</span>
-                            <span className={`font-semibold ${healthPercent > 60 ? 'text-green-600' : healthPercent > 30 ? 'text-yellow-600' : 'text-red-600'}`}>
+                            <span className={`font-semibold ${healthPercent > 60 ? 'text-luigi' : healthPercent > 30 ? 'text-star' : 'text-mario'}`}>
                               {healthPercent.toFixed(0)}%
                             </span>
                           </div>
@@ -1005,8 +1005,8 @@ function PerpsContent() {
                             <div
                               className={`font-mono font-bold transition-all duration-500 ${
                                 parseFloat(pos.unrealizedPnL) >= 0
-                                  ? "text-green-600"
-                                  : "text-red-600"
+                                  ? "text-luigi"
+                                  : "text-mario"
                               }`}
                             >
                               {parseFloat(pos.unrealizedPnL) >= 0 ? '+' : ''}${parseFloat(pos.unrealizedPnL).toFixed(2)}
@@ -1016,7 +1016,7 @@ function PerpsContent() {
                             <div className="text-muted-foreground text-xs">ROE</div>
                             <div
                               className={`font-mono font-bold transition-all duration-500 ${
-                                roe >= 0 ? "text-green-600" : "text-red-600"
+                                roe >= 0 ? "text-luigi" : "text-mario"
                               }`}
                             >
                               {roe >= 0 ? '+' : ''}{roe.toFixed(2)}%
@@ -1024,7 +1024,7 @@ function PerpsContent() {
                           </div>
                           <div>
                             <div className="text-muted-foreground text-xs">Liq. Price</div>
-                            <div className="font-mono font-semibold text-orange-600">
+                            <div className="font-mono font-semibold text-mario">
                               ${parseFloat(pos.liquidationPrice).toFixed(6)}
                             </div>
                           </div>
@@ -1087,7 +1087,7 @@ function PerpsContent() {
                             </span>
                             <Badge
                               variant={trade.side === "LONG" ? "default" : "destructive"}
-                              className={trade.side === "LONG" ? "bg-green-600" : "bg-red-600"}
+                              className={trade.side === "LONG" ? "bg-luigi" : "bg-mario"}
                             >
                               {trade.side}
                             </Badge>
@@ -1116,7 +1116,7 @@ function PerpsContent() {
                           {pnl !== null && (
                             <div>
                               <div className="text-muted-foreground text-xs">PnL</div>
-                              <div className={`font-mono font-bold ${pnl >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                              <div className={`font-mono font-bold ${pnl >= 0 ? 'text-luigi' : 'text-mario'}`}>
                                 {pnl >= 0 ? '+' : ''}${pnl.toFixed(2)}
                               </div>
                             </div>

@@ -172,16 +172,27 @@ Birdeye - Generic trending (NOT for Warp Pipes)
 - **Helius RPC**: Metered (use sparingly, cache aggressively)
 - **Fallback APIs**: Rate-limited (emergency only)
 
-#### Architecture Decision (Oct 26, 2025)
+#### Architecture Decision Timeline
 
-Previous dual-WebSocket architecture (Helius + PumpPortal) was simplified to **PumpPortal-only** because:
+**October 26, 2025** - Initial PumpPortal-first architecture:
+- Disabled Helius WebSocket in favor of PumpPortal for real-time data
+- Reason: PumpPortal supports ALL Solana tokens, lower cost, lower latency
 
+**October 27, 2025** - Simplified to single PumpPortal instance:
+- Removed duplicate `pumpPortalWs.ts` service (~350 lines)
+- Consolidated all WebSocket management to `pumpPortalStreamService.ts`
+- Fixed frontend subscription flow: Frontend → ws.ts → priceService → PumpPortal
+- Fixed EventEmitter memory leaks (workers now use separate instances)
+- Added graceful shutdown handlers
+- Result: ~200 fewer lines, cleaner architecture, no race conditions
+
+**Current Architecture Benefits**:
 1. PumpPortal supports ALL Solana tokens (not just Pump.fun!)
 2. Pool types: "pump", "raydium", "bonk", "launchlab", "pump-amm", "raydium-cpmm", "auto"
 3. "auto" pool detection handles ANY Solana token automatically
-4. Simpler architecture: 1 WebSocket instead of 2
+4. Single WebSocket connection (simplified)
 5. No race conditions between dual sources
-6. ~200 fewer lines of WebSocket management code
+6. Clean data flow with proper subscription management
 
 **See**: `backend/src/plugins/priceService-optimized.ts` (header comments) for full architecture decision notes.
 
@@ -227,16 +238,22 @@ The platform uses strict FIFO (First-In-First-Out) accounting for trade lots:
 
 **Location**: `backend/src/plugins/priceService-optimized.ts`
 
-**ARCHITECTURE**: PumpPortal-only WebSocket (Helius WebSocket disabled Oct 26, 2025)
+**ARCHITECTURE**: PumpPortal-only WebSocket (Refactored Oct 27, 2025)
 
 The price service streams real-time data for **ALL Solana tokens** via PumpPortal WebSocket:
 
-1. **WebSocket connection** to PumpPortal (wss://pumpportal.fun/api/data)
-2. **Token trade subscription** - Monitors swap events across ALL DEX pools
-3. **Pool support** - Raydium, Pump.fun, Bonk, LaunchLab, Raydium CPMM, "auto" detection
-4. **Price calculation** - Real-time USD prices from swap events
-5. **Multi-layer caching** - Memory (LRU) → Redis → Fallback APIs
-6. **Broadcasting** - Publishes to Redis pub/sub and local subscribers
+1. **WebSocket connection** - Uses shared `pumpPortalStreamService` singleton
+2. **Subscription flow** - Frontend → ws.ts → priceService → PumpPortal
+3. **Trade monitoring** - Listens to 'swap' events from pumpPortalStreamService
+4. **Price calculation** - Calculates USD prices from swap events (solAmount / tokenAmount * solPriceUsd)
+5. **Event broadcasting** - Emits 'price' events to WebSocket clients via EventEmitter
+6. **Multi-layer caching** - Memory (LRU) → Redis → Fallback APIs
+
+**Key Methods**:
+- `subscribeToPumpPortalToken(mint)` - Subscribe to token trade events
+- `unsubscribeFromPumpPortalToken(mint)` - No-op (PumpPortal doesn't support individual unsubscribe)
+- `getLastTick(mint)` - Get cached price
+- `fetchTokenPrice(mint)` - Fetch price from fallback APIs (Jupiter)
 
 **Why PumpPortal-only?**
 - Supports ALL Solana tokens (not just Pump.fun!)
@@ -246,11 +263,16 @@ The price service streams real-time data for **ALL Solana tokens** via PumpPorta
 - No race conditions between dual sources
 
 **Fallback price sources** (emergency only, when PumpPortal unavailable):
-- DexScreener API
-- Jupiter Price API
+- Jupiter Price API (primary fallback)
 - CoinGecko (for SOL/USD price)
+- DexScreener API (DISABLED - rate limits)
 
 **Circuit breakers** prevent excessive API calls when services are down.
+
+**Important Notes**:
+- The old `priceService.ts` is deprecated - only use `priceService-optimized.ts`
+- Workers (e.g., tokenDiscoveryWorker) create separate PumpPortal instances to prevent EventEmitter leaks
+- Graceful shutdown properly closes PumpPortal connections
 
 ### Warp Pipes - PumpPortal Memecoin Scanner
 
@@ -389,9 +411,35 @@ Frontend (/trending page)
 
 ### WebSocket Architecture
 
-**Backend** (`backend/src/plugins/ws.ts`, `backend/src/ws/server.ts`):
+**Complete Data Flow** (Oct 27, 2025):
+```
+1. Frontend client connects to /ws/prices
+   ↓
+2. Frontend sends: {type: "subscribe", mint: "..."}
+   ↓
+3. ws.ts receives subscription
+   ↓
+4. ws.ts calls priceService.subscribeToPumpPortalToken(mint)
+   ↓
+5. priceService calls pumpPortalStreamService.subscribeToTokens([mint])
+   ↓
+6. PumpPortal WebSocket sends trade events (swap events)
+   ↓
+7. pumpPortalStreamService emits 'swap' event
+   ↓
+8. priceService listens to 'swap', calculates USD price
+   ↓
+9. priceService emits 'price' event
+   ↓
+10. ws.ts listens to 'price', forwards to frontend clients
+   ↓
+11. Frontend receives: {type: "price", mint: "...", price: 123.45}
+```
+
+**Backend** (`backend/src/plugins/ws.ts`):
 - Registered BEFORE rate limiting middleware
 - Uses `@fastify/websocket` plugin
+- Subscribes to PumpPortal on client token subscription
 - Broadcasts price updates to connected clients
 - Subscription management for per-token price streams
 
@@ -399,6 +447,12 @@ Frontend (/trending page)
 - Establishes WebSocket connection on mount
 - Subscribes to tokens in active portfolio
 - Updates UI reactively on price changes
+
+**Key Files**:
+- `backend/src/plugins/ws.ts` - WebSocket server and subscription handler
+- `backend/src/plugins/priceService-optimized.ts` - Price calculation and event management
+- `backend/src/services/pumpPortalStreamService.ts` - PumpPortal WebSocket client (singleton)
+- `backend/src/workers/tokenDiscoveryWorker.ts` - Uses separate PumpPortal instance for workers
 
 ## Development Guidelines
 

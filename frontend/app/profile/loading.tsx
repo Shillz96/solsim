@@ -20,7 +20,7 @@ export default function ProfileLoading() {
             </div>
 
             {/* Edit button skeleton */}
-            <div className="h-12 w-32 bg-green-500/30 rounded-lg border-2 border-green-600/30" />
+            <div className="h-12 w-32 bg-luigi/30 rounded-lg border-2 border-green-600/30" />
           </div>
         </div>
 

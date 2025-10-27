@@ -191,7 +191,7 @@ export default function AboutPage() {
         >
           <h2 className="font-heading text-3xl font-bold">Important Disclaimer</h2>
 
-          <EnhancedCard className="p-6 border-2 border-yellow-500/30 bg-yellow-500/5">
+          <EnhancedCard className="p-6 border-2 border-yellow-500/30 bg-star/5">
             <div className="space-y-3">
               <p className="text-sm text-muted-foreground leading-relaxed">
                 <strong className="text-foreground">1UP SOL is a simulator for educational purposes only.</strong> All

@@ -11,7 +11,7 @@ function LoadingFallback() {
         <div className="text-center space-y-4">
           <div className="relative">
             <div className="h-16 w-16 border-4 border-primary/20 border-t-primary rounded-full animate-spin mx-auto"></div>
-            <div className="absolute inset-0 h-16 w-16 border-2 border-green-500/20 border-b-green-500 rounded-full animate-spin mx-auto" style={{ animationDirection: 'reverse', animationDuration: '1.5s' }}></div>
+            <div className="absolute inset-0 h-16 w-16 border-2 border-luigi/20 border-b-green-500 rounded-full animate-spin mx-auto" style={{ animationDirection: 'reverse', animationDuration: '1.5s' }}></div>
           </div>
           <div>
             <h3 className="text-lg font-semibold">Loading Wallet Tracker</h3>

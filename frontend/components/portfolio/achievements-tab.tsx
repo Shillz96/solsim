@@ -118,7 +118,7 @@ export function AchievementsTab() {
             className={`
               ${achievement.unlocked 
                 ? `bg-[var(--${achievement.color})]/20 border-[var(--${achievement.color})]` 
-                : 'bg-gray-100 border-gray-400 opacity-60'}
+                : 'bg-card-neutral border-gray-400 opacity-60'}
               border-4 shadow-[4px_4px_0_var(--outline-black)] rounded-xl p-6 relative
             `}
           >

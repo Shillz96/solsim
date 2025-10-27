@@ -89,8 +89,8 @@ function StockCard({ token }: { token: Backend.TrendingToken }) {
                 className={cn(
                   "text-sm font-bold px-3 py-1 rounded-full",
                   isPositive
-                    ? "bg-green-500/10 text-green-400"
-                    : "bg-red-500/10 text-red-400"
+                    ? "bg-luigi/10 text-green-400"
+                    : "bg-mario/10 text-red-400"
                 )}
               >
                 {isPositive ? "+" : ""}{token.priceChange24h?.toFixed(2)}%
@@ -392,7 +392,7 @@ export default function StocksPage() {
 
         {/* Decorative Elements */}
         <div className="fixed inset-0 pointer-events-none -z-20 overflow-hidden">
-          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500/5 rounded-full blur-3xl"></div>
+          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-sky/5 rounded-full blur-3xl"></div>
           <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl"></div>
           <div className="absolute top-3/4 left-3/4 w-64 h-64 bg-purple-500/5 rounded-full blur-2xl"></div>
         </div>
