@@ -67,9 +67,9 @@
     -webkit-autocomplete: off !important;
   }
 
-  /* Paper Texture System - Two-Layer Design */
+  /* Paper Texture System - Refined Dual-Layer Design */
 
-  /* Layer 1 - Base Texture (Behind Content) */
+  /* Layer 1 - Base Texture (Behind Content) - Strong foundation */
   body::before {
     content: "";
     position: fixed;
@@ -88,23 +88,24 @@
     filter: blur(0.5px); /* Slight blur to hide any remaining seams */
   }
 
-  /* Layer 2 - Top Texture (In Front of Content) */
+  /* Layer 2 - Global Film Grain (Top Layer) - Subtle professional grain */
   body::after {
     content: "";
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-image: url('/Paper-Texture-7.jpg');
-    background-repeat: repeat;
-    background-size: 150vw 150vh; /* Scale to 1.5x viewport size */
-    background-position: center;
-    opacity: 0.2; /* Subtle paper grain effect on top */
-    mix-blend-mode: multiply;
+    inset: 0;
     pointer-events: none;
+    background-image: url('/Paper-Texture-7.jpg'); /* Seamless grain texture */
+    background-size: 256px 256px;
+    background-repeat: repeat;
+    mix-blend-mode: overlay; /* Light blend for subtle effect */
+    opacity: 0.025; /* 2.5% - very subtle film grain */
     z-index: var(--z-foreground-texture); /* z-index: 9999 - on top of everything */
-    filter: blur(0.3px); /* Slight blur for smooth grain */
+  }
+
+  /* Dark mode adjustment for grain (if dark mode is implemented) */
+  html.dark body::after {
+    mix-blend-mode: soft-light; /* Gentler on dark UIs */
+    opacity: 0.015; /* Even subtler for dark mode */
   }
 
   body > * {
@@ -284,6 +285,46 @@
   box-shadow: 
     8px 8px 0 var(--outline-black),
     0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* ============================================
+   PROFESSIONAL SURFACE SYSTEM - Micro-contrast cards
+   Modern, refined alternative to heavy Mario borders
+   ============================================ */
+
+/* Professional Surface - Use on cards/panels for refined look */
+.surface {
+  background: var(--card);
+  border: 1px solid color-mix(in oklab, #000 6%, transparent);
+  box-shadow:
+    0 1px 0 color-mix(in oklab, #fff 55%, transparent) inset,
+    0 10px 30px rgba(0, 0, 0, 0.06);
+  border-radius: 14px;
+  isolation: isolate; /* Keeps charts/images crisp with blends */
+  position: relative;
+}
+
+/* Optional very light per-card grain */
+.surface::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  background-image: url("/Paper-Texture-7.jpg");
+  background-size: 512px 512px;
+  background-repeat: repeat;
+  mix-blend-mode: multiply;
+  opacity: 0.10; /* 10% subtle texture on surfaces */
+}
+
+/* Surface hover state */
+.surface:hover {
+  box-shadow:
+    0 1px 0 color-mix(in oklab, #fff 55%, transparent) inset,
+    0 15px 40px rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 /* Mario Button System */
