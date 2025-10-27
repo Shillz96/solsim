@@ -45,12 +45,14 @@ This document describes the permanent fixes applied to resolve Railway deploymen
 
 ### 4. `nixpacks.toml` (NEW FILE)
 **Purpose:**
-- Configures Railway build environment with native compilation dependencies
+- Adds native compilation dependencies to Railway build environment
+- Only overrides the setup phase; Railway handles Node.js/npm automatically
 
 **Why:**
 - Fixes "bigint: Failed to load bindings" error
 - Ensures native modules (Solana web3.js, Prisma binaries) compile correctly
-- Adds python3, gcc, make, pkg-config to build environment
+- Adds python3, gcc, gnumake, pkg-config to build environment
+- Minimal configuration = less chance of breaking Railway's auto-detection
 
 ## Railway Environment Variable Configuration
 

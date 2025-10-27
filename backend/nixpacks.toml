@@ -5,16 +5,9 @@
 # - bigint-buffer (Solana web3.js dependency)
 # - Prisma binary compilation
 # - Other native Node.js modules
+#
+# NOTE: Only override the setup phase to add native build tools.
+# Railway/nixpacks handles Node.js setup, install, build, and start automatically.
 
 [phases.setup]
 nixPkgs = ["python3", "gcc", "gnumake", "pkg-config"]
-
-[phases.install]
-# Use npm ci for faster, deterministic installs in production
-cmds = ["npm ci --omit=dev"]
-
-[phases.build]
-cmds = ["npm run build"]
-
-[start]
-cmd = "npm run railway:start"
