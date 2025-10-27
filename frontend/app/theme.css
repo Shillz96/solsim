@@ -255,17 +255,25 @@
    * 9000+: Critical UI elements (highest priority for user interaction)
    * 9999: Foreground texture overlay (paper grain on top of everything)
    * 
-   * PAPER TEXTURE SYSTEM - Dual Layer Design:
+   * PAPER TEXTURE SYSTEM - Refined Professional Design:
    * --z-background-texture: 1 (behind content)
    *   - File: papertexturre-2.avif
-   *   - Opacity: 90% (0.9)
-   *   - Purpose: Strong background texture foundation
+   *   - Opacity: 8% (0.08)
+   *   - Tile Size: 768px (larger for subtlety)
+   *   - Purpose: Very subtle paper texture behind content
    * 
    * --z-foreground-texture: 9999 (on top of everything)
    *   - File: Paper-Texture-7.jpg (as film grain)
    *   - Opacity: 2.5% (0.025) - 1.5% in dark mode
+   *   - Tile Size: 256px
    *   - Blend Mode: overlay (soft-light in dark mode)
    *   - Purpose: Subtle professional film grain effect
+   * 
+   * VIGNETTE SYSTEM:
+   *   - Dual radial gradients (top-left & bottom-right)
+   *   - Opacity: 3-3.5% black overlay
+   *   - Responsive sizing: clamps based on viewport
+   *   - Purpose: Adds depth and focus to content
    * 
    * USAGE GUIDELINES:
    * 
