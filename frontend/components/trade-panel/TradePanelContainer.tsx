@@ -169,15 +169,15 @@ export function TradePanelContainer({
       return
     }
 
-    // Use live price if available, fallback to token details price
-    const effectivePrice = currentPrice > 0 ? currentPrice : tokenDetails.price
-    
+    // Use live WebSocket price for accurate trade execution
+    const effectivePrice = livePrice
+
     // Validate price is available
     if (effectivePrice <= 0) {
-      toast({ 
-        title: "Price unavailable", 
+      toast({
+        title: "Price unavailable",
         description: "Unable to determine token price. Please try again.",
-        variant: "destructive" 
+        variant: "destructive"
       })
       return
     }
@@ -204,11 +204,12 @@ export function TradePanelContainer({
           tradePanelState.resetBuySelection()
           setShowPowerUpAnimation(true)
           setTimeout(() => setShowPowerUpAnimation(false), 1000)
-          
-          // Reload balance
+
+          // Reload balance and stats for real-time PnL update
           api.getWalletBalance(user.id).then(data => {
             setUserBalance(parseFloat(data.balance))
           })
+          refetchStats() // Refetch position data after trade
         },
 
         (error) => {
@@ -222,21 +223,22 @@ export function TradePanelContainer({
       tradePanelState.setTradingState(false)
     }
   }, [
-    user, 
-    tokenDetails, 
-    tradePanelState, 
-    userBalance, 
-    solPrice, 
-    currentPrice, 
+    user,
+    tokenDetails,
+    tradePanelState,
+    userBalance,
+    solPrice,
+    livePrice,
     tokenAddress,
     addOptimisticTrade,
     executeBuy,
+    refetchStats,
     toast
   ])
 
   // Handle sell trade
   const handleSell = useCallback(async () => {
-    if (!user || !tokenDetails || !position) return
+    if (!user || !tokenDetails || !hasPosition) return
 
     const percentage = tradePanelState.selectedPercentage
     if (!percentage) return
@@ -248,22 +250,21 @@ export function TradePanelContainer({
       return
     }
 
-    // Use live price if available, fallback to token details price
-    const effectivePrice = currentPrice > 0 ? currentPrice : tokenDetails.price
-    
+    // Use live WebSocket price for accurate trade execution
+    const effectivePrice = livePrice
+
     // Validate price is available
     if (effectivePrice <= 0) {
-      toast({ 
-        title: "Price unavailable", 
+      toast({
+        title: "Price unavailable",
         description: "Unable to determine token price. Please try again.",
-        variant: "destructive" 
+        variant: "destructive"
       })
       return
     }
 
-    // Calculate token quantity
-    const holdingQty = parseFloat(position.qty)
-    const tokenQuantity = roundTokenQuantity(calculateSellQuantity(holdingQty, percentage))
+    // Calculate token quantity using current position
+    const tokenQuantity = roundTokenQuantity(calculateSellQuantity(qty, percentage))
 
     // Calculate expected SOL amount for optimistic update
     const sellEstimate = calculateSellEstimate(tokenQuantity, effectivePrice, solPrice)
@@ -285,11 +286,12 @@ export function TradePanelContainer({
           // Success callback
           tradePanelState.setTradeSuccessState(true)
           tradePanelState.resetSellSelection()
-          
-          // Reload balance
+
+          // Reload balance and stats for real-time PnL update
           api.getWalletBalance(user.id).then(data => {
             setUserBalance(parseFloat(data.balance))
           })
+          refetchStats() // Refetch position data after trade
         },
 
         (error) => {
@@ -305,13 +307,15 @@ export function TradePanelContainer({
   }, [
     user,
     tokenDetails,
-    position,
-    tradePanelState,
     hasPosition,
+    qty,
+    tradePanelState,
     tokenAddress,
-    currentPrice,
+    livePrice,
+    solPrice,
     addOptimisticTrade,
     executeSell,
+    refetchStats,
     toast
   ])
 
@@ -388,14 +392,14 @@ export function TradePanelContainer({
           <TradePanelStatsBar
             bought={tokenStats ? parseFloat(tokenStats.totalBoughtUsd) : 0}
             sold={tokenStats ? parseFloat(tokenStats.totalSoldUsd) : 0}
-            holdingValue={tokenStats ? parseFloat(tokenStats.currentHoldingValue) : 0}
-            pnl={tokenStats ? parseFloat(tokenStats.unrealizedPnL) : 0}
-            pnlPercent={pnl?.unrealizedPercent || 0}
+            holdingValue={currentValue}
+            pnl={realtimeUnrealizedPnL}
+            pnlPercent={realtimePnLPercent}
           />
 
           {/* Price Display */}
           <TradePanelPrice
-            currentPrice={displayPrice}
+            currentPrice={livePrice}
             solPrice={solPrice}
           />
 
@@ -433,7 +437,7 @@ export function TradePanelContainer({
                 onBuy={handleBuy}
                 isTrading={tradePanelState.isTrading}
                 tokenSymbol={tokenDetails.tokenSymbol}
-                currentPrice={displayPrice}
+                currentPrice={livePrice}
                 solPrice={solPrice}
                 balance={userBalance}
                 tokenAddress={tokenAddress}
@@ -452,8 +456,8 @@ export function TradePanelContainer({
                 onSell={handleSell}
                 isTrading={tradePanelState.isTrading}
                 tokenSymbol={tokenDetails.tokenSymbol}
-                holdingQty={position ? parseFloat(position.qty) : 0}
-                currentPrice={displayPrice}
+                holdingQty={qty}
+                currentPrice={livePrice}
                 solPrice={solPrice}
                 hasPosition={hasPosition}
                 tokenAddress={tokenAddress}
