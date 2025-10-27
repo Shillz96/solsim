@@ -360,6 +360,44 @@ export class PumpPortalWebSocketClient extends EventEmitter {
   }
 
   /**
+   * Force reconnect - resets retry counter and attempts fresh connection
+   * Useful for recovering from exhausted reconnection attempts
+   */
+  async forceReconnect(): Promise<void> {
+    logger.info("🔄 Force reconnecting PumpPortal WebSocket (resetting retry counter)...");
+
+    // Reset reconnection state
+    this.reconnectAttempts = 0;
+    this.reconnectDelay = 1000;
+    this.isReconnecting = false;
+    this.shouldReconnect = true;
+
+    // Clean up existing connection
+    if (this.pingInterval) {
+      clearInterval(this.pingInterval);
+      this.pingInterval = null;
+    }
+
+    if (this.ws) {
+      try {
+        this.ws.close();
+      } catch (err) {
+        logger.warn("Error closing existing WebSocket during force reconnect:", err);
+      }
+      this.ws = null;
+    }
+
+    // Attempt fresh connection
+    try {
+      await this.connect();
+      logger.info("✅ PumpPortal WebSocket force reconnect successful");
+    } catch (error) {
+      logger.error({ error }, "❌ PumpPortal WebSocket force reconnect failed");
+      throw error;
+    }
+  }
+
+  /**
    * Disconnect and cleanup
    */
   async disconnect() {

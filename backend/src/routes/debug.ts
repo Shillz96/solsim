@@ -53,7 +53,7 @@ export default async function debugRoutes(app: FastifyInstance) {
   app.get("/api/debug/websocket-subscribers", async (request, reply) => {
     try {
       const subscriberCount = priceService.listenerCount('price');
-      
+
       return {
         success: true,
         subscriberCount,
@@ -62,6 +62,30 @@ export default async function debugRoutes(app: FastifyInstance) {
       };
     } catch (error) {
       console.error("❌ WebSocket subscriber debug error:", error);
+      return reply.code(500).send({
+        success: false,
+        error: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
+  // Force reconnect PumpPortal WebSocket
+  app.post("/api/debug/reconnect-pumpportal", async (request, reply) => {
+    try {
+      console.log("🔄 Manual PumpPortal WebSocket reconnection requested...");
+
+      await priceService.forceReconnectPumpPortal();
+
+      const stats = priceService.getStats();
+
+      return {
+        success: true,
+        message: "PumpPortal WebSocket reconnection triggered successfully",
+        stats,
+        timestamp: Date.now()
+      };
+    } catch (error) {
+      console.error("❌ PumpPortal reconnection error:", error);
       return reply.code(500).send({
         success: false,
         error: error instanceof Error ? error.message : "Unknown error"
