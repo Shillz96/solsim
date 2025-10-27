@@ -207,6 +207,7 @@ export function WithdrawModal({ open, onOpenChange }: WithdrawModalProps) {
                 <Input
                   id="amount"
                   type="number"
+                  inputMode="decimal"
                   step="0.001"
                   placeholder="0.00"
                   value={amount}

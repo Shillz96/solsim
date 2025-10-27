@@ -819,7 +819,7 @@ export const UnifiedPositions = memo(function UnifiedPositions({
                         size="sm"
                         onClick={() => handleNavigate(position.mint, position.tokenSymbol, position.tokenName, 'sell', percent)}
                         className={cn(
-                          "h-9 text-xs font-bold",
+                          "h-11 text-xs font-bold",
                           "bg-mario-red hover:bg-mario-red/90 text-white",
                           "border-2 border-outline",
                           "touch-manipulation"

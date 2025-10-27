@@ -82,6 +82,7 @@ export function EditablePresetButton({
         <Input
           ref={inputRef}
           type="number"
+          inputMode="decimal"
           value={editValue}
           onChange={(e) => setEditValue(e.target.value)}
           onKeyDown={handleKeyDown}
