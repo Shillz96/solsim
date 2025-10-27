@@ -146,7 +146,7 @@ export function SearchBar() {
         <PopoverContent
           align="start"
           className={cn(
-            'w-full p-0 bg-card max-h-80 overflow-y-auto z-[10000]',
+            'w-full p-0 bg-card max-h-80 overflow-y-auto z-search-dropdown',
             marioStyles.border('lg'),
             'border-outline',
             marioStyles.shadowLg,

@@ -337,6 +337,11 @@ module.exports = {
         'toast': 'var(--z-toast)',
         'loading': 'var(--z-loading)',
         'onboarding': 'var(--z-onboarding)',
+        'rewards-timer': 'var(--z-rewards-timer)',
+        'search-dropdown': 'var(--z-search-dropdown)',
+        'profile-dropdown': 'var(--z-profile-dropdown)',
+        'bottom-nav': 'var(--z-bottom-nav)',
+        'emoji-picker': 'var(--z-emoji-picker)',
         'debug': 'var(--z-debug)',
       },
       

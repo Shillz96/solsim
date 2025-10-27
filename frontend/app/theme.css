@@ -149,6 +149,37 @@
   --metric-neutral: var(--pipe-green);
 
   /**
+   * DROPDOWN/POPUP SYSTEM - Unified styling for all navbar popups
+   * 
+   * Consistent appearance for:
+   * - Search dropdowns
+   * - Profile menus
+   * - Notification panels
+   * - Navigation submenus
+   */
+  
+  /* Dropdown Container */
+  --dropdown-bg: var(--card);
+  --dropdown-border: 3px solid var(--outline-black);
+  --dropdown-shadow: 
+    4px 4px 0 var(--outline-black),
+    0 8px 16px rgba(0, 0, 0, 0.08);
+  --dropdown-radius: var(--radius-lg);
+  --dropdown-padding: 0.5rem;
+  
+  /* Dropdown Items */
+  --dropdown-item-padding: 0.75rem 1rem;
+  --dropdown-item-radius: var(--radius-md);
+  --dropdown-item-hover-bg: color-mix(in oklab, var(--mario-red) 10%, transparent 90%);
+  --dropdown-item-active-bg: color-mix(in oklab, var(--mario-red) 20%, transparent 80%);
+  
+  /* Dropdown Separators */
+  --dropdown-separator: 2px solid var(--outline-black);
+  
+  /* Dropdown Animation */
+  --dropdown-transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+
+  /**
    * Z-INDEX SCALE - Single source of truth for all layering
    * 
    * This unified system replaces conflicting z-index values across:
