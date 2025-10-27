@@ -81,7 +81,7 @@
     background-repeat: repeat;
     background-size: 200vw 200vh; /* Scale to 2x viewport size for seamless feel */
     background-position: center;
-    opacity: 0.2; /* Subtle background texture */
+    opacity: 0.9; /* Strong background texture */
     mix-blend-mode: multiply;
     pointer-events: none;
     z-index: var(--z-background-texture); /* z-index: 1 - behind content */
@@ -100,7 +100,7 @@
     background-repeat: repeat;
     background-size: 150vw 150vh; /* Scale to 1.5x viewport size */
     background-position: center;
-    opacity: 0.9; /* Strong paper grain effect on top */
+    opacity: 0.2; /* Subtle paper grain effect on top */
     mix-blend-mode: multiply;
     pointer-events: none;
     z-index: var(--z-foreground-texture); /* z-index: 9999 - on top of everything */
