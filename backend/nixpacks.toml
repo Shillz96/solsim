@@ -6,8 +6,7 @@
 # - Prisma binary compilation
 # - Other native Node.js modules
 #
-# NOTE: Only override the setup phase to add native build tools.
-# Railway/nixpacks handles Node.js setup, install, build, and start automatically.
+# NOTE: When specifying nixPkgs, you REPLACE the defaults, so we must include nodejs.
 
 [phases.setup]
-nixPkgs = ["python3", "gcc", "gnumake", "pkg-config"]
+nixPkgs = ["nodejs_20", "python3", "gcc", "gnumake", "pkg-config"]
