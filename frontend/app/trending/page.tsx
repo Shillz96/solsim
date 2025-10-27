@@ -379,15 +379,17 @@ export default function TrendingPage() {
                   const rank = index + 1
 
                   return (
-                    <div
-                      key={token.mint}
-                      className={cn(
-                        "grid grid-cols-[auto_1fr_auto_auto_auto_auto_auto_auto] gap-3 items-center p-4 rounded-lg border-3 border-outline-black transition-all duration-200",
-                        "bg-card hover:border-outline-hover",
-                        "shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:translate-y-[-2px]",
-                        rank <= 3 && "bg-gradient-to-r from-[var(--coin-gold)]/10 to-[var(--star-yellow)]/10"
-                      )}
-                    >
+                    <React.Fragment key={token.mint}>
+                      {/* Desktop Layout */}
+                      <div
+                        className={cn(
+                          // Desktop: Grid layout
+                          "hidden lg:grid grid-cols-[auto_1fr_auto_auto_auto_auto_auto_auto] gap-3 items-center p-4 rounded-lg border-3 border-outline-black transition-all duration-200",
+                          "bg-card hover:border-outline-hover",
+                          "shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:translate-y-[-2px]",
+                          rank <= 3 && "bg-gradient-to-r from-[var(--coin-gold)]/10 to-[var(--star-yellow)]/10"
+                        )}
+                      >
                       {/* Rank */}
                       <div className="flex-shrink-0 w-8 flex items-center justify-center">
                         {rank <= 3 ? (
@@ -471,6 +473,78 @@ export default function TrendingPage() {
                         </Link>
                       </div>
                     </div>
+
+                    {/* Mobile Layout */}
+                    <Link 
+                      href={`/room/${token.mint}`}
+                      key={`${token.mint}-mobile`}
+                      className={cn(
+                        "lg:hidden flex flex-col p-4 rounded-lg border-3 border-outline-black transition-all duration-200",
+                        "bg-card active:border-outline-hover",
+                        "shadow-[3px_3px_0_var(--outline-black)] active:shadow-[4px_4px_0_var(--outline-black)]",
+                        rank <= 3 && "bg-gradient-to-r from-[var(--coin-gold)]/10 to-[var(--star-yellow)]/10"
+                      )}
+                    >
+                      {/* Top Row: Rank, Token Info, Change */}
+                      <div className="flex items-center gap-3 mb-3">
+                        {/* Rank */}
+                        <div className="flex-shrink-0 w-8 flex items-center justify-center">
+                          {rank <= 3 ? (
+                            <Image src={getRankImage(rank)!} alt={`${rank}`} width={24} height={24} className="h-6 w-6" />
+                          ) : (
+                            <span className="font-bold text-sm text-foreground">#{rank}</span>
+                          )}
+                        </div>
+
+                        {/* Token Info */}
+                        <div className="flex items-center gap-2 flex-1 min-w-0">
+                          <Image
+                            src={token.logoURI || "/placeholder-token.svg"}
+                            alt={token.name || "Unknown Token"}
+                            width={32}
+                            height={32}
+                            className="rounded-full border-2 border-outline-black flex-shrink-0"
+                            onError={(e) => { e.currentTarget.src = "/placeholder-token.svg" }}
+                          />
+                          <div className="min-w-0 flex-1">
+                            <div className="font-body font-bold text-sm text-foreground truncate flex items-center gap-1">
+                              {token.name || "Unknown"}
+                              {bigMover && <Sparkles className="h-3 w-3 text-star flex-shrink-0" />}
+                            </div>
+                            <div className="font-body text-xs text-muted-foreground uppercase">
+                              ${token.symbol || "N/A"}
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* 24h Change Badge */}
+                        <div className={cn(
+                          "px-2 py-1 rounded-lg border-2 border-outline-black flex items-center gap-1 flex-shrink-0",
+                          (token.priceChange24h || 0) >= 0 ? "bg-luigi/10" : "bg-mario/10"
+                        )}>
+                          <span className={cn(
+                            "font-numeric text-xs font-bold",
+                            (token.priceChange24h || 0) >= 0 ? "text-luigi" : "text-mario"
+                          )}>
+                            {(token.priceChange24h || 0) >= 0 ? "+" : ""}
+                            {(token.priceChange24h || 0).toFixed(1)}%
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Bottom Row: Stats Grid */}
+                      <div className="grid grid-cols-2 gap-3 text-xs">
+                        <div>
+                          <div className="text-muted-foreground font-medium mb-1">Price</div>
+                          <UsdWithSol usd={token.priceUsd} className="font-numeric font-bold text-sm" solClassName="font-numeric text-[10px]" />
+                        </div>
+                        <div>
+                          <div className="text-muted-foreground font-medium mb-1">Volume</div>
+                          <UsdWithSol usd={token.volume24h} className="font-numeric font-bold text-sm" solClassName="font-numeric text-[10px]" compact />
+                        </div>
+                      </div>
+                    </Link>
+                    </React.Fragment>
                   )
                 })}
               </div>

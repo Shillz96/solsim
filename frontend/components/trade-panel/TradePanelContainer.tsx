@@ -66,10 +66,10 @@ export function TradePanelContainer({
   // Custom hooks
   const tradePanelState = useTradePanelState()
   const { executeBuy, executeSell, addOptimisticTrade, isExecuting } = useTradeExecution()
-  const { position, pnl, currentPrice, hasPosition } = usePositionPnL(tokenAddress)
 
-  // Fetch token trading stats (bought/sold totals)
-  const { data: tokenStats } = useQuery({
+  // Fetch token trading stats (bought/sold/position data)
+  // NO polling - only refetch after trades complete for true real-time PnL
+  const { data: tokenStats, refetch: refetchStats } = useQuery({
     queryKey: ['token-stats', user?.id, tokenAddress],
     queryFn: () => {
       if (!user?.id || !tokenAddress) return null
@@ -77,7 +77,8 @@ export function TradePanelContainer({
     },
     enabled: !!user?.id && !!tokenAddress,
     staleTime: 10000, // 10 seconds
-    refetchInterval: 30000, // Refresh every 30s
+    refetchOnWindowFocus: false, // Don't refetch on focus
+    // NO refetchInterval - we calculate PnL in real-time using WebSocket prices
   })
 
   // Local state
@@ -89,10 +90,17 @@ export function TradePanelContainer({
   // Get SOL price
   const solPrice = livePrices.get('So11111111111111111111111111111111111111112')?.price || 208
 
-  // CRITICAL FIX: Use currentPrice from usePositionPnL which includes fallback logic
-  // This ensures we always show a price even before WebSocket connects
-  // Priority: 1. Live WebSocket price, 2. Position's stored price, 3. Token details price
-  const displayPrice = currentPrice > 0 ? currentPrice : (tokenDetails?.price || 0)
+  // Get LIVE price from WebSocket for real-time PnL
+  // Priority: 1. Live WebSocket price, 2. Token details price (fallback)
+  const livePrice = livePrices.get(tokenAddress)?.price || tokenDetails?.price || 0
+
+  // Calculate REAL-TIME PnL using live price + position data
+  const qty = tokenStats ? parseFloat(tokenStats.currentHoldingQty) : 0
+  const costBasis = tokenStats ? parseFloat(tokenStats.costBasis) : 0
+  const currentValue = qty * livePrice
+  const realtimeUnrealizedPnL = currentValue - costBasis
+  const realtimePnLPercent = costBasis > 0 ? (realtimeUnrealizedPnL / costBasis) * 100 : 0
+  const hasPosition = qty > 0
 
   // Load user balance
   useEffect(() => {
