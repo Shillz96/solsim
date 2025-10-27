@@ -1,11 +1,12 @@
 /**
- * Real Trade Service - Refactored
+ * Real Trade Service - Refactored to eliminate duplication
  *
  * Orchestrates real mainnet trading by routing to appropriate PumpPortal API:
  * - DEPOSITED balance → Lightning API (1% fee)
  * - WALLET trading → Local Transaction API (0.5% fee)
  *
  * Uses shared logic from tradeCommon.ts
+ * REFACTORED: Eliminates 122 lines of code duplication between executeRealTrade and submitSignedRealTrade
  */
 
 import prisma from "../plugins/prisma.js";
@@ -57,6 +58,161 @@ export interface RealTradeResult {
   rewardPointsEarned: Decimal;
   realTxSignature: string;
   realTxStatus: "PENDING" | "CONFIRMED" | "FAILED";
+}
+
+/**
+ * EXTRACTED HELPER: Record real trade in database (eliminates duplication)
+ *
+ * This function consolidates the identical database transaction logic from
+ * executeRealTrade() and submitSignedRealTrade(), eliminating 122 lines of duplication.
+ */
+async function recordRealTradeInDatabase(
+  params: {
+    userId: string;
+    mint: string;
+    side: "BUY" | "SELL";
+    qty: Decimal;
+    priceUsd: Decimal;
+    priceSol: Decimal;
+    solUsdAtFill: Decimal;
+    marketCapUsd: Decimal | null;
+    grossSol: Decimal;
+    pumpPortalFee: Decimal;
+    netSol: Decimal;
+    tradeCostSol: Decimal;
+    tradeCostUsd: Decimal;
+    txSignature: string;
+    txStatus: "PENDING" | "CONFIRMED" | "FAILED";
+    fundingSource: FundingSourceType;
+    updateBalance: boolean; // TRUE for DEPOSITED, FALSE for WALLET
+  }
+) {
+  return await prisma.$transaction(async (tx) => {
+    // Create trade record
+    const trade = await tx.trade.create({
+      data: {
+        userId: params.userId,
+        tokenAddress: params.mint,
+        mint: params.mint,
+        side: params.side,
+        action: params.side.toLowerCase(),
+        quantity: params.qty,
+        price: params.priceUsd,
+        priceSOLPerToken: params.priceSol,
+        grossSol: params.grossSol,
+        feesSol: params.pumpPortalFee,
+        netSol: params.netSol,
+        totalCost: params.tradeCostSol,
+        costUsd: params.tradeCostUsd,
+        solUsdAtFill: params.solUsdAtFill,
+        marketCapUsd: params.marketCapUsd,
+        route: "PumpPortal",
+        tradeMode: "REAL",
+        realTxSignature: params.txSignature,
+        realTxStatus: params.txStatus,
+        fundingSource: params.fundingSource,
+        pumpPortalFee: params.pumpPortalFee
+      }
+    });
+
+    // Fetch/initialize position with REAL trade mode
+    let pos = await tx.position.findUnique({
+      where: {
+        userId_mint_tradeMode: {
+          userId: params.userId,
+          mint: params.mint,
+          tradeMode: "REAL"
+        }
+      }
+    });
+
+    if (!pos) {
+      pos = await tx.position.create({
+        data: {
+          userId: params.userId,
+          mint: params.mint,
+          qty: D(0),
+          costBasis: D(0),
+          tradeMode: "REAL"
+        }
+      });
+    }
+
+    let realizedPnL = D(0);
+
+    if (params.side === "BUY") {
+      // Create FIFO lot using shared function
+      await createFIFOLot(
+        tx, pos.id, params.userId, params.mint,
+        params.qty, params.priceUsd, params.priceSol, params.solUsdAtFill,
+        "REAL"
+      );
+
+      // Update position using shared function
+      pos = await updatePositionBuy(
+        tx, params.userId, params.mint,
+        pos.qty as Decimal,
+        pos.costBasis as Decimal,
+        params.qty, params.priceUsd,
+        "REAL"
+      );
+
+      // Update real SOL balance (only for DEPOSITED funding)
+      if (params.updateBalance) {
+        await tx.user.update({
+          where: { id: params.userId },
+          data: { realSolBalance: { decrement: params.tradeCostSol } }
+        });
+      }
+    } else {
+      // Execute FIFO sell using shared function
+      const lots = await tx.positionLot.findMany({
+        where: {
+          userId: params.userId,
+          mint: params.mint,
+          tradeMode: "REAL",
+          qtyRemaining: { gt: 0 }
+        },
+        orderBy: { createdAt: "asc" }
+      });
+
+      const fifoResult = await executeFIFOSell(tx, params.userId, params.mint, params.qty, params.priceUsd, "REAL");
+      realizedPnL = fifoResult.realizedPnL;
+
+      // Update position using shared function
+      pos = await updatePositionSell(
+        tx, params.userId, params.mint,
+        pos.qty as Decimal,
+        pos.costBasis as Decimal,
+        params.qty,
+        fifoResult.consumed,
+        lots,
+        "REAL"
+      );
+
+      // Record realized PnL
+      await tx.realizedPnL.create({
+        data: {
+          userId: params.userId,
+          mint: params.mint,
+          pnl: realizedPnL,
+          pnlUsd: realizedPnL,
+          tradeMode: "REAL",
+          tradeId: trade.id
+        }
+      });
+
+      // Update real SOL balance (only for DEPOSITED funding)
+      if (params.updateBalance) {
+        await tx.user.update({
+          where: { id: params.userId },
+          data: { realSolBalance: { increment: params.tradeCostSol } }
+        });
+      }
+    }
+
+    return { trade, position: pos, realizedPnL };
+  });
 }
 
 /**
@@ -177,128 +333,26 @@ export async function executeRealTrade(params: RealTradeParams): Promise<RealTra
     throw new Error("Transaction failed to confirm on-chain");
   }
 
-  // Record the trade in database using shared FIFO logic
-  const result = await prisma.$transaction(async (tx) => {
-    // Create trade record
-    const trade = await tx.trade.create({
-      data: {
-        userId: params.userId,
-        tokenAddress: params.mint,
-        mint: params.mint,
-        side: params.side,
-        action: params.side.toLowerCase(),
-        quantity: q,
-        price: priceUsd,
-        priceSOLPerToken: priceSol,
-        grossSol,
-        feesSol: pumpPortalFee,
-        netSol,
-        totalCost: tradeCostSol,
-        costUsd: tradeCostUsd,
-        solUsdAtFill,
-        marketCapUsd: mcAtFill,
-        route: "PumpPortal",
-        tradeMode: "REAL",
-        realTxSignature: txSignature,
-        realTxStatus: txStatus,
-        fundingSource: params.fundingSource,
-        pumpPortalFee: pumpPortalFee
-      }
-    });
-
-    // Fetch/initialize position with REAL trade mode
-    let pos = await tx.position.findUnique({
-      where: {
-        userId_mint_tradeMode: {
-          userId: params.userId,
-          mint: params.mint,
-          tradeMode: "REAL"
-        }
-      }
-    });
-
-    if (!pos) {
-      pos = await tx.position.create({
-        data: {
-          userId: params.userId,
-          mint: params.mint,
-          qty: D(0),
-          costBasis: D(0),
-          tradeMode: "REAL"
-        }
-      });
-    }
-
-    let realizedPnL = D(0);
-
-    if (params.side === "BUY") {
-      // Create FIFO lot using shared function
-      await createFIFOLot(tx, pos.id, params.userId, params.mint, q, priceUsd, priceSol, solUsdAtFill, "REAL");
-
-      // Update position using shared function
-      pos = await updatePositionBuy(
-        tx, params.userId, params.mint,
-        pos.qty as Decimal,
-        pos.costBasis as Decimal,
-        q, priceUsd,
-        "REAL"
-      );
-
-      // Deduct from real SOL balance (deposited only)
-      if (params.fundingSource === "DEPOSITED") {
-        await tx.user.update({
-          where: { id: params.userId },
-          data: { realSolBalance: { decrement: tradeCostSol } }
-        });
-      }
-    } else {
-      // Execute FIFO sell using shared function
-      const lots = await tx.positionLot.findMany({
-        where: {
-          userId: params.userId,
-          mint: params.mint,
-          tradeMode: "REAL",
-          qtyRemaining: { gt: 0 }
-        },
-        orderBy: { createdAt: "asc" }
-      });
-
-      const fifoResult = await executeFIFOSell(tx, params.userId, params.mint, q, priceUsd, "REAL");
-      realizedPnL = fifoResult.realizedPnL;
-
-      // Update position using shared function
-      pos = await updatePositionSell(
-        tx, params.userId, params.mint,
-        pos.qty as Decimal,
-        pos.costBasis as Decimal,
-        q,
-        fifoResult.consumed,
-        lots,
-        "REAL"
-      );
-
-      // Record realized PnL
-      await tx.realizedPnL.create({
-        data: {
-          userId: params.userId,
-          mint: params.mint,
-          pnl: realizedPnL,
-          pnlUsd: realizedPnL,
-          tradeMode: "REAL",
-          tradeId: trade.id
-        }
-      });
-
-      // Add to real SOL balance (deposited only)
-      if (params.fundingSource === "DEPOSITED") {
-        await tx.user.update({
-          where: { id: params.userId },
-          data: { realSolBalance: { increment: tradeCostSol } }
-        });
-      }
-    }
-
-    return { trade, position: pos, realizedPnL };
+  // Record the trade in database using EXTRACTED helper function
+  // DEPOSITED funding → updateBalance = TRUE
+  const result = await recordRealTradeInDatabase({
+    userId: params.userId,
+    mint: params.mint,
+    side: params.side,
+    qty: q,
+    priceUsd,
+    priceSol,
+    solUsdAtFill,
+    marketCapUsd: mcAtFill,
+    grossSol,
+    pumpPortalFee,
+    netSol,
+    tradeCostSol,
+    tradeCostUsd,
+    txSignature,
+    txStatus,
+    fundingSource: params.fundingSource,
+    updateBalance: params.fundingSource === "DEPOSITED" // Key difference
   });
 
   // Execute post-trade operations using shared function (invalidates cache, adds rewards, prefetches price)
@@ -440,117 +494,26 @@ export async function submitSignedRealTrade(
     netSol: netSol.toString()
   }, "[RealTrade] Wallet trade pricing calculated");
 
-  // Record the trade in database using shared FIFO logic
-  const result = await prisma.$transaction(async (tx) => {
-    // Create trade record
-    const trade = await tx.trade.create({
-      data: {
-        userId: params.userId,
-        tokenAddress: params.mint,
-        mint: params.mint,
-        side: params.side,
-        action: params.side.toLowerCase(),
-        quantity: q,
-        price: priceUsd,
-        priceSOLPerToken: priceSol,
-        grossSol,
-        feesSol: pumpPortalFee,
-        netSol,
-        totalCost: tradeCostSol,
-        costUsd: tradeCostUsd,
-        solUsdAtFill,
-        marketCapUsd: mcAtFill,
-        route: "PumpPortal",
-        tradeMode: "REAL",
-        realTxSignature: txSignature,
-        realTxStatus: txStatus,
-        fundingSource: params.fundingSource,
-        pumpPortalFee: pumpPortalFee
-      }
-    });
-
-    // Fetch/initialize position with REAL trade mode
-    let pos = await tx.position.findUnique({
-      where: {
-        userId_mint_tradeMode: {
-          userId: params.userId,
-          mint: params.mint,
-          tradeMode: "REAL"
-        }
-      }
-    });
-
-    if (!pos) {
-      pos = await tx.position.create({
-        data: {
-          userId: params.userId,
-          mint: params.mint,
-          qty: D(0),
-          costBasis: D(0),
-          tradeMode: "REAL"
-        }
-      });
-    }
-
-    let realizedPnL = D(0);
-
-    if (params.side === "BUY") {
-      // Create FIFO lot using shared function
-      await createFIFOLot(tx, pos.id, params.userId, params.mint, q, priceUsd, priceSol, solUsdAtFill, "REAL");
-
-      // Update position using shared function
-      pos = await updatePositionBuy(
-        tx, params.userId, params.mint,
-        pos.qty as Decimal,
-        pos.costBasis as Decimal,
-        q, priceUsd,
-        "REAL"
-      );
-
-      // NOTE: Do NOT update realSolBalance for WALLET funding - funds come from user's wallet
-
-    } else {
-      // Execute FIFO sell using shared function
-      const lots = await tx.positionLot.findMany({
-        where: {
-          userId: params.userId,
-          mint: params.mint,
-          tradeMode: "REAL",
-          qtyRemaining: { gt: 0 }
-        },
-        orderBy: { createdAt: "asc" }
-      });
-
-      const fifoResult = await executeFIFOSell(tx, params.userId, params.mint, q, priceUsd, "REAL");
-      realizedPnL = fifoResult.realizedPnL;
-
-      // Update position using shared function
-      pos = await updatePositionSell(
-        tx, params.userId, params.mint,
-        pos.qty as Decimal,
-        pos.costBasis as Decimal,
-        q,
-        fifoResult.consumed,
-        lots,
-        "REAL"
-      );
-
-      // Record realized PnL
-      await tx.realizedPnL.create({
-        data: {
-          userId: params.userId,
-          mint: params.mint,
-          pnl: realizedPnL,
-          pnlUsd: realizedPnL,
-          tradeMode: "REAL",
-          tradeId: trade.id
-        }
-      });
-
-      // NOTE: Do NOT update realSolBalance for WALLET funding - funds go to user's wallet
-    }
-
-    return { trade, position: pos, realizedPnL };
+  // Record the trade in database using EXTRACTED helper function
+  // WALLET funding → updateBalance = FALSE (funds from user's wallet, not deposited balance)
+  const result = await recordRealTradeInDatabase({
+    userId: params.userId,
+    mint: params.mint,
+    side: params.side,
+    qty: q,
+    priceUsd,
+    priceSol,
+    solUsdAtFill,
+    marketCapUsd: mcAtFill,
+    grossSol,
+    pumpPortalFee,
+    netSol,
+    tradeCostSol,
+    tradeCostUsd,
+    txSignature,
+    txStatus,
+    fundingSource: params.fundingSource,
+    updateBalance: false // Key difference: do NOT update realSolBalance for WALLET trading
   });
 
   // Execute post-trade operations using shared function

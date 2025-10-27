@@ -15,7 +15,7 @@ import portfolioRoutes from "./routes/portfolio.js";
 import leaderboardRoutes from "./routes/leaderboard.js";
 import trendingRoutes from "./routes/trending.js";
 import stocksRoutes from "./routes/stocks.js";
-import authRoutes from "./routes/auth.js";
+import authRoutes from "./routes/auth/index.js";
 import rewardsRoutes from "./routes/rewards.js";
 import tradesRoutes from "./routes/trades.js";
 import walletRoutes from "./routes/wallet.js";
