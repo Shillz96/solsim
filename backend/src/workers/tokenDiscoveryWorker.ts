@@ -1224,6 +1224,37 @@ async function shutdown(signal: string): Promise<void> {
 process.on('SIGTERM', () => shutdown('SIGTERM'));
 process.on('SIGINT', () => shutdown('SIGINT'));
 
+// Handle uncaught exceptions and rejections
+process.on('uncaughtException', (error) => {
+  console.error('🚨 Token Discovery Worker Uncaught Exception:', error.message);
+  
+  // Don't crash on PumpPortal WebSocket errors - they're handled by reconnection
+  if (error.message?.includes('Unexpected server response: 502') || 
+      error.message?.includes('Unexpected server response: 503') ||
+      error.message?.includes('Unexpected server response: 504')) {
+    console.log('🚨 PumpPortal server error - continuing operation');
+    return;
+  }
+  
+  console.error('🚨 Fatal error in Token Discovery Worker:', error);
+  shutdown('uncaughtException');
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('🚨 Token Discovery Worker Unhandled Rejection at:', promise, 'reason:', reason);
+  
+  // Don't crash on PumpPortal WebSocket rejections
+  if (reason?.message?.includes('Unexpected server response: 502') || 
+      reason?.message?.includes('Unexpected server response: 503') ||
+      reason?.message?.includes('Unexpected server response: 504')) {
+    console.log('🚨 PumpPortal server error rejection - continuing operation');
+    return;
+  }
+  
+  console.error('🚨 Fatal rejection in Token Discovery Worker:', reason);
+  shutdown('unhandledRejection');
+});
+
 // ============================================================================
 // START
 // ============================================================================

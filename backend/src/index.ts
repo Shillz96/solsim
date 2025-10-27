@@ -364,7 +364,16 @@ process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
 
 // Handle uncaught exceptions and rejections
 process.on('uncaughtException', (error) => {
-  console.error('🚨 Uncaught Exception:', error);
+  console.error('🚨 Uncaught Exception:', error.message);
+  
+  // Don't crash on PumpPortal WebSocket errors - they're handled by reconnection
+  if (error.message?.includes('Unexpected server response: 502') || 
+      error.message?.includes('Unexpected server response: 503') ||
+      error.message?.includes('Unexpected server response: 504')) {
+    console.log('🚨 PumpPortal server error - continuing operation');
+    return;
+  }
+  
   // Send to Sentry before shutting down
   Sentry.captureException(error, {
     tags: { type: 'uncaughtException' },
@@ -375,6 +384,15 @@ process.on('uncaughtException', (error) => {
 
 process.on('unhandledRejection', (reason, promise) => {
   console.error('🚨 Unhandled Rejection at:', promise, 'reason:', reason);
+  
+  // Don't crash on PumpPortal WebSocket rejections
+  if (reason?.message?.includes('Unexpected server response: 502') || 
+      reason?.message?.includes('Unexpected server response: 503') ||
+      reason?.message?.includes('Unexpected server response: 504')) {
+    console.log('🚨 PumpPortal server error rejection - continuing operation');
+    return;
+  }
+  
   // Send to Sentry before shutting down
   Sentry.captureException(new Error(`Unhandled Rejection: ${reason}`), {
     tags: { type: 'unhandledRejection' },

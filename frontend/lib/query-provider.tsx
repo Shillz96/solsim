@@ -4,8 +4,14 @@
 'use client'
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { useState, type ReactNode } from 'react'
+import dynamic from 'next/dynamic'
+
+// Lazy load devtools only in development - saves ~15KB in production
+const ReactQueryDevtools = dynamic(
+  () => import('@tanstack/react-query-devtools').then(mod => mod.ReactQueryDevtools),
+  { ssr: false }
+)
 
 // Optimized timing constants for high-volume traffic
 // Backend limits: 1000 req/min authenticated, 300 req/min unauthenticated
@@ -95,7 +101,7 @@ export function QueryProvider({ children }: { children: ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
       {children}
-      {/* DevTools only in development */}
+      {/* DevTools only in development - lazy loaded */}
       {process.env.NODE_ENV === 'development' && (
         <ReactQueryDevtools
           initialIsOpen={false}

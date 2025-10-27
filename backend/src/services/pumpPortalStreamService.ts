@@ -515,7 +515,15 @@ class PumpPortalStreamService extends EventEmitter {
    * Handle WebSocket errors
    */
   private onError(error: Error): void {
-    console.error('[PumpPortal] WebSocket error:', error);
+    console.error('[PumpPortal] WebSocket error:', error.message);
+    
+    // Don't emit error events for 502/503/504 server errors - these are temporary
+    // and will be handled by reconnection logic
+    if (error.message.includes('502') || error.message.includes('503') || error.message.includes('504')) {
+      console.log('[PumpPortal] Server error detected, will reconnect automatically');
+      return;
+    }
+    
     this.emit('error', error);
   }
 

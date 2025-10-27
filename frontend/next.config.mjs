@@ -226,6 +226,45 @@ const nextConfig = {
         tls: false,
         crypto: false,
       };
+
+      // Aggressive code splitting strategy for production
+      if (process.env.NODE_ENV === 'production') {
+        config.optimization = {
+          ...config.optimization,
+          splitChunks: {
+            chunks: 'all',
+            cacheGroups: {
+              // Separate Solana wallet adapters into their own chunk (40-50KB)
+              solanaWallet: {
+                test: /[\\/]node_modules[\\/](@solana[\\/]wallet-adapter|@solana[\\/]web3\.js)/,
+                name: 'solana-wallet',
+                priority: 30,
+                reuseExistingChunk: true,
+              },
+              // Separate Radix UI components (20-30KB)
+              radixUI: {
+                test: /[\\/]node_modules[\\/]@radix-ui/,
+                name: 'radix-ui',
+                priority: 25,
+                reuseExistingChunk: true,
+              },
+              // Separate React Query (15-20KB)
+              reactQuery: {
+                test: /[\\/]node_modules[\\/]@tanstack[\\/]react-query/,
+                name: 'react-query',
+                priority: 20,
+                reuseExistingChunk: true,
+              },
+              // Default vendors chunk
+              defaultVendors: {
+                test: /[\\/]node_modules[\\/]/,
+                priority: 10,
+                reuseExistingChunk: true,
+              },
+            },
+          },
+        };
+      }
     }
 
     return config;
