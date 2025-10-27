@@ -60,9 +60,9 @@ export class PumpPortalWebSocketClient extends EventEmitter {
   private ws: WebSocket | null = null;
   private solPriceUsd = 100; // Updated externally
   private reconnectAttempts = 0;
-  private readonly MAX_RECONNECT_ATTEMPTS = 10;
+  // No MAX_RECONNECT_ATTEMPTS - retry indefinitely with exponential backoff
   private reconnectDelay = 1000;
-  private readonly MAX_RECONNECT_DELAY = 60000;
+  private readonly MAX_RECONNECT_DELAY = 60000; // Cap at 60s between attempts
   private isReconnecting = false;
   private shouldReconnect = true;
   private pingInterval: NodeJS.Timeout | null = null;
@@ -167,15 +167,10 @@ export class PumpPortalWebSocketClient extends EventEmitter {
   }
 
   /**
-   * Reconnect with exponential backoff
+   * Reconnect with exponential backoff (no attempt limit - retry forever)
    */
   private reconnect() {
     if (this.isReconnecting) return;
-
-    if (this.reconnectAttempts >= this.MAX_RECONNECT_ATTEMPTS) {
-      logger.error("PumpPortal: Maximum reconnection attempts reached");
-      return;
-    }
 
     this.isReconnecting = true;
     this.reconnectAttempts++;
@@ -183,7 +178,6 @@ export class PumpPortalWebSocketClient extends EventEmitter {
     logger.info(
       {
         attempt: this.reconnectAttempts,
-        maxAttempts: this.MAX_RECONNECT_ATTEMPTS,
         delay: this.reconnectDelay
       },
       "PumpPortal: Attempting to reconnect"
@@ -360,41 +354,29 @@ export class PumpPortalWebSocketClient extends EventEmitter {
   }
 
   /**
-   * Force reconnect - resets retry counter and attempts fresh connection
-   * Useful for recovering from exhausted reconnection attempts
+   * Force reconnect - resets retry counter for manual recovery
    */
   async forceReconnect(): Promise<void> {
-    logger.info("🔄 Force reconnecting PumpPortal WebSocket (resetting retry counter)...");
+    logger.info("🔄 Force reconnecting PumpPortal WebSocket...");
 
-    // Reset reconnection state
+    // Reset state
     this.reconnectAttempts = 0;
     this.reconnectDelay = 1000;
     this.isReconnecting = false;
     this.shouldReconnect = true;
 
-    // Clean up existing connection
-    if (this.pingInterval) {
-      clearInterval(this.pingInterval);
-      this.pingInterval = null;
-    }
-
+    // Close existing connection
     if (this.ws) {
       try {
         this.ws.close();
       } catch (err) {
-        logger.warn("Error closing existing WebSocket during force reconnect:", err);
+        logger.warn({ error: err }, "Error closing existing WebSocket during force reconnect");
       }
       this.ws = null;
     }
 
-    // Attempt fresh connection
-    try {
-      await this.connect();
-      logger.info("✅ PumpPortal WebSocket force reconnect successful");
-    } catch (error) {
-      logger.error({ error }, "❌ PumpPortal WebSocket force reconnect failed");
-      throw error;
-    }
+    // Reconnect
+    await this.connect();
   }
 
   /**

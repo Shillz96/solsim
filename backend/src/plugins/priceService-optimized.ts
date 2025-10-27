@@ -262,11 +262,6 @@ class OptimizedPriceService extends EventEmitter {
     // Connect to PumpPortal WebSocket for real-time prices (ALL tokens: pump, bonk, raydium, etc.)
     await this.connectPumpPortalWebSocket();
 
-    // Set up automatic reconnection check (every 2 minutes)
-    // If PumpPortal WebSocket has been stale for >5 minutes, force reconnect
-    const healthCheckInterval = setInterval(() => this.checkAndRecoverPumpPortal(), 120000);
-    this.updateIntervals.push(healthCheckInterval);
-
     logger.info("✅ Price service started with PumpPortal-only WebSocket (supports ALL Solana tokens)");
   }
 
@@ -1408,53 +1403,13 @@ class OptimizedPriceService extends EventEmitter {
   }
 
   /**
-   * Check PumpPortal WebSocket health and auto-recover if stale
-   * Called every 2 minutes to ensure connection stays healthy
-   */
-  private async checkAndRecoverPumpPortal(): Promise<void> {
-    if (!this.pumpPortalWs) {
-      logger.warn("PumpPortal WebSocket client not initialized for health check");
-      return;
-    }
-
-    const now = Date.now();
-    const staleDuration = now - this.lastPumpPortalWsMessage;
-    const STALE_THRESHOLD = 5 * 60 * 1000; // 5 minutes
-
-    // If connection is stale for >5 minutes, force reconnect
-    if (staleDuration > STALE_THRESHOLD) {
-      logger.warn({
-        staleDurationMinutes: (staleDuration / 60000).toFixed(1),
-        thresholdMinutes: (STALE_THRESHOLD / 60000).toFixed(1)
-      }, "🚨 PumpPortal WebSocket stale - triggering automatic reconnection");
-
-      try {
-        await this.forceReconnectPumpPortal();
-        logger.info("✅ Automatic PumpPortal reconnection successful");
-      } catch (error) {
-        logger.error({ error }, "❌ Automatic PumpPortal reconnection failed");
-      }
-    } else {
-      logger.debug({
-        staleDurationSeconds: (staleDuration / 1000).toFixed(0),
-        thresholdSeconds: (STALE_THRESHOLD / 1000).toFixed(0)
-      }, "✅ PumpPortal WebSocket health check passed");
-    }
-  }
-
-  /**
-   * Force reconnect PumpPortal WebSocket
-   * Useful for recovering from connection failures
+   * Force reconnect PumpPortal WebSocket (for manual recovery)
    */
   async forceReconnectPumpPortal(): Promise<void> {
     if (!this.pumpPortalWs) {
-      logger.warn("PumpPortal WebSocket client not initialized");
-      throw new Error("PumpPortal WebSocket client not initialized");
+      throw new Error("PumpPortal WebSocket not initialized");
     }
-
-    logger.info("🔄 Forcing PumpPortal WebSocket reconnection...");
     await this.pumpPortalWs.forceReconnect();
-    logger.info("✅ PumpPortal WebSocket reconnection complete");
   }
 
   async stop() {
