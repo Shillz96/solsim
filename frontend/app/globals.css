@@ -1516,11 +1516,11 @@ a,
 
 /* 3) Card "micro-contrast" - Premium card feel with subtle depth */
 .surface {
-  background: #fff;
+  /* background: #fff; - REMOVED: Allows Tailwind bg utilities to work (e.g., bg-gradient-to-br) */
   border-radius: 14px;
   border: 1px solid color-mix(in oklab, #000 6%, transparent);
-  box-shadow: 
-    0 1px 0 rgba(255, 255, 255, 0.55) inset, 
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.55) inset,
     0 10px 30px rgba(0, 0, 0, 0.06);
   transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s;
   isolation: isolate;

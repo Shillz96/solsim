@@ -17,7 +17,7 @@
 import prisma from "../plugins/prisma.js";
 import { pumpPortalStreamService, AccountTradeEvent } from "./pumpPortalStreamService.js";
 import { getTokenMetaBatch } from "./tokenService.js";
-import priceService from "../plugins/priceService.js";
+import priceService from "../plugins/priceService-optimized.js";
 import { EventEmitter } from "events";
 
 export interface EnrichedWalletTrade {

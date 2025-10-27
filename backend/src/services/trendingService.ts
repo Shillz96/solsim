@@ -1,6 +1,6 @@
 // Trending service for popular tokens
 import prisma from "../plugins/prisma.js";
-import priceService from "../plugins/priceService.js";
+import priceService from "../plugins/priceService-optimized.js";
 import { getTokenMetaBatch } from "./tokenService.js";
 import { robustFetch, fetchJSON } from "../utils/fetch.js";
 import redis from "../plugins/redis.js";

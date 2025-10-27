@@ -11,7 +11,7 @@
 
 import prisma from "../plugins/prisma.js";
 import { Decimal } from "@prisma/client/runtime/library";
-import priceService from "../plugins/priceService.js";
+import priceService from "../plugins/priceService-optimized.js";
 import { D, vwapBuy, fifoSell } from "../utils/pnl.js";
 import { addTradePoints } from "./rewardService.js";
 import { portfolioCoalescer } from "../utils/requestCoalescer.js";

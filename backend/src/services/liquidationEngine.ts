@@ -1,7 +1,7 @@
 // Liquidation engine - monitors and liquidates undercollateralized positions
 import prisma from "../plugins/prisma.js";
 import { Decimal } from "@prisma/client/runtime/library";
-import priceService from "../plugins/priceService.js";
+import priceService from "../plugins/priceService-optimized.js";
 import {
   D,
   calculateUnrealizedPnL,

@@ -1,6 +1,6 @@
 // WebSocket plugin for real-time updates with contract-compliant formatting
 import { FastifyInstance } from "fastify";
-import priceService from "./priceService.js";
+import priceService from "./priceService-optimized.js";
 import { realtimePnLService } from "../services/realtimePnLService.js";
 
 // Convert SOL price to lamports (for contract compliance)
@@ -118,7 +118,7 @@ export default async function wsPlugin(app: FastifyInstance) {
               }));
             } else {
               // For other tokens, try the cache first
-              priceService.getLastTick(data.mint).then(async tick => {
+              priceService.getLastTick(data.mint).then(async (tick: any) => {
                 if (tick) {
                   socket.send(JSON.stringify({
                     type: "price",
@@ -166,7 +166,7 @@ export default async function wsPlugin(app: FastifyInstance) {
                     }));
                   }
                 }
-              }).catch(err => {
+              }).catch((err: any) => {
                 console.error(`❌ Failed to get price for ${data.mint}:`, err);
                 // Send a placeholder response so the client knows we received the subscription
                 socket.send(JSON.stringify({
@@ -183,7 +183,7 @@ export default async function wsPlugin(app: FastifyInstance) {
             priceService.subscribeToPumpPortalToken(data.mint);
 
             // Subscribe to real-time price updates for this token using manual subscription
-            const unsubscribe = priceService.subscribe((tick) => {
+            const unsubscribe = priceService.subscribe((tick: any) => {
               if (tick.mint === data.mint && subscribedTokens.has(data.mint)) {
                 try {
                   socket.send(JSON.stringify({

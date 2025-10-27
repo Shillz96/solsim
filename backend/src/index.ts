@@ -44,8 +44,7 @@ import wsTestPlugin from "./plugins/wsTest.js";
 import wsWalletTrackerPlugin from "./plugins/wsWalletTracker.js";
 import wsChatPlugin from "./plugins/wsChat.js";
 import prisma from "./plugins/prisma.js";
-// import priceService from "./plugins/priceService.js"; // Old service
-import priceService from "./plugins/priceService-optimized.js"; // Optimized with WebSocket monitoring
+import priceService from "./plugins/priceService-optimized.js"; // PumpPortal-only WebSocket (Oct 27, 2025)
 import { generalRateLimit } from "./plugins/rateLimiting.js";
 import { NonceCleanupService } from "./plugins/nonce.js";
 import { RateLimitCleanupService } from "./plugins/rateLimiting.js";

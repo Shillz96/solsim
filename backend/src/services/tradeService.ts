@@ -2,7 +2,7 @@
 // Refactored to use shared logic from tradeCommon.ts
 import prisma from "../plugins/prisma.js";
 import { Decimal } from "@prisma/client/runtime/library";
-import priceService from "../plugins/priceService.js";
+import priceService from "../plugins/priceService-optimized.js";
 import { D } from "../utils/pnl.js";
 import { simulateFees } from "../utils/decimal-helpers.js";
 import * as notificationService from "./notificationService.js";

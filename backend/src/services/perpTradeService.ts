@@ -1,7 +1,7 @@
 // Perpetual trading service for opening/closing leveraged positions
 import prisma from "../plugins/prisma.js";
 import { Decimal } from "@prisma/client/runtime/library";
-import priceService from "../plugins/priceService.js";
+import priceService from "../plugins/priceService-optimized.js";
 import {
   D,
   calculateInitialMargin,

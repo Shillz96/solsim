@@ -2,7 +2,7 @@
 import { FastifyInstance } from 'fastify';
 import prisma from './prisma.js';
 import redis from './redis.js';
-import priceService from './priceService.js';
+import priceService from './priceService-optimized.js';
 import { performance } from 'perf_hooks';
 
 interface HealthCheckResult {

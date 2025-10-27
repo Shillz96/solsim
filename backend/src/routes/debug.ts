@@ -1,6 +1,6 @@
 // Debug routes for price service monitoring
 import { FastifyInstance } from "fastify";
-import priceService from "../plugins/priceService.js";
+import priceService from "../plugins/priceService-optimized.js";
 import { pumpPortalStreamService } from "../services/pumpPortalStreamService.js";
 
 export default async function debugRoutes(app: FastifyInstance) {

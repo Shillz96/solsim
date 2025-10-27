@@ -1,7 +1,7 @@
 // Enhanced Trade routes with comprehensive response
 import { FastifyInstance } from "fastify";
 import { fillTrade } from "../services/tradeService.js";
-import priceService from "../plugins/priceService.js";
+import priceService from "../plugins/priceService-optimized.js";
 import prisma from "../plugins/prisma.js";
 
 export default async function (app: FastifyInstance) {

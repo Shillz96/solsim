@@ -1,6 +1,6 @@
 // Portfolio service for user positions and PnL calculations
 import prisma from "../plugins/prisma.js";
-import priceService from "../plugins/priceService.js";
+import priceService from "../plugins/priceService-optimized.js";
 import redis from "../plugins/redis.js";
 import { getTokenMetaBatch } from "./tokenService.js";
 import { portfolioCoalescer } from "../utils/requestCoalescer.js";
