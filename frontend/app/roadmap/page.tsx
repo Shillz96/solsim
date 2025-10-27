@@ -7,87 +7,88 @@ import { ArrowLeft } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 /**
- * 1UP SOL — Public Roadmap Section (Mario vibes)
- * Matches the Mario theme design system with bold borders, chunky shadows, vibrant palette.
+ * 1UP SOL — Public Roadmap (Mario vibes, clearer “Practice → Go Live → Get Paid” story)
+ * Focus: Phase 2 mixes real + paper trading; live fees + creator rewards boost payouts.
  */
 
 const phases = [
   {
     id: "phase1",
-    title: "Phase 1 — The Game Begins",
+    title: "Phase 1 — Practice-to-Earn",
     eta: "Live Now",
     items: [
-      "Real-time Solana price feeds",
-      "Paper trading with full PnL tracking",
-      "Mario-style levels & badges system",
-      "Global leaderboards + XP rewards",
-      "Wallet tracker & copy trading",
-      "$1UP rewards based on activity"
+      "Real-time Solana prices + token trends",
+      "Paper trading with full PnL & XP",
+      "Mario-style levels, badges, and streaks",
+      "Global leaderboards & copy trading",
+      "Earn $1UP Points from activity (no risk)"
     ],
-    footnote: "Build your skills and earn rewards with paper trading!",
+    footnote: "Sharpen your skills with virtual SOL and stack $1UP Points as you learn.",
     icon: "🎮",
   },
   {
     id: "phase2",
-    title: "Phase 2 — Live Trading Launch",
-    eta: "Coming Soon",
+    title: "Phase 2 — Go Live: Real Rewards",
+    eta: "Next Up",
     items: [
-      "Real SOL trading (Jupiter-powered)",
-      "Trade with actual on-chain tokens",
-      "Choice: Deposit SOL or use wallet directly",
-      "Enhanced XP multipliers for live trades",
-      "Continue earning $1UP rewards",
-      "Airdrop snapshots for early traders"
+      "Trade real SOL (Jupiter-powered) when you’re ready",
+      "Keep paper trading anytime—both still earn",
+      "Fee-Back Pool: a slice of platform swap fees funds rewards",
+      "Creator Rewards: the project’s token incentives boost payouts",
+      "Live-trade XP multipliers (paper still earns too)",
+      "Early-trader snapshots & special drops"
     ],
-    footnote: "Go live when you're ready - paper trading stays available!",
+    footnote: "Mix paper + live trading. Practice without risk, go live for boosted rewards.",
     icon: "🪙",
   },
   {
     id: "phase3",
     title: "Phase 3 — Power Trader Era",
-    eta: "Future",
+    eta: "Soon™",
     items: [
       "Claim $1UP airdrop in-app",
-      "Mystery boxes & trader missions",
-      "NFT badges with exclusive perks",
-      "Seasonal competitions & team battles",
-      "Advanced analytics & tools"
+      "Mystery boxes, quests, and team events",
+      "NFT badges with perk tiers",
+      "Seasonal cups & rivalry ladders",
+      "Pro analytics for momentum & risk"
     ],
-    footnote: "The ultimate trading experience on Solana.",
+    footnote: "Turn your skills into status, perks, and bigger prize pools.",
     icon: "🌟",
   },
 ]
 
+// Simple, hype-forward timeline
 const timeline = [
   { date: "Now", items: [
-    "Paper trading with virtual SOL",
-    "XP system and leaderboards active",
-    "$1UP rewards based on trading activity",
-    "Track wallets and copy trades",
+    "Practice-to-Earn live: paper trades, XP, leaderboards",
+    "$1UP Points accrue from activity & streaks",
+    "Wallet tracking and copy trading",
   ]},
   { date: "Phase 2 Launch", items: [
-    "Live trading with real SOL unlocks",
-    "Jupiter integration for on-chain swaps",
-    "Enhanced XP multipliers for live trades",
+    "Live SOL trading unlocks (Jupiter swaps)",
+    "Fee-Back & Creator Rewards boost payouts",
+    "XP multipliers for live trades",
   ]},
-  { date: "Ongoing", items: [
-    "Regular airdrop snapshots for active traders",
-    "Continuous platform improvements",
+  { date: "Always On", items: [
+    "Regular snapshot events for active users",
+    "Continuous polish, new quests, better tools",
   ]},
   { date: "Phase 3", items: [
-    "$1UP token claim directly in-app",
-    "Advanced features and trading tools",
-    "Community governance and voting",
+    "In-app $1UP claim, perk NFTs",
+    "Seasonal competitions & governance",
   ]},
 ]
 
+// Clear, exciting rewards explainer
 const airdropPoints = [
-  { label: "Trading Activity", desc: "Earn points for every trade you make (paper or live when available)" },
-  { label: "XP & Levels", desc: "Higher XP and levels = better multipliers on your rewards" },
-  { label: "Win Rate Bonus", desc: "Profitable traders get up to +20% multiplier" },
-  { label: "Consistency Bonus", desc: "Active daily traders earn streak bonuses" },
-  { label: "Leaderboard Rank", desc: "Top ranked traders get 2×–10× reward multipliers" },
-  { label: "Referral Bonus", desc: "+10% of your referred traders' earned rewards" },
+  { label: "Practice-to-Earn",  desc: "Paper trades award $1UP Points—perfect for learning with zero risk." },
+  { label: "Live Fee-Back",     desc: "When live trading is on, a slice of platform fees powers extra rewards." },
+  { label: "Creator Rewards",   desc: "The project’s token incentives add fuel to the prize pool." },
+  { label: "Hype Multipliers",  desc: "Tokens with momentum can boost XP/points—ride the meta, earn more." },
+  { label: "XP & Levels",       desc: "Level up for persistent multipliers on your earnings." },
+  { label: "Consistency Bonus", desc: "Daily streaks = bonus points. Show up, stack up." },
+  { label: "Leaderboard Rank",  desc: "Climb ranks to unlock 2×–10× event multipliers during snapshots." },
+  { label: "Referral Boost",    desc: "Invite friends—earn a cut of their points as a bonus." },
 ]
 
 const Card = ({ children, className = "" }: { children: React.ReactNode; className?: string }) => (
@@ -106,13 +107,9 @@ const Bullet = ({ children }: { children: React.ReactNode }) => (
 export default function RoadmapPage() {
   return (
     <div className="min-h-screen bg-background overflow-y-auto">
-      <div className="container mx-auto px-4 py-12 max-w-6xl pb-20">{/* Added pb-20 for bottom padding */}
+      <div className="container mx-auto px-4 py-12 max-w-6xl pb-20">
         {/* Back Button */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
-        >
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
           <Link href="/">
             <Button 
               variant="ghost" 
@@ -140,7 +137,7 @@ export default function RoadmapPage() {
             </h1>
           </div>
           <p className="mx-auto mt-3 max-w-2xl text-xl text-outline font-semibold text-center">
-            From paper trades to real rewards — every trade is a power‑up. 🍄💰
+            Practice with paper. Go live when ready. Earn all the way. 🍄💰
           </p>
         </motion.div>
 
@@ -153,35 +150,73 @@ export default function RoadmapPage() {
         >
           <h2 className="font-mario text-3xl text-outline">Roadmap Phases</h2>
           <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-          {phases.map((p, i) => (
-            <motion.div
-              key={p.id}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: i * 0.05 }}
-              viewport={{ once: true, amount: 0.2 }}
-            >
-              <Card className="p-5 h-full">
-                <div className="mb-3 flex items-center justify-between">
-                  <div className="text-2xl">{p.icon}</div>
-                  <span className="rounded-full border-2 border-outline px-3 py-1 text-xs font-bold bg-star text-outline">
-                    {p.eta}
-                  </span>
-                </div>
-                <h3 className="mb-2 text-lg font-extrabold text-outline">{p.title}</h3>
-                <ul className="mb-3 space-y-2 text-sm">
-                  {p.items.map((item) => (
-                    <Bullet key={item}>{item}</Bullet>
-                  ))}
-                </ul>
-                <p className="text-xs font-semibold text-outline opacity-70">{p.footnote}</p>
-              </Card>
-            </motion.div>
-          ))}
+            {phases.map((p, i) => (
+              <motion.div
+                key={p.id}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: i * 0.05 }}
+                viewport={{ once: true, amount: 0.2 }}
+              >
+                <Card className="p-5 h-full">
+                  <div className="mb-3 flex items-center justify-between">
+                    <div className="text-2xl">{p.icon}</div>
+                    <span className="rounded-full border-2 border-outline px-3 py-1 text-xs font-bold bg-star text-outline">
+                      {p.eta}
+                    </span>
+                  </div>
+                  <h3 className="mb-2 text-lg font-extrabold text-outline">{p.title}</h3>
+                  <ul className="mb-3 space-y-2 text-sm">
+                    {p.items.map((item) => (
+                      <Bullet key={item}>{item}</Bullet>
+                    ))}
+                  </ul>
+                  <p className="text-xs font-semibold text-outline opacity-70">{p.footnote}</p>
+                </Card>
+              </motion.div>
+            ))}
           </div>
         </motion.section>
 
-        {/* Airdrop Explainer */}
+        {/* Meme-Coin Momentum Explainer */}
+        <motion.section
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15 }}
+          className="space-y-6 mb-12"
+        >
+          <h2 className="font-mario text-3xl text-outline">Why This Is Easy (and Fun)</h2>
+          <Card className="p-6">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+              <div>
+                <h3 className="mb-2 text-sm font-black uppercase tracking-wide text-outline">Ride the Hype</h3>
+                <ul className="space-y-2 text-sm">
+                  <Bullet>See trending tokens and momentum at a glance.</Bullet>
+                  <Bullet>Practice on the same memes everyone’s watching.</Bullet>
+                  <Bullet>Turn hot streaks into points, XP, and rank.</Bullet>
+                </ul>
+              </div>
+              <div>
+                <h3 className="mb-2 text-sm font-black uppercase tracking-wide text-outline">Zero-Pressure On-Ramp</h3>
+                <ul className="space-y-2 text-sm">
+                  <Bullet>Paper first. No risk. Learn fast.</Bullet>
+                  <Bullet>Switch to live whenever you feel ready.</Bullet>
+                  <Bullet>Paper + live both count toward rewards.</Bullet>
+                </ul>
+              </div>
+              <div>
+                <h3 className="mb-2 text-sm font-black uppercase tracking-wide text-outline">Bigger Rewards Over Time</h3>
+                <ul className="space-y-2 text-sm">
+                  <Bullet>Fee-Back Pool from live swaps juicing payouts.</Bullet>
+                  <Bullet>Creator Rewards add extra prize fuel.</Bullet>
+                  <Bullet>Leaderboards + snapshots = event pop-offs.</Bullet>
+                </ul>
+              </div>
+            </div>
+          </Card>
+        </motion.section>
+
+        {/* Rewards & Airdrop */}
         <motion.section
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -192,11 +227,11 @@ export default function RoadmapPage() {
           <Card className="p-6">
             <div className="mb-4 flex items-center gap-3">
               <span className="text-2xl">💎</span>
-              <h3 className="text-xl font-extrabold text-outline">$1UP Rewards & Airdrop System</h3>
+              <h3 className="text-xl font-extrabold text-outline">$1UP Rewards: How You Get Paid</h3>
             </div>
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
               <div>
-                <h3 className="mb-2 text-sm font-black uppercase tracking-wide text-outline">How Rewards Work</h3>
+                <h3 className="mb-2 text-sm font-black uppercase tracking-wide text-outline">What Counts</h3>
                 <ul className="space-y-2 text-sm">
                   {airdropPoints.map((pt) => (
                     <Bullet key={pt.label}>
@@ -218,7 +253,7 @@ export default function RoadmapPage() {
               </div>
             </div>
             <div className="mt-4 rounded-xl border-2 border-outline bg-luigi px-4 py-3 text-sm font-semibold text-outline">
-              Start earning now! Every trade counts toward your rewards, whether you're paper trading or live trading (when available). Check your progress on the Rewards page! 🚀
+              Start earning now! Paper or live—every trade stacks $1UP Points. When live trading launches, the Fee-Back Pool and Creator Rewards kick rewards up a level. 🚀
             </div>
           </Card>
         </motion.section>
@@ -234,7 +269,7 @@ export default function RoadmapPage() {
             <div className="flex flex-col items-center gap-3 text-center">
               <h3 className="text-xl font-extrabold text-outline">Trade. Level Up. Get Paid.</h3>
               <p className="text-sm text-outline opacity-80 font-semibold">
-                Every trade is a power‑up. Your XP and 1UP Points flow straight into the airdrop.
+                Practice safely, switch to live when ready, and let hype + skill multiply your rewards.
               </p>
               <div className="mt-2 flex flex-wrap items-center justify-center gap-3">
                 <Link href="/warp-pipes">

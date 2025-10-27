@@ -29,7 +29,7 @@ export function startWsServer(server: any) {
     const clientIP = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
     const userAgent = req.headers['user-agent'];
     
-    logger.debug(`Client connected from ${clientIP}`, { userAgent });
+    logger.debug({ clientIP, userAgent }, `Client connected from ${clientIP}`);
     
     // TODO: Validate token or origin if needed
     // const token = req.headers.authorization;
