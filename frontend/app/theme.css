@@ -48,25 +48,26 @@
   --outline-black: oklch(15% 0 20);          /* Warm Outline Black - softer than pure black */
   --color-outline-black: var(--outline-black); /* Alias for backward compatibility */
 
-  /* COMPREHENSIVE MARIO THEME COLORS - All components */
-  /* Primary Mario colors - used throughout the app */
-  --mario-red: #E52521;
-  --luigi-green: #43B047;
-  --star-yellow: #FFD800;
-  --coin-gold: #FFB915;
-  --coin-yellow: #FFD700;
-  --sky-blue: #A6D8FF;
-  --brick-brown: #9C5818;
-  --pipe-green: #00994C;
+  /* Coin Yellow - Additional variant */
+  --coin-yellow: oklch(85% 0.18 80);        /* Coin Yellow #FFD700 */
 
-  /* Color aliases for new theme system compatibility */
-  --color-mario-red: var(--mario-red);
-  --color-luigi-green: var(--luigi-green);
-  --color-star-yellow: var(--star-yellow);
-  --color-coin-gold: var(--coin-gold);
-  --color-brick-brown: var(--brick-brown);
-  --color-sky-blue: var(--sky-blue);
-  --color-pipe-green: var(--pipe-green);
+  /* Backward-compatible hex aliases - Reference OKLCH definitions above */
+  --mario-red: var(--color-brand);
+  --luigi-green: var(--color-luigi);
+  --star-yellow: var(--color-star);
+  --coin-gold: var(--color-coin);
+  --sky-blue: var(--color-sky);
+  --brick-brown: var(--color-brick);
+  --pipe-green: var(--color-pipe);
+
+  /* Additional color aliases for consistency */
+  --color-mario-red: var(--color-brand);
+  --color-luigi-green: var(--color-luigi);
+  --color-star-yellow: var(--color-star);
+  --color-coin-gold: var(--color-coin);
+  --color-brick-brown: var(--color-brick);
+  --color-sky-blue: var(--color-sky);
+  --color-pipe-green: var(--color-pipe);
 
   /* Trading-specific colors - Luigi Green for profit, Mario Red for loss */
   --color-profit: oklch(62% 0.18 145);      /* Luigi Green - WCAG AA compliant */
@@ -224,7 +225,7 @@
   --z-onboarding: 2200;
   
   /* Critical UI Elements (9000+) - Highest priority for user interaction */
-  --z-rewards-timer: 9000;        /* Rewards countdown timer */
+  --z-rewards-timer: 9006;        /* Rewards countdown timer – above bottom nav & emoji */
   --z-search-dropdown: 9001;     /* Search bar dropdown */
   --z-profile-dropdown: 9002;    /* Profile dropdown menu */
   --z-bottom-nav: 9003;          /* Bottom navigation bar */
@@ -249,46 +250,41 @@
     /* Enhanced Mario Red - More vivid on P3 displays */
     --color-brand: color(display-p3 0.90 0.15 0.13);        /* Mario Red P3 */
     --color-brand-hover: color(display-p3 0.70 0.11 0.10);  /* Darker Mario Red P3 */
-    --mario-red: color(display-p3 0.90 0.15 0.13);          /* Mario Red P3 (Tailwind reference) */
 
     /* Enhanced Luigi Green */
     --color-luigi: color(display-p3 0.26 0.69 0.28);        /* Luigi Green P3 */
-    --luigi-green: color(display-p3 0.26 0.69 0.28);        /* Luigi Green P3 (Tailwind reference) */
 
     /* Enhanced Star Yellow */
     --color-star: color(display-p3 1.0 0.85 0.0);           /* Star Yellow P3 */
-    --star-yellow: color(display-p3 1.0 0.85 0.0);          /* Star Yellow P3 (Tailwind reference) */
 
     /* Enhanced Coin Gold */
     --color-coin: color(display-p3 1.0 0.72 0.08);          /* Coin Gold P3 */
-    --coin-gold: color(display-p3 1.0 0.72 0.08);           /* Coin Gold P3 (Tailwind reference) */
+
+    /* Enhanced Coin Yellow */
+    --coin-yellow: color(display-p3 1.0 0.84 0.0);          /* Coin Yellow P3 */
 
     /* Enhanced Sky Blue */
     --color-sky: color(display-p3 0.65 0.85 1.0);           /* Sky Blue P3 */
-    --sky-blue: color(display-p3 0.65 0.85 1.0);            /* Sky Blue P3 (Tailwind reference) */
 
     /* Enhanced Super Blue */
     --color-super: color(display-p3 0.17 0.31 0.98);        /* Super Blue P3 */
 
     /* Enhanced Pipe Green */
     --color-pipe: color(display-p3 0.0 0.60 0.30);          /* Pipe Green P3 */
-    --pipe-green: color(display-p3 0.0 0.60 0.30);          /* Pipe Green P3 (Tailwind reference) */
 
     /* Enhanced Brick Brown */
-    --brick-brown: color(display-p3 0.61 0.35 0.09);        /* Brick Brown P3 */
+    --color-brick: color(display-p3 0.61 0.35 0.09);        /* Brick Brown P3 */
 
-    /* Enhanced trading colors - More vibrant on P3 displays */
-    --color-profit: color(display-p3 0.26 0.69 0.28);       /* Luigi Green P3 */
-    --color-loss: color(display-p3 0.90 0.15 0.13);         /* Mario Red P3 */
+    /* Trading colors reference brand colors */
+    --color-profit: var(--color-luigi);
+    --color-loss: var(--color-brand);
+    --color-buy: var(--color-luigi);
+    --color-sell: var(--color-brand);
 
-    /* Enhanced action colors - Maximum impact */
-    --color-buy: color(display-p3 0.26 0.69 0.28);          /* Luigi Green buy */
-    --color-sell: color(display-p3 0.90 0.15 0.13);         /* Mario Red sell */
-
-    /* Enhanced chart colors */
-    --color-chart-profit: color(display-p3 0.26 0.69 0.28); /* Luigi Green chart */
-    --color-chart-loss: color(display-p3 0.90 0.15 0.13);   /* Mario Red chart */
-    --color-chart-accent: color(display-p3 1.0 0.85 0.0);   /* Star Yellow chart */
+    /* Chart colors reference brand colors */
+    --color-chart-profit: var(--color-luigi);
+    --color-chart-loss: var(--color-brand);
+    --color-chart-accent: var(--color-star);
   }
 }
 

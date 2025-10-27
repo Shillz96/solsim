@@ -12,15 +12,42 @@
  */
 
 /* =============================================================================
+   COLOR-MIX REUSABLE TOKENS - DRY principle for common color mixes
+   ============================================================================= */
+
+:root {
+  /* Background mixes */
+  --panel-bg-dark: color-mix(in oklab, var(--background) 90%, black 10%);
+  --panel-bg-light: color-mix(in oklab, var(--background) 92%, transparent 8%);
+  --panel-bg-opaque: color-mix(in oklab, var(--background) 95%, transparent 5%);
+  --panel-bg-glass: color-mix(in oklab, var(--background) 70%, transparent 30%);
+  
+  /* Border mixes */
+  --panel-border-subtle: color-mix(in oklab, var(--foreground) 20%, transparent 80%);
+  --panel-border-medium: color-mix(in oklab, var(--foreground) 30%, transparent 70%);
+  
+  /* Card backgrounds */
+  --card-bg-elevated: color-mix(in oklab, var(--card) 95%, var(--background) 5%);
+  --card-bg-muted: color-mix(in oklab, var(--muted) 95%, var(--background) 5%);
+  
+  /* Shadow mixes */
+  --shadow-light: color-mix(in oklab, black 10%, transparent 90%);
+  --shadow-medium: color-mix(in oklab, black 25%, transparent 75%);
+  
+  /* Hover states */
+  --hover-overlay: color-mix(in oklab, var(--ring) 20%, transparent 80%);
+}
+
+/* =============================================================================
    PANEL FOUNDATION - Solid, readable backgrounds
    ============================================================================= */
 
 .panel {
   /* Mostly opaque background for readability */
-  background: color-mix(in oklab, var(--background) 90%, black 10%);
+  background: var(--panel-bg-dark);
   
   /* Subtle border for definition without overwhelming */
-  border: 1px solid color-mix(in oklab, var(--foreground) 20%, transparent 80%);
+  border: 1px solid var(--panel-border-subtle);
   
   /* Remove heavy blur effects that hurt mobile performance */
   backdrop-filter: none;
@@ -53,12 +80,12 @@
 }
 
 .panel:hover {
-  border-color: color-mix(in oklab, var(--foreground) 30%, transparent 70%);
+  border-color: var(--panel-border-medium);
 }
 
 .panel:focus-within {
   border-color: var(--ring);
-  box-shadow: 0 0 0 2px color-mix(in oklab, var(--ring) 20%, transparent 80%);
+  box-shadow: 0 0 0 2px var(--hover-overlay);
 }
 
 /* =============================================================================
@@ -67,14 +94,14 @@
 
 /* Login and authentication cards */
 .panel-auth {
-  background: color-mix(in oklab, var(--card) 95%, var(--background) 5%);
+  background: var(--card-bg-elevated);
   border: 1px solid var(--border);
-  box-shadow: 0 4px 6px -1px color-mix(in oklab, black 10%, transparent 90%);
+  box-shadow: 0 4px 6px -1px var(--shadow-light);
 }
 
 /* Trading interface panels */
 .panel-trading {
-  background: color-mix(in oklab, var(--background) 92%, var(--primary) 8%);
+  background: var(--panel-bg-light);
   border: 2px solid transparent;
   border-image: linear-gradient(to right, var(--color-buy), var(--color-sell)) 1;
   border-radius: 0.5rem;
@@ -82,7 +109,7 @@
 
 /* Portfolio and position display panels */
 .panel-portfolio {
-  background: color-mix(in oklab, var(--background) 92%, var(--secondary) 8%);
+  background: var(--panel-bg-light);
   border: 2px solid transparent;
   border-image: linear-gradient(to right, var(--color-buy), var(--color-sell)) 1;
   border-radius: 0.5rem;
@@ -90,19 +117,19 @@
 
 /* Data/chart panels */
 .panel-data {
-  background: color-mix(in oklab, var(--muted) 95%, var(--background) 5%);
+  background: var(--card-bg-muted);
   border: 1px solid var(--border);
 }
 
 /* Alert/notification panels */
 .panel-alert {
-  background: color-mix(in oklab, var(--background) 92%, var(--destructive) 8%);
+  background: var(--panel-bg-light);
   border: 1px solid color-mix(in oklab, var(--destructive) 15%, transparent 85%);
 }
 
 /* Success/positive panels */
 .panel-success {
-  background: color-mix(in oklab, var(--background) 92%, green 8%);
+  background: var(--panel-bg-light);
   border: 1px solid color-mix(in oklab, green 15%, transparent 85%);
 }
 
@@ -115,7 +142,7 @@
   z-index: var(--z-header);
   position: sticky;
   top: 0;
-  background: color-mix(in oklab, var(--background) 95%, transparent 5%);
+  background: var(--panel-bg-opaque);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   border-bottom: 1px solid var(--border);
@@ -140,30 +167,6 @@
   z-index: var(--z-sidebar);
   background: color-mix(in oklab, var(--background) 98%, var(--muted) 2%);
   border-right: 1px solid var(--border);
-}
-
-/* Modal components - DISABLED TO PREVENT CONFLICTS
-.modal-backdrop {
-  z-index: var(--z-modal-backdrop);
-  background: color-mix(in oklab, black 50%, transparent 50%);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-}
-
-.modal {
-  z-index: var(--z-modal);
-  background: var(--background);
-  border: 1px solid var(--border);
-  border-radius: 0.75rem;
-  box-shadow: 0 25px 50px -12px color-mix(in oklab, black 25%, transparent 75%);
-}
-
-.popover {
-  z-index: var(--z-popover);
-  background: var(--popover);
-  border: 1px solid var(--border);
-  border-radius: 0.5rem;
-  box-shadow: 0 10px 15px -3px color-mix(in oklab, black 10%, transparent 90%);
 }
 
 /* Tooltip components */

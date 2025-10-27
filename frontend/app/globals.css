@@ -1347,3 +1347,13 @@ a,
   }
 }
 
+/* Rewards Timer - Fixed positioning utility */
+.rewards-timer {
+  position: fixed;                /* not absolute */
+  top: 12px;                      /* tweak as you like */
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: var(--z-rewards-timer);
+  pointer-events: none;           /* remove if it's clickable */
+}
+
