@@ -817,7 +817,7 @@ export const UnifiedPositions = memo(function UnifiedPositions({
                       <Button
                         key={percent}
                         size="sm"
-                        onClick={() => onNavigate(position.mint, position.tokenSymbol, position.tokenName, 'sell', percent)}
+                        onClick={() => handleNavigate(position.mint, position.tokenSymbol, position.tokenName, 'sell', percent)}
                         className={cn(
                           "h-9 text-xs font-bold",
                           "bg-mario-red hover:bg-mario-red/90 text-white",
