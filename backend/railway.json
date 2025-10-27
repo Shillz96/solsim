@@ -5,9 +5,9 @@
     "buildCommand": "rm -rf node_modules/.prisma && npm install --omit=dev && npx prisma generate && npm run build"
   },
   "deploy": {
-    "healthcheckTimeout": 30,
+    "preDeployCommand": ["npx prisma migrate deploy"],
+    "healthcheckTimeout": 120,
     "restartPolicyType": "ON_FAILURE",
-    "restartPolicyMaxRetries": 5,
-    "restartPolicyDelay": 10
+    "restartPolicyMaxRetries": 5
   }
 }
