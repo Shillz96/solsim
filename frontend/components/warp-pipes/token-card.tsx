@@ -131,8 +131,8 @@ export function TokenCard({ data, onToggleWatch, className, enableLiveUpdates = 
           'transition-all duration-200'
         )}
       >
-        {/* Left: Token Image - Enlarged to 96x96 for better visibility */}
-        <div className="relative w-24 h-24 flex-shrink-0">
+        {/* Left: Token Image - Enlarged to 128x128 for maximum prominence */}
+        <div className="relative w-32 h-32 flex-shrink-0">
           {img && !imageError ? (
             <Image
               src={img}
@@ -259,28 +259,22 @@ export function TokenCard({ data, onToggleWatch, className, enableLiveUpdates = 
           </div>
         </div>
 
-        {/* Right: Stacked Stat Badges */}
-        <div className="flex flex-col gap-2 justify-center min-w-[140px]">
+        {/* Right: Compact Stat Badges (Horizontal) */}
+        <div className="flex gap-2 items-center">
           {/* Market Cap Badge */}
-          <div className="flex flex-col items-center px-4 py-2.5 bg-[var(--star-yellow)] border-3 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)] rounded-xl">
-            <span className="text-[9px] font-black text-[var(--outline-black)] opacity-70 mb-0.5">MARKET CAP</span>
-            <div className="flex items-center gap-1.5">
-              <span className="text-base">💰</span>
-              <span className="text-xl font-black text-[var(--outline-black)] whitespace-nowrap">
-                ${fmtCompact(mergedData.marketCapUsd)}
-              </span>
-            </div>
+          <div className="flex items-center gap-1 px-2.5 py-1.5 bg-[var(--star-yellow)] border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] rounded-lg">
+            <span className="text-xs">💰</span>
+            <span className="text-sm font-black text-[var(--outline-black)] whitespace-nowrap">
+              ${fmtCompact(mergedData.marketCapUsd)}
+            </span>
           </div>
 
           {/* Volume Badge */}
-          <div className="flex flex-col items-center px-4 py-2.5 bg-[var(--sky-blue)] border-3 border-[var(--outline-black)] shadow-[4px_4px_0_var(--outline-black)] rounded-xl">
-            <span className="text-[9px] font-black text-[var(--outline-black)] opacity-70 mb-0.5">24H VOLUME</span>
-            <div className="flex items-center gap-1.5">
-              <span className="text-base">📊</span>
-              <span className="text-xl font-black text-[var(--outline-black)] whitespace-nowrap">
-                ${fmtCompact(data.volume24h)}
-              </span>
-            </div>
+          <div className="flex items-center gap-1 px-2.5 py-1.5 bg-[var(--sky-blue)] border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] rounded-lg">
+            <span className="text-xs">📊</span>
+            <span className="text-sm font-black text-[var(--outline-black)] whitespace-nowrap">
+              ${fmtCompact(data.volume24h)}
+            </span>
           </div>
         </div>
       </div>
@@ -290,7 +284,7 @@ export function TokenCard({ data, onToggleWatch, className, enableLiveUpdates = 
 
 
 /**
- * Token Card Skeleton - Matches new three-column layout
+ * Token Card Skeleton - Matches new layout with larger image and compact badges
  */
 export function TokenCardSkeleton() {
   return (
@@ -302,8 +296,8 @@ export function TokenCardSkeleton() {
           'flex gap-4 animate-pulse'
         )}
       >
-        {/* Left: Image skeleton - 96x96 */}
-        <div className="w-24 h-24 bg-background/50 rounded-lg border-2 border-outline shrink-0" />
+        {/* Left: Image skeleton - 128x128 */}
+        <div className="w-32 h-32 bg-background/50 rounded-lg border-2 border-outline shrink-0" />
 
         {/* Middle: Info skeleton */}
         <div className="flex-1 space-y-1.5">
@@ -335,10 +329,10 @@ export function TokenCardSkeleton() {
           </div>
         </div>
 
-        {/* Right: Stacked badges skeleton */}
-        <div className="flex flex-col gap-2 justify-center min-w-[140px]">
-          <div className="h-16 bg-background/50 rounded-xl border-3 border-outline" />
-          <div className="h-16 bg-background/50 rounded-xl border-3 border-outline" />
+        {/* Right: Compact horizontal badges skeleton */}
+        <div className="flex gap-2 items-center">
+          <div className="h-8 w-20 bg-background/50 rounded-lg border-3 border-outline" />
+          <div className="h-8 w-16 bg-background/50 rounded-lg border-3 border-outline" />
         </div>
       </div>
     </div>

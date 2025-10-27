@@ -21,7 +21,6 @@ import * as api from '@/lib/api'
 // Import hooks
 import { useTradePanelState } from './hooks/useTradePanelState'
 import { useTradeExecution } from './hooks/useTradeExecution'
-import { usePositionPnL } from './hooks/usePositionPnL'
 
 // Import components
 import { TradePanelHeader } from './TradePanelHeader'
