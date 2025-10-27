@@ -118,7 +118,7 @@ export function ChatRoom({ tokenMint, className, headerImage, headerImageAlt = '
   const StatusIcon = status === 'connected' || status === 'connecting' ? Wifi : WifiOff
 
   return (
-    <div className={cn("flex flex-col h-full", className)}>
+    <div className={cn("flex flex-col h-full bg-white/80 backdrop-blur-sm", className)}>
       {/* Chat Header */}
       <div className="flex items-center justify-start mb-3 pb-3 border-b-3 border-outline">
         <div className="h-8 flex items-center">
@@ -137,16 +137,13 @@ export function ChatRoom({ tokenMint, className, headerImage, headerImageAlt = '
       {error && (
         <div className={cn(
           'p-3 border-b-4 border-outline flex items-center gap-2 flex-shrink-0',
-          'bg-mario shadow-[0_4px_0_rgba(0,0,0,0.2)]'
+          'bg-mario shadow-[0_4px_0_var(--outline-black)]'
         )}>
           <AlertCircle className="h-4 w-4 text-white" />
-          <span className={cn(marioStyles.bodyText('bold'), 'text-sm text-white flex-1')}>{error}</span>
+          <span className="text-sm font-mario font-bold text-white flex-1">{error}</span>
           <button
             onClick={clearError}
-            className={cn(
-              marioStyles.bodyText('bold'),
-              'text-white text-lg'
-            )}
+            className="text-white text-lg font-mario font-bold"
           >
             ✕
           </button>
@@ -167,21 +164,21 @@ export function ChatRoom({ tokenMint, className, headerImage, headerImageAlt = '
             <div className="w-16 h-16 rounded-2xl bg-[var(--color-sky)] border-3 border-outline flex items-center justify-center mb-3 shadow-[3px_3px_0_var(--outline-black)]">
               🔒
             </div>
-            <h3 className="text-base font-bold mb-1">Sign In to Chat</h3>
-            <p className="text-sm text-foreground opacity-70">Sign in to join the conversation</p>
+            <h3 className="text-base font-mario font-bold mb-1 text-outline">Sign In to Chat</h3>
+            <p className="text-sm text-foreground/70 font-bold">Sign in to join the conversation</p>
           </>
         ) : status === 'connecting' ? (
           <>
             <Loader2 className="h-10 w-10 animate-spin text-luigi mb-4" />
-            <h3 className="text-base font-bold">Connecting to chat...</h3>
+            <h3 className="text-base font-mario font-bold text-outline">Connecting to chat...</h3>
           </>
         ) : messages.length === 0 ? (
           <>
             <div className="w-16 h-16 rounded-2xl bg-[var(--color-sky)] border-3 border-outline flex items-center justify-center mb-3 shadow-[3px_3px_0_var(--outline-black)]">
               <Users className="w-8 h-8 text-outline" />
             </div>
-            <h3 className="text-base font-bold mb-1">No messages yet</h3>
-            <p className="text-sm text-foreground opacity-70">Be the first to say something!</p>
+            <h3 className="text-base font-mario font-bold mb-1 text-outline">No messages yet</h3>
+            <p className="text-sm text-foreground/70 font-bold">Be the first to say something!</p>
           </>
         ) : (
           <div className="w-full space-y-4">
@@ -225,7 +222,7 @@ export function ChatRoom({ tokenMint, className, headerImage, headerImageAlt = '
           </button>
         </div>
         {user && inputValue && (
-          <div className={cn(marioStyles.bodyText('medium'), 'text-[10px] text-[var(--outline-black)]/60 mt-2 text-right')}>
+          <div className="text-[10px] text-[var(--outline-black)]/60 mt-2 text-right font-bold">
             {inputValue.length}/280
           </div>
         )}

@@ -316,12 +316,12 @@ function TradeRoomContent() {
           {/* MOBILE LAYOUT */}
           <div className="md:hidden flex flex-col w-full gap-4">
             {/* Chart */}
-            <div className="bg-sky/20 border-4 border-outline rounded-xl shadow-[6px_6px_0_var(--outline-black)] p-4 min-h-[400px]">
+            <div className="min-h-[400px] h-[400px] overflow-hidden rounded-xl border-4 border-outline shadow-[6px_6px_0_var(--outline-black)]">
               <DexScreenerChart tokenAddress={ca} />
             </div>
 
             {/* Market Data Panels */}
-            <div className="bg-sky/20 border-4 border-outline rounded-xl shadow-[6px_6px_0_var(--outline-black)] p-4">
+            <div className="flex-1 overflow-hidden">
               <MarketDataPanels tokenMint={ca} />
             </div>
           </div>
@@ -355,12 +355,8 @@ function TradeRoomContent() {
           {/* DESKTOP/TABLET LAYOUT - 3 Columns */}
           <div className="hidden md:flex w-full gap-4">
             {/* Left: Chat Panel */}
-            <aside className="w-80 flex-shrink-0">
-              <div className="bg-sky/20 border-4 border-outline rounded-xl shadow-[6px_6px_0_var(--outline-black)] p-4 h-full">
-                <div className="flex items-center gap-2 mb-4">
-                  <Image src="/icons/mario/speech-bubble.png" alt="Chat" width={24} height={24} />
-                  <h3 className="text-lg font-mario font-bold text-outline">CHAT</h3>
-                </div>
+            <aside className="w-80 flex-shrink-0 flex flex-col">
+              <div className="bg-sky/20 border-4 border-outline rounded-xl shadow-[6px_6px_0_var(--outline-black)] h-full overflow-hidden flex flex-col">
                 <ChatRoom tokenMint={ca} />
               </div>
             </aside>
@@ -368,33 +364,19 @@ function TradeRoomContent() {
             {/* Center: Market Data Panel with Chart */}
             <section className="flex-1 min-w-0 flex flex-col gap-4">
               {/* Chart */}
-              <div className="bg-sky/20 border-4 border-outline rounded-xl shadow-[6px_6px_0_var(--outline-black)] p-4 flex-1 min-h-[400px]">
-                <div className="flex items-center gap-2 mb-4">
-                  <Image src="/icons/mario/chart.png" alt="Chart" width={24} height={24} />
-                  <h3 className="text-lg font-mario font-bold text-outline">PRICE CHART</h3>
-                </div>
-                <div className="h-[calc(100%-3rem)] overflow-hidden rounded-lg">
-                  <DexScreenerChart tokenAddress={ca} />
-                </div>
+              <div className="flex-1 min-h-[400px] overflow-hidden rounded-xl border-4 border-outline shadow-[6px_6px_0_var(--outline-black)]">
+                <DexScreenerChart tokenAddress={ca} />
               </div>
 
               {/* Market Data Tabs */}
-              <div className="bg-sky/20 border-4 border-outline rounded-xl shadow-[6px_6px_0_var(--outline-black)] p-4 flex-1">
-                <div className="flex items-center gap-2 mb-4">
-                  <Image src="/icons/mario/fire.png" alt="Market" width={24} height={24} />
-                  <h3 className="text-lg font-mario font-bold text-outline">MARKET DATA</h3>
-                </div>
+              <div className="flex-1 overflow-hidden">
                 <MarketDataPanels tokenMint={ca} />
               </div>
             </section>
 
             {/* Right: Trade Panel */}
-            <aside className="w-80 flex-shrink-0">
-              <div className="bg-sky/20 border-4 border-outline rounded-xl shadow-[6px_6px_0_var(--outline-black)] p-4 h-full overflow-y-auto">
-                <div className="flex items-center gap-2 mb-4">
-                  <Image src="/icons/mario/coin.png" alt="Trade" width={24} height={24} />
-                  <h3 className="text-lg font-mario font-bold text-outline">TRADE</h3>
-                </div>
+            <aside className="w-80 flex-shrink-0 flex flex-col">
+              <div className="bg-sky/20 border-4 border-outline rounded-xl shadow-[6px_6px_0_var(--outline-black)] flex-1 overflow-y-auto">
                 <TradePanel
                   tokenAddress={ca}
                   volume24h={volume24h}
