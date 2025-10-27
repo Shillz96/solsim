@@ -120,12 +120,16 @@ export default function TrendingPage() {
           transition={{ duration: 0.6 }}
           className="text-center mb-8"
         >
-          <h1 className="font-display text-5xl md:text-6xl text-mario mb-4" 
-              style={{ 
-                textShadow: '3px 3px 0 var(--outline-black), 0 0 20px rgba(229, 37, 33, 0.3)'
-              }}>
-            🔥 TRENDING TOKENS 🔥
-          </h1>
+          <div className="mb-6 flex justify-center">
+            <Image 
+              src="/Trending-tokens-header.png" 
+              alt="Trending Tokens" 
+              width={600} 
+              height={150}
+              className="max-w-full h-auto"
+              priority
+            />
+          </div>
           <p className="font-body text-lg text-foreground/80 max-w-2xl mx-auto">
             Discover the hottest memecoins on Solana. Real-time data, live rankings, and instant trading.
           </p>
@@ -286,7 +290,7 @@ export default function TrendingPage() {
                           onClick={() => handleSort("trendScore")}
                           className="flex items-center hover:text-mario transition-colors font-body"
                         >
-                          🔥 Trend
+                          ⭐ Trend
                           <SortIcon field="trendScore" />
                         </button>
                       </th>

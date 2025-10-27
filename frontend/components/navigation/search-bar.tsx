@@ -146,11 +146,8 @@ export function SearchBar() {
         <PopoverContent
           align="start"
           className={cn(
-            'w-full p-0 bg-card max-h-80 overflow-y-auto z-search-dropdown',
-            marioStyles.border('lg'),
-            'border-outline',
-            marioStyles.shadowLg,
-            marioStyles.rounded('xl')
+            'dropdown-base dropdown-search z-search-dropdown',
+            'dropdown-animate-in'
           )}
           sideOffset={8}
         >
@@ -163,12 +160,7 @@ export function SearchBar() {
                 transition={{ duration: 0.15 }}
               >
                 <div className="p-1.5 md:p-2">
-                  <div className={cn(
-                    marioStyles.heading(4),
-                    'text-[10px] md:text-xs text-muted-foreground px-2 py-1.5 md:py-2',
-                    marioStyles.border('sm'),
-                    'border-b border-outline mb-1 uppercase tracking-wide'
-                  )}>
+                  <div className="dropdown-header">
                     Search Results
                   </div>
                   {searchResults.map((token, index) => (
@@ -180,10 +172,8 @@ export function SearchBar() {
                         handleTokenSelect(token)
                       }}
                       className={cn(
-                        "w-full text-left px-2 md:px-3 py-2 md:py-2.5 rounded-lg border-2 transition-colors duration-150 focus:outline-none",
-                        selectedResultIndex === index
-                          ? "bg-star/30 border-outline"
-                          : "hover:bg-star/20 border-transparent hover:border-outline focus:bg-star/20 focus:border-outline"
+                        "dropdown-item w-full text-left",
+                        selectedResultIndex === index && "bg-star/30"
                       )}
                     >
                       <div className="flex items-center justify-between">

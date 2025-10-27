@@ -1118,6 +1118,162 @@ a,
   animation: coin-bounce-loop 2s ease-in-out infinite;
 }
 
+/* ============================================
+   DROPDOWN/POPUP SYSTEM - Universal navbar popup styling
+   ============================================ */
+
+/* Base Dropdown Container */
+.dropdown-base,
+.mario-dropdown {
+  background: var(--dropdown-bg);
+  border: var(--dropdown-border);
+  border-radius: var(--dropdown-radius);
+  box-shadow: var(--dropdown-shadow);
+  padding: var(--dropdown-padding);
+  transition: var(--dropdown-transition);
+  position: relative;
+  z-index: var(--z-dropdown);
+  min-width: 200px;
+  max-width: 400px;
+}
+
+/* Floating edge highlight for dropdowns */
+.dropdown-base::before,
+.mario-dropdown::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+/* Dropdown Item */
+.dropdown-item {
+  padding: var(--dropdown-item-padding);
+  border-radius: var(--dropdown-item-radius);
+  transition: var(--dropdown-transition);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-family: var(--font-body);
+  font-weight: 500;
+  color: var(--foreground);
+  text-decoration: none;
+  border: 2px solid transparent;
+}
+
+.dropdown-item:hover {
+  background: var(--dropdown-item-hover-bg);
+  border-color: var(--outline-black);
+  transform: translateX(2px);
+}
+
+.dropdown-item:active {
+  background: var(--dropdown-item-active-bg);
+  transform: scale(0.98);
+}
+
+/* Dropdown Item Variants */
+.dropdown-item-danger:hover {
+  background: color-mix(in oklab, var(--mario-red) 15%, transparent 85%);
+  border-color: var(--mario-red);
+  color: var(--mario-red);
+}
+
+.dropdown-item-success:hover {
+  background: color-mix(in oklab, var(--luigi-green) 15%, transparent 85%);
+  border-color: var(--luigi-green);
+  color: var(--luigi-green);
+}
+
+/* Dropdown Separator */
+.dropdown-separator {
+  height: 0;
+  margin: 0.5rem 0;
+  border-top: var(--dropdown-separator);
+}
+
+/* Dropdown Header */
+.dropdown-header {
+  padding: 0.5rem 1rem;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 0.875rem;
+  color: var(--outline-black);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Dropdown Footer */
+.dropdown-footer {
+  padding: 0.75rem 1rem;
+  border-top: var(--dropdown-separator);
+  margin-top: 0.5rem;
+}
+
+/* Search Dropdown Specific */
+.dropdown-search {
+  min-width: 320px;
+  max-width: 480px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+/* Profile Dropdown Specific */
+.dropdown-profile {
+  min-width: 240px;
+}
+
+/* Notification Dropdown Specific */
+.dropdown-notifications {
+  min-width: 320px;
+  max-width: 420px;
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+/* Dropdown Animation Variants */
+@keyframes dropdownSlideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dropdown-animate-in {
+  animation: dropdownSlideDown 0.2s ease-out;
+}
+
+/* Dropdown Scrollbar Styling */
+.dropdown-search::-webkit-scrollbar,
+.dropdown-notifications::-webkit-scrollbar {
+  width: 8px;
+}
+
+.dropdown-search::-webkit-scrollbar-track,
+.dropdown-notifications::-webkit-scrollbar-track {
+  background: var(--muted);
+  border-radius: 4px;
+}
+
+.dropdown-search::-webkit-scrollbar-thumb,
+.dropdown-notifications::-webkit-scrollbar-thumb {
+  background: var(--outline-black);
+  border-radius: 4px;
+  border: 2px solid var(--muted);
+}
+
+.dropdown-search::-webkit-scrollbar-thumb:hover,
+.dropdown-notifications::-webkit-scrollbar-thumb:hover {
+  background: var(--mario-red);
+}
+
 /* Viewport Utilities */
 @layer utilities {
   .h-dvh-screen {

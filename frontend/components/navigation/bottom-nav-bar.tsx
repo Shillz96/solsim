@@ -418,7 +418,7 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
                   <DropdownMenuContent
                     align="center"
                     side="top"
-                    className="bg-card border-3 border-outline shadow-[4px_4px_0_var(--outline-black)] mb-2 z-bottom-nav"
+                    className="dropdown-base dropdown-animate-in mb-2 z-bottom-nav"
                     sideOffset={8}
                   >
                     {infoItems.map((item) => (
@@ -426,7 +426,7 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
                         <Link
                           href={item.href}
                           className={cn(
-                            "flex items-center gap-2 px-3 py-2 cursor-pointer font-mario",
+                            "dropdown-item",
                             pathname === item.href && "bg-primary/10"
                           )}
                         >
@@ -566,7 +566,7 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
                 <DropdownMenuContent
                   align="center"
                   side="top"
-                  className="bg-card border-3 border-outline shadow-[4px_4px_0_var(--outline-black)] mb-2 z-bottom-nav"
+                  className="dropdown-base dropdown-animate-in mb-2 z-bottom-nav"
                   sideOffset={8}
                 >
                   {infoItems.map((item) => (
@@ -574,7 +574,7 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
                       <Link
                         href={item.href}
                         className={cn(
-                          "flex items-center gap-2 px-3 py-2 cursor-pointer font-mario",
+                          "dropdown-item",
                           pathname === item.href && "bg-primary/10"
                         )}
                       >

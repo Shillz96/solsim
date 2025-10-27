@@ -315,5 +315,22 @@
  * Raw CSS custom properties:
  * <div style={{ color: 'var(--color-buy)' }} />
  *
+ * Dropdown/Popup System:
+ * <div className="dropdown-base dropdown-animate-in">
+ *   <div className="dropdown-header">Menu Title</div>
+ *   <a href="#" className="dropdown-item">
+ *     <Icon /> Item Label
+ *   </a>
+ *   <div className="dropdown-separator"></div>
+ *   <a href="#" className="dropdown-item dropdown-item-danger">
+ *     <Icon /> Logout
+ *   </a>
+ * </div>
+ *
+ * Specific dropdown types:
+ * - dropdown-search: For search results
+ * - dropdown-profile: For user profile menu
+ * - dropdown-notifications: For notification panel
+ *
  * Both automatically get P3 enhancement on capable displays!
  */

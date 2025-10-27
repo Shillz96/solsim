@@ -155,7 +155,7 @@ export function CombinedProfileBalance({
           </motion.button>
         </DropdownMenuTrigger>
 
-        <DropdownMenuContent align="end" className="w-80 max-h-[60vh] overflow-y-auto scrollbar-none bg-card border border-[var(--color-border)] shadow-[var(--shadow-dropdown)] z-profile-dropdown">
+        <DropdownMenuContent align="end" className="dropdown-base dropdown-profile z-profile-dropdown">
           <DropdownMenuLabel>My Account</DropdownMenuLabel>
 
           {/* Account Balance Overview */}
