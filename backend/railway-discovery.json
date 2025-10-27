@@ -6,9 +6,10 @@
   },
   "deploy": {
     "startCommand": "npm run railway:discovery",
-    "healthcheckTimeout": 10,
+    "healthcheckTimeout": 30,
     "restartPolicyType": "ON_FAILURE",
-    "restartPolicyMaxRetries": 3
+    "restartPolicyMaxRetries": 5,
+    "restartPolicyDelay": 10
   }
 }
 

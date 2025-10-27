@@ -47,9 +47,11 @@ export class HeliusTradeStreamService extends EventEmitter {
   constructor() {
     super();
 
-    // Increase max listeners to prevent memory leak warnings (default is 10)
-    // Multiple components may subscribe to trade events for different tokens
-    this.setMaxListeners(20);
+    // CRITICAL: Set high max listeners for shared singleton instance
+    // Multiple services subscribe to trade events for different tokens:
+    // - walletTrackerService, marketLighthouseWorker, tokenDiscoveryWorker, etc.
+    // This is intentional event-driven architecture, not a memory leak.
+    this.setMaxListeners(100); // Support 100+ concurrent listeners
 
     // Check multiple possible env var names
     this.heliusApiKey = process.env.HELIUS_API_KEY || process.env.HELIUS_API || '';

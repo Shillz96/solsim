@@ -327,18 +327,28 @@ const gracefulShutdown = async (signal: string) => {
   console.log(`\n🛑 Received ${signal}, starting graceful shutdown...`);
 
   try {
-    // Stop accepting new connections
+    // 1. Stop accepting new connections (but finish existing requests)
+    console.log('⏹️  Closing server to new connections...');
     await app.close();
     
-    // Stop background services
+    // 2. Stop background services (order matters - stop producers first)
     console.log('⏹️  Stopping background services...');
     NonceCleanupService.stop();
     RateLimitCleanupService.stop();
-    await priceService.stop();
-    await liquidationEngine.stopLiquidationEngine();
     marketLighthouseWorker.stop();
     stopCMCRefresh();
     stopSentimentRefresh();
+    
+    // 3. Stop real-time services
+    await priceService.stop();
+    await liquidationEngine.stopLiquidationEngine();
+    
+    // 4. Disconnect from databases with timeout
+    console.log('⏹️  Disconnecting from databases...');
+    await Promise.race([
+      prisma.$disconnect(),
+      new Promise(resolve => setTimeout(resolve, 10000)) // 10s timeout
+    ]);
 
     console.log('✅ Graceful shutdown completed');
     process.exit(0);

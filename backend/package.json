@@ -13,7 +13,7 @@
     "start:discovery": "node --max-old-space-size=512 dist/workers/tokenDiscoveryWorker.js",
     "railway:start": "prisma migrate deploy && node --max-old-space-size=4096 dist/index.js",
     "railway:worker": "prisma generate && node --max-old-space-size=1536 dist/worker.js",
-    "railway:discovery": "prisma generate && node --max-old-space-size=512 dist/workers/tokenDiscoveryWorker.js",
+    "railway:discovery": "prisma generate && node --max-old-space-size=768 dist/workers/tokenDiscoveryWorker.js",
     "prisma:setup": "prisma generate && prisma migrate deploy",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate deploy",

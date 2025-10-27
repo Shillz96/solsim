@@ -40,6 +40,10 @@ const TOKEN_TTL = 7200; // 2 hours cache
 const NEW_TOKEN_RETENTION_HOURS = 24; // Remove NEW tokens after 24h
 const BONDED_TOKEN_RETENTION_HOURS = 12; // Remove BONDED tokens older than 12 hours
 
+// Track intervals for cleanup during shutdown
+const intervals: NodeJS.Timeout[] = [];
+let isShuttingDown = false;
+
 // Transaction counting - track swap events per token
 const txCountMap = new Map<string, Set<string>>(); // mint -> Set of transaction signatures
 
@@ -1125,22 +1129,32 @@ async function startWorker(): Promise<void> {
     // Schedule background jobs
     console.log('⏰ Scheduling background jobs...');
 
-    // Market data + state classification update (every 30 seconds)
-    setInterval(updateMarketDataAndStates, 30_000);
-
-    setInterval(recalculateHotScores, HOT_SCORE_UPDATE_INTERVAL);
-    setInterval(syncWatcherCounts, WATCHER_SYNC_INTERVAL);
-    setInterval(cleanupOldTokens, CLEANUP_INTERVAL);
-    setInterval(updateHolderCounts, HOLDER_COUNT_UPDATE_INTERVAL);
+    intervals.push(setInterval(updateMarketDataAndStates, 30_000));
+    intervals.push(setInterval(recalculateHotScores, HOT_SCORE_UPDATE_INTERVAL));
+    intervals.push(setInterval(syncWatcherCounts, WATCHER_SYNC_INTERVAL));
+    intervals.push(setInterval(cleanupOldTokens, CLEANUP_INTERVAL));
+    intervals.push(setInterval(updateHolderCounts, HOLDER_COUNT_UPDATE_INTERVAL));
 
     // Subscribe to active tokens for trade data (every 5 minutes)
-    setInterval(subscribeToActiveTokens, 5 * 60 * 1000);
+    intervals.push(setInterval(subscribeToActiveTokens, 5 * 60 * 1000));
     // Run immediately on startup
     setTimeout(subscribeToActiveTokens, 5000);
     // Also run holder count update shortly after startup
     setTimeout(updateHolderCounts, 10000);
 
     console.log('✅ Background jobs scheduled');
+    
+    // Health check reporting (for Railway monitoring)
+    intervals.push(setInterval(() => {
+      console.log('[Health] Token Discovery Worker alive', {
+        subscribedTokens: pumpPortalStreamService.getSubscribedTokenCount(),
+        subscribedWallets: pumpPortalStreamService.getSubscribedWalletCount(),
+        pumpPortalConnected: pumpPortalStreamService.isConnected,
+        uptime: Math.floor(process.uptime()),
+        memoryUsage: Math.floor(process.memoryUsage().heapUsed / 1024 / 1024) + 'MB'
+      });
+    }, 60000)); // Every 60 seconds
+    
     console.log('');
     console.log('🎮 Token Discovery Worker is running!');
     console.log('   - Listening to PumpPortal (bonded, migration)');
@@ -1161,20 +1175,54 @@ async function startWorker(): Promise<void> {
 // GRACEFUL SHUTDOWN
 // ============================================================================
 
-async function shutdown(): Promise<void> {
-  console.log('🛑 Token Discovery Worker shutting down...');
-
-  pumpPortalStreamService.stop();
-  await raydiumStreamService.stop();
-  await prisma.$disconnect();
-  await redis.quit();
-
-  console.log('✅ Token Discovery Worker stopped');
-  process.exit(0);
+async function shutdown(signal: string): Promise<void> {
+  if (isShuttingDown) {
+    console.log('[TokenDiscovery] Shutdown already in progress...');
+    return;
+  }
+  
+  isShuttingDown = true;
+  console.log(`🛑 Token Discovery Worker shutting down (${signal})...`);
+  
+  try {
+    // 1. Stop accepting new work - clear all intervals
+    console.log('[TokenDiscovery] Clearing background job intervals...');
+    intervals.forEach(interval => clearInterval(interval));
+    
+    // 2. Stop accepting new events
+    console.log('[TokenDiscovery] Removing event listeners...');
+    pumpPortalStreamService.removeAllListeners();
+    raydiumStreamService.removeAllListeners();
+    
+    // 3. Give in-flight operations time to complete (5 second grace period)
+    console.log('[TokenDiscovery] Waiting for in-flight operations...');
+    await new Promise(resolve => setTimeout(resolve, 5000));
+    
+    // 4. Stop streaming services
+    console.log('[TokenDiscovery] Stopping streaming services...');
+    pumpPortalStreamService.stop();
+    await raydiumStreamService.stop();
+    
+    // 5. Disconnect from databases with timeout
+    console.log('[TokenDiscovery] Disconnecting from databases...');
+    await Promise.race([
+      Promise.all([
+        prisma.$disconnect(),
+        redis.quit()
+      ]),
+      new Promise((resolve) => setTimeout(resolve, 10000)) // 10s timeout
+    ]);
+    
+    console.log('✅ Token Discovery Worker stopped gracefully');
+    process.exit(0);
+  } catch (error) {
+    console.error('❌ Error during shutdown:', error);
+    process.exit(1);
+  }
 }
 
-process.on('SIGTERM', shutdown);
-process.on('SIGINT', shutdown);
+process.on('SIGTERM', () => shutdown('SIGTERM'));
+process.on('SIGINT', () => shutdown('SIGINT'));
 
 // ============================================================================
 // START
