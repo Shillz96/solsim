@@ -20,7 +20,7 @@ import Redis from 'ioredis';
 import { pumpPortalStreamService, NewTokenEvent, MigrationEvent, SwapEvent } from '../services/pumpPortalStreamService.js';
 import { raydiumStreamService, NewPoolEvent } from '../services/raydiumStreamService.js';
 import { healthCapsuleService } from '../services/healthCapsuleService.js';
-import { tokenMetadataService } from '../services/tokenMetadataService.js';
+import { tokenMetadataService, TokenMetadata } from '../services/tokenMetadataService.js';
 import { holderCountService } from '../services/holderCountService.js';
 import priceServiceClient from '../plugins/priceServiceClient.js';
 import { loggers, truncateWallet, logTokenEvent, logBatchOperation } from '../utils/logger.js';
@@ -52,6 +52,16 @@ class TokenDiscoveryConfig {
   static readonly MIN_HOLDERS_COUNT = 25;
   static readonly MAX_TRADES_PER_TOKEN = 50;
   static readonly MAX_ACTIVE_TOKENS_SUBSCRIPTION = 200;
+  
+  // State classification thresholds
+  static readonly DEAD_TOKEN_HOURS = 2; // Hours since last trade to consider dead
+  static readonly MIN_DEAD_VOLUME_SOL = 0.5; // Minimum volume to not be dead
+  static readonly ACTIVE_TOKEN_HOURS = 1; // Hours for a token to be considered active
+  static readonly ABOUT_TO_BOND_PROGRESS = 90; // Bonding curve % to be "about to bond"
+  static readonly ABOUT_TO_BOND_MINUTES = 20; // Max minutes since last trade
+  static readonly GRADUATING_MIN_PROGRESS = 50; // Min % for graduating state
+  static readonly GRADUATING_MAX_PROGRESS = 100; // Max % for graduating state
+  static readonly NEW_TOKEN_MAX_PROGRESS = 50; // Max % for new token state
 }
 
 // ============================================================================
@@ -69,88 +79,24 @@ let isShuttingDown = false;
 const txCountMap = new Map<string, Set<string>>(); // mint -> Set of transaction signatures
 
 // ============================================================================
-// SERVICE CLASSES
+// HELPER FUNCTIONS
 // ============================================================================
 
 /**
- * Handles token metadata operations
+ * Helper to build optional fields object from source data
  */
-class TokenMetadataService {
-  /**
-   * Fetch and parse token metadata from IPFS URI
-   */
-  async fetchTokenMetadata(uri: string): Promise<{
-    description?: string;
-    twitter?: string;
-    telegram?: string;
-    website?: string;
-    image?: string;
-  }> {
-    try {
-      if (!uri) return {};
-
-      // Convert IPFS URI to HTTP gateway URL
-      const httpUri = uri.startsWith('ipfs://')
-        ? uri.replace('ipfs://', 'https://ipfs.io/ipfs/')
-        : uri;
-
-      const response = await fetch(httpUri, { 
-        signal: AbortSignal.timeout(5000) // 5 second timeout
-      });
-      
-      if (!response.ok) {
-        console.warn(`[TokenDiscovery] Failed to fetch metadata: ${response.status}`);
-        return {};
-      }
-
-      const metadata = await response.json();
-      
-      return {
-        description: metadata.description || undefined,
-        twitter: metadata.twitter || metadata.social?.twitter || undefined,
-        telegram: metadata.telegram || metadata.social?.telegram || undefined,
-        website: metadata.website || metadata.external_url || undefined,
-        image: metadata.image ? (this.convertIPFStoHTTP(metadata.image) || undefined) : undefined,
-      };
-    } catch (error: any) {
-      // Silently skip common errors (timeouts, network issues, 404s)
-      const isExpectedError =
-        error.name === 'AbortError' ||
-        error.name === 'TimeoutError' ||
-        error.code === 'ENOTFOUND' ||
-        error.message?.includes('fetch failed');
-
-      if (!isExpectedError) {
-        console.error('[TokenDiscovery] Unexpected metadata error:', error.message);
-      }
-      return {};
+function buildOptionalFields<T extends Record<string, any>>(
+  source: Record<string, any>,
+  fields: (keyof T)[]
+): Partial<T> {
+  const result: Partial<T> = {};
+  for (const field of fields) {
+    const value = source[field as string];
+    if (value !== undefined && value !== null) {
+      result[field] = value;
     }
   }
-
-  /**
-   * Convert IPFS URI to HTTP gateway URL
-   */
-  convertIPFStoHTTP(uri: string | undefined | null): string | null {
-    if (!uri) return null;
-
-    // Already an HTTP URL
-    if (uri.startsWith('http://') || uri.startsWith('https://')) {
-      return uri;
-    }
-
-    // Convert ipfs:// protocol to HTTP gateway
-    if (uri.startsWith('ipfs://')) {
-      const ipfsHash = uri.replace('ipfs://', '');
-      return `https://ipfs.io/ipfs/${ipfsHash}`;
-    }
-
-    // If it's just a hash, prepend the gateway
-    if (uri.match(/^[a-zA-Z0-9]{46,59}$/)) {
-      return `https://ipfs.io/ipfs/${uri}`;
-    }
-
-    return uri;
-  }
+  return result;
 }
 
 /**
@@ -198,38 +144,43 @@ class TokenStateManager {
     hasFirstTrade?: boolean;
   }): string {
     const now = Date.now();
-    
-    // Graduated tokens
     const progress = token.bondingCurveProgress ? parseFloat(token.bondingCurveProgress.toString()) : 0;
-    if (progress >= 100 || token.isGraduated) {
+    
+    // Early return: Graduated tokens
+    if (progress >= TokenDiscoveryConfig.GRADUATING_MAX_PROGRESS || token.isGraduated) {
       return 'BONDED';
     }
     
-    // Check if token has any trades
+    // Early return: No trades yet
     if (!token.hasFirstTrade || !token.lastTradeTs) {
       return 'LAUNCHING';
     }
     
+    // Calculate metrics once
     const timeSinceLastTrade = now - token.lastTradeTs.getTime();
     const volume24h = token.volume24hSol ? parseFloat(token.volume24hSol.toString()) : 0;
     const holders = token.holderCount || 0;
     
-    // About to bond
-    if (progress >= 90 && timeSinceLastTrade < 20 * 60 * 1000) {
+    // Early return: About to bond (high progress + recent activity)
+    const aboutToBondWindow = TokenDiscoveryConfig.ABOUT_TO_BOND_MINUTES * 60 * 1000;
+    if (progress >= TokenDiscoveryConfig.ABOUT_TO_BOND_PROGRESS && timeSinceLastTrade < aboutToBondWindow) {
       return 'ABOUT_TO_BOND';
     }
     
-    // Dead tokens
-    const isDead = timeSinceLastTrade > 2 * 60 * 60 * 1000 || volume24h < 0.5;
-    if (isDead) {
+    // Early return: Dead tokens (old OR low volume)
+    const deadTokenWindow = TokenDiscoveryConfig.DEAD_TOKEN_HOURS * 60 * 60 * 1000;
+    if (timeSinceLastTrade > deadTokenWindow || volume24h < TokenDiscoveryConfig.MIN_DEAD_VOLUME_SOL) {
       return 'DEAD';
     }
     
-    // Active tokens (alive and trading)
-    const isFresh = timeSinceLastTrade < 60 * 60 * 1000;
-    const isAlive = isFresh && volume24h >= TokenDiscoveryConfig.MIN_ACTIVE_VOLUME_SOL && holders >= TokenDiscoveryConfig.MIN_HOLDERS_COUNT;
+    // Check if active: recent trades + sufficient volume + holders
+    const activeTokenWindow = TokenDiscoveryConfig.ACTIVE_TOKEN_HOURS * 60 * 60 * 1000;
+    const hasRecentActivity = timeSinceLastTrade < activeTokenWindow;
+    const hasMinVolume = volume24h >= TokenDiscoveryConfig.MIN_ACTIVE_VOLUME_SOL;
+    const hasMinHolders = holders >= TokenDiscoveryConfig.MIN_HOLDERS_COUNT;
     
-    return isAlive ? 'ACTIVE' : 'LAUNCHING';
+    // Return ACTIVE if all conditions met, otherwise LAUNCHING
+    return (hasRecentActivity && hasMinVolume && hasMinHolders) ? 'ACTIVE' : 'LAUNCHING';
   }
 
   /**
@@ -289,7 +240,7 @@ class TokenStateManager {
         // });
       }
     } catch (error) {
-      console.error(`[TokenDiscovery] Error notifying watchers for ${mint}:`, error);
+      logger.error({ mint: truncateWallet(mint), error }, 'Error notifying watchers');
     }
   }
 }
@@ -341,7 +292,7 @@ class TokenCacheManager {
         mint
       );
     } catch (error) {
-      console.error(`[TokenDiscovery] Error caching token ${mint}:`, error);
+      logger.error({ mint: truncateWallet(mint), error }, 'Error caching token');
     }
   }
 
@@ -425,7 +376,7 @@ class TokenHealthEnricher {
 
       logger.debug({ mint: truncateWallet(mint) }, 'Health data enriched for token');
     } catch (error) {
-      console.error(`[TokenDiscovery] Error enriching health data for ${mint}:`, error);
+      logger.error({ mint: truncateWallet(mint), error }, 'Error enriching health data');
     }
   }
 
@@ -454,7 +405,7 @@ class TokenHealthEnricher {
 
       return Math.round(hotScore);
     } catch (error) {
-      console.error(`[TokenDiscovery] Error calculating hot score for ${mint}:`, error);
+      logger.error({ mint: truncateWallet(mint), error }, 'Error calculating hot score');
       return 0;
     }
   }
@@ -464,7 +415,6 @@ class TokenHealthEnricher {
 // SERVICE INSTANCES
 // ============================================================================
 
-const metadataService = new TokenMetadataService();
 const stateManager = new TokenStateManager(prisma, redis);
 const cacheManager = new TokenCacheManager(prisma, redis);
 const healthEnricher = new TokenHealthEnricher(prisma, cacheManager);
@@ -489,11 +439,11 @@ async function handleSwap(event: SwapEvent): Promise<void> {
 
       // Validate date is reasonable (between 2020 and 2050)
       if (tradeDate.getFullYear() < 2020 || tradeDate.getFullYear() > 2050) {
-        console.warn(`[TokenDiscovery] Invalid timestamp for ${mint}: ${timestamp} -> ${tradeDate.toISOString()}`);
+        logger.warn({ mint: truncateWallet(mint), timestamp, parsed: tradeDate.toISOString() }, 'Invalid timestamp');
         tradeDate = new Date(); // Fallback to current time
       }
     } catch (error) {
-      console.error(`[TokenDiscovery] Error parsing timestamp ${timestamp}:`, error);
+      logger.error({ timestamp, error }, 'Error parsing timestamp');
       tradeDate = new Date();
     }
 
@@ -557,13 +507,11 @@ async function handleSwap(event: SwapEvent): Promise<void> {
       txCountMap.set(mint, new Set());
     }
 
-    txCountMap.get(mint)!.add(txId);
+      txCountMap.get(mint)!.add(txId);
   } catch (error) {
-    console.error('[TokenDiscovery] Error handling swap event:', error);
+    logger.error({ error }, 'Error handling swap event');
   }
-}
-
-// ============================================================================
+}// ============================================================================
 // EVENT HANDLERS
 // ============================================================================
 
@@ -610,11 +558,12 @@ async function handleNewToken(event: NewTokenEvent): Promise<void> {
       const progress = parseFloat(bondingCurveProgress.toString());
 
       // NEW: Brand new launches (< 50% progress)
-      if (progress < 50) {
+      if (progress < TokenDiscoveryConfig.NEW_TOKEN_MAX_PROGRESS) {
         tokenState = 'new';
       }
       // GRADUATING: Actively progressing towards completion (50-99%)
-      else if (progress >= 50 && progress < 100) {
+      else if (progress >= TokenDiscoveryConfig.GRADUATING_MIN_PROGRESS && 
+               progress < TokenDiscoveryConfig.GRADUATING_MAX_PROGRESS) {
         tokenState = 'graduating';
       }
       // BONDED: Completed bonding curve (100%)
@@ -627,17 +576,30 @@ async function handleNewToken(event: NewTokenEvent): Promise<void> {
         const liquidityCalc = await healthCapsuleService.calculateBondingCurveLiquidity(vSolInBondingCurve);
         liquidityUsd = new Decimal(liquidityCalc);
       } catch (error) {
-        console.error('[TokenDiscovery] Error calculating bonding curve liquidity:', error);
+        logger.error({ error }, 'Error calculating bonding curve liquidity');
       }
     }
 
-    // Convert IPFS URI to HTTP gateway URL
-    const httpLogoURI = metadataService.convertIPFStoHTTP(uri) || undefined;
+    // Convert IPFS URI to HTTP gateway URL (inline since it's a simple transformation)
+    const convertIPFStoHTTP = (uri: string | undefined | null): string | undefined => {
+      if (!uri) return undefined;
+      if (uri.startsWith('http://') || uri.startsWith('https://')) return uri;
+      if (uri.startsWith('ipfs://')) {
+        const ipfsHash = uri.replace('ipfs://', '');
+        return `https://ipfs.io/ipfs/${ipfsHash}`;
+      }
+      if (uri.match(/^[a-zA-Z0-9]{46,59}$/)) {
+        return `https://ipfs.io/ipfs/${uri}`;
+      }
+      return uri;
+    };
+
+    const httpLogoURI = convertIPFStoHTTP(uri);
 
     // Fetch additional metadata from URI if not provided directly
-    let metadata: Awaited<ReturnType<typeof metadataService.fetchTokenMetadata>> = {};
+    let metadata: TokenMetadata = {};
     if (uri && (!description || !twitter || !telegram || !website)) {
-      metadata = await metadataService.fetchTokenMetadata(uri);
+      metadata = await tokenMetadataService.fetchMetadataFromIPFS(uri);
     }
 
     // Get current transaction count for this token
@@ -651,7 +613,7 @@ async function handleNewToken(event: NewTokenEvent): Promise<void> {
         symbol: symbol || null,
         name: name || null,
         logoURI: httpLogoURI, // ✅ Convert ipfs:// to https://
-        imageUrl: metadata.image || null,
+        imageUrl: metadata.imageUrl || null,
         description: description || metadata.description || null,
         twitter: twitter || metadata.twitter || null,
         telegram: telegram || metadata.telegram || null,
@@ -700,10 +662,10 @@ async function handleNewToken(event: NewTokenEvent): Promise<void> {
 
     // Async health enrichment (non-blocking)
     healthEnricher.enrichHealthData(mint).catch((err) =>
-      console.error(`[TokenDiscovery] Health enrichment error for ${mint}:`, err)
+      logger.error({ mint: truncateWallet(mint), error: err }, 'Health enrichment error')
     );
   } catch (error) {
-    console.error('[TokenDiscovery] Error handling newToken event:', error);
+    logger.error({ error }, 'Error handling newToken event');
   }
 }
 
@@ -727,7 +689,7 @@ async function handleMigration(event: MigrationEvent): Promise<void> {
     });
 
     if (!currentToken) {
-      console.warn(`[TokenDiscovery] Migration event for unknown token: ${mint}`);
+      logger.warn({ mint: truncateWallet(mint) }, 'Migration event for unknown token');
       return;
     }
 
@@ -750,7 +712,7 @@ async function handleMigration(event: MigrationEvent): Promise<void> {
         },
       });
     } else {
-      console.warn(`[TokenDiscovery] Unknown migration status: ${status}`);
+      logger.warn({ status }, 'Unknown migration status');
       return;
     }
 
@@ -760,7 +722,7 @@ async function handleMigration(event: MigrationEvent): Promise<void> {
     // Notify watchers
     await stateManager.notifyWatchers(mint, currentToken.state, newState);
   } catch (error) {
-    console.error('[TokenDiscovery] Error handling migration event:', error);
+    logger.error({ error }, 'Error handling migration event');
   }
 }
 
@@ -829,10 +791,10 @@ async function handleNewPool(event: NewPoolEvent): Promise<void> {
 
     // Async health enrichment
     healthEnricher.enrichHealthData(tokenMint).catch((err) =>
-      console.error(`[TokenDiscovery] Health enrichment error for ${tokenMint}:`, err)
+      logger.error({ mint: truncateWallet(tokenMint), error: err }, 'Health enrichment error')
     );
   } catch (error) {
-    console.error('[TokenDiscovery] Error handling newPool event:', error);
+    logger.error({ error }, 'Error handling newPool event');
   }
 }
 
@@ -914,7 +876,7 @@ async function updateMarketDataAndStates() {
         
         updated++;
       } catch (error) {
-        console.error(`[TokenDiscovery] Error updating token ${token.mint.slice(0, 8)}:`, error);
+        logger.error({ mint: truncateWallet(token.mint), error }, 'Error updating token');
       }
       
       // Rate limit: 50ms delay between requests
@@ -923,7 +885,7 @@ async function updateMarketDataAndStates() {
     
     logger.debug({ updated, total: activeTokens.length, operation: 'market_data_update' }, 'Market data batch update completed');
   } catch (error) {
-    console.error('[TokenDiscovery] Error in updateMarketDataAndStates:', error);
+    logger.error({ error }, 'Error in updateMarketDataAndStates');
   }
 }
 
@@ -990,13 +952,13 @@ async function recalculateHotScores(): Promise<void> {
           continue;
         }
         // Log unexpected errors
-        console.error(`[TokenDiscovery] Error updating hot score for ${token.mint}:`, error.message);
+        logger.error({ mint: truncateWallet(token.mint), error: error.message }, 'Error updating hot score');
       }
     }
 
     logger.debug({ updated, operation: 'hot_scores_update' }, 'Hot scores update completed');
   } catch (error) {
-    console.error('[TokenDiscovery] Error recalculating hot scores:', error);
+    logger.error({ error }, 'Error recalculating hot scores');
   }
 }
 
@@ -1065,14 +1027,14 @@ async function updateHolderCounts(): Promise<void> {
         if (error.code === 'P2025' || error.message?.includes('Record to update not found')) {
           continue;
         }
-        console.error(`[TokenDiscovery] Error updating holder count for ${token.mint}:`, error.message);
+        logger.error({ mint: truncateWallet(token.mint), error: error.message }, 'Error updating holder count');
         failed++;
       }
     }
 
     logger.debug({ updated, failed, operation: 'holder_counts_update' }, 'Holder counts update completed');
   } catch (error) {
-    console.error('[TokenDiscovery] Error updating holder counts:', error);
+    logger.error({ error }, 'Error updating holder counts');
   }
 }
 
@@ -1101,7 +1063,7 @@ async function syncWatcherCounts(): Promise<void> {
 
     logger.debug({ updated, operation: 'watcher_counts_sync' }, 'Watcher counts sync completed');
   } catch (error) {
-    console.error('[TokenDiscovery] Error syncing watcher counts:', error);
+    logger.error({ error }, 'Error syncing watcher counts');
   }
 }
 
@@ -1145,7 +1107,7 @@ async function subscribeToActiveTokens(): Promise<void> {
       operation: 'trade_subscription' 
     }, 'Trade subscription status');
   } catch (error) {
-    console.error('[TokenDiscovery] Error subscribing to active tokens:', error);
+    logger.error({ error }, 'Error subscribing to active tokens');
   }
 }
 
@@ -1180,7 +1142,7 @@ async function cleanupOldTokens(): Promise<void> {
       operation: 'cleanup_old_tokens' 
     }, 'Old tokens cleanup completed');
   } catch (error) {
-    console.error('[TokenDiscovery] Error cleaning up old tokens:', error);
+    logger.error({ error }, 'Error cleaning up old tokens');
   }
 }
 
@@ -1230,7 +1192,7 @@ async function startWorker(): Promise<void> {
     pumpPortalStreamService.on('connected', () => {
       logger.info({ event: 'pumpportal_reconnection' }, 'PumpPortal reconnected, resubscribing to active tokens');
       subscribeToActiveTokens().catch(err => {
-        console.error('[TokenDiscovery] Failed to resubscribe on reconnection:', err);
+        logger.error({ error: err }, 'Failed to resubscribe on reconnection');
       });
     });
 
@@ -1282,7 +1244,8 @@ async function startWorker(): Promise<void> {
       ]
     }, '🎮 Token Discovery Worker is running!');
   } catch (error) {
-    console.error('❌ Token Discovery Worker failed to start:', error);
+    logger.error({ error }, 'Token Discovery Worker failed to start');
+    console.error('❌ Fatal startup error:', error); // Keep console for critical failures
     throw error;
   }
 }

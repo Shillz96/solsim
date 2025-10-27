@@ -192,33 +192,22 @@ export function SlidingTrendingTicker() {
                         {token.symbol || 'N/A'}
                       </span>
 
-                      {/* Price */}
-                      <div className="flex items-center gap-2">
+                      {/* Price Change with Icon */}
+                      <div className={cn(
+                        "flex items-center gap-0.5 text-xs font-bold",
+                        isPositive && "text-luigi",
+                        isNegative && "text-mario"
+                      )}>
+                        {isPositive && <TrendingUp className="h-3 w-3" />}
+                        {isNegative && <TrendingDown className="h-3 w-3" />}
                         <AnimatedNumber
-                          value={token.priceUsd}
-                          prefix="$"
-                          decimals={token.priceUsd < 0.001 ? 6 : 4}
-                          className="font-mono text-xs font-bold text-outline"
-                          formatLarge={false}
+                          value={change}
+                          suffix="%"
+                          prefix={change > 0.01 ? "+" : ""}
+                          decimals={1}
+                          className="font-mono"
+                          colorize={false}
                         />
-
-                        {/* Price Change with Icon */}
-                        <div className={cn(
-                          "flex items-center gap-0.5 text-xs font-bold",
-                          isPositive && "text-luigi",
-                          isNegative && "text-mario"
-                        )}>
-                          {isPositive && <TrendingUp className="h-3 w-3" />}
-                          {isNegative && <TrendingDown className="h-3 w-3" />}
-                          <AnimatedNumber
-                            value={change}
-                            suffix="%"
-                            prefix={change > 0.01 ? "+" : ""}
-                            decimals={1}
-                            className="font-mono"
-                            colorize={false}
-                          />
-                        </div>
                       </div>
                     </div>
                   </button>
