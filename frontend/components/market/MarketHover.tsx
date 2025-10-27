@@ -91,7 +91,7 @@ export default function MarketHover({ trigger }: { trigger: React.ReactNode }) {
         className="
           invisible opacity-0 translate-y-2 group-hover:visible group-hover:opacity-100 group-hover:translate-y-0
           transition-all duration-200 ease-out
-          absolute bottom-full left-1/2 -translate-x-1/2 mb-4 w-[420px] z-[9999]
+          absolute bottom-full left-1/2 -translate-x-1/2 mb-4 w-[420px] z-tooltip
           pointer-events-none group-hover:pointer-events-auto
         "
       >

@@ -336,7 +336,7 @@ export function WalletTrackerPopup({ isOpen, onClose }: WalletTrackerPopupProps)
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100]"
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-modal-backdrop"
             onClick={handleBackdropClick}
           />
 
@@ -347,7 +347,7 @@ export function WalletTrackerPopup({ isOpen, onClose }: WalletTrackerPopupProps)
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: "100%", opacity: 0 }}
             transition={{ type: "spring", damping: 30, stiffness: 300 }}
-            className="fixed bottom-0 left-0 right-0 z-[101] max-h-[calc(100vh-env(safe-area-inset-bottom)-200px)] bg-background border-t-4 border-outline rounded-t-xl shadow-[0_-8px_0_var(--outline-black)] overflow-hidden"
+            className="fixed bottom-0 left-0 right-0 z-modal max-h-[calc(100vh-env(safe-area-inset-bottom)-200px)] bg-background border-t-4 border-outline rounded-t-xl shadow-[0_-8px_0_var(--outline-black)] overflow-hidden"
             role="dialog"
             aria-label="Wallet tracker"
             tabIndex={-1}

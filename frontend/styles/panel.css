@@ -106,14 +106,14 @@
   z-index: var(--z-nav);
 }
 
-/* Dropdown menus - DISABLED TO PREVENT CONFLICTS
+/* Dropdown menus - ENABLED for proper z-index layering */
 .dropdown {
   z-index: var(--z-dropdown);
   background: var(--popover);
   border: 1px solid var(--border);
   border-radius: 0.5rem;
   box-shadow: 0 10px 15px -3px color-mix(in oklab, black 10%, transparent 90%);
-} */
+}
 
 /* Sidebar panels */
 .sidebar {
@@ -144,7 +144,7 @@
   border: 1px solid var(--border);
   border-radius: 0.5rem;
   box-shadow: 0 10px 15px -3px color-mix(in oklab, black 10%, transparent 90%);
-} */
+}
 
 /* Tooltip components */
 .tooltip {

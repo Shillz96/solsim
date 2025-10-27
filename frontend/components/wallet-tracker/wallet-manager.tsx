@@ -601,7 +601,7 @@ export function WalletManager({
                               {showIconPicker && (
                                 <div className={cn(
                                   marioStyles.card(),
-                                  'absolute top-12 left-0 z-[60] p-2 grid grid-cols-4 gap-1.5 min-w-[180px]'
+                                  'absolute top-12 left-0 z-dropdown p-2 grid grid-cols-4 gap-1.5 min-w-[180px]'
                                 )}>
                                   {MARIO_ICONS.map((icon, index) => (
                                     <button
@@ -880,7 +880,7 @@ export function WalletManager({
                       {showNewWalletIconPicker && (
                         <div className={cn(
                           marioStyles.card(),
-                          'absolute top-12 left-0 z-[60] p-2 grid grid-cols-4 gap-1.5 min-w-[180px]'
+                          'absolute top-12 left-0 z-dropdown p-2 grid grid-cols-4 gap-1.5 min-w-[180px]'
                         )}>
                           {MARIO_ICONS.map((icon) => (
                             <button

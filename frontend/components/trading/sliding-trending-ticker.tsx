@@ -94,7 +94,7 @@ export function SlidingTrendingTicker() {
 
   if (isLoading && !trendingTokens) {
     return (
-      <div className="fixed top-[var(--navbar-height)] left-0 right-0 z-[95] overflow-hidden bg-gradient-to-r from-[var(--brick-brown)] to-[var(--brick-brown)]/80 border-4 border-outline rounded-lg p-4">
+      <div className="fixed top-[var(--navbar-height)] left-0 right-0 z-sticky overflow-hidden bg-gradient-to-r from-[var(--brick-brown)] to-[var(--brick-brown)]/80 border-4 border-outline rounded-lg p-4">
         <div className="flex items-center justify-center gap-2">
           <Loader2 className="h-4 w-4 animate-spin text-star" />
           <span className="text-sm mario-font text-white">Loading Trending...</span>
@@ -117,7 +117,7 @@ export function SlidingTrendingTicker() {
 
   if (error || !trendingTokens || trendingTokens.length === 0) {
     return (
-      <div className="fixed top-[var(--navbar-height)] left-0 right-0 z-[95] overflow-hidden bg-gradient-to-r from-[var(--brick-brown)] to-[var(--brick-brown)]/80 border-4 border-outline rounded-lg p-3">
+      <div className="fixed top-[var(--navbar-height)] left-0 right-0 z-sticky overflow-hidden bg-gradient-to-r from-[var(--brick-brown)] to-[var(--brick-brown)]/80 border-4 border-outline rounded-lg p-3">
         <Alert variant="destructive" className="border-none bg-transparent">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription className="text-xs flex items-center gap-2">
@@ -154,12 +154,12 @@ export function SlidingTrendingTicker() {
   return (
     <>
       {/* Hourly Rewards Timer - Floating above everything */}
-      <div className="fixed top-[calc(var(--navbar-height)+3rem)] left-1/2 -translate-x-1/2 z-[99999] pointer-events-auto">
+      <div className="fixed top-[calc(var(--navbar-height)+3rem)] left-1/2 -translate-x-1/2 z-loading pointer-events-auto">
         <HourlyRewardTimer />
       </div>
       
       {/* Trending Ticker */}
-      <div className="fixed top-[var(--navbar-height)] left-0 right-0 z-[95] w-full overflow-hidden bg-gradient-to-r from-[var(--brick-brown)] to-[var(--brick-brown)]/80 border-b-4 border-outline shadow-md">
+      <div className="fixed top-[var(--navbar-height)] left-0 right-0 z-sticky w-full overflow-hidden bg-gradient-to-r from-[var(--brick-brown)] to-[var(--brick-brown)]/80 border-b-4 border-outline shadow-md">
         {/* Scrolling Container - Pause on Hover */}
         <div className="group relative py-2">
           <div className="ticker-scroll-container">
