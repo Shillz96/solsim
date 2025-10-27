@@ -11,9 +11,6 @@ import { useState, useCallback, useEffect } from "react"
 const AuthModal = dynamic(() => import("@/components/modals/auth-modal").then(mod => ({ default: mod.AuthModal })), {
   ssr: false
 })
-const PurchaseModal = dynamic(() => import("@/components/modals/purchase-modal").then(mod => ({ default: mod.PurchaseModal })), {
-  ssr: false
-})
 const LevelProgressModal = dynamic(() => import("@/components/level/level-progress-modal").then(mod => ({ default: mod.LevelProgressModal })), {
   ssr: false
 })
@@ -37,7 +34,6 @@ import { MobileMenu } from "./mobile-menu"
 
 export function NavBar() {
   const [authModalOpen, setAuthModalOpen] = useState(false)
-  const [purchaseModalOpen, setPurchaseModalOpen] = useState(false)
   const [levelModalOpen, setLevelModalOpen] = useState(false)
   const [mounted, setMounted] = useState(false)
   const pathname = usePathname()
@@ -161,11 +157,6 @@ export function NavBar() {
       <AuthModal open={authModalOpen} onOpenChange={setAuthModalOpen} />
       {isAuthenticated && user && (
         <>
-          <PurchaseModal
-            open={purchaseModalOpen}
-            onOpenChange={setPurchaseModalOpen}
-            userId={user.id}
-          />
           <LevelProgressModal
             open={levelModalOpen}
             onOpenChange={setLevelModalOpen}

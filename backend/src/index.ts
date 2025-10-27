@@ -19,18 +19,14 @@ import authRoutes from "./routes/auth/index.js";
 import rewardsRoutes from "./routes/rewards.js";
 import tradesRoutes from "./routes/trades.js";
 import walletRoutes from "./routes/wallet.js";
-import walletTrackerRoutes from "./routes/walletTracker.js";
-import walletTrackerV2Routes from "./routes/walletTrackerV2.js";
 import walletTrackerSettingsRoutes from "./routes/walletTrackerSettings.js";
 import walletTrackerPumpPortalRoutes, { initializeWalletTracker } from "./routes/walletTrackerExample.js";
 import searchRoutes from "./routes/search.js";
 import debugRoutes from "./routes/debug.js";
 import adminRoutes from "./routes/admin.js";
 import sentryTestRoutes from "./routes/sentry-test.js";
-import purchaseRoutes from "./routes/purchase.js";
 import notificationsRoutes from "./routes/notifications.js";
 import perpRoutes from "./routes/perpRoutes.js";
-import realTradeRoutes from "./routes/realTrade.js";
 import userProfileRoutes from "./routes/userProfile.js";
 import warpPipesRoutes from "./routes/warpPipes.js";
 import webhookRoutes from "./routes/webhooks.js";
@@ -249,19 +245,13 @@ app.register(stocksRoutes, { prefix: "/api/stocks" });
 app.register(rewardsRoutes, { prefix: "/api/rewards" });
 app.register(tradesRoutes, { prefix: "/api/trades" });
 app.register(walletRoutes, { prefix: "/api/wallet" });
-// Legacy wallet tracker (deprecated - kept for backwards compatibility)
-// app.register(walletTrackerRoutes, { prefix: "/api/wallet-tracker" });
-// V2 routes now handled by PumpPortal implementation below
-// app.register(walletTrackerV2Routes, { prefix: "/api/wallet-tracker/v2" });
 app.register(walletTrackerSettingsRoutes, { prefix: "/api/wallet-tracker" });
-// PumpPortal real-time wallet tracking (replaces legacy walletTrackerRoutes and V2)
+// PumpPortal real-time wallet tracking
 app.register(walletTrackerPumpPortalRoutes, { prefix: "/api" });
 app.register(searchRoutes, { prefix: "/api/search" });
-app.register(purchaseRoutes, { prefix: "/api/purchase" });
 app.register(notificationsRoutes, { prefix: "/api/notifications" });
 app.register(perpRoutes, { prefix: "/api/perp" }); // Perpetual trading routes
 app.register(chartRoutes, { prefix: "/api" }); // Chart data routes (OHLCV)
-app.register(realTradeRoutes, { prefix: "/api/real-trade" }); // Real mainnet trading routes (Lightning & Local API)
 app.register(marketRoutes, { prefix: "/api" }); // Market data routes (trades, traders, holders)
 app.register(userProfileRoutes, { prefix: "/api/user-profile" }); // User profile and trading mode management
 app.register(warpPipesRoutes, { prefix: "/api/warp-pipes" }); // Warp Pipes Hub token discovery

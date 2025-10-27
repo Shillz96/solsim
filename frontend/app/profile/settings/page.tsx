@@ -11,8 +11,6 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Separator } from '@/components/ui/separator'
 import { Badge } from '@/components/ui/badge'
-import { PurchaseModal } from '@/components/modals/purchase-modal'
-import { PurchaseHistoryTable } from '@/components/purchase/purchase-history'
 import {
   User,
   Mail,
@@ -31,8 +29,7 @@ import {
   DollarSign,
   Globe,
   MessageSquare,
-  Wallet,
-  ShoppingCart
+  Wallet
 } from 'lucide-react'
 import { useAuth } from '@/hooks/use-auth'
 import { useToast } from '@/hooks/use-toast'
@@ -68,9 +65,6 @@ function UserSettingsPage() {
   const queryClient = useQueryClient()
   const { toast } = useToast()
   const fileInputRef = useRef<HTMLInputElement>(null)
-
-  // Purchase modal state
-  const [purchaseModalOpen, setPurchaseModalOpen] = useState(false)
 
   // States for form data
   const [showCurrentPassword, setShowCurrentPassword] = useState(false)
@@ -928,94 +922,9 @@ function UserSettingsPage() {
           </div>
         </div>
       </div>
-
-      {/* Purchase Simulated SOL Section */}
-      <div className="rounded-xl border-4 border-outline shadow-[6px_6px_0_var(--outline-black)] overflow-hidden">
-        <div className="bg-gradient-to-r from-[var(--coin-gold)] to-[var(--star-yellow)] p-4 border-b-4 border-outline">
-          <h2 className="text-2xl font-mario text-white flex items-center gap-2 drop-shadow-[2px_2px_0_var(--outline-black)]">
-            <ShoppingCart className="h-6 w-6" />
-            Purchase Simulated SOL
-          </h2>
-          <p className="text-sm font-bold text-white/90 mt-1">
-            Add more simulated SOL to your trading balance with real SOL
-          </p>
-        </div>
-        <div className="p-6 space-y-6 bg-gradient-to-br from-[var(--coin-gold)]/10 to-[var(--star-yellow)]/10">
-          {/* Current Balance Display */}
-          <div className="bg-gradient-to-br from-[var(--star-yellow)]/30 to-[var(--coin-gold)]/30 rounded-lg p-6 border-4 border-outline shadow-[4px_4px_0_var(--outline-black)]">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-bold text-outline/70 mb-1">Current Balance</p>
-                <p className="text-3xl font-mario text-outline">
-                  {profile?.virtualSolBalance 
-                    ? parseFloat(profile.virtualSolBalance).toFixed(2)
-                    : '0.00'} SOL
-                </p>
-              </div>
-              <Wallet className="h-12 w-12 text-star" />
-            </div>
-          </div>
-
-          {/* Purchase Button */}
-          <div className="flex justify-center">
-            <Button
-              size="lg"
-              onClick={() => setPurchaseModalOpen(true)}
-              className="font-mario border-3 border-outline bg-luigi text-white hover:bg-luigi/90 shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all w-full md:w-auto"
-            >
-              <ShoppingCart className="h-4 w-4 mr-2" />
-              Buy More Simulated SOL
-            </Button>
-          </div>
-
-          <Separator className="bg-[var(--outline-black)] h-1" />
-
-          {/* Purchase History */}
-          <div>
-            <h4 className="text-lg font-mario mb-4">Recent Purchases</h4>
-            <PurchaseHistorySection userId={user?.id || ''} />
-          </div>
-        </div>
-      </div>
-
-      {/* Purchase Modal */}
-      {user && (
-        <PurchaseModal
-          open={purchaseModalOpen}
-          onOpenChange={setPurchaseModalOpen}
-          userId={user.id}
-        />
-      )}
       </div>
     </div>
   )
-}
-
-// Purchase History Component
-function PurchaseHistorySection({ userId }: { userId: string }) {
-  const { data, isLoading, error } = useQuery({
-    queryKey: ['purchaseHistory', userId],
-    queryFn: () => api.getPurchaseHistory(userId, 5, 0),
-    enabled: !!userId,
-    staleTime: 60 * 1000, // 1 minute
-    retry: false, // Don't retry if table doesn't exist
-  });
-
-  // If there's an error (e.g., table doesn't exist), show a friendly message
-  if (error) {
-    return (
-      <div className="text-sm text-muted-foreground text-center py-4">
-        Purchase history is currently unavailable. Please contact support if this persists.
-      </div>
-    );
-  }
-
-  return (
-    <PurchaseHistoryTable
-      purchases={data?.purchases || []}
-      isLoading={isLoading}
-    />
-  );
 }
 
 export default UserSettingsPage
