@@ -364,7 +364,7 @@ export const NotificationProvider: React.FC<{
       {children}
       
       {/* Notification overlay */}
-      <div className="fixed top-4 right-4 z-50 space-y-2 max-w-notification">
+      <div className="fixed top-4 right-4 z-toast space-y-2 max-w-notification">
         <AnimatePresence>
           {notifications.map((notification) => (
             <NotificationBanner

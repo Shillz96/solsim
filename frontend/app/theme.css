@@ -195,7 +195,35 @@
    * 100-900: Interface elements (headers, nav, dropdowns)
    * 1000-1900: Overlays (modals, popovers, tooltips)
    * 2000+: System overlays (toasts, loading, alerts)
+   * 9000+: Critical UI elements (highest priority for user interaction)
    * 9999: Debug & texture overlays
+   * 
+   * USAGE GUIDELINES:
+   * 
+   * 1. ALWAYS use semantic z-index custom properties from this scale
+   *    ✅ CORRECT: className="z-modal" or z-index: var(--z-modal)
+   *    ❌ WRONG:   className="z-50" or z-index: 50
+   * 
+   * 2. Use hardcoded z-10/z-20 ONLY for local stacking contexts
+   *    - Example: Positioning text above background within same card
+   *    - Example: Layering icons within a single button component
+   *    - These values never interact with the global scale
+   * 
+   * 3. Component-to-component layering MUST use semantic values
+   *    - Dropdowns: z-dropdown (300) or z-search-dropdown (9001) for search
+   *    - Modals: z-modal-backdrop (1000) + z-modal (1010)
+   *    - Floating panels: z-popover (1200) or z-sticky (500)
+   *    - Loading screens: z-loading (2100)
+   *    - Toasts: z-toast (2000)
+   * 
+   * 4. Tailwind utilities map to these custom properties
+   *    - z-modal → var(--z-modal)
+   *    - z-dropdown → var(--z-dropdown)
+   *    - See tailwind.config.js for complete mapping
+   * 
+   * 5. Dynamic z-index in components
+   *    - FloatingWindows: Use style={{ zIndex: 'var(--z-modal)' }}
+   *    - Window stacking: Relative to container's base z-index
    */
   
   /* Base Content Layers (0-10) */

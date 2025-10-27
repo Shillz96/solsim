@@ -72,7 +72,7 @@ export function Badge({
       
       {showTooltip && (
         <div className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 
-                       hidden group-hover:block z-50">
+                       hidden group-hover:block z-badge-tooltip">
           <div className="bg-pipe-800 text-white px-3 py-2 rounded-lg text-sm 
                          whitespace-nowrap border-2 border-pipe-600 shadow-mario">
             <div className="font-mario text-base mb-1">{badge.name}</div>

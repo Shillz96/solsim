@@ -79,7 +79,7 @@ export function SocialHoverCard({
         </a>
       </HoverCardTrigger>
       <HoverCardContent
-        className="w-80 p-4 bg-card border-4 border-outline rounded-xl shadow-[6px_6px_0_var(--outline-black)] z-50"
+        className="w-80 p-4 bg-card border-4 border-outline rounded-xl shadow-[6px_6px_0_var(--outline-black)] z-popover"
         side="top"
         onClick={(e) => e.stopPropagation()}
       >

@@ -168,7 +168,7 @@ export function ChatModeration({ roomId, className = '' }: ChatModerationProps) 
 
       {/* Moderation Panel */}
       {showModerationPanel && selectedMessage && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-modal">
           <div className="bg-card rounded-lg border-4 border-pipe-300 p-6 max-w-md w-full mx-4">
             <div className="mb-4">
               <h3 className="font-mario text-xl text-pipe-800">Moderate User</h3>

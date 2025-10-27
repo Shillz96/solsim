@@ -286,7 +286,7 @@ export function WarpPipesHub() {
 
       {/* Loading Overlay */}
       {isLoading && (
-        <div className="fixed inset-0 bg-card/80 backdrop-blur-sm flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-card/80 backdrop-blur-sm flex items-center justify-center z-loading">
           <div className="bg-card border-4 border-outline shadow-[8px_8px_0_var(--outline-black)] rounded-xl p-8">
             <Loader2 className="h-12 w-12 animate-spin text-mario mx-auto mb-4" />
             <p className="text-center font-bold text-outline text-[18px]">Loading Warp Pipes...</p>

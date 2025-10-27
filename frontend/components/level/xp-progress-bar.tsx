@@ -191,7 +191,7 @@ export function LevelUpToast({
   }, [onClose]);
 
   return (
-    <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 animate-bounce-in">
+    <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-onboarding animate-bounce-in">
       <div className="mario-card bg-gradient-to-br from-mario-yellow via-mario-orange to-mario-red p-8 text-center border-4 border-white">
         <div className="text-7xl mb-4 animate-pulse">{newIcon}</div>
         <h2 className="font-mario text-4xl text-white mb-2 text-shadow-mario">
@@ -226,7 +226,7 @@ export function XPGainAnimation({
 }) {
   return (
     <div
-      className="fixed pointer-events-none z-50 animate-float-up"
+      className="fixed pointer-events-none z-toast animate-float-up"
       style={{ left: x, top: y }}
     >
       <span className="font-mario text-2xl text-mario-yellow text-shadow-mario">

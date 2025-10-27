@@ -327,7 +327,7 @@ export function TradePanelContainer({
             initial={{ opacity: 0, scale: 0, y: 20 }}
             animate={{ opacity: 1, scale: 1.5, y: -50 }}
             exit={{ opacity: 0, scale: 0, y: -100 }}
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-4xl sm:text-5xl lg:text-6xl z-50 pointer-events-none"
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-4xl sm:text-5xl lg:text-6xl z-toast pointer-events-none"
           >
             ⭐
           </motion.div>
