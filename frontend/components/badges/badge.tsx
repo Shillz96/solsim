@@ -40,6 +40,7 @@ export function Badge({
     EPIC: 'badge-epic',
     LEGENDARY: 'badge-legendary',
     MYTHIC: 'badge-mythic',
+    ADMIN: 'badge-admin',
     DEVELOPER: 'badge-developer'
   };
 
@@ -50,6 +51,7 @@ export function Badge({
     EPIC: 'shadow-mario-glow',
     LEGENDARY: 'shadow-coin-glow',
     MYTHIC: 'shadow-mythic-glow',
+    ADMIN: 'shadow-admin-glow',
     DEVELOPER: 'shadow-developer-glow'
   };
 

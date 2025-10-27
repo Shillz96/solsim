@@ -190,7 +190,7 @@ export default function TrendingPage() {
           </div>
         </motion.div>
 
-        {/* Main Content Table */}
+        {/* Main Content */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -198,7 +198,7 @@ export default function TrendingPage() {
         >
           <div className="panel panel-portfolio hover-outline overflow-hidden">
             
-            {/* Loading State with Easter Egg */}
+            {/* Loading State */}
             {loading && (
               <div className="flex flex-col items-center justify-center h-96 bg-card/50">
                 <div className="coin-bounce-loop mb-4">
@@ -241,242 +241,106 @@ export default function TrendingPage() {
               </div>
             )}
 
-            {/* Tokens Table */}
+            {/* Tokens List – Mario style */}
             {!loading && !error && filteredAndSortedTokens.length > 0 && (
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead className="border-b-3 border-outline-black bg-muted/30">
-                    <tr>
-                      <th className="text-left p-4 font-body text-sm font-bold text-foreground">#</th>
-                      <th className="text-left p-4 font-body text-sm font-bold text-foreground">Token</th>
-                      <th className="text-left p-4 font-body text-sm font-bold text-foreground">
-                        <button
-                          onClick={() => handleSort("price")}
-                          className="flex items-center hover:text-mario transition-colors font-body"
-                        >
-                          Price
-                          <SortIcon field="price" />
-                        </button>
-                      </th>
-                      <th className="text-left p-4 font-body text-sm font-bold text-foreground">
-                        <button
-                          onClick={() => handleSort("priceChange24h")}
-                          className="flex items-center hover:text-mario transition-colors font-body"
-                        >
-                          24h Change
-                          <SortIcon field="priceChange24h" />
-                        </button>
-                      </th>
-                      <th className="text-left p-4 font-body text-sm font-bold text-foreground">
-                        <button
-                          onClick={() => handleSort("marketCapUsd")}
-                          className="flex items-center hover:text-mario transition-colors font-body"
-                        >
-                          Market Cap
-                          <SortIcon field="marketCapUsd" />
-                        </button>
-                      </th>
-                      <th className="text-left p-4 font-body text-sm font-bold text-foreground">
-                        <button
-                          onClick={() => handleSort("volume24h")}
-                          className="flex items-center hover:text-mario transition-colors font-body"
-                        >
-                          Volume
-                          <SortIcon field="volume24h" />
-                        </button>
-                      </th>
-                      <th className="text-left p-4 font-body text-sm font-bold text-foreground">
-                        <button
-                          onClick={() => handleSort("trendScore")}
-                          className="flex items-center hover:text-mario transition-colors font-body"
-                        >
-                          ⭐ Trend
-                          <SortIcon field="trendScore" />
-                        </button>
-                      </th>
-                      <th className="text-right p-4 font-body text-sm font-bold text-foreground">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <AnimatePresence>
-                      {filteredAndSortedTokens.map((token, index) => {
-                        const rankImage = getRankImage(index + 1)
-                        const bigMover = isBigMover(token.priceChange24h)
-                        const isHovered = hoveredRow === token.mint
+              <ul className="space-y-3">
+                {filteredAndSortedTokens.map((token, index) => {
+    const bigMover = Math.abs(token.priceChange24h) > 50
 
-                        return (
-                          <motion.tr
-                            key={token.mint}
-                            initial={{ opacity: 0, x: -20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            exit={{ opacity: 0, x: 20 }}
-                            transition={{ duration: 0.3, delay: index * 0.03 }}
-                            className={`
-                              border-b-2 border-outline-black/20 
-                              transition-all duration-200 
-                              hover:bg-muted/40 hover-outline
-                              cursor-pointer
-                              ${index < 3 ? 'bg-star-yellow/5' : ''}
-                            `}
-                            onMouseEnter={() => setHoveredRow(token.mint)}
-                            onMouseLeave={() => setHoveredRow(null)}
-                          >
-                            {/* Rank */}
-                            <td className="p-4">
-                              {rankImage ? (
-                                <div className="coin-bounce-hover">
-                                  <Image
-                                    src={rankImage}
-                                    alt={`${index + 1} place`}
-                                    width={44}
-                                    height={44}
-                                    className="object-contain"
-                                  />
-                                </div>
-                              ) : (
-                                <span className="font-numeric text-sm font-bold text-foreground">
-                                  {index + 1}
-                                </span>
-                              )}
-                            </td>
+    return (
+      <li
+        key={token.mint}
+        className="
+          mario-card-sm hover-outline motion-hoverable
+          grid grid-cols-[44px,1fr,auto,auto,auto,auto,auto,auto]
+          items-center gap-3 p-2
+        "
+      >
+        {/* Rank */}
+        <div className="flex items-center justify-center">
+          {index < 3 ? (
+            <Image src={getRankImage(index + 1)!} alt={`${index + 1}`} width={36} height={36} />
+          ) : (
+            <span className="font-numeric font-bold">{index + 1}</span>
+          )}
+        </div>
 
-                            {/* Token Info */}
-                            <td className="p-4">
-                              <Link
-                                href={`/room/${token.mint}`}
-                                className="flex items-center gap-3 hover:opacity-80 transition-opacity"
-                              >
-                                <div className="hover-outline rounded-full">
-                                  <Image
-                                    src={token.logoURI || "/placeholder-token.svg"}
-                                    alt={token.name || 'Unknown Token'}
-                                    width={48}
-                                    height={48}
-                                    className="rounded-full border-3 border-outline-black"
-                                    onError={(e) => {
-                                      e.currentTarget.src = "/placeholder-token.svg"
-                                    }}
-                                  />
-                                </div>
-                                <div>
-                                  <div className="font-body font-bold text-base flex items-center gap-2">
-                                    {token.name || 'Unknown'}
-                                    {bigMover && (
-                                      <motion.div
-                                        animate={{ 
-                                          scale: [1, 1.3, 1],
-                                          rotate: [0, 10, -10, 0]
-                                        }}
-                                        transition={{ duration: 2, repeat: Infinity }}
-                                      >
-                                        <Sparkles className="h-5 w-5 text-star" />
-                                      </motion.div>
-                                    )}
-                                  </div>
-                                  <div className="font-body text-xs text-muted-foreground uppercase">
-                                    ${token.symbol || 'N/A'}
-                                  </div>
-                                </div>
-                              </Link>
-                            </td>
+        {/* Token */}
+        <Link href={`/room/${token.mint}`} className="flex items-center gap-3">
+          <Image
+            src={token.logoURI || "/placeholder-token.svg"}
+            alt={token.name || "Unknown Token"}
+            width={40}
+            height={40}
+            className="rounded-full border-[3px] border-[var(--outline-black)]"
+            onError={(e) => { e.currentTarget.src = "/placeholder-token.svg" }}
+          />
+          <div>
+            <div className="font-body font-bold flex items-center gap-2">
+              {token.name || "Unknown"}
+              {bigMover && <Sparkles className="h-4 w-4 text-[var(--star-yellow)]" />}
+            </div>
+            <div className="font-body text-[10px] opacity-70 tracking-wide uppercase">
+              ${token.symbol || "N/A"}
+            </div>
+          </div>
+        </Link>
 
-                            {/* Price */}
-                            <td className="p-4">
-                              <UsdWithSol
-                                usd={token.priceUsd}
-                                className="font-numeric text-sm font-bold"
-                                solClassName="font-numeric text-xs"
-                              />
-                            </td>
+        {/* Price */}
+        <div className="text-right">
+          <UsdWithSol usd={token.priceUsd} className="font-numeric font-bold text-sm" solClassName="font-numeric text-[11px]" />
+        </div>
 
-                            {/* 24h Change */}
-                            <td className="p-4">
-                              <div className="flex items-center gap-2">
-                                <motion.div
-                                  className={`
-                                    font-numeric text-sm font-bold 
-                                    ${token.priceChange24h >= 0 ? "text-luigi-green" : "text-mario-red"}
-                                  `}
-                                  animate={bigMover ? {
-                                    scale: [1, 1.05, 1],
-                                  } : {}}
-                                  transition={bigMover ? {
-                                    duration: 1.5,
-                                    repeat: Infinity,
-                                  } : {}}
-                                >
-                                  {token.priceChange24h >= 0 ? "+" : ""}
-                                  {token.priceChange24h.toFixed(2)}%
-                                </motion.div>
-                                {bigMover && (
-                                  token.priceChange24h >= 0 ? (
-                                    <TrendingUp className="h-4 w-4 text-luigi-green" />
-                                  ) : (
-                                    <TrendingDown className="h-4 w-4 text-mario-red" />
-                                  )
-                                )}
-                              </div>
-                            </td>
+        {/* 24h */}
+        <div className="flex items-center gap-2 justify-end">
+          <span
+            className={`font-numeric text-sm font-bold ${
+              (token.priceChange24h || 0) >= 0 ? "text-[var(--luigi-green)]" : "text-[var(--mario-red)]"
+            }`}
+          >
+            {(token.priceChange24h || 0) >= 0 ? "+" : ""}
+            {(token.priceChange24h || 0).toFixed(2)}%
+          </span>
+          {(token.priceChange24h || 0) >= 0 ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
+        </div>
 
-                            {/* Market Cap */}
-                            <td className="p-4">
-                              {token.marketCapUsd ? (
-                                <UsdWithSol
-                                  usd={token.marketCapUsd}
-                                  className="font-numeric text-sm font-bold"
-                                  solClassName="font-numeric text-xs"
-                                  compact
-                                />
-                              ) : (
-                                <span className="font-body text-sm text-muted-foreground">N/A</span>
-                              )}
-                            </td>
+        {/* Mkt Cap */}
+        <div className="text-right">
+          {token.marketCapUsd ? (
+            <UsdWithSol usd={token.marketCapUsd} className="font-numeric font-bold text-sm" solClassName="font-numeric text-[11px]" compact />
+          ) : (
+            <span className="opacity-60 text-sm">N/A</span>
+          )}
+        </div>
 
-                            {/* Volume */}
-                            <td className="p-4">
-                              <UsdWithSol
-                                usd={token.volume24h}
-                                className="font-numeric text-sm font-bold"
-                                solClassName="font-numeric text-xs"
-                                compact
-                              />
-                            </td>
+        {/* Volume */}
+        <div className="text-right">
+          <UsdWithSol usd={token.volume24h} className="font-numeric font-bold text-sm" solClassName="font-numeric text-[11px]" compact />
+        </div>
 
-                            {/* Trend Score */}
-                            <td className="p-4">
-                              <Badge
-                                variant="secondary"
-                                className={`
-                                  font-numeric text-xs font-bold border-2 hover-outline
-                                  ${bigMover 
-                                    ? 'bg-orange-500 text-white border-outline-black animate-pulse' 
-                                    : 'bg-muted text-foreground border-outline-black'
-                                  }
-                                `}
-                              >
-                                {bigMover && <Sparkles className="h-3 w-3 inline mr-1" />}
-                                {Math.abs(token.priceChange24h).toFixed(1)}
-                              </Badge>
-                            </td>
+        {/* Trend badge */}
+        <div className="flex justify-end">
+          <span
+            className={`
+              mario-card-sm px-2 py-1 font-numeric text-xs font-bold inline-flex items-center gap-1
+              ${bigMover ? "animate-pulse" : ""}
+            `}
+            style={{ background: bigMover ? "var(--star-yellow)" : "var(--card)" }}
+          >
+            {bigMover && <Sparkles className="h-3 w-3" />} {Math.abs(token.priceChange24h || 0).toFixed(1)}
+          </span>
+        </div>
 
-                            {/* Action */}
-                            <td className="p-4 text-right">
-                              <Link href={`/room/${token.mint}`}>
-                                <Button
-                                  size="sm"
-                                  className="mario-btn mario-btn-green hover-outline font-body font-bold"
-                                >
-                                  🚀 Trade
-                                </Button>
-                              </Link>
-                            </td>
-                          </motion.tr>
-                        )
-                      })}
-                    </AnimatePresence>
-                  </tbody>
-                </table>
-              </div>
+        {/* Action */}
+        <div className="flex justify-end">
+          <Link href={`/room/${token.mint}`}>
+            <Button className="mario-btn mario-btn-green" size="sm">🚀 Trade</Button>
+          </Link>
+        </div>
+      </li>
+    )
+  })}
+              </ul>
             )}
           </div>
         </motion.div>

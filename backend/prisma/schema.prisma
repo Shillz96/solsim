@@ -781,6 +781,8 @@ enum BadgeRarity {
   EPIC
   LEGENDARY
   MYTHIC
+  ADMIN
+  DEVELOPER
 }
 
 // Badge Category Enum
