@@ -323,16 +323,16 @@ export function WalletTrackerPopup({ isOpen, onClose }: WalletTrackerPopupProps)
             </div>
 
             {/* Header */}
-            <div className="flex items-center justify-between gap-3 px-4 py-3 sm:px-5 sm:py-4 border-b-3 border-[var(--outline-black)] bg-[linear-gradient(180deg,rgba(255,255,255,0.6),transparent)]">
+            <div className="flex items-center justify-between gap-3 px-4 py-3 sm:px-5 sm:py-4 border-b-4 border-outline bg-sky/20 backdrop-blur-sm">
               <div className="flex min-w-0 items-center gap-3">
-                <div className="grid h-9 w-9 place-items-center rounded-xl border-2 border-[var(--outline-black)] bg-[var(--mario-yellow,#FFD93D)] shadow-[3px_3px_0_var(--outline-black)]">
-                  <Eye className="h-5 w-5 text-[var(--outline-black)]" />
+                <div className="grid h-9 w-9 place-items-center rounded-xl border-3 border-outline bg-mario-yellow shadow-[3px_3px_0_var(--outline-black)]">
+                  <Eye className="h-5 w-5 text-outline" />
                 </div>
                 <div className="min-w-0">
-                  <h2 className="truncate text-base font-extrabold tracking-tight sm:text-lg">
+                  <h2 className="truncate text-base font-mario font-bold tracking-tight text-outline sm:text-lg">
                     Wallet Tracker
                   </h2>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-xs text-muted-foreground font-bold">
                     Follow KOL wallets & copy trades
                   </p>
                 </div>
@@ -342,7 +342,7 @@ export function WalletTrackerPopup({ isOpen, onClose }: WalletTrackerPopupProps)
                 variant="ghost"
                 size="icon"
                 onClick={onClose}
-                className="rounded-xl border-2 border-transparent hover:border-[var(--outline-black)] hover:bg-destructive/10 hover:text-destructive"
+                className="rounded-xl border-3 border-transparent hover:border-outline hover:bg-destructive/10 hover:text-destructive"
                 aria-label="Close wallet tracker"
               >
                 <X className="h-5 w-5" />
@@ -350,18 +350,18 @@ export function WalletTrackerPopup({ isOpen, onClose }: WalletTrackerPopupProps)
             </div>
 
             {/* Tabs */}
-            <div className="px-4 pb-3 pt-2 sm:px-5">
+            <div className="px-4 pb-3 pt-2 sm:px-5 bg-sky/20">
               <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)}>
                 <TabsList
                   className={cn(
-                    "grid w-full grid-cols-2 rounded-2xl border-2 border-[var(--outline-black)] bg-white/60 backdrop-blur",
-                    "shadow-[3px_3px_0_var(--outline-black)]"
+                    "grid w-full grid-cols-2 rounded-2xl border-3 border-outline bg-white/80 backdrop-blur",
+                    "shadow-[4px_4px_0_var(--outline-black)]"
                   )}
                 >
                   <TabsTrigger
                     value="tracked"
                     className={cn(
-                      "gap-2 rounded-xl data-[state=active]:bg-[var(--mario-red,#FF3B30)] data-[state=active]:text-white",
+                      "gap-2 rounded-xl font-mario font-bold data-[state=active]:bg-mario-red data-[state=active]:text-white",
                       "data-[state=active]:shadow-[inset_0_-3px_0_rgba(0,0,0,0.25)]"
                     )}
                   >
@@ -371,7 +371,7 @@ export function WalletTrackerPopup({ isOpen, onClose }: WalletTrackerPopupProps)
                   <TabsTrigger
                     value="add"
                     className={cn(
-                      "gap-2 rounded-xl data-[state=active]:bg-[var(--mario-blue,#007AFF)] data-[state=active]:text-white",
+                      "gap-2 rounded-xl font-mario font-bold data-[state=active]:bg-mario-blue data-[state=active]:text-white",
                       "data-[state=active]:shadow-[inset_0_-3px_0_rgba(0,0,0,0.25)]"
                     )}
                   >
@@ -397,10 +397,10 @@ export function WalletTrackerPopup({ isOpen, onClose }: WalletTrackerPopupProps)
                             key={wallet.id}
                             type="button"
                             className={cn(
-                              "group text-left rounded-2xl border-2 border-[var(--outline-black)] bg-white/80 p-4 transition-all",
+                              "group text-left rounded-2xl border-3 border-outline bg-white/90 backdrop-blur-sm p-4 transition-all",
                               "shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 hover:shadow-[6px_6px_0_var(--outline-black)]",
                               selectedWallet === wallet.walletAddress &&
-                                "bg-[var(--mario-yellow,#FFD93D)]/20"
+                                "bg-mario-yellow/20"
                             )}
                             onClick={() => setSelectedWallet(wallet.walletAddress)}
                           >
@@ -410,7 +410,7 @@ export function WalletTrackerPopup({ isOpen, onClose }: WalletTrackerPopupProps)
                                   {wallet.label && (
                                     <Badge
                                       variant="secondary"
-                                      className="rounded-lg border-2 border-[var(--outline-black)] bg-white text-xs shadow-[2px_2px_0_var(--outline-black)]"
+                                      className="rounded-lg border-2 border-outline bg-white font-bold text-xs shadow-[2px_2px_0_var(--outline-black)]"
                                     >
                                       {wallet.label}
                                     </Badge>
@@ -418,9 +418,9 @@ export function WalletTrackerPopup({ isOpen, onClose }: WalletTrackerPopupProps)
                                   <Badge
                                     variant={wallet.isActive ? "default" : "outline"}
                                     className={cn(
-                                      "rounded-lg border-2 border-[var(--outline-black)] text-xs",
+                                      "rounded-lg border-2 border-outline font-bold text-xs",
                                       wallet.isActive
-                                        ? "bg-[var(--mario-green,#34C759)] text-white"
+                                        ? "bg-mario-green text-white"
                                         : "bg-white"
                                     )}
                                   >
@@ -429,13 +429,13 @@ export function WalletTrackerPopup({ isOpen, onClose }: WalletTrackerPopupProps)
                                 </div>
 
                                 <div className="flex items-center gap-2">
-                                  <code className="truncate font-mono text-sm text-muted-foreground">
+                                  <code className="truncate font-mono text-sm text-muted-foreground font-bold">
                                     {wallet.walletAddress}
                                   </code>
                                   <Button
                                     variant="ghost"
                                     size="icon"
-                                    className="h-7 w-7 rounded-lg border-2 border-transparent hover:border-[var(--outline-black)]"
+                                    className="h-7 w-7 rounded-lg border-2 border-transparent hover:border-outline"
                                     onClick={(e) => {
                                       e.stopPropagation()
                                       copyToClipboard(wallet.walletAddress)
@@ -447,7 +447,7 @@ export function WalletTrackerPopup({ isOpen, onClose }: WalletTrackerPopupProps)
                                   <Button
                                     variant="ghost"
                                     size="icon"
-                                    className="h-7 w-7 rounded-lg border-2 border-transparent hover:border-[var(--outline-black)]"
+                                    className="h-7 w-7 rounded-lg border-2 border-transparent hover:border-outline"
                                     onClick={(e) => {
                                       e.stopPropagation()
                                       window.open(
@@ -465,7 +465,7 @@ export function WalletTrackerPopup({ isOpen, onClose }: WalletTrackerPopupProps)
                               <Button
                                 variant="ghost"
                                 size="icon"
-                                className="h-8 w-8 rounded-lg border-2 border-transparent text-destructive hover:border-[var(--outline-black)] hover:bg-destructive/10"
+                                className="h-8 w-8 rounded-lg border-2 border-transparent text-destructive hover:border-outline hover:bg-destructive/10"
                                 onClick={(e) => {
                                   e.stopPropagation()
                                   handleRemoveWallet(wallet.id)
@@ -484,11 +484,11 @@ export function WalletTrackerPopup({ isOpen, onClose }: WalletTrackerPopupProps)
                     {selectedWallet && (
                       <section className="mt-4 space-y-3">
                         <div className="flex items-center justify-between">
-                          <h3 className="text-sm font-extrabold tracking-tight">Recent Activity</h3>
+                          <h3 className="text-sm font-mario font-bold tracking-tight text-outline">Recent Activity</h3>
                           <Button
                             variant="outline"
                             size="sm"
-                            className="rounded-xl border-2 border-[var(--outline-black)] bg-white shadow-[2px_2px_0_var(--outline-black)]"
+                            className="rounded-xl border-3 border-outline bg-white shadow-[2px_2px_0_var(--outline-black)]"
                             onClick={() => refetchWalletActivity()}
                             disabled={loadingActivity}
                             aria-label="Refresh activity"
@@ -502,11 +502,11 @@ export function WalletTrackerPopup({ isOpen, onClose }: WalletTrackerPopupProps)
                         </div>
 
                         {/* Copy-trade control */}
-                        <div className="rounded-2xl border-2 border-[var(--outline-black)] bg-[var(--mario-blue,#007AFF)]/10 p-4 shadow-[4px_4px_0_var(--outline-black)]">
+                        <div className="rounded-2xl border-3 border-outline bg-mario-blue/10 backdrop-blur-sm p-4 shadow-[4px_4px_0_var(--outline-black)]">
                           <div className="space-y-3">
                             <Label
                               htmlFor="copy-trade-slider"
-                              className="text-xs font-semibold text-foreground/90"
+                              className="text-xs font-bold text-foreground/90"
                             >
                               Copy trade size
                             </Label>
@@ -524,12 +524,12 @@ export function WalletTrackerPopup({ isOpen, onClose }: WalletTrackerPopupProps)
                               />
                               <Badge
                                 variant="outline"
-                                className="min-w-[60px] justify-center rounded-xl border-2 border-[var(--outline-black)] bg-white shadow-[2px_2px_0_var(--outline-black)]"
+                                className="min-w-[60px] justify-center rounded-xl border-2 border-outline bg-white font-bold shadow-[2px_2px_0_var(--outline-black)]"
                               >
                                 {copyTradePercentage}%
                               </Badge>
                             </div>
-                            <p className="text-xs text-muted-foreground">
+                            <p className="text-xs text-muted-foreground font-bold">
                               Executes at {copyTradePercentage}% of the original size.
                             </p>
                           </div>
@@ -541,10 +541,10 @@ export function WalletTrackerPopup({ isOpen, onClose }: WalletTrackerPopupProps)
                             <Loader2 className="h-6 w-6 animate-spin text-primary" />
                           </div>
                         ) : walletActivity.length === 0 ? (
-                          <div className="grid place-items-center rounded-2xl border-2 border-[var(--outline-black)] bg-white/80 p-6 text-center shadow-[4px_4px_0_var(--outline-black)]">
+                          <div className="grid place-items-center rounded-2xl border-3 border-outline bg-white/90 backdrop-blur-sm p-6 text-center shadow-[4px_4px_0_var(--outline-black)]">
                             <div>
                               <AlertCircle className="mx-auto mb-2 h-6 w-6 text-foreground/70" />
-                              <p className="text-sm font-semibold">No recent activity</p>
+                              <p className="text-sm font-bold">No recent activity</p>
                             </div>
                           </div>
                         ) : (
@@ -552,18 +552,18 @@ export function WalletTrackerPopup({ isOpen, onClose }: WalletTrackerPopupProps)
                             {walletActivity.map((activity: Backend.WalletActivity) => (
                               <div
                                 key={activity.signature}
-                                className="rounded-2xl border-2 border-[var(--outline-black)] bg-white/90 p-4 shadow-[4px_4px_0_var(--outline-black)] sm:p-5"
+                                className="rounded-2xl border-3 border-outline bg-white/90 backdrop-blur-sm p-4 shadow-[4px_4px_0_var(--outline-black)] sm:p-5"
                               >
                                 <div className="flex items-start justify-between gap-3">
                                   <div className="min-w-0 flex-1">
                                     <div className="mb-1.5 flex flex-wrap items-center gap-2">
                                       <Badge
                                         variant="outline"
-                                        className="rounded-lg border-2 border-[var(--outline-black)] bg-white text-xs"
+                                        className="rounded-lg border-2 border-outline bg-white font-bold text-xs"
                                       >
                                         {activity.type}
                                       </Badge>
-                                      <span className="text-xs text-muted-foreground">
+                                      <span className="text-xs text-muted-foreground font-bold">
                                         {new Date(activity.timestamp).toLocaleTimeString()}
                                       </span>
                                     </div>
@@ -571,15 +571,15 @@ export function WalletTrackerPopup({ isOpen, onClose }: WalletTrackerPopupProps)
                                     <div className="grid grid-cols-2 gap-x-6 gap-y-1 text-xs sm:gap-x-8">
                                       <div className="flex items-center gap-2">
                                         <TrendingDown className="h-3.5 w-3.5 text-red-500" />
-                                        <span className="text-muted-foreground">In:</span>
-                                        <code className="truncate font-mono">
+                                        <span className="text-muted-foreground font-bold">In:</span>
+                                        <code className="truncate font-mono font-bold">
                                           {activity.tokenIn?.slice(0, 8) || "N/A"}
                                         </code>
                                       </div>
                                       <div className="flex items-center gap-2">
                                         <TrendingUp className="h-3.5 w-3.5 text-green-500" />
-                                        <span className="text-muted-foreground">Out:</span>
-                                        <code className="truncate font-mono">
+                                        <span className="text-muted-foreground font-bold">Out:</span>
+                                        <code className="truncate font-mono font-bold">
                                           {activity.tokenOut?.slice(0, 8) || "N/A"}
                                         </code>
                                       </div>
@@ -594,8 +594,8 @@ export function WalletTrackerPopup({ isOpen, onClose }: WalletTrackerPopupProps)
                                     }
                                     disabled={copyTradeMutation.isPending}
                                     className={cn(
-                                      "gap-2 rounded-xl border-2 border-[var(--outline-black)]",
-                                      "bg-[var(--mario-green,#34C759)] text-white shadow-[3px_3px_0_var(--outline-black)]",
+                                      "gap-2 rounded-xl border-3 border-outline font-mario font-bold",
+                                      "bg-mario-green text-white shadow-[3px_3px_0_var(--outline-black)]",
                                       "hover:translate-y-[-1px] hover:shadow-[4px_4px_0_var(--outline-black)]"
                                     )}
                                   >
@@ -617,28 +617,28 @@ export function WalletTrackerPopup({ isOpen, onClose }: WalletTrackerPopupProps)
 
                   {/* ADD */}
                   <TabsContent value="add">
-                    <div className="rounded-2xl border-2 border-[var(--outline-black)] bg-white/90 p-5 shadow-[4px_4px_0_var(--outline-black)] sm:p-6">
+                    <div className="rounded-2xl border-3 border-outline bg-white/90 backdrop-blur-sm p-5 shadow-[4px_4px_0_var(--outline-black)] sm:p-6">
                       <div className="space-y-5">
                         <div className="space-y-2">
-                          <Label htmlFor={addressId}>Wallet Address *</Label>
+                          <Label htmlFor={addressId} className="font-bold">Wallet Address *</Label>
                           <Input
                             id={addressId}
                             placeholder="Enter Solana wallet address…"
                             value={newWalletAddress}
                             onChange={(e) => setNewWalletAddress(e.target.value)}
-                            className="rounded-xl border-2 border-[var(--outline-black)] font-mono"
+                            className="rounded-xl border-3 border-outline font-mono"
                             autoComplete="off"
                           />
                         </div>
 
                         <div className="space-y-2">
-                          <Label htmlFor={labelId}>Label (optional)</Label>
+                          <Label htmlFor={labelId} className="font-bold">Label (optional)</Label>
                           <Input
                             id={labelId}
                             placeholder="e.g., “Ansem”, “Top Trader”…"
                             value={newWalletLabel}
                             onChange={(e) => setNewWalletLabel(e.target.value)}
-                            className="rounded-xl border-2 border-[var(--outline-black)]"
+                            className="rounded-xl border-3 border-outline"
                             autoComplete="off"
                           />
                         </div>
@@ -647,8 +647,8 @@ export function WalletTrackerPopup({ isOpen, onClose }: WalletTrackerPopupProps)
                           onClick={handleAddWallet}
                           disabled={addWalletMutation.isPending || !newWalletAddress.trim()}
                           className={cn(
-                            "w-full gap-2 rounded-2xl border-2 border-[var(--outline-black)]",
-                            "bg-[var(--mario-blue,#007AFF)] text-white shadow-[4px_4px_0_var(--outline-black)]",
+                            "w-full gap-2 rounded-2xl border-3 border-outline font-mario font-bold",
+                            "bg-mario-blue text-white shadow-[4px_4px_0_var(--outline-black)]",
                             "hover:translate-y-[-1px] hover:shadow-[6px_6px_0_var(--outline-black)]"
                           )}
                         >
@@ -681,17 +681,17 @@ export function WalletTrackerPopup({ isOpen, onClose }: WalletTrackerPopupProps)
 
 function EmptyState({ onPrimary }: { onPrimary: () => void }) {
   return (
-    <div className="grid place-items-center rounded-2xl border-2 border-[var(--outline-black)] bg-white/80 p-10 text-center shadow-[6px_6px_0_var(--outline-black)]">
-      <div className="mx-auto mb-4 grid h-12 w-12 place-items-center rounded-2xl border-2 border-[var(--outline-black)] bg-[var(--mario-red,#FF3B30)] text-white shadow-[3px_3px_0_var(--outline-black)]">
+    <div className="grid place-items-center rounded-2xl border-3 border-outline bg-white/90 backdrop-blur-sm p-10 text-center shadow-[6px_6px_0_var(--outline-black)]">
+      <div className="mx-auto mb-4 grid h-12 w-12 place-items-center rounded-2xl border-3 border-outline bg-mario-red text-white shadow-[3px_3px_0_var(--outline-black)]">
         <Eye className="h-6 w-6" />
       </div>
-      <p className="mb-4 font-semibold text-[var(--outline-black)]">No wallets tracked yet</p>
+      <p className="mb-4 font-mario font-bold text-outline">No wallets tracked yet</p>
       <Button
         onClick={onPrimary}
         size="sm"
         className={cn(
-          "gap-2 rounded-xl border-2 border-[var(--outline-black)]",
-          "bg-[var(--mario-yellow,#FFD93D)] shadow-[3px_3px_0_var(--outline-black)]",
+          "gap-2 rounded-xl border-3 border-outline font-mario font-bold",
+          "bg-mario-yellow shadow-[3px_3px_0_var(--outline-black)]",
           "hover:translate-y-[-1px] hover:shadow-[4px_4px_0_var(--outline-black)]"
         )}
       >
