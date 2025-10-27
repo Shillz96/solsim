@@ -21,23 +21,15 @@ const nextConfig = {
   // Experimental features - 2025 Modernization
   experimental: {
     // Optimize package imports for better tree-shaking
+    // Note: Radix UI components removed - they're already optimized and loading them here
+    // creates a large shared chunk. Better to let Next.js code-split them per-page.
     optimizePackageImports: [
       'lucide-react',
       'date-fns',
       'recharts',
       'framer-motion',
-      '@radix-ui/react-icons',
       '@solana/web3.js',
       '@solana/wallet-adapter-react',
-      '@radix-ui/react-dialog',
-      '@radix-ui/react-dropdown-menu',
-      '@radix-ui/react-popover',
-      '@radix-ui/react-select',
-      '@radix-ui/react-tabs',
-      '@radix-ui/react-toast',
-      '@radix-ui/react-tooltip',
-      '@radix-ui/react-hover-card',
-      '@radix-ui/react-scroll-area',
       '@tabler/icons-react',
     ],
     

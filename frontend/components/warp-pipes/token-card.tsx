@@ -151,6 +151,8 @@ export function TokenCard({ data, onToggleWatch, className, enableLiveUpdates = 
                   className="h-full w-full object-cover"
                   onError={() => setImageError(true)}
                   loading="lazy"
+                  width={120}
+                  height={120}
                 />
               ) : (
                 <div className="h-full w-full grid place-items-center bg-star text-outline text-5xl font-bold">🪙</div>
