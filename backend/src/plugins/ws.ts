@@ -179,6 +179,9 @@ export default async function wsPlugin(app: FastifyInstance) {
               });
             }
 
+            // Subscribe to PumpPortal for real-time trade events
+            priceService.subscribeToPumpPortalToken(data.mint);
+
             // Subscribe to real-time price updates for this token using manual subscription
             const unsubscribe = priceService.subscribe((tick) => {
               if (tick.mint === data.mint && subscribedTokens.has(data.mint)) {
@@ -201,6 +204,9 @@ export default async function wsPlugin(app: FastifyInstance) {
 
           } else if (data.type === "unsubscribe" && data.mint) {
             subscribedTokens.delete(data.mint);
+
+            // Unsubscribe from PumpPortal trade events
+            priceService.unsubscribeFromPumpPortalToken(data.mint);
 
             // Remove price service subscription
             const unsubscribe = priceSubscriptions.get(data.mint);

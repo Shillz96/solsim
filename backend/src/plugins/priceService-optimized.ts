@@ -265,10 +265,13 @@ class OptimizedPriceService extends EventEmitter {
     // Listen to swap events from PumpPortal for price calculations
     pumpPortalStreamService.on('swap', async (event: SwapEvent) => {
       try {
+        // Skip if missing required data
+        if (!event.solAmount || !event.tokenAmount) {
+          return;
+        }
+
         // Calculate USD price from swap event
-        const priceUsd = event.solAmount && event.tokenAmount
-          ? (event.solAmount / event.tokenAmount) * this.solPriceUsd
-          : 0;
+        const priceUsd = (event.solAmount / event.tokenAmount) * this.solPriceUsd;
 
         if (priceUsd > 0) {
           const tick: PriceTick = {
@@ -697,11 +700,6 @@ class OptimizedPriceService extends EventEmitter {
 
         logger.info({ oldPrice, newPrice: this.solPriceUsd }, "SOL price updated");
 
-        // Update PumpPortal WebSocket with new SOL price
-        if (this.pumpPortalWs) {
-          this.pumpPortalWs.updateSolPrice(this.solPriceUsd);
-        }
-
         const solTick: PriceTick = {
           mint: "So11111111111111111111111111111111111111112",
           priceUsd: this.solPriceUsd,
@@ -740,11 +738,6 @@ class OptimizedPriceService extends EventEmitter {
 
           logger.info({ oldPrice, newPrice: this.solPriceUsd }, "SOL price updated from Jupiter fallback");
 
-          // Update PumpPortal WebSocket with new SOL price
-          if (this.pumpPortalWs) {
-            this.pumpPortalWs.updateSolPrice(this.solPriceUsd);
-          }
-
           const solTick: PriceTick = {
             mint: "So11111111111111111111111111111111111111112",
             priceUsd: this.solPriceUsd,
@@ -782,21 +775,22 @@ class OptimizedPriceService extends EventEmitter {
       return;
     }
 
-    pumpPortalStreamService.subscribeToToken(mint);
+    pumpPortalStreamService.subscribeToTokens([mint]);
     logger.debug({ mint: mint.slice(0, 8) }, "Subscribed to PumpPortal token trades");
   }
 
   /**
    * Unsubscribe from real-time price updates for a specific token
    * Called when frontend WebSocket client unsubscribes from a token
+   *
+   * NOTE: PumpPortal doesn't support unsubscribing from individual tokens.
+   * Subscriptions remain active for the lifetime of the WebSocket connection.
+   * This is a no-op to maintain API compatibility.
    */
   public unsubscribeFromPumpPortalToken(mint: string) {
-    if (!pumpPortalStreamService.isConnected) {
-      return;
-    }
-
-    pumpPortalStreamService.unsubscribeFromToken(mint);
-    logger.debug({ mint: mint.slice(0, 8) }, "Unsubscribed from PumpPortal token trades");
+    // PumpPortal WebSocket API doesn't support unsubscribing from individual tokens
+    // Subscriptions remain active until connection closes
+    logger.debug({ mint: mint.slice(0, 8) }, "Unsubscribe requested (PumpPortal doesn't support individual unsubscribe)");
   }
 
   /**
@@ -820,97 +814,6 @@ class OptimizedPriceService extends EventEmitter {
     return 2 * 60 * 1000;  // 2 minutes for all tokens
   }
 
-  /**
-   * Fetch price from pump.fun API
-   * Used as PRIMARY source for pump.fun tokens, LAST RESORT for others
-   * Includes retry logic for transient failures
-   */
-  private async fetchPumpFunPrice(mint: string, retryCount: number = 0): Promise<PriceTick | null> {
-    const MAX_RETRIES = 1; // Try twice total (initial + 1 retry)
-
-    try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 5000); // 5s timeout (more reliable for pump.fun API)
-
-      const response = await fetch(
-        `https://frontend-api.pump.fun/coins/${mint}`,
-        {
-          signal: controller.signal,
-          headers: {
-            'Accept': 'application/json',
-            'User-Agent': 'VirtualSol/1.0'
-          }
-        }
-      );
-
-      clearTimeout(timeoutId);
-
-      if (!response.ok) {
-        if (response.status === 404) {
-          // Token doesn't exist on pump.fun - don't retry
-          return null;
-        }
-        throw new Error(`HTTP ${response.status}`);
-      }
-
-      const data = await response.json();
-
-      // Calculate price from bonding curve reserves
-      if (data && data.virtual_sol_reserves && data.virtual_token_reserves) {
-        const virtualSolReserves = data.virtual_sol_reserves / 1e9; // lamports → SOL
-        const virtualTokenReserves = data.virtual_token_reserves / 1e6; // Assuming 6 decimals
-        const tokenPriceInSol = virtualSolReserves / virtualTokenReserves;
-        const tokenPriceInUsd = tokenPriceInSol * this.solPriceUsd;
-
-        if (tokenPriceInUsd > 0) {
-          return {
-            mint,
-            priceUsd: tokenPriceInUsd,
-            priceSol: tokenPriceInSol,
-            solUsd: this.solPriceUsd,
-            timestamp: Date.now(),
-            source: "pumpfun",
-            marketCapUsd: data.usd_market_cap
-          };
-        }
-      }
-
-      return null;
-    } catch (error: any) {
-      // Check if this is a transient error that should be retried
-      const isTransientError =
-        error.message?.includes('aborted') ||
-        error.message?.includes('fetch failed') ||
-        error.message?.includes('ECONNRESET') ||
-        error.message?.includes('ETIMEDOUT') ||
-        error.message?.includes('ENOTFOUND') ||
-        error.name === 'AbortError';
-
-      // Retry logic for transient errors
-      if (isTransientError && retryCount < MAX_RETRIES) {
-        logger.debug({ mint: mint.slice(0, 8), retryCount: retryCount + 1 }, "Retrying pump.fun API call");
-        await new Promise(resolve => setTimeout(resolve, 500)); // Brief delay before retry
-        return this.fetchPumpFunPrice(mint, retryCount + 1);
-      }
-
-      // Don't log expected failures (404, timeouts, fetch errors)
-      const isExpectedError =
-        error.message?.includes('404') ||
-        isTransientError;
-
-      if (!isExpectedError) {
-        // Only log truly unexpected errors with more context
-        logger.debug({
-          mint: mint.slice(0, 8),
-          error: error.message,
-          statusCode: error.statusCode || 'unknown',
-          retryCount
-        }, "PumpFun API unexpected error");
-      }
-
-      return null;
-    }
-  }
 
   /**
    * Batch fetch token prices - DexScreener disabled to prevent rate limit issues
@@ -978,19 +881,13 @@ class OptimizedPriceService extends EventEmitter {
   }
 
   private async _fetchTokenPriceInternal(mint: string): Promise<PriceTick | null> {
-    // Try pump.fun API first (fast for bonding curve tokens)
-    const pumpPrice = await this.fetchPumpFunPrice(mint);
-    if (pumpPrice) {
-      await this.updatePrice(pumpPrice);
-      return pumpPrice;
-    }
-    // If not found, try other sources (token might have graduated to AMM)
+    // For initial price fetch, use Jupiter as primary fallback
+    // Real-time updates come from PumpPortal WebSocket (swap events)
+    // DexScreener and pump.fun frontend API disabled (unreliable/rate-limited)
 
-    // DexScreener disabled to prevent rate limit issues
-    // Using only PumpPortal and Jupiter as fallback
-    logger.debug({ mint: mint.slice(0, 8) }, "Skipping DexScreener to avoid rate limits");
+    logger.debug({ mint: mint.slice(0, 8) }, "Fetching price from Jupiter");
 
-    // Try Jupiter as fallback
+    // Try Jupiter fallback
     try {
       const jupResult = await this.jupiterBreaker.execute(async () => {
         const controller = new AbortController();
@@ -1343,9 +1240,13 @@ class OptimizedPriceService extends EventEmitter {
         // heliusWsStale: heliusWsAge > 60000,    // HELIUS WEBSOCKET DISABLED
         pumpPortalWsStale: pumpPortalWsAge > 60000, // > 1 minute
         priceUpdatesStale: lastPriceAge > 30000, // > 30 seconds
-        isHealthy: lastPriceAge < 60000 && this.ws?.readyState === WebSocket.OPEN
+        isHealthy: lastPriceAge < 60000 && pumpPortalStreamService.isConnected
       },
-      pumpPortal: this.pumpPortalWs?.getStats() || null,
+      pumpPortal: {
+        connected: pumpPortalStreamService.isConnected,
+        subscribedTokens: pumpPortalStreamService.getSubscribedTokenCount(),
+        subscribedWallets: pumpPortalStreamService.getSubscribedWalletCount()
+      },
       plan: "PumpPortal-Only (simplified v3)",
       lastUpdate: now
     };
@@ -1359,27 +1260,24 @@ class OptimizedPriceService extends EventEmitter {
     return result;
   }
 
-  /**
-   * Force reconnect PumpPortal WebSocket (for manual recovery)
-   */
-  async forceReconnectPumpPortal(): Promise<void> {
-    if (!this.pumpPortalWs) {
-      throw new Error("PumpPortal WebSocket not initialized");
-    }
-    await this.pumpPortalWs.forceReconnect();
-  }
-
   async stop() {
     logger.info("Stopping price service");
 
     this.shouldReconnect = false;
 
+    // Stop all update intervals
     this.updateIntervals.forEach(interval => clearInterval(interval));
     this.updateIntervals = [];
 
     if (this.pingInterval) {
       clearInterval(this.pingInterval);
       this.pingInterval = null;
+    }
+
+    // Stop PumpPortal stream service (graceful shutdown)
+    if (pumpPortalStreamService.isConnected) {
+      await pumpPortalStreamService.stop();
+      logger.info("✅ PumpPortal stream service stopped");
     }
 
     if (this.ws) {

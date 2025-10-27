@@ -17,7 +17,7 @@
 import { PrismaClient, Prisma } from '@prisma/client';
 import { Decimal } from '@prisma/client/runtime/library';
 import Redis from 'ioredis';
-import { pumpPortalStreamService, NewTokenEvent, MigrationEvent, SwapEvent } from '../services/pumpPortalStreamService.js';
+import { PumpPortalStreamService, NewTokenEvent, MigrationEvent, SwapEvent } from '../services/pumpPortalStreamService.js';
 import { raydiumStreamService, NewPoolEvent } from '../services/raydiumStreamService.js';
 import { healthCapsuleService } from '../services/healthCapsuleService.js';
 import { tokenMetadataService, TokenMetadata } from '../services/tokenMetadataService.js';
@@ -70,6 +70,9 @@ class TokenDiscoveryConfig {
 
 const prisma = new PrismaClient();
 const redis = new Redis(process.env.REDIS_URL || '');
+
+// Create dedicated PumpPortal instance for this worker (prevents EventEmitter leaks)
+const pumpPortalStreamService = new PumpPortalStreamService();
 
 // Track intervals for cleanup during shutdown
 const intervals: NodeJS.Timeout[] = [];

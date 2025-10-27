@@ -48,19 +48,19 @@ export function TokenColumn({
     bonded: {
       header: "text-outline",
       headerBg: "bg-coin",
-      body: "bg-gradient-to-b from-amber-100/40 to-amber-50/20",
+      body: "bg-coin/5",  // Very subtle coin tint - won't interfere with token card gradients
       image: "/bonded-10-23-2025.png",
     },
     graduating: {
       header: "text-outline",
       headerBg: "bg-star",
-      body: "bg-gradient-to-b from-yellow-100/40 to-yellow-50/20",
+      body: "bg-star/5",  // Very subtle star tint - won't interfere with token card gradients
       image: "/About-to-Graduate-10-23-2025.png",
     },
     new: {
       header: "text-white",
       headerBg: "bg-luigi",
-      body: "bg-gradient-to-b from-green-100/40 to-green-50/20",
+      body: "bg-luigi/5",  // Very subtle luigi tint - won't interfere with token card gradients
       image: "/New-Pairs-10-23-2025.png",
     },
   }[headerColor]

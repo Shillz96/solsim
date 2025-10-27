@@ -267,8 +267,8 @@ async function executeTradeLogic({
 
   // For BUY orders, subscribe to WebSocket for real-time updates
   if (side === "BUY") {
-    priceService.subscribeToPumpFunToken(mint);
-    console.log(`[Trade] Subscribed to pump.fun WebSocket updates for ${mint.substring(0, 8)}...`);
+    priceService.subscribeToPumpPortalToken(mint);
+    console.log(`[Trade] Subscribed to PumpPortal WebSocket updates for ${mint.substring(0, 8)}...`);
   }
 
   // Calculate portfolio totals

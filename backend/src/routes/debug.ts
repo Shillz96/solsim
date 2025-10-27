@@ -1,6 +1,7 @@
 // Debug routes for price service monitoring
 import { FastifyInstance } from "fastify";
 import priceService from "../plugins/priceService.js";
+import { pumpPortalStreamService } from "../services/pumpPortalStreamService.js";
 
 export default async function debugRoutes(app: FastifyInstance) {
   // Debug endpoint to check price service status
@@ -74,7 +75,9 @@ export default async function debugRoutes(app: FastifyInstance) {
     try {
       console.log("🔄 Manual PumpPortal WebSocket reconnection requested...");
 
-      await priceService.forceReconnectPumpPortal();
+      // Stop and restart the PumpPortal stream service
+      await pumpPortalStreamService.stop();
+      await pumpPortalStreamService.start();
 
       const stats = priceService.getStats();
 
