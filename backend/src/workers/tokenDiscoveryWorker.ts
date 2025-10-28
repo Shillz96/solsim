@@ -482,6 +482,37 @@ async function handleSwap(event: SwapEvent): Promise<void> {
     // Expire after 1 hour
     await redis.expire(`market:trades:${mint}`, 3600);
 
+    // Calculate and cache price from swap event (so main API and worker can both read it)
+    if (solAmount && tokenAmount && solAmount > 0 && tokenAmount > 0) {
+      const priceSol = solAmount / tokenAmount; // SOL per token
+      const solPriceUsd = priceServiceClient.getSolPrice(); // Get SOL/USD price
+      const priceUsd = priceSol * solPriceUsd; // USD per token
+
+      if (priceUsd > 0 && solPriceUsd > 0) {
+        const priceTick = {
+          mint,
+          priceUsd,
+          priceSol,
+          solUsd: solPriceUsd,
+          timestamp: Date.now(),
+          source: 'pumpportal-worker'
+        };
+
+        // Cache in Redis (same format as main priceService)
+        await redis.setex(
+          `prices:${mint}`,
+          300, // 5 minute TTL
+          JSON.stringify(priceTick)
+        );
+
+        logger.debug({
+          mint: mint.slice(0, 8),
+          priceUsd: priceUsd.toFixed(8),
+          priceSol: priceSol.toFixed(8)
+        }, 'Cached price from swap event');
+      }
+    }
+
     // Update trader stats for top traders leaderboard
     if (user) {
       const traderKey = `market:traders:${mint}`;
