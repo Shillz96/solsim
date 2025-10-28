@@ -104,9 +104,10 @@ class TokenMetadataService {
       });
 
       if (!response.ok) {
-        // Return empty object on rate limit or other errors (don't break worker)
+        // Log ALL errors with status code for debugging
+        console.error(`[TokenMetadata] DexScreener API error for ${mint.slice(0, 8)}: ${response.status} ${response.statusText}`);
         if (response.status === 429) {
-          console.warn(`[TokenMetadata] DexScreener rate limit hit for ${mint.slice(0, 8)}...`);
+          console.warn(`[TokenMetadata] RATE LIMITED by DexScreener`);
         }
         return {};
       }
@@ -116,7 +117,10 @@ class TokenMetadataService {
       // DexScreener returns { pairs: [...] }
       // Find the best pair (highest liquidity or volume)
       const pairs = data?.pairs || [];
-      if (pairs.length === 0) return {};
+      if (pairs.length === 0) {
+        console.warn(`[TokenMetadata] No pairs found for ${mint.slice(0, 8)}`);
+        return {};
+      }
 
       // Sort by liquidity USD descending, take first pair
       const sortedPairs = pairs.sort((a: any, b: any) => 
@@ -124,23 +128,25 @@ class TokenMetadataService {
       );
       const bestPair = sortedPairs[0];
 
-      return {
+      const marketData = {
         marketCapUsd: bestPair.fdv || bestPair.marketCap,
         volume24h: bestPair.volume?.h24,
         priceUsd: parseFloat(bestPair.priceUsd || '0'),
         priceChange24h: bestPair.priceChange?.h24,
         txCount24h: bestPair.txns?.h24?.buys + bestPair.txns?.h24?.sells || undefined,
       };
-    } catch (error: any) {
-      // Silently handle expected errors (timeouts, network issues)
-      const isExpectedError =
-        error.name === 'AbortError' ||
-        error.name === 'TimeoutError' ||
-        error.code === 'ENOTFOUND';
 
-      if (!isExpectedError) {
-        console.error(`[TokenMetadata] Unexpected error fetching market data for ${mint.slice(0, 8)}:`, error.message);
-      }
+      // Log successful fetch
+      console.log(`[TokenMetadata] Fetched market data for ${mint.slice(0, 8)}: vol=$${marketData.volume24h?.toFixed(0)}, price_chg=${marketData.priceChange24h?.toFixed(2)}%`);
+
+      return marketData;
+    } catch (error: any) {
+      // Log ALL errors for debugging
+      console.error(`[TokenMetadata] Error fetching market data for ${mint.slice(0, 8)}:`, {
+        name: error.name,
+        message: error.message,
+        code: error.code
+      });
       return {};
     }
   }

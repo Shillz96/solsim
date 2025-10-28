@@ -842,7 +842,23 @@ async function updateMarketDataAndStates() {
       try {
         // Fetch fresh market data from DexScreener
         const marketData = await tokenMetadataService.fetchMarketData(token.mint);
-        
+
+        // Fallback: Get price from Redis cache (PumpPortal real-time prices) if DexScreener doesn't have it
+        if (!marketData.priceUsd || marketData.priceUsd === 0) {
+          try {
+            const cachedPrice = await redis.get(`price:${token.mint}`);
+            if (cachedPrice) {
+              const priceData = JSON.parse(cachedPrice);
+              if (priceData.priceUsd) {
+                marketData.priceUsd = priceData.priceUsd;
+                logger.debug({ mint: token.mint.slice(0, 8), price: priceData.priceUsd }, 'Using cached price from PumpPortal');
+              }
+            }
+          } catch (err) {
+            logger.debug({ mint: token.mint.slice(0, 8) }, 'No cached price available');
+          }
+        }
+
         // Calculate new state
         const newStatus = stateManager.classifyTokenState({
           bondingCurveProgress: token.bondingCurveProgress,
