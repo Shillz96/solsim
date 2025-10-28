@@ -851,8 +851,9 @@ async function updateMarketDataAndStates() {
           marketCapUsd: marketData.marketCapUsd
         }, 'DexScreener market data');
 
-        // Fallback: Get price from Redis cache (written by main priceService) if DexScreener doesn't have it
+        // Fallback chain: Redis cache → Jupiter API
         if (!marketData.priceUsd || marketData.priceUsd === 0) {
+          // Try Redis cache first (written by main priceService from PumpPortal)
           try {
             const cachedPrice = await priceServiceClient.getPrice(token.mint);
             if (cachedPrice && cachedPrice > 0) {
@@ -863,6 +864,45 @@ async function updateMarketDataAndStates() {
             }
           } catch (err) {
             logger.debug({ mint: token.mint.slice(0, 8), err }, 'Redis price cache lookup failed');
+          }
+
+          // If Redis cache also failed, try Jupiter as final fallback
+          if (!marketData.priceUsd || marketData.priceUsd === 0) {
+            try {
+              const controller = new AbortController();
+              const timeoutId = setTimeout(() => controller.abort(), 8000);
+
+              const response = await fetch(
+                `https://lite-api.jup.ag/price/v3?ids=${token.mint}`,
+                {
+                  signal: controller.signal,
+                  headers: {
+                    'Accept': 'application/json',
+                    'User-Agent': 'VirtualSol/1.0'
+                  }
+                }
+              );
+              clearTimeout(timeoutId);
+
+              if (response.ok) {
+                const data = await response.json();
+                if (data.data && data.data[token.mint] && data.data[token.mint].price) {
+                  const jupiterPrice = parseFloat(data.data[token.mint].price);
+                  if (jupiterPrice > 0) {
+                    marketData.priceUsd = jupiterPrice;
+                    logger.debug({ mint: token.mint.slice(0, 8), price: jupiterPrice }, 'Using Jupiter price fallback');
+                  }
+                }
+              } else if (response.status === 204) {
+                logger.debug({ mint: token.mint.slice(0, 8) }, 'Jupiter returned 204 (no price data)');
+              } else {
+                logger.debug({ mint: token.mint.slice(0, 8), status: response.status }, 'Jupiter API error');
+              }
+            } catch (err: any) {
+              if (err.name !== 'AbortError') {
+                logger.debug({ mint: token.mint.slice(0, 8), err: err.message }, 'Jupiter price fallback failed');
+              }
+            }
           }
         }
 
