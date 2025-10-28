@@ -81,30 +81,30 @@ export function TokenVitalsBar({
   return (
     <div className={cn(
       "rounded-2xl border-4 border-outline bg-white shadow-[6px_6px_0_var(--outline-black)] transition-all",
-      "w-full p-3 grid grid-cols-2 gap-3 min-h-[200px]",
+      "w-full p-2 grid grid-cols-2 gap-2 min-h-[140px]",
       className
     )}>
       {/* 24h Volume */}
-      <div className="flex items-center gap-3 p-3 rounded-lg border-3 border-outline shadow-[4px_4px_0_var(--outline-black)] bg-gradient-to-br from-[var(--coin-gold)]/20 to-[var(--star-yellow)]/10 hover:shadow-[5px_5px_0_var(--outline-black)] hover:-translate-y-[1px] transition-all">
-        <div className="h-12 w-12 rounded-full border-3 border-outline flex items-center justify-center shadow-[3px_3px_0_var(--outline-black)] bg-coin flex-shrink-0">
-          <DollarSign className="h-6 w-6 text-outline" />
+      <div className="flex items-center gap-2 p-2 rounded-lg border-3 border-outline shadow-[4px_4px_0_var(--outline-black)] bg-gradient-to-br from-[var(--coin-gold)]/20 to-[var(--star-yellow)]/10 hover:shadow-[5px_5px_0_var(--outline-black)] hover:-translate-y-[1px] transition-all">
+        <div className="h-8 w-8 rounded-full border-3 border-outline flex items-center justify-center shadow-[2px_2px_0_var(--outline-black)] bg-coin flex-shrink-0">
+          <DollarSign className="h-4 w-4 text-outline" />
         </div>
         <div className="min-w-0 flex-1">
-          <div className="text-[11px] font-mario font-bold uppercase text-outline/60">24h Vol</div>
-          <div className="font-mono text-sm font-bold text-outline truncate" title={volume24h ? `$${volume24h.toFixed(2)}` : "$0"}>
+          <div className="text-[10px] font-mario font-bold uppercase text-outline/60">24h Vol</div>
+          <div className="font-mono text-xs font-bold text-outline truncate" title={volume24h ? `$${volume24h.toFixed(2)}` : "$0"}>
             {volume24h ? formatUSD(volume24h) : "$0"}
           </div>
         </div>
       </div>
 
       {/* Holders */}
-      <div className="flex items-center gap-3 p-3 rounded-lg border-3 border-outline shadow-[4px_4px_0_var(--outline-black)] bg-gradient-to-br from-[var(--sky-blue)]/20 to-[var(--sky-blue)]/10 hover:shadow-[5px_5px_0_var(--outline-black)] hover:-translate-y-[1px] transition-all">
-        <div className="h-12 w-12 rounded-full border-3 border-outline flex items-center justify-center shadow-[3px_3px_0_var(--outline-black)] bg-sky flex-shrink-0">
-          <Users className="h-6 w-6 text-white" />
+      <div className="flex items-center gap-2 p-2 rounded-lg border-3 border-outline shadow-[4px_4px_0_var(--outline-black)] bg-gradient-to-br from-[var(--sky-blue)]/20 to-[var(--sky-blue)]/10 hover:shadow-[5px_5px_0_var(--outline-black)] hover:-translate-y-[1px] transition-all">
+        <div className="h-8 w-8 rounded-full border-3 border-outline flex items-center justify-center shadow-[2px_2px_0_var(--outline-black)] bg-sky flex-shrink-0">
+          <Users className="h-4 w-4 text-white" />
         </div>
         <div className="min-w-0 flex-1">
-          <div className="text-[11px] font-mario font-bold uppercase text-outline/60">Holders</div>
-          <div className="font-mono text-sm font-bold text-outline truncate" title={holders ? holders.toString() : "0"}>
+          <div className="text-[10px] font-mario font-bold uppercase text-outline/60">Holders</div>
+          <div className="font-mono text-xs font-bold text-outline truncate" title={holders ? holders.toString() : "0"}>
             {holders ? formatNumber(holders) : "0"}
           </div>
         </div>
@@ -112,45 +112,45 @@ export function TokenVitalsBar({
 
       {/* 5m Price Change - REAL-TIME */}
       <div className={cn(
-        "flex items-center gap-3 p-3 rounded-lg border-3 border-outline shadow-[4px_4px_0_var(--outline-black)] hover:shadow-[5px_5px_0_var(--outline-black)] hover:-translate-y-[1px] transition-all",
+        "flex items-center gap-2 p-2 rounded-lg border-3 border-outline shadow-[4px_4px_0_var(--outline-black)] hover:shadow-[5px_5px_0_var(--outline-black)] hover:-translate-y-[1px] transition-all",
         priceChange5m !== undefined && priceChange5m >= 0
           ? "bg-gradient-to-br from-[var(--luigi-green)]/20 to-green-100/10"
           : "bg-gradient-to-br from-[var(--mario-red)]/20 to-red-100/10"
       )}>
         <div className={cn(
-          "h-12 w-12 rounded-full border-3 border-outline flex items-center justify-center shadow-[3px_3px_0_var(--outline-black)] flex-shrink-0 transition-colors",
+          "h-8 w-8 rounded-full border-3 border-outline flex items-center justify-center shadow-[2px_2px_0_var(--outline-black)] flex-shrink-0 transition-colors",
           priceChange5m !== undefined && priceChange5m >= 0
             ? 'bg-luigi'
             : 'bg-mario'
         )}>
-          <PriceIcon className="h-6 w-6 text-white" />
+          <PriceIcon className="h-4 w-4 text-white" />
         </div>
         <div className="min-w-0 flex-1">
-          <div className="text-[11px] font-mario font-bold uppercase text-outline/60">5m Change</div>
+          <div className="text-[10px] font-mario font-bold uppercase text-outline/60">5m Change</div>
           {priceChange5m !== undefined ? (
             <AnimatedNumber
               value={priceChange5m}
               prefix={priceChange5m >= 0 ? '+' : ''}
               suffix="%"
               decimals={2}
-              className={cn("font-mono text-sm font-bold truncate", priceChangeColor)}
+              className={cn("font-mono text-xs font-bold truncate", priceChangeColor)}
               colorize={false}
               glowOnChange={true}
             />
           ) : (
-            <div className="font-mono text-sm font-bold text-outline/60 truncate">N/A</div>
+            <div className="font-mono text-xs font-bold text-outline/60 truncate">N/A</div>
           )}
         </div>
       </div>
 
       {/* User Rank */}
-      <div className="flex items-center gap-3 p-3 rounded-lg border-3 border-outline shadow-[4px_4px_0_var(--outline-black)] bg-gradient-to-br from-[var(--star-yellow)]/20 to-[var(--star-yellow)]/10 hover:shadow-[5px_5px_0_var(--outline-black)] hover:-translate-y-[1px] transition-all">
-        <div className="h-12 w-12 rounded-full border-3 border-outline flex items-center justify-center shadow-[3px_3px_0_var(--outline-black)] bg-star flex-shrink-0">
-          <Trophy className="h-6 w-6 text-outline" />
+      <div className="flex items-center gap-2 p-2 rounded-lg border-3 border-outline shadow-[4px_4px_0_var(--outline-black)] bg-gradient-to-br from-[var(--star-yellow)]/20 to-[var(--star-yellow)]/10 hover:shadow-[5px_5px_0_var(--outline-black)] hover:-translate-y-[1px] transition-all">
+        <div className="h-8 w-8 rounded-full border-3 border-outline flex items-center justify-center shadow-[2px_2px_0_var(--outline-black)] bg-star flex-shrink-0">
+          <Trophy className="h-4 w-4 text-outline" />
         </div>
         <div className="min-w-0 flex-1">
-          <div className="text-[11px] font-mario font-bold uppercase text-outline/60">Your Rank</div>
-          <div className="font-mono text-sm font-bold text-outline truncate" title={userRank ? `#${userRank}` : "Unranked"}>
+          <div className="text-[10px] font-mario font-bold uppercase text-outline/60">Your Rank</div>
+          <div className="font-mono text-xs font-bold text-outline truncate" title={userRank ? `#${userRank}` : "Unranked"}>
             {userRank ? `#${userRank}` : "Unranked"}
           </div>
         </div>
