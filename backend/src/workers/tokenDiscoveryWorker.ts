@@ -864,6 +864,8 @@ async function updateMarketDataAndStates() {
         lastTradeTs: true,
         volume24hSol: true,
         holderCount: true,
+        marketCapUsd: true, // CRITICAL: Need existing marketCap to calculate price when DexScreener rate limited
+        priceUsd: true, // Also get current price to avoid unnecessary recalculations
       },
       take: 50, // Small limit - PumpPortal swap events provide real-time prices, DexScreener only for fallback
       orderBy: { lastUpdatedAt: 'asc' } // Update oldest first
@@ -941,16 +943,20 @@ async function updateMarketDataAndStates() {
           }
         }
 
-        // Final fallback: Calculate price from marketCap if available (for pump.fun bonding curve tokens)
+        // Final fallback: Calculate price from marketCap (new OR existing from database)
         // Pump.fun tokens have 1 billion total supply (1,000,000,000 tokens)
-        if ((!marketData.priceUsd || marketData.priceUsd === 0) && marketData.marketCapUsd && marketData.marketCapUsd > 0) {
+        // Use fresh marketCap from DexScreener, or fall back to existing database value
+        const finalMarketCap = marketData.marketCapUsd || (token.marketCapUsd ? parseFloat(token.marketCapUsd.toString()) : null);
+
+        if ((!marketData.priceUsd || marketData.priceUsd === 0) && finalMarketCap && finalMarketCap > 0) {
           const PUMP_TOTAL_SUPPLY = 1_000_000_000;
-          marketData.priceUsd = marketData.marketCapUsd / PUMP_TOTAL_SUPPLY;
+          marketData.priceUsd = finalMarketCap / PUMP_TOTAL_SUPPLY;
           logger.debug({
             mint: token.mint.slice(0, 8),
-            marketCap: marketData.marketCapUsd,
-            calculatedPrice: marketData.priceUsd
-          }, 'Calculated price from marketCap (pump.fun bonding curve)');
+            marketCap: finalMarketCap,
+            calculatedPrice: marketData.priceUsd,
+            source: marketData.marketCapUsd ? 'dexscreener' : 'database-cached'
+          }, 'Calculated price from marketCap');
         }
 
         // Calculate new state
