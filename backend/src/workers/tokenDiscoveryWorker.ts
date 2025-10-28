@@ -937,6 +937,18 @@ async function updateMarketDataAndStates() {
           }
         }
 
+        // Final fallback: Calculate price from marketCap if available (for pump.fun bonding curve tokens)
+        // Pump.fun tokens have 1 billion total supply (1,000,000,000 tokens)
+        if ((!marketData.priceUsd || marketData.priceUsd === 0) && marketData.marketCapUsd && marketData.marketCapUsd > 0) {
+          const PUMP_TOTAL_SUPPLY = 1_000_000_000;
+          marketData.priceUsd = marketData.marketCapUsd / PUMP_TOTAL_SUPPLY;
+          logger.debug({
+            mint: token.mint.slice(0, 8),
+            marketCap: marketData.marketCapUsd,
+            calculatedPrice: marketData.priceUsd
+          }, 'Calculated price from marketCap (pump.fun bonding curve)');
+        }
+
         // Calculate new state
         const newStatus = stateManager.classifyTokenState({
           bondingCurveProgress: token.bondingCurveProgress,
