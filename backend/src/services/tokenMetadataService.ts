@@ -129,7 +129,7 @@ class TokenMetadataService {
       const bestPair = sortedPairs[0];
 
       const marketData = {
-        marketCapUsd: bestPair.fdv || bestPair.marketCap,
+        marketCapUsd: bestPair.marketCap || bestPair.fdv, // ✅ FIX: Prioritize actual marketCap over FDV
         volume24h: bestPair.volume?.h24,
         priceUsd: parseFloat(bestPair.priceUsd || '0'),
         priceChange24h: bestPair.priceChange?.h24,
