@@ -974,6 +974,7 @@ async function updateHolderCounts(): Promise<void> {
     logger.debug({ operation: 'holder_counts_update' }, 'Starting holder counts update');
 
     // Fetch active tokens (exclude DEAD tokens)
+    // Prioritize tokens with null holderCount first, then oldest updates
     const activeTokens = await prisma.tokenDiscovery.findMany({
       where: {
         status: { not: 'DEAD' },
@@ -982,9 +983,13 @@ async function updateHolderCounts(): Promise<void> {
       select: {
         mint: true,
         symbol: true,
+        holderCount: true,
       },
-      take: 50, // Limit to 50 tokens per batch to avoid overwhelming Helius
-      orderBy: { lastUpdatedAt: 'asc' } // Update oldest first
+      take: 100, // Increased from 50 to 100 - Helius can handle more with batching
+      orderBy: [
+        { holderCount: 'asc' }, // Prioritize null/0 holder counts first
+        { lastUpdatedAt: 'asc' }, // Then oldest updates
+      ],
     });
 
     if (activeTokens.length === 0) {
@@ -1036,6 +1041,16 @@ async function updateHolderCounts(): Promise<void> {
     }
 
     logger.debug({ updated, failed, operation: 'holder_counts_update' }, 'Holder counts update completed');
+    
+    // Log summary with sample tokens
+    if (updated > 0) {
+      logger.info({ 
+        updated, 
+        failed, 
+        total: activeTokens.length,
+        operation: 'holder_counts_summary' 
+      }, `Updated ${updated} holder counts (${failed} failed)`);
+    }
   } catch (error) {
     logger.error({ error }, 'Error updating holder counts');
   }
