@@ -326,7 +326,9 @@ const warpPipesRoutes: FastifyPluginAsync = async (fastify) => {
           volumeChange24h: token.volumeChange24h
             ? parseFloat(token.volumeChange24h.toString())
             : undefined,
-          priceUsd: token.priceUsd ? parseFloat(token.priceUsd.toString()) : undefined,
+          priceUsd: token.priceUsd
+            ? parseFloat(token.priceUsd.toString())
+            : (token.marketCapUsd ? parseFloat(token.marketCapUsd.toString()) / 1_000_000_000 : undefined), // Fallback: calculate from marketCap
           priceChange24h: token.priceChange24h
             ? parseFloat(token.priceChange24h.toString())
             : undefined,
