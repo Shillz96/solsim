@@ -843,19 +843,17 @@ async function updateMarketDataAndStates() {
         // Fetch fresh market data from DexScreener
         const marketData = await tokenMetadataService.fetchMarketData(token.mint);
 
-        // Fallback: Get price from Redis cache (PumpPortal real-time prices) if DexScreener doesn't have it
+        // Fallback: Get price from priceService if DexScreener doesn't have it
+        // priceService will check cache first, then fetch from Jupiter API
         if (!marketData.priceUsd || marketData.priceUsd === 0) {
           try {
-            const cachedPrice = await redis.get(`price:${token.mint}`);
-            if (cachedPrice) {
-              const priceData = JSON.parse(cachedPrice);
-              if (priceData.priceUsd) {
-                marketData.priceUsd = priceData.priceUsd;
-                logger.debug({ mint: token.mint.slice(0, 8), price: priceData.priceUsd }, 'Using cached price from PumpPortal');
-              }
+            const priceTick = await priceServiceClient.fetchTokenPrice(token.mint);
+            if (priceTick && priceTick.priceUsd) {
+              marketData.priceUsd = priceTick.priceUsd;
+              logger.debug({ mint: token.mint.slice(0, 8), price: priceTick.priceUsd }, 'Using priceService fallback');
             }
           } catch (err) {
-            logger.debug({ mint: token.mint.slice(0, 8) }, 'No cached price available');
+            logger.debug({ mint: token.mint.slice(0, 8) }, 'priceService fallback failed');
           }
         }
 
