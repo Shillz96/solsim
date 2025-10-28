@@ -482,34 +482,38 @@ async function handleSwap(event: SwapEvent): Promise<void> {
     // Expire after 1 hour
     await redis.expire(`market:trades:${mint}`, 3600);
 
-    // Calculate and cache price from swap event (so main API and worker can both read it)
+    // Calculate price from swap event and save DIRECTLY to database (no API polling needed!)
     if (solAmount && tokenAmount && solAmount > 0 && tokenAmount > 0) {
       const priceSol = solAmount / tokenAmount; // SOL per token
       const solPriceUsd = priceServiceClient.getSolPrice(); // Get SOL/USD price
       const priceUsd = priceSol * solPriceUsd; // USD per token
 
       if (priceUsd > 0 && solPriceUsd > 0) {
+        // Cache in Redis for main API
         const priceTick = {
           mint,
           priceUsd,
           priceSol,
           solUsd: solPriceUsd,
           timestamp: Date.now(),
-          source: 'pumpportal-worker'
+          source: 'pumpportal-swap'
         };
+        await redis.setex(`prices:${mint}`, 300, JSON.stringify(priceTick));
 
-        // Cache in Redis (same format as main priceService)
-        await redis.setex(
-          `prices:${mint}`,
-          300, // 5 minute TTL
-          JSON.stringify(priceTick)
-        );
+        // Save directly to TokenDiscovery table (real-time pricing!)
+        await prisma.tokenDiscovery.updateMany({
+          where: { mint },
+          data: {
+            priceUsd: new Decimal(priceUsd),
+            lastUpdatedAt: new Date(),
+          }
+        });
 
         logger.debug({
           mint: mint.slice(0, 8),
           priceUsd: priceUsd.toFixed(8),
-          priceSol: priceSol.toFixed(8)
-        }, 'Cached price from swap event');
+          txType
+        }, 'Updated price from swap event');
       }
     }
 
@@ -861,7 +865,7 @@ async function updateMarketDataAndStates() {
         volume24hSol: true,
         holderCount: true,
       },
-      // No take limit - process ALL active tokens (WebSocket streams thousands)
+      take: 50, // Small limit - PumpPortal swap events provide real-time prices, DexScreener only for fallback
       orderBy: { lastUpdatedAt: 'asc' } // Update oldest first
     });
 
@@ -975,18 +979,20 @@ async function updateMarketDataAndStates() {
           }
         }
         if (marketData.volumeChange24h) updateData.volumeChange24h = new Decimal(marketData.volumeChange24h);
-        if (marketData.priceUsd) updateData.priceUsd = new Decimal(marketData.priceUsd);
+        // CRITICAL: Use > 0 instead of truthy check to handle very small prices
+        if (marketData.priceUsd && marketData.priceUsd > 0) updateData.priceUsd = new Decimal(marketData.priceUsd);
         if (marketData.priceChange24h) updateData.priceChange24h = new Decimal(marketData.priceChange24h);
         if (marketData.txCount24h) updateData.txCount24h = marketData.txCount24h;
 
-        // Log what we're about to save
-        logger.debug({
+        // Log what we're about to save (with more detail for debugging)
+        logger.info({
           mint: token.mint.slice(0, 8),
-          willSavePrice: !!marketData.priceUsd,
-          priceValue: marketData.priceUsd,
-          willSavePriceChange: !!marketData.priceChange24h,
-          priceChangeValue: marketData.priceChange24h
-        }, 'Saving market data to database');
+          priceUsd: marketData.priceUsd,
+          priceType: typeof marketData.priceUsd,
+          willSave: !!(marketData.priceUsd && marketData.priceUsd > 0),
+          marketCapUsd: marketData.marketCapUsd,
+          priceChange24h: marketData.priceChange24h
+        }, 'Market data before save');
 
         await prisma.tokenDiscovery.update({
           where: { mint: token.mint },
