@@ -379,12 +379,13 @@ export default function TrendingPage() {
                   return (
                     <React.Fragment key={tokenKey}>
                       {/* Desktop Layout */}
-                      <div
+                      <Link 
+                        href={`/room/${token.mint}`}
                         className={cn(
                           // Desktop: Grid layout
                           "hidden lg:grid grid-cols-[auto_1fr_auto_auto_auto_auto_auto_auto_auto] gap-3 items-center p-4 rounded-lg border-3 border-outline-black transition-all duration-200",
                           "bg-gradient-to-br from-sky/30 via-sky/20 to-sky/10 hover:border-outline-hover",
-                          "shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:translate-y-[-2px]",
+                          "shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5",
                           rank <= 3 && "bg-gradient-to-r from-[var(--coin-gold)]/20 via-[var(--star-yellow)]/15 to-[var(--coin-gold)]/10"
                         )}
                       >
@@ -398,7 +399,7 @@ export default function TrendingPage() {
                       </div>
 
                       {/* Token Info */}
-                      <Link href={`/room/${token.mint}`} className="flex items-center gap-3 min-w-0">
+                      <div className="flex items-center gap-3 min-w-0">
                         <Image
                           src={token.logoURI || "/placeholder-token.svg"}
                           alt={token.name || "Unknown Token"}
@@ -416,7 +417,7 @@ export default function TrendingPage() {
                             ${token.symbol || "N/A"}
                           </div>
                         </div>
-                      </Link>
+                      </div>
 
                       {/* Price */}
                       <div className="text-right whitespace-nowrap">
@@ -477,11 +478,11 @@ export default function TrendingPage() {
 
                       {/* Action */}
                       <div className="flex justify-end">
-                        <Link href={`/room/${token.mint}`}>
-                          <Button className={cn(marioStyles.button('success', 'sm'))}>🚀 Trade</Button>
-                        </Link>
+                        <Button className={cn(marioStyles.button('success', 'sm'))} onClick={(e) => e.stopPropagation()}>
+                          🚀 Trade
+                        </Button>
                       </div>
-                    </div>
+                    </Link>
 
                     {/* Mobile Layout */}
                     <Link
