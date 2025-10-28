@@ -843,6 +843,14 @@ async function updateMarketDataAndStates() {
         // Fetch fresh market data from DexScreener
         const marketData = await tokenMetadataService.fetchMarketData(token.mint);
 
+        // Log what DexScreener returned
+        logger.debug({
+          mint: token.mint.slice(0, 8),
+          priceUsd: marketData.priceUsd,
+          priceChange24h: marketData.priceChange24h,
+          marketCapUsd: marketData.marketCapUsd
+        }, 'DexScreener market data');
+
         // Fallback: Get price from Redis cache (written by main priceService) if DexScreener doesn't have it
         if (!marketData.priceUsd || marketData.priceUsd === 0) {
           try {
@@ -850,9 +858,11 @@ async function updateMarketDataAndStates() {
             if (cachedPrice && cachedPrice > 0) {
               marketData.priceUsd = cachedPrice;
               logger.debug({ mint: token.mint.slice(0, 8), price: cachedPrice }, 'Using cached price from Redis');
+            } else {
+              logger.debug({ mint: token.mint.slice(0, 8), cachedPrice }, 'Redis cache returned no price or zero');
             }
           } catch (err) {
-            logger.debug({ mint: token.mint.slice(0, 8) }, 'Redis price cache lookup failed');
+            logger.debug({ mint: token.mint.slice(0, 8), err }, 'Redis price cache lookup failed');
           }
         }
 
@@ -885,7 +895,16 @@ async function updateMarketDataAndStates() {
         if (marketData.priceUsd) updateData.priceUsd = new Decimal(marketData.priceUsd);
         if (marketData.priceChange24h) updateData.priceChange24h = new Decimal(marketData.priceChange24h);
         if (marketData.txCount24h) updateData.txCount24h = marketData.txCount24h;
-        
+
+        // Log what we're about to save
+        logger.debug({
+          mint: token.mint.slice(0, 8),
+          willSavePrice: !!marketData.priceUsd,
+          priceValue: marketData.priceUsd,
+          willSavePriceChange: !!marketData.priceChange24h,
+          priceChangeValue: marketData.priceChange24h
+        }, 'Saving market data to database');
+
         await prisma.tokenDiscovery.update({
           where: { mint: token.mint },
           data: updateData
