@@ -2,7 +2,6 @@
 
 import React, { useState, useMemo } from "react"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Search, TrendingUp, Filter, Loader2, AlertCircle, ArrowUpDown, ArrowUp, ArrowDown, TrendingDown, Sparkles, RefreshCw } from "lucide-react"
@@ -10,75 +9,26 @@ import Link from "next/link"
 import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
 import type * as Backend from "@/lib/types/backend"
-import { useWarpPipesFeed } from "@/hooks/use-react-query-hooks"
-import { usePriceStreamContext } from "@/lib/price-stream-provider"
+import { useTrendingTokens } from "@/hooks/use-react-query-hooks"
 import { UsdWithSol } from "@/lib/sol-equivalent"
 import { cn, marioStyles } from "@/lib/utils"
 
-type WarpPipesSortBy = "hot" | "new" | "watched" | "alphabetical" | "volume"
+type BirdeyeSortBy = "rank" | "volume24hUSD" | "liquidity"
 type SortField = "price" | "priceChange24h" | "marketCapUsd" | "volume24h" | "trendScore"
 type SortDirection = "asc" | "desc"
 
-// Map TokenDiscovery data to TrendingToken format
-interface TokenRow {
-  mint: string;
-  symbol: string | null;
-  name: string | null;
-  logoURI: string | null;
-  priceUsd: number;
-  priceChange24h: number;
-  volume24h: number;
-  marketCapUsd: number | null;
-  holderCount: string | null;
-  state?: string; // bonded, graduating, new
-}
-
 export default function TrendingPage() {
-  const [warpPipesSortBy, setWarpPipesSortBy] = useState<WarpPipesSortBy>("volume")
+  const [birdeyeSortBy, setBirdeyeSortBy] = useState<BirdeyeSortBy>("volume24hUSD")
   const [searchQuery, setSearchQuery] = useState("")
   const [sortField, setSortField] = useState<SortField>("volume24h")
   const [sortDirection, setSortDirection] = useState<SortDirection>("desc")
-  const [hoveredRow, setHoveredRow] = useState<string | null>(null)
 
-  const { data: warpPipesData, isLoading: loading, error, refetch: refresh } = useWarpPipesFeed({
-    sortBy: warpPipesSortBy,
-    searchQuery: searchQuery || undefined,
-    limit: 50,
-    requireSecurity: true,
-    minLiquidity: 1000,
-  })
-
-  // Flatten the 3 categories into a single list and map to TokenRow format
-  const trendingTokens = useMemo(() => {
-    if (!warpPipesData) return []
-
-    const flattenToken = (token: any): TokenRow => ({
-      mint: token.mint,
-      symbol: token.symbol,
-      name: token.name,
-      logoURI: token.logoURI || token.imageUrl,
-      priceUsd: token.priceUsd || 0,
-      priceChange24h: token.priceChange24h || 0,
-      volume24h: token.volume24h || 0,
-      marketCapUsd: token.marketCapUsd || null,
-      holderCount: token.holderCount ? String(token.holderCount) : null,
-      state: token.state,
-    })
-
-    const allTokens = [
-      ...warpPipesData.bonded.map(flattenToken),
-      ...warpPipesData.graduating.map(flattenToken),
-      ...warpPipesData.new.map(flattenToken),
-    ]
-
-    return allTokens
-  }, [warpPipesData])
-  const { prices: livePrices } = usePriceStreamContext()
-  const solPrice = livePrices.get('So11111111111111111111111111111111111111112')?.price || 0
+  // Use Birdeye trending data (same as ticker slider)
+  const { data: trendingTokens, isLoading: loading, error, refetch: refresh } = useTrendingTokens(50, birdeyeSortBy)
 
   // Filter and sort tokens
   const filteredAndSortedTokens = useMemo(() => {
-    if (!trendingTokens) return []
+    if (!trendingTokens || !Array.isArray(trendingTokens)) return []
 
     let filtered = trendingTokens.filter(
       (token) =>
@@ -225,18 +175,18 @@ export default function TrendingPage() {
                 </div>
                 <div className="flex gap-2 flex-wrap">
                   {[
-                    { value: "hot" as WarpPipesSortBy, label: "🔥 Hot" },
-                    { value: "volume" as WarpPipesSortBy, label: "💰 Volume" },
-                    { value: "new" as WarpPipesSortBy, label: "✨ New" }
+                    { value: "volume24hUSD" as BirdeyeSortBy, label: "� Volume" },
+                    { value: "rank" as BirdeyeSortBy, label: "� Hot" },
+                    { value: "liquidity" as BirdeyeSortBy, label: "💎 Liquidity" }
                   ].map((option) => (
                     <Button
                       key={option.value}
-                      variant={warpPipesSortBy === option.value ? "default" : "outline"}
+                      variant={birdeyeSortBy === option.value ? "default" : "outline"}
                       size="sm"
-                      onClick={() => setWarpPipesSortBy(option.value)}
+                      onClick={() => setBirdeyeSortBy(option.value)}
                       className={cn(
                         marioStyles.button(
-                          warpPipesSortBy === option.value ? 'danger' : 'outline',
+                          birdeyeSortBy === option.value ? 'danger' : 'outline',
                           'sm'
                         )
                       )}
@@ -424,9 +374,10 @@ export default function TrendingPage() {
                 {filteredAndSortedTokens.map((token, index) => {
                   const bigMover = Math.abs(token.priceChange24h || 0) > 50
                   const rank = index + 1
+                  const tokenKey = `${token.mint}-${rank}`
 
                   return (
-                    <React.Fragment key={token.mint}>
+                    <React.Fragment key={tokenKey}>
                       {/* Desktop Layout */}
                       <div
                         className={cn(
@@ -439,7 +390,7 @@ export default function TrendingPage() {
                       >
                       {/* Rank */}
                       <div className="flex-shrink-0 w-8 flex items-center justify-center">
-                        {rank <= 3 ? (
+                        {rank <= 3 && getRankImage(rank) ? (
                           <Image src={getRankImage(rank)!} alt={`${rank}`} width={24} height={24} className="h-6 w-6" />
                         ) : (
                           <span className="font-bold text-base text-foreground">#{rank}</span>
@@ -535,7 +486,6 @@ export default function TrendingPage() {
                     {/* Mobile Layout */}
                     <Link
                       href={`/room/${token.mint}`}
-                      key={`${token.mint}-mobile`}
                       className={cn(
                         "lg:hidden flex flex-col p-4 rounded-lg border-3 border-outline-black transition-all duration-200",
                         "bg-gradient-to-br from-sky/30 via-sky/20 to-sky/10 active:border-outline-hover",
@@ -547,7 +497,7 @@ export default function TrendingPage() {
                       <div className="flex items-center gap-3 mb-3">
                         {/* Rank */}
                         <div className="flex-shrink-0 w-8 flex items-center justify-center">
-                          {rank <= 3 ? (
+                          {rank <= 3 && getRankImage(rank) ? (
                             <Image src={getRankImage(rank)!} alt={`${rank}`} width={24} height={24} className="h-6 w-6" />
                           ) : (
                             <span className="font-bold text-sm text-foreground">#{rank}</span>
