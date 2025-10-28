@@ -675,7 +675,7 @@ export class WalletActivityService {
               name: pair.baseToken?.name || "Unknown Token",
               logoURI: dexLogoURI,
               price: parseFloat(pair.priceUsd || 0),
-              marketCap: parseFloat(pair.fdv || pair.marketCap || 0),
+              marketCap: parseFloat(pair.marketCap || pair.fdv || 0), // ✅ FIX: Prioritize actual marketCap over FDV
               volume24h: parseFloat(pair.volume?.h24 || 0),
               priceChange24h: parseFloat(pair.priceChange?.h24 || 0)
             };
@@ -686,7 +686,7 @@ export class WalletActivityService {
           } else {
             // Enrich existing DAS metadata with DexScreener market data
             metadata.price = parseFloat(pair.priceUsd || metadata.price || 0);
-            metadata.marketCap = parseFloat(pair.fdv || pair.marketCap || 0);
+            metadata.marketCap = parseFloat(pair.marketCap || pair.fdv || 0); // ✅ FIX: Prioritize actual marketCap over FDV
             metadata.volume24h = parseFloat(pair.volume?.h24 || 0);
             metadata.priceChange24h = parseFloat(pair.priceChange?.h24 || 0);
 

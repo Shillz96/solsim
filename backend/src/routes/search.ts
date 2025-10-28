@@ -289,7 +289,7 @@ async function searchTokens(query: string, limit: number = 20) {
               name: meta?.name || pair.baseToken.name,
               logoURI: meta?.logoURI || pair.info?.imageUrl || null,
               priceUsd: parseFloat(pair.priceUsd || "0"),
-              marketCapUsd: pair.marketCap || pair.fdv || null,
+              marketCapUsd: pair.marketCap || pair.fdv || null, // ✅ FIX: Prioritize actual marketCap over FDV
               liquidity: pair.liquidity?.usd || null,
               volume24h: pair.volume?.h24 || null,
               priceChange24h: pair.priceChange?.h24 || null,
