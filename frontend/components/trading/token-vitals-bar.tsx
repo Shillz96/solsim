@@ -81,7 +81,7 @@ export function TokenVitalsBar({
   return (
     <div className={cn(
       "rounded-2xl border-4 border-outline bg-white shadow-[6px_6px_0_var(--outline-black)] transition-all",
-      "w-full h-full p-2 grid grid-cols-2 gap-2",
+      "w-full p-2 grid grid-cols-2 gap-2",
       className
     )}>
       {/* 24h Volume */}

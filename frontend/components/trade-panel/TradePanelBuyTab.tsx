@@ -134,15 +134,13 @@ export function TradePanelBuyTab({
       </Button>
 
       {/* Token Vitals - 2x2 Grid - Fills remaining space */}
-      <div className="flex-1 flex flex-col mt-2">
-        <TokenVitalsBar
-          tokenAddress={tokenAddress}
-          volume24h={volume24h}
-          holders={holders}
-          userRank={userRank}
-          className="flex-1"
-        />
-      </div>
+      <TokenVitalsBar
+        tokenAddress={tokenAddress}
+        volume24h={volume24h}
+        holders={holders}
+        userRank={userRank}
+        className="flex-1 mt-2"
+      />
     </div>
   )
 }
