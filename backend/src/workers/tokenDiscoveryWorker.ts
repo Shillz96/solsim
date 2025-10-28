@@ -35,7 +35,8 @@ class TokenDiscoveryConfig {
   static readonly HOT_SCORE_UPDATE_INTERVAL = 300_000; // 5 minutes
   static readonly WATCHER_SYNC_INTERVAL = 60_000; // 1 minute
   static readonly CLEANUP_INTERVAL = 300_000; // 5 minutes
-  static readonly HOLDER_COUNT_UPDATE_INTERVAL = 600_000; // 10 minutes
+  static readonly HOLDER_COUNT_UPDATE_INTERVAL = 600_000; // 10 minutes (for NULL counts & hot tokens)
+  static readonly HOLDER_COUNT_CACHE_MIN = 5; // 5 minutes - don't re-fetch if updated recently
   static readonly TOKEN_TTL = 7200; // 2 hours cache
   static readonly NEW_TOKEN_RETENTION_HOURS = 24; // Remove NEW tokens after 24h
   static readonly BONDED_TOKEN_RETENTION_HOURS = 12; // Remove BONDED tokens older than 12 hours
@@ -973,22 +974,33 @@ async function updateHolderCounts(): Promise<void> {
   try {
     logger.debug({ operation: 'holder_counts_update' }, 'Starting holder counts update');
 
-    // Fetch active tokens (exclude DEAD tokens)
-    // Prioritize tokens with null holderCount first, then oldest updates
+    // Calculate cache cutoff (don't re-fetch if updated within last 5 minutes)
+    const cacheCutoff = new Date(Date.now() - TokenDiscoveryConfig.HOLDER_COUNT_CACHE_MIN * 60 * 1000);
+
+    // Fetch active tokens (exclude DEAD tokens and recently updated)
+    // Prioritize: 1) NULL counts, 2) Stale data, 3) Active trading tokens
     const activeTokens = await prisma.tokenDiscovery.findMany({
       where: {
         status: { not: 'DEAD' },
         state: { in: ['bonded', 'graduating', 'new'] },
+        // Only fetch if holderCount is null OR lastUpdatedAt is older than cache period
+        OR: [
+          { holderCount: null },
+          { lastUpdatedAt: { lt: cacheCutoff } }
+        ]
       },
       select: {
         mint: true,
         symbol: true,
         holderCount: true,
+        lastUpdatedAt: true,
+        volume24hSol: true, // For prioritizing active tokens
       },
       take: 100, // Increased from 50 to 100 - Helius can handle more with batching
       orderBy: [
-        { holderCount: 'asc' }, // Prioritize null/0 holder counts first
-        { lastUpdatedAt: 'asc' }, // Then oldest updates
+        { holderCount: 'asc' }, // Prioritize null/0 holder counts first (new tokens)
+        { volume24hSol: 'desc' }, // Then by trading volume (active tokens)
+        { lastUpdatedAt: 'asc' }, // Finally oldest updates
       ],
     });
 
