@@ -47,8 +47,8 @@ class TokenDiscoveryConfig {
     USDT: 'Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB'
   };
   
-  static readonly MARKET_DATA_UPDATE_INTERVAL = 30_000; // 30 seconds
-  static readonly RATE_LIMIT_DELAY_MS = 50;
+  static readonly MARKET_DATA_UPDATE_INTERVAL = 60_000; // 60 seconds (reduced frequency to avoid rate limits)
+  static readonly RATE_LIMIT_DELAY_MS = 300; // 300ms delay between requests (was 50ms, too fast for DexScreener)
   static readonly MIN_ACTIVE_VOLUME_SOL = 2;
   static readonly MIN_HOLDERS_COUNT = 25;
   static readonly MAX_TRADES_PER_TOKEN = 50;
@@ -915,7 +915,7 @@ async function updateMarketDataAndStates() {
         logger.error({ mint: truncateWallet(token.mint), error }, 'Error updating token');
       }
       
-      // Rate limit: 50ms delay between requests
+      // Rate limit: 300ms delay between requests to avoid DexScreener 429 errors
       await new Promise(resolve => setTimeout(resolve, TokenDiscoveryConfig.RATE_LIMIT_DELAY_MS));
     }
     
