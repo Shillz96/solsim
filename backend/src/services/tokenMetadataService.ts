@@ -91,12 +91,58 @@ class TokenMetadataService {
 
   /**
    * Fetch market data from DexScreener
-   * DISABLED: DexScreener rate limits are too aggressive - use PumpPortal/Jupiter instead
+   * Re-enabled with proper rate limiting (50ms delay configured in worker)
    */
   async fetchMarketData(mint: string): Promise<MarketData> {
-    // DexScreener disabled to prevent 429 rate limit errors
-    // Market data now comes from PumpPortal WebSocket and Jupiter API in priceService-optimized.ts
-    return {};
+    try {
+      const response = await fetch(`${this.dexScreenerBase}/dex/tokens/${mint}`, {
+        signal: AbortSignal.timeout(8000),
+        headers: {
+          'Accept': 'application/json',
+          'User-Agent': 'SolSim/1.0'
+        }
+      });
+
+      if (!response.ok) {
+        // Return empty object on rate limit or other errors (don't break worker)
+        if (response.status === 429) {
+          console.warn(`[TokenMetadata] DexScreener rate limit hit for ${mint.slice(0, 8)}...`);
+        }
+        return {};
+      }
+
+      const data = await response.json() as any;
+      
+      // DexScreener returns { pairs: [...] }
+      // Find the best pair (highest liquidity or volume)
+      const pairs = data?.pairs || [];
+      if (pairs.length === 0) return {};
+
+      // Sort by liquidity USD descending, take first pair
+      const sortedPairs = pairs.sort((a: any, b: any) => 
+        (b.liquidity?.usd || 0) - (a.liquidity?.usd || 0)
+      );
+      const bestPair = sortedPairs[0];
+
+      return {
+        marketCapUsd: bestPair.fdv || bestPair.marketCap,
+        volume24h: bestPair.volume?.h24,
+        priceUsd: parseFloat(bestPair.priceUsd || '0'),
+        priceChange24h: bestPair.priceChange?.h24,
+        txCount24h: bestPair.txns?.h24?.buys + bestPair.txns?.h24?.sells || undefined,
+      };
+    } catch (error: any) {
+      // Silently handle expected errors (timeouts, network issues)
+      const isExpectedError =
+        error.name === 'AbortError' ||
+        error.name === 'TimeoutError' ||
+        error.code === 'ENOTFOUND';
+
+      if (!isExpectedError) {
+        console.error(`[TokenMetadata] Unexpected error fetching market data for ${mint.slice(0, 8)}:`, error.message);
+      }
+      return {};
+    }
   }
 
   /**
