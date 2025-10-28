@@ -176,18 +176,26 @@ export function TokenCard({ data, onToggleWatch, className, enableLiveUpdates = 
 
           {/* Price Change */}
           <div className="flex items-center gap-2 text-sm font-bold">
-            <span
-              className={cn(
-                priceChg != null && priceChg >= 0 ? 'text-luigi' : 'text-mario'
-              )}
-            >
-              {priceChg != null && priceChg >= 0 ? '↑' : '↓'} {fmtPct(Math.abs(priceChg ?? 0))}
-            </span>
+            {priceChg == null ? (
+              <span className="text-outline/60">NEW</span>
+            ) : (
+              <span
+                className={cn(
+                  priceChg >= 0 ? 'text-luigi' : 'text-mario'
+                )}
+              >
+                {priceChg >= 0 ? '↑' : '↓'} {fmtPct(Math.abs(priceChg))}
+              </span>
+            )}
           </div>
 
           {/* Secondary Metrics - De-emphasized */}
           <div className="flex items-center gap-2 text-[9px] text-outline/50 font-bold">
-            <span>{mergedData.holderCount?.toLocaleString() ?? 0} holders</span>
+            <span>
+              {mergedData.holderCount != null
+                ? `${mergedData.holderCount.toLocaleString()} holders`
+                : '—'}
+            </span>
             {liveTxCount && (
               <>
                 <span>•</span>
@@ -263,11 +271,13 @@ export function TokenCard({ data, onToggleWatch, className, enableLiveUpdates = 
             </span>
           </div>
 
-          {/* Volume Badge */}
+          {/* Price Badge */}
           <div className="flex items-center gap-1 px-2.5 py-1.5 bg-[var(--sky-blue)] border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] rounded-lg">
-            <span className="text-xs">📊</span>
+            <span className="text-xs">💵</span>
             <span className="text-sm font-black text-[var(--outline-black)] whitespace-nowrap">
-              ${fmtCompact(data.volume24h)}
+              {mergedData.priceUsd != null && mergedData.priceUsd > 0
+                ? `$${mergedData.priceUsd.toFixed(mergedData.priceUsd < 0.01 ? 6 : 4)}`
+                : '$—'}
             </span>
           </div>
         </div>
