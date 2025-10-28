@@ -861,7 +861,7 @@ async function updateMarketDataAndStates() {
         volume24hSol: true,
         holderCount: true,
       },
-      take: 100,
+      // No take limit - process ALL active tokens (WebSocket streams thousands)
       orderBy: { lastUpdatedAt: 'asc' } // Update oldest first
     });
 
