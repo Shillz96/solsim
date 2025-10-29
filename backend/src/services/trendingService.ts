@@ -26,7 +26,7 @@ export interface TrendingToken {
 export type BirdeyeSortBy = 'rank' | 'volume24hUSD' | 'liquidity';
 
 export async function getTrendingTokens(limit: number = 20, sortBy: BirdeyeSortBy = 'rank'): Promise<TrendingToken[]> {
-  // Check Redis cache first (60 second TTL for trending data)
+  // Check Redis cache first (5 minute TTL - increased from 60s to reduce Birdeye API rate limit hits)
   const cacheKey = `trending:${sortBy}:${limit}`;
   try {
     const cached = await redis.get(cacheKey);
@@ -46,9 +46,9 @@ export async function getTrendingTokens(limit: number = 20, sortBy: BirdeyeSortB
       const enrichedWithHolders = await enrichWithHolderCounts(birdeyeTrending);
       console.log(`Returning ${enrichedWithHolders.length} Birdeye trending tokens with holder data`);
 
-      // Cache result in Redis for 60 seconds
+      // Cache result in Redis for 5 minutes (increased from 60s to reduce API rate limit hits)
       try {
-        await redis.setex(cacheKey, 60, safeStringify(enrichedWithHolders));
+        await redis.setex(cacheKey, 300, safeStringify(enrichedWithHolders));
       } catch (error) {
         console.warn('Failed to cache trending tokens:', error);
       }
@@ -64,9 +64,9 @@ export async function getTrendingTokens(limit: number = 20, sortBy: BirdeyeSortB
     // Enrich with holder count data from Token table
     const enrichedDex = await enrichWithHolderCounts(dexTrending);
 
-    // Cache DexScreener result
+    // Cache DexScreener result for 5 minutes
     try {
-      await redis.setex(cacheKey, 60, safeStringify(enrichedDex));
+      await redis.setex(cacheKey, 300, safeStringify(enrichedDex));
     } catch (error) {
       console.warn('Failed to cache trending tokens:', error);
     }

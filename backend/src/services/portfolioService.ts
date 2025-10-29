@@ -131,32 +131,43 @@ async function calculatePortfolioData(userId: string, positions: any[], tradeMod
   // Get SOL price once for all calculations
   const solPrice = priceService.getSolPrice();
 
+  // PERFORMANCE: Parallelize individual price fetches for missing prices
+  // Collect all positions with missing prices first
+  const positionsWithMissingPrices = positions.filter(p => !prices[p.mint] || prices[p.mint] === 0);
+  
+  if (positionsWithMissingPrices.length > 0) {
+    // Fetch all missing prices in parallel (much faster than sequential)
+    const missingPriceResults = await Promise.all(
+      positionsWithMissingPrices.map(async (position) => {
+        try {
+          const price = await priceService.getPrice(position.mint);
+          return { mint: position.mint, price: price || 0 };
+        } catch (err) {
+          const error = err as Error;
+          if (!error.message?.includes('aborted') && !error.message?.includes('404')) {
+            console.error(`[Portfolio] Unexpected error fetching price for ${position.mint.slice(0, 8)}:`, error);
+          }
+          return { mint: position.mint, price: 0 };
+        }
+      })
+    );
+
+    // Update prices map with fetched prices
+    missingPriceResults.forEach(result => {
+      if (result.price > 0) {
+        prices[result.mint] = result.price;
+      }
+    });
+  }
+
   // Calculate position values and unrealized PnL using Decimal for precision
   const portfolioPositions: PortfolioPosition[] = [];
   let totalValueUsd = D(0);
   let totalUnrealizedUsd = D(0);
 
   for (const position of positions) {
-    let currentPrice = D(prices[position.mint] || 0);
-
-    // If price is missing from batch fetch, try individual fetch with retries
-    // This is critical for new tokens that may not be in the batch cache yet
-    if (currentPrice.eq(0)) {
-      // Silent retry - don't log to reduce noise (price service handles logging)
-      try {
-        const individualPrice = await priceService.getPrice(position.mint);
-        if (individualPrice && individualPrice > 0) {
-          currentPrice = D(individualPrice);
-        }
-        // If still 0, it's cached in negative cache - no need to log
-      } catch (err) {
-        // Only log unexpected errors
-        const error = err as Error;
-        if (!error.message?.includes('aborted') && !error.message?.includes('404')) {
-          console.error(`[Portfolio] Unexpected error fetching price for ${position.mint.slice(0, 8)}:`, error);
-        }
-      }
-    }
+    // Price is now guaranteed to be in the prices map (or 0 if unavailable)
+    const currentPrice = D(prices[position.mint] || 0);
 
     const qty = position.qty as Decimal;
     const costBasis = position.costBasis as Decimal;
