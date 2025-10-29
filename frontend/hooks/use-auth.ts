@@ -112,11 +112,15 @@ export function useAuth() {
       })
     })
 
-    // Invalidate all user-specific queries after login
-    queryClient.invalidateQueries({ queryKey: ['portfolio'] })
-    queryClient.invalidateQueries({ queryKey: ['balance'] })
-    queryClient.invalidateQueries({ queryKey: ['transactions'] })
-    queryClient.invalidateQueries({ queryKey: ['notes'] })
+    // Delay query invalidation slightly to allow modal to close first
+    // This prevents blocking the UI while fetching portfolio data
+    setTimeout(() => {
+      // Invalidate all user-specific queries after login (non-blocking)
+      queryClient.invalidateQueries({ queryKey: ['portfolio'] })
+      queryClient.invalidateQueries({ queryKey: ['balance'] })
+      queryClient.invalidateQueries({ queryKey: ['transactions'] })
+      queryClient.invalidateQueries({ queryKey: ['notes'] })
+    }, 100)
 
     return response
   }, [queryClient])
@@ -147,11 +151,15 @@ export function useAuth() {
       })
     })
 
-    // Invalidate all user-specific queries after signup
-    queryClient.invalidateQueries({ queryKey: ['portfolio'] })
-    queryClient.invalidateQueries({ queryKey: ['balance'] })
-    queryClient.invalidateQueries({ queryKey: ['transactions'] })
-    queryClient.invalidateQueries({ queryKey: ['notes'] })
+    // Delay query invalidation slightly to allow modal to close first
+    // This prevents blocking the UI while fetching portfolio data
+    setTimeout(() => {
+      // Invalidate all user-specific queries after signup (non-blocking)
+      queryClient.invalidateQueries({ queryKey: ['portfolio'] })
+      queryClient.invalidateQueries({ queryKey: ['balance'] })
+      queryClient.invalidateQueries({ queryKey: ['transactions'] })
+      queryClient.invalidateQueries({ queryKey: ['notes'] })
+    }, 100)
 
     return response
   }, [queryClient])

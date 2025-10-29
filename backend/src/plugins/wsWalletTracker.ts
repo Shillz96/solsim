@@ -138,13 +138,26 @@ async function handleAuth(clientId: string, userId: string) {
 
     // Send recent activities for tracked wallets
     if (walletAddresses.length > 0) {
-      const recentActivities = await activityService.getRecentActivities(walletAddresses, 20);
+      try {
+        // Add timeout protection for wallet activity fetch
+        const timeoutPromise = new Promise<never>((_, reject) => 
+          setTimeout(() => reject(new Error('Wallet activity fetch timeout')), 5000)
+        );
+        
+        const recentActivities = await Promise.race([
+          activityService.getRecentActivities(walletAddresses, 20),
+          timeoutPromise
+        ]);
 
-      if (recentActivities.length > 0) {
-        client.ws.send(JSON.stringify({
-          type: "initial_activities",
-          activities: formatActivities(recentActivities)
-        }));
+        if (recentActivities.length > 0) {
+          client.ws.send(JSON.stringify({
+            type: "initial_activities",
+            activities: formatActivities(recentActivities)
+          }));
+        }
+      } catch (error) {
+        // Don't block auth if wallet activity fetch fails
+        console.warn(`Failed to load wallet activities for ${userId}:`, error);
       }
     }
   } catch (error) {
@@ -169,13 +182,26 @@ async function handleSubscribe(clientId: string, wallets: string[]) {
   }));
 
   // Send recent activities for newly subscribed wallets
-  const recentActivities = await activityService.getRecentActivities(wallets, 10);
+  try {
+    // Add timeout protection
+    const timeoutPromise = new Promise<never>((_, reject) => 
+      setTimeout(() => reject(new Error('Wallet activity fetch timeout')), 5000)
+    );
+    
+    const recentActivities = await Promise.race([
+      activityService.getRecentActivities(wallets, 10),
+      timeoutPromise
+    ]);
 
-  if (recentActivities.length > 0) {
-    client.ws.send(JSON.stringify({
-      type: "activities",
-      activities: formatActivities(recentActivities)
-    }));
+    if (recentActivities.length > 0) {
+      client.ws.send(JSON.stringify({
+        type: "activities",
+        activities: formatActivities(recentActivities)
+      }));
+    }
+  } catch (error) {
+    // Don't block subscription if wallet activity fetch fails
+    console.warn(`Failed to load wallet activities for subscription:`, error);
   }
 }
 

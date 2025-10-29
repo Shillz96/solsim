@@ -109,7 +109,8 @@ interface ParsedSwap {
 
 export class WalletActivityService {
   private logger?: FastifyBaseLogger;
-  private tokenCache: Map<string, TokenMetadata> = new Map();
+  private tokenCache: Map<string, TokenMetadata | null> = new Map(); // Cache both success and failures
+  private failedTokens: Set<string> = new Set(); // Track tokens with no metadata to avoid refetching
   private readonly SOL_MINT = "So11111111111111111111111111111111111111112";
   private readonly USDC_MINT = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v";
   private readonly USDT_MINT = "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB";
@@ -146,15 +147,19 @@ export class WalletActivityService {
       }
 
       // Fetch enhanced transactions from Helius
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 10000); // 10 second timeout for transaction history
+      
       const response = await fetch(
         `https://api.helius.xyz/v0/addresses/${walletAddress}/transactions?api-key=${apiKey}&limit=${limit}`,
         {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
-          }
+          },
+          signal: controller.signal
         }
-      );
+      ).finally(() => clearTimeout(timeout));
 
       if (!response.ok) {
         throw new Error(`Helius API error: ${response.status}`);
@@ -570,9 +575,14 @@ export class WalletActivityService {
    * Ensures images are ALWAYS available for meme coins
    */
   private async getTokenMetadata(mint: string): Promise<TokenMetadata | null> {
-    // Check cache first
+    // Check cache first (including failed lookups)
     if (this.tokenCache.has(mint)) {
       return this.tokenCache.get(mint)!;
+    }
+
+    // Skip if we've already determined this token has no metadata
+    if (this.failedTokens.has(mint)) {
+      return null;
     }
 
     // Known tokens with hardcoded logos
@@ -605,6 +615,9 @@ export class WalletActivityService {
     try {
       const apiKey = process.env.HELIUS_API || process.env.HELIUS_API_KEY;
       if (apiKey) {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+        
         const heliusResponse = await fetch(`https://mainnet.helius-rpc.com/?api-key=${apiKey}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -618,8 +631,9 @@ export class WalletActivityService {
                 showFungible: true
               }
             }
-          })
-        });
+          }),
+          signal: controller.signal
+        }).finally(() => clearTimeout(timeout));
 
         if (heliusResponse.ok) {
           const dasData = await heliusResponse.json();
@@ -660,7 +674,13 @@ export class WalletActivityService {
 
     // STEP 2: Get price/market data from DexScreener (always try this)
     try {
-      const response = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${mint}`);
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+      
+      const response = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${mint}`, {
+        signal: controller.signal
+      }).finally(() => clearTimeout(timeout));
+      
       if (response.ok) {
         const data = await response.json();
         if (data.pairs && data.pairs.length > 0) {
@@ -726,10 +746,10 @@ export class WalletActivityService {
       }
     }
 
-    // Cache result for 5 minutes if we got metadata
+    // Cache result (including failures) to prevent repeated API calls
     if (metadata) {
       this.tokenCache.set(mint, metadata);
-      setTimeout(() => this.tokenCache.delete(mint), 5 * 60 * 1000);
+      setTimeout(() => this.tokenCache.delete(mint), 5 * 60 * 1000); // Cache for 5 minutes
 
       // Log final result
       if (metadata.logoURI) {
@@ -738,7 +758,15 @@ export class WalletActivityService {
         this.logger?.warn(`⚠️ No image found for ${mint} (${metadata.symbol}) despite all attempts`);
       }
     } else {
-      this.logger?.warn(`❌ No metadata found for token ${mint}`);
+      // Cache the failure to prevent repeated lookups
+      this.failedTokens.add(mint);
+      this.tokenCache.set(mint, null);
+      setTimeout(() => {
+        this.failedTokens.delete(mint);
+        this.tokenCache.delete(mint);
+      }, 30 * 60 * 1000); // Cache failures for 30 minutes (longer than successes)
+      
+      this.logger?.warn(`❌ No metadata found for token ${mint} - caching failure`);
     }
 
     return metadata;
