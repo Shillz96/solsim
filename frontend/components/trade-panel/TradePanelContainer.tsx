@@ -396,7 +396,7 @@ export function TradePanelContainer({
           />
 
           {/* Trading Tabs */}
-          <Tabs defaultValue="buy" className="w-full">
+          <Tabs defaultValue="buy" className="w-full flex-1">
             <TabsList className="w-full">
               <TabsTrigger
                 value="buy"
@@ -416,7 +416,7 @@ export function TradePanelContainer({
             </TabsList>
 
             {/* Buy Tab */}
-            <TabsContent value="buy">
+            <TabsContent value="buy" className="h-full">
               <TradePanelBuyTab
                 buyPresets={tradePanelState.buyPresets}
                 onUpdatePreset={tradePanelState.updateBuyPreset}
@@ -440,7 +440,7 @@ export function TradePanelContainer({
             </TabsContent>
 
             {/* Sell Tab */}
-            <TabsContent value="sell">
+            <TabsContent value="sell" className="h-full">
               <TradePanelSellTab
                 sellPresets={tradePanelState.sellPresets}
                 selectedPercentage={tradePanelState.selectedPercentage}
