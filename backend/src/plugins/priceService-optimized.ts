@@ -487,10 +487,12 @@ class OptimizedPriceService extends EventEmitter {
       const swapSignal = this.detectSwapActivity(logs);
 
       if (swapSignal.isSwap) {
-        logger.debug({
-          signature: signature?.slice(0, 16),
-          dex: swapSignal.dex
-        }, "Swap detected - triggering price refresh");
+        if (logger.isLevelEnabled('debug')) {
+          logger.debug({
+            signature: signature?.slice(0, 16),
+            dex: swapSignal.dex
+          }, "Swap detected - triggering price refresh");
+        }
 
         // Use swap as a signal to refresh prices for involved tokens
         // This gives us near-instant price updates (1-2s latency)
@@ -533,14 +535,18 @@ class OptimizedPriceService extends EventEmitter {
               const amountIn = rayLogData.readBigUInt64LE(1);
               const amountOut = rayLogData.readBigUInt64LE(9);
 
-              logger.debug({
-                amountIn: amountIn.toString(),
-                amountOut: amountOut.toString()
-              }, "Raydium swap amounts");
+              if (logger.isLevelEnabled('debug')) {
+                logger.debug({
+                  amountIn: amountIn.toString(),
+                  amountOut: amountOut.toString()
+                }, "Raydium swap amounts");
+              }
             }
           } catch (err) {
             // Parsing failed, but we still know a swap occurred
-            logger.debug({ error: err }, "Failed to parse ray_log details");
+            if (logger.isLevelEnabled('debug')) {
+              logger.debug({ error: err }, "Failed to parse ray_log details");
+            }
           }
         }
       }
@@ -610,10 +616,12 @@ class OptimizedPriceService extends EventEmitter {
 
       // Skip if refreshed recently (within MIN_REFRESH_INTERVAL)
       if (timeSinceRefresh < this.MIN_REFRESH_INTERVAL) {
-        logger.debug({
-          mint: mint.slice(0, 8),
-          timeSinceRefresh: Math.round(timeSinceRefresh / 1000)
-        }, "Skipping swap-triggered refresh (too recent)");
+        if (logger.isLevelEnabled('debug')) {
+          logger.debug({
+            mint: mint.slice(0, 8),
+            timeSinceRefresh: Math.round(timeSinceRefresh / 1000)
+          }, "Skipping swap-triggered refresh (too recent)");
+        }
         continue;
       }
 
@@ -644,10 +652,12 @@ class OptimizedPriceService extends EventEmitter {
         this.refreshQueue.delete(mint);
         this.lastRefreshTime.set(mint, Date.now());
 
-        logger.debug({
-          mint: mint.slice(0, 8),
-          queueRemaining: this.refreshQueue.size
-        }, "Processing swap-triggered refresh");
+        if (logger.isLevelEnabled('debug')) {
+          logger.debug({
+            mint: mint.slice(0, 8),
+            queueRemaining: this.refreshQueue.size
+          }, "Processing swap-triggered refresh");
+        }
 
         try {
           const tick = await this.fetchTokenPrice(mint);
@@ -957,7 +967,9 @@ class OptimizedPriceService extends EventEmitter {
     // Real-time updates come from PumpPortal WebSocket (swap events)
     // DexScreener and pump.fun frontend API disabled (unreliable/rate-limited)
 
-    logger.debug({ mint: mint.slice(0, 8) }, "Fetching price from Jupiter");
+    if (logger.isLevelEnabled('debug')) {
+      logger.debug({ mint: mint.slice(0, 8) }, "Fetching price from Jupiter");
+    }
 
     // Try Jupiter fallback (increased timeout for reliability during trades)
     try {
@@ -966,7 +978,9 @@ class OptimizedPriceService extends EventEmitter {
         const timeoutId = setTimeout(() => controller.abort(), 15000); // Increased from 8s to 15s
 
         try {
-          logger.debug({ mint: mint.slice(0, 8) }, "[Jupiter] Starting API request");
+          if (logger.isLevelEnabled('debug')) {
+            logger.debug({ mint: mint.slice(0, 8) }, "[Jupiter] Starting API request");
+          }
           const response = await fetch(
             `https://lite-api.jup.ag/price/v3?ids=${mint}`,
             {

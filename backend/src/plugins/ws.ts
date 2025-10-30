@@ -46,11 +46,8 @@ export default async function wsPlugin(app: FastifyInstance) {
         }
       }
     }
-    
-    // Only log broadcasts if there are many clients (reduced log noise)
-    if (sent > 10) {
-      console.log(`📊 Broadcasted price update for ${tick.mint} to ${sent} clients`);
-    }
+
+    // Removed broadcast logging (performance optimization - high-frequency event)
   });
 
   // Heartbeat cleanup for dead connections
@@ -73,8 +70,8 @@ export default async function wsPlugin(app: FastifyInstance) {
 
   // Enhanced WebSocket route for price updates with new contract format
   app.get("/ws/prices", { websocket: true }, (socket, req) => {
-      console.log("🔌 Client connected to price WebSocket from", req.ip);
-      
+      // Removed connection logging (performance optimization)
+
       // @ts-ignore
       socket.isAlive = true;
       clients.add(socket);
@@ -129,12 +126,11 @@ export default async function wsPlugin(app: FastifyInstance) {
                   }));
                   // Cached price sent successfully (log removed to reduce noise)
                 } else {
-                  // No cached price - fetch fresh data from API
-                  console.log(`🔍 No cached price for ${data.mint.slice(0, 8)}, fetching fresh data...`);
-                  
+                  // No cached price - fetch fresh data from API (logging removed for performance)
+
                   try {
                     const freshTick = await priceService.fetchTokenPrice(data.mint);
-                    
+
                     if (freshTick) {
                       socket.send(JSON.stringify({
                         type: "price",
@@ -143,7 +139,7 @@ export default async function wsPlugin(app: FastifyInstance) {
                         change24h: freshTick.change24h || 0,
                         timestamp: freshTick.timestamp
                       }));
-                      console.log(`✅ Fresh price fetched for ${data.mint.slice(0, 8)}: $${freshTick.priceUsd}`);
+                      // Removed success logging (performance optimization)
                     } else {
                       // Still no price available after fetch
                       socket.send(JSON.stringify({
@@ -153,7 +149,7 @@ export default async function wsPlugin(app: FastifyInstance) {
                         change24h: 0,
                         timestamp: Date.now()
                       }));
-                      console.warn(`⚠️ No price available for ${data.mint.slice(0, 8)} after fetch`);
+                      // Removed warning logging (performance optimization)
                     }
                   } catch (err) {
                     console.error(`❌ Failed to fetch fresh price for ${data.mint.slice(0, 8)}:`, err);
@@ -231,8 +227,8 @@ export default async function wsPlugin(app: FastifyInstance) {
       });
       
       socket.on("close", () => {
-        console.log("🔌 Client disconnected");
-        
+        // Removed disconnect logging (performance optimization)
+
         // Remove from clients set
         clients.delete(socket);
         

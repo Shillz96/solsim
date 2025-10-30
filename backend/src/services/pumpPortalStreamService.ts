@@ -418,7 +418,7 @@ export class PumpPortalStreamService extends EventEmitter {
           timestamp: message.timestamp || Date.now(),
         };
 
-        console.log('[PumpPortal] New token:', event.token.symbol || event.token.mint);
+        // Removed high-frequency logging (performance optimization)
         this.emit('newToken', event);
       }
       // Also check for type field (legacy format)
@@ -459,7 +459,7 @@ export class PumpPortalStreamService extends EventEmitter {
           timestamp: message.timestamp || Date.now(),
         };
 
-        console.log('[PumpPortal] Migration event:', event.mint, event.data.status);
+        // Removed high-frequency logging (performance optimization)
         this.emit('migration', event);
       }
       // Handle swap/trade events (buy/sell)
@@ -494,8 +494,8 @@ export class PumpPortalStreamService extends EventEmitter {
               tokenName: message.name || message.tokenName,
               tokenUri: message.uri || message.image,
             };
-            
-            console.log(`[PumpPortal] Wallet trade: ${trader.slice(0, 8)}... ${accountTradeEvent.txType} ${accountTradeEvent.tokenSymbol || accountTradeEvent.mint.slice(0, 8)}`);
+
+            // Removed high-frequency logging (performance optimization - logs on EVERY trade)
             this.emit('accountTrade', accountTradeEvent);
           }
         }
