@@ -14,7 +14,7 @@ interface TradePanelHeaderProps {
 
 export function TradePanelHeader({ tokenSymbol, balance }: TradePanelHeaderProps) {
   return (
-    <div className="flex items-center justify-between mb-2">
+    <div className="flex items-center justify-between">
       <h3 className="font-bold text-sm text-outline truncate">
         Trade {tokenSymbol || 'Token'}
       </h3>

@@ -26,10 +26,10 @@ export function TradePanelStatsBar({
   const isProfit = pnl >= 0
 
   return (
-    <div className="grid grid-cols-4 gap-1.5">
+    <div className="grid grid-cols-4 gap-2">
       {/* Bought */}
       <div className="bg-white border-3 border-outline rounded-[14px] p-2 flex flex-col items-center justify-center shadow-[4px_4px_0_var(--outline-black)] hover:shadow-[5px_5px_0_var(--outline-black)] hover:-translate-y-[1px] transition-all min-w-0">
-        <div className="text-[10px] font-bold text-outline/60 uppercase tracking-tight mb-0.5 whitespace-nowrap">
+        <div className="text-[10px] font-bold text-outline/60 uppercase tracking-tight mb-1 whitespace-nowrap">
           Bought
         </div>
         <div className="font-mono font-bold text-[11px] text-outline truncate w-full text-center" title={`$${bought.toFixed(2)}`}>
@@ -39,7 +39,7 @@ export function TradePanelStatsBar({
 
       {/* Sold */}
       <div className="bg-white border-3 border-outline rounded-[14px] p-2 flex flex-col items-center justify-center shadow-[4px_4px_0_var(--outline-black)] hover:shadow-[5px_5px_0_var(--outline-black)] hover:-translate-y-[1px] transition-all min-w-0">
-        <div className="text-[10px] font-bold text-outline/60 uppercase tracking-tight mb-0.5 whitespace-nowrap">
+        <div className="text-[10px] font-bold text-outline/60 uppercase tracking-tight mb-1 whitespace-nowrap">
           Sold
         </div>
         <div className="font-mono font-bold text-[11px] text-outline truncate w-full text-center" title={`$${sold.toFixed(2)}`}>
@@ -49,7 +49,7 @@ export function TradePanelStatsBar({
 
       {/* Holding */}
       <div className="bg-white border-3 border-outline rounded-[14px] p-2 flex flex-col items-center justify-center shadow-[4px_4px_0_var(--outline-black)] hover:shadow-[5px_5px_0_var(--outline-black)] hover:-translate-y-[1px] transition-all min-w-0">
-        <div className="text-[10px] font-bold text-outline/60 uppercase tracking-tight mb-0.5 whitespace-nowrap">
+        <div className="text-[10px] font-bold text-outline/60 uppercase tracking-tight mb-1 whitespace-nowrap">
           Holding
         </div>
         <div className="font-mono font-bold text-[11px] text-outline truncate w-full text-center" title={`$${holdingValue.toFixed(2)}`}>
@@ -62,7 +62,7 @@ export function TradePanelStatsBar({
         "border-3 border-outline rounded-[14px] p-2 flex flex-col items-center justify-center shadow-[4px_4px_0_var(--outline-black)] hover:shadow-[5px_5px_0_var(--outline-black)] hover:-translate-y-[1px] transition-all min-w-0",
         isProfit ? "bg-luigi/10" : "bg-mario/10"
       )}>
-        <div className="text-[10px] font-bold text-outline/60 uppercase tracking-tight mb-0.5 whitespace-nowrap">
+        <div className="text-[10px] font-bold text-outline/60 uppercase tracking-tight mb-1 whitespace-nowrap">
           PnL
         </div>
         <div className={cn(
@@ -72,7 +72,7 @@ export function TradePanelStatsBar({
           {isProfit ? '+' : ''}{formatUsdAmount(pnl)}
         </div>
         <div className={cn(
-          'text-[9px] font-bold mt-0.5 truncate w-full text-center',
+          'text-[9px] font-bold mt-1 truncate w-full text-center',
           isProfit ? 'text-luigi' : 'text-mario'
         )}>
           ({isProfit ? '+' : ''}{formatPercentage(pnlPercent)})

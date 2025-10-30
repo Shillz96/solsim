@@ -161,6 +161,19 @@
   --bottom-nav-height: 64px;
   --trending-ticker-height: 60px;
 
+  /* Spacing Scale - Mario Theme */
+  --space-section: 1rem;        /* 16px - Between major panel sections */
+  --space-component: 0.75rem;   /* 12px - Between related components */
+  --space-control: 0.5rem;      /* 8px - Between form controls */
+  --space-tight: 0.375rem;      /* 6px - Between tightly related items */
+  --space-grid-sm: 0.5rem;      /* 8px - Small grid gaps */
+  --space-grid-md: 0.75rem;     /* 12px - Medium grid gaps */
+
+  /* Component-Specific Gaps */
+  --chat-message-gap: 1rem;     /* 16px - Between chat messages */
+  --chat-section-gap: 0.75rem;  /* 12px - Between chat sections */
+  --panel-padding: 0.75rem;     /* 12px - Panel internal padding */
+
   /* Warp Pipes Token Card Metrics - Reduced for more compact view */
   --token-card-height: 160px;
   --token-card-image-size: 100px;
