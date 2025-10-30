@@ -9,7 +9,6 @@
  * - CLS (Cumulative Layout Shift) - Visual stability
  * - FCP (First Contentful Paint) - Initial render
  * - TTFB (Time to First Byte) - Server response time
- * - INP (Interaction to Next Paint) - Responsiveness
  */
 
 import { useEffect } from 'react'
@@ -32,9 +31,9 @@ export function WebVitals({ onMetric }: WebVitalsProps = {}) {
           ? metric.value.toFixed(4)
           : Math.round(metric.value)
 
-        const rating = metric.rating === 'good' ? '=�'
-          : metric.rating === 'needs-improvement' ? '=�'
-          : '=4'
+        const rating = metric.rating === 'good' ? '[GOOD]'
+          : metric.rating === 'needs-improvement' ? '[WARN]'
+          : '[POOR]'
 
         console.log(
           `${rating} ${metric.name}:`,
