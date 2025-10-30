@@ -113,12 +113,12 @@ function TradeRoomContent() {
     )
   }
 
-  // Fetch token details (improved refresh rate from 2min to 30s)
+  // Fetch token details (optimized for performance - use WebSocket for price updates)
   const { data: tokenDetails, isLoading: loadingToken } = useQuery({
     queryKey: ['token-details', ca],
     queryFn: () => api.getTokenDetails(ca),
-    staleTime: 10000, // 10 seconds - faster updates for holder counts
-    refetchInterval: 30000, // Background refetch every 30 seconds
+    staleTime: 30000, // 30 seconds - holder counts change slowly
+    refetchInterval: 60000, // Background refetch every 60 seconds (optimized)
   })
 
   // Calculate current price

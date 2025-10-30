@@ -26,8 +26,8 @@ export function useWarpPipesFeed(filters?: FeedFilters & AdvancedFilters) {
   return useQuery({
     queryKey: ["warp-pipes-feed", filters],
     queryFn: () => getWarpPipesFeed(filters),
-    refetchInterval: 2000, // Refetch every 2 seconds for real-time updates
-    staleTime: 1000, // Consider data stale after 1 second
+    refetchInterval: 30000, // Refetch every 30 seconds (optimized for performance - use WebSocket for real-time prices)
+    staleTime: 10000, // Consider data stale after 10 seconds
   })
 }
 

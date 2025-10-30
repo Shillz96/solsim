@@ -250,14 +250,52 @@ const warpPipesRoutes: FastifyPluginAsync = async (fastify) => {
         // Fetch tokens for each state
         const twelveHoursAgo = new Date(Date.now() - 12 * 60 * 60 * 1000);
         
+        // PERFORMANCE: Select only required fields to reduce payload size (production optimization)
+        const selectFields = {
+          mint: true,
+          symbol: true,
+          name: true,
+          logoURI: true,
+          description: true,
+          imageUrl: true,
+          twitter: true,
+          telegram: true,
+          website: true,
+          creatorWallet: true,
+          holderCount: true,
+          state: true,
+          status: true,
+          liquidityUsd: true,
+          poolCreatedAt: true,
+          priceImpact1Pct: true,
+          marketCapUsd: true,
+          volume24h: true,
+          volume24hSol: true,
+          volumeChange24h: true,
+          priceUsd: true,
+          priceChange24h: true,
+          txCount24h: true,
+          freezeRevoked: true,
+          mintRenounced: true,
+          creatorVerified: true,
+          bondingCurveProgress: true,
+          solToGraduate: true,
+          hotScore: true,
+          watcherCount: true,
+          firstSeenAt: true,
+          lastUpdatedAt: true,
+          stateChangedAt: true,
+        };
+
         const [bonded, graduating, newTokens] = await Promise.all([
           // Bonded tokens - only last 12 hours
           prisma.tokenDiscovery.findMany({
-            where: { 
-              ...baseWhere, 
+            where: {
+              ...baseWhere,
               state: 'bonded',
               stateChangedAt: { gte: twelveHoursAgo }
             },
+            select: selectFields,
             orderBy,
             take: limit,
           }),
@@ -265,6 +303,7 @@ const warpPipesRoutes: FastifyPluginAsync = async (fastify) => {
           // Graduating tokens
           prisma.tokenDiscovery.findMany({
             where: { ...baseWhere, state: 'graduating' },
+            select: selectFields,
             orderBy,
             take: limit,
           }),
@@ -272,6 +311,7 @@ const warpPipesRoutes: FastifyPluginAsync = async (fastify) => {
           // New tokens
           prisma.tokenDiscovery.findMany({
             where: { ...baseWhere, state: 'new' },
+            select: selectFields,
             orderBy,
             take: limit,
           }),
@@ -289,9 +329,15 @@ const warpPipesRoutes: FastifyPluginAsync = async (fastify) => {
 
         // Transform to TokenRow format
         const transformToken = (token: any) => {
-          // Convert HTTP image URLs to HTTPS (or use placeholder for security)
+          // Convert HTTP image URLs to HTTPS and filter out broken CDN hosts (PRODUCTION: prevent broken images)
           const sanitizeImageUrl = (url: string | null): string | null => {
             if (!url) return null;
+
+            // Filter out known broken/unreachable CDN hosts (PumpPortal CDN issues)
+            if (url.includes('93.205.10.67') || url.includes(':4141')) {
+              return null; // Will trigger emoji fallback in frontend
+            }
+
             // If it's an HTTP URL, try converting to HTTPS
             if (url.startsWith('http://')) {
               return url.replace('http://', 'https://');

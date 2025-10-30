@@ -182,8 +182,8 @@ export default async function marketRoutes(app: FastifyInstance) {
         holderCount: totalHolderCount || topHoldersAccounts.length,
       };
 
-      // Cache for 5 minutes
-      await redis.setex(`market:holders:${mint}`, 300, JSON.stringify(result));
+      // Cache for 60 minutes (PRODUCTION: holder counts change slowly, reduce Helius API calls)
+      await redis.setex(`market:holders:${mint}`, 3600, JSON.stringify(result));
 
       return result;
     } catch (error: any) {
@@ -232,6 +232,59 @@ export default async function marketRoutes(app: FastifyInstance) {
     } catch (error: any) {
       app.log.error(error);
       return reply.code(500).send({ error: error.message || 'Failed to fetch lighthouse data' });
+    }
+  });
+
+  /**
+   * Get crypto prices (SOL, BTC, ETH) from CoinGecko
+   * Proxies CoinGecko API to avoid CORS issues and rate limiting
+   */
+  app.get('/market/crypto-prices', async (req, reply) => {
+    try {
+      // Try to get cached prices from Redis (cached for 30 seconds)
+      const cached = await redis.get('market:crypto-prices');
+      if (cached) {
+        const data = JSON.parse(cached);
+        // Check if cache is still fresh (less than 30 seconds old)
+        if (Date.now() - data.ts < 30000) {
+          return data;
+        }
+      }
+
+      // Fetch fresh data from CoinGecko
+      const response = await fetch(
+        'https://api.coingecko.com/api/v3/simple/price?ids=solana,bitcoin,ethereum&vs_currencies=usd&include_24hr_change=true'
+      );
+
+      if (!response.ok) {
+        throw new Error(`CoinGecko API error: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      const result = {
+        solana: {
+          usd: data.solana?.usd || null,
+          usd_24h_change: data.solana?.usd_24h_change || null,
+        },
+        bitcoin: {
+          usd: data.bitcoin?.usd || null,
+          usd_24h_change: data.bitcoin?.usd_24h_change || null,
+        },
+        ethereum: {
+          usd: data.ethereum?.usd || null,
+          usd_24h_change: data.ethereum?.usd_24h_change || null,
+        },
+        ts: Date.now(),
+      };
+
+      // Cache for 30 seconds
+      await redis.setex('market:crypto-prices', 30, JSON.stringify(result));
+
+      return result;
+    } catch (error: any) {
+      app.log.error(error);
+      return reply.code(500).send({ error: error.message || 'Failed to fetch crypto prices' });
     }
   });
 }

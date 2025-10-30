@@ -152,7 +152,7 @@ model TransactionHistory {
 }
 
 model Token {
-  address        String    @id
+  address        String    @id // Already a primary key, but ensure it's indexed for joins
   symbol         String?
   name           String?
   imageUrl       String?
@@ -184,6 +184,7 @@ model Token {
   @@index([isTrending, momentumScore])
   @@index([symbol])
   @@index([isNew])
+  // Note: address is @id so it's automatically indexed
 }
 
 model ConversionHistory {
@@ -651,6 +652,10 @@ model TokenDiscovery {
   @@index([holderCount(sort: Desc)], map: "token_discovery_holder_count")
   @@index([status, lastUpdatedAt(sort: Desc)], map: "token_discovery_status_updated")
   @@index([lastTradeTs(sort: Desc)], map: "token_discovery_last_trade")
+  // PERFORMANCE: Critical indexes for warp-pipes feed queries (production optimization)
+  @@index([state, volume24h(sort: Desc)], map: "token_discovery_state_volume")
+  @@index([state, firstSeenAt(sort: Desc)], map: "token_discovery_state_newest")
+  @@index([state, stateChangedAt(sort: Desc)], map: "token_discovery_state_changed")
 }
 
 model TokenWatch {
