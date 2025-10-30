@@ -148,6 +148,181 @@
     min-height: 0; /* Allows scrolling within grid items */
   }
 
+  /* ---------------------------
+     TRADE PANEL REDESIGN - Token-first, Premium Hierarchy
+  --------------------------- */
+
+  /* OUTER PANEL - Single frame with calm surface */
+  #trade-panel {
+    background: var(--card-trading);
+    border: 4px solid var(--outline-black);
+    border-radius: var(--radius-2xl);
+    box-shadow: 6px 6px 0 var(--outline-black);
+  }
+
+  /* TIER SECTIONS - Soft elevation, no heavy borders */
+  .trade-tier {
+    background: var(--card-bg-elevated);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    padding: var(--panel-padding);
+  }
+
+  /* SUMMARY GRID - 2x2, value-forward typography */
+  .trade-summary {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-component);
+  }
+
+  .trade-metric {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-tight);
+    background: var(--card-bg-muted);
+    border-radius: var(--radius-md);
+    padding: var(--panel-padding);
+    min-height: 72px;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .trade-metric .value {
+    font-family: var(--font-numeric);
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--outline-black);
+  }
+
+  .trade-metric .label {
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 0.8rem;
+    color: var(--muted-foreground);
+    text-transform: uppercase;
+  }
+
+  /* ACTIONS SECTION */
+  .trade-actions {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-component);
+  }
+
+  .trade-amount {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-control);
+  }
+
+  .trade-presets {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(104px, 1fr));
+    gap: var(--space-control);
+  }
+
+  .trade-input,
+  .trade-preset {
+    min-height: 48px;
+    border: 3px solid var(--outline-black);
+    border-radius: var(--radius-md);
+    background: #fff;
+    box-shadow: 3px 3px 0 var(--outline-black);
+    padding: 0.5rem 0.75rem;
+    font-weight: 700;
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  }
+
+  .trade-preset[aria-pressed="true"],
+  .trade-preset.active {
+    background: linear-gradient(90deg, var(--coin-gold), var(--color-star));
+    box-shadow: 0 0 0 3px var(--color-star), 4px 4px 0 var(--outline-black);
+  }
+
+  /* CTA ROW - Bold, elevated CTAs */
+  .trade-cta {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-control);
+  }
+
+  .trade-btn,
+  .trade-action-btn {
+    min-height: 52px;
+    border: 4px solid var(--outline-black);
+    border-radius: var(--radius-lg);
+    box-shadow: 6px 6px 0 var(--outline-black);
+    font-weight: 800;
+    font-size: 1rem;
+    text-transform: uppercase;
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  }
+
+  .trade-btn--buy,
+  .trade-action-btn-buy {
+    background: var(--color-buy);
+    color: #fff;
+  }
+
+  .trade-btn--sell,
+  .trade-action-btn-sell {
+    background: var(--color-sell);
+    color: #fff;
+  }
+
+  .trade-btn:hover,
+  .trade-action-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 8px 8px 0 var(--outline-black);
+  }
+
+  .trade-btn:active,
+  .trade-action-btn:active:not(:disabled) {
+    transform: translateY(1px);
+    box-shadow: 4px 4px 0 var(--outline-black);
+  }
+
+  .trade-btn:disabled,
+  .trade-action-btn:disabled {
+    opacity: 0.55;
+    pointer-events: none;
+  }
+
+  /* META SECTION - Soft pastel cards */
+  .trade-meta {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-component);
+  }
+
+  .trade-meta .card {
+    background: var(--card-stats);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-card);
+    padding: var(--panel-padding);
+    border: 3px solid var(--outline-black);
+  }
+
+  /* RESPONSIVE - Mobile adjustments */
+  @media (max-width: 768px) {
+    #trade-panel {
+      border-width: 3px;
+      box-shadow: 4px 4px 0 var(--outline-black);
+    }
+
+    .trade-btn,
+    .trade-action-btn {
+      min-height: 48px;
+      border-width: 3px;
+      box-shadow: 4px 4px 0 var(--outline-black);
+    }
+
+    .trade-btn:hover,
+    .trade-action-btn:hover:not(:disabled) {
+      box-shadow: 6px 6px 0 var(--outline-black);
+    }
+  }
+
   /* Layer 2 - Global Film Grain (Top Layer) - Subtle professional grain */
   body::after {
     content: "";

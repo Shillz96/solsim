@@ -75,72 +75,77 @@ export function TradePanelBuyTab({
   
   return (
     <div className="flex flex-col h-full gap-[var(--space-component)] mt-3">
-      <Label className="mario-font text-[10px] whitespace-nowrap">
-        SELECT AMOUNT (SOL)
-      </Label>
+      {/* Actions Tier */}
+      <div className="trade-tier trade-actions">
+        <Label className="mario-font text-[10px] whitespace-nowrap">
+          SELECT AMOUNT (SOL)
+        </Label>
 
-      {/* Estimated Tokens Display - Always visible */}
-      <TradePanelEstimate
-        type="buy"
-        tokenSymbol={tokenSymbol || 'TOKEN'}
-        estimate={{ tokens: estimate?.tokenQuantity || 0 }}
-      />
-
-      {/* Preset Buttons */}
-      <TradePanelPresets
-        presets={buyPresets}
-        selected={selectedSolAmount}
-        onSelect={onSelectAmount}
-        onUpdate={onUpdatePreset}
-        disabled={(amount) => amount > balance}
-        maxValue={balance}
-        editable={true}
-      />
-
-      {/* Custom Input (Optional) */}
-      {showCustomInput && (
-        <Input
-          type="number"
-          inputMode="decimal"
-          placeholder="Custom amount"
-          value={customSolAmount}
-          onChange={(e) => onCustomAmountChange(e.target.value)}
-          className="border-2 border-outline font-mono text-sm h-11"
-          autoComplete="off"
-          data-form-type="other"
+        {/* Estimated Tokens Display - Always visible */}
+        <TradePanelEstimate
+          type="buy"
+          tokenSymbol={tokenSymbol || 'TOKEN'}
+          estimate={{ tokens: estimate?.tokenQuantity || 0 }}
         />
-      )}
 
-      {/* Fee Display - Always visible */}
-      <TradePanelFees fees={fees || { estimatedFeeSol: 0, estimatedFeeUsd: 0, totalFeePercent: 1.5 }} />
+        {/* Preset Buttons */}
+        <TradePanelPresets
+          presets={buyPresets}
+          selected={selectedSolAmount}
+          onSelect={onSelectAmount}
+          onUpdate={onUpdatePreset}
+          disabled={(amount) => amount > balance}
+          maxValue={balance}
+          editable={true}
+        />
 
-      {/* Buy Button */}
-      <Button
-        className="w-full trade-action-btn trade-action-btn-buy h-12 whitespace-nowrap overflow-hidden"
-        onClick={onBuy}
-        disabled={isTrading || !hasAmount}
-      >
-        {isTrading ? (
-          <>
-            <Loader2 className="h-4 w-4 animate-spin mr-2 flex-shrink-0 relative z-10" />
-            <span className="truncate relative z-10">BUYING...</span>
-          </>
-        ) : (
-          <>
-            <TrendingUp className="h-4 w-4 mr-2 flex-shrink-0 relative z-10" />
-            <span className="truncate relative z-10">BUY {tokenSymbol}</span>
-          </>
+        {/* Custom Input (Optional) */}
+        {showCustomInput && (
+          <Input
+            type="number"
+            inputMode="decimal"
+            placeholder="Custom amount"
+            value={customSolAmount}
+            onChange={(e) => onCustomAmountChange(e.target.value)}
+            className="border-2 border-outline font-mono text-sm h-11"
+            autoComplete="off"
+            data-form-type="other"
+          />
         )}
-      </Button>
 
-      {/* Token Vitals - 2x2 Grid - Fills remaining space */}
-      <TokenVitalsBar
-        tokenAddress={tokenAddress}
-        volume24h={volume24h}
-        holders={holders}
-        userRank={userRank}
-        className="flex-1"
-      />
+        {/* Fee Display - Always visible */}
+        <TradePanelFees fees={fees || { estimatedFeeSol: 0, estimatedFeeUsd: 0, totalFeePercent: 1.5 }} />
+
+        {/* Buy Button */}
+        <Button
+          className="w-full trade-action-btn trade-action-btn-buy h-12 whitespace-nowrap overflow-hidden"
+          onClick={onBuy}
+          disabled={isTrading || !hasAmount}
+        >
+          {isTrading ? (
+            <>
+              <Loader2 className="h-4 w-4 animate-spin mr-2 flex-shrink-0 relative z-10" />
+              <span className="truncate relative z-10">BUYING...</span>
+            </>
+          ) : (
+            <>
+              <TrendingUp className="h-4 w-4 mr-2 flex-shrink-0 relative z-10" />
+              <span className="truncate relative z-10">BUY {tokenSymbol}</span>
+            </>
+          )}
+        </Button>
+      </div>
+
+      {/* Meta Tier - Token Vitals */}
+      <div className="trade-tier">
+        <TokenVitalsBar
+          tokenAddress={tokenAddress}
+          volume24h={volume24h}
+          holders={holders}
+          userRank={userRank}
+          className="flex-1"
+        />
+      </div>
     </div>
   )
 }

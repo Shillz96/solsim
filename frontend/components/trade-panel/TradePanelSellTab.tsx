@@ -68,60 +68,65 @@ export function TradePanelSellTab({
   const fees = estimate ? calculateTradeFees(estimate.solAmount, solPrice) : null
   
   return (
-    <div className="flex flex-col h-full space-y-1.5 mt-1">
-      <Label className="mario-font text-[10px] whitespace-nowrap">
-        SELECT PERCENTAGE
-      </Label>
+    <div className="flex flex-col h-full gap-[var(--space-component)] mt-3">
+      {/* Actions Tier */}
+      <div className="trade-tier trade-actions">
+        <Label className="mario-font text-[10px] whitespace-nowrap">
+          SELECT PERCENTAGE
+        </Label>
 
-      {/* Estimated SOL Display - Always visible */}
-      <TradePanelEstimate
-        type="sell"
-        tokenSymbol={tokenSymbol || 'TOKEN'}
-        estimate={{
-          sol: estimate?.solAmount || 0,
-          tokens: estimate?.tokenQuantity || 0
-        }}
-      />
+        {/* Estimated SOL Display - Always visible */}
+        <TradePanelEstimate
+          type="sell"
+          tokenSymbol={tokenSymbol || 'TOKEN'}
+          estimate={{
+            sol: estimate?.solAmount || 0,
+            tokens: estimate?.tokenQuantity || 0
+          }}
+        />
 
-      {/* Percentage Preset Buttons */}
-      <TradePanelPresets
-        presets={sellPresets}
-        selected={selectedPercentage}
-        onSelect={onSelectPercentage}
-        disabled={() => !hasPosition}
-        label="percentage"
-      />
+        {/* Percentage Preset Buttons */}
+        <TradePanelPresets
+          presets={sellPresets}
+          selected={selectedPercentage}
+          onSelect={onSelectPercentage}
+          disabled={() => !hasPosition}
+          label="percentage"
+        />
 
-      {/* Fee Display - Always visible */}
-      <TradePanelFees fees={fees || { estimatedFeeSol: 0, estimatedFeeUsd: 0, totalFeePercent: 1.5 }} />
+        {/* Fee Display - Always visible */}
+        <TradePanelFees fees={fees || { estimatedFeeSol: 0, estimatedFeeUsd: 0, totalFeePercent: 1.5 }} />
 
-      {/* Sell Button */}
-      <Button
-        className="w-full trade-action-btn trade-action-btn-sell h-12 whitespace-nowrap overflow-hidden"
-        onClick={onSell}
-        disabled={isTrading || !hasSelection}
-      >
-        {isTrading ? (
-          <>
-            <Loader2 className="h-4 w-4 animate-spin mr-2 flex-shrink-0 relative z-10" />
-            <span className="truncate relative z-10">SELLING...</span>
-          </>
-        ) : (
-          <>
-            <TrendingDown className="h-4 w-4 mr-2 flex-shrink-0 relative z-10" />
-            <span className="truncate relative z-10">SELL {tokenSymbol}</span>
-          </>
-        )}
-      </Button>
+        {/* Sell Button */}
+        <Button
+          className="w-full trade-action-btn trade-action-btn-sell h-12 whitespace-nowrap overflow-hidden"
+          onClick={onSell}
+          disabled={isTrading || !hasSelection}
+        >
+          {isTrading ? (
+            <>
+              <Loader2 className="h-4 w-4 animate-spin mr-2 flex-shrink-0 relative z-10" />
+              <span className="truncate relative z-10">SELLING...</span>
+            </>
+          ) : (
+            <>
+              <TrendingDown className="h-4 w-4 mr-2 flex-shrink-0 relative z-10" />
+              <span className="truncate relative z-10">SELL {tokenSymbol}</span>
+            </>
+          )}
+        </Button>
+      </div>
 
-      {/* Token Vitals - 2x2 Grid - Fills remaining space */}
-      <TokenVitalsBar
-        tokenAddress={tokenAddress}
-        volume24h={volume24h}
-        holders={holders}
-        userRank={userRank}
-        className="flex-1 mt-2"
-      />
+      {/* Meta Tier - Token Vitals */}
+      <div className="trade-tier">
+        <TokenVitalsBar
+          tokenAddress={tokenAddress}
+          volume24h={volume24h}
+          holders={holders}
+          userRank={userRank}
+          className="flex-1"
+        />
+      </div>
     </div>
   )
 }

@@ -14,15 +14,17 @@ interface TradePanelHeaderProps {
 
 export function TradePanelHeader({ tokenSymbol, balance }: TradePanelHeaderProps) {
   return (
-    <div className="flex items-center justify-between">
-      <h3 className="font-bold text-sm text-outline truncate">
-        Trade {tokenSymbol || 'Token'}
-      </h3>
-      <div className="flex items-center gap-1 text-xs flex-shrink-0">
-        <Wallet className="h-3 w-3 text-star" />
-        <span className="font-mono font-bold text-outline">
-          {formatSolAmount(balance)} SOL
-        </span>
+    <div className="bg-gradient-to-r from-star/10 to-coin/10 border-3 border-outline rounded-xl p-3 shadow-[3px_3px_0_var(--outline-black)]">
+      <div className="flex items-center justify-between">
+        <h3 className="font-mario text-base text-outline uppercase tracking-wide truncate">
+          Trade {tokenSymbol || 'Token'}
+        </h3>
+        <div className="flex items-center gap-2 flex-shrink-0">
+          <Wallet className="h-4 w-4 text-star" />
+          <span className="font-mono font-bold text-outline text-sm">
+            {formatSolAmount(balance)} SOL
+          </span>
+        </div>
       </div>
     </div>
   )
