@@ -334,39 +334,41 @@ function TradeRoomContent() {
           </Dialog>
         </div>
 
-        {/* DESKTOP/TABLET LAYOUT - 3 Columns */}
-        <div className="hidden md:flex w-full h-full gap-3">
-          {/* Left: Chat Panel */}
-          <aside className="w-72 flex-shrink-0 flex flex-col">
-            <div className="bg-sky/20 border-4 border-outline rounded-xl shadow-[6px_6px_0_var(--outline-black)] h-full overflow-hidden flex flex-col">
-              <ChatRoom tokenMint={ca} />
-            </div>
-          </aside>
+        {/* DESKTOP/TABLET LAYOUT - Responsive Grid */}
+        <div className="hidden md:block w-full h-full">
+          <div className="room-grid h-full">
+            {/* Chat Panel */}
+            <aside className="chat-panel flex flex-col">
+              <div className="bg-sky/20 border-4 border-outline rounded-xl shadow-[6px_6px_0_var(--outline-black)] h-full overflow-hidden flex flex-col">
+                <ChatRoom tokenMint={ca} />
+              </div>
+            </aside>
 
-          {/* Center: Market Data Panel with Chart */}
-          <section className="flex-1 min-w-0 flex flex-col gap-3">
-            {/* Chart - Larger on desktop for better visibility */}
-            <div className="flex-1 min-h-[400px] lg:min-h-[450px] overflow-hidden rounded-xl border-4 border-outline shadow-[6px_6px_0_var(--outline-black)]">
-              <DexScreenerChart tokenAddress={ca} />
-            </div>
+            {/* Chart + Market Data Panel */}
+            <section className="chart-panel flex flex-col gap-3">
+              {/* Chart - Responsive height */}
+              <div className="flex-1 min-h-[400px] overflow-hidden rounded-xl border-4 border-outline shadow-[6px_6px_0_var(--outline-black)]">
+                <DexScreenerChart tokenAddress={ca} />
+              </div>
 
-            {/* Market Data Tabs */}
-            <div className="flex-1 overflow-hidden">
-              <MarketDataPanels tokenMint={ca} />
-            </div>
-          </section>
+              {/* Market Data Tabs */}
+              <div className="flex-1 overflow-hidden">
+                <MarketDataPanels tokenMint={ca} />
+              </div>
+            </section>
 
-          {/* Right: Trade Panel */}
-          <aside className="w-72 flex-shrink-0 flex flex-col">
-            <div className="bg-sky/20 border-4 border-outline rounded-xl shadow-[6px_6px_0_var(--outline-black)] flex-1 overflow-hidden">
-              <TradePanel
-                tokenAddress={ca}
-                volume24h={volume24h}
-                holders={holderCount}
-                userRank={null}
-              />
-            </div>
-          </aside>
+            {/* Trade Panel */}
+            <aside className="trade-panel flex flex-col">
+              <div className="bg-sky/20 border-4 border-outline rounded-xl shadow-[6px_6px_0_var(--outline-black)] h-full overflow-hidden">
+                <TradePanel
+                  tokenAddress={ca}
+                  volume24h={volume24h}
+                  holders={holderCount}
+                  userRank={null}
+                />
+              </div>
+            </aside>
+          </div>
         </div>
       </main>
     </div>

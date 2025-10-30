@@ -99,6 +99,55 @@
     opacity: 0.04; /* lower for less glare */
   }
 
+  /* ---------------------------
+     ROOM PAGE GRID LAYOUT
+  --------------------------- */
+  /* Responsive Grid for Trade Room Page */
+  .room-grid {
+    display: grid;
+    gap: 0.75rem; /* var(--space-3) equivalent */
+    height: 100%;
+    width: 100%;
+  }
+
+  /* Desktop: 3 columns (Chat | Chart | Trade) */
+  @media (min-width: 1024px) {
+    .room-grid {
+      grid-template-columns: 0.25fr 1fr 0.3fr;
+      grid-template-areas: "chat chart trade";
+    }
+  }
+
+  /* Tablet: 2 rows (Chart + Trade side-by-side, Chat below) */
+  @media (min-width: 768px) and (max-width: 1023px) {
+    .room-grid {
+      grid-template-columns: 1fr 0.4fr;
+      grid-template-rows: 1fr auto;
+      grid-template-areas:
+        "chart trade"
+        "chat chat";
+    }
+  }
+
+  /* Grid Area Assignments */
+  .room-grid .chat-panel {
+    grid-area: chat;
+  }
+
+  .room-grid .chart-panel {
+    grid-area: chart;
+  }
+
+  .room-grid .trade-panel {
+    grid-area: trade;
+  }
+
+  /* Ensure panels fill their grid areas properly */
+  .room-grid > * {
+    min-width: 0; /* Prevents grid blowout */
+    min-height: 0; /* Allows scrolling within grid items */
+  }
+
   /* Layer 2 - Global Film Grain (Top Layer) - Subtle professional grain */
   body::after {
     content: "";
