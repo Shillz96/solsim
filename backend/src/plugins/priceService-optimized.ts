@@ -696,8 +696,21 @@ class OptimizedPriceService extends EventEmitter {
       const data = await response.json();
 
       if (data.solana?.usd) {
+        const newPrice = data.solana.usd;
         const oldPrice = this.solPriceUsd;
-        this.solPriceUsd = data.solana.usd;
+
+        // Validate price is within reasonable range
+        if (newPrice < 50 || newPrice > 500) {
+          logger.error({
+            newPrice,
+            oldPrice,
+            source: 'coingecko',
+            rawData: data
+          }, "INVALID SOL price from CoinGecko - rejecting update");
+          throw new Error(`Invalid SOL price: ${newPrice} (must be between $50-$500)`);
+        }
+
+        this.solPriceUsd = newPrice;
         this.lastSolPriceUpdate = Date.now();
 
         logger.info({ oldPrice, newPrice: this.solPriceUsd }, "SOL price updated from CoinGecko");
@@ -735,8 +748,21 @@ class OptimizedPriceService extends EventEmitter {
       if (response.ok) {
         const data = await response.json();
         if (data.data && data.data['So11111111111111111111111111111111111111112']?.price) {
+          const newPrice = parseFloat(data.data['So11111111111111111111111111111111111111112'].price);
           const oldPrice = this.solPriceUsd;
-          this.solPriceUsd = parseFloat(data.data['So11111111111111111111111111111111111111112'].price);
+
+          // Validate price is within reasonable range
+          if (newPrice < 50 || newPrice > 500) {
+            logger.error({
+              newPrice,
+              oldPrice,
+              source: 'jupiter',
+              rawData: data
+            }, "INVALID SOL price from Jupiter - rejecting update");
+            throw new Error(`Invalid SOL price: ${newPrice} (must be between $50-$500)`);
+          }
+
+          this.solPriceUsd = newPrice;
           this.lastSolPriceUpdate = Date.now();
 
           logger.info({ oldPrice, newPrice: this.solPriceUsd }, "SOL price updated from Jupiter fallback");

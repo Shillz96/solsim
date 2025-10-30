@@ -95,4 +95,37 @@ export default async function debugRoutes(app: FastifyInstance) {
       });
     }
   });
+
+  // Debug endpoint for SOL price diagnostics
+  app.get("/api/debug/sol-price", async (request, reply) => {
+    try {
+      const solPrice = priceService.getSolPrice();
+      const solPriceAge = priceService.getSolPriceAge();
+      const stats = priceService.getStats();
+
+      // Check if price is stale or invalid
+      const isStale = solPriceAge > 60000; // > 1 minute
+      const isInvalid = solPrice < 50 || solPrice > 500; // Outside reasonable range
+
+      return {
+        success: true,
+        solPrice: {
+          current: solPrice,
+          ageMs: solPriceAge,
+          ageSeconds: Math.floor(solPriceAge / 1000),
+          isStale,
+          isInvalid,
+          status: isInvalid ? 'INVALID' : isStale ? 'STALE' : 'OK'
+        },
+        stats,
+        timestamp: Date.now()
+      };
+    } catch (error) {
+      console.error("❌ SOL price debug error:", error);
+      return reply.code(500).send({
+        success: false,
+        error: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
 }
