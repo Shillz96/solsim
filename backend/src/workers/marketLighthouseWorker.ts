@@ -107,7 +107,7 @@ class MarketLighthouseWorker extends EventEmitter {
 
       this.trades.push(trade);
     } catch (error) {
-      console.error('[MarketLighthouse] Error handling swap:', error);
+      // Silently handle errors (performance optimization - hot path)
     }
   }
 
@@ -123,7 +123,7 @@ class MarketLighthouseWorker extends EventEmitter {
 
       this.tokensCreated.push(tokenEvent);
     } catch (error) {
-      console.error('[MarketLighthouse] Error handling new token:', error);
+      // Silently handle errors (performance optimization - hot path)
     }
   }
 
@@ -139,7 +139,7 @@ class MarketLighthouseWorker extends EventEmitter {
 
       this.migrations.push(migrationEvent);
     } catch (error) {
-      console.error('[MarketLighthouse] Error handling migration:', error);
+      // Silently handle errors (performance optimization - hot path)
     }
   }
 

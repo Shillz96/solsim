@@ -149,7 +149,7 @@ export class PumpPortalStreamService extends EventEmitter {
         // Set TTL on the sorted set
         await redis.expire(cacheKey, TRADE_CACHE_TTL);
       } catch (error) {
-        console.error('[PumpPortal] Error caching trade:', error);
+        // Silently handle errors (performance optimization - hot path)
       }
     });
 
@@ -175,7 +175,7 @@ export class PumpPortalStreamService extends EventEmitter {
         const cacheKey = REDIS_KEYS.metadata(event.token.mint);
         await redis.setex(cacheKey, METADATA_CACHE_TTL, JSON.stringify(metadata));
       } catch (error) {
-        console.error('[PumpPortal] Error caching metadata:', error);
+        // Silently handle errors (performance optimization - hot path)
       }
     });
   }
@@ -247,28 +247,23 @@ export class PumpPortalStreamService extends EventEmitter {
    */
   private subscribe(): void {
     if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
-      console.error('[PumpPortal] Cannot subscribe: WebSocket not open');
+      // WebSocket not ready - will retry on next connection (log removed for performance)
       return;
     }
-
-    console.log('[PumpPortal] Subscribing to events...');
 
     // Subscribe to new token events (bonded tokens)
     const newTokenSub = {
       method: 'subscribeNewToken',
     };
-    console.log('[PumpPortal] Sending subscription:', JSON.stringify(newTokenSub));
     this.ws.send(JSON.stringify(newTokenSub));
 
     // Subscribe to migration events (graduating → new)
     const migrationSub = {
       method: 'subscribeMigration',
     };
-    console.log('[PumpPortal] Sending subscription:', JSON.stringify(migrationSub));
     this.ws.send(JSON.stringify(migrationSub));
 
     // Note: Token trade subscriptions are handled dynamically via subscribeToTokens()
-    console.log('[PumpPortal] Base subscription requests sent. Use subscribeToTokens() for trade data.');
   }
 
   /**
@@ -277,7 +272,7 @@ export class PumpPortalStreamService extends EventEmitter {
    */
   subscribeToTokens(tokenMints: string[]): void {
     if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
-      console.warn('[PumpPortal] Cannot subscribe to tokens: WebSocket not open');
+      // WebSocket not ready - subscription will fail silently (log removed for performance)
       return;
     }
 
@@ -294,7 +289,7 @@ export class PumpPortalStreamService extends EventEmitter {
       keys: newTokens,
     };
 
-    console.log(`[PumpPortal] Subscribing to ${newTokens.length} tokens for trade data`);
+    // Removed subscription count logging (performance optimization - high-frequency operation)
     this.ws.send(JSON.stringify(tokenTradeSub));
 
     // Track subscribed tokens
@@ -314,7 +309,7 @@ export class PumpPortalStreamService extends EventEmitter {
    */
   subscribeToWallets(walletAddresses: string[]): void {
     if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
-      console.warn('[PumpPortal] Cannot subscribe to wallets: WebSocket not open');
+      // WebSocket not ready - subscription will fail silently (log removed for performance)
       return;
     }
 
@@ -331,7 +326,7 @@ export class PumpPortalStreamService extends EventEmitter {
       keys: newWallets,
     };
 
-    console.log(`[PumpPortal] Subscribing to ${newWallets.length} wallets for trade tracking`);
+    // Removed subscription count logging (performance optimization - high-frequency operation)
     this.ws.send(JSON.stringify(accountTradeSub));
 
     // Track subscribed wallets
@@ -344,7 +339,7 @@ export class PumpPortalStreamService extends EventEmitter {
    */
   unsubscribeFromWallets(walletAddresses: string[]): void {
     if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
-      console.warn('[PumpPortal] Cannot unsubscribe from wallets: WebSocket not open');
+      // WebSocket not ready - unsubscription will fail silently (log removed for performance)
       return;
     }
 
@@ -359,7 +354,7 @@ export class PumpPortalStreamService extends EventEmitter {
       keys: walletsToRemove,
     };
 
-    console.log(`[PumpPortal] Unsubscribing from ${walletsToRemove.length} wallets`);
+    // Removed unsubscription count logging (performance optimization)
     this.ws.send(JSON.stringify(accountTradeUnsub));
 
     // Remove from tracked set
@@ -441,7 +436,7 @@ export class PumpPortalStreamService extends EventEmitter {
           timestamp: message.timestamp || Date.now(),
         };
 
-        console.log('[PumpPortal] New token (legacy format):', event.token.symbol || event.token.mint);
+        // Removed legacy format logging (performance optimization)
         this.emit('newToken', event);
       }
 

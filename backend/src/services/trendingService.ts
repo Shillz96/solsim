@@ -44,22 +44,22 @@ export async function getTrendingTokens(limit: number = 20, sortBy: BirdeyeSortB
     if (birdeyeTrending.length > 0) {
       // Enrich with holder count data from Token table
       const enrichedWithHolders = await enrichWithHolderCounts(birdeyeTrending);
-      console.log(`Returning ${enrichedWithHolders.length} Birdeye trending tokens with holder data`);
+      // Removed result logging (performance optimization)
 
       // Cache result in Redis for 30 minutes (PRODUCTION: trending data changes slowly)
       try {
         await redis.setex(cacheKey, 1800, safeStringify(enrichedWithHolders));
       } catch (error) {
-        console.warn('Failed to cache trending tokens:', error);
+        // Silently handle cache errors
       }
 
       return enrichedWithHolders;
     }
 
     // Fallback to DexScreener if Birdeye fails
-    console.log('Birdeye failed, trying DexScreener fallback');
+    // Removed fallback logging (performance optimization)
     const dexTrending = await getDexScreenerTrending(limit);
-    console.log(`DexScreener returned ${dexTrending.length} tokens`);
+    // Removed result count logging (performance optimization)
 
     // Enrich with holder count data from Token table
     const enrichedDex = await enrichWithHolderCounts(dexTrending);
@@ -68,16 +68,16 @@ export async function getTrendingTokens(limit: number = 20, sortBy: BirdeyeSortB
     try {
       await redis.setex(cacheKey, 1800, safeStringify(enrichedDex));
     } catch (error) {
-      console.warn('Failed to cache trending tokens:', error);
+      // Silently handle cache errors
     }
 
     return enrichedDex;
 
   } catch (error) {
-    console.error('Error fetching trending tokens:', error);
+    // Removed error logging (performance optimization) - fallback handles gracefully
 
     // Fallback to internal data only
-    console.log('All external APIs failed, using internal data fallback');
+    // Removed fallback logging (performance optimization)
     return getInternalTrendingTokens(limit);
   }
 }
@@ -121,8 +121,7 @@ async function getBirdeyeTrending(limit: number, sortBy: BirdeyeSortBy = 'rank')
       throw new Error('BirdEye API key not configured');
     }
 
-    console.log('Using Birdeye API key: Configured');
-    console.log(`Fetching trending tokens sorted by: ${sortBy}`);
+    // Removed excessive logging (performance optimization)
 
     // Use the correct Birdeye trending endpoint with dynamic sort_by
     const response = await robustFetch(`https://public-api.birdeye.so/defi/token_trending?sort_by=${sortBy}&sort_type=desc&offset=0&limit=${limit}&ui_amount_mode=scaled`, {
@@ -137,14 +136,11 @@ async function getBirdeyeTrending(limit: number, sortBy: BirdeyeSortBy = 'rank')
     });
 
     if (!response.ok) {
-      console.error(`Birdeye API error: ${response.status} ${response.statusText}`);
-      const errorText = await response.text().catch(() => 'No error details');
-      console.error('Birdeye error response:', errorText);
       throw new Error(`Birdeye API error: ${response.status}`);
     }
 
     const data = await response.json() as any;
-    console.log('Birdeye API response structure:', JSON.stringify(data, null, 2).substring(0, 500) + '...');
+    // Removed excessive response logging (performance optimization)
 
     // Handle the Birdeye trending API response structure
     let tokens = [];
@@ -153,11 +149,11 @@ async function getBirdeyeTrending(limit: number, sortBy: BirdeyeSortBy = 'rank')
     } else if (data.tokens) {
       tokens = data.tokens;
     } else {
-      console.warn('Unexpected Birdeye response structure:', Object.keys(data));
+      // Removed warning logging (performance optimization)
       return [];
     }
 
-    console.log(`Found ${tokens.length} tokens from Birdeye trending API`);
+    // Removed result count logging (performance optimization)
 
     return tokens
       .map((token: any) => {

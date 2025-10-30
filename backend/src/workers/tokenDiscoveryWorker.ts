@@ -1051,7 +1051,9 @@ async function updateMarketDataAndStates() {
  */
 async function recalculateHotScores(): Promise<void> {
   try {
-    logger.debug({ operation: 'hot_scores_calculation' }, 'Starting hot scores recalculation');
+    if (logger.isLevelEnabled('debug')) {
+      logger.debug({ operation: 'hot_scores_calculation' }, 'Starting hot scores recalculation');
+    }
 
     const tokens = await prisma.tokenDiscovery.findMany({
       where: {
@@ -1069,30 +1071,15 @@ async function recalculateHotScores(): Promise<void> {
         if (token.state === 'new' && progress >= 50 && progress < 100) {
           // Actively progressing → GRADUATING
           await stateManager.updateState(token.mint, 'graduating', token.state);
-          logger.debug({ 
-            mint: truncateWallet(token.mint), 
-            from: 'NEW', 
-            to: 'GRADUATING', 
-            progress 
-          }, 'Token progress transition');
+          // Removed debug logging from hot loop (performance optimization)
         } else if (token.state === 'graduating' && (progress >= 100 || token.poolAddress)) {
           // Completed bonding or has LP → BONDED
           await stateManager.updateState(token.mint, 'bonded', token.state);
-          logger.debug({ 
-            mint: truncateWallet(token.mint), 
-            from: 'GRADUATING', 
-            to: 'BONDED', 
-            progress 
-          }, 'Token completion transition');
+          // Removed debug logging from hot loop (performance optimization)
         } else if (token.state === 'new' && (progress >= 100 || token.poolAddress)) {
           // Skip graduating if already at 100% → BONDED
           await stateManager.updateState(token.mint, 'bonded', token.state);
-          logger.debug({ 
-            mint: truncateWallet(token.mint), 
-            from: 'NEW', 
-            to: 'BONDED', 
-            progress 
-          }, 'Token fast completion');
+          // Removed debug logging from hot loop (performance optimization)
         }
 
         // Calculate and update hot score
@@ -1113,7 +1100,9 @@ async function recalculateHotScores(): Promise<void> {
       }
     }
 
-    logger.debug({ updated, operation: 'hot_scores_update' }, 'Hot scores update completed');
+    if (logger.isLevelEnabled('debug')) {
+      logger.debug({ updated, operation: 'hot_scores_update' }, 'Hot scores update completed');
+    }
   } catch (error) {
     logger.error({ error }, 'Error recalculating hot scores');
   }
