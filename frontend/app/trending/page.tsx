@@ -12,6 +12,7 @@ import type * as Backend from "@/lib/types/backend"
 import { useTrendingTokens } from "@/hooks/use-react-query-hooks"
 import { UsdWithSol } from "@/lib/sol-equivalent"
 import { cn, marioStyles } from "@/lib/utils"
+import { validateImageUrl } from "@/lib/image-url-validator"
 
 type BirdeyeSortBy = "rank" | "volume24hUSD" | "liquidity"
 type SortField = "price" | "priceChange24h" | "marketCapUsd" | "volume24h" | "trendScore"
@@ -401,7 +402,7 @@ export default function TrendingPage() {
                       {/* Token Info */}
                       <div className="flex items-center gap-3 min-w-0">
                         <Image
-                          src={token.logoURI || "/placeholder-token.svg"}
+                          src={validateImageUrl(token.logoURI) || "/placeholder-token.svg"}
                           alt={token.name || "Unknown Token"}
                           width={40}
                           height={40}
@@ -508,7 +509,7 @@ export default function TrendingPage() {
                         {/* Token Info */}
                         <div className="flex items-center gap-2 flex-1 min-w-0">
                           <Image
-                            src={token.logoURI || "/placeholder-token.svg"}
+                            src={validateImageUrl(token.logoURI) || "/placeholder-token.svg"}
                             alt={token.name || "Unknown Token"}
                             width={32}
                             height={32}

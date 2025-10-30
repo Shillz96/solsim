@@ -202,17 +202,25 @@ export default function FloatingWindows() {
             onResizeStart={() => onActivate(w.id)}
             onDragStop={(_, data) => {
               const constrained = constrainPosition(data.x, data.y, w.width, w.height);
-              updateBounds(w.id, constrained);
+              // Use requestAnimationFrame to avoid forced reflow
+              requestAnimationFrame(() => {
+                updateBounds(w.id, constrained);
+              });
               setDraggingId(null);
             }}
             onResizeStop={(_, __, ref, ___, pos) => {
-              const constrainedPos = constrainPosition(pos.x, pos.y, ref.offsetWidth, ref.offsetHeight);
-              const constrainedDims = constrainDimensions(ref.offsetWidth, ref.offsetHeight);
-              updateBounds(w.id, {
-                width: constrainedDims.width,
-                height: constrainedDims.height,
-                x: constrainedPos.x,
-                y: constrainedPos.y
+              // Batch layout reads and writes to prevent forced reflows
+              requestAnimationFrame(() => {
+                const width = ref.offsetWidth;
+                const height = ref.offsetHeight;
+                const constrainedPos = constrainPosition(pos.x, pos.y, width, height);
+                const constrainedDims = constrainDimensions(width, height);
+                updateBounds(w.id, {
+                  width: constrainedDims.width,
+                  height: constrainedDims.height,
+                  x: constrainedPos.x,
+                  y: constrainedPos.y
+                });
               });
             }}
             enableResizing={canResize(w) ? {

@@ -20,6 +20,7 @@ import { SocialHoverCard } from "./social-hover-card"
 import type { TokenRow } from "@/lib/types/warp-pipes"
 import { usePumpPortalMetadata, usePumpPortalTrades } from "@/hooks/use-pumpportal-trades"
 import { usePriceStreamContext } from "@/lib/price-stream-provider"
+import { validateImageUrl } from "@/lib/image-url-validator"
 
 interface TokenCardProps {
   data: TokenRow
@@ -53,37 +54,6 @@ const timeAgo = (iso?: string | null) => {
 const shorten = (addr?: string | null, s = 4, e = 4) => {
   if (!addr) return "—";
   return addr.length <= s + e ? addr : `${addr.slice(0, s)}…${addr.slice(-e)}`;
-};
-
-/**
- * Validates that a URL is safe for Next.js Image optimization
- * Returns null if invalid to prevent INVALID_IMAGE_OPTIMIZE_REQUEST errors
- */
-const validateImageUrl = (url?: string | null): string | null => {
-  // Must be a non-empty string
-  if (!url || typeof url !== 'string' || url.trim().length === 0) {
-    return null;
-  }
-
-  // Must start with http:// or https:// (or be a relative path starting with /)
-  const trimmed = url.trim();
-  if (!trimmed.startsWith('http://') && !trimmed.startsWith('https://') && !trimmed.startsWith('/')) {
-    return null;
-  }
-
-  // For absolute URLs, do basic validation
-  if (trimmed.startsWith('http')) {
-    try {
-      new URL(trimmed);
-      return trimmed;
-    } catch {
-      // Invalid URL format
-      return null;
-    }
-  }
-
-  // Relative paths are OK
-  return trimmed;
 };
 
 

@@ -70,11 +70,13 @@ export function WalletTrackerPopup({ isOpen, onClose }: WalletTrackerPopupProps)
     localStorage.setItem("wallet-tracker-copy-percentage", copyTradePercentage.toString())
   }, [copyTradePercentage])
 
-  // Debounce slider changes for smoother UI
-  const debounceRef = useRef<NodeJS.Timeout | null>(null)
+  // Debounce slider changes for smoother UI using requestAnimationFrame
+  const debounceRef = useRef<number | null>(null)
   const debouncedSetCopyTradePercentage = useCallback((value: number) => {
-    if (debounceRef.current) clearTimeout(debounceRef.current)
-    debounceRef.current = setTimeout(() => setCopyTradePercentage(value), 100)
+    if (debounceRef.current) cancelAnimationFrame(debounceRef.current)
+    debounceRef.current = requestAnimationFrame(() => {
+      setCopyTradePercentage(value)
+    })
   }, [])
 
   // Data: tracked wallets
@@ -242,14 +244,14 @@ export function WalletTrackerPopup({ isOpen, onClose }: WalletTrackerPopupProps)
       document.body.style.overflow = "hidden"
       previousFocusRef.current = document.activeElement as HTMLElement
 
-      // Focus the first focusable element for accessibility
-      setTimeout(() => {
+      // Focus the first focusable element for accessibility using requestAnimationFrame
+      requestAnimationFrame(() => {
         if (!popupRef.current) return
         const focusable = popupRef.current.querySelectorAll<HTMLElement>(
           'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
         )
         ;(focusable[0] ?? popupRef.current).focus()
-      }, 50)
+      })
 
       const onKey = (e: KeyboardEvent) => {
         if (e.key === "Escape") onClose()
