@@ -55,9 +55,40 @@ const shorten = (addr?: string | null, s = 4, e = 4) => {
   return addr.length <= s + e ? addr : `${addr.slice(0, s)}…${addr.slice(-e)}`;
 };
 
+/**
+ * Validates that a URL is safe for Next.js Image optimization
+ * Returns null if invalid to prevent INVALID_IMAGE_OPTIMIZE_REQUEST errors
+ */
+const validateImageUrl = (url?: string | null): string | null => {
+  // Must be a non-empty string
+  if (!url || typeof url !== 'string' || url.trim().length === 0) {
+    return null;
+  }
+
+  // Must start with http:// or https:// (or be a relative path starting with /)
+  const trimmed = url.trim();
+  if (!trimmed.startsWith('http://') && !trimmed.startsWith('https://') && !trimmed.startsWith('/')) {
+    return null;
+  }
+
+  // For absolute URLs, do basic validation
+  if (trimmed.startsWith('http')) {
+    try {
+      new URL(trimmed);
+      return trimmed;
+    } catch {
+      // Invalid URL format
+      return null;
+    }
+  }
+
+  // Relative paths are OK
+  return trimmed;
+};
+
 
 export function TokenCard({ data, onToggleWatch, className, enableLiveUpdates = true }: TokenCardProps) {
-  const img = data.imageUrl || data.logoURI || undefined;
+  const validatedImageUrl = validateImageUrl(data.imageUrl || data.logoURI);
   const [imageError, setImageError] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
   const age = timeAgo(data.firstSeenAt);
@@ -133,9 +164,9 @@ export function TokenCard({ data, onToggleWatch, className, enableLiveUpdates = 
       >
         {/* Left: Token Image - Enlarged to 128x128 for maximum prominence */}
         <div className="relative w-32 h-32 flex-shrink-0">
-          {img && !imageError ? (
+          {validatedImageUrl && !imageError ? (
             <Image
-              src={img}
+              src={validatedImageUrl}
               alt={data.symbol}
               fill
               className={cn(
@@ -149,14 +180,14 @@ export function TokenCard({ data, onToggleWatch, className, enableLiveUpdates = 
           ) : null}
 
           {/* Fallback */}
-          {(imageError || !img) && (
+          {(imageError || !validatedImageUrl) && (
             <div className="flex items-center justify-center w-full h-full bg-star rounded-lg text-2xl font-bold text-outline border-2 border-outline">
               🪙
             </div>
           )}
 
           {/* Loading skeleton */}
-          {!imageLoaded && img && !imageError && (
+          {!imageLoaded && validatedImageUrl && !imageError && (
             <div className="absolute inset-0 bg-background/50 animate-pulse rounded-lg border-2 border-outline" />
           )}
         </div>
