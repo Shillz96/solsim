@@ -146,7 +146,7 @@ export function CombinedProfileBalance({
 
             {/* Notification badge */}
             {unreadNotificationCount > 0 && (
-              <div className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-mario border-2 border-outline flex items-center justify-center">
+              <div className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-[var(--mario-red)] border-2 border-outline flex items-center justify-center">
                 <span className="text-[9px] font-black text-white">
                   {unreadNotificationCount > 9 ? '9+' : unreadNotificationCount}
                 </span>
@@ -344,7 +344,7 @@ export function CombinedProfileBalance({
                     <Bell className="h-4 w-4" />
                     <span className="text-sm font-semibold">Notifications</span>
                     {unreadNotificationCount > 0 && (
-                      <Badge className="h-5 px-1.5 text-xs bg-mario-red-500">
+                      <Badge className="h-5 px-1.5 text-xs bg-[var(--mario-red)] text-white">
                         {unreadNotificationCount}
                       </Badge>
                     )}

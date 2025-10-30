@@ -263,11 +263,11 @@ export const marioStyles = {
     'shadow-[2px_2px_0_var(--outline-black)]',
     'text-xs font-mario font-bold uppercase',
     {
-      'bg-coin text-black': variant === 'gold',
+      'bg-[var(--coin-yellow)] text-black': variant === 'gold',
       'bg-[var(--pipe-300)] text-black': variant === 'silver',
-      'bg-brick text-white': variant === 'bronze',
-      'bg-mario text-white': variant === 'admin',
-      'bg-luigi text-white': variant === 'verified',
+      'bg-[var(--brick-red)] text-white': variant === 'bronze',
+      'bg-[var(--mario-red)] text-white': variant === 'admin',
+      'bg-[var(--luigi-green)] text-white': variant === 'verified',
     }
   ),
 

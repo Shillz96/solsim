@@ -113,7 +113,7 @@ export function ProfileMenu({
                   <Bell className="h-4 w-4" />
                   <span className="text-sm font-semibold">Notifications</span>
                   {unreadNotificationCount > 0 && (
-                    <Badge className="h-5 px-1.5 text-xs bg-mario-red-500">
+                    <Badge className="h-5 px-1.5 text-xs bg-[var(--mario-red)] text-white">
                       {unreadNotificationCount}
                     </Badge>
                   )}
