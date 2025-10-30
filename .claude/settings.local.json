@@ -98,7 +98,8 @@
       "mcp__playwright__browser_network_requests",
       "Bash(for file in components/leaderboard/Leaderboard.tsx components/leaderboard/responsive-leaderboard.tsx components/portfolio/rewards-card.tsx components/portfolio/trading-stats-summary.tsx components/modals/share-pnl-dialog.tsx)",
       "Bash(do echo \"Checking $file...\")",
-      "mcp__playwright__browser_console_messages"
+      "mcp__playwright__browser_console_messages",
+      "Bash(npm run dev)"
     ],
     "deny": [],
     "ask": []
