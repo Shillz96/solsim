@@ -103,7 +103,7 @@ export function TokenLogo({
   const size = sizeMatch ? parseInt(sizeMatch[1] || sizeMatch[2]) * 4 : 40
 
   // Check if image is from external source (not from /public or data URI)
-  const isExternal = currentSrc && !currentSrc.startsWith('/') && !currentSrc.startsWith('data:')
+  const isExternal = !!(currentSrc && !currentSrc.startsWith('/') && !currentSrc.startsWith('data:'))
 
   return (
     <Image
