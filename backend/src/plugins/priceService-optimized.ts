@@ -182,7 +182,8 @@ class CircuitBreaker {
 class OptimizedPriceService extends EventEmitter {
   private priceCache = new LRUCache<string, PriceTick>(5000); // Increased from 2000 to 5000 for better hit rate
   private negativeCache = new LRUCache<string, NegativeCacheEntry>(2000); // Cache for tokens that don't exist
-  private solPriceUsd = 100;
+  private solPriceUsd = 200; // Default to $200 - will be updated on first price fetch
+  private lastSolPriceUpdate = 0; // Timestamp of last SOL price update
   private ws: WebSocket | null = null;
   private pingInterval: NodeJS.Timeout | null = null;
   private updateIntervals: NodeJS.Timeout[] = [];
@@ -697,8 +698,9 @@ class OptimizedPriceService extends EventEmitter {
       if (data.solana?.usd) {
         const oldPrice = this.solPriceUsd;
         this.solPriceUsd = data.solana.usd;
+        this.lastSolPriceUpdate = Date.now();
 
-        logger.info({ oldPrice, newPrice: this.solPriceUsd }, "SOL price updated");
+        logger.info({ oldPrice, newPrice: this.solPriceUsd }, "SOL price updated from CoinGecko");
 
         const solTick: PriceTick = {
           mint: "So11111111111111111111111111111111111111112",
@@ -735,6 +737,7 @@ class OptimizedPriceService extends EventEmitter {
         if (data.data && data.data['So11111111111111111111111111111111111111112']?.price) {
           const oldPrice = this.solPriceUsd;
           this.solPriceUsd = parseFloat(data.data['So11111111111111111111111111111111111111112'].price);
+          this.lastSolPriceUpdate = Date.now();
 
           logger.info({ oldPrice, newPrice: this.solPriceUsd }, "SOL price updated from Jupiter fallback");
 
@@ -1200,7 +1203,25 @@ class OptimizedPriceService extends EventEmitter {
   }
 
   getSolPrice(): number {
+    // Warn if SOL price is stale (older than 5 minutes)
+    const now = Date.now();
+    const PRICE_STALE_THRESHOLD = 5 * 60 * 1000; // 5 minutes
+
+    if (this.lastSolPriceUpdate === 0) {
+      logger.warn({ price: this.solPriceUsd }, 'SOL price has never been updated - using default');
+    } else if (now - this.lastSolPriceUpdate > PRICE_STALE_THRESHOLD) {
+      logger.warn({
+        price: this.solPriceUsd,
+        staleSince: Math.floor((now - this.lastSolPriceUpdate) / 1000) + 's ago'
+      }, 'SOL price is stale');
+    }
+
     return this.solPriceUsd;
+  }
+
+  getSolPriceAge(): number {
+    if (this.lastSolPriceUpdate === 0) return Infinity;
+    return Date.now() - this.lastSolPriceUpdate;
   }
 
   onPriceUpdate(callback: (tick: PriceTick) => void): () => void {

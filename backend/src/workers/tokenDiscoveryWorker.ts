@@ -558,13 +558,13 @@ async function handleSwap(event: SwapEvent): Promise<void> {
  * Handle PumpPortal newToken event → Create BONDED token
  */
 async function handleNewToken(event: NewTokenEvent): Promise<void> {
+  const mint = event.token?.mint;
   try {
-    const { 
-      mint, 
-      name, 
-      symbol, 
-      uri, 
-      creator, 
+    const {
+      name,
+      symbol,
+      uri,
+      creator,
       bondingCurve,
       marketCapSol,
       vTokensInBondingCurve,
@@ -573,8 +573,13 @@ async function handleNewToken(event: NewTokenEvent): Promise<void> {
       twitter,
       telegram,
       website,
-      description 
+      description
     } = event.token;
+
+    if (!mint) {
+      logger.error({ event }, 'newToken event missing mint address');
+      return;
+    }
 
     logTokenEvent(logger, 'bonded', truncateWallet(mint), symbol || truncateWallet(mint));
 
@@ -586,9 +591,17 @@ async function handleNewToken(event: NewTokenEvent): Promise<void> {
 
     // Convert marketCapSol to USD
     if (marketCapSol) {
-      const solPrice = priceServiceClient.getSolPrice();
-      marketCapUsd = new Decimal(marketCapSol).mul(solPrice);
-      logger.debug({ marketCapSol, marketCapUsd: marketCapUsd.toFixed(2) }, 'Market cap calculated');
+      try {
+        const solPrice = priceServiceClient.getSolPrice();
+        if (solPrice > 0) {
+          marketCapUsd = new Decimal(marketCapSol).mul(solPrice);
+          logger.debug({ marketCapSol, marketCapUsd: marketCapUsd.toFixed(2) }, 'Market cap calculated');
+        } else {
+          logger.warn({ mint: truncateWallet(mint), solPrice }, 'Invalid SOL price, skipping market cap calculation');
+        }
+      } catch (err) {
+        logger.error({ mint: truncateWallet(mint), error: err }, 'Error getting SOL price for market cap');
+      }
     }
 
     if (vTokensInBondingCurve && vSolInBondingCurve) {
@@ -601,7 +614,7 @@ async function handleNewToken(event: NewTokenEvent): Promise<void> {
         tokenState = 'new';
       }
       // GRADUATING: Actively progressing towards completion (50-99%)
-      else if (progress >= TokenDiscoveryConfig.GRADUATING_MIN_PROGRESS && 
+      else if (progress >= TokenDiscoveryConfig.GRADUATING_MIN_PROGRESS &&
                progress < TokenDiscoveryConfig.GRADUATING_MAX_PROGRESS) {
         tokenState = 'graduating';
       }
@@ -615,7 +628,7 @@ async function handleNewToken(event: NewTokenEvent): Promise<void> {
         const liquidityCalc = await healthCapsuleService.calculateBondingCurveLiquidity(vSolInBondingCurve);
         liquidityUsd = new Decimal(liquidityCalc);
       } catch (error) {
-        logger.error({ error }, 'Error calculating bonding curve liquidity');
+        logger.error({ mint: truncateWallet(mint), error }, 'Error calculating bonding curve liquidity');
       }
     }
 
@@ -638,73 +651,86 @@ async function handleNewToken(event: NewTokenEvent): Promise<void> {
     // Fetch additional metadata from URI if not provided directly
     let metadata: TokenMetadata = {};
     if (uri && (!description || !twitter || !telegram || !website)) {
-      metadata = await tokenMetadataService.fetchMetadataFromIPFS(uri);
+      try {
+        metadata = await tokenMetadataService.fetchMetadataFromIPFS(uri);
+      } catch (err) {
+        logger.warn({ mint: truncateWallet(mint), uri, error: err }, 'Failed to fetch metadata from IPFS');
+      }
     }
 
     // Get current transaction count for this token
     const txCount = txCountMap.get(mint)?.size || 0;
 
     // Upsert to database
-    await prisma.tokenDiscovery.upsert({
-      where: { mint },
-      create: {
-        mint,
-        symbol: symbol || null,
-        name: name || null,
-        logoURI: httpLogoURI, // ✅ Convert ipfs:// to https://
-        imageUrl: metadata.imageUrl || null,
-        description: description || metadata.description || null,
-        twitter: twitter || metadata.twitter || null,
-        telegram: telegram || metadata.telegram || null,
-        website: website || metadata.website || null,
-        creatorWallet: creator || null,
-        holderCount: holderCount || null,
-        txCount24h: txCount > 0 ? txCount : null,
-        state: tokenState,
-        bondingCurveKey: bondingCurve || null,
-        bondingCurveProgress: bondingCurveProgress,
-        liquidityUsd: liquidityUsd,
-        marketCapUsd: marketCapUsd, // ✅ Save market cap from PumpPortal
-        hotScore: new Decimal(100), // New tokens start hot
-        watcherCount: 0,
-        freezeRevoked: false,
-        mintRenounced: false,
-        creatorVerified: false,
-        firstSeenAt: new Date(),
-        lastUpdatedAt: new Date(),
-        stateChangedAt: new Date(),
-      },
-      update: {
-        lastUpdatedAt: new Date(),
-        // Update metadata if available
-        ...(description && { description }),
-        ...(twitter && { twitter }),
-        ...(telegram && { telegram }),
-        ...(website && { website }),
-        ...(holderCount && { holderCount }),
-        ...(txCount > 0 && { txCount24h: txCount }),
-        // Update progress and potentially state if available
-        ...(bondingCurveProgress && {
-          bondingCurveProgress,
-          // Update state if crossing the 95% threshold
-          ...(bondingCurveProgress.gte(95) && { state: 'graduating' }),
-        }),
-        // Update liquidity if available
-        ...(liquidityUsd && { liquidityUsd }),
-        // Update market cap if available
-        ...(marketCapUsd && { marketCapUsd }),
-      },
-    });
+    try {
+      await prisma.tokenDiscovery.upsert({
+        where: { mint },
+        create: {
+          mint,
+          symbol: symbol || null,
+          name: name || null,
+          logoURI: httpLogoURI, // ✅ Convert ipfs:// to https://
+          imageUrl: metadata.imageUrl || null,
+          description: description || metadata.description || null,
+          twitter: twitter || metadata.twitter || null,
+          telegram: telegram || metadata.telegram || null,
+          website: website || metadata.website || null,
+          creatorWallet: creator || null,
+          holderCount: holderCount || null,
+          txCount24h: txCount > 0 ? txCount : null,
+          state: tokenState,
+          bondingCurveKey: bondingCurve || null,
+          bondingCurveProgress: bondingCurveProgress,
+          liquidityUsd: liquidityUsd,
+          marketCapUsd: marketCapUsd, // ✅ Save market cap from PumpPortal
+          hotScore: new Decimal(100), // New tokens start hot
+          watcherCount: 0,
+          freezeRevoked: false,
+          mintRenounced: false,
+          creatorVerified: false,
+          firstSeenAt: new Date(),
+          lastUpdatedAt: new Date(),
+          stateChangedAt: new Date(),
+        },
+        update: {
+          lastUpdatedAt: new Date(),
+          // Update metadata if available
+          ...(description && { description }),
+          ...(twitter && { twitter }),
+          ...(telegram && { telegram }),
+          ...(website && { website }),
+          ...(holderCount && { holderCount }),
+          ...(txCount > 0 && { txCount24h: txCount }),
+          // Update progress and potentially state if available
+          ...(bondingCurveProgress && {
+            bondingCurveProgress,
+            // Update state if crossing the 95% threshold
+            ...(bondingCurveProgress.gte(95) && { state: 'graduating' }),
+          }),
+          // Update liquidity if available
+          ...(liquidityUsd && { liquidityUsd }),
+          // Update market cap if available
+          ...(marketCapUsd && { marketCapUsd }),
+        },
+      });
+    } catch (err) {
+      logger.error({ mint: truncateWallet(mint), error: err }, 'Database upsert failed for newToken event');
+      return; // Don't continue if DB operation failed
+    }
 
     // Cache in Redis
-    await cacheManager.cacheTokenRow(mint);
+    try {
+      await cacheManager.cacheTokenRow(mint);
+    } catch (err) {
+      logger.error({ mint: truncateWallet(mint), error: err }, 'Redis cache failed for newToken event');
+    }
 
     // Async health enrichment (non-blocking)
     healthEnricher.enrichHealthData(mint).catch((err) =>
       logger.error({ mint: truncateWallet(mint), error: err }, 'Health enrichment error')
     );
   } catch (error) {
-    logger.error({ error }, 'Error handling newToken event');
+    logger.error({ mint: mint ? truncateWallet(mint) : 'unknown', error, event }, 'Error handling newToken event');
   }
 }
 

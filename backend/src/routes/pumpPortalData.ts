@@ -86,6 +86,9 @@ const pumpPortalDataRoutes: FastifyPluginAsync = async (fastify) => {
   }>(
     '/trades/:mint',
     async (request, reply) => {
+      let isConnectionClosed = false;
+      let keepaliveInterval: NodeJS.Timeout | null = null;
+
       try {
         const { mint } = MintParamSchema.parse(request.params);
         const { limit } = TradeQuerySchema.parse(request.query);
@@ -98,10 +101,27 @@ const pumpPortalDataRoutes: FastifyPluginAsync = async (fastify) => {
           'Access-Control-Allow-Origin': '*',
         });
 
-        console.log(`[TradeData] Subscribing to Helius stream for ${mint}...`);
-        
+        console.log(`[TradeData] SSE connected for ${mint} (${request.ip})`);
+
+        // Helper to safely write to stream
+        const safeWrite = (data: string): boolean => {
+          if (isConnectionClosed || reply.raw.destroyed) return false;
+          try {
+            return reply.raw.write(data);
+          } catch (err) {
+            console.error(`[TradeData] Write error for ${mint}:`, err);
+            isConnectionClosed = true;
+            return false;
+          }
+        };
+
         // Subscribe to Helius for this token
-        await heliusTradeStreamService.subscribeToTokens([mint]);
+        try {
+          await heliusTradeStreamService.subscribeToTokens([mint]);
+        } catch (err) {
+          console.error(`[TradeData] Failed to subscribe to Helius for ${mint}:`, err);
+          // Continue anyway - we'll send empty history and wait for future trades
+        }
 
         // Get trades from Helius (either from cache or freshly fetched)
         const heliusTrades = heliusTradeStreamService.getRecentTrades(mint, limit);
@@ -119,10 +139,11 @@ const pumpPortalDataRoutes: FastifyPluginAsync = async (fastify) => {
         console.log(`[TradeData] Sending ${trades.length} initial trades for ${mint}`);
 
         // Send initial history
-        reply.raw.write(`data: ${JSON.stringify({ type: 'history', trades })}\n\n`);
+        safeWrite(`data: ${JSON.stringify({ type: 'history', trades })}\n\n`);
 
         // Listen for new trades from Helius stream
         const tradeHandler = (event: any) => {
+          if (isConnectionClosed) return;
           if (event.mint === mint) {
             const trade: RecentTrade = {
               ts: event.timestamp,
@@ -134,28 +155,50 @@ const pumpPortalDataRoutes: FastifyPluginAsync = async (fastify) => {
               sig: event.signature,
               mint: event.mint,
             };
-            
-            reply.raw.write(`data: ${JSON.stringify({ type: 'trade', trade })}\n\n`);
+
+            safeWrite(`data: ${JSON.stringify({ type: 'trade', trade })}\n\n`);
           }
         };
 
         heliusTradeStreamService.on('trade', tradeHandler);
 
         // Send keepalive every 15 seconds
-        const keepaliveInterval = setInterval(() => {
-          reply.raw.write(': keepalive\n\n');
+        keepaliveInterval = setInterval(() => {
+          if (!safeWrite(': keepalive\n\n')) {
+            // Connection closed, stop keepalive
+            if (keepaliveInterval) clearInterval(keepaliveInterval);
+          }
         }, 15000);
 
         // Cleanup on connection close
-        request.raw.on('close', () => {
+        const cleanup = () => {
+          if (isConnectionClosed) return;
+          isConnectionClosed = true;
+
           heliusTradeStreamService.off('trade', tradeHandler);
-          clearInterval(keepaliveInterval);
-          reply.raw.end();
-        });
+          if (keepaliveInterval) clearInterval(keepaliveInterval);
+
+          try {
+            if (!reply.raw.destroyed) reply.raw.end();
+          } catch (err) {
+            // Ignore errors on cleanup
+          }
+
+          console.log(`[TradeData] SSE disconnected for ${mint}`);
+        };
+
+        request.raw.on('close', cleanup);
+        request.raw.on('error', cleanup);
 
       } catch (error: any) {
         console.error('[TradeData] Error setting up trade stream:', error);
-        reply.raw.end();
+        isConnectionClosed = true;
+        if (keepaliveInterval) clearInterval(keepaliveInterval);
+        try {
+          if (!reply.raw.destroyed) reply.raw.end();
+        } catch (err) {
+          // Ignore
+        }
       }
     }
   );
@@ -202,6 +245,9 @@ const pumpPortalDataRoutes: FastifyPluginAsync = async (fastify) => {
   }>(
     '/metadata/:mint',
     async (request, reply) => {
+      let isConnectionClosed = false;
+      let keepaliveInterval: NodeJS.Timeout | null = null;
+
       try {
         const { mint } = MintParamSchema.parse(request.params);
 
@@ -216,26 +262,45 @@ const pumpPortalDataRoutes: FastifyPluginAsync = async (fastify) => {
           'Access-Control-Allow-Origin': '*',
         });
 
+        console.log(`[PumpPortalData] Metadata SSE connected for ${mint}`);
+
+        // Helper to safely write to stream
+        const safeWrite = (data: string): boolean => {
+          if (isConnectionClosed || reply.raw.destroyed) return false;
+          try {
+            return reply.raw.write(data);
+          } catch (err) {
+            console.error(`[PumpPortalData] Metadata write error for ${mint}:`, err);
+            isConnectionClosed = true;
+            return false;
+          }
+        };
+
         // Send initial cached metadata
         const cacheKey = REDIS_KEYS.metadata(mint);
-        const metadataStr = await redis.get(cacheKey);
-
         let metadata: TokenMetadata | null = null;
-        
-        if (metadataStr) {
-          metadata = JSON.parse(metadataStr);
-          reply.raw.write(`data: ${JSON.stringify({ type: 'metadata', metadata })}\n\n`);
-        } else {
-          // No cached metadata - fetch from pump.fun API as fallback
+
+        try {
+          const metadataStr = await redis.get(cacheKey);
+          if (metadataStr) {
+            metadata = JSON.parse(metadataStr);
+            safeWrite(`data: ${JSON.stringify({ type: 'metadata', metadata })}\n\n`);
+          }
+        } catch (err) {
+          console.warn(`[PumpPortalData] Redis error getting metadata for ${mint}:`, err);
+        }
+
+        // If no cached metadata, fetch from pump.fun API as fallback
+        if (!metadata) {
           try {
             console.log(`[PumpPortalData] No cached metadata for ${mint}, fetching from pump.fun API...`);
             const pumpFunResponse = await fetch(`https://frontend-api.pump.fun/coins/${mint}`, {
               signal: AbortSignal.timeout(5000),
             });
-            
+
             if (pumpFunResponse.ok) {
               const coinData = await pumpFunResponse.json();
-              
+
               metadata = {
                 mint: mint,
                 name: coinData.name,
@@ -245,13 +310,13 @@ const pumpPortalDataRoutes: FastifyPluginAsync = async (fastify) => {
                 twitter: coinData.twitter,
                 telegram: coinData.telegram,
                 website: coinData.website,
-                holderCount: coinData.usd_market_cap ? Math.floor(coinData.usd_market_cap / 1000) : undefined, // Estimate
-                marketCapSol: coinData.usd_market_cap ? coinData.usd_market_cap / 150 : undefined, // Rough estimate
+                holderCount: coinData.usd_market_cap ? Math.floor(coinData.usd_market_cap / 1000) : undefined,
+                marketCapSol: coinData.usd_market_cap ? coinData.usd_market_cap / 150 : undefined,
                 timestamp: Date.now(),
               };
-              
-              reply.raw.write(`data: ${JSON.stringify({ type: 'metadata', metadata })}\n\n`);
-              console.log(`✅ Fetched metadata from pump.fun API`);
+
+              safeWrite(`data: ${JSON.stringify({ type: 'metadata', metadata })}\n\n`);
+              console.log(`✅ Fetched metadata from pump.fun API for ${mint}`);
             }
           } catch (err) {
             console.warn('[PumpPortalData] Failed to fetch metadata from pump.fun API:', err);
@@ -260,6 +325,7 @@ const pumpPortalDataRoutes: FastifyPluginAsync = async (fastify) => {
 
         // Listen for new token events (contains updated metadata)
         const metadataHandler = (event: any) => {
+          if (isConnectionClosed) return;
           if (event.token?.mint === mint) {
             const metadata: TokenMetadata = {
               mint: event.token.mint,
@@ -277,27 +343,48 @@ const pumpPortalDataRoutes: FastifyPluginAsync = async (fastify) => {
               timestamp: event.timestamp,
             };
 
-            reply.raw.write(`data: ${JSON.stringify({ type: 'metadata', metadata })}\n\n`);
+            safeWrite(`data: ${JSON.stringify({ type: 'metadata', metadata })}\n\n`);
           }
         };
 
         pumpPortalStreamService.on('newToken', metadataHandler);
 
         // Send keepalive every 15 seconds
-        const keepaliveInterval = setInterval(() => {
-          reply.raw.write(': keepalive\n\n');
+        keepaliveInterval = setInterval(() => {
+          if (!safeWrite(': keepalive\n\n')) {
+            if (keepaliveInterval) clearInterval(keepaliveInterval);
+          }
         }, 15000);
 
         // Cleanup on connection close
-        request.raw.on('close', () => {
+        const cleanup = () => {
+          if (isConnectionClosed) return;
+          isConnectionClosed = true;
+
           pumpPortalStreamService.off('newToken', metadataHandler);
-          clearInterval(keepaliveInterval);
-          reply.raw.end();
-        });
+          if (keepaliveInterval) clearInterval(keepaliveInterval);
+
+          try {
+            if (!reply.raw.destroyed) reply.raw.end();
+          } catch (err) {
+            // Ignore errors on cleanup
+          }
+
+          console.log(`[PumpPortalData] Metadata SSE disconnected for ${mint}`);
+        };
+
+        request.raw.on('close', cleanup);
+        request.raw.on('error', cleanup);
 
       } catch (error: any) {
         console.error('[PumpPortalData] Error setting up metadata stream:', error);
-        reply.raw.end();
+        isConnectionClosed = true;
+        if (keepaliveInterval) clearInterval(keepaliveInterval);
+        try {
+          if (!reply.raw.destroyed) reply.raw.end();
+        } catch (err) {
+          // Ignore
+        }
       }
     }
   );
