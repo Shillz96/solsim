@@ -59,15 +59,25 @@ export function SocialHoverCard({
   const fullUrl = url.startsWith('http') ? url : `${config.urlPrefix}${url}`
   const displayValue = platform === 'twitter' ? `@${url}` : url
 
+  const handleClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    window.open(fullUrl, '_blank', 'noopener,noreferrer');
+  };
+
   return (
     <HoverCard openDelay={200}>
       <HoverCardTrigger asChild>
-        <a
-          href={fullUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className={`hover:scale-110 transition-transform ${className}`}
-          onClick={(e) => e.stopPropagation()}
+        <span
+          role="button"
+          tabIndex={0}
+          className={`inline-flex cursor-pointer hover:scale-110 transition-transform ${className}`}
+          onClick={handleClick}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              handleClick(e as any);
+            }
+          }}
         >
           <Image 
             src={config.icon}
@@ -76,7 +86,7 @@ export function SocialHoverCard({
             height={14}
             className={platform === 'twitter' ? 'inline-block filter brightness-0' : 'inline-block'}
           />
-        </a>
+        </span>
       </HoverCardTrigger>
       <HoverCardContent
         className="w-80 p-4 bg-white border-4 border-[var(--outline-black)] rounded-xl shadow-[6px_6px_0_var(--outline-black)] z-popover"

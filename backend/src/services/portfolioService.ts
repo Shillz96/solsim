@@ -107,8 +107,18 @@ export async function getPortfolio(userId: string, tradeMode: 'PAPER' | 'REAL' =
 
 async function calculatePortfolioData(userId: string, positions: any[], tradeMode: 'PAPER' | 'REAL' = 'PAPER'): Promise<PortfolioResponse> {
 
-  // Get current prices and market data for all tokens
+  // Get all token mints
   const mints = positions.map((p: any) => p.mint);
+
+  // CRITICAL FIX: Subscribe to PumpPortal for all tokens BEFORE fetching prices
+  // This ensures real-time swap data is available for accurate pricing
+  // Without this, prices fall back to bonding curve (18-400x too low)
+  mints.forEach(mint => {
+    priceService.subscribeToPumpPortalToken(mint);
+  });
+  console.log(`[Portfolio] Pre-subscribed to PumpPortal for ${mints.length} tokens`);
+
+  // Get current prices and market data for all tokens
   const prices = await priceService.getPrices(mints);
 
   // Get full price ticks for market cap and other data (batch operation - much faster!)
@@ -516,6 +526,9 @@ export async function getTokenTradingStats(
   let unrealizedPnL = D(0);
 
   if (position && D(position.qty).gt(0)) {
+    // CRITICAL FIX: Subscribe to PumpPortal BEFORE fetching price
+    priceService.subscribeToPumpPortalToken(mint);
+
     // Get current price
     const priceTick = await priceService.getLastTick(mint);
     if (priceTick && priceTick.priceUsd) {

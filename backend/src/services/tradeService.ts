@@ -91,6 +91,12 @@ async function executeTradeLogic({
   const user = await prisma.user.findUnique({ where: { id: userId } });
   if (!user) throw new Error("User not found");
 
+  // CRITICAL FIX: Subscribe to PumpPortal BEFORE fetching price
+  // This ensures we can receive real-time swap events even during initial price fetch
+  // Without this, first-time trades have no PumpPortal data and fall back to bonding curve
+  priceService.subscribeToPumpPortalToken(mint);
+  console.log(`[Trade] Pre-subscribed to PumpPortal for ${mint.substring(0, 8)}... before price fetch`);
+
   // Get validated price data using shared function
   const { priceUsd, priceSol, solUsdAtFill, marketCapUsd } = await getValidatedPrice(mint, side);
   const mcAtFill = marketCapUsd;
@@ -275,11 +281,8 @@ async function executeTradeLogic({
   // Execute post-trade operations using shared function
   await executePostTradeOperations(userId, mint, tradeCostUsd);
 
-  // For BUY orders, subscribe to WebSocket for real-time updates
-  if (side === "BUY") {
-    priceService.subscribeToPumpPortalToken(mint);
-    console.log(`[Trade] Subscribed to PumpPortal WebSocket updates for ${mint.substring(0, 8)}...`);
-  }
+  // Note: PumpPortal subscription now happens BEFORE price fetch (line 97)
+  // This ensures real-time prices are available for the trade itself
 
   // Calculate portfolio totals
   const portfolioTotals = await calculatePortfolioTotals(userId);

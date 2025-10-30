@@ -3,9 +3,12 @@
 import { createContext, useContext, useState, useEffect, ReactNode, useCallback, useRef } from 'react'
 import { env } from './env'
 
+// Debug flag - set to true to enable verbose logging (PERFORMANCE: keep false in production)
+const DEBUG_WS = false
+
 export enum ConnectionState {
   Disconnected = 'DISCONNECTED',
-  Connecting = 'CONNECTING', 
+  Connecting = 'CONNECTING',
   Connected = 'CONNECTED',
   Reconnecting = 'RECONNECTING',
   Failed = 'FAILED'
@@ -86,33 +89,33 @@ function usePriceStream(options: {
   const HEARTBEAT_INTERVAL = 25000 // 25 seconds heartbeat
   
   const cleanup = useCallback(() => {
-    console.log('🧹 Cleaning up WebSocket connection')
-    
+    if (DEBUG_WS) console.log('🧹 Cleaning up WebSocket connection')
+
     if (reconnectTimeoutRef.current) {
       clearTimeout(reconnectTimeoutRef.current)
       reconnectTimeoutRef.current = null
     }
-    
+
     if (connectionTimeoutRef.current) {
       clearTimeout(connectionTimeoutRef.current)
       connectionTimeoutRef.current = null
     }
-    
+
     if (heartbeatIntervalRef.current) {
       clearInterval(heartbeatIntervalRef.current)
       heartbeatIntervalRef.current = null
     }
-    
+
     if (wsRef.current) {
       isManuallyClosedRef.current = true
-      
+
       // Remove event listeners to prevent callbacks during cleanup
       wsRef.current.onopen = null
       wsRef.current.onclose = null
       wsRef.current.onerror = null
       wsRef.current.onmessage = null
-      
-      if (wsRef.current.readyState === WebSocket.OPEN || 
+
+      if (wsRef.current.readyState === WebSocket.OPEN ||
           wsRef.current.readyState === WebSocket.CONNECTING) {
         wsRef.current.close(1000, 'Client cleanup')
       }
@@ -121,7 +124,7 @@ function usePriceStream(options: {
   }, [])
   
   const updateConnectionState = useCallback((state: ConnectionState) => {
-    console.log(`🔄 Connection state: ${connectionState} → ${state}`)
+    if (DEBUG_WS) console.log(`🔄 Connection state: ${connectionState} → ${state}`)
     setConnectionState(state)
     setConnected(state === ConnectionState.Connected)
     setConnecting(state === ConnectionState.Connecting || state === ConnectionState.Reconnecting)
@@ -137,9 +140,9 @@ function usePriceStream(options: {
         try {
           // Send ping message to keep connection alive
           wsRef.current.send(JSON.stringify({ type: 'ping', timestamp: Date.now() }))
-          console.log('💓 Heartbeat sent')
+          if (DEBUG_WS) console.log('💓 Heartbeat sent')
         } catch (err) {
-          console.error('❌ Failed to send heartbeat:', err)
+          if (DEBUG_WS) console.error('❌ Failed to send heartbeat:', err)
         }
       }
     }, HEARTBEAT_INTERVAL)

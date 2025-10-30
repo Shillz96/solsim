@@ -115,16 +115,24 @@ export function EditablePresetButton({
     >
       {value} SOL
 
-      {/* Edit button - click to edit */}
-      <button
+      {/* Edit button - click to edit (using div to avoid nested buttons) */}
+      <div
         onClick={handleEditClick}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            handleEditClick(e as any);
+          }
+        }}
         className={cn(
-          "absolute top-1 right-1 h-4 w-4 flex items-center justify-center",
+          "absolute top-1 right-1 h-4 w-4 flex items-center justify-center cursor-pointer",
           "hover:scale-110 transition-transform"
         )}
       >
         <Edit2 className="h-3 w-3 text-outline hover:text-mario" />
-      </button>
+      </div>
 
       {/* Insufficient balance indicator */}
       {disabled && (

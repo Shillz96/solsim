@@ -60,63 +60,50 @@ See [ARCHITECTURE.md](./ARCHITECTURE.md) for detailed system design.
 ## 🚀 Getting Started
 
 ### Prerequisites
-- Node.js 18+
-- PostgreSQL 14+
-- Redis 7+
-- Helius API key ([helius.dev](https://helius.dev))
+- Node.js >= 20.0.0
+- PostgreSQL database (local or cloud)
+- Redis (optional but recommended)
+- Helius API key ([helius.dev](https://helius.dev) - free tier available)
 
-### Installation
+### Quick Setup
 
-#### 1. Clone & Install
 ```bash
+# 1. Clone and install
 git clone https://github.com/your-org/solsim.git
 cd solsim
 npm install
+
+# 2. Create environment files from templates
+npm run setup:local
+
+# 3. Edit configuration files:
+# - backend/.env.local (database, Redis, API keys)
+# - frontend/.env.local (already configured for localhost)
+
+# 4. Run database migrations
+npm run db:migrate
+
+# 5. Start development servers (in separate terminals)
+npm run dev:backend    # Terminal 1 - Backend on http://localhost:8000
+npm run dev:frontend   # Terminal 2 - Frontend on http://localhost:3000
 ```
 
-#### 2. Setup Environment Variables
-Create `.env` files for backend and frontend:
+**📚 For detailed setup instructions, see [LOCAL_DEV_SETUP.md](./LOCAL_DEV_SETUP.md)**
 
-**Backend** (see [ENVIRONMENT_SETUP.md](./ENVIRONMENT_SETUP.md)):
+### Database Options
+
+**Local PostgreSQL**:
 ```bash
-cd backend
-cp .env.example .env
-# Edit .env with your credentials
+# Install PostgreSQL, then:
+createdb solsim_dev
+# In backend/.env.local:
+DATABASE_URL=postgresql://postgres:password@localhost:5432/solsim_dev
 ```
 
-**Frontend**:
-```bash
-cd frontend
-cp .env.example .env.local
-# Edit .env.local with your API URL
-```
-
-#### 3. Setup Database
-```bash
-cd backend
-npm run prisma:migrate
-npm run db:seed  # Optional: seed with test data
-```
-
-#### 4. Run Development Servers
-Open two terminal windows:
-
-**Terminal 1 - Backend:**
-```bash
-cd backend
-npm run dev
-# Backend runs on http://localhost:4000
-```
-
-**Terminal 2 - Frontend:**
-```bash
-cd frontend
-npm run dev
-# Frontend runs on http://localhost:3000
-```
-
-#### 5. Open in Browser
-Visit [http://localhost:3000](http://localhost:3000)
+**Cloud PostgreSQL** (Recommended):
+- **Neon** (free tier): https://neon.tech
+- **Supabase** (free tier): https://supabase.com
+- Copy connection string to `backend/.env.local`
 
 ---
 

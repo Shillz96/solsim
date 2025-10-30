@@ -42,7 +42,8 @@ const logger = pino({
       '*.privateKey',
       'headers.authorization',
       'headers.cookie',
-      'headers.x-api-key'
+      'req.headers.authorization',
+      'req.headers.cookie'
     ],
     remove: false
   },

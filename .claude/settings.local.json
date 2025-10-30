@@ -100,7 +100,9 @@
       "Bash(do echo \"Checking $file...\")",
       "mcp__playwright__browser_console_messages",
       "Bash(npm run dev)",
-      "mcp__playwright__browser_resize"
+      "mcp__playwright__browser_resize",
+      "Bash(taskkill //F //PID 12408)",
+      "Bash(jq:*)"
     ],
     "deny": [],
     "ask": []

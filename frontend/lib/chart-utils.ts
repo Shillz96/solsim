@@ -5,11 +5,13 @@
 
 /**
  * Maps unsupported timezone strings to supported ones
+ * Note: TradingView library may still log warnings for system timezone detection,
+ * but this mapping ensures the chart displays correctly
  */
 const TIMEZONE_MAP: Record<string, string> = {
-  'America/Denver': 'America/Chicago', // Mountain Time -> Central Time
+  'America/Denver': 'America/New_York', // Mountain Time -> Eastern Time (widely supported)
   'America/Phoenix': 'America/Los_Angeles', // Arizona -> Pacific Time
-  'US/Mountain': 'America/Chicago',
+  'US/Mountain': 'America/New_York',
   'US/Central': 'America/Chicago',
   'US/Eastern': 'America/New_York',
   'US/Pacific': 'America/Los_Angeles',

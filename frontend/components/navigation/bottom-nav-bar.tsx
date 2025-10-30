@@ -143,10 +143,10 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
       }
 
       try {
-        const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=solana,bitcoin,ethereum&vs_currencies=usd&include_24hr_change=true')
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/market/crypto-prices`)
 
         if (!response.ok) {
-          throw new Error(`CoinGecko API error: ${response.status}`)
+          throw new Error(`Backend API error: ${response.status}`)
         }
 
         const data = await response.json()
@@ -231,6 +231,7 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
                     src="/icons/market-data.png"
                     alt="Market Data"
                     fill
+                    sizes="28px"
                     className="object-contain"
                   />
                 </div>
@@ -271,8 +272,9 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
                     alt={item.label} 
                     width={64}
                     height={16}
+                    style={{ width: 'auto', height: 'auto' }}
                     className={cn(
-                      "h-auto w-auto max-w-[64px] object-contain transition-all duration-200",
+                      "max-w-[64px] object-contain transition-all duration-200",
                       isActive ? "opacity-100 drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]" : "opacity-70"
                     )}
                     priority={index < 3} // Prioritize first 3 images
@@ -305,6 +307,7 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
                           src="/icons/market-data.png"
                           alt="Market Data"
                           fill
+                          sizes="28px"
                           className="object-contain"
                         />
                       </div>
@@ -343,6 +346,7 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
                           src={market.icon}
                           alt={`${market.symbol} icon`}
                           fill
+                          sizes="16px"
                           className="object-contain"
                         />
                       </div>
@@ -482,6 +486,7 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
                           src="/icons/market-data.png"
                           alt="Market Data"
                           fill
+                          sizes="40px"
                           className="object-contain"
                         />
                       </div>
@@ -520,6 +525,7 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
                           src={market.icon}
                           alt={`${market.symbol} icon`}
                           fill
+                          sizes="16px"
                           className="object-contain"
                         />
                       </div>

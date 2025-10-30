@@ -48,7 +48,7 @@ const prisma = globalForPrisma.prisma ?? new PrismaClient({
       url: getDatabaseUrl()
     }
   },
-  log: process.env.NODE_ENV === "development" ? ["query", "error", "warn"] : ["error"],
+  log: process.env.NODE_ENV === "development" ? ["error", "warn"] : ["error"], // Removed "query" to reduce log noise
 });
 
 if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;

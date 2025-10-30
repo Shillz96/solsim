@@ -75,7 +75,7 @@ export default function PortfolioLoading() {
             <div className="relative w-8 h-8">
               <div className="w-8 h-8 border-4 border-mario/30 border-t-[var(--mario-red)] rounded-full animate-spin motion-reduce:animate-none" />
               <div className="absolute inset-0 flex items-center justify-center">
-                <Image src="/icons/mario/coin.png" alt="Loading" width={16} height={16} className="animate-pulse motion-reduce:animate-none" />
+                <Image src="/icons/mario/star.png" alt="Loading" width={16} height={16} className="animate-pulse motion-reduce:animate-none" />
               </div>
             </div>
             <span className="text-[var(--pipe-900)] font-bold font-mario">LOADING PORTFOLIO...</span>

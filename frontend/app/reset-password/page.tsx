@@ -142,7 +142,7 @@ function ResetPasswordContent() {
         <div className="bg-gradient-to-r from-[var(--star-yellow)]/20 to-[var(--coin-yellow)]/20 border-4 border-outline rounded-xl p-6 shadow-[8px_8px_0_var(--outline-black)] relative overflow-hidden mb-6">
           <div className="absolute top-2 right-2 flex gap-2">
             <img src="/icons/mario/star.png" alt="Star" width={24} height={24} className="animate-pulse" />
-            <img src="/icons/mario/coin.png" alt="Coin" width={24} height={24} />
+            <img src="/icons/mario/star.png" alt="Star" width={24} height={24} />
           </div>
           <div className="flex flex-col items-center gap-4">
             <div className="h-16 w-16 rounded-full bg-star border-4 border-outline flex items-center justify-center shadow-[4px_4px_0_var(--outline-black)]">

@@ -5,8 +5,6 @@ import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react
 import { WalletAdapterNetwork } from '@solana/wallet-adapter-base';
 import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
 import {
-  PhantomWalletAdapter,
-  SolflareWalletAdapter,
   TorusWalletAdapter,
   LedgerWalletAdapter,
   MathWalletAdapter,
@@ -26,7 +24,7 @@ interface SolanaWalletProviderProps {
  * Solana Wallet Provider
  * Provides wallet connection functionality to the entire app
  * Supports multiple wallet types with mainnet configuration for production
- * Note: PhantomWalletAdapter removed as Phantom now uses Standard Wallet API
+ * Note: Phantom and Solflare removed - they auto-register via Standard Wallet API
  */
 export function SolanaWalletProvider({ children }: SolanaWalletProviderProps) {
   // Configure Solana network - use mainnet for production
@@ -43,13 +41,11 @@ export function SolanaWalletProvider({ children }: SolanaWalletProviderProps) {
     return clusterApiUrl(network);
   }, [network]);
 
-  // Initialize wallet adapters
+  // Initialize wallet adapters (Phantom & Solflare auto-register via Standard Wallet API)
   const wallets = useMemo(
     () => {
       try {
         return [
-          new PhantomWalletAdapter(),
-          new SolflareWalletAdapter(),
           new TorusWalletAdapter(),
           new LedgerWalletAdapter(),
           new MathWalletAdapter(),

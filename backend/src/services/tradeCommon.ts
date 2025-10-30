@@ -69,23 +69,36 @@ export async function getValidatedPrice(
   mint: string,
   side: TradeSide
 ): Promise<PriceValidationResult> {
+  // DEBUG: Log price fetch request
+  console.log(`[TRADE DEBUG] Getting validated price for ${side} trade of ${mint.slice(0, 8)}`);
+
   // Get cached tick (fast path)
   let tick = await priceService.getLastTick(mint);
+
+  if (tick) {
+    console.log(`[TRADE DEBUG] Using cached price for ${mint.slice(0, 8)}:`, {
+      priceUsd: tick.priceUsd,
+      source: tick.source,
+      ageSeconds: Math.floor((Date.now() - tick.timestamp) / 1000)
+    });
+  }
 
   // If no cached price, aggressively fetch fresh data
   if (!tick) {
     console.warn(`No cached price for ${mint.slice(0, 8)}, fetching fresh real-time data...`);
     priceService.clearNegativeCache(mint);
-    
+
     // Force fresh fetch from pump.fun API, Jupiter, etc.
     tick = await priceService.fetchTokenPrice(mint);
-    
+
     if (tick) {
       console.info({
         mint: mint.slice(0, 8),
         priceUsd: tick.priceUsd,
         source: tick.source
       }, "[RealTimePrice] Fresh price data fetched successfully");
+    } else {
+      console.warn(`[TRADE DEBUG] fetchTokenPrice returned NULL for ${mint.slice(0, 8)}`);
     }
   }
 
@@ -168,6 +181,15 @@ export async function getValidatedPrice(
   const solUsdAtFill = D(currentSolPrice);
   const priceSol = priceUsd.div(solUsdAtFill);
   const marketCapUsd = tick.marketCapUsd ? D(tick.marketCapUsd) : null;
+
+  // DEBUG: Log final validated price being used for trade
+  console.log(`[TRADE DEBUG] Final validated price for ${mint.slice(0, 8)}:`, {
+    priceUsd: priceUsd.toString(),
+    priceSol: priceSol.toString(),
+    solUsdAtFill: solUsdAtFill.toString(),
+    source: tick.source,
+    timestamp: new Date(tick.timestamp).toISOString()
+  });
 
   return {
     priceUsd,

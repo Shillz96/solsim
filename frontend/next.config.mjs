@@ -34,7 +34,7 @@ const nextConfig = {
     ],
     
     // Type-safe environment variables with IntelliSense (Next.js 15.1+)
-    typedEnv: true,
+    // typedEnv: true, // Temporarily disabled - can cause compilation hangs
   },
 
   // Production optimizations

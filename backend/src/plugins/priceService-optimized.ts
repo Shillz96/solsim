@@ -284,6 +284,14 @@ class OptimizedPriceService extends EventEmitter {
             source: 'pumpportal-ws'
           };
 
+          // CRITICAL: Log swap event reception to verify PumpPortal is sending data
+          logger.info({
+            mint: event.mint.slice(0, 8),
+            priceUsd: priceUsd.toFixed(8),
+            priceSol: tick.priceSol.toFixed(10),
+            txType: event.txType
+          }, "[PumpPortal] 📊 Swap event received, updating price cache");
+
           await this.updatePrice(tick);
         }
       } catch (error) {
@@ -800,12 +808,13 @@ class OptimizedPriceService extends EventEmitter {
    */
   public subscribeToPumpPortalToken(mint: string) {
     if (!pumpPortalStreamService.isConnected) {
-      logger.warn({ mint }, "Cannot subscribe - PumpPortal WebSocket not connected");
+      logger.warn({ mint }, "❌ Cannot subscribe - PumpPortal WebSocket not connected");
       return;
     }
 
+    logger.info({ mint: mint.slice(0, 8) }, "📡 Subscribing to PumpPortal token trades...");
     pumpPortalStreamService.subscribeToTokens([mint]);
-    logger.debug({ mint: mint.slice(0, 8) }, "Subscribed to PumpPortal token trades");
+    logger.info({ mint: mint.slice(0, 8) }, "✅ Subscription request sent to PumpPortal");
   }
 
   /**
@@ -916,13 +925,14 @@ class OptimizedPriceService extends EventEmitter {
 
     logger.debug({ mint: mint.slice(0, 8) }, "Fetching price from Jupiter");
 
-    // Try Jupiter fallback
+    // Try Jupiter fallback (increased timeout for reliability during trades)
     try {
       const jupResult = await this.jupiterBreaker.execute(async () => {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 8000);
+        const timeoutId = setTimeout(() => controller.abort(), 15000); // Increased from 8s to 15s
 
         try {
+          logger.debug({ mint: mint.slice(0, 8) }, "[Jupiter] Starting API request");
           const response = await fetch(
             `https://lite-api.jup.ag/price/v3?ids=${mint}`,
             {
@@ -936,6 +946,7 @@ class OptimizedPriceService extends EventEmitter {
           clearTimeout(timeoutId);
 
           if (!response.ok) {
+            logger.warn({ mint: mint.slice(0, 8), status: response.status }, "[Jupiter] Non-OK response");
             if (response.status === 204) {
               // Add to negative cache immediately
               this.negativeCache.set(mint, { timestamp: Date.now(), reason: '204-no-content' });
@@ -946,9 +957,11 @@ class OptimizedPriceService extends EventEmitter {
 
           const data = await response.json();
 
-          if (data.data && data.data[mint] && data.data[mint].price) {
-            const priceUsd = parseFloat(data.data[mint].price);
+          // Jupiter API v3 format: { "MINT": { "usdPrice": 0.002, "blockId": 123, ... } }
+          if (data[mint] && data[mint].usdPrice) {
+            const priceUsd = parseFloat(data[mint].usdPrice);
             if (priceUsd > 0) {
+              logger.info({ mint: mint.slice(0, 8), priceUsd }, "[Jupiter] ✅ Price fetched successfully");
               return {
                 mint,
                 priceUsd,
@@ -959,6 +972,7 @@ class OptimizedPriceService extends EventEmitter {
               };
             }
           }
+          logger.warn({ mint: mint.slice(0, 8), data }, "[Jupiter] No price in response data");
           return null;
         } catch (err) {
           clearTimeout(timeoutId);
@@ -968,7 +982,7 @@ class OptimizedPriceService extends EventEmitter {
 
       if (jupResult) return jupResult;
     } catch (error: any) {
-      // Only log unexpected errors - reduces log spam by 95%
+      // Log all errors during price fetching for debugging trades
       const isExpectedError =
         error.message === 'Circuit breaker is OPEN' ||
         error.message?.includes('204') ||
@@ -976,9 +990,13 @@ class OptimizedPriceService extends EventEmitter {
         error.message?.includes('fetch failed') ||
         error.name === 'AbortError';
 
-      if (!isExpectedError) {
-        logger.warn({ mint: mint.slice(0, 8), error: error.message }, "Jupiter unexpected error");
-      }
+      // Always log during trades to diagnose price fetch failures
+      logger.warn({
+        mint: mint.slice(0, 8),
+        error: error.message,
+        errorName: error.name,
+        isExpectedError
+      }, "[Jupiter] API error during price fetch");
     }
 
     // For non-pump.fun tokens, try pump.fun as last resort
@@ -1207,10 +1225,26 @@ class OptimizedPriceService extends EventEmitter {
     let tick = await this.getLastTick(mint);
 
     if (!tick) {
+      logger.info({ mint: mint.slice(0, 8) }, "💭 No cached price found, fetching from Jupiter...");
       tick = await this.fetchTokenPrice(mint);
       if (tick) {
         await this.updatePrice(tick);
+        logger.info({
+          mint: mint.slice(0, 8),
+          price: tick.priceUsd.toFixed(8),
+          source: tick.source
+        }, "✅ Price fetched and cached");
+      } else {
+        logger.warn({ mint: mint.slice(0, 8) }, "❌ Failed to fetch price from Jupiter");
       }
+    } else {
+      const age = Date.now() - tick.timestamp;
+      logger.info({
+        mint: mint.slice(0, 8),
+        price: tick.priceUsd.toFixed(8),
+        ageSeconds: (age / 1000).toFixed(1),
+        source: tick.source
+      }, "🎯 Using cached price");
     }
 
     return tick?.priceUsd || 0;

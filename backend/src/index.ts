@@ -68,9 +68,10 @@ const config = getConfig();
 initSentry();
 
 const app = Fastify({
-  logger: isProduction() 
-    ? { level: 'warn' } // Only log warnings and errors in production
-    : { transport: { target: "pino-pretty" } } // Pretty logs in development
+  logger: {
+    level: 'info', // Only log info and above (skip debug, trace)
+    // Simplified logging - disable pino-pretty for cleaner output
+  }
 });
 
 // Register Prisma as a decorator for use in routes and plugins
@@ -151,6 +152,8 @@ app.register(helmet, {
 // CORS for frontend - support multiple origins with WebSocket support
 const allowedOrigins = [
   "http://localhost:3000",
+  "http://localhost:3001",
+  "http://localhost:3002",
   "https://oneupsol.fun",
   "https://www.oneupsol.fun",
   "https://virtualsol.fun",

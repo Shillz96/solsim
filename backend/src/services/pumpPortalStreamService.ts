@@ -388,10 +388,8 @@ export class PumpPortalStreamService extends EventEmitter {
       const raw = data.toString();
       const message = JSON.parse(raw);
 
-      // Debug: Log all incoming messages (show full message for debugging)
-      if (process.env.NODE_ENV !== 'production') {
-        console.log('[PumpPortal] Received message:', JSON.stringify(message).substring(0, 1000));
-      }
+      // Debug: Only log non-routine messages
+      // Skip logging subscription confirmations and errors (too noisy)
 
       // PumpPortal sends messages with different structures based on subscription
       // Check for newToken events (txType === 'create' indicates a new token)
@@ -502,10 +500,7 @@ export class PumpPortalStreamService extends EventEmitter {
           }
         }
       }
-      // Also check for any other message types for debugging
-      else if (process.env.NODE_ENV !== 'production') {
-        console.log('[PumpPortal] Unknown message type:', message.txType || message.type, 'mint:', message.mint);
-      }
+      // Silently ignore non-trade messages (subscription confirmations, etc.)
     } catch (error) {
       console.error('[PumpPortal] Error parsing message:', error);
     }

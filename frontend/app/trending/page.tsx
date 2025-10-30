@@ -225,7 +225,7 @@ export default function TrendingPage() {
               <div className="flex items-start gap-4">
                 <div className="h-10 w-10 rounded-lg bg-luigi border-3 border-outline-black flex items-center justify-center flex-shrink-0 shadow-[2px_2px_0_var(--outline-black)]">
                   <Image 
-                    src="/icons/mario/coin.png" 
+                    src="/icons/mario/star.png" 
                     alt="Tokens" 
                     width={24} 
                     height={24}
