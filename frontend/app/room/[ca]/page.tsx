@@ -365,6 +365,7 @@ function TradeRoomContent() {
                   volume24h={volume24h}
                   holders={holderCount}
                   userRank={null}
+                  onTradeSuccess={refreshPortfolio}
                 />
               </div>
             </aside>

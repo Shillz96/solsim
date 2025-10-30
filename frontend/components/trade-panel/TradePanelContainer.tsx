@@ -45,13 +45,15 @@ interface TradePanelContainerProps {
   volume24h?: number
   holders?: number
   userRank?: number | null
+  onTradeSuccess?: () => void | Promise<void>  // Callback after successful trade
 }
 
 export function TradePanelContainer({
   tokenAddress: propTokenAddress,
   volume24h,
   holders,
-  userRank
+  userRank,
+  onTradeSuccess
 }: TradePanelContainerProps = {}) {
   const searchParams = useSearchParams()
   const defaultTokenAddress = "GLsuNSkEAwKPFDCEGoHkceNbHCqu981rCwhS3VXcpump" // pump.fun token
@@ -208,6 +210,7 @@ export function TradePanelContainer({
             setUserBalance(parseFloat(data.balance))
           })
           refetchStats() // Refetch position data after trade
+          onTradeSuccess?.() // Notify parent component (e.g., refresh portfolio)
         },
 
         (error) => {
@@ -290,6 +293,7 @@ export function TradePanelContainer({
             setUserBalance(parseFloat(data.balance))
           })
           refetchStats() // Refetch position data after trade
+          onTradeSuccess?.() // Notify parent component (e.g., refresh portfolio)
         },
 
         (error) => {
