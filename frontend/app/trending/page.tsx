@@ -407,7 +407,12 @@ export default function TrendingPage() {
                           width={40}
                           height={40}
                           className="rounded-full border-3 border-outline-black flex-shrink-0"
-                          onError={(e) => { e.currentTarget.src = "/placeholder-token.svg" }}
+                          onError={(e) => {
+                            // Prevent infinite loop by only setting placeholder once
+                            if (e.currentTarget.src !== "/placeholder-token.svg") {
+                              e.currentTarget.src = "/placeholder-token.svg"
+                            }
+                          }}
                         />
                         <div className="min-w-0 flex-1">
                           <div className="font-body font-bold flex items-center gap-2">
@@ -514,7 +519,12 @@ export default function TrendingPage() {
                             width={32}
                             height={32}
                             className="rounded-full border-2 border-outline-black flex-shrink-0"
-                            onError={(e) => { e.currentTarget.src = "/placeholder-token.svg" }}
+                            onError={(e) => {
+                              // Prevent infinite loop by only setting placeholder once
+                              if (e.currentTarget.src !== "/placeholder-token.svg") {
+                                e.currentTarget.src = "/placeholder-token.svg"
+                              }
+                            }}
                           />
                           <div className="min-w-0 flex-1">
                             <div className="font-body font-bold text-sm text-foreground truncate flex items-center gap-1">
