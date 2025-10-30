@@ -104,13 +104,15 @@ interface NegativeCacheEntry {
   reason: string; // '404', '204', 'no-data', etc.
 }
 
-// Circuit breaker for external API calls (improved to handle expected failures)
+// Circuit breaker for external API calls (percentage-based, following Opossum patterns)
 class CircuitBreaker {
   private failureCount = 0;
+  private totalFires = 0;
   private lastFailureTime = 0;
   private state: 'CLOSED' | 'OPEN' | 'HALF_OPEN' = 'CLOSED';
-  private readonly threshold = 5;
-  private readonly timeout = 60000;
+  private readonly volumeThreshold = 10; // Minimum requests before checking error rate
+  private readonly errorThresholdPercentage = 50; // Trip at 50% error rate
+  private readonly timeout = 30000; // 30 seconds (faster recovery than 60s)
   private readonly name: string;
 
   constructor(name: string = 'unknown') {
@@ -127,24 +129,30 @@ class CircuitBreaker {
       }
     }
 
+    this.totalFires++; // Track total requests
+
     try {
       const result = await fn();
       if (this.state === 'HALF_OPEN') {
         this.state = 'CLOSED';
         this.failureCount = 0;
+        this.totalFires = 0; // Reset counters on recovery
         logger.info({ breaker: this.name }, 'Circuit breaker returned to CLOSED state');
       }
       return result;
     } catch (error: any) {
-      // Don't count expected "not found" responses or timeouts as failures
+      // Don't count expected failures (404, 429 rate limits, 503 unavailable, timeouts)
       const isExpectedFailure =
         error.message?.includes('404') ||
         error.message?.includes('204') ||
+        error.message?.includes('429') ||            // Rate limiting (ADDED)
+        error.message?.includes('503') ||            // Service unavailable (ADDED)
         error.message?.includes('No Content') ||
         error.message?.includes('Not Found') ||
         error.message?.includes('Token not found') ||
         error.message?.includes('aborted') ||        // AbortController timeout
         error.message?.includes('fetch failed') ||    // Generic fetch failure (often timeout)
+        error.message?.includes('timeout') ||         // Explicit timeout (ADDED)
         error.name === 'AbortError';                  // AbortController error type
 
       if (isExpectedFailure) {
@@ -156,9 +164,23 @@ class CircuitBreaker {
       this.failureCount++;
       this.lastFailureTime = Date.now();
 
-      if (this.failureCount >= this.threshold) {
-        this.state = 'OPEN';
-        logger.error({ breaker: this.name, error: error.message }, 'Circuit breaker opened after 5 unexpected failures');
+      // Calculate error rate percentage (only if we have enough volume)
+      if (this.totalFires >= this.volumeThreshold) {
+        const errorRate = (this.failureCount / this.totalFires) * 100;
+
+        if (errorRate >= this.errorThresholdPercentage || this.state === 'HALF_OPEN') {
+          this.state = 'OPEN';
+          logger.error(
+            {
+              breaker: this.name,
+              errorRate: errorRate.toFixed(1),
+              failures: this.failureCount,
+              fires: this.totalFires,
+              lastError: error.message
+            },
+            'Circuit breaker OPENED due to high error rate'
+          );
+        }
       }
       throw error;
     }
@@ -168,9 +190,21 @@ class CircuitBreaker {
     return this.state;
   }
 
+  getStats() {
+    const errorRate = this.totalFires > 0 ? (this.failureCount / this.totalFires) * 100 : 0;
+    return {
+      state: this.state,
+      failures: this.failureCount,
+      fires: this.totalFires,
+      errorRate: parseFloat(errorRate.toFixed(2)),
+      isHealthy: this.state === 'CLOSED'
+    };
+  }
+
   reset(): void {
     this.state = 'CLOSED';
     this.failureCount = 0;
+    this.totalFires = 0;
     this.lastFailureTime = 0;
     logger.info({ breaker: this.name }, 'Circuit breaker manually reset');
   }
@@ -997,6 +1031,38 @@ class OptimizedPriceService extends EventEmitter {
         errorName: error.name,
         isExpectedError
       }, "[Jupiter] API error during price fetch");
+    }
+
+    // FALLBACK: Try Redis cache if Jupiter failed (use stale data rather than no data)
+    try {
+      const cachedPrice = await redis.get(`price:${mint}`);
+      if (cachedPrice) {
+        const cached = JSON.parse(cachedPrice) as PriceTick;
+        const age = Date.now() - cached.timestamp;
+        const maxStaleAge = 5 * 60 * 1000; // 5 minutes
+
+        if (age < maxStaleAge) {
+          logger.info({
+            mint: mint.slice(0, 8),
+            ageSeconds: Math.floor(age / 1000),
+            priceUsd: cached.priceUsd
+          }, "[Fallback] Using cached price from Redis (Jupiter unavailable)");
+
+          // Return cached price with updated timestamp to indicate it's stale
+          return {
+            ...cached,
+            source: `${cached.source}-cached`, // Mark as cached
+            timestamp: cached.timestamp // Keep original timestamp
+          };
+        } else {
+          logger.debug({
+            mint: mint.slice(0, 8),
+            ageSeconds: Math.floor(age / 1000)
+          }, "[Fallback] Redis cache too old, not using");
+        }
+      }
+    } catch (error: any) {
+      logger.warn({ mint: mint.slice(0, 8), error: error.message }, "[Fallback] Redis cache read failed");
     }
 
     // For non-pump.fun tokens, try pump.fun as last resort

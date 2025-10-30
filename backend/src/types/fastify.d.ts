@@ -18,6 +18,7 @@ declare module 'fastify' {
 
   interface FastifyInstance {
     prisma: typeof import('@prisma/client').PrismaClient.prototype;
+    priceService: any; // Price service instance for health monitoring
   }
 }
 

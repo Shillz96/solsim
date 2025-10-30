@@ -52,6 +52,11 @@ export function usePortfolio(options: UsePortfolioOptions = {}) {
     staleTime,
     // Keep previous data while refetching for smoother UX
     placeholderData: (previousData) => previousData,
+    // Retry failed requests with exponential backoff (TanStack Query best practices)
+    retry: 3,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000), // 1s, 2s, 4s, max 10s
+    // Keep failed data in cache for 5 minutes (prevents showing $0.00 on errors)
+    gcTime: 5 * 60 * 1000, // 5 minutes
   })
 }
 

@@ -13,7 +13,7 @@ import { usePortfolio } from './use-portfolio'
 import { usePriceStreamContext } from '@/lib/price-stream-provider'
 
 export function useRealtimePortfolio() {
-  const { data: portfolio, ...rest } = usePortfolio()
+  const { data: portfolio, dataUpdatedAt, ...rest } = usePortfolio()
   const { prices: livePrices, subscribe, unsubscribe, connected } = usePriceStreamContext()
 
   // Subscribe to all token prices in the portfolio
@@ -35,11 +35,20 @@ export function useRealtimePortfolio() {
     }
   }, [portfolio?.positions, subscribe, unsubscribe])
 
+  // Calculate data staleness
+  const dataAge = useMemo(() => {
+    if (!dataUpdatedAt) return 0
+    return Date.now() - dataUpdatedAt
+  }, [dataUpdatedAt])
+
+  const isStale = dataAge > 30000 // Data older than 30 seconds is considered stale
+
   // Calculate real-time P&L using live WebSocket prices
   const livePortfolio = useMemo(() => {
+    // Always return portfolio, even if null (don't clear data on errors)
     if (!portfolio) return null
 
-    // If no live prices available, return original portfolio
+    // If no live prices available, return original portfolio (stale data better than no data)
     if (livePrices.size === 0) {
       return portfolio
     }
@@ -100,6 +109,9 @@ export function useRealtimePortfolio() {
     data: livePortfolio,
     portfolio: livePortfolio,
     isLiveUpdating: connected && livePrices.size > 0,
+    isStale, // Indicates if data is > 30 seconds old
+    dataAge, // Age of data in milliseconds
+    lastUpdated: dataUpdatedAt, // Timestamp of last successful update
   }
 }
 

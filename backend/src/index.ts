@@ -37,6 +37,7 @@ import badgeRoutes from "./routes/badges.js";
 import moderationRoutes from "./routes/moderation.js";
 import moderationConfigRoutes from "./routes/moderationConfig.js";
 import pumpPortalDataRoutes from "./routes/pumpPortalData.js";
+import healthRoutes from "./routes/health.js";
 
 // Import plugins and services
 import wsPlugin from "./plugins/ws.js";
@@ -76,6 +77,9 @@ const app = Fastify({
 
 // Register Prisma as a decorator for use in routes and plugins
 app.decorate('prisma', prisma);
+
+// Register priceService as a decorator for health monitoring
+app.decorate('priceService', priceService);
 
 // Add global error handler for Sentry
 app.setErrorHandler((error, request, reply) => {
@@ -263,6 +267,7 @@ app.register(badgeRoutes, { prefix: "/api/badges" }); // Badge management routes
 app.register(moderationRoutes, { prefix: "/api/moderation" }); // Moderation routes
 app.register(moderationConfigRoutes, { prefix: "/api/moderation" }); // Moderation configuration routes
 app.register(pumpPortalDataRoutes, { prefix: "/api/pumpportal" }); // Real-time PumpPortal data proxy
+app.register(healthRoutes, { prefix: "/api" }); // Health monitoring routes (circuit breaker, price service status)
 app.register(debugRoutes); // Debug routes for price service monitoring
 app.register(adminRoutes, { prefix: "/api/admin" }); // Admin maintenance routes (protected)
 app.register(sentryTestRoutes); // Sentry test routes (dev only)
