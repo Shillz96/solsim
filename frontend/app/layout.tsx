@@ -3,6 +3,7 @@
 import "./theme.css"
 import "./globals.css"
 import "./wallet-modal-override.css"
+import AmbientOverlay from "./ambient-overlay"
 import { WindowManager } from "@/components/window"
 import { FloatingWindows } from "@/components/window"
 import { NavBar } from "@/components/navigation/nav-bar"
@@ -12,6 +13,7 @@ import { AppProviders } from "@/components/providers"
 import { cn } from "@/lib/utils"
 import { usePathname } from "next/navigation"
 import { useEffect, useState } from "react"
+import { WebVitals } from "@/components/analytics/web-vitals"
 
 function LayoutContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
@@ -110,7 +112,9 @@ export default function RootLayout({
         <title>1UP SOL - Mario Paper Trading</title>
       </head>
       <body className={cn("h-full bg-background text-foreground antialiased")}>
+        <AmbientOverlay />
         <AppProviders>
+          <WebVitals />
           <WindowManager>
             <LayoutContent>
               {children}

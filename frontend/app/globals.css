@@ -11,6 +11,50 @@
    ============================================================ */
 
 /* ---------------------------
+   AMBIENT OVERLAY SYSTEM
+   Soft mode using OKLCH for perceptual consistency
+--------------------------- */
+:root {
+  /* Warm paper tint that respects your palette */
+  --ambient-tint: oklch(96% 0.03 95);          /* "paper cream" */
+  --ambient-tint-opacity: 0.08;                 /* 0.06–0.12 is a good range */
+
+  /* Edge darkening for depth (don't overdo it) */
+  --ambient-vignette: oklch(0% 0 0 / 0.14);     /* ~14% black */
+
+  /* Subtle texture to kill "flat UI" glare */
+  --ambient-noise-opacity: 0.035;               /* 3–5% */
+}
+
+/* Optional: respect user prefs */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ambient-tint: oklch(22% 0.02 95);        /* very dark warm */
+    --ambient-tint-opacity: 0.10;
+    --ambient-vignette: oklch(0% 0 0 / 0.22);
+    --ambient-noise-opacity: 0.05;
+  }
+}
+
+/* Overlay component classes - keep heavy lifting in CSS for site-wide tuning */
+.overlay-scrim {
+  background: linear-gradient(var(--ambient-tint), var(--ambient-tint));
+  opacity: var(--ambient-tint-opacity);
+  mix-blend-mode: multiply;
+}
+
+.overlay-vignette {
+  background: radial-gradient(120% 100% at 50% -20%, transparent 60%, var(--ambient-vignette));
+  mix-blend-mode: multiply;
+}
+
+.overlay-noise {
+  background-image: url(/textures/noise-512.png);
+  opacity: var(--ambient-noise-opacity);
+  mix-blend-mode: overlay;
+}
+
+/* ---------------------------
    BASE STYLES & RESET
 --------------------------- */
 @layer base {
