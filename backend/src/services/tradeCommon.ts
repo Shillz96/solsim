@@ -476,8 +476,17 @@ export async function executePostTradeOperations(
   console.log(`[TradeCommon] Invalidated portfolio cache for user ${userId}`);
 
   // Eagerly fetch price to cache for next portfolio request
-  await priceService.getPrice(mint);
+  const freshPrice = await priceService.getPrice(mint);
   console.log(`[TradeCommon] Prefetched price for ${mint.substring(0, 8)}...`);
+
+  // Force emission of price update to WebSocket subscribers for immediate PnL update
+  // This ensures frontend receives the latest price even if cached
+  const tick = await priceService.getLastTick(mint);
+  if (tick) {
+    // Re-emit the price to trigger WebSocket broadcast
+    priceService.emit('price', tick);
+    console.log(`[TradeCommon] Emitted price update for ${mint.substring(0, 8)} to WebSocket subscribers`);
+  }
 }
 
 /**
