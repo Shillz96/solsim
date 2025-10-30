@@ -9,7 +9,7 @@ interface ChartFallbackProps {
 
 export function ChartFallback({ tokenSymbol, error = false }: ChartFallbackProps) {
   return (
-    <div className="border-4 border-outline rounded-xl shadow-[6px_6px_0_var(--outline-black)] bg-[#FFFAE9] overflow-hidden flex items-center justify-center" style={{ minHeight: '500px' }}>
+    <div className="border-4 border-outline rounded-xl shadow-[6px_6px_0_var(--outline-black)] bg-[var(--background)] overflow-hidden flex items-center justify-center" style={{ minHeight: '500px' }}>
       <div className="flex flex-col items-center gap-4 p-8">
         {error ? (
           <>

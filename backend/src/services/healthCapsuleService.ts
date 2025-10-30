@@ -67,8 +67,8 @@ class HealthCapsuleService {
         mintRenounced: mintInfo.mintAuthority === null,
       };
     } catch (error: any) {
-      // TokenAccountNotFoundError is expected for brand new tokens
-      if (error?.name === 'TokenAccountNotFoundError') {
+      // TokenAccountNotFoundError and TokenInvalidAccountOwnerError are expected for brand new tokens
+      if (error?.name === 'TokenAccountNotFoundError' || error?.name === 'TokenInvalidAccountOwnerError') {
         console.log('[HealthCapsule] Token not yet propagated:', mint, '(will retry later)');
       } else {
         console.error('[HealthCapsule] Error checking authorities for', mint, ':', error.message || error);

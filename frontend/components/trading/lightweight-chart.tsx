@@ -582,7 +582,7 @@ export function LightweightChart({
       <div className="relative">
         <div
           ref={chartContainerRef}
-          className="border-3 md:border-4 border-[#2B2B43] rounded-lg md:rounded-xl shadow-[4px_4px_0_rgba(0,0,0,0.5)] md:shadow-[6px_6px_0_rgba(0,0,0,0.5)] bg-[#0A0A0F] overflow-hidden touch-pan-x touch-pan-y"
+          className="border-3 md:border-4 border-[var(--chart-border-dark)] rounded-lg md:rounded-xl shadow-[4px_4px_0_rgba(0,0,0,0.5)] md:shadow-[6px_6px_0_rgba(0,0,0,0.5)] bg-[var(--chart-bg-dark)] overflow-hidden touch-pan-x touch-pan-y"
           style={{
             minHeight: isMobile ? '350px' : '500px',
             touchAction: 'pan-x pan-y', // Better touch handling
@@ -591,7 +591,7 @@ export function LightweightChart({
 
         {/* OHLCV Tooltip Overlay */}
         {tooltipData && (
-          <div className="absolute top-2 left-2 md:top-3 md:left-3 bg-[#0A0A0F]/90 backdrop-blur-sm border-2 border-[#2B2B43] rounded-lg p-2 md:p-3 pointer-events-none z-10 shadow-[2px_2px_0_rgba(0,0,0,0.5)]">
+          <div className="absolute top-2 left-2 md:top-3 md:left-3 bg-[var(--chart-bg-dark)]/90 backdrop-blur-sm border-2 border-[var(--chart-border-dark)] rounded-lg p-2 md:p-3 pointer-events-none z-10 shadow-[2px_2px_0_rgba(0,0,0,0.5)]">
             <div className="grid grid-cols-2 gap-x-3 md:gap-x-4 gap-y-1 text-xs md:text-sm font-mono">
               <div className="text-[var(--outline-black)]/50">O</div>
               <div className="text-white font-bold">${tooltipData.open.toFixed(tooltipData.open < 0.01 ? 8 : 4)}</div>

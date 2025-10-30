@@ -34,59 +34,78 @@ class TokenMetadataService {
   ];
 
   /**
-   * Fetch metadata from IPFS URI
+   * Fetch metadata from IPFS URI with fallback gateway support
    */
   async fetchMetadataFromIPFS(uri: string): Promise<TokenMetadata> {
     if (!uri) return {};
 
-    try {
-      // Convert IPFS URI to HTTP gateway URL
-      let metadataUrl = uri;
-      if (uri.startsWith('ipfs://')) {
-        const ipfsHash = uri.replace('ipfs://', '');
-        metadataUrl = `${this.ipfsGateways[0]}${ipfsHash}`;
-      }
-
-      // Reduced verbosity - only log on success or unexpected errors
-      const response = await fetch(metadataUrl, {
-        signal: AbortSignal.timeout(8000),
-      });
-
-      if (!response.ok) {
-        throw new Error(`IPFS fetch failed: ${response.status}`);
-      }
-
-      const metadata = await response.json() as any;
-
-      // Extract social links from various formats
-      const twitter = this.extractTwitter(metadata);
-      const telegram = this.extractTelegram(metadata);
-      const website = this.extractWebsite(metadata);
-      const description = metadata.description || metadata.desc || undefined;
-      const imageUrl = this.extractImageUrl(metadata);
-
-      return {
-        description,
-        imageUrl,
-        twitter,
-        telegram,
-        website,
-      };
-    } catch (error: any) {
-      // Silently skip common errors (404, timeouts, network issues)
-      // Only log unexpected errors for debugging
-      const isExpectedError =
-        error.code === 'ENOTFOUND' ||
-        error.name === 'AbortError' ||
-        error.name === 'TimeoutError' ||
-        error.message?.includes('404') ||
-        error.message?.includes('fetch failed');
-
-      if (!isExpectedError) {
-        console.error('[TokenMetadata] Unexpected IPFS error:', error.message);
-      }
-      return {};
+    // Convert IPFS URI to hash
+    let ipfsHash = uri;
+    if (uri.startsWith('ipfs://')) {
+      ipfsHash = uri.replace('ipfs://', '');
+    } else if (!uri.startsWith('http')) {
+      // Already a hash
+      ipfsHash = uri;
+    } else {
+      // It's already a full URL, use directly
+      return await this.fetchFromSingleGateway(uri);
     }
+
+    // Try each gateway in sequence until one succeeds
+    let lastError: Error | null = null;
+    for (const gateway of this.ipfsGateways) {
+      try {
+        const metadataUrl = `${gateway}${ipfsHash}`;
+        return await this.fetchFromSingleGateway(metadataUrl);
+      } catch (error: any) {
+        lastError = error;
+        // Continue to next gateway
+        continue;
+      }
+    }
+
+    // All gateways failed
+    const isExpectedError =
+      lastError?.code === 'ENOTFOUND' ||
+      lastError?.name === 'AbortError' ||
+      lastError?.name === 'TimeoutError' ||
+      lastError?.message?.includes('404') ||
+      lastError?.message?.includes('fetch failed');
+
+    if (!isExpectedError) {
+      console.error('[TokenMetadata] All IPFS gateways failed:', lastError?.message);
+    }
+    return {};
+  }
+
+  /**
+   * Fetch from a single IPFS gateway
+   */
+  private async fetchFromSingleGateway(metadataUrl: string): Promise<TokenMetadata> {
+    const response = await fetch(metadataUrl, {
+      signal: AbortSignal.timeout(5000), // Reduced from 8s for faster fallback
+    });
+
+    if (!response.ok) {
+      throw new Error(`IPFS fetch failed: ${response.status}`);
+    }
+
+    const metadata = await response.json() as any;
+
+    // Extract social links from various formats
+    const twitter = this.extractTwitter(metadata);
+    const telegram = this.extractTelegram(metadata);
+    const website = this.extractWebsite(metadata);
+    const description = metadata.description || metadata.desc || undefined;
+    const imageUrl = this.extractImageUrl(metadata);
+
+    return {
+      description,
+      imageUrl,
+      twitter,
+      telegram,
+      website,
+    };
   }
 
   /**
