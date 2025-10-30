@@ -66,7 +66,7 @@ class TokenMetadataService {
 
     // All gateways failed
     const isExpectedError =
-      lastError?.code === 'ENOTFOUND' ||
+      (lastError as any)?.code === 'ENOTFOUND' ||
       lastError?.name === 'AbortError' ||
       lastError?.name === 'TimeoutError' ||
       lastError?.message?.includes('404') ||
