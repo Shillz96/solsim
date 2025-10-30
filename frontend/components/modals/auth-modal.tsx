@@ -4,6 +4,7 @@ import type React from "react"
 
 import { useState } from "react"
 import Image from "next/image"
+import { useRouter } from "next/navigation"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Button } from "@/components/ui/button"
@@ -33,6 +34,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
 
+  const router = useRouter()
   const { login, signup } = useAuth()
   const [walletConnected, setWalletConnected] = useState<string | null>(null)
   const markOnboardingNeeded = useMarkOnboardingNeeded()
@@ -152,9 +154,9 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
       // Mark that user needs onboarding tour
       markOnboardingNeeded()
 
-      // Close modal - auth state will update automatically via auth context
+      // Close modal
       onOpenChange(false)
-      setSuccess('Account created successfully! Please check your email to verify your account.')
+      setSuccess('Account created successfully! Welcome to 1UP SOL!')
 
       // Clear form
       const form = e.currentTarget
@@ -162,8 +164,11 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
       setPassword('')
       setConfirmPassword('')
 
-      // Onboarding tour will automatically trigger after modal closes
-      // The useAuth hook should handle state updates automatically
+      // Refresh the page to update all components with new auth state
+      // This ensures navbar and other components see the authenticated user
+      router.refresh()
+
+      // Onboarding tour will automatically trigger after refresh
     } catch (err) {
       const error = err as Error
       setError(error.message || 'Registration failed')

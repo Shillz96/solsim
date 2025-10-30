@@ -102,6 +102,9 @@ export function TokenLogo({
   const sizeMatch = className.match(/w-(\d+)|h-(\d+)/)
   const size = sizeMatch ? parseInt(sizeMatch[1] || sizeMatch[2]) * 4 : 40
 
+  // Check if image is from external source (not from /public or data URI)
+  const isExternal = currentSrc && !currentSrc.startsWith('/') && !currentSrc.startsWith('data:')
+
   return (
     <Image
       {...createSafeImageProps(
@@ -119,6 +122,7 @@ export function TokenLogo({
           handleError();
         }
       }}
+      unoptimized={isExternal} // Bypass Next.js optimization for external URLs to prevent 400 errors
       quality={85}
       sizes={`${size}px`}
       referrerPolicy="no-referrer"
