@@ -247,11 +247,11 @@ class OptimizedPriceService extends EventEmitter {
   async start() {
     logger.info("Starting Optimized Price Service (PumpPortal-Only Architecture)");
 
-    // Get initial SOL price
+    // Get initial SOL price (critical for trades)
     await this.updateSolPrice();
 
-    // Set up regular SOL price updates (every 30s)
-    const solInterval = setInterval(() => this.updateSolPrice(), 30000);
+    // Set up frequent SOL price updates (every 5 seconds for real-time trading)
+    const solInterval = setInterval(() => this.updateSolPrice(), 5000);
     this.updateIntervals.push(solInterval);
 
     // HELIUS WEBSOCKET DISABLED - PumpPortal covers ALL Solana tokens

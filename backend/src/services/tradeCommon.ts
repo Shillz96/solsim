@@ -154,6 +154,17 @@ export async function getValidatedPrice(
     throw new Error(`Invalid SOL price: $${currentSolPrice}. Cannot execute trade.`);
   }
 
+  // Check if SOL price is stale (block trades with stale prices)
+  const solPriceAge = priceService.getSolPriceAge();
+  const MAX_PRICE_AGE = 60 * 1000; // 1 minute max staleness
+
+  if (solPriceAge > MAX_PRICE_AGE) {
+    const ageSeconds = Math.floor(solPriceAge / 1000);
+    throw new Error(
+      `SOL price is too stale (${ageSeconds}s old). Cannot execute trade safely. Please try again in a few seconds.`
+    );
+  }
+
   const solUsdAtFill = D(currentSolPrice);
   const priceSol = priceUsd.div(solUsdAtFill);
   const marketCapUsd = tick.marketCapUsd ? D(tick.marketCapUsd) : null;
