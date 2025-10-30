@@ -328,6 +328,7 @@ function TradeRoomContent() {
                   volume24h={volume24h}
                   holders={holderCount}
                   userRank={null}
+                  onTradeSuccess={() => void refreshPortfolio()}
                 />
               </div>
             </DialogContent>
@@ -365,7 +366,7 @@ function TradeRoomContent() {
                   volume24h={volume24h}
                   holders={holderCount}
                   userRank={null}
-                  onTradeSuccess={refreshPortfolio}
+                  onTradeSuccess={() => void refreshPortfolio()}
                 />
               </div>
             </aside>
