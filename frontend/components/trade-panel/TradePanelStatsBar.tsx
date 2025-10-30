@@ -26,9 +26,9 @@ export function TradePanelStatsBar({
   const isProfit = pnl >= 0
 
   return (
-    <div className="grid grid-cols-2 gap-3">
+    <div className="grid grid-cols-2 gap-[var(--space-grid-md)]">
       {/* Bought */}
-      <div className="bg-white border-3 border-outline rounded-[14px] p-3 flex flex-col items-center justify-center shadow-[4px_4px_0_var(--outline-black)] hover:shadow-[5px_5px_0_var(--outline-black)] hover:-translate-y-[1px] transition-all min-w-0">
+      <div className="bg-white border-3 border-outline rounded-[14px] p-3 flex flex-col items-center justify-center shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-[1px] transition-all min-w-0">
         <div className="text-[10px] font-bold text-outline/60 uppercase tracking-tight mb-1 whitespace-nowrap">
           Bought
         </div>
@@ -38,7 +38,7 @@ export function TradePanelStatsBar({
       </div>
 
       {/* Sold */}
-      <div className="bg-white border-3 border-outline rounded-[14px] p-3 flex flex-col items-center justify-center shadow-[4px_4px_0_var(--outline-black)] hover:shadow-[5px_5px_0_var(--outline-black)] hover:-translate-y-[1px] transition-all min-w-0">
+      <div className="bg-white border-3 border-outline rounded-[14px] p-3 flex flex-col items-center justify-center shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-[1px] transition-all min-w-0">
         <div className="text-[10px] font-bold text-outline/60 uppercase tracking-tight mb-1 whitespace-nowrap">
           Sold
         </div>
@@ -48,7 +48,7 @@ export function TradePanelStatsBar({
       </div>
 
       {/* Holding */}
-      <div className="bg-white border-3 border-outline rounded-[14px] p-3 flex flex-col items-center justify-center shadow-[4px_4px_0_var(--outline-black)] hover:shadow-[5px_5px_0_var(--outline-black)] hover:-translate-y-[1px] transition-all min-w-0">
+      <div className="bg-white border-3 border-outline rounded-[14px] p-3 flex flex-col items-center justify-center shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-[1px] transition-all min-w-0">
         <div className="text-[10px] font-bold text-outline/60 uppercase tracking-tight mb-1 whitespace-nowrap">
           Holding
         </div>
@@ -59,7 +59,7 @@ export function TradePanelStatsBar({
 
       {/* PnL */}
       <div className={cn(
-        "border-3 border-outline rounded-[14px] p-3 flex flex-col items-center justify-center shadow-[4px_4px_0_var(--outline-black)] hover:shadow-[5px_5px_0_var(--outline-black)] hover:-translate-y-[1px] transition-all min-w-0",
+        "border-3 border-outline rounded-[14px] p-3 flex flex-col items-center justify-center shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-[1px] transition-all min-w-0",
         isProfit ? "bg-luigi/10" : "bg-mario/10"
       )}>
         <div className="text-[10px] font-bold text-outline/60 uppercase tracking-tight mb-1 whitespace-nowrap">

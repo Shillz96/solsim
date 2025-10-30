@@ -358,7 +358,7 @@ export function TradePanelContainer({
       </AnimatePresence>
 
       {/* Main Content - Fills all available space */}
-      <div className="flex flex-col h-full space-y-5">
+      <div className="flex flex-col h-full gap-[var(--space-section)]">
           {/* Trade Status */}
           {(tradePanelState.tradeError || tradePanelState.lastTradeSuccess) && (
             <div className="mb-2">

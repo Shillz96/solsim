@@ -80,12 +80,12 @@ export function TokenVitalsBar({
 
   return (
     <div className={cn(
-      "rounded-2xl border-4 border-outline bg-white shadow-[6px_6px_0_var(--outline-black)] transition-all",
-      "w-full p-2 grid grid-cols-2 gap-2",
+      "rounded-2xl border-3 border-outline bg-white shadow-[4px_4px_0_var(--outline-black)] transition-all",
+      "w-full p-2 grid grid-cols-2 gap-[var(--space-control)]",
       className
     )}>
       {/* 24h Volume */}
-      <div className="flex items-center gap-2 p-2 rounded-lg border-3 border-outline shadow-[4px_4px_0_var(--outline-black)] bg-gradient-to-br from-[var(--coin-gold)]/20 to-[var(--star-yellow)]/10 hover:shadow-[5px_5px_0_var(--outline-black)] hover:-translate-y-[1px] transition-all min-h-[60px]">
+      <div className="flex items-center gap-2 p-2 rounded-lg border-3 border-outline shadow-[3px_3px_0_var(--outline-black)] bg-gradient-to-br from-[var(--coin-gold)]/20 to-[var(--star-yellow)]/10 hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-[1px] transition-all min-h-[60px]">
         <div className="h-8 w-8 rounded-full border-3 border-outline flex items-center justify-center shadow-[2px_2px_0_var(--outline-black)] bg-coin flex-shrink-0">
           <DollarSign className="h-4 w-4 text-outline" />
         </div>
@@ -98,7 +98,7 @@ export function TokenVitalsBar({
       </div>
 
       {/* Holders */}
-      <div className="flex items-center gap-2 p-2 rounded-lg border-3 border-outline shadow-[4px_4px_0_var(--outline-black)] bg-gradient-to-br from-[var(--sky-blue)]/20 to-[var(--sky-blue)]/10 hover:shadow-[5px_5px_0_var(--outline-black)] hover:-translate-y-[1px] transition-all min-h-[60px]">
+      <div className="flex items-center gap-2 p-2 rounded-lg border-3 border-outline shadow-[3px_3px_0_var(--outline-black)] bg-gradient-to-br from-[var(--sky-blue)]/20 to-[var(--sky-blue)]/10 hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-[1px] transition-all min-h-[60px]">
         <div className="h-8 w-8 rounded-full border-3 border-outline flex items-center justify-center shadow-[2px_2px_0_var(--outline-black)] bg-sky flex-shrink-0">
           <Users className="h-4 w-4 text-white" />
         </div>
@@ -112,7 +112,7 @@ export function TokenVitalsBar({
 
       {/* 5m Price Change - REAL-TIME */}
       <div className={cn(
-        "flex items-center gap-2 p-2 rounded-lg border-3 border-outline shadow-[4px_4px_0_var(--outline-black)] hover:shadow-[5px_5px_0_var(--outline-black)] hover:-translate-y-[1px] transition-all min-h-[60px]",
+        "flex items-center gap-2 p-2 rounded-lg border-3 border-outline shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-[1px] transition-all min-h-[60px]",
         priceChange5m !== undefined && priceChange5m >= 0
           ? "bg-gradient-to-br from-[var(--luigi-green)]/20 to-green-100/10"
           : "bg-gradient-to-br from-[var(--mario-red)]/20 to-red-100/10"
@@ -144,7 +144,7 @@ export function TokenVitalsBar({
       </div>
 
       {/* User Rank */}
-      <div className="flex items-center gap-2 p-2 rounded-lg border-3 border-outline shadow-[4px_4px_0_var(--outline-black)] bg-gradient-to-br from-[var(--star-yellow)]/20 to-[var(--star-yellow)]/10 hover:shadow-[5px_5px_0_var(--outline-black)] hover:-translate-y-[1px] transition-all min-h-[60px]">
+      <div className="flex items-center gap-2 p-2 rounded-lg border-3 border-outline shadow-[3px_3px_0_var(--outline-black)] bg-gradient-to-br from-[var(--star-yellow)]/20 to-[var(--star-yellow)]/10 hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-[1px] transition-all min-h-[60px]">
         <div className="h-8 w-8 rounded-full border-3 border-outline flex items-center justify-center shadow-[2px_2px_0_var(--outline-black)] bg-star flex-shrink-0">
           <Trophy className="h-4 w-4 text-outline" />
         </div>
