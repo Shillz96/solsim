@@ -8,6 +8,7 @@ import { simulateFees } from "../utils/decimal-helpers.js";
 import * as notificationService from "./notificationService.js";
 import redlock from "../plugins/redlock.js";
 import { realtimePnLService } from "./realtimePnLService.js";
+import redis from "../plugins/redis.js";
 import {
   getValidatedPrice,
   checkAndClampSellQuantity,
@@ -237,6 +238,15 @@ async function executeTradeLogic({
 
     return { trade, position: pos, realizedPnL };
   });
+
+  // Invalidate token stats cache to ensure fresh data
+  try {
+    const tokenStatsCacheKey = `token:stats:${userId}:${mint}:PAPER`;
+    await redis.del(tokenStatsCacheKey);
+    console.log(`[Trade] Invalidated token stats cache: ${tokenStatsCacheKey}`);
+  } catch (cacheError) {
+    console.error('[Trade] Failed to invalidate token stats cache:', cacheError);
+  }
 
   // Emit real-time PnL event
   try {
