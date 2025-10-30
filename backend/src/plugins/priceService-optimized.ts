@@ -288,7 +288,7 @@ class OptimizedPriceService extends EventEmitter {
           logger.info({
             mint: event.mint.slice(0, 8),
             priceUsd: priceUsd.toFixed(8),
-            priceSol: tick.priceSol.toFixed(10),
+            priceSol: (tick.priceSol || 0).toFixed(10),
             txType: event.txType
           }, "[PumpPortal] 📊 Swap event received, updating price cache");
 
