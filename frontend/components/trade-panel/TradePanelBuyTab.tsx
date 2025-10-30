@@ -74,7 +74,7 @@ export function TradePanelBuyTab({
   const fees = hasAmount ? calculateTradeFees(solAmount, solPrice) : null
   
   return (
-    <div className="flex flex-col h-full space-y-2 mt-2">
+    <div className="flex flex-col h-full space-y-4 mt-3">
       <Label className="mario-font text-[10px] whitespace-nowrap">
         SELECT AMOUNT (SOL)
       </Label>

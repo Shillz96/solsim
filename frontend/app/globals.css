@@ -509,7 +509,7 @@
 }
 
 .trade-action-btn-buy {
-  background: var(--color-buy);
+  background: linear-gradient(to bottom, var(--color-buy), color-mix(in oklch, var(--color-buy) 90%, black));
   color: white;
 }
 
