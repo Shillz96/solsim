@@ -309,25 +309,22 @@ const warpPipesRoutes: FastifyPluginAsync = async (fastify) => {
         };
 
         const [bonded, graduating, newTokens] = await Promise.all([
-          // Bonded tokens - AXIOM QUALITY FILTERING: Only show tokens that bonded AND maintained activity
-          // Remove "dead" tokens that bonded but lost momentum
+          // Bonded tokens - Show recently bonded tokens (status includes LAUNCHING)
           prisma.tokenDiscovery.findMany({
             where: {
               ...baseWhere,
               state: 'bonded',
               stateChangedAt: { gte: bondedMaxAge }, // Bonded in last 72 hours
-              // LIVENESS FILTERS: Ensure token is still active post-bonding
-              lastTradeTs: { gte: bondedTradeThreshold }, // Recent trades (48h)
-              volume24hSol: { gte: WARP_PIPES_CONFIG.BONDED_MIN_VOLUME_SOL }, // Minimum volume
-              status: { notIn: ['DEAD', 'LAUNCHING'] }, // Exclude dead tokens
+              // RELAXED FILTERS: Most bonded tokens are LAUNCHING with NULL lastTradeTs
+              status: { not: 'DEAD' }, // Only exclude truly dead tokens
             },
             select: selectFields,
             orderBy,
             take: limit,
           }),
 
-          // Graduating tokens - AXIOM QUALITY FILTERING: "Final Stretch" - only high-potential tokens
-          // Show tokens with VOLUME + CLOSE TO BONDING + RECENT ACTIVITY
+          // Graduating tokens - Show tokens making progress toward bonding
+          // RELAXED FILTERS: lastTradeTs is often NULL for new tokens
           prisma.tokenDiscovery.findMany({
             where: {
               ...baseWhere,
@@ -338,7 +335,7 @@ const warpPipesRoutes: FastifyPluginAsync = async (fastify) => {
                 lt: WARP_PIPES_CONFIG.GRADUATING_MAX_PROGRESS,   // Not yet bonded (< 100%)
               },
               volume24hSol: { gte: WARP_PIPES_CONFIG.GRADUATING_MIN_VOLUME_SOL }, // Volume requirement
-              lastTradeTs: { gte: graduatingTradeThreshold }, // Recent activity (configurable)
+              // REMOVED lastTradeTs filter - field is often NULL
               holderCount: { gte: WARP_PIPES_CONFIG.GRADUATING_MIN_HOLDERS }, // Community interest
             },
             select: selectFields,
@@ -363,6 +360,8 @@ const warpPipesRoutes: FastifyPluginAsync = async (fastify) => {
 
         // DEBUG: Log query results
         console.log(`[WarpPipes] Query results: BONDED=${bonded.length}, GRADUATING=${graduating.length}, NEW=${newTokens.length}`);
+        console.log(`[WarpPipes] Config: requireSecurity=${requireSecurity}, limit=${limit}`);
+        console.log(`[WarpPipes] Time windows: newTokens=${newTokensMaxAge.toISOString()}, bondedMax=${bondedMaxAge.toISOString()}`);
 
         // Get user's watched tokens if authenticated
         let watchedMints: Set<string> = new Set();
@@ -443,10 +442,16 @@ const warpPipesRoutes: FastifyPluginAsync = async (fastify) => {
           };
         };
 
-        return reply.send({
+        return reply.status(200).send({
           bonded: bonded.map(transformToken),
           graduating: graduating.map(transformToken),
-          new: newTokens.map(transformToken),
+          newTokens: newTokens.map(transformToken),
+          // DEBUG: Add version info
+          _debug: {
+            version: '2025-10-31-filters-fixed',
+            counts: { bonded: bonded.length, graduating: graduating.length, newTokens: newTokens.length },
+            requireSecurity,
+          }
         });
       } catch (error) {
         fastify.log.error({ error }, 'Error fetching warp pipes feed');
