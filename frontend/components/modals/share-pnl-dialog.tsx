@@ -186,40 +186,23 @@ export function SharePnLDialog({ totalPnL, totalPnLPercent, currentValue, initia
           {/* Shareable Card - Mario Theme */}
           <div
             ref={cardRef}
-            className="relative w-full aspect-[16/9] rounded-2xl overflow-hidden bg-background p-5 border-4 border-outline shadow-[8px_8px_0_var(--outline-black)]"
+            className="relative w-full aspect-[16/9] rounded-xl overflow-hidden bg-sky/20 border-4 border-outline shadow-[8px_8px_0_var(--outline-black)]"
           >
-            {/* Header Image */}
-            <div className="absolute inset-0 z-0">
-              <img
-                src="/Check-out-my-pnl-10-31-2025.png"
-                alt="Check out my PNL"
-                className="w-full h-full object-cover opacity-20"
-                crossOrigin="anonymous"
-                loading="eager"
-                onError={(e) => {
-                  const img = e.target as HTMLImageElement
-                  img.style.display = 'none'
-                }}
-              />
-              {/* Gradient overlay for readability */}
-              <div className="absolute inset-0 bg-gradient-to-br from-background/95 via-background/90 to-background/95" />
-            </div>
-
             {/* Content Container */}
-            <div className="relative z-10 h-full flex flex-col">
-              {/* Header with Logo - Mario Style */}
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 bg-mario rounded-lg flex items-center justify-center border-3 border-outline shadow-[3px_3px_0_var(--outline-black)]">
-                    <svg viewBox="0 0 24 24" fill="none" className="w-5 h-5">
-                      <path d="M13 2L3 14h8l-1 8 10-12h-8l1-8z" fill="white" />
-                    </svg>
-                  </div>
-                  <div>
-                    <span className="text-lg font-mario font-black text-outline tracking-tight">VIRTUALSOL</span>
-                    <div className="text-[10px] text-outline/60 font-bold uppercase tracking-wide">Paper Trading</div>
-                  </div>
-                </div>
+            <div className="relative z-10 h-full flex flex-col p-5">
+              {/* Header with Image */}
+              <div className="flex items-center justify-between mb-4">
+                <img
+                  src="/Check-out-my-pnl-10-31-2025.png"
+                  alt="Check out my PNL"
+                  className="h-12 w-auto object-contain"
+                  crossOrigin="anonymous"
+                  loading="eager"
+                  onError={(e) => {
+                    const img = e.target as HTMLImageElement
+                    img.style.display = 'none'
+                  }}
+                />
                 <div className="px-3 py-1 rounded-lg bg-luigi border-3 border-outline shadow-[2px_2px_0_var(--outline-black)]">
                   <span className="text-xs font-mario font-bold text-white">LIVE</span>
                 </div>
@@ -313,12 +296,12 @@ export function SharePnLDialog({ totalPnL, totalPnLPercent, currentValue, initia
                   )}
                   <div>
                     <div className="text-outline font-mario font-bold text-sm">@{userHandle || userEmail?.split('@')[0] || 'trader'}</div>
-                    <div className="text-[10px] text-mario font-bold">oneupsol.fun</div>
+                    <div className="text-[10px] text-sky font-bold">oneupsol.fun</div>
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="text-[9px] text-outline/50 uppercase tracking-wide font-bold">Powered by</div>
-                  <div className="text-sm font-mario font-black text-mario">vSOL</div>
+                  <div className="text-[9px] text-outline/60 uppercase tracking-wide font-bold">Powered by</div>
+                  <div className="text-base font-mario font-black text-outline">1UP</div>
                 </div>
               </div>
             </div>
