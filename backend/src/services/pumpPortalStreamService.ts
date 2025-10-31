@@ -199,7 +199,7 @@ export class PumpPortalStreamService extends EventEmitter {
   }
 
   /**
-   * Establish WebSocket connection
+   * Establish WebSocket connection with timeout for fast cold starts
    */
   private async connect(): Promise<void> {
     if (this.isConnecting || (this.ws && this.ws.readyState === WebSocket.OPEN)) {
@@ -212,15 +212,38 @@ export class PumpPortalStreamService extends EventEmitter {
       console.log('[PumpPortal] Connecting to WebSocket...');
       this.ws = new WebSocket(this.wsUrl);
 
+      // OPTIMIZATION: Wrap connection with timeout to prevent blocking server startup
+      // If connection takes >3s, reject and continue in background
+      const connectionPromise = new Promise<void>((resolve, reject) => {
+        const timeout = setTimeout(() => {
+          reject(new Error('PumpPortal connection timeout (3s) - continuing in background'));
+        }, 3000);
+
+        this.ws!.once('open', () => {
+          clearTimeout(timeout);
+          resolve();
+        });
+
+        this.ws!.once('error', (error) => {
+          clearTimeout(timeout);
+          reject(error);
+        });
+      });
+
       this.ws.on('open', () => this.onOpen());
       this.ws.on('message', (data) => this.onMessage(data));
       this.ws.on('error', (error) => this.onError(error));
       this.ws.on('close', (code, reason) => this.onClose(code, reason));
       this.ws.on('pong', () => this.onPong());
+
+      // Wait for connection with timeout
+      await connectionPromise;
     } catch (error) {
       console.error('[PumpPortal] Connection error:', error);
       this.isConnecting = false;
+      // Don't await reconnect - let it happen in background
       this.scheduleReconnect();
+      throw error; // Re-throw to signal startup that connection failed (but server will continue)
     }
   }
 

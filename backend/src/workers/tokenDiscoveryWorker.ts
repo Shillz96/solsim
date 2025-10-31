@@ -58,11 +58,11 @@ class TokenDiscoveryConfig {
   static readonly DEAD_TOKEN_HOURS = 2; // Hours since last trade to consider dead
   static readonly MIN_DEAD_VOLUME_SOL = 0.5; // Minimum volume to not be dead
   static readonly ACTIVE_TOKEN_HOURS = 1; // Hours for a token to be considered active
-  static readonly ABOUT_TO_BOND_PROGRESS = 90; // Bonding curve % to be "about to bond"
-  static readonly ABOUT_TO_BOND_MINUTES = 20; // Max minutes since last trade
-  static readonly GRADUATING_MIN_PROGRESS = 50; // Min % for graduating state
+  static readonly ABOUT_TO_BOND_PROGRESS = 75; // Bonding curve % to be "about to bond" (lowered from 90)
+  static readonly ABOUT_TO_BOND_MINUTES = 60; // Max minutes since last trade (increased from 20)
+  static readonly GRADUATING_MIN_PROGRESS = 30; // Min % for graduating state (lowered from 50 to show more tokens)
   static readonly GRADUATING_MAX_PROGRESS = 100; // Max % for graduating state
-  static readonly NEW_TOKEN_MAX_PROGRESS = 50; // Max % for new token state
+  static readonly NEW_TOKEN_MAX_PROGRESS = 30; // Max % for new token state (lowered to match GRADUATING_MIN)
 }
 
 // ============================================================================
@@ -620,11 +620,11 @@ async function handleNewToken(event: NewTokenEvent): Promise<void> {
       bondingCurveProgress = new Decimal(vSolInBondingCurve).div(85).mul(100);
       const progress = parseFloat(bondingCurveProgress.toString());
 
-      // NEW: Brand new launches (< 50% progress)
+      // NEW: Brand new launches (< 30% progress)
       if (progress < TokenDiscoveryConfig.NEW_TOKEN_MAX_PROGRESS) {
         tokenState = 'new';
       }
-      // GRADUATING: Actively progressing towards completion (50-99%)
+      // GRADUATING: Actively progressing towards completion (30-99%)
       else if (progress >= TokenDiscoveryConfig.GRADUATING_MIN_PROGRESS &&
                progress < TokenDiscoveryConfig.GRADUATING_MAX_PROGRESS) {
         tokenState = 'graduating';
@@ -900,16 +900,17 @@ async function handleNewPool(event: NewPoolEvent): Promise<void> {
  */
 async function updateMarketDataAndStates() {
   try {
-    const twelveHoursAgo = new Date(Date.now() - 12 * 60 * 60 * 1000);
-    
+    // Align with warpPipes feed config (72 hours) to ensure all visible tokens get fresh data
+    const seventyTwoHoursAgo = new Date(Date.now() - 72 * 60 * 60 * 1000);
+
     // Fetch recent tokens (exclude DEAD to save API calls)
     const activeTokens = await prisma.tokenDiscovery.findMany({
       where: {
         status: { not: 'DEAD' },
         OR: [
-          { state: 'bonded', stateChangedAt: { gte: twelveHoursAgo } },
+          { state: 'bonded', stateChangedAt: { gte: seventyTwoHoursAgo } },
           { state: 'graduating' },
-          { state: 'new', firstSeenAt: { gte: twelveHoursAgo } }
+          { state: 'new', firstSeenAt: { gte: seventyTwoHoursAgo } }
         ]
       },
       select: {
@@ -1096,15 +1097,15 @@ async function recalculateHotScores(): Promise<void> {
         const progress = token.bondingCurveProgress ? parseFloat(token.bondingCurveProgress.toString()) : 0;
 
         // Progress-based state transitions (regardless of age)
-        if (token.state === 'new' && progress >= 50 && progress < 100) {
+        if (token.state === 'new' && progress >= TokenDiscoveryConfig.GRADUATING_MIN_PROGRESS && progress < TokenDiscoveryConfig.GRADUATING_MAX_PROGRESS) {
           // Actively progressing → GRADUATING
           await stateManager.updateState(token.mint, 'graduating', token.state);
           // Removed debug logging from hot loop (performance optimization)
-        } else if (token.state === 'graduating' && (progress >= 100 || token.poolAddress)) {
+        } else if (token.state === 'graduating' && (progress >= TokenDiscoveryConfig.GRADUATING_MAX_PROGRESS || token.poolAddress)) {
           // Completed bonding or has LP → BONDED
           await stateManager.updateState(token.mint, 'bonded', token.state);
           // Removed debug logging from hot loop (performance optimization)
-        } else if (token.state === 'new' && (progress >= 100 || token.poolAddress)) {
+        } else if (token.state === 'new' && (progress >= TokenDiscoveryConfig.GRADUATING_MAX_PROGRESS || token.poolAddress)) {
           // Skip graduating if already at 100% → BONDED
           await stateManager.updateState(token.mint, 'bonded', token.state);
           // Removed debug logging from hot loop (performance optimization)

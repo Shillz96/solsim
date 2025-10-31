@@ -62,13 +62,24 @@ export default async function healthRoutes(app: FastifyInstance) {
 
   /**
    * General Health Check
-   * Quick endpoint for uptime monitoring
+   * Quick endpoint for uptime monitoring - ALWAYS returns 200 for Railway health checks
+   * Returns warmup state if background services are still initializing
    */
   app.get('/health', async (req, reply) => {
+    const priceService = app.priceService;
+    const health = priceService?.getHealth();
+    
+    // Check if services are still warming up
+    const isWarmingUp = !health?.pumpPortalConnected || health?.lastPriceUpdateAgo > 60000;
+    
     return {
-      status: 'ok',
+      status: isWarmingUp ? 'warming_up' : 'ok',
       uptime: process.uptime(),
-      timestamp: Date.now()
+      timestamp: Date.now(),
+      services: {
+        pumpPortal: health?.pumpPortalConnected ? 'connected' : 'connecting',
+        priceUpdates: health?.lastPriceUpdateAgo < 60000 ? 'active' : 'pending'
+      }
     };
   });
 

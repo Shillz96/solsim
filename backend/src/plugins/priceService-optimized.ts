@@ -281,8 +281,11 @@ class OptimizedPriceService extends EventEmitter {
   async start() {
     logger.info("Starting Optimized Price Service (PumpPortal-Only Architecture)");
 
-    // Get initial SOL price (critical for trades)
-    await this.updateSolPrice();
+    // OPTIMIZATION: Don't await SOL price on startup - use fallback and update in background
+    // This prevents blocking server startup on external API calls (CoinGecko/Jupiter)
+    this.updateSolPrice().catch(error => {
+      logger.warn({ error }, "Initial SOL price fetch failed - using fallback, will retry");
+    });
 
     // Set up frequent SOL price updates (every 5 seconds for real-time trading)
     const solInterval = setInterval(() => this.updateSolPrice(), 5000);
@@ -292,9 +295,15 @@ class OptimizedPriceService extends EventEmitter {
     // await this.connectWebSocket();
 
     // Start PumpPortal stream service (shared singleton)
+    // OPTIMIZATION: Catch connection errors and continue - service will retry in background
     if (!pumpPortalStreamService.isConnected) {
-      await pumpPortalStreamService.start();
-      logger.info("✅ PumpPortal stream service started");
+      try {
+        await pumpPortalStreamService.start();
+        logger.info("✅ PumpPortal stream service started");
+      } catch (error) {
+        logger.warn({ error }, "PumpPortal connection delayed - will retry in background");
+        // Don't throw - server can start without PumpPortal, it will reconnect automatically
+      }
     }
 
     // Listen to swap events from PumpPortal for price calculations

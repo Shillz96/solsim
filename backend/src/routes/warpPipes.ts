@@ -21,19 +21,19 @@ const redis = new Redis(process.env.REDIS_URL || '');
 
 const WARP_PIPES_CONFIG = {
   // Bonded (Migrated)
-  BONDED_MAX_AGE_HOURS: 48,           // up to 2 days old (was 12)
-  BONDED_MIN_VOLUME_SOL: 0.1,         // only require 0.1 SOL volume
-  BONDED_LAST_TRADE_HOURS: 24,        // must have traded within the last 24h
+  BONDED_MAX_AGE_HOURS: 72,           // up to 3 days old (increased from 48 to show more tokens)
+  BONDED_MIN_VOLUME_SOL: 0.05,        // lowered from 0.1 to include smaller tokens
+  BONDED_LAST_TRADE_HOURS: 48,        // must have traded within the last 48h (increased from 24)
 
   // Graduating (Final Stretch)
-  GRADUATING_MIN_PROGRESS: 40,        // show earlier progress
+  GRADUATING_MIN_PROGRESS: 25,        // lowered from 40 to show more tokens in progress
   GRADUATING_MAX_PROGRESS: 100,
-  GRADUATING_MIN_VOLUME_SOL: 0.2,     // allow smaller coins
-  GRADUATING_LAST_TRADE_MINUTES: 360, // last 6h window
-  GRADUATING_MIN_HOLDERS: 5,          // even early holders show up
+  GRADUATING_MIN_VOLUME_SOL: 0.1,     // lowered from 0.2 to allow smaller coins
+  GRADUATING_LAST_TRADE_MINUTES: 720, // last 12h window (increased from 6h)
+  GRADUATING_MIN_HOLDERS: 3,          // lowered from 5 to show earlier stage tokens
 
   // New Pairs
-  NEW_MAX_AGE_HOURS: 48,              // slightly longer window for discovery
+  NEW_MAX_AGE_HOURS: 72,              // increased to 3 days for more discovery window
 };
 
 // ============================================================================

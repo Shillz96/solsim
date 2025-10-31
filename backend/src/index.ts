@@ -272,42 +272,43 @@ app.register(debugRoutes); // Debug routes for price service monitoring
 app.register(adminRoutes, { prefix: "/api/admin" }); // Admin maintenance routes (protected)
 app.register(sentryTestRoutes); // Sentry test routes (dev only)
 
-// Start background services
-console.log("🚀 Starting background services...");
+// Start background services - OPTIMIZED for fast cold starts
+console.log("🚀 Starting background services (parallel initialization)...");
 
-// Start cleanup services
+// Start instant services (no I/O)
 NonceCleanupService.start();
 RateLimitCleanupService.start();
-
-// Start WS price streamer (Birdeye) + warm SOL price
-await priceService.start();
-
-// Start GeckoTerminal OHLCV polling service (free tier, 30 rpm)
 geckoTerminalService.start();
-console.log("🦎 GeckoTerminal OHLCV service started");
-
-// Start CoinMarketCap auto-refresh for global market data
 startCMCRefresh();
-console.log("📊 CoinMarketCap service started");
-
-// Start Market Sentiment auto-refresh (Fear & Greed, Altcoin Season)
 startSentimentRefresh();
-console.log("😱 Market Sentiment service started");
+console.log("✅ Instant services started (cleanup, GeckoTerminal, CMC, Sentiment)");
 
-// Start Market Lighthouse worker (PumpPortal aggregation)
-await marketLighthouseWorker.start();
-console.log("🔦 Market Lighthouse worker started");
+// Start heavy services in PARALLEL (non-blocking) - server starts immediately
+const heavyServicesPromise = Promise.all([
+  // Price service (PumpPortal WebSocket connection)
+  priceService.start()
+    .then(() => console.log("✅ Price service + PumpPortal WebSocket connected"))
+    .catch(error => console.error("❌ Price service failed:", error)),
+  
+  // Market Lighthouse worker
+  marketLighthouseWorker.start()
+    .then(() => console.log("✅ Market Lighthouse worker started"))
+    .catch(error => console.error("❌ Market Lighthouse failed:", error)),
+  
+  // Liquidation engine
+  liquidationEngine.startLiquidationEngine()
+    .then(() => console.log("✅ Liquidation engine started"))
+    .catch(error => console.error("❌ Liquidation engine failed:", error)),
+  
+  // Wallet tracker initialization
+  initializeWalletTracker()
+    .then(() => console.log("✅ PumpPortal wallet tracker initialized"))
+    .catch(error => console.error("❌ Wallet tracker failed:", error))
+]).catch(error => {
+  console.error("❌ Some background services failed to initialize:", error);
+});
 
-// Initialize PumpPortal wallet tracker (waits for PumpPortal connection)
-// Don't await - let it initialize in background so server can start immediately
-console.log("🔌 Initializing PumpPortal wallet tracker (background)...");
-initializeWalletTracker()
-  .then(() => console.log("✅ PumpPortal wallet tracker initialized"))
-  .catch(error => console.error("❌ Failed to initialize wallet tracker:", error));
-
-// Start liquidation engine for perpetual trading
-await liquidationEngine.startLiquidationEngine();
-console.log("⚡ Liquidation engine started");
+console.log("⏳ Heavy services initializing in background (WebSocket connections, DB warming)...");
 
 const port = Number(process.env.PORT || 4000);
 
