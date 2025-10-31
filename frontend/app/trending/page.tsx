@@ -110,7 +110,7 @@ export default function TrendingPage() {
   return (
     <div className="min-h-screen bg-background">
       {/* Full Width Container */}
-      <main className="w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
+      <main id="trending-section" className="w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
         {/* Trending Header Image */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}

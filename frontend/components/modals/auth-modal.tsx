@@ -164,11 +164,9 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
       setPassword('')
       setConfirmPassword('')
 
-      // Refresh the page to update all components with new auth state
-      // This ensures navbar and other components see the authenticated user
-      router.refresh()
-
-      // Onboarding tour will automatically trigger after refresh
+      // Auth state is already updated via flushSync() in useAuth.signup()
+      // No need for router.refresh() - components will react to state changes automatically
+      // Onboarding tour will automatically trigger via onboarding-provider
     } catch (err) {
       const error = err as Error
       setError(error.message || 'Registration failed')

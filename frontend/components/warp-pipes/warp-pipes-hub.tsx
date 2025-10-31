@@ -187,6 +187,7 @@ export function WarpPipesHub() {
 
   return (
     <div
+      id="warp-pipes-feed"
       className="w-full h-full flex flex-col bg-background overflow-hidden"
     >
       {/* Error State */}

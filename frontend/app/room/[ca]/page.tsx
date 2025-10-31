@@ -185,7 +185,7 @@ function TradeRoomContent() {
     : undefined
 
   return (
-    <div className="w-full h-full flex flex-col bg-background overflow-hidden">
+    <div id="rooms-section" className="w-full h-full flex flex-col bg-background overflow-hidden">
       {/* Header - Token Info */}
       <header className="bg-sky/20 border-4 border-outline rounded-xl mx-3 mt-3 mb-0 flex-shrink-0 shadow-[6px_6px_0_var(--outline-black)]">
         <div className="flex items-center justify-between flex-wrap gap-3 p-4">

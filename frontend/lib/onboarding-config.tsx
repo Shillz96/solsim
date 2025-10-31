@@ -1,112 +1,79 @@
 import type { Step, Tour } from "onborda/dist/types"
-import { Coins, TrendingUp, Trophy, Star, Rocket, Users, Target, Zap } from "lucide-react"
+import { Zap, MessageCircle, TrendingUp, Users, Rocket } from "lucide-react"
 
 /**
  * Onboarding tour steps configuration for 1UP SOL
  *
  * This configuration defines the interactive product tour that guides new users
- * through the key features of the platform. Steps are styled with Mario theme.
+ * through the 4 key features of the platform:
+ * 1. Warp Pipes (Token Discovery)
+ * 2. Chats (Community Communication)
+ * 3. Trending (Hot Tokens)
+ * 4. Rooms (Trading Collaboration)
+ *
+ * Steps are styled with Mario theme.
  */
 
 export const onboardingTours: Tour[] = [{
   tour: "main-tour",
   steps: [
-  // Step 1: Virtual SOL Balance
+  // Step 1: Warp Pipes - Token Discovery
   {
-    icon: <Coins className="h-5 w-5" />,
-    title: "Your Virtual SOL Balance",
-    content: "Start with virtual SOL to practice trading risk-free! Buy and sell Solana tokens without spending real money. Your starting balance depends on your tier.",
-    selector: "#virtual-balance", // Target element in navbar or balance display
-    side: "bottom",
+    icon: <Zap className="h-5 w-5" />,
+    title: "Warp Pipes: Discover New Tokens",
+    content: "Jump into the fast lane of token discovery! Warp Pipes shows you newly bonded, graduating, and fresh tokens from pump.fun in real-time. Filter by security scores, liquidity, and watch your favorites.",
+    selector: "#warp-pipes-feed", // Target the main warp pipes feed
+    side: "top",
     showControls: true,
     pointerPadding: 10,
     pointerRadius: 8,
-    nextRoute: "/warp-pipes",
+    nextRoute: "/pipe-network",
   },
 
-  // Step 2: Trade Page
+  // Step 2: Chats - Community Communication (Pipe Network)
   {
-    icon: <TrendingUp className="h-5 w-5" />,
-    title: "Make Your First Trade",
-    content: "Search for any Solana token, check real-time prices, and execute instant paper trades. Choose Buy or Sell, enter your amount, and confirm!",
-    selector: "#trade-panel", // Target the main trade panel
+    icon: <MessageCircle className="h-5 w-5" />,
+    title: "Chat: Connect with Traders",
+    content: "Join the conversation! Chat with other traders in global rooms or token-specific channels. Share strategies, discuss market moves, and learn from the community in real-time.",
+    selector: "#chat-section", // Target the chat interface
     side: "left",
     showControls: true,
     pointerPadding: 10,
     pointerRadius: 8,
-    nextRoute: "/portfolio",
+    nextRoute: "/pipe-network",
   },
 
-  // Step 3: Portfolio & PnL
+  // Step 3: Trending - Hot Tokens
   {
-    icon: <Target className="h-5 w-5" />,
-    title: "Track Your Positions",
-    content: "View all your holdings with live P&L tracking. See unrealized gains/losses on open positions and realized profits from closed trades. FIFO accounting ensures accurate cost basis.",
-    selector: "#portfolio-table", // Target portfolio positions table
-    side: "top",
-    showControls: true,
-    pointerPadding: 10,
-    pointerRadius: 8,
-    nextRoute: "/rewards",
-  },
-
-  // Step 4: XP & Gamification
-  {
-    icon: <Star className="h-5 w-5" />,
-    title: "Earn XP & Level Up!",
-    content: "Every trade earns you XP points! Level up to unlock higher tier rewards, bigger virtual balances, and bragging rights. Complete challenges for bonus XP!",
-    selector: "#xp-display", // Target XP counter in navbar or rewards page
-    side: "bottom",
-    showControls: true,
-    pointerPadding: 10,
-    pointerRadius: 8,
-    nextRoute: "/leaderboard",
-  },
-
-  // Step 5: Leaderboard
-  {
-    icon: <Trophy className="h-5 w-5" />,
-    title: "Compete on the Leaderboard",
-    content: "See how you rank against other traders! Compete by total P&L, win rate, or portfolio value. Top traders earn special badges and recognition.",
-    selector: "#leaderboard-table", // Target leaderboard table
-    side: "top",
-    showControls: true,
-    pointerPadding: 10,
-    pointerRadius: 8,
-    nextRoute: "/trending",
-  },
-
-  // Step 6: Trending Tokens
-  {
-    icon: <Zap className="h-5 w-5" />,
-    title: "Discover Trending Tokens",
-    content: "Explore the hottest Solana tokens with real-time market data from DexScreener and Helius. See price changes, volume, and momentum indicators.",
+    icon: <TrendingUp className="h-5 w-5" />,
+    title: "Trending: Hottest Tokens",
+    content: "See what's moving! Trending shows you the hottest Solana tokens with real-time market data from DexScreener and Helius. Track price changes, volume spikes, and momentum to catch the next big move.",
     selector: "#trending-section", // Target trending tokens section
     side: "top",
     showControls: true,
     pointerPadding: 10,
     pointerRadius: 8,
-    nextRoute: "/wallet-tracker",
+    nextRoute: "/rooms",
   },
 
-  // Step 7: KOL Wallet Tracker (Advanced)
+  // Step 4: Rooms - Trading Collaboration
   {
     icon: <Users className="h-5 w-5" />,
-    title: "Follow Top Traders",
-    content: "Track what elite traders (KOLs) are buying and selling! Copy their strategies and learn from the best. Get notifications when they make moves.",
-    selector: "#wallet-tracker", // Target wallet tracker section
+    title: "Rooms: Trade Together",
+    content: "Power up with trading rooms! Join or create rooms to collaborate with other traders. Share positions, discuss strategies in real-time, and level up your trading game together. Perfect for groups and trading teams!",
+    selector: "#rooms-section", // Target rooms section
     side: "top",
     showControls: true,
     pointerPadding: 10,
     pointerRadius: 8,
   },
 
-  // Step 8: Final - Platform Purpose
+  // Step 5: Final - Ready to Trade
   {
     icon: <Rocket className="h-5 w-5" />,
-    title: "You're Ready to Trade!",
-    content: "1UP SOL is your risk-free training ground for Solana trading. Practice strategies, learn market dynamics, and build confidence—all without risking real money. Let's go! 🚀",
-    selector: "#trade-now-cta", // Target a CTA button or fallback to body
+    title: "You're Ready!",
+    content: "That's it! You've seen the core features of 1UP SOL. Now explore Warp Pipes for new gems, chat with traders, track trending tokens, and join rooms. Start trading risk-free with virtual SOL! 🚀",
+    selector: "body", // Fallback to body for final step
     side: "top",
     showControls: true,
     pointerPadding: 10,
