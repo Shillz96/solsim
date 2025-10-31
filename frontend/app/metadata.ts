@@ -1,6 +1,9 @@
 import { Metadata } from 'next'
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://1upsol.fun'
+// Use VERCEL_URL for preview deployments, fallback to custom domain for production
+// VERCEL_URL is automatically provided by Vercel for all deployments
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL 
+  || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://1upsol.fun')
 
 export const defaultMetadata: Metadata = {
   metadataBase: new URL(siteUrl),
