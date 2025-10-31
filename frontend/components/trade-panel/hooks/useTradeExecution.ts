@@ -51,9 +51,17 @@ export function useTradeExecution() {
       })
 
       if (result.success) {
-        // Refresh portfolio and balance
-        queryClient.invalidateQueries({ queryKey: ['portfolio'] })
-        queryClient.invalidateQueries({ queryKey: ['user-balance', userId] })
+        // CRITICAL FIX: Invalidate ALL portfolio queries for this user
+        // The portfolio query key is ['portfolio', userId, tradeMode]
+        // Using partial key ['portfolio'] invalidates all portfolio queries
+        await Promise.all([
+          queryClient.invalidateQueries({ queryKey: ['portfolio'] }),
+          queryClient.invalidateQueries({ queryKey: ['portfolio', userId] }),
+          queryClient.invalidateQueries({ queryKey: ['portfolio', userId, tradeMode] }),
+          queryClient.invalidateQueries({ queryKey: ['token-stats'] }),
+          queryClient.invalidateQueries({ queryKey: ['token-stats', userId] }),
+          queryClient.invalidateQueries({ queryKey: ['user-balance', userId] })
+        ])
 
         toast({
           title: "🎉 Trade Success!",
@@ -119,9 +127,17 @@ export function useTradeExecution() {
       })
 
       if (result.success) {
-        // Refresh portfolio and balance
-        queryClient.invalidateQueries({ queryKey: ['portfolio'] })
-        queryClient.invalidateQueries({ queryKey: ['user-balance', userId] })
+        // CRITICAL FIX: Invalidate ALL portfolio queries for this user
+        // The portfolio query key is ['portfolio', userId, tradeMode]
+        // Using multiple invalidation patterns ensures all caches are cleared
+        await Promise.all([
+          queryClient.invalidateQueries({ queryKey: ['portfolio'] }),
+          queryClient.invalidateQueries({ queryKey: ['portfolio', userId] }),
+          queryClient.invalidateQueries({ queryKey: ['portfolio', userId, tradeMode] }),
+          queryClient.invalidateQueries({ queryKey: ['token-stats'] }),
+          queryClient.invalidateQueries({ queryKey: ['token-stats', userId] }),
+          queryClient.invalidateQueries({ queryKey: ['user-balance', userId] })
+        ])
 
         toast({
           title: "💰 Sell Success!",
