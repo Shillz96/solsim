@@ -88,7 +88,9 @@ export function SharePnLDialog({
   }
 
   // Shared generator - returns PNG data URL or Blob
-  const generateShareImage = async (mode: "png" | "blob") => {
+  function generateShareImage(mode: "png"): Promise<string>
+  function generateShareImage(mode: "blob"): Promise<Blob | null>
+  async function generateShareImage(mode: "png" | "blob") {
     const node = cardRef.current
     if (!node) throw new Error("Missing share card element")
     await ensureAssetsReady(node)
