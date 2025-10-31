@@ -150,7 +150,7 @@ export function SharePnLDialog({
           variant="outline"
           size="sm"
           className="gap-2 h-9 px-4 font-display font-bold rounded-lg
-                     mario-border mario-shadow bg-[var(--sky-blue)] text-white
+                     mario-border mario-shadow bg-[var(--sky-blue)] text-[var(--outline-black)]
                      hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all"
           onClick={(e) => { e.stopPropagation(); setOpen(true) }}
           aria-label="Open share PnL dialog"
@@ -189,41 +189,47 @@ export function SharePnLDialog({
             "
             aria-label="Shareable PnL preview card"
           >
-            {/* Top ribbon */}
-            <div className="absolute left-6 top-6 inline-flex items-center gap-2.5 px-4 py-2 rounded-lg mario-border mario-shadow bg-[var(--card-info)]">
-              <img
-                src="/Check-out-my-pnl-10-31-2025.png"
-                alt="Share banner"
-                className="h-5 w-auto object-contain"
-                crossOrigin="anonymous"
-                loading="eager"
-                onError={(e) => { (e.target as HTMLImageElement).style.display = "none" }}
-              />
-              <span className="text-xs font-display font-bold tracking-wider text-[var(--outline-black)] uppercase">PnL Snapshot</span>
+            {/* Top bar - aligned horizontally */}
+            <div className="absolute inset-x-6 top-6 flex items-center justify-between">
+              {/* Left: Header badge */}
+              <div className="inline-flex items-center gap-2.5 px-4 py-2.5 rounded-xl mario-border mario-shadow bg-[var(--card-info)]">
+                <img
+                  src="/Check-out-my-pnl-10-31-2025.png"
+                  alt="Share banner"
+                  className="h-5 w-auto object-contain"
+                  crossOrigin="anonymous"
+                  loading="eager"
+                  onError={(e) => { (e.target as HTMLImageElement).style.display = "none" }}
+                />
+                <span className="text-xs font-display font-bold tracking-wider text-[var(--outline-black)] uppercase">PnL Snapshot</span>
+              </div>
+
+              {/* Right: LIVE tag - same height as left badge */}
+              <div className="px-4 py-2.5 rounded-xl mario-border mario-shadow bg-[var(--luigi-green)]">
+                <span className="text-xs font-display font-bold text-white tracking-widest live-indicator">LIVE</span>
+              </div>
             </div>
 
-            {/* LIVE tag */}
-            <div className="absolute right-6 top-6 px-4 py-2 rounded-lg mario-border mario-shadow bg-[var(--luigi-green)]">
-              <span className="text-xs font-display font-bold text-white tracking-widest live-indicator">LIVE</span>
-            </div>
-
-            {/* Content */}
-            <div className="relative z-10 h-full flex flex-col justify-between p-6 pt-20">
-              <div className="flex gap-4 items-stretch">
-                {/* Left: PnL */}
+            {/* Content - uniform padding all around */}
+            <div className="relative z-10 h-full flex flex-col justify-between p-6 pt-[88px] pb-6">
+              {/* Main content area - even gap between columns */}
+              <div className="flex gap-5 items-stretch">
+                {/* Left: PnL - matching padding with right cards */}
                 <div className="flex-1">
                   <div
                     className={`h-full rounded-xl mario-border mario-shadow p-6 flex flex-col justify-center
                                 ${positive ? "bg-[color-mix(in_oklab,var(--luigi-green)_20%,var(--background)_80%)]"
                                            : "bg-[color-mix(in_oklab,var(--mario-red)_18%,var(--background)_82%)]"}`}
                   >
-                    <div className="space-y-3">
+                    {/* Even vertical spacing throughout */}
+                    <div className="space-y-4">
+                      {/* Token/Label row */}
                       <div className="flex items-center gap-2.5">
                         {isTokenSpecific && tokenImageUrl && (
                           <img
                             src={tokenImageUrl}
                             alt={tokenName || tokenSymbol || "Token"}
-                            className="w-8 h-8 rounded-full object-cover mario-border"
+                            className="w-9 h-9 rounded-full object-cover mario-border"
                             crossOrigin="anonymous"
                             loading="eager"
                             onError={(e) => { (e.target as HTMLImageElement).style.display = "none" }}
@@ -234,48 +240,53 @@ export function SharePnLDialog({
                         </div>
                       </div>
 
-                      <div className={`text-6xl font-display font-black leading-none tracking-tight ${positive ? "text-[var(--luigi-dark)]" : "text-[var(--mario-dark)]"}`}>
+                      {/* PnL Amount - consistent baseline */}
+                      <div className={`text-7xl font-display font-black leading-none tracking-tighter ${positive ? "text-[var(--luigi-dark)]" : "text-[var(--mario-dark)]"}`}>
                         {positive ? "+" : ""}${Math.abs(totalPnL).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                       </div>
 
+                      {/* Percentage badge - consistent spacing */}
                       <div className="flex items-center">
                         <div
-                          className={`inline-flex items-center gap-2 px-5 py-2 rounded-lg text-base font-display font-bold mario-border mario-shadow
+                          className={`inline-flex items-center gap-2 px-6 py-2.5 rounded-xl text-lg font-display font-black mario-border mario-shadow
                                       ${positive ? "bg-[var(--luigi-green)] text-white" : "bg-[var(--mario-red)] text-white"}`}
                         >
-                          <span className="text-xl">{positive ? "↗" : "↘"}</span>
-                          <span>{positive ? "+" : ""}{totalPnLPercent.toFixed(2)}%</span>
+                          <span className="text-xl leading-none">{positive ? "↗" : "↘"}</span>
+                          <span className="leading-none">{positive ? "+" : ""}{totalPnLPercent.toFixed(2)}%</span>
                         </div>
                       </div>
                     </div>
                   </div>
                 </div>
 
-                {/* Right: Stats */}
-                <div className="flex flex-col gap-4 justify-center min-w-[200px]">
-                  <div className="rounded-xl mario-border mario-shadow p-5 bg-[var(--card-portfolio)]">
-                    <div className="text-xs text-[var(--muted-foreground)] mb-2 uppercase font-display font-bold tracking-wider">Invested</div>
-                    <div className="text-2xl font-display font-black text-[var(--outline-black)] tracking-tight">
+                {/* Right: Stats - equal gap between cards, matching padding */}
+                <div className="flex flex-col gap-5 justify-center min-w-[220px]">
+                  {/* Invested card - consistent padding and spacing */}
+                  <div className="rounded-xl mario-border mario-shadow p-6 bg-[var(--card-portfolio)]">
+                    <div className="text-xs text-[var(--muted-foreground)] mb-3 uppercase font-display font-bold tracking-wider">Invested</div>
+                    <div className="text-3xl font-display font-black text-[var(--outline-black)] tracking-tight leading-none">
                       ${initialBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </div>
                   </div>
-                  <div className="rounded-xl mario-border mario-shadow p-5 bg-[var(--card-stats)]">
-                    <div className="text-xs text-[var(--muted-foreground)] mb-2 uppercase font-display font-bold tracking-wider">Position</div>
-                    <div className="text-2xl font-display font-black text-[var(--outline-black)] tracking-tight">
+                  
+                  {/* Position card - identical structure to Invested */}
+                  <div className="rounded-xl mario-border mario-shadow p-6 bg-[var(--card-stats)]">
+                    <div className="text-xs text-[var(--muted-foreground)] mb-3 uppercase font-display font-bold tracking-wider">Position</div>
+                    <div className="text-3xl font-display font-black text-[var(--outline-black)] tracking-tight leading-none">
                       ${currentValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* Footer: user */}
-              <div className="flex items-center justify-between pt-4 border-t-4 mario-border">
+              {/* Footer: user - uniform padding from content */}
+              <div className="flex items-center justify-between pt-5 border-t-4 mario-border mt-5">
                 <div className="flex items-center gap-3">
                   {userAvatarUrl ? (
                     <img
                       src={userAvatarUrl}
                       alt={userHandle || userEmail || "User"}
-                      className="w-10 h-10 rounded-full object-cover mario-border mario-shadow"
+                      className="w-11 h-11 rounded-full object-cover mario-border mario-shadow"
                       crossOrigin="anonymous"
                       loading="eager"
                       onError={(e) => {
@@ -284,22 +295,22 @@ export function SharePnLDialog({
                       }}
                     />
                   ) : (
-                    <div className="w-10 h-10 rounded-full mario-border mario-shadow bg-[var(--star-yellow)] grid place-items-center">
-                      <span className="font-display font-black text-[var(--outline-black)] text-base">
+                    <div className="w-11 h-11 rounded-full mario-border mario-shadow bg-[var(--star-yellow)] grid place-items-center">
+                      <span className="font-display font-black text-[var(--outline-black)] text-lg">
                         {(userHandle?.[0] || userEmail?.[0] || "A").toUpperCase()}
                       </span>
                     </div>
                   )}
-                  <div>
+                  <div className="space-y-0.5">
                     <div className="text-[var(--outline-black)] font-display font-bold text-base leading-tight">
                       @{userHandle || userEmail?.split("@")[0] || "admin"}
                     </div>
-                    <div className="text-xs text-[var(--sky-blue)] font-display font-semibold tracking-wide">ONEUPSOL.FUN</div>
+                    <div className="text-xs text-[var(--sky-blue)] font-display font-semibold tracking-wide uppercase">ONEUPSOL.FUN</div>
                   </div>
                 </div>
-                <div className="text-right">
-                  <div className="text-[10px] text-[var(--muted-foreground)] uppercase font-display font-bold tracking-wider mb-0.5">Powered by</div>
-                  <div className="text-2xl font-display font-black text-[var(--outline-black)] tracking-tight">1UP</div>
+                <div className="text-right space-y-0.5">
+                  <div className="text-[10px] text-[var(--muted-foreground)] uppercase font-display font-bold tracking-wider">Powered by</div>
+                  <div className="text-2xl font-display font-black text-[var(--outline-black)] tracking-tight leading-none">1UP</div>
                 </div>
               </div>
             </div>
