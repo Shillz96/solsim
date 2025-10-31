@@ -183,6 +183,12 @@
   --chat-section-gap: 0.75rem;  /* 12px - Between chat sections */
   --panel-padding: 0.75rem;     /* 12px - Panel internal padding */
 
+  /* Shareable PnL Card Spacing Tokens */
+  --share-card-padding: 1.5rem;     /* 24px - outer and inner padding */
+  --share-card-gap: 1.25rem;        /* 20px - inter-section gap */
+  --share-header-height: 56px;      /* header capsule + shadow height */
+  --share-footer-gap: 1.25rem;      /* 20px - footer top spacing */
+
   /* Warp Pipes Token Card Metrics - Reduced for more compact view */
   --token-card-height: 160px;
   --token-card-image-size: 100px;

@@ -19,6 +19,19 @@ let jupiterAllCache: Map<string, any> | null = null;
 let jupiterCacheExpiry = 0;
 const JUPITER_CACHE_TTL = 3600000; // 1 hour in milliseconds
 
+// Minimal image URL normalizer (avoid new files)
+function normalizeLogo(u?: string | null): string | null {
+  if (!u) return null;
+  let url = u.trim();
+  if (/^http:\/\/\d+\.\d+\.\d+\.\d+/.test(url)) return null;
+  if (url.startsWith('//')) url = `https:${url}`;
+  if (url.startsWith('ipfs://')) url = `https://ipfs.io/ipfs/${url.replace('ipfs://', '').replace(/^ipfs\//, '')}`;
+  else if (/^[a-zA-Z0-9]{46,100}$/.test(url)) url = `https://ipfs.io/ipfs/${url}`;
+  else if (url.startsWith('ar://')) url = `https://arweave.net/${url.replace('ar://', '')}`;
+  else if (!/^https?:\/\//.test(url) && url.startsWith('dd.dexscreener.com')) url = `https://${url}`;
+  return url;
+}
+
 // Helper function to get Jupiter token lists with caching
 async function getJupiterToken(mint: string, useAllList: boolean = false): Promise<any | null> {
   const now = Date.now();
@@ -96,14 +109,14 @@ async function getTokenMetaUncached(mint: string) {
         update: {
           symbol: jupiterToken.symbol || null,
           name: jupiterToken.name || null,
-          logoURI: jupiterToken.logoURI || null,
+          logoURI: normalizeLogo(jupiterToken.logoURI) || null,
           lastUpdated: new Date()
         },
         create: {
           address: mint,
           symbol: jupiterToken.symbol || null,
           name: jupiterToken.name || null,
-          logoURI: jupiterToken.logoURI || null,
+          logoURI: normalizeLogo(jupiterToken.logoURI) || null,
         }
       });
 
@@ -179,7 +192,7 @@ async function getTokenMetaUncached(mint: string) {
         update: {
           symbol: meta.symbol || null,
           name: meta.name || null,
-          logoURI: meta.image || null,
+          logoURI: normalizeLogo(meta.image),
           website: meta.external_url || null,
           twitter: meta.extensions?.twitter || null,
           telegram: meta.extensions?.telegram || null,
@@ -189,7 +202,7 @@ async function getTokenMetaUncached(mint: string) {
           address: mint,
           symbol: meta.symbol || null,
           name: meta.name || null,
-          logoURI: meta.image || null,
+          logoURI: normalizeLogo(meta.image),
           website: meta.external_url || null,
           twitter: meta.extensions?.twitter || null,
           telegram: meta.extensions?.telegram || null,
@@ -225,7 +238,7 @@ async function getTokenMetaUncached(mint: string) {
         update: {
           symbol: pair.baseToken?.symbol || null,
           name: pair.baseToken?.name || null,
-          logoURI: pair.info?.imageUrl || null,
+          logoURI: normalizeLogo(pair.info?.imageUrl || pair.baseToken?.imageUrl || null),
           website: pair.info?.websiteUrl || null,
           twitter: pair.info?.twitter || null,
           telegram: pair.info?.telegram || null,
@@ -235,7 +248,7 @@ async function getTokenMetaUncached(mint: string) {
           address: mint,
           symbol: pair.baseToken?.symbol || null,
           name: pair.baseToken?.name || null,
-          logoURI: pair.info?.imageUrl || null,
+          logoURI: normalizeLogo(pair.info?.imageUrl || pair.baseToken?.imageUrl || null),
           website: pair.info?.websiteUrl || null,
           twitter: pair.info?.twitter || null,
           telegram: pair.info?.telegram || null,
@@ -264,7 +277,7 @@ async function getTokenMetaUncached(mint: string) {
         token = await prisma.token.update({
           where: { address: mint },
           data: {
-            logoURI: jupiterToken.logoURI,
+            logoURI: normalizeLogo(jupiterToken.logoURI),
             lastUpdated: new Date()
           }
         });

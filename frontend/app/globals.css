@@ -1181,6 +1181,64 @@
 /* Global overrides removed to allow new segmented control design */
 /* Legacy color variants kept below for backward compatibility */
 
+/* ============================================
+   SHAREABLE PNL CARD - Spacing & layout
+   ============================================ */
+.share-card { 
+  position: relative; 
+  padding: var(--share-card-padding); 
+}
+
+.share-card__header { 
+  position: absolute; 
+  inset-inline: var(--share-card-padding); 
+  inset-block-start: var(--share-card-padding); 
+  display: flex; 
+  justify-content: space-between; 
+  align-items: center; 
+}
+
+.share-card__content { 
+  position: relative; 
+  z-index: 10; 
+  height: 100%; 
+  display: flex; 
+  flex-direction: column; 
+  justify-content: space-between; 
+  padding: var(--share-card-padding); 
+  padding-block-start: calc(var(--share-card-padding) + var(--share-header-height)); 
+  gap: var(--share-card-gap); 
+}
+
+.share-card__main { 
+  display: flex; 
+  gap: var(--share-card-gap); 
+  align-items: stretch; 
+}
+
+.share-card__stats { 
+  display: flex; 
+  flex-direction: column; 
+  gap: var(--share-card-gap); 
+  min-width: 220px; 
+}
+
+.share-card__footer { 
+  display: flex; 
+  justify-content: space-between; 
+  align-items: center; 
+  padding-block-start: var(--share-footer-gap); 
+  border-top: 3px solid var(--outline-black); 
+}
+
+@media (max-width: 768px) {
+  .share-card { padding: 1rem; }
+  .share-card__header { inset-inline: 1rem; inset-block-start: 1rem; }
+  .share-card__content { padding: 1rem; padding-block-start: calc(1rem + var(--share-header-height)); gap: 0.75rem; }
+  .share-card__main { flex-direction: column; }
+  .share-card__stats { min-width: 0; }
+}
+
 /* Tab Color Variants */
 .mario-tab-green[data-state="active"] {
   background: var(--color-luigi);

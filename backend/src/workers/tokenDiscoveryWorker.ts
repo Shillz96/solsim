@@ -652,21 +652,21 @@ async function handleNewToken(event: NewTokenEvent): Promise<void> {
       }
     }
 
-    // Convert IPFS URI to HTTP gateway URL (inline since it's a simple transformation)
-    const convertIPFStoHTTP = (uri: string | undefined | null): string | undefined => {
-      if (!uri) return undefined;
-      if (uri.startsWith('http://') || uri.startsWith('https://')) return uri;
-      if (uri.startsWith('ipfs://')) {
-        const ipfsHash = uri.replace('ipfs://', '');
-        return `https://ipfs.io/ipfs/${ipfsHash}`;
-      }
-      if (uri.match(/^[a-zA-Z0-9]{46,59}$/)) {
-        return `https://ipfs.io/ipfs/${uri}`;
-      }
-      return uri;
+    // Helpers to correctly detect and normalize image URLs
+    const isLikelyImageUrl = (u?: string | null): boolean => !!u && /\.(png|jpg|jpeg|gif|webp|svg)(\?.*)?$/i.test(u);
+    const convertIPFStoHTTP = (u?: string | null): string | undefined => {
+      if (!u) return undefined;
+      if (u.startsWith('http://') || u.startsWith('https://')) return u;
+      if (u.startsWith('//')) return `https:${u}`;
+      if (u.startsWith('ipfs://')) return `https://ipfs.io/ipfs/${u.replace('ipfs://', '').replace(/^ipfs\//, '')}`;
+      if (/^[a-zA-Z0-9]{46,100}$/.test(u)) return `https://ipfs.io/ipfs/${u}`;
+      if (u.startsWith('ar://')) return `https://arweave.net/${u.replace('ar://', '')}`;
+      if (u.startsWith('dd.dexscreener.com')) return `https://${u}`;
+      return u;
     };
 
-    const httpLogoURI = convertIPFStoHTTP(uri);
+    // IMPORTANT: Only treat uri as an image if it looks like an image, otherwise it may be a metadata JSON
+    const httpLogoURI = isLikelyImageUrl(uri) ? convertIPFStoHTTP(uri) : undefined;
 
     // Fetch additional metadata from URI if not provided directly
     let metadata: TokenMetadata = {};
@@ -710,8 +710,9 @@ async function handleNewToken(event: NewTokenEvent): Promise<void> {
           mint,
           symbol: symbol || metadata.symbol || null,  // ✅ Use metadata fallback
           name: name || metadata.name || null,        // ✅ Use metadata fallback
-          logoURI: httpLogoURI, // ✅ Convert ipfs:// to https://
-          imageUrl: metadata.imageUrl || null,
+          // Prefer image from metadata; fall back to uri only if it's an image
+          logoURI: (metadata.imageUrl ? convertIPFStoHTTP(metadata.imageUrl) : (httpLogoURI || null)) || null,
+          imageUrl: metadata.imageUrl ? convertIPFStoHTTP(metadata.imageUrl) : null,
           description: description || metadata.description || null,
           twitter: twitter || metadata.twitter || null,
           telegram: telegram || metadata.telegram || null,
@@ -737,11 +738,14 @@ async function handleNewToken(event: NewTokenEvent): Promise<void> {
         },
         update: {
           lastUpdatedAt: new Date(),
-          // Update metadata if available
+          // Update metadata if available (prefer previously fetched IPFS metadata fields)
           ...(description && { description }),
           ...(twitter && { twitter }),
           ...(telegram && { telegram }),
           ...(website && { website }),
+          ...(metadata.imageUrl && { imageUrl: convertIPFStoHTTP(metadata.imageUrl) }),
+          // If we didn't have a logo yet and metadata has one, set it now
+          ...(!httpLogoURI && metadata.imageUrl ? { logoURI: convertIPFStoHTTP(metadata.imageUrl) } : {}),
           ...(holderCount && { holderCount }),
           ...(tokenDecimals && { decimals: tokenDecimals }),
           ...(tokenSupply && { totalSupply: tokenSupply }),

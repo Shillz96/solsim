@@ -276,6 +276,18 @@ const pumpPortalDataRoutes: FastifyPluginAsync = async (fastify) => {
           }
         };
 
+        // Simple URL normalizer for emitted image URLs
+        const normalizeImage = (u?: string): string | undefined => {
+          if (!u) return undefined;
+          if (/^http:\/\/\d+\.\d+\.\d+\.\d+/.test(u)) return undefined; // block raw IP over http
+          if (u.startsWith('//')) return `https:${u}`;
+          if (u.startsWith('ipfs://')) return `https://ipfs.io/ipfs/${u.replace('ipfs://', '').replace(/^ipfs\//, '')}`;
+          if (/^[a-zA-Z0-9]{46,100}$/.test(u)) return `https://ipfs.io/ipfs/${u}`;
+          if (u.startsWith('ar://')) return `https://arweave.net/${u.replace('ar://', '')}`;
+          if (!/^https?:\/\//.test(u) && u.startsWith('dd.dexscreener.com')) return `https://${u}`;
+          return u;
+        };
+
         // Send initial cached metadata
         const cacheKey = REDIS_KEYS.metadata(mint);
         let metadata: TokenMetadata | null = null;
@@ -284,6 +296,7 @@ const pumpPortalDataRoutes: FastifyPluginAsync = async (fastify) => {
           const metadataStr = await redis.get(cacheKey);
           if (metadataStr) {
             metadata = JSON.parse(metadataStr);
+            metadata.imageUrl = normalizeImage(metadata.imageUrl);
             safeWrite(`data: ${JSON.stringify({ type: 'metadata', metadata })}\n\n`);
           }
         } catch (err) {
@@ -306,7 +319,7 @@ const pumpPortalDataRoutes: FastifyPluginAsync = async (fastify) => {
                 name: coinData.name,
                 symbol: coinData.symbol,
                 description: coinData.description,
-                imageUrl: coinData.image_uri,
+                imageUrl: normalizeImage(coinData.image_uri),
                 twitter: coinData.twitter,
                 telegram: coinData.telegram,
                 website: coinData.website,
@@ -332,7 +345,8 @@ const pumpPortalDataRoutes: FastifyPluginAsync = async (fastify) => {
               name: event.token.name,
               symbol: event.token.symbol,
               description: event.token.description,
-              imageUrl: event.token.uri,
+              // Only emit an image-like URL; many events send a metadata JSON uri here
+              imageUrl: normalizeImage(event.token.uri),
               twitter: event.token.twitter,
               telegram: event.token.telegram,
               website: event.token.website,
