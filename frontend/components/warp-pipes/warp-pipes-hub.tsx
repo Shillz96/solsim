@@ -186,56 +186,9 @@ export function WarpPipesHub() {
   }, [bonded, graduating, newTokens])
 
   return (
-    <div 
+    <div
       className="w-full h-full flex flex-col bg-background overflow-hidden"
     >
-      {/* Stats Summary Bar */}
-      {stats && !error && (
-        <div className="px-4 pt-4 pb-2 flex-shrink-0">
-          <div className="bg-card border-4 border-outline rounded-xl shadow-[4px_4px_0_var(--outline-black)] p-3 overflow-hidden relative">
-            {/* Live indicator */}
-            <div className="absolute top-2 right-2 flex items-center gap-1.5">
-              <div className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-luigi opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-luigi"></span>
-              </div>
-              <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">Live</span>
-            </div>
-            
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              <div className="flex flex-col items-center justify-center p-2 bg-luigi/10 rounded-lg border-2 border-outline">
-                <div className="text-xl sm:text-2xl font-bold text-outline">{stats.tokenCount}</div>
-                <div className="text-xs text-muted-foreground font-medium">Total Tokens</div>
-              </div>
-              <div className="flex flex-col items-center justify-center p-2 bg-star/10 rounded-lg border-2 border-outline">
-                <div className="text-xl sm:text-2xl font-bold text-outline">
-                  ${stats.totalVolume >= 1000000 
-                    ? `${(stats.totalVolume / 1000000).toFixed(1)}M` 
-                    : stats.totalVolume >= 1000 
-                    ? `${(stats.totalVolume / 1000).toFixed(0)}K`
-                    : stats.totalVolume.toFixed(0)}
-                </div>
-                <div className="text-xs text-muted-foreground font-medium">24h Volume</div>
-              </div>
-              <div className="flex flex-col items-center justify-center p-2 bg-coin/10 rounded-lg border-2 border-outline">
-                <div className="text-xl sm:text-2xl font-bold text-outline">
-                  ${stats.totalMarketCap >= 1000000 
-                    ? `${(stats.totalMarketCap / 1000000).toFixed(1)}M` 
-                    : stats.totalMarketCap >= 1000 
-                    ? `${(stats.totalMarketCap / 1000).toFixed(0)}K`
-                    : stats.totalMarketCap.toFixed(0)}
-                </div>
-                <div className="text-xs text-muted-foreground font-medium">Market Cap</div>
-              </div>
-              <div className="flex flex-col items-center justify-center p-2 bg-mario/10 rounded-lg border-2 border-outline">
-                <div className="text-xl sm:text-2xl font-bold text-outline">{stats.avgBondingProgress.toFixed(0)}%</div>
-                <div className="text-xs text-muted-foreground font-medium">Avg Progress</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Error State */}
       {error && (
         <div className="px-4 pt-4 pb-2 flex-shrink-0">

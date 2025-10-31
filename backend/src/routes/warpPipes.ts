@@ -22,15 +22,15 @@ const redis = new Redis(process.env.REDIS_URL || '');
 const WARP_PIPES_CONFIG = {
   // Bonded (Migrated) - Remove dead tokens that bonded but lost momentum
   BONDED_MAX_AGE_HOURS: 12,           // Show tokens bonded in last 12 hours
-  BONDED_MIN_VOLUME_SOL: 2,           // Minimum 2 SOL volume/24h to not be dead
-  BONDED_LAST_TRADE_HOURS: 1,         // Must have traded within last hour
+  BONDED_MIN_VOLUME_SOL: 0.5,         // Minimum 0.5 SOL volume/24h to not be dead (relaxed from 2)
+  BONDED_LAST_TRADE_HOURS: 6,         // Must have traded within last 6 hours (relaxed from 1)
 
   // Graduating (Final Stretch) - High potential tokens only
-  GRADUATING_MIN_PROGRESS: 70,        // At least 70% toward bonding
+  GRADUATING_MIN_PROGRESS: 60,        // At least 60% toward bonding (relaxed from 70)
   GRADUATING_MAX_PROGRESS: 100,       // Not yet fully bonded
-  GRADUATING_MIN_VOLUME_SOL: 5,       // High volume requirement (5 SOL/24h)
-  GRADUATING_LAST_TRADE_MINUTES: 30,  // Recent activity (last 30 min)
-  GRADUATING_MIN_HOLDERS: 50,         // Minimum holder count (community interest)
+  GRADUATING_MIN_VOLUME_SOL: 1,       // Volume requirement 1 SOL/24h (relaxed from 5)
+  GRADUATING_LAST_TRADE_MINUTES: 120, // Recent activity (last 2 hours, relaxed from 30 min)
+  GRADUATING_MIN_HOLDERS: 20,         // Minimum holder count (relaxed from 50)
 
   // New Pairs - Fresh tokens only
   NEW_MAX_AGE_HOURS: 24,              // Show tokens created in last 24 hours
@@ -274,8 +274,8 @@ const warpPipesRoutes: FastifyPluginAsync = async (fastify) => {
         const now = Date.now();
         const twentyFourHoursAgo = new Date(now - WARP_PIPES_CONFIG.NEW_MAX_AGE_HOURS * 60 * 60 * 1000);
         const twelveHoursAgo = new Date(now - WARP_PIPES_CONFIG.BONDED_MAX_AGE_HOURS * 60 * 60 * 1000);
-        const oneHourAgo = new Date(now - WARP_PIPES_CONFIG.BONDED_LAST_TRADE_HOURS * 60 * 60 * 1000);
-        const thirtyMinutesAgo = new Date(now - WARP_PIPES_CONFIG.GRADUATING_LAST_TRADE_MINUTES * 60 * 1000);
+        const bondedTradeThreshold = new Date(now - WARP_PIPES_CONFIG.BONDED_LAST_TRADE_HOURS * 60 * 60 * 1000);
+        const graduatingTradeThreshold = new Date(now - WARP_PIPES_CONFIG.GRADUATING_LAST_TRADE_MINUTES * 60 * 1000);
 
         // PERFORMANCE: Select only required fields to reduce payload size (production optimization)
         const selectFields = {
@@ -324,8 +324,8 @@ const warpPipesRoutes: FastifyPluginAsync = async (fastify) => {
               state: 'bonded',
               stateChangedAt: { gte: twelveHoursAgo }, // Bonded in last 12 hours
               // LIVENESS FILTERS: Ensure token is still active post-bonding
-              lastTradeTs: { gte: oneHourAgo }, // Recent trades (within 1 hour)
-              volume24hSol: { gte: WARP_PIPES_CONFIG.BONDED_MIN_VOLUME_SOL }, // Minimum volume (2 SOL/day)
+              lastTradeTs: { gte: bondedTradeThreshold }, // Recent trades (configurable)
+              volume24hSol: { gte: WARP_PIPES_CONFIG.BONDED_MIN_VOLUME_SOL }, // Minimum volume
               status: { notIn: ['DEAD', 'LAUNCHING'] }, // Exclude dead tokens
             },
             select: selectFields,
@@ -334,19 +334,19 @@ const warpPipesRoutes: FastifyPluginAsync = async (fastify) => {
           }),
 
           // Graduating tokens - AXIOM QUALITY FILTERING: "Final Stretch" - only high-potential tokens
-          // Show tokens with HIGH VOLUME + CLOSE TO BONDING + RECENT ACTIVITY
+          // Show tokens with VOLUME + CLOSE TO BONDING + RECENT ACTIVITY
           prisma.tokenDiscovery.findMany({
             where: {
               ...baseWhere,
               state: 'graduating',
               // VOLUME + PROGRESS FILTERS: Only show tokens with real bonding potential
               bondingCurveProgress: {
-                gte: WARP_PIPES_CONFIG.GRADUATING_MIN_PROGRESS, // At least 70% progress
+                gte: WARP_PIPES_CONFIG.GRADUATING_MIN_PROGRESS, // At least 60% progress
                 lt: WARP_PIPES_CONFIG.GRADUATING_MAX_PROGRESS,   // Not yet bonded (< 100%)
               },
-              volume24hSol: { gte: WARP_PIPES_CONFIG.GRADUATING_MIN_VOLUME_SOL }, // High volume (5+ SOL/day)
-              lastTradeTs: { gte: thirtyMinutesAgo }, // Recent activity (last 30 min)
-              holderCount: { gte: WARP_PIPES_CONFIG.GRADUATING_MIN_HOLDERS }, // Community interest (50+ holders)
+              volume24hSol: { gte: WARP_PIPES_CONFIG.GRADUATING_MIN_VOLUME_SOL }, // Volume requirement
+              lastTradeTs: { gte: graduatingTradeThreshold }, // Recent activity (configurable)
+              holderCount: { gte: WARP_PIPES_CONFIG.GRADUATING_MIN_HOLDERS }, // Community interest
             },
             select: selectFields,
             orderBy,
