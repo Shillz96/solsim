@@ -32,15 +32,15 @@ const logger = loggers.server;
 // ============================================================================
 
 class TokenDiscoveryConfig {
-  // Update intervals - optimized like GMGN/Photon (real-time focus)
-  static readonly HOT_SCORE_UPDATE_INTERVAL = 120_000; // 2 minutes (was 5min - faster scoring updates)
-  static readonly WATCHER_SYNC_INTERVAL = 30_000; // 30 seconds (was 1min - faster watcher sync)
-  static readonly CLEANUP_INTERVAL = 600_000; // 10 minutes (was 5min - less aggressive cleanup)
-  static readonly HOLDER_COUNT_UPDATE_INTERVAL = 180_000; // 3 minutes (was 2min - balanced frequency)
-  static readonly HOLDER_COUNT_CACHE_MIN = 2; // 2 minutes (was 1min - reduce API spam)
-  static readonly TOKEN_TTL = 3600; // 1 hour cache (was 2h - faster refresh)
-  static readonly NEW_TOKEN_RETENTION_HOURS = 48; // Keep NEW tokens for 48h (was 24h - like GMGN)
-  static readonly BONDED_TOKEN_RETENTION_HOURS = 24; // Keep BONDED for 24h (was 12h - more visibility)
+  // Update intervals - PERFORMANCE OPTIMIZED (2025-10-31: Reduced to prevent database checkpoint storm)
+  static readonly HOT_SCORE_UPDATE_INTERVAL = 300_000; // 5 minutes (was 2min - reduced DB write pressure)
+  static readonly WATCHER_SYNC_INTERVAL = 60_000; // 1 minute (was 30s - reduced DB write pressure)
+  static readonly CLEANUP_INTERVAL = 1800_000; // 30 minutes (was 10min - reduced checkpoint frequency)
+  static readonly HOLDER_COUNT_UPDATE_INTERVAL = 600_000; // 10 minutes (was 3min - reduced Helius API spam)
+  static readonly HOLDER_COUNT_CACHE_MIN = 5; // 5 minutes (was 2min - reduce unnecessary refetches)
+  static readonly TOKEN_TTL = 3600; // 1 hour cache (unchanged - good balance)
+  static readonly NEW_TOKEN_RETENTION_HOURS = 48; // Keep NEW tokens for 48h (unchanged)
+  static readonly BONDED_TOKEN_RETENTION_HOURS = 24; // Keep BONDED for 24h (unchanged)
   
   static readonly KNOWN_MINTS = {
     SOL: 'So11111111111111111111111111111111111111112',
@@ -48,12 +48,12 @@ class TokenDiscoveryConfig {
     USDT: 'Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB'
   };
   
-  static readonly MARKET_DATA_UPDATE_INTERVAL = 30_000; // 30 seconds (was 60s - like Photon's real-time)
-  static readonly RATE_LIMIT_DELAY_MS = 200; // 200ms (was 300ms - slightly faster)
-  static readonly MIN_ACTIVE_VOLUME_SOL = 0.5; // 0.5 SOL minimum (was 2 - too strict, show more tokens)
-  static readonly MIN_HOLDERS_COUNT = 10; // 10 holders minimum (was 25 - too strict, like GMGN shows early tokens)
-  static readonly MAX_TRADES_PER_TOKEN = 100; // 100 trades (was 50 - more history)
-  static readonly MAX_ACTIVE_TOKENS_SUBSCRIPTION = 500; // 500 tokens (was 200 - like Photon's wide coverage)
+  static readonly MARKET_DATA_UPDATE_INTERVAL = 90_000; // 90 seconds (was 30s - reduced DexScreener 429 errors)
+  static readonly RATE_LIMIT_DELAY_MS = 300; // 300ms (was 200ms - prevent rate limits)
+  static readonly MIN_ACTIVE_VOLUME_SOL = 0.5; // 0.5 SOL minimum (unchanged)
+  static readonly MIN_HOLDERS_COUNT = 10; // 10 holders minimum (unchanged)
+  static readonly MAX_TRADES_PER_TOKEN = 100; // 100 trades (unchanged)
+  static readonly MAX_ACTIVE_TOKENS_SUBSCRIPTION = 500; // 500 tokens (unchanged)
   
   // State classification thresholds - GMGN/Photon style (show tokens EARLY)
   static readonly DEAD_TOKEN_HOURS = 4; // 4 hours (was 2h - less aggressive death classification)
