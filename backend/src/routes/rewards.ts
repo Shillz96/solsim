@@ -267,7 +267,6 @@ export default async function rewardsRoutes(app: FastifyInstance) {
       });
     }
   });
-}
 
   // Get user's reward claims
   app.get("/claims/:userId", async (req, reply) => {
