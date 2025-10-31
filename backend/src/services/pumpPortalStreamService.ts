@@ -406,8 +406,8 @@ export class PumpPortalStreamService extends EventEmitter {
       const raw = data.toString();
       const message = JSON.parse(raw);
 
-      // Debug: Only log non-routine messages
-      // Skip logging subscription confirmations and errors (too noisy)
+      // DEBUG: Log ALL messages to diagnose why no newToken events are coming through
+      console.log('[PumpPortal] Received message:', JSON.stringify(message).substring(0, 500));
 
       // PumpPortal sends messages with different structures based on subscription
       // Check for newToken events (txType === 'create' indicates a new token)
