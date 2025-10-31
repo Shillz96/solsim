@@ -450,7 +450,7 @@ const warpPipesRoutes: FastifyPluginAsync = async (fastify) => {
         return reply.status(200).send({
           bonded: bonded.map(transformToken),
           graduating: graduating.map(transformToken),
-          newTokens: newTokens.map(transformToken),
+          new: newTokens.map(transformToken), // Frontend expects 'new' not 'newTokens'
           // DEBUG: Add version info
           _debug: {
             version: '2025-10-31-filters-fixed',
