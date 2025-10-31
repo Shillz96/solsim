@@ -79,9 +79,8 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
       </div>
       <main
         id="main-content"
-        className="relative scrollbar-none z-content"
+        className="relative scrollbar-none z-content main-content-height"
         style={{
-          height: 'calc(100dvh - var(--navbar-height, 56px) - var(--trending-ticker-height, 60px) - var(--bottom-nav-height, 64px))',
           marginTop: 'calc(var(--navbar-height, 56px) + var(--trending-ticker-height, 60px))',
           overflow: isScrollable ? 'auto' : 'hidden',
           touchAction: 'pan-y', // Optimize touch scrolling on mobile
@@ -90,7 +89,7 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
       >
         {children}
       </main>
-      <BottomNavBar aria-label="Mobile navigation" className="sticky bottom-0 z-bottom-nav" />
+      <BottomNavBar aria-label="Mobile navigation" />
       {/* Floating windows render here, positioned absolutely over the page */}
       <FloatingWindows />
     </>

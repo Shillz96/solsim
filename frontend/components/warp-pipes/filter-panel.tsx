@@ -17,6 +17,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -165,6 +166,9 @@ export function FilterPanel({
             <DialogTitle className="font-mario text-[18px] sm:text-[20px] md:text-[24px] text-outline">
               🎛️ Advanced Filters
             </DialogTitle>
+            <DialogDescription className="sr-only">
+              Filter tokens by audit, metrics, and social criteria
+            </DialogDescription>
           </DialogHeader>
 
           <div className="overflow-y-auto max-h-[calc(90vh-180px)] sm:max-h-[calc(90vh-200px)]">

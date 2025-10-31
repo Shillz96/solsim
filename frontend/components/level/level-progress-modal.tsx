@@ -1,6 +1,6 @@
 "use client"
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { calculateLevel, LEVEL_THRESHOLDS, formatXP } from "@/lib/utils/levelSystem"
 import { Progress } from "@/components/ui/progress"
 import { cn } from "@/lib/utils"
@@ -25,6 +25,9 @@ export function LevelProgressModal({ open, onOpenChange, currentXP }: LevelProgr
           <DialogTitle className="font-mario text-xl text-mario-red-500 text-center">
             🏆 Level Progression 🏆
           </DialogTitle>
+          <DialogDescription className="sr-only">
+            View your current level, XP progress, and upcoming rewards
+          </DialogDescription>
         </DialogHeader>
 
         {/* Current Level Display */}
