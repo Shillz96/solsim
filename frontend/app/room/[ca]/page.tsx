@@ -23,6 +23,7 @@ import { useParams, useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { TradePanel } from '@/components/trade-panel'
+import { TokenVitalsBar } from '@/components/trading/token-vitals-bar'
 import { useAuth } from '@/hooks/use-auth'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import * as api from '@/lib/api'
@@ -241,13 +242,9 @@ function TradeRoomContent() {
 
           {/* Right: Stats */}
           <div className="flex items-center gap-4">
-            <div className="text-right">
+            <div className="text-right hidden xl:block">
               <div className="text-[10px] text-foreground/70 uppercase tracking-wide font-bold">MCAP</div>
               <div className="text-base font-bold text-outline">{formatUSD(marketCap)}</div>
-            </div>
-            <div className="text-right hidden md:block">
-              <div className="text-[10px] text-foreground/70 uppercase tracking-wide font-bold">VOL 24H</div>
-              <div className="text-base font-bold text-outline">{formatUSD(volume24h)}</div>
             </div>
             <div className="flex gap-2">
               <Button
@@ -360,15 +357,13 @@ function TradeRoomContent() {
 
             {/* Trade Panel */}
             <aside className="trade-panel flex flex-col">
-              <div className="bg-sky/20 border-4 border-outline rounded-xl shadow-[6px_6px_0_var(--outline-black)] h-full overflow-hidden">
-                <TradePanel
-                  tokenAddress={ca}
-                  volume24h={volume24h}
-                  holders={holderCount}
-                  userRank={null}
-                  onTradeSuccess={() => void refreshPortfolio()}
-                />
-              </div>
+              <TradePanel
+                tokenAddress={ca}
+                volume24h={volume24h}
+                holders={holderCount}
+                userRank={null}
+                onTradeSuccess={() => void refreshPortfolio()}
+              />
             </aside>
           </div>
         </div>

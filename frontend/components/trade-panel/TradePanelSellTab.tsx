@@ -10,7 +10,6 @@ import { Button } from '@/components/ui/button'
 import { TradePanelPresets } from './TradePanelPresets'
 import { TradePanelEstimate } from './TradePanelEstimate'
 import { TradePanelFees } from './TradePanelFees'
-import { TokenVitalsBar } from '@/components/trading/token-vitals-bar'
 import { calculateSellEstimate, calculateSellQuantity, calculateTradeFees } from './utils/calculations'
 
 interface TradePanelSellTabProps {
@@ -31,12 +30,6 @@ interface TradePanelSellTabProps {
   currentPrice: number
   solPrice: number
   hasPosition: boolean
-
-  // Token vitals data
-  tokenAddress?: string
-  volume24h?: number
-  holders?: number
-  userRank?: number | null
 }
 
 export function TradePanelSellTab({
@@ -49,11 +42,7 @@ export function TradePanelSellTab({
   holdingQty,
   currentPrice,
   solPrice,
-  hasPosition,
-  tokenAddress,
-  volume24h,
-  holders,
-  userRank
+  hasPosition
 }: TradePanelSellTabProps) {
   const hasSelection = selectedPercentage !== null && hasPosition
   
@@ -69,14 +58,14 @@ export function TradePanelSellTab({
   const fees = estimate ? calculateTradeFees(estimate.solAmount, solPrice) : null
   
   return (
-    <div className="flex flex-col gap-4 h-full">
+    <div className="flex flex-col gap-2.5 h-full">
       {/* Actions Section */}
-      <div className="bg-[var(--card)] rounded-xl border-[3px] border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] p-4 space-y-4">
-        <Label className="font-bold text-xs text-[var(--outline-black)]/60 uppercase tracking-wide">
+      <div className="bg-gradient-to-br from-white/60 to-white/40 rounded-lg border-[2px] border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] p-2.5 space-y-2.5">
+        <Label className="font-bold text-[9px] text-[var(--outline-black)]/60 uppercase tracking-wide">
           SELECT PERCENTAGE
         </Label>
 
-        {/* Estimated SOL Display - Always visible */}
+        {/* Estimated SOL Display */}
         <TradePanelEstimate
           type="sell"
           tokenSymbol={tokenSymbol || 'TOKEN'}
@@ -95,37 +84,28 @@ export function TradePanelSellTab({
           label="percentage"
         />
 
-        {/* Fee Display - Always visible */}
+        {/* Fee Display */}
         <TradePanelFees fees={fees || { estimatedFeeSol: 0, estimatedFeeUsd: 0, totalFeePercent: 1.5 }} />
 
         {/* Sell Button */}
         <Button
-          className="w-full h-12 whitespace-nowrap overflow-hidden bg-[var(--mario-red)] hover:bg-[var(--mario-red)]/90 text-white font-bold uppercase border-[3px] border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] rounded-lg active:shadow-[1px_1px_0_var(--outline-black)] active:translate-x-[2px] active:translate-y-[2px] transition-all"
+          className="w-full h-10 whitespace-nowrap overflow-hidden bg-[var(--mario-red)] hover:bg-[var(--mario-red)]/90 text-white font-bold text-sm uppercase border-[3px] border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] rounded-lg active:shadow-[1px_1px_0_var(--outline-black)] active:translate-x-[1px] active:translate-y-[1px] transition-all disabled:opacity-50"
           onClick={onSell}
           disabled={isTrading || !hasSelection}
         >
           {isTrading ? (
             <>
-              <Loader2 className="h-4 w-4 animate-spin mr-2 flex-shrink-0" />
+              <Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5 flex-shrink-0" />
               <span className="truncate">SELLING...</span>
             </>
           ) : (
             <>
-              <TrendingDown className="h-4 w-4 mr-2 flex-shrink-0" />
+              <TrendingDown className="h-3.5 w-3.5 mr-1.5 flex-shrink-0" />
               <span className="truncate">SELL {tokenSymbol}</span>
             </>
           )}
         </Button>
       </div>
-
-      {/* Meta Tier - Token Vitals */}
-      <TokenVitalsBar
-        tokenAddress={tokenAddress}
-        volume24h={volume24h}
-        holders={holders}
-        userRank={userRank}
-        className="flex-1"
-      />
     </div>
   )
 }

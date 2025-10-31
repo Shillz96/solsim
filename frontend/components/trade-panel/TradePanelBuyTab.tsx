@@ -11,7 +11,6 @@ import { Button } from '@/components/ui/button'
 import { TradePanelPresets } from './TradePanelPresets'
 import { TradePanelEstimate } from './TradePanelEstimate'
 import { TradePanelFees } from './TradePanelFees'
-import { TokenVitalsBar } from '@/components/trading/token-vitals-bar'
 import { calculateBuyEstimate, calculateTradeFees } from './utils/calculations'
 
 interface TradePanelBuyTabProps {
@@ -36,12 +35,6 @@ interface TradePanelBuyTabProps {
   currentPrice: number
   solPrice: number
   balance: number
-
-  // Token vitals data
-  tokenAddress?: string
-  volume24h?: number
-  holders?: number
-  userRank?: number | null
 }
 
 export function TradePanelBuyTab({
@@ -58,11 +51,7 @@ export function TradePanelBuyTab({
   tokenSymbol,
   currentPrice,
   solPrice,
-  balance,
-  tokenAddress,
-  volume24h,
-  holders,
-  userRank
+  balance
 }: TradePanelBuyTabProps) {
   const solAmount = selectedSolAmount || parseFloat(customSolAmount) || 0
   const hasAmount = solAmount > 0
@@ -75,14 +64,14 @@ export function TradePanelBuyTab({
   const fees = hasAmount ? calculateTradeFees(solAmount, solPrice) : null
   
   return (
-    <div className="flex flex-col gap-4 h-full">
+    <div className="flex flex-col gap-2.5 h-full">
       {/* Actions Section */}
-      <div className="bg-[var(--card)] rounded-xl border-[3px] border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] p-4 space-y-4">
-        <Label className="font-bold text-xs text-[var(--outline-black)]/60 uppercase tracking-wide">
+      <div className="bg-gradient-to-br from-white/60 to-white/40 rounded-lg border-[2px] border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] p-2.5 space-y-2.5">
+        <Label className="font-bold text-[9px] text-[var(--outline-black)]/60 uppercase tracking-wide">
           SELECT AMOUNT (SOL)
         </Label>
 
-        {/* Estimated Tokens Display - Always visible */}
+        {/* Estimated Tokens Display */}
         <TradePanelEstimate
           type="buy"
           tokenSymbol={tokenSymbol || 'TOKEN'}
@@ -108,43 +97,34 @@ export function TradePanelBuyTab({
             placeholder="Custom amount"
             value={customSolAmount}
             onChange={(e) => onCustomAmountChange(e.target.value)}
-            className="border-[3px] border-[var(--outline-black)] font-mono text-sm h-11 rounded-lg"
+            className="border-[2px] border-[var(--outline-black)] font-mono text-sm h-9 rounded-lg bg-white"
             autoComplete="off"
             data-form-type="other"
           />
         )}
 
-        {/* Fee Display - Always visible */}
+        {/* Fee Display */}
         <TradePanelFees fees={fees || { estimatedFeeSol: 0, estimatedFeeUsd: 0, totalFeePercent: 1.5 }} />
 
         {/* Buy Button */}
         <Button
-          className="w-full h-12 whitespace-nowrap overflow-hidden bg-[var(--luigi-green)] hover:bg-[var(--luigi-green)]/90 text-white font-bold uppercase border-[3px] border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] rounded-lg active:shadow-[1px_1px_0_var(--outline-black)] active:translate-x-[2px] active:translate-y-[2px] transition-all"
+          className="w-full h-10 whitespace-nowrap overflow-hidden bg-[var(--luigi-green)] hover:bg-[var(--luigi-green)]/90 text-white font-bold text-sm uppercase border-[3px] border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] rounded-lg active:shadow-[1px_1px_0_var(--outline-black)] active:translate-x-[1px] active:translate-y-[1px] transition-all disabled:opacity-50"
           onClick={onBuy}
           disabled={isTrading || !hasAmount}
         >
           {isTrading ? (
             <>
-              <Loader2 className="h-4 w-4 animate-spin mr-2 flex-shrink-0" />
+              <Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5 flex-shrink-0" />
               <span className="truncate">BUYING...</span>
             </>
           ) : (
             <>
-              <TrendingUp className="h-4 w-4 mr-2 flex-shrink-0" />
+              <TrendingUp className="h-3.5 w-3.5 mr-1.5 flex-shrink-0" />
               <span className="truncate">BUY {tokenSymbol}</span>
             </>
           )}
         </Button>
       </div>
-
-      {/* Meta Tier - Token Vitals */}
-      <TokenVitalsBar
-        tokenAddress={tokenAddress}
-        volume24h={volume24h}
-        holders={holders}
-        userRank={userRank}
-        className="flex-1"
-      />
     </div>
   )
 }

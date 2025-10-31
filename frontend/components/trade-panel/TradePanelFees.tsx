@@ -16,18 +16,18 @@ export function TradePanelFees({ fees }: TradePanelFeesProps) {
   const hasFees = fees && fees.estimatedFeeSol > 0
 
   return (
-    <div className="bg-white/40 rounded-lg border-[2px] border-[var(--outline-black)] p-2 flex items-center justify-between">
-      <div className="flex items-center gap-2">
-        <Info className="h-3 w-3 text-[var(--outline-black)]/40" />
-        <span className="text-xs font-semibold text-[var(--outline-black)]/60">
+    <div className="bg-white/50 rounded-lg border-[2px] border-[var(--outline-black)] p-1.5 flex items-center justify-between">
+      <div className="flex items-center gap-1">
+        <Info className="h-2.5 w-2.5 text-[var(--outline-black)]/40" />
+        <span className="text-[9px] font-semibold text-[var(--outline-black)]/60">
           Fees
         </span>
       </div>
-      <span className="font-mono text-xs font-bold text-[var(--outline-black)]">
+      <span className="font-mono text-[9px] font-bold text-[var(--outline-black)]">
         {hasFees ? (
-          <>~{formatSolAmount(fees.estimatedFeeSol)} SOL ({formatUsdAmount(fees.estimatedFeeUsd)})</>
+          <>~{formatSolAmount(fees.estimatedFeeSol)} SOL</>
         ) : (
-          <>~0.000 SOL ($0.00)</>
+          <>~0.000 SOL</>
         )}
       </span>
     </div>

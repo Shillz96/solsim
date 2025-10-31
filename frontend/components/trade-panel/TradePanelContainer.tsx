@@ -347,7 +347,7 @@ export function TradePanelContainer({
   }
 
   return (
-    <div id="trade-panel" className="flex flex-col w-full h-full relative">
+    <div id="trade-panel" className="flex flex-col w-full h-full relative max-w-md mx-auto">
       {/* Power-up Animation */}
       <AnimatePresence>
         {showPowerUpAnimation && (
@@ -362,8 +362,8 @@ export function TradePanelContainer({
         )}
       </AnimatePresence>
 
-      {/* Main Content - Fills all available space */}
-      <div className="flex flex-col gap-4 h-full">
+      {/* Main Container - Mario themed card */}
+      <div className="flex flex-col gap-2.5 h-full bg-sky/20 rounded-xl border-[3px] border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] p-3">
           {/* Trade Status */}
           {(tradePanelState.tradeError || tradePanelState.lastTradeSuccess) && (
             <>
@@ -401,15 +401,15 @@ export function TradePanelContainer({
           />
 
           {/* Trading Tabs */}
-          <MarioTabs defaultValue="buy" className="flex-1 flex flex-col gap-4">
+          <MarioTabs defaultValue="buy" className="flex-1 flex flex-col gap-2.5">
             <MarioTabsList>
               <MarioTabsTrigger value="buy">
-                <TrendingUp className="h-4 w-4" />
-                Buy
+                <TrendingUp className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">Buy</span>
               </MarioTabsTrigger>
               <MarioTabsTrigger value="sell" disabled={!hasPosition}>
-                <TrendingDown className="h-4 w-4" />
-                Sell
+                <TrendingDown className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">Sell</span>
               </MarioTabsTrigger>
             </MarioTabsList>
 
@@ -430,10 +430,6 @@ export function TradePanelContainer({
                 currentPrice={livePrice}
                 solPrice={solPrice}
                 balance={userBalance}
-                tokenAddress={tokenAddress}
-                volume24h={volume24h}
-                holders={holders}
-                userRank={userRank}
               />
             </MarioTabsContent>
 
@@ -450,10 +446,6 @@ export function TradePanelContainer({
                 currentPrice={livePrice}
                 solPrice={solPrice}
                 hasPosition={hasPosition}
-                tokenAddress={tokenAddress}
-                volume24h={volume24h}
-                holders={holders}
-                userRank={userRank}
               />
             </MarioTabsContent>
           </MarioTabs>

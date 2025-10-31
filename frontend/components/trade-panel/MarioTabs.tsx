@@ -52,10 +52,9 @@ export function MarioTabsList({ children, className }: MarioTabsListProps) {
   return (
     <div 
       className={cn(
-        "flex gap-2 p-2",
-        "bg-[var(--card)] rounded-xl",
+        "flex gap-2 p-1.5",
+        "bg-white/40 rounded-xl",
         "border-[3px] border-[var(--outline-black)]",
-        "shadow-[3px_3px_0_var(--outline-black)]",
         className
       )}
     >
@@ -82,22 +81,22 @@ export function MarioTabsTrigger({ value, children, className, disabled }: Mario
       onClick={() => !disabled && context.onValueChange(value)}
       disabled={disabled}
       className={cn(
-        "flex-1 flex items-center justify-center gap-2",
-        "px-4 py-3 rounded-lg",
-        "font-bold text-sm uppercase tracking-wide",
-        "border-[3px] border-[var(--outline-black)]",
+        "flex-1 flex items-center justify-center gap-1.5 sm:gap-2",
+        "px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg",
+        "font-bold text-xs sm:text-sm uppercase tracking-wide",
+        "border-[2px] border-[var(--outline-black)]",
         "transition-all duration-200",
-        "disabled:opacity-50 disabled:cursor-not-allowed",
+        "disabled:opacity-40 disabled:cursor-not-allowed",
         isActive ? [
-          "bg-[var(--star-yellow)]",
+          "bg-[var(--coin-gold)]",
           "text-[var(--outline-black)]",
           "shadow-[2px_2px_0_var(--outline-black)]",
-          "scale-[0.98]"
+          "translate-y-[1px]"
         ] : [
-          "bg-white/60",
-          "text-[var(--outline-black)]",
-          "hover:bg-white/80 hover:shadow-[2px_2px_0_var(--outline-black)]",
-          "active:scale-[0.98]"
+          "bg-white",
+          "text-[var(--outline-black)]/70",
+          "hover:bg-white/80 hover:text-[var(--outline-black)]",
+          "active:translate-y-[1px]"
         ],
         className
       )}

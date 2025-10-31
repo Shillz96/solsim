@@ -21,24 +21,22 @@ export function TradePanelEstimate({ type, tokenSymbol, estimate }: TradePanelEs
   const isBuy = type === 'buy'
 
   return (
-    <div className="bg-white/60 rounded-lg border-[2px] border-[var(--outline-black)] p-3 flex items-center justify-between">
-      <span className="text-xs font-semibold text-[var(--outline-black)]/60 uppercase">
-        You'll Receive
+    <div className="bg-white/70 rounded-lg border-[2px] border-[var(--outline-black)] p-2 flex items-center justify-between">
+      <span className="text-[9px] font-semibold text-[var(--outline-black)]/60 uppercase flex items-center gap-1">
+        <ArrowRight className="h-3 w-3 text-[var(--outline-black)]/40" />
+        You'll Get
       </span>
-      <div className="flex items-center gap-2">
-        <ArrowRight className="h-4 w-4 text-[var(--outline-black)]/40" />
-        <span className={cn(
-          'font-mono font-bold text-sm',
-          isBuy ? 'text-[var(--luigi-green)]' : 'text-[var(--mario-red)]'
-        )}>
-          {isBuy && estimate.tokens !== undefined && (
-            <>~{formatTokenAmount(estimate.tokens)} {tokenSymbol}</>
-          )}
-          {!isBuy && estimate.sol !== undefined && (
-            <>~{formatSolAmount(estimate.sol)} SOL</>
-          )}
-        </span>
-      </div>
+      <span className={cn(
+        'font-mono font-bold text-xs',
+        isBuy ? 'text-[var(--luigi-green)]' : 'text-[var(--mario-red)]'
+      )}>
+        {isBuy && estimate.tokens !== undefined && (
+          <>~{formatTokenAmount(estimate.tokens)} {tokenSymbol}</>
+        )}
+        {!isBuy && estimate.sol !== undefined && (
+          <>~{formatSolAmount(estimate.sol)} SOL</>
+        )}
+      </span>
     </div>
   )
 }

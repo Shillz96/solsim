@@ -45,7 +45,7 @@ export function TradePanelPresets({
               maxValue={maxValue}
               onSelect={onSelect}
               onUpdate={onUpdate}
-              className="h-10 border-[3px] border-[var(--outline-black)] rounded-lg shadow-[2px_2px_0_var(--outline-black)]"
+              className="h-8 border-[2px] border-[var(--outline-black)] rounded-lg text-xs"
             />
           )
         }
@@ -56,19 +56,19 @@ export function TradePanelPresets({
             onClick={() => onSelect(value)}
             disabled={isDisabled}
             className={cn(
-              "h-10 transition-all flex items-center justify-center whitespace-nowrap px-3 relative",
-              "border-[3px] border-[var(--outline-black)] rounded-lg font-bold text-sm uppercase",
-              "disabled:opacity-50 disabled:cursor-not-allowed",
+              "h-8 transition-all flex items-center justify-center whitespace-nowrap px-2.5 relative",
+              "border-[2px] border-[var(--outline-black)] rounded-lg font-bold text-xs uppercase",
+              "disabled:opacity-40 disabled:cursor-not-allowed",
               isSelected ? [
                 "bg-[var(--coin-gold)]",
                 "text-[var(--outline-black)]",
                 "shadow-[2px_2px_0_var(--outline-black)]",
-                "scale-[0.98]"
+                "translate-y-[1px]"
               ] : [
                 "bg-white",
                 "text-[var(--outline-black)]",
-                "hover:bg-white/80 hover:shadow-[2px_2px_0_var(--outline-black)]",
-                "active:scale-[0.98]"
+                "hover:bg-white/80",
+                "active:translate-y-[1px]"
               ]
             )}
           >
