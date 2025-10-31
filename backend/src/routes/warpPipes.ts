@@ -43,10 +43,10 @@ const WARP_PIPES_CONFIG = {
 const FeedQuerySchema = z.object({
   // Existing filters
   searchQuery: z.string().optional(),
-  sortBy: z.enum(['hot', 'new', 'watched', 'alphabetical', 'volume']).optional().default('volume'),
-  minLiquidity: z.coerce.number().optional().default(2000),
-  onlyWatched: z.coerce.boolean().optional().default(false),
-  requireSecurity: z.coerce.boolean().optional().default(true),
+  sortBy: z.enum(['hot', 'volume', 'marketcap', 'recent', 'graduating', 'bonded', 'new', 'watched', 'alphabetical']).optional().default('hot'),
+  minLiquidity: z.coerce.number().optional(),
+  onlyWatched: z.coerce.boolean().optional(),
+  requireSecurity: z.coerce.boolean().optional().default(false), // Changed to false - NEW tokens don't have security checks yet
   limit: z.coerce.number().min(1).max(100).optional().default(50),
   status: z.enum(['LAUNCHING', 'ACTIVE', 'ABOUT_TO_BOND', 'BONDED', 'DEAD']).optional(),
   
@@ -265,10 +265,10 @@ const warpPipesRoutes: FastifyPluginAsync = async (fastify) => {
         // Fetch tokens for each state
         // WARP PIPES: Calculate time thresholds for quality filtering
         const now = Date.now();
-        const twentyFourHoursAgo = new Date(now - WARP_PIPES_CONFIG.NEW_MAX_AGE_HOURS * 60 * 60 * 1000);
-        const twelveHoursAgo = new Date(now - WARP_PIPES_CONFIG.BONDED_MAX_AGE_HOURS * 60 * 60 * 1000);
-        const bondedTradeThreshold = new Date(now - WARP_PIPES_CONFIG.BONDED_LAST_TRADE_HOURS * 60 * 60 * 1000);
-        const graduatingTradeThreshold = new Date(now - WARP_PIPES_CONFIG.GRADUATING_LAST_TRADE_MINUTES * 60 * 1000);
+        const newTokensMaxAge = new Date(now - WARP_PIPES_CONFIG.NEW_MAX_AGE_HOURS * 60 * 60 * 1000); // 72 hours
+        const bondedMaxAge = new Date(now - WARP_PIPES_CONFIG.BONDED_MAX_AGE_HOURS * 60 * 60 * 1000); // 72 hours
+        const bondedTradeThreshold = new Date(now - WARP_PIPES_CONFIG.BONDED_LAST_TRADE_HOURS * 60 * 60 * 1000); // 48 hours
+        const graduatingTradeThreshold = new Date(now - WARP_PIPES_CONFIG.GRADUATING_LAST_TRADE_MINUTES * 60 * 1000); // 12 hours
 
         // PERFORMANCE: Select only required fields to reduce payload size (production optimization)
         const selectFields = {
@@ -315,9 +315,9 @@ const warpPipesRoutes: FastifyPluginAsync = async (fastify) => {
             where: {
               ...baseWhere,
               state: 'bonded',
-              stateChangedAt: { gte: twelveHoursAgo }, // Bonded in last 12 hours
+              stateChangedAt: { gte: bondedMaxAge }, // Bonded in last 72 hours
               // LIVENESS FILTERS: Ensure token is still active post-bonding
-              lastTradeTs: { gte: bondedTradeThreshold }, // Recent trades (configurable)
+              lastTradeTs: { gte: bondedTradeThreshold }, // Recent trades (48h)
               volume24hSol: { gte: WARP_PIPES_CONFIG.BONDED_MIN_VOLUME_SOL }, // Minimum volume
               status: { notIn: ['DEAD', 'LAUNCHING'] }, // Exclude dead tokens
             },
@@ -346,19 +346,23 @@ const warpPipesRoutes: FastifyPluginAsync = async (fastify) => {
             take: limit,
           }),
 
-          // New tokens - AXIOM QUALITY FILTERING: Fresh tokens from PumpPortal stream
-          // Show ALL newly created tokens (continuous flow) from last 24 hours
+          // New tokens - Show ALL newly created tokens from PumpPortal stream
+          // NO QUALITY FILTERS - just show everything new (like Photon/GMGN)
           prisma.tokenDiscovery.findMany({
             where: {
-              ...baseWhere,
+              // Don't use baseWhere for NEW tokens - it includes security filters
+              // NEW tokens are too fresh to have security checks
               state: 'new',
-              firstSeenAt: { gte: twentyFourHoursAgo }, // Only show tokens created in last 24 hours
+              firstSeenAt: { gte: newTokensMaxAge }, // Last 72 hours for wider discovery window
             },
             select: selectFields,
-            orderBy: { firstSeenAt: 'desc' }, // Always show newest first for this column
+            orderBy: { firstSeenAt: 'desc' }, // Always show newest first
             take: limit,
           }),
         ]);
+
+        // DEBUG: Log query results
+        console.log(`[WarpPipes] Query results: BONDED=${bonded.length}, GRADUATING=${graduating.length}, NEW=${newTokens.length}`);
 
         // Get user's watched tokens if authenticated
         let watchedMints: Set<string> = new Set();
