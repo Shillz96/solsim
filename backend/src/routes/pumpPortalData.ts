@@ -296,8 +296,10 @@ const pumpPortalDataRoutes: FastifyPluginAsync = async (fastify) => {
           const metadataStr = await redis.get(cacheKey);
           if (metadataStr) {
             metadata = JSON.parse(metadataStr);
-            metadata.imageUrl = normalizeImage(metadata.imageUrl);
-            safeWrite(`data: ${JSON.stringify({ type: 'metadata', metadata })}\n\n`);
+            if (metadata) {
+              metadata.imageUrl = normalizeImage(metadata.imageUrl);
+              safeWrite(`data: ${JSON.stringify({ type: 'metadata', metadata })}\n\n`);
+            }
           }
         } catch (err) {
           console.warn(`[PumpPortalData] Redis error getting metadata for ${mint}:`, err);
