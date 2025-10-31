@@ -75,7 +75,7 @@ const nextConfig = {
     ignoreBuildErrors: false, // Enable type checking for better code quality
   },
   eslint: {
-    ignoreDuringBuilds: false, // Enable linting during builds for production quality
+    ignoreDuringBuilds: true, // Skip linting during builds to avoid requiring ESLint in CI
     dirs: ['app', 'components', 'lib'], // Specify directories to lint
   },
 

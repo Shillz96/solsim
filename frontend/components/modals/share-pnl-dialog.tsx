@@ -80,9 +80,7 @@ export function SharePnLDialog({
   const ensureAssetsReady = async (host: HTMLElement) => {
     // Wait for fonts (supported in modern browsers)
     try {
-      // @ts-expect-error: document.fonts not in older TS lib versions
       if (document.fonts && typeof document.fonts.ready?.then === "function") {
-        // @ts-ignore
         await document.fonts.ready
       }
     } catch {/* noop */}
