@@ -204,11 +204,12 @@ export function SharePnLDialog({
               }}
             >
               {/* Left: Header badge */}
-              <div className="inline-flex items-center gap-2.5 px-4 py-2.5 rounded-xl mario-border mario-shadow bg-[var(--card-info)]">
+              <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-xl mario-border mario-shadow bg-[var(--card-info)]" style={{height: 36}}>
                 <img
                   src="/Check-out-my-pnl-10-31-2025.png"
                   alt="Share banner"
-                  className="h-5 w-auto object-contain"
+                  className="w-auto object-contain"
+                  style={{height: 24}}
                   crossOrigin="anonymous"
                   loading="eager"
                   onError={(e) => { (e.target as HTMLImageElement).style.display = "none" }}
@@ -217,8 +218,8 @@ export function SharePnLDialog({
               </div>
 
               {/* Right: LIVE tag - same height as left badge */}
-              <div className="px-4 py-2.5 rounded-xl mario-border mario-shadow bg-[var(--luigi-green)]">
-                <span className="text-xs font-display font-bold text-white tracking-widest live-indicator">LIVE</span>
+              <div className="px-3 py-1.5 rounded-xl mario-border mario-shadow bg-[var(--luigi-green)]" style={{height: 36, display: 'grid', placeItems: 'center'}}>
+                <span className="text-[10px] font-display font-bold text-white tracking-widest live-indicator">LIVE</span>
               </div>
             </div>
 
@@ -240,7 +241,12 @@ export function SharePnLDialog({
               {/* Main content area - even gap between columns */}
               <div
                 className="share-card__main"
-                style={{ display: 'flex', gap: 'var(--share-card-gap)', alignItems: 'stretch' }}
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: '1fr 260px',
+                  gap: 'var(--share-card-gap)',
+                  alignItems: 'start'
+                }}
               >
                 {/* Left: PnL - matching padding with right cards */}
                 <div className="flex-1">
@@ -269,14 +275,14 @@ export function SharePnLDialog({
                       </div>
 
                       {/* PnL Amount - consistent baseline */}
-                      <div className={`text-7xl font-display font-black leading-none tracking-tighter ${positive ? "text-[var(--luigi-dark)]" : "text-[var(--mario-dark)]"}`}>
+                      <div className={`${positive ? "text-[var(--luigi-dark)]" : "text-[var(--mario-dark)]"} font-display font-black leading-none tracking-tighter`} style={{fontSize: 'clamp(40px, 7.5vw, 72px)'}}>
                         {positive ? "+" : ""}${Math.abs(totalPnL).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                       </div>
 
                       {/* Percentage badge - consistent spacing */}
                       <div className="flex items-center">
                         <div
-                          className={`inline-flex items-center gap-2 px-6 py-2.5 rounded-xl text-lg font-display font-black mario-border mario-shadow
+                          className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-base font-display font-black mario-border mario-shadow
                                       ${positive ? "bg-[var(--luigi-green)] text-white" : "bg-[var(--mario-red)] text-white"}`}
                         >
                           <span className="text-xl leading-none">{positive ? "↗" : "↘"}</span>
@@ -290,7 +296,7 @@ export function SharePnLDialog({
                 {/* Right: Stats - equal gap between cards, matching padding */}
                 <div
                   className="share-card__stats justify-center"
-                  style={{ display: 'flex', flexDirection: 'column', gap: 'var(--share-card-gap)', minWidth: 220 }}
+                  style={{ display: 'flex', flexDirection: 'column', gap: 'var(--share-card-gap)', minWidth: 240 }}
                 >
                   {/* Invested card - consistent padding and spacing */}
                   <div className="rounded-xl mario-border mario-shadow p-6 bg-[var(--card-portfolio)]">
