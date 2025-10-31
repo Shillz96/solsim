@@ -204,12 +204,11 @@ export function SharePnLDialog({
               }}
             >
               {/* Left: Header badge */}
-              <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-xl mario-border mario-shadow bg-[var(--card-info)]" style={{height: 36}}>
+              <div className="inline-flex items-center gap-2.5 px-4 py-2.5 rounded-xl mario-border mario-shadow bg-[var(--card-info)]">
                 <img
                   src="/Check-out-my-pnl-10-31-2025.png"
                   alt="Share banner"
-                  className="w-auto object-contain"
-                  style={{height: 24}}
+                  className="h-5 w-auto object-contain"
                   crossOrigin="anonymous"
                   loading="eager"
                   onError={(e) => { (e.target as HTMLImageElement).style.display = "none" }}
@@ -218,8 +217,8 @@ export function SharePnLDialog({
               </div>
 
               {/* Right: LIVE tag - same height as left badge */}
-              <div className="px-3 py-1.5 rounded-xl mario-border mario-shadow bg-[var(--luigi-green)]" style={{height: 36, display: 'grid', placeItems: 'center'}}>
-                <span className="text-[10px] font-display font-bold text-white tracking-widest live-indicator">LIVE</span>
+              <div className="px-4 py-2.5 rounded-xl mario-border mario-shadow bg-[var(--luigi-green)]">
+                <span className="text-xs font-display font-bold text-white tracking-widest live-indicator">LIVE</span>
               </div>
             </div>
 
@@ -243,51 +242,46 @@ export function SharePnLDialog({
                 className="share-card__main"
                 style={{
                   display: 'grid',
-                  gridTemplateColumns: '1fr 260px',
+                  gridTemplateColumns: '1fr 220px',
                   gap: 'var(--share-card-gap)',
-                  alignItems: 'start'
+                  alignItems: 'stretch'
                 }}
               >
                 {/* Left: PnL - matching padding with right cards */}
-                <div className="flex-1">
-                  <div
-                    className={`h-full rounded-xl mario-border mario-shadow p-6 flex flex-col justify-center
-                                ${positive ? "bg-[color-mix(in_oklab,var(--luigi-green)_20%,var(--background)_80%)]"
-                                           : "bg-[color-mix(in_oklab,var(--mario-red)_18%,var(--background)_82%)]"}`}
-                  >
-                    {/* Even vertical spacing throughout */}
-                    <div className="space-y-4">
-                      {/* Token/Label row */}
-                      <div className="flex items-center gap-2.5">
-                        {isTokenSpecific && tokenImageUrl && (
-                          <img
-                            src={tokenImageUrl}
-                            alt={tokenName || tokenSymbol || "Token"}
-                            className="w-9 h-9 rounded-full object-cover mario-border"
-                            crossOrigin="anonymous"
-                            loading="eager"
-                            onError={(e) => { (e.target as HTMLImageElement).style.display = "none" }}
-                          />
-                        )}
-                        <div className="text-sm font-display font-bold tracking-wider text-[var(--muted-foreground)] uppercase">
-                          {isTokenSpecific && tokenSymbol ? `${tokenSymbol} PNL` : "DOPE PNL"}
-                        </div>
+                <div className="rounded-xl mario-border mario-shadow p-6 flex flex-col justify-center bg-[color-mix(in_oklab,var(--luigi-green)_20%,var(--background)_80%)]" style={{
+                  backgroundColor: positive 
+                    ? 'color-mix(in oklab, var(--luigi-green) 20%, var(--background) 80%)' 
+                    : 'color-mix(in oklab, var(--mario-red) 18%, var(--background) 82%)'
+                }}>
+                  {/* Even vertical spacing throughout */}
+                  <div className="space-y-4">
+                    {/* Token/Label row */}
+                    <div className="flex items-center gap-2.5">
+                      {isTokenSpecific && tokenImageUrl && (
+                        <img
+                          src={tokenImageUrl}
+                          alt={tokenName || tokenSymbol || "Token"}
+                          className="w-9 h-9 rounded-full object-cover mario-border"
+                          crossOrigin="anonymous"
+                          loading="eager"
+                          onError={(e) => { (e.target as HTMLImageElement).style.display = "none" }}
+                        />
+                      )}
+                      <div className="text-sm font-display font-bold tracking-wider text-[var(--muted-foreground)] uppercase">
+                        {isTokenSpecific && tokenSymbol ? `${tokenSymbol} PNL` : "GOONCOIN PNL"}
                       </div>
+                    </div>
 
-                      {/* PnL Amount - consistent baseline */}
-                      <div className={`${positive ? "text-[var(--luigi-dark)]" : "text-[var(--mario-dark)]"} font-display font-black leading-none tracking-tighter`} style={{fontSize: 'clamp(40px, 7.5vw, 72px)'}}>
-                        {positive ? "+" : ""}${Math.abs(totalPnL).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                      </div>
+                    {/* PnL Amount - responsive sizing */}
+                    <div className={`text-7xl font-display font-black leading-none tracking-tighter ${positive ? "text-[var(--luigi-dark)]" : "text-[var(--mario-dark)]"}`}>
+                      {positive ? "+" : ""}${Math.abs(totalPnL).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </div>
 
-                      {/* Percentage badge - consistent spacing */}
-                      <div className="flex items-center">
-                        <div
-                          className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-base font-display font-black mario-border mario-shadow
-                                      ${positive ? "bg-[var(--luigi-green)] text-white" : "bg-[var(--mario-red)] text-white"}`}
-                        >
-                          <span className="text-xl leading-none">{positive ? "↗" : "↘"}</span>
-                          <span className="leading-none">{positive ? "+" : ""}{totalPnLPercent.toFixed(2)}%</span>
-                        </div>
+                    {/* Percentage badge */}
+                    <div className="flex items-center">
+                      <div className={`inline-flex items-center gap-2 px-6 py-2.5 rounded-xl text-lg font-display font-black mario-border mario-shadow ${positive ? "bg-[var(--luigi-green)] text-white" : "bg-[var(--mario-red)] text-white"}`}>
+                        <span className="text-xl leading-none">{positive ? "↗" : "↘"}</span>
+                        <span className="leading-none">{positive ? "+" : ""}{totalPnLPercent.toFixed(2)}%</span>
                       </div>
                     </div>
                   </div>
@@ -295,10 +289,10 @@ export function SharePnLDialog({
 
                 {/* Right: Stats - equal gap between cards, matching padding */}
                 <div
-                  className="share-card__stats justify-center"
-                  style={{ display: 'flex', flexDirection: 'column', gap: 'var(--share-card-gap)', minWidth: 240 }}
+                  className="share-card__stats"
+                  style={{ display: 'flex', flexDirection: 'column', gap: 'var(--share-card-gap)' }}
                 >
-                  {/* Invested card - consistent padding and spacing */}
+                  {/* Invested card */}
                   <div className="rounded-xl mario-border mario-shadow p-6 bg-[var(--card-portfolio)]">
                     <div className="text-xs text-[var(--muted-foreground)] mb-3 uppercase font-display font-bold tracking-wider">Invested</div>
                     <div className="text-3xl font-display font-black text-[var(--outline-black)] tracking-tight leading-none">
@@ -306,7 +300,7 @@ export function SharePnLDialog({
                     </div>
                   </div>
                   
-                  {/* Position card - identical structure to Invested */}
+                  {/* Position card */}
                   <div className="rounded-xl mario-border mario-shadow p-6 bg-[var(--card-stats)]">
                     <div className="text-xs text-[var(--muted-foreground)] mb-3 uppercase font-display font-bold tracking-wider">Position</div>
                     <div className="text-3xl font-display font-black text-[var(--outline-black)] tracking-tight leading-none">
