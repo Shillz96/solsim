@@ -1223,10 +1223,13 @@ async function recalculateHotScores(): Promise<void> {
         }
 
         // Calculate and update hot score
+        // CRITICAL: Do NOT update lastUpdatedAt here - causes checkpoint storms!
+        // Hot scores change frequently and don't need to trigger cache invalidation
         const newScore = await healthEnricher.calculateHotScore(token.mint);
-        await prisma.tokenDiscovery.update({
+        await prisma.tokenDiscovery.updateMany({
           where: { mint: token.mint },
           data: { hotScore: new Decimal(newScore) },
+          // NOTE: updateMany() does NOT trigger @updatedAt field, preventing checkpoint storms
         });
         updated++;
       } catch (error: any) {
