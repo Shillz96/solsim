@@ -358,10 +358,15 @@ const warpPipesRoutes: FastifyPluginAsync = async (fastify) => {
           }),
         ]);
 
-        // DEBUG: Log query results
+        // DEBUG: Log query results with sample tokens
         console.log(`[WarpPipes] Query results: BONDED=${bonded.length}, GRADUATING=${graduating.length}, NEW=${newTokens.length}`);
         console.log(`[WarpPipes] Config: requireSecurity=${requireSecurity}, limit=${limit}`);
         console.log(`[WarpPipes] Time windows: newTokens=${newTokensMaxAge.toISOString()}, bondedMax=${bondedMaxAge.toISOString()}`);
+        if (newTokens.length > 0) {
+          console.log(`[WarpPipes] Sample NEW token:`, { mint: newTokens[0].mint, symbol: newTokens[0].symbol, status: newTokens[0].status });
+        } else {
+          console.log(`[WarpPipes] ⚠️ No NEW tokens returned! Time threshold: ${newTokensMaxAge.toISOString()}`);
+        }
 
         // Get user's watched tokens if authenticated
         let watchedMints: Set<string> = new Set();
