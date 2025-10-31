@@ -360,7 +360,7 @@ export function TokenPositionPnL({ tokenAddress, tokenSymbol, tokenName }: Token
         </div>
       </CardHeader>
 
-      <CardContent className="relative z-10 space-y-6">
+      <CardContent className="relative z-10 space-y-4">
         {/* Main P&L Display */}
         <motion.div
           initial={{ scale: 0.95, opacity: 0 }}
@@ -387,15 +387,18 @@ export function TokenPositionPnL({ tokenAddress, tokenSymbol, tokenName }: Token
           </div>
         </motion.div>
 
+        <Separator className="my-4" />
         {/* Detailed Metrics */}
-        <div className="grid grid-cols-2 gap-4 pt-4 border-t">
+        <div className="grid grid-cols-2 gap-3">
           <StatRow label="Current Value" value={safeCurrentValue} />
           <StatRow label="Cost Basis" value={safeCostBasis} />
         </div>
 
         {/* Position Info */}
         {tokenPosition && (
-          <div className="pt-4 border-t space-y-2">
+          <>
+            <Separator className="my-4" />
+            <div className="space-y-2">
             <div className="flex items-center justify-between text-sm">
               <span className="text-muted-foreground">Quantity</span>
               <span className="font-medium">
@@ -432,7 +435,8 @@ export function TokenPositionPnL({ tokenAddress, tokenSymbol, tokenName }: Token
                 </span>
               </div>
             )}
-          </div>
+            </div>
+          </>
         )}
 
         {/* Performance Metrics - Your Trading Performance on This Token */}
@@ -594,7 +598,7 @@ export function TokenPositionPnL({ tokenAddress, tokenSymbol, tokenName }: Token
               </div>
 
               {tokenPosition.marketCapUsd && (
-                <div className="text-xs text-muted-foreground text-center pt-2 border-t">
+                <div className="text-xs text-muted-foreground text-center mt-2 pt-2 border-t">
                   Market Cap: {formatUSD(parseFloat(tokenPosition.marketCapUsd))}
                 </div>
               )}
