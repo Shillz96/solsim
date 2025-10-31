@@ -168,7 +168,7 @@
   --navbar-height: 56px;
   --bottom-nav-height: 64px;
   --trending-ticker-height: 60px;
-  --portfolio-ticker-height: 48px; /* Portfolio positions ticker - compact height */
+  --portfolio-ticker-height: 36px; /* Portfolio positions ticker - minimal compact height */
 
   /* Spacing Scale - Mario Theme */
   --space-section: 1rem;        /* 16px - Between major panel sections */

@@ -83,7 +83,7 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
         id="main-content"
         className="relative scrollbar-none z-content main-content-height"
         style={{
-          marginTop: 'calc(var(--navbar-height, 56px) + var(--trending-ticker-height, 60px) + var(--portfolio-ticker-height, 0px))',
+          marginTop: 'calc(var(--navbar-height, 56px) + var(--trending-ticker-height, 60px) + var(--portfolio-ticker-height, 36px))',
           overflow: isScrollable ? 'auto' : 'hidden',
           touchAction: 'pan-y', // Optimize touch scrolling on mobile
         }}
