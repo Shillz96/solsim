@@ -231,9 +231,9 @@ export function SharePnLDialog({
                 display: 'flex',
                 flexDirection: 'column',
                 justifyContent: 'center',
-                gap: '0.875rem',
+                gap: 'var(--share-card-gap)',
                 padding: 'var(--share-card-padding)',
-                paddingBlockStart: 'calc(var(--share-card-padding) + 48px)'
+                paddingBlockStart: 'calc(var(--share-card-padding) + var(--share-header-height))'
               }}
             >
               {/* Main content area - even gap between columns */}
@@ -242,18 +242,18 @@ export function SharePnLDialog({
                 style={{
                   display: 'grid',
                   gridTemplateColumns: '1fr 180px',
-                  gap: '0.75rem',
+                  gap: '1rem',
                   alignItems: 'stretch'
                 }}
               >
                 {/* Left: PnL - compact padding */}
-                <div className="rounded-lg mario-border mario-shadow p-5 flex flex-col justify-center bg-[color-mix(in_oklab,var(--luigi-green)_20%,var(--background)_80%)]" style={{
+                <div className="rounded-lg mario-border mario-shadow p-6 flex flex-col justify-center bg-[color-mix(in_oklab,var(--luigi-green)_20%,var(--background)_80%)]" style={{
                   backgroundColor: positive 
                     ? 'color-mix(in oklab, var(--luigi-green) 20%, var(--background) 80%)' 
                     : 'color-mix(in oklab, var(--mario-red) 18%, var(--background) 82%)'
                 }}>
                   {/* Compact vertical spacing */}
-                  <div className="space-y-3">
+                  <div className="space-y-4">
                     {/* Token/Label row - better alignment */}
                     <div className="flex items-center gap-2">
                       {isTokenSpecific && tokenImageUrl && (
@@ -289,7 +289,7 @@ export function SharePnLDialog({
                 {/* Right: Stats - compact spacing */}
                 <div
                   className="share-card__stats"
-                  style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}
+                  style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}
                 >
                   {/* Invested card - smaller */}
                   <div className="rounded-lg mario-border mario-shadow p-4 bg-[var(--card-portfolio)]">
@@ -316,7 +316,7 @@ export function SharePnLDialog({
                   display: 'flex',
                   justifyContent: 'space-between',
                   alignItems: 'center',
-                  paddingBlockStart: '0.875rem',
+                  paddingBlockStart: 'var(--share-footer-gap)',
                   borderTop: '3px solid var(--outline-black)'
                 }}
               >
