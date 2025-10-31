@@ -91,11 +91,13 @@ export async function getPortfolio(userId: string, tradeMode: 'PAPER' | 'REAL' =
   return portfolioCoalescer.coalesce(
     `portfolio:${userId}:${tradeMode}`,
     async () => {
-      // Get user's positions (including closed positions with trade history)
+      // Get user's ACTIVE positions (qty > 0 only - exclude fully closed positions)
+      // CRITICAL: Only show positions with remaining quantity to avoid displaying sold-off tokens
       const positions = await prisma.position.findMany({
         where: {
           userId,
-          tradeMode
+          tradeMode,
+          qty: { gt: 0 } // Filter for active positions only
         }
       });
 
