@@ -32,14 +32,15 @@ const logger = loggers.server;
 // ============================================================================
 
 class TokenDiscoveryConfig {
-  static readonly HOT_SCORE_UPDATE_INTERVAL = 300_000; // 5 minutes
-  static readonly WATCHER_SYNC_INTERVAL = 60_000; // 1 minute
-  static readonly CLEANUP_INTERVAL = 300_000; // 5 minutes
-  static readonly HOLDER_COUNT_UPDATE_INTERVAL = 120_000; // 2 minutes (increased from 10 minutes for faster updates)
-  static readonly HOLDER_COUNT_CACHE_MIN = 1; // 1 minute - reduced from 5 minutes for more frequent updates
-  static readonly TOKEN_TTL = 7200; // 2 hours cache
-  static readonly NEW_TOKEN_RETENTION_HOURS = 24; // Remove NEW tokens after 24h
-  static readonly BONDED_TOKEN_RETENTION_HOURS = 12; // Remove BONDED tokens older than 12 hours
+  // Update intervals - optimized like GMGN/Photon (real-time focus)
+  static readonly HOT_SCORE_UPDATE_INTERVAL = 120_000; // 2 minutes (was 5min - faster scoring updates)
+  static readonly WATCHER_SYNC_INTERVAL = 30_000; // 30 seconds (was 1min - faster watcher sync)
+  static readonly CLEANUP_INTERVAL = 600_000; // 10 minutes (was 5min - less aggressive cleanup)
+  static readonly HOLDER_COUNT_UPDATE_INTERVAL = 180_000; // 3 minutes (was 2min - balanced frequency)
+  static readonly HOLDER_COUNT_CACHE_MIN = 2; // 2 minutes (was 1min - reduce API spam)
+  static readonly TOKEN_TTL = 3600; // 1 hour cache (was 2h - faster refresh)
+  static readonly NEW_TOKEN_RETENTION_HOURS = 48; // Keep NEW tokens for 48h (was 24h - like GMGN)
+  static readonly BONDED_TOKEN_RETENTION_HOURS = 24; // Keep BONDED for 24h (was 12h - more visibility)
   
   static readonly KNOWN_MINTS = {
     SOL: 'So11111111111111111111111111111111111111112',
@@ -47,22 +48,22 @@ class TokenDiscoveryConfig {
     USDT: 'Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB'
   };
   
-  static readonly MARKET_DATA_UPDATE_INTERVAL = 60_000; // 60 seconds (reduced frequency to avoid rate limits)
-  static readonly RATE_LIMIT_DELAY_MS = 300; // 300ms delay between requests (was 50ms, too fast for DexScreener)
-  static readonly MIN_ACTIVE_VOLUME_SOL = 2;
-  static readonly MIN_HOLDERS_COUNT = 25;
-  static readonly MAX_TRADES_PER_TOKEN = 50;
-  static readonly MAX_ACTIVE_TOKENS_SUBSCRIPTION = 200;
+  static readonly MARKET_DATA_UPDATE_INTERVAL = 30_000; // 30 seconds (was 60s - like Photon's real-time)
+  static readonly RATE_LIMIT_DELAY_MS = 200; // 200ms (was 300ms - slightly faster)
+  static readonly MIN_ACTIVE_VOLUME_SOL = 0.5; // 0.5 SOL minimum (was 2 - too strict, show more tokens)
+  static readonly MIN_HOLDERS_COUNT = 10; // 10 holders minimum (was 25 - too strict, like GMGN shows early tokens)
+  static readonly MAX_TRADES_PER_TOKEN = 100; // 100 trades (was 50 - more history)
+  static readonly MAX_ACTIVE_TOKENS_SUBSCRIPTION = 500; // 500 tokens (was 200 - like Photon's wide coverage)
   
-  // State classification thresholds
-  static readonly DEAD_TOKEN_HOURS = 2; // Hours since last trade to consider dead
-  static readonly MIN_DEAD_VOLUME_SOL = 0.5; // Minimum volume to not be dead
-  static readonly ACTIVE_TOKEN_HOURS = 1; // Hours for a token to be considered active
-  static readonly ABOUT_TO_BOND_PROGRESS = 75; // Bonding curve % to be "about to bond" (lowered from 90)
-  static readonly ABOUT_TO_BOND_MINUTES = 60; // Max minutes since last trade (increased from 20)
-  static readonly GRADUATING_MIN_PROGRESS = 30; // Min % for graduating state (lowered from 50 to show more tokens)
-  static readonly GRADUATING_MAX_PROGRESS = 100; // Max % for graduating state
-  static readonly NEW_TOKEN_MAX_PROGRESS = 30; // Max % for new token state (lowered to match GRADUATING_MIN)
+  // State classification thresholds - GMGN/Photon style (show tokens EARLY)
+  static readonly DEAD_TOKEN_HOURS = 4; // 4 hours (was 2h - less aggressive death classification)
+  static readonly MIN_DEAD_VOLUME_SOL = 0.1; // 0.1 SOL (was 0.5 - give tokens more chance)
+  static readonly ACTIVE_TOKEN_HOURS = 2; // 2 hours (was 1h - longer active window)
+  static readonly ABOUT_TO_BOND_PROGRESS = 70; // 70% (was 75 - earlier notification)
+  static readonly ABOUT_TO_BOND_MINUTES = 30; // 30 minutes (was 60 - tighter window)
+  static readonly GRADUATING_MIN_PROGRESS = 15; // 15% (was 30 - show tokens MUCH earlier, like GMGN)
+  static readonly GRADUATING_MAX_PROGRESS = 100; // 100%
+  static readonly NEW_TOKEN_MAX_PROGRESS = 15; // 15% (was 30 - wider NEW category, catch launches instantly)
 }
 
 // ============================================================================
