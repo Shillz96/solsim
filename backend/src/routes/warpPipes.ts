@@ -150,15 +150,8 @@ const warpPipesRoutes: FastifyPluginAsync = async (fastify) => {
           baseWhere.mintRenounced = true;
         }
 
-        // Filter test/rug tokens
-        baseWhere.NOT = {
-          OR: [
-            { name: { contains: 'test', mode: 'insensitive' } },
-            { name: { contains: 'rug', mode: 'insensitive' } },
-            { symbol: { contains: 'test', mode: 'insensitive' } },
-            { symbol: { contains: 'rug', mode: 'insensitive' } },
-          ],
-        };
+        // REMOVED: Don't auto-filter "test" tokens - many legitimate tokens have "test" in name
+        // Users can use search to filter if needed
 
         // Filter by watched tokens (requires authentication)
         if (onlyWatched && userId) {
