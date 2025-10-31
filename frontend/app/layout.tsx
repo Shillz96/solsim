@@ -9,6 +9,7 @@ import { FloatingWindows } from "@/components/window"
 import { NavBar } from "@/components/navigation/nav-bar"
 import { BottomNavBar } from "@/components/navigation/bottom-nav-bar"
 import { SlidingTrendingTicker } from "@/components/trading/sliding-trending-ticker"
+import { PortfolioPositionsTicker } from "@/components/portfolio/portfolio-positions-ticker"
 import { AppProviders } from "@/components/providers"
 import { cn } from "@/lib/utils"
 import { usePathname } from "next/navigation"
@@ -76,12 +77,13 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
         </a>
         <NavBar aria-label="Primary navigation" />
         <SlidingTrendingTicker />
+        <PortfolioPositionsTicker />
       </div>
       <main
         id="main-content"
         className="relative scrollbar-none z-content main-content-height"
         style={{
-          marginTop: 'calc(var(--navbar-height, 56px) + var(--trending-ticker-height, 60px))',
+          marginTop: 'calc(var(--navbar-height, 56px) + var(--trending-ticker-height, 60px) + var(--portfolio-ticker-height, 0px))',
           overflow: isScrollable ? 'auto' : 'hidden',
           touchAction: 'pan-y', // Optimize touch scrolling on mobile
         }}

@@ -109,13 +109,13 @@
   /* Main content height with fallback for older browsers */
   .main-content-height {
     /* Mobile: No bottom nav, so don't subtract it */
-    height: calc(100vh - var(--navbar-height, 56px) - var(--trending-ticker-height, 60px));
+    height: calc(100vh - var(--navbar-height, 56px) - var(--trending-ticker-height, 60px) - var(--portfolio-ticker-height, 48px));
   }
 
   /* Desktop: Has bottom nav, so subtract it */
   @media (min-width: 1024px) {
     .main-content-height {
-      height: calc(100vh - var(--navbar-height, 56px) - var(--trending-ticker-height, 60px) - var(--bottom-nav-height, 64px));
+      height: calc(100vh - var(--navbar-height, 56px) - var(--trending-ticker-height, 60px) - var(--portfolio-ticker-height, 48px) - var(--bottom-nav-height, 64px));
     }
   }
 
@@ -123,13 +123,13 @@
   @supports (height: 100dvh) {
     .main-content-height {
       /* Mobile with dvh */
-      height: calc(100dvh - var(--navbar-height, 56px) - var(--trending-ticker-height, 60px));
+      height: calc(100dvh - var(--navbar-height, 56px) - var(--trending-ticker-height, 60px) - var(--portfolio-ticker-height, 48px));
     }
 
     /* Desktop with dvh */
     @media (min-width: 1024px) {
       .main-content-height {
-        height: calc(100dvh - var(--navbar-height, 56px) - var(--trending-ticker-height, 60px) - var(--bottom-nav-height, 64px));
+        height: calc(100dvh - var(--navbar-height, 56px) - var(--trending-ticker-height, 60px) - var(--portfolio-ticker-height, 48px) - var(--bottom-nav-height, 64px));
       }
     }
   }
