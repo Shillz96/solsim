@@ -204,21 +204,21 @@ export function SharePnLDialog({
               }}
             >
               {/* Left: Header badge */}
-              <div className="inline-flex items-center gap-2.5 px-4 py-2.5 rounded-xl mario-border mario-shadow bg-[var(--card-info)]">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg mario-border mario-shadow bg-[var(--card-info)]">
                 <img
                   src="/Check-out-my-pnl-10-31-2025.png"
                   alt="Share banner"
-                  className="h-5 w-auto object-contain"
+                  className="h-4 w-auto object-contain"
                   crossOrigin="anonymous"
                   loading="eager"
                   onError={(e) => { (e.target as HTMLImageElement).style.display = "none" }}
                 />
-                <span className="text-xs font-display font-bold tracking-wider text-[var(--outline-black)] uppercase">PnL Snapshot</span>
+                <span className="text-[10px] font-display font-bold tracking-wider text-[var(--outline-black)] uppercase">PnL Snapshot</span>
               </div>
 
               {/* Right: LIVE tag - same height as left badge */}
-              <div className="px-4 py-2.5 rounded-xl mario-border mario-shadow bg-[var(--luigi-green)]">
-                <span className="text-xs font-display font-bold text-white tracking-widest live-indicator">LIVE</span>
+              <div className="px-3 py-1.5 rounded-lg mario-border mario-shadow bg-[var(--luigi-green)]">
+                <span className="text-[10px] font-display font-bold text-white tracking-widest live-indicator">LIVE</span>
               </div>
             </div>
 
@@ -242,91 +242,91 @@ export function SharePnLDialog({
                 className="share-card__main"
                 style={{
                   display: 'grid',
-                  gridTemplateColumns: '1fr 220px',
-                  gap: 'var(--share-card-gap)',
+                  gridTemplateColumns: '1fr 180px',
+                  gap: '0.75rem',
                   alignItems: 'stretch'
                 }}
               >
-                {/* Left: PnL - matching padding with right cards */}
-                <div className="rounded-xl mario-border mario-shadow p-6 flex flex-col justify-center bg-[color-mix(in_oklab,var(--luigi-green)_20%,var(--background)_80%)]" style={{
+                {/* Left: PnL - compact padding */}
+                <div className="rounded-lg mario-border mario-shadow p-4 flex flex-col justify-center bg-[color-mix(in_oklab,var(--luigi-green)_20%,var(--background)_80%)]" style={{
                   backgroundColor: positive 
                     ? 'color-mix(in oklab, var(--luigi-green) 20%, var(--background) 80%)' 
                     : 'color-mix(in oklab, var(--mario-red) 18%, var(--background) 82%)'
                 }}>
-                  {/* Even vertical spacing throughout */}
-                  <div className="space-y-4">
+                  {/* Compact vertical spacing */}
+                  <div className="space-y-2">
                     {/* Token/Label row */}
-                    <div className="flex items-center gap-2.5">
+                    <div className="flex items-center gap-2">
                       {isTokenSpecific && tokenImageUrl && (
                         <img
                           src={tokenImageUrl}
                           alt={tokenName || tokenSymbol || "Token"}
-                          className="w-9 h-9 rounded-full object-cover mario-border"
+                          className="w-6 h-6 rounded-full object-cover mario-border"
                           crossOrigin="anonymous"
                           loading="eager"
                           onError={(e) => { (e.target as HTMLImageElement).style.display = "none" }}
                         />
                       )}
-                      <div className="text-sm font-display font-bold tracking-wider text-[var(--muted-foreground)] uppercase">
+                      <div className="text-[10px] font-display font-bold tracking-wider text-[var(--muted-foreground)] uppercase">
                         {isTokenSpecific && tokenSymbol ? `${tokenSymbol} PNL` : "GOONCOIN PNL"}
                       </div>
                     </div>
 
-                    {/* PnL Amount - responsive sizing */}
-                    <div className={`text-7xl font-display font-black leading-none tracking-tighter ${positive ? "text-[var(--luigi-dark)]" : "text-[var(--mario-dark)]"}`}>
+                    {/* PnL Amount - much smaller */}
+                    <div className={`text-5xl font-display font-black leading-none tracking-tighter ${positive ? "text-[var(--luigi-dark)]" : "text-[var(--mario-dark)]"}`}>
                       {positive ? "+" : ""}${Math.abs(totalPnL).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </div>
 
-                    {/* Percentage badge */}
+                    {/* Percentage badge - smaller */}
                     <div className="flex items-center">
-                      <div className={`inline-flex items-center gap-2 px-6 py-2.5 rounded-xl text-lg font-display font-black mario-border mario-shadow ${positive ? "bg-[var(--luigi-green)] text-white" : "bg-[var(--mario-red)] text-white"}`}>
-                        <span className="text-xl leading-none">{positive ? "↗" : "↘"}</span>
+                      <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-display font-black mario-border mario-shadow ${positive ? "bg-[var(--luigi-green)] text-white" : "bg-[var(--mario-red)] text-white"}`}>
+                        <span className="text-base leading-none">{positive ? "↗" : "↘"}</span>
                         <span className="leading-none">{positive ? "+" : ""}{totalPnLPercent.toFixed(2)}%</span>
                       </div>
                     </div>
                   </div>
                 </div>
 
-                {/* Right: Stats - equal gap between cards, matching padding */}
+                {/* Right: Stats - compact spacing */}
                 <div
                   className="share-card__stats"
-                  style={{ display: 'flex', flexDirection: 'column', gap: 'var(--share-card-gap)' }}
+                  style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}
                 >
-                  {/* Invested card */}
-                  <div className="rounded-xl mario-border mario-shadow p-6 bg-[var(--card-portfolio)]">
-                    <div className="text-xs text-[var(--muted-foreground)] mb-3 uppercase font-display font-bold tracking-wider">Invested</div>
-                    <div className="text-3xl font-display font-black text-[var(--outline-black)] tracking-tight leading-none">
+                  {/* Invested card - smaller */}
+                  <div className="rounded-lg mario-border mario-shadow p-4 bg-[var(--card-portfolio)]">
+                    <div className="text-[10px] text-[var(--muted-foreground)] mb-2 uppercase font-display font-bold tracking-wider">Invested</div>
+                    <div className="text-2xl font-display font-black text-[var(--outline-black)] tracking-tight leading-none">
                       ${initialBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </div>
                   </div>
                   
-                  {/* Position card */}
-                  <div className="rounded-xl mario-border mario-shadow p-6 bg-[var(--card-stats)]">
-                    <div className="text-xs text-[var(--muted-foreground)] mb-3 uppercase font-display font-bold tracking-wider">Position</div>
-                    <div className="text-3xl font-display font-black text-[var(--outline-black)] tracking-tight leading-none">
+                  {/* Position card - smaller */}
+                  <div className="rounded-lg mario-border mario-shadow p-4 bg-[var(--card-stats)]">
+                    <div className="text-[10px] text-[var(--muted-foreground)] mb-2 uppercase font-display font-bold tracking-wider">Position</div>
+                    <div className="text-2xl font-display font-black text-[var(--outline-black)] tracking-tight leading-none">
                       ${currentValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* Footer: user - uniform padding from content */}
+              {/* Footer: user - compact padding */}
               <div
                 className="share-card__footer mario-border"
                 style={{
                   display: 'flex',
                   justifyContent: 'space-between',
                   alignItems: 'center',
-                  paddingBlockStart: 'var(--share-footer-gap)',
-                  borderTop: '3px solid var(--outline-black)'
+                  paddingBlockStart: '0.75rem',
+                  borderTop: '2px solid var(--outline-black)'
                 }}
               >
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2">
                   {userAvatarUrl ? (
                     <img
                       src={userAvatarUrl}
                       alt={userHandle || userEmail || "User"}
-                      className="w-11 h-11 rounded-full object-cover mario-border mario-shadow"
+                      className="w-8 h-8 rounded-full object-cover mario-border mario-shadow"
                       crossOrigin="anonymous"
                       loading="eager"
                       onError={(e) => {
@@ -335,22 +335,22 @@ export function SharePnLDialog({
                       }}
                     />
                   ) : (
-                    <div className="w-11 h-11 rounded-full mario-border mario-shadow bg-[var(--star-yellow)] grid place-items-center">
-                      <span className="font-display font-black text-[var(--outline-black)] text-lg">
+                    <div className="w-8 h-8 rounded-full mario-border mario-shadow bg-[var(--star-yellow)] grid place-items-center">
+                      <span className="font-display font-black text-[var(--outline-black)] text-sm">
                         {(userHandle?.[0] || userEmail?.[0] || "A").toUpperCase()}
                       </span>
                     </div>
                   )}
-                  <div className="space-y-0.5">
-                    <div className="text-[var(--outline-black)] font-display font-bold text-base leading-tight">
+                  <div className="space-y-0">
+                    <div className="text-[var(--outline-black)] font-display font-bold text-sm leading-tight">
                       @{userHandle || userEmail?.split("@")[0] || "admin"}
                     </div>
-                    <div className="text-xs text-[var(--sky-blue)] font-display font-semibold tracking-wide uppercase">ONEUPSOL.FUN</div>
+                    <div className="text-[10px] text-[var(--sky-blue)] font-display font-semibold tracking-wide uppercase">ONEUPSOL.FUN</div>
                   </div>
                 </div>
-                <div className="text-right space-y-0.5">
-                  <div className="text-[10px] text-[var(--muted-foreground)] uppercase font-display font-bold tracking-wider">Powered by</div>
-                  <div className="text-2xl font-display font-black text-[var(--outline-black)] tracking-tight leading-none">1UP</div>
+                <div className="text-right space-y-0">
+                  <div className="text-[9px] text-[var(--muted-foreground)] uppercase font-display font-bold tracking-wider">Powered by</div>
+                  <div className="text-xl font-display font-black text-[var(--outline-black)] tracking-tight leading-none">1UP</div>
                 </div>
               </div>
             </div>
