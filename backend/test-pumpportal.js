@@ -13,15 +13,17 @@ ws.on('open', () => {
   ws.send(JSON.stringify({ method: 'subscribeNewToken' }));
   console.log('📡 Subscribed to new token events');
   
-  // Close after 10 seconds
+  // Close after 60 seconds to give time for tokens to drop
   setTimeout(() => {
     console.log('🛑 Test complete, closing connection');
     ws.close();
-  }, 10000);
+  }, 60000);
 });
 
 ws.on('message', (data) => {
-  console.log('📨 Received message:', data.toString().substring(0, 200));
+  const msg = JSON.parse(data.toString());
+  console.log('📨 Received message type:', msg.method || msg.txType || msg.type || 'unknown');
+  console.log('📨 Full message:', JSON.stringify(msg).substring(0, 500));
 });
 
 ws.on('error', (error) => {

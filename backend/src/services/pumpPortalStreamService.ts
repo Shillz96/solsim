@@ -436,7 +436,8 @@ export class PumpPortalStreamService extends EventEmitter {
           timestamp: message.timestamp || Date.now(),
         };
 
-        // Removed high-frequency logging (performance optimization)
+        // DEBUG: Log newToken event emission
+        console.log('[PumpPortal] ✅ Emitting newToken event:', event.token.mint, event.token.name || event.token.symbol);
         this.emit('newToken', event);
       }
       // Also check for type field (legacy format)

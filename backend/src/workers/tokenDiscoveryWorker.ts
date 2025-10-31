@@ -571,6 +571,10 @@ async function handleSwap(event: SwapEvent): Promise<void> {
  */
 async function handleNewToken(event: NewTokenEvent): Promise<void> {
   const mint = event.token?.mint;
+  
+  // DEBUG: Log EVERY newToken event received
+  console.log('[TokenDiscovery] 🎯 handleNewToken called for:', mint, event.token?.name || event.token?.symbol);
+  
   try {
     const {
       name,
