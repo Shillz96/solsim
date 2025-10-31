@@ -14,7 +14,7 @@ interface TradePanelHeaderProps {
 
 export function TradePanelHeader({ tokenSymbol, balance }: TradePanelHeaderProps) {
   return (
-    <div className="bg-gradient-to-r from-star/10 to-coin/10 border-3 border-outline rounded-xl p-3 shadow-[3px_3px_0_var(--outline-black)]">
+    <div className="bg-gradient-to-r from-star/10 to-coin/10 border-3 border-outline rounded-xl shadow-[3px_3px_0_var(--outline-black)]" style={{ padding: 'var(--trade-tier-padding)' }}>
       <div className="flex items-center justify-between">
         <h3 className="font-mario text-base text-outline uppercase tracking-wide truncate">
           Trade {tokenSymbol || 'Token'}

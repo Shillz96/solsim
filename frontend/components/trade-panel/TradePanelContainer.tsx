@@ -362,10 +362,10 @@ export function TradePanelContainer({
       </AnimatePresence>
 
       {/* Main Content - Fills all available space */}
-      <div className="flex flex-col h-full gap-[var(--space-section)]">
+      <div className="flex flex-col h-full" style={{ gap: 'var(--trade-section-gap)' }}>
           {/* Trade Status */}
           {(tradePanelState.tradeError || tradePanelState.lastTradeSuccess) && (
-            <div className="mb-2">
+            <>
               {tradePanelState.tradeError && (
                 <Alert variant="destructive" className="border-2 border-mario py-2">
                   <AlertCircle className="h-3 w-3" />
@@ -381,7 +381,7 @@ export function TradePanelContainer({
                   </AlertDescription>
                 </Alert>
               )}
-            </div>
+            </>
           )}
 
           {/* Header */}

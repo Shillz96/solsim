@@ -28,7 +28,7 @@ export function TradePanelPresets({
   label
 }: TradePanelPresetsProps) {
   return (
-    <div className="grid grid-cols-2 gap-[var(--space-control)]">
+    <div className="grid grid-cols-2" style={{ gap: 'var(--trade-control-gap)' }}>
       {presets.map((value, index) => {
         const isDisabled = disabled?.(value) || false
         const isSelected = selected === value

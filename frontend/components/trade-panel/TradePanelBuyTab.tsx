@@ -74,7 +74,7 @@ export function TradePanelBuyTab({
   const fees = hasAmount ? calculateTradeFees(solAmount, solPrice) : null
   
   return (
-    <div className="flex flex-col h-full gap-[var(--space-component)] mt-3">
+    <div className="flex flex-col h-full" style={{ gap: 'var(--trade-tier-gap)' }}>
       {/* Actions Tier */}
       <div className="trade-tier trade-actions">
         <Label className="mario-font text-[10px] whitespace-nowrap">

@@ -237,14 +237,14 @@
     background: var(--card-bg-elevated);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-card);
-    padding: var(--panel-padding);
+    padding: var(--trade-tier-padding);
   }
 
   /* SUMMARY GRID - 2x2, value-forward typography */
   .trade-summary {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: var(--space-component);
+    gap: var(--trade-stat-gap-y) var(--trade-stat-gap-x);
   }
 
   .trade-metric {
@@ -253,7 +253,7 @@
     gap: var(--space-tight);
     background: var(--card-bg-muted);
     border-radius: var(--radius-md);
-    padding: var(--panel-padding);
+    padding: var(--trade-metric-padding);
     min-height: 72px;
     align-items: center;
     justify-content: center;
@@ -278,7 +278,7 @@
   .trade-actions {
     display: flex;
     flex-direction: column;
-    gap: var(--space-component);
+    gap: var(--trade-action-gap);
   }
 
   .trade-amount {
@@ -364,14 +364,14 @@
   .trade-meta {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: var(--space-component);
+    gap: var(--trade-control-gap);
   }
 
   .trade-meta .card {
     background: var(--card-stats);
     border-radius: var(--radius-md);
     box-shadow: var(--shadow-card);
-    padding: var(--panel-padding);
+    padding: var(--trade-tier-padding);
     border: 3px solid var(--outline-black);
   }
 
