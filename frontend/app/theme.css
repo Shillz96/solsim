@@ -184,10 +184,10 @@
   --panel-padding: 0.75rem;     /* 12px - Panel internal padding */
 
   /* Shareable PnL Card Spacing Tokens */
-  --share-card-padding: 1.5rem;     /* 24px - outer and inner padding */
-  --share-card-gap: 1.25rem;        /* 20px - inter-section gap */
+  --share-card-padding: 1.75rem;    /* 28px - outer and inner padding (increased for breathing) */
+  --share-card-gap: 1.5rem;         /* 24px - inter-section gap (increased) */
   --share-header-height: 56px;      /* header capsule + shadow height */
-  --share-footer-gap: 1.25rem;      /* 20px - footer top spacing */
+  --share-footer-gap: 1.5rem;       /* 24px - footer top spacing (increased) */
 
   /* Warp Pipes Token Card Metrics - Reduced for more compact view */
   --token-card-height: 160px;

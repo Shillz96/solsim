@@ -1204,23 +1204,24 @@
   height: 100%; 
   display: flex; 
   flex-direction: column; 
-  justify-content: space-between; 
+  justify-content: center; 
   padding: var(--share-card-padding); 
   padding-block-start: calc(var(--share-card-padding) + var(--share-header-height)); 
   gap: var(--share-card-gap); 
 }
 
 .share-card__main { 
-  display: flex; 
-  gap: var(--share-card-gap); 
+  display: grid; 
+  grid-template-columns: 1fr 180px;
+  gap: 1rem; 
   align-items: stretch; 
 }
 
 .share-card__stats { 
   display: flex; 
   flex-direction: column; 
-  gap: var(--share-card-gap); 
-  min-width: 220px; 
+  gap: 1rem; 
+  min-width: 180px; 
 }
 
 .share-card__footer { 
