@@ -203,26 +203,25 @@ export function SharePnLDialog({
                 width: 'calc(100% - (var(--share-card-padding) * 2))'
               }}
             >
-              {/* Left: Header badge */}
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg mario-border mario-shadow bg-[var(--card-info)]">
+              {/* Left: Header badge - just the SVG */}
+              <div className="inline-flex items-center justify-center px-3 py-2 rounded-lg mario-border mario-shadow bg-[var(--card-info)]">
                 <img
                   src="/Check-out-my-pnl-10-31-2025.png"
                   alt="Share banner"
-                  className="h-4 w-auto object-contain"
+                  className="h-6 w-auto object-contain"
                   crossOrigin="anonymous"
                   loading="eager"
                   onError={(e) => { (e.target as HTMLImageElement).style.display = "none" }}
                 />
-                <span className="text-[10px] font-display font-bold tracking-wider text-[var(--outline-black)] uppercase">PnL Snapshot</span>
               </div>
 
-              {/* Right: LIVE tag - same height as left badge */}
-              <div className="px-3 py-1.5 rounded-lg mario-border mario-shadow bg-[var(--luigi-green)]">
+              {/* Right: LIVE tag */}
+              <div className="px-3 py-2 rounded-lg mario-border mario-shadow bg-[var(--luigi-green)]">
                 <span className="text-[10px] font-display font-bold text-white tracking-widest live-indicator">LIVE</span>
               </div>
             </div>
 
-            {/* Content - uniform padding all around */}
+            {/* Content - better vertical centering */}
             <div
               className="share-card__content"
               style={{
@@ -231,10 +230,10 @@ export function SharePnLDialog({
                 height: '100%',
                 display: 'flex',
                 flexDirection: 'column',
-                justifyContent: 'space-between',
-                gap: 'var(--share-card-gap)',
+                justifyContent: 'center',
+                gap: '0.875rem',
                 padding: 'var(--share-card-padding)',
-                paddingBlockStart: 'calc(var(--share-card-padding) + var(--share-header-height))'
+                paddingBlockStart: 'calc(var(--share-card-padding) + 48px)'
               }}
             >
               {/* Main content area - even gap between columns */}
@@ -248,39 +247,39 @@ export function SharePnLDialog({
                 }}
               >
                 {/* Left: PnL - compact padding */}
-                <div className="rounded-lg mario-border mario-shadow p-4 flex flex-col justify-center bg-[color-mix(in_oklab,var(--luigi-green)_20%,var(--background)_80%)]" style={{
+                <div className="rounded-lg mario-border mario-shadow p-5 flex flex-col justify-center bg-[color-mix(in_oklab,var(--luigi-green)_20%,var(--background)_80%)]" style={{
                   backgroundColor: positive 
                     ? 'color-mix(in oklab, var(--luigi-green) 20%, var(--background) 80%)' 
                     : 'color-mix(in oklab, var(--mario-red) 18%, var(--background) 82%)'
                 }}>
                   {/* Compact vertical spacing */}
-                  <div className="space-y-2">
-                    {/* Token/Label row */}
+                  <div className="space-y-3">
+                    {/* Token/Label row - better alignment */}
                     <div className="flex items-center gap-2">
                       {isTokenSpecific && tokenImageUrl && (
                         <img
                           src={tokenImageUrl}
                           alt={tokenName || tokenSymbol || "Token"}
-                          className="w-6 h-6 rounded-full object-cover mario-border"
+                          className="w-7 h-7 rounded-full object-cover mario-border"
                           crossOrigin="anonymous"
                           loading="eager"
                           onError={(e) => { (e.target as HTMLImageElement).style.display = "none" }}
                         />
                       )}
-                      <div className="text-[10px] font-display font-bold tracking-wider text-[var(--muted-foreground)] uppercase">
-                        {isTokenSpecific && tokenSymbol ? `${tokenSymbol} PNL` : "GOONCOIN PNL"}
+                      <div className="text-xs font-display font-bold tracking-wider text-[var(--muted-foreground)] uppercase">
+                        {isTokenSpecific && tokenSymbol ? `${tokenSymbol} PNL` : "DOPE PNL"}
                       </div>
                     </div>
 
-                    {/* PnL Amount - much smaller */}
-                    <div className={`text-5xl font-display font-black leading-none tracking-tighter ${positive ? "text-[var(--luigi-dark)]" : "text-[var(--mario-dark)]"}`}>
+                    {/* PnL Amount */}
+                    <div className={`text-6xl font-display font-black leading-none tracking-tighter ${positive ? "text-[var(--luigi-dark)]" : "text-[var(--mario-dark)]"}`}>
                       {positive ? "+" : ""}${Math.abs(totalPnL).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </div>
 
-                    {/* Percentage badge - smaller */}
+                    {/* Percentage badge */}
                     <div className="flex items-center">
-                      <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-display font-black mario-border mario-shadow ${positive ? "bg-[var(--luigi-green)] text-white" : "bg-[var(--mario-red)] text-white"}`}>
-                        <span className="text-base leading-none">{positive ? "↗" : "↘"}</span>
+                      <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg text-base font-display font-black mario-border mario-shadow ${positive ? "bg-[var(--luigi-green)] text-white" : "bg-[var(--mario-red)] text-white"}`}>
+                        <span className="text-lg leading-none">{positive ? "↗" : "↘"}</span>
                         <span className="leading-none">{positive ? "+" : ""}{totalPnLPercent.toFixed(2)}%</span>
                       </div>
                     </div>
@@ -317,8 +316,8 @@ export function SharePnLDialog({
                   display: 'flex',
                   justifyContent: 'space-between',
                   alignItems: 'center',
-                  paddingBlockStart: '0.75rem',
-                  borderTop: '2px solid var(--outline-black)'
+                  paddingBlockStart: '0.875rem',
+                  borderTop: '3px solid var(--outline-black)'
                 }}
               >
                 <div className="flex items-center gap-2">
