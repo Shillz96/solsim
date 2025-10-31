@@ -68,6 +68,8 @@ export interface TokenRow {
   priceChange24h?: number | null;
   txCount24h?: number | null;
   holderCount?: number | null;
+  decimals?: number | null; // Token decimals (e.g., 6, 9) from Helius
+  totalSupply?: string | null; // Total token supply (as string to avoid precision loss)
 
   // 6.5) CREATOR DATA
   creatorWallet?: string | null;

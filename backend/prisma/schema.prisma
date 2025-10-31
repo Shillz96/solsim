@@ -603,6 +603,8 @@ model TokenDiscovery {
   priceChange24h   Decimal?  // 24h price change percentage
   txCount24h       Int?      // 24h transaction count
   holderCount      Int?      // Number of token holders
+  decimals         Int?      // Token decimals (e.g., 6, 9) from Helius
+  totalSupply      String?   // Total token supply (as string to avoid precision loss)
 
   // Enhanced trading metrics
   lastTradeTs      DateTime? // Timestamp of last trade (for liveness detection)

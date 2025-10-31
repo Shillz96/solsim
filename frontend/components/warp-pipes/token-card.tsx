@@ -283,13 +283,13 @@ export const TokenCard = memo(function TokenCard({ data, onToggleWatch, classNam
             </span>
           </div>
 
-          {/* Price Badge */}
-          <div className="flex items-center gap-1 px-2.5 py-1.5 bg-[var(--sky-blue)] border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] rounded-lg">
-            <span className="text-xs">💵</span>
-            <span className="text-sm font-black text-[var(--outline-black)] whitespace-nowrap">
-              {mergedData.priceUsd != null && mergedData.priceUsd > 0
-                ? `$${mergedData.priceUsd.toFixed(mergedData.priceUsd < 0.01 ? 6 : 4)}`
-                : '$—'}
+          {/* 24h Volume Badge */}
+          <div className="flex items-center gap-1 px-2.5 py-1.5 bg-[var(--luigi-green)] border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] rounded-lg">
+            <span className="text-xs">📊</span>
+            <span className="text-sm font-black text-white whitespace-nowrap">
+              {mergedData.volume24hSol != null && mergedData.volume24hSol > 0
+                ? `${mergedData.volume24hSol.toFixed(1)} SOL`
+                : '—'}
             </span>
           </div>
         </div>
@@ -347,8 +347,8 @@ export function TokenCardSkeleton() {
 
         {/* Right: Compact horizontal badges skeleton */}
         <div className="flex gap-2 items-center">
-          <div className="h-8 w-20 bg-background/50 rounded-lg border-3 border-outline" />
-          <div className="h-8 w-16 bg-background/50 rounded-lg border-3 border-outline" />
+          <div className="h-8 w-24 bg-background/50 rounded-lg border-3 border-outline" />
+          <div className="h-8 w-24 bg-background/50 rounded-lg border-3 border-outline" />
         </div>
       </div>
     </div>

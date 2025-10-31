@@ -38,15 +38,21 @@ export function TrendIndicator({
   
   const sizeClasses = {
     sm: "text-xs",
-    md: "text-sm",
-    lg: "text-base font-medium"
+    md: "text-sm font-bold",
+    lg: "text-base font-bold"
+  };
+
+  const iconSizes = {
+    sm: "h-3 w-3",
+    md: "h-3.5 w-3.5",
+    lg: "h-4 w-4"
   };
   
   return (
     <div 
       className={cn(
-        "flex items-center gap-1 transition-colors",
-        isPositive ? "text-profit" : isNeutral ? "text-muted-foreground" : "text-loss",
+        "inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border-2 border-outline shadow-[2px_2px_0_var(--outline-black)] transition-all tabular-nums",
+        isPositive ? "bg-luigi/10 text-luigi" : isNeutral ? "bg-card text-muted-foreground" : "bg-mario/10 text-mario",
         sizeClasses[size],
         className
       )}
@@ -54,17 +60,17 @@ export function TrendIndicator({
       {showIcon && (
         <span className="flex items-center">
           {isPositive ? (
-            <ArrowUpIcon className="h-3.5 w-3.5" />
+            <ArrowUpIcon className={iconSizes[size]} />
           ) : isNeutral ? (
-            <ArrowRightIcon className="h-3.5 w-3.5" />
+            <ArrowRightIcon className={iconSizes[size]} />
           ) : (
-            <ArrowDownIcon className="h-3.5 w-3.5" />
+            <ArrowDownIcon className={iconSizes[size]} />
           )}
         </span>
       )}
       {showValue && !iconOnly && (
-        <span className="tabular-nums">
-          {isPositive ? "+" : ""}{value.toFixed(decimalPlaces)}{suffix ? ` ${suffix}` : ""}
+        <span>
+          {isPositive ? "+" : ""}{value.toFixed(decimalPlaces)}{suffix}
         </span>
       )}
     </div>

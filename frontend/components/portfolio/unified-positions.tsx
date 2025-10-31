@@ -583,8 +583,8 @@ export const UnifiedPositions = memo(function UnifiedPositions({
         <div className="bg-card-portfolio border-4 border-pipe-700 rounded-xl shadow-[6px_6px_0_0_rgba(0,0,0,0.3)] p-6">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
-              <div className="bg-star-yellow-500 p-2 rounded-[14px] border-3 border-star-yellow-700 shadow-[3px_3px_0_0_rgba(0,0,0,0.3)]">
-                <BarChart3 className="h-6 w-6 text-white" />
+              <div className="bg-star p-2.5 rounded-xl border-3 border-outline shadow-[3px_3px_0_var(--outline-black)]">
+                <BarChart3 className="h-6 w-6 text-outline" />
               </div>
               <h2 className="text-xl font-bold text-pipe-900">Portfolio Overview</h2>
             </div>

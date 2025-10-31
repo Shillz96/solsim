@@ -160,15 +160,15 @@ export function FilterPanel({
         </DialogTrigger>
 
         {/* Filter Modal Content */}
-        <DialogContent className="max-w-[95vw] sm:max-w-2xl md:max-w-4xl max-h-[90vh] p-0 overflow-hidden">
-          <DialogHeader className="p-4 sm:p-6 pb-3 sm:pb-4 border-b-[3px] md:border-b-4 border-outline">
+        <DialogContent className="max-w-[95vw] sm:max-w-2xl md:max-w-4xl max-h-[90vh] p-0 overflow-hidden !bg-[#FFFAE9]">
+          <DialogHeader className="p-4 sm:p-6 pb-3 sm:pb-4 border-b-[3px] md:border-b-4 border-outline bg-[#FFFAE9]">
             <DialogTitle className="font-mario text-[18px] sm:text-[20px] md:text-[24px] text-outline">
               🎛️ Advanced Filters
             </DialogTitle>
           </DialogHeader>
 
           <div className="overflow-y-auto max-h-[calc(90vh-180px)] sm:max-h-[calc(90vh-200px)]">
-            <div className={colorTheme.panelBg}>
+            <div className="bg-[#FFFAE9]">
               {/* Tabbed Interface */}
               <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as any)} className="w-full">
                 <TabsList className="mario-tabs-horizontal grid w-full grid-cols-3">
@@ -212,7 +212,7 @@ export function FilterPanel({
                 </TabsList>
 
                 {/* Audit Tab */}
-                <TabsContent value="audit" className="p-4 sm:p-6 space-y-3 sm:space-y-4 bg-card">
+                <TabsContent value="audit" className="p-4 sm:p-6 space-y-3 sm:space-y-4 bg-[#FFFAE9]">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
                     {/* DEX Paid */}
                     <div className="flex items-center space-x-2">
@@ -272,7 +272,7 @@ export function FilterPanel({
                             placeholder="Max"
                             type="number"
                             disabled
-                            className="border-3 border-outline rounded font-mono bg-background opacity-50"
+                            className="border-3 border-outline rounded font-mono bg-white opacity-50"
                           />
                         </div>
                       </div>
@@ -296,7 +296,7 @@ export function FilterPanel({
                             placeholder="Max"
                             type="number"
                             disabled
-                            className="border-3 border-outline rounded font-mono bg-background opacity-50"
+                            className="border-3 border-outline rounded font-mono bg-white opacity-50"
                           />
                         </div>
                       </div>
@@ -305,7 +305,7 @@ export function FilterPanel({
                 </TabsContent>
 
                 {/* $ Metrics Tab */}
-                <TabsContent value="metrics" className="p-4 sm:p-6 space-y-3 sm:space-y-4 bg-card">
+                <TabsContent value="metrics" className="p-4 sm:p-6 space-y-3 sm:space-y-4 bg-[#FFFAE9]">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
                     {/* Liquidity */}
                     <div className="space-y-2">
@@ -388,7 +388,7 @@ export function FilterPanel({
                 </TabsContent>
 
                 {/* Socials Tab */}
-                <TabsContent value="socials" className="p-4 sm:p-6 space-y-3 sm:space-y-4 bg-card">
+                <TabsContent value="socials" className="p-4 sm:p-6 space-y-3 sm:space-y-4 bg-[#FFFAE9]">
                   <div className="space-y-3 sm:space-y-4">
                     {/* Social Requirements */}
                     <div className="space-y-3">
@@ -435,7 +435,7 @@ export function FilterPanel({
           </div>
 
           {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 p-4 sm:p-6 sm:pt-4 border-t-[3px] md:border-t-4 border-outline bg-card">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 p-4 sm:p-6 sm:pt-4 border-t-[3px] md:border-t-4 border-outline bg-[#FFFAE9]">
             <div className="flex gap-2 justify-center sm:justify-start">
               <Button
                 onClick={handleImport}

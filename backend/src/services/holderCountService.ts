@@ -144,11 +144,65 @@ export class HolderCountService {
   }
 
   /**
+   * Get token supply and decimals from Helius RPC
+   * Uses getTokenSupply method which returns total supply and decimals
+   */
+  async getTokenSupply(mint: string): Promise<{
+    totalSupply: string;
+    decimals: number;
+  } | null> {
+    try {
+      const response = await robustFetch(this.heliusRpcUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          id: 'token-supply',
+          method: 'getTokenSupply',
+          params: [mint]
+        })
+      });
+
+      if (!response.ok) {
+        console.warn(`[HolderCount] Helius returned ${response.status} for supply ${mint}`);
+        return null;
+      }
+
+      const data = await response.json() as HeliusRpcResponse<{
+        context: { slot: number };
+        value: {
+          amount: string;
+          decimals: number;
+          uiAmount: number;
+          uiAmountString: string;
+        };
+      }>;
+
+      if (data.error) {
+        console.warn(`[HolderCount] Helius error for supply ${mint}:`, data.error.message);
+        return null;
+      }
+
+      if (data.result?.value) {
+        return {
+          totalSupply: data.result.value.amount,
+          decimals: data.result.value.decimals
+        };
+      }
+
+      return null;
+    } catch (error) {
+      console.error(`[HolderCount] Error fetching token supply for ${mint}:`, error);
+      return null;
+    }
+  }
+
+  /**
    * Batch fetch holder counts for multiple mints
    */
   async getHolderCounts(mints: string[]): Promise<Map<string, number | null>> {
     const results = new Map<string, number | null>();
-    
+
     // Process in parallel with concurrency limit
     const concurrency = 5;
     for (let i = 0; i < mints.length; i += concurrency) {

@@ -131,12 +131,9 @@ export function TokenColumn({
 
         {/* Token Cards - Vertical Stack */}
         {!isLoading && tokens.map((token, index) => {
-          // Enable live updates for:
-          // 1. Graduating tokens (ABOUT_TO_BOND status)
-          // 2. Top 10 tokens in each column
-          const shouldEnableLive = 
-            token.status === 'ABOUT_TO_BOND' || 
-            index < 10;
+          // Enable live updates for ALL tokens in Warp Pipes
+          // Real-time market cap, holders, bonding progress via PumpPortal WebSocket
+          const shouldEnableLive = true;
 
           return (
             <TokenCard

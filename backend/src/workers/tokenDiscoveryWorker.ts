@@ -35,8 +35,8 @@ class TokenDiscoveryConfig {
   static readonly HOT_SCORE_UPDATE_INTERVAL = 300_000; // 5 minutes
   static readonly WATCHER_SYNC_INTERVAL = 60_000; // 1 minute
   static readonly CLEANUP_INTERVAL = 300_000; // 5 minutes
-  static readonly HOLDER_COUNT_UPDATE_INTERVAL = 600_000; // 10 minutes (for NULL counts & hot tokens)
-  static readonly HOLDER_COUNT_CACHE_MIN = 5; // 5 minutes - don't re-fetch if updated recently
+  static readonly HOLDER_COUNT_UPDATE_INTERVAL = 120_000; // 2 minutes (increased from 10 minutes for faster updates)
+  static readonly HOLDER_COUNT_CACHE_MIN = 1; // 1 minute - reduced from 5 minutes for more frequent updates
   static readonly TOKEN_TTL = 7200; // 2 hours cache
   static readonly NEW_TOKEN_RETENTION_HOURS = 24; // Remove NEW tokens after 24h
   static readonly BONDED_TOKEN_RETENTION_HOURS = 12; // Remove BONDED tokens older than 12 hours
@@ -370,6 +370,17 @@ class TokenHealthEnricher {
         if (data.txCount24h) updateData.txCount24h = data.txCount24h;
       }
 
+      // Fetch token supply and decimals from Helius
+      try {
+        const supplyData = await holderCountService.getTokenSupply(mint);
+        if (supplyData) {
+          updateData.decimals = supplyData.decimals;
+          updateData.totalSupply = supplyData.totalSupply;
+        }
+      } catch (error) {
+        logger.error({ mint: truncateWallet(mint), error }, 'Error fetching token supply');
+      }
+
       await this.prisma.tokenDiscovery.update({
         where: { mint },
         data: updateData,
@@ -661,6 +672,19 @@ async function handleNewToken(event: NewTokenEvent): Promise<void> {
     // Get current transaction count for this token
     const txCount = txCountMap.get(mint)?.size || 0;
 
+    // Fetch token supply and decimals from Helius (async - don't block token creation)
+    let tokenSupply: string | undefined;
+    let tokenDecimals: number | undefined;
+    try {
+      const supplyData = await holderCountService.getTokenSupply(mint);
+      if (supplyData) {
+        tokenSupply = supplyData.totalSupply;
+        tokenDecimals = supplyData.decimals;
+      }
+    } catch (err) {
+      logger.warn({ mint: truncateWallet(mint), error: err }, 'Failed to fetch token supply on new token');
+    }
+
     // Upsert to database
     try {
       await prisma.tokenDiscovery.upsert({
@@ -677,6 +701,8 @@ async function handleNewToken(event: NewTokenEvent): Promise<void> {
           website: website || metadata.website || null,
           creatorWallet: creator || null,
           holderCount: holderCount || null,
+          decimals: tokenDecimals || null,
+          totalSupply: tokenSupply || null,
           txCount24h: txCount > 0 ? txCount : null,
           state: tokenState,
           bondingCurveKey: bondingCurve || null,
@@ -700,6 +726,8 @@ async function handleNewToken(event: NewTokenEvent): Promise<void> {
           ...(telegram && { telegram }),
           ...(website && { website }),
           ...(holderCount && { holderCount }),
+          ...(tokenDecimals && { decimals: tokenDecimals }),
+          ...(tokenSupply && { totalSupply: tokenSupply }),
           ...(txCount > 0 && { txCount24h: txCount }),
           // Update progress and potentially state if available
           ...(bondingCurveProgress && {

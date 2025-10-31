@@ -20,20 +20,20 @@ const redis = new Redis(process.env.REDIS_URL || '');
 // ============================================================================
 
 const WARP_PIPES_CONFIG = {
-  // Bonded (Migrated) - Remove dead tokens that bonded but lost momentum
-  BONDED_MAX_AGE_HOURS: 12,           // Show tokens bonded in last 12 hours
-  BONDED_MIN_VOLUME_SOL: 0.5,         // Minimum 0.5 SOL volume/24h to not be dead (relaxed from 2)
-  BONDED_LAST_TRADE_HOURS: 6,         // Must have traded within last 6 hours (relaxed from 1)
+  // Bonded (Migrated)
+  BONDED_MAX_AGE_HOURS: 48,           // up to 2 days old (was 12)
+  BONDED_MIN_VOLUME_SOL: 0.1,         // only require 0.1 SOL volume
+  BONDED_LAST_TRADE_HOURS: 24,        // must have traded within the last 24h
 
-  // Graduating (Final Stretch) - High potential tokens only
-  GRADUATING_MIN_PROGRESS: 60,        // At least 60% toward bonding (relaxed from 70)
-  GRADUATING_MAX_PROGRESS: 100,       // Not yet fully bonded
-  GRADUATING_MIN_VOLUME_SOL: 1,       // Volume requirement 1 SOL/24h (relaxed from 5)
-  GRADUATING_LAST_TRADE_MINUTES: 120, // Recent activity (last 2 hours, relaxed from 30 min)
-  GRADUATING_MIN_HOLDERS: 20,         // Minimum holder count (relaxed from 50)
+  // Graduating (Final Stretch)
+  GRADUATING_MIN_PROGRESS: 40,        // show earlier progress
+  GRADUATING_MAX_PROGRESS: 100,
+  GRADUATING_MIN_VOLUME_SOL: 0.2,     // allow smaller coins
+  GRADUATING_LAST_TRADE_MINUTES: 360, // last 6h window
+  GRADUATING_MIN_HOLDERS: 5,          // even early holders show up
 
-  // New Pairs - Fresh tokens only
-  NEW_MAX_AGE_HOURS: 24,              // Show tokens created in last 24 hours
+  // New Pairs
+  NEW_MAX_AGE_HOURS: 48,              // slightly longer window for discovery
 };
 
 // ============================================================================

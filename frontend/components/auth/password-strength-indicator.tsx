@@ -1,7 +1,8 @@
 "use client"
 
-import { Check, X } from "lucide-react"
-import { useMemo } from "react"
+import { Check, X, ChevronDown, ChevronUp } from "lucide-react"
+import { useMemo, useState } from "react"
+import { motion, AnimatePresence } from "framer-motion"
 
 interface PasswordStrengthIndicatorProps {
   password: string
@@ -14,6 +15,8 @@ export interface PasswordRequirement {
 }
 
 export function PasswordStrengthIndicator({ password, confirmPassword }: PasswordStrengthIndicatorProps) {
+  const [isExpanded, setIsExpanded] = useState(true)
+
   const requirements: PasswordRequirement[] = useMemo(() => {
     return [
       {
@@ -54,66 +57,137 @@ export function PasswordStrengthIndicator({ password, confirmPassword }: Passwor
 
   if (!password) return null
 
-  // Collapse the indicator when all requirements are met
-  if (allRequirementsMet) {
+  // Collapsed success state
+  if (allRequirementsMet && !isExpanded) {
     return (
-      <div className="flex items-center gap-2 p-2 bg-luigi/10 rounded-lg border-2 border-luigi">
-        <Check className="h-4 w-4 text-luigi flex-shrink-0" />
-        <span className="text-sm font-medium text-luigi">Password meets all requirements ✓</span>
-      </div>
+      <motion.button
+        type="button"
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="w-full flex items-center justify-between gap-2 p-3 bg-luigi/10 rounded-lg border-2 border-luigi hover:bg-luigi/20 transition-colors"
+        onClick={() => setIsExpanded(true)}
+      >
+        <div className="flex items-center gap-2">
+          <Check className="h-4 w-4 text-luigi flex-shrink-0" />
+          <span className="text-sm font-bold text-luigi">All requirements met ✓</span>
+        </div>
+        <ChevronDown className="h-4 w-4 text-luigi" />
+      </motion.button>
     )
   }
 
   return (
-    <div className="space-y-3">
+    <motion.div
+      initial={{ opacity: 0, height: 0 }}
+      animate={{ opacity: 1, height: "auto" }}
+      exit={{ opacity: 0, height: 0 }}
+      transition={{ duration: 0.3 }}
+      className="space-y-3"
+    >
+      {/* Header with collapse button when all met */}
+      {allRequirementsMet && (
+        <button
+          type="button"
+          onClick={() => setIsExpanded(false)}
+          className="w-full flex items-center justify-between gap-2 p-2 bg-luigi/10 rounded-lg border-2 border-luigi hover:bg-luigi/20 transition-colors"
+        >
+          <div className="flex items-center gap-2">
+            <Check className="h-4 w-4 text-luigi flex-shrink-0" />
+            <span className="text-sm font-bold text-luigi">All requirements met ✓</span>
+          </div>
+          <ChevronUp className="h-4 w-4 text-luigi" />
+        </button>
+      )}
+
       {/* Strength Bar */}
-      <div className="space-y-1">
-        <div className="h-2 bg-muted rounded-full overflow-hidden">
-          <div
-            className={`h-full transition-all duration-300 ${strength.color}`}
-            style={{ width: `${strengthPercentage}%` }}
+      <div className="space-y-2">
+        <div className="h-2.5 bg-muted rounded-full overflow-hidden border-2 border-outline">
+          <motion.div
+            initial={{ width: 0 }}
+            animate={{ width: `${strengthPercentage}%` }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
+            className={`h-full transition-colors duration-300 ${strength.color}`}
           />
         </div>
         {strength.label && (
-          <p className="text-xs text-muted-foreground">
-            Password strength: <span className="font-medium">{strength.label}</span>
-          </p>
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="text-xs text-muted-foreground font-bold"
+          >
+            Password strength: <span className={`font-bold ${
+              strength.color === 'bg-luigi' ? 'text-luigi' :
+              strength.color === 'bg-star' ? 'text-star' :
+              strength.color === 'bg-mario' ? 'text-mario' :
+              'text-muted-foreground'
+            }`}>{strength.label}</span>
+          </motion.p>
         )}
       </div>
 
       {/* Requirements Checklist */}
-      <div className="space-y-1.5">
-        {requirements.map((req, index) => (
-          <div key={index} className="flex items-center gap-2 text-sm">
-            {req.met ? (
-              <Check className="h-4 w-4 text-luigi flex-shrink-0" />
-            ) : (
-              <X className="h-4 w-4 text-muted-foreground/50 flex-shrink-0" />
-            )}
-            <span className={req.met ? "text-luigi" : "text-muted-foreground"}>
-              {req.label}
-            </span>
-          </div>
-        ))}
+      <div className="space-y-2">
+        <AnimatePresence mode="popLayout">
+          {requirements.map((req, index) => (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: index * 0.1 }}
+              className="flex items-center gap-2.5 text-sm"
+            >
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: req.met ? [0, 1.2, 1] : 1 }}
+                transition={{ duration: 0.3 }}
+              >
+                {req.met ? (
+                  <div className="h-5 w-5 rounded-full bg-luigi border-2 border-outline flex items-center justify-center shadow-[2px_2px_0_var(--outline-black)]">
+                    <Check className="h-3 w-3 text-white flex-shrink-0" />
+                  </div>
+                ) : (
+                  <div className="h-5 w-5 rounded-full bg-muted border-2 border-outline flex items-center justify-center">
+                    <X className="h-3 w-3 text-muted-foreground/50 flex-shrink-0" />
+                  </div>
+                )}
+              </motion.div>
+              <span className={`font-bold transition-colors ${req.met ? "text-luigi" : "text-muted-foreground"}`}>
+                {req.label}
+              </span>
+            </motion.div>
+          ))}
 
-        {/* Password Match Indicator */}
-        {passwordsMatch !== null && (
-          <div className="flex items-center gap-2 text-sm pt-1 border-t border-border/50">
-            {passwordsMatch ? (
-              <>
-                <Check className="h-4 w-4 text-luigi flex-shrink-0" />
-                <span className="text-luigi">Passwords match</span>
-              </>
-            ) : (
-              <>
-                <X className="h-4 w-4 text-mario flex-shrink-0" />
-                <span className="text-mario">Passwords do not match</span>
-              </>
-            )}
-          </div>
-        )}
+          {/* Password Match Indicator */}
+          {passwordsMatch !== null && (
+            <motion.div
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: requirements.length * 0.1 }}
+              className="flex items-center gap-2.5 text-sm pt-2 border-t-2 border-outline/30"
+            >
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: passwordsMatch ? [0, 1.2, 1] : 1 }}
+                transition={{ duration: 0.3 }}
+              >
+                {passwordsMatch ? (
+                  <div className="h-5 w-5 rounded-full bg-luigi border-2 border-outline flex items-center justify-center shadow-[2px_2px_0_var(--outline-black)]">
+                    <Check className="h-3 w-3 text-white flex-shrink-0" />
+                  </div>
+                ) : (
+                  <div className="h-5 w-5 rounded-full bg-mario border-2 border-outline flex items-center justify-center shadow-[2px_2px_0_var(--outline-black)]">
+                    <X className="h-3 w-3 text-white flex-shrink-0" />
+                  </div>
+                )}
+              </motion.div>
+              <span className={`font-bold ${passwordsMatch ? "text-luigi" : "text-mario"}`}>
+                {passwordsMatch ? "Passwords match" : "Passwords do not match"}
+              </span>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
-    </div>
+    </motion.div>
   )
 }
 

@@ -27,7 +27,7 @@ function TabsList({
       data-slot="tabs-list"
       className={cn(
         'inline-flex w-fit items-center justify-center',
-        'bg-white/60 border-3 border-outline rounded-lg shadow-[3px_3px_0_var(--outline-black)]',
+        'bg-[#FFFAE9] border-3 border-outline rounded-lg shadow-[3px_3px_0_var(--outline-black)]',
         'p-1',
         className,
       )}
@@ -45,14 +45,20 @@ function TabsTrigger({
       data-slot="tabs-trigger"
       className={cn(
         'inline-flex h-10 flex-1 items-center justify-center gap-1.5',
-        'rounded-md px-3 py-2 text-sm font-bold transition-all',
+        'rounded-lg px-3 py-2 text-sm font-bold transition-all',
         'text-outline whitespace-nowrap',
+        'border-3 border-outline',
+        'shadow-[2px_2px_0_var(--outline-black)]',
         // Inactive state
-        'data-[state=inactive]:opacity-60',
+        'data-[state=inactive]:opacity-70 data-[state=inactive]:bg-card',
+        // Hover state (inactive only)
+        'hover:data-[state=inactive]:shadow-[3px_3px_0_var(--outline-black)] hover:data-[state=inactive]:-translate-y-0.5 hover:data-[state=inactive]:opacity-100',
         // Active state - Mario colors (default: luigi green)
         'data-[state=active]:bg-luigi',
         'data-[state=active]:text-white',
-        'data-[state=active]:shadow-[2px_2px_0_rgba(0,0,0,0.2)]',
+        'data-[state=active]:shadow-[3px_3px_0_var(--outline-black)]',
+        'data-[state=active]:scale-105',
+        'data-[state=active]:-translate-y-0.5',
         // Disabled
         'disabled:pointer-events-none disabled:opacity-40',
         // Icons

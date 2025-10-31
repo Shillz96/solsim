@@ -254,7 +254,7 @@ const TopTradersPanel = memo(function TopTradersPanel({ tokenMint }: { tokenMint
 const HoldersPanel = memo(function HoldersPanel({ tokenMint }: { tokenMint: string }) {
   const { data: holderData, isLoading } = useQuery({
     queryKey: ['token-holders', tokenMint],
-    queryFn: () => getTokenHolders(tokenMint, 10),
+    queryFn: () => getTokenHolders(tokenMint, 20), // Show top 20 holders (was 10)
     refetchInterval: 30000, // Refresh every 30 seconds (improved from 60s)
     staleTime: 15000, // Consider data stale after 15 seconds (improved from 30s)
   })

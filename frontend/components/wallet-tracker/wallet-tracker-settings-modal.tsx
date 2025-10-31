@@ -213,8 +213,7 @@ export function WalletTrackerSettingsModal({ isOpen, onClose, onSettingsSaved }:
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-black/80 flex items-center justify-center p-4"
-          style={{ zIndex: 9999 }}
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-[var(--z-modal-backdrop)]"
           onClick={onClose}
         >
           <motion.div
@@ -222,10 +221,9 @@ export function WalletTrackerSettingsModal({ isOpen, onClose, onSettingsSaved }:
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.9, opacity: 0, y: 20 }}
             onClick={(e) => e.stopPropagation()}
-            className="w-full max-w-md max-h-[90vh] overflow-y-auto"
-            style={{ zIndex: 10000 }}
+            className="w-full max-w-md max-h-[90vh] overflow-y-auto z-[var(--z-modal)]"
           >
-            <div className="bg-white border-4 border-outline rounded-xl shadow-[8px_8px_0_var(--outline-black)] p-6">
+            <div className="bg-background border-4 border-outline rounded-xl shadow-[8px_8px_0_var(--outline-black)] p-6">
             {/* Header */}
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-2">

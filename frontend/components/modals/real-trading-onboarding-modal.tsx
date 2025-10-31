@@ -89,7 +89,7 @@ export function RealTradingOnboardingModal({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-2xl border-4 border-mario-red-500 shadow-mario">
+      <DialogContent className="sm:max-w-2xl border-mario">
         <AnimatePresence mode="wait">
           {step === 'warning' ? (
             <WarningStep

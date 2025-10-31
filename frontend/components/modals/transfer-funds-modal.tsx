@@ -150,7 +150,7 @@ export function TransferFundsModal({
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="mario-card bg-card max-w-md border-4 border-pipe-700">
+      <DialogContent className="max-w-md">
         <DialogHeader>
           <div className="flex items-center gap-2">
             <ArrowRightLeft className="h-6 w-6 text-mario-red-500" />

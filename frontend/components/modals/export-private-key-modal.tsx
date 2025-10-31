@@ -167,7 +167,7 @@ export function ExportPrivateKeyModal({
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-w-2xl bg-card border-4 border-outline shadow-[8px_8px_0_var(--outline-black)]">
+      <DialogContent className="max-w-2xl">
         <AnimatePresence mode="wait">
           {step === 'warning' && (
             <motion.div

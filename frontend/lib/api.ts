@@ -1430,15 +1430,10 @@ export async function getTokenHolders(tokenMint: string, limit = 20): Promise<{
  * Check if Bubble Maps visualization is available for a token
  */
 export async function checkBubbleMapAvailability(tokenMint: string): Promise<boolean> {
-  try {
-    const res = await fetch(`https://api-legacy.bubblemaps.io/map-availability?chain=sol&token=${tokenMint}`);
-    if (!res.ok) return false;
-    const data = await res.json();
-    return data.status === 'OK' && data.availability === true;
-  } catch (error) {
-    console.error('Bubble Maps availability check failed:', error);
-    return false;
-  }
+  // Bubble Maps iframe supports all Solana tokens - skip availability check
+  // The iframe will handle unavailable tokens gracefully by showing a message
+  // Previous legacy API endpoint was deprecated/broken
+  return true;
 }
 
 

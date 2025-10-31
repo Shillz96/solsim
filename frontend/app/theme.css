@@ -345,9 +345,11 @@
    *    - These values never interact with the global scale
    * 
    * 3. Component-to-component layering MUST use semantic values
-   *    - Dropdowns: z-dropdown (300) or z-search-dropdown (9001) for search
+   *    - Dropdowns: z-dropdown (300) or z-search-dropdown (700) for search
    *    - Modals: z-modal-backdrop (1000) + z-modal (1010)
+   *    - Wallet modals: z-wallet-modal-backdrop (1100) + z-wallet-modal (1110)
    *    - Floating panels: z-popover (1200) or z-sticky (500)
+   *    - Rewards timer: z-rewards-timer (600) - visible but below modals
    *    - Loading screens: z-loading (2100)
    *    - Toasts: z-toast (2000)
    * 
@@ -388,12 +390,14 @@
   --z-loading: 2100;
   --z-onboarding: 2200;
   
-  /* Critical UI Elements (9000+) - Highest priority for user interaction */
-  --z-rewards-timer: 9006;        /* Rewards countdown timer – above bottom nav & emoji */
-  --z-search-dropdown: 9001;     /* Search bar dropdown */
-  --z-profile-dropdown: 9002;    /* Profile dropdown menu */
+  /* Critical UI Elements (600-900) - High priority but below modals/overlays */
+  --z-rewards-timer: 600;        /* Rewards countdown timer – above sticky content, below modals */
+  --z-search-dropdown: 700;      /* Search bar dropdown - below modals */
+  --z-profile-dropdown: 800;     /* Profile dropdown menu - below modals */
+  --z-emoji-picker: 850;         /* Emoji picker overlay - below modals */
+  
+  /* Bottom Navigation (9000+) - Highest priority for touch targets */
   --z-bottom-nav: 9003;          /* Bottom navigation bar */
-  --z-emoji-picker: 9004;        /* Emoji picker overlay */
   
   /* Debug & Special (9999) */
   --z-debug: 9998;

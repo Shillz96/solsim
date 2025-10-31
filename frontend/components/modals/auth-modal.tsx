@@ -221,7 +221,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-[90vw] max-w-md mx-auto bg-card border-4 border-outline shadow-[8px_8px_0_var(--outline-black)] rounded-2xl max-h-[85vh] overflow-y-auto p-4 sm:p-6">
+      <DialogContent className="w-[90vw] max-w-md mx-auto max-h-[85vh] overflow-y-auto p-4 sm:p-6">
         <div className="relative z-10">
         <DialogHeader className="space-y-3">
           <div className="flex items-center justify-center mb-4">
@@ -329,16 +329,16 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
         {(currentView === 'login' || currentView === 'register') && (
           <div className="space-y-6">
             <Tabs value={currentView} onValueChange={(value) => setCurrentView(value as AuthView)} className="w-full">
-              <TabsList className="grid w-full grid-cols-2 bg-card border-3 border-outline p-1 gap-1 shadow-[3px_3px_0_var(--outline-black)]">
+              <TabsList className="grid w-full grid-cols-2 p-1.5 gap-2">
                 <TabsTrigger 
                   value="login" 
-                  className="font-mario border-3 border-outline bg-card text-outline shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all data-[state=active]:bg-star data-[state=active]:shadow-[3px_3px_0_var(--outline-black)] data-[state=active]:translate-y-0"
+                  className="font-mario h-12 text-base rounded-xl data-[state=active]:bg-star data-[state=active]:text-outline"
                 >
                   Login
                 </TabsTrigger>
                 <TabsTrigger 
                   value="register" 
-                  className="font-mario border-3 border-outline bg-card text-outline shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all data-[state=active]:bg-star data-[state=active]:shadow-[3px_3px_0_var(--outline-black)] data-[state=active]:translate-y-0"
+                  className="font-mario h-12 text-base rounded-xl data-[state=active]:bg-card data-[state=active]:text-outline"
                 >
                   Register
                 </TabsTrigger>

@@ -541,10 +541,7 @@ export function WalletManager({
                 marioStyles.card(),
                 'bg-sky/20 p-8 text-center'
               )}>
-                <div className={cn(
-                  marioStyles.iconContainer('lg', '[var(--mario-red)]'),
-                  'bg-mario mx-auto mb-4'
-                )}>
+                <div className="h-12 w-12 rounded-xl bg-mario border-3 border-outline shadow-[3px_3px_0_var(--outline-black)] flex items-center justify-center mx-auto mb-4">
                   <Eye className="h-6 w-6 text-white" />
                 </div>
                 <p className={cn(marioStyles.bodyText('bold'), 'text-sm')}>

@@ -166,19 +166,19 @@ export default function TrendingPage() {
           className="mb-6"
         >
           <div className={marioStyles.card()}>
-            <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
+            <div className="flex flex-col md:flex-row gap-6 items-start md:items-center justify-between">
               
               {/* Sort Filters */}
-              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
-                <div className="flex items-center gap-2">
-                  <Filter className="h-5 w-5 text-mario" />
-                  <span className="font-body text-sm font-semibold text-foreground">Sort by:</span>
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                <div className="flex items-center gap-2.5 px-3 py-2 bg-gradient-to-r from-mario/10 to-mario/5 rounded-lg border-2 border-outline/20">
+                  <Filter className="h-5 w-5 text-mario drop-shadow-sm" />
+                  <span className="font-body text-sm font-bold text-foreground uppercase tracking-wide">Sort by</span>
                 </div>
                 <div className="flex gap-2 flex-wrap">
                   {[
-                    { value: "volume24hUSD" as BirdeyeSortBy, label: "� Volume" },
-                    { value: "rank" as BirdeyeSortBy, label: "� Hot" },
-                    { value: "liquidity" as BirdeyeSortBy, label: "💎 Liquidity" }
+                    { value: "volume24hUSD" as BirdeyeSortBy, label: "Volume", icon: "📊" },
+                    { value: "rank" as BirdeyeSortBy, label: "Hot", icon: "🔥" },
+                    { value: "liquidity" as BirdeyeSortBy, label: "Liquidity", icon: "💎" }
                   ].map((option) => (
                     <Button
                       key={option.value}
@@ -186,13 +186,16 @@ export default function TrendingPage() {
                       size="sm"
                       onClick={() => setBirdeyeSortBy(option.value)}
                       className={cn(
-                        marioStyles.button(
-                          birdeyeSortBy === option.value ? 'danger' : 'outline',
-                          'sm'
-                        )
+                        "px-4 py-2.5 rounded-xl border-3 border-outline font-bold transition-all text-sm",
+                        "shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5",
+                        "active:shadow-[2px_2px_0_var(--outline-black)] active:translate-y-0",
+                        birdeyeSortBy === option.value 
+                          ? "bg-mario hover:bg-mario/90 text-white scale-105 shadow-[4px_4px_0_var(--outline-black)] -translate-y-0.5" 
+                          : "bg-white hover:bg-background text-outline"
                       )}
                     >
-                      {option.label}
+                      <span className="text-base mr-1.5">{option.icon}</span>
+                      <span>{option.label}</span>
                     </Button>
                   ))}
                 </div>
@@ -200,12 +203,12 @@ export default function TrendingPage() {
 
               {/* Search Bar */}
               <div className="relative w-full md:w-80">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground z-10" />
                 <Input
                   placeholder="Search tokens by name or symbol..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-9 font-body border-3 border-outline-black focus:border-mario hover-outline"
+                  className="pl-10 pr-4 font-body border-3 border-outline rounded-xl h-11 focus:border-mario hover:border-outline/80 transition-colors shadow-[2px_2px_0_var(--outline-black)] focus:shadow-[3px_3px_0_var(--outline-black)]"
                 />
               </div>
             </div>
