@@ -60,9 +60,9 @@ export function NeedMoreSolDialog({ open, onOpenChange, onShareClick }: NeedMore
 
         <div className="space-y-6 py-4">
           {/* Hero Section */}
-          <div className="relative p-6 rounded-xl bg-gradient-to-br from-[var(--star)]/20 to-[var(--luigi)]/20 border-4 border-[var(--outline)] shadow-[4px_4px_0_var(--outline-black)]">
+          <div className="relative p-6 rounded-xl bg-gradient-to-br from-[oklch(88%_0.16_85)]/20 to-[oklch(62%_0.18_145)]/20 border-4 border-[var(--outline)] shadow-[4px_4px_0_var(--outline-black)]">
             <div className="absolute top-0 right-0 p-2">
-              <Gift className="h-8 w-8 text-[var(--star)]" />
+              <Gift className="h-8 w-8 text-[oklch(88%_0.16_85)]" />
             </div>
             
             <div className="space-y-2">
@@ -90,7 +90,7 @@ export function NeedMoreSolDialog({ open, onOpenChange, onShareClick }: NeedMore
             {/* Progress Bar */}
             <div className="relative h-8 rounded-lg bg-[var(--outline)]/20 border-3 border-[var(--outline)] overflow-hidden shadow-[2px_2px_0_var(--outline-black)]">
               <motion.div
-                className="absolute inset-y-0 left-0 bg-gradient-to-r from-[var(--luigi)] to-[var(--star)] flex items-center justify-center"
+                className="absolute inset-y-0 left-0 bg-gradient-to-r from-[oklch(62%_0.18_145)] to-[oklch(88%_0.16_85)] flex items-center justify-center"
                 initial={{ width: 0 }}
                 animate={{ width: `${progressPercent}%` }}
                 transition={{ duration: 0.5, ease: "easeOut" }}
@@ -118,7 +118,7 @@ export function NeedMoreSolDialog({ open, onOpenChange, onShareClick }: NeedMore
                   <div
                     className={`w-8 h-8 rounded-full flex items-center justify-center border-3 border-[var(--outline)] shadow-[2px_2px_0_var(--outline-black)] ${
                       shareCount >= checkpoint
-                        ? 'bg-[var(--luigi)] text-white'
+                        ? 'bg-[oklch(62%_0.18_145)] text-white'
                         : 'bg-[var(--background)] text-[var(--outline)]/50'
                     }`}
                   >
@@ -148,11 +148,11 @@ export function NeedMoreSolDialog({ open, onOpenChange, onShareClick }: NeedMore
 
           {/* Total Rewarded */}
           {totalRewarded > 0 && (
-            <div className="text-center p-3 rounded-lg bg-[var(--star)]/10 border-2 border-[var(--star)]/30">
+            <div className="text-center p-3 rounded-lg bg-[oklch(88%_0.16_85)]/10 border-2 border-[oklch(88%_0.16_85)]/30">
               <p className="text-xs text-[var(--outline)]/70 font-bold">
                 Total Earned
               </p>
-              <p className="text-2xl font-mario font-black text-[var(--star)]">
+              <p className="text-2xl font-mario font-black text-[oklch(88%_0.16_85)]">
                 ${totalRewarded.toLocaleString()}
               </p>
             </div>
@@ -171,7 +171,7 @@ export function NeedMoreSolDialog({ open, onOpenChange, onShareClick }: NeedMore
                   <Button
                     onClick={handleClaim}
                     disabled={isClaiming}
-                    className="w-full h-14 text-lg font-mario font-bold bg-[var(--star)] text-[var(--outline)] hover:bg-[var(--star)]/90 border-4 border-[var(--outline)] shadow-[4px_4px_0_var(--outline-black)] hover:shadow-[5px_5px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all rounded-xl"
+                    className="w-full h-14 text-lg font-mario font-bold bg-[oklch(88%_0.16_85)] text-[var(--outline)] hover:bg-[oklch(85%_0.17_85)] border-4 border-[var(--outline)] shadow-[4px_4px_0_var(--outline-black)] hover:shadow-[5px_5px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all rounded-xl"
                   >
                     {isClaiming ? (
                       <>
@@ -196,7 +196,7 @@ export function NeedMoreSolDialog({ open, onOpenChange, onShareClick }: NeedMore
                   <Button
                     onClick={handleShareClick}
                     disabled={isInCooldown}
-                    className="w-full h-14 text-lg font-mario font-bold bg-[var(--luigi)] text-white hover:bg-[var(--luigi)]/90 border-4 border-[var(--outline)] shadow-[4px_4px_0_var(--outline-black)] hover:shadow-[5px_5px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all rounded-xl disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full h-14 text-lg font-mario font-bold bg-[oklch(62%_0.18_145)] text-white hover:bg-[oklch(58%_0.19_145)] border-4 border-[var(--outline)] shadow-[4px_4px_0_var(--outline-black)] hover:shadow-[5px_5px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all rounded-xl disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <Share2 className="h-5 w-5 mr-2" />
                     {isInCooldown 
