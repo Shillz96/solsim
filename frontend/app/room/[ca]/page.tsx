@@ -255,16 +255,16 @@ function TradeRoomContent() {
                 size="sm"
                 onClick={async () => {
                   try {
-                    await navigator.clipboard.writeText(window.location.href)
+                    await navigator.clipboard.writeText(ca)
                     setShareCopied(true)
-                    toast({ title: "Link copied!", description: "Share this token with others" })
+                    toast({ title: "Contract address copied!", description: "Token CA copied to clipboard" })
                     setTimeout(() => setShareCopied(false), 2000)
                   } catch (err) {
-                    toast({ title: "Failed to copy", description: "Please copy the URL manually", variant: "destructive" })
+                    toast({ title: "Failed to copy", description: "Please copy the CA manually", variant: "destructive" })
                   }
                 }}
                 className="h-9 w-9 p-0 rounded-lg border-3 border-outline shadow-[2px_2px_0_var(--outline-black)]"
-                aria-label="Share"
+                aria-label="Copy Contract Address"
               >
                 {shareCopied ? (
                   <Check className="h-3.5 w-3.5 text-luigi" />
