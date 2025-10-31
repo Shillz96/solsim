@@ -597,6 +597,17 @@ async function handleNewToken(event: NewTokenEvent): Promise<void> {
       return;
     }
 
+    // CRITICAL: Reject tokens with NO metadata (likely fake/spam)
+    // These tokens don't exist on-chain and pollute the Warp Pipes feed
+    if (!symbol && !name && !uri) {
+      logger.warn({ 
+        mint: truncateWallet(mint),
+        hasBondingCurve: !!bondingCurve,
+        hasMarketCap: !!marketCapSol
+      }, 'Rejecting token with NO metadata (likely fake/spam)');
+      return;
+    }
+
     logTokenEvent(logger, 'bonded', truncateWallet(mint), symbol || truncateWallet(mint));
 
     // Calculate bonding curve progress if we have the data
@@ -666,9 +677,17 @@ async function handleNewToken(event: NewTokenEvent): Promise<void> {
 
     // Fetch additional metadata from URI if not provided directly
     let metadata: TokenMetadata = {};
-    if (uri && (!description || !twitter || !telegram || !website)) {
+    if (uri && (!name || !symbol || !description || !twitter || !telegram || !website)) {
       try {
         metadata = await tokenMetadataService.fetchMetadataFromIPFS(uri);
+        
+        // CRITICAL FIX: Override empty name/symbol with metadata
+        if (!name && metadata.name) {
+          console.log(`✅ [TokenDiscovery] Got name from IPFS for ${truncateWallet(mint)}: ${metadata.name}`);
+        }
+        if (!symbol && metadata.symbol) {
+          console.log(`✅ [TokenDiscovery] Got symbol from IPFS for ${truncateWallet(mint)}: ${metadata.symbol}`);
+        }
       } catch (err) {
         logger.warn({ mint: truncateWallet(mint), uri, error: err }, 'Failed to fetch metadata from IPFS');
       }
@@ -696,8 +715,8 @@ async function handleNewToken(event: NewTokenEvent): Promise<void> {
         where: { mint },
         create: {
           mint,
-          symbol: symbol || null,
-          name: name || null,
+          symbol: symbol || metadata.symbol || null,  // ✅ Use metadata fallback
+          name: name || metadata.name || null,        // ✅ Use metadata fallback
           logoURI: httpLogoURI, // ✅ Convert ipfs:// to https://
           imageUrl: metadata.imageUrl || null,
           description: description || metadata.description || null,
