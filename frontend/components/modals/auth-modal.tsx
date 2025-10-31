@@ -219,7 +219,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-[90vw] max-w-md mx-auto max-h-[85vh] overflow-y-auto p-4 sm:p-6">
+      <DialogContent className="w-[90vw] max-w-md mx-auto max-h-[85vh] overflow-y-auto p-4 sm:p-6 bg-[var(--background)] border-4 border-[var(--outline)] shadow-[8px_8px_0_var(--outline-black)] z-50">
         <div className="relative z-10">
         <DialogHeader className="space-y-3">
           <div className="flex items-center justify-center mb-4">

@@ -154,13 +154,13 @@ export function WithdrawModal({ open, onOpenChange }: WithdrawModalProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px] border-3 border-pipe-400 shadow-mario">
+      <DialogContent className="sm:max-w-[500px] bg-[var(--background)] border-4 border-[var(--outline)] shadow-[8px_8px_0_var(--outline-black)] z-50">
         <DialogHeader>
-          <DialogTitle className="font-mario text-lg flex items-center gap-2">
-            <ArrowUpFromLine className="w-5 h-5 text-mario-red-500" />
+          <DialogTitle className="font-mario text-lg flex items-center gap-2 text-[var(--outline)]">
+            <ArrowUpFromLine className="w-5 h-5 text-[var(--mario-red)]" />
             Withdraw SOL
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="text-[var(--outline)]/70">
             Send SOL from your real trading balance to any Solana wallet
           </DialogDescription>
         </DialogHeader>

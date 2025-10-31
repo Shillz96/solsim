@@ -150,15 +150,15 @@ export function TransferFundsModal({
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-md bg-[var(--background)] border-4 border-[var(--outline)] shadow-[8px_8px_0_var(--outline-black)] z-50">
         <DialogHeader>
           <div className="flex items-center gap-2">
-            <ArrowRightLeft className="h-6 w-6 text-mario-red-500" />
-            <DialogTitle className="font-mario text-lg text-pipe-900">
+            <ArrowRightLeft className="h-6 w-6 text-[var(--mario-red)]" />
+            <DialogTitle className="font-mario text-lg text-[var(--outline)]">
               Transfer Funds
             </DialogTitle>
           </div>
-          <DialogDescription className="text-pipe-700">
+          <DialogDescription className="text-[var(--outline)]/70">
             Move SOL between your wallets instantly
           </DialogDescription>
         </DialogHeader>

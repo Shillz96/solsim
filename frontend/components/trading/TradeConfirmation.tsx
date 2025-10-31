@@ -79,12 +79,12 @@ export function TradeConfirmation({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-dialog-sm">
+      <DialogContent className="sm:max-w-dialog-sm bg-[var(--background)] border-4 border-[var(--outline)] shadow-[8px_8px_0_var(--outline-black)] z-50">
         <DialogHeader>
-          <DialogTitle>
+          <DialogTitle className="font-mario text-xl text-[var(--outline)]">
             Confirm {tradeType.toUpperCase()} Order
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="text-[var(--outline)]/70">
             Please review your order details before confirming.
           </DialogDescription>
         </DialogHeader>

@@ -114,13 +114,13 @@ export function DepositModal({ open, onOpenChange }: DepositModalProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px] border-3 border-pipe-400 shadow-mario">
+      <DialogContent className="sm:max-w-[500px] bg-[var(--background)] border-4 border-[var(--outline)] shadow-[8px_8px_0_var(--outline-black)] z-50">
         <DialogHeader>
-          <DialogTitle className="font-mario text-lg flex items-center gap-2">
-            <Coins className="w-5 h-5 text-coin-yellow-500" />
+          <DialogTitle className="font-mario text-lg flex items-center gap-2 text-[var(--outline)]">
+            <Coins className="w-5 h-5 text-[var(--coin-yellow)]" />
             Deposit SOL
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="text-[var(--outline)]/70">
             Send SOL to your unique deposit address to fund your real trading account
           </DialogDescription>
         </DialogHeader>

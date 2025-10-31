@@ -214,10 +214,10 @@ export function SharePnLDialog({ totalPnL, totalPnLPercent, currentValue, initia
           Share PnL
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[600px] bg-card border-4 border-outline shadow-[8px_8px_0_var(--outline-black)]">
+      <DialogContent className="sm:max-w-[600px] bg-[var(--background)] border-4 border-[var(--outline)] shadow-[8px_8px_0_var(--outline-black)] z-50">
         <DialogHeader>
-          <DialogTitle className="font-mario text-2xl text-outline">Share Your Performance</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className="font-mario text-2xl text-[var(--outline)]">Share Your Performance</DialogTitle>
+          <DialogDescription className="text-[var(--outline)]/70">
             Share your trading performance with others. You can download an image or copy it to your clipboard.
           </DialogDescription>
         </DialogHeader>
@@ -226,10 +226,10 @@ export function SharePnLDialog({ totalPnL, totalPnLPercent, currentValue, initia
           {/* Shareable Card - Mario Theme */}
           <div
             ref={cardRef}
-            className="relative w-full aspect-[16/9] rounded-xl overflow-hidden bg-sky/20 border-4 border-outline shadow-[8px_8px_0_var(--outline-black)]"
+            className="relative w-full aspect-[16/9] rounded-xl overflow-hidden bg-[var(--sky)]/20 border-4 border-[var(--outline)] shadow-[8px_8px_0_var(--outline-black)]"
           >
             {/* Content Container */}
-            <div className="relative z-10 h-full flex flex-col p-5">
+            <div className="relative z-10 h-full flex flex-col p-5 bg-gradient-to-br from-[var(--background)] to-[var(--outline)]/5">
               {/* Header with Image */}
               <div className="flex items-center justify-between mb-4">
                 <img
@@ -243,7 +243,7 @@ export function SharePnLDialog({ totalPnL, totalPnLPercent, currentValue, initia
                     img.style.display = 'none'
                   }}
                 />
-                <div className="px-3 py-1 rounded-lg bg-luigi border-3 border-outline shadow-[2px_2px_0_var(--outline-black)]">
+                <div className="px-3 py-1 rounded-lg bg-[var(--luigi)] border-3 border-[var(--outline)] shadow-[2px_2px_0_var(--outline-black)]">
                   <span className="text-xs font-mario font-bold text-white">LIVE</span>
                 </div>
               </div>
@@ -252,10 +252,10 @@ export function SharePnLDialog({ totalPnL, totalPnLPercent, currentValue, initia
               <div className="flex-1 flex gap-3 mb-2">
                 {/* Left: PnL Display */}
                 <div className="flex-1 flex flex-col justify-center">
-                  <div className={`relative p-4 rounded-xl border-4 border-outline ${
+                  <div className={`relative p-4 rounded-xl border-4 border-[var(--outline)] ${
                     totalPnL >= 0
-                      ? "bg-luigi/20 shadow-[4px_4px_0_var(--luigi)]"
-                      : "bg-mario/20 shadow-[4px_4px_0_var(--mario)]"
+                      ? "bg-[var(--luigi)]/20 shadow-[4px_4px_0_var(--luigi)]"
+                      : "bg-[var(--mario-red)]/20 shadow-[4px_4px_0_var(--mario-red)]"
                   }`}>
                     <div className="relative">
                       <div className="flex items-center gap-2 mb-1.5">
@@ -263,7 +263,7 @@ export function SharePnLDialog({ totalPnL, totalPnLPercent, currentValue, initia
                           <img
                             src={tokenImageUrl}
                             alt={tokenSymbol || 'Token'}
-                            className="w-6 h-6 rounded-full object-cover border-2 border-outline"
+                            className="w-6 h-6 rounded-full object-cover border-2 border-[var(--outline)]"
                             crossOrigin="anonymous"
                             loading="eager"
                             onError={(e) => {
@@ -274,20 +274,20 @@ export function SharePnLDialog({ totalPnL, totalPnLPercent, currentValue, initia
                             }}
                           />
                         )}
-                        <div className="text-xs font-mario font-bold text-outline uppercase tracking-wider">
+                        <div className="text-xs font-mario font-bold text-[var(--outline)] uppercase tracking-wider">
                           {isTokenSpecific && tokenSymbol ? `${tokenSymbol} PNL` : 'TOTAL PNL'}
                         </div>
                       </div>
                       <div className={`text-4xl font-mario font-black mb-2 ${
-                        totalPnL >= 0 ? "text-luigi" : "text-mario"
+                        totalPnL >= 0 ? "text-[var(--luigi)]" : "text-[var(--mario-red)]"
                       }`}>
                         {totalPnL >= 0 ? "+" : ""}${Math.abs(totalPnL).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                       </div>
                       <div className="flex items-center gap-2">
-                        <div className={`px-3 py-1 rounded-lg text-sm font-mario font-bold border-3 border-outline shadow-[2px_2px_0_var(--outline-black)] ${
+                        <div className={`px-3 py-1 rounded-lg text-sm font-mario font-bold border-3 border-[var(--outline)] shadow-[2px_2px_0_var(--outline-black)] ${
                           totalPnL >= 0
-                            ? "bg-luigi text-white"
-                            : "bg-mario text-white"
+                            ? "bg-[var(--luigi)] text-white"
+                            : "bg-[var(--mario-red)] text-white"
                         }`}>
                           {totalPnL >= 0 ? "↗" : "↘"} {totalPnL >= 0 ? "+" : ""}{totalPnLPercent.toFixed(2)}%
                         </div>
@@ -298,31 +298,31 @@ export function SharePnLDialog({ totalPnL, totalPnLPercent, currentValue, initia
 
                 {/* Right: Stats */}
                 <div className="flex flex-col gap-2 justify-center min-w-[160px]">
-                  <div className="bg-sky/20 border-3 border-outline rounded-lg p-3 shadow-[2px_2px_0_var(--outline-black)]">
-                    <div className="text-[10px] text-outline/60 mb-1 uppercase tracking-wide font-bold">Invested</div>
-                    <div className="text-base font-mario font-bold text-outline">${initialBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                  <div className="bg-[var(--sky)]/20 border-3 border-[var(--outline)] rounded-lg p-3 shadow-[2px_2px_0_var(--outline-black)]">
+                    <div className="text-[10px] text-[var(--outline)]/60 mb-1 uppercase tracking-wide font-bold">Invested</div>
+                    <div className="text-base font-mario font-bold text-[var(--outline)]">${initialBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
                   </div>
-                  <div className="bg-star/20 border-3 border-outline rounded-lg p-3 shadow-[2px_2px_0_var(--outline-black)]">
-                    <div className="text-[10px] text-outline/60 mb-1 uppercase tracking-wide font-bold">Position</div>
-                    <div className="text-base font-mario font-bold text-outline">${currentValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                  <div className="bg-[var(--star)]/20 border-3 border-[var(--outline)] rounded-lg p-3 shadow-[2px_2px_0_var(--outline-black)]">
+                    <div className="text-[10px] text-[var(--outline)]/60 mb-1 uppercase tracking-wide font-bold">Position</div>
+                    <div className="text-base font-mario font-bold text-[var(--outline)]">${currentValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
                   </div>
                 </div>
               </div>
 
               {/* User Info Footer */}
-              <div className="flex items-center justify-between pt-3 border-t-4 border-outline">
+              <div className="flex items-center justify-between pt-3 border-t-4 border-[var(--outline)]">
                 <div className="flex items-center gap-2">
                   {userAvatarUrl ? (
                     <img
                       src={userAvatarUrl}
                       alt={userHandle || 'User'}
-                      className="w-8 h-8 rounded-full object-cover border-3 border-outline shadow-[2px_2px_0_var(--outline-black)]"
+                      className="w-8 h-8 rounded-full object-cover border-3 border-[var(--outline)] shadow-[2px_2px_0_var(--outline-black)]"
                       crossOrigin="anonymous"
                       loading="eager"
                       onError={(e) => {
                         const img = e.target as HTMLImageElement
                         const fallbackDiv = document.createElement('div')
-                        fallbackDiv.className = 'w-8 h-8 rounded-full bg-star flex items-center justify-center text-outline font-mario font-black text-sm border-3 border-outline shadow-[2px_2px_0_var(--outline-black)]'
+                        fallbackDiv.className = 'w-8 h-8 rounded-full bg-[var(--star)] flex items-center justify-center text-[var(--outline)] font-mario font-black text-sm border-3 border-[var(--outline)] shadow-[2px_2px_0_var(--outline-black)]'
                         fallbackDiv.textContent = (userHandle?.[0] || userEmail?.[0] || 'U').toUpperCase()
                         img.parentNode?.replaceChild(fallbackDiv, img)
                         e.preventDefault()
@@ -330,18 +330,18 @@ export function SharePnLDialog({ totalPnL, totalPnLPercent, currentValue, initia
                       }}
                     />
                   ) : (
-                    <div className="w-8 h-8 rounded-full bg-star flex items-center justify-center text-outline font-mario font-black text-sm border-3 border-outline shadow-[2px_2px_0_var(--outline-black)]">
+                    <div className="w-8 h-8 rounded-full bg-[var(--star)] flex items-center justify-center text-[var(--outline)] font-mario font-black text-sm border-3 border-[var(--outline)] shadow-[2px_2px_0_var(--outline-black)]">
                       {(userHandle?.[0] || userEmail?.[0] || 'U').toUpperCase()}
                     </div>
                   )}
                   <div>
-                    <div className="text-outline font-mario font-bold text-sm">@{userHandle || userEmail?.split('@')[0] || 'trader'}</div>
-                    <div className="text-[10px] text-sky font-bold">oneupsol.fun</div>
+                    <div className="text-[var(--outline)] font-mario font-bold text-sm">@{userHandle || userEmail?.split('@')[0] || 'trader'}</div>
+                    <div className="text-[10px] text-[var(--sky)] font-bold">oneupsol.fun</div>
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="text-[9px] text-outline/60 uppercase tracking-wide font-bold">Powered by</div>
-                  <div className="text-base font-mario font-black text-outline">1UP</div>
+                  <div className="text-[9px] text-[var(--outline)]/60 uppercase tracking-wide font-bold">Powered by</div>
+                  <div className="text-base font-mario font-black text-[var(--outline)]">1UP</div>
                 </div>
               </div>
             </div>
@@ -353,7 +353,7 @@ export function SharePnLDialog({ totalPnL, totalPnLPercent, currentValue, initia
             <div className="flex gap-3">
               <button 
                 onClick={handleDownload} 
-                className="flex-1 gap-2 h-12 px-4 rounded-xl border-4 border-outline bg-luigi text-white hover:bg-luigi/90 shadow-[4px_4px_0_var(--outline-black)] hover:shadow-[5px_5px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all flex items-center justify-center font-mario font-bold disabled:opacity-50" 
+                className="flex-1 gap-2 h-12 px-4 rounded-xl border-4 border-[var(--outline)] bg-[var(--luigi)] text-white hover:bg-[var(--luigi)]/90 shadow-[4px_4px_0_var(--outline-black)] hover:shadow-[5px_5px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all flex items-center justify-center font-mario font-bold disabled:opacity-50" 
                 disabled={isGenerating}
               >
                 {isGenerating ? (
@@ -370,7 +370,7 @@ export function SharePnLDialog({ totalPnL, totalPnLPercent, currentValue, initia
               </button>
               <button
                 onClick={handleCopy}
-                className="flex-1 gap-2 h-12 px-4 rounded-xl border-4 border-outline bg-sky text-white hover:bg-sky/90 shadow-[4px_4px_0_var(--outline-black)] hover:shadow-[5px_5px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all flex items-center justify-center font-mario font-bold disabled:opacity-50"
+                className="flex-1 gap-2 h-12 px-4 rounded-xl border-4 border-[var(--outline)] bg-[var(--sky)] text-white hover:bg-[var(--sky)]/90 shadow-[4px_4px_0_var(--outline-black)] hover:shadow-[5px_5px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all flex items-center justify-center font-mario font-bold disabled:opacity-50"
                 disabled={isGenerating}
               >
                 {isGenerating ? (
@@ -398,7 +398,7 @@ export function SharePnLDialog({ totalPnL, totalPnLPercent, currentValue, initia
                 <button
                   onClick={handleShareToTwitter}
                   disabled={isTracking}
-                  className="w-full gap-2 h-14 px-4 rounded-xl border-4 border-outline bg-gradient-to-r from-star to-coin-yellow text-outline hover:opacity-90 shadow-[4px_4px_0_var(--outline-black)] hover:shadow-[5px_5px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all flex items-center justify-center font-mario font-bold text-lg disabled:opacity-50"
+                  className="w-full gap-2 h-14 px-4 rounded-xl border-4 border-[var(--outline)] bg-gradient-to-r from-[var(--star)] to-[var(--coin-yellow)] text-[var(--outline)] hover:opacity-90 shadow-[4px_4px_0_var(--outline-black)] hover:shadow-[5px_5px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all flex items-center justify-center font-mario font-bold text-lg disabled:opacity-50"
                 >
                   {isTracking ? (
                     <>
@@ -416,9 +416,9 @@ export function SharePnLDialog({ totalPnL, totalPnLPercent, currentValue, initia
                 </button>
 
                 {/* Progress Indicator */}
-                <div className="flex items-center justify-center gap-3 p-3 rounded-lg bg-star/10 border-2 border-star/30">
+                <div className="flex items-center justify-center gap-3 p-3 rounded-lg bg-[var(--star)]/10 border-2 border-[var(--star)]/30">
                   <ShareProgressIndicator shareCount={shareCount} maxShares={3} size="sm" />
-                  <span className="text-xs font-mario font-bold text-outline">
+                  <span className="text-xs font-mario font-bold text-[var(--outline)]">
                     {remainingShares > 0 
                       ? `${remainingShares} more ${remainingShares === 1 ? 'share' : 'shares'} to earn $1000 SOL!`
                       : 'Ready to claim $1000 SOL!'
