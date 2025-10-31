@@ -110,7 +110,25 @@ export default function RootLayout({
         <link rel="icon" href="/favicon.ico" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="theme-color" content="#FFFAE9" />
-        <meta name="description" content="1UP SOL - Mario-themed Solana paper trading game" />
+        
+        {/* Primary Meta Tags */}
+        <meta name="title" content="1UP SOL - Mario-themed Solana Paper Trading Game" />
+        <meta name="description" content="1UP your Solana trading skills! Mario-themed paper trading game with real-time prices, FIFO accounting, and earn rewards. Practice trading without risk!" />
+        
+        {/* Open Graph / Facebook */}
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://1upsol.fun/" />
+        <meta property="og:title" content="1UP SOL - Mario-themed Solana Paper Trading Game" />
+        <meta property="og:description" content="1UP your Solana trading skills! Mario-themed paper trading game with real-time prices, FIFO accounting, and earn rewards. Practice trading without risk!" />
+        <meta property="og:site_name" content="1UP SOL" />
+        
+        {/* Twitter */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:url" content="https://1upsol.fun/" />
+        <meta name="twitter:title" content="1UP SOL - Mario-themed Solana Paper Trading Game" />
+        <meta name="twitter:description" content="1UP your Solana trading skills! Mario-themed paper trading game with real-time prices, FIFO accounting, and earn rewards. Practice trading without risk!" />
+        <meta name="twitter:creator" content="@1upsolfun" />
+        
         <title>1UP SOL - Mario Paper Trading</title>
       </head>
       <body className={cn("h-full bg-background text-foreground antialiased")}>
