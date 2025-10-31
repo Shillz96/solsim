@@ -751,6 +751,83 @@ export async function getRewardStats(): Promise<Backend.RewardStats> {
 }
 
 // ================================
+// Social Sharing Rewards Functions
+// ================================
+
+export interface SolRewardStatus {
+  shareCount: number;
+  remainingShares: number;
+  canClaim: boolean;
+  totalRewarded: number;
+  lastClaimDate?: Date;
+  nextClaimAvailable?: Date;
+  weeklyShares: number;
+  lastShareTime?: Date;
+}
+
+export interface SolRewardClaimResult {
+  success: boolean;
+  amountAwarded: number;
+  newBalance: number;
+  nextClaimAvailable: Date;
+  message: string;
+}
+
+/**
+ * Get social sharing reward status for current user
+ * GET /api/rewards/social/status
+ */
+export async function getSolRewardStatus(): Promise<SolRewardStatus> {
+  const response = await fetch(`${API}/api/rewards/social/status`, {
+    method: 'GET',
+    headers: getAuthHeaders(),
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ message: 'Failed to fetch reward status' }));
+    throw new Error(error.message || `HTTP ${response.status}`);
+  }
+
+  return response.json();
+}
+
+/**
+ * Track a PnL card share event
+ * POST /api/rewards/social/track-share
+ */
+export async function trackSolShare(): Promise<SolRewardStatus & { message: string }> {
+  const response = await fetch(`${API}/api/rewards/social/track-share`, {
+    method: 'POST',
+    headers: getAuthHeaders(),
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ message: 'Failed to track share' }));
+    throw new Error(error.message || `HTTP ${response.status}`);
+  }
+
+  return response.json();
+}
+
+/**
+ * Claim virtual SOL reward (requires 3 shares)
+ * POST /api/rewards/social/claim
+ */
+export async function claimSolReward(): Promise<SolRewardClaimResult> {
+  const response = await fetch(`${API}/api/rewards/social/claim`, {
+    method: 'POST',
+    headers: getAuthHeaders(),
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ message: 'Failed to claim reward' }));
+    throw new Error(error.message || `HTTP ${response.status}`);
+  }
+
+  return response.json();
+}
+
+// ================================
 // Wallet & Balance Functions
 // ================================
 

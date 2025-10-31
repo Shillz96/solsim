@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button"
 import { Share2, Download, Copy, Check, Loader2 } from "lucide-react"
 import { toPng, toBlob } from "html-to-image"
 import { useToast } from "@/hooks/use-toast"
+import { useSolRewards } from "@/hooks/use-sol-rewards"
+import { ShareProgressIndicator } from "@/components/ui/share-progress-indicator"
 
 interface SharePnLDialogProps {
   totalPnL: number
@@ -30,8 +32,10 @@ export function SharePnLDialog({ totalPnL, totalPnLPercent, currentValue, initia
   const setOpen = externalOnOpenChange || setInternalOpen
   const [copied, setCopied] = useState(false)
   const [isGenerating, setIsGenerating] = useState(false)
+  const [hasDownloaded, setHasDownloaded] = useState(false)
   const cardRef = useRef<HTMLDivElement>(null)
   const { toast } = useToast()
+  const { trackShare, shareCount, remainingShares, isTracking } = useSolRewards()
 
   // Helper function to wait for all images to load
   const waitForImagesToLoad = async (element: HTMLElement): Promise<void> => {
@@ -84,6 +88,8 @@ export function SharePnLDialog({ totalPnL, totalPnLPercent, currentValue, initia
       link.href = dataUrl
       link.click()
       
+      setHasDownloaded(true)
+      
       toast({
         title: "Download successful",
         description: "Your PnL card has been downloaded",
@@ -132,6 +138,8 @@ export function SharePnLDialog({ totalPnL, totalPnLPercent, currentValue, initia
         setCopied(true)
         setTimeout(() => setCopied(false), 2000)
         
+        setHasDownloaded(true)
+        
         toast({
           title: "Copied to clipboard",
           description: "Your PnL card is ready to paste",
@@ -155,6 +163,38 @@ export function SharePnLDialog({ totalPnL, totalPnLPercent, currentValue, initia
       })
     } finally {
       setIsGenerating(false)
+    }
+  }
+
+  const handleShareToTwitter = async () => {
+    try {
+      // Create Twitter share URL
+      const pnlEmoji = totalPnL >= 0 ? '📈' : '📉'
+      const pnlSign = totalPnL >= 0 ? '+' : ''
+      const pnlAmount = Math.abs(totalPnL).toFixed(2)
+      
+      const text = isTokenSpecific && tokenSymbol
+        ? `Check out my ${tokenSymbol} trading performance on @1upSOL! ${pnlEmoji} ${pnlSign}$${pnlAmount} PnL\n\nPaper trading Solana memecoins with ZERO risk.`
+        : `Check out my trading performance on @1upSOL! ${pnlEmoji} ${pnlSign}$${pnlAmount} PnL (${pnlSign}${totalPnLPercent.toFixed(2)}%)\n\nPaper trading Solana memecoins with ZERO risk.`
+      
+      const url = 'https://oneupsol.fun'
+      const hashtags = 'Solana,PaperTrading,Crypto,1UP'
+      
+      const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}&hashtags=${hashtags}`
+      
+      // Open Twitter in new tab
+      window.open(twitterUrl, '_blank', 'noopener,noreferrer')
+      
+      // Track the share
+      trackShare()
+      
+    } catch (error) {
+      console.error('Failed to share to Twitter:', error)
+      toast({
+        title: "Share failed",
+        description: "Failed to open Twitter. Please try again.",
+        variant: "destructive"
+      })
     }
   }
 
@@ -308,46 +348,85 @@ export function SharePnLDialog({ totalPnL, totalPnLPercent, currentValue, initia
           </div>
 
           {/* Action Buttons - Mario Style */}
-          <div className="flex gap-3">
-            <button 
-              onClick={handleDownload} 
-              className="flex-1 gap-2 h-12 px-4 rounded-xl border-4 border-outline bg-luigi text-white hover:bg-luigi/90 shadow-[4px_4px_0_var(--outline-black)] hover:shadow-[5px_5px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all flex items-center justify-center font-mario font-bold disabled:opacity-50" 
-              disabled={isGenerating}
-            >
-              {isGenerating ? (
-                <>
-                  <Loader2 className="h-5 w-5 animate-spin" />
-                  Generating...
-                </>
-              ) : (
-                <>
-                  <Download className="h-5 w-5" />
-                  Download
-                </>
-              )}
-            </button>
-            <button
-              onClick={handleCopy}
-              className="flex-1 gap-2 h-12 px-4 rounded-xl border-4 border-outline bg-sky text-white hover:bg-sky/90 shadow-[4px_4px_0_var(--outline-black)] hover:shadow-[5px_5px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all flex items-center justify-center font-mario font-bold disabled:opacity-50"
-              disabled={isGenerating}
-            >
-              {isGenerating ? (
-                <>
-                  <Loader2 className="h-5 w-5 animate-spin" />
-                  Generating...
-                </>
-              ) : copied ? (
-                <>
-                  <Check className="h-5 w-5" />
-                  Copied!
-                </>
-              ) : (
-                <>
-                  <Copy className="h-5 w-5" />
-                  Copy Image
-                </>
-              )}
-            </button>
+          <div className="space-y-3">
+            {/* Download & Copy Row */}
+            <div className="flex gap-3">
+              <button 
+                onClick={handleDownload} 
+                className="flex-1 gap-2 h-12 px-4 rounded-xl border-4 border-outline bg-luigi text-white hover:bg-luigi/90 shadow-[4px_4px_0_var(--outline-black)] hover:shadow-[5px_5px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all flex items-center justify-center font-mario font-bold disabled:opacity-50" 
+                disabled={isGenerating}
+              >
+                {isGenerating ? (
+                  <>
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                    Generating...
+                  </>
+                ) : (
+                  <>
+                    <Download className="h-5 w-5" />
+                    Download
+                  </>
+                )}
+              </button>
+              <button
+                onClick={handleCopy}
+                className="flex-1 gap-2 h-12 px-4 rounded-xl border-4 border-outline bg-sky text-white hover:bg-sky/90 shadow-[4px_4px_0_var(--outline-black)] hover:shadow-[5px_5px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all flex items-center justify-center font-mario font-bold disabled:opacity-50"
+                disabled={isGenerating}
+              >
+                {isGenerating ? (
+                  <>
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                    Generating...
+                  </>
+                ) : copied ? (
+                  <>
+                    <Check className="h-5 w-5" />
+                    Copied!
+                  </>
+                ) : (
+                  <>
+                    <Copy className="h-5 w-5" />
+                    Copy Image
+                  </>
+                )}
+              </button>
+            </div>
+
+            {/* Twitter Share Button (prominent after download/copy) */}
+            {hasDownloaded && (
+              <div className="space-y-2">
+                <button
+                  onClick={handleShareToTwitter}
+                  disabled={isTracking}
+                  className="w-full gap-2 h-14 px-4 rounded-xl border-4 border-outline bg-gradient-to-r from-star to-coin-yellow text-outline hover:opacity-90 shadow-[4px_4px_0_var(--outline-black)] hover:shadow-[5px_5px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all flex items-center justify-center font-mario font-bold text-lg disabled:opacity-50"
+                >
+                  {isTracking ? (
+                    <>
+                      <Loader2 className="h-5 w-5 animate-spin" />
+                      Tracking...
+                    </>
+                  ) : (
+                    <>
+                      <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                      </svg>
+                      Share to X • Earn SOL!
+                    </>
+                  )}
+                </button>
+
+                {/* Progress Indicator */}
+                <div className="flex items-center justify-center gap-3 p-3 rounded-lg bg-star/10 border-2 border-star/30">
+                  <ShareProgressIndicator shareCount={shareCount} maxShares={3} size="sm" />
+                  <span className="text-xs font-mario font-bold text-outline">
+                    {remainingShares > 0 
+                      ? `${remainingShares} more ${remainingShares === 1 ? 'share' : 'shares'} to earn $1000 SOL!`
+                      : 'Ready to claim $1000 SOL!'
+                    }
+                  </span>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </DialogContent>

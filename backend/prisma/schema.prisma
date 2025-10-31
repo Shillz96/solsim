@@ -74,6 +74,26 @@ model User {
   chatStrikes             Int                    @default(0)
   chatMutedUntil          DateTime?
   bannedFromChat          Boolean                @default(false)
+  // Social sharing rewards
+  solReward               SolReward?
+}
+
+// Social Sharing Rewards - Track PnL shares for SOL rewards
+model SolReward {
+  id              String    @id @default(uuid())
+  userId          String    @unique
+  shareCount      Int       @default(0)
+  lastRewardClaim DateTime?
+  totalRewarded   Decimal   @default(0)
+  weeklyShares    Int       @default(0)
+  weekResetAt     DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId], map: "sol_reward_user")
+  @@index([lastRewardClaim], map: "sol_reward_claim_date")
 }
 
 model Trade {

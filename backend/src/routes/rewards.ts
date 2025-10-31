@@ -153,9 +153,121 @@ export default async function rewardsRoutes(app: FastifyInstance) {
       
     } catch (error: any) {
       app.log.error(error);
-      return reply.code(500).send({ error: "Failed to claim rewards" });
+      return reply.code(500).send({ error: "Failed to fetch last distribution" });
     }
   });
+
+  // ============================================================
+  // SOCIAL SHARING REWARDS - PnL card sharing endpoints
+  // ============================================================
+
+  /**
+   * GET /rewards/social/status
+   * Get current social sharing reward status for authenticated user
+   */
+  app.get("/social/status", async (req, reply) => {
+    const userId = (req as any).user?.userId;
+    
+    if (!userId) {
+      return reply.code(401).send({ error: "Unauthorized" });
+    }
+
+    try {
+      const { getRewardStatus } = await import("../services/rewardService.js");
+      const status = await getRewardStatus(userId);
+      return status;
+    } catch (error: any) {
+      app.log.error("Failed to get social reward status:", error);
+      return reply.code(500).send({ 
+        error: "Failed to fetch reward status",
+        message: error.message 
+      });
+    }
+  });
+
+  /**
+   * POST /rewards/social/track-share
+   * Track a PnL card share event (increments counter)
+   */
+  app.post("/social/track-share", async (req, reply) => {
+    const userId = (req as any).user?.userId;
+    
+    if (!userId) {
+      return reply.code(401).send({ error: "Unauthorized" });
+    }
+
+    try {
+      const { trackSolShare } = await import("../services/rewardService.js");
+      const status = await trackSolShare(userId);
+      
+      return {
+        ...status,
+        message: status.canClaim 
+          ? "Great! You can now claim your $1000 SOL reward!" 
+          : `Nice! ${status.remainingShares} more shares to unlock your reward.`
+      };
+    } catch (error: any) {
+      app.log.error("Failed to track share:", error);
+      
+      // Rate limiting or cooldown error
+      if (error.message?.includes("wait") || error.message?.includes("cooldown")) {
+        return reply.code(429).send({ 
+          error: "Rate limited",
+          message: error.message 
+        });
+      }
+      
+      return reply.code(500).send({ 
+        error: "Failed to track share",
+        message: error.message 
+      });
+    }
+  });
+
+  /**
+   * POST /rewards/social/claim
+   * Claim virtual SOL reward (requires 3 shares)
+   */
+  app.post("/social/claim", async (req, reply) => {
+    const userId = (req as any).user?.userId;
+    
+    if (!userId) {
+      return reply.code(401).send({ error: "Unauthorized" });
+    }
+
+    try {
+      const { claimSolReward } = await import("../services/rewardService.js");
+      const result = await claimSolReward(userId);
+      
+      return {
+        ...result,
+        message: `🎉 Congratulations! You've earned $${result.amountAwarded} virtual SOL!`
+      };
+    } catch (error: any) {
+      app.log.error("Failed to claim social reward:", error);
+      
+      // User-friendly error messages
+      if (error.message?.includes("more shares")) {
+        return reply.code(400).send({ 
+          error: "Insufficient shares",
+          message: error.message 
+        });
+      }
+      
+      if (error.message?.includes("cooldown") || error.message?.includes("claim")) {
+        return reply.code(429).send({ 
+          error: "Cooldown active",
+          message: error.message 
+        });
+      }
+      
+      return reply.code(500).send({ 
+        error: "Failed to claim reward",
+        message: error.message 
+      });
+    }
+  });
+}
 
   // Get user's reward claims
   app.get("/claims/:userId", async (req, reply) => {

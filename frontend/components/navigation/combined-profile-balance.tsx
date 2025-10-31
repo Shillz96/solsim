@@ -19,6 +19,9 @@ import { DepositModal } from '@/components/modals/deposit-modal';
 import { WithdrawModal } from '@/components/modals/withdraw-modal';
 import { ExportPrivateKeyModal } from '@/components/modals/export-private-key-modal';
 import { formatNumber } from '@/lib/utils';
+import { NeedMoreSolDialog } from '@/components/modals/need-more-sol-dialog';
+import { ShareProgressIndicator } from '@/components/ui/share-progress-indicator';
+import { useSolRewards } from '@/hooks/use-sol-rewards';
 
 type CombinedProfileBalanceProps = {
   displayName: string
@@ -61,7 +64,8 @@ export function CombinedProfileBalance({
 
   const { publicKey, disconnect } = useWallet();
   const router = useRouter();
-  const [activeModal, setActiveModal] = useState<'deposit' | 'withdraw' | 'export' | null>(null);
+  const [activeModal, setActiveModal] = useState<'deposit' | 'withdraw' | 'export' | 'rewards' | null>(null);
+  const { shareCount, canClaim } = useSolRewards();
 
   // Calculate level using centralized utility
   const levelInfo = calculateLevel(xp)
@@ -443,6 +447,29 @@ export function CombinedProfileBalance({
 
           <DropdownMenuSeparator />
 
+          <DropdownMenuItem 
+            onClick={() => setActiveModal('rewards')} 
+            className="font-semibold cursor-pointer bg-star/10 hover:bg-star/20"
+          >
+            <Sparkles className="h-4 w-4 mr-2 text-star" />
+            <span className="flex-1">Need More SOL?</span>
+            {shareCount > 0 && (
+              <ShareProgressIndicator 
+                shareCount={shareCount} 
+                maxShares={3} 
+                size="sm" 
+                className="ml-2"
+              />
+            )}
+            {canClaim && (
+              <span className="ml-2 px-2 py-0.5 rounded-full bg-star text-[10px] font-black text-outline">
+                CLAIM!
+              </span>
+            )}
+          </DropdownMenuItem>
+
+          <DropdownMenuSeparator />
+
           <DropdownMenuItem asChild>
             <Link href="/profile/settings" className="font-semibold">
               <Settings className="h-4 w-4 mr-2" />
@@ -480,6 +507,14 @@ export function CombinedProfileBalance({
           userId={userId}
         />
       )}
+      <NeedMoreSolDialog
+        open={activeModal === 'rewards'}
+        onOpenChange={(open) => setActiveModal(open ? 'rewards' : null)}
+        onShareClick={() => {
+          // Could navigate to portfolio or show a "share any PnL card" message
+          setActiveModal(null)
+        }}
+      />
     </>
   )
 }

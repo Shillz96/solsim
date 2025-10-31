@@ -270,3 +270,243 @@ export async function claimReward(userId: string, epoch: number, wallet: string)
     throw new Error(`Reward claim failed: ${error.message}`);
   }
 }
+
+// ============================================================
+// SOCIAL SHARING REWARDS - Share PnL cards to earn virtual SOL
+// ============================================================
+
+const SHARE_REWARD_AMOUNT = new Decimal(1000); // $1000 virtual SOL per completed cycle
+const SHARES_REQUIRED = 3;
+const COOLDOWN_DAYS = 7;
+const RATE_LIMIT_SECONDS = 30; // Prevent spam - max 1 share per 30 seconds
+
+interface RewardStatus {
+  shareCount: number;
+  remainingShares: number;
+  canClaim: boolean;
+  totalRewarded: number;
+  lastClaimDate?: Date;
+  nextClaimAvailable?: Date;
+  weeklyShares: number;
+  lastShareTime?: Date;
+}
+
+/**
+ * Track a PnL share event for a user
+ * Increments share counter with rate limiting
+ */
+export async function trackSolShare(userId: string): Promise<RewardStatus> {
+  try {
+    // Get or create reward record
+    let reward = await prisma.solReward.findUnique({
+      where: { userId }
+    });
+
+    if (!reward) {
+      reward = await prisma.solReward.create({
+        data: {
+          userId,
+          shareCount: 0,
+          weeklyShares: 0,
+          totalRewarded: new Decimal(0)
+        }
+      });
+    }
+
+    // Rate limiting check - prevent spam (max 1 share per 30 seconds)
+    const lastUpdate = reward.updatedAt;
+    const now = new Date();
+    const secondsSinceLastShare = (now.getTime() - lastUpdate.getTime()) / 1000;
+    
+    if (secondsSinceLastShare < RATE_LIMIT_SECONDS) {
+      throw new Error(`Please wait ${Math.ceil(RATE_LIMIT_SECONDS - secondsSinceLastShare)} seconds before sharing again`);
+    }
+
+    // Check if user has already claimed and is in cooldown
+    if (reward.lastRewardClaim) {
+      const cooldownEnd = new Date(reward.lastRewardClaim);
+      cooldownEnd.setDate(cooldownEnd.getDate() + COOLDOWN_DAYS);
+      
+      if (now < cooldownEnd && reward.shareCount >= SHARES_REQUIRED) {
+        // Already claimed, in cooldown period
+        throw new Error(`You can claim your next reward on ${cooldownEnd.toLocaleDateString()}`);
+      }
+    }
+
+    // Increment share counter
+    const updatedReward = await prisma.solReward.update({
+      where: { userId },
+      data: {
+        shareCount: { increment: 1 },
+        weeklyShares: { increment: 1 },
+        updatedAt: now
+      }
+    });
+
+    console.log(`✅ Tracked share for user ${userId}: ${updatedReward.shareCount}/${SHARES_REQUIRED}`);
+
+    return await getRewardStatus(userId);
+  } catch (error: any) {
+    console.error(`❌ Failed to track share for user ${userId}:`, error);
+    throw error;
+  }
+}
+
+/**
+ * Claim virtual SOL reward when user completes required shares
+ * Adds SOL to virtualSolBalance and resets counter
+ */
+export async function claimSolReward(userId: string): Promise<{
+  success: boolean;
+  amountAwarded: number;
+  newBalance: number;
+  nextClaimAvailable: Date;
+}> {
+  try {
+    const reward = await prisma.solReward.findUnique({
+      where: { userId },
+      include: { user: true }
+    });
+
+    if (!reward) {
+      throw new Error("No reward record found. Share some PnL cards first!");
+    }
+
+    // Validate share count
+    if (reward.shareCount < SHARES_REQUIRED) {
+      throw new Error(`You need ${SHARES_REQUIRED - reward.shareCount} more shares to claim your reward`);
+    }
+
+    // Check cooldown period
+    if (reward.lastRewardClaim) {
+      const cooldownEnd = new Date(reward.lastRewardClaim);
+      cooldownEnd.setDate(cooldownEnd.getDate() + COOLDOWN_DAYS);
+      const now = new Date();
+      
+      if (now < cooldownEnd) {
+        throw new Error(`You can claim your next reward on ${cooldownEnd.toLocaleDateString()}`);
+      }
+    }
+
+    // Add virtual SOL to user's balance
+    const updatedUser = await prisma.user.update({
+      where: { id: userId },
+      data: {
+        virtualSolBalance: {
+          increment: SHARE_REWARD_AMOUNT
+        }
+      }
+    });
+
+    // Update reward record - reset share count, update totals
+    const now = new Date();
+    const nextClaimDate = new Date(now);
+    nextClaimDate.setDate(nextClaimDate.getDate() + COOLDOWN_DAYS);
+
+    await prisma.solReward.update({
+      where: { userId },
+      data: {
+        shareCount: 0, // Reset counter
+        lastRewardClaim: now,
+        totalRewarded: {
+          increment: SHARE_REWARD_AMOUNT
+        },
+        updatedAt: now
+      }
+    });
+
+    console.log(`✅ Claimed SOL reward for user ${userId}: +$${SHARE_REWARD_AMOUNT} virtual SOL`);
+
+    return {
+      success: true,
+      amountAwarded: SHARE_REWARD_AMOUNT.toNumber(),
+      newBalance: updatedUser.virtualSolBalance.toNumber(),
+      nextClaimAvailable: nextClaimDate
+    };
+  } catch (error: any) {
+    console.error(`❌ Failed to claim SOL reward for user ${userId}:`, error);
+    throw error;
+  }
+}
+
+/**
+ * Get current reward status for a user
+ */
+export async function getRewardStatus(userId: string): Promise<RewardStatus> {
+  try {
+    let reward = await prisma.solReward.findUnique({
+      where: { userId }
+    });
+
+    if (!reward) {
+      // Create initial record if doesn't exist
+      reward = await prisma.solReward.create({
+        data: {
+          userId,
+          shareCount: 0,
+          weeklyShares: 0,
+          totalRewarded: new Decimal(0)
+        }
+      });
+    }
+
+    const shareCount = reward.shareCount;
+    const remainingShares = Math.max(0, SHARES_REQUIRED - shareCount);
+    let canClaim = shareCount >= SHARES_REQUIRED;
+
+    // Check cooldown
+    let nextClaimAvailable: Date | undefined;
+    if (reward.lastRewardClaim) {
+      const cooldownEnd = new Date(reward.lastRewardClaim);
+      cooldownEnd.setDate(cooldownEnd.getDate() + COOLDOWN_DAYS);
+      const now = new Date();
+      
+      if (now < cooldownEnd) {
+        canClaim = false; // Still in cooldown
+        nextClaimAvailable = cooldownEnd;
+      }
+    }
+
+    return {
+      shareCount,
+      remainingShares,
+      canClaim,
+      totalRewarded: reward.totalRewarded.toNumber(),
+      lastClaimDate: reward.lastRewardClaim || undefined,
+      nextClaimAvailable,
+      weeklyShares: reward.weeklyShares,
+      lastShareTime: reward.updatedAt
+    };
+  } catch (error: any) {
+    console.error(`❌ Failed to get reward status for user ${userId}:`, error);
+    throw error;
+  }
+}
+
+/**
+ * Check if user can claim reward
+ */
+export async function canClaimSolReward(userId: string): Promise<boolean> {
+  const status = await getRewardStatus(userId);
+  return status.canClaim;
+}
+
+/**
+ * Reset weekly share counters (called by cron job)
+ * Prevents abuse by limiting shares per week
+ */
+export async function resetWeeklyShares(): Promise<void> {
+  try {
+    const result = await prisma.solReward.updateMany({
+      data: {
+        weeklyShares: 0,
+        weekResetAt: new Date()
+      }
+    });
+
+    console.log(`✅ Reset weekly shares for ${result.count} users`);
+  } catch (error: any) {
+    console.error(`❌ Failed to reset weekly shares:`, error);
+    throw error;
+  }
+}
