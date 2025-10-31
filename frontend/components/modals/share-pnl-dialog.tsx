@@ -135,20 +135,31 @@ export function SharePnLDialog({
     if (!cardRef.current || isGenerating) return
     try {
       setIsGenerating(true)
+      
+      // Clear any text selection that might interfere with clipboard operations
+      if (window.getSelection) {
+        const selection = window.getSelection()
+        if (selection) {
+          selection.removeAllRanges()
+        }
+      }
+      
       const blob = await generateShareImage("blob")
       if (!blob) throw new Error("Failed to generate image blob")
+      
       const itemCtor: any = (window as any).ClipboardItem
       if (itemCtor && navigator.clipboard && (navigator.clipboard as any).write) {
         await (navigator.clipboard as any).write([new itemCtor({ "image/png": blob })])
+        setCopied(true)
+        setTimeout(() => setCopied(false), 1800)
+        setHasDownloaded(true)
+        toast({ title: "Copied to clipboard", description: "Your PnL card is ready to paste." })
       } else {
         // Fallback: open the PNG data URL in a new tab
         const dataUrl = URL.createObjectURL(blob)
         window.open(dataUrl, "_blank")
+        toast({ title: "Image opened in new tab", description: "Right-click the image to copy it." })
       }
-      setCopied(true)
-      setTimeout(() => setCopied(false), 1800)
-      setHasDownloaded(true)
-      toast({ title: "Copied to clipboard", description: "Your PnL card is ready to paste." })
     } catch (error) {
       console.error("Failed to copy PnL image:", error)
       toast({ title: "Copy failed", description: "Please try again.", variant: "destructive" })
@@ -224,7 +235,7 @@ export function SharePnLDialog({
             ref={cardRef}
             className="
               share-card mario-card-desktop relative w-full aspect-[16/10] overflow-hidden
-              bg-[var(--card-share-bg)]
+              bg-[var(--card-share-bg)] select-none
             "
             aria-label="Shareable PnL preview card"
           >
