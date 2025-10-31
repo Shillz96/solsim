@@ -15,6 +15,7 @@ import { cn } from "@/lib/utils"
 import { usePathname } from "next/navigation"
 import { useEffect, useState } from "react"
 import { WebVitals } from "@/components/analytics/web-vitals"
+import { LowBalanceAlert } from "@/components/rewards/low-balance-alert"
 
 function LayoutContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
@@ -116,6 +117,7 @@ export default function RootLayout({
         <AmbientOverlay />
         <AppProviders>
           <WebVitals />
+          <LowBalanceAlert />
           <WindowManager>
             <LayoutContent>
               {children}
