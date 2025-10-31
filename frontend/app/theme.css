@@ -80,6 +80,10 @@
   --brick-brown: var(--color-brick);
   --pipe-green: var(--color-pipe);
   
+  /* Tailwind utility class color mappings (bg-mario, text-mario, etc.) */
+  --color-mario: var(--mario-red);
+  --color-outline: var(--outline-black);
+  
   /* Legacy aliases for backward compatibility */
   --color-mario-red: var(--color-brand);
   --color-luigi-green: var(--color-luigi);

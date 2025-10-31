@@ -166,10 +166,76 @@ export function WarpPipesHub() {
     }
   }, [data, bondedFilters, graduatingFilters, newFilters])
 
+  // Calculate stats across all tokens
+  const stats = useMemo(() => {
+    const allTokens = [...bonded, ...graduating, ...newTokens]
+    if (allTokens.length === 0) return null
+
+    const totalVolume = allTokens.reduce((sum, t) => sum + (t.volume24h || 0), 0)
+    const totalMarketCap = allTokens.reduce((sum, t) => sum + (t.marketCapUsd || 0), 0)
+    const avgBondingProgress = graduating.length > 0 
+      ? graduating.reduce((sum, t) => sum + (t.bondingCurveProgress || 0), 0) / graduating.length 
+      : 0
+
+    return {
+      totalVolume,
+      totalMarketCap,
+      avgBondingProgress,
+      tokenCount: allTokens.length,
+    }
+  }, [bonded, graduating, newTokens])
+
   return (
     <div 
       className="w-full h-full flex flex-col bg-background overflow-hidden"
     >
+      {/* Stats Summary Bar */}
+      {stats && !error && (
+        <div className="px-4 pt-4 pb-2 flex-shrink-0">
+          <div className="bg-card border-4 border-outline rounded-xl shadow-[4px_4px_0_var(--outline-black)] p-3 overflow-hidden relative">
+            {/* Live indicator */}
+            <div className="absolute top-2 right-2 flex items-center gap-1.5">
+              <div className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-luigi opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-luigi"></span>
+              </div>
+              <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">Live</span>
+            </div>
+            
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <div className="flex flex-col items-center justify-center p-2 bg-luigi/10 rounded-lg border-2 border-outline">
+                <div className="text-xl sm:text-2xl font-bold text-outline">{stats.tokenCount}</div>
+                <div className="text-xs text-muted-foreground font-medium">Total Tokens</div>
+              </div>
+              <div className="flex flex-col items-center justify-center p-2 bg-star/10 rounded-lg border-2 border-outline">
+                <div className="text-xl sm:text-2xl font-bold text-outline">
+                  ${stats.totalVolume >= 1000000 
+                    ? `${(stats.totalVolume / 1000000).toFixed(1)}M` 
+                    : stats.totalVolume >= 1000 
+                    ? `${(stats.totalVolume / 1000).toFixed(0)}K`
+                    : stats.totalVolume.toFixed(0)}
+                </div>
+                <div className="text-xs text-muted-foreground font-medium">24h Volume</div>
+              </div>
+              <div className="flex flex-col items-center justify-center p-2 bg-coin/10 rounded-lg border-2 border-outline">
+                <div className="text-xl sm:text-2xl font-bold text-outline">
+                  ${stats.totalMarketCap >= 1000000 
+                    ? `${(stats.totalMarketCap / 1000000).toFixed(1)}M` 
+                    : stats.totalMarketCap >= 1000 
+                    ? `${(stats.totalMarketCap / 1000).toFixed(0)}K`
+                    : stats.totalMarketCap.toFixed(0)}
+                </div>
+                <div className="text-xs text-muted-foreground font-medium">Market Cap</div>
+              </div>
+              <div className="flex flex-col items-center justify-center p-2 bg-mario/10 rounded-lg border-2 border-outline">
+                <div className="text-xl sm:text-2xl font-bold text-outline">{stats.avgBondingProgress.toFixed(0)}%</div>
+                <div className="text-xs text-muted-foreground font-medium">Avg Progress</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Error State */}
       {error && (
         <div className="px-4 pt-4 pb-2 flex-shrink-0">
@@ -225,24 +291,27 @@ export function WarpPipesHub() {
       {/* Mobile: Tabs Layout */}
       <div className="lg:hidden flex flex-col flex-1 min-h-0 px-4 py-6">
         <Tabs defaultValue="new" className="w-full h-full flex flex-col">
-          <TabsList className="grid w-full grid-cols-3 mb-4">
+          <TabsList className="inline-flex w-auto mb-4 flex-wrap gap-2 bg-transparent border-0 p-0 shadow-none">
             <TabsTrigger
               value="new"
-              className="mario-tab-green"
+              className="mario-tab-green text-xs sm:text-sm px-4 py-2.5 rounded-xl border-3 border-outline shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all data-[state=active]:scale-105 data-[state=active]:shadow-[5px_5px_0_var(--outline-black)] data-[state=active]:-translate-y-1"
             >
-              🆕 New ({newTokens.length})
+              <span className="text-base">🆕</span>
+              <span className="font-bold">New ({newTokens.length})</span>
             </TabsTrigger>
             <TabsTrigger
               value="graduating"
-              className="mario-tab-yellow"
+              className="mario-tab-yellow text-xs sm:text-sm px-4 py-2.5 rounded-xl border-3 border-outline shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all data-[state=active]:scale-105 data-[state=active]:shadow-[5px_5px_0_var(--outline-black)] data-[state=active]:-translate-y-1"
             >
-              ⭐ Graduate ({graduating.length})
+              <span className="text-base">⭐</span>
+              <span className="font-bold">Graduate ({graduating.length})</span>
             </TabsTrigger>
             <TabsTrigger
               value="bonded"
-              className="mario-tab-red"
+              className="mario-tab-red text-xs sm:text-sm px-4 py-2.5 rounded-xl border-3 border-outline shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all data-[state=active]:scale-105 data-[state=active]:shadow-[5px_5px_0_var(--outline-black)] data-[state=active]:-translate-y-1"
             >
-              🪙 Bonded ({bonded.length})
+              <span className="text-base">🪙</span>
+              <span className="font-bold">Bonded ({bonded.length})</span>
             </TabsTrigger>
           </TabsList>
 

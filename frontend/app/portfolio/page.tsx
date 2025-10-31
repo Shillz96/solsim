@@ -50,24 +50,48 @@ function PortfolioPageContent() {
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.2 }}>
           <Tabs defaultValue={defaultTab} className="w-full">
-                        <TabsList className="inline-flex w-auto mb-6 flex-wrap">
-              <TabsTrigger value="overview" className="mario-tab-yellow text-xs sm:text-sm">
-                📊 Overview
+            <TabsList className="inline-flex w-auto mb-6 flex-wrap gap-2 bg-transparent border-0 p-0 shadow-none">
+              <TabsTrigger 
+                value="overview" 
+                className="mario-tab-yellow text-xs sm:text-sm px-4 py-2.5 rounded-xl border-3 border-outline shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all data-[state=active]:scale-105 data-[state=active]:shadow-[5px_5px_0_var(--outline-black)] data-[state=active]:-translate-y-1"
+              >
+                <span className="text-base">📊</span>
+                <span className="font-bold">Overview</span>
               </TabsTrigger>
-              <TabsTrigger value="coins" className="mario-tab-red text-xs sm:text-sm">
-                🪙 Coins
+              <TabsTrigger 
+                value="coins" 
+                className="mario-tab-red text-xs sm:text-sm px-4 py-2.5 rounded-xl border-3 border-outline shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all data-[state=active]:scale-105 data-[state=active]:shadow-[5px_5px_0_var(--outline-black)] data-[state=active]:-translate-y-1"
+              >
+                <span className="text-base">🪙</span>
+                <span className="font-bold">Coins</span>
               </TabsTrigger>
-              <TabsTrigger value="stats" className="mario-tab-green text-xs sm:text-sm">
-                📈 Stats
+              <TabsTrigger 
+                value="stats" 
+                className="mario-tab-green text-xs sm:text-sm px-4 py-2.5 rounded-xl border-3 border-outline shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all data-[state=active]:scale-105 data-[state=active]:shadow-[5px_5px_0_var(--outline-black)] data-[state=active]:-translate-y-1"
+              >
+                <span className="text-base">📈</span>
+                <span className="font-bold">Stats</span>
               </TabsTrigger>
-              <TabsTrigger value="history" className="mario-tab-yellow text-xs sm:text-sm">
-                🕒 History
+              <TabsTrigger 
+                value="history" 
+                className="mario-tab-yellow text-xs sm:text-sm px-4 py-2.5 rounded-xl border-3 border-outline shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all data-[state=active]:scale-105 data-[state=active]:shadow-[5px_5px_0_var(--outline-black)] data-[state=active]:-translate-y-1"
+              >
+                <span className="text-base">🕒</span>
+                <span className="font-bold">History</span>
               </TabsTrigger>
-              <TabsTrigger value="wallet" className="mario-tab-red text-xs sm:text-sm">
-                👛 Wallet
+              <TabsTrigger 
+                value="wallet" 
+                className="mario-tab-red text-xs sm:text-sm px-4 py-2.5 rounded-xl border-3 border-outline shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all data-[state=active]:scale-105 data-[state=active]:shadow-[5px_5px_0_var(--outline-black)] data-[state=active]:-translate-y-1"
+              >
+                <span className="text-base">👛</span>
+                <span className="font-bold">Wallet</span>
               </TabsTrigger>
-              <TabsTrigger value="achievements" className="mario-tab-green text-xs sm:text-sm">
-                🏆 Achievements
+              <TabsTrigger 
+                value="achievements" 
+                className="mario-tab-green text-xs sm:text-sm px-4 py-2.5 rounded-xl border-3 border-outline shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all data-[state=active]:scale-105 data-[state=active]:shadow-[5px_5px_0_var(--outline-black)] data-[state=active]:-translate-y-1"
+              >
+                <span className="text-base">🏆</span>
+                <span className="font-bold">Achievements</span>
               </TabsTrigger>
             </TabsList>
 
