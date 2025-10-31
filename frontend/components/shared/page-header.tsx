@@ -5,7 +5,6 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { 
   ChevronRight, 
-  Home, 
   TrendingUp,
   ArrowLeft,
   Share2,
@@ -42,7 +41,6 @@ export function PageHeader({
   const pathname = usePathname()
 
   const defaultBreadcrumbs: BreadcrumbItem[] = [
-    { label: "Home", href: "/", icon: Home },
     { label: "Portfolio", href: "/portfolio" }
   ]
 

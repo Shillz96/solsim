@@ -9,12 +9,6 @@ import { cn, marioStyles } from "@/lib/utils"
 // Navigation items configuration
 const navigationItems = [
   {
-    name: "Dashboard",
-    href: "/",
-    iconSrc: "/Home-10-24-2025.png",
-    description: "Overview of your trading activity"
-  },
-  {
     name: "Trade",
     href: "/warp-pipes",
     iconSrc: "/Trade-10-24-2025.png",

@@ -1,6 +1,7 @@
 /**
  * Trade Panel Buy Tab Component
  * Buy interface with presets, custom input, estimates, fees, and token vitals
+ * Updated to match Mario-themed card aesthetic
  */
 
 import { TrendingUp, Loader2 } from 'lucide-react'
@@ -74,10 +75,10 @@ export function TradePanelBuyTab({
   const fees = hasAmount ? calculateTradeFees(solAmount, solPrice) : null
   
   return (
-    <div className="flex flex-col h-full" style={{ gap: 'var(--trade-tier-gap)' }}>
-      {/* Actions Tier */}
-      <div className="trade-tier trade-actions">
-        <Label className="mario-font text-[10px] whitespace-nowrap">
+    <div className="flex flex-col gap-4 h-full">
+      {/* Actions Section */}
+      <div className="bg-[var(--card)] rounded-xl border-[3px] border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] p-4 space-y-4">
+        <Label className="font-bold text-xs text-[var(--outline-black)]/60 uppercase tracking-wide">
           SELECT AMOUNT (SOL)
         </Label>
 
@@ -107,7 +108,7 @@ export function TradePanelBuyTab({
             placeholder="Custom amount"
             value={customSolAmount}
             onChange={(e) => onCustomAmountChange(e.target.value)}
-            className="border-2 border-outline font-mono text-sm h-11"
+            className="border-[3px] border-[var(--outline-black)] font-mono text-sm h-11 rounded-lg"
             autoComplete="off"
             data-form-type="other"
           />
@@ -118,19 +119,19 @@ export function TradePanelBuyTab({
 
         {/* Buy Button */}
         <Button
-          className="w-full trade-action-btn trade-action-btn-buy h-12 whitespace-nowrap overflow-hidden"
+          className="w-full h-12 whitespace-nowrap overflow-hidden bg-[var(--luigi-green)] hover:bg-[var(--luigi-green)]/90 text-white font-bold uppercase border-[3px] border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] rounded-lg active:shadow-[1px_1px_0_var(--outline-black)] active:translate-x-[2px] active:translate-y-[2px] transition-all"
           onClick={onBuy}
           disabled={isTrading || !hasAmount}
         >
           {isTrading ? (
             <>
-              <Loader2 className="h-4 w-4 animate-spin mr-2 flex-shrink-0 relative z-10" />
-              <span className="truncate relative z-10">BUYING...</span>
+              <Loader2 className="h-4 w-4 animate-spin mr-2 flex-shrink-0" />
+              <span className="truncate">BUYING...</span>
             </>
           ) : (
             <>
-              <TrendingUp className="h-4 w-4 mr-2 flex-shrink-0 relative z-10" />
-              <span className="truncate relative z-10">BUY {tokenSymbol}</span>
+              <TrendingUp className="h-4 w-4 mr-2 flex-shrink-0" />
+              <span className="truncate">BUY {tokenSymbol}</span>
             </>
           )}
         </Button>

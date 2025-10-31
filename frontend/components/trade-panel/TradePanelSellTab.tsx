@@ -1,6 +1,7 @@
 /**
  * Trade Panel Sell Tab Component
  * Sell interface with percentage presets, estimates, fees, and token vitals
+ * Updated to match Mario-themed card aesthetic
  */
 
 import { TrendingDown, Loader2 } from 'lucide-react'
@@ -68,10 +69,10 @@ export function TradePanelSellTab({
   const fees = estimate ? calculateTradeFees(estimate.solAmount, solPrice) : null
   
   return (
-    <div className="flex flex-col h-full" style={{ gap: 'var(--trade-tier-gap)' }}>
-      {/* Actions Tier */}
-      <div className="trade-tier trade-actions">
-        <Label className="mario-font text-[10px] whitespace-nowrap">
+    <div className="flex flex-col gap-4 h-full">
+      {/* Actions Section */}
+      <div className="bg-[var(--card)] rounded-xl border-[3px] border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] p-4 space-y-4">
+        <Label className="font-bold text-xs text-[var(--outline-black)]/60 uppercase tracking-wide">
           SELECT PERCENTAGE
         </Label>
 
@@ -99,19 +100,19 @@ export function TradePanelSellTab({
 
         {/* Sell Button */}
         <Button
-          className="w-full trade-action-btn trade-action-btn-sell h-12 whitespace-nowrap overflow-hidden"
+          className="w-full h-12 whitespace-nowrap overflow-hidden bg-[var(--mario-red)] hover:bg-[var(--mario-red)]/90 text-white font-bold uppercase border-[3px] border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] rounded-lg active:shadow-[1px_1px_0_var(--outline-black)] active:translate-x-[2px] active:translate-y-[2px] transition-all"
           onClick={onSell}
           disabled={isTrading || !hasSelection}
         >
           {isTrading ? (
             <>
-              <Loader2 className="h-4 w-4 animate-spin mr-2 flex-shrink-0 relative z-10" />
-              <span className="truncate relative z-10">SELLING...</span>
+              <Loader2 className="h-4 w-4 animate-spin mr-2 flex-shrink-0" />
+              <span className="truncate">SELLING...</span>
             </>
           ) : (
             <>
-              <TrendingDown className="h-4 w-4 mr-2 flex-shrink-0 relative z-10" />
-              <span className="truncate relative z-10">SELL {tokenSymbol}</span>
+              <TrendingDown className="h-4 w-4 mr-2 flex-shrink-0" />
+              <span className="truncate">SELL {tokenSymbol}</span>
             </>
           )}
         </Button>

@@ -1,6 +1,7 @@
 /**
  * Trade Panel Container
  * Main orchestrating component for the refactored trade panel
+ * Updated to match Mario-themed card aesthetic
  */
 
 "use client"
@@ -8,11 +9,10 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { useQuery } from '@tanstack/react-query'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { AlertCircle, CheckCircle, TrendingUp, TrendingDown } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { cn, marioStyles } from '@/lib/utils'
+import { cn } from '@/lib/utils'
 import { useAuth } from '@/hooks/use-auth'
 import { usePriceStreamContext } from '@/lib/price-stream-provider'
 import { useToast } from '@/hooks/use-toast'
@@ -23,6 +23,7 @@ import { useTradePanelState } from './hooks/useTradePanelState'
 import { useTradeExecution } from './hooks/useTradeExecution'
 
 // Import components
+import { MarioTabs, MarioTabsList, MarioTabsTrigger, MarioTabsContent } from './MarioTabs'
 import { TradePanelHeader } from './TradePanelHeader'
 import { TradePanelStatsBar } from './TradePanelStatsBar'
 import { TradePanelBuyTab } from './TradePanelBuyTab'
@@ -324,10 +325,10 @@ export function TradePanelContainer({
   // Loading state
   if (loadingToken) {
     return (
-      <div className="bg-white/80 backdrop-blur-sm border-3 border-outline rounded-[14px] p-6 shadow-[3px_3px_0_var(--outline-black)] animate-pulse">
+      <div className="bg-[var(--card)] border-[3px] border-[var(--outline-black)] rounded-xl p-6 shadow-[3px_3px_0_var(--outline-black)] animate-pulse">
         <div className="space-y-4">
-          <div className="h-6 bg-coin/20 rounded w-3/4"></div>
-          <div className="h-32 bg-coin/20 rounded"></div>
+          <div className="h-6 bg-[var(--coin-gold)]/20 rounded w-3/4"></div>
+          <div className="h-32 bg-[var(--coin-gold)]/20 rounded"></div>
         </div>
       </div>
     )
@@ -336,7 +337,7 @@ export function TradePanelContainer({
   // Error state
   if (!tokenDetails) {
     return (
-      <div className="bg-white/80 backdrop-blur-sm border-3 border-outline rounded-[14px] p-6 shadow-[3px_3px_0_var(--outline-black)]">
+      <div className="bg-[var(--card)] border-[3px] border-[var(--outline-black)] rounded-xl p-6 shadow-[3px_3px_0_var(--outline-black)]">
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>Failed to load token</AlertDescription>
@@ -362,21 +363,21 @@ export function TradePanelContainer({
       </AnimatePresence>
 
       {/* Main Content - Fills all available space */}
-      <div className="flex flex-col h-full" style={{ gap: 'var(--trade-section-gap)' }}>
+      <div className="flex flex-col gap-4 h-full">
           {/* Trade Status */}
           {(tradePanelState.tradeError || tradePanelState.lastTradeSuccess) && (
             <>
               {tradePanelState.tradeError && (
-                <Alert variant="destructive" className="border-2 border-mario py-2">
+                <Alert variant="destructive" className="border-[3px] border-[var(--mario-red)] py-2 rounded-lg">
                   <AlertCircle className="h-3 w-3" />
                   <AlertDescription className="text-xs">{tradePanelState.tradeError}</AlertDescription>
                 </Alert>
               )}
 
               {tradePanelState.lastTradeSuccess && (
-                <Alert className="border-2 border-luigi bg-luigi/10 py-2">
-                  <CheckCircle className="h-3 w-3 text-luigi" />
-                  <AlertDescription className="font-bold text-luigi text-xs">
+                <Alert className="border-[3px] border-[var(--luigi-green)] bg-[var(--luigi-green)]/10 py-2 rounded-lg">
+                  <CheckCircle className="h-3 w-3 text-[var(--luigi-green)]" />
+                  <AlertDescription className="font-bold text-[var(--luigi-green)] text-xs">
                     1-UP! Trade executed!
                   </AlertDescription>
                 </Alert>
@@ -400,27 +401,20 @@ export function TradePanelContainer({
           />
 
           {/* Trading Tabs */}
-          <Tabs defaultValue="buy" className="w-full flex-1" style={{ gap: 'var(--trade-section-gap)' }}>
-            <TabsList className="w-full">
-              <TabsTrigger
-                value="buy"
-                className="flex-1 data-[state=active]:bg-luigi"
-              >
-                <TrendingUp className="h-4 w-4 mr-1.5" />
+          <MarioTabs defaultValue="buy" className="flex-1 flex flex-col gap-4">
+            <MarioTabsList>
+              <MarioTabsTrigger value="buy">
+                <TrendingUp className="h-4 w-4" />
                 Buy
-              </TabsTrigger>
-              <TabsTrigger
-                value="sell"
-                className="flex-1 data-[state=active]:bg-mario"
-                disabled={!hasPosition}
-              >
-                <TrendingDown className="h-4 w-4 mr-1.5" />
+              </MarioTabsTrigger>
+              <MarioTabsTrigger value="sell" disabled={!hasPosition}>
+                <TrendingDown className="h-4 w-4" />
                 Sell
-              </TabsTrigger>
-            </TabsList>
+              </MarioTabsTrigger>
+            </MarioTabsList>
 
             {/* Buy Tab */}
-            <TabsContent value="buy" className="h-full">
+            <MarioTabsContent value="buy" className="flex-1">
               <TradePanelBuyTab
                 buyPresets={tradePanelState.buyPresets}
                 onUpdatePreset={tradePanelState.updateBuyPreset}
@@ -441,10 +435,10 @@ export function TradePanelContainer({
                 holders={holders}
                 userRank={userRank}
               />
-            </TabsContent>
+            </MarioTabsContent>
 
             {/* Sell Tab */}
-            <TabsContent value="sell" className="h-full">
+            <MarioTabsContent value="sell" className="flex-1">
               <TradePanelSellTab
                 sellPresets={tradePanelState.sellPresets}
                 selectedPercentage={tradePanelState.selectedPercentage}
@@ -461,8 +455,8 @@ export function TradePanelContainer({
                 holders={holders}
                 userRank={userRank}
               />
-            </TabsContent>
-          </Tabs>
+            </MarioTabsContent>
+          </MarioTabs>
         </div>
     </div>
   )

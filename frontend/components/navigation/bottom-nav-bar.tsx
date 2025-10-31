@@ -3,7 +3,7 @@
 import Link from "next/link"
 import Image from "next/image"
 import { usePathname } from "next/navigation"
-import { Home, TrendingUp, Wallet, Trophy, Gift, Eye, Zap, Map, BookOpen, Rocket, Info, ChevronDown } from "lucide-react"
+import { TrendingUp, Wallet, Trophy, Gift, Eye, Zap, Map, BookOpen, Rocket, Info, ChevronDown } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
@@ -190,7 +190,6 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
 
 
   const navItems = [
-    { href: "/", icon: Home, label: "Home", iconSrc: "/icons/mario/home.png" },
     { href: "/warp-pipes", icon: TrendingUp, label: "Trade", iconSrc: "/icons/mario/trade.png" },
     { href: "/pipe-network", icon: Map, label: "Network", iconSrc: "/icons/mario/chat.png" },
     { href: "/portfolio", icon: Wallet, label: "Portfolio", iconSrc: "/icons/mario/wallet.png" },
