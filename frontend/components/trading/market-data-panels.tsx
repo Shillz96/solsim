@@ -408,9 +408,12 @@ const BubbleMapsPanel = memo(function BubbleMapsPanel({ tokenMint }: { tokenMint
 // User Positions Panel
 const UserPositionsPanel = memo(function UserPositionsPanel() {
   const { data: portfolio } = usePortfolio()
+  const router = useRouter()
+  
+  const activePositions = portfolio?.positions?.filter(p => parseFloat(p.qty) > 0) || []
   
   return (
-    <div className="bg-white/80 backdrop-blur-sm border-3 border-outline rounded-lg p-4 shadow-[3px_3px_0_var(--outline-black)]">
+    <div className="bg-white/80 backdrop-blur-sm border-3 border-outline rounded-lg p-4 shadow-[3px_3px_0_var(--outline-black)] h-full flex flex-col">
       <div className="flex items-center gap-3 mb-4">
         <div className="w-10 h-10 rounded-lg bg-mario border-3 border-outline flex items-center justify-center shadow-[2px_2px_0_var(--outline-black)]">
           <Wallet className="w-5 h-5 text-white" />
@@ -418,15 +421,74 @@ const UserPositionsPanel = memo(function UserPositionsPanel() {
         <div>
           <h3 className="font-mario font-bold text-sm uppercase text-outline">Your Portfolio</h3>
           <p className="text-xs text-foreground/70 font-bold">
-            {portfolio?.positions?.length || 0} positions
+            {activePositions.length} position{activePositions.length !== 1 ? 's' : ''}
           </p>
         </div>
       </div>
-      <div className="text-center py-8">
-        <div className="text-4xl mb-2">💼</div>
-        <h4 className="font-mario font-bold mb-1 text-outline">Portfolio View</h4>
-        <p className="text-sm text-foreground/70 font-bold">Your active positions...</p>
-      </div>
+      
+      {activePositions.length === 0 ? (
+        <div className="text-center py-8">
+          <div className="text-4xl mb-2">💼</div>
+          <h4 className="font-mario font-bold mb-1 text-outline">No Positions</h4>
+          <p className="text-sm text-foreground/70 font-bold">Start trading to build your portfolio</p>
+        </div>
+      ) : (
+        <div className="space-y-2 flex-1 overflow-y-auto">
+          {activePositions.map((position) => {
+            const unrealizedPnL = parseFloat(position.unrealizedUsd || '0')
+            const isPositive = unrealizedPnL >= 0
+            const currentValue = parseFloat(position.valueUsd || '0')
+            const qty = parseFloat(position.qty || '0')
+            
+            return (
+              <button
+                key={position.mint}
+                onClick={() => router.push(`/room/${position.mint}`)}
+                className="w-full p-3 rounded-lg border-2 border-outline bg-white hover:bg-sky/10 shadow-[2px_2px_0_var(--outline-black)] hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-0.5 transition-all text-left"
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex items-center gap-2 min-w-0 flex-1">
+                    {position.tokenImage ? (
+                      <img 
+                        src={position.tokenImage} 
+                        alt={position.tokenSymbol || 'Token'} 
+                        className="w-8 h-8 rounded-full flex-shrink-0 border-2 border-outline"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).style.display = 'none'
+                        }}
+                      />
+                    ) : (
+                      <div className="w-8 h-8 rounded-full bg-gradient-to-r from-purple-400 to-pink-400 flex items-center justify-center text-xs font-bold text-white flex-shrink-0 border-2 border-outline">
+                        {position.tokenSymbol?.slice(0, 2) || '??'}
+                      </div>
+                    )}
+                    <div className="min-w-0 flex-1">
+                      <div className="font-mario font-bold text-sm text-outline truncate">
+                        {position.tokenSymbol || 'Unknown'}
+                      </div>
+                      <div className="text-xs text-foreground/70 font-bold">
+                        {formatNumber(qty)} tokens
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="text-right flex-shrink-0">
+                    <div className="text-sm font-bold text-outline">
+                      {formatUSD(currentValue)}
+                    </div>
+                    <div className={cn(
+                      "text-xs font-bold",
+                      isPositive ? "text-profit" : "text-loss"
+                    )}>
+                      {isPositive ? '+' : ''}{formatUSD(unrealizedPnL)}
+                    </div>
+                  </div>
+                </div>
+              </button>
+            )
+          })}
+        </div>
+      )}
     </div>
   )
 })
