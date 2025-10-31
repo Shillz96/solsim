@@ -9,8 +9,6 @@ import { cn } from "@/lib/utils"
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL 
   || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://oneupsol.fun')
 
-const ogImageUrl = `${siteUrl}/og-banner.png`
-
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
@@ -43,7 +41,7 @@ export const metadata: Metadata = {
     description: '1UP your Solana trading skills! Mario-themed paper trading game with real-time prices, FIFO accounting, and earn rewards. Practice trading without risk!',
     images: [
       {
-        url: ogImageUrl,
+        url: `${siteUrl}/og-banner.png`,
         width: 1200,
         height: 630,
         alt: '1UP SOL - Mario-themed Solana Paper Trading Game',
@@ -57,7 +55,7 @@ export const metadata: Metadata = {
     creator: '@1upsolfun',
     title: '1UP SOL - Mario-themed Solana Paper Trading',
     description: '1UP your Solana trading skills! Mario-themed paper trading game with real-time prices, FIFO accounting, and earn rewards. Practice trading without risk!',
-    images: [ogImageUrl],
+    images: [`${siteUrl}/og-banner.png`],
   },
   robots: {
     index: true,
