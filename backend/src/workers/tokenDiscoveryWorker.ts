@@ -32,15 +32,18 @@ const logger = loggers.server;
 // ============================================================================
 
 class TokenDiscoveryConfig {
-  // Update intervals - PERFORMANCE OPTIMIZED (2025-10-31: Reduced to prevent database checkpoint storm)
-  static readonly HOT_SCORE_UPDATE_INTERVAL = 300_000; // 5 minutes (was 2min - reduced DB write pressure)
-  static readonly WATCHER_SYNC_INTERVAL = 60_000; // 1 minute (was 30s - reduced DB write pressure)
-  static readonly CLEANUP_INTERVAL = 1800_000; // 30 minutes (was 10min - reduced checkpoint frequency)
-  static readonly HOLDER_COUNT_UPDATE_INTERVAL = 600_000; // 10 minutes (was 3min - reduced Helius API spam)
-  static readonly HOLDER_COUNT_CACHE_MIN = 5; // 5 minutes (was 2min - reduce unnecessary refetches)
-  static readonly TOKEN_TTL = 3600; // 1 hour cache (unchanged - good balance)
+  // Update intervals - CRITICAL FIX (2025-10-31): Eliminate database checkpoint storm
+  // Root cause: ~147,600 UPDATE queries/hour overwhelmed database with WAL traffic
+  // Solution: Redis-first architecture with batch database writes
+  static readonly HOT_SCORE_UPDATE_INTERVAL = 900_000; // 15 minutes (was 5min - 67% reduction)
+  static readonly WATCHER_SYNC_INTERVAL = 300_000; // 5 minutes (was 1min - 80% reduction)
+  static readonly CLEANUP_INTERVAL = 1800_000; // 30 minutes (unchanged)
+  static readonly HOLDER_COUNT_UPDATE_INTERVAL = 600_000; // 10 minutes (unchanged)
+  static readonly HOLDER_COUNT_CACHE_MIN = 5; // 5 minutes (unchanged)
+  static readonly TOKEN_TTL = 7200; // 2 hours cache (was 1h - longer Redis retention)
   static readonly NEW_TOKEN_RETENTION_HOURS = 48; // Keep NEW tokens for 48h (unchanged)
   static readonly BONDED_TOKEN_RETENTION_HOURS = 24; // Keep BONDED for 24h (unchanged)
+  static readonly REDIS_TO_DB_SYNC_INTERVAL = 300_000; // 5 minutes - batch sync Redis data to DB
   
   static readonly KNOWN_MINTS = {
     SOL: 'So11111111111111111111111111111111111111112',
@@ -48,8 +51,8 @@ class TokenDiscoveryConfig {
     USDT: 'Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB'
   };
   
-  static readonly MARKET_DATA_UPDATE_INTERVAL = 90_000; // 90 seconds (was 30s - reduced DexScreener 429 errors)
-  static readonly RATE_LIMIT_DELAY_MS = 300; // 300ms (was 200ms - prevent rate limits)
+  static readonly MARKET_DATA_UPDATE_INTERVAL = 300_000; // 5 minutes (was 90s - 70% reduction)
+  static readonly RATE_LIMIT_DELAY_MS = 300; // 300ms (unchanged)
   static readonly MIN_ACTIVE_VOLUME_SOL = 0.5; // 0.5 SOL minimum (unchanged)
   static readonly MIN_HOLDERS_COUNT = 10; // 10 holders minimum (unchanged)
   static readonly MAX_TRADES_PER_TOKEN = 100; // 100 trades (unchanged)
@@ -463,16 +466,8 @@ async function handleSwap(event: SwapEvent): Promise<void> {
       tradeDate = new Date();
     }
 
-    // Update last trade timestamp in database
-    await prisma.tokenDiscovery.updateMany({
-      where: { mint },
-      data: {
-        lastTradeTs: tradeDate,
-        lastUpdatedAt: new Date(),
-      }
-    });
-
     // Store trade in Redis for market data panel (keep last 50 trades per token)
+    // NOTE: Database sync happens in batch via syncRedisToDatabase() every 5 minutes
     const tradeData = {
       type: txType,
       solAmount,
@@ -512,14 +507,7 @@ async function handleSwap(event: SwapEvent): Promise<void> {
         };
         await redis.setex(`prices:${mint}`, 300, JSON.stringify(priceTick));
 
-        // Save directly to TokenDiscovery table (real-time pricing!)
-        await prisma.tokenDiscovery.updateMany({
-          where: { mint },
-          data: {
-            priceUsd: new Decimal(priceUsd),
-            lastUpdatedAt: new Date(),
-          }
-        });
+        // NOTE: Database price sync happens in batch via syncRedisToDatabase() every 5 minutes
 
         logger.debug({
           mint: mint.slice(0, 8),
@@ -923,6 +911,91 @@ async function handleNewPool(event: NewPoolEvent): Promise<void> {
 // ============================================================================
 // SCHEDULED JOBS
 // ============================================================================
+
+/**
+ * Batch sync Redis data to database (replaces real-time writes from handleSwap)
+ * Runs every 5 minutes to persist accumulated price/trade data
+ */
+async function syncRedisToDatabase(): Promise<void> {
+  try {
+    logger.debug({ operation: 'redis_to_db_sync' }, 'Starting batch sync from Redis to database');
+
+    // Get all price keys from Redis
+    const priceKeys = await redis.keys('prices:*');
+    
+    if (priceKeys.length === 0) {
+      logger.debug({ operation: 'redis_to_db_sync' }, 'No prices to sync');
+      return;
+    }
+
+    // Batch fetch all prices
+    const pipeline = redis.pipeline();
+    for (const key of priceKeys) {
+      pipeline.get(key);
+    }
+    const priceResults = await pipeline.exec();
+
+    // Prepare batch updates
+    const updates: Array<{ mint: string; priceUsd: Decimal; lastTradeTs: Date }> = [];
+    
+    for (let i = 0; i < priceKeys.length; i++) {
+      const key = priceKeys[i];
+      const result = priceResults?.[i];
+      
+      if (!result || result[0] || !result[1]) continue; // Skip errors or null values
+      
+      try {
+        const mint = key.replace('prices:', '');
+        const priceData = JSON.parse(result[1] as string);
+        
+        if (priceData.priceUsd && priceData.timestamp) {
+          updates.push({
+            mint,
+            priceUsd: new Decimal(priceData.priceUsd),
+            lastTradeTs: new Date(priceData.timestamp)
+          });
+        }
+      } catch (err) {
+        logger.warn({ key, error: err }, 'Failed to parse price data from Redis');
+      }
+    }
+
+    if (updates.length === 0) {
+      logger.debug({ operation: 'redis_to_db_sync' }, 'No valid prices to sync');
+      return;
+    }
+
+    // Execute batch update in a transaction
+    let successCount = 0;
+    await prisma.$transaction(async (tx) => {
+      for (const update of updates) {
+        try {
+          await tx.tokenDiscovery.updateMany({
+            where: { mint: update.mint },
+            data: {
+              priceUsd: update.priceUsd,
+              lastTradeTs: update.lastTradeTs,
+              lastUpdatedAt: new Date()
+            }
+          });
+          successCount++;
+        } catch (err) {
+          // Token might not exist in DB yet - skip silently
+          logger.debug({ mint: truncateWallet(update.mint) }, 'Token not in database, skipping price update');
+        }
+      }
+    });
+
+    logger.info({ 
+      total: priceKeys.length,
+      updated: successCount,
+      operation: 'redis_to_db_sync'
+    }, 'Completed batch sync from Redis to database');
+
+  } catch (error) {
+    logger.error({ error }, 'Error in syncRedisToDatabase');
+  }
+}
 
 /**
  * Update market data and classify token states every 30 seconds
@@ -1436,6 +1509,7 @@ async function startWorker(): Promise<void> {
     intervals.push(setInterval(syncWatcherCounts, TokenDiscoveryConfig.WATCHER_SYNC_INTERVAL));
     intervals.push(setInterval(cleanupOldTokens, TokenDiscoveryConfig.CLEANUP_INTERVAL));
     intervals.push(setInterval(updateHolderCounts, TokenDiscoveryConfig.HOLDER_COUNT_UPDATE_INTERVAL));
+    intervals.push(setInterval(syncRedisToDatabase, TokenDiscoveryConfig.REDIS_TO_DB_SYNC_INTERVAL)); // Batch sync from Redis to DB
 
     // Subscribe to active tokens for trade data (every 5 minutes)
     intervals.push(setInterval(subscribeToActiveTokens, 5 * 60 * 1000));
@@ -1443,6 +1517,8 @@ async function startWorker(): Promise<void> {
     setTimeout(subscribeToActiveTokens, 5000);
     // Also run holder count update shortly after startup
     setTimeout(updateHolderCounts, 10000);
+    // Run initial Redis-to-DB sync after 15 seconds
+    setTimeout(syncRedisToDatabase, 15000);
 
     logger.info({ component: 'background-jobs' }, '✅ Background jobs scheduled');
     
