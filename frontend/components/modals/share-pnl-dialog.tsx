@@ -187,10 +187,22 @@ export function SharePnLDialog({
               share-card mario-card-desktop relative w-full aspect-[16/9] overflow-hidden
               bg-[var(--card-bg-elevated)]
             "
+            style={{ padding: 'var(--share-card-padding)' }}
             aria-label="Shareable PnL preview card"
           >
             {/* Top bar - aligned horizontally */}
-            <div className="share-card__header">
+            <div
+              className="share-card__header"
+              style={{
+                position: 'absolute',
+                insetInline: 'var(--share-card-padding)',
+                insetBlockStart: 'var(--share-card-padding)',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                width: 'calc(100% - (var(--share-card-padding) * 2))'
+              }}
+            >
               {/* Left: Header badge */}
               <div className="inline-flex items-center gap-2.5 px-4 py-2.5 rounded-xl mario-border mario-shadow bg-[var(--card-info)]">
                 <img
@@ -211,9 +223,25 @@ export function SharePnLDialog({
             </div>
 
             {/* Content - uniform padding all around */}
-            <div className="share-card__content">
+            <div
+              className="share-card__content"
+              style={{
+                position: 'relative',
+                zIndex: 10,
+                height: '100%',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+                gap: 'var(--share-card-gap)',
+                padding: 'var(--share-card-padding)',
+                paddingBlockStart: 'calc(var(--share-card-padding) + var(--share-header-height))'
+              }}
+            >
               {/* Main content area - even gap between columns */}
-              <div className="share-card__main">
+              <div
+                className="share-card__main"
+                style={{ display: 'flex', gap: 'var(--share-card-gap)', alignItems: 'stretch' }}
+              >
                 {/* Left: PnL - matching padding with right cards */}
                 <div className="flex-1">
                   <div
@@ -260,7 +288,10 @@ export function SharePnLDialog({
                 </div>
 
                 {/* Right: Stats - equal gap between cards, matching padding */}
-                <div className="share-card__stats justify-center">
+                <div
+                  className="share-card__stats justify-center"
+                  style={{ display: 'flex', flexDirection: 'column', gap: 'var(--share-card-gap)', minWidth: 220 }}
+                >
                   {/* Invested card - consistent padding and spacing */}
                   <div className="rounded-xl mario-border mario-shadow p-6 bg-[var(--card-portfolio)]">
                     <div className="text-xs text-[var(--muted-foreground)] mb-3 uppercase font-display font-bold tracking-wider">Invested</div>
@@ -280,7 +311,16 @@ export function SharePnLDialog({
               </div>
 
               {/* Footer: user - uniform padding from content */}
-              <div className="share-card__footer mario-border">
+              <div
+                className="share-card__footer mario-border"
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  paddingBlockStart: 'var(--share-footer-gap)',
+                  borderTop: '3px solid var(--outline-black)'
+                }}
+              >
                 <div className="flex items-center gap-3">
                   {userAvatarUrl ? (
                     <img
