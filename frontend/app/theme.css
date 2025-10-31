@@ -197,9 +197,9 @@
   /* Shareable PnL Card Spacing Tokens - micro */
   --share-card-padding: 0.375rem;   /* 6px - outer and inner padding */
   --share-card-gap: 0.5rem;         /* 8px - inter-section gap */
-  --share-header-height: 34px;      /* header capsule + shadow height */
+  --share-header-height: 52px;      /* header capsule + shadow height (increased for better prominence) */
   --share-footer-gap: 0.375rem;     /* 6px - footer top spacing */
-  --share-header-offset: 25px;      /* extra space for header padding + borders (bumped +6px) */
+  --share-header-offset: 30px;      /* extra space for header padding + borders */
 
   /* Warp Pipes Token Card Metrics - Reduced for more compact view */
   --token-card-height: 160px;

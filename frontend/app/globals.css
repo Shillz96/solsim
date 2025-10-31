@@ -1247,6 +1247,9 @@
   align-items: center; 
   padding-block-start: var(--share-footer-gap); 
   border-top: 3px solid var(--outline-black); 
+  gap: 0.5rem; /* Add gap for proper spacing */
+  flex-wrap: nowrap; /* Prevent wrapping */
+  min-height: 42px; /* Ensure consistent height */
 }
 
 /* Utility: strong pixel-outline for light text over busy backgrounds */

@@ -251,29 +251,19 @@ export function SharePnLDialog({
               crossOrigin="anonymous"
               loading="eager"
             />
-            {/* Top banner - full width */}
+            {/* Top banner - image with semi-transparent yellow bg */}
             <div className="share-card__header">
-              <div className="w-full inline-flex items-center justify-center px-3 py-2 rounded-lg mario-border mario-shadow bg-[var(--card-info)] relative overflow-hidden">
-                {/* Background image layer for header panel (captured by html-to-image) */}
-                {typeof window !== "undefined" && (
-                  <div
-                    aria-hidden
-                    className="absolute inset-0 pointer-events-none"
-                    style={{
-                      backgroundImage: `url('${new URL("/nswitch-supermario3dallstars-supermario64-04.jpg", window.location.origin).toString()}')`,
-                      backgroundSize: "cover",
-                      backgroundPosition: "center",
-                      backgroundRepeat: "no-repeat",
-                      opacity: 0.7,
-                      zIndex: 0
-                    }}
-                  />
-                )}
+              <div className="w-full flex items-center justify-center px-3 py-3 rounded-xl mario-border mario-shadow relative overflow-hidden">
+                {/* Semi-transparent background using site's main background color */}
+                <div 
+                  className="absolute inset-0 bg-[var(--background)]" 
+                  style={{ opacity: 0.9 }}
+                  aria-hidden="true"
+                />
                 <img
                   src="/Check-out-my-pnl-10-31-2025.png"
-                  alt="Share banner"
-                  className="w-full h-auto max-h-[var(--share-header-height)] object-contain relative"
-                  style={{ zIndex: 1 }}
+                  alt="Check out my PnL"
+                  className="w-full h-auto max-h-[var(--share-header-height)] object-contain relative z-10"
                   crossOrigin="anonymous"
                   loading="eager"
                   onError={(e) => { (e.target as HTMLImageElement).style.display = "none" }}
@@ -286,39 +276,39 @@ export function SharePnLDialog({
               {/* Main content area - even gap between columns */}
               <div className="share-card__main">
                 {/* Left: PnL - compact padding */}
-                <div className="rounded-lg mario-border mario-shadow p-4 flex flex-col justify-center h-full bg-[color-mix(in_oklab,var(--luigi-green)_20%,var(--background)_80%)]" style={{
+                <div className="rounded-lg mario-border mario-shadow p-3 flex flex-col justify-center h-full bg-[color-mix(in_oklab,var(--luigi-green)_20%,var(--background)_80%)]" style={{
                   backgroundColor: positive 
                     ? 'color-mix(in oklab, var(--luigi-green) 20%, var(--background) 80%)' 
                     : 'color-mix(in oklab, var(--mario-red) 18%, var(--background) 82%)'
                 }}>
                   {/* Compact vertical spacing */}
-                  <div className="space-y-3">
+                  <div className="space-y-2.5">
                     {/* Token/Label row - better alignment */}
                     <div className="flex items-center gap-2">
                       {isTokenSpecific && tokenImageUrl && (
                         <img
                           src={tokenImageUrl}
                           alt={tokenName || tokenSymbol || "Token"}
-                          className="w-7 h-7 rounded-full object-cover mario-border"
+                          className="w-6 h-6 rounded-full object-cover mario-border"
                           crossOrigin="anonymous"
                           loading="eager"
                           onError={(e) => { (e.target as HTMLImageElement).style.display = "none" }}
                         />
                       )}
-                      <div className="text-xs font-display font-bold tracking-wider text-[var(--muted-foreground)] uppercase">
+                      <div className="text-[11px] font-display font-bold tracking-wider text-[var(--muted-foreground)] uppercase">
                         {isTokenSpecific && tokenSymbol ? `${tokenSymbol} PNL` : "DOPE PNL"}
                       </div>
                     </div>
 
                     {/* PnL Amount */}
-                    <div className={`text-6xl font-display font-black leading-none tracking-tighter ${positive ? "text-[var(--luigi-dark)]" : "text-[var(--mario-dark)]"}`}>
+                    <div className={`text-5xl font-display font-black leading-none tracking-tighter ${positive ? "text-[var(--luigi-dark)]" : "text-[var(--mario-dark)]"}`}>
                       {positive ? "+" : ""}${Math.abs(totalPnL).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </div>
 
                     {/* Percentage badge */}
                     <div className="flex items-center">
-                      <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg text-base font-display font-black mario-border mario-shadow ${positive ? "bg-[var(--luigi-green)] text-white" : "bg-[var(--mario-red)] text-white"}`}>
-                        <span className="text-lg leading-none">{positive ? "↗" : "↘"}</span>
+                      <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-display font-black mario-border mario-shadow ${positive ? "bg-[var(--luigi-green)] text-white" : "bg-[var(--mario-red)] text-white"}`}>
+                        <span className="text-base leading-none">{positive ? "↗" : "↘"}</span>
                         <span className="leading-none">{positive ? "+" : ""}{totalPnLPercent.toFixed(2)}%</span>
                       </div>
                     </div>
@@ -328,17 +318,17 @@ export function SharePnLDialog({
                 {/* Right: Stats - compact spacing */}
                 <div className="share-card__stats">
                   {/* Invested card - smaller */}
-                  <div className="rounded-lg mario-border mario-shadow p-3 bg-[var(--card-portfolio)]">
-                    <div className="text-[10px] text-[var(--muted-foreground)] mb-1.5 uppercase font-display font-bold tracking-wider">Invested</div>
-                    <div className="text-2xl font-display font-black text-[var(--outline-black)] tracking-tight leading-none">
+                  <div className="rounded-lg mario-border mario-shadow p-2 bg-[var(--card-portfolio)]">
+                    <div className="text-[8px] text-[var(--muted-foreground)] mb-1 uppercase font-display font-bold tracking-wider">Invested</div>
+                    <div className="text-lg font-display font-black text-[var(--outline-black)] tracking-tight leading-none">
                       ${initialBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </div>
                   </div>
                   
                   {/* Position card - smaller */}
-                  <div className="rounded-lg mario-border mario-shadow p-3 bg-[var(--card-stats)]">
-                    <div className="text-[10px] text-[var(--muted-foreground)] mb-1.5 uppercase font-display font-bold tracking-wider">Position</div>
-                    <div className="text-2xl font-display font-black text-[var(--outline-black)] tracking-tight leading-none">
+                  <div className="rounded-lg mario-border mario-shadow p-2 bg-[var(--card-stats)]">
+                    <div className="text-[8px] text-[var(--muted-foreground)] mb-1 uppercase font-display font-bold tracking-wider">Position</div>
+                    <div className="text-lg font-display font-black text-[var(--outline-black)] tracking-tight leading-none">
                       ${currentValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </div>
                   </div>
@@ -346,13 +336,19 @@ export function SharePnLDialog({
               </div>
 
               {/* Footer: user - compact padding */}
-              <div className="share-card__footer">
-                <div className="flex items-center gap-2">
+              <div className="share-card__footer relative">
+                {/* Semi-transparent background matching header */}
+                <div 
+                  className="absolute inset-0 bg-[var(--background)] rounded-b-lg" 
+                  style={{ opacity: 0.9 }}
+                  aria-hidden="true"
+                />
+                <div className="flex items-center gap-2 flex-shrink-0 relative z-10 pl-2">
                   {userAvatarUrl ? (
                     <img
                       src={userAvatarUrl}
                       alt={userHandle || userEmail || "User"}
-                      className="w-8 h-8 rounded-full object-cover mario-border mario-shadow"
+                      className="w-7 h-7 rounded-full object-cover mario-border mario-shadow flex-shrink-0"
                       crossOrigin="anonymous"
                       loading="eager"
                       onError={(e) => {
@@ -361,22 +357,29 @@ export function SharePnLDialog({
                       }}
                     />
                   ) : (
-                    <div className="w-8 h-8 rounded-full mario-border mario-shadow bg-[var(--star-yellow)] grid place-items-center">
-                      <span className="font-display font-black text-[var(--outline-black)] text-sm">
+                    <div className="w-7 h-7 rounded-full mario-border mario-shadow bg-[var(--star-yellow)] grid place-items-center flex-shrink-0">
+                      <span className="font-display font-black text-[var(--outline-black)] text-xs">
                         {(userHandle?.[0] || userEmail?.[0] || "A").toUpperCase()}
                       </span>
                     </div>
                   )}
-                   <div className="space-y-0 px-1.5 py-0.5 rounded-md" style={{ backgroundColor: "rgba(0,0,0,0.6)" }}>
-                    <div className="text-white font-body font-semibold text-[15px] leading-tight tracking-normal">
+                   <div className="space-y-0 min-w-0">
+                    <div className="font-body font-semibold text-sm leading-tight tracking-normal truncate text-[var(--outline-black)]">
                       @{userHandle || userEmail?.split("@")[0] || "admin"}
                     </div>
-                    <div className="text-[10px] text-white font-body font-medium tracking-wide uppercase">ONEUPSOL.FUN</div>
+                    <div className="text-[9px] font-body font-medium tracking-wide uppercase text-[var(--outline-black)]">ONEUPSOL.FUN</div>
                   </div>
                 </div>
-                 <div className="text-right space-y-0 px-1.5 py-0.5 rounded-md" style={{ backgroundColor: "rgba(0,0,0,0.6)" }}>
-                  <div className="text-[9px] text-white uppercase font-body font-semibold tracking-wide">Powered by</div>
-                  <div className="text-xl font-body font-extrabold text-white tracking-tight leading-none">1UP</div>
+                 <div className="flex flex-col items-end gap-0.5 flex-shrink-0 relative z-10 pr-2">
+                  <div className="text-[8px] uppercase font-body font-semibold tracking-wide text-[var(--outline-black)]">Powered by</div>
+                  <img
+                    src="/1up-10-31-2025.png"
+                    alt="1UP"
+                    className="h-5 w-auto object-contain"
+                    crossOrigin="anonymous"
+                    loading="eager"
+                    onError={(e) => { (e.target as HTMLImageElement).style.display = "none" }}
+                  />
                 </div>
               </div>
             </div>
