@@ -88,6 +88,7 @@ export interface TokenRow {
   watcherCount?: number | null;
   isWatched?: boolean | null;
   lastUpdatedAt?: string | null;
+  lastTradeTs?: string | null; // Timestamp of last trade (for liveness detection)
 }
 
 /**

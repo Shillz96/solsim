@@ -15,6 +15,28 @@ const prisma = new PrismaClient();
 const redis = new Redis(process.env.REDIS_URL || '');
 
 // ============================================================================
+// WARP PIPES CONFIGURATION
+// Quality filtering thresholds inspired by axiom.trade's Pulse page
+// ============================================================================
+
+const WARP_PIPES_CONFIG = {
+  // Bonded (Migrated) - Remove dead tokens that bonded but lost momentum
+  BONDED_MAX_AGE_HOURS: 12,           // Show tokens bonded in last 12 hours
+  BONDED_MIN_VOLUME_SOL: 2,           // Minimum 2 SOL volume/24h to not be dead
+  BONDED_LAST_TRADE_HOURS: 1,         // Must have traded within last hour
+
+  // Graduating (Final Stretch) - High potential tokens only
+  GRADUATING_MIN_PROGRESS: 70,        // At least 70% toward bonding
+  GRADUATING_MAX_PROGRESS: 100,       // Not yet fully bonded
+  GRADUATING_MIN_VOLUME_SOL: 5,       // High volume requirement (5 SOL/24h)
+  GRADUATING_LAST_TRADE_MINUTES: 30,  // Recent activity (last 30 min)
+  GRADUATING_MIN_HOLDERS: 50,         // Minimum holder count (community interest)
+
+  // New Pairs - Fresh tokens only
+  NEW_MAX_AGE_HOURS: 24,              // Show tokens created in last 24 hours
+};
+
+// ============================================================================
 // VALIDATION SCHEMAS
 // ============================================================================
 
@@ -248,8 +270,13 @@ const warpPipesRoutes: FastifyPluginAsync = async (fastify) => {
         }
 
         // Fetch tokens for each state
-        const twelveHoursAgo = new Date(Date.now() - 12 * 60 * 60 * 1000);
-        
+        // WARP PIPES: Calculate time thresholds for quality filtering
+        const now = Date.now();
+        const twentyFourHoursAgo = new Date(now - WARP_PIPES_CONFIG.NEW_MAX_AGE_HOURS * 60 * 60 * 1000);
+        const twelveHoursAgo = new Date(now - WARP_PIPES_CONFIG.BONDED_MAX_AGE_HOURS * 60 * 60 * 1000);
+        const oneHourAgo = new Date(now - WARP_PIPES_CONFIG.BONDED_LAST_TRADE_HOURS * 60 * 60 * 1000);
+        const thirtyMinutesAgo = new Date(now - WARP_PIPES_CONFIG.GRADUATING_LAST_TRADE_MINUTES * 60 * 1000);
+
         // PERFORMANCE: Select only required fields to reduce payload size (production optimization)
         const selectFields = {
           mint: true,
@@ -285,34 +312,57 @@ const warpPipesRoutes: FastifyPluginAsync = async (fastify) => {
           firstSeenAt: true,
           lastUpdatedAt: true,
           stateChangedAt: true,
+          lastTradeTs: true, // WARP PIPES: Required for liveness filtering
         };
 
         const [bonded, graduating, newTokens] = await Promise.all([
-          // Bonded tokens - only last 12 hours
+          // Bonded tokens - AXIOM QUALITY FILTERING: Only show tokens that bonded AND maintained activity
+          // Remove "dead" tokens that bonded but lost momentum
           prisma.tokenDiscovery.findMany({
             where: {
               ...baseWhere,
               state: 'bonded',
-              stateChangedAt: { gte: twelveHoursAgo }
+              stateChangedAt: { gte: twelveHoursAgo }, // Bonded in last 12 hours
+              // LIVENESS FILTERS: Ensure token is still active post-bonding
+              lastTradeTs: { gte: oneHourAgo }, // Recent trades (within 1 hour)
+              volume24hSol: { gte: WARP_PIPES_CONFIG.BONDED_MIN_VOLUME_SOL }, // Minimum volume (2 SOL/day)
+              status: { notIn: ['DEAD', 'LAUNCHING'] }, // Exclude dead tokens
             },
             select: selectFields,
             orderBy,
             take: limit,
           }),
 
-          // Graduating tokens
+          // Graduating tokens - AXIOM QUALITY FILTERING: "Final Stretch" - only high-potential tokens
+          // Show tokens with HIGH VOLUME + CLOSE TO BONDING + RECENT ACTIVITY
           prisma.tokenDiscovery.findMany({
-            where: { ...baseWhere, state: 'graduating' },
+            where: {
+              ...baseWhere,
+              state: 'graduating',
+              // VOLUME + PROGRESS FILTERS: Only show tokens with real bonding potential
+              bondingCurveProgress: {
+                gte: WARP_PIPES_CONFIG.GRADUATING_MIN_PROGRESS, // At least 70% progress
+                lt: WARP_PIPES_CONFIG.GRADUATING_MAX_PROGRESS,   // Not yet bonded (< 100%)
+              },
+              volume24hSol: { gte: WARP_PIPES_CONFIG.GRADUATING_MIN_VOLUME_SOL }, // High volume (5+ SOL/day)
+              lastTradeTs: { gte: thirtyMinutesAgo }, // Recent activity (last 30 min)
+              holderCount: { gte: WARP_PIPES_CONFIG.GRADUATING_MIN_HOLDERS }, // Community interest (50+ holders)
+            },
             select: selectFields,
             orderBy,
             take: limit,
           }),
 
-          // New tokens
+          // New tokens - AXIOM QUALITY FILTERING: Fresh tokens from PumpPortal stream
+          // Show ALL newly created tokens (continuous flow) from last 24 hours
           prisma.tokenDiscovery.findMany({
-            where: { ...baseWhere, state: 'new' },
+            where: {
+              ...baseWhere,
+              state: 'new',
+              firstSeenAt: { gte: twentyFourHoursAgo }, // Only show tokens created in last 24 hours
+            },
             select: selectFields,
-            orderBy,
+            orderBy: { firstSeenAt: 'desc' }, // Always show newest first for this column
             take: limit,
           }),
         ]);
@@ -392,6 +442,7 @@ const warpPipesRoutes: FastifyPluginAsync = async (fastify) => {
           firstSeenAt: token.firstSeenAt.toISOString(),
           lastUpdatedAt: token.lastUpdatedAt.toISOString(),
           stateChangedAt: token.stateChangedAt.toISOString(),
+          lastTradeTs: token.lastTradeTs ? token.lastTradeTs.toISOString() : undefined, // WARP PIPES: Show trade recency
           };
         };
 
