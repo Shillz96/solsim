@@ -9,6 +9,8 @@
 import fetch from 'node-fetch';
 
 export interface TokenMetadata {
+  name?: string;
+  symbol?: string;
   description?: string;
   imageUrl?: string;
   twitter?: string;
@@ -98,8 +100,12 @@ class TokenMetadataService {
     const website = this.extractWebsite(metadata);
     const description = metadata.description || metadata.desc || undefined;
     const imageUrl = this.extractImageUrl(metadata);
+    const name = metadata.name || undefined;
+    const symbol = metadata.symbol || undefined;
 
     return {
+      name,
+      symbol,
       description,
       imageUrl,
       twitter,

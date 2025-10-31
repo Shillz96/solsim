@@ -598,13 +598,18 @@ async function handleNewToken(event: NewTokenEvent): Promise<void> {
     }
 
     // CRITICAL: Reject tokens with NO metadata (likely fake/spam)
-    // These tokens don't exist on-chain and pollute the Warp Pipes feed
+    // These tokens don't exist on-chain and pollute ALL state columns (new, graduating, bonded)
+    // Must check BEFORE state classification to prevent tokens from appearing in any column
     if (!symbol && !name && !uri) {
       logger.warn({ 
         mint: truncateWallet(mint),
         hasBondingCurve: !!bondingCurve,
-        hasMarketCap: !!marketCapSol
-      }, 'Rejecting token with NO metadata (likely fake/spam)');
+        hasMarketCap: !!marketCapSol,
+        vSolInBondingCurve,
+        wouldBeState: vSolInBondingCurve && vTokensInBondingCurve 
+          ? (vSolInBondingCurve / 85 * 100 >= 100 ? 'bonded' : vSolInBondingCurve / 85 * 100 >= 15 ? 'graduating' : 'new')
+          : 'unknown'
+      }, 'Rejecting token with NO metadata (likely fake/spam) - prevents pollution of ALL state columns');
       return;
     }
 
