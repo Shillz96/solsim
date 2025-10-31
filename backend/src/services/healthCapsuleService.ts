@@ -10,6 +10,7 @@
 import { Connection, PublicKey } from '@solana/web3.js';
 import { getMint } from '@solana/spl-token';
 import fetch from 'node-fetch';
+import { dexScreenerRateLimiter } from '../utils/dexScreenerRateLimiter.js';
 
 export interface HealthData {
   freezeRevoked: boolean;
@@ -180,41 +181,43 @@ class HealthCapsuleService {
    * Get liquidity in USD from DexScreener
    */
   async getLiquidity(mint: string): Promise<number | undefined> {
-    try {
-      const url = `${this.dexScreenerBase}/dex/tokens/${mint}`;
+    return dexScreenerRateLimiter.execute(async () => {
+      try {
+        const url = `${this.dexScreenerBase}/dex/tokens/${mint}`;
 
-      const response = await fetch(url, {
-        signal: AbortSignal.timeout(5000),
-      });
-
-      if (!response.ok) {
-        throw new Error(`DexScreener API error: ${response.status}`);
-      }
-
-      const data = await response.json() as any;
-
-      // Get the pair with highest liquidity
-      if (data.pairs && data.pairs.length > 0) {
-        const pairs = data.pairs;
-
-        // Sort by liquidity USD descending
-        pairs.sort((a: any, b: any) => {
-          const liqA = parseFloat(a.liquidity?.usd || '0');
-          const liqB = parseFloat(b.liquidity?.usd || '0');
-          return liqB - liqA;
+        const response = await fetch(url, {
+          signal: AbortSignal.timeout(5000),
         });
 
-        const topPair = pairs[0];
-        const liquidityUsd = parseFloat(topPair.liquidity?.usd || '0');
+        if (!response.ok) {
+          throw new Error(`DexScreener API error: ${response.status}`);
+        }
 
-        return liquidityUsd > 0 ? liquidityUsd : undefined;
+        const data = await response.json() as any;
+
+        // Get the pair with highest liquidity
+        if (data.pairs && data.pairs.length > 0) {
+          const pairs = data.pairs;
+
+          // Sort by liquidity USD descending
+          pairs.sort((a: any, b: any) => {
+            const liqA = parseFloat(a.liquidity?.usd || '0');
+            const liqB = parseFloat(b.liquidity?.usd || '0');
+            return liqB - liqA;
+          });
+
+          const topPair = pairs[0];
+          const liquidityUsd = parseFloat(topPair.liquidity?.usd || '0');
+
+          return liquidityUsd > 0 ? liquidityUsd : undefined;
+        }
+
+        return undefined;
+      } catch (error) {
+        console.error('[HealthCapsule] Error getting liquidity for', mint, ':', error);
+        return undefined;
       }
-
-      return undefined;
-    } catch (error) {
-      console.error('[HealthCapsule] Error getting liquidity for', mint, ':', error);
-      return undefined;
-    }
+    });
   }
 
   /**

@@ -7,6 +7,7 @@
  */
 
 import fetch from 'node-fetch';
+import { dexScreenerRateLimiter } from '../utils/dexScreenerRateLimiter.js';
 
 export interface TokenMetadata {
   name?: string;
@@ -119,61 +120,63 @@ class TokenMetadataService {
    * Re-enabled with proper rate limiting (50ms delay configured in worker)
    */
   async fetchMarketData(mint: string): Promise<MarketData> {
-    try {
-      const response = await fetch(`${this.dexScreenerBase}/dex/tokens/${mint}`, {
-        signal: AbortSignal.timeout(8000),
-        headers: {
-          'Accept': 'application/json',
-          'User-Agent': 'SolSim/1.0'
-        }
-      });
+    return dexScreenerRateLimiter.execute(async () => {
+      try {
+        const response = await fetch(`${this.dexScreenerBase}/dex/tokens/${mint}`, {
+          signal: AbortSignal.timeout(8000),
+          headers: {
+            'Accept': 'application/json',
+            'User-Agent': 'SolSim/1.0'
+          }
+        });
 
-      if (!response.ok) {
-        // Log ALL errors with status code for debugging
-        console.error(`[TokenMetadata] DexScreener API error for ${mint.slice(0, 8)}: ${response.status} ${response.statusText}`);
-        if (response.status === 429) {
-          console.warn(`[TokenMetadata] RATE LIMITED by DexScreener`);
+        if (!response.ok) {
+          // Log ALL errors with status code for debugging
+          console.error(`[TokenMetadata] DexScreener API error for ${mint.slice(0, 8)}: ${response.status} ${response.statusText}`);
+          if (response.status === 429) {
+            console.warn(`[TokenMetadata] RATE LIMITED by DexScreener`);
+          }
+          return {};
         }
-        return {};
-      }
 
-      const data = await response.json() as any;
+        const data = await response.json() as any;
       
-      // DexScreener returns { pairs: [...] }
-      // Find the best pair (highest liquidity or volume)
-      const pairs = data?.pairs || [];
-      if (pairs.length === 0) {
-        console.warn(`[TokenMetadata] No pairs found for ${mint.slice(0, 8)}`);
+        // DexScreener returns { pairs: [...] }
+        // Find the best pair (highest liquidity or volume)
+        const pairs = data?.pairs || [];
+        if (pairs.length === 0) {
+          console.warn(`[TokenMetadata] No pairs found for ${mint.slice(0, 8)}`);
+          return {};
+        }
+
+        // Sort by liquidity USD descending, take first pair
+        const sortedPairs = pairs.sort((a: any, b: any) => 
+          (b.liquidity?.usd || 0) - (a.liquidity?.usd || 0)
+        );
+        const bestPair = sortedPairs[0];
+
+        const marketData = {
+          marketCapUsd: bestPair.marketCap || bestPair.fdv, // ✅ FIX: Prioritize actual marketCap over FDV
+          volume24h: bestPair.volume?.h24,
+          priceUsd: parseFloat(bestPair.priceUsd || '0'),
+          priceChange24h: bestPair.priceChange?.h24,
+          txCount24h: bestPair.txns?.h24?.buys + bestPair.txns?.h24?.sells || undefined,
+        };
+
+        // Log successful fetch
+        console.log(`[TokenMetadata] Fetched market data for ${mint.slice(0, 8)}: vol=$${marketData.volume24h?.toFixed(0)}, price_chg=${marketData.priceChange24h?.toFixed(2)}%`);
+
+        return marketData;
+      } catch (error: any) {
+        // Log ALL errors for debugging
+        console.error(`[TokenMetadata] Error fetching market data for ${mint.slice(0, 8)}:`, {
+          name: error.name,
+          message: error.message,
+          code: error.code
+        });
         return {};
       }
-
-      // Sort by liquidity USD descending, take first pair
-      const sortedPairs = pairs.sort((a: any, b: any) => 
-        (b.liquidity?.usd || 0) - (a.liquidity?.usd || 0)
-      );
-      const bestPair = sortedPairs[0];
-
-      const marketData = {
-        marketCapUsd: bestPair.marketCap || bestPair.fdv, // ✅ FIX: Prioritize actual marketCap over FDV
-        volume24h: bestPair.volume?.h24,
-        priceUsd: parseFloat(bestPair.priceUsd || '0'),
-        priceChange24h: bestPair.priceChange?.h24,
-        txCount24h: bestPair.txns?.h24?.buys + bestPair.txns?.h24?.sells || undefined,
-      };
-
-      // Log successful fetch
-      console.log(`[TokenMetadata] Fetched market data for ${mint.slice(0, 8)}: vol=$${marketData.volume24h?.toFixed(0)}, price_chg=${marketData.priceChange24h?.toFixed(2)}%`);
-
-      return marketData;
-    } catch (error: any) {
-      // Log ALL errors for debugging
-      console.error(`[TokenMetadata] Error fetching market data for ${mint.slice(0, 8)}:`, {
-        name: error.name,
-        message: error.message,
-        code: error.code
-      });
-      return {};
-    }
+    });
   }
 
   /**
