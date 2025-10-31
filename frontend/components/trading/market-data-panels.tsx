@@ -14,12 +14,15 @@
 import React, { useState, memo } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { cn } from '@/lib/utils'
-import { Loader2, TrendingUp, TrendingDown, Users, Network, Wallet } from 'lucide-react'
+import { Loader2, TrendingUp, TrendingDown, Users, Network, Wallet, Share2 } from 'lucide-react'
 import { formatUSD, formatNumber } from '@/lib/format'
 import { usePortfolio } from '@/hooks/use-portfolio'
 import { useRouter } from 'next/navigation'
 import { usePumpPortalTradesWithHistory, useTopTradersFromStream } from '@/hooks/use-pumpportal-trades'
-import { getTokenHolders, checkBubbleMapAvailability } from '@/lib/api'
+import { getTokenHolders, checkBubbleMapAvailability, getTokenDetails, getTokenTradingStats } from '@/lib/api'
+import { SharePnLDialog } from '@/components/modals/share-pnl-dialog'
+import { useAuth } from '@/hooks/use-auth'
+import { usePriceStreamContext } from '@/lib/price-stream-provider'
 
 interface MarketDataPanelsProps {
   tokenMint: string
@@ -29,11 +32,67 @@ type TabType = 'trades' | 'traders' | 'holders' | 'bubblemap' | 'positions'
 
 export function MarketDataPanels({ tokenMint }: MarketDataPanelsProps) {
   const [activeTab, setActiveTab] = useState<TabType>('trades')
+  const [sharePnLOpen, setSharePnLOpen] = useState(false)
+  
+  // Get user data for share dialog
+  const { user } = useAuth()
+  const { prices: livePrices } = usePriceStreamContext()
+  
+  // Get token details
+  const { data: tokenDetails } = useQuery({
+    queryKey: ['token-details', tokenMint],
+    queryFn: () => getTokenDetails(tokenMint),
+    staleTime: 30000,
+  })
+  
+  // Get token trading stats - SAME AS TRADE PANEL
+  const { data: tokenStats } = useQuery({
+    queryKey: ['token-stats', user?.id, tokenMint],
+    queryFn: () => {
+      if (!user?.id || !tokenMint) return null
+      return getTokenTradingStats(user.id, tokenMint, 'PAPER')
+    },
+    enabled: !!user?.id && !!tokenMint,
+    staleTime: 10000,
+    refetchOnWindowFocus: false,
+  })
+  
+  // Get LIVE price from WebSocket - SAME AS TRADE PANEL
+  const livePrice = livePrices.get(tokenMint)?.price || parseFloat(tokenDetails?.lastPrice || '0')
+  
+  // Calculate REAL-TIME PnL using live price + position data - SAME AS TRADE PANEL
+  const qty = tokenStats ? parseFloat(tokenStats.currentHoldingQty) : 0
+  const costBasis = tokenStats ? parseFloat(tokenStats.costBasis) : 0
+  const currentValue = qty * livePrice
+  const realtimeUnrealizedPnL = currentValue - costBasis
+  const realtimePnLPercent = costBasis > 0 ? (realtimeUnrealizedPnL / costBasis) * 100 : 0
+  const hasPosition = qty > 0
 
   return (
     <div className="bg-sky/20 border-4 border-outline rounded-xl shadow-[6px_6px_0_var(--outline-black)] h-full flex flex-col p-3">
-      {/* Tabs */}
-      <div className="flex gap-1.5 mb-3 flex-wrap">
+      {/* Header with Share Button and Tabs */}
+      <div className="flex items-center justify-between gap-3 mb-3 flex-wrap">
+        {/* Share PnL Button - Left Side */}
+        {hasPosition && (
+          <SharePnLDialog
+            totalPnL={realtimeUnrealizedPnL}
+            totalPnLPercent={realtimePnLPercent}
+            currentValue={currentValue}
+            initialBalance={costBasis}
+            open={sharePnLOpen}
+            onOpenChange={setSharePnLOpen}
+            userHandle={user?.handle || user?.email?.split('@')[0]}
+            userAvatarUrl={user?.avatarUrl}
+            userEmail={user?.email}
+            tokenSymbol={tokenDetails?.symbol || undefined}
+            tokenName={tokenDetails?.name || undefined}
+            tokenImageUrl={tokenDetails?.imageUrl || undefined}
+            isTokenSpecific={true}
+          />
+        )}
+        
+        {/* Tabs - Right Side */}
+        <div className="flex gap-1.5 flex-wrap flex-1 justify-end">
         <button
           onClick={() => setActiveTab('trades')}
           className={cn(
@@ -94,6 +153,7 @@ export function MarketDataPanels({ tokenMint }: MarketDataPanelsProps) {
           <Wallet className="w-3 h-3" />
           Portfolio
         </button>
+        </div>
       </div>
 
       {/* Tab Content */}
