@@ -361,6 +361,10 @@ class TokenHealthEnricher {
         // Metadata fields
         if (data.description) updateData.description = data.description;
         if (data.imageUrl) updateData.imageUrl = data.imageUrl;
+        // Ensure logoURI is populated when we have an imageUrl but no existing logoURI
+        if (data.imageUrl && !currentToken?.logoURI) {
+          updateData.logoURI = data.imageUrl;
+        }
         if (data.twitter) updateData.twitter = data.twitter;
         if (data.telegram) updateData.telegram = data.telegram;
         if (data.website) updateData.website = data.website;
@@ -670,7 +674,8 @@ async function handleNewToken(event: NewTokenEvent): Promise<void> {
 
     // Fetch additional metadata from URI if not provided directly
     let metadata: TokenMetadata = {};
-    if (uri && (!name || !symbol || !description || !twitter || !telegram || !website)) {
+    // Fetch metadata when we either miss core fields OR we don't yet have a logo image
+    if (uri && (!name || !symbol || !description || !twitter || !telegram || !website || !httpLogoURI)) {
       try {
         metadata = await tokenMetadataService.fetchMetadataFromIPFS(uri);
         
@@ -744,8 +749,8 @@ async function handleNewToken(event: NewTokenEvent): Promise<void> {
           ...(telegram && { telegram }),
           ...(website && { website }),
           ...(metadata.imageUrl && { imageUrl: convertIPFStoHTTP(metadata.imageUrl) }),
-          // If we didn't have a logo yet and metadata has one, set it now
-          ...(!httpLogoURI && metadata.imageUrl ? { logoURI: convertIPFStoHTTP(metadata.imageUrl) } : {}),
+          // Ensure logoURI is set when metadata has an image (regardless of httpLogoURI)
+          ...(metadata.imageUrl ? { logoURI: convertIPFStoHTTP(metadata.imageUrl) } : {}),
           ...(holderCount && { holderCount }),
           ...(tokenDecimals && { decimals: tokenDecimals }),
           ...(tokenSupply && { totalSupply: tokenSupply }),
