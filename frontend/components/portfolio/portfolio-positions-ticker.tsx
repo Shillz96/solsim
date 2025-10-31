@@ -88,7 +88,7 @@ export function PortfolioPositionsTicker() {
     <div className="fixed top-[calc(var(--navbar-height)+var(--trending-ticker-height,60px))] left-0 right-0 z-sticky w-full bg-muted/40 backdrop-blur-sm border-b border-border/50">
       <div className="relative flex items-center justify-between px-4 py-1.5 gap-3 overflow-x-auto scrollbar-none">
         {/* Positions - Fixed left-to-right layout */}
-        <div className="flex items-center gap-4 flex-1 min-w-0">
+        <div className="flex items-center gap-3 flex-1 min-w-0">
           {positionsWithLivePnL.map((position) => {
             const isPositive = position.unrealizedPnL > 0.01
             const isNegative = position.unrealizedPnL < -0.01
@@ -97,23 +97,16 @@ export function PortfolioPositionsTicker() {
               <button
                 key={position.mint}
                 onClick={() => handleTokenClick(position.mint)}
-                className="flex items-center gap-2 flex-shrink-0 hover:opacity-70 transition-opacity"
+                className="flex items-center gap-2 flex-shrink-0 px-2 py-1 rounded-md border-2 border-[var(--sky-blue)] bg-background/80 hover:bg-background transition-all hover:scale-105"
               >
                 {/* Symbol */}
-                <span className="text-sm font-medium text-foreground">
+                <span className="text-sm font-semibold text-foreground">
                   {position.tokenSymbol || 'UNKNOWN'}
                 </span>
 
-                {/* Price */}
-                <span className="text-xs font-mono text-muted-foreground">
-                  ${position.livePrice < 0.01 
-                    ? position.livePrice.toExponential(2) 
-                    : position.livePrice.toFixed(position.livePrice < 1 ? 4 : 2)}
-                </span>
-
-                {/* P&L */}
+                {/* Holdings P&L */}
                 <div className={cn(
-                  "flex items-center gap-0.5 text-xs font-medium",
+                  "flex items-center gap-0.5 text-sm font-bold",
                   isPositive && "text-[var(--luigi-green)]",
                   isNegative && "text-[var(--mario-red)]",
                   !isPositive && !isNegative && "text-muted-foreground"
