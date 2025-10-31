@@ -41,7 +41,7 @@ export const metadata: Metadata = {
     description: '1UP your Solana trading skills! Mario-themed paper trading game with real-time prices, FIFO accounting, and earn rewards. Practice trading without risk!',
     images: [
       {
-        url: '/og-banner.png',
+        url: `${siteUrl}/og-banner.png`,
         width: 1200,
         height: 630,
         alt: '1UP SOL - Mario-themed Solana Paper Trading Game',
@@ -55,7 +55,7 @@ export const metadata: Metadata = {
     creator: '@1upsolfun',
     title: '1UP SOL - Mario-themed Solana Paper Trading',
     description: '1UP your Solana trading skills! Mario-themed paper trading game with real-time prices, FIFO accounting, and earn rewards. Practice trading without risk!',
-    images: ['/og-banner.png'],
+    images: [`${siteUrl}/og-banner.png`],
   },
   robots: {
     index: true,
