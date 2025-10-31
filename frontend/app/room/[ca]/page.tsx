@@ -41,6 +41,8 @@ import { cn, marioStyles } from '@/lib/utils'
 import { DexScreenerChart } from '@/components/trading/dexscreener-chart'
 import { ResizableSplit } from '@/components/ui/resizable-split'
 import { PositionPnLBadge } from '@/components/trading/position-pnl-badge'
+import { ResponsiveRoomHeader } from '@/components/room/responsive-room-header'
+import { ResponsiveMobileLayout } from '@/components/room/responsive-mobile-layout'
 
 /**
  * Main trade room content component
@@ -187,139 +189,45 @@ function TradeRoomContent() {
 
   return (
     <div id="rooms-section" className="w-full h-full flex flex-col bg-background overflow-hidden">
-      {/* Header - Token Info */}
-      <header className="bg-sky/20 border-4 border-outline rounded-xl mx-3 mt-3 mb-0 flex-shrink-0 shadow-[6px_6px_0_var(--outline-black)]">
-        <div className="flex items-center justify-between flex-wrap gap-3 p-4">
-          {/* Left: Token Info */}
-          <div className="flex items-center gap-3">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => router.back()}
-              className="h-9 w-9 p-0 rounded-full border-3 border-outline shadow-[2px_2px_0_var(--outline-black)]"
-              aria-label="Go back"
-            >
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
+      {/* Header - Responsive Token Info */}
+      <ResponsiveRoomHeader
+        ca={ca}
+        tokenDetails={{
+          name: tokenDetails.name || 'Unknown Token',
+          symbol: tokenDetails.symbol || '',
+          imageUrl: tokenDetails.imageUrl || undefined
+        }}
+        currentPrice={currentPrice}
+        priceChange24h={priceChange24h}
+        marketCap={marketCap}
+        volume24h={volume24h}
+        holderCount={holderCount}
+        tokenHolding={tokenHolding}
+      />
 
-            {tokenDetails.imageUrl && (
-              <div className="w-10 h-10 rounded-full border-3 border-outline shadow-[2px_2px_0_var(--outline-black)] overflow-hidden">
-                <img
-                  src={tokenDetails.imageUrl}
-                  alt={tokenDetails.symbol || 'Token'}
-                  className="w-full h-full object-cover"
-                />
-              </div>
-            )}
-
-            <div>
-              <h1 className="text-xl font-mario font-bold text-outline">
-                {tokenDetails.name || 'Unknown Token'}
-              </h1>
-              <div className="flex items-center gap-2 text-xs flex-wrap">
-                <span className="font-mono font-bold text-sm">${formatPrice(currentPrice)}</span>
-                <span
-                  className={cn(
-                    "mario-badge text-white border-outline text-xs",
-                    priceChange24h >= 0 ? "bg-luigi" : "bg-mario"
-                  )}
-                >
-                  {priceChange24h >= 0 ? (
-                    <TrendingUp className="h-3 w-3" />
-                  ) : (
-                    <TrendingDown className="h-3 w-3" />
-                  )}
-                  {priceChange24h >= 0 ? "+" : ""}{priceChange24h.toFixed(2)}%
-                </span>
-                {tokenHolding && parseFloat(tokenHolding.qty) > 0 && (
-                  <span className="mario-badge bg-star text-outline text-xs">
-                    Holding: {formatTokenQuantity(tokenHolding.qty)}
-                  </span>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Right: Stats */}
-          <div className="flex items-center gap-4">
-            <div className="text-right hidden xl:block">
-              <div className="text-[10px] text-foreground/70 uppercase tracking-wide font-bold">MCAP</div>
-              <div className="text-base font-bold text-outline">{formatUSD(marketCap)}</div>
-            </div>
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={async () => {
-                  try {
-                    await navigator.clipboard.writeText(ca)
-                    setShareCopied(true)
-                    toast({ title: "Contract address copied!", description: "Token CA copied to clipboard" })
-                    setTimeout(() => setShareCopied(false), 2000)
-                  } catch (err) {
-                    toast({ title: "Failed to copy", description: "Please copy the CA manually", variant: "destructive" })
-                  }
-                }}
-                className="h-9 w-9 p-0 rounded-lg border-3 border-outline shadow-[2px_2px_0_var(--outline-black)]"
-                aria-label="Copy Contract Address"
-              >
-                {shareCopied ? (
-                  <Check className="h-3.5 w-3.5 text-luigi" />
-                ) : (
-                  <Share2 className="h-3.5 w-3.5" />
-                )}
-              </Button>
-
-              <Button
-                variant="outline"
-                size="sm"
-                asChild
-                className="h-9 w-9 p-0 rounded-lg border-3 border-outline shadow-[2px_2px_0_var(--outline-black)]"
-              >
-                <a
-                  href={`https://dexscreener.com/solana/${ca}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="View on DexScreener"
-                >
-                  <ExternalLink className="h-3.5 w-3.5" />
-                </a>
-              </Button>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      {/* Main Content - 3 Column Layout */}
+      {/* Main Content - Responsive Layouts */}
       <main className="flex-1 flex gap-3 p-3 overflow-hidden">
-        {/* MOBILE LAYOUT */}
-        <div className="md:hidden flex flex-col w-full h-full gap-3">
-          {/* Chart - Responsive heights for different screen sizes */}
-          <div className="h-[300px] sm:h-[400px] overflow-hidden rounded-xl border-[3px] md:border-4 border-outline shadow-[4px_4px_0_var(--outline-black)] sm:shadow-[6px_6px_0_var(--outline-black)]">
-            <DexScreenerChart tokenAddress={ca} />
-          </div>
-
-          {/* Market Data Panels */}
-          <div className="flex-1 overflow-hidden">
-            <MarketDataPanels tokenMint={ca} />
-          </div>
+        {/* MOBILE/TABLET LAYOUT - Enhanced with swipeable panels (< 1280px) */}
+        <div className="xl:hidden w-full h-full">
+          <ResponsiveMobileLayout tokenAddress={ca} />
         </div>
 
-        {/* Mobile Floating Trade Button */}
-        <div className="md:hidden fixed right-6 bottom-6 z-sticky">
+        {/* Mobile/Tablet Floating Trade Button - Above navbar */}
+        <div className="xl:hidden fixed right-4 sm:right-6 bottom-20 sm:bottom-24" style={{ zIndex: 'var(--z-trade-button)' }}>
           <Dialog open={showTradeModal} onOpenChange={setShowTradeModal}>
             <DialogTrigger asChild>
-              <button className="btn-buy h-14 w-14 rounded-full text-sm shadow-[4px_4px_0_var(--outline-black)]">
+              <button className="btn-buy h-14 w-14 sm:h-16 sm:w-16 rounded-full text-xs sm:text-sm shadow-[6px_6px_0_var(--outline-black)] hover:shadow-[8px_8px_0_var(--outline-black)] hover:scale-110 transition-all active:scale-95">
                 TRADE
               </button>
             </DialogTrigger>
-            <DialogContent className="bg-sky/20 border-4 border-outline rounded-xl shadow-[8px_8px_0_var(--outline-black)] max-w-[90vw] sm:max-w-md mx-4">
-              <DialogHeader>
-                <DialogTitle className="text-lg text-center font-mario font-bold text-outline">
+            <DialogContent className="w-[90vw] max-w-md mx-auto max-h-[85vh] overflow-y-auto p-4 sm:p-6 bg-[var(--background)] border-4 border-[var(--outline)] shadow-[8px_8px_0_var(--outline-black)] z-50">
+              <DialogHeader className="space-y-3 pb-4">
+                <DialogTitle className="text-xl sm:text-2xl text-center font-mario font-bold text-outline">
                   Trade {tokenDetails.symbol}
                 </DialogTitle>
               </DialogHeader>
-              <div className="mt-4">
+              
+              <div className="space-y-4">
                 <TradePanel
                   tokenAddress={ca}
                   volume24h={volume24h}
@@ -332,8 +240,8 @@ function TradeRoomContent() {
           </Dialog>
         </div>
 
-        {/* DESKTOP/TABLET LAYOUT - Responsive Grid */}
-        <div className="hidden md:block w-full h-full">
+        {/* DESKTOP LAYOUT - 3 Column Grid (>= 1280px only) */}
+        <div className="hidden xl:block w-full h-full">
           <div className="room-grid h-full">
             {/* Chat Panel */}
             <aside className="chat-panel flex flex-col">

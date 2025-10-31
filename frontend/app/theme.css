@@ -434,6 +434,7 @@
   
   /* Bottom Navigation (9000+) - Highest priority for touch targets */
   --z-bottom-nav: 9003;          /* Bottom navigation bar */
+  --z-trade-button: 9004;        /* Floating trade button - above navbar */
   
   /* Debug & Special (9999) */
   --z-debug: 9998;

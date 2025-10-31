@@ -23,6 +23,7 @@ import { getTokenHolders, checkBubbleMapAvailability, getTokenDetails, getTokenT
 import { SharePnLDialog } from '@/components/modals/share-pnl-dialog'
 import { useAuth } from '@/hooks/use-auth'
 import { usePriceStreamContext } from '@/lib/price-stream-provider'
+import { ResponsiveTabs } from '@/components/room/responsive-tabs'
 
 interface MarketDataPanelsProps {
   tokenMint: string
@@ -68,11 +69,50 @@ export function MarketDataPanels({ tokenMint }: MarketDataPanelsProps) {
   const realtimePnLPercent = costBasis > 0 ? (realtimeUnrealizedPnL / costBasis) * 100 : 0
   const hasPosition = qty > 0
 
+  // Tab configuration for responsive tabs
+  const tabs = [
+    {
+      id: 'trades',
+      label: 'Trades',
+      icon: <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4" />,
+      onClick: () => setActiveTab('trades'),
+      isActive: activeTab === 'trades'
+    },
+    {
+      id: 'traders',
+      label: 'Top Traders',
+      icon: <Users className="w-3 h-3 sm:w-4 sm:h-4" />,
+      onClick: () => setActiveTab('traders'),
+      isActive: activeTab === 'traders'
+    },
+    {
+      id: 'holders',
+      label: 'Holders',
+      icon: <Users className="w-3 h-3 sm:w-4 sm:h-4" />,
+      onClick: () => setActiveTab('holders'),
+      isActive: activeTab === 'holders'
+    },
+    {
+      id: 'bubblemap',
+      label: 'Bubble Map',
+      icon: <Network className="w-3 h-3 sm:w-4 sm:h-4" />,
+      onClick: () => setActiveTab('bubblemap'),
+      isActive: activeTab === 'bubblemap'
+    },
+    {
+      id: 'positions',
+      label: 'Portfolio',
+      icon: <Wallet className="w-3 h-3 sm:w-4 sm:h-4" />,
+      onClick: () => setActiveTab('positions'),
+      isActive: activeTab === 'positions'
+    }
+  ]
+
   return (
     <div className="bg-sky/20 border-4 border-outline rounded-xl shadow-[6px_6px_0_var(--outline-black)] h-full flex flex-col p-3">
       {/* Header with Share Button and Tabs */}
-      <div className="flex items-center justify-between gap-3 mb-3 flex-wrap">
-        {/* Share PnL Button - Left Side */}
+      <div className="flex flex-col gap-3 mb-3">
+        {/* Share PnL Button - Top on mobile */}
         {hasPosition && (
           <SharePnLDialog
             totalPnL={realtimeUnrealizedPnL}
@@ -91,69 +131,8 @@ export function MarketDataPanels({ tokenMint }: MarketDataPanelsProps) {
           />
         )}
         
-        {/* Tabs - Right Side */}
-        <div className="flex gap-1.5 flex-wrap flex-1 justify-end">
-        <button
-          onClick={() => setActiveTab('trades')}
-          className={cn(
-            "px-3 py-1.5 text-xs flex items-center gap-1.5 rounded-lg border-3 border-outline shadow-[2px_2px_0_var(--outline-black)] transition-all font-mario font-bold",
-            activeTab === 'trades'
-              ? "bg-luigi text-white"
-              : "bg-white text-outline hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-0.5"
-          )}
-        >
-          <TrendingUp className="w-3 h-3" />
-          Trades
-        </button>
-        <button
-          onClick={() => setActiveTab('traders')}
-          className={cn(
-            "px-3 py-1.5 text-xs flex items-center gap-1.5 rounded-lg border-3 border-outline shadow-[2px_2px_0_var(--outline-black)] transition-all font-mario font-bold",
-            activeTab === 'traders'
-              ? "bg-luigi text-white"
-              : "bg-white text-outline hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-0.5"
-          )}
-        >
-          <Users className="w-3 h-3" />
-          Top Traders
-        </button>
-        <button
-          onClick={() => setActiveTab('holders')}
-          className={cn(
-            "px-3 py-1.5 text-xs flex items-center gap-1.5 rounded-lg border-3 border-outline shadow-[2px_2px_0_var(--outline-black)] transition-all font-mario font-bold",
-            activeTab === 'holders'
-              ? "bg-luigi text-white"
-              : "bg-white text-outline hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-0.5"
-          )}
-        >
-          <Users className="w-3 h-3" />
-          Holders
-        </button>
-        <button
-          onClick={() => setActiveTab('bubblemap')}
-          className={cn(
-            "px-3 py-1.5 text-xs flex items-center gap-1.5 rounded-lg border-3 border-outline shadow-[2px_2px_0_var(--outline-black)] transition-all font-mario font-bold",
-            activeTab === 'bubblemap'
-              ? "bg-luigi text-white"
-              : "bg-white text-outline hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-0.5"
-          )}
-        >
-          <Network className="w-3 h-3" />
-          Bubble Map
-        </button>
-        <button
-          onClick={() => setActiveTab('positions')}
-          className={cn(
-            "px-3 py-1.5 text-xs flex items-center gap-1.5 rounded-lg border-3 border-outline shadow-[2px_2px_0_var(--outline-black)] transition-all font-mario font-bold",
-            activeTab === 'positions'
-              ? "bg-luigi text-white"
-              : "bg-white text-outline hover:shadow-[3px_3px_0_var(--outline-black)] hover:-translate-y-0.5"
-          )}
-        >
-          <Wallet className="w-3 h-3" />
-          Portfolio
-        </button>
-        </div>
+        {/* Responsive Tabs */}
+        <ResponsiveTabs tabs={tabs} />
       </div>
 
       {/* Tab Content */}
