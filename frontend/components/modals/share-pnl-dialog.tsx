@@ -66,17 +66,54 @@ export function SharePnLDialog({
     await new Promise((r) => setTimeout(r, 100))
   }
 
+  // Resolve a CSS custom property to a concrete color string (e.g., #fff)
+  const getCssVarValue = (varName: string, fallback = "#ffffff") => {
+    try {
+      const value = getComputedStyle(document.documentElement).getPropertyValue(varName).trim()
+      return value || fallback
+    } catch {
+      return fallback
+    }
+  }
+
+  // Ensure fonts and images are ready before rasterizing
+  const ensureAssetsReady = async (host: HTMLElement) => {
+    // Wait for fonts (supported in modern browsers)
+    try {
+      // @ts-expect-error: document.fonts not in older TS lib versions
+      if (document.fonts && typeof document.fonts.ready?.then === "function") {
+        // @ts-ignore
+        await document.fonts.ready
+      }
+    } catch {/* noop */}
+    await waitForImagesToLoad(host)
+  }
+
+  // Shared generator - returns PNG data URL or Blob
+  const generateShareImage = async (mode: "png" | "blob") => {
+    const node = cardRef.current
+    if (!node) throw new Error("Missing share card element")
+    await ensureAssetsReady(node)
+    const backgroundColor = getCssVarValue("--card", getCssVarValue("--background", "#ffffff"))
+    const common = {
+      cacheBust: true,
+      pixelRatio: 2,
+      backgroundColor,
+      skipAutoScale: true,
+      // Ensure background images loaded via CSS/inline are fetched with CORS-friendly settings
+      fetchRequestInit: { mode: "cors", credentials: "omit" as const },
+    } as const
+    if (mode === "png") {
+      return await toPng(node, common)
+    }
+    return await toBlob(node, common)
+  }
+
   const handleDownload = async () => {
     if (!cardRef.current || isGenerating) return
     try {
       setIsGenerating(true)
-      await waitForImagesToLoad(cardRef.current)
-      const dataUrl = await toPng(cardRef.current, {
-        cacheBust: true,
-        pixelRatio: 2,
-        backgroundColor: "var(--background)",
-        skipAutoScale: true,
-      })
+      const dataUrl = await generateShareImage("png")
       const link = document.createElement("a")
       link.download = `oneupsol-pnl-${Date.now()}.png`
       link.href = dataUrl
@@ -98,15 +135,16 @@ export function SharePnLDialog({
     if (!cardRef.current || isGenerating) return
     try {
       setIsGenerating(true)
-      await waitForImagesToLoad(cardRef.current)
-      const blob = await toBlob(cardRef.current, {
-        cacheBust: true,
-        pixelRatio: 2,
-        backgroundColor: "var(--background)",
-        skipAutoScale: true,
-      })
+      const blob = await generateShareImage("blob")
       if (!blob) throw new Error("Failed to generate image blob")
-      await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })])
+      const itemCtor: any = (window as any).ClipboardItem
+      if (itemCtor && navigator.clipboard && (navigator.clipboard as any).write) {
+        await (navigator.clipboard as any).write([new itemCtor({ "image/png": blob })])
+      } else {
+        // Fallback: open the PNG data URL in a new tab
+        const dataUrl = URL.createObjectURL(blob)
+        window.open(dataUrl, "_blank")
+      }
       setCopied(true)
       setTimeout(() => setCopied(false), 1800)
       setHasDownloaded(true)
@@ -162,12 +200,13 @@ export function SharePnLDialog({
 
       {/* Use semantic z-index token instead of hard-coded z-50 */}
       <DialogContent
-        className="sm:max-w-[640px] rounded-2xl"
+        className="sm:max-w-[560px] rounded-2xl"
         style={{
           background: "var(--modal)",
           border: "4px solid var(--outline-black)",
           boxShadow: "var(--shadow-modal)",
-          zIndex: "var(--z-modal)"
+          // Ensure we have a safe fallback if CSS var is absent
+          zIndex: (typeof window !== "undefined" ? parseInt(getComputedStyle(document.documentElement).getPropertyValue("--z-modal").trim() || "1050") : 1050) as unknown as number
         }}
       >
         <DialogHeader>
@@ -179,81 +218,81 @@ export function SharePnLDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4">
+  <div className="space-y-2">
           {/* Shareable Card */}
           <div
             ref={cardRef}
             className="
-              share-card mario-card-desktop relative w-full aspect-[16/9] overflow-hidden
-              bg-[var(--card-bg-elevated)]
+              share-card mario-card-desktop relative w-full aspect-[16/10] overflow-hidden
+              bg-[var(--card-share-bg)]
             "
-            style={{ padding: 'var(--share-card-padding)' }}
             aria-label="Shareable PnL preview card"
           >
-            {/* Top bar - aligned horizontally */}
-            <div
-              className="share-card__header"
-              style={{
-                position: 'absolute',
-                insetInline: 'var(--share-card-padding)',
-                insetBlockStart: 'var(--share-card-padding)',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                width: 'calc(100% - (var(--share-card-padding) * 2))'
-              }}
-            >
-              {/* Left: Header badge - just the SVG */}
-              <div className="inline-flex items-center justify-center px-3 py-2 rounded-lg mario-border mario-shadow bg-[var(--card-info)]">
+            {/* Inline background layer so html-to-image captures it (pseudo-elements are not serialized) */}
+            {typeof window !== "undefined" && (
+              <div
+                aria-hidden
+                className="absolute inset-0 pointer-events-none"
+                style={{
+                  backgroundImage: `url('${new URL("/24f6ff0a-ff72-4c1f-8c45-e44bbcb0f524.png", window.location.origin).toString()}')`,
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
+                  backgroundRepeat: "no-repeat",
+                  zIndex: 0
+                }}
+              />
+            )}
+            {/* Preload background image used in CSS ::before so html-to-image waits for it */}
+            <img
+              src="/24f6ff0a-ff72-4c1f-8c45-e44bbcb0f524.png"
+              alt=""
+              aria-hidden
+              className="absolute w-0 h-0 opacity-0 pointer-events-none"
+              crossOrigin="anonymous"
+              loading="eager"
+            />
+            {/* Top banner - full width */}
+            <div className="share-card__header">
+              <div className="w-full inline-flex items-center justify-center px-3 py-2 rounded-lg mario-border mario-shadow bg-[var(--card-info)] relative overflow-hidden">
+                {/* Background image layer for header panel (captured by html-to-image) */}
+                {typeof window !== "undefined" && (
+                  <div
+                    aria-hidden
+                    className="absolute inset-0 pointer-events-none"
+                    style={{
+                      backgroundImage: `url('${new URL("/nswitch-supermario3dallstars-supermario64-04.jpg", window.location.origin).toString()}')`,
+                      backgroundSize: "cover",
+                      backgroundPosition: "center",
+                      backgroundRepeat: "no-repeat",
+                      opacity: 0.7,
+                      zIndex: 0
+                    }}
+                  />
+                )}
                 <img
                   src="/Check-out-my-pnl-10-31-2025.png"
                   alt="Share banner"
-                  className="h-6 w-auto object-contain"
+                  className="w-full h-auto max-h-[var(--share-header-height)] object-contain relative"
+                  style={{ zIndex: 1 }}
                   crossOrigin="anonymous"
                   loading="eager"
                   onError={(e) => { (e.target as HTMLImageElement).style.display = "none" }}
                 />
               </div>
-
-              {/* Right: LIVE tag */}
-              <div className="px-3 py-2 rounded-lg mario-border mario-shadow bg-[var(--luigi-green)]">
-                <span className="text-[10px] font-display font-bold text-white tracking-widest live-indicator">LIVE</span>
-              </div>
             </div>
 
             {/* Content - better vertical centering */}
-            <div
-              className="share-card__content"
-              style={{
-                position: 'relative',
-                zIndex: 10,
-                height: '100%',
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'center',
-                gap: 'var(--share-card-gap)',
-                padding: 'var(--share-card-padding)',
-                paddingBlockStart: 'calc(var(--share-card-padding) + var(--share-header-height))'
-              }}
-            >
+            <div className="share-card__content">
               {/* Main content area - even gap between columns */}
-              <div
-                className="share-card__main"
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: '1fr 180px',
-                  gap: '1rem',
-                  alignItems: 'stretch'
-                }}
-              >
+              <div className="share-card__main">
                 {/* Left: PnL - compact padding */}
-                <div className="rounded-lg mario-border mario-shadow p-6 flex flex-col justify-center bg-[color-mix(in_oklab,var(--luigi-green)_20%,var(--background)_80%)]" style={{
+                <div className="rounded-lg mario-border mario-shadow p-4 flex flex-col justify-center h-full bg-[color-mix(in_oklab,var(--luigi-green)_20%,var(--background)_80%)]" style={{
                   backgroundColor: positive 
                     ? 'color-mix(in oklab, var(--luigi-green) 20%, var(--background) 80%)' 
                     : 'color-mix(in oklab, var(--mario-red) 18%, var(--background) 82%)'
                 }}>
                   {/* Compact vertical spacing */}
-                  <div className="space-y-4">
+                  <div className="space-y-3">
                     {/* Token/Label row - better alignment */}
                     <div className="flex items-center gap-2">
                       {isTokenSpecific && tokenImageUrl && (
@@ -287,21 +326,18 @@ export function SharePnLDialog({
                 </div>
 
                 {/* Right: Stats - compact spacing */}
-                <div
-                  className="share-card__stats"
-                  style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}
-                >
+                <div className="share-card__stats">
                   {/* Invested card - smaller */}
-                  <div className="rounded-lg mario-border mario-shadow p-4 bg-[var(--card-portfolio)]">
-                    <div className="text-[10px] text-[var(--muted-foreground)] mb-2 uppercase font-display font-bold tracking-wider">Invested</div>
+                  <div className="rounded-lg mario-border mario-shadow p-3 bg-[var(--card-portfolio)]">
+                    <div className="text-[10px] text-[var(--muted-foreground)] mb-1.5 uppercase font-display font-bold tracking-wider">Invested</div>
                     <div className="text-2xl font-display font-black text-[var(--outline-black)] tracking-tight leading-none">
                       ${initialBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </div>
                   </div>
                   
                   {/* Position card - smaller */}
-                  <div className="rounded-lg mario-border mario-shadow p-4 bg-[var(--card-stats)]">
-                    <div className="text-[10px] text-[var(--muted-foreground)] mb-2 uppercase font-display font-bold tracking-wider">Position</div>
+                  <div className="rounded-lg mario-border mario-shadow p-3 bg-[var(--card-stats)]">
+                    <div className="text-[10px] text-[var(--muted-foreground)] mb-1.5 uppercase font-display font-bold tracking-wider">Position</div>
                     <div className="text-2xl font-display font-black text-[var(--outline-black)] tracking-tight leading-none">
                       ${currentValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </div>
@@ -310,16 +346,7 @@ export function SharePnLDialog({
               </div>
 
               {/* Footer: user - compact padding */}
-              <div
-                className="share-card__footer mario-border"
-                style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  paddingBlockStart: 'var(--share-footer-gap)',
-                  borderTop: '3px solid var(--outline-black)'
-                }}
-              >
+              <div className="share-card__footer">
                 <div className="flex items-center gap-2">
                   {userAvatarUrl ? (
                     <img
@@ -340,27 +367,27 @@ export function SharePnLDialog({
                       </span>
                     </div>
                   )}
-                  <div className="space-y-0">
-                    <div className="text-[var(--outline-black)] font-display font-bold text-sm leading-tight">
+                   <div className="space-y-0 px-1.5 py-0.5 rounded-md" style={{ backgroundColor: "rgba(0,0,0,0.6)" }}>
+                    <div className="text-white font-body font-semibold text-[15px] leading-tight tracking-normal">
                       @{userHandle || userEmail?.split("@")[0] || "admin"}
                     </div>
-                    <div className="text-[10px] text-[var(--sky-blue)] font-display font-semibold tracking-wide uppercase">ONEUPSOL.FUN</div>
+                    <div className="text-[10px] text-white font-body font-medium tracking-wide uppercase">ONEUPSOL.FUN</div>
                   </div>
                 </div>
-                <div className="text-right space-y-0">
-                  <div className="text-[9px] text-[var(--muted-foreground)] uppercase font-display font-bold tracking-wider">Powered by</div>
-                  <div className="text-xl font-display font-black text-[var(--outline-black)] tracking-tight leading-none">1UP</div>
+                 <div className="text-right space-y-0 px-1.5 py-0.5 rounded-md" style={{ backgroundColor: "rgba(0,0,0,0.6)" }}>
+                  <div className="text-[9px] text-white uppercase font-body font-semibold tracking-wide">Powered by</div>
+                  <div className="text-xl font-body font-extrabold text-white tracking-tight leading-none">1UP</div>
                 </div>
               </div>
             </div>
           </div>
 
           {/* Actions */}
-          <div className="space-y-3">
+          <div className="space-y-2">
             <div className="flex gap-3">
               <button
                 onClick={handleDownload}
-                className="flex-1 h-12 px-4 rounded-xl mario-border mario-shadow font-display
+                className="flex-1 h-10 px-4 rounded-xl mario-border mario-shadow font-display
                            bg-[var(--color-luigi)] text-white transition-all
                            hover:-translate-y-0.5 hover:shadow-[5px_5px_0_var(--outline-black)]
                            disabled:opacity-50 grid place-items-center gap-2"
@@ -380,7 +407,7 @@ export function SharePnLDialog({
 
               <button
                 onClick={handleCopy}
-                className="flex-1 h-12 px-4 rounded-xl mario-border mario-shadow font-display
+                className="flex-1 h-10 px-4 rounded-xl mario-border mario-shadow font-display
                            bg-[var(--color-sky)] text-white transition-all
                            hover:-translate-y-0.5 hover:shadow-[5px_5px_0_var(--outline-black)]
                            disabled:opacity-50 grid place-items-center gap-2"
@@ -404,11 +431,11 @@ export function SharePnLDialog({
             </div>
 
             {/* X Share */}
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               <button
                 onClick={handleShareToTwitter}
                 disabled={isTracking || !hasDownloaded}
-                className={`w-full h-14 px-4 rounded-xl mario-border mario-shadow font-display text-lg
+                className={`w-full h-12 px-4 rounded-xl mario-border mario-shadow font-display text-lg
                            transition-all grid place-items-center gap-2
                            ${hasDownloaded ? "bg-[var(--color-star)] text-[var(--outline-black)] hover:-translate-y-0.5 hover:shadow-[5px_5px_0_var(--outline-black)]"
                                            : "bg-[color-mix(in_oklab,var(--muted)_80%,white_20%)] text-[var(--muted-foreground)] opacity-75 cursor-not-allowed"}`}
@@ -429,7 +456,7 @@ export function SharePnLDialog({
                 )}
               </button>
 
-              <div className="flex items-center justify-center gap-3 p-3 rounded-lg mario-border bg-[color-mix(in_oklab,var(--color-star)_10%,transparent_90%)]">
+              <div className="flex items-center justify-center gap-2 p-2 rounded-lg mario-border bg-[color-mix(in_oklab,var(--color-star)_10%,transparent_90%)]">
                 <ShareProgressIndicator shareCount={shareCount} maxShares={3} size="sm" />
                 <span className="text-xs font-display text-[var(--outline-black)]">
                   {remainingShares > 0 ? `${remainingShares} more ${remainingShares === 1 ? "share" : "shares"} to earn $1000 SOL!` : "Ready to claim $1000 SOL!"}

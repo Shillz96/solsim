@@ -170,24 +170,36 @@
   --trending-ticker-height: 60px;
   --portfolio-ticker-height: 36px; /* Portfolio positions ticker - minimal compact height */
 
+  /* Z-Index Scale - semantic layers for consistent stacking context */
+  --z-base: 0;
+  --z-dropdown: 1000;
+  --z-sticky: 1020;
+  --z-fixed: 1030;
+  --z-modal-backdrop: 1040;
+  --z-modal: 1050;
+  --z-popover: 1060;
+  --z-tooltip: 1070;
+  --z-toast: 1100;
+
   /* Spacing Scale - Mario Theme */
   --space-section: 1rem;        /* 16px - Between major panel sections */
   --space-component: 0.75rem;   /* 12px - Between related components */
   --space-control: 0.5rem;      /* 8px - Between form controls */
   --space-tight: 0.375rem;      /* 6px - Between tightly related items */
   --space-grid-sm: 0.5rem;      /* 8px - Small grid gaps */
-  --space-grid-md: 0.75rem;     /* 12px - Medium grid gaps */
+  --space-grid-md: 1rem;        /* 16px - Medium grid gaps */
 
   /* Component-Specific Gaps */
   --chat-message-gap: 1rem;     /* 16px - Between chat messages */
   --chat-section-gap: 0.75rem;  /* 12px - Between chat sections */
   --panel-padding: 0.75rem;     /* 12px - Panel internal padding */
 
-  /* Shareable PnL Card Spacing Tokens */
-  --share-card-padding: 1.75rem;    /* 28px - outer and inner padding (increased for breathing) */
-  --share-card-gap: 1.5rem;         /* 24px - inter-section gap (increased) */
-  --share-header-height: 56px;      /* header capsule + shadow height */
-  --share-footer-gap: 1.5rem;       /* 24px - footer top spacing (increased) */
+  /* Shareable PnL Card Spacing Tokens - micro */
+  --share-card-padding: 0.375rem;   /* 6px - outer and inner padding */
+  --share-card-gap: 0.5rem;         /* 8px - inter-section gap */
+  --share-header-height: 34px;      /* header capsule + shadow height */
+  --share-footer-gap: 0.375rem;     /* 6px - footer top spacing */
+  --share-header-offset: 25px;      /* extra space for header padding + borders (bumped +6px) */
 
   /* Warp Pipes Token Card Metrics - Reduced for more compact view */
   --token-card-height: 160px;
@@ -261,6 +273,13 @@
   /* Card backgrounds */
   --card-bg-elevated: color-mix(in oklab, var(--card) 95%, var(--background) 5%);
   --card-bg-muted: color-mix(in oklab, var(--muted) 95%, var(--background) 5%);
+
+  /* Share Card Background - subtle warm star tint */
+  --card-share-bg: color-mix(in oklab, var(--star-yellow) 8%, var(--background) 92%);
+  /* Share Card Background Image Overlay */
+  /* Use image dropped into /public; served at site root */
+  --share-bg-image: url('/24f6ff0a-ff72-4c1f-8c45-e44bbcb0f524.png');
+  --share-bg-opacity: 0.5;
 
   /* Light/Pastel Mario Color Card Variants - No White Cards */
   --card-portfolio: color-mix(in oklab, var(--luigi-green) 15%, var(--background) 85%);  /* Light Luigi green for money/portfolio */
