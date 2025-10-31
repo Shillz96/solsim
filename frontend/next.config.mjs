@@ -103,6 +103,20 @@ const nextConfig = {
           },
         ],
       },
+      // Explicit Content-Type for OG image to help Apple Messages, Telegram
+      {
+        source: '/og-banner.png',
+        headers: [
+          {
+            key: 'Content-Type',
+            value: 'image/png',
+          },
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
     ];
   },
 

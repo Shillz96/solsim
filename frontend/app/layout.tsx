@@ -42,6 +42,7 @@ export const metadata: Metadata = {
     images: [
       {
         url: `${siteUrl}/og-banner.png`,
+        secureUrl: `${siteUrl}/og-banner.png`, // Explicit HTTPS URL for Apple Messages, Telegram
         width: 1200,
         height: 630,
         alt: '1UP SOL - Mario-themed Solana Paper Trading Game',
@@ -55,7 +56,12 @@ export const metadata: Metadata = {
     creator: '@1upsolfun',
     title: '1UP SOL - Mario-themed Solana Paper Trading',
     description: '1UP your Solana trading skills! Mario-themed paper trading game with real-time prices, FIFO accounting, and earn rewards. Practice trading without risk!',
-    images: [`${siteUrl}/og-banner.png`],
+    images: [
+      {
+        url: `${siteUrl}/og-banner.png`,
+        alt: '1UP SOL - Mario-themed Solana Paper Trading Game',
+      },
+    ],
   },
   robots: {
     index: true,
