@@ -11,7 +11,7 @@
 
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, memo } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { cn, marioStyles } from "@/lib/utils"
@@ -57,15 +57,24 @@ const shorten = (addr?: string | null, s = 4, e = 4) => {
 };
 
 
-export function TokenCard({ data, onToggleWatch, className, enableLiveUpdates = true }: TokenCardProps) {
-  const validatedImageUrl = validateImageUrl(data.imageUrl || data.logoURI);
+// Memoize component to prevent unnecessary re-renders from parent
+export const TokenCard = memo(function TokenCard({ data, onToggleWatch, className, enableLiveUpdates = true }: TokenCardProps) {
+  // Memoize image URL to prevent re-validation on every render
+  const validatedImageUrl = useMemo(
+    () => validateImageUrl(data.imageUrl || data.logoURI),
+    [data.imageUrl, data.logoURI]
+  );
+
   const [imageError, setImageError] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
   const age = timeAgo(data.firstSeenAt);
 
-  // Get real-time SOL price from price stream
+  // Get real-time SOL price from price stream - memoize to reduce re-renders
   const { prices: livePrices } = usePriceStreamContext();
-  const solPrice = livePrices.get('So11111111111111111111111111111111111111112')?.price || 150;
+  const solPrice = useMemo(
+    () => livePrices.get('So11111111111111111111111111111111111111112')?.price || 150,
+    [livePrices]
+  );
 
   // Real-time metadata updates from PumpPortal (if enabled)
   const { metadata: liveMetadata, status: metadataStatus } = usePumpPortalMetadata({
@@ -136,6 +145,7 @@ export function TokenCard({ data, onToggleWatch, className, enableLiveUpdates = 
         <div className="relative w-32 h-32 flex-shrink-0">
           {validatedImageUrl && !imageError ? (
             <Image
+              key={data.mint} // Stable key prevents remounting on re-renders
               src={validatedImageUrl}
               alt={data.symbol}
               fill
@@ -146,6 +156,7 @@ export function TokenCard({ data, onToggleWatch, className, enableLiveUpdates = 
               onLoad={() => setImageLoaded(true)}
               onError={() => setImageError(true)}
               unoptimized
+              priority={false} // Disable priority loading to reduce glitches
             />
           ) : null}
 
@@ -285,7 +296,7 @@ export function TokenCard({ data, onToggleWatch, className, enableLiveUpdates = 
       </div>
     </Link>
   );
-}
+}); // End of memo
 
 
 /**
