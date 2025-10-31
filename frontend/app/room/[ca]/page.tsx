@@ -309,7 +309,7 @@ function TradeRoomContent() {
         </div>
 
         {/* Mobile Floating Trade Button */}
-        <div className="md:hidden fixed right-6 z-sticky" style={{ bottom: 'calc(var(--bottom-nav-height, 64px) + 1rem)' }}>
+        <div className="md:hidden fixed right-6 bottom-6 z-sticky">
           <Dialog open={showTradeModal} onOpenChange={setShowTradeModal}>
             <DialogTrigger asChild>
               <button className="btn-buy h-14 w-14 rounded-full text-sm shadow-[4px_4px_0_var(--outline-black)]">

@@ -245,7 +245,8 @@ export default async function marketRoutes(app: FastifyInstance) {
       const cached = await redis.get('market:crypto-prices');
       if (cached) {
         const data = JSON.parse(cached);
-        // Check if cache is still fresh (less than 30 seconds old)
+        // If cache exists (even if stale), use it if we fail to fetch new data
+        // Return it immediately if fresh (less than 30 seconds old)
         if (Date.now() - data.ts < 30000) {
           return data;
         }
@@ -257,6 +258,11 @@ export default async function marketRoutes(app: FastifyInstance) {
       );
 
       if (!response.ok) {
+        // If we have cached data (even if stale), return it instead of failing
+        if (cached) {
+          app.log.warn(`CoinGecko API error ${response.status}, returning stale cache`);
+          return JSON.parse(cached);
+        }
         throw new Error(`CoinGecko API error: ${response.status}`);
       }
 
@@ -284,7 +290,23 @@ export default async function marketRoutes(app: FastifyInstance) {
       return result;
     } catch (error: any) {
       app.log.error(error);
-      return reply.code(500).send({ error: error.message || 'Failed to fetch crypto prices' });
+
+      // Try to return stale cached data as last resort
+      const cached = await redis.get('market:crypto-prices');
+      if (cached) {
+        app.log.warn('Returning stale cache due to error');
+        return JSON.parse(cached);
+      }
+
+      // If no cache exists, return reasonable defaults instead of 500 error
+      app.log.warn('No cache available, returning default values');
+      return {
+        solana: { usd: null, usd_24h_change: null },
+        bitcoin: { usd: null, usd_24h_change: null },
+        ethereum: { usd: null, usd_24h_change: null },
+        ts: Date.now(),
+        cached: false,
+      };
     }
   });
 }

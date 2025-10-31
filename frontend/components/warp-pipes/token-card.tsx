@@ -137,12 +137,13 @@ export const TokenCard = memo(function TokenCard({ data, onToggleWatch, classNam
           'rounded-xl border-3 border-outline',
           'shadow-[4px_4px_0_var(--outline-black)] hover:shadow-[6px_6px_0_var(--outline-black)]',
           'hover:-translate-y-0.5 hover:border-star',
-          'bg-gradient-to-br from-sky/30 via-sky/20 to-sky/10 p-4 flex gap-4 items-stretch',
+          'bg-gradient-to-br from-sky/30 via-sky/20 to-sky/10',
+          'p-3 sm:p-4 flex gap-3 sm:gap-4 items-stretch',
           'transition-all duration-200'
         )}
       >
-        {/* Left: Token Image - Enlarged to 128x128 for maximum prominence */}
-        <div className="relative w-32 h-32 flex-shrink-0">
+        {/* Left: Token Image - Responsive sizing */}
+        <div className="relative w-20 h-20 sm:w-28 sm:h-28 md:w-32 md:h-32 flex-shrink-0">
           {validatedImageUrl && !imageError ? (
             <Image
               key={data.mint} // Stable key prevents remounting on re-renders
@@ -174,22 +175,22 @@ export const TokenCard = memo(function TokenCard({ data, onToggleWatch, classNam
         </div>
 
         {/* Middle: Token Info */}
-        <div className="flex-1 min-w-0 space-y-1.5">
+        <div className="flex-1 min-w-0 space-y-1 sm:space-y-1.5">
           {/* Header Row */}
-          <div className="flex items-center gap-2">
-            <h3 className={cn(marioStyles.heading(4), 'text-base font-black truncate max-w-[160px]')}>
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            <h3 className={cn(marioStyles.heading(4), 'text-sm sm:text-base font-black truncate max-w-[100px] sm:max-w-[160px]')}>
               {data.symbol}
             </h3>
             <SecurityIcon />
           </div>
 
           {/* Age */}
-          <p className="text-[10px] text-outline/60 font-bold">{age} ago</p>
+          <p className="text-[9px] sm:text-[10px] text-outline/60 font-bold">{age} ago</p>
 
           {/* Price Change */}
-          <div className="flex items-center gap-2 text-sm font-bold">
+          <div className="flex items-center gap-2 text-xs sm:text-sm font-bold">
             {priceChg == null ? (
-              <span className="text-outline/60">NEW</span>
+              <span className="text-outline/60 text-[10px] sm:text-xs">NEW</span>
             ) : (
               <span
                 className={cn(
@@ -202,7 +203,7 @@ export const TokenCard = memo(function TokenCard({ data, onToggleWatch, classNam
           </div>
 
           {/* Secondary Metrics - De-emphasized */}
-          <div className="flex items-center gap-2 text-[9px] text-outline/50 font-bold">
+          <div className="flex items-center gap-1.5 sm:gap-2 text-[8px] sm:text-[9px] text-outline/50 font-bold">
             <span>
               {mergedData.holderCount != null
                 ? `${mergedData.holderCount.toLocaleString()} holders`
@@ -210,8 +211,8 @@ export const TokenCard = memo(function TokenCard({ data, onToggleWatch, classNam
             </span>
             {liveTxCount && (
               <>
-                <span>•</span>
-                <span>{liveTxCount.toLocaleString()} txns</span>
+                <span className="hidden sm:inline">•</span>
+                <span className="hidden sm:inline">{liveTxCount.toLocaleString()} txns</span>
               </>
             )}
           </div>
@@ -220,22 +221,22 @@ export const TokenCard = memo(function TokenCard({ data, onToggleWatch, classNam
           {data.status === 'ABOUT_TO_BOND' &&
             mergedData.bondingCurveProgress != null &&
             data.solToGraduate != null && (
-              <div className="mt-1 space-y-0.5">
-                <div className="h-1.5 bg-card border-2 border-outline rounded-full overflow-hidden">
+              <div className="mt-0.5 sm:mt-1 space-y-0.5">
+                <div className="h-1 sm:h-1.5 bg-card border-2 border-outline rounded-full overflow-hidden">
                   <div
                     className="h-full bg-star transition-all duration-500"
                     style={{ width: `${Math.min(mergedData.bondingCurveProgress, 100)}%` }}
                   />
                 </div>
-                <p className="text-[9px] font-bold text-outline">
-                  {mergedData.bondingCurveProgress.toFixed(0)}% • {data.solToGraduate.toFixed(1)} SOL to go
+                <p className="text-[8px] sm:text-[9px] font-bold text-outline">
+                  {mergedData.bondingCurveProgress.toFixed(0)}% • {data.solToGraduate.toFixed(1)} SOL
                 </p>
               </div>
             )}
 
           {/* Bottom Row - Socials + Creator (De-emphasized) */}
           <div className="flex items-center justify-between pt-0.5 opacity-60">
-            <div className="flex gap-1">
+            <div className="flex gap-0.5 sm:gap-1">
               {data.twitter && (
                 <SocialHoverCard
                   platform="twitter"
@@ -266,27 +267,27 @@ export const TokenCard = memo(function TokenCard({ data, onToggleWatch, classNam
             </div>
 
             {data.creatorWallet && (
-              <span className="font-mono text-[8px] text-outline/40">
+              <span className="font-mono text-[7px] sm:text-[8px] text-outline/40 hidden sm:inline">
                 👨‍💻 {shorten(data.creatorWallet, 3, 3)}
               </span>
             )}
           </div>
         </div>
 
-        {/* Right: Compact Stat Badges (Horizontal) */}
-        <div className="flex gap-2 items-center">
+        {/* Right: Compact Stat Badges - Responsive layout */}
+        <div className="flex flex-col sm:flex-row gap-1.5 sm:gap-2 items-center">
           {/* Market Cap Badge */}
-          <div className="flex items-center gap-1 px-2.5 py-1.5 bg-[var(--star-yellow)] border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] rounded-lg">
-            <span className="text-xs">💰</span>
-            <span className="text-sm font-black text-[var(--outline-black)] whitespace-nowrap">
+          <div className="flex items-center gap-0.5 sm:gap-1 px-1.5 sm:px-2.5 py-1 sm:py-1.5 bg-[var(--star-yellow)] border-2 sm:border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] sm:shadow-[3px_3px_0_var(--outline-black)] rounded-lg">
+            <span className="text-[10px] sm:text-xs">💰</span>
+            <span className="text-xs sm:text-sm font-black text-[var(--outline-black)] whitespace-nowrap">
               ${fmtCompact(mergedData.marketCapUsd)}
             </span>
           </div>
 
           {/* 24h Volume Badge */}
-          <div className="flex items-center gap-1 px-2.5 py-1.5 bg-[var(--luigi-green)] border-3 border-[var(--outline-black)] shadow-[3px_3px_0_var(--outline-black)] rounded-lg">
-            <span className="text-xs">📊</span>
-            <span className="text-sm font-black text-white whitespace-nowrap">
+          <div className="flex items-center gap-0.5 sm:gap-1 px-1.5 sm:px-2.5 py-1 sm:py-1.5 bg-[var(--luigi-green)] border-2 sm:border-3 border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] sm:shadow-[3px_3px_0_var(--outline-black)] rounded-lg">
+            <span className="text-[10px] sm:text-xs">📊</span>
+            <span className="text-xs sm:text-sm font-black text-white whitespace-nowrap">
               {mergedData.volume24hSol != null && mergedData.volume24hSol > 0
                 ? `${mergedData.volume24hSol.toFixed(1)} SOL`
                 : '—'}
