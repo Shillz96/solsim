@@ -6,7 +6,7 @@
   },
   "deploy": {
     "preDeployCommand": "npx prisma generate",
-    "startCommand": "node --max-old-space-size=1536 dist/workers/tokenDiscoveryWorker.js",
+    "startCommand": "node --max-old-space-size=1536 dist/discovery-worker.js",
     "healthcheckTimeout": 30,
     "restartPolicyType": "ON_FAILURE",
     "restartPolicyMaxRetries": 5
