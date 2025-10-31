@@ -61,9 +61,9 @@ class TokenDiscoveryConfig {
   static readonly ACTIVE_TOKEN_HOURS = 2; // 2 hours (was 1h - longer active window)
   static readonly ABOUT_TO_BOND_PROGRESS = 70; // 70% (was 75 - earlier notification)
   static readonly ABOUT_TO_BOND_MINUTES = 30; // 30 minutes (was 60 - tighter window)
-  static readonly GRADUATING_MIN_PROGRESS = 15; // 15% (was 30 - show tokens MUCH earlier, like GMGN)
+  static readonly GRADUATING_MIN_PROGRESS = 40; // 40% - most tokens launch at 35%, this catches actively trading tokens
   static readonly GRADUATING_MAX_PROGRESS = 100; // 100%
-  static readonly NEW_TOKEN_MAX_PROGRESS = 15; // 15% (was 30 - wider NEW category, catch launches instantly)
+  static readonly NEW_TOKEN_MAX_PROGRESS = 40; // 40% - show tokens with < 40% progress as "new"
 }
 
 // ============================================================================
@@ -641,16 +641,16 @@ async function handleNewToken(event: NewTokenEvent): Promise<void> {
       bondingCurveProgress = new Decimal(vSolInBondingCurve).div(85).mul(100);
       const progress = parseFloat(bondingCurveProgress.toString());
 
-      // NEW: Brand new launches (< 30% progress)
+      // NEW: Brand new launches (< 40% progress)
       if (progress < TokenDiscoveryConfig.NEW_TOKEN_MAX_PROGRESS) {
         tokenState = 'new';
       }
-      // GRADUATING: Actively progressing towards completion (30-99%)
+      // GRADUATING: Actively progressing towards completion (40-100%)
       else if (progress >= TokenDiscoveryConfig.GRADUATING_MIN_PROGRESS &&
                progress < TokenDiscoveryConfig.GRADUATING_MAX_PROGRESS) {
         tokenState = 'graduating';
       }
-      // BONDED: Completed bonding curve (100%)
+      // BONDED: Completed bonding curve (100%+)
       else {
         tokenState = 'bonded';
       }
