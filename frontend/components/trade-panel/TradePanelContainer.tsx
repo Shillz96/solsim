@@ -400,7 +400,7 @@ export function TradePanelContainer({
           />
 
           {/* Trading Tabs */}
-          <Tabs defaultValue="buy" className="w-full flex-1">
+          <Tabs defaultValue="buy" className="w-full flex-1" style={{ gap: 'var(--trade-section-gap)' }}>
             <TabsList className="w-full">
               <TabsTrigger
                 value="buy"

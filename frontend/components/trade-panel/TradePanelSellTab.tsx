@@ -118,15 +118,13 @@ export function TradePanelSellTab({
       </div>
 
       {/* Meta Tier - Token Vitals */}
-      <div className="trade-tier">
-        <TokenVitalsBar
-          tokenAddress={tokenAddress}
-          volume24h={volume24h}
-          holders={holders}
-          userRank={userRank}
-          className="flex-1"
-        />
-      </div>
+      <TokenVitalsBar
+        tokenAddress={tokenAddress}
+        volume24h={volume24h}
+        holders={holders}
+        userRank={userRank}
+        className="flex-1"
+      />
     </div>
   )
 }
