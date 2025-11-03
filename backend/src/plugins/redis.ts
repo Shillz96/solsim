@@ -60,14 +60,16 @@ redis.on("close", () => {
   console.log("❌ Disconnected from Redis");
 });
 
-// Test Redis connection and handle gracefully
-redis.connect()
+// Export connection promise for awaiting in index.ts
+export const redisConnectPromise = redis.connect()
   .then(() => {
     console.log("✅ Redis connected successfully");
+    return redis;
   })
   .catch((err) => {
     console.error("❌ Redis connection failed:", err.message);
     console.log("⚠️ App will continue without Redis caching");
+    return redis; // Return redis anyway for offline queue
   });
 
 // Named export for compatibility

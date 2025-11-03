@@ -45,6 +45,7 @@ import wsTestPlugin from "./plugins/wsTest.js";
 import wsWalletTrackerPlugin from "./plugins/wsWalletTracker.js";
 import wsChatPlugin from "./plugins/wsChat.js";
 import prisma from "./plugins/prisma.js";
+import redis, { redisConnectPromise } from "./plugins/redis.js";
 import priceService from "./plugins/priceService-optimized.js"; // PumpPortal-only WebSocket (Oct 27, 2025)
 import { generalRateLimit } from "./plugins/rateLimiting.js";
 import { NonceCleanupService } from "./plugins/nonce.js";
@@ -413,15 +414,19 @@ priceService.subscribe((tick) => {
 
 console.log('⚡ Real-time PnL service initialized with 5 Hz updates');
 
-app.listen({ port, host: "0.0.0.0" }).then(() => {
-  app.log.info(`🚀 VirtualSol API running on :${port}`);
-  app.log.info(`🔒 Security: JWT, Production Rate Limiting, Input Validation, Secure Nonces`);
-  app.log.info(`📊 Monitoring: Health checks, Request tracking, Error logging`);
-  app.log.info(`⚡ Performance: Redis caching, Database optimization, Connection pooling`);
+// CRITICAL: Wait for Redis connection before starting server
+// This prevents requests from timing out while Redis is connecting
+redisConnectPromise.then(() => {
+  app.listen({ port, host: "0.0.0.0" }).then(() => {
+    app.log.info(`🚀 VirtualSol API running on :${port}`);
+    app.log.info(`🔒 Security: JWT, Production Rate Limiting, Input Validation, Secure Nonces`);
+    app.log.info(`📊 Monitoring: Health checks, Request tracking, Error logging`);
+    app.log.info(`⚡ Performance: Redis caching, Database optimization, Connection pooling`);
 
-  // Test Sentry connection on startup
-  if (process.env.SENTRY_DSN) {
-    app.log.info(`🐛 Sentry error monitoring enabled`);
-    testSentryConnection();
-  }
+    // Test Sentry connection on startup
+    if (process.env.SENTRY_DSN) {
+      app.log.info(`🐛 Sentry error monitoring enabled`);
+      testSentryConnection();
+    }
+  });
 });
