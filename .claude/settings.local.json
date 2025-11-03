@@ -103,7 +103,13 @@
       "mcp__playwright__browser_resize",
       "Bash(taskkill //F //PID 12408)",
       "Bash(jq:*)",
-      "mcp__playwright__browser_fill_form"
+      "mcp__playwright__browser_fill_form",
+      "Bash(for file in plugins/redis.ts services/cmcService.ts)",
+      "Bash(do)",
+      "Bash(if [ -f \"$file\" ])",
+      "Bash(then)",
+      "Bash(fi)",
+      "Bash(nul)"
     ],
     "deny": [],
     "ask": []
