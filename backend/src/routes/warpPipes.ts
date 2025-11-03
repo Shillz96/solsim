@@ -7,12 +7,12 @@
 import { FastifyPluginAsync } from 'fastify';
 import { PrismaClient } from '@prisma/client';
 import { z } from 'zod';
-import Redis from 'ioredis';
+import { getRedisClient } from '../plugins/redisClient.js';
 import { authenticateToken, type AuthenticatedRequest } from '../plugins/auth.js';
 import { healthCapsuleService } from '../services/healthCapsuleService.js';
 
 const prisma = new PrismaClient();
-const redis = new Redis(process.env.REDIS_URL || '');
+const redis = getRedisClient();
 
 // ============================================================================
 // WARP PIPES CONFIGURATION

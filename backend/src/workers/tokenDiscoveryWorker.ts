@@ -16,7 +16,7 @@
 
 import { PrismaClient, Prisma } from '@prisma/client';
 import { Decimal } from '@prisma/client/runtime/library';
-import Redis from 'ioredis';
+import { getRedisClient } from '../plugins/redisClient.js';
 import { PumpPortalStreamService, NewTokenEvent, MigrationEvent, SwapEvent } from '../services/pumpPortalStreamService.js';
 import { raydiumStreamService, NewPoolEvent } from '../services/raydiumStreamService.js';
 import { healthCapsuleService } from '../services/healthCapsuleService.js';
@@ -73,8 +73,32 @@ class TokenDiscoveryConfig {
 // INITIALIZATION
 // ============================================================================
 
-const prisma = new PrismaClient();
-const redis = new Redis(process.env.REDIS_URL || '');
+// CRITICAL FIX: Configure Prisma with reduced connection pool
+// Main server uses 12 connections, worker uses 8 connections
+// Total: 20 connections (within Railway limit)
+const getDatabaseUrl = () => {
+  const baseUrl = process.env.DATABASE_URL;
+  if (!baseUrl) return baseUrl;
+
+  const url = new URL(baseUrl);
+  // Add connection pool parameters for worker
+  url.searchParams.set('connection_limit', '8');
+  url.searchParams.set('pool_timeout', '30');
+  url.searchParams.set('statement_cache_size', '500');
+
+  return url.toString();
+};
+
+const prisma = new PrismaClient({
+  datasources: {
+    db: {
+      url: getDatabaseUrl()
+    }
+  },
+  log: process.env.NODE_ENV === "development" ? ["error", "warn"] : ["error"],
+});
+
+const redis = getRedisClient();
 
 // Create dedicated PumpPortal instance for this worker (prevents EventEmitter leaks)
 const pumpPortalStreamService = new PumpPortalStreamService();
@@ -1638,26 +1662,43 @@ async function startWorker(): Promise<void> {
 
     logger.info({ component: 'event-handlers' }, '✅ Event handlers registered');
 
-    // Schedule background jobs
-    logger.info({ phase: 'startup' }, '⏰ Scheduling background jobs...');
+    // CRITICAL FIX: Wait for user activity BEFORE scheduling background jobs
+    // This prevents database writes when system is idle (no users connected)
+    logger.info({ phase: 'startup' }, '⏳ Waiting for user activity before starting background jobs...');
 
-    intervals.push(setInterval(updateMarketDataAndStates, TokenDiscoveryConfig.MARKET_DATA_UPDATE_INTERVAL));
-    intervals.push(setInterval(recalculateHotScores, TokenDiscoveryConfig.HOT_SCORE_UPDATE_INTERVAL));
-    intervals.push(setInterval(syncWatcherCounts, TokenDiscoveryConfig.WATCHER_SYNC_INTERVAL));
-    intervals.push(setInterval(cleanupOldTokens, TokenDiscoveryConfig.CLEANUP_INTERVAL));
-    intervals.push(setInterval(updateHolderCounts, TokenDiscoveryConfig.HOLDER_COUNT_UPDATE_INTERVAL));
-    intervals.push(setInterval(syncRedisToDatabase, TokenDiscoveryConfig.REDIS_TO_DB_SYNC_INTERVAL)); // Batch sync from Redis to DB
+    let jobsStarted = false;
 
-    // Subscribe to active tokens for trade data (every 5 minutes)
-    intervals.push(setInterval(subscribeToActiveTokens, 5 * 60 * 1000));
-    // Run immediately on startup
-    setTimeout(subscribeToActiveTokens, 5000);
-    // Also run holder count update shortly after startup
-    setTimeout(updateHolderCounts, 10000);
-    // Run initial Redis-to-DB sync after 15 seconds
-    setTimeout(syncRedisToDatabase, 15000);
+    // Poll Redis every 30 seconds to check for activity
+    const activityPoller = setInterval(async () => {
+      if (!jobsStarted && await shouldRunBackgroundJobs()) {
+        jobsStarted = true;
+        clearInterval(activityPoller); // Stop polling once started
 
-    logger.info({ component: 'background-jobs' }, '✅ Background jobs scheduled');
+        logger.info({ phase: 'activation' }, '🎬 User activity detected! Starting background jobs...');
+
+        // NOW schedule all the background jobs
+        intervals.push(setInterval(updateMarketDataAndStates, TokenDiscoveryConfig.MARKET_DATA_UPDATE_INTERVAL));
+        intervals.push(setInterval(recalculateHotScores, TokenDiscoveryConfig.HOT_SCORE_UPDATE_INTERVAL));
+        intervals.push(setInterval(syncWatcherCounts, TokenDiscoveryConfig.WATCHER_SYNC_INTERVAL));
+        intervals.push(setInterval(cleanupOldTokens, TokenDiscoveryConfig.CLEANUP_INTERVAL));
+        intervals.push(setInterval(updateHolderCounts, TokenDiscoveryConfig.HOLDER_COUNT_UPDATE_INTERVAL));
+        intervals.push(setInterval(syncRedisToDatabase, TokenDiscoveryConfig.REDIS_TO_DB_SYNC_INTERVAL));
+
+        // Subscribe to active tokens for trade data (every 5 minutes)
+        intervals.push(setInterval(subscribeToActiveTokens, 5 * 60 * 1000));
+
+        // Run initial jobs shortly after activation
+        setTimeout(subscribeToActiveTokens, 5000);
+        setTimeout(updateHolderCounts, 10000);
+        setTimeout(syncRedisToDatabase, 15000);
+
+        logger.info({ component: 'background-jobs' }, '✅ All background jobs started');
+      } else if (!jobsStarted) {
+        logger.debug({ phase: 'idle' }, '💤 Still waiting for user activity...');
+      }
+    }, 30000); // Check every 30 seconds
+
+    intervals.push(activityPoller); // Track the poller for cleanup
     
     // Health check reporting (for Railway monitoring)
     intervals.push(setInterval(() => {

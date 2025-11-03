@@ -7,11 +7,11 @@
 
 import { FastifyPluginAsync } from 'fastify';
 import { z } from 'zod';
-import Redis from 'ioredis';
+import { getRedisClient } from '../plugins/redisClient.js';
 import { heliusTradeStreamService } from '../services/heliusTradeStreamService.js';
 import { pumpPortalStreamService } from '../services/pumpPortalStreamService.js';
 
-const redis = new Redis(process.env.REDIS_URL || '');
+const redis = getRedisClient();
 
 // ============================================================================
 // TYPES

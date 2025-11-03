@@ -11,9 +11,9 @@
 
 import WebSocket from 'ws';
 import { EventEmitter } from 'events';
-import Redis from 'ioredis';
+import { getRedisClient } from '../plugins/redisClient.js';
 
-const redis = new Redis(process.env.REDIS_URL || '');
+const redis = getRedisClient();
 
 // Redis cache keys
 const REDIS_KEYS = {
@@ -94,7 +94,7 @@ export class PumpPortalStreamService extends EventEmitter {
   private reconnectAttempts = 0;
   private maxReconnectAttempts = 10;
   private reconnectDelay = 1000; // Start with 1 second
-  private maxReconnectDelay = 60000; // Max 1 minute
+  private maxReconnectDelay = 300000; // Max 5 minutes (was 60s - too aggressive during PumpPortal outages)
   private isConnecting = false;
   private shouldReconnect = true;
   private wsUrl: string;

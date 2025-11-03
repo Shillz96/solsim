@@ -13,10 +13,10 @@
  */
 
 import { EventEmitter } from 'events';
-import Redis from 'ioredis';
+import { getRedisClient } from '../plugins/redisClient.js';
 import { pumpPortalStreamService, SwapEvent, NewTokenEvent, MigrationEvent } from '../services/pumpPortalStreamService.js';
 
-const redis = new Redis(process.env.REDIS_URL || '');
+const redis = getRedisClient();
 
 // Time windows in milliseconds
 const WINDOWS = {

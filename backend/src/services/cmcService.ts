@@ -11,9 +11,9 @@
  * Data is cached in Redis with 60 second TTL to respect rate limits.
  */
 
-import Redis from 'ioredis';
+import { getRedisClient } from '../plugins/redisClient.js';
 
-const redis = new Redis(process.env.REDIS_URL || '');
+const redis = getRedisClient();
 
 const CMC_API_KEY = process.env.CMC_API_KEY || '4a113ea7110c42ddbe713fcc40f5d8e5';
 const CMC_BASE_URL = 'https://pro-api.coinmarketcap.com';

@@ -2,10 +2,10 @@
 import { FastifyInstance } from "fastify";
 import priceService from "./priceService-optimized.js";
 import { realtimePnLService } from "../services/realtimePnLService.js";
-import Redis from "ioredis";
+import { getRedisClient } from "./redisClient.js";
 
-// Redis client for IPC with tokenDiscoveryWorker (runs in separate process)
-const redis = new Redis(process.env.REDIS_URL || '');
+// Singleton Redis client for IPC with tokenDiscoveryWorker (runs in separate process)
+const redis = getRedisClient();
 
 // Convert SOL price to lamports (for contract compliance)
 function solToLamports(solPrice: number): string {

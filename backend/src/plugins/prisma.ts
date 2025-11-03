@@ -7,13 +7,13 @@ const globalForPrisma = globalThis as unknown as {
 
 // Calculate optimal connection pool based on environment
 // Railway Postgres Starter: 20 connections total
-// OPTIMIZED: Increased from 15 to 20 connections, reduced timeout for faster failure
+// CRITICAL FIX: Reduced from 20 to 12 to leave room for worker (8 connections)
 const getConnectionPoolConfig = () => {
   const isProduction = process.env.NODE_ENV === "production";
 
   if (isProduction) {
     return {
-      connection_limit: 20,        // Increased from 15 (use full Railway allocation)
+      connection_limit: 12,        // Reduced from 20 (leave 8 for worker)
       pool_timeout: 30,            // Reduced from 60 (fail faster)
       statement_cache_size: 1000   // Increased from 500 (better query caching)
     };

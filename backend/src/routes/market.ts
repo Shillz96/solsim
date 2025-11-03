@@ -8,9 +8,9 @@
  */
 
 import { FastifyInstance } from 'fastify';
-import Redis from 'ioredis';
+import { getRedisClient } from '../plugins/redisClient.js';
 
-const redis = new Redis(process.env.REDIS_URL || '');
+const redis = getRedisClient();
 
 export default async function marketRoutes(app: FastifyInstance) {
   /**
