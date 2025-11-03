@@ -16,6 +16,7 @@
 
 import { PrismaClient, Prisma } from '@prisma/client';
 import { Decimal } from '@prisma/client/runtime/library';
+import Redis from 'ioredis';
 import { getRedisClient } from '../plugins/redisClient.js';
 import { PumpPortalStreamService, NewTokenEvent, MigrationEvent, SwapEvent } from '../services/pumpPortalStreamService.js';
 import { raydiumStreamService, NewPoolEvent } from '../services/raydiumStreamService.js';
