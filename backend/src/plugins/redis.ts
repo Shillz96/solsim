@@ -23,6 +23,9 @@ const redis = new Redis(redisUrl, {
   enableReadyCheck: true, // Wait for server to be ready before sending commands
   connectTimeout: 10000, // Increased to 10s for Railway network latency
   commandTimeout: 5000, // Increased to 5s
+  // SCALING FIX: Keep connection alive to prevent timeouts under load
+  keepAlive: 30000, // Send keepalive packets every 30 seconds
+  connectionName: 'backend-main', // Easier debugging in Redis logs
   // Retry strategy with exponential backoff
   retryStrategy(times) {
     if (times > 5) {

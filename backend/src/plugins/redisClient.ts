@@ -37,6 +37,9 @@ export function getRedisClient(): Redis {
       enableOfflineQueue: true, // PERFORMANCE FIX: Enable queue to prevent cascading failures
       enableReadyCheck: true, // Wait for server to be ready before sending commands
       connectTimeout: 10000,
+      // SCALING FIX: Keep connection alive to prevent timeouts under load
+      keepAlive: 30000, // Send keepalive packets every 30 seconds
+      connectionName: 'backend-workers', // Easier debugging in Redis logs
 
       // Retry strategy
       retryStrategy(times) {

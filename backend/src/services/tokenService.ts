@@ -4,6 +4,8 @@ import redis from "../plugins/redis.js";
 import { robustFetch, fetchJSON } from "../utils/fetch.js";
 import { safeStringify, safeParse } from "../utils/json.js";
 import { tokenMetadataCoalescer } from "../utils/requestCoalescer.js";
+// SCALING FIX: Import CircuitBreaker for external API resilience
+import { CircuitBreaker } from "../plugins/priceService-optimized.js";
 
 const HELIUS = process.env.HELIUS_API!;
 const DEX = "https://api.dexscreener.com";
@@ -18,6 +20,10 @@ let jupiterStrictCache: Map<string, any> | null = null;
 let jupiterAllCache: Map<string, any> | null = null;
 let jupiterCacheExpiry = 0;
 const JUPITER_CACHE_TTL = 3600000; // 1 hour in milliseconds
+
+// SCALING FIX: Circuit breakers for external APIs
+const heliusBreaker = new CircuitBreaker('Helius');
+const dexScreenerBreaker = new CircuitBreaker('DexScreener');
 
 // Minimal image URL normalizer (avoid new files)
 function normalizeLogo(u?: string | null): string | null {
@@ -173,7 +179,7 @@ async function getTokenMetaUncached(mint: string) {
     }
   }
 
-  // 2. Try Helius token metadata
+  // 2. SCALING FIX: Try Helius token metadata with circuit breaker
   try {
     // Validate mint address format (base58, 32-44 chars)
     if (!mint || mint.length < 32 || mint.length > 44 || !/^[1-9A-HJ-NP-Za-km-z]+$/.test(mint)) {
@@ -181,31 +187,35 @@ async function getTokenMetaUncached(mint: string) {
       return token;
     }
 
-    const json = await fetchJSON<any[]>(
-      `https://api.helius.xyz/v0/token-metadata?api-key=${HELIUS}&mintAccounts=${mint}`,
-      { timeout: 8000, retries: 2, retryDelay: 500 }
-    );
-    const meta = json[0]?.onChainMetadata?.metadata || json[0]?.offChainMetadata?.metadata;
-    if (meta) {
+    const heliusResult = await heliusBreaker.execute(async () => {
+      const json = await fetchJSON<any[]>(
+        `https://api.helius.xyz/v0/token-metadata?api-key=${HELIUS}&mintAccounts=${mint}`,
+        { timeout: 8000, retries: 2, retryDelay: 500 }
+      );
+      const meta = json[0]?.onChainMetadata?.metadata || json[0]?.offChainMetadata?.metadata;
+      return meta;
+    });
+
+    if (heliusResult) {
       token = await prisma.token.upsert({
         where: { address: mint },
         update: {
-          symbol: meta.symbol || null,
-          name: meta.name || null,
-          logoURI: normalizeLogo(meta.image),
-          website: meta.external_url || null,
-          twitter: meta.extensions?.twitter || null,
-          telegram: meta.extensions?.telegram || null,
+          symbol: heliusResult.symbol || null,
+          name: heliusResult.name || null,
+          logoURI: normalizeLogo(heliusResult.image),
+          website: heliusResult.external_url || null,
+          twitter: heliusResult.extensions?.twitter || null,
+          telegram: heliusResult.extensions?.telegram || null,
           lastUpdated: new Date()
         },
         create: {
           address: mint,
-          symbol: meta.symbol || null,
-          name: meta.name || null,
-          logoURI: normalizeLogo(meta.image),
-          website: meta.external_url || null,
-          twitter: meta.extensions?.twitter || null,
-          telegram: meta.extensions?.telegram || null,
+          symbol: heliusResult.symbol || null,
+          name: heliusResult.name || null,
+          logoURI: normalizeLogo(heliusResult.image),
+          website: heliusResult.external_url || null,
+          twitter: heliusResult.extensions?.twitter || null,
+          telegram: heliusResult.extensions?.telegram || null,
         }
       });
 
@@ -220,38 +230,41 @@ async function getTokenMetaUncached(mint: string) {
     }
   } catch (e: any) {
     // Don't log 400 errors (invalid token addresses) to reduce noise
-    if (!e.message?.includes('400') && !e.message?.includes('Bad Request')) {
+    if (!e.message?.includes('400') && !e.message?.includes('Bad Request') && !e.message?.includes('Circuit breaker is OPEN')) {
       console.warn(`Helius metadata failed (${e.code || e.message}):`, e.message);
     }
   }
 
-  // 3. Fallback to Dexscreener
+  // 3. SCALING FIX: Fallback to Dexscreener with circuit breaker
   try {
-    const json = await fetchJSON<any>(
-      `${DEX}/latest/dex/tokens/${mint}`,
-      { timeout: 8000, retries: 2, retryDelay: 500 }
-    );
-    const pair = json.pairs?.[0];
-    if (pair) {
+    const dexResult = await dexScreenerBreaker.execute(async () => {
+      const json = await fetchJSON<any>(
+        `${DEX}/latest/dex/tokens/${mint}`,
+        { timeout: 8000, retries: 2, retryDelay: 500 }
+      );
+      return json.pairs?.[0];
+    });
+
+    if (dexResult) {
       token = await prisma.token.upsert({
         where: { address: mint },
         update: {
-          symbol: pair.baseToken?.symbol || null,
-          name: pair.baseToken?.name || null,
-          logoURI: normalizeLogo(pair.info?.imageUrl || pair.baseToken?.imageUrl || null),
-          website: pair.info?.websiteUrl || null,
-          twitter: pair.info?.twitter || null,
-          telegram: pair.info?.telegram || null,
+          symbol: dexResult.baseToken?.symbol || null,
+          name: dexResult.baseToken?.name || null,
+          logoURI: normalizeLogo(dexResult.info?.imageUrl || dexResult.baseToken?.imageUrl || null),
+          website: dexResult.info?.websiteUrl || null,
+          twitter: dexResult.info?.twitter || null,
+          telegram: dexResult.info?.telegram || null,
           lastUpdated: new Date()
         },
         create: {
           address: mint,
-          symbol: pair.baseToken?.symbol || null,
-          name: pair.baseToken?.name || null,
-          logoURI: normalizeLogo(pair.info?.imageUrl || pair.baseToken?.imageUrl || null),
-          website: pair.info?.websiteUrl || null,
-          twitter: pair.info?.twitter || null,
-          telegram: pair.info?.telegram || null,
+          symbol: dexResult.baseToken?.symbol || null,
+          name: dexResult.baseToken?.name || null,
+          logoURI: normalizeLogo(dexResult.info?.imageUrl || dexResult.baseToken?.imageUrl || null),
+          website: dexResult.info?.websiteUrl || null,
+          twitter: dexResult.info?.twitter || null,
+          telegram: dexResult.info?.telegram || null,
         }
       });
 
@@ -265,7 +278,9 @@ async function getTokenMetaUncached(mint: string) {
       return token;
     }
   } catch (e: any) {
-    console.warn(`DexScreener metadata failed (${e.code || e.message}):`, e.message);
+    if (!e.message?.includes('Circuit breaker is OPEN')) {
+      console.warn(`DexScreener metadata failed (${e.code || e.message}):`, e.message);
+    }
   }
 
   // 4. Final fallback: If we have token data but NO logo, try Jupiter one more time for just the image

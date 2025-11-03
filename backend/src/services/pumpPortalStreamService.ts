@@ -102,6 +102,10 @@ export class PumpPortalStreamService extends EventEmitter {
   private pongTimeout: NodeJS.Timeout | null = null;
   private subscribedTokens: Set<string> = new Set(); // Track subscribed token mints
   private subscribedWallets: Set<string> = new Set(); // Track subscribed wallet addresses
+  // SCALING FIX: Track subscription activity to cleanup inactive subscriptions
+  private tokenSubscriptionActivity = new Map<string, number>(); // mint -> last activity timestamp
+  private walletSubscriptionActivity = new Map<string, number>(); // wallet -> last activity timestamp
+  private cleanupInterval: NodeJS.Timeout | null = null;
 
   constructor() {
     super();
@@ -119,6 +123,9 @@ export class PumpPortalStreamService extends EventEmitter {
     
     // Setup event listeners for Redis caching
     this.setupRedisCaching();
+
+    // SCALING FIX: Start cleanup interval for inactive subscriptions
+    this.startSubscriptionCleanup();
   }
 
   /**
@@ -178,6 +185,51 @@ export class PumpPortalStreamService extends EventEmitter {
         // Silently handle errors (performance optimization - hot path)
       }
     });
+  }
+
+  /**
+   * SCALING FIX: Start periodic cleanup of inactive subscriptions
+   * Prevents memory leaks and reduces PumpPortal load by unsubscribing from inactive tokens/wallets
+   */
+  private startSubscriptionCleanup(): void {
+    const INACTIVE_THRESHOLD = 5 * 60 * 1000; // 5 minutes of inactivity
+    const CLEANUP_INTERVAL = 60 * 1000; // Run cleanup every minute
+
+    this.cleanupInterval = setInterval(() => {
+      const now = Date.now();
+      const inactiveTokens: string[] = [];
+      const inactiveWallets: string[] = [];
+
+      // Find inactive token subscriptions
+      for (const [mint, lastActivity] of this.tokenSubscriptionActivity.entries()) {
+        if (now - lastActivity > INACTIVE_THRESHOLD) {
+          inactiveTokens.push(mint);
+        }
+      }
+
+      // Find inactive wallet subscriptions
+      for (const [wallet, lastActivity] of this.walletSubscriptionActivity.entries()) {
+        if (now - lastActivity > INACTIVE_THRESHOLD) {
+          inactiveWallets.push(wallet);
+        }
+      }
+
+      // Unsubscribe from inactive subscriptions
+      if (inactiveTokens.length > 0) {
+        console.log(`[PumpPortal] Cleaning up ${inactiveTokens.length} inactive token subscriptions`);
+        this.unsubscribeFromTokens(inactiveTokens);
+      }
+
+      if (inactiveWallets.length > 0) {
+        console.log(`[PumpPortal] Cleaning up ${inactiveWallets.length} inactive wallet subscriptions`);
+        this.unsubscribeFromWallets(inactiveWallets);
+      }
+
+      // Log stats periodically (every 10 minutes)
+      if (Math.floor(now / (10 * 60 * 1000)) !== Math.floor((now - CLEANUP_INTERVAL) / (10 * 60 * 1000))) {
+        console.log(`[PumpPortal] Subscription stats: ${this.subscribedTokens.size} tokens, ${this.subscribedWallets.size} wallets`);
+      }
+    }, CLEANUP_INTERVAL);
   }
 
   /**
@@ -316,7 +368,11 @@ export class PumpPortalStreamService extends EventEmitter {
     this.ws.send(JSON.stringify(tokenTradeSub));
 
     // Track subscribed tokens
-    newTokens.forEach(mint => this.subscribedTokens.add(mint));
+    newTokens.forEach(mint => {
+      this.subscribedTokens.add(mint);
+      // SCALING FIX: Track activity for cleanup
+      this.tokenSubscriptionActivity.set(mint, Date.now());
+    });
   }
 
   /**
@@ -324,6 +380,37 @@ export class PumpPortalStreamService extends EventEmitter {
    */
   getSubscribedTokenCount(): number {
     return this.subscribedTokens.size;
+  }
+
+  /**
+   * SCALING FIX: Unsubscribe from token trade tracking
+   * @param tokenMints Array of token mint addresses to stop tracking
+   */
+  unsubscribeFromTokens(tokenMints: string[]): void {
+    if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
+      // WebSocket not ready - unsubscription will fail silently
+      return;
+    }
+
+    const tokensToRemove = tokenMints.filter(mint => this.subscribedTokens.has(mint));
+
+    if (tokensToRemove.length === 0) {
+      return;
+    }
+
+    // PumpPortal API method for unsubscribing from token trades
+    const tokenTradeUnsub = {
+      method: 'unsubscribeTokenTrade',
+      keys: tokensToRemove,
+    };
+
+    this.ws.send(JSON.stringify(tokenTradeUnsub));
+
+    // Remove from tracked sets
+    tokensToRemove.forEach(mint => {
+      this.subscribedTokens.delete(mint);
+      this.tokenSubscriptionActivity.delete(mint);
+    });
   }
 
   /**
@@ -353,7 +440,11 @@ export class PumpPortalStreamService extends EventEmitter {
     this.ws.send(JSON.stringify(accountTradeSub));
 
     // Track subscribed wallets
-    newWallets.forEach(addr => this.subscribedWallets.add(addr));
+    newWallets.forEach(addr => {
+      this.subscribedWallets.add(addr);
+      // SCALING FIX: Track activity for cleanup
+      this.walletSubscriptionActivity.set(addr, Date.now());
+    });
   }
 
   /**
@@ -380,8 +471,11 @@ export class PumpPortalStreamService extends EventEmitter {
     // Removed unsubscription count logging (performance optimization)
     this.ws.send(JSON.stringify(accountTradeUnsub));
 
-    // Remove from tracked set
-    walletsToRemove.forEach(addr => this.subscribedWallets.delete(addr));
+    // Remove from tracked sets
+    walletsToRemove.forEach(addr => {
+      this.subscribedWallets.delete(addr);
+      this.walletSubscriptionActivity.delete(addr);
+    });
   }
 
   /**
@@ -499,11 +593,18 @@ export class PumpPortalStreamService extends EventEmitter {
 
         // Only emit if we have a mint address
         if (event.mint) {
+          // SCALING FIX: Update subscription activity for this token
+          if (this.subscribedTokens.has(event.mint)) {
+            this.tokenSubscriptionActivity.set(event.mint, Date.now());
+          }
+
           this.emit('swap', event);
-          
+
           // If this trade was made by a tracked wallet, also emit as accountTrade
           const trader = message.user || message.traderPublicKey;
           if (trader && this.subscribedWallets.has(trader)) {
+            // SCALING FIX: Update subscription activity for this wallet
+            this.walletSubscriptionActivity.set(trader, Date.now());
             const accountTradeEvent: AccountTradeEvent = {
               type: 'accountTrade',
               wallet: trader,
@@ -634,6 +735,12 @@ export class PumpPortalStreamService extends EventEmitter {
   private cleanup(): void {
     this.stopPingInterval();
 
+    // SCALING FIX: Clear subscription cleanup interval
+    if (this.cleanupInterval) {
+      clearInterval(this.cleanupInterval);
+      this.cleanupInterval = null;
+    }
+
     if (this.ws) {
       this.ws.removeAllListeners();
       if (this.ws.readyState === WebSocket.OPEN || this.ws.readyState === WebSocket.CONNECTING) {
@@ -647,6 +754,9 @@ export class PumpPortalStreamService extends EventEmitter {
     // This causes "ghost subscriptions" where we filter out resubscribe attempts but get no data
     this.subscribedTokens.clear();
     this.subscribedWallets.clear();
+    // SCALING FIX: Also clear activity tracking
+    this.tokenSubscriptionActivity.clear();
+    this.walletSubscriptionActivity.clear();
 
     this.isConnecting = false;
   }

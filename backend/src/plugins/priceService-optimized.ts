@@ -105,7 +105,8 @@ interface NegativeCacheEntry {
 }
 
 // Circuit breaker for external API calls (percentage-based, following Opossum patterns)
-class CircuitBreaker {
+// SCALING FIX: Exported for use in other services (Helius, DexScreener, CoinGecko)
+export class CircuitBreaker {
   private failureCount = 0;
   private totalFires = 0;
   private lastFailureTime = 0;
@@ -224,6 +225,8 @@ class OptimizedPriceService extends EventEmitter {
   // DexScreener disabled to prevent rate limit issues
   // private dexScreenerBreaker = new CircuitBreaker('DexScreener');
   private jupiterBreaker = new CircuitBreaker('Jupiter');
+  // SCALING FIX: Add circuit breaker for CoinGecko API
+  private coinGeckoBreaker = new CircuitBreaker('CoinGecko');
 
   // Request coalescing to prevent duplicate concurrent requests
   private pendingRequests = new Map<string, Promise<PriceTick | null>>();
@@ -739,39 +742,47 @@ class OptimizedPriceService extends EventEmitter {
 
   private async updateSolPrice() {
     try {
-      // Try CoinGecko first
-      const response = await fetch(
-        "https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd&include_24hr_change=true",
-        { 
-          signal: AbortSignal.timeout(5000),
-          headers: {
-            'User-Agent': 'VirtualSol/1.0'
+      // SCALING FIX: Try CoinGecko first with circuit breaker
+      const coinGeckoResult = await this.coinGeckoBreaker.execute(async () => {
+        const response = await fetch(
+          "https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd&include_24hr_change=true",
+          {
+            signal: AbortSignal.timeout(5000),
+            headers: {
+              'User-Agent': 'VirtualSol/1.0'
+            }
           }
+        );
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         }
-      );
 
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
+        const data = await response.json();
 
-      const data = await response.json();
+        if (data.solana?.usd) {
+          const newPrice = data.solana.usd;
 
-      if (data.solana?.usd) {
-        const newPrice = data.solana.usd;
+          // Validate price is within reasonable range
+          if (newPrice < 50 || newPrice > 500) {
+            logger.error({
+              newPrice,
+              oldPrice: this.solPriceUsd,
+              source: 'coingecko',
+              rawData: data
+            }, "INVALID SOL price from CoinGecko - rejecting update");
+            throw new Error(`Invalid SOL price: ${newPrice} (must be between $50-$500)`);
+          }
+
+          return { price: newPrice, change24h: data.solana.usd_24h_change || 0 };
+        }
+
+        throw new Error("No SOL price data in CoinGecko response");
+      });
+
+      if (coinGeckoResult) {
         const oldPrice = this.solPriceUsd;
-
-        // Validate price is within reasonable range
-        if (newPrice < 50 || newPrice > 500) {
-          logger.error({
-            newPrice,
-            oldPrice,
-            source: 'coingecko',
-            rawData: data
-          }, "INVALID SOL price from CoinGecko - rejecting update");
-          throw new Error(`Invalid SOL price: ${newPrice} (must be between $50-$500)`);
-        }
-
-        this.solPriceUsd = newPrice;
+        this.solPriceUsd = coinGeckoResult.price;
         this.lastSolPriceUpdate = Date.now();
 
         logger.info({ oldPrice, newPrice: this.solPriceUsd }, "SOL price updated from CoinGecko");
@@ -783,7 +794,7 @@ class OptimizedPriceService extends EventEmitter {
           solUsd: this.solPriceUsd,
           timestamp: Date.now(),
           source: "coingecko",
-          change24h: data.solana.usd_24h_change || 0
+          change24h: coinGeckoResult.change24h
         };
 
         await this.updatePrice(solTick);
