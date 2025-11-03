@@ -406,8 +406,9 @@ export class PumpPortalStreamService extends EventEmitter {
       const raw = data.toString();
       const message = JSON.parse(raw);
 
-      // DEBUG: Log ALL messages to diagnose why no newToken events are coming through
-      console.log('[PumpPortal] Received message:', JSON.stringify(message).substring(0, 500));
+      // PERFORMANCE: Removed excessive logging - was causing 500 logs/sec in production
+      // Only log in development or for debugging specific issues
+      // console.log('[PumpPortal] Received message:', JSON.stringify(message).substring(0, 500));
 
       // PumpPortal sends messages with different structures based on subscription
       // Check for newToken events (txType === 'create' indicates a new token)
@@ -436,8 +437,11 @@ export class PumpPortalStreamService extends EventEmitter {
           timestamp: message.timestamp || Date.now(),
         };
 
-        // DEBUG: Log newToken event emission
-        console.log('[PumpPortal] ✅ Emitting newToken event:', event.token.mint, event.token.name || event.token.symbol);
+        // PERFORMANCE: Only log new tokens (infrequent event - ~20-30/hour)
+        // This is valuable for monitoring, unlike high-frequency swap events
+        if (process.env.NODE_ENV !== 'production') {
+          console.log('[PumpPortal] ✅ New token:', event.token.mint, event.token.symbol);
+        }
         this.emit('newToken', event);
       }
       // Also check for type field (legacy format)
