@@ -2,6 +2,7 @@
 import { FastifyInstance } from "fastify";
 import priceService from "./priceService-optimized.js";
 import { realtimePnLService } from "../services/realtimePnLService.js";
+import { updateActiveUserCount, markActivity } from "../workers/tokenDiscoveryWorker.js";
 
 // Convert SOL price to lamports (for contract compliance)
 function solToLamports(solPrice: number): string {
@@ -75,6 +76,9 @@ export default async function wsPlugin(app: FastifyInstance) {
       // @ts-ignore
       socket.isAlive = true;
       clients.add(socket);
+
+      // Track active user connections for background job optimization
+      updateActiveUserCount(clients.size);
       
       const subscribedTokens = new Set<string>();
       const priceSubscriptions = new Map<string, () => void>();
@@ -97,6 +101,9 @@ export default async function wsPlugin(app: FastifyInstance) {
         try {
           const data = JSON.parse(message.toString());
           // Reduced logging - only log for debugging if needed
+
+          // Mark user activity to prevent background jobs from idling
+          markActivity();
 
           if (data.type === "subscribe" && data.mint) {
             subscribedTokens.add(data.mint);
@@ -231,7 +238,10 @@ export default async function wsPlugin(app: FastifyInstance) {
 
         // Remove from clients set
         clients.delete(socket);
-        
+
+        // Track active user connections for background job optimization
+        updateActiveUserCount(clients.size);
+
         // Clean up all price service subscriptions
         priceSubscriptions.forEach((unsubscribe) => {
           unsubscribe();
@@ -242,10 +252,13 @@ export default async function wsPlugin(app: FastifyInstance) {
       
       socket.on("error", (error) => {
         console.error("❌ WebSocket error:", error);
-        
+
         // Remove from clients set
         clients.delete(socket);
-        
+
+        // Track active user connections for background job optimization
+        updateActiveUserCount(clients.size);
+
         // Clean up subscriptions
         priceSubscriptions.forEach((unsubscribe) => {
           unsubscribe();
