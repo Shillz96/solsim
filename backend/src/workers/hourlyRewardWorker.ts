@@ -25,6 +25,7 @@ import {
   sendAndConfirmTransaction
 } from "@solana/web3.js";
 import prisma from "../plugins/prisma.js";
+import priceService from "../plugins/priceService-optimized.js";
 import { Decimal } from "@prisma/client/runtime/library";
 
 const RPC_URL = process.env.HELIUS_RPC_URL || process.env.SOLANA_RPC || "https://api.mainnet-beta.solana.com";
@@ -179,11 +180,16 @@ async function calculateHourlyProfits(): Promise<TraderPerformance[]> {
         const costBasis = parseFloat(position.costBasis.toString());
         const qty = parseFloat(position.qty.toString());
 
-        // Get current price from cache or default to cost basis
-        // In production, you'd fetch from priceService
-        const currentValueUsd = costBasis; // Simplified - use current market price
+        try {
+          // Get current price from priceService for accurate unrealized PnL
+          const currentPrice = await priceService.getPrice(position.mint);
+          const currentValueUsd = qty * currentPrice;
 
-        unrealizedPnL += (currentValueUsd - costBasis);
+          unrealizedPnL += (currentValueUsd - costBasis);
+        } catch (error) {
+          // If price fetch fails, use costBasis as fallback (no gain/loss)
+          console.warn(`⚠️ Failed to get price for ${position.mint}, assuming break-even`);
+        }
       }
 
       const totalPnL = realizedPnL + unrealizedPnL;

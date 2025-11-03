@@ -200,4 +200,138 @@ export default async function rewardsRoutes(app: FastifyInstance) {
       return reply.code(500).send({ error: "Failed to fetch reward stats" });
     }
   });
+
+  // =====================================================
+  // ADMIN / TESTING ENDPOINTS
+  // =====================================================
+
+  /**
+   * POST /rewards/admin/test-distribution
+   * Manually trigger hourly distribution for testing
+   * Requires ADMIN_KEY in request body
+   */
+  app.post("/admin/test-distribution", async (req, reply) => {
+    const { adminKey } = req.body as { adminKey?: string };
+
+    // Verify admin key
+    if (!adminKey || adminKey !== process.env.ADMIN_KEY) {
+      return reply.code(403).send({ error: "Unauthorized: Invalid admin key" });
+    }
+
+    try {
+      app.log.info("🧪 Manual test distribution triggered by admin");
+
+      // Import and run the distribution function
+      const { runHourlyDistribution } = await import("../workers/hourlyRewardWorker.js");
+      await runHourlyDistribution();
+
+      return {
+        success: true,
+        message: "Test distribution completed successfully",
+        timestamp: new Date().toISOString()
+      };
+    } catch (error: any) {
+      app.log.error("❌ Test distribution failed:", error);
+      return reply.code(500).send({
+        error: "Test distribution failed",
+        message: error.message
+      });
+    }
+  });
+
+  /**
+   * POST /rewards/admin/inject-fees
+   * Manually inject fees into current hour's pool for testing
+   * Requires ADMIN_KEY in request body
+   */
+  app.post("/admin/inject-fees", async (req, reply) => {
+    const { adminKey, amountSOL } = req.body as { adminKey?: string; amountSOL?: number };
+
+    // Verify admin key
+    if (!adminKey || adminKey !== process.env.ADMIN_KEY) {
+      return reply.code(403).send({ error: "Unauthorized: Invalid admin key" });
+    }
+
+    if (!amountSOL || amountSOL <= 0) {
+      return reply.code(400).send({ error: "amountSOL must be a positive number" });
+    }
+
+    try {
+      app.log.info(`🧪 Injecting ${amountSOL} SOL into reward pool`);
+
+      // Import and use the fee collector
+      const { recordCreatorFees } = await import("../services/pumpfunRewardCollector.js");
+      const result = await recordCreatorFees(amountSOL, "manual-test");
+
+      return {
+        success: result.success,
+        message: "Fees injected successfully",
+        totalFees: result.totalFees,
+        poolAmount: result.hourlyPoolAmount,
+        platformAmount: result.platformAmount,
+        timestamp: new Date().toISOString()
+      };
+    } catch (error: any) {
+      app.log.error("❌ Fee injection failed:", error);
+      return reply.code(500).send({
+        error: "Fee injection failed",
+        message: error.message
+      });
+    }
+  });
+
+  /**
+   * GET /rewards/admin/system-status
+   * Check if reward system is properly configured
+   */
+  app.get("/admin/system-status", async (req, reply) => {
+    try {
+      const hasWalletSecret = !!process.env.HOURLY_REWARD_WALLET_SECRET;
+      const isEnabled = process.env.HOURLY_REWARDS_ENABLED === "true";
+      const hasPumpFunWallet = !!process.env.PUMPFUN_CREATOR_WALLET;
+      const hasPlatformWallet = !!process.env.PLATFORM_OWNER_WALLET;
+      const minTrades = parseInt(process.env.MIN_TRADES_FOR_REWARD || "1");
+
+      // Check if we can load the wallet
+      let walletAddress = null;
+      let walletBalance = null;
+      let canSign = false;
+
+      if (hasWalletSecret) {
+        try {
+          const { Keypair, Connection, LAMPORTS_PER_SOL } = await import("@solana/web3.js");
+          const secretArray = JSON.parse(process.env.HOURLY_REWARD_WALLET_SECRET!);
+          const wallet = Keypair.fromSecretKey(new Uint8Array(secretArray));
+          walletAddress = wallet.publicKey.toBase58();
+          canSign = true;
+
+          // Check balance
+          const RPC_URL = process.env.HELIUS_RPC_URL || process.env.SOLANA_RPC || "https://api.mainnet-beta.solana.com";
+          const connection = new Connection(RPC_URL, "confirmed");
+          const balance = await connection.getBalance(wallet.publicKey);
+          walletBalance = (balance / LAMPORTS_PER_SOL).toFixed(6);
+        } catch (error: any) {
+          app.log.error("Failed to load reward wallet:", error);
+        }
+      }
+
+      return {
+        configured: hasWalletSecret && isEnabled,
+        enabled: isEnabled,
+        configuration: {
+          rewardWallet: hasWalletSecret ? "✅ Configured" : "❌ Missing",
+          walletAddress: walletAddress || "Not available",
+          walletBalance: walletBalance ? `${walletBalance} SOL` : "Not available",
+          canSignTransactions: canSign,
+          pumpFunWallet: hasPumpFunWallet ? "✅ Configured" : "⚠️ Optional",
+          platformWallet: hasPlatformWallet ? "✅ Configured" : "⚠️ Optional",
+          minTradesRequired: minTrades
+        },
+        status: hasWalletSecret && isEnabled ? "✅ READY" : "⚠️ NOT CONFIGURED"
+      };
+    } catch (error: any) {
+      app.log.error("Failed to check system status:", error);
+      return reply.code(500).send({ error: "Failed to check system status" });
+    }
+  });
 }
