@@ -38,7 +38,6 @@ model User {
   conversionResetAt       DateTime?
   premiumFeatures         String?                @default("[]")
   rewardPoints            Decimal                @default(0)
-  rewardWalletAddress     String?                // Solana wallet address for receiving hourly rewards
   emailVerified           Boolean                @default(false)
   emailVerificationToken  String?                @unique
   emailVerificationExpiry DateTime?
@@ -51,7 +50,6 @@ model User {
   copyTrades              CopyTrade[]
   positions               Position[]
   realizedPnls            RealizedPnL[]
-  rewardClaims            RewardClaim[]
   trades                  Trade[]
   transactions            TransactionHistory[]
   trackedWallets          WalletTrack[]
@@ -74,26 +72,8 @@ model User {
   chatStrikes             Int                    @default(0)
   chatMutedUntil          DateTime?
   bannedFromChat          Boolean                @default(false)
-  // Social sharing rewards
-  solReward               SolReward?
-}
-
-// Social Sharing Rewards - Track PnL shares for SOL rewards
-model SolReward {
-  id              String    @id @default(uuid())
-  userId          String    @unique
-  shareCount      Int       @default(0)
-  lastRewardClaim DateTime?
-  totalRewarded   Decimal   @default(0)
-  weeklyShares    Int       @default(0)
-  weekResetAt     DateTime?
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-  
-  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  @@index([userId], map: "sol_reward_user")
-  @@index([lastRewardClaim], map: "sol_reward_claim_date")
+  // Hourly rewards tracking
+  hourlyRewardPayouts     HourlyRewardPayout[]
 }
 
 model Trade {
@@ -223,30 +203,44 @@ model ConversionHistory {
   @@index([status, createdAt(sort: Desc)], map: "conversions_by_status")
 }
 
-model RewardSnapshot {
-  id          String   @id @default(cuid())
-  epoch       Int      @unique
-  totalPoints Decimal  @db.Decimal(38, 18)
-  poolAmount  Decimal  @db.Decimal(38, 18)
-  createdAt   DateTime @default(now())
+// ============================================================
+// Hourly Rewards System
+// ============================================================
 
-  @@index([epoch])
+model HourlyRewardPool {
+  id                   String               @id @default(uuid())
+  hourStart            DateTime
+  hourEnd              DateTime
+  totalCreatorRewards  Decimal              @default(0) // Total creator fees collected this hour
+  poolAmount           Decimal              @default(0) // 10% of creator fees for rewards
+  platformAmount       Decimal              @default(0) // 90% of creator fees for platform
+  distributed          Boolean              @default(false)
+  distributedAt        DateTime?
+  createdAt            DateTime             @default(now())
+  payouts              HourlyRewardPayout[]
+
+  @@index([hourStart])
+  @@index([distributed, createdAt(sort: Desc)])
 }
 
-model RewardClaim {
-  id        String    @id @default(cuid())
-  userId    String
-  epoch     Int
-  wallet    String
-  amount    Decimal   @db.Decimal(38, 18)
-  status    String    @default("PENDING")
-  claimedAt DateTime?
-  txSig     String?
-  createdAt DateTime  @default(now())
-  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+model HourlyRewardPayout {
+  id              String           @id @default(uuid())
+  poolId          String
+  userId          String
+  rank            Int
+  profitPercentage Decimal
+  rewardAmount    Decimal
+  walletAddress   String // User's connected wallet address
+  txSignature     String?
+  status          String           @default("PENDING") // PENDING, COMPLETED, FAILED
+  errorMessage    String?
+  createdAt       DateTime         @default(now())
+  processedAt     DateTime?
+  pool            HourlyRewardPool @relation(fields: [poolId], references: [id], onDelete: Cascade)
+  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([userId, epoch], name: "userId_epoch")
-  @@index([epoch, claimedAt])
+  @@index([poolId, rank])
+  @@index([userId, createdAt(sort: Desc)])
   @@index([status])
 }
 

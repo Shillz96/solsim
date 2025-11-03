@@ -54,6 +54,7 @@ import { geckoTerminalService } from "./services/geckoTerminalService.js";
 import { marketLighthouseWorker } from "./workers/marketLighthouseWorker.js";
 import { startCMCRefresh, stopCMCRefresh } from "./services/cmcService.js";
 import { startSentimentRefresh, stopSentimentRefresh } from "./services/marketSentimentService.js";
+import { startHourlyRewardWorker } from "./workers/hourlyRewardWorker.js";
 
 // Import production-ready plugins
 import { validateEnvironment, getConfig, isProduction } from "./utils/env.js";
@@ -281,7 +282,8 @@ RateLimitCleanupService.start();
 geckoTerminalService.start();
 startCMCRefresh();
 startSentimentRefresh();
-console.log("✅ Instant services started (cleanup, GeckoTerminal, CMC, Sentiment)");
+startHourlyRewardWorker(); // Cron job for hourly SOL rewards
+console.log("✅ Instant services started (cleanup, GeckoTerminal, CMC, Sentiment, Hourly Rewards)");
 
 // Start heavy services in PARALLEL (non-blocking) - server starts immediately
 const heavyServicesPromise = Promise.all([
