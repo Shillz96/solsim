@@ -18,6 +18,7 @@ import { config } from './config/index.js';
 import { TokenStateManager } from './services/TokenStateManager.js';
 import { TokenCacheManager } from './services/TokenCacheManager.js';
 import { TokenHealthEnricher } from './services/TokenHealthEnricher.js';
+import { TokenBufferManager } from './services/TokenBufferManager.js';
 
 // Handlers
 import { SwapHandler } from './handlers/SwapHandler.js';
@@ -140,6 +141,7 @@ export class TokenDiscoveryWorker {
     const stateManager = new TokenStateManager(this.prisma, this.redis);
     const cacheManager = new TokenCacheManager(this.prisma, this.redis);
     const healthEnricher = new TokenHealthEnricher(this.prisma, cacheManager);
+    const bufferManager = new TokenBufferManager(this.redis, this.prisma);
 
     // Create dependency container
     this.dependencies = {
@@ -149,6 +151,7 @@ export class TokenDiscoveryWorker {
       cacheManager,
       healthEnricher,
       txCountManager,
+      bufferManager,
     };
 
     // Start price service client

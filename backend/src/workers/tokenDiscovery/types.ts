@@ -42,6 +42,12 @@ export interface ITxCountManager {
   cleanup(): void;
 }
 
+export interface ITokenBufferManager {
+  bufferToken(data: any): Promise<void>;
+  syncBufferedTokens(): Promise<number>;
+  getBufferSize(): Promise<number>;
+}
+
 // ============================================================================
 // INPUT TYPES
 // ============================================================================
@@ -71,6 +77,7 @@ export interface WorkerDependencies {
   cacheManager: ITokenCacheManager;
   healthEnricher: ITokenHealthEnricher;
   txCountManager: ITxCountManager;
+  bufferManager: ITokenBufferManager;
 }
 
 // ============================================================================

@@ -43,13 +43,13 @@ export class NewPoolHandler implements IEventHandler<NewPoolEventData> {
         }, 'Token graduated to bonded state');
 
         await this.deps.stateManager.updateState(tokenMint, 'bonded', existing.state);
-        await this.deps.prisma.tokenDiscovery.update({
-          where: { mint: tokenMint },
-          data: {
-            poolAddress,
-            poolType: 'raydium',
-            poolCreatedAt: new Date(blockTime * 1000),
-          },
+
+        // Buffer pool data update (batch sync to DB later)
+        await this.deps.bufferManager.bufferToken({
+          mint: tokenMint,
+          poolAddress,
+          poolType: 'raydium',
+          poolCreatedAt: new Date(blockTime * 1000),
         });
 
         // Notify watchers
@@ -61,21 +61,19 @@ export class NewPoolHandler implements IEventHandler<NewPoolEventData> {
           listingType: 'direct_raydium'
         }, 'Creating direct Raydium listing');
 
-        await this.deps.prisma.tokenDiscovery.create({
-          data: {
-            mint: tokenMint,
-            state: 'bonded',
-            poolAddress,
-            poolType: 'raydium',
-            poolCreatedAt: new Date(blockTime * 1000),
-            hotScore: new Decimal(config.scoring.DIRECT_LISTING_HOT_SCORE),
-            watcherCount: 0,
-            freezeRevoked: false,
-            mintRenounced: false,
-            firstSeenAt: new Date(),
-            lastUpdatedAt: new Date(),
-            stateChangedAt: new Date(),
-          },
+        // Buffer new token (batch sync to DB later)
+        await this.deps.bufferManager.bufferToken({
+          mint: tokenMint,
+          state: 'bonded',
+          poolAddress,
+          poolType: 'raydium',
+          poolCreatedAt: new Date(blockTime * 1000),
+          hotScore: config.scoring.DIRECT_LISTING_HOT_SCORE,
+          watcherCount: 0,
+          freezeRevoked: false,
+          mintRenounced: false,
+          firstSeenAt: new Date(),
+          stateChangedAt: new Date(),
         });
       }
 

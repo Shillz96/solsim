@@ -28,6 +28,11 @@ export class RedisSyncJob implements IScheduledJob {
     try {
       logger.debug({ operation: this.getName() }, 'Starting batch sync from Redis to database');
 
+      // 1. Sync buffered token data first (NEW)
+      const tokensSynced = await this.deps.bufferManager.syncBufferedTokens();
+      logger.info({ tokensSynced }, 'Buffered tokens synced');
+
+      // 2. Sync price data from Redis (EXISTING)
       // Get all price keys from Redis
       const priceKeys = await this.deps.redis.keys('prices:*');
 

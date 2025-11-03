@@ -44,14 +44,12 @@ export class MigrationHandler implements IEventHandler<MigrationEventData> {
         // graduating → bonded (has LP now)
         newState = 'bonded';
 
-        // Update pool data
-        await this.deps.prisma.tokenDiscovery.update({
-          where: { mint },
-          data: {
-            poolAddress: poolAddress || null,
-            poolType: poolType || 'pumpswap',
-            poolCreatedAt: new Date(),
-          },
+        // Buffer pool data update (batch sync to DB later)
+        await this.deps.bufferManager.bufferToken({
+          mint,
+          poolAddress: poolAddress || null,
+          poolType: poolType || 'pumpswap',
+          poolCreatedAt: new Date(),
         });
       } else {
         logger.warn({ status }, 'Unknown migration status');
