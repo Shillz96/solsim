@@ -88,56 +88,54 @@ const txCountMap = new Map<string, Set<string>>(); // mint -> Set of transaction
 
 // ============================================================================
 // USER ACTIVITY TRACKING (CRITICAL FIX: Disable jobs when idle)
+// Uses Redis for IPC between WebSocket server (main process) and worker (this process)
 // ============================================================================
 
 /**
- * Tracks active WebSocket connections to determine if system should run background jobs
- * When activeUserCount = 0, all scheduled jobs are disabled to eliminate unnecessary DB writes
- */
-let activeUserCount = 0;
-
-/**
- * Track last activity timestamp to detect idle periods
- */
-let lastActivityTimestamp = Date.now();
-
-/**
  * Check if system should run background jobs based on user activity
+ * Uses Redis to coordinate with WebSocket server (separate Node.js process)
  * Returns false when system is idle (no users, no recent activity)
  */
-function shouldRunBackgroundJobs(): boolean {
-  // Always run if there are active users
-  if (activeUserCount > 0) {
+async function shouldRunBackgroundJobs(): Promise<boolean> {
+  try {
+    // Read active user count from Redis (written by WebSocket server)
+    const activeUserCount = await redis.get('system:active_users');
+    const count = activeUserCount ? parseInt(activeUserCount) : 0;
+
+    // Always run if there are active users
+    if (count > 0) {
+      return true;
+    }
+
+    // If no active users, check if there was recent activity (within last 10 minutes)
+    const lastActivity = await redis.get('system:last_activity');
+    if (!lastActivity) {
+      return false; // No activity data, consider idle
+    }
+
+    const timeSinceLastActivity = Date.now() - parseInt(lastActivity);
+    const IDLE_THRESHOLD = 10 * 60 * 1000; // 10 minutes
+
+    return timeSinceLastActivity < IDLE_THRESHOLD;
+  } catch (error) {
+    logger.error({ error }, 'Error checking background job status');
+    // On error, default to running jobs (fail-safe)
     return true;
   }
-
-  // If no active users, check if there was recent activity (within last 10 minutes)
-  const timeSinceLastActivity = Date.now() - lastActivityTimestamp;
-  const IDLE_THRESHOLD = 10 * 60 * 1000; // 10 minutes
-
-  return timeSinceLastActivity < IDLE_THRESHOLD;
 }
 
 /**
- * Update active user count (called by WebSocket connection handlers)
+ * Export stub functions for type compatibility with ws.ts
+ * Actual coordination happens via Redis (see ws.ts for implementation)
  */
-export function updateActiveUserCount(count: number): void {
-  const previousCount = activeUserCount;
-  activeUserCount = count;
-  lastActivityTimestamp = Date.now();
-
-  if (previousCount === 0 && count > 0) {
-    logger.info({ activeUsers: count }, '🟢 System activated: Users connected, enabling background jobs');
-  } else if (previousCount > 0 && count === 0) {
-    logger.info({ activeUsers: count }, '🔴 System going idle: No users connected, background jobs will disable after 10min');
-  }
+export async function updateActiveUserCount(count: number): Promise<void> {
+  // NO-OP: This worker runs in separate process, can't share memory
+  // WebSocket server writes to Redis directly
 }
 
-/**
- * Mark activity (called on any user interaction)
- */
 export function markActivity(): void {
-  lastActivityTimestamp = Date.now();
+  // NO-OP: This worker runs in separate process, can't share memory
+  // WebSocket server writes to Redis directly
 }
 
 // ============================================================================
@@ -983,7 +981,7 @@ async function handleNewPool(event: NewPoolEvent): Promise<void> {
 async function syncRedisToDatabase(): Promise<void> {
   try {
     // CRITICAL: Skip if no users active (eliminates ~1,200 writes/hour when idle)
-    if (!shouldRunBackgroundJobs()) {
+    if (!(await shouldRunBackgroundJobs())) {
       logger.debug({ operation: 'redis_to_db_sync', reason: 'no_active_users' }, 'Skipping Redis-to-DB sync - system idle');
       return;
     }
@@ -1074,7 +1072,7 @@ async function syncRedisToDatabase(): Promise<void> {
 async function updateMarketDataAndStates() {
   try {
     // CRITICAL: Skip if no users active (eliminates ~600 writes/hour when idle)
-    if (!shouldRunBackgroundJobs()) {
+    if (!(await shouldRunBackgroundJobs())) {
       logger.debug({ operation: 'market_data_update', reason: 'no_active_users' }, 'Skipping market data update - system idle');
       return;
     }
@@ -1261,7 +1259,7 @@ async function updateMarketDataAndStates() {
 async function recalculateHotScores(): Promise<void> {
   try {
     // CRITICAL: Skip if no users active (eliminates ~2,000 writes/hour when idle)
-    if (!shouldRunBackgroundJobs()) {
+    if (!(await shouldRunBackgroundJobs())) {
       logger.debug({ operation: 'hot_scores_calculation', reason: 'no_active_users' }, 'Skipping hot scores recalculation - system idle');
       return;
     }
@@ -1362,7 +1360,7 @@ async function recalculateHotScores(): Promise<void> {
 async function updateHolderCounts(): Promise<void> {
   try {
     // CRITICAL: Skip if no users active (eliminates ~600 writes/hour when idle)
-    if (!shouldRunBackgroundJobs()) {
+    if (!(await shouldRunBackgroundJobs())) {
       logger.debug({ operation: 'holder_counts_update', reason: 'no_active_users' }, 'Skipping holder counts update - system idle');
       return;
     }
@@ -1467,7 +1465,7 @@ async function updateHolderCounts(): Promise<void> {
 async function syncWatcherCounts(): Promise<void> {
   try {
     // CRITICAL: Skip if no users active (eliminates ~600 writes/hour when idle)
-    if (!shouldRunBackgroundJobs()) {
+    if (!(await shouldRunBackgroundJobs())) {
       logger.debug({ operation: 'watcher_counts_sync', reason: 'no_active_users' }, 'Skipping watcher counts sync - system idle');
       return;
     }

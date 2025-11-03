@@ -2,7 +2,10 @@
 import { FastifyInstance } from "fastify";
 import priceService from "./priceService-optimized.js";
 import { realtimePnLService } from "../services/realtimePnLService.js";
-import { updateActiveUserCount, markActivity } from "../workers/tokenDiscoveryWorker.js";
+import Redis from "ioredis";
+
+// Redis client for IPC with tokenDiscoveryWorker (runs in separate process)
+const redis = new Redis(process.env.REDIS_URL || '');
 
 // Convert SOL price to lamports (for contract compliance)
 function solToLamports(solPrice: number): string {
@@ -77,8 +80,9 @@ export default async function wsPlugin(app: FastifyInstance) {
       socket.isAlive = true;
       clients.add(socket);
 
-      // Track active user connections for background job optimization
-      updateActiveUserCount(clients.size);
+      // Track active user connections via Redis (IPC with worker process)
+      redis.setex('system:active_users', 60, clients.size.toString()).catch(() => {});
+      redis.setex('system:last_activity', 60, Date.now().toString()).catch(() => {});
       
       const subscribedTokens = new Set<string>();
       const priceSubscriptions = new Map<string, () => void>();
@@ -102,8 +106,8 @@ export default async function wsPlugin(app: FastifyInstance) {
           const data = JSON.parse(message.toString());
           // Reduced logging - only log for debugging if needed
 
-          // Mark user activity to prevent background jobs from idling
-          markActivity();
+          // Mark user activity via Redis (IPC with worker process)
+          redis.setex('system:last_activity', 60, Date.now().toString()).catch(() => {});
 
           if (data.type === "subscribe" && data.mint) {
             subscribedTokens.add(data.mint);
@@ -239,8 +243,9 @@ export default async function wsPlugin(app: FastifyInstance) {
         // Remove from clients set
         clients.delete(socket);
 
-        // Track active user connections for background job optimization
-        updateActiveUserCount(clients.size);
+        // Track active user connections via Redis (IPC with worker process)
+        redis.setex('system:active_users', 60, clients.size.toString()).catch(() => {});
+        redis.setex('system:last_activity', 60, Date.now().toString()).catch(() => {});
 
         // Clean up all price service subscriptions
         priceSubscriptions.forEach((unsubscribe) => {
@@ -256,8 +261,9 @@ export default async function wsPlugin(app: FastifyInstance) {
         // Remove from clients set
         clients.delete(socket);
 
-        // Track active user connections for background job optimization
-        updateActiveUserCount(clients.size);
+        // Track active user connections via Redis (IPC with worker process)
+        redis.setex('system:active_users', 60, clients.size.toString()).catch(() => {});
+        redis.setex('system:last_activity', 60, Date.now().toString()).catch(() => {});
 
         // Clean up subscriptions
         priceSubscriptions.forEach((unsubscribe) => {
