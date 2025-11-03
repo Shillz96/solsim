@@ -113,9 +113,17 @@ export class MarketDataJob implements IScheduledJob {
             priceChange24h: marketData.priceChange24h
           }, 'Market data before save');
 
-          await this.deps.prisma.tokenDiscovery.update({
-            where: { mint: token.mint },
-            data: updateData
+          // Buffer market data updates (batch sync to DB later)
+          await this.deps.bufferManager.bufferToken({
+            mint: token.mint,
+            status: newStatus,
+            marketCapUsd: updateData.marketCapUsd ? parseFloat(updateData.marketCapUsd.toString()) : null,
+            volume24h: updateData.volume24h ? parseFloat(updateData.volume24h.toString()) : null,
+            volume24hSol: updateData.volume24hSol ? parseFloat(updateData.volume24hSol.toString()) : null,
+            volumeChange24h: updateData.volumeChange24h ? parseFloat(updateData.volumeChange24h.toString()) : null,
+            priceUsd: updateData.priceUsd ? parseFloat(updateData.priceUsd.toString()) : null,
+            priceChange24h: updateData.priceChange24h ? parseFloat(updateData.priceChange24h.toString()) : null,
+            txCount24h: updateData.txCount24h || null,
           });
 
           updated++;

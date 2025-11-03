@@ -84,8 +84,9 @@ export class NewTokenHandler implements IEventHandler<NewTokenEventData> {
       // 5. Get transaction count
       const txCount = this.txCountManager.getCount(mint!);
 
-      // 6. Buffer to Redis (batch sync to DB later)
-      await this.bufferToken(
+      // 6. Write new tokens to DB immediately (needed for queries)
+      // Only buffer UPDATES to reduce checkpoint load
+      await this.upsertToken(
         event.token,
         metrics,
         metadata,
@@ -255,9 +256,9 @@ export class NewTokenHandler implements IEventHandler<NewTokenEventData> {
   }
 
   /**
-   * Buffer token to Redis (for batch DB sync)
+   * Upsert token to database
    */
-  private async bufferToken(
+  private async upsertToken(
     token: any,
     metrics: TokenMetrics,
     metadata: TokenMetadata,
@@ -278,43 +279,65 @@ export class NewTokenHandler implements IEventHandler<NewTokenEventData> {
       description
     } = token;
 
-    // Buffer to Redis instead of direct DB write
-    try {
-      await this.deps.bufferManager.bufferToken({
-        mint,
-        symbol: symbol || metadata.symbol || null,
-        name: name || metadata.name || null,
-        logoURI: getLogoURI(metadata.imageUrl, uri),
-        imageUrl: metadata.imageUrl ? convertIPFStoHTTP(metadata.imageUrl) : null,
-        description: description || metadata.description || null,
-        twitter: twitter || metadata.twitter || null,
-        telegram: telegram || metadata.telegram || null,
-        website: website || metadata.website || null,
-        creatorWallet: creator || null,
-        holderCount: holderCount || null,
-        decimals: supply.decimals || null,
-        totalSupply: supply.totalSupply || null,
-        txCount24h: txCount > 0 ? txCount : null,
-        state: metrics.tokenState,
-        bondingCurveKey: bondingCurve || null,
-        bondingCurveProgress: metrics.bondingCurveProgress ? parseFloat(metrics.bondingCurveProgress.toString()) : null,
-        liquidityUsd: metrics.liquidityUsd ? parseFloat(metrics.liquidityUsd.toString()) : null,
-        marketCapUsd: metrics.marketCapUsd ? parseFloat(metrics.marketCapUsd.toString()) : null,
-        hotScore: config.scoring.INITIAL_HOT_SCORE,
-        watcherCount: 0,
-        freezeRevoked: false,
-        mintRenounced: false,
-        creatorVerified: false,
-        firstSeenAt: new Date(),
-        stateChangedAt: new Date(),
-      });
+    const httpLogoURI = uri && isLikelyImageUrl(uri) ? convertIPFStoHTTP(uri) : undefined;
 
-      logger.debug({ mint: truncateWallet(mint) }, 'Token buffered to Redis');
+    try {
+      await this.deps.prisma.tokenDiscovery.upsert({
+        where: { mint },
+        create: {
+          mint,
+          symbol: symbol || metadata.symbol || null,
+          name: name || metadata.name || null,
+          logoURI: getLogoURI(metadata.imageUrl, uri),
+          imageUrl: metadata.imageUrl ? convertIPFStoHTTP(metadata.imageUrl) : null,
+          description: description || metadata.description || null,
+          twitter: twitter || metadata.twitter || null,
+          telegram: telegram || metadata.telegram || null,
+          website: website || metadata.website || null,
+          creatorWallet: creator || null,
+          holderCount: holderCount || null,
+          decimals: supply.decimals || null,
+          totalSupply: supply.totalSupply || null,
+          txCount24h: txCount > 0 ? txCount : null,
+          state: metrics.tokenState,
+          bondingCurveKey: bondingCurve || null,
+          bondingCurveProgress: metrics.bondingCurveProgress,
+          liquidityUsd: metrics.liquidityUsd,
+          marketCapUsd: metrics.marketCapUsd,
+          hotScore: new Decimal(config.scoring.INITIAL_HOT_SCORE),
+          watcherCount: 0,
+          freezeRevoked: false,
+          mintRenounced: false,
+          creatorVerified: false,
+          firstSeenAt: new Date(),
+          lastUpdatedAt: new Date(),
+          stateChangedAt: new Date(),
+        },
+        update: {
+          lastUpdatedAt: new Date(),
+          ...(description && { description }),
+          ...(twitter && { twitter }),
+          ...(telegram && { telegram }),
+          ...(website && { website }),
+          ...(metadata.imageUrl && { imageUrl: convertIPFStoHTTP(metadata.imageUrl) }),
+          ...(metadata.imageUrl ? { logoURI: convertIPFStoHTTP(metadata.imageUrl) } : {}),
+          ...(holderCount && { holderCount }),
+          ...(supply.decimals && { decimals: supply.decimals }),
+          ...(supply.totalSupply && { totalSupply: supply.totalSupply }),
+          ...(txCount > 0 && { txCount24h: txCount }),
+          ...(metrics.bondingCurveProgress && {
+            bondingCurveProgress: metrics.bondingCurveProgress,
+            ...(metrics.bondingCurveProgress.gte(95) && { state: 'graduating' }),
+          }),
+          ...(metrics.liquidityUsd && { liquidityUsd: metrics.liquidityUsd }),
+          ...(metrics.marketCapUsd && { marketCapUsd: metrics.marketCapUsd }),
+        },
+      });
     } catch (err) {
       logger.error({
         mint: truncateWallet(mint),
         error: err
-      }, 'Failed to buffer token');
+      }, 'Database upsert failed for newToken event');
       throw err;
     }
   }

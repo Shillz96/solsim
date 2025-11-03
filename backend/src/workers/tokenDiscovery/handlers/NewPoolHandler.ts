@@ -61,19 +61,22 @@ export class NewPoolHandler implements IEventHandler<NewPoolEventData> {
           listingType: 'direct_raydium'
         }, 'Creating direct Raydium listing');
 
-        // Buffer new token (batch sync to DB later)
-        await this.deps.bufferManager.bufferToken({
-          mint: tokenMint,
-          state: 'bonded',
-          poolAddress,
-          poolType: 'raydium',
-          poolCreatedAt: new Date(blockTime * 1000),
-          hotScore: config.scoring.DIRECT_LISTING_HOT_SCORE,
-          watcherCount: 0,
-          freezeRevoked: false,
-          mintRenounced: false,
-          firstSeenAt: new Date(),
-          stateChangedAt: new Date(),
+        // Write new token to DB immediately (needed for queries)
+        await this.deps.prisma.tokenDiscovery.create({
+          data: {
+            mint: tokenMint,
+            state: 'bonded',
+            poolAddress,
+            poolType: 'raydium',
+            poolCreatedAt: new Date(blockTime * 1000),
+            hotScore: new Decimal(config.scoring.DIRECT_LISTING_HOT_SCORE),
+            watcherCount: 0,
+            freezeRevoked: false,
+            mintRenounced: false,
+            firstSeenAt: new Date(),
+            lastUpdatedAt: new Date(),
+            stateChangedAt: new Date(),
+          },
         });
       }
 
