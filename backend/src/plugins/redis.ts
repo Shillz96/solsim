@@ -19,7 +19,8 @@ try {
 const redis = new Redis(redisUrl, {
   maxRetriesPerRequest: 3,
   lazyConnect: true,
-  enableOfflineQueue: false, // Disable offline queue to fail fast
+  enableOfflineQueue: true, // PERFORMANCE FIX: Enable queue to prevent cascading failures
+  enableReadyCheck: true, // Wait for server to be ready before sending commands
   connectTimeout: 10000, // Increased to 10s for Railway network latency
   commandTimeout: 5000, // Increased to 5s
   // Retry strategy with exponential backoff

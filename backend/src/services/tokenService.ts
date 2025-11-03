@@ -515,17 +515,30 @@ export async function getTokenMetaBatch(mints: string[]) {
 
 // Get comprehensive token information with price data
 export async function getTokenInfo(mint: string) {
+  const startTime = Date.now(); // PERFORMANCE LOGGING: Track API call duration
+
   try {
     const [metadata, priceData] = await Promise.all([
       getTokenMeta(mint).catch(err => {
-        console.warn(`getTokenMeta failed for ${mint}:`, err.message);
+        console.warn(`getTokenMeta failed for ${mint.slice(0, 8)}:`, err.message);
         return null;
       }),
       getTokenPriceData(mint).catch(err => {
-        console.warn(`getTokenPriceData failed for ${mint}:`, err.message);
+        console.warn(`getTokenPriceData failed for ${mint.slice(0, 8)}:`, err.message);
         return { lastPrice: null, lastTs: null };
       })
     ]);
+
+    const duration = Date.now() - startTime;
+
+    // PERFORMANCE LOGGING: Warn if API calls took longer than 3 seconds
+    if (duration > 3000) {
+      console.warn(`⚠️ SLOW API: getTokenInfo for ${mint.slice(0, 8)} took ${duration}ms (>3000ms threshold)`);
+      console.warn(`   - External APIs (Jupiter/DexScreener) may be slow or rate-limiting`);
+      console.warn(`   - Consider checking TokenDiscovery table for cached data first`);
+    } else if (duration > 1000) {
+      console.log(`⏱️ getTokenInfo for ${mint.slice(0, 8)}: ${duration}ms`);
+    }
 
     // If metadata is completely missing, return null (token not found)
     if (!metadata) {
@@ -539,7 +552,8 @@ export async function getTokenInfo(mint: string) {
       mint // Include both for compatibility
     };
   } catch (error: any) {
-    console.error(`getTokenInfo failed for ${mint}:`, error);
+    const duration = Date.now() - startTime;
+    console.error(`❌ getTokenInfo failed for ${mint.slice(0, 8)} after ${duration}ms:`, error.message);
     return null;
   }
 }

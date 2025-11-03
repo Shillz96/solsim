@@ -34,7 +34,8 @@ export function getRedisClient(): Redis {
     redisClient = new Redis(redisUrl, {
       // Connection settings
       maxRetriesPerRequest: 3,
-      enableOfflineQueue: false,
+      enableOfflineQueue: true, // PERFORMANCE FIX: Enable queue to prevent cascading failures
+      enableReadyCheck: true, // Wait for server to be ready before sending commands
       connectTimeout: 10000,
 
       // Retry strategy

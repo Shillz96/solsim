@@ -116,61 +116,96 @@ export default async function searchRoutes(app: FastifyInstance) {
   // Get token details by mint address with price data
   app.get("/token/:mint", async (req, reply) => {
     const { mint } = req.params as { mint: string };
-    
+
     if (!mint) {
       return reply.code(400).send({ error: "mint required" });
     }
-    
+
     try {
-      let tokenInfo = await getTokenInfo(mint);
-      
-      // Always check TokenDiscovery for newer/better data (especially holderCount)
+      // PERFORMANCE FIX: Check TokenDiscovery FIRST (fast DB query <1ms)
+      // This prevents slow external API calls when we already have fresh data
       const warpPipesToken = await prisma.tokenDiscovery.findUnique({
         where: { mint },
       });
 
-      // If found in TokenDiscovery, use it (or merge with Token table data)
-      if (warpPipesToken) {
-        // If we have data from both tables, merge them (TokenDiscovery takes precedence for holder count)
-        if (tokenInfo) {
-          tokenInfo = {
-            ...tokenInfo,
-            // Override with TokenDiscovery data (especially holderCount)
-            holderCount: warpPipesToken.holderCount !== null && warpPipesToken.holderCount !== undefined 
-              ? warpPipesToken.holderCount 
-              : tokenInfo.holderCount,
-            volume24h: warpPipesToken.volume24h ? parseFloat(warpPipesToken.volume24h.toString()) : tokenInfo.volume24h,
-            priceChange24h: warpPipesToken.priceChange24h ? parseFloat(warpPipesToken.priceChange24h.toString()) : tokenInfo.priceChange24h,
-            marketCapUsd: warpPipesToken.marketCapUsd ? parseFloat(warpPipesToken.marketCapUsd.toString()) : tokenInfo.marketCapUsd,
-            lastUpdated: warpPipesToken.lastUpdatedAt,
-          };
-        } else {
-          // Only in TokenDiscovery - convert to expected format
-          tokenInfo = {
-            address: warpPipesToken.mint,
-            symbol: warpPipesToken.symbol || '',
-            name: warpPipesToken.name || '',
-            logoURI: warpPipesToken.logoURI || warpPipesToken.imageUrl,
-            website: warpPipesToken.website,
-            twitter: warpPipesToken.twitter,
-            telegram: warpPipesToken.telegram,
-            socials: warpPipesToken.twitter || warpPipesToken.telegram 
-              ? JSON.stringify([warpPipesToken.twitter, warpPipesToken.telegram].filter(Boolean))
-              : null,
-            websites: warpPipesToken.website ? JSON.stringify([warpPipesToken.website]) : null,
-            lastPrice: warpPipesToken.priceUsd ? warpPipesToken.priceUsd.toString() : null,
-            lastTs: warpPipesToken.lastUpdatedAt,
-            volume24h: warpPipesToken.volume24h ? parseFloat(warpPipesToken.volume24h.toString()) : null,
-            priceChange24h: warpPipesToken.priceChange24h ? parseFloat(warpPipesToken.priceChange24h.toString()) : null,
-            marketCapUsd: warpPipesToken.marketCapUsd ? parseFloat(warpPipesToken.marketCapUsd.toString()) : null,
-            liquidityUsd: warpPipesToken.liquidityUsd ? parseFloat(warpPipesToken.liquidityUsd.toString()) : null,
-            holderCount: warpPipesToken.holderCount !== null && warpPipesToken.holderCount !== undefined ? warpPipesToken.holderCount : null,
-            firstSeenAt: warpPipesToken.firstSeenAt,
-            isNew: warpPipesToken.state === 'new',
-            isTrending: false,
-            lastUpdated: warpPipesToken.lastUpdatedAt,
-          };
-        }
+      let tokenInfo = null;
+
+      // If found in TokenDiscovery and has recent data (< 5 minutes old), use it directly
+      // This avoids unnecessary external API calls for fresh data
+      const isFresh = warpPipesToken?.lastUpdatedAt &&
+        (Date.now() - warpPipesToken.lastUpdatedAt.getTime()) < 300000; // 5 minutes
+
+      if (warpPipesToken && isFresh) {
+        // Use TokenDiscovery data directly - it's fresh and complete
+        tokenInfo = {
+          address: warpPipesToken.mint,
+          symbol: warpPipesToken.symbol || '',
+          name: warpPipesToken.name || '',
+          logoURI: warpPipesToken.logoURI || warpPipesToken.imageUrl,
+          website: warpPipesToken.website,
+          twitter: warpPipesToken.twitter,
+          telegram: warpPipesToken.telegram,
+          socials: warpPipesToken.twitter || warpPipesToken.telegram
+            ? JSON.stringify([warpPipesToken.twitter, warpPipesToken.telegram].filter(Boolean))
+            : null,
+          websites: warpPipesToken.website ? JSON.stringify([warpPipesToken.website]) : null,
+          lastPrice: warpPipesToken.priceUsd ? warpPipesToken.priceUsd.toString() : null,
+          lastTs: warpPipesToken.lastUpdatedAt,
+          volume24h: warpPipesToken.volume24h ? parseFloat(warpPipesToken.volume24h.toString()) : null,
+          priceChange24h: warpPipesToken.priceChange24h ? parseFloat(warpPipesToken.priceChange24h.toString()) : null,
+          marketCapUsd: warpPipesToken.marketCapUsd ? parseFloat(warpPipesToken.marketCapUsd.toString()) : null,
+          liquidityUsd: warpPipesToken.liquidityUsd ? parseFloat(warpPipesToken.liquidityUsd.toString()) : null,
+          holderCount: warpPipesToken.holderCount !== null && warpPipesToken.holderCount !== undefined ? warpPipesToken.holderCount : null,
+          firstSeenAt: warpPipesToken.firstSeenAt,
+          isNew: warpPipesToken.state === 'new',
+          isTrending: false,
+          lastUpdated: warpPipesToken.lastUpdatedAt,
+        };
+      } else {
+        // Data is stale or not in TokenDiscovery - fetch from external APIs
+        tokenInfo = await getTokenInfo(mint);
+      }
+
+      // If we have both TokenDiscovery and external API data (stale case), merge them
+      if (warpPipesToken && tokenInfo && !isFresh) {
+        // Merge external API data with TokenDiscovery (TokenDiscovery takes precedence)
+        tokenInfo = {
+          ...tokenInfo,
+          // Override with TokenDiscovery data (especially holderCount)
+          holderCount: warpPipesToken.holderCount !== null && warpPipesToken.holderCount !== undefined
+            ? warpPipesToken.holderCount
+            : tokenInfo.holderCount,
+          volume24h: warpPipesToken.volume24h ? parseFloat(warpPipesToken.volume24h.toString()) : tokenInfo.volume24h,
+          priceChange24h: warpPipesToken.priceChange24h ? parseFloat(warpPipesToken.priceChange24h.toString()) : tokenInfo.priceChange24h,
+          marketCapUsd: warpPipesToken.marketCapUsd ? parseFloat(warpPipesToken.marketCapUsd.toString()) : tokenInfo.marketCapUsd,
+          lastUpdated: warpPipesToken.lastUpdatedAt,
+        };
+      } else if (warpPipesToken && !tokenInfo) {
+        // Only in TokenDiscovery (external APIs failed) - use TokenDiscovery data
+        tokenInfo = {
+          address: warpPipesToken.mint,
+          symbol: warpPipesToken.symbol || '',
+          name: warpPipesToken.name || '',
+          logoURI: warpPipesToken.logoURI || warpPipesToken.imageUrl,
+          website: warpPipesToken.website,
+          twitter: warpPipesToken.twitter,
+          telegram: warpPipesToken.telegram,
+          socials: warpPipesToken.twitter || warpPipesToken.telegram
+            ? JSON.stringify([warpPipesToken.twitter, warpPipesToken.telegram].filter(Boolean))
+            : null,
+          websites: warpPipesToken.website ? JSON.stringify([warpPipesToken.website]) : null,
+          lastPrice: warpPipesToken.priceUsd ? warpPipesToken.priceUsd.toString() : null,
+          lastTs: warpPipesToken.lastUpdatedAt,
+          volume24h: warpPipesToken.volume24h ? parseFloat(warpPipesToken.volume24h.toString()) : null,
+          priceChange24h: warpPipesToken.priceChange24h ? parseFloat(warpPipesToken.priceChange24h.toString()) : null,
+          marketCapUsd: warpPipesToken.marketCapUsd ? parseFloat(warpPipesToken.marketCapUsd.toString()) : null,
+          liquidityUsd: warpPipesToken.liquidityUsd ? parseFloat(warpPipesToken.liquidityUsd.toString()) : null,
+          holderCount: warpPipesToken.holderCount !== null && warpPipesToken.holderCount !== undefined ? warpPipesToken.holderCount : null,
+          firstSeenAt: warpPipesToken.firstSeenAt,
+          isNew: warpPipesToken.state === 'new',
+          isTrending: false,
+          lastUpdated: warpPipesToken.lastUpdatedAt,
+        };
       }
       
       if (!tokenInfo) {

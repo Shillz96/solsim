@@ -109,7 +109,8 @@
       "Bash(if [ -f \"$file\" ])",
       "Bash(then)",
       "Bash(fi)",
-      "Bash(nul)"
+      "Bash(nul)",
+      "Bash(psql:*)"
     ],
     "deny": [],
     "ask": []

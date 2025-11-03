@@ -116,12 +116,27 @@ function TradeRoomContent() {
     )
   }
 
-  // Fetch token details (optimized for performance - use WebSocket for price updates)
-  const { data: tokenDetails, isLoading: loadingToken } = useQuery({
+  // Fetch token details with timeout and error handling (PERFORMANCE FIX)
+  const { data: tokenDetails, isLoading: loadingToken, error: tokenError } = useQuery({
     queryKey: ['token-details', ca],
-    queryFn: () => api.getTokenDetails(ca),
+    queryFn: async () => {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 15000); // 15 second timeout
+
+      try {
+        const result = await api.getTokenDetails(ca);
+        clearTimeout(timeout);
+        return result;
+      } catch (error) {
+        clearTimeout(timeout);
+        throw error;
+      }
+    },
+    retry: 2, // Retry twice on failure
+    retryDelay: 1000, // 1 second between retries
     staleTime: 30000, // 30 seconds - holder counts change slowly
     refetchInterval: 60000, // Background refetch every 60 seconds (optimized)
+    gcTime: 300000, // Cache for 5 minutes
   })
 
   // Calculate current price
@@ -137,6 +152,27 @@ function TradeRoomContent() {
     prevPriceRef.current = currentPrice
   }, [currentPrice])
 
+  // Error state - show helpful error message (PERFORMANCE FIX)
+  if (tokenError && !loadingToken) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="text-center space-y-4 max-w-md px-4">
+          <div className="text-6xl">⚠️</div>
+          <h2 className="font-mario text-[20px] text-[var(--mario-red)]">Failed to Load Token</h2>
+          <p className="text-[14px] text-[var(--outline-black)]">
+            Unable to fetch token data. The token may not exist or external APIs are temporarily slow.
+          </p>
+          <button
+            onClick={() => window.location.reload()}
+            className="mt-4 px-6 py-2 bg-[var(--star-yellow)] border-3 border-[var(--outline-black)] rounded-lg font-medium hover:shadow-[4px_4px_0_var(--outline-black)] transition-all"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    )
+  }
+
   // Loading state
   if (loadingToken) {
     return (
@@ -146,6 +182,7 @@ function TradeRoomContent() {
           <div>
             <h3 className="text-lg font-semibold">Loading Token Data</h3>
             <p className="text-sm text-outline/70">Fetching market information...</p>
+            <p className="text-xs text-gray-400 mt-2">Should take less than 3 seconds</p>
           </div>
         </div>
       </div>
