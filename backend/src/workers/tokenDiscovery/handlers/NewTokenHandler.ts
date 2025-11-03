@@ -75,11 +75,19 @@ export class NewTokenHandler implements IEventHandler<NewTokenEventData> {
         vSolInBondingCurve
       );
 
-      // 3. Fetch additional metadata if needed
-      const metadata = await this.fetchMetadata(mint!, uri, name, symbol, description, twitter, telegram, website);
+      // 3. OPTIMIZATION: Skip external API calls for brand new tokens
+      // Helius/DexScreener don't have data yet (token just created)
+      // Use only PumpPortal data initially, enrich later via background job
+      const metadata = {
+        description: description || undefined,
+        imageUrl: uri || undefined,
+        twitter: twitter || undefined,
+        telegram: telegram || undefined,
+        website: website || undefined
+      };
 
-      // 4. Fetch token supply and decimals
-      const supply = await this.fetchSupply(mint!);
+      // 4. Skip supply fetch for new tokens (saves Helius call that will fail)
+      const supply = { decimals: 6, totalSupply: undefined };
 
       // 5. Get transaction count
       const txCount = this.txCountManager.getCount(mint!);
@@ -94,8 +102,10 @@ export class NewTokenHandler implements IEventHandler<NewTokenEventData> {
         txCount
       );
 
-      // 7. Cache and enrich
-      await this.cacheAndEnrich(mint!);
+      // 7. Cache only (skip enrichment for new tokens)
+      await this.deps.cacheManager.cacheTokenRow(mint!);
+
+      // Note: Background jobs will enrich metadata after token propagates to Helius (~60s)
     } catch (error) {
       logger.error({
         mint: mint ? truncateWallet(mint) : 'unknown',
