@@ -14,7 +14,7 @@ export const intervals = {
   // Solution: Redis-first architecture with batch database writes
   HOT_SCORE_UPDATE: parseInt(process.env.HOT_SCORE_UPDATE_INTERVAL || '900000'), // 15 minutes (was 5min - 67% reduction)
   WATCHER_SYNC: parseInt(process.env.WATCHER_SYNC_INTERVAL || '300000'), // 5 minutes (was 1min - 80% reduction)
-  CLEANUP: parseInt(process.env.CLEANUP_INTERVAL || '1800000'), // 30 minutes
+  CLEANUP: parseInt(process.env.CLEANUP_INTERVAL || '86400000'), // 24 hours (daily aggressive cleanup)
   HOLDER_COUNT_UPDATE: parseInt(process.env.HOLDER_COUNT_UPDATE_INTERVAL || '600000'), // 10 minutes
   MARKET_DATA_UPDATE: parseInt(process.env.MARKET_DATA_UPDATE_INTERVAL || '300000'), // 5 minutes (was 90s - 70% reduction)
   REDIS_TO_DB_SYNC: parseInt(process.env.REDIS_TO_DB_SYNC_INTERVAL || '300000'), // 5 minutes - batch sync buffered writes

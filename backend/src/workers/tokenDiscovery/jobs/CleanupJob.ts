@@ -1,8 +1,13 @@
 /**
- * Cleanup Job
+ * Aggressive Cleanup Job (Runs Daily)
  *
- * Cleanup old tokens (>48h old for NEW, >24h for BONDED)
- * Extracted from tokenDiscoveryWorker.ts (lines 1582-1612)
+ * Removes dead/inactive tokens to improve database performance:
+ * - Graduated tokens older than 7 days
+ * - Tokens with zero volume in last 3 days
+ * - Tokens inactive for 7+ days (no trades)
+ * - Low-value tokens (< $100 mcap, < 5 watchers, 2+ days old)
+ * - NEW tokens older than 24 hours
+ * - BONDED tokens older than 12 hours
  */
 
 import { loggers } from '../../../utils/logger.js';
@@ -24,12 +29,52 @@ export class CleanupJob implements IScheduledJob {
 
   async run(): Promise<void> {
     try {
-      logger.debug({ operation: this.getName() }, 'Starting old tokens cleanup');
+      logger.info({ operation: this.getName() }, 'Starting aggressive tokens cleanup');
 
-      // Cleanup old NEW tokens (>48h old)
-      const newCutoffDate = new Date(
-        Date.now() - config.retention.NEW_TOKEN_HOURS * 60 * 60 * 1000
-      );
+      // Count tokens before cleanup
+      const totalBefore = await this.deps.prisma.tokenDiscovery.count();
+
+      // 1. Cleanup GRADUATED tokens older than 7 days
+      const graduatedCutoff = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+      const graduatedResult = await this.deps.prisma.tokenDiscovery.deleteMany({
+        where: {
+          state: 'graduated',
+          stateChangedAt: { lt: graduatedCutoff },
+        },
+      });
+
+      // 2. Cleanup tokens with ZERO volume in last 3 days
+      const zeroVolumeCutoff = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000);
+      const zeroVolumeResult = await this.deps.prisma.tokenDiscovery.deleteMany({
+        where: {
+          OR: [
+            { volume24h: { lte: 0 } },
+            { volume24h: null },
+          ],
+          lastTradeTs: { lt: zeroVolumeCutoff },
+        },
+      });
+
+      // 3. Cleanup tokens inactive for 7+ days (no trades)
+      const inactiveCutoff = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+      const inactiveResult = await this.deps.prisma.tokenDiscovery.deleteMany({
+        where: {
+          lastTradeTs: { lt: inactiveCutoff },
+        },
+      });
+
+      // 4. Cleanup low-value tokens (< $100 mcap, < 5 watchers, 2+ days old)
+      const lowValueCutoff = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000);
+      const lowValueResult = await this.deps.prisma.tokenDiscovery.deleteMany({
+        where: {
+          marketCapUsd: { lt: 100 },
+          watcherCount: { lt: 5 },
+          firstSeenAt: { lt: lowValueCutoff },
+        },
+      });
+
+      // 5. Cleanup NEW tokens older than 24 hours (aggressive)
+      const newCutoffDate = new Date(Date.now() - 24 * 60 * 60 * 1000);
       const newResult = await this.deps.prisma.tokenDiscovery.deleteMany({
         where: {
           state: 'new',
@@ -37,10 +82,8 @@ export class CleanupJob implements IScheduledJob {
         },
       });
 
-      // Cleanup BONDED tokens older than 24 hours (based on stateChangedAt)
-      const bondedCutoffDate = new Date(
-        Date.now() - config.retention.BONDED_TOKEN_HOURS * 60 * 60 * 1000
-      );
+      // 6. Cleanup BONDED tokens older than 12 hours (aggressive)
+      const bondedCutoffDate = new Date(Date.now() - 12 * 60 * 60 * 1000);
       const bondedResult = await this.deps.prisma.tokenDiscovery.deleteMany({
         where: {
           state: 'bonded',
@@ -48,11 +91,22 @@ export class CleanupJob implements IScheduledJob {
         },
       });
 
-      logger.debug({
+      // Calculate total removed
+      const totalAfter = await this.deps.prisma.tokenDiscovery.count();
+      const totalRemoved = totalBefore - totalAfter;
+
+      logger.info({
+        totalBefore,
+        totalAfter,
+        totalRemoved,
+        graduatedDeleted: graduatedResult.count,
+        zeroVolumeDeleted: zeroVolumeResult.count,
+        inactiveDeleted: inactiveResult.count,
+        lowValueDeleted: lowValueResult.count,
         newTokensDeleted: newResult.count,
         bondedTokensDeleted: bondedResult.count,
         operation: this.getName()
-      }, 'Old tokens cleanup completed');
+      }, 'Aggressive cleanup completed');
     } catch (error) {
       logger.error({ error, operation: this.getName() }, 'Error in job');
     }
