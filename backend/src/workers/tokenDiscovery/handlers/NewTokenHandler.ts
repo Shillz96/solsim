@@ -75,16 +75,19 @@ export class NewTokenHandler implements IEventHandler<NewTokenEventData> {
         vSolInBondingCurve
       );
 
-      // 3. OPTIMIZATION: Skip external API calls for brand new tokens
-      // Helius/DexScreener don't have data yet (token just created)
-      // Use only PumpPortal data initially, enrich later via background job
-      const metadata = {
-        description: description || undefined,
-        imageUrl: uri || undefined,
-        twitter: twitter || undefined,
-        telegram: telegram || undefined,
-        website: website || undefined
-      };
+      // 3. OPTIMIZATION: Fetch IPFS metadata (for images) but skip Helius calls
+      // IPFS metadata fetch works immediately since PumpPortal provides URI
+      // But Helius/DexScreener don't have supply data yet (token just created)
+      const metadata = await this.fetchMetadata(
+        mint!,
+        uri,
+        name,
+        symbol,
+        description,
+        twitter,
+        telegram,
+        website
+      );
 
       // 4. Skip supply fetch for new tokens (saves Helius call that will fail)
       const supply = { decimals: 6, totalSupply: undefined };
