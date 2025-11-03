@@ -68,7 +68,7 @@ export default async function emailAuthRoutes(app: FastifyInstance) {
           passwordHash: hash,
           handle: handle || email.split('@')[0],
           avatarUrl: avatarUrl || null,
-          rewardWalletAddress: rewardWalletAddress || null,
+          walletAddress: rewardWalletAddress || null,
           virtualSolBalance: 100,
           userTier: 'EMAIL_USER',
           emailVerified: false,
