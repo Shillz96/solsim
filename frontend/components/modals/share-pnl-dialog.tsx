@@ -173,12 +173,19 @@ export function SharePnLDialog({
       pixelRatio: 2,
       backgroundColor,
       skipAutoScale: true,
-      // Allow tainted canvas since we're converting images to data URLs
       skipFonts: false,
-      filter: (node: HTMLElement) => {
-        // Exclude hidden elements
-        const style = window.getComputedStyle(node)
-        return style.display !== 'none' && style.visibility !== 'hidden'
+      filter: (node: any) => {
+        // Only filter Element nodes (not text nodes or other types)
+        if (!node || node.nodeType !== Node.ELEMENT_NODE) {
+          return true
+        }
+        try {
+          // Exclude hidden elements
+          const style = window.getComputedStyle(node as Element)
+          return style.display !== 'none' && style.visibility !== 'hidden'
+        } catch {
+          return true
+        }
       },
     } as const
 
