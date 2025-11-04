@@ -129,6 +129,18 @@ export class NewTokenHandler implements IEventHandler<NewTokenEventData> {
       return false;
     }
 
+    // CRITICAL: Validate mint address format (prevent corrupted data like "...ipump")
+    // Solana addresses are 32-44 characters, base58 encoded
+    const isValidMintFormat = /^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(mint);
+    if (!isValidMintFormat) {
+      logger.error({
+        mint,
+        mintLength: mint.length,
+        event
+      }, 'Invalid mint address format - rejecting token (prevents SSE errors)');
+      return false;
+    }
+
     // CRITICAL: Reject tokens with NO metadata (likely fake/spam)
     if (!symbol && !name && !uri) {
       logger.warn({

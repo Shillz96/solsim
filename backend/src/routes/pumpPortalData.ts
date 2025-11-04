@@ -88,6 +88,7 @@ const pumpPortalDataRoutes: FastifyPluginAsync = async (fastify) => {
     async (request, reply) => {
       let isConnectionClosed = false;
       let keepaliveInterval: NodeJS.Timeout | null = null;
+      let tradeHandler: ((event: any) => void) | null = null;
 
       try {
         const { mint } = MintParamSchema.parse(request.params);
@@ -142,7 +143,7 @@ const pumpPortalDataRoutes: FastifyPluginAsync = async (fastify) => {
         safeWrite(`data: ${JSON.stringify({ type: 'history', trades })}\n\n`);
 
         // Listen for new trades from Helius stream
-        const tradeHandler = (event: any) => {
+        tradeHandler = (event: any) => {
           if (isConnectionClosed) return;
           if (event.mint === mint) {
             const trade: RecentTrade = {
@@ -170,13 +171,21 @@ const pumpPortalDataRoutes: FastifyPluginAsync = async (fastify) => {
           }
         }, 15000);
 
-        // Cleanup on connection close
+        // Cleanup on connection close - CRITICAL: Must remove listener to prevent leak
         const cleanup = () => {
           if (isConnectionClosed) return;
           isConnectionClosed = true;
 
-          heliusTradeStreamService.off('trade', tradeHandler);
-          if (keepaliveInterval) clearInterval(keepaliveInterval);
+          // CRITICAL FIX: Always remove listener to prevent memory leak
+          if (tradeHandler) {
+            heliusTradeStreamService.off('trade', tradeHandler);
+            tradeHandler = null;
+          }
+
+          if (keepaliveInterval) {
+            clearInterval(keepaliveInterval);
+            keepaliveInterval = null;
+          }
 
           try {
             if (!reply.raw.destroyed) reply.raw.end();
@@ -193,7 +202,18 @@ const pumpPortalDataRoutes: FastifyPluginAsync = async (fastify) => {
       } catch (error: any) {
         console.error('[TradeData] Error setting up trade stream:', error);
         isConnectionClosed = true;
-        if (keepaliveInterval) clearInterval(keepaliveInterval);
+
+        // CRITICAL FIX: Ensure cleanup runs even on error
+        if (tradeHandler) {
+          heliusTradeStreamService.off('trade', tradeHandler);
+          tradeHandler = null;
+        }
+
+        if (keepaliveInterval) {
+          clearInterval(keepaliveInterval);
+          keepaliveInterval = null;
+        }
+
         try {
           if (!reply.raw.destroyed) reply.raw.end();
         } catch (err) {
@@ -247,6 +267,7 @@ const pumpPortalDataRoutes: FastifyPluginAsync = async (fastify) => {
     async (request, reply) => {
       let isConnectionClosed = false;
       let keepaliveInterval: NodeJS.Timeout | null = null;
+      let metadataHandler: ((event: any) => void) | null = null;
 
       try {
         const { mint } = MintParamSchema.parse(request.params);
@@ -339,7 +360,7 @@ const pumpPortalDataRoutes: FastifyPluginAsync = async (fastify) => {
         }
 
         // Listen for new token events (contains updated metadata)
-        const metadataHandler = (event: any) => {
+        metadataHandler = (event: any) => {
           if (isConnectionClosed) return;
           if (event.token?.mint === mint) {
             const metadata: TokenMetadata = {
@@ -372,13 +393,21 @@ const pumpPortalDataRoutes: FastifyPluginAsync = async (fastify) => {
           }
         }, 15000);
 
-        // Cleanup on connection close
+        // Cleanup on connection close - CRITICAL: Must remove listener to prevent leak
         const cleanup = () => {
           if (isConnectionClosed) return;
           isConnectionClosed = true;
 
-          pumpPortalStreamService.off('newToken', metadataHandler);
-          if (keepaliveInterval) clearInterval(keepaliveInterval);
+          // CRITICAL FIX: Always remove listener to prevent memory leak (201+ listeners)
+          if (metadataHandler) {
+            pumpPortalStreamService.off('newToken', metadataHandler);
+            metadataHandler = null;
+          }
+
+          if (keepaliveInterval) {
+            clearInterval(keepaliveInterval);
+            keepaliveInterval = null;
+          }
 
           try {
             if (!reply.raw.destroyed) reply.raw.end();
@@ -395,7 +424,18 @@ const pumpPortalDataRoutes: FastifyPluginAsync = async (fastify) => {
       } catch (error: any) {
         console.error('[PumpPortalData] Error setting up metadata stream:', error);
         isConnectionClosed = true;
-        if (keepaliveInterval) clearInterval(keepaliveInterval);
+
+        // CRITICAL FIX: Ensure cleanup runs even on error
+        if (metadataHandler) {
+          pumpPortalStreamService.off('newToken', metadataHandler);
+          metadataHandler = null;
+        }
+
+        if (keepaliveInterval) {
+          clearInterval(keepaliveInterval);
+          keepaliveInterval = null;
+        }
+
         try {
           if (!reply.raw.destroyed) reply.raw.end();
         } catch (err) {

@@ -61,6 +61,16 @@ export function usePumpPortalTrades({
   const connect = useCallback(() => {
     if (!enabled || !tokenMint) return;
 
+    // CRITICAL: Validate mint format before connecting (prevent SSE errors)
+    const isValidMintFormat = /^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(tokenMint);
+    if (!isValidMintFormat) {
+      const validationError = new Error(`Invalid mint address format: ${tokenMint.substring(0, 50)}...`);
+      console.error('[usePumpPortalTrades] Validation error:', validationError);
+      setError(validationError);
+      setStatus("error");
+      return;
+    }
+
     // Clean up any existing connection
     if (cleanupRef.current) {
       cleanupRef.current();
@@ -271,6 +281,17 @@ export function usePumpPortalMetadata({
   useEffect(() => {
     if (!enabled || !tokenMint) {
       setStatus("closed");
+      return;
+    }
+
+    // CRITICAL: Validate mint format before connecting (prevent SSE errors)
+    // Solana addresses are 32-44 characters, base58 encoded
+    const isValidMintFormat = /^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(tokenMint);
+    if (!isValidMintFormat) {
+      const validationError = new Error(`Invalid mint address format: ${tokenMint.substring(0, 50)}...`);
+      console.error('[usePumpPortalMetadata] Validation error:', validationError);
+      setError(validationError);
+      setStatus("error");
       return;
     }
 
