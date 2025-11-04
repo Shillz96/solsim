@@ -306,6 +306,20 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
                   className="hover:glow-primary"
                 />
               </a>
+              <a
+                href="https://t.me/oneuponsolanacto"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-muted-foreground hover:text-primary transition-colors"
+              >
+                <Image
+                  src="/icons/social/telegram-icon.svg"
+                  alt="Telegram"
+                  width={16}
+                  height={16}
+                  className="hover:glow-primary"
+                />
+              </a>
                 <Image
                   src="/-2025-1UP-SOL-10-24-2025.png"
                   alt="2025 1UP SOL"
@@ -405,6 +419,20 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
                 <Image
                   src="/x-logo/logo.svg"
                   alt="X"
+                  width={14}
+                  height={14}
+                  className="md:w-4 md:h-4 hover:glow-primary"
+                />
+              </a>
+              <a
+                href="https://t.me/oneuponsolanacto"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-muted-foreground hover:text-primary transition-colors"
+              >
+                <Image
+                  src="/icons/social/telegram-icon.svg"
+                  alt="Telegram"
                   width={14}
                   height={14}
                   className="md:w-4 md:h-4 hover:glow-primary"

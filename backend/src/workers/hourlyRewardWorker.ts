@@ -375,42 +375,40 @@ export async function runHourlyDistribution(): Promise<void> {
   console.log("=".repeat(60));
 
   try {
+    console.log(`\n🎯 Starting hourly distribution at ${new Date().toISOString()}`);
+
+    // Calculate the last completed hour
     const now = new Date();
     const lastHourStart = new Date(now);
     lastHourStart.setHours(now.getHours() - 1, 0, 0, 0);
     const lastHourEnd = new Date(lastHourStart);
     lastHourEnd.setHours(lastHourStart.getHours() + 1);
 
-    // Find the pool for the last completed hour
-    const pool = await prisma.hourlyRewardPool.findFirst({
-      where: {
-        hourStart: lastHourStart,
-        distributed: false
-      }
-    });
+    // DIRECT DISTRIBUTION: Skip pool system, distribute directly from wallet
+    console.log(`💰 Direct distribution mode - using reward wallet balance`);
 
-    if (!pool) {
-      console.log("ℹ️ No pool found for last hour, creating empty pool");
-
-      // Create an empty pool to mark the hour as processed
-      await prisma.hourlyRewardPool.create({
-        data: {
-          hourStart: lastHourStart,
-          hourEnd: lastHourEnd,
-          totalCreatorRewards: 0,
-          poolAmount: 0,
-          platformAmount: 0,
-          distributed: true,
-          distributedAt: new Date()
-        }
-      });
-
-      console.log("✅ No fees collected, marked as distributed");
+    // Check reward wallet balance
+    if (!REWARD_WALLET_SECRET) {
+      console.log("❌ No reward wallet configured");
       return;
     }
 
-    const poolAmount = parseFloat(pool.poolAmount.toString());
-    console.log(`💰 Pool amount for ${lastHourStart.toISOString()}: ${poolAmount} SOL`);
+    const secretArray = JSON.parse(REWARD_WALLET_SECRET);
+    const rewardWallet = Keypair.fromSecretKey(new Uint8Array(secretArray));
+    const walletBalance = await connection.getBalance(rewardWallet.publicKey);
+    const walletBalanceSOL = walletBalance / LAMPORTS_PER_SOL;
+    
+    console.log(`💼 Reward wallet balance: ${walletBalanceSOL.toFixed(6)} SOL`);
+
+    // Use a fixed distribution amount (0.1 SOL total) or percentage of wallet balance
+    const DISTRIBUTION_AMOUNT = Math.min(0.1, walletBalanceSOL * 0.3); // Use 30% of balance or 0.1 SOL max
+    
+    if (DISTRIBUTION_AMOUNT < 0.01) {
+      console.log(`❌ Insufficient wallet balance for distribution (${walletBalanceSOL.toFixed(6)} SOL)`);
+      return;
+    }
+
+    console.log(`💰 Distribution amount: ${DISTRIBUTION_AMOUNT.toFixed(6)} SOL`);
 
     // Calculate profits and find winners
     const performances = await calculateHourlyProfits();
@@ -423,25 +421,28 @@ export async function runHourlyDistribution(): Promise<void> {
 
     if (winners.length === 0) {
       console.log("\nℹ️ No eligible winners this hour");
-
-      // Mark pool as distributed (with no payouts)
-      await prisma.hourlyRewardPool.update({
-        where: { id: pool.id },
-        data: {
-          distributed: true,
-          distributedAt: new Date()
-        }
-      });
-
       return;
     }
 
+    // Create a simple pool record for tracking
+    const poolRecord = await prisma.hourlyRewardPool.create({
+      data: {
+        hourStart: lastHourStart,
+        hourEnd: lastHourEnd,
+        totalCreatorRewards: new Decimal(DISTRIBUTION_AMOUNT),
+        poolAmount: new Decimal(DISTRIBUTION_AMOUNT),
+        platformAmount: new Decimal(0),
+        distributed: false,
+        distributedAt: null
+      }
+    });
+
     // Distribute rewards
-    await distributeRewards(pool.id, poolAmount, winners);
+    await distributeRewards(poolRecord.id, DISTRIBUTION_AMOUNT, winners);
 
     // Mark pool as distributed
     await prisma.hourlyRewardPool.update({
-      where: { id: pool.id },
+      where: { id: poolRecord.id },
       data: {
         distributed: true,
         distributedAt: new Date()
