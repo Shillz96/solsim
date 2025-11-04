@@ -97,3 +97,4 @@ pids/
 *.seed
 *.pid.lock
 
+logs.*.json

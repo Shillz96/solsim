@@ -22,11 +22,14 @@ const globalForAuthPrisma = globalThis as unknown as {
 const getAuthConnectionPoolConfig = () => {
   const isProduction = process.env.NODE_ENV === "production";
 
+  // EMERGENCY FIX: Prioritize auth connections to prevent signup failures
+  const authLimit = parseInt(process.env.AUTH_DB_CONNECTION_LIMIT || '10');
+
   if (isProduction) {
     return {
-      connection_limit: 5,         // Dedicated 5 connections for auth
-      pool_timeout: 10,            // Fast timeout (auth should be quick)
-      statement_cache_size: 200    // Smaller cache (fewer query patterns)
+      connection_limit: authLimit,     // Increased from 5 → 10 (env configurable)
+      pool_timeout: 10,                // Fast timeout (auth should be quick)
+      statement_cache_size: 200        // Smaller cache (fewer query patterns)
     };
   }
 

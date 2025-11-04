@@ -6,24 +6,25 @@ const globalForPrisma = globalThis as unknown as {
 };
 
 // Calculate optimal connection pool based on environment
-// Railway Postgres Starter: 20 connections total
-// CRITICAL FIX: Connection pool split to prevent auth blocking
-// - Auth Pool (authPrisma.ts): 5 connections (25%)
-// - Backend Pool (this file): 7 connections (35%)
-// - Worker Pool (worker config): 8 connections (40%)
+// Railway Pro: 32 vCPU + 32 GB RAM (UPGRADED!)
+// Connection pool optimized for high-performance workload
+// Total connections depend on Postgres plan - using env vars for flexibility
 const getConnectionPoolConfig = () => {
   const isProduction = process.env.NODE_ENV === "production";
 
+  // EMERGENCY FIX + RAILWAY PRO OPTIMIZATION
+  const backendLimit = parseInt(process.env.BACKEND_DB_CONNECTION_LIMIT || '15');
+
   if (isProduction) {
     return {
-      connection_limit: 7,         // Reduced from 12 (5 moved to auth pool)
-      pool_timeout: 30,            // Reduced from 60 (fail faster)
-      statement_cache_size: 1000   // Increased from 500 (better query caching)
+      connection_limit: backendLimit,  // Increased from 7 → 15 (Railway Pro can handle it)
+      pool_timeout: 30,                // Reduced from 60 (fail faster)
+      statement_cache_size: 2000       // Increased from 1000 (more RAM = bigger cache)
     };
   }
 
   return {
-    connection_limit: 4,           // Dev: reduced from 5 (1 moved to auth)
+    connection_limit: 4,           // Dev: keep low
     pool_timeout: 30,
     statement_cache_size: 100
   };

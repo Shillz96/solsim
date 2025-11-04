@@ -18,6 +18,38 @@ import { authRateLimit } from "../../plugins/rateLimiting.js";
 import { EmailService } from "../../services/emailService.js";
 import * as notificationService from "../../services/notificationService.js";
 import { validatePasswordStrength, getPasswordErrorMessage } from "../../utils/password-validator.js";
+import { getAuthConnectionStats } from "../../plugins/authPrisma.js";
+
+// Helper function for retrying operations during high traffic
+async function retryWithBackoff<T>(
+  operation: () => Promise<T>,
+  maxRetries: number = 3,
+  baseDelay: number = 1000
+): Promise<T> {
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      return await operation();
+    } catch (error: any) {
+      const isLastAttempt = attempt === maxRetries;
+      const isConnectionError = error.code === 'P2024' || error.message?.includes('connection') || error.message?.includes('pool');
+
+      if (isLastAttempt || !isConnectionError) {
+        throw error;
+      }
+
+      // Exponential backoff: 1s, 2s, 4s
+      const delay = baseDelay * Math.pow(2, attempt - 1);
+      console.warn(`⚠️ Signup attempt ${attempt}/${maxRetries} failed, retrying in ${delay}ms...`, {
+        error: error.message,
+        code: error.code
+      });
+
+      await new Promise(resolve => setTimeout(resolve, delay));
+    }
+  }
+
+  throw new Error('Max retries exceeded');
+}
 
 export default async function emailAuthRoutes(app: FastifyInstance) {
   // Email signup with validation
@@ -61,20 +93,22 @@ export default async function emailAuthRoutes(app: FastifyInstance) {
       const verificationToken = EmailService.generateToken();
       const verificationExpiry = EmailService.generateTokenExpiry(24);
 
-      // Create user
-      const user = await authPrisma.user.create({
-        data: {
-          email,
-          passwordHash: hash,
-          handle: handle || email.split('@')[0],
-          avatarUrl: avatarUrl || null,
-          walletAddress: rewardWalletAddress || null,
-          virtualSolBalance: 100,
-          userTier: 'EMAIL_USER',
-          emailVerified: false,
-          emailVerificationToken: verificationToken,
-          emailVerificationExpiry: verificationExpiry
-        }
+      // Create user with retry logic for high traffic resilience
+      const user = await retryWithBackoff(async () => {
+        return await authPrisma.user.create({
+          data: {
+            email,
+            passwordHash: hash,
+            handle: handle || email.split('@')[0],
+            avatarUrl: avatarUrl || null,
+            walletAddress: rewardWalletAddress || null,
+            virtualSolBalance: 100,
+            userTier: 'EMAIL_USER',
+            emailVerified: false,
+            emailVerificationToken: verificationToken,
+            emailVerificationExpiry: verificationExpiry
+          }
+        });
       });
 
       // Send verification email (non-blocking)
@@ -112,10 +146,28 @@ export default async function emailAuthRoutes(app: FastifyInstance) {
       };
 
     } catch (error: any) {
-      console.error('Signup error:', error);
+      // Log detailed error with connection pool stats for debugging
+      const poolStats = getAuthConnectionStats();
+      console.error('🚨 Signup failed:', {
+        error: error.message,
+        code: error.code,
+        stack: error.stack,
+        authPoolStats: poolStats
+      });
+
+      // Provide user-friendly error message
+      const isConnectionError = error.code === 'P2024' || error.message?.includes('connection') || error.message?.includes('pool');
+
+      if (isConnectionError) {
+        return reply.code(503).send({
+          error: "HIGH_TRAFFIC",
+          message: "Service experiencing high traffic. Please try again in a moment."
+        });
+      }
+
       return reply.code(500).send({
         error: "SIGNUP_FAILED",
-        message: "Failed to create account"
+        message: "Failed to create account. Please try again."
       });
     }
   });

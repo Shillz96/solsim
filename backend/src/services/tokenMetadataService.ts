@@ -121,9 +121,9 @@ class TokenMetadataService {
 
   /**
    * Fetch market data from DexScreener
-   * Re-enabled with proper rate limiting (50ms delay configured in worker)
+   * Re-enabled with proper rate limiting (500ms delay configured in worker)
    */
-  async fetchMarketData(mint: string): Promise<MarketData> {
+  async fetchMarketData(mint: string, retryCount = 0): Promise<MarketData> {
     // Check if this token was recently found to have no pairs
     const cachedTime = this.noPairsCache.get(mint);
     if (cachedTime && (Date.now() - cachedTime) < this.NO_PAIRS_CACHE_TTL) {
@@ -141,10 +141,21 @@ class TokenMetadataService {
         });
 
         if (!response.ok) {
-          // Log ALL errors with status code for debugging
-          console.error(`[TokenMetadata] DexScreener API error for ${mint.slice(0, 8)}: ${response.status} ${response.statusText}`);
-          if (response.status === 429) {
-            console.warn(`[TokenMetadata] RATE LIMITED by DexScreener`);
+          // EMERGENCY FIX: Handle 429 rate limit with exponential backoff
+          if (response.status === 429 && retryCount < 3) {
+            const retryAfter = parseInt(response.headers.get('retry-after') || '60');
+            const backoffDelay = Math.min(retryAfter * 1000, 60000); // Max 60s
+
+            console.warn(`[TokenMetadata] Rate limited by DexScreener - retry ${retryCount + 1}/3 in ${backoffDelay/1000}s`);
+
+            // Wait and retry
+            await new Promise(resolve => setTimeout(resolve, backoffDelay));
+            return this.fetchMarketData(mint, retryCount + 1);
+          }
+
+          // Log other errors (but not at ERROR level to reduce noise)
+          if (process.env.LOG_LEVEL === 'debug') {
+            console.warn(`[TokenMetadata] DexScreener API error for ${mint.slice(0, 8)}: ${response.status} ${response.statusText}`);
           }
           return {};
         }

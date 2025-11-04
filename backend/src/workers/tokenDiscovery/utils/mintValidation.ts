@@ -37,12 +37,14 @@ export function isValidSolanaMintAddress(mint: string): boolean {
  * @returns true if valid, false otherwise
  */
 export function validateMintWithLogging(
-  mint: string, 
-  logger: any, 
+  mint: string,
+  logger: any,
   context: Record<string, any> = {}
 ): boolean {
   if (!isValidSolanaMintAddress(mint)) {
-    logger.error({
+    // EMERGENCY FIX: Changed from error → debug to reduce log noise
+    // These rejections are expected during high PumpPortal traffic
+    logger.debug({
       mint,
       mintLength: mint.length,
       hasInvalidSuffix: mint.toLowerCase().endsWith('pump'),
@@ -50,6 +52,6 @@ export function validateMintWithLogging(
     }, 'Invalid mint address format - rejecting token (prevents SSE errors)');
     return false;
   }
-  
+
   return true;
 }
