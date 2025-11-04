@@ -59,74 +59,87 @@ const getAuthDatabaseUrl = () => {
   return url.toString();
 };
 
-const authPrisma = globalForAuthPrisma.authPrisma ?? new PrismaClient({
-  datasources: {
-    db: {
-      url: getAuthDatabaseUrl()
-    }
-  },
-  log: process.env.NODE_ENV === "development" ? ["error", "warn"] : ["error"],
-});
-
-if (process.env.NODE_ENV !== "production") globalForAuthPrisma.authPrisma = authPrisma;
-
-// Connection monitoring for auth pool
+// Connection monitoring for auth pool (module-level to persist across queries)
 let authActiveConnections = 0;
 let authPeakConnections = 0;
 let authTotalQueries = 0;
 
-authPrisma.$use(async (params, next) => {
-  authActiveConnections++;
-  authPeakConnections = Math.max(authPeakConnections, authActiveConnections);
-  authTotalQueries++;
+// Create auth Prisma client with monitoring using Client Extensions
+const createAuthPrismaClient = () => {
+  const client = new PrismaClient({
+    datasources: {
+      db: {
+        url: getAuthDatabaseUrl()
+      }
+    },
+    log: process.env.NODE_ENV === "development" ? ["error", "warn"] : ["error"],
+  });
 
-  const startTime = Date.now();
-  const config = getAuthConnectionPoolConfig();
-  const utilization = authActiveConnections / config.connection_limit;
+  // Add monitoring logic using Prisma Client Extensions
+  return client.$extends({
+    name: 'authPoolMonitoring',
+    query: {
+      async $allOperations({ args, query, operation, model }) {
+        // Start monitoring
+        authActiveConnections++;
+        authPeakConnections = Math.max(authPeakConnections, authActiveConnections);
+        authTotalQueries++;
 
-  // Warn if auth pool is under pressure (shouldn't happen often)
-  if (utilization > 0.8) {
-    console.error({
-      level: 'CRITICAL',
-      pool: 'AUTH',
-      active: authActiveConnections,
-      limit: config.connection_limit,
-      utilization: `${(utilization * 100).toFixed(0)}%`,
-      model: params.model,
-      action: params.action,
-      warning: '⚠️ AUTH POOL EXHAUSTED - Investigate unusual auth traffic'
-    }, '🚨 CRITICAL AUTH POOL ALERT');
-  } else if (utilization > 0.6) {
-    console.warn({
-      pool: 'AUTH',
-      active: authActiveConnections,
-      limit: config.connection_limit,
-      utilization: `${(utilization * 100).toFixed(0)}%`,
-      model: params.model,
-      action: params.action
-    }, '⚠️ High auth pool usage');
-  }
+        const startTime = Date.now();
+        const config = getAuthConnectionPoolConfig();
+        const utilization = authActiveConnections / config.connection_limit;
 
-  try {
-    const result = await next(params);
-    const duration = Date.now() - startTime;
+        // Warn if auth pool is under pressure (shouldn't happen often)
+        if (utilization > 0.8) {
+          console.error({
+            level: 'CRITICAL',
+            pool: 'AUTH',
+            active: authActiveConnections,
+            limit: config.connection_limit,
+            utilization: `${(utilization * 100).toFixed(0)}%`,
+            model: model,
+            action: operation,
+            warning: '⚠️ AUTH POOL EXHAUSTED - Investigate unusual auth traffic'
+          }, '🚨 CRITICAL AUTH POOL ALERT');
+        } else if (utilization > 0.6) {
+          console.warn({
+            pool: 'AUTH',
+            active: authActiveConnections,
+            limit: config.connection_limit,
+            utilization: `${(utilization * 100).toFixed(0)}%`,
+            model: model,
+            action: operation
+          }, '⚠️ High auth pool usage');
+        }
 
-    // Auth queries should be fast - warn if >200ms
-    if (duration > 200) {
-      console.warn({
-        pool: 'AUTH',
-        model: params.model,
-        action: params.action,
-        duration: `${duration}ms`,
-        warning: 'Auth query slower than expected'
-      }, '🐌 Slow auth query');
+        try {
+          const result = await query(args);
+          const duration = Date.now() - startTime;
+
+          // Auth queries should be fast - warn if >200ms
+          if (duration > 200) {
+            console.warn({
+              pool: 'AUTH',
+              model: model,
+              action: operation,
+              duration: `${duration}ms`,
+              warning: 'Auth query slower than expected'
+            }, '🐌 Slow auth query');
+          }
+
+          return result;
+        } finally {
+          // Always decrement active connections, even on error
+          authActiveConnections--;
+        }
+      }
     }
+  }) as any; // Type assertion to maintain PrismaClient type compatibility
+};
 
-    return result;
-  } finally {
-    authActiveConnections--;
-  }
-});
+const authPrisma = globalForAuthPrisma.authPrisma ?? createAuthPrismaClient();
+
+if (process.env.NODE_ENV !== "production") globalForAuthPrisma.authPrisma = authPrisma;
 
 // Graceful shutdown
 const shutdownAuth = async () => {

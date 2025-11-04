@@ -64,7 +64,13 @@ const getDatabaseUrl = () => {
   return url.toString();
 };
 
-// Create Prisma client with connection retry logic
+// Connection monitoring variables (module-level to persist across queries)
+let activeConnections = 0;
+let peakConnections = 0;
+let totalQueries = 0;
+let slowQueries = 0;
+
+// Create Prisma client with connection retry and monitoring logic
 const createPrismaClient = () => {
   const client = new PrismaClient({
     datasources: {
@@ -75,45 +81,99 @@ const createPrismaClient = () => {
     log: process.env.NODE_ENV === "development" ? ["error", "warn"] : ["error"], // Removed "query" to reduce log noise
   });
 
-  // Add retry logic for connection errors using Prisma Client Extensions
+  // Add retry logic + monitoring using Prisma Client Extensions
   return client.$extends({
-    name: 'connectionRetry',
+    name: 'connectionRetryAndMonitoring',
     query: {
       async $allOperations({ args, query, operation, model }) {
+        // Start monitoring
+        activeConnections++;
+        peakConnections = Math.max(peakConnections, activeConnections);
+        totalQueries++;
+
+        const startTime = Date.now();
+        const config = getConnectionPoolConfig();
+        const utilization = activeConnections / config.connection_limit;
+
+        // Enhanced logging with query context during high load
+        if (utilization > 0.8) {
+          const errorData = {
+            level: 'CRITICAL',
+            active: activeConnections,
+            limit: config.connection_limit,
+            utilization: `${(utilization * 100).toFixed(0)}%`,
+            model: model,
+            action: operation,
+            warning: '⚠️ AUTH QUERIES MAY BE BLOCKED - Database overload detected'
+          };
+          console.error('🚨 CRITICAL DB CONNECTION ALERT:', JSON.stringify(errorData));
+        } else if (utilization > 0.6) {
+          const warnData = {
+            active: activeConnections,
+            limit: config.connection_limit,
+            utilization: `${(utilization * 100).toFixed(0)}%`,
+            model: model,
+            action: operation
+          };
+          console.warn('⚠️ High DB connection usage:', JSON.stringify(warnData));
+        }
+
+        // Retry logic
         const maxRetries = 3;
         let lastError: any;
 
-        for (let attempt = 0; attempt < maxRetries; attempt++) {
-          try {
-            return await query(args);
-          } catch (error: any) {
-            lastError = error;
+        try {
+          for (let attempt = 0; attempt < maxRetries; attempt++) {
+            try {
+              const result = await query(args);
 
-            // Retry on connection errors
-            const isConnectionError =
-              error.code === 'P1001' || // Can't reach database server
-              error.code === 'P1002' || // Database server timeout
-              error.code === 'P1008' || // Operations timed out
-              error.message?.includes('Connection reset') ||
-              error.message?.includes('ECONNRESET') ||
-              error.message?.includes('Connection terminated unexpectedly');
+              // Track query duration after successful execution
+              const duration = Date.now() - startTime;
 
-            if (isConnectionError && attempt < maxRetries - 1) {
-              const backoff = Math.min(1000 * Math.pow(2, attempt), 5000); // Max 5s backoff
-              console.warn(`[Prisma] Connection error on ${model}.${operation}, retrying in ${backoff}ms (attempt ${attempt + 1}/${maxRetries})`, {
-                errorCode: error.code,
-                errorMessage: error.message?.substring(0, 100)
-              });
-              await new Promise(resolve => setTimeout(resolve, backoff));
-              continue;
+              // Track slow queries (>500ms)
+              if (duration > 500) {
+                slowQueries++;
+                console.warn({
+                  model: model,
+                  action: operation,
+                  duration: `${duration}ms`,
+                  connectionUtilization: `${(utilization * 100).toFixed(0)}%`
+                }, '🐌 Slow query detected');
+              }
+
+              return result;
+            } catch (error: any) {
+              lastError = error;
+
+              // Retry on connection errors
+              const isConnectionError =
+                error.code === 'P1001' || // Can't reach database server
+                error.code === 'P1002' || // Database server timeout
+                error.code === 'P1008' || // Operations timed out
+                error.message?.includes('Connection reset') ||
+                error.message?.includes('ECONNRESET') ||
+                error.message?.includes('Connection terminated unexpectedly');
+
+              if (isConnectionError && attempt < maxRetries - 1) {
+                const backoff = Math.min(1000 * Math.pow(2, attempt), 5000); // Max 5s backoff
+                console.warn(`[Prisma] Connection error on ${model}.${operation}, retrying in ${backoff}ms (attempt ${attempt + 1}/${maxRetries})`, {
+                  errorCode: error.code,
+                  errorMessage: error.message?.substring(0, 100)
+                });
+                await new Promise(resolve => setTimeout(resolve, backoff));
+                continue;
+              }
+
+              // Don't retry other errors or final attempt
+              throw error;
             }
-
-            // Don't retry other errors or final attempt
-            throw error;
           }
-        }
 
-        throw lastError;
+          throw lastError;
+        } finally {
+          // Always decrement active connections, even on error
+          activeConnections--;
+        }
       }
     }
   }) as any; // Type assertion to maintain PrismaClient type compatibility
@@ -122,67 +182,6 @@ const createPrismaClient = () => {
 const prisma = globalForPrisma.prisma ?? createPrismaClient();
 
 if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
-
-// Connection monitoring
-let activeConnections = 0;
-let peakConnections = 0;
-let totalQueries = 0;
-let slowQueries = 0;
-
-prisma.$use(async (params: any, next: any) => {
-  activeConnections++;
-  peakConnections = Math.max(peakConnections, activeConnections);
-  totalQueries++;
-
-  const startTime = Date.now();
-  const config = getConnectionPoolConfig();
-  const utilization = activeConnections / config.connection_limit;
-
-  // Enhanced logging with query context during high load
-  if (utilization > 0.8) {
-    // FIXED: Properly serialize error data instead of logging object
-    const errorData = {
-      level: 'CRITICAL',
-      active: activeConnections,
-      limit: config.connection_limit,
-      utilization: `${(utilization * 100).toFixed(0)}%`,
-      model: params.model,
-      action: params.action,
-      warning: '⚠️ AUTH QUERIES MAY BE BLOCKED - Database overload detected'
-    };
-    console.error('🚨 CRITICAL DB CONNECTION ALERT:', JSON.stringify(errorData));
-    // TODO: Send to monitoring service (Sentry, Datadog, etc.)
-  } else if (utilization > 0.6) {
-    const warnData = {
-      active: activeConnections,
-      limit: config.connection_limit,
-      utilization: `${(utilization * 100).toFixed(0)}%`,
-      model: params.model,
-      action: params.action
-    };
-    console.warn('⚠️ High DB connection usage:', JSON.stringify(warnData));
-  }
-
-  try {
-    const result = await next(params);
-    const duration = Date.now() - startTime;
-
-    // Track slow queries (>500ms)
-    if (duration > 500) {
-      slowQueries++;
-      console.warn({
-        model: params.model,
-        action: params.action,
-        duration: `${duration}ms`,
-        connectionUtilization: `${(utilization * 100).toFixed(0)}%`
-      }, '🐌 Slow query detected');
-    }
-
-    return result;
-  } finally {
-    activeConnections--;
-  }
-});
 
 // Graceful shutdown
 const shutdown = async () => {
