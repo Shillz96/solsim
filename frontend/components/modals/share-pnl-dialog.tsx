@@ -135,7 +135,7 @@ export function SharePnLDialog({
     if (!cardRef.current || isGenerating) return
     try {
       setIsGenerating(true)
-      
+
       // Clear any text selection that might interfere with clipboard operations
       if (window.getSelection) {
         const selection = window.getSelection()
@@ -143,26 +143,65 @@ export function SharePnLDialog({
           selection.removeAllRanges()
         }
       }
-      
+
       const blob = await generateShareImage("blob")
       if (!blob) throw new Error("Failed to generate image blob")
-      
+
+      // Check if Clipboard API is available
       const itemCtor: any = (window as any).ClipboardItem
-      if (itemCtor && navigator.clipboard && (navigator.clipboard as any).write) {
-        await (navigator.clipboard as any).write([new itemCtor({ "image/png": blob })])
-        setCopied(true)
-        setTimeout(() => setCopied(false), 1800)
-        setHasDownloaded(true)
-        toast({ title: "Copied to clipboard", description: "Your PnL card is ready to paste." })
+      const hasClipboardAPI = itemCtor && navigator.clipboard && typeof (navigator.clipboard as any).write === "function"
+
+      if (hasClipboardAPI) {
+        try {
+          // Try to write image to clipboard
+          await (navigator.clipboard as any).write([new itemCtor({ "image/png": blob })])
+          setCopied(true)
+          setTimeout(() => setCopied(false), 1800)
+          setHasDownloaded(true)
+          toast({
+            title: "✅ Image copied!",
+            description: "Paste it anywhere (Ctrl+V or Cmd+V)."
+          })
+        } catch (clipboardError: any) {
+          // Clipboard write failed, fallback to download + instructions
+          console.warn("Clipboard write failed, using fallback:", clipboardError)
+
+          // Auto-download the image
+          const dataUrl = URL.createObjectURL(blob)
+          const link = document.createElement("a")
+          link.download = `oneupsol-pnl-${Date.now()}.png`
+          link.href = dataUrl
+          link.click()
+
+          toast({
+            title: "Image downloaded",
+            description: "Your browser blocked clipboard access. Image saved to Downloads folder instead.",
+            duration: 5000
+          })
+          setHasDownloaded(true)
+        }
       } else {
-        // Fallback: open the PNG data URL in a new tab
+        // No clipboard API - download instead
         const dataUrl = URL.createObjectURL(blob)
-        window.open(dataUrl, "_blank")
-        toast({ title: "Image opened in new tab", description: "Right-click the image to copy it." })
+        const link = document.createElement("a")
+        link.download = `oneupsol-pnl-${Date.now()}.png`
+        link.href = dataUrl
+        link.click()
+
+        toast({
+          title: "Image downloaded",
+          description: "Clipboard not supported. Image saved to Downloads folder.",
+          duration: 4000
+        })
+        setHasDownloaded(true)
       }
     } catch (error) {
       console.error("Failed to copy PnL image:", error)
-      toast({ title: "Copy failed", description: "Please try again.", variant: "destructive" })
+      toast({
+        title: "Copy failed",
+        description: "Please try the Download button instead.",
+        variant: "destructive"
+      })
       import("@/lib/error-logger").then(({ errorLogger }) => {
         errorLogger.error("Failed to copy PnL image", { error: error as Error, action: "pnl_image_copy_failed", metadata: { component: "SharePnLDialog" } })
       })
