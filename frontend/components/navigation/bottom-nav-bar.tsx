@@ -14,6 +14,7 @@ import { useAuth } from "@/hooks/use-auth"
 import { useToast } from "@/hooks/use-toast"
 import * as api from "@/lib/api"
 import { Button } from "@/components/ui/button"
+import { Copy, ExternalLink } from "lucide-react"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -26,6 +27,9 @@ import { WalletTrackerContent } from "@/components/wallet-tracker/wallet-tracker
 import MarketHover from "@/components/market/MarketHover"
 
 // Percentage formatting now inline
+
+// 1UP SOL Token CA
+const ONEUP_TOKEN_CA = "GCTmLn3xEmjFBsN3HkmBF6TqfWZbBnXanYAwAGFCpump"
 
 // Info dropdown items for bottom nav
 const infoItems = [
@@ -71,6 +75,16 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
   ])
   const [lastPriceFetch, setLastPriceFetch] = useState<number>(0)
   const [priceFetchAttempts, setPriceFetchAttempts] = useState<number>(0)
+
+  // Function to copy CA to clipboard
+  const copyCAToClipboard = () => {
+    navigator.clipboard.writeText(ONEUP_TOKEN_CA)
+    toast({
+      title: "✅ CA Copied!",
+      description: "1UP SOL token address copied to clipboard",
+      duration: 2000,
+    })
+  }
 
   // Function to open wallet tracker as floating window (compact mode)
   const openWalletTrackerWindow = () => {
@@ -276,29 +290,49 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
 
             {/* Bottom row: Navigation and social */}
             <div className="flex items-center justify-between">
-              {/* Left: Social Links */}
-              <div className="flex items-center gap-4">
+              {/* Left: Social Links + CA */}
+              <div className="flex items-center gap-2">
               <a
                 href="https://x.com/1upsol_fun"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-muted-foreground hover:text-primary transition-colors"
               >
-                <Image 
-                  src="/x-logo/logo.svg" 
-                  alt="X" 
-                  width={16} 
+                <Image
+                  src="/x-logo/logo.svg"
+                  alt="X"
+                  width={16}
                   height={16}
                   className="hover:glow-primary"
                 />
               </a>
-                <Image 
-                  src="/-2025-1UP-SOL-10-24-2025.png" 
-                  alt="2025 1UP SOL" 
-                  width={120} 
+                <Image
+                  src="/-2025-1UP-SOL-10-24-2025.png"
+                  alt="2025 1UP SOL"
+                  width={120}
                   height={40}
                   className="object-contain"
                 />
+                {/* 1UP SOL Token CA */}
+                <div className="flex items-center gap-1.5">
+                  <Link
+                    href={`/room/${ONEUP_TOKEN_CA}`}
+                    className="flex items-center gap-1 px-2 py-1 rounded-md bg-[var(--star-yellow)] hover:bg-[var(--coin-yellow)] border-2 border-[var(--outline-black)] transition-all hover:shadow-[2px_2px_0_var(--outline-black)] group"
+                    title="View 1UP SOL Token"
+                  >
+                    <span className="text-[10px] font-bold text-[var(--outline-black)]">
+                      ${ONEUP_TOKEN_CA.slice(0, 4)}...{ONEUP_TOKEN_CA.slice(-4)}
+                    </span>
+                    <ExternalLink className="h-3 w-3 text-[var(--outline-black)] opacity-60 group-hover:opacity-100" />
+                  </Link>
+                  <button
+                    onClick={copyCAToClipboard}
+                    className="p-1 rounded-md hover:bg-card/50 transition-colors"
+                    title="Copy CA to clipboard"
+                  >
+                    <Copy className="h-3 w-3 text-muted-foreground hover:text-foreground" />
+                  </button>
+                </div>
               </div>
 
               {/* Right: Controls */}
@@ -360,7 +394,7 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
         {/* Large screens: Horizontal layout */}
         <div className="hidden lg:block fixed bottom-0 left-0 right-0 z-bottom-nav border-t-3 border-outline bg-card shadow-[0_-4px_0_var(--outline-black)]">
           <div className="mx-auto flex h-[var(--bottom-nav-height)] items-center justify-between px-4 max-w-content">
-            {/* Left: Social Links */}
+            {/* Left: Social Links + CA */}
             <div className="flex items-center gap-2 md:gap-4">
               <a
                 href="https://x.com/1upsol_fun"
@@ -368,21 +402,41 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
                 rel="noopener noreferrer"
                 className="text-muted-foreground hover:text-primary transition-colors"
               >
-                <Image 
-                  src="/x-logo/logo.svg" 
-                  alt="X" 
-                  width={14} 
+                <Image
+                  src="/x-logo/logo.svg"
+                  alt="X"
+                  width={14}
                   height={14}
                   className="md:w-4 md:h-4 hover:glow-primary"
                 />
               </a>
-              <Image 
-                src="/-2025-1UP-SOL-10-24-2025.png" 
-                alt="2025 1UP SOL" 
-                width={120} 
+              <Image
+                src="/-2025-1UP-SOL-10-24-2025.png"
+                alt="2025 1UP SOL"
+                width={120}
                 height={40}
                 className="object-contain"
               />
+              {/* 1UP SOL Token CA */}
+              <div className="flex items-center gap-1.5">
+                <Link
+                  href={`/room/${ONEUP_TOKEN_CA}`}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-[var(--star-yellow)] hover:bg-[var(--coin-yellow)] border-2 border-[var(--outline-black)] transition-all hover:shadow-[2px_2px_0_var(--outline-black)] group"
+                  title="View 1UP SOL Token"
+                >
+                  <span className="text-xs font-bold text-[var(--outline-black)]">
+                    ${ONEUP_TOKEN_CA.slice(0, 4)}...{ONEUP_TOKEN_CA.slice(-4)}
+                  </span>
+                  <ExternalLink className="h-3.5 w-3.5 text-[var(--outline-black)] opacity-60 group-hover:opacity-100" />
+                </Link>
+                <button
+                  onClick={copyCAToClipboard}
+                  className="p-1.5 rounded-md hover:bg-card/50 transition-colors"
+                  title="Copy CA to clipboard"
+                >
+                  <Copy className="h-3.5 w-3.5 text-muted-foreground hover:text-foreground" />
+                </button>
+              </div>
             </div>
 
             {/* Center: Market Prices + Market Lighthouse */}
