@@ -35,12 +35,21 @@ export default async function healthRoutes(app: FastifyInstance) {
         isHealthy: false
       };
 
+      const coinGeckoStats = priceService.coinGeckoBreaker?.getStats() || {
+        state: 'UNKNOWN',
+        failures: 0,
+        fires: 0,
+        errorRate: 0,
+        isHealthy: false
+      };
+
       // Get health metrics
       const health = priceService.getHealth();
 
       return {
         circuitBreaker: {
-          jupiter: jupiterStats
+          jupiter: jupiterStats,
+          coinGecko: coinGeckoStats
         },
         health: {
           lastPriceUpdate: health.lastPriceUpdate,
@@ -103,7 +112,12 @@ export default async function healthRoutes(app: FastifyInstance) {
         priceService.jupiterBreaker.reset();
       }
 
-      app.log.warn('Circuit breaker manually reset via admin endpoint');
+      // Reset CoinGecko circuit breaker
+      if (priceService.coinGeckoBreaker) {
+        priceService.coinGeckoBreaker.reset();
+      }
+
+      app.log.warn('Circuit breakers manually reset via admin endpoint');
 
       return {
         success: true,

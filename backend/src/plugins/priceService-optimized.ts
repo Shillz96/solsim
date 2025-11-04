@@ -113,7 +113,9 @@ export class CircuitBreaker {
   private state: 'CLOSED' | 'OPEN' | 'HALF_OPEN' = 'CLOSED';
   private readonly volumeThreshold = 10; // Minimum requests before checking error rate
   private readonly errorThresholdPercentage = 50; // Trip at 50% error rate
-  private readonly timeout = 30000; // 30 seconds (faster recovery than 60s)
+  private timeout = 30000; // Initial timeout: 30 seconds
+  private readonly maxTimeout = 300000; // Max timeout: 5 minutes
+  private openCount = 0; // Track how many times circuit has opened
   private readonly name: string;
 
   constructor(name: string = 'unknown') {
@@ -138,7 +140,9 @@ export class CircuitBreaker {
         this.state = 'CLOSED';
         this.failureCount = 0;
         this.totalFires = 0; // Reset counters on recovery
-        logger.info({ breaker: this.name }, 'Circuit breaker returned to CLOSED state');
+        this.timeout = 30000; // Reset timeout on successful recovery
+        this.openCount = 0; // Reset open count on recovery
+        logger.info({ breaker: this.name, recoveryTime: `${this.timeout / 1000}s` }, 'Circuit breaker returned to CLOSED state');
       }
       return result;
     } catch (error: any) {
@@ -171,13 +175,20 @@ export class CircuitBreaker {
 
         if (errorRate >= this.errorThresholdPercentage || this.state === 'HALF_OPEN') {
           this.state = 'OPEN';
+          this.openCount++;
+
+          // Exponential backoff: double timeout each time, up to max
+          this.timeout = Math.min(this.timeout * 2, this.maxTimeout);
+
           logger.error(
             {
               breaker: this.name,
               errorRate: errorRate.toFixed(1),
               failures: this.failureCount,
               fires: this.totalFires,
-              lastError: error.message
+              lastError: error.message,
+              nextRetryIn: `${this.timeout / 1000}s`,
+              openCount: this.openCount
             },
             'Circuit breaker OPENED due to high error rate'
           );
@@ -207,6 +218,8 @@ export class CircuitBreaker {
     this.failureCount = 0;
     this.totalFires = 0;
     this.lastFailureTime = 0;
+    this.timeout = 30000; // Reset to initial timeout
+    this.openCount = 0;
     logger.info({ breaker: this.name }, 'Circuit breaker manually reset');
   }
 }
@@ -290,8 +303,10 @@ class OptimizedPriceService extends EventEmitter {
       logger.warn({ error }, "Initial SOL price fetch failed - using fallback, will retry");
     });
 
-    // Set up frequent SOL price updates (every 5 seconds for real-time trading)
-    const solInterval = setInterval(() => this.updateSolPrice(), 5000);
+    // OPTIMIZATION: Update SOL price every 30 seconds instead of 5 seconds
+    // CoinGecko has rate limits - 10-30 calls/minute for free tier
+    // 30 second interval = 2 calls/minute (well within limits)
+    const solInterval = setInterval(() => this.updateSolPrice(), 30000);
     this.updateIntervals.push(solInterval);
 
     // HELIUS WEBSOCKET DISABLED - PumpPortal covers ALL Solana tokens
@@ -742,6 +757,12 @@ class OptimizedPriceService extends EventEmitter {
 
   private async updateSolPrice() {
     try {
+      // Skip if we've updated recently (within 20 seconds)
+      if (Date.now() - this.lastSolPriceUpdate < 20000) {
+        logger.debug("Skipping SOL price update - recently updated");
+        return;
+      }
+
       // SCALING FIX: Try CoinGecko first with circuit breaker
       const coinGeckoResult = await this.coinGeckoBreaker.execute(async () => {
         const response = await fetch(
