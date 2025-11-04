@@ -79,6 +79,22 @@ const nextConfig = {
     dirs: ['app', 'components', 'lib'], // Specify directories to lint
   },
 
+  // Rewrite API requests to Railway backend
+  async rewrites() {
+    const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'https://solsim-production.up.railway.app';
+
+    return [
+      {
+        source: '/api/:path*',
+        destination: `${backendUrl}/api/:path*`,
+      },
+      {
+        source: '/ws/:path*',
+        destination: `${backendUrl}/ws/:path*`,
+      },
+    ];
+  },
+
   // Headers for security and performance
   async headers() {
     return [

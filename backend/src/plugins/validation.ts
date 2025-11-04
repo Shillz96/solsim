@@ -17,9 +17,9 @@ const commonPatterns = {
   },
   password: {
     type: 'string',
-    minLength: 8,
-    maxLength: 128,
-    pattern: '^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]+$'
+    minLength: 12,
+    maxLength: 128
+    // No pattern - password strength is validated by password-validator.ts
   },
   uuid: {
     type: 'string',
