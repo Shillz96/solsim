@@ -2,10 +2,9 @@
  * Hourly Reward Worker
  *
  * Runs every hour at :00 to:
- * 1. Calculate profit % for all traders in the past hour
- * 2. Select top 10 traders by profit percentage
- * 3. Distribute SOL rewards from the hourly pool
- * 4. Create payout records with transaction signatures
+ * 1. Get the top 10 traders from the leaderboard (by total PnL)
+ * 2. Distribute SOL rewards from the hourly pool to top 10
+ * 3. Create payout records with transaction signatures
  *
  * Reward Distribution:
  * - Rank 1: 35% of pool
@@ -94,45 +93,27 @@ function getRewardWallet(): Keypair {
 }
 
 /**
- * Calculate profit percentage for all active traders in the past hour
+ * Get top 10 traders from leaderboard for reward distribution
  */
 async function calculateHourlyProfits(): Promise<TraderPerformance[]> {
-  const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
+  console.log(`📊 Getting top 10 traders from leaderboard for rewards`);
 
-  console.log(`📊 Calculating profits for trades since ${oneHourAgo.toISOString()}`);
+  // Import the leaderboard service
+  const { getLeaderboard } = await import("../services/leaderboardService.js");
 
-  // Get all users who traded in the past hour
-  const recentTrades = await prisma.trade.findMany({
-    where: {
-      timestamp: { gte: oneHourAgo },
-      tradeMode: "PAPER" // Only consider paper trading for now
-    },
-    select: {
-      userId: true,
-      totalCost: true,
-      realizedPnL: true
-    }
-  });
+  // Get top 10 from the leaderboard
+  const leaderboard = await getLeaderboard(10);
 
-  // Group trades by user
-  const userTradeMap = new Map<string, typeof recentTrades>();
-  for (const trade of recentTrades) {
-    if (!userTradeMap.has(trade.userId)) {
-      userTradeMap.set(trade.userId, []);
-    }
-    userTradeMap.get(trade.userId)!.push(trade);
-  }
+  console.log(`👥 Found ${leaderboard.length} top traders`);
 
-  console.log(`👥 Found ${userTradeMap.size} active traders in the past hour`);
-
-  // Calculate performance for each user
+  // Convert leaderboard entries to TraderPerformance format
   const performances: TraderPerformance[] = [];
 
-  for (const [userId, trades] of userTradeMap.entries()) {
+  for (const entry of leaderboard) {
     try {
-      // Get user details
+      // Get user wallet address (required for reward distribution)
       const user = await prisma.user.findUnique({
-        where: { id: userId },
+        where: { id: entry.userId },
         select: {
           handle: true,
           walletAddress: true
@@ -140,83 +121,39 @@ async function calculateHourlyProfits(): Promise<TraderPerformance[]> {
       });
 
       if (!user) {
-        console.warn(`⚠️ User ${userId} not found`);
+        console.warn(`⚠️ User ${entry.userId} not found`);
         continue;
       }
 
       // Skip users without connected wallet (can't receive rewards)
       if (!user.walletAddress) {
-        console.log(`ℹ️ Skipping ${user.handle} - no wallet connected`);
+        console.log(`ℹ️ Skipping ${user.handle || entry.handle} - no wallet connected`);
         continue;
       }
 
-      // Calculate total volume traded
-      const volumeTraded = trades.reduce((sum, t) => {
-        return sum + parseFloat(t.totalCost.toString());
-      }, 0);
-
-      // Calculate realized PnL from completed trades
-      const realizedPnL = trades
-        .filter(t => t.realizedPnL)
-        .reduce((sum, t) => sum + parseFloat(t.realizedPnL!.toString()), 0);
-
-      // Calculate unrealized PnL from current open positions
-      const positions = await prisma.position.findMany({
-        where: {
-          userId,
-          tradeMode: "PAPER",
-          qty: { gt: 0 }
-        },
-        include: {
-          lots: {
-            where: { qtyRemaining: { gt: 0 } },
-            orderBy: { createdAt: "asc" }
-          }
-        }
-      });
-
-      let unrealizedPnL = 0;
-      for (const position of positions) {
-        const costBasis = parseFloat(position.costBasis.toString());
-        const qty = parseFloat(position.qty.toString());
-
-        try {
-          // Get current price from priceService for accurate unrealized PnL
-          const currentPrice = await priceService.getPrice(position.mint);
-          const currentValueUsd = qty * currentPrice;
-
-          unrealizedPnL += (currentValueUsd - costBasis);
-        } catch (error) {
-          // If price fetch fails, use costBasis as fallback (no gain/loss)
-          console.warn(`⚠️ Failed to get price for ${position.mint}, assuming break-even`);
-        }
-      }
-
-      const totalPnL = realizedPnL + unrealizedPnL;
+      // Use leaderboard data (already has totalPnL calculated)
+      const totalPnL = parseFloat(entry.totalPnlUsd);
+      const volumeTraded = parseFloat(entry.totalVolumeUsd);
       const profitPercent = volumeTraded > 0 ? (totalPnL / volumeTraded) * 100 : 0;
 
-      // Only include traders with minimum trade count
-      if (trades.length >= MIN_TRADES_FOR_REWARD) {
-        performances.push({
-          userId,
-          handle: user.handle,
-          walletAddress: user.walletAddress,
-          totalRealizedPnL: realizedPnL,
-          totalUnrealizedPnL: unrealizedPnL,
-          totalPnL,
-          profitPercent,
-          tradeCount: trades.length,
-          volumeTraded
-        });
-      }
+      // Add to performances list
+      performances.push({
+        userId: entry.userId,
+        handle: user.handle || entry.handle || 'Unknown',
+        walletAddress: user.walletAddress,
+        totalRealizedPnL: totalPnL, // Using total PnL from leaderboard
+        totalUnrealizedPnL: 0, // Not separated in leaderboard
+        totalPnL,
+        profitPercent,
+        tradeCount: entry.totalTrades,
+        volumeTraded
+      });
     } catch (error) {
-      console.error(`❌ Error calculating performance for user ${userId}:`, error);
+      console.error(`❌ Error processing user ${entry.userId}:`, error);
     }
   }
 
-  // Sort by profit percentage (descending)
-  performances.sort((a, b) => b.profitPercent - a.profitPercent);
-
+  // Already sorted by leaderboard ranking (top PnL), no need to re-sort
   return performances;
 }
 

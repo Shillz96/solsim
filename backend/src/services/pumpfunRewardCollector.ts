@@ -2,13 +2,12 @@
  * PumpFun Reward Collector Service
  *
  * Monitors and collects creator fees from pump.fun token launches
- * Splits fees: 10% → hourly reward pool, 90% → platform wallet
+ * ALL fees (100%) go to the hourly reward pool for distribution to top traders
  *
  * SETUP REQUIREMENTS:
  * 1. Set PUMPFUN_CREATOR_WALLET in .env (your pump.fun creator wallet address)
- * 2. Set PLATFORM_OWNER_WALLET in .env (receives 90% of creator fees)
- * 3. Set HOURLY_REWARD_WALLET_SECRET in .env (distributes hourly rewards)
- * 4. Ensure the creator wallet has authority over your pump.fun tokens
+ * 2. Set HOURLY_REWARD_WALLET_SECRET in .env (distributes hourly rewards)
+ * 3. Ensure the creator wallet has authority over your pump.fun tokens
  */
 
 import { Connection, PublicKey, Keypair, LAMPORTS_PER_SOL } from "@solana/web3.js";
@@ -23,8 +22,8 @@ const PLATFORM_OWNER_WALLET = process.env.PLATFORM_OWNER_WALLET;
 const REWARD_WALLET_SECRET = process.env.HOURLY_REWARD_WALLET_SECRET;
 
 // Fee split percentages
-const REWARD_POOL_PERCENTAGE = 0.10;  // 10% to hourly rewards
-const PLATFORM_PERCENTAGE = 0.90;      // 90% to platform
+const REWARD_POOL_PERCENTAGE = 1.00;  // 100% to hourly rewards
+const PLATFORM_PERCENTAGE = 0.00;      // 0% to platform
 
 interface FeeCollectionResult {
   success: boolean;
@@ -134,8 +133,7 @@ export async function recordCreatorFees(
     });
 
     console.log(`💰 Recorded ${creatorFeesSOL} SOL creator fees from ${source}`);
-    console.log(`   ├─ Pool (10%): ${poolAmount.toFixed(6)} SOL`);
-    console.log(`   └─ Platform (90%): ${platformAmount.toFixed(6)} SOL`);
+    console.log(`   └─ Pool (100%): ${poolAmount.toFixed(6)} SOL`);
 
     return {
       success: true,
