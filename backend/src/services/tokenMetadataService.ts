@@ -36,6 +36,10 @@ class TokenMetadataService {
     'https://gateway.pinata.cloud/ipfs/',
   ];
 
+  // Cache for tokens with no pairs found (avoid repeated API calls)
+  private noPairsCache = new Map<string, number>(); // mint -> timestamp
+  private NO_PAIRS_CACHE_TTL = 30 * 60 * 1000; // 30 minutes
+
   /**
    * Fetch metadata from IPFS URI with fallback gateway support
    */
@@ -120,6 +124,12 @@ class TokenMetadataService {
    * Re-enabled with proper rate limiting (50ms delay configured in worker)
    */
   async fetchMarketData(mint: string): Promise<MarketData> {
+    // Check if this token was recently found to have no pairs
+    const cachedTime = this.noPairsCache.get(mint);
+    if (cachedTime && (Date.now() - cachedTime) < this.NO_PAIRS_CACHE_TTL) {
+      return {}; // Return empty without API call
+    }
+
     return dexScreenerRateLimiter.execute(async () => {
       try {
         const response = await fetch(`${this.dexScreenerBase}/dex/tokens/${mint}`, {
@@ -145,12 +155,16 @@ class TokenMetadataService {
         // Find the best pair (highest liquidity or volume)
         const pairs = data?.pairs || [];
         if (pairs.length === 0) {
-          console.warn(`[TokenMetadata] No pairs found for ${mint.slice(0, 8)}`);
+          // Cache this result to avoid repeated API calls
+          this.noPairsCache.set(mint, Date.now());
           return {};
         }
 
+        // Clear from no-pairs cache if it was previously cached
+        this.noPairsCache.delete(mint);
+
         // Sort by liquidity USD descending, take first pair
-        const sortedPairs = pairs.sort((a: any, b: any) => 
+        const sortedPairs = pairs.sort((a: any, b: any) =>
           (b.liquidity?.usd || 0) - (a.liquidity?.usd || 0)
         );
         const bestPair = sortedPairs[0];
@@ -163,8 +177,10 @@ class TokenMetadataService {
           txCount24h: bestPair.txns?.h24?.buys + bestPair.txns?.h24?.sells || undefined,
         };
 
-        // Log successful fetch
-        console.log(`[TokenMetadata] Fetched market data for ${mint.slice(0, 8)}: vol=$${marketData.volume24h?.toFixed(0)}, price_chg=${marketData.priceChange24h?.toFixed(2)}%`);
+        // Only log successful fetches in debug mode (reduce production noise)
+        if (process.env.LOG_LEVEL === 'debug') {
+          console.log(`[TokenMetadata] Fetched market data for ${mint.slice(0, 8)}: vol=$${marketData.volume24h?.toFixed(0)}, price_chg=${marketData.priceChange24h?.toFixed(2)}%`);
+        }
 
         return marketData;
       } catch (error: any) {

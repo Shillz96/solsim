@@ -105,13 +105,16 @@ export class MarketDataJob implements IScheduledJob {
           if (marketData.priceChange24h) updateData.priceChange24h = new Decimal(marketData.priceChange24h);
           if (marketData.txCount24h) updateData.txCount24h = marketData.txCount24h;
 
-          logger.info({
-            mint: token.mint.slice(0, 8),
-            priceUsd: marketData.priceUsd,
-            willSave: !!(marketData.priceUsd && marketData.priceUsd > 0),
-            marketCapUsd: marketData.marketCapUsd,
-            priceChange24h: marketData.priceChange24h
-          }, 'Market data before save');
+          // Only log if there are significant changes or issues (reduce log noise)
+          if (process.env.LOG_LEVEL === 'debug') {
+            logger.debug({
+              mint: token.mint.slice(0, 8),
+              priceUsd: marketData.priceUsd,
+              willSave: !!(marketData.priceUsd && marketData.priceUsd > 0),
+              marketCapUsd: marketData.marketCapUsd,
+              priceChange24h: marketData.priceChange24h
+            }, 'Market data before save');
+          }
 
           // Buffer market data updates (batch sync to DB later)
           await this.deps.bufferManager.bufferToken({

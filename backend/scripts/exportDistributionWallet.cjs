@@ -1,8 +1,9 @@
 const bs58 = require('bs58');
 const { Keypair } = require('@solana/web3.js');
 
-// Secret key from HOURLY_REWARD_WALLET_SECRET
-const secretKeyArray = [104,219,76,26,214,46,132,245,63,44,157,186,120,98,157,133,198,155,35,240,226,96,181,51,115,107,191,172,137,155,36,108,159,170,134,244,24,8,74,34,75,206,146,193,243,21,212,90,152,12,138,56,195,93,150,44,197,104,255,50,66,34,113,203];
+// Secret key from REWARDS_WALLET_SECRET (updated 2025-11-03)
+// Wallet: 7JdddM5CgzsGMpR1cqMcm4jZfm9WDTX6SWwBvSKfZdrN
+const secretKeyArray = [107,89,180,143,120,131,16,77,192,224,82,114,110,41,216,111,130,48,250,67,10,107,9,77,19,3,252,153,158,126,82,82,93,170,106,40,32,135,83,48,142,185,234,31,196,69,173,76,197,239,203,76,157,196,247,221,202,202,158,22,203,55,185,159];
 
 const secretKey = new Uint8Array(secretKeyArray);
 const keypair = Keypair.fromSecretKey(secretKey);

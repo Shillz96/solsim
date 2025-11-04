@@ -60,7 +60,7 @@ export const knownMints = {
 // ============================================================================
 
 export const limits = {
-  RATE_LIMIT_DELAY_MS: parseInt(process.env.RATE_LIMIT_DELAY_MS || '300'), // 300ms between API calls
+  RATE_LIMIT_DELAY_MS: parseInt(process.env.RATE_LIMIT_DELAY_MS || '500'), // 500ms between API calls (safer for DexScreener)
   MIN_ACTIVE_VOLUME_SOL: parseFloat(process.env.MIN_ACTIVE_VOLUME_SOL || '0.5'), // 0.5 SOL minimum
   MIN_HOLDERS_COUNT: parseInt(process.env.MIN_HOLDERS_COUNT || '10'), // 10 holders minimum
   MAX_TRADES_PER_TOKEN: parseInt(process.env.MAX_TRADES_PER_TOKEN || '100'), // 100 trades
