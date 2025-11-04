@@ -248,6 +248,12 @@ class RealtimePnLService extends EventEmitter {
       }
     }
 
+    // TypeScript null check - ensure position exists after reload attempt
+    if (!pos) {
+      console.error(`[RealtimePnL] Position still undefined after reload attempt: ${key}`);
+      return;
+    }
+
     const fillQty = new Decimal(event.qty);
     const fillPrice = new Decimal(event.price);
     const fees = new Decimal(event.fees);
