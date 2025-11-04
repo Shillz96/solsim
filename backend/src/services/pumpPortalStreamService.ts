@@ -12,6 +12,7 @@
 import WebSocket from 'ws';
 import { EventEmitter } from 'events';
 import { getRedisClient } from '../plugins/redisClient.js';
+import { isValidSolanaMintAddress } from '../workers/tokenDiscovery/utils/mintValidation.js';
 
 const redis = getRedisClient();
 
@@ -507,6 +508,12 @@ export class PumpPortalStreamService extends EventEmitter {
       // PumpPortal sends messages with different structures based on subscription
       // Check for newToken events (txType === 'create' indicates a new token)
       if (message.txType === 'create' && message.mint) {
+        // CRITICAL: Validate mint address BEFORE processing
+        if (!isValidSolanaMintAddress(message.mint)) {
+          console.log(`[PumpPortal] ❌ Rejected invalid mint: ${message.mint}`);
+          return; // Skip this event entirely
+        }
+
         const event: NewTokenEvent = {
           type: 'newToken',
           token: {
@@ -540,10 +547,18 @@ export class PumpPortalStreamService extends EventEmitter {
       }
       // Also check for type field (legacy format)
       else if (message.type === 'newToken') {
+        const mint = message.mint || message.token?.mint;
+        
+        // CRITICAL: Validate mint address BEFORE processing
+        if (!mint || !isValidSolanaMintAddress(mint)) {
+          console.log(`[PumpPortal] ❌ Rejected invalid mint (legacy): ${mint || 'undefined'}`);
+          return; // Skip this event entirely
+        }
+
         const event: NewTokenEvent = {
           type: 'newToken',
           token: {
-            mint: message.mint || message.token?.mint,
+            mint: mint,
             name: message.name || message.token?.name,
             symbol: message.symbol || message.token?.symbol,
             uri: message.uri || message.token?.uri,

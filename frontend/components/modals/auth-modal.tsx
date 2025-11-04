@@ -115,15 +115,15 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
     const rewardWalletAddress = formData.get('rewardWalletAddress') as string
 
     // Client-side validation
-    if (!email || !password || !handle || !rewardWalletAddress) {
+    if (!email || !password || !handle) {
       setError('Please fill in all required fields')
       setIsLoading(false)
       return
     }
 
-    // Validate Solana wallet address format (base58, 32-44 characters)
-    if (!/^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(rewardWalletAddress)) {
-      setError('Please enter a valid Solana wallet address')
+    // Validate Solana wallet address format if provided
+    if (rewardWalletAddress && !/^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(rewardWalletAddress)) {
+      setError('Please enter a valid Solana wallet address or leave it blank')
       setIsLoading(false)
       return
     }
