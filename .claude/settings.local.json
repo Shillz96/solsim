@@ -110,7 +110,8 @@
       "Bash(then)",
       "Bash(fi)",
       "Bash(nul)",
-      "Bash(psql:*)"
+      "Bash(psql:*)",
+      "Bash(npm uninstall:*)"
     ],
     "deny": [],
     "ask": []

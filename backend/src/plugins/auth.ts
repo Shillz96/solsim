@@ -159,8 +159,6 @@ export const authenticateToken = async (request: AuthenticatedRequest, reply: Fa
       userTier: payload.userTier,
       sessionId: payload.sessionId
     };
-
-    return;
   } catch (error: any) {
     return reply.code(401).send({
       error: 'INVALID_TOKEN',
@@ -218,8 +216,6 @@ export const requireAdmin = async (request: AuthenticatedRequest, reply: Fastify
       message: 'Administrator access required'
     });
   }
-
-  return;
 };
 
 // Admin or Moderator middleware (for moderation features)
@@ -237,8 +233,6 @@ export const requireAdminOrModerator = async (request: AuthenticatedRequest, rep
       message: 'Administrator or Moderator access required'
     });
   }
-
-  return;
 };
 
 export { AuthService };

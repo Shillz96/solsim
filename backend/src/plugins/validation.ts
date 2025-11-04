@@ -409,8 +409,6 @@ export function validateBody(schema: ValidationSchema) {
         details: [error.message]
       });
     }
-
-    return;
   };
 }
 
@@ -434,8 +432,6 @@ export function validateQuery(schema: ValidationSchema) {
         details: [error.message]
       });
     }
-
-    return;
   };
 }
 

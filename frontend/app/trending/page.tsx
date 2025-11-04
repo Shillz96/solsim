@@ -9,29 +9,36 @@ import Link from "next/link"
 import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
 import type * as Backend from "@/lib/types/backend"
-import { useTrendingTokens } from "@/hooks/use-react-query-hooks"
+import { useWarpPipesFeed } from "@/hooks/use-warp-pipes"
 import { UsdWithSol } from "@/lib/sol-equivalent"
 import { cn, marioStyles } from "@/lib/utils"
 import { validateImageUrl } from "@/lib/image-url-validator"
 
-type BirdeyeSortBy = "rank" | "volume24hUSD" | "liquidity"
 type SortField = "price" | "priceChange24h" | "marketCapUsd" | "volume24h" | "trendScore"
 type SortDirection = "asc" | "desc"
 
 export default function TrendingPage() {
-  const [birdeyeSortBy, setBirdeyeSortBy] = useState<BirdeyeSortBy>("volume24hUSD")
   const [searchQuery, setSearchQuery] = useState("")
   const [sortField, setSortField] = useState<SortField>("volume24h")
   const [sortDirection, setSortDirection] = useState<SortDirection>("desc")
 
-  // Use Birdeye trending data (same as ticker slider)
-  const { data: trendingTokens, isLoading: loading, error, refetch: refresh } = useTrendingTokens(50, birdeyeSortBy)
+  // Use Warp Pipes feed data (TokenDiscovery with proper metadata)
+  const { data: warpPipesData, isLoading: loading, error, refetch: refresh } = useWarpPipesFeed({
+    sortBy: "volume"
+  })
 
-  // Filter and sort tokens
+  // Combine all tokens from warp pipes data and filter/sort
   const filteredAndSortedTokens = useMemo(() => {
-    if (!trendingTokens || !Array.isArray(trendingTokens)) return []
+    if (!warpPipesData) return []
 
-    let filtered = trendingTokens.filter(
+    // Combine all tokens from bonded, graduating, and new arrays
+    const allTokens = [
+      ...(warpPipesData.bonded || []),
+      ...(warpPipesData.graduating || []),
+      ...(warpPipesData.new || [])
+    ]
+
+    let filtered = allTokens.filter(
       (token) =>
         token.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         token.symbol?.toLowerCase().includes(searchQuery.toLowerCase()),
@@ -70,7 +77,7 @@ export default function TrendingPage() {
     })
 
     return sorted
-  }, [trendingTokens, searchQuery, sortField, sortDirection])
+  }, [warpPipesData, searchQuery, sortField, sortDirection])
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {
@@ -176,20 +183,21 @@ export default function TrendingPage() {
                 </div>
                 <div className="flex gap-2 flex-wrap">
                   {[
-                    { value: "volume24hUSD" as BirdeyeSortBy, label: "Volume", icon: "📊" },
-                    { value: "rank" as BirdeyeSortBy, label: "Hot", icon: "🔥" },
-                    { value: "liquidity" as BirdeyeSortBy, label: "Liquidity", icon: "💎" }
+                    { value: "volume24h" as SortField, label: "Volume", icon: "📊" },
+                    { value: "marketCapUsd" as SortField, label: "Market Cap", icon: "�" },
+                    { value: "priceChange24h" as SortField, label: "24h Change", icon: "📈" },
+                    { value: "trendScore" as SortField, label: "Hot", icon: "�" }
                   ].map((option) => (
                     <Button
                       key={option.value}
-                      variant={birdeyeSortBy === option.value ? "default" : "outline"}
+                      variant={sortField === option.value ? "default" : "outline"}
                       size="sm"
-                      onClick={() => setBirdeyeSortBy(option.value)}
+                      onClick={() => handleSort(option.value)}
                       className={cn(
                         "px-4 py-2.5 rounded-xl border-3 border-outline font-bold transition-all text-sm",
                         "shadow-[3px_3px_0_var(--outline-black)] hover:shadow-[4px_4px_0_var(--outline-black)] hover:-translate-y-0.5",
                         "active:shadow-[2px_2px_0_var(--outline-black)] active:translate-y-0",
-                        birdeyeSortBy === option.value 
+                        sortField === option.value 
                           ? "bg-mario hover:bg-mario/90 text-white scale-105 shadow-[4px_4px_0_var(--outline-black)] -translate-y-0.5" 
                           : "bg-white hover:bg-background text-outline"
                       )}
@@ -405,7 +413,7 @@ export default function TrendingPage() {
                       {/* Token Info */}
                       <div className="flex items-center gap-3 min-w-0">
                         <Image
-                          src={validateImageUrl(token.logoURI) || "/placeholder-token.svg"}
+                          src={validateImageUrl(token.imageUrl) || "/placeholder-token.svg"}
                           alt={token.name || "Unknown Token"}
                           width={40}
                           height={40}
@@ -430,7 +438,7 @@ export default function TrendingPage() {
 
                       {/* Price */}
                       <div className="text-right whitespace-nowrap">
-                        <UsdWithSol usd={token.priceUsd} className="font-numeric font-bold text-sm" solClassName="font-numeric text-[11px]" />
+                        <UsdWithSol usd={token.priceUsd || 0} className="font-numeric font-bold text-sm" solClassName="font-numeric text-[11px]" />
                       </div>
 
                       {/* 24h Change */}
@@ -458,14 +466,14 @@ export default function TrendingPage() {
 
                       {/* Volume */}
                       <div className="text-right whitespace-nowrap">
-                        <UsdWithSol usd={token.volume24h} className="font-numeric font-bold text-sm" solClassName="font-numeric text-[11px]" compact />
+                        <UsdWithSol usd={token.volume24h || 0} className="font-numeric font-bold text-sm" solClassName="font-numeric text-[11px]" compact />
                       </div>
 
                       {/* Holders */}
                       <div className="text-right whitespace-nowrap">
                         {token.holderCount ? (
                           <span className="font-numeric font-bold text-sm text-foreground">
-                            {parseInt(token.holderCount).toLocaleString()}
+                            {token.holderCount.toLocaleString()}
                           </span>
                         ) : (
                           <span className="text-muted-foreground text-sm">N/A</span>
@@ -559,17 +567,17 @@ export default function TrendingPage() {
                       <div className="grid grid-cols-3 gap-3 text-xs">
                         <div>
                           <div className="text-muted-foreground font-medium mb-1">Price</div>
-                          <UsdWithSol usd={token.priceUsd} className="font-numeric font-bold text-sm" solClassName="font-numeric text-[10px]" />
+                          <UsdWithSol usd={token.priceUsd || 0} className="font-numeric font-bold text-sm" solClassName="font-numeric text-[10px]" />
                         </div>
                         <div>
                           <div className="text-muted-foreground font-medium mb-1">Volume</div>
-                          <UsdWithSol usd={token.volume24h} className="font-numeric font-bold text-sm" solClassName="font-numeric text-[10px]" compact />
+                          <UsdWithSol usd={token.volume24h || 0} className="font-numeric font-bold text-sm" solClassName="font-numeric text-[10px]" compact />
                         </div>
                         <div>
                           <div className="text-muted-foreground font-medium mb-1">Holders</div>
                           {token.holderCount ? (
                             <span className="font-numeric font-bold text-sm text-foreground">
-                              {parseInt(token.holderCount).toLocaleString()}
+                              {token.holderCount.toLocaleString()}
                             </span>
                           ) : (
                             <span className="text-muted-foreground text-sm">N/A</span>

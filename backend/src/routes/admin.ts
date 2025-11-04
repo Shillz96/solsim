@@ -31,8 +31,6 @@ const adminRoutes: FastifyPluginAsync = async (app) => {
         error: "Unauthorized - Invalid admin credentials"
       });
     }
-
-    return;
   });
 
   // Helper function to check if user is admin
@@ -542,8 +540,6 @@ const adminRoutes: FastifyPluginAsync = async (app) => {
       timestamp: new Date().toISOString()
     });
   });
-
-  return;
 };
 
 export default adminRoutes;

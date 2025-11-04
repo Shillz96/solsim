@@ -164,7 +164,7 @@ export const TokenCard = memo(function TokenCard({ data, onToggleWatch, classNam
           {/* Fallback */}
           {(imageError || !validatedImageUrl) && (
             <div className="flex items-center justify-center w-full h-full bg-star rounded-lg text-2xl font-bold text-outline border-2 border-outline">
-              🪙
+              {data.symbol ? data.symbol.charAt(0).toUpperCase() : '🪙'}
             </div>
           )}
 
@@ -179,7 +179,7 @@ export const TokenCard = memo(function TokenCard({ data, onToggleWatch, classNam
           {/* Header Row */}
           <div className="flex items-center gap-1.5 sm:gap-2">
             <h3 className={cn(marioStyles.heading(4), 'text-sm sm:text-base font-black truncate max-w-[100px] sm:max-w-[160px]')}>
-              {data.symbol}
+              {data.symbol || data.name || shorten(data.mint, 4, 4)}
             </h3>
             <SecurityIcon />
           </div>
