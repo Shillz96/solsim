@@ -125,6 +125,12 @@ async function calculateHourlyProfits(): Promise<TraderPerformance[]> {
         continue;
       }
 
+      console.log(`🔍 Checking user: ${user.handle || entry.handle}`);
+      console.log(`   - Has wallet: ${!!user.walletAddress}`);
+      console.log(`   - Wallet: ${user.walletAddress || 'NONE'}`);
+      console.log(`   - Total PnL: ${entry.totalPnlUsd}`);
+      console.log(`   - Total Trades: ${entry.totalTrades}`);
+
       // Skip users without connected wallet (can't receive rewards)
       if (!user.walletAddress) {
         console.log(`ℹ️ Skipping ${user.handle || entry.handle} - no wallet connected`);

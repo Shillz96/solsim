@@ -131,6 +131,31 @@ async function viewLastDistribution() {
   console.log('');
 }
 
+async function debugLeaderboard() {
+  console.log('🐛 Debugging leaderboard eligibility...\n');
+  const data = await fetchAPI('/api/rewards/admin/debug-leaderboard');
+  
+  console.log(`Total leaderboard entries: ${data.totalUsers}`);
+  console.log(`Users with wallets: ${data.usersWithWallet}`);
+  console.log(`Eligible for rewards: ${data.eligibleUsers}\n`);
+  
+  if (data.sampleUsers && data.sampleUsers.length > 0) {
+    console.log('Sample users (top 10):');
+    data.sampleUsers.forEach(user => {
+      const wallet = user.walletAddress ? '✅ Has wallet' : '❌ No wallet';
+      const trades = user.totalTrades >= 3 ? `✅ ${user.totalTrades} trades` : `❌ ${user.totalTrades} trades (need 3+)`;
+      console.log(`  ${user.handle}: ${wallet}, ${trades}, ${user.profitPercent}% profit`);
+    });
+  }
+  
+  if (data.issues && data.issues.length > 0) {
+    console.log('\n⚠️  Issues found:');
+    data.issues.forEach(issue => console.log(`  - ${issue}`));
+  }
+  
+  console.log('');
+}
+
 async function main() {
   const command = process.argv[2];
   const arg = process.argv[3];
@@ -157,6 +182,10 @@ async function main() {
         await viewLastDistribution();
         break;
 
+      case 'debug-leaderboard':
+        await debugLeaderboard();
+        break;
+
       default:
         console.log('Reward Management Helper\n');
         console.log('Usage:');
@@ -164,7 +193,8 @@ async function main() {
         console.log('  node manageRewards.cjs pool            - Check current hour pool');
         console.log('  node manageRewards.cjs inject <amount> - Inject fees (e.g., inject 0.5)');
         console.log('  node manageRewards.cjs distribute      - Manually trigger distribution');
-        console.log('  node manageRewards.cjs last            - View last distribution\n');
+        console.log('  node manageRewards.cjs last            - View last distribution');
+        console.log('  node manageRewards.cjs debug-leaderboard - Debug user eligibility\n');
         console.log('Examples:');
         console.log('  node manageRewards.cjs inject 0.5      - Record 0.5 SOL of creator fees');
         console.log('                                           (0.05 SOL to pool, 0.45 SOL to platform)\n');

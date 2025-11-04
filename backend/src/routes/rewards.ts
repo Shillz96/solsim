@@ -206,6 +206,54 @@ export default async function rewardsRoutes(app: FastifyInstance) {
   // =====================================================
 
   /**
+   * GET /rewards/admin/debug-leaderboard
+   * Debug endpoint to check leaderboard and wallet data
+   */
+  app.get("/admin/debug-leaderboard", async (req, reply) => {
+    try {
+      // Import the leaderboard service
+      const { getLeaderboard } = await import("../services/leaderboardService.js");
+
+      // Get top 10 from the leaderboard
+      const leaderboard = await getLeaderboard(10);
+
+      const debugData = [];
+
+      for (const entry of leaderboard) {
+        // Get user wallet address
+        const user = await prisma.user.findUnique({
+          where: { id: entry.userId },
+          select: {
+            handle: true,
+            walletAddress: true
+          }
+        });
+
+        debugData.push({
+          userId: entry.userId,
+          handle: entry.handle,
+          userRecord: user,
+          hasWallet: !!user?.walletAddress,
+          walletAddress: user?.walletAddress || 'NONE',
+          totalPnl: entry.totalPnlUsd,
+          totalTrades: entry.totalTrades,
+          rank: entry.rank
+        });
+      }
+
+      return {
+        success: true,
+        leaderboardCount: leaderboard.length,
+        usersWithWallets: debugData.filter(u => u.hasWallet).length,
+        debugData
+      };
+    } catch (error: any) {
+      app.log.error("Failed to fetch debug data:", error);
+      return reply.code(500).send({ error: "Failed to fetch debug data" });
+    }
+  });
+
+  /**
    * POST /rewards/admin/test-distribution
    * Manually trigger hourly distribution for testing
    * Requires ADMIN_KEY in request body
