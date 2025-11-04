@@ -310,6 +310,17 @@ export class NewTokenHandler implements IEventHandler<NewTokenEventData> {
       description
     } = token;
 
+    // CRITICAL: Double-check mint exists (defensive programming)
+    if (!mint || mint === 'undefined' || mint.length < 32) {
+      logger.error({
+        mint,
+        token,
+        hasTokenObject: !!token,
+        tokenKeys: token ? Object.keys(token) : []
+      }, '❌ CRITICAL: bufferNewToken called with invalid mint address');
+      throw new Error(`Cannot buffer token without valid mint: ${mint}`);
+    }
+
     const httpLogoURI = uri && isLikelyImageUrl(uri) ? convertIPFStoHTTP(uri) : undefined;
 
     // Prepare token data for buffering

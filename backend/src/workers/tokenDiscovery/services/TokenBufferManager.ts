@@ -68,6 +68,12 @@ export class TokenBufferManager implements ITokenBufferManager {
    * Buffer token data in Redis for later batch sync
    */
   async bufferToken(data: BufferedTokenData): Promise<void> {
+    // CRITICAL: Validate mint exists before buffering
+    if (!data.mint || data.mint === 'undefined' || data.mint.length < 32) {
+      logger.error({ mint: data.mint, data }, '❌ CRITICAL: Attempted to buffer token without valid mint address');
+      throw new Error(`Cannot buffer token without valid mint address: ${data.mint}`);
+    }
+
     try {
       const bufferKey = `${this.BUFFER_PREFIX}${data.mint}`;
 
@@ -190,6 +196,12 @@ export class TokenBufferManager implements ITokenBufferManager {
    */
   private async upsertTokenFromBuffer(data: Record<string, string>): Promise<void> {
     const mint = data.mint;
+
+    // CRITICAL: Validate mint exists
+    if (!mint || mint === 'undefined' || mint.length < 32) {
+      logger.error({ mint, data }, '❌ CRITICAL: Token has no valid mint address - skipping upsert');
+      throw new Error(`Invalid mint address: ${mint}`);
+    }
 
     // Parse all fields with proper types
     const createData: any = {
