@@ -11,6 +11,7 @@ import { loggers, truncateWallet } from '../../../utils/logger.js';
 import { config } from '../config/index.js';
 import { healthCapsuleService } from '../../../services/healthCapsuleService.js';
 import { tokenMetadataService } from '../../../services/tokenMetadataService.js';
+import { solanaTokenMetadataService } from '../../../services/solanaTokenMetadataService.js';
 import { holderCountService } from '../../../services/holderCountService.js';
 import { ITokenHealthEnricher, ITokenCacheManager } from '../types.js';
 
@@ -30,13 +31,14 @@ export class TokenHealthEnricher implements ITokenHealthEnricher {
       // Get current token to fetch metadata URI
       const currentToken = await this.prisma.tokenDiscovery.findUnique({
         where: { mint },
-        select: { logoURI: true },
+        select: { logoURI: true, name: true, symbol: true, imageUrl: true },
       });
 
       // Fetch all data in parallel
-      const [healthData, enrichedData] = await Promise.allSettled([
+      const [healthData, enrichedData, solanaMetadata] = await Promise.allSettled([
         healthCapsuleService.getHealthData(mint),
         tokenMetadataService.getEnrichedMetadata(mint, currentToken?.logoURI || undefined),
+        solanaTokenMetadataService.getCompleteTokenMetadata(mint)
       ]);
 
       const updateData: any = {
@@ -55,16 +57,45 @@ export class TokenHealthEnricher implements ITokenHealthEnricher {
         }
       }
 
-      // Add metadata and market data if successful
+      // Add Solana on-chain metadata (priority over other sources)
+      if (solanaMetadata.status === 'fulfilled') {
+        const data = solanaMetadata.value;
+        
+        // Only update if we have better data than what's currently stored
+        if (data.name && (!currentToken?.name || currentToken.name === mint.slice(0, 8))) {
+          updateData.name = data.name;
+        }
+        if (data.symbol && (!currentToken?.symbol || currentToken.symbol === mint.slice(0, 8))) {
+          updateData.symbol = data.symbol;
+        }
+        if (data.description) {
+          updateData.description = data.description;
+        }
+        if (data.imageUrl && (!currentToken?.imageUrl || !currentToken?.logoURI)) {
+          updateData.imageUrl = data.imageUrl;
+          updateData.logoURI = data.imageUrl;
+        }
+        
+        logger.debug({ 
+          mint: truncateWallet(mint),
+          hasName: !!data.name,
+          hasSymbol: !!data.symbol,
+          hasImage: !!data.imageUrl 
+        }, 'Enhanced with Solana on-chain metadata');
+      }
+
+      // Add metadata and market data if successful (fallback for missing fields)
       if (enrichedData.status === 'fulfilled') {
         const data = enrichedData.value;
 
-        // Metadata fields
-        if (data.description) updateData.description = data.description;
-        if (data.imageUrl) updateData.imageUrl = data.imageUrl;
-        // Ensure logoURI is populated when we have an imageUrl but no existing logoURI
-        if (data.imageUrl && !currentToken?.logoURI) {
-          updateData.logoURI = data.imageUrl;
+        // Only use enriched data if we don't already have it from Solana metadata
+        if (data.description && !updateData.description) updateData.description = data.description;
+        if (data.imageUrl && !updateData.imageUrl) {
+          updateData.imageUrl = data.imageUrl;
+          // Ensure logoURI is populated when we have an imageUrl but no existing logoURI
+          if (!currentToken?.logoURI) {
+            updateData.logoURI = data.imageUrl;
+          }
         }
         if (data.twitter) updateData.twitter = data.twitter;
         if (data.telegram) updateData.telegram = data.telegram;

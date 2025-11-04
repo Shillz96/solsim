@@ -17,10 +17,12 @@ const getConnectionPoolConfig = () => {
 
   if (isProduction) {
     return {
-      connection_limit: backendLimit,  // Increased to 25 for 32vCPU/32GB instance
-      pool_timeout: 60,                // Increased to 60 for high traffic
+      connection_limit: backendLimit,  // 25 connections for 32vCPU/32GB instance
+      pool_timeout: 60,                // 60s wait time for connection from pool
       statement_cache_size: 3000,      // Increased cache for 32GB RAM
-      connect_timeout: 10              // Add connection timeout
+      connect_timeout: 15,             // 15s timeout for initial connection (increased from 10)
+      socket_timeout: 60,              // 60s socket timeout to prevent stale connections
+      idle_in_transaction_session_timeout: 30000  // 30s to kill idle transactions (milliseconds)
     };
   }
 
@@ -44,9 +46,15 @@ const getDatabaseUrl = () => {
   url.searchParams.set('pool_timeout', config.pool_timeout.toString());
   url.searchParams.set('statement_cache_size', config.statement_cache_size.toString());
 
-  // Add query timeout and connection settings
+  // Add connection timeout and socket settings
   if (config.connect_timeout) {
     url.searchParams.set('connect_timeout', config.connect_timeout.toString());
+  }
+  if (config.socket_timeout) {
+    url.searchParams.set('socket_timeout', config.socket_timeout.toString());
+  }
+  if (config.idle_in_transaction_session_timeout) {
+    url.searchParams.set('idle_in_transaction_session_timeout', config.idle_in_transaction_session_timeout.toString());
   }
 
   // PostgreSQL-specific settings for connection stability
@@ -56,14 +64,62 @@ const getDatabaseUrl = () => {
   return url.toString();
 };
 
-const prisma = globalForPrisma.prisma ?? new PrismaClient({
-  datasources: {
-    db: {
-      url: getDatabaseUrl()
+// Create Prisma client with connection retry logic
+const createPrismaClient = () => {
+  const client = new PrismaClient({
+    datasources: {
+      db: {
+        url: getDatabaseUrl()
+      }
+    },
+    log: process.env.NODE_ENV === "development" ? ["error", "warn"] : ["error"], // Removed "query" to reduce log noise
+  });
+
+  // Add retry logic for connection errors using Prisma Client Extensions
+  return client.$extends({
+    name: 'connectionRetry',
+    query: {
+      async $allOperations({ args, query, operation, model }) {
+        const maxRetries = 3;
+        let lastError: any;
+
+        for (let attempt = 0; attempt < maxRetries; attempt++) {
+          try {
+            return await query(args);
+          } catch (error: any) {
+            lastError = error;
+
+            // Retry on connection errors
+            const isConnectionError =
+              error.code === 'P1001' || // Can't reach database server
+              error.code === 'P1002' || // Database server timeout
+              error.code === 'P1008' || // Operations timed out
+              error.message?.includes('Connection reset') ||
+              error.message?.includes('ECONNRESET') ||
+              error.message?.includes('Connection terminated unexpectedly');
+
+            if (isConnectionError && attempt < maxRetries - 1) {
+              const backoff = Math.min(1000 * Math.pow(2, attempt), 5000); // Max 5s backoff
+              console.warn(`[Prisma] Connection error on ${model}.${operation}, retrying in ${backoff}ms (attempt ${attempt + 1}/${maxRetries})`, {
+                errorCode: error.code,
+                errorMessage: error.message?.substring(0, 100)
+              });
+              await new Promise(resolve => setTimeout(resolve, backoff));
+              continue;
+            }
+
+            // Don't retry other errors or final attempt
+            throw error;
+          }
+        }
+
+        throw lastError;
+      }
     }
-  },
-  log: process.env.NODE_ENV === "development" ? ["error", "warn"] : ["error"], // Removed "query" to reduce log noise
-});
+  }) as any; // Type assertion to maintain PrismaClient type compatibility
+};
+
+const prisma = globalForPrisma.prisma ?? createPrismaClient();
 
 if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
 
@@ -84,7 +140,8 @@ prisma.$use(async (params, next) => {
 
   // Enhanced logging with query context during high load
   if (utilization > 0.8) {
-    console.error({
+    // FIXED: Properly serialize error data instead of logging object
+    const errorData = {
       level: 'CRITICAL',
       active: activeConnections,
       limit: config.connection_limit,
@@ -92,16 +149,18 @@ prisma.$use(async (params, next) => {
       model: params.model,
       action: params.action,
       warning: '⚠️ AUTH QUERIES MAY BE BLOCKED - Database overload detected'
-    }, '🚨 CRITICAL DB CONNECTION ALERT');
+    };
+    console.error('🚨 CRITICAL DB CONNECTION ALERT:', JSON.stringify(errorData));
     // TODO: Send to monitoring service (Sentry, Datadog, etc.)
   } else if (utilization > 0.6) {
-    console.warn({
+    const warnData = {
       active: activeConnections,
       limit: config.connection_limit,
       utilization: `${(utilization * 100).toFixed(0)}%`,
       model: params.model,
       action: params.action
-    }, '⚠️ High DB connection usage');
+    };
+    console.warn('⚠️ High DB connection usage:', JSON.stringify(warnData));
   }
 
   try {

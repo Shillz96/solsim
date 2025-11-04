@@ -15,18 +15,18 @@ export function isValidSolanaMintAddress(mint: string): boolean {
   
   // Solana addresses are 32-44 characters, base58 encoded
   const isValidFormat = /^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(mint);
-  
-  // Reject addresses ending with "pump" (known invalid pattern)
-  const hasInvalidSuffix = mint.toLowerCase().endsWith('pump');
-  
+
+  // FIXED: Removed invalid suffix check - Pump.fun tokens legitimately end in "pump"
+  // Example: 75DKSGUgWXDfE7BSKzGgzX6fxbrYzX3x74ESCPCRpump is a valid address
+
   // Additional validation: reject addresses that are clearly malformed
-  const hasInvalidPatterns = mint.includes('undefined') || 
-                           mint.includes('null') || 
+  const hasInvalidPatterns = mint.includes('undefined') ||
+                           mint.includes('null') ||
                            mint.includes(' ') ||
                            mint.length < 32 ||
                            mint.length > 44;
-  
-  return isValidFormat && !hasInvalidSuffix && !hasInvalidPatterns;
+
+  return isValidFormat && !hasInvalidPatterns;
 }
 
 /**
@@ -42,14 +42,13 @@ export function validateMintWithLogging(
   context: Record<string, any> = {}
 ): boolean {
   if (!isValidSolanaMintAddress(mint)) {
-    // EMERGENCY FIX: Changed from error → debug to reduce log noise
-    // These rejections are expected during high PumpPortal traffic
+    // Log validation failures for monitoring
+    // Note: Removed hasInvalidSuffix check - Pump.fun tokens can end in "pump"
     logger.debug({
       mint,
       mintLength: mint.length,
-      hasInvalidSuffix: mint.toLowerCase().endsWith('pump'),
       ...context
-    }, 'Invalid mint address format - rejecting token (prevents SSE errors)');
+    }, 'Invalid mint address format - rejecting token');
     return false;
   }
 

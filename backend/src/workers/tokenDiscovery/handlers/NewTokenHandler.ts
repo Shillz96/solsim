@@ -14,6 +14,7 @@ import { isLikelyImageUrl, convertIPFStoHTTP, getLogoURI } from '../utils/imageU
 import { validateMintWithLogging } from '../utils/mintValidation.js';
 import { healthCapsuleService } from '../../../services/healthCapsuleService.js';
 import { tokenMetadataService, TokenMetadata } from '../../../services/tokenMetadataService.js';
+import { solanaTokenMetadataService } from '../../../services/solanaTokenMetadataService.js';
 import { holderCountService } from '../../../services/holderCountService.js';
 import priceServiceClient from '../../../plugins/priceServiceClient.js';
 import { CircuitBreaker } from '../../../utils/circuitBreaker.js';
@@ -222,7 +223,8 @@ export class NewTokenHandler implements IEventHandler<NewTokenEventData> {
   }
 
   /**
-   * Fetch additional metadata from IPFS if needed
+   * Fetch additional metadata from Solana/IPFS only if PumpPortal data is missing critical fields
+   * OPTIMIZATION: Trust PumpPortal data first, only fetch externally when truly necessary
    */
   private async fetchMetadata(
     mint: string,
@@ -234,37 +236,70 @@ export class NewTokenHandler implements IEventHandler<NewTokenEventData> {
     telegram?: string,
     website?: string
   ): Promise<TokenMetadata> {
-    let metadata: TokenMetadata = {};
+    // STEP 1: Use PumpPortal data as the base (it's already there!)
+    const metadata: TokenMetadata = {
+      name: name || undefined,
+      symbol: symbol || undefined,
+      description: description || undefined,
+      twitter: twitter || undefined,
+      telegram: telegram || undefined,
+      website: website || undefined,
+      imageUrl: uri ? convertIPFStoHTTP(uri) : undefined
+    };
 
-    // Check if we need to fetch metadata
-    const httpLogoURI = uri && isLikelyImageUrl(uri) ? convertIPFStoHTTP(uri) : undefined;
-    const needsMetadata = uri && (!name || !symbol || !description || !twitter || !telegram || !website || !httpLogoURI);
+    // STEP 2: Only fetch additional data if CRITICAL fields (name/symbol) are missing
+    // PumpPortal provides most metadata, so this should rarely be needed
+    const needsCriticalMetadata = !metadata.name || !metadata.symbol;
 
-    if (needsMetadata) {
+    if (needsCriticalMetadata) {
       try {
-        metadata = await tokenMetadataService.fetchMetadataFromIPFS(uri!);
+        // Try Solana on-chain metadata as fallback for missing critical fields
+        const solanaMetadata = await solanaTokenMetadataService.getCompleteTokenMetadata(mint);
 
-        // Log metadata overrides
-        if (!name && metadata.name) {
-          console.log(`✅ [TokenDiscovery] Got name from IPFS for ${truncateWallet(mint)}: ${metadata.name}`);
+        if (solanaMetadata.name || solanaMetadata.symbol) {
+          // Only fill in missing fields, don't overwrite PumpPortal data
+          metadata.name = metadata.name || solanaMetadata.name;
+          metadata.symbol = metadata.symbol || solanaMetadata.symbol;
+          metadata.description = metadata.description || solanaMetadata.description;
+          metadata.imageUrl = metadata.imageUrl || solanaMetadata.imageUrl;
+
+          console.log(`✅ [TokenDiscovery] Enhanced with Solana metadata for ${truncateWallet(mint)}: ${metadata.name || metadata.symbol || 'partial data'}`);
         }
-        if (!symbol && metadata.symbol) {
-          console.log(`✅ [TokenDiscovery] Got symbol from IPFS for ${truncateWallet(mint)}: ${metadata.symbol}`);
+
+        // If still missing critical data and we have a URI, try IPFS as last resort
+        const stillNeedsCritical = !metadata.name || !metadata.symbol;
+        if (stillNeedsCritical && uri) {
+          const ipfsMetadata = await tokenMetadataService.fetchMetadataFromIPFS(uri);
+
+          // Only fill in still-missing critical fields
+          if (!metadata.name && ipfsMetadata.name) {
+            metadata.name = ipfsMetadata.name;
+            console.log(`✅ [TokenDiscovery] Got name from IPFS for ${truncateWallet(mint)}: ${ipfsMetadata.name}`);
+          }
+          if (!metadata.symbol && ipfsMetadata.symbol) {
+            metadata.symbol = ipfsMetadata.symbol;
+            console.log(`✅ [TokenDiscovery] Got symbol from IPFS for ${truncateWallet(mint)}: ${ipfsMetadata.symbol}`);
+          }
+          if (!metadata.description && ipfsMetadata.description) {
+            metadata.description = ipfsMetadata.description;
+          }
+          if (!metadata.imageUrl && ipfsMetadata.imageUrl) {
+            metadata.imageUrl = ipfsMetadata.imageUrl;
+          }
         }
-      } catch (err) {
-        logger.warn({
-          mint: truncateWallet(mint),
-          uri,
-          error: err
-        }, 'Failed to fetch metadata from IPFS');
+      } catch (error) {
+        logger.error({ mint: truncateWallet(mint), error }, 'Error fetching enhanced metadata');
       }
+    } else {
+      // We have critical fields from PumpPortal - no need to fetch externally!
+      logger.debug({ mint: truncateWallet(mint), name: metadata.name, symbol: metadata.symbol }, 'Using PumpPortal metadata (no external fetch needed)');
     }
 
     return metadata;
   }
 
   /**
-   * Fetch token supply and decimals from Helius
+   * Fetch token supply information from Helius
    */
   private async fetchSupply(mint: string): Promise<{ totalSupply?: string; decimals?: number }> {
     try {

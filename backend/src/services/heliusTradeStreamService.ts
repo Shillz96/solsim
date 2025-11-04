@@ -70,6 +70,19 @@ export class HeliusTradeStreamService extends EventEmitter {
     this.heliusRpcUrl = `https://mainnet.helius-rpc.com/?api-key=${this.heliusApiKey}`;
 
     console.log('[HeliusTradeService] Service initialized with REST API polling');
+
+    // FIXED: Add periodic listener audit to monitor for memory leaks
+    // Monitor listener count every 5 minutes
+    setInterval(() => {
+      const tradeListenerCount = this.listenerCount('trade');
+      const subscribedCount = this.subscribedTokens.size;
+
+      if (tradeListenerCount > 200) {
+        console.warn(`[HeliusTradeService] ⚠️ HIGH LISTENER COUNT: ${tradeListenerCount} listeners for ${subscribedCount} subscribed tokens`);
+      } else {
+        console.log(`[HeliusTradeService] Listener audit: ${tradeListenerCount} listeners, ${subscribedCount} tokens subscribed`);
+      }
+    }, 300000); // 5 minutes
   }
 
   /**
@@ -105,9 +118,24 @@ export class HeliusTradeStreamService extends EventEmitter {
     if (tokenInfo?.pollInterval) {
       clearInterval(tokenInfo.pollInterval);
     }
+
+    // FIXED: Remove all event listeners for this token to prevent memory leaks
+    // Get current listener count before cleanup
+    const listenersBefore = this.listenerCount('trade');
+
+    // Remove all 'trade' listeners (we emit generic 'trade' events for all tokens)
+    // This is safe because listeners are re-added when tokens are subscribed
+    const listeners = this.listeners('trade');
+    listeners.forEach(listener => {
+      this.removeListener('trade', listener);
+    });
+
+    const listenersAfter = this.listenerCount('trade');
+    const removed = listenersBefore - listenersAfter;
+
     this.subscribedTokens.delete(mint);
     this.tokenTrades.delete(mint);
-    console.log(`[HeliusTradeService] Unsubscribed from token: ${mint}`);
+    console.log(`[HeliusTradeService] Unsubscribed from ${mint}, removed ${removed} listeners (${listenersBefore} → ${listenersAfter})`);
   }
 
   /**
