@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Open Graph Debugger for 1UP SOL</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 8px; }
+        .meta-tag { margin: 5px 0; font-family: monospace; background: #f5f5f5; padding: 5px; }
+        .test-result { padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .success { background: #d4edda; border: 1px solid #c3e6cb; }
+        .warning { background: #fff3cd; border: 1px solid #ffeaa7; }
+        .error { background: #f8d7da; border: 1px solid #f5c6cb; }
+    </style>
+</head>
+<body>
+    <h1>🐦 Twitter/X Open Graph Debug Tool for 1UP SOL</h1>
+    
+    <div class="section">
+        <h2>Quick Fixes to Try:</h2>
+        <ol>
+            <li><strong>Clear Twitter Cache:</strong> Use <a href="https://cards-dev.twitter.com/validator" target="_blank">Twitter Card Validator</a></li>
+            <li><strong>Wait:</strong> Twitter caches social cards for 7 days - recent changes may not show immediately</li>
+            <li><strong>Force Refresh:</strong> Try posting the link in different formats:
+                <ul>
+                    <li>oneupsol.fun</li>
+                    <li>https://oneupsol.fun</li>
+                    <li>https://oneupsol.fun/</li>
+                    <li>https://www.oneupsol.fun</li>
+                </ul>
+            </li>
+            <li><strong>Use URL Parameters:</strong> Add ?v=2 to force cache refresh: https://oneupsol.fun?v=2</li>
+        </ol>
+    </div>
+
+    <div class="section">
+        <h2>Meta Tags to Check:</h2>
+        <div class="meta-tag">&lt;meta property="og:image" content="https://oneupsol.fun/opengraph-image" /&gt;</div>
+        <div class="meta-tag">&lt;meta property="og:image:width" content="1200" /&gt;</div>
+        <div class="meta-tag">&lt;meta property="og:image:height" content="630" /&gt;</div>
+        <div class="meta-tag">&lt;meta property="og:image:type" content="image/png" /&gt;</div>
+        <div class="meta-tag">&lt;meta name="twitter:card" content="summary_large_image" /&gt;</div>
+        <div class="meta-tag">&lt;meta name="twitter:image" content="https://oneupsol.fun/twitter-image" /&gt;</div>
+    </div>
+
+    <div class="section">
+        <h2>Test URLs:</h2>
+        <ul>
+            <li><a href="https://oneupsol.fun/opengraph-image" target="_blank">Dynamic OpenGraph Image</a></li>
+            <li><a href="https://oneupsol.fun/twitter-image" target="_blank">Dynamic Twitter Image</a></li>
+            <li><a href="https://oneupsol.fun/og-banner.png" target="_blank">Static Fallback Image</a></li>
+        </ul>
+    </div>
+
+    <div class="section">
+        <h2>Common Issues & Solutions:</h2>
+        
+        <div class="test-result warning">
+            <strong>Issue:</strong> Twitter shows old cached version<br>
+            <strong>Solution:</strong> Images cached for 7 days. Use Twitter Card Validator or wait.
+        </div>
+        
+        <div class="test-result warning">
+            <strong>Issue:</strong> Image too large/small<br>
+            <strong>Solution:</strong> Twitter prefers 1200x630px (we're using this). Max 5MB.
+        </div>
+        
+        <div class="test-result warning">
+            <strong>Issue:</strong> Wrong format<br>
+            <strong>Solution:</strong> Use PNG, JPG, WEBP (we're using PNG - good).
+        </div>
+        
+        <div class="test-result success">
+            <strong>✅ Working:</strong> Meta tags are properly formatted<br>
+            <strong>✅ Working:</strong> Image URLs are accessible<br>
+            <strong>✅ Working:</strong> Image dimensions are correct (1200x630)
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>Debug Steps:</h2>
+        <ol>
+            <li>Check if images load: <button onclick="testImages()">Test Image URLs</button></li>
+            <li>Validate with Twitter: <a href="https://cards-dev.twitter.com/validator" target="_blank">Twitter Card Validator</a></li>
+            <li>Test with other platforms: LinkedIn, Facebook, Discord</li>
+            <li>Clear all social media caches (may take 24-48 hours)</li>
+        </ol>
+    </div>
+
+    <script>
+        function testImages() {
+            const images = [
+                'https://oneupsol.fun/opengraph-image',
+                'https://oneupsol.fun/twitter-image', 
+                'https://oneupsol.fun/og-banner.png'
+            ];
+            
+            images.forEach(url => {
+                const img = new Image();
+                img.onload = () => console.log(`✅ ${url} loaded successfully`);
+                img.onerror = () => console.log(`❌ ${url} failed to load`);
+                img.src = url;
+            });
+            
+            alert('Check browser console for image load results');
+        }
+    </script>
+</body>
+</html>

@@ -117,6 +117,33 @@ const nextConfig = {
           },
         ],
       },
+      // Headers for dynamic OG images
+      {
+        source: '/opengraph-image',
+        headers: [
+          {
+            key: 'Content-Type',
+            value: 'image/png',
+          },
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=3600, stale-while-revalidate=86400',
+          },
+        ],
+      },
+      {
+        source: '/twitter-image',
+        headers: [
+          {
+            key: 'Content-Type',
+            value: 'image/png',
+          },
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=3600, stale-while-revalidate=86400',
+          },
+        ],
+      },
     ];
   },
 
@@ -204,6 +231,22 @@ const withSerwist = withSerwistInit({
     /wss:/,
     /\/ws\//,
     /railway\.app.*\/ws/,
+    // External token image sources that cause CORS issues
+    /pump\.fun/,
+    /ipfs\.io/,
+    /gateway\.pinata\.cloud/,
+    /cloudflare-ipfs\.com/,
+    /nftstorage\.link/,
+    /arweave\.net/,
+    // API endpoints that might stream or return invalid responses
+    /\/api\/.*\/stream/,
+    /\/api\/.*\/events/,
+    // Price update endpoints
+    /\/ws\/prices/,
+    /\/api\/prices/,
+    // Real-time data endpoints
+    /\/api\/trending/,
+    /\/api\/tokens\/.*\/price/,
   ],
 })
 

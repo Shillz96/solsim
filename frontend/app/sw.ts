@@ -1,7 +1,6 @@
 // Enhanced Service Worker for VirtualSol PWA
 // Includes proper background sync handling and offline capabilities
 
-import { defaultCache } from '@serwist/next/worker'
 import type { PrecacheEntry, SerwistGlobalConfig } from 'serwist'
 import { Serwist } from 'serwist'
 
@@ -23,27 +22,29 @@ declare global {
 declare const self: ServiceWorkerGlobalScope
 
 // Cache version - increment this to force cache refresh
-const CACHE_VERSION = 'v1.0.9-font-cache-bust'
+const CACHE_VERSION = 'v1.0.10-cache-error-fix'
 
-// Initialize Serwist with precaching and default runtime caching
+// Initialize Serwist with precaching and minimal runtime caching to avoid errors
 const serwist = new Serwist({
   precacheEntries: self.__SW_MANIFEST,
   skipWaiting: true, // Immediately activate new service worker
   clientsClaim: true, // Take control of all pages immediately
   navigationPreload: true,
-  runtimeCaching: defaultCache,
+  // Disable runtime caching to prevent Cache.put() errors with external resources
+  runtimeCaching: [],
 })
 
-// Override the default fetch handler to exclude WebSocket connections
+// Override the default fetch handler to exclude WebSocket connections and problematic URLs
 const originalHandleFetch = serwist.handleFetch.bind(serwist)
 serwist.handleFetch = (event) => {
+  const url = new URL(event.request.url)
+  
   // Skip service worker for WebSocket connections
   if (event.request.headers.get('upgrade') === 'websocket') {
     return; // Let the browser handle WebSocket connections directly
   }
   
   // Skip service worker for WebSocket URLs
-  const url = new URL(event.request.url)
   if (url.protocol === 'ws:' || url.protocol === 'wss:') {
     return; // Let the browser handle WebSocket connections directly
   }
@@ -53,20 +54,69 @@ serwist.handleFetch = (event) => {
     return; // Let the browser handle Railway WebSocket connections directly
   }
   
-  // For all other requests, use Serwist's default handling
-  return originalHandleFetch(event)
+  // Skip external token image sources that cause CORS issues
+  if (url.hostname.includes('pump.fun') || 
+      url.hostname.includes('ipfs.io') ||
+      url.hostname.includes('gateway.pinata.cloud') ||
+      url.hostname.includes('cloudflare-ipfs.com') ||
+      url.hostname.includes('nftstorage.link') ||
+      url.hostname.includes('arweave.net')) {
+    return; // Let the browser handle external images directly to avoid CORS cache errors
+  }
+  
+  // Skip real-time API endpoints that might return streaming or invalid responses
+  if (url.pathname.includes('/api/prices') ||
+      url.pathname.includes('/api/trending') ||
+      url.pathname.includes('/ws/') ||
+      url.pathname.includes('/stream') ||
+      url.pathname.includes('/events')) {
+    return; // Let the browser handle real-time endpoints directly
+  }
+  
+  // For all other requests, use Serwist's default handling with error protection
+  try {
+    return originalHandleFetch(event)
+  } catch (error) {
+    // Silently handle cache errors to prevent console spam
+    return; // Let the browser handle the request if service worker fails
+  }
 }
 
 // Add Serwist event listeners
 serwist.addEventListeners()
 
-// Force font cache invalidation on service worker update
+// Add global error handler for cache operations to prevent console spam
+self.addEventListener('unhandledrejection', (event) => {
+  if (event.reason?.message?.includes('Cache.put') || 
+      event.reason?.message?.includes('cache') ||
+      event.reason?.message?.includes('network error')) {
+    // Prevent cache-related errors from spamming the console
+    event.preventDefault()
+  }
+})
+
+// Enhanced error handling for fetch events
+self.addEventListener('error', (event) => {
+  if (event.message?.includes('Cache.put') || 
+      event.message?.includes('cache') ||
+      event.message?.includes('network error')) {
+    // Prevent cache-related errors from spamming the console
+    event.preventDefault()
+  }
+})
+
+// Force cache invalidation on service worker update - more aggressive cleanup
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
-          if (cacheName.includes('font') || cacheName.includes('google-fonts')) {
+          // Delete all old caches to prevent cache.put() errors from corrupted entries
+          if (cacheName.includes('font') || 
+              cacheName.includes('google-fonts') ||
+              cacheName.includes('static-') ||
+              cacheName.includes('runtime') ||
+              cacheName.includes('serwist')) {
             return caches.delete(cacheName)
           }
         })

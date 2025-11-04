@@ -39,10 +39,20 @@ export const metadata: Metadata = {
     siteName: '1UP SOL',
     title: '1UP SOL - Mario-themed Solana Paper Trading',
     description: '1UP your Solana trading skills! Mario-themed paper trading game with real-time prices, FIFO accounting, and earn rewards. Practice trading without risk!',
+    // Next.js will automatically use opengraph-image.tsx
+    // Fallback to static image for better compatibility
     images: [
       {
+        url: `${siteUrl}/opengraph-image`,
+        secureUrl: `${siteUrl}/opengraph-image`,
+        width: 1200,
+        height: 630,
+        alt: '1UP SOL - Mario-themed Solana Paper Trading Game',
+        type: 'image/png',
+      },
+      {
         url: `${siteUrl}/og-banner.png`,
-        secureUrl: `${siteUrl}/og-banner.png`, // Explicit HTTPS URL for Apple Messages, Telegram
+        secureUrl: `${siteUrl}/og-banner.png`, // Fallback static image
         width: 1200,
         height: 630,
         alt: '1UP SOL - Mario-themed Solana Paper Trading Game',
@@ -56,9 +66,15 @@ export const metadata: Metadata = {
     creator: '@1upsolfun',
     title: '1UP SOL - Mario-themed Solana Paper Trading',
     description: '1UP your Solana trading skills! Mario-themed paper trading game with real-time prices, FIFO accounting, and earn rewards. Practice trading without risk!',
+    // Next.js will automatically use twitter-image.tsx
+    // Fallback to static image for better compatibility
     images: [
       {
-        url: `${siteUrl}/og-banner.png`,
+        url: `${siteUrl}/twitter-image`,
+        alt: '1UP SOL - Mario-themed Solana Paper Trading Game',
+      },
+      {
+        url: `${siteUrl}/og-banner.png`, // Fallback static image
         alt: '1UP SOL - Mario-themed Solana Paper Trading Game',
       },
     ],
