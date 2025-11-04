@@ -11,6 +11,7 @@ import { Decimal } from '@prisma/client/runtime/library';
 import { loggers, truncateWallet, logTokenEvent } from '../../../utils/logger.js';
 import { config } from '../config/index.js';
 import { isLikelyImageUrl, convertIPFStoHTTP, getLogoURI } from '../utils/imageUtils.js';
+import { validateMintWithLogging } from '../utils/mintValidation.js';
 import { healthCapsuleService } from '../../../services/healthCapsuleService.js';
 import { tokenMetadataService, TokenMetadata } from '../../../services/tokenMetadataService.js';
 import { holderCountService } from '../../../services/holderCountService.js';
@@ -129,15 +130,8 @@ export class NewTokenHandler implements IEventHandler<NewTokenEventData> {
       return false;
     }
 
-    // CRITICAL: Validate mint address format (prevent corrupted data like "...ipump")
-    // Solana addresses are 32-44 characters, base58 encoded
-    const isValidMintFormat = /^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(mint);
-    if (!isValidMintFormat) {
-      logger.error({
-        mint,
-        mintLength: mint.length,
-        event
-      }, 'Invalid mint address format - rejecting token (prevents SSE errors)');
+    // CRITICAL: Validate mint address format (prevent corrupted data like "...pump")
+    if (!validateMintWithLogging(mint, logger, { event })) {
       return false;
     }
 

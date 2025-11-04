@@ -13,6 +13,7 @@
 import { loggers } from '../../../utils/logger.js';
 import { config } from '../config/index.js';
 import { IScheduledJob, WorkerDependencies } from '../types.js';
+import { isValidSolanaMintAddress } from '../utils/mintValidation.js';
 
 const logger = loggers.server;
 
@@ -91,6 +92,29 @@ export class CleanupJob implements IScheduledJob {
         },
       });
 
+      // 7. Cleanup tokens with invalid mint addresses (addresses ending with "pump", etc.)
+      // Fetch all tokens to validate their mint addresses (can't use regex in Prisma WHERE)
+      const allTokens = await this.deps.prisma.tokenDiscovery.findMany({
+        select: { id: true, mint: true }
+      });
+      
+      const invalidTokenIds = allTokens
+        .filter(token => !isValidSolanaMintAddress(token.mint))
+        .map(token => token.id);
+
+      const invalidMintResult = invalidTokenIds.length > 0 
+        ? await this.deps.prisma.tokenDiscovery.deleteMany({
+            where: { id: { in: invalidTokenIds } }
+          })
+        : { count: 0 };
+
+      if (invalidMintResult.count > 0) {
+        logger.warn({
+          invalidTokensRemoved: invalidMintResult.count,
+          operation: this.getName()
+        }, 'Removed tokens with invalid mint addresses');
+      }
+
       // Calculate total removed
       const totalAfter = await this.deps.prisma.tokenDiscovery.count();
       const totalRemoved = totalBefore - totalAfter;
@@ -105,6 +129,7 @@ export class CleanupJob implements IScheduledJob {
         lowValueDeleted: lowValueResult.count,
         newTokensDeleted: newResult.count,
         bondedTokensDeleted: bondedResult.count,
+        invalidMintDeleted: invalidMintResult.count,
         operation: this.getName()
       }, 'Aggressive cleanup completed');
     } catch (error) {

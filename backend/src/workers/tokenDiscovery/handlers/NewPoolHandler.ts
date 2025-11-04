@@ -9,6 +9,7 @@
 import { Decimal } from '@prisma/client/runtime/library';
 import { loggers, truncateWallet } from '../../../utils/logger.js';
 import { config } from '../config/index.js';
+import { validateMintWithLogging } from '../utils/mintValidation.js';
 import { IEventHandler, NewPoolEventData, WorkerDependencies } from '../types.js';
 
 const logger = loggers.server;
@@ -60,6 +61,11 @@ export class NewPoolHandler implements IEventHandler<NewPoolEventData> {
           tokenMint: truncateWallet(tokenMint),
           listingType: 'direct_raydium'
         }, 'Creating direct Raydium listing');
+
+        // Validate mint address format before saving
+        if (!validateMintWithLogging(tokenMint, logger, { listingType: 'direct_raydium' })) {
+          return;
+        }
 
         // Write new token to DB immediately (needed for queries)
         await this.deps.prisma.tokenDiscovery.create({

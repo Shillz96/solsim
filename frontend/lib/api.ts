@@ -420,18 +420,32 @@ export async function getTradeStats(): Promise<Backend.TradeStats> {
  * POST /api/auth/signup-email
  */
 export async function signupEmail(request: Backend.AuthSignupRequest): Promise<Backend.AuthResponse> {
-  const response = await fetch(`${API}/api/auth/signup-email`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(request),
-  });
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
 
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({ message: 'Signup failed' }));
-    throw new Error(error.message || `HTTP ${response.status}`);
+  try {
+    const response = await fetch(`${API}/api/auth/signup-email`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ message: 'Signup failed' }));
+      throw new Error(error.message || `HTTP ${response.status}`);
+    }
+
+    return response.json();
+  } catch (error) {
+    clearTimeout(timeoutId);
+    if (error instanceof Error && error.name === 'AbortError') {
+      throw new Error('Request timed out. Please check your connection and try again.');
+    }
+    throw error;
   }
-
-  return response.json();
 }
 
 /**
@@ -439,18 +453,32 @@ export async function signupEmail(request: Backend.AuthSignupRequest): Promise<B
  * POST /api/auth/login-email
  */
 export async function loginEmail(request: Backend.AuthLoginRequest): Promise<Backend.AuthResponse> {
-  const response = await fetch(`${API}/api/auth/login-email`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(request),
-  });
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
 
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({ message: 'Login failed' }));
-    throw new Error(error.message || `HTTP ${response.status}`);
+  try {
+    const response = await fetch(`${API}/api/auth/login-email`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ message: 'Login failed' }));
+      throw new Error(error.message || `HTTP ${response.status}`);
+    }
+
+    return response.json();
+  } catch (error) {
+    clearTimeout(timeoutId);
+    if (error instanceof Error && error.name === 'AbortError') {
+      throw new Error('Request timed out. Please check your connection and try again.');
+    }
+    throw error;
   }
-
-  return response.json();
 }
 
 /**
