@@ -25,7 +25,6 @@ import { useNotifications } from "@/hooks/use-notifications"
 import { useOnboardingContext } from "@/lib/onboarding-provider"
 import { CombinedProfileBalance } from "@/components/navigation/combined-profile-balance"
 import { useBalance } from "@/hooks/use-react-query-hooks"
-import { HourlyRewardTimer } from "@/components/navbar/HourlyRewardTimer"
 
 // Import extracted components
 import { SearchBar } from "./search-bar"
@@ -141,9 +140,6 @@ export function NavBar() {
                 />
               </a>
             </div>
-
-            {/* Hourly Rewards Timer - Always visible */}
-            <HourlyRewardTimer />
 
             {isAuthenticated ? (
               <>
