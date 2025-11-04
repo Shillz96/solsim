@@ -227,7 +227,7 @@ async function enrichWithInternalData(tokens: TrendingToken[]): Promise<Trending
   });
 
   // Build lookup maps for O(1) access
-  const tradeCountMap = new Map(
+  const tradeCountMap = new Map<string, number>(
     tradeCounts.map(t => [t.mint, t._count.id])
   );
 

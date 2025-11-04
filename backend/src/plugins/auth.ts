@@ -115,7 +115,7 @@ class AuthService {
 }
 
 // Authentication middleware
-export const authenticateToken = async (request: AuthenticatedRequest, reply: FastifyReply) => {
+export const authenticateToken = async (request: AuthenticatedRequest, reply: FastifyReply): Promise<void> => {
   try {
     const authHeader = request.headers.authorization;
     const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
@@ -168,7 +168,7 @@ export const authenticateToken = async (request: AuthenticatedRequest, reply: Fa
 };
 
 // Optional authentication (for endpoints that work with or without auth)
-export const optionalAuthentication = async (request: AuthenticatedRequest, reply: FastifyReply) => {
+export const optionalAuthentication = async (request: AuthenticatedRequest, reply: FastifyReply): Promise<void> => {
   try {
     const authHeader = request.headers.authorization;
     const token = authHeader && authHeader.split(' ')[1];
@@ -202,7 +202,7 @@ export const optionalAuthentication = async (request: AuthenticatedRequest, repl
 };
 
 // Admin-only middleware
-export const requireAdmin = async (request: AuthenticatedRequest, reply: FastifyReply) => {
+export const requireAdmin = async (request: AuthenticatedRequest, reply: FastifyReply): Promise<void> => {
   if (!request.user) {
     return reply.code(401).send({ 
       error: 'UNAUTHORIZED', 
@@ -219,7 +219,7 @@ export const requireAdmin = async (request: AuthenticatedRequest, reply: Fastify
 };
 
 // Admin or Moderator middleware (for moderation features)
-export const requireAdminOrModerator = async (request: AuthenticatedRequest, reply: FastifyReply) => {
+export const requireAdminOrModerator = async (request: AuthenticatedRequest, reply: FastifyReply): Promise<void> => {
   if (!request.user) {
     return reply.code(401).send({ 
       error: 'UNAUTHORIZED', 

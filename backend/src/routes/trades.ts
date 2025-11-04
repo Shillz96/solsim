@@ -25,7 +25,7 @@ export default async function tradesRoutes(app: FastifyInstance) {
       });
 
       // Enrich with token metadata using batch API
-      const uniqueMints = [...new Set(trades.map(t => t.mint as string))];
+      const uniqueMints = [...new Set(trades.map(t => t.mint))] as string[];
       const metadataResults = await getTokenMetaBatch(uniqueMints);
 
       const metadataMap = new Map();
@@ -66,7 +66,7 @@ export default async function tradesRoutes(app: FastifyInstance) {
       });
 
       // Enrich with token metadata using batch API
-      const uniqueMints = [...new Set(trades.map(t => t.mint as string))];
+      const uniqueMints = [...new Set(trades.map(t => t.mint))] as string[];
       const metadataResults = await getTokenMetaBatch(uniqueMints);
 
       const metadataMap = new Map();

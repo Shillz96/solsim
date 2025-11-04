@@ -488,7 +488,7 @@ export class AdminService {
 
     const userGrowthArray = Object.entries(userGrowthByDate).map(([date, count]) => ({
       date,
-      count
+      count: count as number
     }));
 
     // Badge distribution by rarity
@@ -524,7 +524,7 @@ export class AdminService {
 
     const moderationTrendsArray = Object.entries(moderationByDate).map(([date, actions]) => ({
       date,
-      actions
+      actions: actions as number
     }));
 
     return {

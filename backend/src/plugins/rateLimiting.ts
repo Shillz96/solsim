@@ -72,7 +72,7 @@ export class RateLimiter {
   }
 
   createMiddleware() {
-    return async (request: FastifyRequest, reply: FastifyReply) => {
+    return async (request: FastifyRequest, reply: FastifyReply): Promise<void> => {
       const limitInfo = await this.checkLimit(request);
 
       // Add rate limit headers

@@ -391,7 +391,7 @@ class SimpleValidator {
 
 // Validation middleware factory
 export function validateBody(schema: ValidationSchema) {
-  return async (request: FastifyRequest, reply: FastifyReply) => {
+  return async (request: FastifyRequest, reply: FastifyReply): Promise<void> => {
     try {
       const { valid, errors } = SimpleValidator.validate(request.body, schema);
       
@@ -414,7 +414,7 @@ export function validateBody(schema: ValidationSchema) {
 
 // Query parameter validation middleware
 export function validateQuery(schema: ValidationSchema) {
-  return async (request: FastifyRequest, reply: FastifyReply) => {
+  return async (request: FastifyRequest, reply: FastifyReply): Promise<void> => {
     try {
       const { valid, errors } = SimpleValidator.validate(request.query, schema);
       

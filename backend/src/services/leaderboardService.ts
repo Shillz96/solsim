@@ -92,7 +92,7 @@ async function calculateLeaderboard(limit: number): Promise<LeaderboardEntry[]> 
   });
 
   // Get current prices for all tokens in open positions
-  const allMints = [...new Set(openPositions.map(p => p.mint))];
+  const allMints = [...new Set(openPositions.map(p => p.mint))] as string[];
   const priceService = (await import("../plugins/priceService-optimized.js")).default;
   const prices = await priceService.getPrices(allMints);
 
@@ -112,7 +112,7 @@ async function calculateLeaderboard(limit: number): Promise<LeaderboardEntry[]> 
   }
 
   // Build lookup maps for O(1) access (in-memory, fast)
-  const pnlMap = new Map(
+  const pnlMap = new Map<string, { realizedPnl: number; winningTrades: number }>(
     realizedPnlByUser.map(p => [
       p.userId,
       {
@@ -122,7 +122,7 @@ async function calculateLeaderboard(limit: number): Promise<LeaderboardEntry[]> 
     ])
   );
 
-  const tradeMap = new Map(
+  const tradeMap = new Map<string, { totalVolume: number; totalTrades: number }>(
     tradeVolumeByUser.map(t => [
       t.userId,
       {

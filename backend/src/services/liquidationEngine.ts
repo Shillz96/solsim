@@ -76,7 +76,7 @@ export async function checkAndLiquidatePositions() {
     }
 
     // Get all unique mints for batch price fetching
-    const mints = [...new Set(openPositions.map((p) => p.mint))];
+    const mints = [...new Set(openPositions.map((p) => p.mint))] as string[];
     const prices = await priceService.getPrices(mints);
 
     let liquidatedCount = 0;

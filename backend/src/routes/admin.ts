@@ -6,7 +6,7 @@ import { authenticateToken } from "../plugins/auth.js";
 
 const adminRoutes: FastifyPluginAsync = async (app) => {
   // Admin authentication middleware for legacy endpoints
-  app.addHook("preHandler", async (request, reply) => {
+  app.addHook("preHandler", async (request, reply): Promise<void> => {
     // Skip auth for new endpoints that use JWT
     if (request.url.startsWith('/api/admin/stats') || 
         request.url.startsWith('/api/admin/users') ||

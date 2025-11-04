@@ -129,7 +129,7 @@ function createRateLimitMiddleware(tier: keyof typeof rateLimitTiers, customOpti
     ...customOptions
   };
 
-  return async (request: FastifyRequest, reply: FastifyReply) => {
+  return async (request: FastifyRequest, reply: FastifyReply): Promise<void> => {
     // Generate rate limit key
     const keyGenerator = options.keyGenerator || ((req: FastifyRequest) => {
       // Use user ID if authenticated, otherwise use IP
@@ -175,7 +175,7 @@ function createRateLimitMiddleware(tier: keyof typeof rateLimitTiers, customOpti
 }
 
 // Global rate limiter to prevent DDoS
-async function globalRateLimit(request: FastifyRequest, reply: FastifyReply) {
+async function globalRateLimit(request: FastifyRequest, reply: FastifyReply): Promise<void> {
   const ip = request.ip || request.headers['x-forwarded-for'] || 'unknown';
   const key = `ratelimit:global:ip:${ip}`;
 

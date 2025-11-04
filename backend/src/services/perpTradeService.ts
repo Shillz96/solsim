@@ -318,7 +318,7 @@ export async function getUserPerpPositions(userId: string) {
   }
 
   // OPTIMIZATION: Batch fetch all prices at once
-  const uniqueMints = [...new Set(positions.map((p) => p.mint))];
+  const uniqueMints = [...new Set(positions.map((p) => p.mint))] as string[];
   const prices = await priceService.getPrices(uniqueMints);
   const solPrice = priceService.getSolPrice();
 

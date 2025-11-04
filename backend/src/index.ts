@@ -232,7 +232,7 @@ app.register(wsChatPlugin) // Chat WebSocket
 
 // Legacy rate limiting fallback for non-covered routes
 app.register(async function (app) {
-  app.addHook('preHandler', async (request, reply) => {
+  app.addHook('preHandler', async (request, reply): Promise<void> => {
     // Skip rate limiting for WebSocket upgrade requests
     if (request.headers.upgrade === 'websocket') {
       return;

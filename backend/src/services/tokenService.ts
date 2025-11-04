@@ -431,13 +431,13 @@ export async function getTokenMetaBatch(mints: string[]) {
       where: { address: { in: uncachedMints } }
     });
 
-    const dbTokensMap = new Map(dbTokens.map(t => [t.address, t]));
+    const dbTokensMap = new Map(dbTokens.map(t => [t.address, t] as const));
     const missingMints: string[] = [];
 
     uncachedMints.forEach(mint => {
       const dbToken = dbTokensMap.get(mint);
-      const hasImage = dbToken && dbToken.logoURI;
-      const isCacheValid = dbToken && dbToken.lastUpdated && Date.now() - dbToken.lastUpdated.getTime() < 86400000;
+      const hasImage = dbToken && (dbToken as any).logoURI;
+      const isCacheValid = dbToken && (dbToken as any).lastUpdated && Date.now() - (dbToken as any).lastUpdated.getTime() < 86400000;
 
       if (dbToken && hasImage && isCacheValid) {
         const index = mints.indexOf(mint);
