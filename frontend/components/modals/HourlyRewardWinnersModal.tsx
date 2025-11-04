@@ -63,6 +63,24 @@ export function HourlyRewardWinnersModal({ isOpen, onClose }: HourlyRewardWinner
     });
   };
 
+  // Format percentage to 2 decimal places
+  const formatPercentage = (percent: string) => {
+    const num = parseFloat(percent);
+    return num.toFixed(2);
+  };
+
+  // Format SOL amount to appropriate decimal places
+  const formatSOLAmount = (amount: string) => {
+    const num = parseFloat(amount);
+    if (num >= 1) {
+      return num.toFixed(3); // 3 decimals for amounts >= 1 SOL
+    } else if (num >= 0.001) {
+      return num.toFixed(4); // 4 decimals for amounts >= 0.001 SOL
+    } else {
+      return num.toFixed(6); // 6 decimals for very small amounts
+    }
+  };
+
   // Get trophy emoji for top 3
   const getTrophyEmoji = (rank: number) => {
     if (rank === 1) return "🥇";
@@ -176,7 +194,7 @@ export function HourlyRewardWinnersModal({ isOpen, onClose }: HourlyRewardWinner
 
                       {/* Profit % */}
                       <span className="font-mono font-bold text-[14px] text-luigi flex-shrink-0">
-                        +{winner.profitPercent}%
+                        +{formatPercentage(winner.profitPercent)}%
                       </span>
                     </div>
 
@@ -184,7 +202,7 @@ export function HourlyRewardWinnersModal({ isOpen, onClose }: HourlyRewardWinner
                     <div className="flex items-center gap-3 flex-shrink-0">
                       {/* Reward amount */}
                       <span className="font-mono font-bold text-[16px] text-outline">
-                        {winner.rewardAmount} SOL
+                        {formatSOLAmount(winner.rewardAmount)} SOL
                       </span>
 
                       {/* Solscan link */}
@@ -212,7 +230,7 @@ export function HourlyRewardWinnersModal({ isOpen, onClose }: HourlyRewardWinner
             <div className="mt-6 pt-4 border-t-3 border-outline text-center">
               <p className="text-[14px] text-outline">
                 <span className="font-bold">Total Distributed:</span>{" "}
-                <span className="font-mono font-bold">{data.totalPoolAmount} SOL</span>
+                <span className="font-mono font-bold">{formatSOLAmount(data.totalPoolAmount)} SOL</span>
               </p>
               <p className="text-[12px] text-outline opacity-70 mt-2">
                 Top 10 traders by profit % earn SOL rewards every hour!
