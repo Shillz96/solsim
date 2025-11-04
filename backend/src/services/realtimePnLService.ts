@@ -11,6 +11,7 @@
 import Decimal from 'decimal.js';
 import EventEmitter from 'events';
 import redis from '../plugins/redis.js';
+import prisma from '../plugins/prisma.js';
 
 // In-memory position state
 interface PositionState {
@@ -214,13 +215,31 @@ class RealtimePnLService extends EventEmitter {
       console.warn(`[RealtimePnL] SELL fill for position not in cache, attempting DB reload: ${key}`);
 
       try {
-        await this.initializePosition(event.userId, event.mint, event.tradeMode);
-        pos = this.positions.get(key);
+        // Fetch position from database
+        const dbPosition = await prisma.position.findUnique({
+          where: {
+            userId_mint_tradeMode: {
+              userId: event.userId,
+              mint: event.mint,
+              tradeMode: event.tradeMode
+            }
+          }
+        });
 
-        if (!pos) {
-          console.warn(`[RealtimePnL] Position not found in DB either - user may have closed position: ${key}`);
+        if (!dbPosition) {
+          console.warn(`[RealtimePnL] Position not found in DB - user may have closed position: ${key}`);
           return;
         }
+
+        // Initialize position in cache with DB data
+        await this.initializePosition(
+          event.userId,
+          event.mint,
+          event.tradeMode,
+          dbPosition.qty.toString(),
+          dbPosition.costBasis.toString()
+        );
+        pos = this.positions.get(key);
 
         console.log(`[RealtimePnL] Successfully reloaded position from DB: ${key}`);
       } catch (error) {
