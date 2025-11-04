@@ -87,6 +87,52 @@ export function SharePnLDialog({
     await waitForImagesToLoad(host)
   }
 
+  // Convert external image to data URL to avoid CORS issues
+  const imageToDataURL = async (imgElement: HTMLImageElement): Promise<string | null> => {
+    try {
+      // Skip if already a data URL
+      if (imgElement.src.startsWith('data:')) return imgElement.src
+
+      // For local images, keep as-is
+      if (imgElement.src.startsWith(window.location.origin)) return imgElement.src
+
+      // For external images, try to reload with CORS and convert to data URL
+      const originalSrc = imgElement.src
+
+      // Create a new image element with CORS enabled
+      const corsImg = new Image()
+      corsImg.crossOrigin = 'anonymous'
+
+      // Wait for image to load with CORS
+      await new Promise<void>((resolve, reject) => {
+        const timeout = setTimeout(() => reject(new Error('Image load timeout')), 5000)
+        corsImg.onload = () => {
+          clearTimeout(timeout)
+          resolve()
+        }
+        corsImg.onerror = () => {
+          clearTimeout(timeout)
+          reject(new Error('Image load failed'))
+        }
+        corsImg.src = originalSrc
+      })
+
+      // Convert to canvas
+      const canvas = document.createElement('canvas')
+      const ctx = canvas.getContext('2d')
+      if (!ctx) return null
+
+      canvas.width = corsImg.naturalWidth || corsImg.width || 100
+      canvas.height = corsImg.naturalHeight || corsImg.height || 100
+
+      ctx.drawImage(corsImg, 0, 0)
+      return canvas.toDataURL('image/png')
+    } catch (error) {
+      console.warn('Failed to convert image to data URL:', error)
+      return null
+    }
+  }
+
   // Shared generator - returns PNG data URL or Blob
   function generateShareImage(mode: "png"): Promise<string>
   function generateShareImage(mode: "blob"): Promise<Blob | null>
@@ -94,19 +140,57 @@ export function SharePnLDialog({
     const node = cardRef.current
     if (!node) throw new Error("Missing share card element")
     await ensureAssetsReady(node)
+
+    // Convert all external images to data URLs to avoid CORS issues
+    const images = Array.from(node.querySelectorAll('img'))
+    await Promise.allSettled(
+      images.map(async (img) => {
+        try {
+          // For external images, try to convert to data URL
+          if (!img.src.startsWith('data:') && !img.src.startsWith(window.location.origin)) {
+            const dataUrl = await imageToDataURL(img)
+            if (dataUrl) {
+              img.src = dataUrl
+            } else {
+              // If conversion fails, hide the image to prevent CORS errors
+              console.warn('Could not convert external image, hiding:', img.src)
+              img.style.display = 'none'
+            }
+          }
+        } catch (error) {
+          console.warn('Error processing image, hiding:', img.src, error)
+          img.style.display = 'none'
+        }
+      })
+    )
+
+    // Wait a bit for images to update
+    await new Promise(resolve => setTimeout(resolve, 150))
+
     const backgroundColor = getCssVarValue("--card", getCssVarValue("--background", "#ffffff"))
     const common = {
       cacheBust: true,
       pixelRatio: 2,
       backgroundColor,
       skipAutoScale: true,
-      // Ensure background images loaded via CSS/inline are fetched with CORS-friendly settings
-      fetchRequestInit: { mode: "cors", credentials: "omit" as const },
+      // Allow tainted canvas since we're converting images to data URLs
+      skipFonts: false,
+      filter: (node: HTMLElement) => {
+        // Exclude hidden elements
+        const style = window.getComputedStyle(node)
+        return style.display !== 'none' && style.visibility !== 'hidden'
+      },
     } as const
-    if (mode === "png") {
-      return await toPng(node, common)
+
+    try {
+      if (mode === "png") {
+        return await toPng(node, common)
+      }
+      return await toBlob(node, common)
+    } catch (error) {
+      console.error('html-to-image generation failed:', error)
+      throw error
     }
-    return await toBlob(node, common)
   }
 
   const handleDownload = async () => {
