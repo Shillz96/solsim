@@ -37,47 +37,31 @@ export const metadata: Metadata = {
     locale: 'en_US',
     url: siteUrl,
     siteName: '1UP SOL',
-    title: '1UP SOL - Mario-themed Solana Paper Trading',
-    description: '1UP your Solana trading skills! Mario-themed paper trading game with real-time prices, FIFO accounting, and earn rewards. Practice trading without risk!',
-    // Next.js will automatically use opengraph-image.tsx
-    // Fallback to static image for better compatibility
+    title: '1UP SOL - 1UP Your Solana Trading + Earn Rewards!',
+    description: '🍄 Mario-themed paper trading game on Solana! Practice trading pump.fun tokens, earn real rewards, compete on leaderboards. Risk-free trading simulator! 🎮',
     images: [
       {
-        url: `${siteUrl}/opengraph-image`,
-        secureUrl: `${siteUrl}/opengraph-image`,
-        width: 1200,
-        height: 630,
-        alt: '1UP SOL - Mario-themed Solana Paper Trading Game',
-        type: 'image/png',
-      },
-      {
         url: `${siteUrl}/og-banner.png`,
-        secureUrl: `${siteUrl}/og-banner.png`, // Fallback static image
+        secureUrl: `${siteUrl}/og-banner.png`,
         width: 1200,
         height: 630,
-        alt: '1UP SOL - Mario-themed Solana Paper Trading Game',
+        alt: '1UP SOL - 1UP Your Solana Trading + Earn Rewards!',
         type: 'image/png',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    site: '@1upsolfun',
-    creator: '@1upsolfun',
-    title: '1UP SOL - Mario-themed Solana Paper Trading',
-    description: '1UP your Solana trading skills! Mario-themed paper trading game with real-time prices, FIFO accounting, and earn rewards. Practice trading without risk!',
-    // Next.js will automatically use twitter-image.tsx
-    // Fallback to static image for better compatibility
-    images: [
-      {
-        url: `${siteUrl}/twitter-image`,
-        alt: '1UP SOL - Mario-themed Solana Paper Trading Game',
-      },
-      {
-        url: `${siteUrl}/og-banner.png`, // Fallback static image
-        alt: '1UP SOL - Mario-themed Solana Paper Trading Game',
-      },
-    ],
+    site: '@1upsol_fun',
+    creator: '@1upsol_fun',
+    title: '1UP SOL - 1UP Your Solana Trading + Earn Rewards!',
+    description: '🍄 Mario-themed paper trading game on Solana! Practice trading pump.fun tokens, earn real rewards, compete on leaderboards. Risk-free trading simulator! 🎮',
+    images: {
+      url: `${siteUrl}/og-banner.png`,
+      alt: '1UP SOL - 1UP Your Solana Trading + Earn Rewards!',
+      width: 1200,
+      height: 630,
+    },
   },
   robots: {
     index: true,
