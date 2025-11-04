@@ -214,7 +214,7 @@ class RealtimePnLService extends EventEmitter {
       console.warn(`[RealtimePnL] SELL fill for position not in cache, attempting DB reload: ${key}`);
 
       try {
-        await this.loadPosition(event.userId, event.mint, event.tradeMode);
+        await this.initializePosition(event.userId, event.mint, event.tradeMode);
         pos = this.positions.get(key);
 
         if (!pos) {
