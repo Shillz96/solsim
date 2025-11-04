@@ -97,14 +97,31 @@ function getRewardWallet(): Keypair {
  */
 async function calculateHourlyProfits(): Promise<TraderPerformance[]> {
   console.log(`📊 Getting top 10 traders from leaderboard for rewards`);
+  console.log(`🔧 DEBUG: calculateHourlyProfits function called at ${new Date().toISOString()}`);
+  console.log(`🔧 DEBUG: MIN_TRADES_FOR_REWARD = ${MIN_TRADES_FOR_REWARD}`);
 
   // Import the leaderboard service
   const { getLeaderboard } = await import("../services/leaderboardService.js");
+  
+  // Clear Redis cache to ensure fresh data
+  try {
+    const redis = (await import("../plugins/redis.js")).default;
+    await redis.del('leaderboard:10', 'leaderboard:50', 'leaderboard:100');
+    console.log(`🔧 DEBUG: Cleared leaderboard cache`);
+  } catch (error) {
+    console.log(`⚠️ Could not clear cache:`, error);
+  }
 
   // Get top 10 from the leaderboard
   const leaderboard = await getLeaderboard(10);
 
   console.log(`👥 Found ${leaderboard.length} top traders`);
+  console.log(`🔧 DEBUG: Leaderboard entries:`, JSON.stringify(leaderboard.map(e => ({
+    handle: e.handle,
+    userId: e.userId,
+    totalTrades: e.totalTrades,
+    totalPnlUsd: e.totalPnlUsd
+  })), null, 2));
 
   // Convert leaderboard entries to TraderPerformance format
   const performances: TraderPerformance[] = [];
@@ -137,6 +154,14 @@ async function calculateHourlyProfits(): Promise<TraderPerformance[]> {
         continue;
       }
 
+      // Skip users with insufficient trades
+      if (entry.totalTrades < MIN_TRADES_FOR_REWARD) {
+        console.log(`ℹ️ Skipping ${user.handle || entry.handle} - only ${entry.totalTrades} trades (need ${MIN_TRADES_FOR_REWARD})`);
+        continue;
+      }
+
+      console.log(`✅ User ${user.handle || entry.handle} is eligible for rewards!`);
+
       // Use leaderboard data (already has totalPnL calculated)
       const totalPnL = parseFloat(entry.totalPnlUsd);
       const volumeTraded = parseFloat(entry.totalVolumeUsd);
@@ -160,6 +185,66 @@ async function calculateHourlyProfits(): Promise<TraderPerformance[]> {
   }
 
   // Already sorted by leaderboard ranking (top PnL), no need to re-sort
+  console.log(`🔧 DEBUG: Final performances array length: ${performances.length}`);
+  console.log(`🔧 DEBUG: Performances:`, JSON.stringify(performances.map(p => ({
+    handle: p.handle,
+    walletAddress: p.walletAddress ? `${p.walletAddress.substring(0, 8)}...` : 'NONE',
+    totalTrades: p.tradeCount
+  })), null, 2));
+  
+  // FALLBACK: If no eligible users found, try direct database query
+  if (performances.length === 0) {
+    console.log(`🔧 DEBUG: No eligible users from leaderboard, trying direct query...`);
+    
+    const directQuery = await prisma.user.findMany({
+      where: {
+        walletAddress: { not: null },
+        trades: {
+          some: {
+            tradeMode: 'PAPER'
+          }
+        }
+      },
+      select: {
+        id: true,
+        handle: true,
+        walletAddress: true,
+        _count: {
+          select: {
+            trades: {
+              where: { tradeMode: 'PAPER' }
+            }
+          }
+        }
+      },
+      orderBy: {
+        trades: {
+          _count: 'desc'
+        }
+      },
+      take: 10
+    });
+    
+    console.log(`🔧 DEBUG: Direct query found ${directQuery.length} users with wallets and trades`);
+    
+    for (const user of directQuery) {
+      if (user._count.trades >= MIN_TRADES_FOR_REWARD) {
+        console.log(`🔧 FALLBACK: Adding ${user.handle} with ${user._count.trades} trades`);
+        performances.push({
+          userId: user.id,
+          handle: user.handle || 'Unknown',
+          walletAddress: user.walletAddress!,
+          totalRealizedPnL: 0, // Will be calculated
+          totalUnrealizedPnL: 0,
+          totalPnL: 0,
+          profitPercent: 0,
+          tradeCount: user._count.trades,
+          volumeTraded: 0
+        });
+      }
+    }
+  }
+  
   return performances;
 }
 
