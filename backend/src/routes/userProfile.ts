@@ -65,7 +65,7 @@ export default async function (app: FastifyInstance) {
         }
       };
     } catch (error: any) {
-      app.log.error("Failed to fetch user profile:", error);
+      app.log.error({ error }, "Failed to fetch user profile");
       return reply.code(500).send({
         error: "Failed to fetch user profile"
       });
@@ -118,7 +118,7 @@ export default async function (app: FastifyInstance) {
         }
       };
     } catch (error: any) {
-      app.log.error("Failed to update trading mode:", error);
+      app.log.error({ error }, "Failed to update trading mode");
       return reply.code(500).send({
         error: "Failed to update trading mode"
       });
@@ -166,7 +166,7 @@ export default async function (app: FastifyInstance) {
         }
       };
     } catch (error: any) {
-      app.log.error("Failed to fetch balances:", error);
+      app.log.error({ error }, "Failed to fetch balances");
       return reply.code(500).send({
         error: "Failed to fetch balances"
       });
@@ -237,7 +237,7 @@ export default async function (app: FastifyInstance) {
         }
       };
     } catch (error: any) {
-      app.log.error("Failed to fetch trading stats:", error);
+      app.log.error({ error }, "Failed to fetch trading stats");
       return reply.code(500).send({
         error: "Failed to fetch trading stats"
       });
@@ -305,7 +305,7 @@ export default async function (app: FastifyInstance) {
         newBalance: "100"
       };
     } catch (error: any) {
-      app.log.error("Failed to reset paper trading:", error);
+      app.log.error({ error }, "Failed to reset paper trading");
       return reply.code(500).send({
         error: "Failed to reset paper trading account"
       });

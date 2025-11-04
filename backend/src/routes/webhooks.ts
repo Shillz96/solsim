@@ -222,7 +222,7 @@ export default async function webhookRoutes(app: FastifyInstance) {
       };
 
     } catch (error: any) {
-      app.log.error('Test deposit processing error:', error);
+      app.log.error({ error }, "Test deposit processing error");
       return reply.code(500).send({
         error: error.message || 'Failed to process test deposit'
       });

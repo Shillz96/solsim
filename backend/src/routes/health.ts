@@ -61,7 +61,7 @@ export default async function healthRoutes(app: FastifyInstance) {
         timestamp: Date.now()
       };
     } catch (error: any) {
-      app.log.error(error);
+      app.log.error({ error }, "Failed to fetch health status");
       return reply.code(500).send({
         error: error.message || 'Failed to fetch health status',
         isHealthy: false
@@ -125,7 +125,7 @@ export default async function healthRoutes(app: FastifyInstance) {
         timestamp: Date.now()
       };
     } catch (error: any) {
-      app.log.error(error);
+      app.log.error({ error }, "Failed to reset circuit breaker");
       return reply.code(500).send({
         error: error.message || 'Failed to reset circuit breaker',
         success: false

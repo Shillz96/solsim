@@ -82,7 +82,7 @@ export default async function marketRoutes(app: FastifyInstance) {
 
       return { trades };
     } catch (error: any) {
-      app.log.error(error);
+      app.log.error({ error }, "Failed to fetch trades");
       return reply.code(500).send({ error: error.message || 'Failed to fetch trades' });
     }
   });
@@ -118,7 +118,7 @@ export default async function marketRoutes(app: FastifyInstance) {
 
       return { traders };
     } catch (error: any) {
-      app.log.error(error);
+      app.log.error({ error }, "Failed to fetch top traders");
       return reply.code(500).send({ error: error.message || 'Failed to fetch top traders' });
     }
   });
@@ -187,7 +187,7 @@ export default async function marketRoutes(app: FastifyInstance) {
 
       return result;
     } catch (error: any) {
-      app.log.error(error);
+      app.log.error({ error }, "Failed to fetch holders");
       return reply.code(500).send({ error: error.message || 'Failed to fetch holders' });
     }
   });
@@ -230,7 +230,7 @@ export default async function marketRoutes(app: FastifyInstance) {
         ts: Date.now(),
       };
     } catch (error: any) {
-      app.log.error(error);
+      app.log.error({ error }, "Failed to fetch lighthouse data");
       return reply.code(500).send({ error: error.message || 'Failed to fetch lighthouse data' });
     }
   });
@@ -289,7 +289,7 @@ export default async function marketRoutes(app: FastifyInstance) {
 
       return result;
     } catch (error: any) {
-      app.log.error(error);
+      app.log.error({ error }, "Failed to fetch crypto prices");
 
       // Try to return stale cached data as last resort
       const cached = await redis.get('market:crypto-prices');

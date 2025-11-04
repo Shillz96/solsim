@@ -239,6 +239,8 @@ app.register(async function (app) {
     }
     return generalRateLimit(request, reply);
   });
+
+  return;
 });
 
 // Health check is now handled by healthPlugin

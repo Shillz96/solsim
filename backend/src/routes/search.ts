@@ -273,7 +273,7 @@ export default async function searchRoutes(app: FastifyInstance) {
       
       return response;
     } catch (error: any) {
-      app.log.error(error);
+      app.log.error({ error }, "Failed to fetch token details");
       return reply.code(500).send({ error: error.message || "Failed to fetch token details" });
     }
   });
@@ -290,7 +290,7 @@ export default async function searchRoutes(app: FastifyInstance) {
       const results = await searchTokens(q, parseInt(limit));
       return { query: q, results };
     } catch (error: any) {
-      app.log.error(error);
+      app.log.error({ error }, "Search failed");
       return reply.code(500).send({ error: error.message || "Search failed" });
     }
   });

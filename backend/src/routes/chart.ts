@@ -150,7 +150,7 @@ export default async function chartRoutes(app: FastifyInstance) {
           warning: 'Using mock data - All data sources unavailable',
         }
       } catch (error: any) {
-        app.log.error('Failed to fetch OHLCV:', error.message)
+        app.log.error({ error: error.message }, 'Failed to fetch OHLCV')
 
         // Handle specific error cases
         if (error.response?.status === 429) {

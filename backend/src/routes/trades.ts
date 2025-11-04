@@ -25,7 +25,7 @@ export default async function tradesRoutes(app: FastifyInstance) {
       });
 
       // Enrich with token metadata using batch API
-      const uniqueMints = [...new Set(trades.map(t => t.mint))];
+      const uniqueMints = [...new Set(trades.map(t => t.mint as string))];
       const metadataResults = await getTokenMetaBatch(uniqueMints);
 
       const metadataMap = new Map();
@@ -47,7 +47,7 @@ export default async function tradesRoutes(app: FastifyInstance) {
 
       return { trades: enriched };
     } catch (error: any) {
-      app.log.error(error);
+      app.log.error({ error }, "Failed to fetch trades");
       return reply.code(500).send({ error: "Failed to fetch trades" });
     }
   });
@@ -66,7 +66,7 @@ export default async function tradesRoutes(app: FastifyInstance) {
       });
 
       // Enrich with token metadata using batch API
-      const uniqueMints = [...new Set(trades.map(t => t.mint))];
+      const uniqueMints = [...new Set(trades.map(t => t.mint as string))];
       const metadataResults = await getTokenMetaBatch(uniqueMints);
 
       const metadataMap = new Map();
@@ -88,7 +88,7 @@ export default async function tradesRoutes(app: FastifyInstance) {
 
       return { trades: enriched };
     } catch (error: any) {
-      app.log.error(error);
+      app.log.error({ error }, "Failed to fetch user trades");
       return reply.code(500).send({ error: "Failed to fetch user trades" });
     }
   });
@@ -126,7 +126,7 @@ export default async function tradesRoutes(app: FastifyInstance) {
       
       return { trades: enriched };
     } catch (error: any) {
-      app.log.error(error);
+      app.log.error({ error }, "Failed to fetch token trades");
       return reply.code(500).send({ error: "Failed to fetch token trades" });
     }
   });
@@ -160,7 +160,7 @@ export default async function tradesRoutes(app: FastifyInstance) {
         trades,
       };
     } catch (error: any) {
-      app.log.error(error);
+      app.log.error({ error }, "Failed to fetch user trades for token");
       return reply.code(500).send({
         success: false,
         error: "Failed to fetch user trades for token",
@@ -188,7 +188,7 @@ export default async function tradesRoutes(app: FastifyInstance) {
         uniqueTraders: uniqueTraders.length
       };
     } catch (error: any) {
-      app.log.error(error);
+      app.log.error({ error }, "Failed to fetch trade stats");
       return reply.code(500).send({ error: "Failed to fetch trade stats" });
     }
   });

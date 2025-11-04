@@ -160,10 +160,11 @@ export const authenticateToken = async (request: AuthenticatedRequest, reply: Fa
       sessionId: payload.sessionId
     };
 
+    return;
   } catch (error: any) {
-    return reply.code(401).send({ 
-      error: 'INVALID_TOKEN', 
-      message: error.message || 'Invalid authentication token' 
+    return reply.code(401).send({
+      error: 'INVALID_TOKEN',
+      message: error.message || 'Invalid authentication token'
     });
   }
 };
@@ -212,11 +213,13 @@ export const requireAdmin = async (request: AuthenticatedRequest, reply: Fastify
   }
 
   if (request.user.userTier !== 'ADMINISTRATOR') {
-    return reply.code(403).send({ 
-      error: 'FORBIDDEN', 
-      message: 'Administrator access required' 
+    return reply.code(403).send({
+      error: 'FORBIDDEN',
+      message: 'Administrator access required'
     });
   }
+
+  return;
 };
 
 // Admin or Moderator middleware (for moderation features)
@@ -229,11 +232,13 @@ export const requireAdminOrModerator = async (request: AuthenticatedRequest, rep
   }
 
   if (request.user.userTier !== 'ADMINISTRATOR' && request.user.userTier !== 'MODERATOR') {
-    return reply.code(403).send({ 
-      error: 'FORBIDDEN', 
-      message: 'Administrator or Moderator access required' 
+    return reply.code(403).send({
+      error: 'FORBIDDEN',
+      message: 'Administrator or Moderator access required'
     });
   }
+
+  return;
 };
 
 export { AuthService };

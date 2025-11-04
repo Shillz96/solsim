@@ -113,8 +113,8 @@ export default async function (app: FastifyInstance) {
         currentPrice: currentTick.priceUsd
       };
     } catch (error: any) {
-      app.log.error("Trade execution failed:", error);
-      
+      app.log.error({ error }, "Trade execution failed");
+
       // Return specific error messages for better UX
       const errorMessage = error.message || "Trade execution failed";
       return reply.code(400).send({ 
@@ -176,7 +176,7 @@ export default async function (app: FastifyInstance) {
         hasMore: trades.length === parseInt(limit)
       };
     } catch (error: any) {
-      app.log.error("Failed to fetch trade history:", error);
+      app.log.error({ error }, "Failed to fetch trade history");
       return reply.code(500).send({ error: "Failed to fetch trade history" });
     }
   });

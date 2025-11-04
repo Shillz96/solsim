@@ -89,6 +89,8 @@ export class RateLimiter {
           retryAfter: Math.ceil((limitInfo.resetTime - Date.now()) / 1000)
         });
       }
+
+      return;
     };
   }
 }

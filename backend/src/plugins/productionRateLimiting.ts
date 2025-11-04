@@ -171,6 +171,8 @@ function createRateLimitMiddleware(tier: keyof typeof rateLimitTiers, customOpti
       // Log error but don't block request if rate limiter fails
       console.error('Rate limiter error:', error);
     }
+
+    return;
   };
 }
 
@@ -197,6 +199,8 @@ async function globalRateLimit(request: FastifyRequest, reply: FastifyReply) {
   } catch (error) {
     console.error('Global rate limiter error:', error);
   }
+
+  return;
 }
 
 // Export configured rate limiters

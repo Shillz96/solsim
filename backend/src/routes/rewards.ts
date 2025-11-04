@@ -23,7 +23,7 @@ export default async function rewardsRoutes(app: FastifyInstance) {
         nextDistributionTime: nextHour.toISOString()
       };
     } catch (error: any) {
-      app.log.error(error);
+      app.log.error({ error }, "Failed to calculate next distribution");
       return reply.code(500).send({ error: "Failed to calculate next distribution" });
     }
   });
@@ -87,7 +87,7 @@ export default async function rewardsRoutes(app: FastifyInstance) {
         winners
       };
     } catch (error: any) {
-      app.log.error("Failed to fetch last distribution:", error);
+      app.log.error({ error }, "Failed to fetch last distribution");
       return reply.code(500).send({ error: "Failed to fetch last distribution" });
     }
   });
@@ -122,7 +122,7 @@ export default async function rewardsRoutes(app: FastifyInstance) {
         totalCreatorRewards: currentPool.totalCreatorRewards.toString()
       };
     } catch (error: any) {
-      app.log.error("Failed to fetch current pool:", error);
+      app.log.error({ error }, "Failed to fetch current pool");
       return reply.code(500).send({ error: "Failed to fetch current pool" });
     }
   });
@@ -170,7 +170,7 @@ export default async function rewardsRoutes(app: FastifyInstance) {
         winnings
       };
     } catch (error: any) {
-      app.log.error("Failed to fetch user winnings:", error);
+      app.log.error({ error }, "Failed to fetch user winnings");
       return reply.code(500).send({ error: "Failed to fetch user winnings" });
     }
   });
@@ -196,7 +196,7 @@ export default async function rewardsRoutes(app: FastifyInstance) {
         totalWinners
       };
     } catch (error: any) {
-      app.log.error("Failed to fetch reward stats:", error);
+      app.log.error({ error }, "Failed to fetch reward stats");
       return reply.code(500).send({ error: "Failed to fetch reward stats" });
     }
   });
@@ -248,7 +248,7 @@ export default async function rewardsRoutes(app: FastifyInstance) {
         debugData
       };
     } catch (error: any) {
-      app.log.error("Failed to fetch debug data:", error);
+      app.log.error({ error }, "Failed to fetch debug data");
       return reply.code(500).send({ error: "Failed to fetch debug data" });
     }
   });
@@ -279,7 +279,7 @@ export default async function rewardsRoutes(app: FastifyInstance) {
         timestamp: new Date().toISOString()
       };
     } catch (error: any) {
-      app.log.error("❌ Test distribution failed:", error);
+      app.log.error({ error }, "❌ Test distribution failed");
       return reply.code(500).send({
         error: "Test distribution failed",
         message: error.message
@@ -320,7 +320,7 @@ export default async function rewardsRoutes(app: FastifyInstance) {
         timestamp: new Date().toISOString()
       };
     } catch (error: any) {
-      app.log.error("❌ Fee injection failed:", error);
+      app.log.error({ error }, "❌ Fee injection failed");
       return reply.code(500).send({
         error: "Fee injection failed",
         message: error.message
@@ -359,7 +359,7 @@ export default async function rewardsRoutes(app: FastifyInstance) {
           const balance = await connection.getBalance(wallet.publicKey);
           walletBalance = (balance / LAMPORTS_PER_SOL).toFixed(6);
         } catch (error: any) {
-          app.log.error("Failed to load reward wallet:", error);
+          app.log.error({ error }, "Failed to load reward wallet");
         }
       }
 
@@ -378,7 +378,7 @@ export default async function rewardsRoutes(app: FastifyInstance) {
         status: hasWalletSecret && isEnabled ? "✅ READY" : "⚠️ NOT CONFIGURED"
       };
     } catch (error: any) {
-      app.log.error("Failed to check system status:", error);
+      app.log.error({ error }, "Failed to check system status");
       return reply.code(500).send({ error: "Failed to check system status" });
     }
   });
@@ -406,7 +406,7 @@ export default async function rewardsRoutes(app: FastifyInstance) {
         lastShareTime: null
       };
     } catch (error: any) {
-      app.log.error("Failed to get social reward status:", error);
+      app.log.error({ error }, "Failed to get social reward status");
       return reply.code(500).send({ error: "Failed to get social reward status" });
     }
   });
@@ -431,7 +431,7 @@ export default async function rewardsRoutes(app: FastifyInstance) {
         message: "Share tracked successfully!"
       };
     } catch (error: any) {
-      app.log.error("Failed to track social share:", error);
+      app.log.error({ error }, "Failed to track social share");
       return reply.code(500).send({ error: "Failed to track social share" });
     }
   });
@@ -452,7 +452,7 @@ export default async function rewardsRoutes(app: FastifyInstance) {
         message: "You need 3 shares to claim a reward. Keep sharing!"
       };
     } catch (error: any) {
-      app.log.error("Failed to claim social reward:", error);
+      app.log.error({ error }, "Failed to claim social reward");
       return reply.code(500).send({ error: "Failed to claim social reward" });
     }
   });

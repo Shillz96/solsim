@@ -25,10 +25,10 @@ export default async function walletRoutes(app: FastifyInstance) {
         instructions: 'Send SOL to this address to fund your real trading account. Deposits are typically confirmed within 1-2 minutes.'
       };
     } catch (error: any) {
-      app.log.error(error);
-      return reply.code(500).send({ 
+      app.log.error({ error }, "Failed to generate deposit address");
+      return reply.code(500).send({
         error: "Failed to generate deposit address",
-        message: error.message 
+        message: error.message
       });
     }
   });
@@ -99,11 +99,11 @@ export default async function walletRoutes(app: FastifyInstance) {
       };
 
     } catch (error: any) {
-      app.log.error('Private key export error:', error);
-      return reply.code(500).send({ 
+      app.log.error({ error }, "Private key export error");
+      return reply.code(500).send({
         success: false,
         error: "Failed to export private key",
-        message: error.message 
+        message: error.message
       });
     }
   });
@@ -130,7 +130,7 @@ export default async function walletRoutes(app: FastifyInstance) {
         hasMore: result.total > parseInt(offset) + parseInt(limit)
       };
     } catch (error: any) {
-      app.log.error(error);
+      app.log.error({ error }, "Failed to fetch deposit history");
       return reply.code(500).send({ error: "Failed to fetch deposit history" });
     }
   });
@@ -155,7 +155,7 @@ export default async function walletRoutes(app: FastifyInstance) {
         currency: "SOL"
       };
     } catch (error: any) {
-      app.log.error(error);
+      app.log.error({ error }, "Failed to fetch balance");
       return reply.code(500).send({ error: "Failed to fetch balance" });
     }
   });
@@ -193,7 +193,7 @@ export default async function walletRoutes(app: FastifyInstance) {
         added: amount
       };
     } catch (error: any) {
-      app.log.error(error);
+      app.log.error({ error }, "Failed to add funds");
       return reply.code(500).send({ error: "Failed to add funds" });
     }
   });
@@ -233,7 +233,7 @@ export default async function walletRoutes(app: FastifyInstance) {
       
       return { transactions };
     } catch (error: any) {
-      app.log.error(error);
+      app.log.error({ error }, "Failed to fetch transactions");
       return reply.code(500).send({ error: "Failed to fetch transactions" });
     }
   });
@@ -271,7 +271,7 @@ export default async function walletRoutes(app: FastifyInstance) {
         accountAge: Math.floor((Date.now() - user.createdAt.getTime()) / (1000 * 60 * 60 * 24)) // days
       };
     } catch (error: any) {
-      app.log.error(error);
+      app.log.error({ error }, "Failed to fetch wallet stats");
       return reply.code(500).send({ error: "Failed to fetch wallet stats" });
     }
   });
@@ -319,7 +319,7 @@ export default async function walletRoutes(app: FastifyInstance) {
         explorerUrl: `https://solscan.io/tx/${result.txSignature}`
       };
     } catch (error: any) {
-      app.log.error("Withdrawal failed:", error);
+      app.log.error({ error }, "Withdrawal failed");
       return reply.code(500).send({
         error: error.message || "Withdrawal processing failed"
       });
@@ -348,7 +348,7 @@ export default async function walletRoutes(app: FastifyInstance) {
         hasMore: result.total > parseInt(offset) + parseInt(limit)
       };
     } catch (error: any) {
-      app.log.error(error);
+      app.log.error({ error }, "Failed to fetch withdrawal history");
       return reply.code(500).send({ error: "Failed to fetch withdrawal history" });
     }
   });
@@ -368,7 +368,7 @@ export default async function walletRoutes(app: FastifyInstance) {
         wallets
       };
     } catch (error: any) {
-      app.log.error('Failed to get user wallets:', error);
+      app.log.error({ error }, "Failed to get user wallets");
       return reply.code(500).send({
         success: false,
         error: error.message || 'Failed to get wallets'
@@ -402,7 +402,7 @@ export default async function walletRoutes(app: FastifyInstance) {
         }
       };
     } catch (error: any) {
-      app.log.error('Failed to get active wallet:', error);
+      app.log.error({ error }, "Failed to get active wallet");
       return reply.code(500).send({
         success: false,
         error: error.message || 'Failed to get active wallet'
@@ -428,7 +428,7 @@ export default async function walletRoutes(app: FastifyInstance) {
         wallet
       };
     } catch (error: any) {
-      app.log.error('Failed to create wallet:', error);
+      app.log.error({ error }, "Failed to create wallet");
       return reply.code(500).send({
         success: false,
         error: error.message || 'Failed to create wallet'
@@ -458,7 +458,7 @@ export default async function walletRoutes(app: FastifyInstance) {
         wallet
       };
     } catch (error: any) {
-      app.log.error('Failed to import wallet:', error);
+      app.log.error({ error }, "Failed to import wallet");
       return reply.code(400).send({
         success: false,
         error: error.message || 'Failed to import wallet'
@@ -482,7 +482,7 @@ export default async function walletRoutes(app: FastifyInstance) {
       const result = await walletManagementService.setActiveWallet(userId, walletId);
       return result;
     } catch (error: any) {
-      app.log.error('Failed to set active wallet:', error);
+      app.log.error({ error }, "Failed to set active wallet");
       return reply.code(400).send({
         success: false,
         error: error.message || 'Failed to set active wallet'
@@ -509,7 +509,7 @@ export default async function walletRoutes(app: FastifyInstance) {
         wallet
       };
     } catch (error: any) {
-      app.log.error('Failed to rename wallet:', error);
+      app.log.error({ error }, "Failed to rename wallet");
       return reply.code(400).send({
         success: false,
         error: error.message || 'Failed to rename wallet'
@@ -551,7 +551,7 @@ export default async function walletRoutes(app: FastifyInstance) {
         warning: 'SECURITY WARNING: Never share this private key with anyone. Anyone with access to this key can control all funds in this wallet.'
       };
     } catch (error: any) {
-      app.log.error('Failed to export wallet key:', error);
+      app.log.error({ error }, "Failed to export wallet key");
       return reply.code(400).send({
         success: false,
         error: error.message || 'Failed to export wallet key'
@@ -585,7 +585,7 @@ export default async function walletRoutes(app: FastifyInstance) {
 
       return result;
     } catch (error: any) {
-      app.log.error('Failed to transfer funds:', error);
+      app.log.error({ error }, "Failed to transfer funds");
       return reply.code(400).send({
         success: false,
         error: error.message || 'Failed to transfer funds'
@@ -609,7 +609,7 @@ export default async function walletRoutes(app: FastifyInstance) {
       const result = await walletManagementService.deleteWallet(userId, walletId);
       return result;
     } catch (error: any) {
-      app.log.error('Failed to delete wallet:', error);
+      app.log.error({ error }, "Failed to delete wallet");
       return reply.code(400).send({
         success: false,
         error: error.message || 'Failed to delete wallet'
