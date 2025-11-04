@@ -9,6 +9,7 @@ import * as notificationService from "./notificationService.js";
 import redlock from "../plugins/redlock.js";
 import { realtimePnLService } from "./realtimePnLService.js";
 import redis from "../plugins/redis.js";
+import { recordCreatorFees } from "./pumpfunRewardCollector.js";
 import {
   getValidatedPrice,
   checkAndClampSellQuantity,
@@ -315,6 +316,18 @@ async function executeTradeLogic({
     console.log(`[Trade] Portfolio cache warmed up successfully for user ${userId}`);
   } catch (err) {
     console.error(`[Trade] Failed to warm portfolio cache:`, err);
+  }
+
+  // Record fees for hourly reward pool (collect fees from trades)
+  try {
+    const feeAmountSOL = totalFees.toNumber(); // Convert Decimal to number
+    if (feeAmountSOL > 0) {
+      await recordCreatorFees(feeAmountSOL, `${side} trade fees`);
+      console.log(`[Trade] Recorded ${feeAmountSOL} SOL fees to hourly reward pool`);
+    }
+  } catch (feeError) {
+    console.error('[Trade] Failed to record fees for reward pool:', feeError);
+    // Don't fail the trade if fee recording fails
   }
 
   return {
