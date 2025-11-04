@@ -9,7 +9,7 @@
  */
 
 import { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
-import prisma from "../../plugins/prisma.js";
+import authPrisma from "../../plugins/authPrisma.js"; // CRITICAL FIX: Use dedicated auth pool to prevent blocking
 import bcrypt from "bcryptjs";
 import redis from "../../plugins/redis.js";
 import { AuthService, authenticateToken, type AuthenticatedRequest } from "../../plugins/auth.js";
@@ -46,7 +46,7 @@ export default async function emailAuthRoutes(app: FastifyInstance) {
       }
 
       // Check if user already exists
-      const existingUser = await prisma.user.findUnique({ where: { email } });
+      const existingUser = await authPrisma.user.findUnique({ where: { email } });
       if (existingUser) {
         return reply.code(409).send({
           error: "USER_EXISTS",
@@ -62,7 +62,7 @@ export default async function emailAuthRoutes(app: FastifyInstance) {
       const verificationExpiry = EmailService.generateTokenExpiry(24);
 
       // Create user
-      const user = await prisma.user.create({
+      const user = await authPrisma.user.create({
         data: {
           email,
           passwordHash: hash,
@@ -145,7 +145,7 @@ export default async function emailAuthRoutes(app: FastifyInstance) {
         });
       }
 
-      const user = await prisma.user.findUnique({ where: { email } });
+      const user = await authPrisma.user.findUnique({ where: { email } });
       if (!user || !user.passwordHash) {
         // Increment failed attempts even for non-existent users to prevent email enumeration timing attacks
         const attempts = await redis.incr(failedAttemptsKey);
@@ -238,7 +238,7 @@ export default async function emailAuthRoutes(app: FastifyInstance) {
       }
 
       // First, check if user exists with this token (ignore expiry for now)
-      const userWithToken = await prisma.user.findFirst({
+      const userWithToken = await authPrisma.user.findFirst({
         where: {
           emailVerificationToken: token
         }
@@ -289,7 +289,7 @@ export default async function emailAuthRoutes(app: FastifyInstance) {
       }
 
       // Token is valid! Mark email as verified and clear token
-      await prisma.user.update({
+      await authPrisma.user.update({
         where: { id: userWithToken.id },
         data: {
           emailVerified: true,
@@ -341,7 +341,7 @@ export default async function emailAuthRoutes(app: FastifyInstance) {
         });
       }
 
-      const user = await prisma.user.findUnique({
+      const user = await authPrisma.user.findUnique({
         where: { id: userId },
         select: {
           id: true,
@@ -384,7 +384,7 @@ export default async function emailAuthRoutes(app: FastifyInstance) {
       console.log(`🔄 Generating new verification token for: ${user.email}`);
 
       // Update user with new token
-      await prisma.user.update({
+      await authPrisma.user.update({
         where: { id: user.id },
         data: {
           emailVerificationToken: verificationToken,

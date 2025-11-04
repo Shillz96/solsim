@@ -7,20 +7,23 @@ const globalForPrisma = globalThis as unknown as {
 
 // Calculate optimal connection pool based on environment
 // Railway Postgres Starter: 20 connections total
-// CRITICAL FIX: Reduced from 20 to 12 to leave room for worker (8 connections)
+// CRITICAL FIX: Connection pool split to prevent auth blocking
+// - Auth Pool (authPrisma.ts): 5 connections (25%)
+// - Backend Pool (this file): 7 connections (35%)
+// - Worker Pool (worker config): 8 connections (40%)
 const getConnectionPoolConfig = () => {
   const isProduction = process.env.NODE_ENV === "production";
 
   if (isProduction) {
     return {
-      connection_limit: 12,        // Reduced from 20 (leave 8 for worker)
+      connection_limit: 7,         // Reduced from 12 (5 moved to auth pool)
       pool_timeout: 30,            // Reduced from 60 (fail faster)
       statement_cache_size: 1000   // Increased from 500 (better query caching)
     };
   }
 
   return {
-    connection_limit: 5,
+    connection_limit: 4,           // Dev: reduced from 5 (1 moved to auth)
     pool_timeout: 30,
     statement_cache_size: 100
   };
@@ -56,24 +59,56 @@ if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
 // Connection monitoring
 let activeConnections = 0;
 let peakConnections = 0;
+let totalQueries = 0;
+let slowQueries = 0;
 
 prisma.$use(async (params, next) => {
   activeConnections++;
   peakConnections = Math.max(peakConnections, activeConnections);
+  totalQueries++;
 
-  // OPTIMIZED: Alert at 60% instead of 80% for earlier warning
+  const startTime = Date.now();
   const config = getConnectionPoolConfig();
   const utilization = activeConnections / config.connection_limit;
 
+  // Enhanced logging with query context during high load
   if (utilization > 0.8) {
-    console.error(`🚨 CRITICAL DB CONNECTION ALERT: ${activeConnections}/${config.connection_limit} (${(utilization * 100).toFixed(0)}%)`);
+    console.error({
+      level: 'CRITICAL',
+      active: activeConnections,
+      limit: config.connection_limit,
+      utilization: `${(utilization * 100).toFixed(0)}%`,
+      model: params.model,
+      action: params.action,
+      warning: '⚠️ AUTH QUERIES MAY BE BLOCKED - Database overload detected'
+    }, '🚨 CRITICAL DB CONNECTION ALERT');
     // TODO: Send to monitoring service (Sentry, Datadog, etc.)
   } else if (utilization > 0.6) {
-    console.warn(`⚠️ High DB connection usage: ${activeConnections}/${config.connection_limit} (${(utilization * 100).toFixed(0)}%)`);
+    console.warn({
+      active: activeConnections,
+      limit: config.connection_limit,
+      utilization: `${(utilization * 100).toFixed(0)}%`,
+      model: params.model,
+      action: params.action
+    }, '⚠️ High DB connection usage');
   }
 
   try {
-    return await next(params);
+    const result = await next(params);
+    const duration = Date.now() - startTime;
+
+    // Track slow queries (>500ms)
+    if (duration > 500) {
+      slowQueries++;
+      console.warn({
+        model: params.model,
+        action: params.action,
+        duration: `${duration}ms`,
+        connectionUtilization: `${(utilization * 100).toFixed(0)}%`
+      }, '🐌 Slow query detected');
+    }
+
+    return result;
   } finally {
     activeConnections--;
   }
@@ -96,7 +131,11 @@ export function getConnectionStats() {
     active: activeConnections,
     peak: peakConnections,
     limit: config.connection_limit,
-    utilization: ((peakConnections / config.connection_limit) * 100).toFixed(1) + '%'
+    peakUtilization: ((peakConnections / config.connection_limit) * 100).toFixed(1) + '%',
+    currentUtilization: ((activeConnections / config.connection_limit) * 100).toFixed(1) + '%',
+    totalQueries,
+    slowQueries,
+    slowQueryRate: totalQueries > 0 ? ((slowQueries / totalQueries) * 100).toFixed(1) + '%' : '0%'
   };
 }
 

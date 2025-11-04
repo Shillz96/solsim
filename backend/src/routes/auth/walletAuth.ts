@@ -7,7 +7,7 @@
  */
 
 import { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
-import prisma from "../../plugins/prisma.js";
+import authPrisma from "../../plugins/authPrisma.js"; // CRITICAL FIX: Use dedicated auth pool
 import nacl from "tweetnacl";
 import bs58 from "bs58";
 import { AuthService } from "../../plugins/auth.js";
@@ -33,7 +33,7 @@ export default async function walletAuthRoutes(app: FastifyInstance) {
       const nonce = await NonceService.generateNonce(walletAddress);
 
       // Create or update user record
-      const walletUser = await prisma.user.upsert({
+      const walletUser = await authPrisma.user.upsert({
         where: { walletAddress },
         update: {
           walletNonce: null // Don't store nonce in DB anymore, only in Redis
@@ -51,7 +51,7 @@ export default async function walletAuthRoutes(app: FastifyInstance) {
 
       // Send welcome notification for new wallet users (non-blocking)
       // Check if this is a new user by checking if they just got created
-      const isNewUser = await prisma.user.count({ where: { walletAddress } }) === 1;
+      const isNewUser = await authPrisma.user.count({ where: { walletAddress } }) === 1;
       if (isNewUser) {
         notificationService.notifyWelcome(walletUser.id, walletUser.handle || walletAddress).catch(error => {
           console.error('Failed to send welcome notification:', error);
@@ -96,7 +96,7 @@ export default async function walletAuthRoutes(app: FastifyInstance) {
 
       const { walletAddress, signature } = sanitizedBody;
 
-      const user = await prisma.user.findUnique({ where: { walletAddress } });
+      const user = await authPrisma.user.findUnique({ where: { walletAddress } });
       if (!user) {
         return reply.code(400).send({
           error: "USER_NOT_FOUND",

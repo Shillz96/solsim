@@ -8,7 +8,7 @@
  */
 
 import { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
-import prisma from "../../plugins/prisma.js";
+import authPrisma from "../../plugins/authPrisma.js"; // CRITICAL FIX: Use dedicated auth pool
 import bcrypt from "bcryptjs";
 import { AuthService, authenticateToken, type AuthenticatedRequest } from "../../plugins/auth.js";
 import { validateBody, authSchemas, sanitizeInput } from "../../plugins/validation.js";
@@ -48,7 +48,7 @@ export default async function passwordManagementRoutes(app: FastifyInstance) {
         });
       }
 
-      const user = await prisma.user.findUnique({ where: { id: userId } });
+      const user = await authPrisma.user.findUnique({ where: { id: userId } });
 
       if (!user || !user.passwordHash) {
         return reply.code(404).send({
@@ -70,7 +70,7 @@ export default async function passwordManagementRoutes(app: FastifyInstance) {
       const newHash = await bcrypt.hash(newPassword, 12);
 
       // Update password
-      await prisma.user.update({
+      await authPrisma.user.update({
         where: { id: userId },
         data: { passwordHash: newHash }
       });
@@ -109,7 +109,7 @@ export default async function passwordManagementRoutes(app: FastifyInstance) {
       }
 
       // Find user by email
-      const user = await prisma.user.findUnique({
+      const user = await authPrisma.user.findUnique({
         where: { email }
       });
 
@@ -127,7 +127,7 @@ export default async function passwordManagementRoutes(app: FastifyInstance) {
       const resetExpiry = EmailService.generateTokenExpiry(1); // 1 hour expiry
 
       // Update user with reset token
-      await prisma.user.update({
+      await authPrisma.user.update({
         where: { id: user.id },
         data: {
           passwordResetToken: resetToken,
@@ -180,7 +180,7 @@ export default async function passwordManagementRoutes(app: FastifyInstance) {
       }
 
       // Find user by reset token
-      const user = await prisma.user.findFirst({
+      const user = await authPrisma.user.findFirst({
         where: {
           passwordResetToken: token,
           passwordResetExpiry: {
@@ -200,7 +200,7 @@ export default async function passwordManagementRoutes(app: FastifyInstance) {
       const newHash = await bcrypt.hash(newPassword, 12);
 
       // Update password and clear reset token
-      await prisma.user.update({
+      await authPrisma.user.update({
         where: { id: user.id },
         data: {
           passwordHash: newHash,

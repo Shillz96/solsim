@@ -16,6 +16,7 @@ import { healthCapsuleService } from '../../../services/healthCapsuleService.js'
 import { tokenMetadataService, TokenMetadata } from '../../../services/tokenMetadataService.js';
 import { holderCountService } from '../../../services/holderCountService.js';
 import priceServiceClient from '../../../plugins/priceServiceClient.js';
+import { CircuitBreaker } from '../../../utils/circuitBreaker.js';
 import {
   IEventHandler,
   NewTokenEventData,
@@ -33,10 +34,20 @@ interface TokenMetrics {
 }
 
 export class NewTokenHandler implements IEventHandler<NewTokenEventData> {
+  private bufferCircuitBreaker: CircuitBreaker;
+
   constructor(
     private deps: WorkerDependencies,
     private txCountManager: ITxCountManager
-  ) {}
+  ) {
+    // Initialize circuit breaker for token buffer writes
+    this.bufferCircuitBreaker = new CircuitBreaker('TokenBuffer', {
+      failureThreshold: 5,        // Open after 5 failures
+      successThreshold: 3,        // Close after 3 successes in HALF_OPEN
+      timeout: 30000,             // Wait 30s before retrying (HALF_OPEN)
+      monitoringWindowMs: 60000   // Track failures over 60s window
+    });
+  }
 
   async handle(event: NewTokenEventData): Promise<void> {
     const mint = event.token?.mint;
@@ -96,9 +107,9 @@ export class NewTokenHandler implements IEventHandler<NewTokenEventData> {
       // 5. Get transaction count
       const txCount = this.txCountManager.getCount(mint!);
 
-      // 6. Write new tokens to DB immediately (needed for queries)
-      // Only buffer UPDATES to reduce checkpoint load
-      await this.upsertToken(
+      // 6. ✅ FIXED: Buffer new tokens instead of immediate DB write
+      // This prevents database flooding and connection pool exhaustion
+      await this.bufferNewToken(
         event.token,
         metrics,
         metadata,
@@ -275,7 +286,86 @@ export class NewTokenHandler implements IEventHandler<NewTokenEventData> {
   }
 
   /**
-   * Upsert token to database
+   * Buffer new token to Redis for batched database sync
+   * Prevents database flooding and connection pool exhaustion
+   */
+  private async bufferNewToken(
+    token: any,
+    metrics: TokenMetrics,
+    metadata: TokenMetadata,
+    supply: { totalSupply?: string; decimals?: number },
+    txCount: number
+  ): Promise<void> {
+    const {
+      mint,
+      name,
+      symbol,
+      uri,
+      creator,
+      bondingCurve,
+      holderCount,
+      twitter,
+      telegram,
+      website,
+      description
+    } = token;
+
+    const httpLogoURI = uri && isLikelyImageUrl(uri) ? convertIPFStoHTTP(uri) : undefined;
+
+    // Prepare token data for buffering
+    const tokenData = {
+      mint,
+      symbol: symbol || metadata.symbol || null,
+      name: name || metadata.name || null,
+      logoURI: getLogoURI(metadata.imageUrl, uri),
+      imageUrl: metadata.imageUrl ? convertIPFStoHTTP(metadata.imageUrl) : null,
+      description: description || metadata.description || null,
+      twitter: twitter || metadata.twitter || null,
+      telegram: telegram || metadata.telegram || null,
+      website: website || metadata.website || null,
+      creatorWallet: creator || null,
+      holderCount: holderCount || null,
+      decimals: supply.decimals || null,
+      totalSupply: supply.totalSupply || null,
+      txCount24h: txCount > 0 ? txCount : null,
+      state: metrics.tokenState,
+      bondingCurveKey: bondingCurve || null,
+      bondingCurveProgress: metrics.bondingCurveProgress ? parseFloat(metrics.bondingCurveProgress.toString()) : null,
+      liquidityUsd: metrics.liquidityUsd ? parseFloat(metrics.liquidityUsd.toString()) : null,
+      marketCapUsd: metrics.marketCapUsd ? parseFloat(metrics.marketCapUsd.toString()) : null,
+      hotScore: parseFloat(config.scoring.INITIAL_HOT_SCORE.toString()),
+      watcherCount: 0,
+      freezeRevoked: false,
+      mintRenounced: false,
+      creatorVerified: false,
+      firstSeenAt: new Date(),
+      stateChangedAt: new Date(),
+    };
+
+    // Execute buffer write with circuit breaker protection
+    await this.bufferCircuitBreaker.execute(
+      // Primary: Buffer to Redis
+      async () => {
+        await this.deps.bufferManager.bufferToken(tokenData);
+        logger.info({
+          mint: truncateWallet(mint),
+          symbol: symbol || metadata.symbol,
+          name: name || metadata.name
+        }, '✅ Buffered new token to Redis (will sync to DB in batch)');
+      },
+      // Fallback: Write directly to DB if buffer fails or circuit is open
+      async () => {
+        logger.warn({
+          mint: truncateWallet(mint),
+          circuitState: this.bufferCircuitBreaker.getStatus().state
+        }, '⚠️ Circuit breaker fallback - writing directly to DB');
+        await this.upsertToken(token, metrics, metadata, supply, txCount);
+      }
+    );
+  }
+
+  /**
+   * Upsert token to database (fallback only - prefer bufferNewToken)
    */
   private async upsertToken(
     token: any,

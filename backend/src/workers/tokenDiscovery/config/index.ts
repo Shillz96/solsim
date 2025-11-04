@@ -17,7 +17,7 @@ export const intervals = {
   CLEANUP: parseInt(process.env.CLEANUP_INTERVAL || '86400000'), // 24 hours (daily aggressive cleanup)
   HOLDER_COUNT_UPDATE: parseInt(process.env.HOLDER_COUNT_UPDATE_INTERVAL || '600000'), // 10 minutes
   MARKET_DATA_UPDATE: parseInt(process.env.MARKET_DATA_UPDATE_INTERVAL || '300000'), // 5 minutes (was 90s - 70% reduction)
-  REDIS_TO_DB_SYNC: parseInt(process.env.REDIS_TO_DB_SYNC_INTERVAL || '300000'), // 5 minutes - batch sync buffered writes
+  REDIS_TO_DB_SYNC: parseInt(process.env.REDIS_TO_DB_SYNC_INTERVAL || '600000'), // 10 minutes - batch sync buffered writes (was 5min - 50% reduction to prevent DB flooding)
   TOKEN_SUBSCRIPTION: parseInt(process.env.TOKEN_SUBSCRIPTION_INTERVAL || '300000'), // 5 minutes
   HEALTH_CHECK: parseInt(process.env.HEALTH_CHECK_INTERVAL || '60000'), // 60 seconds
   ACTIVITY_POLL: parseInt(process.env.ACTIVITY_POLL_INTERVAL || '30000'), // 30 seconds

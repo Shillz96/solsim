@@ -9,7 +9,7 @@
  */
 
 import { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
-import prisma from "../../plugins/prisma.js";
+import authPrisma from "../../plugins/authPrisma.js"; // CRITICAL FIX: Use dedicated auth pool
 import redis from "../../plugins/redis.js";
 import { authenticateToken, type AuthenticatedRequest } from "../../plugins/auth.js";
 import { validateBody, authSchemas, sanitizeInput } from "../../plugins/validation.js";
@@ -38,7 +38,7 @@ export default async function profileManagementRoutes(app: FastifyInstance) {
         });
       }
 
-      const updatedUser = await prisma.user.update({
+      const updatedUser = await authPrisma.user.update({
         where: { id: userId },
         data: {
           handle,
@@ -93,7 +93,7 @@ export default async function profileManagementRoutes(app: FastifyInstance) {
     }
 
     try {
-      const user = await prisma.user.findUnique({
+      const user = await authPrisma.user.findUnique({
         where: { id: userId },
         select: {
           id: true,
@@ -198,7 +198,7 @@ export default async function profileManagementRoutes(app: FastifyInstance) {
         }
       }
 
-      const user = await prisma.user.update({
+      const user = await authPrisma.user.update({
         where: { id: userId },
         data: {
           avatarUrl: avatarUrl // Full base64 string (no truncation)
@@ -253,7 +253,7 @@ export default async function profileManagementRoutes(app: FastifyInstance) {
         });
       }
 
-      await prisma.user.update({
+      await authPrisma.user.update({
         where: { id: userId },
         data: {
           avatarUrl: null

@@ -8,7 +8,7 @@
  */
 
 import { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
-import prisma from "../../plugins/prisma.js";
+import authPrisma from "../../plugins/authPrisma.js"; // CRITICAL FIX: Use dedicated auth pool
 import { AuthService, authenticateToken, type AuthenticatedRequest } from "../../plugins/auth.js";
 import { validateBody, authSchemas } from "../../plugins/validation.js";
 
@@ -40,7 +40,7 @@ export default async function sessionManagementRoutes(app: FastifyInstance) {
       }
 
       // Get user data
-      const user = await prisma.user.findUnique({
+      const user = await authPrisma.user.findUnique({
         where: { id: payload.userId },
         select: { id: true, userTier: true }
       });
