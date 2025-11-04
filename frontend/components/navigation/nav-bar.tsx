@@ -108,6 +108,9 @@ export function NavBar() {
 
           {/* Right Side Actions */}
           <div className="flex items-center gap-3 flex-shrink-0">
+            {/* Hourly Rewards Timer - Always visible */}
+            <HourlyRewardTimer />
+
             {isAuthenticated ? (
               <>
                 {/* Combined Profile + Balance Card */}

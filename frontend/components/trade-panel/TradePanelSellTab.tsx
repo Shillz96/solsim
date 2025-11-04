@@ -58,7 +58,7 @@ export function TradePanelSellTab({
   const fees = estimate ? calculateTradeFees(estimate.solAmount, solPrice) : null
   
   return (
-    <div className="flex flex-col gap-2.5 h-full">
+    <div className="flex flex-col gap-2.5 overflow-y-auto min-h-0">
       {/* Actions Section */}
       <div className="bg-gradient-to-br from-white/60 to-white/40 rounded-lg border-[2px] border-[var(--outline-black)] shadow-[2px_2px_0_var(--outline-black)] p-2.5 space-y-2.5">
         <Label className="font-bold text-[9px] text-[var(--outline-black)]/60 uppercase tracking-wide">
