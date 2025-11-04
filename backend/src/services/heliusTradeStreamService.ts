@@ -125,7 +125,7 @@ export class HeliusTradeStreamService extends EventEmitter {
 
     // Remove all 'trade' listeners (we emit generic 'trade' events for all tokens)
     // This is safe because listeners are re-added when tokens are subscribed
-    const listeners = this.listeners('trade');
+    const listeners = this.listeners('trade') as ((...args: any[]) => void)[];
     listeners.forEach(listener => {
       this.removeListener('trade', listener);
     });

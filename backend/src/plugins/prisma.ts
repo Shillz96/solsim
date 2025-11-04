@@ -129,7 +129,7 @@ let peakConnections = 0;
 let totalQueries = 0;
 let slowQueries = 0;
 
-prisma.$use(async (params, next) => {
+prisma.$use(async (params: any, next: any) => {
   activeConnections++;
   peakConnections = Math.max(peakConnections, activeConnections);
   totalQueries++;
