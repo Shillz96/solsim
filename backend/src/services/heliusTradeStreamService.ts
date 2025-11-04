@@ -51,7 +51,7 @@ export class HeliusTradeStreamService extends EventEmitter {
     // Multiple services subscribe to trade events for different tokens:
     // - walletTrackerService, marketLighthouseWorker, tokenDiscoveryWorker, etc.
     // This is intentional event-driven architecture, not a memory leak.
-    this.setMaxListeners(100); // Support 100+ concurrent listeners
+    this.setMaxListeners(500); // Support 500+ concurrent listeners (increased for high traffic)
 
     // Check multiple possible env var names
     this.heliusApiKey = process.env.HELIUS_API_KEY || process.env.HELIUS_API || '';
@@ -151,7 +151,9 @@ export class HeliusTradeStreamService extends EventEmitter {
               before: tokenInfo.lastSignature || undefined,
             }
           ]
-        })
+        }),
+        timeout: 30000, // 30 second timeout for high traffic (increased from 10s)
+        retries: 2      // Reduce retries to avoid blocking
       });
 
       const data: any = await response.json();
@@ -177,9 +179,11 @@ export class HeliusTradeStreamService extends EventEmitter {
   private async fetchRecentTrades(mint: string, limit: number = 50) {
     try {
       const url = `https://api.helius.xyz/v0/addresses/${mint}/transactions?api-key=${this.heliusApiKey}&type=SWAP`;
-      
+
       const response = await robustFetch(url, {
         method: 'GET',
+        timeout: 30000, // 30 second timeout for initial load
+        retries: 2
       });
 
       const transactions: any = await response.json();
@@ -213,7 +217,9 @@ export class HeliusTradeStreamService extends EventEmitter {
               commitment: 'confirmed'
             }
           ]
-        })
+        }),
+        timeout: 30000, // 30 second timeout
+        retries: 2
       });
 
       const data: any = await response.json();

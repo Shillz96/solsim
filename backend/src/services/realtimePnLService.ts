@@ -208,10 +208,25 @@ class RealtimePnLService extends EventEmitter {
   async processSellFill(event: FillEvent): Promise<void> {
     const key = this.getPositionKey(event.userId, event.mint, event.tradeMode);
 
-    const pos = this.positions.get(key);
+    let pos = this.positions.get(key);
     if (!pos) {
-      console.error(`[RealtimePnL] SELL fill for non-existent position: ${key}`);
-      return;
+      // Position not in cache - attempt to reload from database
+      console.warn(`[RealtimePnL] SELL fill for position not in cache, attempting DB reload: ${key}`);
+
+      try {
+        await this.loadPosition(event.userId, event.mint, event.tradeMode);
+        pos = this.positions.get(key);
+
+        if (!pos) {
+          console.warn(`[RealtimePnL] Position not found in DB either - user may have closed position: ${key}`);
+          return;
+        }
+
+        console.log(`[RealtimePnL] Successfully reloaded position from DB: ${key}`);
+      } catch (error) {
+        console.error(`[RealtimePnL] Failed to reload position from DB: ${key}`, error);
+        return;
+      }
     }
 
     const fillQty = new Decimal(event.qty);

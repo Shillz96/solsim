@@ -12,14 +12,15 @@ const globalForPrisma = globalThis as unknown as {
 const getConnectionPoolConfig = () => {
   const isProduction = process.env.NODE_ENV === "production";
 
-  // EMERGENCY FIX + RAILWAY PRO OPTIMIZATION
-  const backendLimit = parseInt(process.env.BACKEND_DB_CONNECTION_LIMIT || '15');
+  // RAILWAY PRO OPTIMIZATION (32vCPU/32GB)
+  const backendLimit = parseInt(process.env.BACKEND_DB_CONNECTION_LIMIT || '25');
 
   if (isProduction) {
     return {
-      connection_limit: backendLimit,  // Increased from 7 → 15 (Railway Pro can handle it)
-      pool_timeout: 30,                // Reduced from 60 (fail faster)
-      statement_cache_size: 2000       // Increased from 1000 (more RAM = bigger cache)
+      connection_limit: backendLimit,  // Increased to 25 for 32vCPU/32GB instance
+      pool_timeout: 60,                // Increased to 60 for high traffic
+      statement_cache_size: 3000,      // Increased cache for 32GB RAM
+      connect_timeout: 10              // Add connection timeout
     };
   }
 
@@ -42,6 +43,15 @@ const getDatabaseUrl = () => {
   url.searchParams.set('connection_limit', config.connection_limit.toString());
   url.searchParams.set('pool_timeout', config.pool_timeout.toString());
   url.searchParams.set('statement_cache_size', config.statement_cache_size.toString());
+
+  // Add query timeout and connection settings
+  if (config.connect_timeout) {
+    url.searchParams.set('connect_timeout', config.connect_timeout.toString());
+  }
+
+  // PostgreSQL-specific settings for connection stability
+  url.searchParams.set('pgbouncer', 'true');  // Enable connection pooling
+  url.searchParams.set('schema', 'public');
 
   return url.toString();
 };
