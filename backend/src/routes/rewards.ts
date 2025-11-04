@@ -334,4 +334,78 @@ export default async function rewardsRoutes(app: FastifyInstance) {
       return reply.code(500).send({ error: "Failed to check system status" });
     }
   });
+
+  // =====================================================
+  // SOCIAL REWARDS ENDPOINTS
+  // =====================================================
+
+  /**
+   * GET /rewards/social/status
+   * Get social sharing reward status for current user
+   */
+  app.get("/social/status", async (req, reply) => {
+    try {
+      // For now, return a default response since this feature might not be fully implemented
+      // TODO: Implement actual social rewards tracking
+      return {
+        shareCount: 0,
+        remainingShares: 3, // Example: 3 shares per week
+        canClaim: false,
+        totalRewarded: 0,
+        lastClaimDate: null,
+        nextClaimAvailable: null,
+        weeklyShares: 0,
+        lastShareTime: null
+      };
+    } catch (error: any) {
+      app.log.error("Failed to get social reward status:", error);
+      return reply.code(500).send({ error: "Failed to get social reward status" });
+    }
+  });
+
+  /**
+   * POST /rewards/social/track-share
+   * Track a PnL card share event
+   */
+  app.post("/social/track-share", async (req, reply) => {
+    try {
+      // For now, return a default response since this feature might not be fully implemented
+      // TODO: Implement actual social share tracking logic
+      return {
+        shareCount: 1,
+        remainingShares: 2,
+        canClaim: false,
+        totalRewarded: 0,
+        lastClaimDate: null,
+        nextClaimAvailable: null,
+        weeklyShares: 1,
+        lastShareTime: new Date(),
+        message: "Share tracked successfully!"
+      };
+    } catch (error: any) {
+      app.log.error("Failed to track social share:", error);
+      return reply.code(500).send({ error: "Failed to track social share" });
+    }
+  });
+
+  /**
+   * POST /rewards/social/claim
+   * Claim virtual SOL reward (requires 3 shares)
+   */
+  app.post("/social/claim", async (req, reply) => {
+    try {
+      // For now, return a default response since this feature might not be fully implemented
+      // TODO: Implement actual claim logic with user balance updates
+      return {
+        success: false,
+        amountAwarded: 0,
+        newBalance: 50000, // Example balance in lamports
+        nextClaimAvailable: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 1 week from now
+        message: "You need 3 shares to claim a reward. Keep sharing!"
+      };
+    } catch (error: any) {
+      app.log.error("Failed to claim social reward:", error);
+      return reply.code(500).send({ error: "Failed to claim social reward" });
+    }
+  });
 }

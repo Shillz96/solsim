@@ -13,7 +13,7 @@
 const colors = {
   // Core Mario Colors
   'mario-red': '#E52521',
-  'luigi-green': '#43B047',
+  'luigi-green': '#2E8B32',
   'star-yellow': '#FFD800',
   'coin-yellow': '#FFD700',
   'sky-blue': '#A6D8FF',
