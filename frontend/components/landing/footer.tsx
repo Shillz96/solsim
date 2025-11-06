@@ -64,17 +64,6 @@ export function Footer() {
           <div className="space-y-4">
             <h3 className="font-bold text-white text-lg" style={{ textShadow: '1px 1px 3px rgba(0,0,0,0.9)' }}>Community 🌟</h3>
             <ul className="space-y-2 text-sm">
-              <li>
-                <a
-                  href="https://x.com/1upsol_fun"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-white font-semibold hover:text-star transition-colors hover:translate-x-1 inline-block"
-                  style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.9)' }}
-                >
-                  → X (Twitter)
-                </a>
-              </li>
             </ul>
           </div>
         </div>

@@ -111,7 +111,8 @@
       "Bash(fi)",
       "Bash(nul)",
       "Bash(psql:*)",
-      "Bash(npm uninstall:*)"
+      "Bash(npm uninstall:*)",
+      "Bash(npm run dev:backend:*)"
     ],
     "deny": [],
     "ask": []

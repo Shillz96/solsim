@@ -107,40 +107,6 @@ export function NavBar() {
 
           {/* Right Side Actions */}
           <div className="flex items-center gap-3 flex-shrink-0">
-            {/* Social Media Icons */}
-            <div className="hidden md:flex items-center gap-2">
-              <a
-                href="https://x.com/1upsol_fun"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-muted-foreground hover:text-primary transition-colors p-1 rounded-md hover:bg-card/50"
-                title="Follow us on X"
-              >
-                <Image
-                  src="/x-logo/logo.svg"
-                  alt="X"
-                  width={16}
-                  height={16}
-                  className="hover:scale-110 transition-transform"
-                />
-              </a>
-              <a
-                href="https://t.me/oneuponsolanacto"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-muted-foreground hover:text-primary transition-colors p-1 rounded-md hover:bg-card/50"
-                title="Join our Telegram"
-              >
-                <Image
-                  src="/icons/social/telegram-icon.svg"
-                  alt="Telegram"
-                  width={16}
-                  height={16}
-                  className="hover:scale-110 transition-transform"
-                />
-              </a>
-            </div>
-
             {isAuthenticated ? (
               <>
                 {/* Combined Profile + Balance Card */}
