@@ -14,6 +14,7 @@ import { useAuth } from "@/hooks/use-auth"
 import { useToast } from "@/hooks/use-toast"
 import * as api from "@/lib/api"
 import { Button } from "@/components/ui/button"
+import { Copy, ExternalLink } from "lucide-react"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -26,6 +27,9 @@ import { WalletTrackerContent } from "@/components/wallet-tracker/wallet-tracker
 import MarketHover from "@/components/market/MarketHover"
 
 // Percentage formatting now inline
+
+// 1UP SOL Token CA
+const ONEUP_TOKEN_CA = "Ggs6QKLyWWtZxxi5ZS61MADcgcx362vpiQmgs4c5pump"
 
 // Info dropdown items for bottom nav
 const infoItems = [

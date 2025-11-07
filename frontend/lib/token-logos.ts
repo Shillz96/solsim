@@ -9,6 +9,9 @@
  * 4. CryptoLogos.cc (for major tokens)
  */
 
+// 1UP SOL Token Contract Address
+export const ONEUP_SOL_CA = "Ggs6QKLyWWtZxxi5ZS61MADcgcx362vpiQmgs4c5pump"
+
 export const TOKEN_LOGO_FALLBACKS: Record<string, string> = {
   // SOL - Solana (native token)
   "So11111111111111111111111111111111111111112": "https://cryptologos.cc/logos/solana-sol-logo.png?v=040",
