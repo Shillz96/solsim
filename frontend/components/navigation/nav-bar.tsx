@@ -25,11 +25,16 @@ import { useNotifications } from "@/hooks/use-notifications"
 import { useOnboardingContext } from "@/lib/onboarding-provider"
 import { CombinedProfileBalance } from "@/components/navigation/combined-profile-balance"
 import { useBalance } from "@/hooks/use-react-query-hooks"
+import { Copy, ExternalLink } from "lucide-react"
+import { useToast } from "@/hooks/use-toast"
 
 // Import extracted components
 import { SearchBar } from "./search-bar"
 import { DesktopNavigation } from "./desktop-navigation"
 import { MobileMenu } from "./mobile-menu"
+
+// 1UP SOL Token CA
+const ONEUP_TOKEN_CA = "Ggs6QKLyWWtZxxi5ZS61MADcgcx362vpiQmgs4c5pump"
 
 export function NavBar() {
   const [authModalOpen, setAuthModalOpen] = useState(false)
