@@ -42,6 +42,7 @@ export function NavBar() {
   const [mounted, setMounted] = useState(false)
   const pathname = usePathname()
   const router = useRouter()
+  const { toast } = useToast()
 
   // Auth and balance data
   const { user, isAuthenticated, logout } = useAuth()
@@ -70,6 +71,16 @@ export function NavBar() {
   const profile = userProfile as any
   const displayName = profile?.displayName || profile?.handle || user?.email?.split('@')[0] || 'User'
   const avatarUrl = profile?.avatarUrl || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(displayName)}&backgroundColor=ef4444&backgroundType=solid&fontFamily=Arial&fontSize=40`
+
+  // Function to copy CA to clipboard
+  const copyCAToClipboard = () => {
+    navigator.clipboard.writeText(ONEUP_TOKEN_CA)
+    toast({
+      title: "✅ CA Copied!",
+      description: "1UP SOL token address copied to clipboard",
+      duration: 2000,
+    })
+  }
 
   useEffect(() => {
     setMounted(true)
@@ -102,6 +113,29 @@ export function NavBar() {
                 className="h-8 md:h-10 w-auto hover:scale-105 transition-transform duration-200"
               />
             </Link>
+            
+            {/* 1UP SOL Token CA - Desktop only */}
+            <div className="hidden lg:flex items-center gap-2">
+              <div className="flex items-center gap-1.5">
+                <Link
+                  href={`/room/${ONEUP_TOKEN_CA}`}
+                  className="flex items-center gap-1 px-2 py-1 rounded-md bg-[var(--star-yellow)] hover:bg-[var(--coin-yellow)] border-2 border-[var(--outline-black)] transition-all hover:shadow-[2px_2px_0_var(--outline-black)] group"
+                  title="View 1UP SOL Token"
+                >
+                  <span className="text-xs font-bold text-[var(--outline-black)]">
+                    ${ONEUP_TOKEN_CA.slice(0, 4)}...{ONEUP_TOKEN_CA.slice(-4)}
+                  </span>
+                  <ExternalLink className="h-3 w-3 text-[var(--outline-black)] opacity-60 group-hover:opacity-100" />
+                </Link>
+                <button
+                  onClick={copyCAToClipboard}
+                  className="p-1 rounded-md hover:bg-card/50 transition-colors"
+                  title="Copy CA to clipboard"
+                >
+                  <Copy className="h-3 w-3 text-muted-foreground hover:text-foreground" />
+                </button>
+              </div>
+            </div>
           </div>
 
           {/* Desktop Navigation - Centered */}
