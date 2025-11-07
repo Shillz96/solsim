@@ -351,6 +351,37 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
         {/* Large screens: Horizontal layout */}
         <div className="hidden lg:block fixed bottom-0 left-0 right-0 z-bottom-nav border-t-3 border-outline bg-card shadow-[0_-4px_0_var(--outline-black)]">
           <div className="mx-auto flex h-[var(--bottom-nav-height)] items-center justify-between px-4 max-w-content">
+            {/* Left: Social Links + CA */}
+            <div className="flex items-center gap-2 md:gap-4">
+              <Image
+                src="/-2025-1UP-SOL-10-24-2025.png"
+                alt="2025 1UP SOL"
+                width={120}
+                height={40}
+                className="object-contain"
+              />
+              {/* 1UP SOL Token CA */}
+              <div className="flex items-center gap-1.5">
+                <Link
+                  href={`/room/${ONEUP_TOKEN_CA}`}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-[var(--star-yellow)] hover:bg-[var(--coin-yellow)] border-2 border-[var(--outline-black)] transition-all hover:shadow-[2px_2px_0_var(--outline-black)] group"
+                  title="View 1UP SOL Token"
+                >
+                  <span className="text-xs font-bold text-[var(--outline-black)]">
+                    ${ONEUP_TOKEN_CA.slice(0, 4)}...{ONEUP_TOKEN_CA.slice(-4)}
+                  </span>
+                  <ExternalLink className="h-3.5 w-3.5 text-[var(--outline-black)] opacity-60 group-hover:opacity-100" />
+                </Link>
+                <button
+                  onClick={copyCAToClipboard}
+                  className="p-1.5 rounded-md hover:bg-card/50 transition-colors"
+                  title="Copy CA to clipboard"
+                >
+                  <Copy className="h-3.5 w-3.5 text-muted-foreground hover:text-foreground" />
+                </button>
+              </div>
+            </div>
+
             {/* Center: Market Prices + Market Lighthouse */}
             <div className="flex items-center justify-center w-full gap-4">
               {/* Market Lighthouse Hover - Left side */}
