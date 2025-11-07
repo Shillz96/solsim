@@ -76,6 +76,16 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
   const [lastPriceFetch, setLastPriceFetch] = useState<number>(0)
   const [priceFetchAttempts, setPriceFetchAttempts] = useState<number>(0)
 
+  // Function to copy CA to clipboard
+  const copyCAToClipboard = () => {
+    navigator.clipboard.writeText(ONEUP_TOKEN_CA)
+    toast({
+      title: "✅ CA Copied!",
+      description: "1UP SOL token address copied to clipboard",
+      duration: 2000,
+    })
+  }
+
   // Function to open wallet tracker as floating window (compact mode)
   const openWalletTrackerWindow = () => {
     // Close any existing window first to force refresh with new layout
