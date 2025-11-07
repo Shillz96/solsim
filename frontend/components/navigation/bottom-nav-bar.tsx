@@ -290,7 +290,36 @@ export function BottomNavBar({ className }: BottomNavBarProps = {}) {
 
             {/* Bottom row: Navigation and social */}
             <div className="flex items-center justify-between">
-              {/* Navigation centered */}
+              {/* Left: Social Links + CA */}
+              <div className="flex items-center gap-2">
+                <Image
+                  src="/-2025-1UP-SOL-10-24-2025.png"
+                  alt="2025 1UP SOL"
+                  width={120}
+                  height={40}
+                  className="object-contain"
+                />
+                {/* 1UP SOL Token CA */}
+                <div className="flex items-center gap-1.5">
+                  <Link
+                    href={`/room/${ONEUP_TOKEN_CA}`}
+                    className="flex items-center gap-1 px-2 py-1 rounded-md bg-[var(--star-yellow)] hover:bg-[var(--coin-yellow)] border-2 border-[var(--outline-black)] transition-all hover:shadow-[2px_2px_0_var(--outline-black)] group"
+                    title="View 1UP SOL Token"
+                  >
+                    <span className="text-[10px] font-bold text-[var(--outline-black)]">
+                      ${ONEUP_TOKEN_CA.slice(0, 4)}...{ONEUP_TOKEN_CA.slice(-4)}
+                    </span>
+                    <ExternalLink className="h-3 w-3 text-[var(--outline-black)] opacity-60 group-hover:opacity-100" />
+                  </Link>
+                  <button
+                    onClick={copyCAToClipboard}
+                    className="p-1 rounded-md hover:bg-card/50 transition-colors"
+                    title="Copy CA to clipboard"
+                  >
+                    <Copy className="h-3 w-3 text-muted-foreground hover:text-foreground" />
+                  </button>
+                </div>
+              </div>
 
               {/* Right: Controls */}
               <div className="flex items-center gap-4">
